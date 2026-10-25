@@ -24,10 +24,16 @@ import { sayIn } from "@/lib/copy/said";
  * The encouragement is real and is printed only once the log supports it.
  */
 export function SituationDetail({
-  reading, words, locale,
+  reading, words, locale, earScene = null,
 }: {
   reading: Reading;
   locale: Locale;
+  /**
+   * The conversation that can prove an ear for this situation, where an "ear"
+   * struggle stands and a scene declares its unit (`sceneForEar`). Offered
+   * beside the struggle's own way through, opening with the words hidden.
+   */
+  earScene?: { id: string; title: string } | null;
   /** The situation's words with their evidence, for the list at the bottom. */
   words: readonly { lemma: string; gloss: string; evidence: WordEvidence | undefined }[];
 }) {
@@ -139,9 +145,17 @@ export function SituationDetail({
                   </div>
                   <p className="mt-2 font-semibold" style={{ color: "var(--ink)" }}>{sayIn(locale, s.said.title)}</p>
                   <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>{sayIn(locale, s.said.detail)}</p>
+                  {s.byEar && earScene && (
+                    <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }} data-ear-scene={earScene.id}>
+                      {fill(t("“{scene}” opens with the other side's words hidden. Only answers you say out loud while they stay hidden count."), { scene: t(earScene.title) })}
+                    </p>
+                  )}
                   {s.href && s.cta && (
-                    <div className="mt-3">
+                    <div className="mt-3 flex flex-wrap gap-2">
                       <ButtonLink href={s.href} size="sm">{t(s.cta)}</ButtonLink>
+                      {s.byEar && earScene && (
+                        <ButtonLink href={`/situations/${earScene.id}?voice=listen`} size="sm">{t("Answer a conversation by ear")}</ButtonLink>
+                      )}
                     </div>
                   )}
                 </Card>

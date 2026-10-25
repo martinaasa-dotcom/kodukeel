@@ -1,5 +1,5 @@
 import { requireUserId } from "@/lib/auth/session";
-import { localeFor, titleFor } from "@/lib/progress/locale";
+import { localeFor, roundTitleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 import { mapRound } from "@/lib/progress/map";
 import { practiceScope } from "@/lib/progress/moduleScope";
@@ -8,9 +8,10 @@ import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { BeforeYouStart } from "@/components/round/Briefing";
 import { MapSession } from "./MapSession";
+import { roundPageTitle } from "@/lib/ux/roundNames";
 
 export async function generateMetadata() {
-  return titleFor("Map");
+  return roundTitleFor("/review/map");
 }
 
 export const dynamic = "force-dynamic";
@@ -38,7 +39,7 @@ export default async function MapPage({
 
   if (questions.length === 0) {
     return (
-      <Page title={tr(locale, "Map")} lead={tr(locale, "See what an ending means, then pick it.")}>
+      <Page {...roundPageTitle("/review/map", (english) => tr(locale, english))} lead={tr(locale, "See what an ending means, then pick it.")}>
         <Empty
           title={tr(locale, "Nothing to map yet")}
           body={tr(locale, "It needs nouns with a recorded sentence at your level.")}

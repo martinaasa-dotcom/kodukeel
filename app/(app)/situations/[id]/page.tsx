@@ -15,6 +15,7 @@ import { finishedScene } from "@/lib/progress/scene";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { sceneAnswerFrom } from "@/lib/ux/sceneAnswer";
 import { openingLines } from "@/lib/scenes/rehearse";
+import { sceneVoiceFrom } from "@/lib/audio/sceneVoice";
 
 export const dynamic = "force-dynamic";
 
@@ -49,11 +50,23 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
  * a link to a lesson is a door out of the room. That is the two-way link §14
  * asks for, moved rather than dropped.
  */
-export default async function ScenePage({ params }: { params: Promise<{ id: string }> }) {
+export default async function ScenePage({ params, searchParams }: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ voice?: string | string[] }>;
+}) {
   const ownerId = await requireUserId();
   const locale = await localeFor(ownerId);
   const scene = sceneById((await params).id);
   if (!scene) notFound();
+  /*
+    A STARTING VALUE FOR HOW THE OTHER SIDE IS HEARD, asked for by the page
+    that sent the learner here (the readiness page's ear, C-4). Read through
+    `sceneVoiceFrom` so only a real mode gets through, handed to the briefing
+    as its first choice and written nowhere: the setting moves only when the
+    learner changes the choice themselves.
+  */
+  const asked = (await searchParams).voice;
+  const startVoice = typeof asked === "string" && ["text", "voice", "listen"].includes(asked) ? sceneVoiceFrom(asked, "guided") : null;
 
   const unit = unitById(scene.tests);
   const [learnerLevel, tilt, answer, finished] = await Promise.all([
@@ -80,6 +93,7 @@ export default async function ScenePage({ params }: { params: Promise<{ id: stri
       finishedOnce={finished}
       opening={openingLines(scene, tiltedLevel(learnerLevel, tilt))}
       rehearses={errandForScene(scene.id) ?? null}
+      startVoice={startVoice}
     />
   );
 }

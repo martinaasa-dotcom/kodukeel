@@ -1,4 +1,4 @@
-import { localeFor, titleFor } from "@/lib/progress/locale";
+import { localeFor, roundTitleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 import { requireUserId } from "@/lib/auth/session";
 import { courseLevelFor } from "@/lib/progress/level";
@@ -12,9 +12,10 @@ import { meaningPrefsFor } from "@/lib/progress/meaningPrefs";
 import { meaningShown } from "@/lib/collections/glossLanguage";
 import { clueParts } from "@/lib/games/clue";
 import { BeforeYouStart } from "@/components/round/Briefing";
+import { roundPageTitle } from "@/lib/ux/roundNames";
 
 export async function generateMetadata() {
-  return titleFor("Ristsõna");
+  return roundTitleFor("/crossword");
 }
 
 export const dynamic = "force-dynamic";
@@ -62,7 +63,7 @@ export default async function CrosswordPage() {
     <BeforeYouStart id="crossword" ready={puzzle !== null}>
       <Page
         compact
-        title="Ristsõna"
+        {...roundPageTitle("/crossword", (english) => tr(locale, english))}
         lead={tr(locale, "Clues in English, answers in Estonian, and a fresh grid every morning.")}
       >
         {puzzle ? (

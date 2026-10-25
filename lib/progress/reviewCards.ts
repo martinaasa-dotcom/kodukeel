@@ -1,0 +1,729 @@
+import { prisma } from "@/lib/db";
+import { readableFront } from "@/lib/copy/caseHint";
+import { readableBack } from "@/lib/estonian/government";
+import { plainPhrase } from "@/lib/copy/values";
+import { parseExamples, teachingSentence } from "@/lib/dict/examples";
+import { sentenceEnglish } from "@/lib/dict/sentenceEnglish";
+import { authoredFor, isAuthored } from "@/lib/dict/authored";
+import { BLANK, filledSentence, primaryAnswer } from "@/lib/estonian/cloze";
+import { sayLine } from "@/lib/estonian/sayIt";
+import { conjugationSlotFromFront } from "@/lib/srs/slots";
+import { glossSentences } from "@/lib/dict/glossed";
+import { offered } from "@/lib/tutor/provider";
+import { isPhrase } from "@/lib/dict/pos";
+import {
+  equivalentIn, firstSenses, meaningShown, meaningsShown, type MeaningPrefs,
+} from "@/lib/collections/glossLanguage";
+import { isStillLearning } from "@/lib/srs/scheduler";
+import { unitIntroducing } from "@/lib/collections/syllabus";
+import { decoyOptions, decoysAmong, everydaySpellings, sentenceReach } from "@/lib/dict/facts";
+import { contrastsFor as sharedContrasts } from "@/lib/progress/contrast";
+import { plainerFirst, type PlainReach } from "@/lib/dict/plainness";
+import {
+  bandOf, differentMeaning, glossNearness, glossOption, pickOptions,
+} from "@/lib/questions/distractors";
+import { caseFormChoices, verbFormChoices } from "@/lib/questions/caseChoices";
+import { acceptedAnswers } from "@/lib/estonian/answer";
+import { stemsFrom } from "@/lib/estonian/derive";
+import { gapForms } from "@/lib/estonian/gapForms";
+import { starredAmong } from "@/lib/progress/stars";
+import { sentenceFronts } from "@/lib/progress/formCards";
+import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
+import { wordGlossFrom } from "@/lib/ux/wordGloss";
+
+import type { ReviewCard } from "@/lib/review/card";
+
+/*
+  THE LADDER'S OWN WHERE-FRAGMENTS LIVE IN `lib/srs/reviewQueue.ts` NOW, beside
+  the rest of what the queue asks for, because the planned module's closing
+  step has to know how big that queue is and a second copy of the clauses is a
+  second answer. Re-exported here so every route that already asks this file
+  for them goes on doing so.
+*/
+export { notOnLadder, pastTheLadder } from "@/lib/srs/reviewQueue";
+
+/**
+ * READING A CARD OUT OF THE DATABASE AND HANDING IT TO A SESSION.
+ *
+ * Everything the review screen and the Flash cards round both need to turn a
+ * `Card` row into something `ReviewSession` can ask: what to select, how to
+ * build the first-meeting screen, and how the multiple-choice options are
+ * ranked.
+ *
+ * It lives here rather than in `page.tsx` because two routes render the same
+ * session now, and a second copy of `include` is two selects that drift apart
+ * while a second copy of the option ranking is the fault this app has already
+ * fixed twice (see `lib/questions/distractors.ts`).
+ *
+ * Server only: it reads Prisma.
+ */
+
+/** Four options, one of them right. */
+const CHOICES = 4;
+
+/** The preferences a card is read under where only its shape is wanted. */
+const ENGLISH_ONLY: MeaningPrefs = { lead: "en", also: null };
+
+/**
+ * What a card row carries. Shared, because `inBandPool` and the Flash cards
+ * round read it too, and a second copy is two selects that can come apart.
+ *
+ * `cefr` rides along for the new-card queue, which introduces words around the
+ * learner's level before words far off it. `examples` is a handful of short
+ * sentences and only the one that gets shown crosses to the client, because a
+ * word taught without a sentence is a word taught as a label (see `introFor`).
+ */
+export const include = {
+  lexeme: {
+    select: {
+      lemma: true, translation: true, pos: true, examples: true, cefr: true,
+      // Whether a sentence written for the course's word may stand for this
+      // one: a learner's own row of the same spelling gets none.
+      provenance: true,
+      // For the one-line ask on a case card: "with the bird" rather than
+      // "with it" needs to know whether the word is a person or a thing.
+      semanticTypes: true,
+      // The Institute's own equivalents, so every card that shows a meaning
+      // as a meaning leads with the learner's language: the first meeting, the
+      // back of a recognition card, its options and the prompt of a production
+      // card. In this select rather than a second query, because this is the
+      // hottest read in the app.
+      translationRu: true, translationUk: true,
+    },
+  },
+} as const;
+
+export type CardRow = Awaited<ReturnType<typeof prisma.card.findMany>>[number] & {
+  lexeme: {
+    lemma: string; translation: string; pos: string; examples: string; cefr: string | null;
+    provenance: string;
+    semanticTypes: string | null;
+    translationRu: string | null; translationUk: string | null;
+  } | null;
+};
+
+/**
+ * What a first meeting with a word shows.
+ *
+ * Assembled here rather than in the browser for two reasons: the sentence is
+ * picked out of a column holding up to eight of them and only the chosen one
+ * needs to cross the wire, and `teachingSentence` is the same function the
+ * grammar pages and the lesson use, so a word is introduced the same way
+ * wherever it is met.
+ *
+ * Every string in here came out of the dictionary. Nothing is written, and
+ * nothing is derived (ADR-005).
+ */
+function introFor(
+  c: CardRow, prefs: MeaningPrefs, reach: PlainReach | null, firstCardEver: boolean,
+): ReviewCard["intro"] {
+  if (!c.lexeme) return null;
+
+  // The form the card is about to ask for comes first, then the lemma. On a
+  // recognition card the front *is* the lemma, and on a gap-fill the front is a
+  // sentence with a hole in it and would match nothing, which is why this asks
+  // the card what it is rather than reading whichever side happens to be
+  // Estonian.
+  const asked = c.cardType === "RECOGNITION" ? c.front : c.back;
+  /*
+    Ranked for a beginner where the word is one, so this rung and the unit
+    lesson introduce a word the same way: the comment above promises they do,
+    and without the rank `tere` was met here as `No tere, Juhan.` and there as
+    `Tere, mina olen Katrin.` See lib/dict/plainness.ts.
+  */
+  const plainest = reach ? plainerFirst(c.lexeme.cefr, reach) : undefined;
+  /*
+    A sentence written for a beginner first (`lib/dict/authored.ts`), since it
+    is the one kind `WordIntro` shows an A1 word with and is made of words the
+    course teaches before this one, then the dictionary's own.
+  */
+  const found = teachingSentence(authoredFor(c.lexeme.lemma, c.lexeme.provenance), [asked, c.lexeme.lemma])
+    ?? teachingSentence(parseExamples(c.lexeme.examples), [asked, c.lexeme.lemma], undefined, plainest);
+
+  const equivalent = equivalentIn(c.lexeme, prefs.lead);
+  const also = equivalent && prefs.also ? equivalentIn(c.lexeme, prefs.also) : null;
+
+  return {
+    lemma: plainPhrase(c.lexeme.lemma, c.lexeme.pos),
+    gloss: plainPhrase(c.lexeme.translation, c.lexeme.pos),
+    lexemeId: c.lexemeId,
+    equivalent: equivalent ? { text: firstSenses(equivalent), lang: prefs.lead } : null,
+    also: also && prefs.also ? { text: firstSenses(also), lang: prefs.also } : null,
+    sentence: found
+      ? { et: found.example.et, en: found.example.en ?? null, form: found.form, authored: isAuthored(found.example) }
+      : null,
+    /*
+      Filled in by `withGlosses`, in one query for the whole session rather
+      than one per card. Null here rather than an empty list, because "the page
+      did not look" and "the dictionary vouched for nothing in it" are
+      different things and the screen draws them differently.
+    */
+    tokens: null,
+    /*
+      The everyday spelling of a pronoun, filled in by `withEveryday` for the
+      same reason `tokens` is: it is one read for the whole session and a fact
+      about the shared dictionary rather than about this card.
+    */
+    alsoSaid: null,
+    /*
+      Whether this deployment has a model to ask for the sentence in English.
+      Read here rather than threaded down through two sessions as a prop: it is
+      a fact about the deployment, and it belongs beside the sentence it is
+      about. The default deployment has none, and then nothing is offered at
+      all rather than offered and refused.
+    */
+    canTranslate: offered("translate"),
+    isPhrase: isPhrase(c.lexeme.pos),
+    cefr: c.lexeme.cefr,
+    firstCardEver,
+  };
+}
+
+/**
+ * The dictionary under every first meeting in the session, in one read.
+ *
+ * A first meeting shows an attested sentence and, for most words, Ekilex
+ * records no English for it, so a beginner met six words they had never seen
+ * around the one they had just been told about. Every word the dictionary
+ * vouches for is looked up here and opens on the card (ADR-021, and see
+ * `lib/dict/glossed.ts` for what may be underlined).
+ *
+ * One query for the session rather than one per card, for the reason every
+ * other batched read in this file gives: the review queue is the hottest read
+ * in the app, and a hosted database is a round trip away in another region.
+ * A session with no first meeting in it does not ask at all.
+ */
+async function withGlosses(cards: ReviewCard[], ownerId: string): Promise<ReviewCard[]> {
+  const wanted: { index: number; et: string; form: string | null }[] = [];
+  cards.forEach((card, index) => {
+    const sentence = card.intro?.sentence;
+    if (sentence) wanted.push({ index, et: sentence.et, form: sentence.form });
+  });
+  if (wanted.length === 0) return cards;
+
+  /*
+    AND ONLY WHERE THE LEARNER WANTS THE DICTIONARY UNDER THE SENTENCE.
+
+    Asked here rather than threaded down from the four routes that render this
+    session, which is the opposite of what `glossLanguage` does one parameter
+    over and is the right way round for this one. `glossLanguage` decides what
+    a mapping function prints and every caller has to hand it over; this
+    decides whether a lookup is made at all, and there is exactly one place the
+    lookup is made, so putting the question there is what makes it impossible
+    for a fifth route to arrive without it and quietly draw a feature its
+    learner turned off. The read costs nothing: `readSetting` is served from
+    the one settings read this request already made.
+
+    Off returns the cards with `tokens` still null, which is the state this
+    screen has always had for a page that did not look, so nothing downstream
+    learns a new shape. See lib/ux/wordGloss.ts.
+  */
+  if (wordGlossFrom(await readSetting(ownerId, SETTING_KEYS.wordGloss)) === "off") return cards;
+
+  const glossed = await glossSentences(wanted);
+  const byIndex = new Map(wanted.map((w, i) => [w.index, glossed[i] ?? null]));
+  return cards.map((card, index) => {
+    const tokens = byIndex.get(index);
+    if (!tokens || !card.intro) return card;
+    return { ...card, intro: { ...card.intro, tokens } };
+  });
+}
+
+/**
+ * THE OTHER HALF OF A PRONOUN, ON THE SCREEN THAT INTRODUCES IT.
+ *
+ * `mina` and `ma` are one word twice: this card says `mina`, and every
+ * sentence under it says `ma`. A learner met the second one having been taught
+ * the first and nothing anywhere said they were connected.
+ *
+ * Its own pass rather than a line inside `withGlosses`, because that one
+ * returns early for a learner who has turned the underlines off and this is a
+ * different feature: the pair is part of what the word *is*. `twinsOf` reads
+ * it off the entry's own stored forms and `everydaySpellings` caches the
+ * answer for the whole deployment, so on a warm instance this is no query at
+ * all (see `lib/dict/facts.ts`).
+ */
+async function withEveryday(cards: ReviewCard[]): Promise<ReviewCard[]> {
+  if (!cards.some((c) => c.intro)) return cards;
+  const everyday = await everydaySpellings();
+  return cards.map((card) => (
+    card.intro ? { ...card, intro: { ...card.intro, alsoSaid: everyday.get(card.intro.lemma) ?? null } } : card
+  ));
+}
+
+/**
+ * The stored English translation of a gap card's own sentence, or null.
+ *
+ * `CLOZE` was the only gap-fronted card type this asked about, and `CASE_FORM`
+ * and `CONJUGATION` are gap-fronted too now that a case and a person are
+ * drilled in a sentence that needs them rather than in a bare `word → case`
+ * line (see CLAUDE.md, "A case is drilled in a sentence that uses it"). A
+ * learner reading `Autol on ____ ratast` with no way to read the sentence
+ * around the blank has no context for the answer, only the isolated gloss of
+ * the word being asked for, which is a different and weaker thing: the sentence
+ * is what makes an answer worth reasoning your way to rather than guessing.
+ *
+ * So this reads any front that carries `BLANK`, whatever the card type. The
+ * front and back are the sentence with the answer taken out, reconstructed by
+ * `filledSentence`, which puts back the one form the card leads with rather
+ * than every spelling the marker accepts, and read through `sentenceEnglish`,
+ * which asks this entry first and the shipped table behind it. That second
+ * half is what covers a sentence the card borrowed from another headword:
+ * `Olen Rootsis käinud vaid ühe korra.` is filed under `kord`, so a card for
+ * `üks` found nothing on its own entry and the screen went and asked a model
+ * for a line the dictionary already held.
+ */
+function clozeSentenceEn(c: CardRow): string | null {
+  if (!c.front.includes(BLANK) || !c.lexeme) return null;
+  const whole = filledSentence(c.front, c.back);
+  return sentenceEnglish(parseExamples(c.lexeme.examples), whole);
+}
+
+/** The production cards' contrasts, through the one builder the Learn ladder reads too. */
+function productionContrasts(rows: CardRow[], reach: PlainReach) {
+  return sharedContrasts(
+    rows.map((row) => row.cardType === "PRODUCTION" && row.lexeme && row.lexemeId
+      ? { lexemeId: row.lexemeId, lexeme: row.lexeme, accepted: acceptedAnswers(row.back, "et") }
+      : null),
+    reach,
+  );
+}
+
+/**
+ * The one line a bare form card asks with: `Say “with the bird”`.
+ *
+ * Only on a front that names a word and a form (`lind → millega?`). A gap card
+ * is asked by its sentence, and a card about meaning needs no line at all.
+ */
+function sayFor(c: CardRow): string | null {
+  if (c.front.includes(BLANK) || !c.front.includes("→")) return null;
+  const slot = c.targetCase ?? c.slot ?? conjugationSlotFromFront(c.front);
+  if (!slot) return null;
+  const lex = c.lexeme;
+  return sayLine(
+    slot,
+    lex?.translation ?? null,
+    lex ? { lemma: lex.lemma, semanticTypes: lex.semanticTypes, nomSg: lex.lemma } : null,
+  );
+}
+
+/**
+ * The English side of a card read as a meaning, or null where the card is not
+ * one. A recognition card's back and a production card's prompt are a word's
+ * English meaning; every other type's English is a cue or a sentence, which is
+ * not what the learner's language is chosen for.
+ */
+function meaningOf(c: CardRow, prefs: MeaningPrefs): ReviewCard["meaning"] {
+  if (!c.lexeme || prefs.lead === "en") return null;
+  const english = c.cardType === "RECOGNITION" ? c.back : c.cardType === "PRODUCTION" ? c.front : null;
+  if (english === null) return null;
+  const shown = meaningShown(english, c.lexeme, prefs);
+  return shown.english === null ? null : shown;
+}
+
+function toReviewCard(
+  c: CardRow, prefs: MeaningPrefs, reach: PlainReach | null = null,
+  firstCardEver = false,
+): ReviewCard {
+  return {
+    id: c.id,
+    cardType: c.cardType,
+    front: readableFront(c.front),
+    back: readableBack(c.cardType, c.back),
+    hint: c.hint,
+    targetCase: c.targetCase,
+    slot: c.slot,
+    lemma: c.lexeme?.lemma ?? null,
+    lexemeId: c.lexemeId,
+    // Filled in by `withChoices` from the forms it already reads, for the same
+    // reason `choices` is: the query is paid by the sessions that need it.
+    rivals: [],
+    // Filled in by `withChoices` from the same forms, on a production card.
+    kin: [],
+    // Filled in by `withChoices`, which reads the whole session's stars in one
+    // query. A card mapped without that read is drawn unstarred, which is what
+    // a session with nothing starred looks like anyway.
+    starred: false,
+    isNew: c.state === 0,
+    // Only on a card that has never been seen. Every other card in the session
+    // would carry a sentence nothing renders.
+    intro: c.state === 0 ? introFor(c, prefs, reach, firstCardEver) : null,
+    meaning: meaningOf(c, prefs),
+    choiceMeanings: null,
+    sentenceEn: clozeSentenceEn(c),
+    say: sayFor(c),
+    canTranslate: offered("translate"),
+    // Filled in by `withNeighbours`, which reads every neighbor in one query.
+    contrast: null,
+    choices: null,
+    scheduling: {
+      due: c.due.toISOString(),
+      stability: c.stability,
+      difficulty: c.difficulty,
+      elapsedDays: c.elapsedDays,
+      scheduledDays: c.scheduledDays,
+      reps: c.reps,
+      lapses: c.lapses,
+      state: c.state,
+      lastReview: c.lastReview?.toISOString() ?? null,
+      learningSteps: c.learningSteps,
+    },
+  };
+}
+
+/**
+ * Which recognition cards are asked as four options rather than recalled.
+ *
+ * Only the ones still being learned, which is the whole point of the shape.
+ * Options were once attached to every recognition card a session held, and the
+ * effect was that half a deck could never be asked properly: `askFor` routes to
+ * a pick whenever options exist, and neither review mode overrides it, so the
+ * one question this app is named for, what does this Estonian word mean, was
+ * always answered with the answer already on the screen. Recognizing a gloss
+ * among four is a different and much weaker memory than producing it, and a
+ * schedule built on the easier one says a word is known when it is not.
+ *
+ * A card still in learning keeps them for the same reason a new card leads with
+ * its answer at all (see `askFor`): the memory is not there yet, and asking for
+ * it cold is a guessing game rather than a test. A lapsed card is back in that
+ * position by definition, which `isStillLearning` reads as Relearning.
+ */
+function wantsChoices(card: ReviewCard): boolean {
+  /*
+    A NEW CARD NOW GETS THEM TOO, BECAUSE IT IS NOW ASKED.
+
+    `!card.isNew` was right while meeting a word was the whole of its first
+    outing: there was no question, so there was nothing to offer options for.
+    A newly met word is asked back before the session ends now, and the memory
+    at that point is minutes old, which is exactly the position the sentence
+    above describes for a card still in learning.
+  */
+  return card.cardType === "RECOGNITION"
+    && (card.isNew || isStillLearning(card.scheduling.state));
+}
+
+/**
+ * Which case cards carry four forms to pick between.
+ *
+ * All of them, and that is the difference from the rule above. A recognition
+ * card is offered options only while the memory is minutes old, because
+ * recognizing a gloss among four is a much weaker memory than producing one
+ * and a schedule built on the easier question says a word is known when it is
+ * not. A case card is not in that position: the options are four forms of the
+ * *same word*, so there is no vocabulary to be recognized and nothing is
+ * given away. What is being asked is which ending the sentence wants, and
+ * `toast`, `toasse` and `toale` beside `toas` ask exactly that.
+ *
+ * `askFor` still prefers typing wherever the learner asked for it. These exist
+ * so that the learner who asked not to type is given something to answer
+ * rather than something to mark: a flip on a card whose answer this app holds
+ * character for character is the app asking a question it has already
+ * answered, and "Got it" then goes into `Review` as though it were evidence.
+ */
+function wantsFormChoices(card: ReviewCard): boolean {
+  return card.cardType === "CASE_FORM" || card.cardType === "CONJUGATION";
+}
+
+/**
+ * The forms of every word a case card in this session is about.
+ *
+ * A second query rather than a join on `include`, for the reason
+ * `decoyOptions` is read the way it is: the review queue is the hottest read
+ * in the app and most sessions hold no case card at all, so the round trip is
+ * paid by the sessions that need it and by nobody else. There are 996 case
+ * cards in the whole shipped dictionary now, so that is most sessions.
+ *
+ * Ordered rather than left to the planner. Estonian has genuine parallel forms
+ * and `Form`'s unique key includes the value for that reason, so a word can
+ * hold two rows for one `formType`; `stemsFrom` takes the first it is handed,
+ * and which one that is may not be a fact about the query plan. `orderIndex`
+ * is the dictionary's own primary-first order and `id` makes it total.
+ */
+type HeldForms = { formType: string; value: string; morphCode: string | null }[];
+
+async function formsForCases(rows: CardRow[]): Promise<Map<string, HeldForms>> {
+  const ids = [...new Set(
+    rows.filter((r) => (wantsFormChoices(toReviewCard(r, ENGLISH_ONLY)) || r.cardType === "PRODUCTION") && r.lexemeId)
+      .map((r) => r.lexemeId!),
+  )];
+  if (ids.length === 0) return new Map();
+
+  const forms = await prisma.form.findMany({
+    where: { lexemeId: { in: ids } },
+    select: { lexemeId: true, formType: true, value: true, morphCode: true },
+    orderBy: [{ orderIndex: "asc" }, { id: "asc" }],
+  });
+
+  const byLexeme = new Map<string, HeldForms>();
+  for (const form of forms) {
+    const held = byLexeme.get(form.lexemeId) ?? [];
+    held.push(form);
+    byLexeme.set(form.lexemeId, held);
+  }
+  return byLexeme;
+}
+
+/**
+ * THE ROWS A SESSION CAN ACTUALLY ASK, WHICH IS NOT EVERY ROW IT WAS HANDED.
+ *
+ * A form is never asked bare: a card built before a case or a person of a
+ * verb was drilled in a sentence is read as the sentence the builder makes
+ * for it today, and one with no recorded sentence behind it is held back
+ * (lib/progress/formCards.ts). That drop is part of deciding what a sitting
+ * holds, so it is its own function rather than a step hidden inside
+ * `withChoices`: `./queue.ts` asks it before anything counts the queue, which
+ * is what lets Today print the number Review then fills. Idempotent, since an
+ * upgraded row is no longer bare, and free when nothing in the batch is.
+ */
+export async function askableRows(inputRows: CardRow[]): Promise<CardRow[]> {
+  const upgrades = await sentenceFronts(inputRows);
+  if (upgrades.size === 0) return inputRows;
+  return inputRows.flatMap((row): CardRow[] => {
+    if (!upgrades.has(row.id)) return [row];
+    const upgrade = upgrades.get(row.id);
+    return upgrade ? [{ ...row, front: upgrade.front, back: upgrade.back, hint: upgrade.hint, slot: upgrade.slot ?? row.slot }] : [];
+  });
+}
+
+/**
+ * Maps the rows to cards, attaching multiple-choice options to the recognition
+ * cards that get them.
+ *
+ * Wrong answers are real translations of other words rather than invented text:
+ * nothing here writes Estonian, and a decoy that is obviously nonsense makes
+ * the question free. They are drawn once for the whole session, so the pool is
+ * one query rather than one per card.
+ *
+ * **Which three are offered is ranked, not shuffled.** This screen took the
+ * first three strings off a shuffle of the whole dictionary, so a learner asked
+ * what `jooma` means chose between "to drink", "window", "October" and
+ * "friendship". Three nouns standing around one verb is a single glance, and
+ * the question measured whether somebody can spot the odd option rather than
+ * whether they know the word. The learner who reported it put it plainly: if
+ * the Estonian word is a verb then all four options need to be verbs. Measured
+ * over 4,000 questions built from the shipped dictionary, all four shared the
+ * answer's part of speech 33% of the time, and it is 99% now.
+ *
+ * `lib/questions/distractors.ts` has been the one table of what a wrong answer
+ * is worth since the placement check and the mock exam were fixed for exactly
+ * this fault, and the daily review screen was simply never wired to it. It
+ * ranks on the course unit, the part of speech, the CEFR band and the shape of
+ * the line, and `differentMeaning` is what stops a near option becoming a
+ * second right one. `pickOptions` returns null rather than padding when it
+ * cannot find three that are genuinely wrong, and that card is asked as recall
+ * instead, which is the honest answer and is what this screen does with every
+ * card that never had options.
+ *
+ * Takes the rows rather than the mapped cards, because the ranking needs the
+ * part of speech and the band and a `ReviewCard` carries neither. Threading a
+ * second parallel array in beside the cards would be two lists that can come
+ * apart.
+ */
+export async function withChoices(
+  inputRows: CardRow[], prefs: MeaningPrefs, ownerId: string,
+  /** The module's taught words, so the options stay among them; null elsewhere. */
+  only: readonly string[] | null = null,
+): Promise<ReviewCard[]> {
+  /*
+    A FORM IS NEVER ASKED BARE. A deck built before a case or a person of a
+    verb was drilled in a sentence still holds `juhtuma → lihtminevik, ma`,
+    which asks for a form and says nothing about when anybody would use it.
+    Each such card is read as the sentence the builder makes for it today,
+    and one with no recorded sentence behind it is held back from the session
+    rather than asked as a suffix on a stem. Only what is read changes; the
+    row, its schedule and its history are exactly as they were. See
+    lib/progress/formCards.ts.
+  */
+  const rows = await askableRows(inputRows);
+  /*
+    WHICH OF THESE WORDS ARE ALREADY FAVORITES, AND THE GLOSSED SENTENCE.
+
+    Two reads that do not need each other, so they go together: on the
+    deployment's own pooler each `await` is a round trip, and this is the
+    hottest read in the app.
+
+    The stars are read here rather than in either page for the reason the
+    option ranking is: two routes render this session, and a second copy of
+    the read is two answers to which star is filled in. The owner is a
+    parameter because nothing in this module resolves a session, and it is
+    REQUIRED, for the reason `illSgShort` is a required field on `NounStems`:
+    a caller that has not thought about it does not compile. Optional was the
+    first version and a third caller arrived one commit later without it, from
+    a branch that had never heard of stars, which would have drawn every star
+    on that round empty for a word that is a favorite. Every route rendering
+    this session resolves an owner already.
+  */
+  /*
+    AND HOW A BEGINNER'S WORD ORDERS ITS OWN SENTENCES, which decides what a
+    first meeting is taught with. This one the glossing genuinely waits on,
+    since it decides which sentence is on the card to be glossed, and this is
+    the hottest read in the app: a `Promise.all` of the three would serialize
+    the glossing behind it and turn one round trip into two on every request.
+
+    So all three are *started* here and resolved together, rather than one
+    behind another. `sentenceReach` is cached for a minute, so on all but the
+    first request per instance it is already resolved and this costs
+    nothing; on that first one the stars and the first-ever check overlap it
+    rather than queueing behind.
+  */
+  const reaching = sentenceReach();
+  const starring = starredAmong(
+    ownerId, rows.map((r) => r.lexemeId).filter((id): id is string => !!id),
+  );
+  /*
+    WHETHER THIS IS THE VERY FIRST WORD THIS LEARNER HAS EVER MET, so
+    `WordIntro` can say so once rather than never: a beginner shown a full
+    Estonian sentence with no run-up read it as a test rather than as
+    context, and asked what the point of it was. Asked only when the batch
+    actually holds an unseen card, since it is the one extra round trip on a
+    page most requests do not need, and started alongside the other two
+    reads rather than in front of them.
+
+    `findFirst` rather than `count`: the caller only wants a boolean, and a
+    learner deep into this app has tens of thousands of rows under their own
+    id, which `count` scans in full even off an index while `findFirst`
+    stops at the first one. This is the hottest read in the app.
+  */
+  const firstEvering = rows.some((r) => r.state === 0)
+    ? prisma.review.findFirst({ where: { ownerId }, select: { id: true } }).then((row) => row === null)
+    : Promise.resolve(false);
+  /*
+    WHICH OF THE UNSEEN CARDS BELONG TO A WORD ALREADY MET ON ANOTHER CARD.
+
+    The ladder teaches a word through its recognition card, so its production
+    card is still New on the evening the word was learned, and the closing
+    round introduced it again as a "New word" two minutes after it was typed.
+    A word with any card past New has been met; its unseen cards are asked
+    rather than taught. Owner-scoped and keyed on the batch's own unseen
+    words, so it reads a handful of rows, started beside the other three.
+  */
+  const unseenWords = [...new Set(
+    rows.filter((r) => r.state === 0 && r.lexemeId).map((r) => r.lexemeId as string),
+  )];
+  const meeting = unseenWords.length > 0
+    ? prisma.card.findMany({
+      where: { ownerId, lexemeId: { in: unseenWords }, state: { not: 0 } },
+      select: { lexemeId: true },
+    }).then((met) => new Set(met.map((m) => m.lexemeId).filter((id): id is string => !!id)))
+    : Promise.resolve(new Set<string>());
+  const [reach, starred, firstCardEver, metWords] = await Promise.all([
+    reaching, starring, firstEvering, meeting,
+  ]);
+  const [glossed, contrasts] = await Promise.all([
+    withGlosses(
+      rows.map((c) => toReviewCard(c, prefs, reach, firstCardEver)), ownerId,
+    ).then(withEveryday),
+    productionContrasts(rows, reach),
+  ]);
+  const cards = glossed.map((card, i) => {
+    const contrast = contrasts.get(i);
+    const withContrast = contrast ? { ...card, contrast } : card;
+    const withMet = withContrast.isNew && withContrast.lexemeId && metWords.has(withContrast.lexemeId)
+      ? { ...withContrast, wordMet: true }
+      : withContrast;
+    return withMet.lexemeId && starred.has(withMet.lexemeId)
+      ? { ...withMet, starred: true }
+      : withMet;
+  });
+
+  /*
+    The case cards first, because they need no pool: the wrong answers are
+    other forms of the word the card is already about. See
+    `lib/questions/caseChoices.ts`.
+  */
+  const held = await formsForCases(rows);
+  const withForms = cards.map((card, i) => {
+    const lexemeId = rows[i]?.lexemeId;
+    /*
+      A PRODUCTION CARD ASKS FOR THE WORD, SO ANOTHER FORM OF IT IS THE WORD.
+      Off the same forms, through `gapForms`, so a person of a verb and a case
+      of a noun are spellings of it as surely as the stored parts are. Never a
+      spelling the back already takes, since that one is simply right.
+    */
+    if (card.cardType === "PRODUCTION") {
+      const forms = lexemeId ? held.get(lexemeId) : undefined;
+      const lexeme = rows[i]?.lexeme;
+      if (!forms || !lexeme) return card;
+      const accepted = new Set(acceptedAnswers(card.back, "et").map((a) => a.trim().toLowerCase()));
+      const kin = [...gapForms({ lemma: lexeme.lemma, pos: lexeme.pos, forms }).keys()]
+        .filter((form) => !accepted.has(form));
+      return { ...card, kin };
+    }
+    if (!wantsFormChoices(card) || !lexemeId) return card;
+    const forms = held.get(lexemeId);
+    const lemma = rows[i]?.lexeme?.lemma;
+    if (!forms || !lemma) return card;
+    const accepted = acceptedAnswers(card.back, "et");
+    // The back's own spelling rather than `accepted[0]`, which is folded to
+    // lower case: `Eestisse` is offered as written. `choiceIsRight` is what
+    // decides whether a pick is this, so the two cannot disagree.
+    const answer = primaryAnswer(card.back);
+    /*
+      EVERY OTHER FORM OF THIS WORD, SO ANOTHER ENDING IS NOT READ AS A SLIP.
+
+      `checkAnswer` calls anything within one edit a typo and marks it as
+      produced, and every pair of Estonian cases is one letter apart. Read off
+      the forms already in hand for the choices, so this costs no query: it is
+      the same list, kept whether or not the card is shown as choices, because
+      a typed card is exactly the one that needs it.
+    */
+    const spellings = new Set(forms.map((f) => f.value.trim()).filter(Boolean));
+    for (const right of accepted) spellings.delete(right.trim());
+    const rivals = [...spellings];
+    const options = card.cardType === "CONJUGATION"
+      ? verbFormChoices({ lex: { lemma, forms }, accepted, answer, rng: Math.random })
+      : caseFormChoices({ stems: stemsFrom(forms), accepted, answer, rng: Math.random });
+    return { ...card, rivals, ...(options ? { choices: options } : null) };
+  });
+
+  if (!cards.some(wantsChoices)) return withForms;
+
+  /*
+    Which words the dictionary holds is not a fact about the person being
+    asked, so the pool is read once per instance rather than once per session,
+    off the render path of the screen this app exists to get people to.
+    See lib/dict/facts.ts.
+  */
+  const pool = decoysAmong(await decoyOptions(), only, CHOICES);
+  if (pool.length < CHOICES) return withForms;
+  // One lookup per option rather than a scan of the pool, which is the whole dictionary.
+  const byText = prefs.lead === "en" ? null : new Map(pool.map((o) => [o.text, o]));
+
+  return withForms.map((card, i) => {
+    if (!wantsChoices(card)) return card;
+    const lexeme = rows[i]?.lexeme;
+    const answer = glossOption({
+      text: card.back,
+      pos: lexeme?.pos ?? "OTHER",
+      band: bandOf(lexeme?.cefr),
+      theme: lexeme ? unitIntroducing(lexeme.lemma, lexeme.pos) : null,
+    });
+    const picked = pickOptions({
+      answer,
+      candidates: pool,
+      rng: Math.random,
+      distinct: differentMeaning,
+      nearness: glossNearness,
+    });
+    if (!picked) return card;
+    /*
+      What each option looks like in the learner's language, which is drawing
+      and nothing else: `choices` stays the English, and a pick is marked by
+      `choiceIsRight` against the back exactly as before. The answer's own
+      equivalents are the card's lexeme; a decoy's are the entry it came from,
+      read in the same cached pool query.
+    */
+    const choiceMeanings = prefs.lead === "en" ? null : meaningsShown(
+      picked.options.map((text) => {
+        if (text === card.back) return { english: text, entry: lexeme ?? null };
+        return { english: text, entry: byText?.get(text)?.equivalents ?? null };
+      }),
+      prefs,
+    );
+    return {
+      ...card,
+      choices: picked.options,
+      choiceMeanings: choiceMeanings && choiceMeanings.some((m) => m.english !== null) ? choiceMeanings : null,
+    };
+  });
+}

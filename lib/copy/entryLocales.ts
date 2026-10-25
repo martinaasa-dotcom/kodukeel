@@ -17,10 +17,14 @@
  * set `reviewed` to true with their name in the commit, and the notice goes.
  *
  * No Estonian is written here beyond the app's own name, which is the rule
- * every other copy table keeps (ADR-005).
+ * every other copy table keeps (ADR-005), except in the `et` row: Estonian
+ * prose about the app for the public pages (ADR-005 amendment 7), drafted by
+ * a model and waiting for the native speaker who develops this app to read it.
+ * The app itself is never in Estonian, so that row's `appLanguage` says which
+ * languages it is in rather than promising this one.
  */
 
-export type EntryLocale = "ru" | "uk";
+export type EntryLocale = "ru" | "uk" | "et";
 
 export interface EntryCopy {
   /** The BCP 47 tag, for `lang`. */
@@ -70,6 +74,18 @@ export const ENTRY_COPY: Readonly<Record<EntryLocale, EntryCopy>> = {
       "Безкоштовний застосунок для вивчення естонської: відмінки, перевірені за словником, повторення в потрібний момент і розмови, до яких можна підготуватися.",
     appLanguage:
       "Усередині застосунок теж українською: цю мову буде вибрано одразу, а змінити її можна в налаштуваннях.",
+  },
+  et: {
+    lang: "et",
+    name: "Eesti",
+    href: "/welcome/et",
+    reviewed: false,
+    notice: "Selle lehe eestikeelne tekst on koostatud tehisintellekti abil ja ootab veel emakeelse kõneleja ülevaatust.",
+    title: "Kodukeel: eesti keel, mis lõpuks meelde jääb",
+    description:
+      "Tasuta rakendus eesti keele õppimiseks: sõnaraamatu järgi kontrollitud käändevormid, kordamine õigel ajal ja vestlused, mida saab enne päris elu läbi harjutada.",
+    appLanguage:
+      "Rakendus ise on inglise, vene ja ukraina keeles, sest eesti keelt seal õpitakse. Eesti keeles on ainult need avalikud lehed.",
   },
 };
 

@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { AnotherRound } from "@/components/round/AnotherRound";
 import { markSayingsServed } from "@/app/actions";
 import { ArrowRight, Check, Flame, MessageCircle, TriangleAlert, X } from "lucide-react";
@@ -21,6 +23,7 @@ import {
   isFit, isGuessRight, isMatch, isRight,
   type FillQuestion, type FitQuestion, type SayingsPlan, type SeeStep,
 } from "@/lib/games/sayings";
+import { roundPageTitle } from "@/lib/ux/roundNames";
 
 /** How long a wrong pair stays marked before the board hands it back. Matches `shake`. */
 const SHAKE_MS = 420;
@@ -224,6 +227,7 @@ export function SayingsSession({ plan: initial, canTranslate }: {
 
   const allMatched = plan ? matched.size === plan.match.phrases.length : false;
 
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     if (!plan) return;
     const onKey = (e: KeyboardEvent) => {
@@ -241,6 +245,7 @@ export function SayingsSession({ plan: initial, canTranslate }: {
           return;
         }
         if (guess === null) {
+          if (!mayActOnKey(e, singleKeys)) return;
           const option = step.guesses[Number(e.key) - 1];
           if (option) { e.preventDefault(); pickGuess(option); }
           return;
@@ -265,14 +270,14 @@ export function SayingsSession({ plan: initial, canTranslate }: {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [
+  }, [singleKeys, 
     plan, phase, step, tapped, allTapped, guess, allMatched, fitQuestion, fitRevealed, question, revealed,
     tapWord, pickGuess, nextSaying, chooseFit, nextFit, choose, next,
   ]);
 
   if (!plan) {
     return (
-      <Page title="Väljendid" lead={t("Verb pairs that don't mean what they say.")}>
+      <Page {...roundPageTitle("/review/sayings", t)} lead={t("Verb pairs that don't mean what they say.")}>
         <Empty
           title={t("No sayings to show yet")}
           body={t("They need the full dictionary.")}

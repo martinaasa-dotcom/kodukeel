@@ -251,6 +251,7 @@ const ROUTES = [
   "/suggestions",
   "/admin/suggestions",
   "/admin/errors",
+  "/admin/speech",
   // The speech bench draws the microphone in every state it has (VB-2); CI sets ASR_BENCH=1.
   "/dev/asr",
 
@@ -274,15 +275,22 @@ const ROUTES = [
   "/terms",
   "/funding",
   "/state-exam",
-  "/welcome/ru", "/welcome/uk",
+  "/welcome/ru", "/welcome/uk", "/welcome/et",
+  // The public pages in Estonian (D16), whose words run longer than the
+  // English and have to fit a 360 phone as they are.
+  "/privacy?lang=et", "/terms?lang=et", "/trust?lang=et", "/accessibility?lang=et",
+  "/funding?lang=et", "/impact?lang=et", "/partners?lang=et", "/curriculum?lang=et",
+  "/teachers?lang=et", "/state-exam?lang=et", "/help?lang=et", "/how-we-know?lang=et", "/pilots?lang=et",
   "/trust",
   "/help",
+  "/account/delete",
   "/teachers",
   "/pilots",
   "/how-we-know",
   "/curriculum",
   "/accessibility",
   "/impact",
+  "/partners",
   "/offline",
 ];
 

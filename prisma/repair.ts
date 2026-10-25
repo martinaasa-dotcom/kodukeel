@@ -518,6 +518,37 @@ export async function clearModelBands(prisma: PrismaClient): Promise<number> {
 }
 
 /**
+ * WHICH EKILEX WORD A COURSE ENTRY CAME FROM, ON A DATABASE SEEDED BEFORE IT WAS
+ * WRITTEN.
+ *
+ * The harvest records the Ekilex word id of every course word and the seed never
+ * wrote it, so the commonest words in the dictionary carried none and their
+ * entry drew no credit to the Institute under forms and sentences the Institute
+ * supplied. The seed fills it now; this does the same for rows that exist,
+ * which a deployment's `--only-if-empty` run never reaches otherwise.
+ *
+ * WHAT IT MAY TOUCH. `ekilexWordId`, and only where it is null, matched on the
+ * conflict key. An id a live lookup wrote stays, nothing else on the row moves,
+ * and a second run matches nothing.
+ */
+export async function fillEkilexIds(
+  prisma: PrismaClient,
+  words: readonly { lemma: string; pos: string; ekilexWordId: number }[],
+): Promise<number> {
+  if (words.length === 0) return 0;
+  return prisma.$executeRaw`
+    UPDATE "Lexeme" AS l
+    SET "ekilexWordId" = v.id
+    FROM unnest(
+      ${words.map((w) => w.lemma)}::text[],
+      ${words.map((w) => w.pos)}::text[],
+      ${words.map((w) => w.ekilexWordId)}::int[]
+    ) AS v(lemma, pos, id)
+    WHERE l.lemma = v.lemma AND l.pos::text = v.pos AND l."ekilexWordId" IS NULL
+  `;
+}
+
+/**
  * THE MIDDOT IS ON NO SCREEN, AND A CARD CARRIES ITS OWN TEXT.
  *
  * The builders joined a card's parts with a middot for years, `lugema →

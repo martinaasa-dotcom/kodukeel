@@ -21,11 +21,12 @@
  * building them is what `PROGRAMMES` does on first read.
  */
 
-import { LESSONS, type LessonSpec } from "./lessons";
+import { LESSONS, LESSON_PARTS, isLessonLevel, type LessonSpec } from "./lessons";
 import { LEVEL_CHECK, PART_CHECK, checkFor, type CheckSize } from "./lessons/practice";
 import type { PracticeItem } from "./lessons/practice";
 import type { Programme } from "./types";
 import type { Level } from "@/lib/collections/syllabus/types";
+import { LEVEL_INFO } from "@/lib/collections/syllabus";
 
 export interface CourseCheck {
   /** `check-a1.3`, after the part it closes. */
@@ -106,4 +107,45 @@ export function checkPaper(check: CourseCheck, attempt: number): PracticeItem[] 
 /** The ids passed, as stored: one setting, space separated. */
 export function passedFrom(stored: string | null | undefined): Set<string> {
   return new Set((stored ?? "").split(/\s+/).filter((id) => /^check-[a-z0-9.]+$/.test(id)));
+}
+
+/**
+ * THE END OF A LEVEL IS A THING THAT HAPPENED, in English for the edge to
+ * translate. Passing the last check of a level used to read "B1.1 is open",
+ * the same sentence a part's check gets, so the screen a learner reaches
+ * after a hundred evenings said less than the screen after one. It is built
+ * here rather than on the check page so `GET /api/v1/checks/{id}` says it too.
+ */
+export interface LevelEnd {
+  level: string;
+  /** What somebody can now do, one sentence (`LEVEL_INFO.arrival`). */
+  arrival: string;
+  /** The parts of the level, by name. */
+  parts: string[];
+  lessons: number;
+  next: { level: string; title: string; summary: string; lessons: boolean } | null;
+}
+
+/** What `checkView` says about where a pass leads, kept pure for its test. */
+/** What a check says about where a pass leads, for the page and the app alike. */
+export function whereAPassLeads(check: CourseCheck, part: Programme, next: Programme | null): {
+  nextLabel: string | null;
+  levelDone: LevelEnd | null;
+} {
+  const nextLabel = !next ? null
+    : next.level !== part.level ? next.level
+    : isLessonLevel(next.level) ? next.title : next.id.toUpperCase();
+  const levelDone: LevelEnd | null = !check.final ? null : {
+    level: part.level,
+    arrival: LEVEL_INFO[part.level].arrival,
+    parts: LESSON_PARTS.filter((p) => p.level === part.level).map((p) => p.title),
+    lessons: LESSONS.filter((l) => l.level === part.level).length,
+    next: next ? {
+      level: next.level,
+      title: LEVEL_INFO[next.level].titleEn,
+      summary: LEVEL_INFO[next.level].summary,
+      lessons: isLessonLevel(next.level),
+    } : null,
+  };
+  return { nextLabel, levelDone };
 }

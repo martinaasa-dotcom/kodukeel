@@ -58,6 +58,12 @@ export interface SeedEntry {
    * sentences. Written on insert only — see the column's note below.
    */
   examples?: string;
+  /**
+   * The Ekilex word this entry's forms and sentences came from, where the
+   * harvest recorded one. Filled where the row has none and never replaced,
+   * since a live lookup may have pinned a different homonym since.
+   */
+  ekilexWordId?: number | null;
   forms: { formType: string; value: string }[];
 }
 
@@ -79,6 +85,12 @@ export interface SeedColumn {
    * carries and writes each group with its own column list.
    */
   onlyWhenOwned?: boolean;
+  /**
+   * Written on insert, and on a reseed only where the row holds nothing yet:
+   * `COALESCE(existing, new)`. For a fact the live cache may also write and
+   * a reseed must never take back.
+   */
+  fillOnly?: boolean;
 }
 
 export const LEXEME_COLUMNS: SeedColumn[] = [
@@ -105,6 +117,17 @@ export const LEXEME_COLUMNS: SeedColumn[] = [
   // either — so this is never in the `DO UPDATE SET`. A new row gets its
   // sentences; an existing row keeps whatever it has grown since.
   { name: "examples", value: (e) => e.examples ?? "[]", reseeded: false },
+  // Which Ekilex word the harvested forms and sentences came from. It was
+  // preserved, which meant never written, so the course's commonest words
+  // (tuba, kohv, maja) carried no id and the dictionary entry drew no Ekilex
+  // credit under forms Ekilex supplied (S-2 in docs/44-sixth-batch.md). Filled
+  // where empty and never replaced, which keeps what preserving it protected:
+  // an id a live lookup wrote stays.
+  {
+    name: "ekilexWordId", cast: "integer",
+    value: (e) => (e.ekilexWordId == null ? null : String(e.ekilexWordId)),
+    reseeded: true, fillOnly: true,
+  },
 ];
 
 /**
@@ -117,7 +140,7 @@ export const LEXEME_COLUMNS: SeedColumn[] = [
  * `EKILEX` must not be demoted back to `SEED` by a reseed.
  */
 export const PRESERVED_COLUMNS = [
-  "provenance", "ekilexWordId", "fetchedAt",
+  "provenance", "fetchedAt",
   // When Ekilex was last asked about this word and had nothing. Cache state,
   // like the two before it, and reloading the built-in words tells us nothing
   // new about what Ekilex holds. Clearing it here would put every word Ekilex

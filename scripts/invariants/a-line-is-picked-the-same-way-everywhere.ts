@@ -46,7 +46,7 @@ export default function aLineIsPickedTheSameWayEverywhere({ check, code, sourceF
 
   check("the route and every harness that plays a conversation reach a reply through planTurn and speakTurn", () => {
     for (const file of [
-      "app/api/scene/route.ts", "scripts/lib/keylessPlay.ts", "scripts/play-scene.ts", "scripts/fuzz-scenes.ts",
+      "lib/progress/sceneRequest.ts", "scripts/lib/keylessPlay.ts", "scripts/play-scene.ts", "scripts/fuzz-scenes.ts",
     ]) {
       const source = code(file);
       assert.match(source, /\bplanTurn\(\{/, `${file} plans a turn's reply some other way than planTurn`);

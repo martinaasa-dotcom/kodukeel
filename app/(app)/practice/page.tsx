@@ -6,7 +6,7 @@ import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
-import { reviewQueue } from "../review/queue";
+import { reviewQueue } from "@/lib/progress/dailyQueue";
 import { listDecks } from "@/lib/progress/decks";
 import { masteryCounts, masteryFor } from "@/lib/progress/mastery";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
@@ -48,7 +48,7 @@ export default async function PracticePage() {
   const ownerId = await requireUserId();
   const [review, totalCards, settings, sentenceReady, words, decks, level, locale, clock] = await Promise.all([
     // The sitting Review will hold, counted rather than reasoned about: see
-    // app/(app)/review/queue.ts for what two readings of it cost.
+    // lib/progress/dailyQueue.ts for what two readings of it cost.
     reviewQueue(ownerId, null, new Date()),
     prisma.card.count({ where: { ownerId } }),
     readSettings(ownerId, [SETTING_KEYS.workbookDone]),

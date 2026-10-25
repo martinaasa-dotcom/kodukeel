@@ -1,7 +1,7 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import type { Metadata } from "next";
-import { tr, type Locale } from "@/lib/copy/locale";
-import { langParam } from "@/lib/copy/publicLocale";
+import { PUBLIC_LOCALES, tr, type Locale, type PublicLocale as PublicLanguage } from "@/lib/copy/locale";
+import { asksForEstonian, langParam, publicLangParam } from "@/lib/copy/publicLocale";
 import { supabaseConfigured } from "@/lib/auth/mode";
 import { hasSessionCookie } from "@/lib/auth/identity";
 import { requireUserId } from "@/lib/auth/session";
@@ -40,6 +40,63 @@ export async function resolvePublicLocale(searchParams: PublicSearch): Promise<P
   }
 }
 
+/** A public page's language, out of the four `PUBLIC_LOCALES` can name. */
+export interface PublicPageLocale {
+  readonly locale: PublicLanguage;
+  readonly explicit: boolean;
+}
+
+/**
+ * Which language a page built on `Legal` is drawn in, Estonian included
+ * (D16 in docs/44-sixth-batch.md): what the address asks for, then a signed-in
+ * learner's own interface language, then a browser that asks for Estonian
+ * before English, Russian or Ukrainian, then English.
+ *
+ * A signed-in learner keeps their own language, which is never Estonian,
+ * because what they chose in Settings is a stronger statement than what
+ * their browser was set to. `drawnIn` is the languages the page itself has
+ * (a page written in English and Estonian alone passes those two), and a
+ * language outside it is never answered: it falls to the next in the chain.
+ */
+export async function resolvePublicPage(
+  searchParams: PublicSearch,
+  drawnIn: readonly PublicLanguage[] = PUBLIC_LOCALES,
+): Promise<PublicPageLocale> {
+  const asked = publicLangParam((await searchParams)?.lang);
+  if (asked && drawnIn.includes(asked)) return { locale: asked, explicit: true };
+  const learner = await resolvePublicLocale(undefined);
+  if (learner.locale !== "en" && drawnIn.includes(learner.locale)) return learner;
+  try {
+    if (drawnIn.includes("et") && !(await signedIn()) && asksForEstonian((await headers()).get("accept-language"))) {
+      return { locale: "et", explicit: false };
+    }
+  } catch {
+    // Outside a request, which is a test or a build: English.
+  }
+  return { locale: "en", explicit: false };
+}
+
+/** Whether a session cookie is present, which is all the browser rule needs to know. */
+async function signedIn(): Promise<boolean> {
+  if (!supabaseConfigured()) return false;
+  const jar = await cookies();
+  return hasSessionCookie(jar.getAll().map((c) => c.name));
+}
+
+/** `publicTitle` for a page built on `Legal`, in whichever of its languages it is drawn. */
+export async function publicPageTitle(
+  searchParams: PublicSearch,
+  english: string,
+  extra?: Omit<Metadata, "title">,
+  card?: PublicPageCard,
+  drawnIn: readonly PublicLanguage[] = PUBLIC_LOCALES,
+): Promise<Metadata> {
+  const { locale } = await resolvePublicPage(searchParams, drawnIn);
+  const title = tr(locale, english);
+  if (!card) return { ...extra, title };
+  return { ...extra, title, ...shareCard(locale, title, tr(locale, card.description), card.path) };
+}
+
 export type { PublicPageCard } from "@/lib/copy/publicCards";
 
 /**
@@ -57,7 +114,7 @@ export const SHARE_IMAGE = {
 } as const;
 
 /** A page's own description, Open Graph and Twitter card, in the language it is drawn in. */
-export function shareCard(locale: Locale, title: string, description: string, path: string): Metadata {
+export function shareCard(locale: PublicLanguage, title: string, description: string, path: string): Metadata {
   const titled = `${title} | kodukeel`;
   return {
     description,

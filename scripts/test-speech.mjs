@@ -7,7 +7,10 @@
  *
  *   - nothing loads before a press, and the first press asks nothing: it fetches the
  *     model and listens (the operator's call, section 8b);
- *   - a learner who never presses has the model anyway, fetched in the background;
+ *   - a learner who never presses has the model anyway, fetched in the background,
+ *     but only on Wi-Fi or a computer that says nothing: a phone on mobile data, or
+ *     one that cannot say, fetches nothing until a press or "Download now" (D10 of
+ *     docs/44-sixth-batch.md), which Settings draws only where it was held back;
  *   - Chromium's fake microphone, fed a fixture clip and never a live voice, is heard
  *     as what the clip says, and what was heard is announced in a live region (D12);
  *   - a file decoded through the same hook gives the same words;
@@ -24,7 +27,7 @@ import { launchChromium } from "./lib/browser.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 
 const B = baseUrl();
-const { check, absent, done } = suite("Speaking", { floor: 17 });
+const { check, absent, done } = suite("Speaking", { floor: 24 });
 
 const FAKE_MIC = (clip) => [
   "--use-fake-ui-for-media-stream",
@@ -53,13 +56,13 @@ try {
 
   const response = await page.goto(`${B}/dev/asr`, { waitUntil: "domcontentloaded" });
   if (response?.status() === 404) {
-    absent(16, "/dev/asr answered 404: start the server with ASR_BENCH=1 to reach the speech bench");
+    absent(23, "/dev/asr answered 404: start the server with ASR_BENCH=1 to reach the speech bench");
     done();
     process.exit(process.exitCode ?? 0);
   }
   const first = await phase(page);
   if (first === null || /no-model|off/.test(await page.textContent("[data-bench-status]") ?? "") && first !== "needs-download" && first !== "ready") {
-    absent(16, "this server has no speech model to serve: run npm run asr:fetch before the build");
+    absent(23, "this server has no speech model to serve: run npm run asr:fetch before the build");
     done();
     process.exit(process.exitCode ?? 0);
   }
@@ -165,7 +168,7 @@ try {
 
   await page.goto(`${B}/settings?tab=sound#speaking`, { waitUntil: "domcontentloaded" });
   const buttons = await page.locator("#speaking").getByRole("button", { name: /Download|Delete the download/ }).count();
-  check("Settings offers no button to fetch or delete the model", buttons === 0, `${buttons} buttons`);
+  check("Settings offers no button to fetch or delete the model once it is here", buttons === 0, `${buttons} buttons`);
 
   check("nothing threw", errors.length === 0, errors.slice(0, 3).join(" | "));
   await context.close();
@@ -183,6 +186,75 @@ try {
     check("a learner who never presses has the model, fetched in the background", /Downloaded on this device/.test(quietly), quietly);
   } finally {
     await quiet.close();
+  }
+
+  /*
+    The connection decides the background download (D10). Each case is a fresh
+    context that says it is not a test browser, with `navigator.connection`
+    stubbed by an init script before any page script runs: Wi-Fi fetches,
+    mobile data fetches nothing, and a phone with no Network Information at
+    all (every iPhone) fetches nothing either. A model request is aborted the
+    moment it is seen, since the question is whether it went out, and the
+    background download fails quietly back to waiting.
+  */
+  const connectionCase = async ({ type, mobile }) => {
+    const ctx = await browser.newContext({
+      viewport: mobile ? { width: 390, height: 844 } : { width: 1280, height: 900 },
+      isMobile: mobile,
+      hasTouch: mobile,
+    });
+    await ctx.addInitScript((t) => {
+      Object.defineProperty(Navigator.prototype, "webdriver", { get: () => false });
+      if (t === null) {
+        Object.defineProperty(Navigator.prototype, "connection", { get: () => undefined, configurable: true });
+        return;
+      }
+      const c = new EventTarget();
+      Object.defineProperty(c, "type", { get: () => t });
+      Object.defineProperty(c, "saveData", { get: () => false });
+      Object.defineProperty(Navigator.prototype, "connection", { get: () => c, configurable: true });
+    }, type);
+    const requested = [];
+    await ctx.route(/\/asr\/model\//, (route) => {
+      requested.push(route.request().url());
+      return route.abort();
+    });
+    const p = await ctx.newPage();
+    await p.goto(`${B}/settings?tab=sound#speaking`, { waitUntil: "domcontentloaded" });
+    await p.locator("#speaking [data-speaking-status]").first().waitFor({ timeout: 30_000 });
+    // Three seconds after load plus an idle moment is when the background download starts.
+    await p.waitForTimeout(9_000);
+    const held = await p.locator("#speaking [data-speaking-held]").count();
+    const line = await p.locator("#speaking [data-speaking-status]").first().innerText().catch(() => "");
+    return { ctx, p, requested, held, line };
+  };
+
+  const onWifi = await connectionCase({ type: "wifi", mobile: true });
+  try {
+    check("a phone on Wi-Fi fetches the model in the background", onWifi.requested.length > 0, `${onWifi.requested.length} model requests`);
+    check("and Settings offers no Download now there", onWifi.held === 0, onWifi.line.slice(0, 120));
+  } finally {
+    await onWifi.ctx.close();
+  }
+  const onData = await connectionCase({ type: "cellular", mobile: true });
+  try {
+    check("a phone on mobile data fetches nothing on its own", onData.requested.length === 0, `${onData.requested.length} model requests`);
+    const button = onData.p.locator("#speaking").getByRole("button", { name: /Download now \(\d+\sMB\)/ });
+    check("Settings says the download waits for Wi-Fi or a press, with Download now and its size",
+      onData.held === 1 && /Wi-Fi or the first time you press a microphone/.test(onData.line) && (await button.count()) === 1,
+      onData.line.slice(0, 160));
+    await button.first().click().catch(() => undefined);
+    await onData.p.waitForTimeout(2_000);
+    check("pressing Download now fetches it", onData.requested.length > 0, `${onData.requested.length} model requests`);
+  } finally {
+    await onData.ctx.close();
+  }
+  const cannotSay = await connectionCase({ type: null, mobile: true });
+  try {
+    check("a phone that cannot say its connection fetches nothing on its own", cannotSay.requested.length === 0, `${cannotSay.requested.length} model requests`);
+    check("and Settings draws the held-back line there too", cannotSay.held === 1, cannotSay.line.slice(0, 160));
+  } finally {
+    await cannotSay.ctx.close();
   }
 
   // The microphone refused: the button says so, and the page carries on.

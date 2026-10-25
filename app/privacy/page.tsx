@@ -7,11 +7,14 @@ import { resolveOperator, SUPERVISORY_AUTHORITY } from "@/lib/legal/operator";
 import { resolveRecipients, transfersOutsideEea } from "@/lib/legal/recipients";
 import { recipientIn } from "@/lib/legal/recipientCopy";
 import { pushConfigured } from "@/lib/push/config";
-import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
+import { fcmConfigured } from "@/lib/push/fcm";
+import { appleSignInConfigured } from "@/lib/auth/appleConfig";
+import { googleScriptLoaded } from "@/lib/auth/googleConfig";
+import { publicPageTitle, resolvePublicPage, type PublicSearch } from "@/lib/progress/publicLocale";
 import { publicCard } from "@/lib/copy/publicCards";
 
 export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
-  return publicTitle(searchParams, "Privacy", undefined, publicCard("/privacy"));
+  return publicPageTitle(searchParams, "Privacy", undefined, publicCard("/privacy"));
 }
 
 /*
@@ -44,13 +47,15 @@ export const dynamic = "force-dynamic";
  * authority) is rendered from the same data in every language.
  */
 export default async function PrivacyPage({ searchParams }: { searchParams: PublicSearch }) {
-  const { locale, explicit } = await resolvePublicLocale(searchParams);
+  const { locale, explicit } = await resolvePublicPage(searchParams);
   const t = (english: string) => tr(locale, english);
   const href = (to: string) => localeHref(to, locale, explicit);
   const operator = resolveOperator();
   const recipients = resolveRecipients();
   const leavesTheUnion = transfersOutsideEea(recipients);
-  const settingRow = (row: string) => <strong>{t("Settings")} → {t(row)}</strong>;
+  // The app is never in Estonian (D16), so on the Estonian page the screen is
+  // named as the reader will find it, in English, and marked so.
+  const settingRow = (row: string) => <strong lang={locale === "et" ? "en" : undefined}>{t("Settings")} → {t(row)}</strong>;
 
   return (
     <Legal title={t("Privacy")} updated="2 September 2026" locale={locale} explicit={explicit} path="/privacy" legal>
@@ -60,7 +65,7 @@ export default async function PrivacyPage({ searchParams }: { searchParams: Publ
 
       <S title={t("Who holds this")}>
         {operator.identified ? (
-          <>
+          <div data-operator="named" className="space-y-3">
             <P>
               {rich(t("The controller of your data, meaning the one who answers for it, is **{name}**{registry}{vat}, at {address}. Write to {email} about anything on this page, including any of the requests below."), {
                 name: operator.name,
@@ -77,19 +82,33 @@ export default async function PrivacyPage({ searchParams }: { searchParams: Publ
             <P>
               {t("There’s no data protection officer. This is a small installation, and the law only requires one of a public body or of a business built on monitoring people at scale, which this isn’t. The address above reaches a real person.")}
             </P>
-          </>
+          </div>
         ) : (
-          <P>
-            {/* Whoever runs this installation has not filled their name in. */}
-            {rich(t("**Whoever runs this installation has not filled their name in.** Kodukeel is software anyone can install, not a service with one address, so whoever runs this copy, a person or a school, is the one who answers for your data. They’re supposed to be named here and aren’t, which you can complain about to the authority named further down. Ask whoever gave you the link. If you’re running this yourself, set `OPERATOR_NAME`, `OPERATOR_ADDRESS` and `OPERATOR_EMAIL` and this paragraph will show your details instead."))}
-          </P>
+          <div data-operator="unset" className="space-y-3">
+            <P>
+              {/* Whoever runs this installation has not filled their name in. */}
+              {rich(t("**Whoever runs this installation has not filled their name in.** Kodukeel is software anyone can install, not a service with one address, so whoever runs this copy, a person or a school, is the one who answers for your data. They’re supposed to be named here and aren’t, which you can complain about to the authority named further down. Ask whoever gave you the link. If you’re running this yourself, set `OPERATOR_NAME`, `OPERATOR_ADDRESS` and `OPERATOR_EMAIL` and this paragraph will show your details instead."))}
+            </P>
+          </div>
         )}
       </S>
 
       <S title={t("What we keep, and why we’re allowed to")}>
         <P>
-          {rich(t("**Your identity.** Signing in with Google gives us your email address and a user id, held by Supabase Auth. We never see your Google password, and we don’t ask for anything else in your Google account. Without this we couldn’t show you your own deck instead of somebody else’s, so we keep it to provide the service you asked for."))}
+          {rich(t("**Your identity.** Signing in with Google gives us your name, your email address and a user id, held by Supabase Auth, and Google learns that you signed in here and when. We never see your Google password, and we don’t ask for anything else in your Google account. Without this we couldn’t show you your own deck instead of somebody else’s, so we keep it to provide the service you asked for."))}
         </P>
+        {/* Only where the Client ID is set (N-3a): then the page itself asks Google for its button. */}
+        {googleScriptLoaded() && (
+          <P>
+            {rich(t("**Google’s button.** The sign-in page loads Google’s own button from Google as it opens, so Google learns that you opened the page, from what address and in which browser, before you press anything."))}
+          </P>
+        )}
+        {/* Only where the Apple button is drawn (N-3); a copy without it sends Apple nothing. */}
+        {appleSignInConfigured() && (
+          <P>
+            {rich(t("**Signing in with Apple.** If you choose Apple, it tells us your name, the first time only, and an email address, which can be a private one Apple makes that forwards to yours. We keep the name as what we call you and the address as above. Apple learns that you signed in here and when."))}
+          </P>
+        )}
         <P>
           {rich(t("**Your learning.** The cards in your deck, every review you have ever done (the grade, the moment, and how long you took), your tasks, your starred words, the words you have put aside as too complicated, your badges and your settings. The review log is what makes the scheduling work: it is the app’s memory of how well you know each word."))}
         </P>
@@ -99,6 +118,11 @@ export default async function PrivacyPage({ searchParams }: { searchParams: Publ
         {pushConfigured() && (
           <P>
             {rich(t("**Reminders on a computer.** If you turn them on in Settings, your browser gives us an address at the push service its maker runs and two keys to encrypt a reminder with, and we keep exactly those. A reminder is then booked like an email, as which kind it was and when it went, and we keep no record of whether it was shown or clicked. Turning it off in Settings, or signing out in that browser, stops it."))}
+          </P>
+        )}
+        {fcmConfigured() && (
+          <P>
+            {rich(t("**Reminders on a phone.** If you allow notifications in the Kodukeel app, the phone gives us a token that names the app on it, and we keep that token, which kind of phone it is and the app's version. A reminder is sent through Google's Firebase Cloud Messaging with that token and the two lines it says, the ones an email's subject and preview carry. It is booked like an email, and we keep no record of whether it was shown or opened. Turning notifications off, or signing out in the app, stops it."))}
           </P>
         )}
         <P>
@@ -177,8 +201,8 @@ export default async function PrivacyPage({ searchParams }: { searchParams: Publ
         exactly those terms: a press before the microphone opens, the sound
         turned into text on the device and never stored or sent, and the text
         then sent treated as typed text is. The model is a file this site serves
-        itself, fetched in the background on every device, so no recipient is
-        added to the list below.
+        itself, fetched on Wi-Fi or on first use (docs/44-sixth-batch.md, D10),
+        so no recipient is added to the list below.
       */}
       <S title={t("When you speak")}>
         <P>
@@ -194,7 +218,7 @@ export default async function PrivacyPage({ searchParams }: { searchParams: Publ
           {t("A recording you open on the reading page, such as a voice message somebody sent you, holds another person's voice, so it is treated more carefully still. It is heard on your device in the same way, and the sound is never uploaded, stored or sent, to us, to the speech service or to anybody else. Only the words it was heard as go to the dictionary to be underlined, and they are not kept there, just as a pasted text is not.")}
         </P>
         <P>
-          {t("The speech model is downloaded quietly in the background from this site, once per device, and it stays on your device so hearing works offline. It is the same file for everybody and says nothing about you. Signing out leaves it, because it belongs to the device rather than to you.")}
+          {t("The speech model is downloaded from this site once per device, on Wi-Fi or on first use. On a phone that is on mobile data, or that cannot say which connection it is on, it waits until you press a microphone or “Download now” in Settings. It stays on your device so hearing works offline. It is the same file for everybody and says nothing about you. Signing out leaves it, because it belongs to the device rather than to you.")}
         </P>
       </S>
 
@@ -249,6 +273,11 @@ export default async function PrivacyPage({ searchParams }: { searchParams: Publ
         <P>
           {rich(t("**Erasure.** {setting} removes all of that immediately, in one go, along with your sign-in record. The shared dictionary stays, because other learners have cards built on it, but any entry you edited stops being attributed to you. Take an export first: this keeps no copy. If this installation is not set up to delete the sign-in record itself, the button says so, and the address at the top of this page is who to ask."), {
             setting: settingRow("Deleting your data"),
+          })}
+        </P>
+        <P>
+          {rich(t("Without the app, or before you have signed in, {link} says where the button is and what it removes."), {
+            link: <Link href={href("/account/delete")} className="underline underline-offset-2">{t("Deleting your account")}</Link>,
           })}
         </P>
         <P>

@@ -15,6 +15,7 @@ import {
 import { EXAM_LEVELS } from "@/lib/exam/spec";
 import { Explain } from "@/components/Explain";
 import { NOT_REACHED } from "@/lib/copy/values";
+import { UNIT_HOMEWORK_FROM } from "@/lib/copy/homework";
 import { useLocale, useT } from "@/components/Locale";
 import { countOf, fill } from "@/lib/copy/locale";
 
@@ -314,6 +315,7 @@ export function AssignUnit({ classroomId, units }: {
       >
         <Printer size={14} aria-hidden /> {t("Print a worksheet")}
       </Link>
+      <p className="w-full text-sm" style={{ color: "var(--ink-2)" }}>{t(UNIT_HOMEWORK_FROM)}</p>
       {message && <p role="status" className="w-full text-xs" style={{ color: "var(--ink-3)" }}>{message}</p>}
     </div>
   );

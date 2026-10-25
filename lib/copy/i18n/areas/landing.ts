@@ -1,4 +1,5 @@
 import type { Area } from "../area";
+import { LANDING_ET } from "./et/landing";
 import { ENDING_GLOSS_ROWS } from "../caseGlosses";
 
 /**
@@ -76,9 +77,12 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["{words}, {forms}, and not one of them made up by AI",
     "{words}, {forms}, и ничего из этого не придумано ИИ",
     "{words}, {forms}, і нічого з цього не вигадано ШІ"],
-  ["{units}, from your first hello at {first} all the way to {last}",
-    "{units}: от первого «здравствуйте» на уровне {first} до самого {last}",
-    "{units}: від першого «привіт» на рівні {first} аж до {last}"],
+  ["{lessons} at {first}, then {units} all the way to {last}",
+    "{lessons} на уровне {first}, затем {units} до самого {last}",
+    "{lessons} на рівні {first}, далі {units} аж до {last}"],
+  ["{lessons} from {first} to {through}, then {units} all the way to {last}",
+    "{lessons} с уровня {first} по {through}, затем {units} до самого {last}",
+    "{lessons} з рівня {first} до {through}, далі {units} аж до {last}"],
   ["Free, and it works offline", "Бесплатно и работает без интернета", "Безкоштовно й працює без інтернету"],
   ["Counts the real conversations you have, not the days you open the app",
     "Считает ваши настоящие разговоры, а не дни, когда вы открывали приложение",
@@ -362,11 +366,11 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
     "Для учеников от 13 лет. Для младших учеников сначала нужен договор со школой.",
     "Для учнів від 13 років. Для молодших учнів спершу потрібна угода зі школою."],
   ["See what a teacher sees", "Посмотреть, что видит преподаватель", "Подивитися, що бачить викладач"],
-  // /pilots is English only, so the Russian and Ukrainian say where the link goes.
-  ["How a pilot works", "Как устроен пилотный проект (на английском)", "Як влаштований пілотний проєкт (англійською)"],
-  ["Running a pilot", "Пилотный проект (на английском)", "Пілотний проєкт (англійською)"],
-  ["What the course covers", "Что охватывает курс (на английском)", "Що охоплює курс (англійською)"],
-  ["How we know", "Как мы это знаем (на английском)", "Як ми це знаємо (англійською)"],
+  // The reviewer's pages, drawn in Russian and Ukrainian since the follow-up to the sixth batch.
+  ["How a pilot works", "Как устроен пилотный проект", "Як влаштований пілотний проєкт"],
+  ["Running a pilot", "Пилотный проект", "Пілотний проєкт"],
+  ["What the course covers", "Что охватывает курс", "Що охоплює курс"],
+  ["How we know", "Как мы это знаем", "Як ми це знаємо"],
   ["How the data is handled", "Как мы обращаемся с данными", "Як ми обробляємо дані"],
   ["Write to us about a pilot", "Напишите нам о пилотном проекте", "Напишіть нам про пілотний проєкт"],
   ["A Kodukeel pilot", "Пилотный проект Kodukeel", "Пілотний проєкт Kodukeel"],
@@ -375,6 +379,8 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
 export const LANDING: Area = {
   ru: Object.fromEntries(LINES.map(([en, ru]) => [en, ru])),
   uk: Object.fromEntries(LINES.map(([en, , uk]) => [en, uk])),
+  // Estonian, for the public pages alone (D16), drafted and awaiting the native speaker: ./et/landing.ts.
+  et: Object.fromEntries(LANDING_ET),
   counted: {
     form: { en: ["form", "forms"], ru: ["форма", "формы", "форм"], uk: ["форма", "форми", "форм"] },
     month: { en: ["month", "months"], ru: ["месяц", "месяца", "месяцев"], uk: ["місяць", "місяці", "місяців"] },

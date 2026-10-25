@@ -1,4 +1,4 @@
-import { fill, tr, type Locale } from "@/lib/copy/locale";
+import { fill, tr, type PublicLocale } from "@/lib/copy/locale";
 import type { Recipient } from "./recipients";
 
 /**
@@ -14,7 +14,7 @@ import type { Recipient } from "./recipients";
  */
 const ENDPOINT = /^The error reporting endpoint at (.+)$/;
 
-export function recipientIn(r: Recipient, locale: Locale): { name: string; what: string } {
+export function recipientIn(r: Recipient, locale: PublicLocale): { name: string; what: string } {
   if (locale === "en") return { name: r.name, what: r.what };
   const endpoint = ENDPOINT.exec(r.name);
   return {

@@ -280,9 +280,10 @@ lexicographer wrote (ADR-017).
 4. **Classes need sign-in.** In local mode there is one learner, so `/class` explains that rather
    than offering forms that could not work.
 5. **Installable, but not in the App Store.** Kodukeel installs to a home screen as a PWA and works
-   offline there. An actual App Store listing needs a native shell (Capacitor or similar) around
-   this same web app, which is a packaging and review exercise rather than a rewrite, and it has not been
-   done.
+   offline there. What is planned instead of a shell around the web app is a native app for iOS and
+   Android over `/api/v1/`, bearer only and versioned (ADR-029, `docs/44-sixth-batch.md`), sharing the
+   pure layers as they are and its own speech engine held to the golden file
+   (`docs/42-native-apps.md`). It has not been built.
 
 ## 8. The merge: one app, not two
 
@@ -3649,8 +3650,11 @@ speak, write, talk). The grammar drills stay on the grammar pages they practice.
 **Every round is named the Estonian way, at every level**: `Paarid (Pairs)`, `Kordamine
 (Review)`, on a tile and in the command palette (`lib/ux/roundNames.ts`), while the rail stays in
 English. The operator chose the names, the frequency lists as `Levinud sõnad`.
-Not done: the round pages' own titles and the course's step names still use the older titles in
-`lib/ux/modes.ts`, and `lib/ux/weekGames.ts` still rotates Today's own card.
+The round pages' own titles, their tab titles and the course's step names read the same names
+since the sixth batch (C-6), and `lib/ux/modes.ts` carries each round's English half. Today's own
+card is Sõnad on the operator's call (`GAME_OF_THE_DAY`); the Games board reads `GAME_WEEK`, and
+the week table in `lib/ux/weekGames.ts` is kept for the day Today's card turns dynamic again. No
+behavior changed.
 
 ## 65. The fifty-ninth pass: a person says the sounds
 
@@ -3788,3 +3792,103 @@ from the lessons. Catalog conversations start at B1.
 (`tuli`, `sai`), and the written sentences that no longer passed against the new order of teaching
 were dropped, 265 of them. The A2 lessons' own English is machine translated into Russian and
 Ukrainian on the A1 terms (`areas/lessonText.ts`), 1,937 lines each, not yet read by anybody fluent.
+
+## 69. The sixty-third pass: ready to be shown, and the door for the native apps
+
+**The sixth batch (`docs/44-sixth-batch.md`) landed as one pull request, one commit per item.** The
+order wanted a pull request each; the session could push to one branch, so each item is a commit
+titled with its id and section 4 of that page names them. Nothing under `lib/course/`, the syllabus,
+`prisma/data/`, the lessons, the scenes or the recordings moved (D1), and no model was paid for.
+
+**Ready to be shown (S).** The public pages describe A1 as the 61 lessons it is. Ekilex is asked
+through one gate, credited on every entry the Institute supplied, and counted per day (`EkilexDay`),
+with a brief for the Institute in `docs/45-ekilex.md`. The public pages read in Estonian, drafted
+by a model and marked so on every page until the native speaker has read them, with the English
+prevailing on the policy pages; the app itself is never in Estonian (ADR-005 amendment 7). Every
+looping motion in the app rests within five seconds, so WCAG 2.2.2 moved from the failures to the
+met paragraphs, single-key shortcuts can be turned off and a clip plays on its own only under three
+seconds. `security.txt`, the risk and asset registers, a shared demo with a nightly reset, and
+`/partners` with `scripts/check-show-ready.mjs`, the check before the email, are in.
+
+**What batch 5 left (C).** The voice model waits for Wi-Fi or a press on a phone, Safari and Firefox
+run in CI, the speech figures have an admin page, the situation pages say how close the ear is, the
+situations list is a compact row on a phone, and every round is called by its agreed name.
+
+**Before the native code (R).** The portable core is held free of the browser, Node, the
+environment and pages; store icons, screenshots and the listing are generated; the store privacy
+labels are derived from the recipients; one table says where a link opens on a phone; and the speech
+golden test runs on stored turns with no browser.
+
+**The door (N).** ADR-029's `/api/v1/` answers every action `docs/42-native-apps.md` lists for an
+A1 learner's first day: the review, today's lesson and its part's check, a conversation, a word
+looked up and heard, Anu and the scanner, and the account, including deletion without the app
+(`/account/delete`). A token is read without a cookie, Sign in with Apple stands beside Google, and
+a phone gets native notifications in D13's order. `lib/api/draft.ts` is empty: every drafted shape
+shipped.
+
+**Found on the way, while the lanes were merged.** The calculator on `/funding` was drawn in the
+browser from the public area alone, so N-9's push row hydrated in English under Russian and
+Ukrainian; it takes the phones area too. Eleven lines the other lanes added had no Estonian and are
+drafted. The share-card test now finds a page in the `(chromeless)` group.
+
+**What is left** is the operator's (the demo deployment, the Apple, Google and Firebase setup, the
+native speaker's reading) and is listed on the pull request.
+
+## 70. The sixty-fourth pass: what the sixth batch left open
+
+**Every question #929 left for a follow-up was answered and closed in one pull request.** Eight were
+listed; each is a commit, and none touches the course, the lessons, the scenes or the recordings.
+
+**The reviewer's pages in Russian and Ukrainian.** `/curriculum`, `/how-we-know` and `/pilots` were
+English and Estonian, so a school whose people read Russian or Ukrainian got English. All three are
+drawn in every public language now, machine translated like the other public pages and marked so,
+and `/pilots` keeps the notice that the English prevails, which is the guard against a softened
+claim that had kept it English. The lessons, units and claims stay in English, marked so. Links to
+these pages stopped saying "(in English)", and the page coverage test reads the labels handed to a
+page's own link helpers, which found nine missing on `/pilots`.
+
+**The grammar reference and `/offline` stay out of Estonian, on purpose.** Both are screens of the
+app rather than pages about it: the reference explains Estonian to somebody learning it, and the
+fallback is what a learner meets mid-review in their own language. ADR-005 amendment 7 keeps the app
+out of the language being learned, and the invariant behind it now names both.
+
+**The A2 lessons are mapped to the A2 examination.** Each of the eight parts names the exam parts it
+prepares for, with a reason citing the task on the A2 paper (`LESSON_PART_PREPARES` in
+`lib/curriculum/align.ts`, by part rather than by lesson for the reason units are mapped one by
+one). `/curriculum` sums a lesson level the way it sums a level of units, and names no gap at A2,
+because there is none. The final check's sentence names its own level instead of always A1 and A2.
+
+**The app's check says where a pass leads the way the page does.** `whereAPassLeads`
+(`lib/course/checks.ts`) names the next part by its title and a new level by its level, and says
+what a finished level was. `checkView` carries both, so `GET /api/v1/checks/{id}` labels the next
+part "Where you live" rather than `A1.2` and adds `levelDone`, a field the contract only grew by.
+
+**WebKit stops reloading Settings.** `pushManager.getSubscription()` reloads the page that calls it
+in Playwright's WebKit, and the reminders panel called it on arrival, so Settings reloaded for as
+long as it was open. A subscription is no use without the permission, so a browser that has not
+granted it is shown "off" without the question, and a tab marks itself before asking so a reload
+does not ask again. The engines suite runs the panel checks in WebKit instead of waiving them.
+
+**Ekilex is not refreshed in the background, and that is decided rather than missing.** A refresh
+would ask a free academic service about words nobody looked up and write into the shared dictionary
+with no person reading the change; corrections arrive through the harvest and the report queue
+(`docs/05-integrations.md` §1.4, which also says the two-in-flight cap is per warm instance).
+
+**The two slowest unit tests are cheap now rather than given more time.** One asked the forms list
+word by word and re-read a shard on every eviction (43 seconds, now 6); the other rebuilt a scene's
+word list once per dictionary row (`sceneLemmas` is memoized per scene now). And `/accessibility`
+says the looping motion was fixed everywhere, not only on the public pages.
+
+**A review of the pass found four more, all fixed in it.** A live lookup whose request to Ekilex
+timed out or was refused wrote `lookupMissAt`, so a bad minute at Ekilex read as the word not
+existing for a day; only an answer with nothing in it is a miss now, and a `Retry-After` past the cap
+ends the retry rather than being slept and asked again. A phone token inside the contract's 4,096
+characters but past what the unique index can hold was a 500 from Postgres; past 1,024 it is refused
+as `invalid` and nothing is written, since the frozen contract may not narrow. Deleting the account
+answered a failure partway as `invalid`, which tells an app the learner typed the wrong word; it is
+`upstream` now. And the contract says what a token does in the hour after `DELETE /api/v1/me`: it
+still verifies, so the app drops the session on a 200, and anything written in that hour belongs to
+nobody the mailout, the export or a screen ever reads.
+
+**What is left** is the operator's and is unchanged: the native speaker's reading of the Estonian,
+the demo deployment, and the Apple, Google, Firebase and store setup.

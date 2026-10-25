@@ -8,7 +8,7 @@ import { rng } from "@/lib/random/seeded";
 import { OPTION_CLASS, VERDICT_CLASS, optionState } from "@/lib/ux/verdict";
 import { FitText } from "@/components/FitText";
 import { countOf, fill } from "@/lib/copy/locale";
-import { useLocale, useT, useWholeLanguage } from "@/components/Locale";
+import { usePublicLocale, useT, useWholeLanguage } from "@/components/Locale";
 import { TrParts } from "@/components/TrParts";
 
 export interface EveningWord {
@@ -42,7 +42,10 @@ export function FirstEvening({ words, steps, title, canDo, evenings }: {
   evenings: number;
 }) {
   const t = useT();
-  const locale = useLocale();
+  const locale = usePublicLocale();
+  // On the Estonian page a word's meaning stays the English a learner sees (D16): an
+  // Estonian meaning beside an Estonian word says nothing, so it is marked English.
+  const meaningLang = locale === "et" ? "en" : undefined;
   // A press here can draw a line the page did not arrive with. See components/Locale.tsx.
   const reach = useWholeLanguage();
   const [stage, setStage] = useState<"meet" | "pick" | "done">("meet");
@@ -140,7 +143,7 @@ export function FirstEvening({ words, steps, title, canDo, evenings }: {
                   style={{ "--i": n } as React.CSSProperties}
                 >
                   <span lang="et" className="text-lg font-bold" style={{ color: "var(--ink)" }}>{w.et}</span>
-                  <span className="text-sm" style={{ color: "var(--ink-2)" }}>{w.en}</span>
+                  <span className="text-sm" lang={meaningLang} style={{ color: "var(--ink-2)" }}>{w.en}</span>
                 </li>
               ))}
             </ul>
@@ -169,7 +172,7 @@ export function FirstEvening({ words, steps, title, canDo, evenings }: {
                     onClick={() => choose(o.en)}
                     className={`choice-btn flex items-center justify-between gap-2 rounded-[var(--r)] border px-4 py-3 text-left text-base font-semibold ${state ? OPTION_CLASS[state] : ""}`}
                   >
-                    {o.en}
+                    <span lang={meaningLang}>{o.en}</span>
                     {state === "right" && <Check size={17} aria-hidden />}
                   </button>
                 );
@@ -179,7 +182,7 @@ export function FirstEvening({ words, steps, title, canDo, evenings }: {
               {picked ? (picked === q.word.en ? t("That’s the one.") : (
                 <TrParts
                   template="Not quite. {word} means {meaning}. It’ll come around again soon."
-                  parts={{ word: <span lang="et">{q.word.et}</span>, meaning: q.word.en }}
+                  parts={{ word: <span lang="et">{q.word.et}</span>, meaning: <span lang={meaningLang}>{q.word.en}</span> }}
                 />
               )) : ""}
             </p>

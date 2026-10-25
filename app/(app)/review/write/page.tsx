@@ -1,4 +1,4 @@
-import { localeFor, titleFor } from "@/lib/progress/locale";
+import { localeFor, roundTitleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
@@ -24,9 +24,10 @@ import { RECENT_WORDS, byRecency, caseWithin, lemmaFilter, recentLemmas, tonight
 import { CASES } from "@/lib/estonian/cases";
 import { caseAsked } from "@/lib/srs/slots";
 import { practiceScope } from "@/lib/progress/moduleScope";
+import { roundPageTitle } from "@/lib/ux/roundNames";
 
 export async function generateMetadata() {
-  return titleFor("Writing");
+  return roundTitleFor("/review/write");
 }
 
 export const dynamic = "force-dynamic";
@@ -232,7 +233,7 @@ export default async function WritePage({
   if (round.length === 0) {
     const locale = await localeFor(ownerId);
     return (
-      <Page title={tr(locale, "Writing")} lead={tr(locale, "Write your own sentences in Estonian, and we'll check them.")}>
+      <Page {...roundPageTitle("/review/write", (english) => tr(locale, english))} lead={tr(locale, "Write your own sentences in Estonian, and we'll check them.")}>
         <Empty
           title={tr(locale, "No words to write about yet")}
           body={tr(locale, "This uses nouns and adjectives from your deck. Add a few and come back.")}

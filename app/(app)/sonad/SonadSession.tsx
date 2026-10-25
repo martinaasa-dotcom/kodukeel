@@ -1,5 +1,7 @@
 "use client";
 
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { useLocale, useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
 import { rich } from "@/components/round/rich";
@@ -183,6 +185,12 @@ export function SonadSession({ puzzle, day, guessable }: {
     editable and the focus management that comes with it, on a screen where
     the keys are already on the page.
   */
+  /*
+    A letter typed on the keyboard fills the row from anywhere on the page, so
+    it is a single-key shortcut in WCAG's sense (2.1.4) and answers to the
+    setting like every round: with it off, the on-screen keys still type.
+  */
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     if (over) return;
     function onKey(event: KeyboardEvent) {
@@ -197,6 +205,7 @@ export function SonadSession({ puzzle, day, guessable }: {
         setTyped((t) => [...t].slice(0, -1).join(""));
         return;
       }
+      if (!mayActOnKey(event, singleKeys)) return;
       const letter = event.key.toLocaleLowerCase("et");
       if ([...letter].length === 1 && SONAD_KEYS.includes(letter)) {
         event.preventDefault();
@@ -206,7 +215,7 @@ export function SonadSession({ puzzle, day, guessable }: {
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [over, submit]);
+  }, [over, submit, singleKeys]);
 
   const marks = useMemo(() => letterMarks(guesses, puzzle.answer), [guesses, puzzle.answer]);
   const rows = Array.from({ length: SONAD_GUESSES }, (_, i) => i);

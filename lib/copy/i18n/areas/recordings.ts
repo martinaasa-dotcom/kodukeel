@@ -48,6 +48,8 @@ export const RECORDINGS: Area = {
     "This device is too slow to hear a recording, so it wasn't opened. Pasting the text still works.":
       "Это устройство слишком медленное, чтобы распознать запись, поэтому она не была открыта. Вставить текст по-прежнему можно.",
     "The recording couldn't be heard just now. Try it again.": "Сейчас не удалось распознать запись. Попробуйте ещё раз.",
+    "This browser didn't keep the speech files it downloaded, so the recording couldn't be opened. Pasting the text still works.":
+      "Этот браузер не сохранил загруженные файлы для распознавания речи, поэтому запись не удалось открыть. Вставить текст по-прежнему можно.",
     "You stopped it before any words were heard.": "Вы остановили распознавание, прежде чем были услышаны какие-либо слова.",
     "No words were heard in that recording. It may be music, or very quiet.":
       "В этой записи не услышано ни одного слова. Возможно, это музыка или запись очень тихая.",
@@ -156,6 +158,8 @@ export const RECORDINGS: Area = {
     "This device is too slow to hear a recording, so it wasn't opened. Pasting the text still works.":
       "Цей пристрій надто повільний, щоб розпізнати запис, тому його не відкрито. Вставити текст, як і раніше, можна.",
     "The recording couldn't be heard just now. Try it again.": "Зараз не вдалося розпізнати запис. Спробуйте ще раз.",
+    "This browser didn't keep the speech files it downloaded, so the recording couldn't be opened. Pasting the text still works.":
+      "Цей браузер не зберіг завантажені файли для розпізнавання мовлення, тому запис не вдалося відкрити. Вставити текст, як і раніше, можна.",
     "You stopped it before any words were heard.": "Ви зупинили розпізнавання, перш ніж було почуто будь-які слова.",
     "No words were heard in that recording. It may be music, or very quiet.":
       "У цьому записі не почуто жодного слова. Можливо, це музика або запис дуже тихий.",

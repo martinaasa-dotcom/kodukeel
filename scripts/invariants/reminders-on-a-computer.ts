@@ -76,6 +76,15 @@ export default function remindersOnAComputer({ check, code, read, ALL }: Invaria
     const panel = code("app/(app)/settings/PushPanel.tsx");
     const effect = panel.slice(panel.indexOf("useEffect("), panel.indexOf("const turnOn"));
     assert.doesNotMatch(effect, /requestPermission|\.subscribe\(/, "the panel asks for permission or subscribes on arrival");
+    /*
+      And on arrival the push manager is asked only once the permission is
+      granted, and not again by a page that has just come back from asking:
+      WebKit reloads a page that asks, so a panel that asked whatever the
+      permission reloaded Settings for as long as it was open.
+    */
+    const gate = effect.search(/Notification\.permission !== "granted" \|\| askedJustNow\(\)\) return "off"/);
+    const asks = effect.indexOf(".getSubscription(");
+    assert.ok(gate >= 0 && asks > gate, "the panel asks the push manager on arrival before checking it could hold anything");
 
     const clients = ALL.filter((file) => /^["']use client["']/m.test(read(file)));
     assert.ok(clients.length >= 50, `only ${clients.length} client files found, so this stopped looking`);

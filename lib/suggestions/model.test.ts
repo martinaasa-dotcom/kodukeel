@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   CATEGORY_GROUPS, CATEGORY_KEYS, SUGGESTION_CATEGORIES, SUGGESTION_LIMITS,
   acknowledgement, categoriesInGroup, createWordClash, groupKeyFor, isCategory, isStatus,
-  parsePatch, parsePatchValue, patchFitsCategory, summarisePatch,
+  parsePatch, parsePatchValue, patchFitsCategory, summarisePatch, aiAnswerTrigger, triggerLimit,
 } from "./model";
 
 describe("the category table", () => {
@@ -230,5 +230,34 @@ describe("createWordClash", () => {
 
   it("leaves a different part of speech alone, which is a different entry", () => {
     expect(createWordClash({ lemma: "hall", pos: "NOUN" }, entries)).toBeUndefined();
+  });
+});
+
+describe("a report on an answer a model wrote", () => {
+  it("applies nothing, so a reviewer reads it and the dictionary is untouched", () => {
+    expect(SUGGESTION_CATEGORIES.AI_ANSWER.applies).toBeNull();
+    expect(patchFitsCategory("AI_ANSWER", { kind: "SET_TRANSLATION", lexemeId: "x", translation: "y" })).toBe(false);
+  });
+
+  it("says where the answer stood, who wrote it, and carries the answer", () => {
+    const trigger = aiAnswerTrigger("ANU", "  The partitive answers what?  ", "Groq, openai/gpt-oss-120b");
+    expect(trigger).toBe("Anu's answer, written by Groq, openai/gpt-oss-120b: The partitive answers what?");
+    expect(aiAnswerTrigger("SCENE_LINE", "Tere!", null)).toBe("A line the other side said in a conversation: Tere!");
+  });
+
+  it("keeps a long answer whole up to its own cap, longer than a failure message", () => {
+    const long = "a".repeat(3000);
+    expect(triggerLimit("AI_ANSWER")).toBeGreaterThan(triggerLimit("BROKEN"));
+    expect(aiAnswerTrigger("ANU", long).length).toBeGreaterThan(SUGGESTION_LIMITS.trigger);
+    expect(aiAnswerTrigger("ANU", "b".repeat(9000)).length).toBe(SUGGESTION_LIMITS.answer);
+  });
+
+  it("groups one answer whichever page it was reported from, and keeps two answers apart", () => {
+    const trigger = aiAnswerTrigger("ANU", "Use the partitive after numbers.", "Groq, model");
+    const here = groupKeyFor({ category: "AI_ANSWER", context: "/review", trigger });
+    const there = groupKeyFor({ category: "AI_ANSWER", context: "/dictionary?q=kohv", trigger });
+    expect(here).toBe(there);
+    const other = aiAnswerTrigger("ANU", "Use the genitive here.", "Groq, model");
+    expect(groupKeyFor({ category: "AI_ANSWER", context: "/review", trigger: other })).not.toBe(here);
   });
 });

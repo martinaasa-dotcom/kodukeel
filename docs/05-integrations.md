@@ -37,19 +37,48 @@ actual products:
    under our control. Phases 1-2 must be buildable without it.
 3. **Server-side only.** The key lives in a Route Handler; it never appears in a client bundle.
 4. **Attribution ships in the UI**, not just in a license file: a visible "Dictionary data from
-   Ekilex / Institute of the Estonian Language, CC BY 4.0" credit on every entry view.
+   Ekilex / Institute of the Estonian Language, CC BY 4.0" credit on every entry view. *Done in the
+   sixth batch (S-2): one line under the sentences and the forms of every entry Ekilex supplied,
+   naming the Institute, linking CC BY 4.0 to its deed and saying that a form shown as worked out was
+   derived from what Ekilex stores, in `app/(app)/dictionary/EkilexCredit.tsx`.*
 
 ### 1.4 Being a good citizen of a free academic API
 
-No published rate limit means we impose our own rather than discover theirs:
+No published rate limit means we impose our own rather than discover theirs. Each promise below is
+marked with what the code does today and the file it lives in, read on 2026-10-24 (S-2 in
+`docs/44-sixth-batch.md`; the brief to EKI is `docs/45-ekilex.md`):
 
-- **Cache-first.** Never call Ekilex for a lexeme already stored and fresh.
+- **Cache-first.** Never call Ekilex for a lexeme already stored and fresh. *Kept, and stricter:
+  an entry that carries Ekilex's forms is never asked about again (`enrichFromEkilex` in
+  `lib/dict/lookup.ts`), a word Ekilex had nothing on is left alone for a day (`lookupMissAt`), a
+  search that found nothing for ten minutes on that server, and two people asking at once make one
+  request (`lib/cache/singleFlight.ts`).*
 - **Long TTL.** Dictionary entries change on the scale of months. TTL 30 days; stale entries are
-  served immediately and refreshed in the background.
-- **Debounced search.** 300 ms on keystroke; no request per character.
-- **Client-side concurrency cap** of 2, with exponential backoff on 429/5xx.
+  served immediately and refreshed in the background. *Not built, and decided against on
+  2026-10-25: a stored entry is served as it is and never refreshed, so the load is lower than
+  this promised. A refresh in the background is a job asking a free academic service about
+  thousands of words nobody looked up that day, and it would write into the shared dictionary
+  with no person reading what changed. A correction to Ekilex reaches this app when the harvest is
+  run again (`npm run harvest`, whose diff somebody reads), and a correction a learner reports
+  reaches it through the queue at `/admin/suggestions`.*
+- **Debounced search.** 300 ms on keystroke; no request per character. *Kept differently: the search
+  runs when a word is submitted, never per keystroke (`app/(app)/dictionary/DictionaryClient.tsx`),
+  and a learner is held to thirty live lookups a minute (`lookupAndStore`).*
+- **Client-side concurrency cap** of 2, with exponential backoff on 429/5xx. *Kept since S-2: every
+  request in the app and in every script goes through one gate, at most two in flight per process,
+  three tries with exponential backoff and jitter on a 429 or a 5xx, a `Retry-After` honored, a page's
+  2,500 ms deadline respected, and a `User-Agent` naming the app and the operator
+  (`lib/ekilex/client.ts`, `lib/legal/operator.ts`). Two is per process rather than per
+  deployment: on a serverless host each warm instance holds its own two, so a burst spread over
+  several instances can have more in flight at once. What bounds the total is that a live lookup
+  happens only for a word somebody searched and the dictionary did not hold, at thirty a minute
+  per learner, and the daily count below is what to read if that ever looks wrong. A script goes past two only with
+  `--past-the-limit` (`scripts/lib/ekilexJobs.ts`). Every live request and every answer from the
+  stored copy is counted per day (`EkilexDay`, `lib/dict/ekilexCount.ts`) and printed on /impact.*
 - **Seed set.** ~500 common A1-B1 lexemes fetched once and committed as a fixture, so development,
-  tests and demos never touch the network.
+  tests and demos never touch the network. *Kept, and larger: about 6,150 entries ship in
+  `prisma/data/harvested.ts` and `prisma/data/expanded.json`, and a deployment with no key never asks
+  Ekilex at all.*
 
 ### 1.5 Mapping Ekilex → our model
 

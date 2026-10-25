@@ -1,7 +1,7 @@
 "use client";
 
 import { isValidPending, type PendingGrade } from "./outbox";
-import type { ReviewCard } from "@/app/(app)/review/ReviewSession";
+import { stashedCards, type ReviewCard, type StashedSession } from "@/lib/review/card";
 
 /**
  * The browser side of offline review: a durable outbox of grades, and the last
@@ -184,14 +184,6 @@ export async function outboxSize(): Promise<number> {
 
 // ──────────────────────── the stashed session ─────────────────────────────
 
-export interface StashedSession {
-  cards: ReviewCard[];
-  stashedAt: number;
-}
-
-/** A stash older than this is not worth reviewing — the schedule has moved on. */
-const STASH_MAX_AGE_MS = 3 * 86_400_000;
-
 /**
  * Keeps the cards the server handed down, so a later visit with no connection
  * has a real session to run rather than an empty state.
@@ -209,7 +201,5 @@ export async function readStashedSession(): Promise<ReviewCard[]> {
   const stash = await run<StashedSession | undefined>(
     SESSION, "readonly", (s) => s.get("latest"), undefined,
   );
-  if (!stash || !Array.isArray(stash.cards)) return [];
-  if (Date.now() - stash.stashedAt > STASH_MAX_AGE_MS) return [];
-  return stash.cards;
+  return stashedCards(stash, Date.now());
 }

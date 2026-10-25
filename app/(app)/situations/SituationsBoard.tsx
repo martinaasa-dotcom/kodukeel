@@ -12,7 +12,7 @@ import type { CSSProperties } from "react";
 import { toneInk } from "@/components/ui";
 import { KINDS, type SceneKind } from "@/lib/scenes/kinds";
 import { useLocale, useT } from "@/components/Locale";
-import { countOf, fill } from "@/lib/copy/locale";
+import { countOf, fill, type Locale } from "@/lib/copy/locale";
 
 /**
  * THE CHOOSER, AS SOMETHING TO BROWSE RATHER THAN A WALL TO READ.
@@ -35,6 +35,17 @@ import { countOf, fill } from "@/lib/copy/locale";
  * rather than on a slab of night, the title, where you are standing, what it
  * practices, and how long it takes. The room lifts a little under a pointer,
  * which is the only thing on the page that moves on its own accord of yours.
+ *
+ * ON A PHONE THE TILE IS A ROW (docs/44-sixth-batch.md, C-5). Forty-odd full
+ * tiles, each with its room drawn, were a very long scroll before the one
+ * somebody wanted. Under the container width where the grid is one column,
+ * each situation is a compact row instead: the kind's dot and its name in
+ * words, the title, where you are standing, the minutes and the played mark.
+ * The rooms stay on the stage at the top and on wider screens. Which of the
+ * two is drawn is the container's call in CSS, so the first paint is already
+ * the right one, and the order the server handed in is the order of both. A
+ * second filter, "Not played yet", narrows either to the ones never had,
+ * which is the stage's own preference, and the count above says how many.
  *
  * Everything shown is handed in from the server, so this file reads no
  * database and decides nothing about a learner; it only decides what to show
@@ -63,13 +74,14 @@ export function SituationsBoard({ tiles, firstPick }: {
   const t = useT();
   const locale = useLocale();
   const [kind, setKind] = useState<SceneKind | "all">("all");
+  const [unplayedOnly, setUnplayedOnly] = useState(false);
   const [pick, setPick] = useState(firstPick);
   // Which offer this is, so the stage's contents arrive again on a shuffle
   // rather than swapping under a reader without a sign that anything moved.
   const [turn, setTurn] = useState(0);
 
   const featured = tiles.find((t) => t.id === pick) ?? tiles[0]!;
-  const shown = kind === "all" ? tiles : tiles.filter((t) => t.kind === kind);
+  const shown = tiles.filter((t) => (kind === "all" || t.kind === kind) && (!unplayedOnly || t.plays === 0));
 
   const another = () => {
     // Never the same one twice running, and unplayed ones first while any are
@@ -95,7 +107,7 @@ export function SituationsBoard({ tiles, firstPick }: {
           <h2 id="all-heading" className="text-xl font-bold tracking-tight">{t("Every situation")}</h2>
           {/* The count is what a filter press announces, never the list itself:
               a live region round fifteen tiles reads every one of them out. */}
-          <p className="text-sm" style={{ color: "var(--ink-3)" }} aria-live="polite">
+          <p className="text-sm" style={{ color: "var(--ink-3)" }} aria-live="polite" data-situation-count>
             {shown.length === tiles.length ? countOf(locale, tiles.length, "place") : fill(t("{shown} of {total}"), { shown: shown.length, total: tiles.length })}
           </p>
         </div>
@@ -115,11 +127,30 @@ export function SituationsBoard({ tiles, firstPick }: {
           ))}
         </ChoiceGroup>
 
-        <div className="@container">
-          <ul className="grid gap-x-4 gap-y-5 @lg:grid-cols-2 @3xl:grid-cols-3">
-            {shown.map((tile) => <Tile key={tile.id} tile={tile} />)}
-          </ul>
-        </div>
+        <ChoiceGroup ariaLabel={t("Played or not")} select="many">
+          <ChoiceChip selected={unplayedOnly} onSelect={() => setUnplayedOnly((on) => !on)}>
+            {t("Not played yet")}
+          </ChoiceChip>
+        </ChoiceGroup>
+
+        {shown.length === 0 && unplayedOnly ? (
+          <p className="text-sm" style={{ color: "var(--ink-2)" }}>{t("You've played every one of these.")}</p>
+        ) : (
+          <div className="@container">
+            {/*
+              One column: a compact row each, with no room drawn. Under 20rem of
+              column (a 320px phone) the minutes and the played mark go under the
+              title rather than beside it, or a long English word such as
+              Unemployment is broken mid-letter for want of room.
+            */}
+            <ul className="situation-rows flex flex-col gap-2 @lg:hidden">
+              {shown.map((tile) => <Row key={tile.id} tile={tile} />)}
+            </ul>
+            <ul className="hidden gap-x-4 gap-y-5 @lg:grid @lg:grid-cols-2 @3xl:grid-cols-3">
+              {shown.map((tile) => <Tile key={tile.id} tile={tile} />)}
+            </ul>
+          </div>
+        )}
       </section>
     </div>
   );
@@ -210,6 +241,56 @@ function Stage({ tile, turn, onAnother }: {
   );
 }
 
+/** The played mark, in words beside the tick, on a tile's room and on a row. */
+function playedText(plays: number, t: (english: string) => string, locale: Locale): string {
+  return plays === 1 ? t("Played once") : fill(t("Played {times}"), { times: countOf(locale, plays, "time") });
+}
+
+/*
+  A ROW: THE TILE WITHOUT ITS ROOM, FOR ONE COLUMN.
+
+  Two columns of its own: on the left the kind (a dot and its name, since a
+  hue is never the only thing saying which), the title and where you are
+  standing; on the right, never wrapped, how long it takes and the played
+  mark. Still one link with one accessible name, its words in reading order.
+*/
+function Row({ tile }: { tile: SituationTile }) {
+  const hue = hueOf(tile.kind);
+  const kind = KINDS.find((k) => k.id === tile.kind)!;
+  const t = useT();
+  const locale = useLocale();
+  return (
+    <li className="situation-in">
+      <Link
+        href={`/situations/${tile.id}`}
+        className="situation-tile situation-row lift grid grid-cols-1 gap-x-3 gap-y-1.5 rounded-[var(--r-lg)] border px-4 py-3 @xs:grid-cols-[minmax(0,1fr)_auto]"
+        style={{ "--tile-hue": `var(--${hue})`, "--tile-soft": `var(--${hue}-soft)` } as CSSProperties}
+      >
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <p className="label-xs inline-flex items-center gap-2" style={{ color: toneInk(hue) }}>
+            <span aria-hidden className="situation-dot" style={{ background: `var(--${hue})` }} />
+            {t(kind.label)}
+          </p>
+          <h3 className="text-md font-bold leading-snug tracking-tight">{t(tile.title)}</h3>
+          <p className="text-sm" style={{ color: "var(--ink-2)" }}>{t(tile.place)}</p>
+        </div>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold @xs:flex-col @xs:flex-nowrap @xs:items-end @xs:pt-0.5" style={{ color: "var(--ink-2)" }} data-facts>
+          <span className="inline-flex items-center gap-1 whitespace-nowrap">
+            <Clock aria-hidden size={14} />
+            {fill(t("about {minutes} min"), { minutes: tile.minutes })}
+          </span>
+          {tile.plays > 0 && (
+            <span className="inline-flex items-center gap-1 whitespace-nowrap" style={{ color: "var(--ink)" }}>
+              <Check aria-hidden size={14} />
+              {playedText(tile.plays, t, locale)}
+            </span>
+          )}
+        </div>
+      </Link>
+    </li>
+  );
+}
+
 /*
   A TILE IS SIX ROWS, AND EVERY TILE IN A ROW SHARES THEM.
 
@@ -242,7 +323,7 @@ function Tile({ tile }: { tile: SituationTile }) {
           {tile.plays > 0 && (
             <span className="situation-played absolute right-3 top-3 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold">
               <Check aria-hidden size={14} />
-              {tile.plays === 1 ? t("Played once") : fill(t("Played {times}"), { times: countOf(locale, tile.plays, "time") })}
+              {playedText(tile.plays, t, locale)}
             </span>
           )}
         </div>

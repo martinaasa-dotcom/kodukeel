@@ -8,7 +8,7 @@ import { ArrowRight, Check, Flame, Shield } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { currentLearner, requireUserId } from "@/lib/auth/session";
 import { dailySummary, deckSnapshot, pathWithProgress } from "@/lib/progress/summary";
-import { reviewQueue } from "./review/queue";
+import { reviewQueue } from "@/lib/progress/dailyQueue";
 import { KeepCurrent } from "@/components/KeepCurrent";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { measuredPaceFor } from "@/lib/progress/plan";
@@ -239,7 +239,7 @@ export default async function TodayPage() {
       THE SITTING REVIEW WILL HOLD, built by the review page's own builder,
       because "20 due" over a session of one card is the app contradicting
       itself on the one press it asks for. Counting the list is the only
-      count that cannot drift from it (see app/(app)/review/queue.ts).
+      count that cannot drift from it (see lib/progress/dailyQueue.ts).
     */
     reviewQueue(ownerId, null, now),
   ]);
@@ -1017,7 +1017,7 @@ export default async function TodayPage() {
       <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{t(featured.why)}</p>
       <div className="mt-3 flex justify-center">
         <ButtonLink href={featured.href} variant="primary">
-          {t(featuredTitle(featured.href) ?? "Play")} <ArrowRight size={15} aria-hidden />
+          {featuredTitle(featured.href, t) ?? t("Play")} <ArrowRight size={15} aria-hidden />
         </ButtonLink>
       </div>
     </Card>

@@ -5,6 +5,7 @@ import type { EngineError, RawTurn, TranscribedPiece } from "@/lib/speech/engine
 import { reconcile, core, type Hearing } from "@/lib/speech/reconcile";
 import { SPEECH_SETTINGS as S } from "@/lib/speech/settings";
 import { isSpeaking, onSpeakingChange } from "@/lib/audio/clip";
+import { mayPrefetch, type PrefetchConditions } from "@/lib/speech/prefetch";
 import { WebSpeechEngine, EngineFailure } from "./webEngine";
 
 /**
@@ -105,7 +106,7 @@ function downloadModel(base: string, quiet: boolean): Promise<void> {
   set({ phase: "downloading", done: 0, total: 0, error: null });
   downloading = (async () => {
     try {
-      await engineFor(base).download((done, total) => set({ done, total }));
+      await engineFor(base).download((done, total) => set({ done, total }), { quiet });
       set({ phase: "ready", error: null });
     } catch (e) {
       const why = errorOf(e);
@@ -118,8 +119,61 @@ function downloadModel(base: string, quiet: boolean): Promise<void> {
   return downloading;
 }
 
+/** The Network Information API, where a browser has it (Chrome on Android); Safari and Firefox do not. */
+interface ConnectionLike {
+  readonly type?: unknown;
+  readonly saveData?: unknown;
+  addEventListener?(type: "change", listener: () => void): void;
+  removeEventListener?(type: "change", listener: () => void): void;
+}
+
+function connectionOf(): ConnectionLike | null {
+  if (typeof navigator === "undefined") return null;
+  const c = (navigator as Navigator & { connection?: unknown }).connection;
+  return c && typeof c === "object" ? (c as ConnectionLike) : null;
+}
+
+function coarseQuery(): MediaQueryList | null {
+  return typeof window !== "undefined" && typeof window.matchMedia === "function" ? window.matchMedia("(pointer: coarse)") : null;
+}
+
 /**
- * EVERY LEARNER HAS THE MODEL BEFORE THEY REACH FOR A MICROPHONE.
+ * What this browser says about its connection and its pointer, read
+ * defensively: an absent API is "says nothing", never "Wi-Fi", which on a
+ * phone is the one reading `mayPrefetch` refuses (D10).
+ */
+export function readPrefetchConditions(): PrefetchConditions {
+  const c = connectionOf();
+  return {
+    type: typeof c?.type === "string" ? c.type : null,
+    saveData: c?.saveData === true,
+    coarsePointer: coarseQuery()?.matches === true,
+  };
+}
+
+/** Listen for the connection or the pointer changing, so a phone that joins Wi-Fi later is asked again. */
+function onConditionsChange(notify: () => void): () => void {
+  const c = connectionOf();
+  const q = coarseQuery();
+  c?.addEventListener?.("change", notify);
+  q?.addEventListener?.("change", notify);
+  return () => {
+    c?.removeEventListener?.("change", notify);
+    q?.removeEventListener?.("change", notify);
+  };
+}
+
+/**
+ * Whether the background download may run on this device and connection now.
+ * The server's answer is yes, so nothing about a held-back download is drawn
+ * until the browser has said otherwise.
+ */
+export function useBackgroundDownloadAllowed(): boolean {
+  return useSyncExternalStore(onConditionsChange, () => mayPrefetch(readPrefetchConditions()), () => true);
+}
+
+/**
+ * THE MODEL ARRIVES BEFORE A LEARNER REACHES FOR A MICROPHONE, WHERE THAT COSTS NOTHING.
  *
  * The operator's call (docs/41-fifth-batch.md, section 8b): asking before a
  * download put a decision about 71 MB between somebody and the first thing
@@ -129,13 +183,20 @@ function downloadModel(base: string, quiet: boolean): Promise<void> {
  * device. Two tabs do not both fetch: a Web Lock holds the download to one,
  * and the other finds the files there when it gets the lock.
  *
+ * D10 of the sixth batch amends that: it runs only where `mayPrefetch` says the
+ * connection is free (Wi-Fi or wired, or a computer whose browser says
+ * nothing). A phone on mobile data, on Save-Data, or that cannot say (every
+ * iPhone) waits for the first press of a microphone or "Download now" in
+ * Settings, and is asked again whenever its connection changes. Nothing is
+ * asked of the learner either way.
+ *
  * Nothing about what is heard changes. The sound still never leaves the
  * device, and the microphone still opens only on a press.
  *
  * A browser driven by a test (`navigator.webdriver`) does not fetch it on its
  * own: every suite opens fresh browsers, and 71 MB behind each of them would
  * be a suite measuring its own download. `scripts/test-speech.mjs` clears the
- * flag on one page to check the background download itself.
+ * flag on its own pages to check the background download and the rule above.
  */
 export function SpeechPrefetch() {
   const config = useSpeechConfig();
@@ -145,6 +206,7 @@ export function SpeechPrefetch() {
     let gone = false;
     const run = async () => {
       if (gone || !navigator.onLine || navigator.webdriver) return;
+      if (!mayPrefetch(readPrefetchConditions())) return;
       await checkDevice(base);
       if (gone || (shared.phase !== "needs-download" && shared.phase !== "cleared")) return;
       const fetchOnce = async () => {
@@ -162,12 +224,14 @@ export function SpeechPrefetch() {
     // After the page a learner opened has had the network to itself.
     const idle = (window as Window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number }).requestIdleCallback;
     const timer = setTimeout(() => (idle ? idle(() => void run(), { timeout: 10_000 }) : void run()), PREFETCH_AFTER_MS);
-    const online = () => void run();
-    window.addEventListener("online", online);
+    const again = () => void run();
+    window.addEventListener("online", again);
+    const stopListening = onConditionsChange(again);
     return () => {
       gone = true;
       clearTimeout(timer);
-      window.removeEventListener("online", online);
+      window.removeEventListener("online", again);
+      stopListening();
     };
   }, [base]);
   return null;

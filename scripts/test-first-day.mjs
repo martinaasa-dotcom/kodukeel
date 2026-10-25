@@ -1,7 +1,6 @@
-import { readdirSync, statSync } from "node:fs";
-import { join } from "node:path";
 import { launchChromium } from "./lib/browser.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
+import { appRoutes } from "./lib/routes.mjs";
 
 /**
  * EVERY SCREEN, IN THE STATE A STRANGER INSTALLS INTO.
@@ -47,34 +46,10 @@ const B = baseUrl();
    the calendar took it from 44 to 52 in one merge. */
 const { check, done } = suite("The first day", { floor: 53 });
 
-/** Every `page.tsx` under `app/`, as the URL that reaches it. */
-function routes(dir, prefix = "") {
-  const out = [];
-  for (const entry of readdirSync(dir)) {
-    const full = join(dir, entry);
-    if (statSync(full).isDirectory()) {
-      if (entry === "api") continue;
-      out.push(...routes(full, prefix + (entry.startsWith("(") ? "" : `/${entry}`)));
-    } else if (entry === "page.tsx") {
-      out.push(prefix || "/");
-    }
-  }
-  return out;
-}
-
-/* A value each dynamic segment can be answered for, so the walk meets the
-   screen rather than the not-found. `[code]` and `[groupId]` have none that
-   exists on a fresh install, and the screen that says so is the one a learner
-   would reach by mistyping, which is worth rendering too. */
-const FILL = {
-  "[unitId]": "too-ja-raha", "[situationId]": "tervitused", "[level]": "A1", "[id]": "partitive",
-  "[caseKey]": "partitive", "[case]": "partitive",
-  "[code]": "AAAAAA", "[groupId]": "none",
-};
-
-const all = [...new Set(routes(new URL("../app", import.meta.url).pathname))]
-  .map((r) => r.replace(/\[[^\]]+\]/g, (m) => FILL[m] ?? "x"))
-  .sort();
+/* The routes come off the filesystem through `scripts/lib/routes.mjs`, which
+   `test-browsers.mjs` walks in WebKit and Firefox too: one list of routes and
+   one way of filling a dynamic segment, so the two walks cannot drift. */
+const all = appRoutes();
 
 /*
   THE SERVICE WORKER IS BLOCKED, AND THE WAIT IS NOT `networkidle`.

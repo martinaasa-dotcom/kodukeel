@@ -15,7 +15,8 @@ import type { ReactNode } from "react";
  */
 export function RoundStart({ icon, title, lead, children, chips, actions, footnote, hue = "cta" }: {
   icon: ReactNode;
-  title: string;
+  /** The round's name; a node, so the Estonian half can carry its own `lang`. */
+  title: ReactNode;
   /** The round's one-line pitch, under the name. */
   lead?: ReactNode;
   /** What the round is, in a paragraph. */

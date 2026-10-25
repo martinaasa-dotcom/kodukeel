@@ -25,7 +25,12 @@ import type { Tone } from "./nav";
 
 export interface PracticeMode {
   href: string;
-  /** What it is called, on every screen that offers it. */
+  /**
+   * The English half of its agreed name, which is `lib/ux/roundNames.ts`'s:
+   * a screen draws the Estonian there and this in parentheses after it.
+   * `roundNames.test.ts` holds the two equal, so a round renamed in one table
+   * and not the other fails rather than being called two things.
+   */
   title: string;
   /** Three or four words for what it does. Under the title on a tile. */
   subtitle: string;
@@ -95,7 +100,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
       reason Flash cards is one: there is a choice to make in it. See
       `lib/games/workbook.ts`.
     */
-    href: "/review/workbook", title: "Töövihik", subtitle: "Fill in the right form",
+    href: "/review/workbook", title: "Workbook", subtitle: "Fill in the right form",
     icon: "BookOpen", tone: "butter", group: "targeted", note: "A page of real sentences",
     within: "/practice",
     blurb:
@@ -127,7 +132,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
       somebody's own log says is worth doing today. It stays in the table so
       the palette finds it.
     */
-    href: "/quest", title: "Daily quest", subtitle: "Your weak spots",
+    href: "/quest", title: "Daily task", subtitle: "Your weak spots",
     icon: "Target", tone: "accent", group: "targeted", note: "From your log",
     within: "/practice",
     blurb:
@@ -135,7 +140,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
       "like any other practice, so whatever you miss comes back sooner.",
   },
   {
-    href: "/review/letters", title: "Tähed", subtitle: "Unscramble a word", icon: "Blocks", tone: "accent",
+    href: "/review/letters", title: "Letters", subtitle: "Unscramble a word", icon: "Blocks", tone: "accent",
     group: "targeted", note: "Eight words",
     within: "/games",
     blurb:
@@ -146,7 +151,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
       Letter names, the one thing a learner needs them for: a word comes down
       the line spelled the Estonian way, in the native speaker's recordings.
     */
-    href: "/review/spelled", title: "Tähthaaval", subtitle: "Spelled down the phone", icon: "Phone", tone: "accent",
+    href: "/review/spelled", title: "Letter by letter", subtitle: "Spelled down the phone", icon: "Phone", tone: "accent",
     group: "targeted", note: "Six words",
     within: "/games",
     blurb:
@@ -160,14 +165,14 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
       on the A2 rotation and a round on Practice; the microphone is always
       offered here, since saying it is the task, and typing works the same.
     */
-    href: "/review/numbers", title: "Arvud", subtitle: "Prices, times, numbers",
+    href: "/review/numbers", title: "Numbers", subtitle: "Prices, times, numbers",
     icon: "Hash", tone: "sky", group: "targeted", note: "Ten, said or typed",
     within: "/practice",
     blurb:
       "A price tag, a clock on the wall, a timetable, a number. Say it in Estonian, or type it, and hear it said back.",
   },
   {
-    href: "/sonad", title: "Sõnad", subtitle: "Guess the day's word",
+    href: "/sonad", title: "Words", subtitle: "Guess the day's word",
     icon: "CircleDot", tone: "sky", group: "targeted", note: "Six letters, seven guesses",
     within: "/games",
     blurb:
@@ -190,7 +195,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
       subtitle spends the whole 24-character budget `nav.test.ts` sets: it is
       carrying the English name now as well as saying what the round does.
     */
-    href: "/crossword", title: "Ristsõna", subtitle: "Crossword, English clues",
+    href: "/crossword", title: "Crossword", subtitle: "Crossword, English clues",
     icon: "Grid3x3", tone: "butter", group: "targeted", note: "A new grid daily",
     within: "/games",
     blurb:
@@ -198,7 +203,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
       "what you want to say and you hunt for the word.",
   },
   {
-    href: "/review/map", title: "Map", subtitle: "See what an ending means",
+    href: "/review/map", title: "Where?", subtitle: "See what an ending means",
     icon: "Map", tone: "sky", group: "targeted", note: "Pictures, no clock",
     within: "/games",
     blurb:
@@ -214,7 +219,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
       explains the three kinds, which links a group straight into it. See
       `lib/collections/twins.ts`.
     */
-    href: "/review/twins", title: "Kaksikud", subtitle: "Tell look-alikes apart",
+    href: "/review/twins", title: "Twins", subtitle: "Tell look-alikes apart",
     icon: "Scale", tone: "blush", group: "targeted", note: "Ten pairs, no clock",
     within: "/games",
     blurb:
@@ -229,7 +234,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
       and filled in a real sentence. Reached from Practice. See
       `lib/estonian/sayings.ts` and `lib/games/sayings.ts`.
     */
-    href: "/review/sayings", title: "Väljendid", subtitle: "Pairs that fool you",
+    href: "/review/sayings", title: "Expressions", subtitle: "Pairs that fool you",
     icon: "Quote", tone: "butter", group: "targeted", note: "Five at a time, no clock",
     within: "/games",
     blurb:
@@ -244,7 +249,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
       guessed and named. Reached from Practice. See `lib/estonian/literally.ts`
       and `lib/games/wordplay.ts`.
     */
-    href: "/review/wordplay", title: "Sõnamäng", subtitle: "Words with honest names",
+    href: "/review/wordplay", title: "Wordplay", subtitle: "Words with honest names",
     icon: "Smile", tone: "butter", group: "targeted", note: "Five at a time, no clock",
     within: "/games",
     blurb:
@@ -261,7 +266,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
       `lib/games/twenty.ts`. A game, so it sits with the other games on
       `/practice`; it grades nothing, for the reason Say what you see does not.
     */
-    href: "/review/twenty", title: "20 küsimust", subtitle: "Twenty questions",
+    href: "/review/twenty", title: "20 Questions", subtitle: "Twenty questions",
     icon: "MessageCircleQuestion", tone: "blush", group: "targeted", note: "Ask in Estonian",
     within: "/games",
     blurb:
@@ -269,12 +274,12 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
       "You get twenty, and a tip whenever a question could be put better.",
   },
   {
-    href: "/review/match", title: "Match", subtitle: "Pair words and meanings", icon: "Grid2x2", tone: "sky",
+    href: "/review/match", title: "Pairs", subtitle: "Pair words and meanings", icon: "Grid2x2", tone: "sky",
     group: "targeted", note: "No time yet", within: "/games",
     blurb: "Eight words and eight meanings, all jumbled up. Pair them off as fast as you can.",
   },
   {
-    href: "/review/sentences", title: "Laused", subtitle: "Put a sentence in order", icon: "Puzzle", tone: "accent",
+    href: "/review/sentences", title: "Sentences", subtitle: "Put a sentence in order", icon: "Puzzle", tone: "accent",
     group: "targeted", note: "Needs sentences", within: "/games",
     blurb: "A real Estonian sentence, cut up and shuffled. Tap the words back into order.",
   },
@@ -289,7 +294,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     blurb: "Hear a sentence and write it down, with every õ, ä, ö and ü in its place.",
   },
   {
-    href: "/review/speaking", title: "Speaking", subtitle: "Say it out loud", icon: "Mic", tone: "sky",
+    href: "/review/speaking", title: "Pronunciation", subtitle: "Say it out loud", icon: "Mic", tone: "sky",
     group: "quick", note: "Then hear it said",
     blurb: "Say a word along with a native speaker, say it back, then say it from its meaning. You see which words were heard.",
   },
@@ -303,7 +308,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
       scenes, five sentences each, which is the writing part of the state
       examination in miniature.
     */
-    href: "/review/describe", title: "Say what you see", subtitle: "Five sentences",
+    href: "/review/describe", title: "Describing a picture", subtitle: "Five sentences",
     icon: "Eye", tone: "accent", group: "quick", note: "Two or three scenes",
     blurb:
       "A scene made of emoji. Write five sentences about what you see, one in each box. We check " +
@@ -318,7 +323,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     within: "/grammar/[case]",
   },
   {
-    href: "/review/government", title: "Verb government", subtitle: "Which case a verb takes", icon: "Scale",
+    href: "/review/government", title: "Verb cases", subtitle: "Which case a verb takes", icon: "Scale",
     tone: "blush", group: "targeted", note: "Multiple choice",
     blurb:
       "Aitan sind, but helistan sulle. English gives you no hint which case a verb wants, so " +
@@ -326,7 +331,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     within: "/grammar/topic/government",
   },
   {
-    href: "/review/openers", title: "Lause algus", subtitle: "Hear the ending coming", icon: "Shuffle",
+    href: "/review/openers", title: "What next?", subtitle: "Hear the ending coming", icon: "Shuffle",
     tone: "accent", group: "targeted", note: "Choose, then type",
     blurb:
       "Mulle meeldib pasta, but ma tahan pastat. The first words of a sentence decide the form of " +
@@ -334,13 +339,13 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     within: "/games",
   },
   {
-    href: "/review/pairs", title: "Minimal pairs", subtitle: "Long sound or short?", icon: "Ear", tone: "sky",
+    href: "/review/pairs", title: "Long or short", subtitle: "Long sound or short?", icon: "Ear", tone: "sky",
     group: "targeted", note: "Needs audio", within: "/grammar/topic/gradation",
     blurb:
       "Maja or majja? The difference is how long you hold one sound, and spelling only half shows it.",
   },
   {
-    href: "/review/cloze", title: "From your reading", subtitle: "Paste in any Estonian",
+    href: "/review/cloze", title: "Your own text", subtitle: "Paste in any Estonian",
     icon: "ScissorsLineDashed", tone: "butter", group: "targeted", note: "Your own text",
     blurb:
       "Paste in an article or your homework. We blank out the words you've learned, and you " +
@@ -388,7 +393,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     within: "/words",
   },
   {
-    href: "/review/clinic", title: "Leech clinic", subtitle: "Words you keep missing", icon: "Stethoscope",
+    href: "/review/clinic", title: "Tricky words", subtitle: "Words you keep missing", icon: "Stethoscope",
     tone: "blush", group: "targeted", note: "From your log",
     blurb:
       "The few cards you keep getting wrong, with a look at why. Sort them out here before " +

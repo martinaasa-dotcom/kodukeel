@@ -16,7 +16,7 @@ export default function reviewRepeatsOnlyWhatWasTaught(kit: InvariantKit) {
   const { check, code } = kit;
   aNewLevelStartsOver(kit);
   check("the daily review asks every card, due or new, through `reviewable`", () => {
-    const queue = code("app/(app)/review/queue.ts");
+    const queue = code("lib/progress/dailyQueue.ts");
     assert.match(queue, /const allowed = \(card: CardRow\) => reviewable\(taught, card, spellings\)/,
       "the review queue no longer holds its cards to what the module has taught");
     assert.match(queue, /askableRows\(rows\.filter\(allowed\)\)/,
@@ -39,9 +39,19 @@ export default function reviewRepeatsOnlyWhatWasTaught(kit: InvariantKit) {
     for a screen to reach for by mistake.
   */
   check("Today counts as due exactly the cards Review will ask", () => {
+    /*
+      The review page's daily branch and `GET /api/v1/review` are both
+      `dailyReview` (ADR-029), so the session is built there, out of
+      `reviewQueue`, and the page and the route only hand it on.
+    */
     const page = code("app/(app)/review/page.tsx");
-    assert.match(page, /reviewQueue\(ownerId, scope, now\)/, "the review page no longer builds its session from `reviewQueue`");
-    assert.match(page, /withChoices\(queue\.cards,/, "the review page shows something other than the queue it counted");
+    assert.match(page, /dailyReview\(ownerId, scope, now\)/, "the review page no longer builds its session from `dailyReview`");
+    const dailySource = code("lib/progress/dailyQueue.ts");
+    const daily = dailySource.slice(dailySource.indexOf("export async function dailyReview("));
+    assert.match(daily, /reviewQueue\(ownerId, scope, now\)/, "the daily review no longer builds its session from `reviewQueue`");
+    assert.match(daily, /withChoices\(queue\.cards,/, "the daily review shows something other than the queue it counted");
+    assert.match(code("app/api/v1/review/route.ts"), /dailyReview\(who\.ownerId, null, now\)/,
+      "the v1 review route builds its sitting some other way than the web's daily path");
     const today = code("app/(app)/page.tsx");
     assert.match(today, /reviewQueue\(ownerId, null, now\)/, "Today no longer counts Review's own queue");
     assert.match(today, /const toReview = review\.cards\.length;/, "Today's review count is not the length of Review's queue");
@@ -53,7 +63,7 @@ export default function reviewRepeatsOnlyWhatWasTaught(kit: InvariantKit) {
     const summary = code("lib/progress/summary.ts");
     assert.doesNotMatch(summary, /\b(dueCount|newForPractice)\b/,
       "deckSnapshot carries a due tally again, which is a second reading of Review's queue");
-    const queue = code("app/(app)/review/queue.ts");
+    const queue = code("lib/progress/dailyQueue.ts");
     assert.match(queue, /askableRows\(/, "the queue counts cards `withChoices` will then drop");
   });
 
@@ -66,7 +76,7 @@ export default function reviewRepeatsOnlyWhatWasTaught(kit: InvariantKit) {
 
   check("a stored front reaches no screen with a Latin case name on it", () => {
     for (const file of [
-      "app/(app)/review/cards.ts", "app/(app)/review/clinic/page.tsx",
+      "lib/progress/reviewCards.ts", "app/(app)/review/clinic/page.tsx",
       "app/(app)/progress/page.tsx", "app/(app)/words/page.tsx", "lib/progress/quest.ts",
     ]) {
       const src = code(file);
@@ -89,10 +99,12 @@ export default function reviewRepeatsOnlyWhatWasTaught(kit: InvariantKit) {
  */
 function aNewLevelStartsOver({ check, code }: InvariantKit) {
   check("changing level restarts the module on the new level's first evening", () => {
-    const actions = code("app/actions.ts");
-    const start = actions.indexOf("export async function setCourseLevel");
-    assert.ok(start >= 0, "setCourseLevel is gone");
-    const body = actions.slice(start, actions.indexOf("export async function", start + 10));
+    // The picker's body is `changeCourseLevel`, which both doors call (N-8).
+    const level = code("lib/progress/courseLevel.ts");
+    const start = level.indexOf("export async function changeCourseLevel");
+    assert.ok(start >= 0, "changeCourseLevel is gone");
+    const end = level.indexOf("export async function", start + 10);
+    const body = level.slice(start, end < 0 ? undefined : end);
     assert.match(body, /const before = await courseLevelFor\(ownerId\);[\s\S]*recordCourseLevel/,
       "setCourseLevel no longer reads the level it is changing from");
     assert.match(body, /before !== parsed\.data/, "a level change no longer restarts the course");

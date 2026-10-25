@@ -188,7 +188,7 @@ export class WebSpeechEngine implements SpeechEngine {
     }
   }
 
-  async download(onProgress: (done: number, total: number) => void): Promise<void> {
+  async download(onProgress: (done: number, total: number) => void, { quiet = false }: { readonly quiet?: boolean } = {}): Promise<void> {
     if (!(await WebSpeechEngine.hasRoom())) throw new EngineFailure("no-room");
     await this.ask({ type: "download", files: this.files(), cache: ASR_CACHE }, "downloaded", (m) => {
       if (m.type === "progress") onProgress(m.done, m.total);
@@ -198,11 +198,23 @@ export class WebSpeechEngine implements SpeechEngine {
     } catch {
       // A private window: the model still works, it just cannot tell a cleared cache from a first visit.
     }
-    // Safari clears a site's storage after a week without a visit; ask it to keep this.
-    try {
-      await navigator.storage?.persist?.();
-    } catch {
-      // Refused or not offered: the next press says so if it was cleared (D7).
+    /* Safari clears a site's storage after a week without a visit; ask it to keep this.
+
+       ASKED, NEVER WAITED ON. Firefox answers `persist()` with a permission
+       prompt and leaves the promise pending until somebody answers it, so a
+       download that awaited it never finished: found by `test-browsers.mjs`,
+       where Firefox fetched all 71 MB, checked them, cached them, and the
+       microphone said "Downloading 71 of 71 MB" for as long as anybody
+       watched. And only after a press: the background download is nobody's
+       press, and a prompt nobody asked for is answered "block" by reflex. A
+       refusal costs nothing here, since the next press says so if the files
+       were cleared (D7). */
+    if (!quiet) {
+      try {
+        void navigator.storage?.persist?.()?.catch?.(() => false);
+      } catch {
+        // Not offered.
+      }
     }
   }
 

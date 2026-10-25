@@ -4,16 +4,17 @@ import { courseLevelFor } from "@/lib/progress/level";
 import { bandsAround } from "@/lib/collections/levels";
 import { contrastLetter, findQuantityPairs, longerOf, type FormRef } from "@/lib/estonian/quantity";
 import { formLabel } from "@/lib/estonian/morph";
-import { localeFor, titleFor } from "@/lib/progress/locale";
+import { localeFor, roundTitleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { PairsSession, type PairQuestion } from "./PairsSession";
 import { shuffle } from "@/lib/random/shuffle";
 import { BeforeYouStart } from "@/components/round/Briefing";
+import { roundPageTitle } from "@/lib/ux/roundNames";
 
 export async function generateMetadata() {
-  return titleFor("Minimal pairs");
+  return roundTitleFor("/review/pairs");
 }
 
 export const dynamic = "force-dynamic";
@@ -117,7 +118,7 @@ export default async function PairsPage() {
 
   if (pairs.length === 0) {
     return (
-      <Page title={tr(locale, "Minimal pairs")} lead={tr(locale, "Hear the difference a longer sound makes, even when spelling hides it.")}>
+      <Page {...roundPageTitle("/review/pairs", (english) => tr(locale, english))} lead={tr(locale, "Hear the difference a longer sound makes, even when spelling hides it.")}>
         <Empty
           title={tr(locale, "No pairs to listen to yet")}
           body={tr(locale, "A pair is two words where one sound is held longer, like maja and majja. We haven't found any yet.")}

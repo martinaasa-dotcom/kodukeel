@@ -292,7 +292,7 @@ for (const url of ["/welcome"]) {
 }
 
 // Floor: 13, measured in the state CI seeds. A thinner database reads as short.
-const { check, absent, done } = suite("Design system", { floor: 16 });
+const { check, absent, done } = suite("Design system", { floor: 17 });
 
 /**
  * WHETHER THE CLIENT EVER STARTED, WHICH IS A DIFFERENT QUESTION FROM THE ONE
@@ -849,6 +849,37 @@ if (live) {
     hand.rows === 1 && hand.tallest <= 112 && hand.height <= 640,
     `${hand.cards} cards over ${hand.rows} rows, tallest ${hand.tallest}px, card ${hand.height}px`);
   await p.setViewportSize({ width: 1280, height: 1000 });
+}
+
+/*
+  NOTHING IS STILL MOVING SIX AND A HALF SECONDS AFTER A PAGE SETTLES (WCAG 2.2.2).
+
+  Every loop anywhere in the app rests within five seconds of starting
+  (lib/ux/rest.ts), and the mascot's and Anu's loops start when the page
+  settles, which a key does. So Shift is pressed once, which settles the page
+  without hovering anything or answering anything, and six and a half seconds
+  later no animation on the document's own clock may still be running. Three
+  public pages and four
+  signed in: Today with its leading card, the situations board with its lamps,
+  a situation with its room and people, and the review. A reveal tied to the
+  scroll is on a scroll timeline and is not counted. A spinner still turning
+  would be counted, and on a page that has loaded nothing should be waiting.
+  scripts/invariants/motion-rests.ts holds the stylesheets to the same.
+*/
+{
+  const moving = [];
+  for (const path of ["/welcome", "/privacy", "/state-exam", "/", "/situations", "/situations/poodi-piima", "/review"]) {
+    const p = await b.newPage({ viewport: { width: 1280, height: 900 } });
+    await p.goto(`${B}${path}`, { waitUntil: "load" });
+    await p.keyboard.press("Shift");
+    await p.waitForTimeout(6500);
+    const left = await p.evaluate(() => document.getAnimations()
+      .filter((a) => a.playState === "running" && a.timeline === document.timeline && "animationName" in a)
+      .map((a) => a.animationName));
+    if (left.length > 0) moving.push(`${path}: ${[...new Set(left)].join(", ")}`);
+    await p.close();
+  }
+  check("nothing on a public page or a signed-in one is still moving six and a half seconds after it settles", moving.length === 0, moving.join("; "));
 }
 
 console.log(`\n  ${sizes.size} type steps · ${weights.size} weights · ${radii.size} radii · ${contrast.length} contrast failures`);

@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { useFocusAnswer } from "@/components/round/useFocusAnswer";
 import { RetypeBox, useRetype } from "@/components/round/Retype";
 import { PARTS } from "@/lib/copy/values";
@@ -34,6 +36,8 @@ import { caseByKey } from "@/lib/estonian/cases";
 import { isFormSlot } from "@/lib/srs/slots";
 import { PlaceCard } from "@/components/round/PlaceCard";
 import type { PlaceQuestion, RoundQuestion } from "@/lib/progress/map";
+import { inlineName, roundName, roundPageTitle } from "@/lib/ux/roundNames";
+import { RoundNameText } from "@/components/RoundNameText";
 
 /**
  * MAP.
@@ -162,7 +166,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
      either. */
   const advance = useCallback((done: RoundQuestion, answer: string) => {
     look.record({
-      of: done.lexemeId, label: t("Map"),
+      of: done.lexemeId, label: inlineName(roundName("/review/map"), t),
       question: `${done.lemma}: ${done.kind === "case" && done.rung !== 1 ? done.ask : t(done.scene.ask)}`,
       answer, note: null, questionLang: "et", answerLang: "et", speak: done.sentence,
     });
@@ -181,6 +185,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
     else setMissed((m) => [...m, q]);
   }, [q]);
 
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (finished) return;
@@ -190,6 +195,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
         return;
       }
       if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (!mayActOnKey(e, singleKeys)) return;
       if (!inEditable(e.target) && e.key.toLowerCase() === "b" && look.seen.length > 0) { e.preventDefault(); look.open(); return; }
       /* A place question listens for its own keys. */
       if (!cq) return;
@@ -209,11 +215,11 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [finished, answered, cq, typedRung, pick, check, next, look, needsRetype]);
+  }, [singleKeys, finished, answered, cq, typedRung, pick, check, next, look, needsRetype]);
 
   if (wasEmptyAtStart) {
     return (
-      <Page title={t("Map")} lead={t("See what an ending means, then pick it.")}>
+      <Page {...roundPageTitle("/review/map", t)} lead={t("See what an ending means, then pick it.")}>
         <Empty
           title={t("Nothing to map yet")}
           body={t("It needs nouns with a recorded sentence at your level.")}
@@ -255,7 +261,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col px-5 py-6 md:px-10 md:py-10">
-      <h1 className="sr-only">{t("Map")}</h1>
+      <h1 className="sr-only"><RoundNameText name={roundName("/review/map")} translate={t} /></h1>
       {/* Mounted before there is anything to say, and only its words change: a
           status region that arrives with its sentence already in it is one a
           screen reader may never read out. */}
@@ -280,7 +286,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
         <div className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border"
           style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}>
           <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
-            <Chip tone="accent"><MapIcon size={12} aria-hidden /> {t("Map")}</Chip>
+            <Chip tone="accent"><MapIcon size={12} aria-hidden /> <span lang="et">{roundName("/review/map").et}</span></Chip>
             <Chip>{!mq ? t("Place") : mq.rung === 1 ? t("Picture") : mq.rung === 2 ? t("Question") : t("Type it")}</Chip>
             <span className="ml-auto text-xs" style={{ color: "var(--ink-3)" }}>{fill(t("{n} right"), { n: right })}</span>
             <StarWord lexemeId={q.lexemeId} starred={q.starred} label={q.lemma} />

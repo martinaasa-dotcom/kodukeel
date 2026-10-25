@@ -14,7 +14,7 @@ import { readScreen } from "./readScreen";
 import { useModalFocus } from "@/components/useModalFocus";
 import { AnuMic } from "./AnuMic";
 import { useT } from "@/components/Locale";
-import { AnuFailure, Bubble, CheckStarter, Provenance, SentenceCheck, Starters, sentenceCheckPrompt, AnuOffline } from "./AnuParts";
+import { AnuFailure, Bubble, CheckStarter, latestReplyIndex, Provenance, SentenceCheck, Starters, sentenceCheckPrompt, AnuOffline } from "./AnuParts";
 
 /**
  * The open panel `AnuFab` shows once somebody has pressed the button, loaded
@@ -47,6 +47,7 @@ export function AnuPanel({
   path.current = pathname;
   const { messages, setMessages, streaming, answeredBy, failure, send, online } =
     useAnuChat([], () => readScreen(path.current));
+  const latestReply = latestReplyIndex(messages);
   const [input, setInput] = useState("");
   const [checkOpen, setCheckOpen] = useState(false);
   const [checkEt, setCheckEt] = useState("");
@@ -285,7 +286,7 @@ export function AnuPanel({
             aria-label={t("Conversation with Anu")}
           >
             {messages.map((m, i) => (
-              <Bubble key={i} message={m} streaming={streaming && i === messages.length - 1} />
+              <Bubble key={i} message={m} streaming={streaming && i === messages.length - 1} model={i === latestReply ? answeredBy : null} />
             ))}
           </div>
         )}

@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { isExactForm } from "@/lib/dict/forms";
+import { shardKey } from "@/lib/dict/formsLayout";
+import { fold } from "@/lib/estonian/fold";
 import { VOICES } from "@/lib/audio/voice";
 import { A1_LESSONS } from "./a1";
 import { NAMES, PLACE_SPELLINGS, estonianOf, familiesOf, ledgersBefore, lessonProblems, lessonRank, namesOf, teach, uncovered, wordsOf } from "./ledger";
@@ -39,21 +41,29 @@ describe("the lessons, A1 and on", () => {
   });
 
   it("write only spellings the forms list knows", async () => {
-    const unknown: string[] = [];
+    /*
+      Each distinct spelling is asked once, in the order of the shard it lives
+      in. Asked word by word in lesson order it took 43 seconds alone: the
+      forms list holds 48 parsed shards and the lessons visit hundreds, so a
+      shard was unzipped and parsed again every time its word came round.
+    */
+    const where = new Map<string, string>();
     for (const lesson of LESSONS) {
       const names = namesOf(lesson);
       const texts = [...estonianOf(lesson).map((e) => e.et), ...lesson.teaches.flatMap((t) => (t.kind === "verb" ? [t.et, t.first] : [t.et]))];
       for (const text of texts) {
         for (const w of wordsOf(text)) {
           if (names.has(w.raw) || PLACE_SPELLINGS.has(w.raw)) continue;
-          if (!(await isExactForm(w.low))) unknown.push(`${lesson.id}: ${w.raw} in "${text}"`);
+          if (!where.has(w.low)) where.set(w.low, `${lesson.id}: ${w.raw} in "${text}"`);
         }
       }
     }
+    const unknown: string[] = [];
+    const byShard = [...where.keys()].sort((a, b) => shardKey(fold(a)).localeCompare(shardKey(fold(b))) || a.localeCompare(b));
+    for (const word of byShard) if (!(await isExactForm(word))) unknown.push(where.get(word)!);
     expect(unknown).toEqual([]);
-    // It reads a forms-list shard per word off disk, which under the whole suite's load
-    // runs past the default twenty seconds; jokes.test.ts gives the same read a minute.
-  }, 60_000);
+    expect(where.size).toBeGreaterThan(500);
+  });
 
   it("keep Estonian out of the English, except in braces", () => {
     const leaks: string[] = [];

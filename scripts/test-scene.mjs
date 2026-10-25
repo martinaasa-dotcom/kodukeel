@@ -66,8 +66,12 @@ const { check, absent, done } = suite("A conversation, end to end", {
     And two more for the debrief, which its own comment says stays inside the
     room and which drew none: that the band is still there once the
     conversation has ended, and that nobody is talking in it.
+
+    And four for the chooser on a phone (docs/44-sixth-batch.md, C-5): a row
+    per situation with no room drawn, each one link naming its kind in words,
+    and "Not played yet" announcing its count.
   */
-  floor: 64,
+  floor: 68,
 });
 
 /*
@@ -134,6 +138,38 @@ check("the chooser says what a conversation is", /wants something from you/i.tes
 check("and says nothing you type is about you", /Nothing you write here is\s+about you/i.test(chooser));
 check("a scene says how long it takes", /about \d+ min/.test(chooser));
 check("and how much there is to get done", /\d+ things to get done/.test(chooser));
+
+// ── The chooser on a phone: a compact row each (C-5) ───────────────────────
+{
+  const phone = await (await browser.newContext({ viewport: { width: 390, height: 844 } })).newPage();
+  try {
+    await phone.goto(`${B}/situations`, { waitUntil: "domcontentloaded" });
+    await phone.waitForSelector("main h1", { timeout: 20_000 });
+    const rows = phone.locator(".situation-rows > li");
+    const count = await rows.count();
+    const tiles = await phone.locator(".situation-rows ~ ul > li").count();
+    const roomsInRows = await phone.locator(".situation-rows svg:not(.lucide), .situation-rows .situation-window").count();
+    check("on a phone every situation is a compact row with no room drawn", count > 10 && count === tiles && roomsInRows === 0 && await rows.first().isVisible(),
+      `${count} rows, ${tiles} tiles, ${roomsInRows} rooms in rows`);
+    const names = await phone.$$eval(".situation-rows > li", (lis) => lis.map((li) => ({
+      links: li.querySelectorAll("a").length,
+      name: (li.querySelector("a")?.innerText ?? "").replace(/\s+/g, " "),
+    })));
+    const kinds = ["Food and shopping", "Health and offices", "Getting around", "People and work"];
+    check("each row is one link that says its kind in words", names.every((n) => n.links === 1 && kinds.some((k) => n.name.toLowerCase().includes(k.toLowerCase()))),
+      names.filter((n) => n.links !== 1 || !kinds.some((k) => n.name.toLowerCase().includes(k.toLowerCase()))).slice(0, 2).map((n) => n.name).join(" / "));
+    const played = await phone.$$eval(".situation-rows > li", (lis) => lis.filter((li) => /Played/.test(li.innerText)).length);
+    await phone.getByRole("button", { name: "Not played yet" }).click();
+    const live = phone.locator("[data-situation-count]");
+    const said = (await live.innerText().catch(() => "")).trim();
+    const after = await rows.count();
+    const unplayed = count - played;
+    check("Not played yet narrows the list to the ones never had", after === unplayed || (unplayed === 0 && after === 0), `${after} rows after, ${unplayed} unplayed`);
+    check("and announces its count like the kind filter", played === 0 ? /\d/.test(said) : said.includes(`${unplayed} of ${count}`), said);
+  } finally {
+    await phone.context().close();
+  }
+}
 
 // ── The briefing ────────────────────────────────────────────────────────────
 await page.goto(`${B}/situations/${SCENE}`, { waitUntil: "domcontentloaded" });
@@ -741,6 +777,9 @@ if (composed) {
     composed.text.split(/\s+/).length <= MAX_SPOKEN_WORDS
     && sentences(composed.text) <= MAX_SPOKEN_SENTENCES,
     composed.text);
+  // R-2a: a line a model wrote can be reported, by one control for the conversation.
+  check("a composed line can be reported, once for the conversation",
+    (await page.locator('[data-report-answer="SCENE_LINE"]').count()) === 1);
 } else {
   /*
     Says which state lifts it, which the house rule asks of every waiver: a key
@@ -748,7 +787,7 @@ if (composed) {
     reaches the composer at all, and a keyed run reaches it only where the
     dictionary had nothing, which is most beats and not the greeting.
   */
-  absent(1, "no line was composed here: that needs a provider key and a beat the dictionary could not fill");
+  absent(2, "no line was composed here, so there was none to compose and none to report: that needs a provider key and a beat the dictionary could not fill");
 }
 
 // ── A scripted line, where the bank holds one for a beat this run reached ───

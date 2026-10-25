@@ -32,7 +32,7 @@ export default function aSecondRightWordIsRight({ check, code }: InvariantKit) {
     assert.match(ladder, /send\("near", \{[^}]*neighbour \}\)/, "the ladder grades a second right word as recalling its own");
     assert.match(ladder, /<SameMeaning\b/, "the ladder accepts a second right word and never says how the two differ");
     // One builder for both screens, so they cannot take different words.
-    for (const file of ["app/(app)/review/cards.ts", "lib/progress/learn.ts"]) {
+    for (const file of ["lib/progress/reviewCards.ts", "lib/progress/learn.ts"]) {
       assert.match(code(file), /contrastsFor/, `${file} builds its own idea of a second right word`);
     }
   });

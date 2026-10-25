@@ -173,6 +173,9 @@ if (!configured) {
     raise it, carrying what the run sends: the letter's own two lines and the
     screen they are about.
   */
+  // A push reaches only an active worker, and a reload on a slow runner can hand
+  // the page back before its worker has finished starting: wait for it first.
+  await page.evaluate(() => navigator.serviceWorker.ready.then(() => undefined));
   const cdp = await ctx.newCDPSession(page);
   const registrationId = await new Promise((resolve) => {
     const timer = setTimeout(() => resolve(null), 10_000);
@@ -194,7 +197,7 @@ if (!configured) {
     });
     const shown = await page.evaluate(async () => {
       const registration = await navigator.serviceWorker.ready;
-      for (let i = 0; i < 40; i += 1) {
+      for (let i = 0; i < 100; i += 1) {
         const list = await registration.getNotifications();
         if (list.length > 0) return list.map((n) => ({ title: n.title, body: n.body, tag: n.tag, url: n.data?.url }));
         await new Promise((r) => setTimeout(r, 100));
@@ -210,7 +213,7 @@ if (!configured) {
     await cdp.send("ServiceWorker.deliverPushMessage", { origin: new URL(B).origin, registrationId, data: JSON.stringify(away) });
     const kept = await page.evaluate(async () => {
       const registration = await navigator.serviceWorker.ready;
-      for (let i = 0; i < 40; i += 1) {
+      for (let i = 0; i < 100; i += 1) {
         const found = (await registration.getNotifications({ tag: "kodukeel-milestone" }))[0];
         if (found) return found.data?.url ?? null;
         await new Promise((r) => setTimeout(r, 100));

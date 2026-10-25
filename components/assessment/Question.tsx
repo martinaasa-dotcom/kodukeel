@@ -1,6 +1,8 @@
 "use client";
 
 import { EnterKeyCap } from "@/components/KeyCaps";
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { useEffect, useState } from "react";
 import { Check, Ear, X } from "lucide-react";
 import { Button } from "@/components/Button";
@@ -157,9 +159,11 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
     setPicked(index);
   };
 
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     if (picked !== null || !played) return;
     const onKey = (event: KeyboardEvent) => {
+      if (!mayActOnKey(event, singleKeys)) return;
       const n = Number(event.key);
       if (Number.isInteger(n) && n >= 1 && n <= item.options.length) choose(n - 1);
       else if (event.key === "0") choose(-1);

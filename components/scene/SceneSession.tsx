@@ -22,6 +22,7 @@ import type { Difficulty } from "@/lib/scenes/curveballs";
 import { BUDGETS, defaultDifficultyFor } from "@/lib/scenes/curveballs";
 import { LEVELS, type Level } from "@/lib/collections/syllabus/types";
 import { SceneFace } from "./SceneFace";
+import { SuggestFix } from "@/components/SuggestFix";
 import { SceneDebrief, type Debrief } from "./SceneDebrief";
 import type { Errand } from "@/lib/collections/errands";
 import { SceneStage } from "./SceneStage";
@@ -136,6 +137,22 @@ type Turn =
   | { readonly who: "them"; readonly lines: readonly Line[] };
 
 type Phase = "briefing" | "talking" | "debrief";
+
+/**
+ * Every line a model composed for the other side, newest first, which is
+ * what a report of one picks from. One control per conversation rather than
+ * one under every line: the learner asked for the thread to carry nothing
+ * under its bubbles, and the newest line, the likeliest to be the one meant,
+ * is the one the picker opens on.
+ */
+function composedLines(turns: readonly Turn[]): string[] {
+  const out: string[] = [];
+  for (const turn of turns) {
+    if (turn.who !== "them") continue;
+    for (const line of turn.lines) if (line.provenance === "composed") out.push(line.text);
+  }
+  return out.reverse();
+}
 
 interface Opened {
   runId: string;
@@ -311,8 +328,16 @@ function moveIn(lines: readonly Line[]): string | null {
   return null;
 }
 
-export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answeredLast, finishedOnce, opening, chat, rehearses = null }: {
+export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answeredLast, finishedOnce, opening, chat, rehearses = null, startVoice = null }: {
   scene: SceneSpec;
+  /**
+   * How the other side reaches the learner for this run, where the page that
+   * sent them asked for one: the readiness page opens a conversation with the
+   * words hidden, since only a turn answered by ear counts toward an ear
+   * (docs/44-sixth-batch.md, C-4). A starting value the briefing reads and
+   * never stores; a change the learner makes is remembered as usual.
+   */
+  startVoice?: SceneVoice | null;
   /**
    * The errand this scene rehearses, found on the server through
    * `errandForScene` (`lib/collections/errandScenes.ts`), which reads the
@@ -444,6 +469,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
       return next;
     });
   }, []);
+  const composed = useMemo(() => composedLines(turns), [turns]);
   const [sent, setSent] = useState<Sent[]>([]);
   const [beatId, setBeatId] = useState<string | null>(null);
   const [goal, setGoal] = useState<string | null>(null);
@@ -617,7 +643,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
     lands, since a setting that failed to save is not a reason to change how a
     conversation already under way sounds.
   */
-  const [voiceMode, setVoiceMode] = useState<SceneVoice>(sceneVoice);
+  const [voiceMode, setVoiceMode] = useState<SceneVoice>(startVoice ?? sceneVoice);
   const chooseVoice = useCallback((next: SceneVoice) => {
     setVoiceMode(next);
     void setSceneVoice(next).catch(() => null);
@@ -1277,6 +1303,8 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
         the learner changed it in the box. Off this screen's own record, since
         what was heard is never sent to the server.
       */
+      // The composed lines, for the transcript's report control.
+      composed: { lines: composedLines(turnsRef.current), model: writer ? `${writer.label}, ${writer.model}` : null },
       heard: turnsRef.current.flatMap((turn) => {
         if (turn.who !== "you" || !turn.heard) return [];
         const same = (a: string) => a.split(/\s+/).map(core).filter(Boolean).join(" ");
@@ -2748,6 +2776,18 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
             <p className="text-xs" data-scene-model={writer.model} style={{ color: "var(--ink-3)" }}>
               {fill(t("The other side is played by {label}, {model}"), { label: writer.label, model: writer.model })}
             </p>
+          )}
+          {/*
+            A way to report a line a model wrote, beside the sentence naming
+            the model, which is the one place the conversation says a model is
+            playing it. It arrives with the first composed line and stays.
+          */}
+          {composed.length > 0 && (
+            <SuggestFix
+              category="AI_ANSWER"
+              answers={{ where: "SCENE_LINE", model: writer ? `${writer.label}, ${writer.model}` : null, texts: composed }}
+              label="Report a line"
+            />
           )}
         </div>
       </div>

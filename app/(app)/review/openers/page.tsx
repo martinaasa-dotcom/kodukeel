@@ -9,11 +9,12 @@ import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { BeforeYouStart } from "@/components/round/Briefing";
 import { OpenersSession } from "./OpenersSession";
-import { localeFor, titleFor } from "@/lib/progress/locale";
+import { localeFor, roundTitleFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
+import { roundPageTitle } from "@/lib/ux/roundNames";
 
 export async function generateMetadata() {
-  return titleFor("Lause algus");
+  return roundTitleFor("/review/openers");
 }
 
 export const dynamic = "force-dynamic";
@@ -49,7 +50,7 @@ export default async function OpenersPage({
 
   if (maxStage === 0) {
     return (
-      <Page title="Lause algus" titleLang="et" lead={t("The start of the sentence picks the ending.")}>
+      <Page {...roundPageTitle("/review/openers", t)} lead={t("The start of the sentence picks the ending.")}>
         <Empty
           title={t("This opens at A2")}
           body={t("It leans on the first month of phrases, so it waits until you have them.")}
@@ -76,7 +77,7 @@ export default async function OpenersPage({
   const questions = buildRound(stage, words, shuffle);
   if (questions.length === 0) {
     return (
-      <Page title="Lause algus" titleLang="et" lead={t("The start of the sentence picks the ending.")}>
+      <Page {...roundPageTitle("/review/openers", t)} lead={t("The start of the sentence picks the ending.")}>
         <Empty
           title={t("No words to practice with yet")}
           body={t("The dictionary has none of the words this round uses.")}

@@ -5,7 +5,9 @@
 
 **Written 5 September 2026. Revised 22 September 2026**, out of cycle and for the reason the review
 section gives: two recipients had joined the generated list and this page still said neither was on
-it, and a provider had left the chain. Reviewed with `docs/24-dpia.md`.
+it, and a provider had left the chain. **Revised 24 October 2026** for Apple, which joins the list
+where Sign in with Apple is configured, and the same day for Google, which this page had called a
+gap and which the list now names on every hosted deployment. Reviewed with `docs/24-dpia.md`.
 
 ## The list is generated, so this page and the app cannot quietly disagree
 
@@ -42,8 +44,11 @@ than inheriting this one.
 | Supabase | `NEXT_PUBLIC_SUPABASE_URL` is set. With no Supabase keys the app runs as a single local learner (ADR-013) |
 | Resend | `RESEND_API_KEY` is set. With none, the app sends no letters |
 | The push services run by Google, Mozilla, Apple and Microsoft | `NEXT_PUBLIC_VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` are both set. With either unset nobody is offered reminders on a computer |
+| Google, through Firebase Cloud Messaging | `FCM_SERVICE_ACCOUNT` is set. Unset, a phone's registration is refused and nothing is sent to a phone |
 | An error reporting endpoint | `ERROR_WEBHOOK_URL` is set |
 | Vercel | `VERCEL` is set by the platform itself, so it appears when somebody else owns the machine and not when the operator does |
+| Google, for sign-in | `NEXT_PUBLIC_SUPABASE_URL` is set, since every hosted sign-in page draws "Continue with Google". `NEXT_PUBLIC_GOOGLE_CLIENT_ID` changes what the entry says, because the page then loads Google's script as it opens |
+| Apple, for Sign in with Apple | `NEXT_PUBLIC_APPLE_SERVICES_ID` is set, which is also what draws the button. With none set, nothing on any page reaches Apple |
 
 ## The register
 
@@ -206,6 +211,26 @@ providers.
 
 **Role.** Recipient rather than processor: each runs the service for its own browser's users.
 
+### Google, through Firebase Cloud Messaging
+
+**Conditional**, on `FCM_SERVICE_ACCOUNT` holding a service account (N-9).
+
+**What it processes.** A reminder a learner allowed on a phone running the app: the short form of a
+letter the app already sends (`PUSH_KINDS` in `lib/push/kinds.ts`), which is the letter's subject and
+preview line, the path the app opens on a tap, and the registration token that names the app on that
+phone. Unlike the browsers' push services it can read the two lines, and it carries an iPhone's
+notification on through Apple's service with a key the operator uploads in the Firebase console. No
+name, email address or account id goes with it (`lib/push/native.ts`).
+
+**Where established.** Google LLC, in the United States. Outside the EEA.
+
+**Safeguard.** Firebase's terms, which include Google's data processing terms for Firebase, accepted
+by the operator when the project is made; the price page (https://firebase.google.com/pricing, read 24
+October 2026) lists Cloud Messaging at no charge on every plan. No transfer impact assessment has been
+carried out, the same open item as the model providers.
+
+**Role.** Processor.
+
 ### The error reporting endpoint
 
 **Conditional**, on `ERROR_WEBHOOK_URL`.
@@ -241,24 +266,67 @@ their own privacy page.
 
 **Role.** Processor.
 
+### Apple, for Sign in with Apple
+
+**On the generated list where configured** (`apple-sign-in` in `lib/legal/recipients.ts`, added
+24 October 2026 with `docs/44-sixth-batch.md` N-3). Where `NEXT_PUBLIC_APPLE_SERVICES_ID` is set the
+sign-in page draws "Continue with Apple" and loads Apple's script from `appleid.cdn-apple.com`
+(`APPLE_SCRIPT_SRC` in `lib/auth/appleIdentity.ts`), which the CSP allows for that one origin
+(`appleIdentitySrc` in `lib/security/headers.ts`). Pressing it opens Apple's own sign-in in a popup.
+The native apps use the platform's own Sign in with Apple to the same end (`docs/42-native-apps.md`
+section 3).
+
+**What it processes.** Apple learns that the learner signs in to this app and when. Apple hands back
+an ID token, which the browser gives to Supabase, and on the first sign-in only the name the learner
+chose to share, which is stored as the account's display name in Supabase Auth. The email address
+may be a private relay address Apple makes, which forwards to the learner's own; a letter this app
+sends reaches them only while that forwarding stays on, and `/terms` says so.
+
+**Where established.** Apple Inc., in the United States, so the transfer paragraph on `/privacy`
+fires. Which Apple entity answers a European account's sign-in is not readable from the app.
+
+**Role.** Independent controller for the learner's own Apple account and its sign-in; this app
+receives what the learner lets Apple share. Not assessed further here.
+
+**Cost.** The Apple Developer Program, 99 US dollars a year, is on `/funding` as its own line
+(`apple` in `lib/funding/services.ts`).
+
+**Not checked.** Whether Supabase treats an account made with Apple and one made with the emailed
+link to the same relay address as one person. Supabase's documentation says an identity with the
+same verified email is linked to the existing user automatically; nobody has tried it with a relay
+address on a Supabase project, and until somebody has, a learner who uses both doors may have two
+accounts.
+
 ### Google, for sign-in
 
-**Not on the generated list, and that is a gap.** Signing in with Google means the learner's browser
-talks to Google, and where `NEXT_PUBLIC_GOOGLE_CLIENT_ID` is set the sign-in page loads Google
-Identity Services from `accounts.google.com` (`GSI_SCRIPT_SRC` in `lib/auth/googleIdentity.ts`),
-which the CSP allows for that one origin (`googleIdentitySrc` in `lib/security/headers.ts`). Loading
-that script sends the visitor's address and browser details to Google on the sign-in page, before
-anybody presses anything. `resolveRecipients` does not name Google in either case.
+**On the generated list on every hosted deployment** (`google-sign-in` in `lib/legal/recipients.ts`,
+added 24 October 2026 with `docs/44-sixth-batch.md` N-3a; this page called it a gap until then).
+Google is two doors and both reach Google. The redirect door, `signInWithOAuth` through Supabase's
+own callback, is drawn on every hosted sign-in page, so the entry appears wherever
+`NEXT_PUBLIC_SUPABASE_URL` is set (`googleSignInOffered` in `lib/auth/googleConfig.ts`). Whether the
+operator has switched the Google provider on in Supabase's dashboard is not readable from the app,
+and a list of who a learner's data could reach names Google rather than guess. Where
+`NEXT_PUBLIC_GOOGLE_CLIENT_ID` is set the page also loads Google Identity Services from
+`accounts.google.com` (`GSI_SCRIPT_SRC` in `lib/auth/googleIdentity.ts`), which the CSP allows for that
+one origin (`googleIdentitySrc` in `lib/security/headers.ts`). Loading that script sends the
+visitor's address and browser details to Google on the sign-in page, before anybody presses
+anything, and the entry says so in that case (`googleScriptLoaded`), as does a paragraph on
+`/privacy`.
 
-**What it processes.** The Google account sign-in itself, which is between the learner and Google,
-and the page load described above. The app receives an ID token and passes it to Supabase; no Google
-scope beyond identity is requested.
+**What it processes.** Google learns that the learner signs in to this app and when, and, where its
+script loads, that they opened the sign-in page. It hands back an ID token, which the browser gives
+to Supabase, carrying the name and email address on the Google account; the account keeps both, the
+name as what the app calls the learner and the address as the account's own. No Google scope beyond
+identity is requested. `/terms` says Google's own terms cover that step.
 
-**Where established.** Not recorded here. Which Google entity answers a request is not readable
-from the app, and this register has not assessed it.
+**Where established.** Google LLC, in the United States, runs Identity Services, so the entry is
+recorded as outside the EEA and the transfer paragraph on `/privacy` fires. Which Google entity
+answers a European account's sign-in is not readable from the app.
 
-**Role.** Independent controller for the sign-in to the learner's own Google account. Not assessed
-further here.
+**Role.** Independent controller for the sign-in to the learner's own Google account; this app
+receives what that sign-in hands back. Not assessed further here.
+
+**Cost.** None. Google charges nothing for sign-in, so there is no line on `/funding`.
 
 A deployment that names email domains in `SSO_DOMAINS` sends people on those domains to their own
 organization's identity provider (`lib/auth/sso.ts`). That provider is the organization's, chosen

@@ -1,0 +1,226 @@
+{
+  "checkId": "check-a1.1",
+  "attempt": 1,
+  "final": false,
+  "items": [
+    {
+      "kind": "pick",
+      "et": "Nägemist!",
+      "options": [
+        "Thank you!",
+        "See you! Bye!",
+        "Goodbye!",
+        "Please. Here you are. You're welcome."
+      ],
+      "answer": "See you! Bye!"
+    },
+    {
+      "kind": "pick",
+      "et": "teie",
+      "options": [
+        "he, she",
+        "you, polite or more than one",
+        "we",
+        "they"
+      ],
+      "answer": "you, polite or more than one"
+    },
+    {
+      "kind": "pick",
+      "et": "sinu",
+      "options": [
+        "your",
+        "my",
+        "is",
+        "What's your name?"
+      ],
+      "answer": "your"
+    },
+    {
+      "kind": "hear",
+      "et": "Mis su nimi on?",
+      "options": [
+        "How do you spell that?",
+        "your",
+        "Nice to meet you!",
+        "What's your name?"
+      ],
+      "answer": "What's your name?"
+    },
+    {
+      "kind": "pick",
+      "et": "meie",
+      "options": [
+        "you, one person you know",
+        "he, she",
+        "we",
+        "you, polite or more than one"
+      ],
+      "answer": "we"
+    },
+    {
+      "kind": "pick",
+      "et": "venelane",
+      "options": [
+        "a Russian",
+        "an English person",
+        "an American",
+        "a Ukrainian"
+      ],
+      "answer": "a Russian"
+    },
+    {
+      "kind": "hear",
+      "et": "Kas te räägite inglise keelt?",
+      "options": [
+        "Do you speak English?",
+        "I don't understand.",
+        "Slower, please.",
+        "Please say that again."
+      ],
+      "answer": "Do you speak English?"
+    },
+    {
+      "kind": "pick",
+      "et": "nimi",
+      "options": [
+        "is",
+        "your",
+        "name",
+        "my"
+      ],
+      "answer": "name"
+    },
+    {
+      "kind": "hear",
+      "et": "Tere päevast!",
+      "options": [
+        "Hello! Hi!",
+        "Good morning!",
+        "Good afternoon!",
+        "Good evening!"
+      ],
+      "answer": "Good afternoon!"
+    },
+    {
+      "kind": "hear",
+      "et": "Tere hommikust!",
+      "options": [
+        "Hello! Hi!",
+        "Good evening!",
+        "Good morning!",
+        "Good afternoon!"
+      ],
+      "answer": "Good morning!"
+    },
+    {
+      "kind": "gap",
+      "before": "See ",
+      "after": " minu sõber Jaan.",
+      "en": "That's my friend Jaan. He's a doctor.",
+      "options": [
+        "ole",
+        "oleme",
+        "pole",
+        "on"
+      ],
+      "answer": "on"
+    },
+    {
+      "kind": "gap",
+      "before": "Ma ",
+      "after": " õpetaja.",
+      "en": "Hello! I'm Mari. I'm a teacher.",
+      "options": [
+        "ole",
+        "oled",
+        "olen",
+        "oleme"
+      ],
+      "answer": "olen"
+    },
+    {
+      "kind": "gap",
+      "before": "Ei, ma ei ",
+      "after": " eestlane.",
+      "en": "No, I'm not Estonian. I'm English.",
+      "options": [
+        "olete",
+        "olen",
+        "ole",
+        "pole"
+      ],
+      "answer": "ole"
+    },
+    {
+      "kind": "gap",
+      "before": "Kas sa ",
+      "after": " eestlane?",
+      "en": "Are you Estonian?",
+      "options": [
+        "olen",
+        "pole",
+        "oled",
+        "on"
+      ],
+      "answer": "oled"
+    },
+    {
+      "kind": "type",
+      "en": "okay, not bad",
+      "answer": "normaalselt",
+      "accept": [
+        "normaalselt"
+      ]
+    },
+    {
+      "kind": "type",
+      "en": "very, really",
+      "answer": "väga",
+      "accept": [
+        "väga"
+      ]
+    },
+    {
+      "kind": "type",
+      "en": "we are",
+      "answer": "oleme",
+      "accept": [
+        "oleme",
+        "me oleme",
+        "meie oleme"
+      ]
+    },
+    {
+      "kind": "type",
+      "en": "Good evening!",
+      "answer": "Tere õhtust!",
+      "accept": [
+        "Tere õhtust!"
+      ]
+    },
+    {
+      "kind": "type",
+      "en": "you are, to one person you know",
+      "answer": "oled",
+      "accept": [
+        "oled"
+      ]
+    },
+    {
+      "kind": "type",
+      "en": "no",
+      "answer": "ei",
+      "accept": [
+        "ei"
+      ]
+    }
+  ],
+  "needed": 16,
+  "alreadyPassed": false,
+  "next": {
+    "id": "a1.2",
+    "label": "Where you live"
+  },
+  "levelDone": null
+}

@@ -23,7 +23,7 @@ export default function translationsSayTheyAreMachineMade({ check, code }: Invar
     assert.match(page, /\{copy\.notice\}/, "the entry page no longer prints the notice in the page's language");
     assert.match(page, /\{MACHINE_TRANSLATED_EN\}/, "the entry page no longer prints the notice in English");
     assert.match(page, /lang=\{locale\}/, "the landing page no longer marks its language, so a screen reader reads Russian with English sounds");
-    for (const locale of ["ru", "uk"]) {
+    for (const locale of ["ru", "uk", "et"]) {
       assert.match(
         code(`app/(chromeless)/welcome/${locale}/page.tsx`),
         new RegExp(`<WelcomePage params=\\{Promise\\.resolve\\(\\{ lang: "${locale}" \\}\\)\\} />`),
@@ -31,7 +31,9 @@ export default function translationsSayTheyAreMachineMade({ check, code }: Invar
       );
     }
     const notice = code("components/PublicLanguage.tsx");
-    assert.match(notice, /!legal && REVIEWED\[locale\]/, "the public pages' notice no longer stands down only once a fluent reader has checked the language");
+    // Estonian is a public language and not an interface one (D16), so its
+    // reviewed flag is the entry copy's rather than `REVIEWED`'s.
+    assert.match(notice, /!legal && \(locale === "et" \? ENTRY_COPY\.et\.reviewed : REVIEWED\[locale\]\)/, "the public pages' notice no longer stands down only once a fluent reader has checked the language");
     assert.match(notice, /LEGAL_NOTICE\[locale\]/, "a translated policy page no longer says that the English prevails");
 
     assert.ok(ENTRY_LOCALES.length >= 2, "fewer locales than there were, so this check stopped looking");
@@ -45,7 +47,9 @@ export default function translationsSayTheyAreMachineMade({ check, code }: Invar
       assert.ok(copy.notice.length > 20, `${locale} has an empty notice`);
       const all = JSON.stringify(copy);
       assert.doesNotMatch(all, /[–—]/, `${locale} carries a dash, which the voice rules forbid in every language`);
-      assert.doesNotMatch(all, /[õäöüšž]/i, `${locale} carries Estonian, which this app may not write`);
+      // Estonian prose about the app on its own page is the one place it may
+      // stand (ADR-005, amendment 7); the Russian and Ukrainian carry none.
+      if (locale !== "et") assert.doesNotMatch(all, /[õäöüšž]/i, `${locale} carries Estonian, which this app may not write`);
     }
   });
 
@@ -64,17 +68,17 @@ export default function translationsSayTheyAreMachineMade({ check, code }: Invar
     for (const file of pages) {
       const page = code(file);
       assert.match(page, /<Legal\b|<PublicHeader\b|<LanguageSwitcher\b/, `${file} offers no way to read it in another language`);
-      assert.match(page, /resolvePublicLocale\(/, `${file} no longer reads the language it is asked for`);
+      assert.match(page, /resolvePublicLocale\(|resolvePublicPage\(/, `${file} no longer reads the language it is asked for`);
     }
     const shell = code("components/Legal.tsx");
     const header = shell.slice(shell.indexOf("export function PublicHeader"));
     assert.match(header.slice(0, header.indexOf("\nexport ", 1)), /<LanguageSwitcher\b/, "the public header stopped drawing the switcher");
     assert.match(shell.slice(shell.indexOf("export function Legal"), shell.indexOf("export function PublicHeader")), /<PublicHeader\b/, "the policy pages stopped drawing the public header");
     const landing = code("app/(chromeless)/welcome/page.tsx");
-    assert.match(landing, /languagesBeside\(locale\)/, "the landing page stopped linking its other languages");
+    assert.match(landing, /[lL]anguagesBeside\(locale\)/, "the landing page stopped linking its other languages");
     // Russian and Ukrainian never link each other: each offers English beside
     // itself, and only the English page names both.
-    assert.match(code("components/PublicLanguage.tsx"), /languagesBeside\(locale\)\.map/, "the switcher lists every language whatever page it is on");
+    assert.match(code("components/PublicLanguage.tsx"), /[lL]anguagesBeside\(locale(, drawnIn)?\)\.map/, "the switcher lists every language whatever page it is on");
     assert.doesNotMatch(landing, /ENTRY_LOCALES\.filter\(\(l\) => l !== locale\)/, "a translated landing page links the other translation");
     assert.match(landing, /locale === "en" && ENTRY_LOCALES\.map/, "the footer lists the translations on a page that is not English");
     assert.match(landing, /href="\/welcome" lang="en"/, "the translated landing page no longer links back to the English one");

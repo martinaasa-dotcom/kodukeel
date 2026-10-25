@@ -116,6 +116,16 @@ const KNOWN_DEPLOYMENTS: Readonly<Record<string, Omit<Operator, "identified" | "
     address to every preview anybody ever deploys.
   */
   "kodukeel.vercel.app": UPTHINK,
+  /*
+    THE SHARED DEMO A REVIEWER IS POINTED AT (docs/44-sixth-batch.md, D18).
+
+    A second deployment of the same code, in local mode, run by the same
+    company, so its policy pages name the same controller rather than saying
+    nobody was named. The address is the planned one; it answers only once
+    the operator has set the deployment up and pointed the name at it, and
+    until then this row answers for nobody.
+  */
+  "demo.kodukeel.ee": UPTHINK,
 };
 
 /**
@@ -220,6 +230,32 @@ export function resolveOperator(
 export const IDENTIFIED_DEPLOYMENTS: readonly string[] = Object.keys(KNOWN_DEPLOYMENTS);
 
 /**
+ * WHO A REQUEST TO EKILEX SAYS IT IS FROM.
+ *
+ * `Kodukeel/<version> (+https://<host>/trust; <email>)`, where the host is the
+ * canonical one this deployment names itself by and the email is the
+ * operator's. A free academic service that sees a load it does not like
+ * should be able to tell whose it is and write to them, rather than block an
+ * address and wonder (docs/44-sixth-batch.md, D17).
+ *
+ * Only what is configured is said. A deployment that names no operator sends
+ * no email, and one with no canonical host sends no page, so an unconfigured
+ * fork is never made to claim this project's contact address.
+ */
+export function ekilexUserAgent(
+  version: string,
+  env: Record<string, string | undefined> = process.env,
+): string {
+  const operator = resolveOperator(env);
+  const host = canonicalHost(env);
+  const parts = [
+    host ? `+https://${host}/trust` : null,
+    operator.identified ? operator.email : null,
+  ].filter((part): part is string => Boolean(part));
+  return parts.length > 0 ? `Kodukeel/${version} (${parts.join("; ")})` : `Kodukeel/${version}`;
+}
+
+/**
  * The supervisory authority a learner in Estonia complains to, named because
  * Article 13(2)(d) requires that they be told they can.
  *
@@ -243,4 +279,28 @@ export const SUPERVISORY_AUTHORITY = {
   email: "info@aki.ee",
   phone: "+372 627 4135",
   web: "https://www.aki.ee/en",
+} as const;
+
+/**
+ * The authority a complaint about accessibility escalates to in Estonia, named
+ * because the Web Accessibility Directive asks a statement to give the
+ * enforcement procedure, and a public funder reads that line.
+ *
+ * Read off the authority's own site on 24 October 2026: the name, the postal
+ * address and the phone from https://www.ttja.ee/en/contact, and the
+ * supervision of public sector websites and apps from the accessibility
+ * statements of other Estonian state bodies that name it. The email is shown on
+ * that page behind link protection and was read as info@ttja.ee; the operator
+ * confirms all of it before a submission (docs/44-sixth-batch.md, section 8).
+ * Hard-coded for the reason `SUPERVISORY_AUTHORITY` is, and quoted from the
+ * authority rather than written here, so ADR-005 does not reach the Estonian
+ * name.
+ */
+export const ACCESSIBILITY_AUTHORITY = {
+  name: "Consumer Protection and Technical Regulatory Authority",
+  localName: "Tarbijakaitse ja Tehnilise Järelevalve Amet",
+  address: "Endla 10A, 10122 Tallinn, Estonia",
+  email: "info@ttja.ee",
+  phone: "+372 667 2000",
+  web: "https://www.ttja.ee/en",
 } as const;

@@ -1,4 +1,4 @@
-import { titleFor } from "@/lib/progress/locale";
+import { roundTitleFor } from "@/lib/progress/locale";
 import { prisma } from "@/lib/db";
 import { plainPhrase } from "@/lib/copy/values";
 import { sameMeaning } from "@/lib/questions/distractors";
@@ -11,7 +11,7 @@ import { practiceScope } from "@/lib/progress/moduleScope";
 import { meaningPrefsFrom, meaningsShown } from "@/lib/collections/glossLanguage";
 
 export async function generateMetadata() {
-  return titleFor("Match");
+  return roundTitleFor("/review/match");
 }
 
 export const dynamic = "force-dynamic";

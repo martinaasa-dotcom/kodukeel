@@ -3,6 +3,7 @@ import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import type { Metadata } from "next";
 import { localeFrom, tr, type Locale } from "@/lib/copy/locale";
 import { requireUserId } from "@/lib/auth/session";
+import { inlineName, roundName } from "@/lib/ux/roundNames";
 
 /**
  * Which language this learner reads the app in, read once per request.
@@ -28,4 +29,14 @@ export const localeFor = cache(async (ownerId: string): Promise<Locale> =>
  */
 export async function titleFor(english: string, extra?: Omit<Metadata, "title">): Promise<Metadata> {
   return { ...extra, title: tr(await localeFor(await requireUserId()), english) };
+}
+
+/**
+ * A round's tab title: its agreed name (`lib/ux/roundNames.ts`), the Estonian
+ * then the English in the reader's language, so the tab, the tile and the
+ * step that opened it call the round one thing.
+ */
+export async function roundTitleFor(href: string, extra?: Omit<Metadata, "title">): Promise<Metadata> {
+  const locale = await localeFor(await requireUserId());
+  return { ...extra, title: inlineName(roundName(href), (english) => tr(locale, english)) };
 }

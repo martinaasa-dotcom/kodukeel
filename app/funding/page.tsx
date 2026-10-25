@@ -5,9 +5,10 @@ import { rich } from "@/components/Rich";
 import { LocaleProvider } from "@/components/Locale";
 import { areaTable } from "@/lib/copy/i18n/slice";
 import { PUBLIC } from "@/lib/copy/i18n/areas/public";
+import { PHONES_AREA } from "@/lib/copy/i18n/areas/phones";
 import { fill, tr } from "@/lib/copy/locale";
 import { localeHref } from "@/lib/copy/publicLocale";
-import { publicTitle, resolvePublicLocale, type PublicSearch } from "@/lib/progress/publicLocale";
+import { publicPageTitle, resolvePublicPage, type PublicSearch } from "@/lib/progress/publicLocale";
 import { publicCard } from "@/lib/copy/publicCards";
 import { resolveOperator } from "@/lib/legal/operator";
 import { audioCacheIsDurable } from "@/lib/audio/store";
@@ -19,12 +20,12 @@ import { DEFAULT_LIMITS } from "@/lib/usage/quota";
 import { SERVICES } from "@/lib/funding/model";
 import { CONTINUITY, floorUsd, retrenchment } from "@/lib/funding/sustainability";
 import {
-  COMPUTE, DEFAULT_SHAPE, DEVTOOLS, DOMAIN, EMAIL, ERRORS, FX, MEASURED, MEASURED_ON,
+  APPLE_DEVELOPER, COMPUTE, DEFAULT_SHAPE, DEVTOOLS, DOMAIN, EMAIL, ERRORS, FX, MEASURED, MEASURED_ON,
   PRICES_CHECKED, SPEECH_MARKET, SUPABASE, VERCEL,
 } from "@/lib/funding/facts";
 
 export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
-  return publicTitle(searchParams, "Funding", undefined, publicCard("/funding"));
+  return publicPageTitle(searchParams, "Funding", undefined, publicCard("/funding"));
 }
 
 /*
@@ -72,7 +73,7 @@ export const dynamic = "force-dynamic";
  * stale one in its own header.
  */
 export default async function FundingPage({ searchParams }: { searchParams: PublicSearch }) {
-  const { locale, explicit } = await resolvePublicLocale(searchParams);
+  const { locale, explicit } = await resolvePublicPage(searchParams);
   const operator = resolveOperator();
   // Anu's own chain rather than the general one: the general chain carries the
   // paid tail, which a tutor chain never reaches, so naming it here told a
@@ -251,11 +252,13 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
         {/*
           The public area and no more of the language: every line the
           calculator draws, its services, stages and assumptions included, is
-          translated there (lib/copy/i18n/areas/public.ts). Without the slice a
+          translated there (lib/copy/i18n/areas/public.ts), and the phone push
+          service's row with the rest of the phones (lib/copy/i18n/areas/phones.ts),
+          or the browser draws that row in English over the server's. Without the slice a
           Russian reader downloaded the whole signed-in app's language to read
           one calculator. scripts/test-locales.mjs names a line the slice misses.
         */}
-        <LocaleProvider locale={locale} table={locale === "en" ? undefined : areaTable(locale, [PUBLIC])}>
+        <LocaleProvider locale={locale} table={locale === "en" ? undefined : areaTable(locale, [PUBLIC, PHONES_AREA])}>
           <CostExplorer />
         </LocaleProvider>
       </S>
@@ -372,6 +375,14 @@ export default async function FundingPage({ searchParams }: { searchParams: Publ
             <Priced href={DOMAIN.ref.source} label={t("A .ee domain")} />
             {": "}
             {fill(t("about {eur} euros a year."), { eur: DOMAIN.eurPerYear })}
+          </li>
+          <li>
+            <Priced href={APPLE_DEVELOPER.ref.source} label={t("Apple's developer account")} />
+            {": "}
+            {fill(t("{usd} dollars a year, read on {day}. It is what Sign in with Apple and an iPhone app need, whatever the number of learners."), {
+              usd: APPLE_DEVELOPER.usdPerYear,
+              day: dayOf(APPLE_DEVELOPER.ref.checked),
+            })}
           </li>
         </ul>
         <P>

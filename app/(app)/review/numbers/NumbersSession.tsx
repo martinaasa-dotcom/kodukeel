@@ -23,6 +23,7 @@ import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { heardAsSpelled } from "@/lib/speech/verdict";
 import { core, type Hearing } from "@/lib/speech/reconcile";
 import { NUMBER_SPELLINGS, markNumber, wordsGraded, type NumberItem, type NumberMark } from "@/lib/games/numbers";
+import { roundPageTitle } from "@/lib/ux/roundNames";
 
 export interface NumbersItem {
   readonly key: string;
@@ -123,7 +124,7 @@ export function NumbersSession({ items: initialItems, cardFor }: {
 
   if (items.length === 0) {
     return (
-      <Page title="Arvud" lead={t("Prices, clock times and numbers, said out loud.")}>
+      <Page {...roundPageTitle("/review/numbers", t)} lead={t("Prices, clock times and numbers, said out loud.")}>
         <Empty
           title={t("No numbers to say yet")}
           body={t("This opens once you've met the numbers. They're one of the first units of the course.")}

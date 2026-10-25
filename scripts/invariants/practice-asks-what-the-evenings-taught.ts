@@ -39,7 +39,7 @@ export default function practiceAsksWhatTheEveningsTaught({ check, code, sourceF
     assert.match(moduleScope, /moduleScopeFrom\(searchParams\) \?\? learnerScopeSoFar\(ownerId\)/,
       "practiceScope no longer falls back to what the evenings have taught so far");
 
-    for (const file of ["app/(app)/review/queue.ts"]) {
+    for (const file of ["lib/progress/dailyQueue.ts"]) {
       const src = code(file);
       assert.match(src, /learnerScopeSoFar\(ownerId\)/, `${file} no longer holds the daily review to what tonight has done`);
       assert.doesNotMatch(src, /learnerModuleScope\(/,

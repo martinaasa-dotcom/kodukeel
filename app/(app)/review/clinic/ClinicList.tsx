@@ -14,6 +14,7 @@ import { caseByKey } from "@/lib/estonian/cases";
 import { useT } from "@/components/Locale";
 import { TrParts } from "@/components/TrParts";
 import { fill } from "@/lib/copy/locale";
+import { roundPageTitle } from "@/lib/ux/roundNames";
 
 export interface ClinicItem extends Omit<Leech, "history"> {
   history: { rating: number; at: string }[];
@@ -43,7 +44,7 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
 
   return (
     <Page
-      title={t("Leech clinic")}
+      {...roundPageTitle("/review/clinic", t)}
       lead={t("The words that just won't stick, and a good guess at why.")}
     >
       <p className="-mt-2 mb-3 flex items-center gap-2 text-sm" style={{ color: "var(--ink-3)" }}>

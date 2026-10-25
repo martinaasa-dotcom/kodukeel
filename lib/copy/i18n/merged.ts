@@ -1,6 +1,7 @@
 import { AREAS } from "./index";
 import { COUNTED, COUNT_CASES } from "./counted";
 import { linesOf } from "./slice";
+import { COUNTED_ET } from "./areas/et/counted";
 import type { CaseForms, Forms, LocaleTable, TranslatedLocale } from "./table";
 
 /**
@@ -21,7 +22,7 @@ import type { CaseForms, Forms, LocaleTable, TranslatedLocale } from "./table";
  * (`locale.test.ts`).
  */
 
-function build(locale: TranslatedLocale): LocaleTable {
+function build(locale: "ru" | "uk"): LocaleTable {
   const counted: Record<string, Forms> = {};
   for (const [noun, forms] of Object.entries(COUNTED)) counted[noun] = forms[locale];
   const cases: Record<string, CaseForms> = {};
@@ -29,7 +30,21 @@ function build(locale: TranslatedLocale): LocaleTable {
   return { lines: linesOf(locale, AREAS.map(([, area]) => area)), counted, cases };
 }
 
+/**
+ * Estonian, for the public pages alone (D16 in docs/44-sixth-batch.md): the
+ * areas that carry an `et` record, and Estonian's two counted forms, the
+ * nominative after one and the partitive singular after any other count,
+ * stored in the one, few and many slots as [one, other, other]. No case
+ * forms, since an Estonian count keeps its partitive whatever governs it.
+ */
+function buildEstonian(): LocaleTable {
+  const counted: Record<string, Forms> = {};
+  for (const [noun, [one, other]] of Object.entries(COUNTED_ET)) counted[noun] = [one, other, other];
+  return { lines: linesOf("et", AREAS.map(([, area]) => area)), counted, cases: {} };
+}
+
 export const TABLES: Readonly<Record<TranslatedLocale, LocaleTable>> = {
   ru: build("ru"),
   uk: build("uk"),
+  et: buildEstonian(),
 };

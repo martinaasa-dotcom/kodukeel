@@ -98,7 +98,9 @@ async function upsertLexemes(tx: Prisma.TransactionClient, batch: SeedEntry[]) {
       ${Prisma.join(
         columns
           .filter((c) => c.reseeded)
-          .map((c) => Prisma.sql`${quoted(c.name)} = EXCLUDED.${quoted(c.name)}`),
+          .map((c) => (c.fillOnly
+            ? Prisma.sql`${quoted(c.name)} = COALESCE("Lexeme".${quoted(c.name)}, EXCLUDED.${quoted(c.name)})`
+            : Prisma.sql`${quoted(c.name)} = EXCLUDED.${quoted(c.name)}`)),
       )},
       "updatedAt" = NOW()
     WHERE "Lexeme"."editedBy" IS NULL

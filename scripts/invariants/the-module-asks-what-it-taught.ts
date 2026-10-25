@@ -12,16 +12,18 @@ import type { InvariantKit } from "../lib/invariantKit";
  */
 export default function theModuleAsksWhatItTaught({ check, code }: InvariantKit) {
   check("picking a level in Settings moves the course when it opens on another level", () => {
-    const actions = code("app/actions.ts");
-    const start = actions.indexOf("export async function setCourseLevel");
-    assert.ok(start >= 0, "setCourseLevel is gone");
-    const body = actions.slice(start, actions.indexOf("export async function", start + 10));
+    // The picker's body is `changeCourseLevel`, which both doors call (N-8).
+    const level = code("lib/progress/courseLevel.ts");
+    const start = level.indexOf("export async function changeCourseLevel");
+    assert.ok(start >= 0, "changeCourseLevel is gone");
+    const end = level.indexOf("export async function", start + 10);
+    const body = level.slice(start, end < 0 ? undefined : end);
     assert.match(body, /openingPartFor\(ownerId\)/, "setCourseLevel no longer works out where the new level opens");
     assert.match(body, /SETTING_KEYS\.programme,\s*opening\.id/, "setCourseLevel no longer moves the course");
   });
 
   check("the module's closing round reads only tonight's words, and stops at MODULE_SESSION", () => {
-    const round = code("app/(app)/review/queue.ts");
+    const round = code("lib/progress/dailyQueue.ts");
     assert.match(round, /if \(scope\) \{/, "the review queue no longer has a closing round of its own");
     const closing = round.slice(round.indexOf("if (scope) {"), round.indexOf("const dueWindow"));
     assert.match(closing, /tonightWhere\(ownerId, now, scope\.day\.words,/, "the closing round reads more than tonight's words");

@@ -16,6 +16,14 @@ function header(key: string): string {
 }
 
 describe("the policy says what the app actually needs", () => {
+  it("upgrades insecure requests only on a page served over HTTPS", () => {
+    // WebKit applies the directive to localhost, so on plain HTTP every script
+    // went to https:// and the page never hydrated (test-browsers.mjs).
+    expect(buildContentSecurityPolicy().split("; ")).toContain("upgrade-insecure-requests");
+    expect(buildContentSecurityPolicy({ secure: true }).split("; ")).toContain("upgrade-insecure-requests");
+    expect(buildContentSecurityPolicy({ secure: false }).split("; ")).not.toContain("upgrade-insecure-requests");
+  });
+
   it("refuses to be framed, in both directions", () => {
     // Sõnaveeb and Ekilex send X-Frame-Options: DENY at us and this app sends
     // it back out. Nothing here is meant to be embedded anywhere.
@@ -42,6 +50,23 @@ describe("the policy says what the app actually needs", () => {
     } finally {
       if (previous === undefined) delete process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
       else process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID = previous;
+    }
+  });
+
+  it("allows Apple's sign-in script only where a Services ID is configured, and nothing else of Apple's", () => {
+    vi.stubEnv("NEXT_PUBLIC_GOOGLE_CLIENT_ID", "");
+    vi.stubEnv("NEXT_PUBLIC_APPLE_SERVICES_ID", "");
+    try {
+      expect(buildContentSecurityPolicy()).not.toContain("apple");
+      vi.stubEnv("NEXT_PUBLIC_APPLE_SERVICES_ID", "ee.kodukeel.web");
+      expect(directive("script-src")).toContain("https://appleid.cdn-apple.com");
+      // Popup mode opens Apple's page in a window of its own, so no frame,
+      // fetch or form of this page's needs to reach Apple.
+      expect(directive("frame-src")).toBe("frame-src 'none'");
+      expect(directive("connect-src")).not.toContain("apple");
+      expect(directive("form-action")).toBe("form-action 'self'");
+    } finally {
+      vi.unstubAllEnvs();
     }
   });
 

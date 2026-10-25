@@ -1,4 +1,4 @@
-import { titleFor } from "@/lib/progress/locale";
+import { roundTitleFor } from "@/lib/progress/locale";
 import { requireUserId } from "@/lib/auth/session";
 import { offered } from "@/lib/tutor/provider";
 import { sayingsSitting } from "@/lib/progress/sayings";
@@ -6,7 +6,7 @@ import { BeforeYouStart } from "@/components/round/Briefing";
 import { SayingsSession } from "./SayingsSession";
 
 export async function generateMetadata() {
-  return titleFor("Väljendid");
+  return roundTitleFor("/review/sayings");
 }
 
 export const dynamic = "force-dynamic";

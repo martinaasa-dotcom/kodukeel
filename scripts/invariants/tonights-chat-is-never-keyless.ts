@@ -24,12 +24,23 @@ export default function tonightsChatIsNeverKeyless({ check, code }: InvariantKit
   });
 
   check("every door asks before it does anything", () => {
-    const actions = code("app/actions.ts");
-    const begin = /export async function beginChat\(level\?: unknown\) \{([\s\S]*?)\n\}/.exec(actions)?.[1] ?? "";
-    assert.ok(begin.length > 0, "beginChat is gone, or takes something other than a level");
-    assert.match(begin, /if \(!chatOffered\(\)\) return/, "beginChat opens a run without asking whether a model is there");
-    assert.ok(begin.indexOf("chatOffered()") < begin.indexOf("beginRun("), "beginChat asks about the model only after opening the run");
-    assert.match(begin, /const evening = await chatDay\(ownerId\);/, "beginChat no longer works the evening out on the server");
+    /*
+      The body is `beginChatFor` (N-5), and both doors open a chat through it and
+      nothing else: the web's `beginChat` and `POST /api/v1/chat`. It asks
+      `chatOffered` before it reads anything, so neither door can open one
+      keyless.
+    */
+    const runs = code("lib/progress/sceneRuns.ts");
+    const begin = /export async function beginChatFor\(ownerId: string, level\?: unknown\)[^{]*\{([\s\S]*?)\n\}/.exec(runs)?.[1] ?? "";
+    assert.ok(begin.length > 0, "beginChatFor is gone, or takes something other than a level");
+    assert.match(begin, /^\s*if \(!chatOffered\(\)\) return/, "beginChatFor does something before asking whether a model is there");
+    assert.ok(begin.indexOf("chatOffered()") < begin.indexOf("beginRun("), "beginChatFor asks about the model only after opening the run");
+    assert.match(begin, /const evening = await chatDay\(ownerId\);/, "beginChatFor no longer works the evening out on the server");
+    const web = /export async function beginChat\(level\?: unknown\) \{([\s\S]*?)\n\}/.exec(code("app/actions.ts"))?.[1] ?? "";
+    assert.match(web, /await beginChatFor\(ownerId, level\)/, "the web's beginChat opens a chat some other way than beginChatFor");
+    const v1 = code("app/api/v1/chat/route.ts");
+    assert.match(v1, /await beginChatFor\(who\.ownerId, body\.data\.level\)/, "the v1 chat opens a chat some other way than beginChatFor");
+    assert.doesNotMatch(`${web}\n${v1}`, /\bbeginRun\(/, "a door opens a run itself rather than through beginChatFor");
     assert.match(code("app/(app)/course/chat/page.tsx"), /if \(!\(await chatAffordable\(ownerId\)\)\) redirect\("\/course"\);/, "the chat page draws without a model, or on a day whose allowance is spent");
     // Affordable is offered AND allowed: a spent day falls to a stage direction on every turn.
     assert.match(code("lib/progress/chat.ts"), /return chatOffered\(\) && \(await wouldAuthorise\(ownerId, "SCENE"\)\);/, "a chat is called affordable without asking the model or the allowance");

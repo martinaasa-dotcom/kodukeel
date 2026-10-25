@@ -1,4 +1,4 @@
-import { titleFor } from "@/lib/progress/locale";
+import { roundTitleFor } from "@/lib/progress/locale";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { starredAmong } from "@/lib/progress/stars";
@@ -10,7 +10,7 @@ import { BeforeYouStart } from "@/components/round/Briefing";
 import { practiceScope } from "@/lib/progress/moduleScope";
 
 export async function generateMetadata() {
-  return titleFor("Tähed");
+  return roundTitleFor("/review/letters");
 }
 
 export const dynamic = "force-dynamic";

@@ -1,3 +1,4 @@
+import { inlineName, nameOf } from "./roundNames";
 import { modeAt } from "./modes";
 import { DESTINATIONS } from "./nav";
 import { WEEKDAY_LONG, type Weekday } from "./schedule";
@@ -134,12 +135,16 @@ function weekFor(level?: string | null): readonly FeaturedGame[] {
 /**
  * What today's row is called, off the table that owns the name.
  *
- * A mode's title where the href is a mode, and a destination's label where
- * it is a place, so this table describes nothing itself and a rename in
+ * A round's agreed name where it has one (lib/ux/roundNames.ts), a mode's
+ * title where the href is a mode, and a destination's label where it is a
+ * place, already in the reader's language through `translate`, so this table describes nothing itself and a rename in
  * either source reaches the card on Today.
  */
-export function featuredTitle(href: string): string | undefined {
-  return modeAt(href)?.title ?? DESTINATIONS.find((d) => d.href === href)?.label;
+export function featuredTitle(href: string, translate: (english: string) => string = (english) => english): string | undefined {
+  const name = nameOf(href);
+  if (name) return inlineName(name, translate);
+  const english = modeAt(href)?.title ?? DESTINATIONS.find((d) => d.href === href)?.label;
+  return english === undefined ? undefined : translate(english);
 }
 
 /** Today's, for a learner at this level. */

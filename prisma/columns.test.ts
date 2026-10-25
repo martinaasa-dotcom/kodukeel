@@ -62,6 +62,13 @@ describe("the seed's Lexeme columns", () => {
     expect(reseeded).not.toContain("pos");
   });
 
+  it("fills the Ekilex word id where a row has none and never replaces one", () => {
+    // A live lookup may have pinned a different homonym; the seed only fills.
+    const id = LEXEME_COLUMNS.find((c) => c.name === "ekilexWordId");
+    expect(id?.fillOnly).toBe(true);
+    expect(LEXEME_COLUMNS.filter((c) => c.fillOnly).map((c) => c.name)).toEqual(["ekilexWordId"]);
+  });
+
   it("keeps the Ekilex cache and the learner's own writing out of the seed's reach", () => {
     const written = LEXEME_COLUMNS.map((c) => c.name);
     for (const preserved of PRESERVED_COLUMNS) expect(written).not.toContain(preserved);

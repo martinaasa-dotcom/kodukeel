@@ -8,7 +8,7 @@ vi.mock("next/headers", () => ({ cookies: async () => ({ getAll: () => [] }) }))
 vi.mock("@/lib/auth/session", () => ({ requireUserId: async () => "nobody" }));
 vi.mock("@/lib/progress/locale", () => ({ localeFor: async () => "en" }));
 
-const { publicTitle, SHARE_IMAGE } = await import("./publicLocale");
+const { publicPageTitle, publicTitle, SHARE_IMAGE } = await import("./publicLocale");
 
 // A line /trust has carried since before the card existed, so the test reads
 // the same on every branch that adds a page of its own.
@@ -37,6 +37,15 @@ describe("publicTitle", () => {
     expect(meta.description).not.toBe(card.description);
     expect(meta.description).toMatch(/[а-я]/);
     expect(meta.openGraph).toMatchObject({ locale: "ru_EE", url: "/trust" });
+  });
+
+  it("writes the card in Estonian where the address asks for it, and nowhere the page is not drawn in Estonian", async () => {
+    const meta = await publicPageTitle(Promise.resolve({ lang: "et" }), "Trust and security", undefined, card);
+    expect(meta.description).not.toBe(card.description);
+    expect(meta.description).toMatch(/[õäöü]/);
+    expect(meta.openGraph).toMatchObject({ locale: "et_EE", url: "/trust" });
+    const english = await publicPageTitle(Promise.resolve({ lang: "et" }), "Trust and security", undefined, card, ["en", "ru", "uk"]);
+    expect(english.description).toBe(card.description);
   });
 
   it("keeps the share picture a page would otherwise lose by naming its own card", async () => {
@@ -72,8 +81,8 @@ describe("every public page has a share card of its own", () => {
 
   for (const path of sitemapPaths.filter((p) => p !== "/welcome")) {
     it(`${path} shares its own description at its own address, with the picture`, async () => {
-      if (path === "/welcome/ru" || path === "/welcome/uk") {
-        const meta = entryMetadata(path.endsWith("ru") ? "ru" : "uk");
+      if (path === "/welcome/ru" || path === "/welcome/uk" || path === "/welcome/et") {
+        const meta = entryMetadata(path.slice("/welcome/".length) as "ru" | "uk" | "et");
         expect(meta.openGraph).toMatchObject({ url: path, description: meta.description });
         expect((meta.openGraph as { images?: unknown[] }).images).toEqual([SHARE_IMAGE]);
         return;
@@ -81,8 +90,9 @@ describe("every public page has a share card of its own", () => {
       expect(Object.keys(PUBLIC_CARDS)).toContain(path);
       const card = publicCard(path as keyof typeof PUBLIC_CARDS);
       // The page itself has to hand that card over, by its own path.
-      // The grammar reference lives in the signed-in group and draws a public frame signed out (FB-8).
-      const file = [`app${path}/page.tsx`, `app/(app)${path}/page.tsx`].find((f) => existsSync(f)) ?? `app${path}/page.tsx`;
+      // The grammar reference lives in the signed-in group and draws a public frame signed out (FB-8);
+      // the account deletion page owns its whole screen (N-8).
+      const file = [`app${path}/page.tsx`, `app/(app)${path}/page.tsx`, `app/(chromeless)${path}/page.tsx`].find((f) => existsSync(f)) ?? `app${path}/page.tsx`;
       const page = readFileSync(file, "utf8");
       expect(page.includes(`publicCard("${path}")`) || page.includes(`PUBLIC_CARDS["${path}"]`)).toBe(true);
       const meta = await publicTitle(Promise.resolve({}), "A page", undefined, card);

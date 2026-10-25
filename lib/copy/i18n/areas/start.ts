@@ -70,6 +70,13 @@ export const START: Area = {
     "Use a different address": "Указать другой адрес",
     "Taking you to Google…": "Переходим в Google…",
     "Continue with Google": "Войти через Google",
+    // Sign in with Apple (N-3). Machine translated, reviewed by no native speaker yet.
+    "Continue with Apple": "Войти через Apple",
+    "Opening Apple…": "Открываем Apple…",
+    "Apple’s sign-in hasn’t loaded. Reload the page, or use another way in.":
+      "Вход через Apple не загрузился. Обновите страницу или войдите другим способом.",
+    "That Apple sign-in didn’t go through. Try again, or use another way in.":
+      "Вход через Apple не удался. Попробуйте ещё раз или войдите другим способом.",
     "or": "или",
     "Your email or work address": "Личная или рабочая почта",
     "Your email address": "Адрес электронной почты",
@@ -365,6 +372,13 @@ export const START: Area = {
     "Use a different address": "Вказати іншу адресу",
     "Taking you to Google…": "Переходимо до Google…",
     "Continue with Google": "Продовжити з Google",
+    // Sign in with Apple (N-3). Machine translated, reviewed by no native speaker yet.
+    "Continue with Apple": "Продовжити з Apple",
+    "Opening Apple…": "Відкриваємо Apple…",
+    "Apple’s sign-in hasn’t loaded. Reload the page, or use another way in.":
+      "Вхід через Apple не завантажився. Оновіть сторінку або увійдіть іншим способом.",
+    "That Apple sign-in didn’t go through. Try again, or use another way in.":
+      "Вхід через Apple не вдався. Спробуйте ще раз або увійдіть іншим способом.",
     "or": "або",
     "Your email or work address": "Особиста або робоча пошта",
     "Your email address": "Адреса електронної пошти",

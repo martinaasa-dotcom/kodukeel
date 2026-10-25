@@ -32,6 +32,16 @@ import { NOT_REACHED } from "@/lib/copy/values";
   has since let go of, and a learner told "on" in that state would wait for
   reminders that never come. So "on" is the browser's subscription and the
   server's row together, asked when the panel opens.
+
+  AND THE PUSH MANAGER IS ASKED ON ARRIVAL ONLY WHERE THE ANSWER COULD BE
+  "ON". A subscription is useless without the permission, so a browser that
+  has not granted it is "off" without the question. That is most visitors,
+  and it matters because of what asking costs: in Playwright's WebKit,
+  `pushManager.getSubscription()` reloads the page that calls it, so Settings
+  asked, reloaded, asked again and reloaded for as long as it was open. Where
+  the permission is granted the question is asked once, with a mark in the
+  tab first, and a page that comes back holding a fresh mark does not ask
+  again: it shows "off", and a press settles it.
 */
 
 type State =
@@ -42,6 +52,29 @@ type State =
   | "on";
 
 const READY_WAIT_MS = 4000;
+
+/** Where a page marks that it is about to ask the push manager, and how long a mark stands. */
+const ASKING_KEY = "kodukeel.push.asking";
+const ASKING_FRESH_MS = 15_000;
+
+/** Whether this tab asked the push manager moments ago and came back from a reload. */
+function askedJustNow(): boolean {
+  try {
+    const at = Number(sessionStorage.getItem(ASKING_KEY));
+    return Number.isFinite(at) && at > 0 && Date.now() - at < ASKING_FRESH_MS;
+  } catch {
+    return false;
+  }
+}
+
+function markAsking(on: boolean): void {
+  try {
+    if (on) sessionStorage.setItem(ASKING_KEY, String(Date.now()));
+    else sessionStorage.removeItem(ASKING_KEY);
+  } catch {
+    /* private mode: the mark is a guard, not a requirement */
+  }
+}
 
 /** The worker's registration, or null where there is none to hold a subscription. */
 async function registration(): Promise<ServiceWorkerRegistration | null> {
@@ -98,8 +131,11 @@ export function PushPanel({ publicKey }: { publicKey: string }) {
       if (Notification.permission === "denied") return "denied" as const;
       const reg = await registration();
       if (!reg?.pushManager) return "unsupported" as const;
-      const subscription = await reg.pushManager.getSubscription();
-      if (!subscription || Notification.permission !== "granted" || !sameKey(subscription, keyBytes(publicKey))) {
+      // No permission, no subscription worth having: "off" without asking.
+      if (Notification.permission !== "granted" || askedJustNow()) return "off" as const;
+      markAsking(true);
+      const subscription = await reg.pushManager.getSubscription().finally(() => markAsking(false));
+      if (!subscription || !sameKey(subscription, keyBytes(publicKey))) {
         return "off" as const;
       }
       const status = await pushDeviceStatus(subscription.endpoint).catch(() => null);

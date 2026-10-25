@@ -50,6 +50,14 @@ export const NOT_IN_CI = {
     "the version meant to be run deliberately and read by a person, and " +
     "lib/tutor/verify.ts is where a model's Estonian is checked mechanically " +
     "rather than by a test.",
+  "check-show-ready.mjs":
+    "Asks a deployed address what a reviewer at the Institute or a ministry " +
+    "would see before the operator sends them /partners (docs/44-sixth-batch.md, " +
+    "S-7 and section 8): the operator named, security.txt, the pages in " +
+    "Estonian, the Ekilex figures and credit, the demo's banner and the first " +
+    "byte of /partners. Its answer is a fact about that deployment on the day, " +
+    "not about the commit in front of CI, so it is run by hand against " +
+    "production, through `npm run check:show-ready -- <address>`.",
   "load-test.mjs":
     "Run by the separate `load` job, through `npm run test:load -- " +
     "--budget-only`, because it needs a fixture of forty learners and a year " +

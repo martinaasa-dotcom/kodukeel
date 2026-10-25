@@ -34,6 +34,8 @@ import { micInAnswerBox } from "@/components/speech/answerBoxMic";
 import { splitAsked } from "@/lib/speech/chant";
 import { heardAsSpelled, repairedInAnswer } from "@/lib/speech/verdict";
 import { core, type Hearing } from "@/lib/speech/reconcile";
+import { roundName } from "@/lib/ux/roundNames";
+import { RoundNameText } from "@/components/RoundNameText";
 
 export type Tense = "present" | "conditional";
 
@@ -405,7 +407,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col px-5 py-6 md:px-10 md:py-10">
-      <h1 className="sr-only">{t("Conjugation")}</h1>
+      <h1 className="sr-only"><RoundNameText name={roundName("/review/conjugation")} translate={t} /></h1>
       <RoundProgress done={index} total={questions.length} />
 
       {look.panel ? <LookBackCard {...look.panel} /> : (

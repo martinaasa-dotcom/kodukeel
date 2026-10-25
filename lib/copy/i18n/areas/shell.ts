@@ -10,6 +10,12 @@ import type { Area } from "../area";
  */
 export const SHELL: Area = {
   ru: {
+    // The demo deployment's banner (components/DemoBanner.tsx).
+    "This is a demo everybody shares, and it is wiped every night. Please type nothing personal.":
+      "Это общая демоверсия, и каждую ночь она стирается. Пожалуйста, не вводите ничего личного.",
+    "This demo has {keys} set, so every visitor shares one allowance and can spend the operator’s money. Remove it from the deployment.":
+      "В этой демоверсии задан {keys}, поэтому все посетители делят один лимит и могут тратить деньги оператора. Уберите его из развёртывания.",
+
     // Tab titles.
     "Exam result": "Результат экзамена",
     "Suggested fixes, review queue": "Предложенные исправления, очередь на проверку",
@@ -173,6 +179,12 @@ export const SHELL: Area = {
     "There isn't enough here for Anu to read yet.": "Здесь пока слишком мало, чтобы Ану могла прочитать.",
   },
   uk: {
+    // The demo deployment's banner (components/DemoBanner.tsx).
+    "This is a demo everybody shares, and it is wiped every night. Please type nothing personal.":
+      "Це спільна демоверсія, і щоночі її стирають. Будь ласка, не вводьте нічого особистого.",
+    "This demo has {keys} set, so every visitor shares one allowance and can spend the operator’s money. Remove it from the deployment.":
+      "У цій демоверсії задано {keys}, тож усі відвідувачі ділять один ліміт і можуть витрачати гроші оператора. Приберіть його з розгортання.",
+
     // Tab titles.
     "Exam result": "Результат іспиту",
     "Suggested fixes, review queue": "Запропоновані виправлення, черга на перевірку",

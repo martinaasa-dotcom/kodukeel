@@ -5,6 +5,7 @@ import { CircleAlert, Loader2, MessageCircleQuestion, ShieldCheck } from "lucide
 import { Button } from "@/components/Button";
 import { Card, Note } from "@/components/ui";
 import { AnuProse } from "@/components/anu/Prose";
+import { SuggestFix } from "@/components/SuggestFix";
 import type { WithholdReason } from "@/lib/tutor/verify";
 import { useT } from "@/components/Locale";
 
@@ -16,6 +17,8 @@ interface Reading {
   /** Whether those were certainly Estonian, which decides what the notice claims. */
   withheldReason?: WithholdReason | null;
   quotaMessage?: string;
+  /** The model that wrote the note, for a report of it. */
+  model?: string;
 }
 
 /**
@@ -111,6 +114,20 @@ export function AnuReading({ text, level, title, marks }: {
             )}
             {reading.rule && (
               <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>{reading.rule}</p>
+            )}
+            {/* Her note is a model's writing, so it can be reported like her answers. */}
+            {reading.comment && (
+              <div className="mt-2 flex justify-end">
+                <SuggestFix
+                  category="AI_ANSWER"
+                  answers={{
+                    where: "EXAM_NOTE",
+                    model: reading.model ?? null,
+                    texts: [[reading.comment, reading.rule].filter(Boolean).join(" ")],
+                  }}
+                  label="Report this note"
+                />
+              </div>
             )}
             {reading.quotaMessage && (
               <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>{t(reading.quotaMessage)}</p>

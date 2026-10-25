@@ -1,6 +1,8 @@
 "use client";
 
 import { useLocale, useT } from "@/components/Locale";
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { questionIn } from "@/lib/copy/questionReading";
 import { fill } from "@/lib/copy/locale";
 import { filled } from "@/components/Filled";
@@ -27,6 +29,8 @@ import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { FitText } from "@/components/FitText";
 import { CaseLabel } from "@/components/CaseLabel";
+import { roundName } from "@/lib/ux/roundNames";
+import { RoundNameText } from "@/components/RoundNameText";
 
 export interface GovernmentQuestion {
   /** The card this question practices, when the verb is already in the deck. */
@@ -165,6 +169,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
     setIndex((i) => i + 1);
   }, [question, look]);
 
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (finished || !question) return;
@@ -176,6 +181,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
         if (isAdvanceKey(e)) { e.preventDefault(); look.forward(); }
         return;
       }
+      if (!mayActOnKey(e, singleKeys)) return;
       if (e.key.toLowerCase() === "b" && look.seen.length > 0) { e.preventDefault(); look.open(); return; }
       if (revealed && isAdvanceKey(e)) { e.preventDefault(); next(); return; }
       if (revealed) return;
@@ -185,7 +191,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [finished, question, revealed, choose, next, look]);
+  }, [singleKeys, finished, question, revealed, choose, next, look]);
 
   if (finished) {
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
@@ -213,7 +219,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
           in the other five modes: an `Empty` state and a finished state each
           carry one, so the only screen without a heading was the one a learner
           spends the round on. */}
-      <h1 className="sr-only">{t("Verb government")}</h1>
+      <h1 className="sr-only"><RoundNameText name={roundName("/review/government")} translate={t} /></h1>
       <RoundProgress done={index} total={questions.length} />
 
       {look.panel ? <LookBackCard {...look.panel} /> : (

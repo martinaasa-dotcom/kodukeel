@@ -24,10 +24,18 @@ import { prisma } from "@/lib/db";
 const searchEkilex = vi.fn();
 const fetchEkilexDetails = vi.fn();
 
-vi.mock("@/lib/ekilex/client", () => ({
+vi.mock("@/lib/ekilex/client", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/ekilex/client")>()),
   ekilexConfigured: () => true,
   searchEkilex: (...args: unknown[]) => searchEkilex(...args),
   fetchEkilexDetails: (...args: unknown[]) => fetchEkilexDetails(...args),
+  // The page path asks the answered variants; a mock resolving to `undefined`
+  // stands for a request the gate never got answered (null for search).
+  searchEkilexAnswered: (...args: unknown[]) => searchEkilex(...args),
+  fetchEkilexDetailsAnswered: async (...args: unknown[]) => {
+    const details = await fetchEkilexDetails(...args);
+    return details === undefined ? { answered: false } : { answered: true, details };
+  },
 }));
 
 const LEMMA = "itestmisswordxyz";
@@ -123,6 +131,34 @@ describe("a word Ekilex has nothing to say about", () => {
   });
 });
 
+describe("a request Ekilex never answered", () => {
+  it("is not written down as a miss, so the next render asks again", async () => {
+    /*
+      The page's deadline reaches the gate, so a request still waiting for a
+      slot when the page gives up comes back unanswered. Read as a miss, it put
+      the word away for a day with Ekilex never asked.
+    */
+    const { enrichFromEkilex } = await import("./lookup");
+    const id = await makeSeededWord();
+    searchEkilex.mockResolvedValue(null);
+
+    expect(await enrichFromEkilex(id)).toBe(false);
+    const after = await prisma.lexeme.findUniqueOrThrow({ where: { id }, select: { lookupMissAt: true } });
+    expect(after.lookupMissAt).toBeNull();
+  });
+
+  it("is not written down as a miss where the details went unanswered either", async () => {
+    const { enrichFromEkilex } = await import("./lookup");
+    const id = await makeSeededWord();
+    searchEkilex.mockResolvedValue([{ wordId: 7, wordValue: LEMMA, homonymNr: 1, lang: "est" }]);
+    fetchEkilexDetails.mockResolvedValue(undefined);
+
+    expect(await enrichFromEkilex(id)).toBe(false);
+    const after = await prisma.lexeme.findUniqueOrThrow({ where: { id }, select: { lookupMissAt: true } });
+    expect(after.lookupMissAt).toBeNull();
+  });
+});
+
 describe("two renders of the same word at once", () => {
   it("make one upstream request, not two", async () => {
     const { enrichFromEkilex } = await import("./lookup");
@@ -158,7 +194,7 @@ describe("a word pinned to one Ekilex homonym", () => {
 
     await enrichFromEkilex(lexeme.id);
     expect(searchEkilex).not.toHaveBeenCalled();
-    expect(fetchEkilexDetails).toHaveBeenCalledWith(283694);
+    expect(fetchEkilexDetails).toHaveBeenCalledWith(283694, expect.anything());
     const forms = await prisma.form.findMany({ where: { lexemeId: lexeme.id }, select: { value: true } });
     expect(forms.map((f) => f.value)).toEqual(["itestpinnedgen"]);
   });

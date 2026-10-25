@@ -1,6 +1,8 @@
 "use client";
 
 import { EnterKeyCap } from "@/components/KeyCaps";
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useGrade } from "@/components/round/useGrade";
 import { shuffle } from "@/lib/random/shuffle";
@@ -26,6 +28,8 @@ import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/Lo
 import { WordLink } from "@/components/course/WordLink";
 import { useLocale, useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
+import { roundName, roundPageTitle } from "@/lib/ux/roundNames";
+import { RoundNameText } from "@/components/RoundNameText";
 
 export interface SentenceTask {
   /** The card this counts against — every mode grades through the same log. */
@@ -241,6 +245,7 @@ export function SentenceSession(
   /* Once the sentence is marked, Enter or Space is "next", as on every other
      round. The tiles are buttons, so before the mark a Space on a focused tile
      is the browser pressing that tile and is left to it. */
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (look.looking) {
@@ -248,17 +253,18 @@ export function SentenceSession(
         if (isAdvanceKey(e)) { e.preventDefault(); look.forward(); }
         return;
       }
+      if (!mayActOnKey(e, singleKeys)) return;
       if (e.key.toLowerCase() === "b" && look.seen.length > 0) { e.preventDefault(); look.open(); return; }
       if (!checked) return;
       if (isAdvanceKey(e)) { e.preventDefault(); next(); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [checked, look, next]);
+  }, [singleKeys, checked, look, next]);
 
   if (initialTasks.length === 0) {
     return (
-      <Page title={t("Laused")} lead={t("Real Estonian sentences, jumbled up. Put them back in order.")}>
+      <Page {...roundPageTitle("/review/sentences", t)} lead={t("Real Estonian sentences, jumbled up. Put them back in order.")}>
         {opensAt ? (
           <Empty
             title={fill(t("This one starts at {level}"), { level: opensAt })}
@@ -304,7 +310,7 @@ export function SentenceSession(
           nothing back, while the four modes that happen to have a title bar
           answered fine. The `Empty` and finished states of these same files
           already carry one, which is how the gap survived a sweep. */}
-      <h1 className="sr-only">{t("Laused")}</h1>
+      <h1 className="sr-only"><RoundNameText name={roundName("/review/sentences")} translate={t} /></h1>
       <RoundProgress done={index} total={tasks.length} />
 
       {look.panel ? <LookBackCard {...look.panel} /> : (

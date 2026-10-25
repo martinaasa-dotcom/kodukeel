@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  CHAT_NEXT_AFTER_MS, EDIT_ALARM_TURNS, chatReading, editReading, recallReading, spokenTurnCounts,
+  CHAT_NEXT_AFTER_MS, EDIT_ALARM_TURNS, SPEECH_FLOOR, chatReading, editReading, enoughToShow, recallReading, spokenTurnCounts,
   type LoggedAnswer, type SpokenTurn, type WordAnswer,
 } from "./speechReport";
 
@@ -90,5 +90,14 @@ describe("today's chat", () => {
     const reading = chatReading({ offered: [], opened: [], chats: [chat], answers: [] });
     expect(reading.chatWords.share).toBeNull();
     expect(reading.otherWords.share).toBeNull();
+  });
+});
+
+describe("what the admin page may print as a percentage", () => {
+  it("prints no share over fewer than SPEECH_FLOOR turns or pairs", () => {
+    expect(enoughToShow(0)).toBe(false);
+    expect(enoughToShow(3)).toBe(false);
+    expect(enoughToShow(SPEECH_FLOOR - 1)).toBe(false);
+    expect(enoughToShow(SPEECH_FLOOR)).toBe(true);
   });
 });

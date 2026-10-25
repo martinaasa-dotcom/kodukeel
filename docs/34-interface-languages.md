@@ -10,8 +10,9 @@ writing a line. `lib/copy/locale.ts` is the mechanism; this is the standard.
   `aria-label`s, empty states, errors, explanations, counts.
 - **Never touched:** Estonian. A form, a sentence, a case name used as a name (`seesütlev`,
   `osastav`), the app's name (Kodukeel), level names (A1 to C1), Anu's name in Latin script inside
-  Estonian text. Nothing in a translation table holds an Estonian letter (ADR-005), and a test fails
-  on one.
+  Estonian text. Nothing in the Russian or Ukrainian table holds an Estonian letter (ADR-005), and a
+  test fails on one. The Estonian lines of the public pages are the one exception, and the section
+  at the end of this page says what they are.
 - **Not ours to translate:** what a lexicographer wrote, what a learner typed, what a model said.
 
 ## How it is wired
@@ -264,6 +265,49 @@ is rewritten from it. The count is evidence a reader has been through the lines;
 <!-- confirmed-lines:start -->
 Lines a fluent reader has confirmed or corrected, counted by `npm run apply:translation-review` from
 `docs/translations/confirmed.json` against the tables as they stand: a line counts only while it still reads
-the way it was confirmed. Russian: 2569 of 16813. Ukrainian: 2569 of 16872.
+the way it was confirmed. Russian: 2564 of 17048. Ukrainian: 2564 of 17107.
 This count is not `REVIEWED`, which only a commit naming the reader sets.
 <!-- confirmed-lines:end -->
+
+## The public pages in Estonian
+
+A reviewer at the Institute or a ministry reads what the app is, what it costs and what it keeps,
+and reads it more carefully in Estonian (D16 in `docs/44-sixth-batch.md`, ADR-005 amendment 7). So
+the public pages can be read in Estonian, and nothing else can.
+
+- **Which pages.** The landing page (`/welcome/et`), `/privacy`, `/terms`, `/trust`,
+  `/accessibility`, `/funding`, `/impact`, `/partners`, `/curriculum`, `/teachers`, `/state-exam`,
+  `/how-we-know`, `/pilots` and `/help`. `/curriculum`, `/how-we-know` and `/pilots` are drawn in
+  English and Estonian only, so their switch offers those two.
+- **How a page is read in Estonian.** `?lang=et` on the address, or a browser that puts Estonian
+  ahead of English, Russian and Ukrainian (`asksForEstonian`, which reads the q weights). A
+  signed-in learner keeps their own language on these pages and is never handed Estonian.
+  `PUBLIC_LOCALES` in `lib/copy/locale.ts` holds the four public languages; `LOCALES`, which
+  decides every signed-in screen, every letter and what a learner may choose, holds three, and
+  `scripts/invariants/the-app-is-never-in-estonian.ts` fails the day it holds four.
+- **Where the lines are.** `lib/copy/i18n/areas/et/`, one file per area (`legal.ts`, `landing.ts`,
+  `public.ts`, `pages.ts`) keyed on the same English, one sentence a row, so a reader compares a
+  sentence with a sentence. Counted nouns are in `counted.ts` as two forms, the nominative singular
+  and the partitive singular, because an Estonian count keeps the partitive whatever governs it.
+  `npm run i18n:tables` writes `generated/et.json` like the other two.
+- **The voice.** A document's register (`teie`) on the policy and reference pages, a friendly one
+  (`sina`) on the landing page. The tutor is a virtuaalõpetaja, the state examination the Eesti
+  keele tasemeeksam, and the legal terms are the ones Estonian law uses: isikuandmed, vastutav
+  töötleja, volitatud töötleja, Andmekaitse Inspektsioon, Tarbijakaitse ja Tehnilise Järelevalve
+  Amet, ligipääsetavus. A link's own text is quoted as the page's Estonian title („Rahastus“). The
+  same dash, middot and voice rules hold every Estonian line (`lib/copy/publicPagesEt.test.ts`).
+- **What stays as it is.** The landing page's Estonian examples are the dictionary's in every
+  language; the English meanings beside them stay English and are marked `lang="en"`. On
+  `/curriculum` the lessons and units describe themselves in English, as the course is written,
+  marked so, with a sentence saying it, and so do the claims on `/how-we-know` and the sample class on
+  `/teachers`, which is the app's own drawing. "Settings" stays the English name, since it names a screen
+  the reader meets in English once signed in. The facts a page generates (the operator, the
+  recipients, the authorities, every figure) are rendered from the same data in every language
+  and never written into a line.
+- **English prevails on the policy pages.** `/privacy`, `/terms` and `/pilots` say so first, in Estonian
+  (`LEGAL_NOTICE.et` in `lib/copy/publicLocale.ts`): the translation is for reading, and where it
+  differs from the English, the English text applies.
+- **Not reviewed yet.** Every Estonian line was drafted by a model and waits for the native
+  Estonian speaker who develops this app, who reads them in the pull request before it merges.
+  Every Estonian page says so (`ENTRY_COPY.et.notice`), and only setting `ENTRY_COPY.et.reviewed`
+  after that reading takes the notice off the pages that are not policy pages.

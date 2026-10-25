@@ -5,6 +5,8 @@ import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { classworkHistory } from "@/app/actions";
 import { PATH } from "@/lib/collections/syllabus";
+import { LESSONS } from "@/lib/course/lessons";
+import { unitsAboveLessons } from "@/lib/curriculum/align";
 import { classRoster, joinedMember, workplaceRoster } from "@/lib/classroom/roster";
 import { rosterPath } from "@/lib/classroom/rosterCsv";
 import { emailPrefsFrom, wants } from "@/lib/email/prefs";
@@ -113,7 +115,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
   */
   const rows = roster ? (isTeacher ? roster.entries.filter(joinedMember) : roster.entries) : [];
   const nobodyElse = roster ? (isTeacher ? roster.joined === 0 : roster.joined <= 1) : true;
-  const units = PATH.map((u) => ({ id: u.id, title: u.title, subtitle: u.subtitle }));
+  const units = unitsAboveLessons(PATH, LESSONS).map((u) => ({ id: u.id, title: u.title, subtitle: u.subtitle }));
   const scenes = SCENES.map((scene) => ({ id: scene.id, title: t(scene.title) }));
   /*
     How far the class has got with each conversation it was sent, counted off

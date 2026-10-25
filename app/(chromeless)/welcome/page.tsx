@@ -29,7 +29,8 @@ import { FirstEvening, type EveningStep, type EveningWord } from "./FirstEvening
 import { VisitRecap } from "./VisitRecap";
 import { PROGRAMMES, defaultProgramme } from "@/lib/course";
 import { LESSON_SHAPE } from "@/lib/course/lessonCourse";
-import { lessonById, unfold } from "@/lib/course/lessons";
+import { LESSONS, lessonById, unfold } from "@/lib/course/lessons";
+import { courseMadeOf } from "@/lib/curriculum/align";
 import { LetterTile } from "@/components/LetterTile";
 import { LandingAnu, type AnuLine } from "@/components/LandingAnu";
 import { oneEntryPerLemma } from "@/lib/dict/search";
@@ -41,11 +42,12 @@ import { LocaleProvider } from "@/components/Locale";
 import { areaTable } from "@/lib/copy/i18n/slice";
 import { LANDING, LANDING_BORROWS } from "@/lib/copy/i18n/areas/landing";
 import { rich } from "@/components/Rich";
-import { MACHINE_SHORT, countGrouped, countOf, grouped, languagesBeside, fill, tr, type Locale } from "@/lib/copy/locale";
-import { LANDING_HREF, langParam, localeHref } from "@/lib/copy/publicLocale";
+import { MACHINE_SHORT, PUBLIC_LOCALE_NAMES, countGrouped, countOf, grouped, publicLanguagesBeside, fill, tr, type PublicLocale } from "@/lib/copy/locale";
+import { LANDING_HREF, localeHref, publicLangParam, signInHref } from "@/lib/copy/publicLocale";
 import { ENTRY_COPY, ENTRY_LOCALES, MACHINE_TRANSLATED_EN, type EntryLocale } from "@/lib/copy/entryLocales";
 import { questionReading } from "@/lib/estonian/cases";
 import { SCENES } from "@/lib/scenes/catalogue";
+import { PITCH } from "@/lib/copy/pitch";
 
 export const metadata: Metadata = {
   title: { absolute: "kodukeel. Estonian that finally sticks" },
@@ -58,17 +60,18 @@ export const metadata: Metadata = {
 export const revalidate = 3600;
 
 /**
- * THE SAME PAGE IN THREE LANGUAGES, AND THE ADDRESS IS WHAT SAYS WHICH.
+ * THE SAME PAGE IN FOUR LANGUAGES, AND THE ADDRESS IS WHAT SAYS WHICH.
  *
- * `/welcome` is English, and `/welcome/ru` and `/welcome/uk` render this
- * component with their language in `params`, so the three stay one page
+ * `/welcome` is English, and `/welcome/ru`, `/welcome/uk` and `/welcome/et`
+ * (D16 in docs/44-sixth-batch.md, for a reviewer who reads Estonian) render this
+ * component with their language in `params`, so all four stay one page
  * rather than a short translated copy drifting beside a long original. No
  * search parameter is read, which is what keeps every one of them static.
  * Every line goes through `t`, the area is `lib/copy/i18n/areas/landing.ts`,
  * and the Estonian on it is the dictionary's whatever the page is read in.
  */
 interface Say {
-  readonly locale: Locale;
+  readonly locale: PublicLocale;
   readonly t: (english: string, context?: string) => string;
   /** A link onto another public page, in the language this one is read in. */
   readonly href: (path: string) => string;
@@ -80,7 +83,7 @@ interface Say {
   readonly counted: (n: number, noun: string) => string;
 }
 
-function sayIn(locale: Locale): Say {
+function sayIn(locale: PublicLocale): Say {
   return {
     locale,
     t: (english, context) => tr(locale, english, context),
@@ -92,14 +95,20 @@ function sayIn(locale: Locale): Say {
 }
 
 export default async function WelcomePage({ params }: { params?: Promise<{ lang?: string }> }) {
-  const locale = langParam((await params)?.lang) ?? "en";
+  const locale = publicLangParam((await params)?.lang) ?? "en";
   const say = sayIn(locale);
   const copy = locale === "en" ? null : ENTRY_COPY[locale];
   const { words: loaded, stats } = await loadDemo();
   // What each form means, in the reader's language: the question it answers,
   // because the short English readings ("into the book") are built from an
   // English gloss and have no Russian or Ukrainian of their own.
-  const words = locale === "en" ? loaded : loaded.map((w) => ({
+  // An Estonian reader reads the question itself, which is already in their
+  // language: "millesse? kuhu?" under the form rather than a reading of it.
+  const words = locale === "en" ? loaded : locale === "et" ? loaded.map((w) => ({
+    ...w,
+    principal: w.principal.map((p) => ({ ...p, english: p.label.split(", ")[1] ?? p.english })),
+    cases: w.cases.map((demo) => ({ ...demo, english: demo.question ?? demo.english })),
+  })) : loaded.map((w) => ({
     ...w,
     principal: w.principal.map((p) => ({ ...p, english: questionReading(p.label.split(", ")[1], locale) ?? p.english })),
     cases: w.cases.map((demo) => ({ ...demo, english: questionReading(demo.question, locale) ?? demo.english })),
@@ -200,7 +209,7 @@ function Reveal({ children }: { children: React.ReactNode }) {
 
 function Nav({ say }: { say: Say }) {
   const { t, locale } = say;
-  const signIn = locale === "en" ? "/sign-in" : `/sign-in?lang=${locale}`;
+  const signIn = signInHref(locale);
   return (
     <header className="sticky top-0 z-50 px-4 pt-4">
       <nav
@@ -249,25 +258,31 @@ function Nav({ say }: { say: Say }) {
         <div className="flex items-center gap-2">
           {/*
             The other languages, by their codes from `sm` up and by their own
-            names from `xl`: both on the English page, English alone on the
-            Russian and the Ukrainian (`languagesBeside`), which never name each
-            other. Below `sm` the pill has room for the wordmark and the button
+            names from `xl`: every one on the English page, English alone on the
+            Russian, the Ukrainian and the Estonian (`publicLanguagesBeside`),
+            which never name each other. Below `sm` the pill has room for the wordmark and the button
             alone, so a phone finds them in the footer. Real links, each marked
             with its own language.
           */}
+          {/*
+            The code a reader sees below `xl` is part of the link's name, with
+            the language's own name after it for a screen reader, and from `xl`
+            the name alone is drawn and heard: what is seen is always inside what
+            is said (WCAG 2.5.3), which an `aria-label` of the name over a
+            visible "RU" was not.
+          */}
           <span className="hidden items-center text-sm font-semibold sm:flex">
-            {languagesBeside(locale).filter((l) => l !== locale).map((l) => (
+            {publicLanguagesBeside(locale).filter((l) => l !== locale).map((l) => (
               <Link
                 key={l}
                 href={LANDING_HREF[l]}
                 lang={l}
                 hrefLang={l}
-                aria-label={l === "en" ? "English" : ENTRY_COPY[l].name}
                 className="tap-tint whitespace-nowrap rounded-full px-2.5 py-2"
                 style={{ color: "var(--ink-2)" }}
               >
-                <span className="hidden xl:inline">{l === "en" ? "English" : ENTRY_COPY[l].name}</span>
-                <span aria-hidden className="xl:hidden">{l.toUpperCase()}</span>
+                <span className="xl:hidden">{l.toUpperCase()}</span>
+                <span className="sr-only xl:not-sr-only">{" "}{PUBLIC_LOCALE_NAMES[l]}</span>
               </Link>
             ))}
           </span>
@@ -331,15 +346,18 @@ function Nav({ say }: { say: Say }) {
  */
 function Hero({ say, stats, words }: { say: Say; stats: { words: number; forms: number }; words: DemoWord[] }) {
   const { t, locale, counted } = say;
-  const signIn = locale === "en" ? "/sign-in" : `/sign-in?lang=${locale}`;
+  const signIn = signInHref(locale);
   /*
     The four figures that were a panel of their own, as one line of evidence
     under the button. A stat panel three screens down is a claim nobody has a
     reason to read; the same numbers beside the call to action are the reason to
     believe the sentence above them. The unit count and the level range are read
     from the course itself rather than written by hand, which is what kept this
-    line from going stale the way "eighteen units, A1 to C1" once did.
+    line from going stale the way "eighteen units, A1 to C1" once did. Since A1
+    became the lessons, what the course is made of is two lists: lessons at A1
+    and units above it, both counted off the code (`courseMadeOf`).
   */
+  const made = courseMadeOf(PATH, LESSONS);
   const claims = [
     /*
       "Every form from Ekilex" was one source too few, and the half it left out
@@ -351,8 +369,9 @@ function Hero({ say, stats, words }: { say: Say; stats: { words: number; forms: 
       sources one screen down; this line is the promise they add up to.
     */
     fill(t("{words}, {forms}, and not one of them made up by AI"), { words: counted(stats.words, "word"), forms: counted(stats.forms, "form") }),
-    fill(t("{units}, from your first hello at {first} all the way to {last}"), {
-      units: counted(PATH.length, "unit"), first: LEVELS[0]!, last: LEVELS[LEVELS.length - 1]!,
+    fill(t(made.through === LEVELS[0] ? "{lessons} at {first}, then {units} all the way to {last}" : "{lessons} from {first} to {through}, then {units} all the way to {last}"), {
+      lessons: counted(made.lessons, "lesson"), units: counted(made.units, "unit"),
+      first: LEVELS[0]!, through: made.through, last: LEVELS[LEVELS.length - 1]!,
     }),
     t("Free, and it works offline"),
     t("Counts the real conversations you have, not the days you open the app"),
@@ -1256,7 +1275,7 @@ function Questions({ say }: { say: Say }) {
  */
 function FinalCta({ say }: { say: Say }) {
   const { t, locale } = say;
-  const signIn = locale === "en" ? "/sign-in" : `/sign-in?lang=${locale}`;
+  const signIn = signInHref(locale);
   return (
     <section id="start" className="w-full px-5 md:px-8">
       <Reveal>
@@ -1357,7 +1376,7 @@ function Footer({ say, copy }: { say: Say; copy: (typeof ENTRY_COPY)[EntryLocale
           <div>
             <Wordmark size={28} />
             <p className="mt-3 max-w-[46ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              {t("Kodukeel means home language. It’s free, and every Estonian form in it comes from a dictionary, never from AI.")}
+              {t(PITCH.promise)}
             </p>
             <p className="mt-3 max-w-[46ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
               {t("Teaching a class or running a group?")}{" "}
@@ -1376,6 +1395,7 @@ function Footer({ say, copy }: { say: Say; copy: (typeof ENTRY_COPY)[EntryLocale
             <FootGroup title={t("For schools")}>
               <FootLink say={say} href="/teachers">{t("For teachers")}</FootLink>
               <FootLink say={say} href="/pilots">{t("Running a pilot")}</FootLink>
+              <FootLink say={say} href="/partners">{t("For partners and funders")}</FootLink>
               <FootLink say={say} href="/how-we-know">{t("How we know")}</FootLink>
               <FootLink say={say} href="/funding">{t("What it costs to run")}</FootLink>
             </FootGroup>
@@ -1386,6 +1406,7 @@ function Footer({ say, copy }: { say: Say; copy: (typeof ENTRY_COPY)[EntryLocale
               <FootLink say={say} href="/terms">{t("Terms")}</FootLink>
               <FootLink say={say} href="/trust">{t("Security and trust")}</FootLink>
               <FootLink say={say} href="/accessibility">{t("Accessibility")}</FootLink>
+              <FootLink say={say} href="/account/delete">{t("Deleting your account")}</FootLink>
             </FootGroup>
           </nav>
         </div>
@@ -1445,7 +1466,8 @@ function Footer({ say, copy }: { say: Say; copy: (typeof ENTRY_COPY)[EntryLocale
           >
             <Languages size={16} aria-hidden className="mt-0.5 shrink-0" />
             <span>
-              {copy.notice} <span lang="en">{MACHINE_TRANSLATED_EN}</span> {copy.appLanguage} {MACHINE_SHORT[copy.lang]}
+              {copy.notice} <span lang="en">{MACHINE_TRANSLATED_EN}</span> {copy.appLanguage}
+              {copy.lang === "et" ? null : <> {MACHINE_SHORT[copy.lang]}</>}
             </span>
           </aside>
         )}

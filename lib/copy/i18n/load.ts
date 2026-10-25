@@ -26,8 +26,10 @@ export function tableReady(locale: TranslatedLocale): boolean {
 }
 
 function fetchTable(locale: TranslatedLocale): Promise<{ default: PackedTable }> {
-  // Two literal specifiers rather than a template, so the bundler makes exactly
-  // two chunks and neither carries the other language.
+  // Literal specifiers rather than a template, so the bundler makes one chunk
+  // a language and none carries another.
+  // Estonian only ever reaches here from a public page (`PUBLIC_LOCALES`).
+  if (locale === "et") return import("./generated/et.json") as unknown as Promise<{ default: PackedTable }>;
   return locale === "ru"
     ? (import("./generated/ru.json") as unknown as Promise<{ default: PackedTable }>)
     : (import("./generated/uk.json") as unknown as Promise<{ default: PackedTable }>);

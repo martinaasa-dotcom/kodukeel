@@ -15,6 +15,8 @@ export async function generateMetadata({ searchParams }: { searchParams: PublicS
  * while the learner is online and signed in. So the copy kept on the device is
  * in the language they read the app in, and anybody else gets English. Every
  * failure on the way there is English too (lib/progress/publicLocale.ts).
+ * Never Estonian: this is a screen of the app a learner meets mid-review, and
+ * the app is never drawn in the language being learned (ADR-005 amendment 7).
  */
 export default async function OfflinePage({ searchParams }: { searchParams: PublicSearch }) {
   const { locale } = await resolvePublicLocale(searchParams);

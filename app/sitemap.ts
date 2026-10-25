@@ -36,8 +36,12 @@ const PUBLIC_PATHS = [
   // class, and the one written for somebody deciding whether to fund it.
   { path: "/trust", priority: 0.8 },
   { path: "/help", priority: 0.6 },
+  // How to delete an account, the address the store's data safety form names (N-8).
+  { path: "/account/delete", priority: 0.4 },
   { path: "/teachers", priority: 0.8 },
   { path: "/pilots", priority: 0.6 },
+  // Where a reviewer deciding whether to support it starts (S-7).
+  { path: "/partners", priority: 0.7 },
   { path: "/how-we-know", priority: 0.5 },
   { path: "/curriculum", priority: 0.5 },
   { path: "/accessibility", priority: 0.6 },
@@ -47,6 +51,7 @@ const PUBLIC_PATHS = [
   { path: "/state-exam", priority: 0.8 },
   { path: "/welcome/ru", priority: 0.7 },
   { path: "/welcome/uk", priority: 0.7 },
+  { path: "/welcome/et", priority: 0.5 },
   // The grammar reference, readable with no account (FB-8): what somebody
   // searching "Estonian cases" or "seesütlev" is looking for.
   { path: "/grammar", priority: 0.8 },

@@ -1,6 +1,8 @@
 "use client";
 
 import { useLocale, useT } from "@/components/Locale";
+import { useSingleKeys } from "@/components/SingleKeys";
+import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { useFocusAnswer } from "@/components/round/useFocusAnswer";
 import { RetypeBox, useRetype } from "@/components/round/Retype";
 import { fill } from "@/lib/copy/locale";
@@ -42,6 +44,8 @@ import { CaseLabel } from "@/components/CaseLabel";
 import { caseLabelOf } from "@/lib/copy/caseLabel";
 import { slotLabel } from "@/lib/srs/slots";
 import { verbFormName } from "@/lib/estonian/verbNames";
+import { roundName } from "@/lib/ux/roundNames";
+import { RoundNameText } from "@/components/RoundNameText";
 
 /**
  * THE ROUND: MEET IT, TYPE IT, USE IT.
@@ -189,6 +193,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
     shownAt.current = Date.now();
   }, [task, look]);
 
+  const singleKeys = useSingleKeys();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (look.looking) {
@@ -196,6 +201,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
         if (isAdvanceKey(e) && !inEditable(e.target)) { e.preventDefault(); look.forward(); }
         return;
       }
+      if (!mayActOnKey(e, singleKeys)) return;
       if (e.key.toLowerCase() === "b" && !inEditable(e.target) && look.seen.length > 0) {
         e.preventDefault();
         look.open();
@@ -211,7 +217,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [mark, meeting, next, check, look, needsRetype]);
+  }, [singleKeys, mark, meeting, next, check, look, needsRetype]);
 
   if (finished) {
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
@@ -239,7 +245,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
       {/* The heading a session screen has no room to draw. Every mode carries
           one, since an empty state with a heading and a round without it is an
           accessibility run that passes on the wrong screen. */}
-      <h1 className="sr-only">{t("Exceptions")}</h1>
+      <h1 className="sr-only"><RoundNameText name={roundName("/review/exceptions")} translate={t} /></h1>
       <RoundProgress done={index} total={tasks.length} endHref="/practice" />
 
       {look.panel ? <LookBackCard {...look.panel} /> : (
