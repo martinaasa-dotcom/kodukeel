@@ -44,8 +44,8 @@ export default function ekilexIsAskedThroughOneGate({ check, code, read, sourceF
   check("a live lookup counts what it asked once, and the dictionary counts a stored answer", () => {
     const lookup = code("lib/dict/lookup.ts");
     assert.match(lookup, /finally \{\s*await recordEkilexTally\(tally\);/, "a live lookup stopped writing what it asked to EkilexDay");
-    assert.match(lookup, /searchEkilex\(query, gate\)/, "the live lookup's search stopped going through the counted gate");
-    assert.match(lookup, /searchEkilex\(lexeme\.lemma, gate\)/, "the upgrade's search stopped going through the counted gate");
+    assert.match(lookup, /searchEkilex(?:Answered)?\(query, gate\)/, "the live lookup's search stopped going through the counted gate");
+    assert.match(lookup, /searchEkilex(?:Answered)?\(lexeme\.lemma, gate\)/, "the upgrade's search stopped going through the counted gate");
     const page = code("app/(app)/dictionary/page.tsx");
     // The count moved with the entry into lib/progress/dictionaryEntry.ts, which
     // the page and GET /api/v1/words/{id} both open an entry through; the page

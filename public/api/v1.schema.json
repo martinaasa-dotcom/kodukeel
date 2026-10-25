@@ -756,7 +756,8 @@
           "deleted",
           "identityErased",
           "remaining"
-        ]
+        ],
+        "description": "Everything is gone. Drop the session on the device at once: the access token verifies until it expires, and a request made with it in that hour writes as a new, empty learner, which nothing reads, reminds or exports. A failure partway answers `upstream` and deletes nothing."
       }
     },
     "GET /api/v1/export": {
@@ -824,7 +825,7 @@
             "minLength": 20,
             "maxLength": 4096,
             "pattern": "^[A-Za-z0-9_:.-]+$",
-            "description": "The registration token Firebase Cloud Messaging gave the app on this phone."
+            "description": "The registration token Firebase Cloud Messaging gave the app on this phone. A registration past 1,024 characters is refused with `invalid`, since no token Firebase hands out is that long."
           }
         },
         "required": [
@@ -864,7 +865,7 @@
             "minLength": 20,
             "maxLength": 4096,
             "pattern": "^[A-Za-z0-9_:.-]+$",
-            "description": "The registration token Firebase Cloud Messaging gave the app on this phone."
+            "description": "The registration token Firebase Cloud Messaging gave the app on this phone. A registration past 1,024 characters is refused with `invalid`, since no token Firebase hands out is that long."
           }
         },
         "required": [

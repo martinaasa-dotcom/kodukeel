@@ -3879,5 +3879,16 @@ word by word and re-read a shard on every eviction (43 seconds, now 6); the othe
 word list once per dictionary row (`sceneLemmas` is memoized per scene now). And `/accessibility`
 says the looping motion was fixed everywhere, not only on the public pages.
 
+**A review of the pass found four more, all fixed in it.** A live lookup whose request to Ekilex
+timed out or was refused wrote `lookupMissAt`, so a bad minute at Ekilex read as the word not
+existing for a day; only an answer with nothing in it is a miss now, and a `Retry-After` past the cap
+ends the retry rather than being slept and asked again. A phone token inside the contract's 4,096
+characters but past what the unique index can hold was a 500 from Postgres; past 1,024 it is refused
+as `invalid` and nothing is written, since the frozen contract may not narrow. Deleting the account
+answered a failure partway as `invalid`, which tells an app the learner typed the wrong word; it is
+`upstream` now. And the contract says what a token does in the hour after `DELETE /api/v1/me`: it
+still verifies, so the app drops the session on a 200, and anything written in that hour belongs to
+nobody the mailout, the export or a screen ever reads.
+
 **What is left** is the operator's and is unchanged: the native speaker's reading of the Estonian,
 the demo deployment, and the Apple, Google, Firebase and store setup.
