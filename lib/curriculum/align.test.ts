@@ -6,7 +6,7 @@ import { PROGRAMMES } from "@/lib/course";
 import { courseChecks } from "@/lib/course/checks";
 import { LESSONS, LESSON_PARTS } from "@/lib/course/lessons";
 import { sceneForLesson } from "@/lib/scenes/lessonScenes";
-import { EXAM_PARTS, EXAMINED, PREPARES, alignCourse, courseMadeOf, lessonLevels, outlineLessons } from "./align";
+import { EXAM_PARTS, EXAMINED, LESSON_PART_PREPARES, PREPARES, alignCourse, courseMadeOf, lessonLevelCoverage, lessonLevels, outlineLessons } from "./align";
 
 const aligned = alignCourse(SYLLABUS, sceneTesting);
 const PARTS = new Set(EXAM_PARTS.map((p) => p.part));
@@ -106,6 +106,50 @@ describe("the lesson levels on /curriculum, drawn from the lessons", () => {
     expect(roleplays.length).toBe(LESSONS.filter((l) => l.roleplay).length);
     expect(roleplays.length).toBeGreaterThan(0);
     for (const r of roleplays) expect(r.scene?.id).toBe(sceneForLesson(r.lesson.id)?.id);
+  });
+
+  it("maps every part of the lessons at an examined level to an exam part, and nothing at A1", () => {
+    let mapped = 0;
+    for (const o of outline) {
+      const examined = (EXAMINED as readonly string[]).includes(o.part.level);
+      if (!examined) {
+        expect(o.preparation, `${o.part.id} is at ${o.part.level}, which no paper examines`).toBeNull();
+        continue;
+      }
+      expect(o.preparation, `${o.part.id} at ${o.part.level} has no exam part`).not.toBeNull();
+      expect(o.preparation!.parts.length).toBeGreaterThan(0);
+      for (const part of o.preparation!.parts) expect(PARTS.has(part)).toBe(true);
+      expect(o.preparation!.why.trim().endsWith(".")).toBe(true);
+      mapped++;
+    }
+    expect(mapped).toBe(Object.keys(LESSON_PART_PREPARES).length);
+    expect(mapped).toBeGreaterThan(0);
+  });
+
+  it("names no part of the lessons that does not exist, and none the state does not examine", () => {
+    const byId = new Map(LESSON_PARTS.map((p) => [p.id, p]));
+    const keys = Object.keys(LESSON_PART_PREPARES);
+    for (const id of keys) {
+      expect(byId.has(id), `${id} is not a part of the lessons`).toBe(true);
+      expect(EXAMINED as readonly string[]).toContain(byId.get(id)!.level);
+    }
+    expect(keys.length).toBeGreaterThan(0);
+  });
+
+  it("names a gap at a lesson level exactly where no part of its lessons is aimed at an exam part", () => {
+    let levels = 0;
+    for (const level of lessonLevels(LESSONS)) {
+      const cover = lessonLevelCoverage(level, outline);
+      if (!cover.examined) {
+        expect(cover.byPart).toEqual([]);
+        continue;
+      }
+      levels++;
+      for (const { part, units } of cover.byPart) {
+        expect(cover.gaps.includes(part)).toBe(units.length === 0);
+      }
+    }
+    expect(levels).toBeGreaterThan(0);
   });
 
   it("counts lessons where a level is taught as lessons and units only above it", () => {
