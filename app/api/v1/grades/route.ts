@@ -26,7 +26,7 @@ export async function POST(request: Request) {
   const body = await readBody(request, GradesRequest);
   if (!body.ok) return body.response;
   const result = await applyGradeBatch(who.ownerId, body.data.grades);
-  if (!result.ok) return apiError("invalid", { message: result.error });
+  if (!result.ok) return apiError(result.reason ?? "invalid", { message: result.error });
   const answer: GradesResponse = {
     settled: result.settled,
     results: result.written.map((w) => ({ id: w.id, cardId: w.cardId, scheduling: snapshotOf(w.state) })),

@@ -311,6 +311,7 @@ async function callForJson(
     // only ever offers "anthropic" when this key was set.
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
+      redirect: "error",
       headers: anthropicHeaders(),
       body: JSON.stringify({
         model: config.model,
@@ -394,6 +395,7 @@ async function callForJson(
 
     const res = await fetch(url, {
       method: "POST",
+      redirect: "error",
       headers: { "content-type": "application/json", authorization: `Bearer ${key}` },
       body: JSON.stringify({
         model: config.model,

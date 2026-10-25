@@ -169,7 +169,7 @@ export interface GateOptions {
 
 /** What the gate needs from the world, handed in so a test can stub every piece. */
 export interface GateDeps {
-  fetch: (url: string, init: { headers: Record<string, string>; signal?: AbortSignal }) => Promise<ResponseLike & { headers?: { get(name: string): string | null } }>;
+  fetch: (url: string, init: { headers: Record<string, string>; signal?: AbortSignal; redirect?: RequestRedirect }) => Promise<ResponseLike & { headers?: { get(name: string): string | null } }>;
   sleep: (ms: number) => Promise<void>;
   now: () => number;
   random: () => number;
@@ -275,6 +275,9 @@ export function createEkilexGate(deps: GateDeps): EkilexGate {
           last = await readAnswer<T>(async () => {
             const res = await deps.fetch(`${BASE}${path}`, {
               headers: { "ekilex-api-key": key, "user-agent": deps.userAgent() },
+              // The key travels in a header, and a redirect would carry it to
+              // wherever the redirect pointed (see lib/tutor/provider.ts).
+              redirect: "error",
               signal: AbortSignal.timeout(deps.timeoutMs ?? REQUEST_TIMEOUT_MS),
             });
             retryAfterMs = retryAfter(res.headers?.get("retry-after"), deps.now());
@@ -344,10 +347,29 @@ export async function searchEkilex(query: string, options?: GateOptions): Promis
  * is the one that is wrong" about `laid`, whose homonym 192289 has exactly
  * the page's parts. A refusal is not a miss.
  */
+/**
+ * Whether a string may be put in Ekilex's search path as a word.
+ *
+ * `encodeURIComponent` leaves `.` and `*` alone. A query of `.` or `..` is a
+ * path segment the URL parser resolves, so the request went to a different
+ * Ekilex endpoint carrying the deployment's key, and `*` and `?` are Ekilex's
+ * wildcards, so `a*` asked for every word beginning with a and stored the first
+ * one as an entry. A headword is letters with the odd hyphen, apostrophe or
+ * space; nothing a learner can usefully look up is refused by this.
+ */
+export function searchableWord(query: string): boolean {
+  const trimmed = query.trim();
+  if (trimmed.length === 0 || trimmed.length > 80) return false;
+  if (/^\.+$/.test(trimmed)) return false;
+  return !/[*?/\\%#]/.test(trimmed);
+}
+
 export async function searchEkilexAnswered(
   query: string,
   options?: GateOptions,
 ): Promise<EkilexWordSummary[] | null> {
+  // Not asked is an answer of nothing, which is what such a word gets anyway.
+  if (!searchableWord(query)) return [];
   const data = await call<{ words?: EkilexWordSummary[] }>(
     `/word/search/${encodeURIComponent(query)}/${DATASETS}`,
     { ...options, kind: "search" },

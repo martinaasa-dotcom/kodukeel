@@ -28,6 +28,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     localeFor(who.ownerId),
   ]);
   if (!view) return apiError("not_found", { message: "We couldn't find that check." });
+  if (!view.open) return apiError("not_found", { message: "That check isn't the one for the part you're on." });
   const done = view.levelDone;
   const body: CheckResponse = {
     checkId: view.check.id,

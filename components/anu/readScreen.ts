@@ -1,6 +1,6 @@
 "use client";
 
-import { SCREEN_LIMITS, type ScreenContext } from "@/lib/tutor/screen";
+import { SCREEN_LIMITS, screenIsPrivate, type ScreenContext } from "@/lib/tutor/screen";
 
 /**
  * What is open on the page behind Anu, read the moment a question is sent.
@@ -15,10 +15,14 @@ import { SCREEN_LIMITS, type ScreenContext } from "@/lib/tutor/screen";
  *
  * Read at send rather than on open, since the panel stays open while somebody
  * flips to the next card and asks about that one. What is sent and what is
- * done with it is `lib/tutor/screen.ts`.
+ * done with it is `lib/tutor/screen.ts`, and so is the list of screens that
+ * are never read at all (`screenIsPrivate`), because they show somebody else's
+ * data. Anything marked `data-private` is skipped on every other screen.
  */
 export function readScreen(pathname: string): ScreenContext | null {
   if (typeof document === "undefined") return null;
+  // A roster, an admin queue, the account: nothing on those is the learner's to send.
+  if (screenIsPrivate(pathname)) return null;
   const main = document.getElementById("main");
   if (!main) return null;
 
@@ -43,12 +47,21 @@ export function readScreen(pathname: string): ScreenContext | null {
 
   return {
     path: pathname,
-    title: flat(main.querySelector("h1")?.textContent ?? document.title),
+    title: flat(heading(main)),
     selection: currentSelection(pathname),
     estonian,
     visible: visibleText(main),
     typed,
   };
+}
+
+/** Marked by a screen as never to be read, with everything inside it. */
+const PRIVATE = "[data-private]";
+
+function heading(main: HTMLElement): string {
+  const h1 = main.querySelector("h1");
+  if (h1 && !h1.closest(PRIVATE)) return h1.textContent ?? "";
+  return h1 ? "" : document.title;
 }
 
 function flat(text: string | null | undefined): string {
@@ -57,7 +70,7 @@ function flat(text: string | null | undefined): string {
 
 /** Drawn, and somewhere in the window the learner is looking through. */
 function shown(el: Element): boolean {
-  if (el.closest('[aria-hidden="true"], [hidden], [data-chrome]')) return false;
+  if (el.closest(`[aria-hidden="true"], [hidden], [data-chrome], ${PRIVATE}`)) return false;
   const rect = el.getBoundingClientRect();
   if (rect.width === 0 && rect.height === 0) return false;
   return rect.bottom > 0 && rect.top < window.innerHeight;
@@ -75,7 +88,7 @@ function visibleText(main: HTMLElement): string {
   let last: Element | null = null;
   for (let node = walker.nextNode(); node; node = walker.nextNode()) {
     const parent = node.parentElement;
-    if (!parent || parent.closest("script, style, noscript, .sr-only")) continue;
+    if (!parent || parent.closest(`script, style, noscript, .sr-only, ${PRIVATE}`)) continue;
     const text = flat(node.textContent);
     if (!text) continue;
     if (parent !== last && !shown(parent)) continue;
@@ -101,6 +114,7 @@ function visibleText(main: HTMLElement): string {
 let remembered: { text: string; path: string } | null = null;
 
 function currentSelection(pathname: string): string {
+  if (screenIsPrivate(pathname)) return "";
   const live = flat(pageSelection());
   if (live) return live;
   return remembered && remembered.path === pathname ? remembered.text : "";
@@ -111,7 +125,7 @@ function pageSelection(): string {
   if (!selection || selection.isCollapsed || selection.rangeCount === 0) return "";
   const anchor = selection.anchorNode;
   const el = anchor instanceof Element ? anchor : anchor?.parentElement;
-  if (!el || !el.closest("#main") || el.closest("[data-chrome]")) return "";
+  if (!el || !el.closest("#main") || el.closest(`[data-chrome], ${PRIVATE}`)) return "";
   return selection.toString();
 }
 

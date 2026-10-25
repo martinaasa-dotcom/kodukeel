@@ -1,6 +1,17 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
-import { LOCAL_USER_ID, supabaseConfigured } from "@/lib/auth/mode";
+import { LOCAL_USER_ID, localModeRefused, supabaseConfigured } from "@/lib/auth/mode";
+
+/**
+ * The local learner, where local mode may stand. The middleware answers 503
+ * before a page is reached when it may not; this is the second lock, for a
+ * request the middleware never saw (its matcher skips some paths).
+ */
+function localOwner(): string {
+  const refused = localModeRefused();
+  if (refused) throw new Error(`No sign-in is configured, and local mode is refused because ${refused}.`);
+  return LOCAL_USER_ID;
+}
 import { boundedTransport, readIdentity, type Identity, type Learner } from "@/lib/auth/identity";
 import { isAllowedEmail } from "@/lib/auth/access";
 
@@ -60,7 +71,7 @@ export const currentIdentity = identity;
  * read or write their data.
  */
 export const requireUserId = cache(async (): Promise<string> => {
-  if (!supabaseConfigured()) return LOCAL_USER_ID;
+  if (!supabaseConfigured()) return localOwner();
   const who = await identity();
   if (who.state !== "in") throw new Error("Not signed in.");
   /*
@@ -78,7 +89,7 @@ export const requireUserId = cache(async (): Promise<string> => {
 /** Who is signed in, for greetings and the opt-in class leaderboard. */
 export const currentLearner = cache(async (): Promise<Learner> => {
   if (!supabaseConfigured()) {
-    return { id: LOCAL_USER_ID, name: "you", email: null, avatarUrl: null, givenName: null };
+    return { id: localOwner(), name: "you", email: null, avatarUrl: null, givenName: null };
   }
   const who = await identity();
   if (who.state !== "in") throw new Error("Not signed in.");
@@ -99,7 +110,7 @@ export const currentLearner = cache(async (): Promise<Learner> => {
  * these pages means the reference rather than an error.
  */
 export const viewerId = cache(async (): Promise<string | null> => {
-  if (!supabaseConfigured()) return LOCAL_USER_ID;
+  if (!supabaseConfigured()) return localModeRefused() ? null : LOCAL_USER_ID;
   const who = await identity();
   if (who.state !== "in" || !isAllowedEmail(who.learner.email)) return null;
   return who.learner.id;

@@ -7,7 +7,12 @@ name: Reset everybody's course progress
 # and clears a `programme` setting that names a program the current build no
 # longer has. Decks, the review log, levels and every other setting are not
 # touched. Learners whose display name contains the `keep` input are left alone
-# entirely, and the report names them before anything is deleted.
+# entirely, and the report counts them before anything is deleted.
+#
+# The report is counts and nothing else. This repository is public, so a step
+# summary is a page anybody can open, and it used to list every learner's
+# account id and display name. `scripts/reset-course.ts` prints a name only
+# under `--show-names`, which this workflow never passes.
 #
 # Written to the rules `audit-decks.yml` states: `workflow_dispatch` only, the
 # connection string mapped into the two steps that need a database and no
@@ -22,9 +27,9 @@ on:
         required: false
         default: ""
       keep:
-        description: Leave alone every learner whose display name contains this
+        description: Leave alone every learner whose display name contains this (blank keeps nobody)
         required: false
-        default: "amanda"
+        default: ""
 
 concurrency:
   group: reset-course
@@ -49,7 +54,7 @@ jobs:
         run: |
           if [ -z "$DB_URL" ]; then
             echo "No database configured. Add DIRECT_URL (the direct connection," >&2
-            echo "port 5432, not the pooler) as a repository secret, or DATABASE_URL" >&2
+            echo "port 5432, not the pooler) as a secret of the 'production' environment, or DATABASE_URL" >&2
             echo "if that is the only one you have. Nothing was changed." >&2
             exit 1
           fi

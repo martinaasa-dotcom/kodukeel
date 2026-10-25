@@ -96,6 +96,7 @@ export function ClozeSession() {
         questionLang: "et",
         answerLang: "et",
         speak: item.answer,
+        speakTransient: true,
       });
     }
     setChecked(false);
@@ -328,7 +329,7 @@ export function ClozeSession() {
                     sentence, so the reveal reads the whole thing aloud, the
                     same rule ReviewSession's own CLOZE reveal states for
                     itself. */}
-                <Speak text={item.sentence} autoplay />
+                <Speak text={item.sentence} autoplay transient />
               </div>
             </div>
           )}

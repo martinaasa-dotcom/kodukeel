@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { parseExamples, serialiseExamples, typedReaches } from "@/lib/dict/examples";
 import { bucketForOwner, type RateLimitResult } from "@/lib/security/rateLimit";
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
 
@@ -105,10 +106,24 @@ export async function backupFor(ownerId: string) {
     prisma.deferral.findMany({ where: { ownerId }, select: { lexemeId: true } }),
     prisma.sceneGap.findMany({ where: { ownerId }, select: { lexemeId: true } }),
   ]);
+  /*
+    AND THE WORDS THEY WROTE INTO, WHICH NONE OF THOSE ROWS POINT AT.
+
+    A sentence a learner typed onto a shared word lives inside that word's
+    `examples` (`by` is them), and a word they added by hand or confirmed off a
+    photograph carries their id in `editedBy`, and neither needs a card behind
+    it. Both are their own writing (Articles 15 and 20), so both travel. The
+    sentences are filtered to theirs below, the same as on every other word.
+  */
+  const [typedOn, created] = await Promise.all([
+    prisma.lexeme.findMany({ where: { examples: { contains: typedBy(ownerId) } }, select: { id: true } }),
+    prisma.lexeme.findMany({ where: { editedBy: ownerId }, select: { id: true } }),
+  ]);
   const mine = new Set<string>();
   for (const row of wordRows.flat()) {
     if (row.lexemeId) mine.add(row.lexemeId);
   }
+  for (const row of [...typedOn, ...created]) mine.add(row.id);
 
   const [
     lexemes, cards, reviews, tasks, studyEvents, scans,
@@ -186,6 +201,29 @@ export async function backupFor(ownerId: string) {
     prisma.nativePushDevice.findMany({ where: { ownerId }, orderBy: [{ createdAt: "asc" }, { id: "asc" }] }),
   ]);
 
+  /*
+    THE SHARED DICTIONARY'S ATTRIBUTION BELONGS TO WHOEVER IT NAMES.
+
+    A lexeme carries `editedBy`, the account that last changed it, and a report
+    carries `reviewedBy`, the reviewer who decided it. Those are other people's
+    ids, and a backup is this learner's data handed to this learner, so they
+    leave as null unless the id is the learner's own. A restore never reads
+    either back as anybody's (`lib/dict/restoredEntry.ts`).
+  */
+  const own = (id: string | null) => (id === ownerId ? id : null);
+  const lexemesOut = lexemes.map((row) => ({
+    ...row,
+    editedBy: own(row.editedBy),
+    editedAt: own(row.editedBy) ? row.editedAt : null,
+    // A sentence another learner typed is theirs, and so is their id on it.
+    examples: serialiseExamples(
+      parseExamples(row.examples)
+        .filter((e) => typedReaches(e, { viewer: ownerId }))
+        .map(({ by, ...e }) => (by === ownerId ? { ...e, by } : e)),
+    ),
+  }));
+  const suggestionsOut = suggestions.map((row) => ({ ...row, reviewedBy: own(row.reviewedBy) }));
+
   const payload = {
     exportedAt: new Date().toISOString(),
     format: "kodukeel-v1",
@@ -205,13 +243,22 @@ export async function backupFor(ownerId: string) {
       pushSubscriptions: pushSubscriptions.length,
       nativePushDevices: nativePushDevices.length,
     },
-    lexemes, cards, reviews, tasks, studyEvents, scans,
+    lexemes: lexemesOut, cards, reviews, tasks, studyEvents, scans,
     settings, messages, assessments, stars, achievements,
-    examAttempts, classrooms, classroomMembers, suggestions, sceneRuns, sceneGaps, encounters,
+    examAttempts, classrooms, classroomMembers, suggestions: suggestionsOut, sceneRuns, sceneGaps, encounters,
     decks, deckWords, deferrals, courseSteps, emailSends, pushSubscriptions, nativePushDevices,
   };
 
   return payload;
+}
+
+/**
+ * The text a learner's own typed sentence leaves in a word's `examples`
+ * column, which is JSON written by `serialiseExamples` with no spaces: what
+ * the export and the erasure look for to find the words they wrote into.
+ */
+export function typedBy(ownerId: string): string {
+  return `"by":${JSON.stringify(ownerId)}`;
 }
 
 /** What `backupFor` hands back, which both doors serialize as it stands. */

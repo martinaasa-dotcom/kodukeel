@@ -8,6 +8,7 @@ import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledg
 import { reportError } from "@/lib/observability/report";
 import { clip } from "@/lib/copy/clip";
 import { NO_STORE } from "@/lib/security/headers";
+import { readJsonCapped, JSON_BODY_BYTES } from "@/lib/security/body";
 import { localeFor } from "@/lib/progress/locale";
 
 export const dynamic = "force-dynamic";
@@ -43,7 +44,7 @@ export async function POST(request: Request) {
   let text: string;
   let level = "B1";
   try {
-    const body = (await request.json()) as Record<string, unknown>;
+    const body = (await readJsonCapped(request, JSON_BODY_BYTES)) as Record<string, unknown>;
     if (typeof body.text !== "string") {
       return Response.json({ error: "Something went wrong sending that. Reload the page and try again." }, { headers: NO_STORE, status: 400 });
     }

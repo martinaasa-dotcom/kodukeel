@@ -15,6 +15,7 @@ import { fixFrom, vocabFrom } from "@/lib/tutor/markers";
 import { AnuProse } from "./Prose";
 import { useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
+import { NOT_REACHED } from "@/lib/copy/values";
 
 /**
  * The pieces of an Anu conversation shared by the full `/tutor` page and the
@@ -548,8 +549,10 @@ function VocabBridge({ vocab }: { vocab: { et: string; en: string }[] }) {
 function VocabRow({ word }: { word: { et: string; en: string } }) {
   const t = useT();
   const [added, setAdded] = useState(false);
+  const [failed, setFailed] = useState<string | null>(null);
 
   const keeper = useKeepWord(null, async (deckIds) => {
+    setFailed(null);
     const created = await createLexeme({
       // The provenance carries "a model suggested this and nobody has checked
       // it", which is what `vouchable` reads to refuse the word as a scanned
@@ -557,9 +560,11 @@ function VocabRow({ word }: { word: { et: string; en: string } }) {
       // It used to be a sentence in `notes`, where nothing read it.
       lemma: word.et, translation: word.en,
     }).catch(() => null);
-    if (!created?.ok) return;
+    if (!created) { setFailed(t(NOT_REACHED)); return; }
+    if (!created.ok) { setFailed(t(created.error)); return; }
     const result = await addToDeck(created.id, ["RECOGNITION", "PRODUCTION"], "TUTOR", deckIds).catch(() => null);
     if (result?.ok) setAdded(true);
+    else setFailed(t(result && "error" in result && typeof result.error === "string" ? result.error : NOT_REACHED));
   });
 
   return (
@@ -584,6 +589,9 @@ function VocabRow({ word }: { word: { et: string; en: string } }) {
         </div>
       </div>
       <KeepWordChoice keeper={keeper} />
+      {failed && (
+        <p role="status" className="text-sm" style={{ color: "var(--ink-2)" }}>{failed}</p>
+      )}
     </li>
   );
 }

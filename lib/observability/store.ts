@@ -30,6 +30,13 @@ import type { ErrorRecord } from "./report";
 export const KEEP_DAYS = 30;
 /** At most this many alert emails in any 24 hours, however much breaks. */
 export const ALERTS_PER_DAY = 10;
+/**
+ * At most this many rows of one kind of error in any 24 hours. Past it the
+ * error is still in the server log; the table stops growing, because one
+ * fault firing on every request is one fault, and anybody who can make a
+ * request fail could otherwise write the table full.
+ */
+export const ROWS_PER_KIND_PER_DAY = 200;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const MESSAGE_MAX = 1_000;
@@ -44,6 +51,7 @@ export async function storeError(record: ErrorRecord, now: Date = new Date()): P
       prisma.errorEvent.count({ where: { fingerprint, createdAt: { gte: dayAgo } } }),
       prisma.errorEvent.count({ where: { alerted: true, createdAt: { gte: dayAgo } } }),
     ]);
+    if (seenToday >= ROWS_PER_KIND_PER_DAY) return;
     const recipients = adminEmails();
     const mail = mailerConfig();
     const alert = seenToday === 0 && alertsToday < ALERTS_PER_DAY && recipients.length > 0 && mail !== null;

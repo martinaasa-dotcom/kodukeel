@@ -1,6 +1,8 @@
+import { createHash } from "node:crypto";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   bucketDigest,
+  bucketKey,
   bucketForOwner,
   bucketForRequest,
   checkRateLimit,
@@ -292,6 +294,35 @@ describe("the pieces the shared counter is built out of", () => {
 
     // The point of the digest: the id is not in the row.
     expect(mine).not.toContain("8f14e45f");
+  });
+
+  it("keys the digest, so an address cannot be recovered by hashing every address", () => {
+    const env = { RATE_LIMIT_SECRET: "a-long-enough-test-secret-0001" };
+    const ip = "tts:ip:203.0.113.7";
+    // Not the plain SHA-256 anybody could compute for each of the four billion addresses.
+    const plain = createHash("sha256").update(ip).digest("hex");
+    expect(bucketDigest(ip, env)).not.toBe(plain);
+    // Stable for one secret, which is what lets every instance share a bucket.
+    expect(bucketDigest(ip, env)).toBe(bucketDigest(ip, { ...env }));
+    // And a different secret is a different digest.
+    expect(bucketDigest(ip, { RATE_LIMIT_SECRET: "another-long-test-secret-0002" })).not.toBe(bucketDigest(ip, env));
+  });
+
+  it("derives its key from a server secret the deployment already has, never using it bare", () => {
+    const cron = { CRON_SECRET: "the-scheduler-bearer-token-xyz" };
+    expect(bucketKey(cron)).toEqual(bucketKey({ ...cron }));
+    expect(bucketKey(cron).toString("utf8")).not.toContain("the-scheduler");
+    // A dedicated secret wins over the fallbacks.
+    expect(bucketKey({ ...cron, RATE_LIMIT_SECRET: "a-long-enough-test-secret-0001" }))
+      .not.toEqual(bucketKey(cron));
+    // A secret too short to be one is passed over.
+    expect(bucketKey({ RATE_LIMIT_SECRET: "short", ...cron })).toEqual(bucketKey(cron));
+  });
+
+  it("falls back to the database's address, which every instance shares, before a key of its own", () => {
+    const db = { DATABASE_URL: "postgresql://someone:a-password@db.example:5432/app" };
+    expect(bucketKey(db)).toEqual(bucketKey({ ...db }));
+    expect(bucketKey(db).toString("utf8")).not.toContain("a-password");
   });
 
   it("keeps one caller's two endpoints in two buckets", () => {

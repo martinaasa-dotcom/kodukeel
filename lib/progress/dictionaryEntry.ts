@@ -1,4 +1,5 @@
 import { after } from "next/server";
+import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
 
 import { prisma } from "@/lib/db";
 import { sentenceReach } from "@/lib/dict/facts";
@@ -105,9 +106,23 @@ export async function openEntry(
   }
   const entry = await loadEntry(id, ownerId, options.dictionaryOnly === true);
   // Counted in `after()`, so the count costs the reader nothing and still lands.
-  if (entry && !fetched && options.countAnswer) after(() => countStoredAnswer(entry));
+  /*
+    And a learner's own lookups count only so far in a day. The figure goes to
+    funders as how often the stored dictionary answered, and a page view is a
+    GET a script can repeat, so one account opening one word in a loop
+    inflated it without limit.
+  */
+  if (entry && !fetched && options.countAnswer) {
+    after(async () => {
+      const room = await checkSharedRateLimit(`ekcount:o:${ownerId}`, COUNTED_PER_DAY, 24 * 60 * 60 * 1000);
+      if (room.ok) await countStoredAnswer(entry);
+    });
+  }
   return { entry, fetched };
 }
+
+/** How many of one learner's lookups a day count towards the stored-answer figure. */
+const COUNTED_PER_DAY = 200;
 
 async function loadEntry(id: string, ownerId: string, dictionaryOnly: boolean): Promise<EntryView | null> {
   const [lex, reach] = await Promise.all([
@@ -130,7 +145,15 @@ async function loadEntry(id: string, ownerId: string, dictionaryOnly: boolean): 
   ]);
   if (!lex) return null;
   if (dictionaryOnly && lex.provenance === "AI") return null;
-  const examples = usableExamples(parseExamples(lex.examples), plainerFirst(lex.cefr, reach));
+  /*
+    A row a learner added is theirs to read, and a stranger's only where it is
+    already in the stranger's own deck. The search no longer finds another
+    learner's own word (`searchLexemes`), and an id in a link is the same door.
+  */
+  const sourced = lex.provenance === "SEED" || lex.provenance === "EKILEX";
+  if (!sourced && lex.editedBy !== ownerId && lex.cards.length === 0) return null;
+  // A sentence a learner typed reaches its author and nobody else (`typedReaches`).
+  const examples = usableExamples(parseExamples(lex.examples), plainerFirst(lex.cefr, reach), { viewer: ownerId });
   return {
     id: lex.id,
     lemma: lex.lemma,
@@ -149,7 +172,8 @@ async function loadEntry(id: string, ownerId: string, dictionaryOnly: boolean): 
     ekilexWordId: lex.ekilexWordId,
     inDeck: lex.cards.length > 0,
     starred: lex.stars.length > 0,
-    examples: dictionaryOnly ? examples.filter((e) => e.source !== "AI") : examples,
+    // Without `by`: a reviewer's sentence reaches everybody, and their account id need not.
+    examples: (dictionaryOnly ? examples.filter((e) => e.source !== "AI") : examples).map(({ by: _by, ...e }) => e),
     forms: lex.forms.map((f) => ({
       formType: f.formType,
       value: f.value,

@@ -33,6 +33,7 @@ import { LESSONS, lessonById, unfold } from "@/lib/course/lessons";
 import { courseMadeOf } from "@/lib/curriculum/align";
 import { LetterTile } from "@/components/LetterTile";
 import { LandingAnu, type AnuLine } from "@/components/LandingAnu";
+import { ForgetLeftBehind } from "@/components/ForgetLeftBehind";
 import { oneEntryPerLemma } from "@/lib/dict/search";
 import { Explain } from "@/components/Explain";
 import { SOURCE_CREDITS } from "@/lib/legal/credits";
@@ -168,6 +169,8 @@ export default async function WelcomePage({ params }: { params?: Promise<{ lang?
 
       <Footer say={say} copy={copy} />
       <LandingAnu lines={anuLines(say)} />
+      {/* A browser left here by a session that ended on the server keeps nothing of it. */}
+      <ForgetLeftBehind />
     </div>
     </LocaleProvider>
   );

@@ -2,6 +2,7 @@ import { after } from "next/server";
 import { requireUserId } from "@/lib/auth/session";
 import { rateLimited } from "@/lib/security/rateLimit";
 import { NO_STORE } from "@/lib/security/headers";
+import { readJsonCapped, SCENE_BODY_BYTES } from "@/lib/security/body";
 import { sceneTurnFor } from "@/lib/progress/sceneRequest";
 
 /**
@@ -33,7 +34,7 @@ export async function POST(request: Request) {
   const ownerId = await requireUserId();
   // A body that parses to `null` or a number is not a turn, and reading a key
   // off `null` threw here, which the framework answered with a 500.
-  const parsed: unknown = await request.json().catch(() => null);
+  const parsed: unknown = await readJsonCapped(request, SCENE_BODY_BYTES).catch(() => null);
   const body = (typeof parsed === "object" && parsed !== null ? parsed : {}) as Record<string, unknown>;
   const turn = await sceneTurnFor(ownerId, body, after);
   if (!turn.ok) {

@@ -117,6 +117,7 @@ export function AddWord({ initialLemma = "", initialTranslation = "", startOpen,
     Object.fromEntries((edit?.forms ?? []).map((f) => [f.formType, f.value])),
   );
   const [error, setError] = useState<string | null>(null);
+  const [sent, setSent] = useState<string | null>(null);
   const [pending, start] = useTransition();
 
   const fields = pos === "VERB" ? VERB_FIELDS : hasNoFields(pos) ? [] : NOUN_FIELDS;
@@ -158,6 +159,16 @@ export function AddWord({ initialLemma = "", initialTranslation = "", startOpen,
         id: edit?.id, lemma, translation, pos, cefr, government, forms: filled,
       }).catch(() => null);
       if (!result || !result.ok) { setError(t(result ? result.error : NOT_REACHED)); return; }
+      /*
+        A change to an entry that is not theirs goes to the review queue rather
+        than into the dictionary (`createLexemeWithForms`), so there is nothing
+        new to go and look at: the form says where it went and stays put.
+      */
+      if (result.queued) {
+        setSent(result.message);
+        setOpen(false);
+        return;
+      }
       setOpen(false);
       if (!edit) { setForms({}); setTranslation(""); }
 
@@ -191,11 +202,14 @@ export function AddWord({ initialLemma = "", initialTranslation = "", startOpen,
 
   if (!open) {
     return (
-      <Button ref={opener} onClick={() => setOpen(true)}>
-        {edit
-          ? <><Pencil size={14} aria-hidden /> {t("Edit")}</>
-          : <><Plus size={15} aria-hidden /> {t("Add a word")}</>}
-      </Button>
+      <>
+        <Button ref={opener} onClick={() => setOpen(true)}>
+          {edit
+            ? <><Pencil size={14} aria-hidden /> {t("Edit")}</>
+            : <><Plus size={15} aria-hidden /> {t("Add a word")}</>}
+        </Button>
+        <p role="status" className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>{sent ? t(sent) : null}</p>
+      </>
     );
   }
 

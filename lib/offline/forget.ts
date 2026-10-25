@@ -1,6 +1,7 @@
 "use client";
 
-import { deleteLocalDatabase } from "./db";
+import { hasSessionCookie } from "@/lib/auth/identity";
+import { deleteLocalDatabase, forgetStashedSession, outboxSize } from "./db";
 
 /**
  * Forgetting a learner on a device they are leaving.
@@ -84,6 +85,61 @@ export async function forgetIfOwnerChanged(owner: string): Promise<boolean> {
     // Storage blocked: nothing was kept, so there is nothing to protect.
   }
   return changed;
+}
+
+/**
+ * And the case where the server signed somebody out and the device was never told.
+ *
+ * Three sign-outs happen on the server, where nothing on the device can be
+ * reached: the callback ending a session before it follows somebody else's
+ * link (`/sign-in?switched=1`), the allowlist refusing an address
+ * (`?denied=1`), and a session that simply ran out. None of them came past the
+ * rail's Sign out, so each left the cached pages, the stashed session and an
+ * unfinished paper behind, and offline the worker served those pages to
+ * whoever opened the app next. So the screens a signed-out browser lands on
+ * (the sign-in screen and the landing page) ask: has an account used this
+ * device, and is nobody signed in now? `signedOutHere` is the server saying
+ * so outright; otherwise the session cookie's absence is the answer, since
+ * the Supabase client clears it when a session ends for good.
+ *
+ * The outbox is given its chance first. A grade that still cannot land is
+ * kept where nobody was told to sign out, because a session that ran out is
+ * most often its owner's, and those grades replay when they sign back in; the
+ * owner mark stays with it, so `forgetIfOwnerChanged` still drops them the
+ * moment a different account appears. Everything else goes. Returns whether
+ * anything was forgotten.
+ */
+export async function forgetIfSignedOut({
+  signedOutHere,
+  flush,
+}: {
+  signedOutHere: boolean;
+  flush: () => Promise<void>;
+}): Promise<boolean> {
+  let owner: string | null = null;
+  try {
+    owner = window.localStorage.getItem(OWNER_KEY);
+  } catch {
+    return false;
+  }
+  if (owner === null) return false;
+  if (!signedOutHere && hasSessionCookie(cookieNames())) return false;
+  await flush().catch(() => undefined);
+  const queued = await outboxSize().catch(() => 0);
+  if (!signedOutHere && queued > 0) {
+    await Promise.all([forgetStashedSession().catch(() => undefined), forgetPages(), forgetSittings()]);
+    return true;
+  }
+  await forgetThisDevice();
+  return true;
+}
+
+function cookieNames(): string[] {
+  try {
+    return document.cookie.split(";").map((pair) => pair.split("=")[0]!.trim()).filter(Boolean);
+  } catch {
+    return [];
+  }
 }
 
 const OWNER_KEY = "kodukeel.owner";

@@ -1,4 +1,4 @@
-import { isExactForm } from "@/lib/dict/forms";
+import { coldBudget, isExactForm } from "@/lib/dict/forms";
 import { isOff } from "@/lib/usage/switches";
 
 /**
@@ -20,6 +20,15 @@ export const MAX_WORD = 40;
 /** A turn asks once. Sixty a minute is a turn a second, which nobody speaking reaches. */
 export const FORMS_PER_MINUTE = 60;
 
+/**
+ * How many shards of the forms list one request may read cold. A spoken turn
+ * shares a handful; a request built to name a different large shard per word is
+ * the one this stops (`ColdBudget` in lib/dict/forms.ts). A word past it is
+ * answered as not a known spelling, which draws it dotted rather than refusing
+ * the turn.
+ */
+export const COLD_SHARDS_PER_REQUEST = 12;
+
 export type FormsAnswer =
   | { ok: true; known: string[]; asked: string[] }
   | { ok: false; refusal: "invalid" | "switched_off" };
@@ -35,6 +44,7 @@ export async function heardSpellings(body: unknown): Promise<FormsAnswer> {
     .filter((word) => word.length > 0 && word.length <= MAX_WORD)
     .slice(0, MAX_WORDS);
   const distinct = [...new Set(words)];
-  const answers = await Promise.all(distinct.map(async (word) => [word, await isExactForm(word)] as const));
+  const budget = coldBudget(COLD_SHARDS_PER_REQUEST);
+  const answers = await Promise.all(distinct.map(async (word) => [word, await isExactForm(word, budget)] as const));
   return { ok: true, known: answers.filter(([, known]) => known).map(([word]) => word), asked: distinct };
 }

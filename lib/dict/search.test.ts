@@ -509,6 +509,16 @@ describe("oneEntryPerLemma", () => {
     expect(oneEntryPerLemma([course, built], ["vana"]).map((r) => r.id)).toEqual(["course"]);
   });
 
+  it("never lets a row a learner added lead a word everybody meets", () => {
+    // Any account can add a row; one with a real kind of word and forms used to
+    // outrank the Institute's because USER counted as hand-written.
+    const real = withId(lexeme("tuba", "room", "NOUN", [["GEN_SG", "toa"], ["PART_SG", "tuba"]], "EKILEX"), "real");
+    const planted = withId(lexeme("tuba", "anything at all", "ADJECTIVE",
+      [["NOM_SG", "tuba"], ["GEN_SG", "tuba"], ["PART_SG", "tuba"], ["GEN_PL", "tubade"], ["PART_PL", "tubasid"]], "USER"), "planted");
+    expect(oneEntryPerLemma([planted, real], ["tuba"]).map((r) => r.id)).toEqual(["real"]);
+    expect(oneEntryPerLemma([real, planted], ["tuba"]).map((r) => r.id)).toEqual(["real"]);
+  });
+
   it("leaves out a lemma the dictionary does not have", () => {
     const rows = [lexeme("tuba", "room", "NOUN", [["GEN_SG", "toa"]])];
     expect(oneEntryPerLemma(rows, ["tuba", "eiolemas"]).map((r) => r.lemma)).toEqual(["tuba"]);

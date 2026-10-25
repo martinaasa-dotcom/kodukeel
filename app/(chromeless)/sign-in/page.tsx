@@ -6,11 +6,13 @@ import { appleServicesId as readAppleServicesId } from "@/lib/auth/appleConfig";
 import { googleClientId as readGoogleClientId } from "@/lib/auth/googleConfig";
 import { resolveOperator } from "@/lib/legal/operator";
 import { Note } from "@/components/ui";
-import { ButtonLink } from "@/components/Button";
+import { Button, ButtonLink } from "@/components/Button";
 import { MascotWatch } from "@/components/MascotWatch";
 import { fillNodes } from "@/components/TemplateNodes";
 import { fill, localeFrom, tr } from "@/lib/copy/locale";
 import { SignInForm } from "./SignInForm";
+import { ForgetLinkInAddress } from "./ForgetLinkInAddress";
+import { ForgetLeftBehind } from "@/components/ForgetLeftBehind";
 import { LocaleProvider } from "@/components/Locale";
 import { areaTable } from "@/lib/copy/i18n/slice";
 import { START } from "@/lib/copy/i18n/areas/start";
@@ -122,9 +124,22 @@ export default async function SignInPage({ searchParams }: {
     what to add and, where there is one, who to tell. `lib/auth/canonical.ts` says how a deployment stops it.
   */
   const bounced = params.bounced !== undefined;
+  /*
+    A mailed link, handed over by `/auth/callback` rather than acted on there.
+    Any page can send somebody to a URL, so a GET may not sign anybody in or
+    out; this form is the one press that does, and it is a same-origin POST
+    the forged-request gate covers. The values go back exactly as they came,
+    and the callback checks every one of them again.
+  */
+  const linkToken = typeof params.token_hash === "string" ? params.token_hash.slice(0, 512) : null;
+  const linkType = typeof params.type === "string" ? params.type.slice(0, 32) : null;
+  const linkNext = typeof params.next === "string" ? params.next.slice(0, 512) : null;
+  const confirming = configured && linkToken !== null && linkType !== null;
 
   return (
     <main lang={locale === "en" ? undefined : locale} className="night relative flex min-h-screen items-center justify-center overflow-hidden px-5 py-12">
+      {/* What the session the server just ended left on this device goes with it (lib/offline/forget.ts). */}
+      <ForgetLeftBehind signedOutHere={switched || denied} />
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
@@ -192,12 +207,49 @@ export default async function SignInPage({ searchParams }: {
             </div>
           )}
 
+          {confirming && (
+            <form method="post" action="/auth/callback" className="mt-6 text-left">
+              <input type="hidden" name="token_hash" value={linkToken ?? ""} />
+              <input type="hidden" name="type" value={linkType ?? ""} />
+              {linkNext && <input type="hidden" name="next" value={linkNext} />}
+              {/*
+                SAY ONLY WHAT IS TRUE, AND WHAT TO DO IF IT IS NOT.
+
+                This said the link came from "your email", and nothing here can
+                know that: anybody can ask for a link to their own address and
+                send it to somebody else, and pressing the button would sign that
+                person into the sender's account, where everything they write
+                afterwards is the sender's to read. Whose address it is cannot be
+                said before the link is spent, so the sentence asks the one
+                question only the reader can answer.
+              */}
+              <Note tone="neutral">
+                {t("Only continue if you asked for this sign-in link yourself just now. If you didn’t, close this page.")}
+              </Note>
+              <Button type="submit" variant="primary" className="mt-4 w-full">{t("Finish signing in")}</Button>
+              <ForgetLinkInAddress />
+            </form>
+          )}
+
           <div className="mt-7">
             {configured ? (
               <>
                 {/* The form's own lines, which are all in the first-run area, and no more of the language. */}
                 <LocaleProvider locale={locale} table={locale === "en" ? undefined : areaTable(locale, [START])}>
-                  <SignInForm emailLink={emailLink} ssoDomains={ssoDomains} googleClientId={googleClientId} appleServicesId={appleServicesId} locale={locale} />
+                  {/*
+                    No third-party script on a page holding a sign-in token. Google's
+                    and Apple's scripts run with this page's full reach, so while the
+                    form above carries a mailed link's token neither is loaded:
+                    Google's door falls back to this app's own redirect button and
+                    Apple's waits for a page with nothing in it to read.
+                  */}
+                  <SignInForm
+                    emailLink={emailLink}
+                    ssoDomains={ssoDomains}
+                    googleClientId={confirming ? undefined : googleClientId}
+                    appleServicesId={confirming ? undefined : appleServicesId}
+                    locale={locale}
+                  />
                 </LocaleProvider>
                 <p className="mt-4 text-center text-sm">
                   <Link href={locale === "en" ? "/help#sign-in" : `/help?lang=${locale}#sign-in`} className="underline underline-offset-2" style={{ color: "var(--ink-2)" }}>

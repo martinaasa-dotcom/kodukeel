@@ -90,6 +90,7 @@ describe("learnerFromClaims", () => {
       email: "maarja@example.ee",
       avatarUrl: "https://example.test/a.jpg",
       givenName: null,
+      signInMethods: [],
     });
   });
 
@@ -172,14 +173,33 @@ function reached(value: boolean): Transport {
 describe("readIdentity", () => {
   it("reads a verified token as the learner it names", async () => {
     const client = clientReturning({
-      data: { claims: { sub: "user-1", email: "maarja@example.ee" } },
+      data: { claims: { sub: "user-1", email: "maarja@example.ee", aud: "authenticated", role: "authenticated", amr: [{ method: "oauth", timestamp: 1 }] } },
       error: null,
     });
     const identity = await readIdentity(client, reached(true));
     expect(identity).toEqual({
       state: "in",
-      learner: { id: "user-1", name: "maarja", email: "maarja@example.ee", avatarUrl: null, givenName: null },
+      learner: { id: "user-1", name: "maarja", email: "maarja@example.ee", avatarUrl: null, givenName: null, signInMethods: ["oauth"] },
     });
+  });
+
+  /*
+    The project signs more than a learner's session: the public anon key and a
+    service key are JWTs with a role of their own, and an anonymous sign-in is
+    a real session with nobody's address behind it. None of them is a learner.
+  */
+  it("reads a verified token that is not a learner's session as nobody", async () => {
+    const base = { sub: "user-1", email: "maarja@example.ee", aud: "authenticated", role: "authenticated" };
+    for (const claims of [
+      { ...base, aud: "anon", role: "anon" },
+      { ...base, role: "service_role" },
+      { ...base, is_anonymous: true },
+      { ...base, aud: undefined },
+      { ...base, sub: "" },
+    ]) {
+      const client = clientReturning({ data: { claims }, error: null });
+      expect(await readIdentity(client, reached(true))).toEqual({ state: "out" });
+    }
   });
 
   it("reads no token from a service that answered as signed out", async () => {

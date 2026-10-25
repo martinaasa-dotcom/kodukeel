@@ -145,6 +145,16 @@ showing an empty list to everybody.
 The action is also throttled. `lib/security/actionLimits.ts` caps `sendSuggestion` at 20 a minute per
 learner and `editDictionary` at 30.
 
+Since 25 October 2026 a learner who is not a reviewer cannot change a shared entry at all. The
+add-and-correct form still works on their own words; on anybody else's, or on a seeded or Ekilex
+entry, it files the change in the suggestion queue as reports (`lib/suggestions/correction.ts`) and
+says so. What a learner writes stays theirs until a reviewer accepts it: a typed sentence is shown to
+its author and to nobody else until reviewed (`typedReaches` in `lib/dict/examples.ts`), a word a
+learner typed or Anu suggested is found by its author's search alone, and every shared picker, the
+tutor's dictionary block and the exam pool read only seeded and Ekilex rows (`VOUCHED_ROW`). A
+search that ties ranks a seeded entry above an Ekilex one above anything else, so a planted row can
+never lead.
+
 **Residual.** A named reviewer is trusted. The mitigation is that the list is short enough to read
 aloud and every change carries the reviewer's id.
 
@@ -211,9 +221,14 @@ noticing. Everything they write from then on goes into a deck you can read.
 
 **Control.** `app/auth/callback/route.ts`. The `token_hash` branch is deliberately not tied to the
 browser that asked, which is the whole reason that email template shape exists, so the tie has to be
-made here instead. A link that would change who is signed in never just does it: the session in the
-browser is ended and the learner is sent to `/sign-in?switched=1` with a sentence saying what
-happened. The `next` parameter is dropped, because it was chosen by whoever wrote the link.
+made here instead. Opening the link does nothing on its own: the GET only sends the browser to a
+page on `/sign-in` that says a link was opened and asks for one press of "Finish signing in", which
+POSTs the token to the callback. That matters twice. A mail scanner or link preview that fetches the
+URL spends nothing, and a page somewhere else cannot sign anybody out or in by embedding the link,
+because the forged-request gate refuses a cross-site POST. On the POST, a browser that already holds
+a session is signed out on this device only (`scope: "local"`, never every device the account has)
+and sent to `/sign-in?switched=1` with a sentence saying what happened. The `next` parameter is
+dropped there, because it was chosen by whoever wrote the link.
 
 Nobody signed in is the ordinary case and is untouched, so the link works exactly as it should for
 the person it was mailed to.
@@ -290,9 +305,10 @@ dictionary is left alone, and a word that is not is created as the restorer's ow
 and the Ekilex identifiers stripped.
 
 Size is bounded twice, and both limits are set to the same number on purpose because two limits on
-one upload that disagree is how the last fault happened. `serverActions.bodySizeLimit` and
-`proxyClientMaxBodySize` in `next.config.ts` are both 16 MB, and `/api/restore` checks
-`content-length` against the same 16 MB before reading. It used to declare 128 MB, which no request
+one upload that disagree is how the last fault happened. `proxyClientMaxBodySize` in `next.config.ts`
+is 16 MB, and `/api/restore` checks `content-length` against the same 16 MB before reading. Every
+other Server Action is held to `serverActions.bodySizeLimit`, 2 MB, since a backup no longer travels
+as one. It used to declare 128 MB, which no request
 could reach: the proxy truncates a larger body rather than refusing it, so an oversized backup was
 parsed half-read and reported as not a backup at all. `inspectBackup`, which parses the same
 whole file and writes nothing, is throttled too, because it never looked expensive and is a public
@@ -521,16 +537,18 @@ accounts.
 **No Postgres row level security.** Ownership is enforced in application code and asserted in CI.
 Adding RLS as a second layer is on the list and has not been done.
 
-**`'unsafe-inline'` in `script-src`.** Required rather than chosen, and the reason is written out in
-`lib/security/headers.ts`: the app shell is prerendered and CDN cached, and Next stamps a nonce only
-on markup it renders per request, so a fresh nonce against cached inline Flight scripts means the
-page never hydrates. A nonce would also silently disable `'unsafe-inline'` for the theme script.
-This is the weakest line in the policy and it is a real residual risk against an injected script. In
-full, `script-src` is `'self' 'unsafe-inline'`, plus `https://accounts.google.com` where a Google
-client ID is set and `'unsafe-eval'` in development only, so a deployment with Google sign-in trusts
-Google's own script as well. `style-src` also carries `'unsafe-inline'`, and `img-src` takes any
-`https:` host because a Google avatar is served from whichever host that account is on. The rest of
-the policy is as tight as the app allows.
+**`'unsafe-inline'` remains on four cached pages and in `style-src`.** Every page rendered per
+request runs its scripts on a nonce minted for that request by `middleware.ts`, with
+`'strict-dynamic'`, so a script runs only if a nonced script loaded it; the root layout's two inline
+scripts are allowed by their SHA-256 (`lib/security/inlineScripts.ts`), and an injected inline
+script is refused. `'self'`, the Google and Apple sign-in hosts and `'unsafe-inline'` stay in the
+policy only as the fallback a browser that predates nonces reads, and a browser that supports them
+ignores the lot. The exception is the four landing pages that are prerendered and cached
+(`/welcome` and its three translations): a cached page carries no nonce, so they keep the older
+policy (`policyKindFor` in `lib/security/headers.ts`). They are the same for every visitor and
+render nothing from the request. The prerendered 404 is answered under the nonce policy and draws
+its text and links without hydrating. `style-src` keeps `'unsafe-inline'`, which lets injected markup
+restyle a page and runs no script. `img-src` is `'self' data: blob:`.
 
 **Session freshness is traded for speed.** With asymmetric signing keys the access token is verified
 locally, so a session revoked elsewhere survives until that token expires, an hour by default. The
@@ -661,5 +679,184 @@ hostname, which on a host with HSTS preloaded is not a position anybody reaches 
 it buys is a deployment behind a reverse proxy, which sees `Host: localhost:3000` on a request whose
 `Origin` is the public address: comparing whole origins would refuse every mutation on it. Recorded
 here rather than left to be rediscovered.
+
+### The second review, 25 October 2026
+
+Done before the native apps, as a full pass over the source with every finding checked against the
+code before it was fixed. Fixed in the same pass:
+
+- **A public workflow published learner names.** `.github/workflows/reset-course.yml` appended the
+  reset script's output to the run summary, which on a public repository anybody can read, and that
+  output listed every learner's display name and account id. The script prints counts now and names
+  only with `--show-names` in a terminal. Past run summaries should be deleted by hand.
+- **Opening a sign-in link signed the browser out everywhere.** The GET verified the token and, where
+  another session was present, called a global sign-out. It is a confirmation page and a POST now
+  (section 4.6), and every sign-out the callback makes is local to the device.
+- **A token that was not a learner's was accepted.** The anon key, a `service_role` token and an
+  anonymous session are all signed by the same project. `isLearnerToken` in `lib/auth/identity.ts`
+  requires an `authenticated` audience and role and a real account, on the cookie path and the native
+  bearer path alike.
+- **Reviewer rights followed an address the account had not proved.** `ADMIN_EMAILS` matched the
+  email claim whatever method signed the account in. Admin now needs a sign-in method that proves the
+  inbox (Google or a mailed link); password, anonymous, web3 and SSO sessions are refused.
+- **A deployment could fall into local mode.** With no Supabase keys every request was one shared
+  learner and an admin. `localModeRefused` in `lib/auth/mode.ts` refuses it on Vercel and in a
+  production build against a database that is not on loopback, unless `KODUKEEL_LOCAL_MODE=1`.
+- **Any learner could change shared dictionary entries and have them read as attested.** See
+  section 4.2: corrections are moderated, typed sentences and typed words reach only their author
+  until reviewed, and shared pickers read seeded and Ekilex rows only.
+- **Erasing an account reset that day's AI allowance.** The ledger's rows went with the account, so
+  erasing and signing up again bought a fresh allowance. Today's rows are kept under a one-way key
+  (`lib/usage/erasedSpend.ts`) that still counts against the same account and names nobody, and
+  erasure itself is capped at ten a day.
+- **The export carried other people's ids.** A word somebody else corrected carried their account
+  id in `editedBy`, and an accepted report carried the reviewer's. Both are cleared unless they are
+  the owner's own, and other learners' typed sentences are not exported.
+- **A restore could raise its own settings.** It wrote any key in the file, including a passed check
+  and a banked streak shield. It restores only known keys and never the earned ones, with values
+  capped in length, and a restored entry carries no level.
+- **A placement paper could be handed in many times.** Each seed is marked once a week now.
+- **Cron and research tokens were compared in a way that leaked length, and short ones were
+  accepted.** `bearerMatches` in `lib/security/bearerSecret.ts` hashes both sides before a
+  constant-time compare and refuses a secret under 16 characters.
+- **The cookie session was not marked `Secure` behind a proxy**, and error reports could carry an
+  email address. Both fixed (`lib/supabase/cookieOptions.ts`, `lib/security/redact.ts`).
+- **A Server Action body could be 16 MB.** It is 2 MB, the size of the largest backup.
+- **One request could decompress hundreds of forms-list shards**, which is CPU on the miss path.
+  Decompression is asynchronous, one flight per shard, and a request may open at most twelve cold
+  ones.
+- **A search could send Ekilex a wildcard.** `searchableWord` refuses wildcards, very long input and
+  input of dots alone before anything is asked upstream.
+- **Join codes came from `Math.random`**, whose state can be recovered from its outputs, and failed
+  joins were limited per instance. Codes are drawn from `crypto.getRandomValues` and joins are capped
+  at thirty a day across instances.
+- **Personal rows had no ceiling.** Calendar events, reminders and the daily conversation report are
+  throttled and capped per account, and the shelf and undo inputs are bounded before any query.
+- **`.env` files were not ignored**, and a vulnerable `fast-uri` sat in the lockfile. Both fixed.
+
+Accepted, with the reasoning, and to be revisited before the native apps ship:
+
+- **A word a learner typed can still be picked up by another learner's scan or import** where both
+  name the same headword and part of speech, because the dictionary is keyed that way. It is no
+  longer shown, ranked or lent to anybody, and it is marked as the author's. The full fix is words
+  scoped to their owner, which is a schema change.
+- **The placement check marks in the browser and posts what was answered.** The server rebuilds the
+  paper and marks it, but the client holds the paper, so a determined learner can answer it with the
+  key in hand. It sets their own starting level and nothing anybody else reads.
+- **A revoked session lives until its token expires**, about an hour (section 6).
+- **Session cookies are readable by script**, because the Supabase browser client reads them. The
+  Content Security Policy is what stands in front of that: every page rendered per request runs its
+  scripts on a nonce minted for that request and `'strict-dynamic'`, the root layout's two inline
+  scripts are allowed by their SHA-256, and nothing else inline runs, so an injected `<script>` is
+  refused. The four prerendered landing pages (`/welcome` and its three translations) keep
+  `'unsafe-inline'`, because a cached page carries no nonce; they are the same for every reader and
+  render nothing from the request (`policyKindFor` in `lib/security/headers.ts`). The prerendered
+  404 for an address no route matches is answered under the nonce policy, so it draws its text and
+  links without hydrating.
+- **Speech clips are cached by phrase**, so timing can tell whether somebody has heard a phrase
+  before. It reveals no account.
+- **Deleting an account needs only a signed-in session and a typed confirmation.** A step-up check
+  is on the list for the native apps.
+- **An admin's bulk course reset** writes one structured line to the server log and nothing more
+  durable. An audit table is on the list.
+
+### The third review, 25 October 2026
+
+A second pass the same day, over what the first did not reach: the native API, every Server Action
+argument, outbound requests, the browser, CI and the supply chain, the AI paths, and the life of
+personal data. Every finding was read against the code before it was fixed. Fixed:
+
+- **Anu read other people's data off the screen.** She sends the text of the page with each
+  question, and on a class roster, a workplace view or the admin queue that was other people's names
+  and figures, sent to a model provider outside the EEA. Nothing on `/class`, `/admin`, `/settings`,
+  `/suggestions`, `/dev`, `/privacy` or `/terms` is read, nor anything marked `data-private`
+  (`screenIsPrivate` in `lib/tutor/screen.ts`, checked on the server too).
+- **A learner's own word could answer for other learners' spellings.** A `USER` row with one form
+  vouched as an exact headword, so its gloss reached other learners' sentences and their
+  conversation's model. Only seeded and Ekilex rows vouch now (`vouchable`). Building cards, starring
+  or putting aside by id is held to what the entry page shows (`wordReaches`), and a word a learner
+  added goes for review once anybody else holds a card on it.
+- **One learner's sentence could delete everybody else's from a word.** The per-learner cap was
+  applied to the stored column across authors. It is per author now, reviewed sentences are never
+  dropped, and one word holds at most `MAX_TYPED_STORED` typed sentences.
+- **Undo wrote any scheduling onto any card the learner held**, which inflated "words known" on a
+  teacher's roster. A "before" state is accepted only if grading it the way one of the card's recent
+  answers was reproduces the card as it stands (`undoGradeFor`).
+- **A restore could plant text on a teacher's screen and fabricate history.** A restored card's type,
+  source, case and slot, and a review's case, are held to their closed lists; encounters to the
+  answers Today offers and its daily cap; course ticks to days the course has and parts the checks
+  allow; and the part of the course only where `moveBlockedFor` would allow it.
+- **The A1 checks could be walked round**, by turning the course off and choosing again, by running
+  first run again, through a backup, or by sitting a later part's check by script. A learner on no
+  part is placed where they last ticked a step; first run, restore and the checks all ask
+  `moveBlockedFor`; a check is sat only for the part the learner is on or has left, thirty papers an
+  hour on both doors.
+- **A workplace sponsor saw more than employees were told.** The view and its file now show a name,
+  whether they practiced this week, and a band. An archived class shows names only.
+- **Personal data outlived its promises.** Erasure takes a learner's typed sentences off shared
+  words and deletes the words they added that nobody else uses, and the export carries both. Anu's
+  messages and spending records are pruned daily, as the privacy page says. A pasted text is spoken
+  without being stored. The privacy page now names every feature that sends text to a model.
+- **The Content Security Policy allowed inline scripts** on every page. See section 6 for the nonce
+  policy that replaced it.
+- **The service worker cached the page a sign-in link opens on**, token included, and third-party
+  sign-in scripts ran on it. Neither happens now, and the token leaves the address bar. The confirm
+  screen tells somebody to continue only if they asked for the link. Device data is cleared on the
+  sign-in page after the server ends a session, as it is after the Sign out button.
+- **API keys could follow a redirect**, the Gemini key traveled in a URL, and a provider's error
+  body could reach the error log. Every keyed request refuses redirects (asserted), the key is a
+  header, and only an error code is logged.
+- **Nine web routes read bodies of any size.** Each is capped (`readJsonCapped`).
+- **Limits that lived in one server's memory** now also count across instances for the expensive
+  actions on both doors (`throttleShared`), batches of grades (120 a minute), homework per class (20
+  a day), puzzle grades (a day near today) and the stored-answer count. Each press is counted once,
+  in one bucket: the first version counted it twice and halved every allowance, which a test now
+  holds.
+- **A conversation's second and third attempts at a line** were made without asking the budget.
+  They ask it now (`wouldAuthorise`).
+- **A picture's type was read off its label.** Its first bytes are checked.
+- **Rate-limit keys digested IP addresses without a key**, which is reversible. They are an HMAC
+  (`RATE_LIMIT_SECRET`, or a key derived from another server secret, the database's address at the
+  last, so every instance digests the same way).
+- **The error webhook** neutralizes mentions and caps each value, and stored errors are capped per
+  fingerprint. A database error in a public run summary or the health log no longer names the host.
+- **An allowlist trusted any sign-in method.** With `ALLOWED_EMAIL_DOMAINS` set, a session must have
+  proved its address on both doors (`addressProvedForAllowlist`).
+- **Native clients met refusals they could not read.** The middleware answers `/api/v1` in the
+  contract's error shape.
+- **A review of these fixes found three that broke an honest learner**, and they are put right. A
+  learner restoring their own file onto a new device, straight after first run, lost every evening
+  above A1.1: an account that has never ticked a step is still placing, which is open, and the
+  restore's answer is worked out before its transaction. Anu's "Add" did nothing for a word another
+  learner had kept first: the same meaning is adopted, and a different one says why it cannot be.
+  And a check further up than the learner was refused only after it was sat: the page and the API
+  now say it is not open yet instead of drawing the paper.
+- **CI hygiene.** Workflows name the environment secret, Dependabot waits seven days before
+  proposing a release, and `.gitignore` covers keys and test output.
+
+Accepted, with the reasoning:
+
+- **The end-of-part checks and the level checkpoint are marked in the browser** with the answers on
+  the page, and a forged client can mark a conversation's objectives met. Each changes only the
+  learner's own course or record, writes no grade and nothing anybody else reads, and is bounded by
+  the limits above.
+- **A model-written English gloss** for a word Wiktionary has no entry for is stored on the shared
+  row. The word and its forms are Ekilex's; only the gloss is the model's.
+- **Twenty Questions stores a model's yes and no answers** for a word it had not met, served to other
+  players before a reviewer has read them. The input is held to real spellings.
+- **A review id can be as short as eight characters.** Clients generate UUIDs.
+- **Actions are pinned to a tag rather than a commit**, and `main` has no branch protection in the
+  repository settings. Both are the operator's to change.
+- **Erasure does not revoke a Sign in with Apple token**, which the App Store will require once the
+  native app offers it. **Supabase's own audit log** keeps the address and IP of a deleted account
+  for its retention.
+- **A page that is not found is served without the per-request nonce**, because it is built ahead
+  of time, so its scripts do not run. It is a heading and links, which still work.
+- **A word a learner typed in counts as theirs and nobody else's.** It reaches their own deck, and
+  it no longer vouches for a spelling on their scanned pages or under their sentences, because
+  those readings are shared between learners and a typed row is anybody's text. Re-scanning a page
+  asks them to tick that word again.
+- **Loading Google's sign-in script tells Google of the visit** before anybody presses the button,
+  because its button is drawn by its script. The recipients list names it.
 
 If you find something not on this list, `SECURITY.md` says where to send it.

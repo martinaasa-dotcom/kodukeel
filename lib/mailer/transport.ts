@@ -147,6 +147,8 @@ export async function send(
   try {
     response = await transport("https://api.resend.com/emails", {
       method: "POST",
+      // The key is a header, and a followed redirect would hand it to whoever answered.
+      redirect: "error",
       headers: {
         authorization: `Bearer ${config.apiKey}`,
         "content-type": "application/json",
@@ -214,6 +216,7 @@ export async function sendToOperator(
   try {
     const response = await transport("https://api.resend.com/emails", {
       method: "POST",
+      redirect: "error",
       headers: { authorization: `Bearer ${config.apiKey}`, "content-type": "application/json" },
       body: JSON.stringify({
         from: config.from,

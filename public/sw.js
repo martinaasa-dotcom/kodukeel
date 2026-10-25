@@ -162,6 +162,43 @@ function keepable(response) {
   return Boolean(response) && response.ok && !response.redirected;
 }
 
+/*
+  A PAGE CARRYING A SIGN-IN SECRET IS NEVER KEPT.
+
+  A mailed sign-in link lands on /sign-in with `token_hash` in its address and
+  again in a hidden field of the form, and every navigation used to be put in
+  the page cache under its full URL. So the secret that signs somebody in sat
+  in Cache Storage, readable by any script on this origin and left behind on a
+  shared machine after sign-out. The sign-in screen is never kept at all,
+  since it holds nothing a learner needs offline, and neither is any address
+  carrying a parameter an auth flow uses: a link's token, an OAuth code or
+  state, or a session token in a query.
+*/
+const SECRET_PARAMS = ["token_hash", "token", "code", "state", "access_token", "refresh_token", "id_token"];
+
+function neverKept(url) {
+  return url.pathname.startsWith("/api/")
+    || url.pathname.startsWith("/auth/")
+    || url.pathname.startsWith("/sign-in")
+    || SECRET_PARAMS.some((name) => url.searchParams.has(name));
+}
+
+/*
+  And what a worker before this one already kept is taken out on the way in.
+  `VERSION` is not bumped for it, because it names the audio cache too and is
+  held equal to the clip shape on the server (lib/progress/speakClip.ts):
+  moving it would throw away every phone's clips to delete a handful of pages.
+*/
+async function forgetSecretPages() {
+  try {
+    const cache = await caches.open(PAGES);
+    const keys = await cache.keys();
+    await Promise.all(keys.filter((key) => neverKept(new URL(key.url))).map((key) => cache.delete(key)));
+  } catch {
+    // A cache that cannot be read holds nothing this could have found.
+  }
+}
+
 async function fetchAndKeep(cache, url) {
   const response = await fetch(new Request(url, { credentials: "same-origin" }));
   if (keepable(response)) await cache.put(url, response);
@@ -183,6 +220,7 @@ self.addEventListener("activate", (event) => {
           : k.startsWith("kodukeel-") && !k.startsWith(VERSION))
           .map((k) => caches.delete(k)),
       ))
+      .then(() => forgetSecretPages())
       .then(() => self.registration.navigationPreload?.enable())
       .catch(() => undefined)
       .then(() => self.clients.claim())
@@ -218,7 +256,7 @@ async function warmOpenPages() {
     await Promise.all(clients.map(async (client) => {
       const url = new URL(client.url);
       if (url.origin !== self.location.origin) return;
-      if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/auth/")) return;
+      if (neverKept(url)) return;
       await fetchAndKeep(cache, url.href).catch(() => undefined);
     }));
     await trim(PAGES);
@@ -292,7 +330,7 @@ self.addEventListener("fetch", (event) => {
   }
 
   if (request.mode === "navigate") {
-    event.respondWith(navigateWithFallback(request, event.preloadResponse));
+    event.respondWith(navigateWithFallback(request, event.preloadResponse, !neverKept(url)));
   }
 });
 
@@ -396,10 +434,10 @@ async function audioWithCache(request) {
  * `preloadResponse` is that request's answer. A browser without preload
  * resolves it to undefined and the page is fetched here as before.
  */
-async function navigateWithFallback(request, preloadResponse) {
+async function navigateWithFallback(request, preloadResponse, keep) {
   try {
     const response = (await preloadResponse?.catch(() => undefined)) || await fetch(request);
-    if (keepable(response)) {
+    if (keep && keepable(response)) {
       const copy = response.clone();
       caches.open(PAGES)
         .then((cache) => cache.put(request, copy))
@@ -408,7 +446,7 @@ async function navigateWithFallback(request, preloadResponse) {
     }
     return response;
   } catch {
-    const cached = await caches.match(request);
+    const cached = keep ? await caches.match(request) : undefined;
     return (
       (keepable(cached) ? cached : null) ??
       (await caches.match(OFFLINE_URL)) ??

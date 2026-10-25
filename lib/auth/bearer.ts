@@ -2,15 +2,17 @@ import { createClient } from "@supabase/supabase-js";
 
 import { refuseOldBuild } from "@/lib/api/build";
 import { apiError } from "@/lib/api/errors";
+import { addressProvedForAllowlist } from "@/lib/auth/allowlistProof";
 import { isAllowedEmail } from "@/lib/auth/access";
 import {
   AUTH_TIMEOUT_MS,
   boundedTransport,
+  isLearnerToken,
   learnerFromClaims,
   type Identity,
   type Learner,
 } from "@/lib/auth/identity";
-import { LOCAL_USER_ID, supabaseConfigured } from "@/lib/auth/mode";
+import { LOCAL_USER_ID, localModeRefused, supabaseConfigured } from "@/lib/auth/mode";
 
 /**
  * WHO IS ASKING A v1 ROUTE, FROM A TOKEN AND NEVER FROM A COOKIE (D3, ADR-029).
@@ -60,7 +62,7 @@ export async function readBearer(
 ): Promise<Identity> {
   const url = deps.url ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = deps.anonKey ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !anonKey) return { state: "in", learner: LOCAL_LEARNER };
+  if (!url || !anonKey) return localModeRefused() ? { state: "unreachable" } : { state: "in", learner: LOCAL_LEARNER };
 
   const token = bearerToken(request);
   if (!token) return { state: "out" };
@@ -72,7 +74,11 @@ export async function readBearer(
   });
   try {
     const { data } = await supabase.auth.getClaims(token);
-    if (data) return { state: "in", learner: learnerFromClaims(data.claims) };
+    if (data) {
+      // The anon key and a service key are JWTs this project signs too; see `isLearnerToken`.
+      if (!isLearnerToken(data.claims)) return { state: "out" };
+      return { state: "in", learner: learnerFromClaims(data.claims) };
+    }
   } catch {
     return { state: "unreachable" };
   }
@@ -106,11 +112,21 @@ export async function requireBearerUser(
 ): Promise<Response | BearerUser> {
   const old = refuseOldBuild(request, process.env);
   if (old) return old;
-  if (!deps.url && !supabaseConfigured()) return { ownerId: LOCAL_USER_ID, learner: LOCAL_LEARNER };
+  if (!deps.url && !supabaseConfigured()) {
+    // Local mode served to the internet would answer the native API with no token at all.
+    if (localModeRefused()) return apiError("auth_unavailable", { retryAfterSec: AUTH_RETRY_AFTER_SEC });
+    return { ownerId: LOCAL_USER_ID, learner: LOCAL_LEARNER };
+  }
   const who = await readBearer(request, deps);
   if (who.state === "unreachable") return apiError("auth_unavailable", { retryAfterSec: AUTH_RETRY_AFTER_SEC });
   if (who.state === "out") return apiError("unauthenticated");
-  if (!isAllowedEmail(who.learner.email)) {
+  /*
+    An allowlist is a list of addresses, so it means something only where the
+    session proves the address: a password sign-up is open with the anon key
+    and puts any address it likes on the token. The cookie door asks the same
+    question (`middleware.ts`).
+  */
+  if (!isAllowedEmail(who.learner.email) || !addressProvedForAllowlist(who.learner)) {
     return apiError("unauthenticated", { message: "This address isn't allowed to use this installation." });
   }
   return { ownerId: who.learner.id, learner: who.learner };

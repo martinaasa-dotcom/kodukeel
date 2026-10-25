@@ -210,8 +210,8 @@ async function speakGemini(model: string, text: string, voice: string): Promise<
   };
   for (let attempt = 0; attempt < 5; attempt++) {
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`,
-      { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body), signal: AbortSignal.timeout(120_000) },
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+      { method: "POST", redirect: "error", headers: { "content-type": "application/json", "x-goog-api-key": process.env.GEMINI_API_KEY ?? "" }, body: JSON.stringify(body), signal: AbortSignal.timeout(120_000) },
     ).catch(() => null);
     if (res?.ok) {
       const data = (await res.json()) as { candidates?: Array<{ content?: { parts?: Array<{ inlineData?: { mimeType: string; data: string } }> } }> };
@@ -346,8 +346,8 @@ async function hearGemini(model: string, wav: Buffer, kind: Clip["kind"]): Promi
     ? { contents: [{ parts: [audio] }], generationConfig: { audioTranscriptionConfig: { languageCodes: ["et"] } } }
     : { contents: [{ parts: [{ text: ask }, audio] }] };
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`,
-    { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body), signal: AbortSignal.timeout(180_000) },
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+    { method: "POST", redirect: "error", headers: { "content-type": "application/json", "x-goog-api-key": process.env.GEMINI_API_KEY ?? "" }, body: JSON.stringify(body), signal: AbortSignal.timeout(180_000) },
   );
   if (!res.ok) throw new Error(`ASR ${res.status} ${(await res.text()).slice(0, 160).replace(/\s+/g, " ")}`);
   type Part = { text?: string; thought?: boolean; audioTranscription?: { text?: string } };

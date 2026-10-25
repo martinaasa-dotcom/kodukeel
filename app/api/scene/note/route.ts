@@ -8,6 +8,7 @@ import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledg
 import { reportError } from "@/lib/observability/report";
 import { clip } from "@/lib/copy/clip";
 import { NO_STORE } from "@/lib/security/headers";
+import { readJsonCapped, SCENE_BODY_BYTES } from "@/lib/security/body";
 import { buildCoachNoteSystem, buildCoachNoteUser, parseCoachNote, withoutUnverified, type CoachNoteInput } from "@/lib/scenes/coachNote";
 import { sceneById } from "@/lib/scenes/catalogue";
 import { CHAT_ID } from "@/lib/scenes/specs/chat";
@@ -43,7 +44,7 @@ export async function POST(request: Request) {
 
   let input: CoachNoteInput;
   try {
-    const body = (await request.json()) as Record<string, unknown>;
+    const body = (await readJsonCapped(request, SCENE_BODY_BYTES)) as Record<string, unknown>;
     /*
       A catalog scene by its id; today's chat by its run, since its beats
       were built for one evening and the id alone says nothing about them.

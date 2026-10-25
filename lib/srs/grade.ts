@@ -4,6 +4,8 @@ import { createHash } from "node:crypto";
 import { prisma } from "@/lib/db";
 import { grade, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { isCaseSlot, isFormSlot, isKnownSlot } from "@/lib/srs/slots";
+import { CARD_TYPES } from "@/lib/srs/cards";
+import { DEFAULT_SOURCE, isCardSource } from "@/lib/srs/sources";
 
 /**
  * Writing one grade down.
@@ -296,9 +298,17 @@ export function boundedRestoredReview(
   const duration = Number(row.durationMs);
   const slot = typeof row.slot === "string" && isKnownSlot(row.slot) ? row.slot : null;
   const reached = typeof row.reachedSlot === "string" ? row.reachedSlot : null;
+  /*
+    AND THE CASE IS ONE OF THE FOURTEEN. A teacher's roster prints a pupil's
+    weakest case off this column, through `caseAsked`, which reads it raw where
+    `slot` is null: a file carrying any text here put that text on the
+    teacher's screen under the pupil's name.
+  */
+  const targetCase = typeof row.targetCase === "string" && isCaseSlot(row.targetCase) ? row.targetCase : null;
 
   return {
     ...row,
+    targetCase,
     rating,
     reviewedAt: Number.isNaN(at.getTime()) || at > now ? now : at,
     durationMs: Number.isFinite(duration) ? Math.min(Math.max(duration, 0), 600_000) : 0,
@@ -337,3 +347,32 @@ export function stableReviewId(...parts: readonly string[]): string {
 export function isRepeatedReview(error: unknown): boolean {
   return typeof error === "object" && error !== null && (error as { code?: unknown }).code === "P2002";
 }
+
+/**
+ * A card read back from a backup, with every column that names one of this
+ * app's closed lists held to that list.
+ *
+ * A backup is a file anybody can write. The card's type decides which screen
+ * asks it, its source which list counts it, its case and its slot which charts
+ * it lands in, so a value off those lists was a row every reader of them had
+ * to cope with, and a case nobody teaches printed on a teacher's roster. A card
+ * whose type is not one this app builds is left out rather than guessed at.
+ * The scheduling stays as written: it is the learner's own history, and the
+ * scheduler reads any value inside the ranges the database stores.
+ */
+export function boundedRestoredCard(row: Record<string, unknown>): Record<string, unknown> | null {
+  if (typeof row.cardType !== "string" || !CARD_TYPE_IDS.has(row.cardType)) return null;
+  const source = isCardSource(row.source) ? row.source : DEFAULT_SOURCE;
+  const targetCase = typeof row.targetCase === "string" && isCaseSlot(row.targetCase) ? row.targetCase : null;
+  const slot = typeof row.slot === "string" && isKnownSlot(row.slot) ? row.slot : null;
+  const state = Number(row.state);
+  return {
+    ...row,
+    source,
+    targetCase,
+    slot,
+    ...(Number.isInteger(state) && state >= 0 && state <= 3 ? {} : { state: 0 }),
+  };
+}
+
+const CARD_TYPE_IDS: ReadonlySet<string> = new Set(CARD_TYPES.map((t) => t.type));

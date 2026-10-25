@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { halfConfigured, supabaseConfigured } from "./mode";
+import { halfConfigured, localModeRefused, supabaseConfigured } from "./mode";
 
 /**
  * The two variables are a pair, and the state worth a test is the one where
@@ -38,5 +38,31 @@ describe("halfConfigured", () => {
   it("names the missing one when only the key is set", () => {
     set(undefined, "anon-key");
     expect(halfConfigured()).toBe(URL_KEY);
+  });
+});
+
+describe("localModeRefused", () => {
+  /*
+    Local mode is the absence of configuration, and a hosted build can lose its
+    configuration without anybody meaning it to. Served to the internet that is
+    every visitor signed in as one learner with admin rights, so it is refused
+    wherever the process says it is a deployment.
+  */
+  it("lets a contributor's machine and CI run as one learner", () => {
+    expect(localModeRefused({})).toBeNull();
+    expect(localModeRefused({ NODE_ENV: "production", DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/kodukeel" })).toBeNull();
+    expect(localModeRefused({ NODE_ENV: "production", DATABASE_URL: "postgresql://u:p@127.0.0.1/kodukeel" })).toBeNull();
+    expect(localModeRefused({ NODE_ENV: "development", DATABASE_URL: "postgresql://u:p@db.example.com/k" })).toBeNull();
+  });
+
+  it("refuses a Vercel deployment or a production build on a remote database", () => {
+    expect(localModeRefused({ VERCEL: "1" })).toMatch(/Vercel/);
+    expect(localModeRefused({ NODE_ENV: "production", DATABASE_URL: "postgresql://u:p@aws-0-eu-west-1.pooler.supabase.com:6543/postgres" })).toMatch(/database/);
+    expect(localModeRefused({ NODE_ENV: "production", DATABASE_URL: "not a url" })).toMatch(/database/);
+  });
+
+  it("stands aside where sign-in is configured, or where an operator says local mode is meant", () => {
+    expect(localModeRefused({ VERCEL: "1", NEXT_PUBLIC_SUPABASE_URL: "https://x.supabase.co", NEXT_PUBLIC_SUPABASE_ANON_KEY: "k" })).toBeNull();
+    expect(localModeRefused({ VERCEL: "1", KODUKEEL_LOCAL_MODE: "1" })).toBeNull();
   });
 });

@@ -67,6 +67,13 @@ export interface Learner {
   avatarUrl: string | null;
   /** The given name the provider reported (Google's `given_name`), where it sent one. */
   givenName: string | null;
+  /**
+   * How this session was signed in, off the token's `amr` claim (`oauth`,
+   * `otp`, `sso/saml` ...). Read by the admin gate alone, which refuses the
+   * methods that prove nothing about owning the address. Absent on a
+   * learner nobody signed in, which is the local one.
+   */
+  signInMethods?: readonly string[];
 }
 
 /**
@@ -176,6 +183,41 @@ interface Claims {
   sub: string;
   email?: string | undefined;
   user_metadata?: Record<string, unknown> | undefined;
+  aud?: string | string[] | undefined;
+  role?: string | undefined;
+  is_anonymous?: boolean | undefined;
+  amr?: unknown;
+}
+
+/**
+ * Whether a token whose signature and expiry have verified is a signed-in
+ * learner's at all.
+ *
+ * `getClaims` checks the signature and `exp` and nothing else, and the same
+ * project signs more than one kind of token: the public anon key is a JWT with
+ * `role: "anon"`, a service key is one with `role: "service_role"`, and an
+ * anonymous sign-in, should the project ever switch them on, mints a real
+ * session with no address behind it. Each of those would otherwise be read as
+ * a learner. A signed-in learner's access token says `aud` and `role`
+ * `authenticated`, carries a subject, and is not anonymous, and nothing else is
+ * let through either door, the cookie's or the native app's bearer.
+ */
+export function isLearnerToken(claims: Claims): boolean {
+  if (typeof claims.sub !== "string" || claims.sub.length === 0) return false;
+  const audiences = Array.isArray(claims.aud) ? claims.aud : [claims.aud];
+  if (!audiences.includes("authenticated")) return false;
+  if (claims.role !== undefined && claims.role !== "authenticated") return false;
+  if (claims.is_anonymous === true) return false;
+  return true;
+}
+
+/** The sign-in methods a token's `amr` claim names, lower-cased, whatever shape it arrived in. */
+function methodsOf(amr: unknown): string[] {
+  if (!Array.isArray(amr)) return [];
+  return amr
+    .map((entry) => (typeof entry === "string" ? entry : (entry as { method?: unknown } | null)?.method))
+    .filter((method): method is string => typeof method === "string")
+    .map((method) => method.toLowerCase());
 }
 
 /** A trimmed string, or nothing, from a claim that may be any shape. */
@@ -192,6 +234,7 @@ export function learnerFromClaims(claims: Claims): Learner {
     email,
     avatarUrl: text(meta.avatar_url) ?? null,
     givenName: text(meta.given_name) ?? null,
+    signInMethods: methodsOf(claims.amr),
   };
 }
 
@@ -222,7 +265,10 @@ export async function readIdentity(
 ): Promise<Identity> {
   try {
     const { data } = await supabase.auth.getClaims();
-    if (data) return { state: "in", learner: learnerFromClaims(data.claims) };
+    if (data) {
+      if (!isLearnerToken(data.claims)) return { state: "out" };
+      return { state: "in", learner: learnerFromClaims(data.claims) };
+    }
   } catch {
     // Nothing thrown here is an answer. The auth client turns a refused or
     // abandoned request into an error result rather than a throw, so reaching

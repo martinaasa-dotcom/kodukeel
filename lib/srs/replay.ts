@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
 import { writeGrade } from "@/lib/srs/grade";
 import { type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { REPLAY_BATCH, clampReviewedAt, isValidPending, orderForReplay } from "@/lib/offline/outbox";
@@ -29,7 +30,12 @@ export interface ReplayResult {
    */
   written: { id: string; cardId: string; state: SchedulingState }[];
   error?: string;
+  /** Set where the batch was refused for arriving too fast, which a client retries. */
+  reason?: "rate_limited";
 }
+
+/** How many batches of grades one learner may send in a minute, on every door together. */
+const BATCHES_PER_MINUTE = 120;
 
 /**
  * Applies grades taken while the connection was down.
@@ -55,6 +61,15 @@ export async function applyGradeBatch(
   if (batch.length > REPLAY_BATCH) {
     return { ok: false, settled: [], written: [], error: "Too many grades in one batch." };
   }
+  /*
+    Counted across every instance, per learner. A batch is fifty grades and a
+    native client can send them in a loop, which is the append-only table
+    growing and a teacher's "reviews this week" inflating at whatever rate a
+    script likes. A person answering cards sends nowhere near this many; a
+    refused batch stays in the device's outbox and goes again later.
+  */
+  const room = await checkSharedRateLimit(`grades:o:${ownerId}`, BATCHES_PER_MINUTE, 60_000);
+  if (!room.ok) return { ok: false, settled: [], written: [], error: "That's a lot of answers at once. They'll be sent again in a moment.", reason: "rate_limited" };
 
   const now = Date.now();
   const settled: string[] = [];

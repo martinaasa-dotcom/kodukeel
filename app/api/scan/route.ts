@@ -2,6 +2,16 @@ import { requireUserId } from "@/lib/auth/session";
 import { readScan, SCANS_PER_MINUTE, scanLimitKey } from "@/lib/progress/scanRead";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
 import { NO_STORE } from "@/lib/security/headers";
+import { BodyTooLargeError, readJsonCapped } from "@/lib/security/body";
+import { MAX_IMAGE_BYTES } from "@/lib/scan/image";
+
+/*
+  The picture arrives as base64, which is four bytes for every three, so the
+  largest photo `readScan` accepts is about 6 MB of text; half a megabyte over
+  that covers the rest of the body. Read through the ceiling rather than
+  `request.json()`, which holds whatever is sent before checking any of it.
+*/
+const SCAN_BODY_BYTES = Math.ceil((MAX_IMAGE_BYTES * 4) / 3) + 512 * 1024;
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 90;
@@ -27,8 +37,14 @@ export async function POST(request: Request) {
 
   let body: unknown;
   try {
-    body = await request.json();
-  } catch {
+    body = await readJsonCapped(request, SCAN_BODY_BYTES);
+  } catch (error) {
+    if (error instanceof BodyTooLargeError) {
+      return Response.json(
+        { error: `That photo is over ${Math.round(MAX_IMAGE_BYTES / 1_000_000)} MB. Try a smaller one.` },
+        { headers: NO_STORE, status: 413 },
+      );
+    }
     return Response.json({ error: "Something went wrong sending that. Reload the page and try again." }, { headers: NO_STORE, status: 400 });
   }
 

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { erasedOwnerKey } from "@/lib/usage/erasedSpend";
 import { reportError } from "@/lib/observability/report";
 import { after } from "next/server";
 import { SPEND_MESSAGE, thresholdCrossed, type SpendThreshold } from "./spendAlert";
@@ -249,7 +250,7 @@ export async function snapshotUsage(
       count(*) FILTER (WHERE "entry" = ${RELEASE}) AS "allReleased",
       coalesce(sum("costMicros"), 0) AS "userMicros"
     FROM "UsageEvent"
-    WHERE "ownerId" = ${ownerId} AND "day" = ${day}
+    WHERE "ownerId" IN (${ownerId}, ${erasedOwnerKey(ownerId, day)}) AND "day" = ${day}
   `;
 
   /*

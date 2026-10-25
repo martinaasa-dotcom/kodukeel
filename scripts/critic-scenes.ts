@@ -122,8 +122,8 @@ const CRITIC = [
 async function critique(text: string): Promise<Issue[] | null> {
   for (let attempt = 0; attempt < 4; attempt += 1) {
     if (attempt > 0) await new Promise((r) => setTimeout(r, 2000 * 2 ** attempt));
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${CRITIC_MODEL}:generateContent?key=${process.env.GEMINI_API_KEY}`, {
-      method: "POST", headers: { "content-type": "application/json" },
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${CRITIC_MODEL}:generateContent`, {
+      method: "POST", redirect: "error", headers: { "content-type": "application/json", "x-goog-api-key": process.env.GEMINI_API_KEY ?? "" },
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: CRITIC }] },
         contents: [{ role: "user", parts: [{ text }] }],

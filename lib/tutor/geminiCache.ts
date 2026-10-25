@@ -215,6 +215,18 @@ function keyOf(): string {
 }
 
 /**
+ * The key as a header rather than `?key=` in the address. An address is
+ * written down by every proxy and egress log it passes through, and a header
+ * is not; Google reads `x-goog-api-key` the same as the query parameter.
+ * Exported for the test that holds every call here to it.
+ */
+export function geminiHeaders(json = true): Record<string, string> {
+  return json
+    ? { "content-type": "application/json", "x-goog-api-key": keyOf() }
+    : { "x-goog-api-key": keyOf() };
+}
+
+/**
  * The entry for this prompt, made where none is live and extended where it is
  * near its end, with what this call owes for either.
  */
@@ -276,7 +288,9 @@ async function listEntries(): Promise<Listed[]> {
   let token = "";
   try {
     for (let page = 0; page < 5; page += 1) {
-      const res = await fetch(`${BASE}/cachedContents?pageSize=1000${token ? `&pageToken=${token}` : ""}&key=${keyOf()}`, {
+      const res = await fetch(`${BASE}/cachedContents?pageSize=1000${token ? `&pageToken=${encodeURIComponent(token)}` : ""}`, {
+        redirect: "error",
+        headers: geminiHeaders(false),
         signal: AbortSignal.timeout(5_000),
       });
       if (!res.ok) return out;
@@ -302,9 +316,10 @@ async function listEntries(): Promise<Listed[]> {
 
 /** Makes the entry, tagged so the next instance to miss finds it (`cacheTag`). */
 async function create(config: ProviderConfig, system: string): Promise<Entry> {
-  const res = await fetch(`${BASE}/cachedContents?key=${keyOf()}`, {
+  const res = await fetch(`${BASE}/cachedContents`, {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    redirect: "error",
+    headers: geminiHeaders(),
     body: JSON.stringify({
       model: `models/${config.model}`,
       displayName: cacheTag(config.model, system),
@@ -368,9 +383,10 @@ function returnOwed(entry: Entry, booked: Booked | null): void {
  */
 async function extend(config: ProviderConfig, entry: Entry, now: number): Promise<number> {
   try {
-    const res = await fetch(`${BASE}/${entry.name}?key=${keyOf()}&updateMask=ttl`, {
+    const res = await fetch(`${BASE}/${entry.name}?updateMask=ttl`, {
       method: "PATCH",
-      headers: { "content-type": "application/json" },
+      redirect: "error",
+      headers: geminiHeaders(),
       body: JSON.stringify({ ttl: `${CACHE_TTL_SECONDS}s` }),
       signal: AbortSignal.timeout(10_000),
     });
@@ -489,9 +505,10 @@ export async function geminiCachedReply(
   const { entry, booked } = await entryFor(config, system);
   try {
     const body = { cachedContent: entry.name, contents, generationConfig };
-    const res = await fetch(`${BASE}/models/${config.model}:generateContent?key=${keyOf()}`, {
+    const res = await fetch(`${BASE}/models/${config.model}:generateContent`, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      redirect: "error",
+      headers: geminiHeaders(),
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(90_000),
     });

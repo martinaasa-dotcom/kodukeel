@@ -1,0 +1,68 @@
+import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("next/cache", () => ({ revalidatePath: () => {}, revalidateTag: () => {} }));
+const OWNER = "itest-restore-course";
+vi.mock("@/lib/auth/session", async (real) => ({
+  ...(await real<typeof import("@/lib/auth/session")>()),
+  requireUserId: async () => OWNER,
+}));
+
+import { prisma } from "@/lib/db";
+import { restoreBackup } from "@/app/actions";
+import { SETTING_KEYS } from "@/lib/settings/store";
+
+/**
+ * A backup's place in the course is held to the checks, from where the learner
+ * stood before the restore. Somebody still placing (no evening ever ticked) is
+ * open, as first run is; somebody climbing the lessons is not, or a file is a
+ * way past every check at once.
+ */
+
+async function wipe() {
+  await prisma.courseStep.deleteMany({ where: { ownerId: OWNER } });
+  await prisma.setting.deleteMany({ where: { ownerId: OWNER } });
+}
+
+beforeEach(wipe);
+afterAll(wipe);
+
+const at = new Date(Date.now() - 60_000).toISOString();
+
+function file(): string {
+  return JSON.stringify({
+    format: "kodukeel-v1",
+    exportedAt: at,
+    lexemes: [], forms: [], cards: [], reviews: [], tasks: [],
+    settings: [{ ownerId: "x", key: SETTING_KEYS.programme, value: "a1.3" }],
+    courseSteps: [
+      { ownerId: "x", programmeId: "a1.1", dayId: "a1-01-hello", stepId: "lesson", createdAt: at },
+      { ownerId: "x", programmeId: "a1.3", dayId: "a1-18-days", stepId: "lesson", createdAt: at },
+    ],
+  });
+}
+
+async function part() {
+  return (await prisma.setting.findUnique({ where: { ownerId_key: { ownerId: OWNER, key: SETTING_KEYS.programme } } }))?.value ?? null;
+}
+
+describe("a restored place in the course", () => {
+  it("comes back whole onto an account that has only been through first run", async () => {
+    // First run sets the first part and nothing else.
+    await prisma.setting.create({ data: { ownerId: OWNER, key: SETTING_KEYS.programme, value: "a1.1" } });
+    const out = await restoreBackup(file(), "merge");
+    expect(out).toEqual(expect.objectContaining({ ok: true }));
+    expect(await part()).toBe("a1.3");
+    const ticks = await prisma.courseStep.findMany({ where: { ownerId: OWNER }, select: { programmeId: true } });
+    expect(ticks.map((t) => t.programmeId).sort()).toEqual(["a1.1", "a1.3"]);
+  });
+
+  it("is held to the checks for somebody already climbing", async () => {
+    await prisma.setting.create({ data: { ownerId: OWNER, key: SETTING_KEYS.programme, value: "a1.1" } });
+    await prisma.courseStep.create({ data: { ownerId: OWNER, programmeId: "a1.1", dayId: "a1-01-hello", stepId: "lesson" } });
+    const out = await restoreBackup(file(), "merge");
+    expect(out).toEqual(expect.objectContaining({ ok: true }));
+    expect(await part()).toBe("a1.1");
+    const ticks = await prisma.courseStep.findMany({ where: { ownerId: OWNER }, select: { programmeId: true } });
+    expect(ticks.map((t) => t.programmeId)).toEqual(["a1.1"]);
+  });
+});

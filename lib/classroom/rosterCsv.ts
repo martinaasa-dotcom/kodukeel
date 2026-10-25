@@ -13,7 +13,8 @@ import { commentBlock, defused } from "@/lib/research/csv";
  * keeps a register in a spreadsheet should not have to copy thirty rows by
  * hand. Two shapes, as the board has two. A class carries each learner's
  * weakest case, rolled up exactly as `classRoster` rolls it; a workplace group
- * carries a band and the evidence behind it and has no column a case could go
+ * carries a name, whether each person practiced this week and a band, with the
+ * evidence behind the bands in the header, and has no column a case could go
  * in, because `workplaceRoster` never reads one.
  *
  * Pure: it is handed the summary the board was drawn from and a function that
@@ -71,6 +72,27 @@ export function rosterCsv(input: RosterCsvInput): string {
   const notes: string[] = [flat(input.className), input.date, say("Reviews are counted over the last 7 days.")];
   const rows: string[] = [];
 
+  /*
+    AN ARCHIVED GROUP IS A LIST OF WHO WAS IN IT. The rosters read nobody's
+    practice once a group is archived (`classRoster`, `workplaceRoster`), so
+    the file says so and carries the names, and for a class the role and the
+    day each joined, which the teacher already had.
+  */
+  if (input.summary.archived) {
+    notes.splice(2, 1, say("This group was archived, so the file lists who was in it and nothing about their practice."));
+    const archivedHeader = commentBlock(notes.map(flat)).split("\n");
+    if (input.kind === "WORKPLACE") {
+      rows.push(line([say("Name")]));
+      for (const member of input.summary.members) rows.push(line([member.displayName]));
+    } else {
+      rows.push(line([say("Name"), say("Role"), say("Joined")]));
+      for (const entry of input.summary.entries) {
+        rows.push(line([entry.displayName, say(entry.role === "TEACHER" ? "teacher" : "student"), isoDate(entry.joinedAt)]));
+      }
+    }
+    return BOM + [...archivedHeader, ...rows].join(CRLF) + CRLF;
+  }
+
   if (input.kind === "CLASS") {
     const weakest = input.summary.weakestCases
       .map((c) => `${caseName(c.grammCase)} ${c.accuracy}%`)
@@ -101,18 +123,21 @@ export function rosterCsv(input: RosterCsvInput): string {
     }
   } else {
     notes.push(`${say("The bands are about the exam at")} ${input.summary.level}`);
+    notes.push(`${say("What the bands rest on:")} ${say(EVIDENCE_LABEL[input.summary.evidence])}`);
     notes.push(say("This file holds what the group page shows you. Treat it as you treat that page."));
-    rows.push(line([
-      say("Name"), say("Reviews this week"), say("Days since last review"), say("Band"), say("Evidence"),
-    ]));
+    /*
+      Whether, never how much. The join screen promises a colleague that whoever
+      runs the group sees their name, whether they have been practicing and one
+      of four bands, so a count of reviews or of days is not on this file, and
+      `CohortMember` no longer carries either.
+    */
+    rows.push(line([say("Name"), say("Practiced in the last 7 days"), say("Band")]));
     for (const member of input.summary.members) {
       rows.push(line([
         member.displayName,
-        member.reviewsThisWeek,
-        member.daysSinceLastReview,
+        say(member.practicedRecently ? "yes" : "no"),
         // The board says "Close to passing" wherever "Close" alone would be read as nearby.
         say(member.band === "close" ? "Close to passing" : BAND_LABEL[member.band]),
-        say(EVIDENCE_LABEL[member.evidence]),
       ]));
     }
   }

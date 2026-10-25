@@ -87,4 +87,20 @@ describe("submitCheckFor", () => {
     expect(view.needed).toBeGreaterThan(0);
     expect((await checkView(OWNER, check.id, 99_999))!.attempt).toBe(10_000);
   });
+
+  it("builds no paper for a check further up than the learner stands", async () => {
+    await writeSetting(OWNER, SETTING_KEYS.programme, PROGRAMMES[0]!.id);
+    const ahead = courseChecks(PROGRAMMES).find((c) => c.programmeId !== PROGRAMMES[0]!.id)!;
+    const view = (await checkView(OWNER, ahead.id, 1))!;
+    expect(view.open).toBe(false);
+    expect(view.paper).toEqual([]);
+    expect(await submitCheckFor(OWNER, ahead.id, 1, [])).toMatchObject({ ok: false, reason: "not_found" });
+  });
+
+  it("keeps the first check open to a learner who turned the course off", async () => {
+    await writeSetting(OFF, SETTING_KEYS.programme, "off");
+    const view = (await checkView(OFF, check.id, 1))!;
+    expect(view.open).toBe(true);
+    expect(view.paper.length).toBeGreaterThan(0);
+  });
 });
