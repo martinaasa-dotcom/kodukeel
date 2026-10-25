@@ -284,6 +284,9 @@ export function createEkilexGate(deps: GateDeps): EkilexGate {
           release();
         }
         if (last.kind !== "failed" || attempt === EKILEX_TRIES) break;
+        // A service asking to be left alone for longer than the cap is left
+        // alone: the request fails now rather than sleeping and asking again.
+        if (retryAfterMs !== null && retryAfterMs > RETRY_AFTER_CAP_MS) break;
         const wait = backoffMs(attempt, deps.random(), retryAfterMs);
         // A page waits for nothing it cannot afford: past the deadline the
         // request is given up rather than slept on.
@@ -449,7 +452,27 @@ export function equivalentsText(words: readonly string[]): string | null {
 }
 
 export async function fetchEkilexDetails(wordId: number, options?: GateOptions): Promise<EkilexDetails | null> {
-  const data = await call<RawDetails>(`/word/details/${wordId}`, { ...options, kind: "details" });
+  const asked = await fetchEkilexDetailsAnswered(wordId, options);
+  return asked.answered ? asked.details : null;
+}
+
+/**
+ * The same details, with "Ekilex did not answer" kept apart from "Ekilex holds
+ * no such word", for the reason `searchEkilexAnswered` gives. A page passes its
+ * deadline into the gate, so a request still queued for a slot when the page
+ * gives up comes back unanswered, and reading that as a miss wrote the word
+ * down as one Ekilex lacks for a day, when Ekilex was never asked.
+ */
+export async function fetchEkilexDetailsAnswered(
+  wordId: number,
+  options?: GateOptions,
+): Promise<{ answered: false } | { answered: true; details: EkilexDetails | null }> {
+  const answer = await ekilexRequest<RawDetails>(`/word/details/${wordId}`, { ...options, kind: "details" }).catch(() => null);
+  if (answer?.kind !== "answered") return { answered: false };
+  return { answered: true, details: detailsFrom(answer.value) };
+}
+
+function detailsFrom(data: RawDetails | null): EkilexDetails | null {
   if (!data?.word) return null;
 
   const definitions: string[] = [];

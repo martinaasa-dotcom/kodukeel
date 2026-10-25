@@ -105,6 +105,13 @@ describe("the Ekilex gate", () => {
     expect(calls).toHaveLength(2);
   });
 
+  it("leaves a service alone that asks for longer than the cap, rather than sleeping and asking again", async () => {
+    const { gate, calls } = stubbed([{ status: 429, retryAfter: "120" }, { status: 200, body: {} }]);
+    const answer = await gate.request("/word/search/tuba/eki");
+    expect(answer.kind).toBe("failed");
+    expect(calls).toHaveLength(1);
+  });
+
   it("does not sleep past a page's deadline: a backoff happens inside it or not at all", async () => {
     const tally = emptyTally();
     const { gate, calls } = stubbed([{ status: 503 }]);

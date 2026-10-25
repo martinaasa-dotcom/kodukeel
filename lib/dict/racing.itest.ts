@@ -10,6 +10,9 @@ vi.mock("@/lib/ekilex/client", async (importOriginal) => ({
   ekilexConfigured: () => true,
   searchEkilex: async () => [{ wordId: 990001, wordValue: "itest-race-lookup" }],
   fetchEkilexDetails: async () => ({ stub: true }),
+  // What the lookup asks: the same answers, told apart from no answer at all.
+  searchEkilexAnswered: async () => [{ wordId: 990001, wordValue: "itest-race-lookup" }],
+  fetchEkilexDetailsAnswered: async () => ({ answered: true, details: { stub: true } }),
 }));
 vi.mock("@/lib/ekilex/mapper", () => ({
   mapEkilexDetails: () => ({
