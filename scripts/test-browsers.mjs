@@ -57,10 +57,10 @@ const OWN_HOST = new URL(B).host;
 const OWNER = "local-single-user";
 const ROUTES = appRoutes();
 /*
-  Floor: one per route, measured on the 106 the app has, plus the 29 checks
+  Floor: one per route, measured on the 106 the app has, plus the 30 checks
   after the walk. It moves when a route is added, which is the point.
 */
-const { check: rawCheck, absent: rawAbsent, done } = suite(`The paths in ${ENGINE}`, { floor: 135 });
+const { check: rawCheck, absent: rawAbsent, done } = suite(`The paths in ${ENGINE}`, { floor: 136 });
 const check = (label, ok, extra = "") => rawCheck(`${ENGINE}: ${label}`, ok, extra);
 const absent = (count, why) => rawAbsent(count, `${why} (${ENGINE})`);
 
@@ -457,76 +457,41 @@ try {
     const configured = (await probe.locator("main").innerText().catch(() => "")).includes("push services run by Google");
     await probe.context().close();
     /*
-      WHETHER ASKING FOR A SUBSCRIPTION LEAVES THE PAGE WHERE IT WAS.
+      THE REMINDERS PANEL, IN AN ENGINE THAT RELOADS A PAGE WHICH ASKS.
 
       Measured here: in Playwright's WebKit build, `pushManager.getSubscription()`
-      reloads the page that calls it. The reminders panel calls it as Settings
-      loads, so Settings reloaded, called it again and reloaded again, until the
-      page closed under this suite and it hung for good. Firefox answers the
-      same call with an error and stays put. A page reloading because it asked
-      a question is the browser rather than the app, and Safari on a phone is
-      the operator's check (docs/44-sixth-batch.md, section 8), so this is asked
-      once on a page with no panel on it and the two checks are waived naming
-      what happened.
+      reloads the page that calls it. The panel used to call it as Settings
+      loaded, so Settings reloaded, asked again and reloaded again for as long
+      as it was open, and these checks were waived naming that. The panel now
+      asks only where the permission is granted, which a fresh context never
+      is, and marks the tab before it asks so a reload does not ask again. So
+      the questions are what the panel draws, and that Settings stays put.
+      Nothing here calls the push manager itself, which would be this suite
+      reloading its own page.
     */
-    const reloads = configured ? await (async () => {
-      const context = await browser.newContext();
-      const page = await context.newPage();
-      let navigations = 0;
-      page.on("framenavigated", (frame) => { if (frame === page.mainFrame()) navigations += 1; });
-      await page.goto(`${B}/privacy`, { waitUntil: "load" }).catch(() => {});
-      const worker = await page.evaluate(() => Promise.race([
-        navigator.serviceWorker?.ready.then(() => true),
-        new Promise((r) => setTimeout(() => r(false), 10_000)),
-      ])).catch(() => false);
-      await page.waitForTimeout(2000);
-      const before = navigations;
-      await page.evaluate(async () => {
-        const reg = await navigator.serviceWorker.ready;
-        await Promise.race([reg.pushManager?.getSubscription(), new Promise((r) => setTimeout(r, 5000))]);
-      }).catch(() => {});
-      await page.waitForTimeout(2000);
-      const moved = navigations > before;
-      await context.close();
-      return worker && moved ? "asking the push manager for a subscription reloads the page that asks, so Settings reloads for as long as it is open" : null;
-    })() : null;
     if (!configured) {
-      absent(2, "a server started with VAPID keys, so the reminders panel has something to offer");
-    } else if (reloads) {
-      absent(2, `a push manager that answers in place: ${reloads}`);
+      absent(3, "a server started with VAPID keys, so the reminders panel has something to offer");
     } else {
       const panel = async (init) => {
         const context = await browser.newContext({ viewport: { width: 1280, height: 1000 } });
         if (init) await context.addInitScript(init);
         const page = await context.newPage();
+        let navigations = 0;
+        page.on("framenavigated", (frame) => { if (frame === page.mainFrame()) navigations += 1; });
         await page.goto(`${B}/settings?tab=account`, { waitUntil: "domcontentloaded" });
         await page.locator("#email").waitFor({ timeout: 20_000 }).catch(() => {});
-        /* What the browser can really do, asked the way the panel asks it: the
-           interfaces exist, a worker is there to hold a subscription, and that
-           worker's push manager answers. A browser whose push service cannot be
-           reached says so by refusing the last of those. */
+        /* What the browser offers, asked without asking the push manager: the
+           interfaces, and a worker to hold a subscription. */
         const supported = await page.evaluate(async () => {
           if (!("serviceWorker" in navigator && "PushManager" in window && "Notification" in window)) return "no Push API";
           const reg = await Promise.race([navigator.serviceWorker.ready, new Promise((r) => setTimeout(() => r(null), 8000))]);
-          if (!reg?.pushManager) return "no worker to hold a subscription";
-          /* Bounded, because WebKit here never answers it at all, which hung
-             this suite for good. The panel waits on the same call and draws
-             nothing while it waits, so "never answers" means no panel. */
-          try {
-            const answer = await Promise.race([
-              reg.pushManager.getSubscription().then(() => "yes"),
-              new Promise((r) => setTimeout(() => r("the push manager never answers getSubscription()"), 8000)),
-            ]);
-            return answer;
-          } catch (e) {
-            return `the push manager refuses (${e?.name ?? "error"})`;
-          }
+          return reg?.pushManager ? "yes" : "no worker to hold a subscription";
         }).catch((e) => `could not ask (${String(e).slice(0, 60)})`);
         // The panel waits up to four seconds for the worker before it decides.
         await page.waitForTimeout(6000);
         const state = await page.evaluate(() => document.querySelector("[data-push-panel]")?.getAttribute("data-push-panel") ?? null);
         await context.close();
-        return { supported, state };
+        return { supported, state, navigations };
       };
       const native = await panel(null);
       const can = native.supported === "yes";
@@ -535,6 +500,8 @@ try {
         can ? native.state === "off" || native.state === "denied" : native.state === null,
         `Web Push: ${native.supported}; panel ${native.state ?? "absent"}`,
       );
+      check("Settings stays put while the reminders panel decides", native.navigations === 1,
+        `${native.navigations} navigations of the page`);
       const without = await panel(() => { delete window.PushManager; });
       check("with Web Push taken away, nothing is offered", without.state === null, `panel ${without.state ?? "absent"}`);
     }
