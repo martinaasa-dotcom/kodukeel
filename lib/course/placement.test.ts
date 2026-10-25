@@ -3,7 +3,8 @@ import { describe, expect, it } from "vitest";
 import { LEVELS } from "@/lib/collections/syllabus";
 import { PROGRAMMES } from "./index";
 import {
-  creditedThrough, heldLevel, levelAfter, levelBefore, levelHeldOnHandOff, startingLevel,
+  creditedThrough, declaredFrom, goOverAgain, HELD_CHOICES, heldFromChoice, heldLevel, isHeldChoice, levelAfter,
+  levelBefore, levelHeldOnHandOff, opensOn, startingLevel,
 } from "./placement";
 
 /*
@@ -58,10 +59,11 @@ describe("the level the course opens on", () => {
 });
 
 describe("what somebody holds", () => {
-  it("is nothing for the beginner's chip, and a band for a paper that passed one", () => {
-    // "Just starting" stores A1, and a beginner holds nothing yet.
-    expect(heldLevel({ kind: "declared", level: "A1" })).toBeNull();
-    // A check that passed A1 is a band somebody has.
+  it("is nothing for A0, and the level itself for every other choice, declared or measured", () => {
+    // "Just starting" is A0, and a beginner holds nothing yet.
+    expect(heldLevel({ kind: "declared", level: "A0" })).toBeNull();
+    // A1 is a level held whoever says so, which is what makes A2 reachable.
+    expect(heldLevel({ kind: "declared", level: "A1" })).toBe("A1");
     expect(heldLevel({ kind: "measured", level: "A1" })).toBe("A1");
     expect(heldLevel({ kind: "declared", level: "B1" })).toBe("B1");
   });
@@ -69,6 +71,45 @@ describe("what somebody holds", () => {
   it("is nothing under A1 and nothing where nobody has said", () => {
     expect(heldLevel({ kind: "measured", level: "pre-A1" })).toBeNull();
     expect(heldLevel(null)).toBeNull();
+  });
+});
+
+describe("the choices somebody can make", () => {
+  it("are A0 and then the ladder, and every one opens on the level after it", () => {
+    expect(HELD_CHOICES).toEqual(["A0", ...LEVELS]);
+    expect(HELD_CHOICES.map((c) => opensOn(c, null))).toEqual(["A1", "A2", "B1", "B2", "C1", "C1"]);
+    expect(heldFromChoice("A0")).toBeNull();
+    expect(isHeldChoice("A0")).toBe(true);
+    expect(isHeldChoice("pre-A1")).toBe(false);
+  });
+
+  it("put every level of the ladder in reach of some choice", () => {
+    // The fault this answers: no chip opened A2.
+    const reached = new Set(HELD_CHOICES.map((c) => opensOn(c, null)));
+    for (const level of LEVELS) expect(reached.has(level)).toBe(true);
+  });
+
+  it("offer the level held again only where it is not already where the course opens", () => {
+    expect(goOverAgain("B1", null)).toBe("B1");
+    expect(goOverAgain("A1", "B2")).toBe("A1");
+    expect(goOverAgain(null, null)).toBeNull();
+    // Aiming at the level held already opens on it.
+    expect(goOverAgain("B1", "B1")).toBeNull();
+    // The top of the ladder opens on C1 anyway.
+    expect(goOverAgain("C1", null)).toBeNull();
+  });
+});
+
+describe("a level stated before A0 existed", () => {
+  it("reads an unmarked A1 as the beginner it was, and a marked one as A1 held", () => {
+    // The old bottom chip stored A1 and meant "just starting".
+    expect(declaredFrom("A1", null)).toBe("A0");
+    expect(declaredFrom("A1", "held")).toBe("A1");
+    // Every other level meant the level held all along.
+    expect(declaredFrom("B1", null)).toBe("B1");
+    expect(declaredFrom("A0", "held")).toBe("A0");
+    expect(declaredFrom("pre-A1", "held")).toBeNull();
+    expect(declaredFrom(null, null)).toBeNull();
   });
 });
 
@@ -109,9 +150,10 @@ describe("what walking out of a level says somebody holds", () => {
     expect(levelHeldOnHandOff("A2", "B2", null)).toBeNull();
   });
 
-  it("never lowers what they already hold, and never writes A1", () => {
+  it("never lowers what they already hold, and walking out of A1 is holding A1", () => {
+    expect(levelHeldOnHandOff("A1", "A2", null)).toBe("A1");
     expect(levelHeldOnHandOff("A2", "B1", "B2")).toBeNull();
     expect(levelHeldOnHandOff("A2", "B1", "A2")).toBeNull();
-    expect(levelHeldOnHandOff("A1", "A2", null)).toBeNull();
+    expect(levelHeldOnHandOff("A1", "A2", "A1")).toBeNull();
   });
 });
