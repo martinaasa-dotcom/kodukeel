@@ -19,8 +19,8 @@ import type { ScriptedLine } from "../scripted";
 const LINES: readonly ScriptedLine[] = [
   { scene: "a2-vana-sober", beat: "greet", text: "Tere!", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-vana-sober", beat: "greet", text: "Tere, tere!", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
-  { scene: "a2-vana-sober", beat: "did", text: "Kaua pole näinud! Mis sa tegid?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
-  { scene: "a2-vana-sober", beat: "did", text: "Mis sa tegid?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
+  { scene: "a2-vana-sober", beat: "did", text: "Kaua pole näinud! Mis sa vahepeal tegid?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
+  { scene: "a2-vana-sober", beat: "did", text: "Mis sa vahepeal tegid?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-vana-sober", beat: "liked", text: "Kuidas sulle Tartu meeldis?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-vana-sober", beat: "liked", text: "Kuidas sulle meeldis?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-vana-sober", beat: "plans", text: "Mis su plaanid on?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },

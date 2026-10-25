@@ -113,7 +113,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       notes: [
         "Agree is {olema nõus}, to be in agreement: {Ma olen nõus}. Disagreeing is {ei ole}: {Ma ei ole nõus}.",
         "{Sul on õigus} is you're right: you have the right of it, with {sul} like {sul on}.",
-        "{Et} and {sest} always take a comma in front of them. Estonian is strict about it.",
+        "Inside a sentence, {et} and {sest} take a comma in front of them. Estonian is strict about it.",
       ],
       watchOut: "English can drop that. Estonian can't: {Ma arvan, et...}, every time.",
       examples: [1, 2, 3],
@@ -142,7 +142,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Ma arvan, et köögis. Aga seal seda ei ole.", en: "I think in the kitchen. But it isn't there." },
       { who: "Mari", et: "Ma usun, et see on sinu koti sees.", en: "I believe it's in your bag." },
       { who: "Tom", et: "Jah, siin see on! Aitäh, Mari!", en: "Yes, here it is! Thanks, Mari!" },
-      { who: "Mari", et: "Pole viga!", en: "No problem!" },
+      { who: "Mari", et: "Pole midagi!", en: "No problem!" },
     ],
     teaches: [
       { kind: "verb", et: "otsima", first: "otsin", en: "to look for", firstEn: "I look for" },
@@ -171,7 +171,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       notes: [
         "{Ma arvan, et...} is I think that, and {Ma usun, et...} is I believe that. Both go before a whole sentence.",
         "{Mõtlema} is thinking something over, where {arvama} is what you think of it.",
-        "What you look for, find or need takes the [osastav] (3rd form) or the [omastav] (2nd form), the way {Ma ostsin raamatu} does.",
+        "{Otsima} and {vajama} always take the [osastav] (3rd form): {Ma otsin telefoni}. {Leidma} takes the [omastav] (2nd form) for a whole thing found, the way {Ma ostsin raamatu} does, but after {ei} it takes the [osastav]: {Ma ei leia seda}.",
       ],
       watchOut: "{Otsima} is look for and {leidma} is find: {Ma otsin, aga ma ei leia}, I'm looking, but I can't find it.",
       examples: [1, 2, 4],
@@ -275,7 +275,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "{Metsa} is into the forest, the short form, like {randa} and {koju}: {lähme metsa}.",
-        "{Seeni}, {marju} and {mustikaid} are some of them, more than one. You pick some, never all.",
+        "{Seeni}, {marju} and {mustikaid} are the [osastav] (3rd form), more than one: some of them, an open amount. That's how you say what you pick and what there is.",
         "{Tundma} is to know a person or a thing well enough to recognize it: {Ma ei tunne seeni}. To know a fact is {teadma}.",
       ],
       watchOut: "Estonians pick in the forest the way others go shopping: going mushrooming is a whole outing, and part of autumn.",
@@ -322,11 +322,11 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "päris", en: "quite; real" },
       { kind: "word", et: "äkki", en: "maybe; suddenly" },
       { kind: "word", et: "eriti", en: "especially" },
-      { kind: "word", et: "milline", en: "which, what kind of" },
+      { kind: "word", et: "vahepeal", en: "in the meantime, since then" },
       { kind: "word", et: "selline", en: "such, this kind of" },
     ],
     how: {
-      point: "These small words don't change, and they go where English puts them: {Ma töötan isegi laupäeval}, I even work on Saturday.",
+      point: "Most of these small words don't change, and they go right before the word they're about: {Ma töötan isegi laupäeval}, I work even on Saturday.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -376,7 +376,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "öelge", of: "ütlema", en: "tell!, say!, polite" },
     ],
     how: {
-      point: "On the phone, every ask takes the would form: {Kas ma võiksin...?}, {Kas ma saaksin...?} It's part six's politeness on the line.",
+      point: "On the phone, a polite ask usually takes the would form: {Kas ma võiksin...?}, {Kas ma saaksin...?} It's part six's politeness on the line.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -386,7 +386,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Answering the phone, you say your name and {kuuleb}: {Liis kuuleb}, Liis is listening.",
+        "Answering the phone, you say your name and {kuuleb}: {Liis kuuleb}, Liis speaking (literally, Liis hears).",
         "Speak to somebody is with somebody: {Mariga rääkida}, part two's -ga.",
         "{Talle} is to him or to her. Estonian has one word for both.",
       ],
@@ -415,8 +415,8 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Väga naljakas! Ja natuke imelik.", en: "Really funny! And a bit strange." },
       { who: "Liis", et: "Kas see oli parem kui eelmine?", en: "Was it better than the last one?" },
       { who: "Tom", et: "Jah, kindlasti. Eelmine oli päris rumal.", en: "Yes, definitely. The last one was pretty silly." },
-      { who: "Liis", et: "Ma tahan ka minna. Kas täna on õige õhtu?", en: "I want to go too. Is today the right evening?" },
-      { who: "Tom", et: "Jah, aga ole kiire: see on viimane õhtu!", en: "Yes, but be quick: it's the last evening!" },
+      { who: "Liis", et: "Ma tahan ka minna. Kas täna veel saab?", en: "I want to go too. Can I still go today?" },
+      { who: "Tom", et: "Jah, aga ainult täna: see on viimane õhtu!", en: "Yes, but only today: it's the last evening!" },
     ],
     teaches: [
       { kind: "word", et: "naljakas", en: "funny" },
@@ -517,7 +517,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
     goal: "Catch up with a friend: what you did, how you are, what you think and what you'll do.",
     cast: { Mari: "mari", Tom: "kalev" },
     conversation: [
-      { who: "Mari", et: "Tere, Tom! Kaua pole näinud! Mis sa tegid?", en: "Hi, Tom! Long time no see! What have you been doing?" },
+      { who: "Mari", et: "Tere, Tom! Kaua pole näinud! Mis sa vahepeal tegid?", en: "Hi, Tom! Long time no see! What have you been doing?" },
       { who: "Tom", et: "Ma olin Tartus. Ma töötasin seal programmeerijana.", en: "I was in Tartu. I worked there as a programmer." },
       { who: "Mari", et: "Kuidas sulle Tartu meeldis?", en: "How did you like Tartu?" },
       { who: "Tom", et: "Väga! Ma arvan, et see on Eesti kõige ilusam linn.", en: "Very much! I think it's the prettiest town in Estonia." },
@@ -537,14 +537,14 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       examples: [1, 3, 5],
     },
     answers: [
-      { ask: { et: "Mis sa tegid?", en: "What have you been doing?" }, cue: "Say where you were and what you did there.", model: { et: "Ma olin Tartus. Ma töötasin seal.", en: "I was in Tartu. I worked there." } },
+      { ask: { et: "Mis sa vahepeal tegid?", en: "What have you been doing?" }, cue: "Say where you were and what you did there.", model: { et: "Ma olin Tartus. Ma töötasin seal.", en: "I was in Tartu. I worked there." } },
       { ask: { et: "Kuidas sulle Tartu meeldis?", en: "How did you like Tartu?" }, cue: "Say you think it's the prettiest town in Estonia.", model: { et: "Ma arvan, et see on Eesti kõige ilusam linn.", en: "I think it's the prettiest town in Estonia." } },
       { ask: { et: "Mis su plaanid on?", en: "What are your plans?" }, cue: "Say what you plan to do in the summer.", model: { et: "Suvel ma kavatsen Saaremaale minna.", en: "In the summer I plan to go to Saaremaa." } },
     ],
     roleplay: {
       scene: "You meet an old friend you haven't seen for a while. She speaks first. Answer as yourself.",
       turns: [
-        { ask: { et: "Tere! Kaua pole näinud! Mis sa tegid?", en: "Hi! Long time no see! What have you been doing?" }, cue: "Say where you were, and what you did there.", model: { et: "Ma olin Tartus. Ma töötasin seal.", en: "I was in Tartu. I worked there." } },
+        { ask: { et: "Tere! Kaua pole näinud! Mis sa vahepeal tegid?", en: "Hi! Long time no see! What have you been doing?" }, cue: "Say where you were, and what you did there.", model: { et: "Ma olin Tartus. Ma töötasin seal.", en: "I was in Tartu. I worked there." } },
         { ask: { et: "Kuidas sulle Tartu meeldis?", en: "How did you like Tartu?" }, cue: "Say what you think of it.", model: { et: "Ma arvan, et see on Eesti kõige ilusam linn.", en: "I think it's the prettiest town in Estonia." } },
         { ask: { et: "Mis su plaanid on?", en: "What are your plans?" }, cue: "Say what you plan to do in the summer.", model: { et: "Suvel ma kavatsen Saaremaale minna.", en: "In the summer I plan to go to Saaremaa." } },
         { ask: { et: "Tore! Kellega sa lähed?", en: "Lovely! Who are you going with?" }, cue: "Say who with, and ask if she'd come along too.", model: { et: "Jaaniga. Kas tuleksid ka kaasa?", en: "With Jaan. Would you come along too?" } },

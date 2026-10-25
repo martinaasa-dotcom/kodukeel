@@ -7,7 +7,7 @@ export const pangas: ScenePicks = {
     { et: "Tere, tere!", en: "Hello, hello!" },
   ],
   want: [
-    { et: "Ma tahaksin kontot avada.", en: "I'd like to open an account." },
+    { et: "Ma tahaksin konto avada.", en: "I'd like to open an account." },
     { et: "Mul oleks vaja kontot.", en: "I need an account, please." },
   ],
   for: [

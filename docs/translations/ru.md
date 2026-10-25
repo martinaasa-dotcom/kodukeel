@@ -9622,7 +9622,7 @@ _lib/copy/i18n/areas/rounds.ts_
 - [ ] **4769.** The check for this part  
   → Проверка этой части
 - [ ] **4770.** Everything {level} taught. Pass it to open {next}.  
-  → Всё, что было на уровне {level}. Пройдите её, чтобы открыть {next}.
+  → Всё, что было на уровне {level}. Пройдите проверку, чтобы открыть {next}.
 - [ ] **4771.** What this part taught. Pass it to open the next part.  
   → То, чему научила эта часть. Пройдите её, чтобы открыть следующую часть.
 - [ ] **4772.** Before {part}  
@@ -9644,7 +9644,7 @@ _lib/copy/i18n/areas/rounds.ts_
 - [ ] **4780.** That's the end of this part. Next: a short check.  
   → Эта часть закончена. Дальше: короткая проверка.
 - [ ] **4781.** Questions on everything {level} taught. Pass it to open {next}.  
-  → Вопросы по всему, что было на уровне {level}. Пройдите её, чтобы открыть {next}.
+  → Вопросы по всему, что было на уровне {level}. Пройдите проверку, чтобы открыть {next}.
 - [ ] **4782.** Questions on what this part taught. Pass it to open the next part.  
   → Вопросы по тому, чему научила эта часть. Пройдите её, чтобы открыть следующую часть.
 - [ ] **4783.** Pass the check at the end of the part first.  
@@ -27130,7 +27130,7 @@ _lib/copy/i18n/areas/lessons.ts_
 - [ ] **13444.** Not this one. It's {answer}.  
   → Не это. Правильно: {answer}.
 - [ ] **13445.** Now tap what it means.  
-  → Теперь нажмите, что оно значит.
+  → Теперь нажмите на его значение.
 - [ ] **13446.** Part done:  
   → Часть пройдена:
 - [ ] **13447.** Play the conversation  
@@ -27162,7 +27162,7 @@ _lib/copy/i18n/areas/lessons.ts_
 - [ ] **13460.** Which word fits?  
   → Какое слово подходит?
 - [ ] **13461.** You finished the {level} lessons. Pass the check on everything {level} taught, and {next} opens.  
-  → Вы прошли уроки {level}. Сдайте проверку по всему {level}, и откроется {next}.
+  → Вы прошли уроки {level}. Пройдите проверку по всему материалу {level}, и откроется {next}.
 - [ ] **13462.** You're reading ahead, so this one isn't ticked yet. It counts when the course reaches it.  
   → Вы забегаете вперёд, поэтому этот урок пока не отмечен. Он засчитается, когда курс до него дойдёт.
 - [ ] **13463.** a gap  
@@ -27172,13 +27172,13 @@ _lib/copy/i18n/areas/lessons.ts_
 - [ ] **13465.** right first time  
   → верно с первого раза
 - [ ] **13466.** {done} of {total} lessons  
-  → {done} из {total} уроков
+  → Уроки: {done} из {total}
 - [ ] **13467.** {lessons} lessons, {parts} parts, and the check passed at {score}.  
-  → Уроков: {lessons}, частей: {parts}, и проверка сдана на {score}.
+  → Уроков: {lessons}, частей: {parts}, и проверка пройдена на {score}.
 - [ ] **13468.** {level} is done  
   → {level} пройден
 - [ ] **13469.** {level}: {done} of {total} lessons done  
-  → {level}: пройдено {done} из {total} уроков
+  → {level}: уроков пройдено {done} из {total}
 - [ ] **13470.** {n} of {total} in  
   → {n} из {total}
 
@@ -27187,7 +27187,7 @@ _lib/copy/i18n/areas/lessons.ts_
 - [ ] **13471.** lesson / lesson, lessons _(1, 2, 5)_  
   → урок, урока, уроков
 
-## lessonText (3785 lines)
+## lessonText (3791 lines)
 
 _lib/copy/i18n/areas/lessonText.ts_
 
@@ -27550,7 +27550,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **13650.** Notice how Mari leads and Tom answers, and how one line from lesson 2 keeps it going when Tom gets lost.  
   → Обратите внимание, как Мари ведёт разговор, а Том отвечает, и как одна фраза из урока 2 помогает продолжить, когда Том теряется.
 - [ ] **13651.** At the end, Mari goes around the room and you introduce yourself as you, one turn at a time, until you've held the whole conversation.  
-  → В конце Мари обходит класс, а вы представляетесь от себя, реплика за репликой, пока не проведёте весь разговор.
+  → В конце Мари обходит класс, а вы представляетесь от своего имени, реплика за репликой, пока не проведёте весь разговор.
 - [ ] **13652.** At the end, Liis calls and you make a plan with her, one turn at a time, until you've held the whole conversation.  
   → В конце звонит Лийс, и вы договариваетесь с ней о планах, реплика за репликой, пока не проведёте весь разговор.
 - [ ] **13653.** At the end, you're at the counter and Liis takes your order, one turn at a time, until you've held the whole conversation.  
@@ -27558,9 +27558,9 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **13654.** At the end, you stop somebody in town and ask the way to the pharmacy, one turn at a time, until you've held the whole conversation.  
   → В конце вы останавливаете прохожего в городе и спрашиваете дорогу до аптеки, реплика за репликой, пока не проведёте весь разговор.
 - [ ] **13655.** At the end, the salesperson speaks first and you buy a hat, one turn at a time, until you've held the whole conversation.  
-  → В конце первой говорит продавщица, а вы покупаете шапку, реплика за репликой, пока не проведёте весь разговор.
+  → В конце первым говорит продавец, а вы покупаете шапку, реплика за репликой, пока не проведёте весь разговор.
 - [ ] **13656.** At the end, Liis calls to ask about your weekend and you tell her, one turn at a time, until you've held the whole conversation.  
-  → В конце Лийс звонит спросить о ваших выходных, и вы ей рассказываете, реплика за репликой, пока не проведёте весь разговор.
+  → В конце Лийс звонит, чтобы спросить о ваших выходных, и вы ей рассказываете, реплика за репликой, пока не проведёте весь разговор.
 - [ ] **13657.** At the end, Mari stops you on the stairs and you answer her as yourself, one turn at a time, until you've held the whole conversation.  
   → В конце Мари останавливает вас на лестнице, а вы отвечаете ей от себя, реплика за репликой, пока не проведёте весь разговор.
 - [ ] **13658.** Today you take Tom's part. At the end, Mari speaks first and you answer as yourself, one turn at a time, until you've held the whole conversation.  
@@ -29550,7 +29550,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **14650.** What you need, and a color, is enough to be shown it.  
   → Того, что вам нужно, и цвета хватит, чтобы вам её показали.
 - [ ] **14651.** Tom opens with the weather and the salesperson picks it up. That's how a lot of small talk in Estonia starts.  
-  → Том начинает с погоды, и продавец подхватывает. Так в Эстонии начинаются многие короткие разговоры.
+  → Том начинает с погоды, и продавец подхватывает. Так в Эстонии часто начинается непринуждённый разговор.
 - [ ] **14652.** Say blue.  
   → Скажите: синяя.
 - [ ] **14653.** Blue.  
@@ -29642,7 +29642,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **14696.** I drank  
   → я пил
 - [ ] **14697.** The past for I ends in -in, and the rest of the word is learned with each verb: {olin}, {tegin}, {sõin}. A class calls it the \[lihtminevik\] (past).  
-  → Прошедшее время для «я» кончается на -in, а остальная часть слова заучивается с каждым глаголом: {olin}, {tegin}, {sõin}. На занятиях это называют \[lihtminevik\] (прошлое).
+  → Прошедшее время для «я» заканчивается на -in, а остальная часть слова заучивается с каждым глаголом: {olin}, {tegin}, {sõin}. На занятиях это называют \[lihtminevik\] (прошедшее время).
 - [ ] **14698.** With {käisin}, the place is where you were, not where to: {Ma käisin poes}, never with {poodi}.  
   → С {käisin} называют место, где вы были, а не куда: {Ma käisin poes}, никогда не с {poodi}.
 - [ ] **14699.** {Käisin} is the usual way to say you went somewhere and came back: {Ma käisin poes}, I went to the shop.  
@@ -30110,7 +30110,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **14930.** {Ma õpin veel}, I'm still learning, is what to say when somebody compliments your Estonian. It keeps the conversation in Estonian.  
   → {Ma õpin veel}, я ещё учусь: это стоит сказать, когда хвалят ваш эстонский. Тогда разговор продолжается на эстонском.
 - [ ] **14931.** Names and hello from part one, where you're from from part two, a time from part three, cooking from part four, and the invitation is lesson 46's command: {Tule laupäeval meile!}  
-  → Имена и приветствие из первой части, откуда вы из второй, время из третьей, готовка из четвёртой, а приглашение это повелительная {Tule laupäeval meile!}
+  → Имена и приветствие из первой части, «откуда вы» из второй, время из третьей, готовка из четвёртой, а приглашение построено на повелительной форме из урока 46: {Tule laupäeval meile!}
 - [ ] **14932.** {Meile} is to us, and with {tule} it means come round to ours.  
   → {Meile} значит «к нам», а вместе с {tule} это «приходи к нам в гости».
 - [ ] **14933.** If you can hold this conversation, you can meet somebody, say who you are, and make a plan.  
@@ -30504,7 +30504,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **15127.** Your friend Liis calls on Monday to ask about your weekend.  
   → Подруга Лийс звонит в понедельник спросить, как прошли ваши выходные.
 - [ ] **15128.** To tell one person you know to do something, take the -n off the \[olevik\] (I form): {tulen} becomes {tule}. It's the same word you say after {ei}, said on its own. A class calls it the \[käskiv kõneviis\] (command).  
-  → Чтобы сказать знакомому человеку что-то сделать, уберите -n у \[olevik\] (форма «я»): {tulen} становится {tule}. Это то же слово, что после {ei}, только сказанное отдельно. На занятиях это называют \[käskiv kõneviis\] (приказ).
+  → Чтобы попросить знакомого человека что-то сделать, уберите -n из \[olevik\] (форма «я»): {tulen} становится {tule}. Это то же слово, что и после {ei}, только сказанное отдельно. На занятиях это называют \[käskiv kõneviis\] (повелительная форма).
 - [ ] **15129.** {Mine} is the odd one: "go!" is {mine}, and it isn't built on {lähen}.  
   → {Mine} особенный: «иди!» это {mine}, и оно не строится от {lähen}.
 - [ ] **15130.** {Palun} in front turns any of them into a request: {Palun oodake}.  
@@ -30560,17 +30560,17 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **15155.** Whose and where  
   → Чьё и где
 - [ ] **15156.** The \[omastav\] (2nd form): whose things are, which one, where things stand, and the dates.  
-  → \[omastav\] (2-я форма): чьи вещи, какая именно, где что стоит, и даты.
+  → \[omastav\] (2-я форма): чьи вещи, какой именно, где что стоит, и даты.
 - [ ] **15157.** In, on, to and from  
   → В, на, куда и откуда
 - [ ] **15158.** The six place endings, on any word: in and on, into and onto, out of and off, and the floors of a building.  
-  → Шесть окончаний места на любом слове: в и на, внутрь и на, изнутри и с, а ещё этажи в здании.
+  → Шесть окончаний места для любого слова: где (в, на), куда (в, на), откуда (из, с), а ещё этажи в здании.
 - [ ] **15159.** The past, whole: what you did, what you didn't, what you've done, and a story told in order.  
   → Прошедшее время целиком: что вы сделали, чего не сделали, что уже сделали, и рассказ по порядку.
 - [ ] **15160.** The body and the plural, an appointment, the pharmacy, how you feel, and what the doctor says.  
   → Тело и множественное число, запись к врачу, аптека, как вы себя чувствуете и что говорит врач.
 - [ ] **15161.** A ticket there and back, until when, a hotel, a trip told afterwards, and boats and planes.  
-  → Билет туда и обратно, до какого времени, гостиница, рассказ о поездке потом, корабли и самолёты.
+  → Билет туда и обратно, до какого времени, гостиница, рассказ о поездке после возвращения, корабли и самолёты.
 - [ ] **15162.** Eating out and shopping  
   → В кафе и в магазине
 - [ ] **15163.** The polite would, ordering and paying, comparing two things, the best of them, and trying clothes on.  
@@ -30582,11 +30582,11 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **15166.** Plans and opinions  
   → Планы и мнения
 - [ ] **15167.** What you'll do, what you think and why, what if, a day out, a message on the phone, and a time agreed.  
-  → Что вы будете делать, что вы думаете и почему, что если, выходной день, сообщение по телефону и договорённое время.
+  → Что вы будете делать, что вы думаете и почему, что, если, однодневная поездка, сообщение по телефону и договорённое время.
 - [ ] **15168.** Whose is it?  
   → Чьё это?
 - [ ] **15169.** Ask whose something is, and say it's yours, a friend's or your brother's.  
-  → Спросите, чьё что-то, и скажите, что это ваше, друга или брата.
+  → Спросите, чья это вещь, и скажите, что это ваше, друга или брата.
 - [ ] **15170.** Tom, whose phone is this?  
   → Том, чей это телефон?
 - [ ] **15171.** After a party at Mari's, they're tidying up.  
@@ -30624,7 +30624,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **15187.** a woman's, a wife's  
   → женщины, жены
 - [ ] **15188.** The \[omastav\] (2nd form) says whose: {sõbra kott}, a friend's bag. It goes in front, like 's in English.  
-  → \[omastav\] (2-я форма) говорит, чьё: {sõbra kott}, сумка друга. Она стоит впереди, как 's в английском.
+  → \[omastav\] (2-я форма) показывает, чьё это: {sõbra kott}, сумка друга. Она стоит перед словом, как 's в английском.
 - [ ] **15189.** \[omastav\] (2nd form), whose  
   → \[omastav\] (2-я форма), чей
 - [ ] **15190.** a friend's bag  
@@ -30640,15 +30640,15 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **15195.** Mom's phone  
   → мамин телефон
 - [ ] **15196.** You've said it since A1: {minu}, {sinu} and {nende} are the \[omastav\] (2nd form) of {mina}, {sina} and {nemad}.  
-  → Вы говорите это с A1: {minu}, {sinu} и {nende} это \[omastav\] (2-я форма) от {mina}, {sina} и {nemad}.
+  → Вы говорите их ещё с A1: {minu}, {sinu} и {nende} являются \[omastav\] (2-я форма) от {mina}, {sina} и {nemad}.
 - [ ] **15197.** A name does it too. {Jaan} becomes {Jaani telefon} and {Peeter} becomes {Peetri}, and a name ending in a vowel stays as it is: {Mari telefon}.  
-  → Имя тоже так меняется. {Jaan} становится {Jaani telefon}, а {Peeter} становится {Peetri}, а имя на гласную остаётся как есть: {Mari telefon}.
+  → Имя тоже так меняется: {Jaan} становится {Jaani telefon}, {Peeter} становится {Peetri}, а имя на гласную остаётся как есть: {Mari telefon}.
 - [ ] **15198.** {Kelle?} asks whose: {Kelle kott see on?}  
   → {Kelle?} спрашивает, чей: {Kelle kott see on?}
 - [ ] **15199.** {Minu oma} means mine: {See raamat on minu oma}.  
   → {Minu oma} значит «мой»: {See raamat on minu oma}.
 - [ ] **15200.** The \[omastav\] (2nd form) isn't always the word with a letter on the end: {sõber} is {sõbra}, {laps} is {lapse}, {mees} is {mehe}. Learn it with the word.  
-  → \[omastav\] (2-я форма) не всегда просто слово с буквой на конце: {sõber} это {sõbra}, {laps} это {lapse}, {mees} это {mehe}. Учите её вместе со словом.
+  → \[omastav\] (2-я форма) не всегда просто слово с буквой на конце: {sõber} становится {sõbra}, {laps} становится {lapse}, {mees} становится {mehe}. Учите её вместе со словом.
 - [ ] **15201.** Whose phone is this?  
   → Чей это телефон?
 - [ ] **15202.** Say it's your phone.  
@@ -30676,7 +30676,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **15213.** Welcome! This is your apartment key.  
   → Добро пожаловать! Это ключ от вашей квартиры.
 - [ ] **15214.** Tom is moving into a new apartment. Liis is the owner.  
-  → Том переезжает в новую квартиру. Лийс хозяйка.
+  → Том переезжает в новую квартиру. Квартира принадлежит Лийс.
 - [ ] **15215.** Thank you! And this little key?  
   → Спасибо! А этот маленький ключ?
 - [ ] **15216.** That's the mailbox key.  
@@ -30712,17 +30712,17 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **15231.** of the door  
   → двери
 - [ ] **15232.** The \[omastav\] (2nd form) also says which one: {korteri võti}, the apartment key; {köögi aken}, the kitchen window. And every ending you know is built on it.  
-  → \[omastav\] (2-я форма) также говорит, какой именно: {korteri võti}, ключ от квартиры; {köögi aken}, окно кухни. И каждое окончание, которое вы знаете, строится на ней.
+  → \[omastav\] (2-я форма) также показывает, какой именно: {korteri võti}, ключ от квартиры; {köögi aken}, окно кухни. И каждое окончание, которое вы знаете, строится на ней.
 - [ ] **15233.** With -s, in it  
   → С -s, в нём
 - [ ] **15234.** Look down the last column. {Toas} is {toa} with -s on it, and {köögis} is {köögi} with -s: the endings go on the \[omastav\] (2nd form), never on the first.  
-  → Посмотрите на последний столбец. {Toas} это {toa} с -s, а {köögis} это {köögi} с -s: окончания ставятся на \[omastav\] (2-я форма), а не на первую.
+  → Посмотрите на последний столбец. {Toas} получается из {toa} с -s, а {köögis} получается из {köögi} с -s: окончания добавляются к \[omastav\] (2-я форма), а не к первой.
 - [ ] **15235.** That's why a word is learned with its \[omastav\] (2nd form). It's the key to every other form of it.  
   → Поэтому слово учат вместе с его \[omastav\] (2-я форма). Это ключ ко всем его остальным формам.
 - [ ] **15236.** Estonian often makes one word of the two: {vannituba} is a bath's room, {telefoninumber} a phone's number.  
-  → В эстонском часто из двух слов получается одно: {vannituba} это комната ванны, {telefoninumber} номер телефона.
+  → В эстонском часто из двух слов получается одно: {vannituba} буквально означает «комната ванны», а {telefoninumber} означает «номер телефона».
 - [ ] **15237.** A word can change inside: {tuba} is {toa}, {köök} is {köögi}, {aken} is {akna}. Don't guess the \[omastav\] (2nd form); learn it with the word.  
-  → Слово может меняться внутри: {tuba} это {toa}, {köök} это {köögi}, {aken} это {akna}. Не угадывайте \[omastav\] (2-я форма), учите её вместе со словом.
+  → Слово может меняться внутри: {tuba} становится {toa}, {köök} становится {köögi}, {aken} становится {akna}. Не пытайтесь угадать \[omastav\] (2-я форма), учите её вместе со словом.
 - [ ] **15238.** Say this is the apartment key.  
   → Скажите, что это ключ от квартиры.
 - [ ] **15239.** This is the apartment key.  
@@ -30763,2278 +30763,2278 @@ _lib/copy/i18n/areas/lessonText.ts_
   → внутри, в
 - [ ] **15257.** next to, beside  
   → рядом с, возле
-- [ ] **15258.** at, by; at somebody's place  
+- [ ] **15258.** from next to  
+  → из-за, от (того, что рядом)
+- [ ] **15259.** at, by; at somebody's place  
   → у, возле; у кого-то дома
-- [ ] **15259.** of the table  
+- [ ] **15260.** of the table  
   → стола
-- [ ] **15260.** of the chair  
+- [ ] **15261.** of the chair  
   → стула
-- [ ] **15261.** of the bed  
+- [ ] **15262.** of the bed  
   → кровати
-- [ ] **15262.** of the bag  
+- [ ] **15263.** of the bag  
   → сумки
-- [ ] **15263.** Where a thing is comes after the \[omastav\] (2nd form): {laua peal}, on the table. English puts the small word first; Estonian puts it last.  
-  → То, где находится вещь, идёт после \[omastav\] (2-я форма): {laua peal}, на столе. В английском маленькое слово ставят первым, в эстонском последним.
-- [ ] **15264.** on the table  
+- [ ] **15264.** Where a thing is comes after the \[omastav\] (2nd form): {laua peal}, on the table. English puts the small word first; Estonian puts it last.  
+  → Слово, обозначающее место, стоит после \[omastav\] (2-я форма): {laua peal}, на столе. В английском такое маленькое слово ставят первым, в эстонском последним.
+- [ ] **15265.** on the table  
   → на столе
-- [ ] **15265.** under the chair  
+- [ ] **15266.** under the chair  
   → под стулом
-- [ ] **15266.** next to the door  
+- [ ] **15267.** next to the door  
   → рядом с дверью
-- [ ] **15267.** in front of the house  
+- [ ] **15268.** in front of the house  
   → перед домом
-- [ ] **15268.** behind the house  
+- [ ] **15269.** behind the house  
   → за домом
-- [ ] **15269.** by the window  
+- [ ] **15270.** by the window  
   → у окна
-- [ ] **15270.** {Koti sees} and {kotis} both mean in the bag. The ending is shorter, and the word after says it more exactly.  
-  → {Koti sees} и {kotis} оба значат «в сумке». Окончание короче, а слово после говорит это точнее.
-- [ ] **15271.** {Juures} also means at somebody's place: {sõbra juures}, at a friend's.  
+- [ ] **15271.** {Koti sees} and {kotis} both mean in the bag. The ending is shorter, and the word after says it more exactly.  
+  → {Koti sees} и {kotis} оба значат «в сумке». Окончание короче, а отдельное слово после выражает это точнее.
+- [ ] **15272.** {Juures} also means at somebody's place: {sõbra juures}, at a friend's.  
   → {Juures} также значит «у кого-то дома»: {sõbra juures}, у друга.
-- [ ] **15272.** {Siin see on!}, here it is, is what you say when you find something.  
+- [ ] **15273.** {Siin see on!}, here it is, is what you say when you find something.  
   → {Siin see on!}, вот он, говорят, когда что-то нашли.
-- [ ] **15273.** The small word comes after: {laua peal}, never the other way around.  
+- [ ] **15274.** The small word comes after: {laua peal}, never the other way around.  
   → Маленькое слово идёт после: {laua peal}, никогда не наоборот.
-- [ ] **15274.** Say it's on the table.  
+- [ ] **15275.** Say it's on the table.  
   → Скажите, что он на столе.
-- [ ] **15275.** On the table.  
+- [ ] **15276.** On the table.  
   → На столе.
-- [ ] **15276.** Where's your bag?  
+- [ ] **15277.** Where's your bag?  
   → Где твоя сумка?
-- [ ] **15277.** Say it's next to the door.  
+- [ ] **15278.** Say it's next to the door.  
   → Скажите, что она у двери.
-- [ ] **15278.** Next to the door.  
+- [ ] **15279.** Next to the door.  
   → У двери.
-- [ ] **15279.** Say you don't know where your key is.  
+- [ ] **15280.** Say you don't know where your key is.  
   → Скажите, что не знаете, где ваш ключ.
-- [ ] **15280.** I don't know where my key is.  
+- [ ] **15281.** I don't know where my key is.  
   → Я не знаю, где мой ключ.
-- [ ] **15281.** Where are you living?  
+- [ ] **15282.** Where are you living?  
   → Где ты живёшь?
-- [ ] **15282.** Say at a friend's place.  
+- [ ] **15283.** Say at a friend's place.  
   → Скажите, что у друга.
-- [ ] **15283.** At a friend's.  
+- [ ] **15284.** At a friend's.  
   → У друга.
-- [ ] **15284.** Before and after  
+- [ ] **15285.** Before and after  
   → До и после
-- [ ] **15285.** Say when: before work, after the meal, in an hour, in ten minutes.  
+- [ ] **15286.** Say when: before work, after the meal, in an hour, in ten minutes.  
   → Скажите, когда: до работы, после еды, через час, через десять минут.
-- [ ] **15286.** Tom, when are you coming?  
+- [ ] **15287.** Tom, when are you coming?  
   → Том, когда ты придёшь?
-- [ ] **15287.** On the phone, in the afternoon.  
+- [ ] **15288.** On the phone, in the afternoon.  
   → По телефону, днём.
-- [ ] **15288.** After work. I finish at five.  
+- [ ] **15289.** After work. I finish at five.  
   → После работы. Я заканчиваю в пять.
-- [ ] **15289.** Got it. Are you coming by bus?  
+- [ ] **15290.** Got it. Are you coming by bus?  
   → Понятно. Ты приедешь на автобусе?
-- [ ] **15290.** Yes. I'll be at your place in an hour.  
+- [ ] **15291.** Yes. I'll be at your place in an hour.  
   → Да. Через час буду у тебя.
-- [ ] **15291.** Lovely. After we eat, we'll watch a film.  
+- [ ] **15292.** Lovely. After we eat, we'll watch a film.  
   → Отлично. После еды посмотрим фильм.
-- [ ] **15292.** Great! See you in an hour, then!  
+- [ ] **15293.** Great! See you in an hour, then!  
   → Здорово! Тогда увидимся через час!
-- [ ] **15293.** after; with a length of time, in  
-  → после; со сроком, через
-- [ ] **15294.** work, after {enne} or {pärast}  
+- [ ] **15294.** after; with a length of time, in  
+  → после; с промежутком времени: через
+- [ ] **15295.** work, after {enne} or {pärast}  
   → работа, после {enne} или {pärast}
-- [ ] **15295.** a meal, food  
+- [ ] **15296.** a meal, food  
   → еда, пища
-- [ ] **15296.** a meal, after {enne} or {pärast}  
+- [ ] **15297.** a meal, after {enne} or {pärast}  
   → еда, после {enne} или {pärast}
-- [ ] **15297.** I finish  
+- [ ] **15298.** I finish  
   → я заканчиваю
-- [ ] **15298.** film  
+- [ ] **15299.** film  
   → фильм
-- [ ] **15299.** a film, as what you watch  
+- [ ] **15300.** a film, as what you watch  
   → фильм, как то, что смотрят
-- [ ] **15300.** minute  
+- [ ] **15301.** minute  
   → минута
-- [ ] **15301.** of an hour  
+- [ ] **15302.** of an hour  
   → часа
-- [ ] **15302.** of a minute  
+- [ ] **15303.** of a minute  
   → минуты
-- [ ] **15303.** of a week  
+- [ ] **15304.** of a week  
   → недели
-- [ ] **15304.** of ten  
+- [ ] **15305.** of ten  
   → десяти
-- [ ] **15305.** {Enne} and {pärast} put a time on things: {enne tööd}, before work; {pärast tööd}, after work. The word after them is in its \[osastav\] (3rd form).  
+- [ ] **15306.** {Enne} and {pärast} put a time on things: {enne tööd}, before work; {pärast tööd}, after work. The word after them is in its \[osastav\] (3rd form).  
   → {Enne} и {pärast} указывают время: {enne tööd}, до работы; {pärast tööd}, после работы. Слово после них стоит в \[osastav\] (3-я форма).
-- [ ] **15306.** before work  
+- [ ] **15307.** before work  
   → до работы
-- [ ] **15307.** after work  
+- [ ] **15308.** after work  
   → после работы
-- [ ] **15308.** after the meal  
+- [ ] **15309.** after the meal  
   → после еды
-- [ ] **15309.** in an hour  
+- [ ] **15310.** in an hour  
   → через час
-- [ ] **15310.** in ten minutes  
+- [ ] **15311.** in ten minutes  
   → через десять минут
-- [ ] **15311.** in a week  
+- [ ] **15312.** in a week  
   → через неделю
-- [ ] **15312.** {Tunni pärast} means in an hour, from now. With a length of time, {pärast} comes after, and the words in front are in their \[omastav\] (2nd form): {kümne minuti pärast}.  
-  → {Tunni pärast} значит «через час», начиная с этого момента. Со сроком {pärast} идёт после, а слова перед ним стоят в \[omastav\] (2-я форма): {kümne minuti pärast}.
-- [ ] **15313.** {Tööd} and {sööki} are the same \[osastav\] (3rd form) you met with {kohvi} in A1.  
-  → {Tööd} и {sööki} это та же \[osastav\] (3-я форма), которую вы встречали с {kohvi} в A1.
-- [ ] **15314.** {Vaatame filmi} means "we'll watch a film": the present does for the future, as in A1.  
+- [ ] **15313.** {Tunni pärast} means in an hour, from now. With a length of time, {pärast} comes after, and the words in front are in their \[omastav\] (2nd form): {kümne minuti pärast}.  
+  → {Tunni pärast} значит «через час», начиная с этого момента. С промежутком времени {pärast} стоит после, а слова перед ним стоят в \[omastav\] (2-я форма): {kümne minuti pärast}.
+- [ ] **15314.** {Tööd} and {sööki} are the same \[osastav\] (3rd form) you met with {kohvi} in A1.  
+  → {Tööd} и {sööki} стоят в той же \[osastav\] (3-я форма), которую вы встречали с {kohvi} в A1.
+- [ ] **15315.** {Vaatame filmi} means "we'll watch a film": the present does for the future, as in A1.  
   → {Vaatame filmi} значит «посмотрим фильм»: настоящее время служит и для будущего, как в A1.
-- [ ] **15315.** {Pärast tööd} is after work, and {tunni pärast} is in an hour: where {pärast} stands changes what it means.  
-  → {Pärast tööd} это «после работы», а {tunni pärast} это «через час»: где стоит {pärast}, меняет его смысл.
-- [ ] **15316.** When are you coming?  
+- [ ] **15316.** {Pärast tööd} is after work, and {tunni pärast} is in an hour: where {pärast} stands changes what it means.  
+  → {Pärast tööd} значит «после работы», а {tunni pärast} значит «через час»: от места {pärast} зависит его смысл.
+- [ ] **15317.** When are you coming?  
   → Когда ты придёшь?
-- [ ] **15317.** Say after work.  
+- [ ] **15318.** Say after work.  
   → Скажите: после работы.
-- [ ] **15318.** After work.  
+- [ ] **15319.** After work.  
   → После работы.
-- [ ] **15319.** Say you'll be there in an hour.  
+- [ ] **15320.** Say you'll be there in an hour.  
   → Скажите, что будете там через час.
-- [ ] **15320.** I'll be there in an hour.  
+- [ ] **15321.** I'll be there in an hour.  
   → Буду там через час.
-- [ ] **15321.** When do you finish?  
+- [ ] **15322.** When do you finish?  
   → Когда ты заканчиваешь?
-- [ ] **15322.** Say at five.  
+- [ ] **15323.** Say at five.  
   → Скажите: в пять.
-- [ ] **15323.** At five.  
+- [ ] **15324.** At five.  
   → В пять.
-- [ ] **15324.** Say you're coming in ten minutes.  
+- [ ] **15325.** Say you're coming in ten minutes.  
   → Скажите, что придёте через десять минут.
-- [ ] **15325.** I'm coming in ten minutes.  
+- [ ] **15326.** I'm coming in ten minutes.  
   → Приду через десять минут.
-- [ ] **15326.** First, second, third  
+- [ ] **15327.** First, second, third  
   → Первый, второй, третий
-- [ ] **15327.** Say the date, and put things in order: first, second, third.  
+- [ ] **15328.** Say the date, and put things in order: first, second, third.  
   → Назовите дату и расставьте всё по порядку: первый, второй, третий.
-- [ ] **15328.** Mari, what's the date today?  
+- [ ] **15329.** Mari, what's the date today?  
   → Мари, какое сегодня число?
-- [ ] **15329.** It's the fourth of May. Why?  
+- [ ] **15330.** It's the fourth of May. Why?  
   → Четвёртое мая. А что?
-- [ ] **15330.** Then tomorrow's my mom's birthday!  
+- [ ] **15331.** Then tomorrow's my mom's birthday!  
   → Тогда завтра у моей мамы день рождения!
-- [ ] **15331.** The fifth of May? Do you have a present already?  
+- [ ] **15332.** The fifth of May? Do you have a present already?  
   → Пятое мая? У тебя уже есть подарок?
-- [ ] **15332.** Not yet. What shall I buy?  
+- [ ] **15333.** Not yet. What shall I buy?  
   → Ещё нет. Что мне купить?
-- [ ] **15333.** Buy flowers! That's always a good present.  
+- [ ] **15334.** Buy flowers! That's always a good present.  
   → Купи цветы! Это всегда хороший подарок.
-- [ ] **15334.** What's the date today?  
+- [ ] **15335.** What's the date today?  
   → Какое сегодня число?
-- [ ] **15335.** date  
+- [ ] **15336.** date  
   → дата, число
-- [ ] **15336.** second; other  
+- [ ] **15337.** second; other  
   → второй; другой
-- [ ] **15337.** third  
+- [ ] **15338.** third  
   → третий
-- [ ] **15338.** fourth  
+- [ ] **15339.** fourth  
   → четвёртый
-- [ ] **15339.** fifth  
+- [ ] **15340.** fifth  
   → пятый
-- [ ] **15340.** sixth  
+- [ ] **15341.** sixth  
   → шестой
-- [ ] **15341.** seventh  
+- [ ] **15342.** seventh  
   → седьмой
-- [ ] **15342.** eighth  
+- [ ] **15343.** eighth  
   → восьмой
-- [ ] **15343.** ninth  
+- [ ] **15344.** ninth  
   → девятый
-- [ ] **15344.** tenth  
+- [ ] **15345.** tenth  
   → десятый
-- [ ] **15345.** why  
+- [ ] **15346.** why  
   → почему
-- [ ] **15346.** already  
+- [ ] **15347.** already  
   → уже
-- [ ] **15347.** present, gift  
+- [ ] **15348.** present, gift  
   → подарок
-- [ ] **15348.** flower  
+- [ ] **15349.** flower  
   → цветок
-- [ ] **15349.** flowers  
+- [ ] **15350.** flowers  
   → цветы
-- [ ] **15350.** First, second, third: {esimene}, {teine}, {kolmas}. A date is one of these and the month: {neljas mai}, the fourth of May.  
-  → Первый, второй, третий: {esimene}, {teine}, {kolmas}. Дата это такое слово и месяц: {neljas mai}, четвёртое мая.
-- [ ] **15351.** 1st  
+- [ ] **15351.** First, second, third: {esimene}, {teine}, {kolmas}. A date is one of these and the month: {neljas mai}, the fourth of May.  
+  → Первый, второй, третий: {esimene}, {teine}, {kolmas}. Дата состоит из такого слова и месяца: {neljas mai}, четвёртое мая.
+- [ ] **15352.** 1st  
   → 1-й
-- [ ] **15352.** 2nd  
+- [ ] **15353.** 2nd  
   → 2-й
-- [ ] **15353.** 3rd  
+- [ ] **15354.** 3rd  
   → 3-й
-- [ ] **15354.** 4th  
+- [ ] **15355.** 4th  
   → 4-й
-- [ ] **15355.** 5th  
+- [ ] **15356.** 5th  
   → 5-й
-- [ ] **15356.** 6th  
+- [ ] **15357.** 6th  
   → 6-й
-- [ ] **15357.** 7th  
+- [ ] **15358.** 7th  
   → 7-й
-- [ ] **15358.** 8th  
+- [ ] **15359.** 8th  
   → 8-й
-- [ ] **15359.** 9th  
+- [ ] **15360.** 9th  
   → 9-й
-- [ ] **15360.** 10th  
+- [ ] **15361.** 10th  
   → 10-й
-- [ ] **15361.** From the fourth on, the number gets an -s: {viis}, {viies}; {kuus}, {kuues}; {kümme}, {kümnes}. The first three you learn as words.  
-  → Начиная с четвёртого, к числу добавляется -s: {viis}, {viies}; {kuus}, {kuues}; {kümme}, {kümnes}. Первые три учат как отдельные слова.
-- [ ] **15362.** {Mitmes täna on?} is how people ask the date. {Mis kuupäev täna on?} asks the same, a little more formally.  
-  → {Mitmes täna on?} так спрашивают число. {Mis kuupäev täna on?} спрашивает то же самое, чуть более официально.
-- [ ] **15363.** {Osta} is the command of {ostma}, from lesson 46 of A1: {ostan}, {osta}.  
-  → {Osta} это повелительная форма от {ostma}, из урока 46 уровня A1: {ostan}, {osta}.
-- [ ] **15364.** {Teine} is second, not two: two is {kaks}.  
-  → {Teine} значит «второй», а не «два»: два это {kaks}.
-- [ ] **15365.** Say it's the fourth of May.  
+- [ ] **15362.** From the fourth on, the number gets an -s: {viis}, {viies}; {kuus}, {kuues}; {kümme}, {kümnes}. The first three you learn as words.  
+  → Начиная с четвёртого, к числительному добавляется -s: {viis}, {viies}; {kuus}, {kuues}; {kümme}, {kümnes}. Первые три учат как отдельные слова.
+- [ ] **15363.** {Mitmes täna on?} is how people ask the date. {Mis kuupäev täna on?} asks the same, a little more formally.  
+  → Число обычно спрашивают так: {Mitmes täna on?} Вопрос {Mis kuupäev täna on?} значит то же самое, но чуть более официально.
+- [ ] **15364.** {Osta} is the command of {ostma}, from lesson 46 of A1: {ostan}, {osta}.  
+  → {Osta} является повелительной формой от {ostma}, из урока 46 уровня A1: {ostan}, {osta}.
+- [ ] **15365.** {Teine} is second, not two: two is {kaks}.  
+  → {Teine} значит «второй», а не «два»: «два» по-эстонски будет {kaks}.
+- [ ] **15366.** Say it's the fourth of May.  
   → Скажите, что сегодня четвёртое мая.
-- [ ] **15366.** It's the fourth of May.  
+- [ ] **15367.** It's the fourth of May.  
   → Сегодня четвёртое мая.
-- [ ] **15367.** Say tomorrow is your mother's birthday.  
+- [ ] **15368.** Say tomorrow is your mother's birthday.  
   → Скажите, что завтра у вашей мамы день рождения.
-- [ ] **15368.** Tomorrow's my mother's birthday.  
+- [ ] **15369.** Tomorrow's my mother's birthday.  
   → Завтра у моей мамы день рождения.
-- [ ] **15369.** Do you have a present already?  
+- [ ] **15370.** Do you have a present already?  
   → У тебя уже есть подарок?
-- [ ] **15370.** Say not yet.  
+- [ ] **15371.** Say not yet.  
   → Скажите: ещё нет.
-- [ ] **15371.** Not yet.  
+- [ ] **15372.** Not yet.  
   → Ещё нет.
-- [ ] **15372.** Your details  
+- [ ] **15373.** Your details  
   → Ваши данные
-- [ ] **15373.** Give your details at a desk: first name, surname, address and date of birth.  
+- [ ] **15374.** Give your details at a desk: first name, surname, address and date of birth.  
   → Назовите свои данные у стойки: имя, фамилию, адрес и дату рождения.
-- [ ] **15374.** Hello! How can I help?  
+- [ ] **15375.** Hello! How can I help?  
   → Здравствуйте! Чем могу помочь?
-- [ ] **15375.** At the library desk.  
+- [ ] **15376.** At the library desk.  
   → У стойки в библиотеке.
-- [ ] **15376.** Hello! I'd like a library card.  
-  → Здравствуйте! Я хотел бы читательский билет.
-- [ ] **15377.** Of course. Your first name?  
+- [ ] **15377.** Hello! I'd like a library card.  
+  → Здравствуйте! Я хотел бы оформить читательский билет.
+- [ ] **15378.** Of course. Your first name?  
   → Конечно. Ваше имя?
-- [ ] **15378.** Tom.  
+- [ ] **15379.** Tom.  
   → Том.
-- [ ] **15379.** And your surname?  
+- [ ] **15380.** And your surname?  
   → А фамилия?
-- [ ] **15380.** Smith.  
+- [ ] **15381.** Smith.  
   → Смит.
-- [ ] **15381.** Your address?  
+- [ ] **15382.** Your address?  
   → Ваш адрес?
-- [ ] **15382.** Pikk Street two, apartment four.  
+- [ ] **15383.** Pikk Street two, apartment four.  
   → Улица Пикк, дом два, квартира четыре.
-- [ ] **15383.** And your date of birth?  
+- [ ] **15384.** And your date of birth?  
   → А дата рождения?
-- [ ] **15384.** The tenth of June.  
+- [ ] **15385.** The tenth of June.  
   → Десятое июня.
-- [ ] **15385.** Thank you. Please sign here.  
+- [ ] **15386.** Thank you. Please sign here.  
   → Спасибо. Подпишите здесь, пожалуйста.
-- [ ] **15386.** How can I help?  
+- [ ] **15387.** How can I help?  
   → Чем могу помочь?
-- [ ] **15387.** library  
+- [ ] **15388.** library  
   → библиотека
-- [ ] **15388.** library card  
+- [ ] **15389.** library card  
   → читательский билет
-- [ ] **15389.** a library card, as what you'd like  
+- [ ] **15390.** a library card, as what you'd like  
   → читательский билет, как то, что вы хотите
-- [ ] **15390.** first name  
+- [ ] **15391.** first name  
   → имя
-- [ ] **15391.** surname, family name  
+- [ ] **15392.** surname, family name  
   → фамилия
-- [ ] **15392.** address  
+- [ ] **15393.** address  
   → адрес
-- [ ] **15393.** street  
+- [ ] **15394.** street  
   → улица
-- [ ] **15394.** date of birth  
+- [ ] **15395.** date of birth  
   → дата рождения
-- [ ] **15395.** place of birth  
+- [ ] **15396.** place of birth  
   → место рождения
-- [ ] **15396.** Please sign here.  
+- [ ] **15397.** Please sign here.  
   → Подпишите здесь, пожалуйста.
-- [ ] **15397.** At a desk, a question is often just the word: {Teie aadress?} means "your address?", and the answer can be just the address.  
+- [ ] **15398.** At a desk, a question is often just the word: {Teie aadress?} means "your address?", and the answer can be just the address.  
   → У стойки вопрос часто состоит из одного слова: {Teie aadress?} значит «ваш адрес?», и ответом может быть просто адрес.
-- [ ] **15398.** On a form  
+- [ ] **15399.** On a form  
   → В анкете
-- [ ] **15399.** surname  
+- [ ] **15400.** surname  
   → фамилия
-- [ ] **15400.** An address is the street, then the number, then the apartment: {Pikk tänav kaks, korter neli}.  
-  → Адрес: сначала улица, потом номер дома, потом квартира: {Pikk tänav kaks, korter neli}.
-- [ ] **15401.** {Palun kirjutage siia alla} asks you to sign: to write your name at the bottom. You'll see it on every form.  
+- [ ] **15401.** An address is the street, then the number, then the apartment: {Pikk tänav kaks, korter neli}.  
+  → В адресе сначала идёт улица, потом номер дома, потом квартира: {Pikk tänav kaks, korter neli}.
+- [ ] **15402.** {Palun kirjutage siia alla} asks you to sign: to write your name at the bottom. You'll see it on every form.  
   → {Palun kirjutage siia alla} просит вас расписаться, то есть написать своё имя внизу. Вы увидите это на любом бланке.
-- [ ] **15402.** {Ma soovin} is a polite "I'd like", the {soovin} of the café in A1.  
+- [ ] **15403.** {Ma soovin} is a polite "I'd like", the {soovin} of the café in A1.  
   → {Ma soovin} означает вежливое «я хотел бы», то самое {soovin} из кафе на уровне A1.
-- [ ] **15403.** {Perekonnanimi} is the family name, your surname. {Eesnimi} is the one in front, your first name.  
+- [ ] **15404.** {Perekonnanimi} is the family name, your surname. {Eesnimi} is the one in front, your first name.  
   → {Perekonnanimi} означает фамилию, родовое имя. {Eesnimi} стоит впереди, это ваше имя.
-- [ ] **15404.** Your first name?  
+- [ ] **15405.** Your first name?  
   → Ваше имя?
-- [ ] **15405.** Give your first name.  
+- [ ] **15406.** Give your first name.  
   → Назовите своё имя.
-- [ ] **15406.** Give an address. Any street will do.  
+- [ ] **15407.** Give an address. Any street will do.  
   → Назовите адрес. Подойдёт любая улица.
-- [ ] **15407.** Give a date of birth. Any day will do.  
+- [ ] **15408.** Give a date of birth. Any day will do.  
   → Назовите дату рождения. Подойдёт любой день.
-- [ ] **15408.** You're at a desk. Say you'd like a library card.  
-  → Вы у стойки. Скажите, что хотели бы читательский билет.
-- [ ] **15409.** I'd like a library card.  
-  → Я хотел бы читательский билет.
-- [ ] **15410.** At the library  
+- [ ] **15409.** You're at a desk. Say you'd like a library card.  
+  → Вы у стойки. Скажите, что хотели бы оформить читательский билет.
+- [ ] **15410.** I'd like a library card.  
+  → Я хотел бы оформить читательский билет.
+- [ ] **15411.** At the library  
   → В библиотеке
-- [ ] **15411.** Get a library card, give your details, and find who something belongs to.  
+- [ ] **15412.** Get a library card, give your details, and find who something belongs to.  
   → Получите читательский билет, назовите свои данные и выясните, чья это вещь.
-- [ ] **15412.** Of course. Your first name and surname?  
+- [ ] **15413.** Of course. Your first name and surname?  
   → Конечно. Ваше имя и фамилия?
-- [ ] **15413.** Tom Smith.  
+- [ ] **15414.** Tom Smith.  
   → Том Смит.
-- [ ] **15414.** Excuse me, whose phone is this? It was on the table.  
+- [ ] **15415.** Excuse me, whose phone is this? It was on the table.  
   → Извините, чей это телефон? Он лежал на столе.
-- [ ] **15415.** That's my phone! Thank you so much!  
+- [ ] **15416.** That's my phone! Thank you so much!  
   → Это мой телефон! Огромное спасибо!
-- [ ] **15416.** You're welcome! Goodbye!  
+- [ ] **15417.** You're welcome! Goodbye!  
   → Пожалуйста! До свидания!
-- [ ] **15417.** A whole visit to a desk, made only of what the last six lessons taught.  
-  → Целый визит к стойке, собранный только из того, чему научили последние шесть уроков.
-- [ ] **15418.** Liis asks with just the word, {Teie aadress?}, and Tom answers with just the detail. That's normal at a desk.  
+- [ ] **15418.** A whole visit to a desk, made only of what the last six lessons taught.  
+  → Целый разговор у стойки, построенный только на том, чему научили последние шесть уроков.
+- [ ] **15419.** Liis asks with just the word, {Teie aadress?}, and Tom answers with just the detail. That's normal at a desk.  
   → Лийс спрашивает одним словом, {Teie aadress?}, и Том отвечает только нужными данными. У стойки это нормально.
-- [ ] **15419.** At the end, the \[omastav\] (2nd form) does its first job: {kelle telefon}, whose phone.  
-  → В конце \[omastav\] (2-я форма) выполняет свою первую работу: {kelle telefon}, чей телефон.
-- [ ] **15420.** At the end, Liis is at the desk and you're the one asking for a card. Answer as yourself, one turn at a time.  
+- [ ] **15420.** At the end, the \[omastav\] (2nd form) does its first job: {kelle telefon}, whose phone.  
+  → В конце \[omastav\] (2-я форма) выполняет свою первую задачу: {kelle telefon}, чей телефон.
+- [ ] **15421.** At the end, Liis is at the desk and you're the one asking for a card. Answer as yourself, one turn at a time.  
   → В конце за стойкой Лийс, а билет просите вы. Отвечайте от своего имени, по одной реплике.
-- [ ] **15421.** {Suur aitäh!} is a big thank you, for when somebody has done you a real favor, or you them.  
-  → {Suur aitäh!} означает большое спасибо, когда кто-то сделал вам настоящее одолжение или вы ему.
-- [ ] **15422.** Say you'd like a library card.  
-  → Скажите, что хотели бы читательский билет.
-- [ ] **15423.** Your first name and surname?  
+- [ ] **15422.** {Suur aitäh!} is a big thank you, for when somebody has done you a real favor, or you them.  
+  → {Suur aitäh!} значит «большое спасибо»: так говорят, когда кто-то оказал вам настоящую услугу или вы ему.
+- [ ] **15423.** Say you'd like a library card.  
+  → Скажите, что хотели бы оформить читательский билет.
+- [ ] **15424.** Your first name and surname?  
   → Ваше имя и фамилия?
-- [ ] **15424.** Give your name.  
+- [ ] **15425.** Give your name.  
   → Назовите своё имя.
-- [ ] **15425.** You found a phone on the table. Ask whose it is.  
+- [ ] **15426.** You found a phone on the table. Ask whose it is.  
   → Вы нашли телефон на столе. Спросите, чей он.
-- [ ] **15426.** You're at the library desk, getting a card. The librarian speaks first. Answer as yourself.  
+- [ ] **15427.** You're at the library desk, getting a card. The librarian speaks first. Answer as yourself.  
   → Вы у библиотечной стойки, получаете билет. Первым говорит библиотекарь. Отвечайте от своего имени.
-- [ ] **15427.** Say hello, and that you'd like a library card.  
-  → Поздоровайтесь и скажите, что хотели бы читательский билет.
-- [ ] **15428.** Give a date of birth.  
+- [ ] **15428.** Say hello, and that you'd like a library card.  
+  → Поздоровайтесь и скажите, что хотели бы оформить читательский билет.
+- [ ] **15429.** Give a date of birth.  
   → Назовите дату рождения.
-- [ ] **15429.** You've signed. Ask whose the phone on the table is.  
+- [ ] **15430.** You've signed. Ask whose the phone on the table is.  
   → Вы расписались. Спросите, чей телефон лежит на столе.
-- [ ] **15430.** Say you're welcome, and goodbye.  
+- [ ] **15431.** Say you're welcome, and goodbye.  
   → Ответьте «пожалуйста» и попрощайтесь.
-- [ ] **15431.** In, into, out of  
+- [ ] **15432.** In, into, out of  
   → В, в (куда), из
-- [ ] **15432.** Say where you are, where you're going and where you've come from, about any place.  
-  → Скажите, где вы, куда идёте и откуда пришли, о любом месте.
-- [ ] **15433.** Hi, Tom! Where are you coming from?  
+- [ ] **15433.** Say where you are, where you're going and where you've come from, about any place.  
+  → Говорите о любом месте: где вы, куда идёте и откуда пришли.
+- [ ] **15434.** Hi, Tom! Where are you coming from?  
   → Привет, Том! Откуда идёшь?
-- [ ] **15434.** I'm coming from the university. And you?  
+- [ ] **15435.** I'm coming from the university. And you?  
   → Я иду из университета. А ты?
-- [ ] **15435.** I'm coming from the library. Where are you off to now?  
+- [ ] **15436.** I'm coming from the library. Where are you off to now?  
   → Я иду из библиотеки. Куда ты сейчас?
-- [ ] **15436.** I'm going into town. I have to go to the bank.  
+- [ ] **15437.** I'm going into town. I have to go to the bank.  
   → Я иду в город. Мне надо в банк.
-- [ ] **15437.** I'm going into town too! Let's go together.  
+- [ ] **15438.** I'm going into town too! Let's go together.  
   → Я тоже иду в город! Пойдём вместе.
-- [ ] **15438.** Good idea! Let's take the bus.  
+- [ ] **15439.** Good idea! Let's take the bus.  
   → Хорошая идея! Поедем на автобусе.
-- [ ] **15439.** thought, idea  
+- [ ] **15440.** thought, idea  
   → мысль, идея
-- [ ] **15440.** let's go  
+- [ ] **15441.** let's go  
   → пойдём
-- [ ] **15441.** of the town center  
+- [ ] **15442.** of the town center  
   → центра города
-- [ ] **15442.** of the school  
+- [ ] **15443.** of the school  
   → школы
-- [ ] **15443.** of the university  
+- [ ] **15444.** of the university  
   → университета
-- [ ] **15444.** of the library  
+- [ ] **15445.** of the library  
   → библиотеки
-- [ ] **15445.** of the café  
+- [ ] **15446.** of the café  
   → кафе
-- [ ] **15446.** of the bus  
+- [ ] **15447.** of the bus  
   → автобуса
-- [ ] **15447.** of the bank  
+- [ ] **15448.** of the bank  
   → банка
-- [ ] **15448.** to the bank, going there  
+- [ ] **15449.** to the bank, going there  
   → в банк, туда
-- [ ] **15449.** Tallinn  
+- [ ] **15450.** Tallinn  
   → Таллин
-- [ ] **15450.** of Tallinn  
+- [ ] **15451.** of Tallinn  
   → Таллина
-- [ ] **15451.** of Estonia  
+- [ ] **15452.** of Estonia  
   → Эстонии
-- [ ] **15452.** In, into and out of are three endings on the \[omastav\] (2nd form): {linna} gives {linnas}, {linnasse} and {linnast}.  
-  → «В», «в (куда)» и «из» передаются тремя окончаниями на \[omastav\] (2-я форма): {linna} даёт {linnas}, {linnasse} и {linnast}.
-- [ ] **15453.** {kus?} in  
+- [ ] **15453.** In, into and out of are three endings on the \[omastav\] (2nd form): {linna} gives {linnas}, {linnasse} and {linnast}.  
+  → «В», «в (куда)» и «из» передаются тремя окончаниями, которые добавляются к \[omastav\] (2-я форма): {linna} даёт {linnas}, {linnasse} и {linnast}.
+- [ ] **15454.** {kus?} in  
   → {kus?} в (где)
-- [ ] **15454.** {kuhu?} into  
+- [ ] **15455.** {kuhu?} into  
   → {kuhu?} в (куда)
-- [ ] **15455.** {kust?} out of  
+- [ ] **15456.** {kust?} out of  
   → {kust?} из
-- [ ] **15456.** Into has a long form, -sse, and for many words a short one too, which is what people say: {kooli}, {linna}, {panka}. Learn the short one with the word; where you don't know it, the long one is always understood.  
-  → У «в (куда)» есть длинная форма, -sse, а у многих слов ещё и короткая, которую люди и говорят: {kooli}, {linna}, {panka}. Учите короткую вместе со словом; если не знаете её, длинную поймут всегда.
-- [ ] **15457.** A1's {kodus, koju, kodust} and {poes, poodi, poest} are the same three, and so are {Tallinnas}, {Tartusse} and {Eestist}.  
-  → Из A1 вы знаете {kodus, koju, kodust} и {poes, poodi, poest}: это те же три формы, как и {Tallinnas}, {Tartusse} и {Eestist}.
-- [ ] **15458.** The -ga ending goes on the same stem: {bussi} gives {bussiga}, with the bus or by bus.  
+- [ ] **15457.** Into has a long form, -sse, and for many words a short one too, which is what people say: {kooli}, {linna}, {panka}. Learn the short one with the word; where you don't know it, the long one is always understood.  
+  → У формы «в (куда)» есть длинный вариант, -sse, а у многих слов ещё и короткий, который обычно и употребляют: {kooli}, {linna}, {panka}. Учите короткий вместе со словом; если не знаете его, длинный поймут всегда.
+- [ ] **15458.** A1's {kodus, koju, kodust} and {poes, poodi, poest} are the same three, and so are {Tallinnas}, {Tartusse} and {Eestist}.  
+  → Из A1 вы знаете {kodus, koju, kodust} и {poes, poodi, poest}: это те же три формы, и {Tallinnas}, {Tartusse} и {Eestist} тоже.
+- [ ] **15459.** The -ga ending goes on the same stem: {bussi} gives {bussiga}, with the bus or by bus.  
   → Окончание -ga ставится на ту же основу: {bussi} даёт {bussiga}, с автобусом или на автобусе.
-- [ ] **15459.** {Lähme!} means let's go, and {Lähme koos!} let's go together.  
+- [ ] **15460.** {Lähme!} means let's go, and {Lähme koos!} let's go together.  
   → {Lähme!} значит «пойдём», а {Lähme koos!} «пойдём вместе».
-- [ ] **15460.** Build on the \[omastav\] (2nd form), never on the first: {panga} gives {pangas}, so there's no such word as pankas.  
-  → Стройте на \[omastav\] (2-я форма), никогда не на первой: {panga} даёт {pangas}, поэтому слова pankas не существует.
-- [ ] **15461.** Say you're coming from the university.  
+- [ ] **15461.** Build on the \[omastav\] (2nd form), never on the first: {panga} gives {pangas}, so there's no such word as pankas.  
+  → Образуйте формы от \[omastav\] (2-я форма), никогда не от первой: {panga} даёт {pangas}, поэтому слова pankas не существует.
+- [ ] **15462.** Say you're coming from the university.  
   → Скажите, что идёте из университета.
-- [ ] **15462.** I'm coming from the university.  
+- [ ] **15463.** I'm coming from the university.  
   → Я иду из университета.
-- [ ] **15463.** Say you're going into town.  
+- [ ] **15464.** Say you're going into town.  
   → Скажите, что идёте в город.
-- [ ] **15464.** I'm going into town.  
+- [ ] **15465.** I'm going into town.  
   → Я иду в город.
-- [ ] **15465.** Say you have to go to the bank.  
+- [ ] **15466.** Say you have to go to the bank.  
   → Скажите, что вам надо в банк.
-- [ ] **15466.** I have to go to the bank.  
+- [ ] **15467.** I have to go to the bank.  
   → Мне надо в банк.
-- [ ] **15467.** Say let's go together.  
+- [ ] **15468.** Say let's go together.  
   → Предложите пойти вместе.
-- [ ] **15468.** Let's go together!  
+- [ ] **15469.** Let's go together!  
   → Пойдём вместе!
-- [ ] **15469.** On, onto, off  
+- [ ] **15470.** On, onto, off  
   → На, на (куда), с
-- [ ] **15470.** Say you're at the market, the station or work, where you're going, and where you've come from.  
-  → Сказать, что вы на рынке, на вокзале или на работе, куда вы идёте и откуда пришли.
-- [ ] **15471.** Hello, Tom! Where are you?  
+- [ ] **15471.** Say you're at the market, the station or work, where you're going, and where you've come from.  
+  → Скажите, что вы на рынке, на вокзале или на работе, куда вы идёте и откуда пришли.
+- [ ] **15472.** Hello, Tom! Where are you?  
   → Привет, Том! Ты где?
-- [ ] **15472.** I'm at the market. I'm buying fish and potatoes.  
+- [ ] **15473.** I'm at the market. I'm buying fish and potatoes.  
   → Я на рынке. Покупаю рыбу и картошку.
-- [ ] **15473.** I'm still at work. Should we meet on the square?  
+- [ ] **15474.** I'm still at work. Should we meet on the square?  
   → Я ещё на работе. Встретимся на площади?
-- [ ] **15474.** Yes. I'll go straight from the market to the square.  
+- [ ] **15475.** Yes. I'll go straight from the market to the square.  
   → Да. Я пойду с рынка прямо на площадь.
-- [ ] **15475.** All right. I'll wait in the café next to the church.  
+- [ ] **15476.** All right. I'll wait in the café next to the church.  
   → Хорошо. Я подожду в кафе рядом с церковью.
-- [ ] **15476.** Got it! See you in ten minutes!  
+- [ ] **15477.** Got it! See you in ten minutes!  
   → Договорились! Увидимся через десять минут!
-- [ ] **15477.** of the market  
+- [ ] **15478.** of the market  
   → рынка
-- [ ] **15478.** square (in a town)  
+- [ ] **15479.** square (in a town)  
   → площадь (в городе)
-- [ ] **15479.** of the square  
+- [ ] **15480.** of the square  
   → площади
-- [ ] **15480.** church  
+- [ ] **15481.** church  
   → церковь
-- [ ] **15481.** of the church  
+- [ ] **15482.** of the church  
   → церкви
-- [ ] **15482.** of the street  
+- [ ] **15483.** of the street  
   → улицы
-- [ ] **15483.** land, country; the countryside  
+- [ ] **15484.** land, country; the countryside  
   → земля, страна; деревня, сельская местность
-- [ ] **15484.** of the land, of the countryside  
+- [ ] **15485.** of the land, of the countryside  
   → земли, деревни
-- [ ] **15485.** On, onto and off are the other three: {laua} gives {laual}, {lauale} and {laualt}.  
+- [ ] **15486.** On, onto and off are the other three: {laua} gives {laual}, {lauale} and {laualt}.  
   → «На», «на (куда)» и «с» передаются другими тремя окончаниями: {laua} даёт {laual}, {lauale} и {laualt}.
-- [ ] **15486.** {kus?} on, at  
+- [ ] **15487.** {kus?} on, at  
   → {kus?} на, у
-- [ ] **15487.** {kuhu?} onto, to  
+- [ ] **15488.** {kuhu?} onto, to  
   → {kuhu?} на (куда), к
-- [ ] **15488.** {kust?} off, from  
+- [ ] **15489.** {kust?} off, from  
   → {kust?} с, от
-- [ ] **15489.** A1's {tööl, tööle, töölt} are these three on {töö}.  
-  → Из A1: {tööl, tööle, töölt} это те же три окончания на {töö}.
-- [ ] **15490.** A market, a square, a street and the countryside take these: {turul}, {väljakul}, {tänaval}, {maal}. A shop, a town and most buildings take the inside ones: {poes}, {linnas}, {majas}. Learn which with the place.  
+- [ ] **15490.** A1's {tööl, tööle, töölt} are these three on {töö}.  
+  → Из A1 вы знаете {tööl, tööle, töölt}: это те же три окончания, добавленные к {töö}.
+- [ ] **15491.** A market, a square, a street and the countryside take these: {turul}, {väljakul}, {tänaval}, {maal}. A shop, a town and most buildings take the inside ones: {poes}, {linnas}, {majas}. Learn which with the place.  
   → Рынок, площадь, улица и деревня берут эти окончания: {turul}, {väljakul}, {tänaval}, {maal}. Магазин, город и большинство зданий берут внутренние: {poes}, {linnas}, {majas}. Какие именно, запоминайте вместе с местом.
-- [ ] **15491.** {Maal} means in the countryside: {Ma elan maal}, I live in the country.  
+- [ ] **15492.** {Maal} means in the countryside: {Ma elan maal}, I live in the country.  
   → {Maal} значит «в деревне»: {Ma elan maal}, я живу в деревне.
-- [ ] **15492.** With a place, -l means at, not on top of: {turul} is at the market.  
+- [ ] **15493.** With a place, -l means at, not on top of: {turul} is at the market.  
   → Когда речь о месте, -l значит «у, при», а не «сверху на»: {turul} значит на рынке.
-- [ ] **15493.** Say you're at the market.  
+- [ ] **15494.** Say you're at the market.  
   → Скажите, что вы на рынке.
-- [ ] **15494.** I'm at the market.  
+- [ ] **15495.** I'm at the market.  
   → Я на рынке.
-- [ ] **15495.** Say you're going straight to the square.  
+- [ ] **15496.** Say you're going straight to the square.  
   → Скажите, что идёте прямо на площадь.
-- [ ] **15496.** I'm going straight to the square.  
+- [ ] **15497.** I'm going straight to the square.  
   → Я иду прямо на площадь.
-- [ ] **15497.** Say from the market.  
+- [ ] **15498.** Say from the market.  
   → Скажите «с рынка».
-- [ ] **15498.** From the market.  
+- [ ] **15499.** From the market.  
   → С рынка.
-- [ ] **15499.** Say you live in the countryside.  
+- [ ] **15500.** Say you live in the countryside.  
   → Скажите, что живёте в деревне.
-- [ ] **15500.** I live in the countryside.  
+- [ ] **15501.** I live in the countryside.  
   → Я живу в деревне.
-- [ ] **15501.** To somebody, from somebody  
+- [ ] **15502.** To somebody, from somebody  
   → Кому-то, от кого-то
-- [ ] **15502.** Say who you give something to, who you call, and who you heard it from.  
+- [ ] **15503.** Say who you give something to, who you call, and who you heard it from.  
   → Скажите, кому вы что-то даёте, кому звоните и от кого это услышали.
-- [ ] **15503.** Tomorrow's Mari's birthday. What are you giving her?  
+- [ ] **15504.** Tomorrow's Mari's birthday. What are you giving her?  
   → Завтра у Мари день рождения. Что ты ей подаришь?
-- [ ] **15504.** I don't know yet. What does she like?  
+- [ ] **15505.** I don't know yet. What does she like?  
   → Пока не знаю. Что ей нравится?
-- [ ] **15505.** She likes music. Give her a concert ticket!  
+- [ ] **15506.** She likes music. Give her a concert ticket!  
   → Она любит музыку. Подари ей билет на концерт!
-- [ ] **15506.** Good idea! I'll ask her brother which concert's good.  
+- [ ] **15507.** Good idea! I'll ask her brother which concert's good.  
   → Хорошая идея! Спрошу у её брата, какой концерт хороший.
-- [ ] **15507.** And don't forget to call her!  
+- [ ] **15508.** And don't forget to call her!  
   → И не забудь ей позвонить!
-- [ ] **15508.** I won't! I'll call her in the morning.  
+- [ ] **15509.** I won't! I'll call her in the morning.  
   → Не забуду! Позвоню ей утром.
-- [ ] **15509.** to give as a present  
+- [ ] **15510.** to give as a present  
   → дарить
-- [ ] **15510.** I give (a present)  
+- [ ] **15511.** I give (a present)  
   → я дарю
-- [ ] **15511.** I give  
+- [ ] **15512.** I give  
   → я даю
-- [ ] **15512.** to forget  
+- [ ] **15513.** to forget  
   → забывать
-- [ ] **15513.** I forget  
+- [ ] **15514.** I forget  
   → я забываю
-- [ ] **15514.** don't, before a command to one person  
+- [ ] **15515.** don't, before a command to one person  
   → не (перед приказом одному человеку)
-- [ ] **15515.** to call, after forget or want  
+- [ ] **15516.** to call, after forget or want  
   → звонить (после «забыть» или «хотеть»)
-- [ ] **15516.** music  
+- [ ] **15517.** music  
   → музыка
-- [ ] **15517.** concert  
+- [ ] **15518.** concert  
   → концерт
-- [ ] **15518.** of a concert  
+- [ ] **15519.** of a concert  
   → концерта
-- [ ] **15519.** A person takes the outside endings: {emale}, to Mom; {emal}, Mom has; {emalt}, from Mom. You've said it since A1 with {mulle} and {talle}.  
+- [ ] **15520.** A person takes the outside endings: {emale}, to Mom; {emal}, Mom has; {emalt}, from Mom. You've said it since A1 with {mulle} and {talle}.  
   → Человек берёт внешние окончания: {emale}, маме; {emal}, у мамы есть; {emalt}, от мамы. Вы говорите так ещё с A1: {mulle} и {talle}.
-- [ ] **15520.** {kellele?} to  
+- [ ] **15521.** {kellele?} to  
   → {kellele?} кому
-- [ ] **15521.** {kellel?} has  
+- [ ] **15522.** {kellel?} has  
   → {kellel?} у кого есть
-- [ ] **15522.** {kellelt?} from  
+- [ ] **15523.** {kellelt?} from  
   → {kellelt?} от кого
-- [ ] **15523.** {Emal on auto} means Mom has a car: it's {mul on}, with a noun.  
+- [ ] **15524.** {Emal on auto} means Mom has a car: it's {mul on}, with a noun.  
   → {Emal on auto} значит «у мамы есть машина»: это {mul on}, только с существительным.
-- [ ] **15524.** {Ära} in front of a command says don't: {Ära unusta!}, don't forget!  
+- [ ] **15525.** {Ära} in front of a command says don't: {Ära unusta!}, don't forget!  
   → {Ära} перед приказом значит «не»: {Ära unusta!}, не забудь!
-- [ ] **15525.** {Kinkima} is to give as a present, and {andma} just to give: {Anna see Marile!}  
+- [ ] **15526.** {Kinkima} is to give as a present, and {andma} just to give: {Anna see Marile!}  
   → {Kinkima} значит «дарить», а {andma} просто «давать»: {Anna see Marile!}
-- [ ] **15526.** {Kelle} from lesson 1 takes the endings too, and that's how the questions are made: {kellele?}, {kellel?}, {kellelt?}  
+- [ ] **15527.** {Kelle} from lesson 1 takes the endings too, and that's how the questions are made: {kellele?}, {kellel?}, {kellelt?}  
   → {Kelle} из урока 1 тоже берёт эти окончания, и так строятся вопросы: {kellele?}, {kellel?}, {kellelt?}
-- [ ] **15527.** You give something {emale} and ask it {emalt}. A person never takes -sse.  
-  → Вы что-то даёте {emale} и просите это {emalt}. Человек никогда не берёт -sse.
-- [ ] **15528.** Who are you calling?  
+- [ ] **15528.** You give something {emale} and ask for it {emalt}. With a person it's -le and -lt, not -sse and -st.  
+  → Вы что-то даёте {emale} и просите это {emalt}. С человеком используют -le и -lt, а не -sse и -st.
+- [ ] **15529.** Who are you calling?  
   → Кому ты звонишь?
-- [ ] **15529.** Say you're calling your brother.  
+- [ ] **15530.** Say you're calling your brother.  
   → Скажите, что звоните брату.
-- [ ] **15530.** I'm calling my brother.  
+- [ ] **15531.** I'm calling my brother.  
   → Я звоню брату.
-- [ ] **15531.** Say your friend has a car.  
+- [ ] **15532.** Say your friend has a car.  
   → Скажите, что у вашего друга есть машина.
-- [ ] **15532.** My friend has a car.  
+- [ ] **15533.** My friend has a car.  
   → У моего друга есть машина.
-- [ ] **15533.** Tell a friend not to forget.  
+- [ ] **15534.** Tell a friend not to forget.  
   → Скажите другу, чтобы не забыл.
-- [ ] **15534.** Don't forget!  
+- [ ] **15535.** Don't forget!  
   → Не забудь!
-- [ ] **15535.** Tell a friend to give it to Mari.  
+- [ ] **15536.** Tell a friend to give it to Mari.  
   → Скажите другу отдать это Мари.
-- [ ] **15536.** Give it to Mari!  
+- [ ] **15537.** Give it to Mari!  
   → Отдай это Мари!
-- [ ] **15537.** At the cinema, at a concert  
+- [ ] **15538.** At the cinema, at a concert  
   → В кино, на концерте
-- [ ] **15538.** Say where you were and where you're going in the evening: the cinema, the theater, a concert, a party.  
+- [ ] **15539.** Say where you were and where you're going in the evening: the cinema, the theater, a concert, a party.  
   → Скажите, где вы были и куда идёте вечером: в кино, в театр, на концерт, на вечеринку.
-- [ ] **15539.** Where were you yesterday evening?  
+- [ ] **15540.** Where were you yesterday evening?  
   → Где ты был вчера вечером?
-- [ ] **15540.** I was at the cinema. And you?  
+- [ ] **15541.** I was at the cinema. And you?  
   → Я был в кино. А ты?
-- [ ] **15541.** I was at a friend's birthday. It was a great party.  
+- [ ] **15542.** I was at a friend's birthday. It was a great party.  
   → Я был на дне рождения у друга. Отличная была вечеринка.
-- [ ] **15542.** Great! I'm going to the theater today.  
+- [ ] **15543.** Great! I'm going to the theater today.  
   → Здорово! А я сегодня иду в театр.
-- [ ] **15543.** And I'm going to a concert tomorrow. Come too!  
+- [ ] **15544.** And I'm going to a concert tomorrow. Come too!  
   → А я завтра иду на концерт. Пойдём со мной!
-- [ ] **15544.** Sadly, I can't. I've got an Estonian lesson tomorrow.  
+- [ ] **15545.** Sadly, I can't. I've got an Estonian lesson tomorrow.  
   → К сожалению, не могу. Завтра у меня урок эстонского.
-- [ ] **15545.** Next time, then!  
+- [ ] **15546.** Next time, then!  
   → Тогда в следующий раз!
-- [ ] **15546.** cinema  
+- [ ] **15547.** cinema  
   → кино, кинотеатр
-- [ ] **15547.** of the cinema  
+- [ ] **15548.** of the cinema  
   → кинотеатра
-- [ ] **15548.** to the cinema, going there  
+- [ ] **15549.** to the cinema, going there  
   → в кино, туда
-- [ ] **15549.** theater  
+- [ ] **15550.** theater  
   → театр
-- [ ] **15550.** of the theater  
+- [ ] **15551.** of the theater  
   → театра
-- [ ] **15551.** of the party  
+- [ ] **15552.** of the party  
   → вечеринки
-- [ ] **15552.** of the birthday  
+- [ ] **15553.** of the birthday  
   → дня рождения
-- [ ] **15553.** of a language  
+- [ ] **15554.** of a language  
   → языка
-- [ ] **15554.** unfortunately, sadly  
+- [ ] **15555.** unfortunately, sadly  
   → к сожалению
-- [ ] **15555.** a time, as in next time; a turn  
+- [ ] **15556.** a time, as in next time; a turn  
   → раз, как в «в следующий раз»; очередь
-- [ ] **15556.** An event takes the outside endings and a building the inside ones: {kontserdil}, at a concert, but {kinos}, at the cinema.  
-  → Событие берёт внешние окончания, а здание внутренние: {kontserdil}, на концерте, но {kinos}, в кино.
-- [ ] **15557.** {kus?}  
+- [ ] **15557.** An event takes the outside endings and a building the inside ones: {kontserdil}, at a concert, but {kinos}, at the cinema.  
+  → Событие берёт внешние окончания, а здание берёт внутренние: {kontserdil}, на концерте, но {kinos}, в кино.
+- [ ] **15558.** {kus?}  
   → {kus?} где
-- [ ] **15558.** {kuhu?}  
+- [ ] **15559.** {kuhu?}  
   → {kuhu?} куда
-- [ ] **15559.** {kust?}  
+- [ ] **15560.** {kust?}  
   → {kust?} откуда
-- [ ] **15560.** Into the cinema is the short form {kinno}: {Ma lähen kinno}.  
+- [ ] **15561.** Into the cinema is the short form {kinno}: {Ma lähen kinno}.  
   → «В кино» (куда) передаётся короткой формой {kinno}: {Ma lähen kinno}.
-- [ ] **15561.** {Pidu}'s \[omastav\] (2nd form) is {peo}, so at a party is {peol}.  
-  → У {Pidu} \[omastav\] (2-я форма) это {peo}, поэтому «на вечеринке» будет {peol}.
-- [ ] **15562.** {Eesti keele tund} is an Estonian lesson: {eesti keele} says which lesson, the way {köögi uks} said which door. Before a noun, Estonian is {eesti}, with a small e.  
-  → {Eesti keele tund} значит урок эстонского: {eesti keele} говорит, какой урок, так же как {köögi uks} говорило, какая дверь. Перед существительным «эстонский» пишется {eesti}, с маленькой e.
-- [ ] **15563.** {Kahjuks} is the polite way into a no: {Kahjuks ma ei saa}.  
-  → {Kahjuks} это вежливый способ начать отказ: {Kahjuks ma ei saa}.
-- [ ] **15564.** A concert and a party are events, so {kontserdil} and {peol}, even though they happen indoors.  
-  → Концерт и вечеринка это события, поэтому {kontserdil} и {peol}, хотя проходят они в помещении.
-- [ ] **15565.** Where were you yesterday?  
+- [ ] **15562.** {Pidu}'s \[omastav\] (2nd form) is {peo}, so at a party is {peol}.  
+  → У слова {Pidu} \[omastav\] (2-я форма) выглядит как {peo}, поэтому «на вечеринке» будет {peol}.
+- [ ] **15563.** An Estonian lesson is {eesti keele tund}: {eesti keele} says which lesson, the way {köögi uks} said which door. Before a noun, Estonian is {eesti}, with a small e.  
+  → Урок эстонского называется {eesti keele tund}: {eesti keele} показывает, какой урок, так же как {köögi uks} показывало, какая дверь. Перед существительным «эстонский» пишется {eesti}, с маленькой e.
+- [ ] **15564.** {Kahjuks} is the polite way into a no: {Kahjuks ma ei saa}.  
+  → {Kahjuks} помогает вежливо начать отказ: {Kahjuks ma ei saa}.
+- [ ] **15565.** A concert and a party are events, so {kontserdil} and {peol}, even though they happen indoors.  
+  → Концерт и вечеринка считаются событиями, поэтому {kontserdil} и {peol}, хотя проходят они в помещении.
+- [ ] **15566.** Where were you yesterday?  
   → Где ты был вчера?
-- [ ] **15566.** Say you were at the cinema.  
+- [ ] **15567.** Say you were at the cinema.  
   → Скажите, что были в кино.
-- [ ] **15567.** I was at the cinema.  
+- [ ] **15568.** I was at the cinema.  
   → Я был в кино.
-- [ ] **15568.** Where are you going tomorrow?  
+- [ ] **15569.** Where are you going tomorrow?  
   → Куда ты идёшь завтра?
-- [ ] **15569.** Say to a concert.  
+- [ ] **15570.** Say to a concert.  
   → Скажите «на концерт».
-- [ ] **15570.** To a concert.  
+- [ ] **15571.** To a concert.  
   → На концерт.
-- [ ] **15571.** Come too!  
+- [ ] **15572.** Come too!  
   → Пойдём со мной!
-- [ ] **15572.** Say sadly you can't.  
+- [ ] **15573.** Say sadly you can't.  
   → Скажите, что, к сожалению, не можете.
-- [ ] **15573.** Sadly, I can't.  
+- [ ] **15574.** Sadly, I can't.  
   → К сожалению, не могу.
-- [ ] **15574.** Put it there, bring it here  
+- [ ] **15575.** Put it there, bring it here  
   → Поставь туда, принеси сюда
-- [ ] **15575.** Tell somebody where to put something, and ask them to bring or take it.  
+- [ ] **15576.** Tell somebody where to put something, and ask them to bring or take it.  
   → Скажите, куда что-то поставить, и попросите принести или отнести это.
-- [ ] **15576.** Tom, where shall I put the table?  
+- [ ] **15577.** Tom, where shall I put the table?  
   → Том, куда поставить стол?
-- [ ] **15577.** Kati is helping Tom move in.  
+- [ ] **15578.** Kati is helping Tom move in.  
   → Кати помогает Тому переехать.
-- [ ] **15578.** Put it there, by the window.  
+- [ ] **15579.** Put it there, by the window.  
   → Поставь его туда, к окну.
-- [ ] **15579.** And the chair?  
+- [ ] **15580.** And the chair?  
   → А стул?
-- [ ] **15580.** The chair goes here, by the table.  
+- [ ] **15581.** The chair goes here, by the table.  
   → Стул будет здесь, у стола.
-- [ ] **15581.** And this box?  
+- [ ] **15582.** And this box?  
   → А эту коробку?
-- [ ] **15582.** Take it outside, please. And bring me some water!  
+- [ ] **15583.** Take it outside, please. And bring me some water!  
   → Вынеси её на улицу, пожалуйста. И принеси мне воды!
-- [ ] **15583.** Coming!  
+- [ ] **15584.** Coming!  
   → Иду!
-- [ ] **15584.** I bring  
+- [ ] **15585.** I bring  
   → я приношу
-- [ ] **15585.** to take (away)  
+- [ ] **15586.** to take (away)  
   → уносить, отвозить
-- [ ] **15586.** I take  
+- [ ] **15587.** I take  
   → я уношу
-- [ ] **15587.** there, going there  
+- [ ] **15588.** there, going there  
   → туда
-- [ ] **15588.** from here  
+- [ ] **15589.** from here  
   → отсюда
-- [ ] **15589.** from there  
+- [ ] **15590.** from there  
   → оттуда
-- [ ] **15590.** to beside, over to  
+- [ ] **15591.** to beside, over to  
   → к, поближе к (куда)
-- [ ] **15591.** from beside  
+- [ ] **15592.** from beside  
   → от (откуда, с места рядом)
-- [ ] **15592.** in, into  
+- [ ] **15593.** in, into  
   → в, внутрь
-- [ ] **15593.** out of, from inside  
+- [ ] **15594.** out of, from inside  
   → из, изнутри
-- [ ] **15594.** out, outside  
+- [ ] **15595.** out, outside  
   → наружу, на улицу
-- [ ] **15595.** from outside  
+- [ ] **15596.** from outside  
   → с улицы, снаружи
-- [ ] **15596.** box  
+- [ ] **15597.** box  
   → коробка
-- [ ] **15597.** Here, there, by and in have three forms, like a place: where it is, where to and where from.  
-  → «Здесь», «там», «у» и «в» имеют три формы, как место: где это, куда и откуда.
-- [ ] **15598.** {Panema} is to put, {tooma} to bring here, and {viima} to take somewhere else.  
+- [ ] **15598.** Here, there, by and in have three forms, like a place: where it is, where to and where from.  
+  → «Здесь», «там», «у» и «в» имеют три формы, как и названия мест: где это, куда и откуда.
+- [ ] **15599.** {Panema} is to put, {tooma} to bring here, and {viima} to take somewhere else.  
   → {Panema} значит «класть, ставить», {tooma} «приносить сюда», а {viima} «уносить куда-то ещё».
-- [ ] **15599.** Their commands are the \[olevik\] (I form) without -n: {pane}, {too}, {vii}.  
-  → Повелительная форма у них это \[olevik\] (форма «я») без -n: {pane}, {too}, {vii}.
-- [ ] **15600.** {Tool tuleb siia} means the chair goes here: {tulema} is come, and also where a thing belongs.  
+- [ ] **15600.** Their commands are the \[olevik\] (I form) without -n: {pane}, {too}, {vii}.  
+  → Повелительная форма у них совпадает с \[olevik\] (форма «я») без -n: {pane}, {too}, {vii}.
+- [ ] **15601.** {Tool tuleb siia} means the chair goes here: {tulema} is come, and also where a thing belongs.  
   → {Tool tuleb siia} значит «стул будет здесь»: {tulema} значит «приходить», а также указывает, где вещь должна стоять.
-- [ ] **15601.** {Too} comes toward you and {vii} goes away: {too siia}, {vii sinna}.  
+- [ ] **15602.** {Too} comes toward you and {vii} goes away: {too siia}, {vii sinna}.  
   → {Too} движется к вам, а {vii} от вас: {too siia}, {vii sinna}.
-- [ ] **15602.** Tell a friend to put it there.  
+- [ ] **15603.** Tell a friend to put it there.  
   → Скажите другу поставить это туда.
-- [ ] **15603.** Put it there.  
+- [ ] **15604.** Put it there.  
   → Поставь это туда.
-- [ ] **15604.** Ask a friend to bring you some water.  
+- [ ] **15605.** Ask a friend to bring you some water.  
   → Попросите друга принести вам воды.
-- [ ] **15605.** Bring me some water, please.  
+- [ ] **15606.** Bring me some water, please.  
   → Принеси мне воды, пожалуйста.
-- [ ] **15606.** Tell a friend to take the box outside.  
+- [ ] **15607.** Tell a friend to take the box outside.  
   → Скажите другу вынести коробку на улицу.
-- [ ] **15607.** Take the box outside.  
+- [ ] **15608.** Take the box outside.  
   → Вынеси коробку на улицу.
-- [ ] **15608.** Where shall I put the chair?  
+- [ ] **15609.** Where shall I put the chair?  
   → Куда поставить стул?
-- [ ] **15609.** Say by the table.  
+- [ ] **15610.** Say by the table.  
   → Скажите «у стола».
-- [ ] **15610.** By the table.  
+- [ ] **15611.** By the table.  
   → У стола.
-- [ ] **15611.** On the third floor  
+- [ ] **15612.** On the third floor  
   → На третьем этаже
-- [ ] **15612.** Say which floor and which door, and find your way up a building.  
-  → Скажите, какой этаж и какая дверь, и найдите дорогу наверх по дому.
-- [ ] **15613.** Hi, Peeter! Which floor do you live on?  
+- [ ] **15613.** Say which floor and which door, and find your way up a building.  
+  → Скажите, какой этаж и какая дверь, и найдите нужную квартиру в доме.
+- [ ] **15614.** Hi, Peeter! Which floor do you live on?  
   → Привет, Пеэтер! На каком этаже ты живёшь?
-- [ ] **15614.** On the phone, outside Peeter's building.  
+- [ ] **15615.** On the phone, outside Peeter's building.  
   → По телефону, у дома Пеэтера.
-- [ ] **15615.** On the third floor. Apartment twelve.  
+- [ ] **15616.** On the third floor. Apartment twelve.  
   → На третьем этаже. Квартира двенадцать.
-- [ ] **15616.** Is there an elevator in the building?  
+- [ ] **15617.** Is there an elevator in the building?  
   → В доме есть лифт?
-- [ ] **15617.** No. Come up the stairs.  
+- [ ] **15618.** No. Come up the stairs.  
   → Нет. Поднимайся по лестнице.
-- [ ] **15618.** All right. Which door? The first on the right?  
+- [ ] **15619.** All right. Which door? The first on the right?  
   → Хорошо. Какая дверь? Первая справа?
-- [ ] **15619.** No, the second door on the left.  
+- [ ] **15620.** No, the second door on the left.  
   → Нет, вторая дверь слева.
-- [ ] **15620.** floor (of a building)  
+- [ ] **15621.** floor (of a building)  
   → этаж (в здании)
-- [ ] **15621.** of the floor  
+- [ ] **15622.** of the floor  
   → этажа
-- [ ] **15622.** On which floor?  
+- [ ] **15623.** On which floor?  
   → На каком этаже?
-- [ ] **15623.** elevator  
+- [ ] **15624.** elevator  
   → лифт
-- [ ] **15624.** stairs  
+- [ ] **15625.** stairs  
   → лестница
-- [ ] **15625.** of the stairs  
+- [ ] **15626.** of the stairs  
   → лестницы
-- [ ] **15626.** on the right  
+- [ ] **15627.** on the right  
   → справа
-- [ ] **15627.** on the left  
+- [ ] **15628.** on the left  
   → слева
-- [ ] **15628.** of the first  
+- [ ] **15629.** of the first  
   → первого
-- [ ] **15629.** of the second  
+- [ ] **15630.** of the second  
   → второго
-- [ ] **15630.** of the third  
+- [ ] **15631.** of the third  
   → третьего
-- [ ] **15631.** of the fourth  
+- [ ] **15632.** of the fourth  
   → четвёртого
-- [ ] **15632.** of the fifth  
+- [ ] **15633.** of the fifth  
   → пятого
-- [ ] **15633.** On a floor takes the ending on both words: {kolmandal korrusel}, on the third floor. A describing word takes the same ending as the word it describes.  
+- [ ] **15634.** On a floor takes the ending on both words: {kolmandal korrusel}, on the third floor. A describing word takes the same ending as the word it describes.  
   → В «на этаже» окончание стоит на обоих словах: {kolmandal korrusel}, на третьем этаже. Определяющее слово берёт то же окончание, что и слово, которое оно описывает.
-- [ ] **15634.** on the first floor  
+- [ ] **15635.** on the first floor  
   → на первом этаже
-- [ ] **15635.** on the second floor  
+- [ ] **15636.** on the second floor  
   → на втором этаже
-- [ ] **15636.** on the third floor  
+- [ ] **15637.** on the third floor  
   → на третьем этаже
-- [ ] **15637.** on the fourth floor  
+- [ ] **15638.** on the fourth floor  
   → на четвёртом этаже
-- [ ] **15638.** on the fifth floor  
+- [ ] **15639.** on the fifth floor  
   → на пятом этаже
-- [ ] **15639.** The ground floor is {esimene korrus}, the first: Estonia counts from the street.  
+- [ ] **15640.** The ground floor is {esimene korrus}, the first: Estonia counts from the street.  
   → Этаж на уровне улицы называется {esimene korrus}, первый: в Эстонии этажи считают от улицы.
-- [ ] **15640.** {Paremal} and {vasakul} are on the right and on the left. A1's {paremale} and {vasakule} are to the right and to the left: -l for where, -le for where to.  
+- [ ] **15641.** {Paremal} and {vasakul} are on the right and on the left. A1's {paremale} and {vasakule} are to the right and to the left: -l for where, -le for where to.  
   → {Paremal} и {vasakul} значат «справа» и «слева». Знакомые по A1 {paremale} и {vasakule} значат «направо» и «налево»: -l для «где», -le для «куда».
-- [ ] **15641.** {Trepist üles} is up the stairs, and {trepist alla} down them.  
+- [ ] **15642.** {Trepist üles} is up the stairs, and {trepist alla} down them.  
   → {Trepist üles} значит вверх по лестнице, а {trepist alla} вниз по ней.
-- [ ] **15642.** Both words take the ending: {teisel korrusel}, never teine korrusel.  
-  → Окончание получают оба слова: {teisel korrusel}, никогда teine korrusel.
-- [ ] **15643.** Which floor do you live on?  
+- [ ] **15643.** Both words take the ending: {teisel korrusel}, never teine korrusel.  
+  → Окончание получают оба слова: {teisel korrusel}, а не teine korrusel.
+- [ ] **15644.** Which floor do you live on?  
   → На каком этаже вы живёте?
-- [ ] **15644.** Say on the third floor.  
+- [ ] **15645.** Say on the third floor.  
   → Скажите: на третьем этаже.
-- [ ] **15645.** On the third floor.  
+- [ ] **15646.** On the third floor.  
   → На третьем этаже.
-- [ ] **15646.** Ask whether there's an elevator in the building.  
+- [ ] **15647.** Ask whether there's an elevator in the building.  
   → Спросите, есть ли в доме лифт.
-- [ ] **15647.** Which door?  
+- [ ] **15648.** Which door?  
   → Какая дверь?
-- [ ] **15648.** Say the second door on the left.  
+- [ ] **15649.** Say the second door on the left.  
   → Скажите: вторая дверь слева.
-- [ ] **15649.** The second door on the left.  
+- [ ] **15650.** The second door on the left.  
   → Вторая дверь слева.
-- [ ] **15650.** A house in the country  
+- [ ] **15651.** A house in the country  
   → Дом в деревне
-- [ ] **15651.** Show somebody around a house and garden: the roof, the walls, the garden, the sauna.  
+- [ ] **15652.** Show somebody around a house and garden: the roof, the walls, the garden, the sauna.  
   → Покажите кому-нибудь дом и сад: крышу, стены, сад, сауну.
-- [ ] **15652.** This is our house in the country.  
+- [ ] **15653.** This is our house in the country.  
   → Это наш дом в деревне.
-- [ ] **15653.** Lovely! Is the roof new?  
+- [ ] **15654.** Lovely! Is the roof new?  
   → Как красиво! Крыша новая?
-- [ ] **15654.** Yes, the roof's new, but the house is old.  
+- [ ] **15655.** Yes, the roof's new, but the house is old.  
   → Да, крыша новая, но дом старый.
-- [ ] **15655.** And what's behind the house?  
+- [ ] **15656.** And what's behind the house?  
   → А что за домом?
-- [ ] **15656.** There's a garden behind the house. There's a big apple tree in the garden.  
+- [ ] **15657.** There's a garden behind the house. There's a big apple tree in the garden.  
   → За домом сад. В саду большая яблоня.
-- [ ] **15657.** And where's the sauna?  
+- [ ] **15658.** And where's the sauna?  
   → А где сауна?
-- [ ] **15658.** The sauna's in the corner of the garden. This evening we'll go to the sauna!  
+- [ ] **15659.** The sauna's in the corner of the garden. This evening we'll go to the sauna!  
   → Сауна в углу сада. Сегодня вечером пойдём в сауну!
-- [ ] **15659.** roof  
+- [ ] **15660.** roof  
   → крыша
-- [ ] **15660.** wall  
+- [ ] **15661.** wall  
   → стена
-- [ ] **15661.** floor (that you stand on)  
+- [ ] **15662.** floor (that you stand on)  
   → пол (на котором стоят)
-- [ ] **15662.** ceiling  
+- [ ] **15663.** ceiling  
   → потолок
-- [ ] **15663.** garden  
+- [ ] **15664.** garden  
   → сад
-- [ ] **15664.** of the garden  
+- [ ] **15665.** of the garden  
   → сада
-- [ ] **15665.** yard  
+- [ ] **15666.** yard  
   → двор
-- [ ] **15666.** apple tree  
+- [ ] **15667.** apple tree  
   → яблоня
-- [ ] **15667.** sauna  
+- [ ] **15668.** sauna  
   → сауна
-- [ ] **15668.** of the sauna  
+- [ ] **15669.** of the sauna  
   → сауны
-- [ ] **15669.** corner  
+- [ ] **15670.** corner  
   → угол
-- [ ] **15670.** of the corner  
+- [ ] **15671.** of the corner  
   → угла
-- [ ] **15671.** The words of a house and garden, with the endings of lessons 8 and 9 on them: {aias}, in the garden; {aia nurgas}, in the corner of the garden.  
+- [ ] **15672.** The words of a house and garden, with the endings of lessons 8 and 9 on them: {aias}, in the garden; {aia nurgas}, in the corner of the garden.  
   → Слова о доме и саде с окончаниями уроков 8 и 9: {aias}, в саду; {aia nurgas}, в углу сада.
-- [ ] **15672.** floor  
+- [ ] **15673.** floor  
   → пол
-- [ ] **15673.** garden, in the garden  
+- [ ] **15674.** garden, in the garden  
   → сад, в саду
-- [ ] **15674.** sauna, in the sauna  
+- [ ] **15675.** sauna, in the sauna  
   → сауна, в сауне
-- [ ] **15675.** corner, in the corner  
+- [ ] **15676.** corner, in the corner  
   → угол, в углу
-- [ ] **15676.** {Aed} is {aia}, and {nurk} is {nurga}: the \[omastav\] (2nd form) again, and the ending goes on it.  
+- [ ] **15677.** {Aed} is {aia}, and {nurk} is {nurga}: the \[omastav\] (2nd form) again, and the ending goes on it.  
   → {Aed} становится {aia}, а {nurk} становится {nurga}: снова \[omastav\] (2-я форма), и окончание добавляется к ней.
-- [ ] **15677.** Into the sauna is the short form, spelled like its \[omastav\] (2nd form): {Läheme sauna}.  
-  → «В сауну» это краткая форма, которая пишется как её \[omastav\] (2-я форма): {Läheme sauna}.
-- [ ] **15678.** {Põrand} is the floor you stand on; a floor of a building is {korrus}.  
-  → {Põrand} это пол, на котором стоят; этаж здания это {korrus}.
-- [ ] **15679.** {Õu} is the yard, outside; {õues} is outdoors, which you met in A1.  
-  → {Õu} это двор, снаружи; {õues} значит на улице, вы встречали это в A1.
-- [ ] **15680.** Say this is your house in the country.  
+- [ ] **15678.** Into the sauna is the short form, spelled like its \[omastav\] (2nd form): {Läheme sauna}.  
+  → «В сауну» передаётся короткой формой, которая пишется как её \[omastav\] (2-я форма): {Läheme sauna}.
+- [ ] **15679.** {Põrand} is the floor you stand on; a floor of a building is {korrus}.  
+  → {Põrand} значит «пол», на котором стоят, а этаж здания называется {korrus}.
+- [ ] **15680.** {Õu} is the yard, outside; {õues} is outdoors, which you met in A1.  
+  → {Õu} значит «двор» под открытым небом, а {õues} значит «на улице», вы встречали это слово в A1.
+- [ ] **15681.** Say this is your house in the country.  
   → Скажите, что это ваш дом в деревне.
-- [ ] **15681.** What's behind the house?  
+- [ ] **15682.** What's behind the house?  
   → Что за домом?
-- [ ] **15682.** Say there's a garden.  
+- [ ] **15683.** Say there's a garden.  
   → Скажите, что там есть сад.
-- [ ] **15683.** There's a garden behind the house.  
+- [ ] **15684.** There's a garden behind the house.  
   → За домом сад.
-- [ ] **15684.** Say the sauna is in the corner of the garden.  
+- [ ] **15685.** Say the sauna is in the corner of the garden.  
   → Скажите, что сауна в углу сада.
-- [ ] **15685.** The sauna's in the corner of the garden.  
+- [ ] **15686.** The sauna's in the corner of the garden.  
   → Сауна в углу сада.
-- [ ] **15686.** Meeting in town  
+- [ ] **15687.** Meeting in town  
   → Встреча в городе
-- [ ] **15687.** Find each other in town on the phone: where you are, how to get there, and where to meet.  
+- [ ] **15688.** Find each other in town on the phone: where you are, how to get there, and where to meet.  
   → Найдите друг друга в городе по телефону: где вы, как туда добраться и где встретиться.
-- [ ] **15688.** Hello, Tom! Where are you now?  
+- [ ] **15689.** Hello, Tom! Where are you now?  
   → Привет, Том! Где ты сейчас?
-- [ ] **15689.** On the phone, on a Saturday.  
+- [ ] **15690.** On the phone, on a Saturday.  
   → По телефону, в субботу.
-- [ ] **15690.** Hi! I'm in town, in front of the bank.  
+- [ ] **15691.** Hi! I'm in town, in front of the bank.  
   → Привет! Я в центре, перед банком.
-- [ ] **15691.** Great. I'm at the market. Are you coming here?  
+- [ ] **15692.** Great. I'm at the market. Are you coming here?  
   → Отлично. Я на рынке. Ты придёшь сюда?
-- [ ] **15692.** Yes. How do I get to the market?  
+- [ ] **15693.** Yes. How do I get to the market?  
   → Да. Как мне добраться до рынка?
-- [ ] **15693.** Go straight on and then left. The market's behind the church.  
+- [ ] **15694.** Go straight on and then left. The market's behind the church.  
   → Иди прямо, а потом налево. Рынок за церковью.
-- [ ] **15694.** Got it. Should we go to a café afterwards?  
+- [ ] **15695.** Got it. Should we go to a café afterwards?  
   → Понял. Пойдём потом в кафе?
-- [ ] **15695.** Yes! There's a good café next to the market, on the second floor.  
+- [ ] **15696.** Yes! There's a good café next to the market, on the second floor.  
   → Да! Рядом с рынком есть хорошее кафе, на втором этаже.
-- [ ] **15696.** Great! I'll be there in ten minutes.  
+- [ ] **15697.** Great! I'll be there in ten minutes.  
   → Отлично! Буду через десять минут.
-- [ ] **15697.** All right, I'll wait!  
+- [ ] **15698.** All right, I'll wait!  
   → Хорошо, жду!
-- [ ] **15698.** A whole phone call made of part two: where you are, where you're going, and where to meet.  
-  → Целый телефонный разговор из второй части: где вы, куда идёте и где встретиться.
-- [ ] **15699.** Count the endings: {kesklinnas} and {kohvikusse} are inside, {turul} and {turule} outside, {panga ees} and {kiriku taga} the \[omastav\] (2nd form) with a small word after.  
-  → Посчитайте окончания: {kesklinnas} и {kohvikusse} это внутри, {turul} и {turule} снаружи, {panga ees} и {kiriku taga} это \[omastav\] (2-я форма) с маленьким словом после.
-- [ ] **15700.** {Kuidas ma turule saan?} is how do I get to the market: {saama} is get, as in get somewhere.  
+- [ ] **15699.** A whole phone call made of part two: where you are, where you're going, and where to meet.  
+  → Целый телефонный разговор на материале второй части: где вы, куда идёте и где встретиться.
+- [ ] **15700.** Count the endings: {kesklinnas} and {kohvikusse} are inside, {turul} and {turule} outside, {panga ees} and {kiriku taga} the \[omastav\] (2nd form) with a small word after.  
+  → Посчитайте окончания: у {kesklinnas} и {kohvikusse} внутренние окончания, у {turul} и {turule} внешние, а {panga ees} и {kiriku taga} состоят из \[omastav\] (2-я форма) и короткого слова после него.
+- [ ] **15701.** {Kuidas ma turule saan?} is how do I get to the market: {saama} is get, as in get somewhere.  
   → {Kuidas ma turule saan?} значит «как мне добраться до рынка»: {saama} здесь «попасть», как «попасть куда-то».
-- [ ] **15701.** At the end, Mari calls you. Answer as yourself, one turn at a time, until you've met.  
+- [ ] **15702.** At the end, Mari calls you. Answer as yourself, one turn at a time, until you've met.  
   → В конце вам звонит Мари. Отвечайте от себя, реплика за репликой, пока не встретитесь.
-- [ ] **15702.** {Pärast} on its own means afterwards: {Kas me läheme pärast kohvikusse?}  
+- [ ] **15703.** {Pärast} on its own means afterwards: {Kas me läheme pärast kohvikusse?}  
   → {Pärast} само по себе значит «потом»: {Kas me läheme pärast kohvikusse?}
-- [ ] **15703.** Say you're in town, in front of the bank.  
+- [ ] **15704.** Say you're in town, in front of the bank.  
   → Скажите, что вы в центре, перед банком.
-- [ ] **15704.** I'm in town, in front of the bank.  
+- [ ] **15705.** I'm in town, in front of the bank.  
   → Я в центре, перед банком.
-- [ ] **15705.** Ask how you get to the market.  
+- [ ] **15706.** Ask how you get to the market.  
   → Спросите, как добраться до рынка.
-- [ ] **15706.** How do I get to the market?  
+- [ ] **15707.** How do I get to the market?  
   → Как мне добраться до рынка?
-- [ ] **15707.** Say you'll be there in ten minutes.  
+- [ ] **15708.** Say you'll be there in ten minutes.  
   → Скажите, что будете через десять минут.
-- [ ] **15708.** I'll be there in ten minutes.  
+- [ ] **15709.** I'll be there in ten minutes.  
   → Буду через десять минут.
-- [ ] **15709.** A friend calls you on a Saturday. You're in town; she's at the market. Answer as yourself.  
+- [ ] **15710.** A friend calls you on a Saturday. You're in town; she's at the market. Answer as yourself.  
   → В субботу вам звонит подруга. Вы в центре, она на рынке. Отвечайте от себя.
-- [ ] **15710.** Hello! Where are you now?  
+- [ ] **15711.** Hello! Where are you now?  
   → Привет! Где ты сейчас?
-- [ ] **15711.** I'm at the market. Are you coming here?  
+- [ ] **15712.** I'm at the market. Are you coming here?  
   → Я на рынке. Ты придёшь сюда?
-- [ ] **15712.** Say yes, and ask how you get to the market.  
+- [ ] **15713.** Say yes, and ask how you get to the market.  
   → Скажите «да» и спросите, как добраться до рынка.
-- [ ] **15713.** Say got it, and ask whether you'll go to a café afterwards.  
+- [ ] **15714.** Say got it, and ask whether you'll go to a café afterwards.  
   → Скажите, что поняли, и спросите, пойдёте ли вы потом в кафе.
-- [ ] **15714.** Yes! There's a good café next to the market.  
+- [ ] **15715.** Yes! There's a good café next to the market.  
   → Да! Рядом с рынком есть хорошее кафе.
-- [ ] **15715.** Say goodbye for now.  
-  → Попрощайтесь до встречи.
-- [ ] **15716.** I lived, I worked  
+- [ ] **15716.** Say goodbye for now.  
+  → Попрощайтесь: скажите «до встречи».
+- [ ] **15717.** I lived, I worked  
   → Я жил, я работал
-- [ ] **15717.** Say where you lived and worked before, and how long for.  
+- [ ] **15718.** Say where you lived and worked before, and how long for.  
   → Скажите, где вы раньше жили и работали и как долго.
-- [ ] **15718.** Tom, where did you live before?  
+- [ ] **15719.** Tom, where did you live before?  
   → Том, где ты жил раньше?
-- [ ] **15719.** I lived in London. I worked in a bank there.  
+- [ ] **15720.** I lived in London. I worked in a bank there.  
   → Я жил в Лондоне. Я там работал в банке.
-- [ ] **15720.** How long did you live there?  
+- [ ] **15721.** How long did you live there?  
   → Как долго ты там жил?
-- [ ] **15721.** Five years. Then I moved to Estonia.  
+- [ ] **15722.** Five years. Then I moved to Estonia.  
   → Пять лет. Потом я переехал в Эстонию.
-- [ ] **15722.** And did you study Estonian there?  
+- [ ] **15723.** And did you study Estonian there?  
   → А эстонский ты там учил?
-- [ ] **15723.** No, here. I studied for two years at a language school.  
+- [ ] **15724.** No, here. I studied for two years at a language school.  
   → Нет, здесь. Я два года учился в языковой школе.
-- [ ] **15724.** You speak really well!  
+- [ ] **15725.** You speak really well!  
   → Ты очень хорошо говоришь!
-- [ ] **15725.** Thank you! At first I only spoke English.  
+- [ ] **15726.** Thank you! At first I only spoke English.  
   → Спасибо! Сначала я говорил только по-английски.
-- [ ] **15726.** I lived  
+- [ ] **15727.** I lived  
   → я жил
-- [ ] **15727.** he, she lived  
+- [ ] **15728.** he, she lived  
   → он, она жил(а)
-- [ ] **15728.** I worked  
+- [ ] **15729.** I worked  
   → я работал
-- [ ] **15729.** he, she worked  
+- [ ] **15730.** he, she worked  
   → он, она работал(а)
-- [ ] **15730.** I studied, I learned  
+- [ ] **15731.** I studied, I learned  
   → я учился, я учил
-- [ ] **15731.** he, she studied  
+- [ ] **15732.** he, she studied  
   → он, она учился (училась)
-- [ ] **15732.** I spoke, I talked  
+- [ ] **15733.** I spoke, I talked  
   → я говорил, я разговаривал
-- [ ] **15733.** he, she spoke  
+- [ ] **15734.** he, she spoke  
   → он, она говорил(а)
-- [ ] **15734.** to move (house)  
+- [ ] **15735.** to move (house)  
   → переезжать (на новое место)
-- [ ] **15735.** I move  
+- [ ] **15736.** I move  
   → я переезжаю
-- [ ] **15736.** I moved  
+- [ ] **15737.** I moved  
   → я переехал
-- [ ] **15737.** he, she moved  
+- [ ] **15738.** he, she moved  
   → он, она переехал(а)
-- [ ] **15738.** he, she read  
+- [ ] **15739.** he, she read  
   → он, она читал(а)
-- [ ] **15739.** he, she ate  
+- [ ] **15740.** he, she ate  
   → он, она ел(а)
-- [ ] **15740.** he, she drank  
+- [ ] **15741.** he, she drank  
   → он, она пил(а)
-- [ ] **15741.** for a long time; how long  
+- [ ] **15742.** for a long time; how long  
   → долго; как долго
-- [ ] **15742.** language school  
+- [ ] **15743.** language school  
   → языковая школа
-- [ ] **15743.** of the language school  
+- [ ] **15744.** of the language school  
   → языковой школы
-- [ ] **15744.** at first, at the beginning  
+- [ ] **15745.** at first, at the beginning  
   → сначала, вначале
-- [ ] **15745.** London  
+- [ ] **15746.** London  
   → Лондон
-- [ ] **15746.** of London  
+- [ ] **15747.** of London  
   → Лондона
-- [ ] **15747.** The past of most verbs ends in -sin: {elan}, {elasin}. The other persons follow it the way the present's do: {elasid}, {elasime}, {elasite}.  
+- [ ] **15748.** The past of most verbs ends in -sin: {elan}, {elasin}. The other persons follow it the way the present's do: {elasid}, {elasime}, {elasite}.  
   → Прошедшее время большинства глаголов оканчивается на -sin: {elan}, {elasin}. Остальные лица строятся от него так же, как в настоящем: {elasid}, {elasime}, {elasite}.
-- [ ] **15748.** {õppima}, to study  
+- [ ] **15749.** {õppima}, to study  
   → {õppima}, учиться
-- [ ] **15749.** The he and she form usually drops -in: {elasin}, {elas}; {rääkisin}, {rääkis}. Not always, so it's learned with each verb.  
+- [ ] **15750.** The he and she form usually drops -in: {elasin}, {elas}; {rääkisin}, {rääkis}. Not always, so it's learned with each verb.  
   → Форма для «он» и «она» обычно теряет -in: {elasin}, {elas}; {rääkisin}, {rääkis}. Не всегда, поэтому её учат с каждым глаголом.
-- [ ] **15750.** A1's {olin}, {tegin}, {käisin}, {sõin} and {jõin} are the same pattern with -in in place of -sin, and now their persons follow too: {sõid}, {jõime}, {lugesite}.  
-  → {olin}, {tegin}, {käisin}, {sõin} и {jõin} из A1 следуют тому же образцу, только с -in вместо -sin, и теперь за ними следуют и другие лица: {sõid}, {jõime}, {lugesite}.
-- [ ] **15751.** {Kaua?} asks how long: {Kaua sa seal elasid?}  
+- [ ] **15751.** A1's {olin}, {tegin}, {käisin}, {sõin} and {jõin} are the same pattern with -in in place of -sin, and now their persons follow too: {sõid}, {jõime}, {lugesite}.  
+  → {olin}, {tegin}, {käisin}, {sõin} и {jõin} из A1 строятся по тому же образцу, только с -in вместо -sin, а теперь к ним добавляются и другие лица: {sõid}, {jõime}, {lugesite}.
+- [ ] **15752.** {Kaua?} asks how long: {Kaua sa seal elasid?}  
   → {Kaua?} спрашивает «как долго»: {Kaua sa seal elasid?}
-- [ ] **15752.** {Elasid} is both you lived and they lived: {sa elasid}, {nad elasid}. The pronoun says which.  
+- [ ] **15753.** {Elasid} is both you lived and they lived: {sa elasid}, {nad elasid}. The pronoun says which.  
   → {Elasid} значит и «ты жил», и «они жили»: {sa elasid}, {nad elasid}. Какое из них, говорит местоимение.
-- [ ] **15753.** Where did you live before?  
+- [ ] **15754.** Where did you live before?  
   → Где ты жил раньше?
-- [ ] **15754.** Say you lived in London.  
+- [ ] **15755.** Say you lived in London.  
   → Скажите, что жили в Лондоне.
-- [ ] **15755.** I lived in London.  
+- [ ] **15756.** I lived in London.  
   → Я жил в Лондоне.
-- [ ] **15756.** Say five years.  
+- [ ] **15757.** Say five years.  
   → Скажите: пять лет.
-- [ ] **15757.** Five years.  
+- [ ] **15758.** Five years.  
   → Пять лет.
-- [ ] **15758.** Say you studied Estonian for two years.  
+- [ ] **15759.** Say you studied Estonian for two years.  
   → Скажите, что два года учили эстонский.
-- [ ] **15759.** I studied Estonian for two years.  
+- [ ] **15760.** I studied Estonian for two years.  
   → Я два года учил эстонский.
-- [ ] **15760.** Say then you moved to Estonia.  
+- [ ] **15761.** Say then you moved to Estonia.  
   → Скажите, что потом переехали в Эстонию.
-- [ ] **15761.** Then I moved to Estonia.  
+- [ ] **15762.** Then I moved to Estonia.  
   → Потом я переехал в Эстонию.
-- [ ] **15762.** I went, I saw, I bought  
+- [ ] **15763.** I went, I saw, I bought  
   → Я пошёл, я увидел, я купил
-- [ ] **15763.** Say what you did on Saturday with the commonest verbs, which make their past their own way.  
-  → Скажите, что вы делали в субботу, с самыми частыми глаголами, у которых прошедшее время своё.
-- [ ] **15764.** In the morning I went to the market. I bought fish and potatoes.  
+- [ ] **15764.** Say what you did on Saturday with the commonest verbs, which make their past their own way.  
+  → Скажите, что вы делали в субботу, используя самые употребительные глаголы, у которых прошедшее время образуется по-своему.
+- [ ] **15765.** In the morning I went to the market. I bought fish and potatoes.  
   → Утром я пошёл на рынок. Я купил рыбу и картошку.
-- [ ] **15765.** Did you see Mari there?  
+- [ ] **15766.** Did you see Mari there?  
   → Ты видел там Мари?
-- [ ] **15766.** Yes! She came to the market too. We got a coffee and talked for ages.  
+- [ ] **15767.** Yes! She came to the market too. We got a coffee and talked for ages.  
   → Да! Она тоже пришла на рынок. Мы взяли кофе и долго разговаривали.
-- [ ] **15767.** And afterwards?  
+- [ ] **15768.** And afterwards?  
   → А потом?
-- [ ] **15768.** Afterwards I went home and slept.  
+- [ ] **15769.** Afterwards I went home and slept.  
   → Потом я пошёл домой и поспал.
-- [ ] **15769.** A very good Saturday!  
-  → Очень хорошая суббота!
-- [ ] **15770.** I went  
+- [ ] **15770.** A great Saturday!  
+  → Отличная получилась суббота!
+- [ ] **15771.** I went  
   → я пошёл
-- [ ] **15771.** I came  
+- [ ] **15772.** I came  
   → я пришёл
-- [ ] **15772.** he, she came  
+- [ ] **15773.** he, she came  
   → он, она пришёл (пришла)
-- [ ] **15773.** I got; I could  
+- [ ] **15774.** I got; I could  
   → я получил; я смог
-- [ ] **15774.** he, she got; could  
+- [ ] **15775.** he, she got; could  
   → он, она получил(а); смог(ла)
-- [ ] **15775.** he, she took  
+- [ ] **15776.** he, she took  
   → он, она взял(а)
-- [ ] **15776.** I gave  
+- [ ] **15777.** I gave  
   → я дал
-- [ ] **15777.** he, she gave  
+- [ ] **15778.** he, she gave  
   → он, она дал(а)
-- [ ] **15778.** he, she put  
+- [ ] **15779.** he, she put  
   → он, она положил(а)
-- [ ] **15779.** I bought  
+- [ ] **15780.** I bought  
   → я купил
-- [ ] **15780.** he, she bought  
+- [ ] **15781.** he, she bought  
   → он, она купил(а)
-- [ ] **15781.** I saw  
+- [ ] **15782.** I saw  
   → я увидел
-- [ ] **15782.** he, she saw  
+- [ ] **15783.** he, she saw  
   → он, она увидел(а)
-- [ ] **15783.** I brought  
+- [ ] **15784.** I brought  
   → я принёс
-- [ ] **15784.** he, she brought  
+- [ ] **15785.** he, she brought  
   → он, она принёс (принесла)
-- [ ] **15785.** he, she slept  
+- [ ] **15786.** he, she slept  
   → он, она спал(а)
-- [ ] **15786.** The commonest verbs make the past their own way, so learn it with the verb: {minema}, {läksin}; {tulema}, {tulin}. The other persons still follow: {läksid}, {läksime}.  
-  → Самые частые глаголы образуют прошедшее время по-своему, поэтому его учат вместе с глаголом: {minema}, {läksin}; {tulema}, {tulin}. Остальные лица всё равно следуют: {läksid}, {läksime}.
-- [ ] **15787.** He, she  
+- [ ] **15787.** The commonest verbs make the past their own way, so learn it with the verb: {minema}, {läksin}; {tulema}, {tulin}. The other persons still follow: {läksid}, {läksime}.  
+  → Самые употребительные глаголы образуют прошедшее время по-своему, поэтому его учат вместе с глаголом: {minema}, {läksin}; {tulema}, {tulin}. Остальные лица образуются от него как обычно: {läksid}, {läksime}.
+- [ ] **15788.** He, she  
   → Он, она
-- [ ] **15788.** {Me võtsime kohvi} is we got a coffee: {võtma} is take, and also what you have in a café.  
-  → {Me võtsime kohvi} значит «мы взяли кофе»: {võtma} это «брать», и так же говорят о заказе в кафе.
-- [ ] **15789.** {Marit} is Mari after {nägema}: a name takes the \[osastav\] (3rd form) too, like {kohvi}.  
-  → {Marit} это Мари после {nägema}: имя тоже ставится в \[osastav\] (3-я форма), как {kohvi}.
-- [ ] **15790.** {Kaua} after a verb is for ages: {Me rääkisime kaua}.  
+- [ ] **15789.** {Me võtsime kohvi} is we got a coffee: {võtma} is take, and also what you have in a café.  
+  → {Me võtsime kohvi} значит «мы взяли кофе»: {võtma} значит «брать», и так же говорят о заказе в кафе.
+- [ ] **15790.** {Marit} is Mari after {nägema}: a name takes the \[osastav\] (3rd form) too, like {kohvi}.  
+  → После {nägema} Мари становится {Marit}: имя тоже ставится в \[osastav\] (3-я форма), как {kohvi}.
+- [ ] **15791.** {Kaua} after a verb is for ages: {Me rääkisime kaua}.  
   → {Kaua} после глагола значит «долго»: {Me rääkisime kaua}.
-- [ ] **15791.** {Võttis}, not võtsis: the he and she form is the one to learn by heart.  
+- [ ] **15792.** {Võttis}, not võtsis: the he and she form is the one to learn by heart.  
   → {Võttis}, а не võtsis: форму для «он» и «она» нужно выучить наизусть.
-- [ ] **15792.** Say you went to the market.  
+- [ ] **15793.** Say you went to the market.  
   → Скажите, что пошли на рынок.
-- [ ] **15793.** I went to the market.  
+- [ ] **15794.** I went to the market.  
   → Я пошёл на рынок.
-- [ ] **15794.** What did you buy?  
+- [ ] **15795.** What did you buy?  
   → Что ты купил?
-- [ ] **15795.** Say fish and potatoes.  
+- [ ] **15796.** Say fish and potatoes.  
   → Скажите: рыбу и картошку.
-- [ ] **15796.** I bought fish and potatoes.  
+- [ ] **15797.** I bought fish and potatoes.  
   → Я купил рыбу и картошку.
-- [ ] **15797.** Say Mari came too.  
+- [ ] **15798.** Say Mari came too.  
   → Скажите, что Мари тоже пришла.
-- [ ] **15798.** Mari came too.  
+- [ ] **15799.** Mari came too.  
   → Мари тоже пришла.
-- [ ] **15799.** Say afterwards you went home.  
+- [ ] **15800.** Say afterwards you went home.  
   → Скажите, что потом пошли домой.
-- [ ] **15800.** Afterwards I went home.  
+- [ ] **15801.** Afterwards I went home.  
   → Потом я пошёл домой.
-- [ ] **15801.** I didn't  
+- [ ] **15802.** I didn't  
   → Я не
-- [ ] **15802.** Say what you didn't do, and why you couldn't come.  
+- [ ] **15803.** Say what you didn't do, and why you couldn't come.  
   → Скажите, чего вы не сделали и почему не смогли прийти.
-- [ ] **15803.** Tom, why didn't you come yesterday?  
+- [ ] **15804.** Tom, why didn't you come yesterday?  
   → Том, почему ты вчера не пришёл?
-- [ ] **15804.** Sorry! I was ill. I couldn't come.  
-  → Извини! Я был болен. Я не смог прийти.
-- [ ] **15805.** Did you go to the doctor's?  
+- [ ] **15805.** Sorry! I was ill. I couldn't come.  
+  → Извини! Я болел. Я не смог прийти.
+- [ ] **15806.** Did you go to the doctor's?  
   → Ты ходил к врачу?
-- [ ] **15806.** No. I stayed at home and slept.  
+- [ ] **15807.** No. I stayed at home and slept.  
   → Нет. Я остался дома и спал.
-- [ ] **15807.** Did you eat anything?  
+- [ ] **15808.** Did you eat anything?  
   → Ты что-нибудь ел?
-- [ ] **15808.** No. I didn't want to eat.  
+- [ ] **15809.** No. I didn't want to eat.  
   → Нет. Мне не хотелось есть.
-- [ ] **15809.** And today? Is it better today?  
+- [ ] **15810.** And today? Is it better today?  
   → А сегодня? Сегодня лучше?
-- [ ] **15810.** Yes, today's much better.  
+- [ ] **15811.** Yes, today's much better.  
   → Да, сегодня намного лучше.
-- [ ] **15811.** been, after {ei}  
+- [ ] **15812.** been, after {ei}  
   → был, после {ei}
-- [ ] **15812.** come, after {ei}  
+- [ ] **15813.** come, after {ei}  
   → пришёл, после {ei}
-- [ ] **15813.** gone, after {ei}  
+- [ ] **15814.** gone, after {ei}  
   → пошёл, после {ei}
-- [ ] **15814.** got, could, after {ei}  
+- [ ] **15815.** got, could, after {ei}  
   → получил, смог, после {ei}
-- [ ] **15815.** done, after {ei}  
+- [ ] **15816.** done, after {ei}  
   → сделал, после {ei}
-- [ ] **15816.** been (somewhere), after {ei}  
+- [ ] **15817.** been (somewhere), after {ei}  
   → был (где-то), ходил, после {ei}
-- [ ] **15817.** eaten, after {ei}  
+- [ ] **15818.** eaten, after {ei}  
   → ел, после {ei}
-- [ ] **15818.** drunk, after {ei}  
+- [ ] **15819.** drunk, after {ei}  
   → пил, после {ei}
-- [ ] **15819.** wanted, after {ei}  
+- [ ] **15820.** wanted, after {ei}  
   → хотел, после {ei}
-- [ ] **15820.** to stay  
+- [ ] **15821.** to stay  
   → оставаться
-- [ ] **15821.** he, she stayed  
+- [ ] **15822.** he, she stayed  
   → он, она остался (осталась)
-- [ ] **15822.** of the doctor  
+- [ ] **15823.** of the doctor  
   → врача
-- [ ] **15823.** something; after {ei}, anything  
+- [ ] **15824.** something; after {ei}, anything  
   → что-то; после {ei} ничего
-- [ ] **15824.** better; right (not left)  
+- [ ] **15825.** better; right (not left)  
   → лучше; правый (не левый)
-- [ ] **15825.** No in the past is {ei} and the -nud form, the same for every person: {Ma ei tulnud}, {Nad ei tulnud}. A class calls it the \[nud-kesksõna\] (-nud, done).  
-  → Отрицание в прошедшем это {ei} и форма на -nud, одинаковая для всех лиц: {Ma ei tulnud}, {Nad ei tulnud}. На занятиях это называют \[nud-kesksõna\] (-nud, сделавший).
-- [ ] **15826.** The -nud form is learned with the verb: {minema}, {läinud}; {tegema}, {teinud}.  
+- [ ] **15826.** No in the past is {ei} and the -nud form, the same for every person: {Ma ei tulnud}, {Nad ei tulnud}. A class calls it the \[nud-kesksõna\] (-nud, done).  
+  → В прошедшем времени отрицание строится из {ei} и формы на -nud, одинаковой для всех лиц: {Ma ei tulnud}, {Nad ei tulnud}. На занятиях это называют \[nud-kesksõna\] (-nud, сделавший).
+- [ ] **15827.** The -nud form is learned with the verb: {minema}, {läinud}; {tegema}, {teinud}.  
   → Форму на -nud учат вместе с глаголом: {minema}, {läinud}; {tegema}, {teinud}.
-- [ ] **15827.** {Ei käinud} on its own is a whole answer: no, I didn't go.  
-  → {Ei käinud} само по себе это целый ответ: нет, не ходил.
-- [ ] **15828.** {Midagi} is something, and after {ei} it's anything: {Ma ei söönud midagi}.  
-  → {Midagi} значит «что-то», а после {ei} это «ничего»: {Ma ei söönud midagi}.
-- [ ] **15829.** {Arsti juures} is at the doctor's, the \[omastav\] (2nd form) and {juures} of lesson 3.  
+- [ ] **15828.** {Ei käinud} on its own is a whole answer: no, I didn't go.  
+  → {Ei käinud} само по себе служит полным ответом: нет, не ходил.
+- [ ] **15829.** {Midagi} is something, and after {ei} it's anything: {Ma ei söönud midagi}.  
+  → {Midagi} значит «что-то», а после {ei} переводится как «ничего»: {Ma ei söönud midagi}.
+- [ ] **15830.** {Arsti juures} is at the doctor's, the \[omastav\] (2nd form) and {juures} of lesson 3.  
   → {Arsti juures} значит «у врача»: \[omastav\] (2-я форма) и {juures} из урока 3.
-- [ ] **15830.** After {ei}, never the past form: it's {ma ei tulnud}, never ma ei tulin.  
-  → После {ei} никогда не прошедшая форма: {ma ei tulnud}, никогда ma ei tulin.
-- [ ] **15831.** Why didn't you come yesterday?  
+- [ ] **15831.** After {ei}, never the past form: it's {ma ei tulnud}, never ma ei tulin.  
+  → После {ei} никогда не ставится форма прошедшего времени: правильно {ma ei tulnud}, а не ma ei tulin.
+- [ ] **15832.** Why didn't you come yesterday?  
   → Почему ты вчера не пришёл?
-- [ ] **15832.** Say you were ill and couldn't come.  
+- [ ] **15833.** Say you were ill and couldn't come.  
   → Скажите, что были больны и не смогли прийти.
-- [ ] **15833.** I was ill. I couldn't come.  
+- [ ] **15834.** I was ill. I couldn't come.  
   → Я был болен. Я не смог прийти.
-- [ ] **15834.** Say no.  
+- [ ] **15835.** Say no.  
   → Скажите «нет».
-- [ ] **15835.** No, I didn't.  
+- [ ] **15836.** No, I didn't.  
   → Нет, не ходил.
-- [ ] **15836.** Say you didn't eat anything.  
+- [ ] **15837.** Say you didn't eat anything.  
   → Скажите, что ничего не ели.
-- [ ] **15837.** I didn't eat anything.  
+- [ ] **15838.** I didn't eat anything.  
   → Я ничего не ел.
-- [ ] **15838.** Is it better today?  
+- [ ] **15839.** Is it better today?  
   → Сегодня лучше?
-- [ ] **15839.** Say yes, much better.  
+- [ ] **15840.** Say yes, much better.  
   → Скажите: да, намного лучше.
-- [ ] **15840.** Yes, much better.  
+- [ ] **15841.** Yes, much better.  
   → Да, намного лучше.
-- [ ] **15841.** Say what you bought and what you're still reading.  
-  → Сказать, что вы купили и что вы ещё читаете.
-- [ ] **15842.** What have you got in your bag?  
+- [ ] **15842.** Say what you bought and what you're still reading.  
+  → Скажите, что вы купили и что ещё читаете.
+- [ ] **15843.** What have you got in your bag?  
   → Что у тебя в сумке?
-- [ ] **15843.** I bought a book and some milk.  
-  → Я купил книгу и молока.
-- [ ] **15844.** What book did you buy?  
+- [ ] **15844.** I bought a book and some milk.  
+  → Я купил книгу и немного молока.
+- [ ] **15845.** What book did you buy?  
   → Какую книгу ты купил?
-- [ ] **15845.** An Estonian book. I'm reading it every day now.  
+- [ ] **15846.** An Estonian book. I'm reading it every day now.  
   → Эстонскую книгу. Теперь я читаю её каждый день.
-- [ ] **15846.** A bit. Yesterday I read ten pages.  
+- [ ] **15847.** A bit. Yesterday I read ten pages.  
   → Немного. Вчера я прочитал десять страниц.
-- [ ] **15847.** Well done!  
+- [ ] **15848.** Well done!  
   → Молодец!
-- [ ] **15848.** a book, the whole of it; of a book  
+- [ ] **15849.** a book, the whole of it; of a book  
   → книгу, целиком; книги
-- [ ] **15849.** one, a; of one  
+- [ ] **15850.** one, a; of one  
   → один, одна; одного
-- [ ] **15850.** it, this, as the thing you're doing  
-  → её, это, как то, чем занимаешься
-- [ ] **15851.** bought, after {ei}  
+- [ ] **15851.** it, this, as the thing you're doing  
+  → её, это (как объект незавершённого действия)
+- [ ] **15852.** bought, after {ei}  
   → купил, после {ei}
-- [ ] **15852.** every  
+- [ ] **15853.** every  
   → каждый
-- [ ] **15853.** page  
+- [ ] **15854.** page  
   → страница
-- [ ] **15854.** pages, after a number  
+- [ ] **15855.** pages, after a number  
   → страниц, после числа
-- [ ] **15855.** good, well done (said to a person)  
+- [ ] **15856.** good, well done (said to a person)  
   → хорошо, молодец (говорят человеку)
-- [ ] **15856.** A thing done all the way takes the \[omastav\] (2nd form): {Ma ostsin raamatu}. A thing still going on, or some of something, takes the \[osastav\] (3rd form): {Ma loen raamatut}, {Ma ostsin piima}.  
-  → Действие, доведённое до конца, требует \[omastav\] (2-я форма): {Ma ostsin raamatu}. Действие, которое ещё продолжается, или часть чего-то требует \[osastav\] (3-я форма): {Ma loen raamatut}, {Ma ostsin piima}.
-- [ ] **15857.** Why  
+- [ ] **15857.** A thing done all the way takes the \[omastav\] (2nd form): {Ma ostsin raamatu}. A thing still going on, or some of something, takes the \[osastav\] (3rd form): {Ma loen raamatut}, {Ma ostsin piima}.  
+  → Если действие доведено до конца, дополнение стоит в \[omastav\] (2-я форма): {Ma ostsin raamatu}. Если действие ещё продолжается или речь идёт о части чего-то, нужен \[osastav\] (3-я форма): {Ma loen raamatut}, {Ma ostsin piima}.
+- [ ] **15858.** Why  
   → Почему
-- [ ] **15858.** I bought a book.  
+- [ ] **15859.** I bought a book.  
   → Я купил книгу.
-- [ ] **15859.** all of it, done  
+- [ ] **15860.** all of it, done  
   → всё целиком, сделано
-- [ ] **15860.** I'm reading a book.  
+- [ ] **15861.** I'm reading a book.  
   → Я читаю книгу.
-- [ ] **15861.** still going on  
+- [ ] **15862.** still going on  
   → ещё продолжается
-- [ ] **15862.** I bought some milk.  
+- [ ] **15863.** I bought some milk.  
   → Я купил молока.
-- [ ] **15863.** I didn't buy a book.  
+- [ ] **15864.** I didn't buy a book.  
   → Я не купил книгу.
-- [ ] **15864.** after {ei}  
+- [ ] **15865.** after {ei}  
   → после {ei}
-- [ ] **15865.** This is the rule behind A1's {kohvi} and {teed}: some coffee, some tea.  
-  → Это правило стоит за {kohvi} и {teed} из A1: немного кофе, немного чая.
-- [ ] **15866.** {Ühe eesti raamatu} is one Estonian book, bought: both words are in the \[omastav\] (2nd form).  
+- [ ] **15866.** This is the rule behind A1's {kohvi} and {teed}: some coffee, some tea.  
+  → Именно по этому правилу в A1 говорили {kohvi} и {teed}: немного кофе, немного чая.
+- [ ] **15867.** {Ühe eesti raamatu} is one Estonian book, bought: both words are in the \[omastav\] (2nd form).  
   → {Ühe eesti raamatu} значит «одну эстонскую книгу», купленную: оба слова в \[omastav\] (2-я форма).
-- [ ] **15867.** There's more to this rule, and B1 takes it further. For now the pattern above is enough to say what you did.  
+- [ ] **15868.** There's more to this rule, and B1 takes it further. For now the pattern above is enough to say what you did.  
   → У этого правила есть продолжение, его разберут в B1. Пока образца выше достаточно, чтобы сказать, что вы сделали.
-- [ ] **15868.** After {ei}, it's always the \[osastav\] (3rd form): {Ma ei ostnud raamatut}.  
+- [ ] **15869.** After {ei}, it's always the \[osastav\] (3rd form): {Ma ei ostnud raamatut}.  
   → После {ei} всегда \[osastav\] (3-я форма): {Ma ei ostnud raamatut}.
-- [ ] **15869.** Say you bought a book.  
+- [ ] **15870.** Say you bought a book.  
   → Скажите, что купили книгу.
-- [ ] **15870.** Say you're reading a book.  
+- [ ] **15871.** Say you're reading a book.  
   → Скажите, что читаете книгу.
-- [ ] **15871.** Say you bought some milk.  
+- [ ] **15872.** Say you bought some milk.  
   → Скажите, что купили молока.
-- [ ] **15872.** Say you didn't buy a book.  
+- [ ] **15873.** Say you didn't buy a book.  
   → Скажите, что не купили книгу.
-- [ ] **15873.** Have you ever been?  
+- [ ] **15874.** Have you ever been?  
   → Ты когда-нибудь бывал?
-- [ ] **15874.** Ask and say where you've been and what you've tried, without saying when.  
+- [ ] **15875.** Ask and say where you've been and what you've tried, without saying when.  
   → Спросите и скажите, где вы бывали и что пробовали, не говоря когда.
-- [ ] **15875.** Tom, have you been to Saaremaa?  
+- [ ] **15876.** Tom, have you been to Saaremaa?  
   → Том, ты был на Сааремаа?
-- [ ] **15876.** Not yet. But I've been to Tartu.  
+- [ ] **15877.** Not yet. But I've been to Tartu.  
   → Ещё нет. Но я был в Тарту.
-- [ ] **15877.** Have you ever tried a sauna?  
+- [ ] **15878.** Have you ever tried a sauna?  
   → Ты когда-нибудь пробовал сауну?
-- [ ] **15878.** Yes, lots of times! It's really nice.  
-  → Да, много раз! Это очень приятно.
-- [ ] **15879.** Great. In the summer we're going to Saaremaa. Will you come too?  
+- [ ] **15879.** Yes, several times! It's really nice.  
+  → Да, несколько раз! Это очень приятно.
+- [ ] **15880.** Great. In the summer we're going to Saaremaa. Will you come too?  
   → Отлично. Летом мы едем на Сааремаа. Поедешь с нами?
-- [ ] **15880.** I'd love to! Is Liis coming too?  
+- [ ] **15881.** I'd love to! Is Liis coming too?  
   → С удовольствием! Лийс тоже едет?
-- [ ] **15881.** No. Liis can't come, she's working in the summer.  
+- [ ] **15882.** No. Liis can't come, she's working in the summer.  
   → Нет. Лийс не может поехать, летом она работает.
-- [ ] **15882.** What a pity! She never goes anywhere.  
+- [ ] **15883.** What a pity! She never goes anywhere.  
   → Как жаль! Она никогда никуда не ездит.
-- [ ] **15883.** Saaremaa, Estonia's biggest island  
+- [ ] **15884.** Saaremaa, Estonia's biggest island  
   → Сааремаа, самый большой остров Эстонии
-- [ ] **15884.** of Saaremaa  
+- [ ] **15885.** of Saaremaa  
   → Сааремаа (чего)
-- [ ] **15885.** ever; after {ei}, never  
+- [ ] **15886.** ever; after {ei}, never  
   → когда-либо; после {ei}: никогда
-- [ ] **15886.** to try  
+- [ ] **15887.** to try  
   → пробовать
-- [ ] **15887.** I try  
+- [ ] **15888.** I try  
   → я пробую
-- [ ] **15888.** tried  
+- [ ] **15889.** tried  
   → попробовал(а)
-- [ ] **15889.** seen  
-  → увиденный, виденный
-- [ ] **15890.** times, after a number  
+- [ ] **15890.** seen  
+  → видел(а)
+- [ ] **15891.** times, after a number  
   → раз, после числа
-- [ ] **15891.** nice, pleasant, cozy  
+- [ ] **15892.** nice, pleasant, cozy  
   → приятный, милый, уютный
-- [ ] **15892.** Gladly! I'd love to!  
+- [ ] **15893.** Gladly! I'd love to!  
   → С удовольствием! С радостью!
-- [ ] **15893.** What a pity! Shame!  
+- [ ] **15894.** What a pity! Shame!  
   → Как жаль! Жалко!
-- [ ] **15894.** somewhere; after {ei}, anywhere  
+- [ ] **15895.** somewhere; after {ei}, anywhere  
   → где-то; после {ei}: нигде
-- [ ] **15895.** {Olen käinud} is have been: {olema} in the present and the -nud form. It's for what you've done at some time, without saying when. A class calls it the \[täisminevik\] (have done).  
+- [ ] **15896.** {Olen käinud} is have been: {olema} in the present and the -nud form. It's for what you've done at some time, without saying when. A class calls it the \[täisminevik\] (have done).  
   → {Olen käinud} значит «я бывал(а)»: {olema} в настоящем времени и форма на -nud. Так говорят о том, что вы когда-то делали, не уточняя когда. На занятиях это называют \[täisminevik\] (сделал).
-- [ ] **15896.** I've been to Tartu.  
+- [ ] **15897.** I've been to Tartu.  
   → Я бывал(а) в Тарту.
-- [ ] **15897.** Have you tried a sauna?  
+- [ ] **15898.** Have you tried a sauna?  
   → Ты пробовал(а) сауну?
-- [ ] **15898.** I've seen this film.  
+- [ ] **15899.** I've seen this film.  
   → Я видел(а) этот фильм.
-- [ ] **15899.** I haven't been to Saaremaa.  
+- [ ] **15900.** I haven't been to Saaremaa.  
   → Я не бывал(а) на Сааремаа.
-- [ ] **15900.** It's the same -nud form as in lesson 17, with {olen} in front of it in place of {ei}.  
+- [ ] **15901.** It's the same -nud form as in lesson 17, with {olen} in front of it in place of {ei}.  
   → Это та же форма на -nud, что в уроке 17, только перед ней стоит {olen}, а не {ei}.
-- [ ] **15901.** No is {ei ole} and the -nud form: {Ma ei ole seal käinud}. And {Ei ole veel} is not yet.  
-  → Отрицание: {ei ole} и форма на -nud: {Ma ei ole seal käinud}. А {Ei ole veel} значит «ещё нет».
-- [ ] **15902.** {Kunagi} is ever, and {mitu korda} several times.  
+- [ ] **15902.** No is {ei ole} and the -nud form: {Ma ei ole seal käinud}. And {Ei ole veel} is not yet.  
+  → Отрицание строится из {ei ole} и формы на -nud: {Ma ei ole seal käinud}. А {Ei ole veel} значит «ещё нет».
+- [ ] **15903.** {Kunagi} is ever, and {mitu korda} several times.  
   → {Kunagi} значит «когда-либо», а {mitu korda} «несколько раз».
-- [ ] **15903.** {Hea meelega!} is gladly, the warm way to say yes to an invitation, and {Kahju!} is what a pity, the one-word answer to bad news.  
+- [ ] **15904.** {Hea meelega!} is gladly, the warm way to say yes to an invitation, and {Kahju!} is what a pity, the one-word answer to bad news.  
   → {Hea meelega!} значит «с удовольствием», тёплый способ согласиться на приглашение, а {Kahju!} значит «как жаль», ответ в одно слово на плохую новость.
-- [ ] **15904.** {Kuskil} is somewhere, and after {ei} anywhere: {Ta ei käi kuskil}.  
+- [ ] **15905.** {Kuskil} is somewhere, and after {ei} anywhere: {Ta ei käi kuskil}.  
   → {Kuskil} значит «где-то», а после {ei} «нигде»: {Ta ei käi kuskil}.
-- [ ] **15905.** Have is {olema} here: {ma olen käinud}. Estonian builds it with to be, never with {mul on}.  
+- [ ] **15906.** Have is {olema} here: {ma olen käinud}. Estonian builds it with to be, never with {mul on}.  
   → Вспомогательный глагол здесь {olema}: {ma olen käinud}. В эстонском эта форма строится с глаголом «быть» и никогда с {mul on}.
-- [ ] **15906.** Have you been to Saaremaa?  
+- [ ] **15907.** Have you been to Saaremaa?  
   → Ты бывал(а) на Сааремаа?
-- [ ] **15907.** Say you've been to Tartu.  
+- [ ] **15908.** Say you've been to Tartu.  
   → Скажите, что бывали в Тарту.
-- [ ] **15908.** Have you seen this film?  
+- [ ] **15909.** Have you seen this film?  
   → Ты видел(а) этот фильм?
-- [ ] **15909.** Say yes, several times.  
+- [ ] **15910.** Say yes, several times.  
   → Скажите «да, несколько раз».
-- [ ] **15910.** Yes, several times.  
+- [ ] **15911.** Yes, several times.  
   → Да, несколько раз.
-- [ ] **15911.** Will you come too?  
-  → Ты тоже придёшь?
-- [ ] **15912.** Say you'd love to.  
+- [ ] **15912.** Will you come too?  
+  → Ты тоже поедешь?
+- [ ] **15913.** Say you'd love to.  
   → Скажите, что с удовольствием.
-- [ ] **15913.** I'd love to!  
+- [ ] **15914.** I'd love to!  
   → С удовольствием!
-- [ ] **15914.** First, then, in the end  
+- [ ] **15915.** First, then, in the end  
   → Сначала, потом, в конце
-- [ ] **15915.** Tell what happened, in order: first, then, after that, in the end.  
+- [ ] **15916.** Tell what happened, in order: first, then, after that, in the end.  
   → Расскажите по порядку, что случилось: сначала, потом, после этого, в конце.
-- [ ] **15916.** Yesterday was a bad day.  
+- [ ] **15917.** Yesterday was a bad day.  
   → Вчера был плохой день.
-- [ ] **15917.** What happened?  
+- [ ] **15918.** What happened?  
   → Что случилось?
-- [ ] **15918.** First, I woke up too late.  
+- [ ] **15919.** First, I woke up too late.  
   → Сначала я проснулся(-ась) слишком поздно.
-- [ ] **15919.** Then I ran for the bus, but it had just left.  
+- [ ] **15920.** Then I ran for the bus, but it had just left.  
   → Потом я побежал(а) на автобус, но он только что уехал.
-- [ ] **15920.** And then what?  
+- [ ] **15921.** And then?  
   → А потом?
-- [ ] **15921.** After that I walked. I got to work an hour late.  
-  → После этого я пошёл(шла) пешком. На работу я пришёл(шла) на час позже.
-- [ ] **15922.** And in the end?  
+- [ ] **15922.** After that I walked. I got to work an hour late.  
+  → После этого я пошёл (пошла) пешком. На работу я пришёл (пришла) на час позже.
+- [ ] **15923.** And in the end?  
   → А в конце?
-- [ ] **15923.** In the end it was all fine. My boss didn't say anything.  
+- [ ] **15924.** In the end it was all fine. My boss didn't say anything.  
   → В конце концов всё было хорошо. Начальник ничего не сказал.
-- [ ] **15924.** happened  
+- [ ] **15925.** happened  
   → случилось
-- [ ] **15925.** first, first of all  
+- [ ] **15926.** first, first of all  
   → сначала, прежде всего
-- [ ] **15926.** in the end, finally  
+- [ ] **15927.** in the end, finally  
   → в конце, наконец
-- [ ] **15927.** too (much)  
+- [ ] **15928.** too (much)  
   → слишком
-- [ ] **15928.** just, a moment ago; exactly  
+- [ ] **15929.** just, a moment ago; exactly  
   → только что; как раз, ровно
-- [ ] **15929.** I woke up  
+- [ ] **15930.** I woke up  
   → я проснулся(-ась)
-- [ ] **15930.** he, she woke up  
+- [ ] **15931.** he, she woke up  
   → он, она проснулся(-ась)
-- [ ] **15931.** to run  
+- [ ] **15932.** to run  
   → бежать, бегать
-- [ ] **15932.** I run  
+- [ ] **15933.** I run  
   → я бегу
-- [ ] **15933.** I ran  
+- [ ] **15934.** I ran  
   → я бежал(а)
-- [ ] **15934.** he, she ran  
+- [ ] **15935.** he, she ran  
   → он, она бежал(а)
-- [ ] **15935.** to get there, to arrive  
+- [ ] **15936.** to get there, to arrive  
   → добраться, прибыть
-- [ ] **15936.** I get there  
+- [ ] **15937.** I get there  
   → я добираюсь
-- [ ] **15937.** I got there  
+- [ ] **15938.** I got there  
   → я добрался(-ась)
-- [ ] **15938.** he, she got there  
+- [ ] **15939.** he, she got there  
   → он, она добрался(-ась)
-- [ ] **15939.** time, as how much of it  
-  → время, когда говорят, сколько его
-- [ ] **15940.** everything; everybody  
+- [ ] **15940.** time, as how much of it  
+  → время (о его количестве)
+- [ ] **15941.** everything; everybody  
   → всё; все
-- [ ] **15941.** boss  
+- [ ] **15942.** boss  
   → начальник
-- [ ] **15942.** to say  
+- [ ] **15943.** to say  
   → сказать, говорить
-- [ ] **15943.** I say  
+- [ ] **15944.** I say  
   → я говорю
-- [ ] **15944.** A story needs its order: {kõigepealt}, first; {siis}, then; {pärast seda}, after that; {lõpuks}, in the end.  
+- [ ] **15945.** A story needs its order: {kõigepealt}, first; {siis}, then; {pärast seda}, after that; {lõpuks}, in the end.  
   → У рассказа есть порядок: {kõigepealt}, сначала; {siis}, потом; {pärast seda}, после этого; {lõpuks}, в конце.
-- [ ] **15945.** then  
+- [ ] **15946.** then  
   → потом
-- [ ] **15946.** after that  
+- [ ] **15947.** after that  
   → после этого
-- [ ] **15947.** in the end  
+- [ ] **15948.** in the end  
   → в конце
-- [ ] **15948.** {Mis juhtus?} is what happened? It's the first thing anybody asks when you say {Eile oli halb päev}.  
+- [ ] **15949.** {Mis juhtus?} is what happened? It's the first thing anybody asks when you say {Eile oli halb päev}.  
   → {Mis juhtus?} значит «что случилось?». Это первое, что спросит любой, если вы скажете {Eile oli halb päev}.
-- [ ] **15949.** {Läks ära} is left, went away: {ära} after a verb means away. Before a command, it means don't.  
+- [ ] **15950.** {Läks ära} is left, went away: {ära} after a verb means away. Before a command, it means don't.  
   → {Läks ära} значит «ушёл, уехал»: {ära} после глагола значит «прочь». Перед повелительной формой оно значит «не».
-- [ ] **15950.** {Jõudma} is getting somewhere: {Ma jõudsin tööle}, I got to work.  
+- [ ] **15951.** {Jõudma} is getting somewhere: {Ma jõudsin tööle}, I got to work.  
   → {Jõudma} значит «добраться куда-то»: {Ma jõudsin tööle}, я добрался(-ась) до работы.
-- [ ] **15951.** {Tund aega hiljem} is an hour later: {aega}, time, after a length of it.  
-  → {Tund aega hiljem} значит «через час, на час позже»: {aega}, время, после его количества.
-- [ ] **15952.** {Liiga} is too, as in too much: {liiga hilja}, too late. It never means also; also is {ka}.  
-  → {Liiga} значит «слишком»: {liiga hilja}, слишком поздно. Оно никогда не значит «тоже»; «тоже» это {ka}.
-- [ ] **15953.** Say first you woke up too late.  
+- [ ] **15952.** {Tund aega hiljem} is an hour later: {aega}, time, after a length of it.  
+  → {Tund aega hiljem} значит «через час, на час позже»: {aega}, «время», ставится после указания длительности.
+- [ ] **15953.** {Liiga} is too, as in too much: {liiga hilja}, too late. It never means also; also is {ka}.  
+  → {Liiga} значит «слишком»: {liiga hilja}, слишком поздно. Оно никогда не значит «тоже», для этого есть {ka}.
+- [ ] **15954.** Say first you woke up too late.  
   → Скажите, что сначала проснулись слишком поздно.
-- [ ] **15954.** First I woke up too late.  
+- [ ] **15955.** First I woke up too late.  
   → Сначала я проснулся(-ась) слишком поздно.
-- [ ] **15955.** Say the bus had just left.  
+- [ ] **15956.** Say the bus had just left.  
   → Скажите, что автобус только что уехал.
-- [ ] **15956.** The bus had just left.  
+- [ ] **15957.** The bus had just left.  
   → Автобус только что уехал.
-- [ ] **15957.** Say in the end it was all fine.  
+- [ ] **15958.** Say in the end it was all fine.  
   → Скажите, что в конце всё было хорошо.
-- [ ] **15958.** In the end it was all fine.  
+- [ ] **15959.** In the end it was all fine.  
   → В конце концов всё было хорошо.
-- [ ] **15959.** Born and raised  
+- [ ] **15960.** Born and raised  
   → Родился и вырос
-- [ ] **15960.** Say where you were born, where you grew up, and when you came to Estonia.  
+- [ ] **15961.** Say where you were born, where you grew up, and when you came to Estonia.  
   → Скажите, где вы родились, где выросли и когда приехали в Эстонию.
-- [ ] **15961.** Where were you born?  
-  → Где ты родился(-ась)?
-- [ ] **15962.** I was born in England, in a small town.  
-  → Я родился(-ась) в Англии, в маленьком городе.
-- [ ] **15963.** And you grew up there too?  
-  → И вырос(ла) ты тоже там?
-- [ ] **15964.** Yes. When I was ten, we moved to London.  
-  → Да. Когда мне было десять, мы переехали в Лондон.
-- [ ] **15965.** And when did you come to Estonia?  
-  → А когда ты приехал(а) в Эстонию?
-- [ ] **15966.** Five years ago. My wife is Estonian.  
+- [ ] **15962.** Where were you born?  
+  → Где ты родился?
+- [ ] **15963.** I was born in England, in a small town.  
+  → Я родился в Англии, в маленьком городе.
+- [ ] **15964.** And you grew up there too?  
+  → А вырос ты тоже там?
+- [ ] **15965.** No. When I was ten, we moved to London.  
+  → Нет. Когда мне было десять, мы переехали в Лондон.
+- [ ] **15966.** And when did you come to Estonia?  
+  → А когда ты приехал в Эстонию?
+- [ ] **15967.** Five years ago. My wife is Estonian.  
   → Пять лет назад. Моя жена эстонка.
-- [ ] **15967.** I see!  
+- [ ] **15968.** I see!  
   → Понятно!
-- [ ] **15968.** to be born  
+- [ ] **15969.** to be born  
   → родиться
-- [ ] **15969.** I am born  
+- [ ] **15970.** I am born  
   → я рождаюсь
-- [ ] **15970.** I was born  
+- [ ] **15971.** I was born  
   → я родился(-ась)
-- [ ] **15971.** he, she was born  
+- [ ] **15972.** he, she was born  
   → он, она родился(-ась)
-- [ ] **15972.** to grow  
+- [ ] **15973.** to grow  
   → расти
-- [ ] **15973.** I grow  
+- [ ] **15974.** I grow  
   → я расту
-- [ ] **15974.** I grew  
+- [ ] **15975.** I grew  
   → я рос(ла)
-- [ ] **15975.** he, she grew  
+- [ ] **15976.** he, she grew  
   → он, она рос(ла)
-- [ ] **15976.** when; if; than  
+- [ ] **15977.** when; if; than  
   → когда; если; чем
-- [ ] **15977.** ago; back  
+- [ ] **15978.** ago; back  
   → назад, тому назад; обратно
-- [ ] **15978.** of a small one  
+- [ ] **15979.** of a small one  
   → маленького (чего)
-- [ ] **15979.** of England  
+- [ ] **15980.** of England  
   → Англии (чего)
-- [ ] **15980.** life  
+- [ ] **15981.** life  
   → жизнь
-- [ ] **15981.** {Kui} joins a when onto a sentence: {Kui ma olin kümme, kolisime Londonisse}, when I was ten, we moved to London.  
+- [ ] **15982.** {Kui} joins a when onto a sentence: {Kui ma olin kümme, kolisime Londonisse}, when I was ten, we moved to London.  
   → {Kui} присоединяет к предложению «когда»: {Kui ma olin kümme, kolisime Londonisse}, когда мне было десять, мы переехали в Лондон.
-- [ ] **15982.** I was born in England.  
+- [ ] **15983.** I was born in England.  
   → Я родился(-ась) в Англии.
-- [ ] **15983.** I grew up in London.  
+- [ ] **15984.** I grew up in London.  
   → Я вырос(ла) в Лондоне.
-- [ ] **15984.** When I was ten, we moved.  
+- [ ] **15985.** When I was ten, we moved.  
   → Когда мне было десять, мы переехали.
-- [ ] **15985.** I came to Estonia five years ago.  
+- [ ] **15986.** I came to Estonia five years ago.  
   → Я приехал(а) в Эстонию пять лет назад.
-- [ ] **15986.** {Viis aastat tagasi} is five years ago: {tagasi} comes after the time.  
+- [ ] **15987.** {Viis aastat tagasi} is five years ago: {tagasi} comes after the time.  
   → {Viis aastat tagasi} значит «пять лет назад»: {tagasi} стоит после времени.
-- [ ] **15987.** {Kasvasin üles} is grew up: {kasvama} is grow, and {üles}, up, makes it grow up.  
+- [ ] **15988.** {Kasvasin üles} is grew up: {kasvama} is grow, and {üles}, up, makes it grow up.  
   → {Kasvasin üles} значит «вырос(ла)»: {kasvama} значит «расти», а {üles}, вверх, делает из этого «вырасти».
-- [ ] **15988.** {Ühes väikeses linnas}, in a small town: like {kolmandal korrusel}, every word takes the ending. {Väike} is {väikese}, and the ending goes on that.  
-  → {Ühes väikeses linnas}, в маленьком городе: как и в {kolmandal korrusel}, окончание получает каждое слово. {Väike} становится {väikese}, и окончание добавляется к этому.
-- [ ] **15989.** {Elu} is life, and it's what this lesson is about: {Minu elu}.  
+- [ ] **15989.** {Ühes väikeses linnas}, in a small town: like {kolmandal korrusel}, every word takes the ending. {Väike} is {väikese}, and the ending goes on that.  
+  → {Ühes väikeses linnas}, в маленьком городе: как и в {kolmandal korrusel}, окончание получает каждое слово. {Väike} становится {väikese}, и окончание добавляется уже к этой форме.
+- [ ] **15990.** {Elu} is life, and it's what this lesson is about: {Minu elu}.  
   → {Elu} значит «жизнь», и об этом весь урок: {Minu elu}.
-- [ ] **15990.** "I was born" is an ordinary past in Estonian, {ma sündisin}. There's no to be in it.  
-  → «Я родился» в эстонском это обычное прошедшее время, {ma sündisin}. Глагола «быть» в нём нет.
-- [ ] **15991.** Say where you were born.  
+- [ ] **15991.** "I was born" is an ordinary past in Estonian, {ma sündisin}. There's no to be in it.  
+  → «Я родился» по-эстонски передаётся обычным прошедшим временем: {ma sündisin}. Глагола «быть» здесь нет.
+- [ ] **15992.** Say where you were born.  
   → Скажите, где вы родились.
-- [ ] **15992.** When did you come to Estonia?  
+- [ ] **15993.** When did you come to Estonia?  
   → Когда ты приехал(а) в Эстонию?
-- [ ] **15993.** Say five years ago.  
+- [ ] **15994.** Say five years ago.  
   → Скажите «пять лет назад».
-- [ ] **15994.** Five years ago.  
+- [ ] **15995.** Five years ago.  
   → Пять лет назад.
-- [ ] **15995.** Say when you were ten, you moved to London.  
-  → Скажите, что когда вам было десять, вы переехали в Лондон.
-- [ ] **15996.** When I was ten, we moved to London.  
+- [ ] **15996.** Say when you were ten, you moved to London.  
+  → Скажите, что, когда вам было десять, вы переехали в Лондон.
+- [ ] **15997.** When I was ten, we moved to London.  
   → Когда мне было десять, мы переехали в Лондон.
-- [ ] **15997.** How was your summer?  
+- [ ] **15998.** How was your summer?  
   → Как прошло твоё лето?
-- [ ] **15998.** Tell a friend what you did in the summer, and ask about theirs.  
-  → Расскажите другу, что вы делали летом, и спросите о его лете.
-- [ ] **15999.** Hi, Tom! How was your summer?  
+- [ ] **15999.** Tell a friend what you did in the summer, and ask about theirs.  
+  → Расскажите другу, что вы делали летом, и спросите, как лето прошло у него.
+- [ ] **16000.** Hi, Tom! How was your summer?  
   → Привет, Том! Как прошло твоё лето?
-- [ ] **16000.** Really good! I went to Saaremaa.  
+- [ ] **16001.** Really good! I went to Saaremaa.  
   → Очень хорошо! Я ездил на Сааремаа.
-- [ ] **16001.** Really? What did you do there?  
+- [ ] **16002.** Really? What did you do there?  
   → Правда? Что ты там делал?
-- [ ] **16002.** I stayed at a friend's in the country. We went to the sauna and ate lots of fish.  
+- [ ] **16003.** I stayed at a friend's in the country. We went to the sauna and ate lots of fish.  
   → Я жил у друга в деревне. Мы ходили в сауну и ели много рыбы.
-- [ ] **16003.** Have you been there before?  
+- [ ] **16004.** Have you been there before?  
   → Ты бывал там раньше?
-- [ ] **16004.** No, it was the first time. And you? What did you do in the summer?  
+- [ ] **16005.** No, it was the first time. And you? What did you do in the summer?  
   → Нет, это был первый раз. А ты? Что ты делала летом?
-- [ ] **16005.** I worked. I didn't go anywhere.  
+- [ ] **16006.** I worked. I didn't go anywhere.  
   → Я работала. Я никуда не ездила.
-- [ ] **16006.** Shame! Next summer come to Saaremaa too!  
+- [ ] **16007.** Shame! Next summer come to Saaremaa too!  
   → Жалко! Следующим летом тоже приезжай на Сааремаа!
-- [ ] **16007.** A whole conversation about the summer, made of part three: what you did, what you didn't, and what you've done before.  
+- [ ] **16008.** A whole conversation about the summer, made of part three: what you did, what you didn't, and what you've done before.  
   → Целый разговор о лете из материала третьей части: что вы делали, чего не делали и что делали раньше.
-- [ ] **16008.** Three times are at work in it: {käisin} and {tegid} are the past, {ei käinud} is no in the past, and {oled käinud} is have been.  
-  → В нём работают три времени: {käisin} и {tegid} это прошедшее, {ei käinud} это отрицание в прошедшем, а {oled käinud} значит «бывал(а)».
-- [ ] **16009.** At the end, Mari asks you about your summer. Answer as yourself, one turn at a time.  
-  → В конце Мари спрашивает о вашем лете. Отвечайте от себя, по одной реплике.
-- [ ] **16010.** {Esimene kord} is the first time. Asked whether you've been before, {see oli esimene kord} is the whole answer.  
-  → {Esimene kord} значит «первый раз». Если вас спросят, бывали ли вы там раньше, {see oli esimene kord} это весь ответ.
-- [ ] **16011.** Say really good, and that you went to Saaremaa.  
-  → Скажите «очень хорошо» и что ездили на Сааремаа.
-- [ ] **16012.** Say you went to the sauna and ate lots of fish.  
+- [ ] **16009.** Three times are at work in it: {käisin} and {tegid} are the past, {ei käinud} is no in the past, and {oled käinud} is have been.  
+  → В нём используются три времени: {käisin} и {tegid} стоят в прошедшем времени, {ei käinud} выражает отрицание в прошедшем, а {oled käinud} значит «бывал(а)».
+- [ ] **16010.** At the end, Liis asks you about your summer. Answer as yourself, one turn at a time.  
+  → В конце Лийс спрашивает о вашем лете. Отвечайте от себя, по одной реплике.
+- [ ] **16011.** {Esimene kord} is the first time. Asked whether you've been before, {see oli esimene kord} is the whole answer.  
+  → {Esimene kord} значит «первый раз». Если вас спросят, бывали ли вы там раньше, достаточно ответить {see oli esimene kord}.
+- [ ] **16012.** Say really good, and that you went to Saaremaa.  
+  → Скажите, что всё было очень хорошо и что вы ездили на Сааремаа.
+- [ ] **16013.** Say you went to the sauna and ate lots of fish.  
   → Скажите, что ходили в сауну и ели много рыбы.
-- [ ] **16013.** We went to the sauna and ate lots of fish.  
+- [ ] **16014.** We went to the sauna and ate lots of fish.  
   → Мы ходили в сауну и ели много рыбы.
-- [ ] **16014.** Say no, it was the first time.  
+- [ ] **16015.** Say no, it was the first time.  
   → Скажите «нет, это был первый раз».
-- [ ] **16015.** No, it was the first time.  
+- [ ] **16016.** No, it was the first time.  
   → Нет, это был первый раз.
-- [ ] **16016.** An old friend stops you in the street after the summer. She speaks first. Answer as yourself.  
+- [ ] **16017.** An old friend stops you in the street after the summer. She speaks first. Answer as yourself.  
   → После лета на улице вас останавливает старая знакомая. Она начинает первой. Отвечайте от себя.
-- [ ] **16017.** Hi! How was your summer?  
+- [ ] **16018.** Hi! How was your summer?  
   → Привет! Как прошло твоё лето?
-- [ ] **16018.** Say it was good, and where you went.  
+- [ ] **16019.** Say it was good, and where you went.  
   → Скажите, что было хорошо и куда вы ездили.
-- [ ] **16019.** Say what you did there.  
+- [ ] **16020.** Say what you did there.  
   → Скажите, что вы там делали.
-- [ ] **16020.** Say no, it was the first time, and ask what she did in the summer.  
+- [ ] **16021.** Say no, it was the first time, and ask what she did in the summer.  
   → Скажите «нет, это был первый раз» и спросите, что она делала летом.
-- [ ] **16021.** No, it was the first time. What did you do in the summer?  
+- [ ] **16022.** No, it was the first time. What did you do in the summer?  
   → Нет, это был первый раз. А что ты делала летом?
-- [ ] **16022.** Say what a shame.  
+- [ ] **16023.** Say what a shame.  
   → Скажите «как жаль».
-- [ ] **16023.** Shame!  
+- [ ] **16024.** Shame!  
   → Жалко!
-- [ ] **16024.** Yes. But I have to go now. Bye!  
+- [ ] **16025.** Yes. But I have to go now. Bye!  
   → Да. Но мне уже пора идти. Пока!
-- [ ] **16025.** Hands, feet and eyes  
+- [ ] **16026.** Hands, feet and eyes  
   → Руки, ноги и глаза
-- [ ] **16026.** Name the parts of the body, and say what hurts when it's more than one.  
-  → Назовите части тела и скажите, что болит, когда это больше чем одно.
-- [ ] **16027.** Tom, how's it going?  
+- [ ] **16027.** Name the parts of the body, and say what hurts when it's more than one.  
+  → Назовите части тела и скажите, что болит, во множественном числе.
+- [ ] **16028.** Tom, how's it going?  
   → Том, как дела?
-- [ ] **16028.** Badly. My legs hurt.  
+- [ ] **16029.** Badly. My legs hurt.  
   → Плохо. У меня болят ноги.
-- [ ] **16029.** Why?  
+- [ ] **16030.** Why?  
   → Почему?
-- [ ] **16030.** I ran a lot yesterday.  
+- [ ] **16031.** I ran a lot yesterday.  
   → Я вчера много бегал.
-- [ ] **16031.** Do your arms hurt too?  
+- [ ] **16032.** Do your arms hurt too?  
   → Руки тоже болят?
-- [ ] **16032.** No, my arms don't hurt. But my back and neck hurt.  
+- [ ] **16033.** No, my arms don't hurt. But my back and neck hurt.  
   → Нет, руки не болят. Но болят спина и шея.
-- [ ] **16033.** You need to rest!  
+- [ ] **16034.** You need to rest!  
   → Тебе нужно отдохнуть!
-- [ ] **16034.** Yes. I'm not running today.  
+- [ ] **16035.** Yes. I'm not running today.  
   → Да. Сегодня я не бегаю.
-- [ ] **16035.** hand, arm  
+- [ ] **16036.** hand, arm  
   → кисть, рука
-- [ ] **16036.** of the hand  
+- [ ] **16037.** of the hand  
   → руки (чего)
-- [ ] **16037.** hands, arms  
+- [ ] **16038.** hands, arms  
   → руки
-- [ ] **16038.** foot, leg  
+- [ ] **16039.** foot, leg  
   → ступня, нога
-- [ ] **16039.** of the foot  
+- [ ] **16040.** of the foot  
   → ноги (чего)
-- [ ] **16040.** feet, legs  
+- [ ] **16041.** feet, legs  
   → ноги
-- [ ] **16041.** of the eye  
+- [ ] **16042.** of the eye  
   → глаза (чего)
-- [ ] **16042.** eyes  
+- [ ] **16043.** eyes  
   → глаза
-- [ ] **16043.** tooth  
+- [ ] **16044.** tooth  
   → зуб
-- [ ] **16044.** of the tooth  
+- [ ] **16045.** of the tooth  
   → зуба (чего)
-- [ ] **16045.** neck  
+- [ ] **16046.** neck  
   → шея
-- [ ] **16046.** nose  
+- [ ] **16047.** nose  
   → нос
-- [ ] **16047.** hurt, when it's more than one  
-  → болят, когда это больше чем одно
-- [ ] **16048.** to rest  
+- [ ] **16048.** hurt, when it's more than one  
+  → болят (во множественном числе)
+- [ ] **16049.** to rest  
   → отдыхать
-- [ ] **16049.** I rest  
+- [ ] **16050.** I rest  
   → я отдыхаю
-- [ ] **16050.** More than one is the \[omastav\] (2nd form) with -d on it: {käe} and then {käed}, {jala} and then {jalad}. It's the same stem the endings of part one go on.  
-  → Множественное число это \[omastav\] (2-я форма) с -d на конце: {käe}, а потом {käed}, {jala}, а потом {jalad}. Это та же основа, к которой прибавлялись окончания из первой части.
-- [ ] **16051.** Its stem  
+- [ ] **16051.** More than one is the \[omastav\] (2nd form) with -d on it: {käe} and then {käed}, {jala} and then {jalad}. It's the same stem the endings of part one go on.  
+  → Множественное число образуется от \[omastav\] (2-я форма) с помощью -d: {käe}, а потом {käed}; {jala}, а потом {jalad}. Это та же основа, к которой прибавлялись окончания из первой части.
+- [ ] **16052.** Its stem  
   → Его основа
-- [ ] **16052.** When more than one thing hurts, the verb says so too: {Mul valutab pea}, but {Mul valutavad jalad}.  
-  → Когда болит больше чем одно, глагол тоже это показывает: {Mul valutab pea}, но {Mul valutavad jalad}.
-- [ ] **16053.** {Käsi} is a hand and an arm, and {jalg} a foot and a leg. Estonian doesn't split them.  
-  → {Käsi} это и кисть, и вся рука, а {jalg} и ступня, и вся нога. Эстонский их не разделяет.
-- [ ] **16054.** {Sa pead puhkama} is you need to rest: {pidama} and then the \[ma-tegevusnimi\] (-ma), as in A1.  
+- [ ] **16053.** When more than one thing hurts, the verb says so too: {Mul valutab pea}, but {Mul valutavad jalad}.  
+  → Если болит несколько частей тела, глагол тоже это показывает: {Mul valutab pea}, но {Mul valutavad jalad}.
+- [ ] **16054.** {Käsi} is a hand and an arm, and {jalg} a foot and a leg. Estonian doesn't split them.  
+  → {Käsi} означает и кисть, и всю руку, а {jalg} и ступню, и всю ногу. Эстонский их не разделяет.
+- [ ] **16055.** {Sa pead puhkama} is you need to rest: {pidama} and then the \[ma-tegevusnimi\] (-ma), as in A1.  
   → {Sa pead puhkama} значит «тебе нужно отдохнуть»: {pidama}, а за ним \[ma-tegevusnimi\] (-ma), как в A1.
-- [ ] **16055.** Don't guess the plural from the word you look up. {Hammas} is {hambad}, never hammasd: find the stem first, then add -d.  
+- [ ] **16056.** Don't guess the plural from the word you look up. {Hammas} is {hambad}, never hammasd: find the stem first, then add -d.  
   → Не угадывайте множественное число по слову из словаря. {Hammas} будет {hambad}, а не hammasd: сначала найдите основу, потом добавьте -d.
-- [ ] **16056.** Say badly, your legs hurt.  
-  → Скажите «плохо», у вас болят ноги.
-- [ ] **16057.** Say no, your arms don't hurt.  
+- [ ] **16057.** Say badly, your legs hurt.  
+  → Скажите, что плохо: у вас болят ноги.
+- [ ] **16058.** Say no, your arms don't hurt.  
   → Скажите «нет, руки не болят».
-- [ ] **16058.** No, my arms don't hurt.  
+- [ ] **16059.** No, my arms don't hurt.  
   → Нет, руки у меня не болят.
-- [ ] **16059.** Say your eyes hurt.  
+- [ ] **16060.** Say your eyes hurt.  
   → Скажите, что у вас болят глаза.
-- [ ] **16060.** My eyes hurt.  
+- [ ] **16061.** My eyes hurt.  
   → У меня болят глаза.
-- [ ] **16061.** Tell a friend they need to rest.  
+- [ ] **16062.** Tell a friend they need to rest.  
   → Скажите другу, что ему нужно отдохнуть.
-- [ ] **16062.** An appointment  
+- [ ] **16063.** An appointment  
   → Запись к врачу
-- [ ] **16063.** Call the health center, say what's wrong and book a time with your doctor.  
+- [ ] **16064.** Call the health center, say what's wrong and book a time with your doctor.  
   → Позвоните в поликлинику, скажите, что вас беспокоит, и запишитесь к своему врачу.
-- [ ] **16064.** Health center, hello!  
+- [ ] **16065.** Health center, hello!  
   → Поликлиника, здравствуйте!
-- [ ] **16065.** Hello! I'd like an appointment with my family doctor.  
+- [ ] **16066.** Hello! I'd like an appointment with my family doctor.  
   → Здравствуйте! Я хотел(а) бы записаться к семейному врачу.
-- [ ] **16066.** I have a cough and a runny nose. And my throat hurts.  
+- [ ] **16067.** I have a cough and a runny nose. And my throat hurts.  
   → У меня кашель и насморк. И горло болит.
-- [ ] **16067.** When did it start?  
+- [ ] **16068.** When did it start?  
   → Когда это началось?
-- [ ] **16068.** Yesterday evening.  
+- [ ] **16069.** Yesterday evening.  
   → Вчера вечером.
-- [ ] **16069.** Does tomorrow at ten suit you?  
+- [ ] **16070.** Does tomorrow at ten suit you?  
   → Вам подходит завтра в десять?
-- [ ] **16070.** Unfortunately not, I'm working. Is there time in the afternoon?  
+- [ ] **16071.** Unfortunately not, I'm working. Is there time in the afternoon?  
   → К сожалению, нет, я работаю. Есть время после обеда?
-- [ ] **16071.** Yes, three o'clock is free.  
+- [ ] **16072.** Yes, three o'clock is free.  
   → Да, в три часа свободно.
-- [ ] **16072.** Very good, thank you!  
+- [ ] **16073.** Very good, thank you!  
   → Очень хорошо, спасибо!
-- [ ] **16073.** health center  
+- [ ] **16074.** health center  
   → поликлиника, центр здоровья
-- [ ] **16074.** I would like  
+- [ ] **16075.** I would like  
   → я хотел(а) бы
-- [ ] **16075.** family doctor, GP  
+- [ ] **16076.** family doctor, GP  
   → семейный врач
-- [ ] **16076.** of the family doctor  
+- [ ] **16077.** of the family doctor  
   → семейного врача (чего)
-- [ ] **16077.** a cough  
+- [ ] **16078.** a cough  
   → кашель
-- [ ] **16078.** a runny nose, a cold in the head  
+- [ ] **16079.** a runny nose, a cold in the head  
   → насморк
-- [ ] **16079.** throat  
+- [ ] **16080.** throat  
   → горло
-- [ ] **16080.** to start, to begin  
+- [ ] **16081.** to start, to begin  
   → начинаться, начинать
-- [ ] **16081.** I start  
+- [ ] **16082.** I start  
   → я начинаю
-- [ ] **16082.** it started  
+- [ ] **16083.** it started  
   → это началось
-- [ ] **16083.** to suit, to be all right  
+- [ ] **16084.** to suit, to be all right  
   → подходить, устраивать
-- [ ] **16084.** I suit  
+- [ ] **16085.** I suit  
   → я подхожу
-- [ ] **16085.** in the afternoon  
+- [ ] **16086.** in the afternoon  
   → после обеда, днём
-- [ ] **16086.** free  
+- [ ] **16087.** free  
   → свободный
-- [ ] **16087.** {Tahaksin} is I would like, the polite way to ask for something: {Ma tahaksin aega}. It's {tahtma} with -ksin, and part six shows the rest of it.  
+- [ ] **16088.** {Tahaksin} is I would like, the polite way to ask for something: {Ma tahaksin aega}. It's {tahtma} with -ksin, and part six shows the rest of it.  
   → {Tahaksin} значит «я хотел(а) бы», вежливый способ что-то попросить: {Ma tahaksin aega}. Это {tahtma} с -ksin, а остальное покажет шестая часть.
-- [ ] **16088.** I'd like an appointment with my family doctor.  
+- [ ] **16089.** I'd like an appointment with my family doctor.  
   → Я хотел(а) бы записаться к своему семейному врачу.
-- [ ] **16089.** Does ten o'clock suit you?  
-  → Вам подходит десять часов?
-- [ ] **16090.** Unfortunately not.  
+- [ ] **16090.** Does ten o'clock suit you?  
+  → Вам подходит в десять?
+- [ ] **16091.** Unfortunately not.  
   → К сожалению, нет.
-- [ ] **16091.** Three o'clock is free.  
+- [ ] **16092.** Three o'clock is free.  
   → В три часа свободно.
-- [ ] **16092.** An appointment is time: {aega}, the \[osastav\] (3rd form) of {aeg} you met in part three. {Arsti juurde} is to the doctor, with {juurde} from part two.  
-  → Запись на приём это время: {aega}, \[osastav\] (3-я форма) от {aeg}, которую вы встречали в третьей части. {Arsti juurde} значит «к врачу», с {juurde} из второй части.
-- [ ] **16093.** {Millal see algas?} is when did it start, the question every doctor asks. {Algas} is the past of {algama}, learned by name like the verbs of part three.  
-  → {Millal see algas?} значит «когда это началось», вопрос, который задаёт любой врач. {Algas} это прошедшее время от {algama}, его учат как отдельное слово, как глаголы третьей части.
-- [ ] **16094.** {Sobib} is the word for a time that works: {Kas homme sobib?} And no is {ei sobi}.  
-  → {Sobib} это слово для времени, которое подходит: {Kas homme sobib?} А отказ это {ei sobi}.
-- [ ] **16095.** {Köha}, {nohu} and a sore throat are what you have, so they go after {mul on}, like {palavik} in A1.  
-  → {Köha}, {nohu} и больное горло это то, что у вас есть, поэтому они идут после {mul on}, как {palavik} в A1.
-- [ ] **16096.** {Tahaksin} asks; {tahan} demands. To a receptionist, use {tahaksin}.  
+- [ ] **16093.** An appointment is time: {aega}, the \[osastav\] (3rd form) of {aeg} you met in part three. {Arsti juurde} is to the doctor, with {juurde} from part two.  
+  → Чтобы записаться на приём, просят время: {aega}, \[osastav\] (3-я форма) слова {aeg}, которое вы встречали в третьей части. {Arsti juurde} значит «к врачу», с {juurde} из второй части.
+- [ ] **16094.** {Millal see algas?} is when did it start, the question every doctor asks. {Algas} is the past of {algama}, learned by name like the verbs of part three.  
+  → {Millal see algas?} значит «когда это началось?», этот вопрос задаёт любой врач. {Algas} стоит в прошедшем времени, это форма от {algama}; её запоминают отдельно, как глаголы третьей части.
+- [ ] **16095.** {Sobib} is the word for a time that works: {Kas homme sobib?} And no is {ei sobi}.  
+  → {Sobib} говорят о времени, которое подходит: {Kas homme sobib?} А если не подходит, говорят {ei sobi}.
+- [ ] **16096.** {Köha} and {nohu} are what you have, so they go after {mul on}, like {palavik} in A1. A sore throat is said with the verb: {kurk valutab}.  
+  → {Köha} и {nohu} у вас «есть», поэтому они стоят после {mul on}, как {palavik} в A1. О больном горле говорят с глаголом: {kurk valutab}.
+- [ ] **16097.** {Tahaksin} asks; {tahan} demands. To a receptionist, use {tahaksin}.  
   → {Tahaksin} просит, {tahan} требует. В разговоре с регистратором говорите {tahaksin}.
-- [ ] **16097.** Say you'd like an appointment with your family doctor.  
+- [ ] **16098.** Say you'd like an appointment with your family doctor.  
   → Скажите, что хотели бы записаться к своему семейному врачу.
-- [ ] **16098.** Say you have a cough and your throat hurts.  
+- [ ] **16099.** Say you have a cough and your throat hurts.  
   → Скажите, что у вас кашель и болит горло.
-- [ ] **16099.** I have a cough and my throat hurts.  
+- [ ] **16100.** I have a cough and my throat hurts.  
   → У меня кашель и болит горло.
-- [ ] **16100.** Say yes, it suits you.  
+- [ ] **16101.** Say yes, it suits you.  
   → Скажите, что да, вам подходит.
-- [ ] **16101.** Yes, that suits me.  
+- [ ] **16102.** Yes, that suits me.  
   → Да, мне подходит.
-- [ ] **16102.** Ask if there's time in the afternoon.  
+- [ ] **16103.** Ask if there's time in the afternoon.  
   → Спросите, есть ли время после обеда.
-- [ ] **16103.** Is there time in the afternoon?  
+- [ ] **16104.** Is there time in the afternoon?  
   → Есть время после обеда?
-- [ ] **16104.** At the pharmacy  
+- [ ] **16105.** At the pharmacy  
   → В аптеке
-- [ ] **16105.** Ask for something against a cold, and understand how often to take it.  
-  → Попросите что-нибудь от простуды и поймите, как часто это принимать.
-- [ ] **16106.** I have a cold. Do you have anything for a cough?  
+- [ ] **16106.** Ask for something against a cold, and understand how often to take it.  
+  → Попросите что-нибудь от простуды и выясните, как часто это принимать.
+- [ ] **16107.** I have a cold. Do you have anything for a cough?  
   → Я простыл(а). У вас есть что-нибудь от кашля?
-- [ ] **16107.** Yes, these tablets. Take one tablet three times a day.  
+- [ ] **16108.** Yes, these tablets. Take one tablet three times a day.  
   → Да, вот эти таблетки. Принимайте по одной таблетке три раза в день.
-- [ ] **16108.** Can I get them without a prescription?  
+- [ ] **16109.** Can I get them without a prescription?  
   → Их можно купить без рецепта?
-- [ ] **16109.** Yes, you can without a prescription.  
+- [ ] **16110.** Yes, you can without a prescription.  
   → Да, можно без рецепта.
-- [ ] **16110.** And do you have anything for a runny nose?  
+- [ ] **16111.** And do you have anything for a runny nose?  
   → А у вас есть что-нибудь от насморка?
-- [ ] **16111.** Yes, nose drops.  
+- [ ] **16112.** Yes, nose drops.  
   → Да, капли для носа.
-- [ ] **16112.** Thank you, I'll take them.  
+- [ ] **16113.** Thank you, I'll take them.  
   → Спасибо, я их возьму.
-- [ ] **16113.** a cold  
+- [ ] **16114.** a cold  
   → простуда
-- [ ] **16114.** against; for an illness, after its name  
+- [ ] **16115.** against; for an illness, after its name  
   → против; от болезни, после её названия
-- [ ] **16115.** tablet, pill  
+- [ ] **16116.** tablet, pill  
   → таблетка
-- [ ] **16116.** tablets  
+- [ ] **16117.** tablets  
   → таблетки
-- [ ] **16117.** take!, polite  
+- [ ] **16118.** take!, polite  
   → принимайте!, вежливо
-- [ ] **16118.** a day, as in three times a day  
+- [ ] **16119.** a day, as in three times a day  
   → в день, как в «три раза в день»
-- [ ] **16119.** these, they, more than one  
-  → эти, они, больше чем один
-- [ ] **16120.** them, these, as an object  
+- [ ] **16120.** these, they, more than one  
+  → эти, они (во множественном числе)
+- [ ] **16121.** them, these, as an object  
   → их, эти, как дополнение
-- [ ] **16121.** prescription  
+- [ ] **16122.** prescription  
   → рецепт
-- [ ] **16122.** of the prescription  
+- [ ] **16123.** of the prescription  
   → рецепта (чего)
-- [ ] **16123.** nose drops  
+- [ ] **16124.** nose drops  
   → капли для носа
-- [ ] **16124.** of the milk  
+- [ ] **16125.** of the milk  
   → молока (чего)
-- [ ] **16125.** of the coffee  
+- [ ] **16126.** of the coffee  
   → кофе (чего)
-- [ ] **16126.** of the card  
+- [ ] **16127.** of the card  
   → карты (чего)
-- [ ] **16127.** Without is -ta on the stem: {retsepti} and then {retseptita}. It's \[ilmaütlev\] (-ta, without), and {ilma} in front is allowed too: {ilma retseptita}.  
-  → Без, это -ta на основе: {retsepti}, а затем {retseptita}. Это \[ilmaütlev\] (-ta, без), и перед ним можно поставить {ilma}: {ilma retseptita}.
-- [ ] **16128.** Stem  
+- [ ] **16128.** Without is -ta on the stem: {retsepti} and then {retseptita}. It's \[ilmaütlev\] (-ta, without), and {ilma} in front is allowed too: {ilma retseptita}.  
+  → «Без» выражается окончанием -ta, которое добавляется к основе: {retsepti}, а затем {retseptita}. Это \[ilmaütlev\] (-ta, без), и перед ним можно поставить ещё и {ilma}: {ilma retseptita}.
+- [ ] **16129.** Stem  
   → Основа
-- [ ] **16129.** Without it  
+- [ ] **16130.** Without it  
   → Без него
-- [ ] **16130.** {Kohv piimata} is coffee without milk, and {ilma piimata} says the same a little more firmly.  
-  → {Kohv piimata} это кофе без молока, а {ilma piimata} говорит то же самое чуть настойчивее.
-- [ ] **16131.** Medicine is against an illness: {köha vastu}, {nohu vastu}. The illness comes first, in its \[omastav\] (2nd form).  
-  → Лекарство бывает от болезни: {köha vastu}, {nohu vastu}. Болезнь стоит первой, в своей \[omastav\] (2-я форма).
-- [ ] **16132.** {Kolm korda päevas} is three times a day. {Päevas} is a day, the way a dose is counted.  
-  → {Kolm korda päevas} это три раза в день. {Päevas} значит «в день», так считают дозу.
-- [ ] **16133.** {Võtke} is the polite take!, said to you by the pharmacist. You say {Ma võtan need}: I'll take them.  
-  → {Võtke} это вежливое «возьмите!», так вам говорит фармацевт. Вы отвечаете {Ma võtan need}: я их возьму.
-- [ ] **16134.** Say you have a cold, and ask for something for a cough.  
+- [ ] **16131.** {Kohv piimata} is coffee without milk, and {ilma piimata} says the same a little more firmly.  
+  → {Kohv piimata} значит «кофе без молока», а {ilma piimata} выражает то же самое чуть настойчивее.
+- [ ] **16132.** Medicine is against an illness: {köha vastu}, {nohu vastu}. The illness comes first, in its \[omastav\] (2nd form).  
+  → Лекарство принимают от болезни: {köha vastu}, {nohu vastu}. Название болезни стоит первым, в \[omastav\] (2-я форма).
+- [ ] **16133.** {Kolm korda päevas} is three times a day. {Päevas} is a day, the way a dose is counted.  
+  → {Kolm korda päevas} значит «три раза в день». {Päevas} значит «в день», так указывают дозировку.
+- [ ] **16134.** {Võtke} is the polite take!, said to you by the pharmacist. You say {Ma võtan need}: I'll take them.  
+  → {Võtke} означает вежливое «принимайте!», так вам говорит фармацевт. Вы отвечаете {Ma võtan need}: я их возьму.
+- [ ] **16135.** Say you have a cold, and ask for something for a cough.  
   → Скажите, что вы простудились, и попросите что-нибудь от кашля.
-- [ ] **16135.** Ask if you can get them without a prescription.  
+- [ ] **16136.** Ask if you can get them without a prescription.  
   → Спросите, можно ли купить их без рецепта.
-- [ ] **16136.** Coffee with milk?  
+- [ ] **16137.** Coffee with milk?  
   → Кофе с молоком?
-- [ ] **16137.** Say no, without milk.  
+- [ ] **16138.** Say no, without milk.  
   → Скажите: нет, без молока.
-- [ ] **16138.** No, without milk.  
+- [ ] **16139.** No, without milk.  
   → Нет, без молока.
-- [ ] **16139.** Take one tablet three times a day.  
+- [ ] **16140.** Take one tablet three times a day.  
   → Принимайте по одной таблетке три раза в день.
-- [ ] **16140.** Say thank you, you'll take them.  
-  → Скажите спасибо, вы их возьмете.
-- [ ] **16141.** How do you feel?  
+- [ ] **16141.** Say thank you, you'll take them.  
+  → Скажите «спасибо» и что вы их возьмёте.
+- [ ] **16142.** How do you feel?  
   → Как вы себя чувствуете?
-- [ ] **16142.** Say how you feel, ask a friend what's wrong, and tell them not to worry.  
-  → Скажите, как вы себя чувствуете, спросите друга, что случилось, и скажите ему не волноваться.
-- [ ] **16143.** Kati, what's wrong? You're so quiet.  
+- [ ] **16143.** Say how you feel, ask a friend what's wrong, and tell them not to worry.  
+  → Скажите, как вы себя чувствуете, спросите друга, что случилось, и попросите его не волноваться.
+- [ ] **16144.** Kati, what's wrong? You're so quiet.  
   → Кати, что с тобой? Ты такая тихая.
-- [ ] **16144.** I'm tired and a bit sad.  
-  → Я устала и мне немного грустно.
-- [ ] **16145.** I have a lot of worries at work.  
+- [ ] **16145.** I'm tired and a bit sad.  
+  → Я устала, и мне немного грустно.
+- [ ] **16146.** I have a lot of worries at work.  
   → У меня много забот на работе.
-- [ ] **16146.** Stop worrying! Everything will be fine.  
-  → Не волнуйся! Все будет хорошо.
-- [ ] **16147.** I really hope so.  
+- [ ] **16147.** Stop worrying! Everything will be fine.  
+  → Не волнуйся! Всё будет хорошо.
+- [ ] **16148.** I really hope so.  
   → Очень на это надеюсь.
-- [ ] **16148.** Should we go to the cinema this evening? Then you'll be happy again.  
+- [ ] **16149.** Should we go to the cinema this evening? Then you'll be happy again.  
   → Сходим вечером в кино? Тогда ты снова повеселеешь.
-- [ ] **16149.** Good idea! Thanks, Liis.  
+- [ ] **16150.** Good idea! Thanks, Liis.  
   → Хорошая идея! Спасибо, Лийс.
-- [ ] **16150.** What's wrong? What's up with you?  
+- [ ] **16151.** What's wrong? What's up with you?  
   → Что случилось? Что с тобой?
-- [ ] **16151.** so  
+- [ ] **16152.** so  
   → так
-- [ ] **16152.** quiet  
+- [ ] **16153.** quiet  
   → тихий
-- [ ] **16153.** glad, happy, cheerful  
-  → радостный, веселый
-- [ ] **16154.** happy, the deep kind  
+- [ ] **16154.** glad, happy, cheerful  
+  → радостный, весёлый
+- [ ] **16155.** happy, the deep kind  
   → счастливый, по-настоящему
-- [ ] **16155.** a worry, a trouble  
+- [ ] **16156.** a worry, a trouble  
   → забота, беда
-- [ ] **16156.** worries, after {palju}  
-  → заботы, после {palju}
-- [ ] **16157.** to worry  
+- [ ] **16157.** worries, after {palju}  
+  → забот, после {palju}
+- [ ] **16158.** to worry  
   → волноваться
-- [ ] **16158.** I worry  
+- [ ] **16159.** I worry  
   → я волнуюсь
-- [ ] **16159.** don't!, to one person  
+- [ ] **16160.** don't!, to one person  
   → не надо!, одному человеку
-- [ ] **16160.** I hope  
+- [ ] **16161.** I hope  
   → я надеюсь
-- [ ] **16161.** indeed, really; it makes a yes warmer  
+- [ ] **16162.** indeed, really; it makes a yes warmer  
   → действительно, правда; делает «да» теплее
-- [ ] **16162.** again  
+- [ ] **16163.** again  
   → снова
-- [ ] **16163.** Don't! is {ära} and then the command form: {Ära muretse!} is stop worrying. It's the {ei} of a command.  
-  → «Не надо!» это {ära} и затем повелительная форма: {Ära muretse!} значит «не волнуйся». Это {ei} для команды.
-- [ ] **16164.** Do it  
+- [ ] **16164.** Don't! is {ära} and then the command form: {Ära muretse!} is stop worrying. It's the {ei} of a command.  
+  → «Не надо!» выражают через {ära} и повелительную форму: {Ära muretse!} значит «не волнуйся». Это {ei} для команды.
+- [ ] **16165.** Do it  
   → Сделай
-- [ ] **16165.** Don't  
+- [ ] **16166.** Don't  
   → Не делай
-- [ ] **16166.** How you feel goes after {olen}: {Ma olen väsinud}, {Ma olen rõõmus}. It works like {Ma olen haige} in A1.  
+- [ ] **16167.** How you feel goes after {olen}: {Ma olen väsinud}, {Ma olen rõõmus}. It works like {Ma olen haige} in A1.  
   → Как вы себя чувствуете, говорят после {olen}: {Ma olen väsinud}, {Ma olen rõõmus}. Это работает как {Ma olen haige} на уровне A1.
-- [ ] **16167.** {Mis sul on?} is what's wrong, said to a friend. It's the {sina} side of {Mis teil viga on?}  
+- [ ] **16168.** {Mis sul on?} is what's wrong, said to a friend. It's the {sina} side of {Mis teil viga on?}  
   → {Mis sul on?} значит «что с тобой», так говорят другу. Это вариант на {sina} для {Mis teil viga on?}
-- [ ] **16168.** {Rõõmus} is cheerful, for today. {Õnnelik} is happy in your life, and is a bigger word.  
-  → {Rõõmus} это веселый, на сегодня. {Õnnelik} это счастливый в жизни, и это слово больше.
-- [ ] **16169.** {Ära} here is not the {ära} of part two, away. Before a command it means don't, and to two people or politely it's another word, which the next lesson teaches.  
-  → {Ära} здесь не то {ära} из второй части, «прочь». Перед командой оно значит «не надо», а двум людям или вежливо говорят другое слово, его даст следующий урок.
-- [ ] **16170.** Say you're tired and a bit sad.  
+- [ ] **16169.** {Rõõmus} is cheerful, for today. {Õnnelik} is happy in your life, and is a bigger word.  
+  → {Rõõmus} значит «весёлый», на сегодня. {Õnnelik} значит «счастливый в жизни», и это слово сильнее.
+- [ ] **16170.** {Ära} here is not the {ära} of part two, away. Before a command it means don't, and to two people or politely it's another word, which the next lesson teaches.  
+  → {Ära} здесь не то {ära} из второй части, «прочь». Перед командой оно значит «не надо», а двум людям или вежливо говорят другое слово, с ним познакомит следующий урок.
+- [ ] **16171.** Say you're tired and a bit sad.  
   → Скажите, что вы устали и вам немного грустно.
-- [ ] **16171.** Tell a friend not to worry, everything will be fine.  
-  → Скажите другу не волноваться, все будет хорошо.
-- [ ] **16172.** Are you happy?  
+- [ ] **16172.** Tell a friend not to worry, everything will be fine.  
+  → Скажите другу, чтобы он не волновался: всё будет хорошо.
+- [ ] **16173.** Are you happy?  
   → Ты счастлив?
-- [ ] **16173.** Say yes, really.  
+- [ ] **16174.** Say yes, really.  
   → Скажите: да, правда.
-- [ ] **16174.** Yes, really.  
+- [ ] **16175.** Yes, I really am.  
   → Да, правда.
-- [ ] **16175.** Everything will be fine.  
-  → Все будет хорошо.
-- [ ] **16176.** Say you really hope so.  
+- [ ] **16176.** Everything will be fine.  
+  → Всё будет хорошо.
+- [ ] **16177.** Say you really hope so.  
   → Скажите, что очень на это надеетесь.
-- [ ] **16177.** What you may and mustn't do  
+- [ ] **16178.** What you may and mustn't do  
   → Что можно и чего нельзя
-- [ ] **16178.** Understand the doctor's advice, and ask what you may and mustn't do.  
+- [ ] **16179.** Understand the doctor's advice, and ask what you may and mustn't do.  
   → Поймите совет врача и спросите, что можно и чего нельзя.
-- [ ] **16179.** You have the flu.  
+- [ ] **16180.** You have the flu.  
   → У вас грипп.
-- [ ] **16180.** What do I have to do?  
+- [ ] **16181.** What do I have to do?  
   → Что мне нужно делать?
-- [ ] **16181.** You have to stay in bed for three days. Drink lots of tea.  
+- [ ] **16182.** You have to stay in bed for three days. Drink lots of tea.  
   → Вам нужно три дня полежать в постели. Пейте много чая.
-- [ ] **16182.** Am I allowed to go to work?  
+- [ ] **16183.** Am I allowed to go to work?  
   → Мне можно ходить на работу?
-- [ ] **16183.** No, you mustn't go to work. Don't go to work.  
+- [ ] **16184.** No, you mustn't go to work. Don't go to work.  
   → Нет, вам нельзя ходить на работу. Не ходите на работу.
-- [ ] **16184.** Can I play sports?  
+- [ ] **16185.** Can I play sports?  
   → Можно мне заниматься спортом?
-- [ ] **16185.** In a week you can.  
+- [ ] **16186.** In a week you can.  
   → Через неделю можно.
-- [ ] **16186.** Thank you, doctor!  
+- [ ] **16187.** Thank you, doctor!  
   → Спасибо, доктор!
-- [ ] **16187.** the flu  
+- [ ] **16188.** the flu  
   → грипп
-- [ ] **16188.** I'm allowed to  
+- [ ] **16189.** I'm allowed to  
   → мне разрешено
-- [ ] **16189.** can, may  
+- [ ] **16190.** can, may  
   → мочь, можно
-- [ ] **16190.** I can, I may  
+- [ ] **16191.** I can, I may  
   → я могу, мне можно
-- [ ] **16191.** don't!, polite or to two or more  
+- [ ] **16192.** don't!, polite or to two or more  
   → не надо!, вежливо или двум и больше
-- [ ] **16192.** sport, exercise  
+- [ ] **16193.** sport, exercise  
   → спорт, физкультура
-- [ ] **16193.** sport, as an object  
+- [ ] **16194.** sport, as an object  
   → спорт, как дополнение
-- [ ] **16194.** doctor, said to one  
+- [ ] **16195.** doctor, said to one  
   → доктор, при обращении
-- [ ] **16195.** {Võin} is I can or I may, {tohin} I'm allowed to, and {pean} I have to. All three take the da-form after them: {Kas ma tohin minna?}  
-  → {Võin} это я могу или мне можно, {tohin} мне разрешено, а {pean} я должен. После всех трех стоит da-форма: {Kas ma tohin minna?}
-- [ ] **16196.** You have to stay in bed.  
+- [ ] **16196.** {Võin} is I can or I may, {tohin} I'm allowed to, and {pean} I have to. {Võin} and {tohin} take the da-form after them: {Kas ma tohin minna?}  
+  → {Võin} значит «я могу» или «мне можно», {tohin} значит «мне разрешено», а {pean} значит «я должен». После {Võin} и {tohin} стоит da-форма: {Kas ma tohin minna?}
+- [ ] **16197.** You have to stay in bed.  
   → Вам нужно лежать в постели.
-- [ ] **16197.** You mustn't go to work.  
+- [ ] **16198.** You mustn't go to work.  
   → Вам нельзя ходить на работу.
-- [ ] **16198.** Don't go to work.  
+- [ ] **16199.** Don't go to work.  
   → Не ходите на работу.
-- [ ] **16199.** Careful: {pidama} takes the \[ma-tegevusnimi\] (-ma) ({pean olema}), while {võima} and {tohtima} take the \[da-tegevusnimi\] (-da) ({võin minna}).  
-  → Осторожно: после {pidama} идет \[ma-tegevusnimi\] (-ma) ({pean olema}), а после {võima} и {tohtima} \[da-tegevusnimi\] (-da) ({võin minna}).
-- [ ] **16200.** {Ei tohi} is mustn't, the strongest no a doctor gives. {Ei pea} is only don't have to.  
+- [ ] **16200.** Careful: {pidama} takes the \[ma-tegevusnimi\] (-ma) ({pean olema}), while {võima} and {tohtima} take the \[da-tegevusnimi\] (-da) ({võin minna}).  
+  → Осторожно: после {pidama} идёт \[ma-tegevusnimi\] (-ma) ({pean olema}), а после {võima} и {tohtima} \[da-tegevusnimi\] (-da) ({võin minna}).
+- [ ] **16201.** {Ei tohi} is mustn't, the strongest no a doctor gives. {Ei pea} is only don't have to.  
   → {Ei tohi} значит «нельзя», это самое строгое «нет» от врача. {Ei pea} значит только «не обязательно».
-- [ ] **16201.** {Ärge} is {ära} to two people or politely, and the command after it is the polite one too: {Ärge minge!}  
-  → {Ärge} это {ära} двум людям или вежливо, и команда после него тоже вежливая: {Ärge minge!}
-- [ ] **16202.** {Doktor} is what you call the doctor to their face. The doctor is {arst}.  
-  → {Doktor} это обращение к врачу лично. Сам врач это {arst}.
-- [ ] **16203.** Ask what you have to do.  
+- [ ] **16202.** {Ärge} is {ära} to two people or politely, and the command after it is the polite one too: {Ärge minge!}  
+  → {Ärge} значит {ära}, сказанное двум людям или вежливо, и повелительная форма после него тоже вежливая: {Ärge minge!}
+- [ ] **16203.** {Doktor} is what you call the doctor to their face. The doctor is {arst}.  
+  → {Doktor} говорят врачу при обращении к нему. А сам врач по-эстонски {arst}.
+- [ ] **16204.** Ask what you have to do.  
   → Спросите, что вам нужно делать.
-- [ ] **16204.** Ask if you're allowed to go to work.  
+- [ ] **16205.** Ask if you're allowed to go to work.  
   → Спросите, можно ли вам ходить на работу.
-- [ ] **16205.** Say no, they mustn't.  
-  → Скажите: нет, ему нельзя.
-- [ ] **16206.** No, you mustn't.  
+- [ ] **16206.** Say no, they mustn't.  
+  → Скажите, что нет, нельзя.
+- [ ] **16207.** No, you mustn't.  
   → Нет, вам нельзя.
-- [ ] **16207.** Tell a patient politely not to go to work.  
+- [ ] **16208.** Tell a patient politely not to go to work.  
   → Вежливо скажите пациенту не ходить на работу.
-- [ ] **16208.** Tell a doctor what's wrong, answer their questions and understand what to do.  
+- [ ] **16209.** Tell a doctor what's wrong, answer their questions and understand what to do.  
   → Скажите врачу, что случилось, ответьте на его вопросы и поймите, что делать.
-- [ ] **16209.** Hello! My throat hurts and I have a temperature.  
+- [ ] **16210.** Hello! My throat hurts and I have a temperature.  
   → Здравствуйте! У меня болит горло и температура.
-- [ ] **16210.** Yesterday morning. I'm very tired.  
+- [ ] **16211.** Yesterday morning. I'm very tired.  
   → Вчера утром. Я очень устал.
-- [ ] **16211.** Do you have a cough too?  
+- [ ] **16212.** Do you have a cough too?  
   → А кашель у вас тоже есть?
-- [ ] **16212.** A little. Am I allowed to go to work tomorrow?  
+- [ ] **16213.** A little. Am I allowed to go to work tomorrow?  
   → Немного. Можно мне завтра пойти на работу?
-- [ ] **16213.** No, you have to rest. I'll write you a prescription.  
+- [ ] **16214.** No, you have to rest. I'll write you a prescription.  
   → Нет, вам нужно отдыхать. Я выпишу вам рецепт.
-- [ ] **16214.** A whole visit to the doctor, made of part four: what hurts, how you feel, and what you may and mustn't do.  
-  → Целый визит к врачу из материала четвертой части: что болит, как вы себя чувствуете и что можно и чего нельзя.
-- [ ] **16215.** The doctor asks when it started: {Millal see algas?} An answer like {eile hommikul} is enough.  
+- [ ] **16215.** A whole visit to the doctor, made of part four: what hurts, how you feel, and what you may and mustn't do.  
+  → Целый визит к врачу из материала четвёртой части: что болит, как вы себя чувствуете и что можно и чего нельзя.
+- [ ] **16216.** The doctor asks when it started: {Millal see algas?} An answer like {eile hommikul} is enough.  
   → Врач спрашивает, когда это началось: {Millal see algas?} Достаточно ответа вроде {eile hommikul}.
-- [ ] **16216.** At the end, the doctor speaks to you. Answer as yourself, one turn at a time.  
+- [ ] **16217.** At the end, the doctor speaks to you. Answer as yourself, one turn at a time.  
   → В конце врач обращается к вам. Отвечайте от своего имени, по одной реплике.
-- [ ] **16217.** To a doctor, use {teie}: they say {teil}, {te peate}, and you ask {Kas ma tohin?}  
+- [ ] **16218.** To a doctor, use {teie}: they say {teil}, {te peate}, and you ask {Kas ma tohin?}  
   → С врачом говорите на {teie}: он говорит {teil}, {te peate}, а вы спрашиваете {Kas ma tohin?}
-- [ ] **16218.** Say your throat hurts and you have a temperature.  
+- [ ] **16219.** Say your throat hurts and you have a temperature.  
   → Скажите, что у вас болит горло и температура.
-- [ ] **16219.** My throat hurts and I have a temperature.  
+- [ ] **16220.** My throat hurts and I have a temperature.  
   → У меня болит горло и температура.
-- [ ] **16220.** Say yesterday morning.  
+- [ ] **16221.** Say yesterday morning.  
   → Скажите: вчера утром.
-- [ ] **16221.** Yesterday morning.  
+- [ ] **16222.** Yesterday morning.  
   → Вчера утром.
-- [ ] **16222.** Ask if you're allowed to go to work tomorrow.  
+- [ ] **16223.** Ask if you're allowed to go to work tomorrow.  
   → Спросите, можно ли вам завтра пойти на работу.
-- [ ] **16223.** Am I allowed to go to work tomorrow?  
+- [ ] **16224.** Am I allowed to go to work tomorrow?  
   → Можно мне завтра пойти на работу?
-- [ ] **16224.** You're at your family doctor's. The doctor speaks first. Answer as yourself.  
+- [ ] **16225.** You're at your family doctor's. The doctor speaks first. Answer as yourself.  
   → Вы у своего семейного врача. Врач говорит первым. Отвечайте от своего имени.
-- [ ] **16225.** Say what hurts.  
+- [ ] **16226.** Say what hurts.  
   → Скажите, что болит.
-- [ ] **16226.** Hello! My throat hurts.  
+- [ ] **16227.** Hello! My throat hurts.  
   → Здравствуйте! У меня болит горло.
-- [ ] **16227.** Answer, and say how you feel.  
+- [ ] **16228.** Answer, and say how you feel.  
   → Ответьте и скажите, как вы себя чувствуете.
-- [ ] **16228.** Yes, a little. I'm very tired.  
+- [ ] **16229.** Yes, a little. I'm very tired.  
   → Да, немного. Я очень устал.
-- [ ] **16229.** Say when it started.  
+- [ ] **16230.** Say when it started.  
   → Скажите, когда это началось.
-- [ ] **16230.** You have the flu. You have to stay in bed for three days.  
+- [ ] **16231.** You have the flu. You have to stay in bed for three days.  
   → У вас грипп. Вам нужно три дня полежать в постели.
-- [ ] **16231.** No, don't go to work. I'll write you a prescription.  
+- [ ] **16232.** No, don't go to work. I'll write you a prescription.  
   → Нет, не ходите на работу. Я выпишу вам рецепт.
-- [ ] **16232.** Thank the doctor.  
+- [ ] **16233.** Thank the doctor.  
   → Поблагодарите врача.
-- [ ] **16233.** Buy a train ticket there and back, and ask when it leaves and arrives.  
+- [ ] **16234.** Buy a train ticket there and back, and ask when it leaves and arrives.  
   → Купите билет на поезд туда и обратно и спросите, когда он отправляется и прибывает.
-- [ ] **16234.** Hello! One ticket to Tartu, please.  
+- [ ] **16235.** Hello! One ticket to Tartu, please.  
   → Здравствуйте! Один билет до Тарту, пожалуйста.
-- [ ] **16235.** One way or round trip?  
+- [ ] **16236.** One way or round trip?  
   → В одну сторону или туда и обратно?
-- [ ] **16236.** Round trip, please. When does the train leave?  
+- [ ] **16237.** Round trip, please. When does the train leave?  
   → Туда и обратно, пожалуйста. Когда отправляется поезд?
-- [ ] **16237.** At eight. The train leaves from platform one.  
+- [ ] **16238.** At eight. The train leaves from platform one.  
   → В восемь. Поезд отправляется с первой платформы.
-- [ ] **16238.** And when does it arrive in Tartu?  
+- [ ] **16239.** And when does it arrive in Tartu?  
   → А когда он прибывает в Тарту?
-- [ ] **16239.** At ten.  
+- [ ] **16240.** At ten.  
   → В десять.
-- [ ] **16240.** Twenty euros.  
+- [ ] **16241.** Twenty euros.  
   → Двадцать евро.
-- [ ] **16241.** one way  
+- [ ] **16242.** one way  
   → в одну сторону
-- [ ] **16242.** there and back, return  
+- [ ] **16243.** there and back, return  
   → туда и обратно
-- [ ] **16243.** to leave, to depart  
+- [ ] **16244.** to leave, to depart  
   → отправляться, уходить
-- [ ] **16244.** I leave  
+- [ ] **16245.** I leave  
   → я отправляюсь
-- [ ] **16245.** I arrive  
+- [ ] **16246.** I arrive  
   → я прибываю
-- [ ] **16246.** platform  
+- [ ] **16247.** platform  
   → платформа
-- [ ] **16247.** from the platform  
+- [ ] **16248.** from the platform  
   → с платформы
-- [ ] **16248.** of the station  
+- [ ] **16249.** of the station  
   → вокзала, станции
-- [ ] **16249.** of the train  
+- [ ] **16250.** of the train  
   → поезда
-- [ ] **16250.** A timetable says {väljub} and {saabub}: leaves and arrives. A train leaves from somewhere, with -lt, and arrives into somewhere, with -sse.  
-  → В расписании пишут {väljub} и {saabub}: отправляется и прибывает. Поезд отправляется откуда-то, с -lt, и прибывает куда-то, с -sse.
-- [ ] **16251.** The train leaves at eight.  
+- [ ] **16251.** A timetable says {väljub} and {saabub}: leaves and arrives. A train leaves from a platform with -lt, and arrives into a town with -sse.  
+  → В расписании пишут {väljub} и {saabub}: отправляется и прибывает. Поезд отправляется с платформы, с -lt, и прибывает в город, с -sse.
+- [ ] **16252.** The train leaves at eight.  
   → Поезд отправляется в восемь.
-- [ ] **16252.** The train leaves from platform one.  
+- [ ] **16253.** The train leaves from platform one.  
   → Поезд отправляется с первой платформы.
-- [ ] **16253.** The train arrives in Tartu at ten.  
+- [ ] **16254.** The train arrives in Tartu at ten.  
   → Поезд прибывает в Тарту в десять.
-- [ ] **16254.** One round-trip ticket, please.  
+- [ ] **16255.** One round-trip ticket, please.  
   → Один билет туда и обратно, пожалуйста.
-- [ ] **16255.** {Ühe otsa} is one way, and {edasi-tagasi} there and back. The ticket seller asks which.  
-  → {Ühe otsa} это в одну сторону, а {edasi-tagasi} туда и обратно. Кассир спрашивает, какой.
-- [ ] **16256.** In everyday talk, {läheb} and {tuleb} work too: {Millal rong läheb?} {Väljub} is the word on the board.  
-  → В обычной речи подходят и {läheb} и {tuleb}: {Millal rong läheb?} {Väljub} это слово на табло.
-- [ ] **16257.** Platform one is the first platform: {esimeselt platvormilt}, from part two's {esimene} with -lt on its stem.  
+- [ ] **16256.** {Ühe otsa} is one way, and {edasi-tagasi} there and back. The ticket seller asks which.  
+  → {Ühe otsa} значит «в одну сторону», а {edasi-tagasi} значит «туда и обратно». Кассир спрашивает, какой билет вам нужен.
+- [ ] **16257.** In everyday talk, {läheb} and {tuleb} work too: {Millal rong läheb?} {Väljub} is the word on the board.  
+  → В обычной речи подходят и {läheb}, и {tuleb}: {Millal rong läheb?} А на табло пишут {Väljub}.
+- [ ] **16258.** Platform one is the first platform: {esimeselt platvormilt}, from part two's {esimene} with -lt on its stem.  
   → Первая платформа: {esimeselt platvormilt}, от {esimene} из второй части, с -lt на основе.
-- [ ] **16258.** Arrive is into a place: {saabub Tartusse}, with -sse, as English says arrive in.  
+- [ ] **16259.** Arrive is into a place: {saabub Tartusse}, with -sse, as English says arrive in.  
   → Прибывают куда-то, внутрь места: {saabub Tartusse}, с -sse, как в русском «прибывает в».
-- [ ] **16259.** Ask for one ticket to Tartu.  
+- [ ] **16260.** Ask for one ticket to Tartu.  
   → Попросите один билет до Тарту.
-- [ ] **16260.** One ticket to Tartu, please.  
+- [ ] **16261.** One ticket to Tartu, please.  
   → Один билет до Тарту, пожалуйста.
-- [ ] **16261.** Say round trip, please.  
+- [ ] **16262.** Say round trip, please.  
   → Скажите: туда и обратно, пожалуйста.
-- [ ] **16262.** Round trip, please.  
+- [ ] **16263.** Round trip, please.  
   → Туда и обратно, пожалуйста.
-- [ ] **16263.** Ask when the train leaves.  
+- [ ] **16264.** Ask when the train leaves.  
   → Спросите, когда отправляется поезд.
-- [ ] **16264.** When does the train leave?  
+- [ ] **16265.** When does the train leave?  
   → Когда отправляется поезд?
-- [ ] **16265.** Until Friday  
+- [ ] **16266.** Until Friday  
   → До пятницы
-- [ ] **16266.** A visit to the doctor  
+- [ ] **16267.** A visit to the doctor  
   → Визит к врачу
-- [ ] **16267.** Say how far something goes and until when: until Friday, as far as the station.  
-  → Скажите, докуда что-то идет и до какого времени: до пятницы, до вокзала.
-- [ ] **16268.** How long are you in Tartu?  
+- [ ] **16268.** Say how far something goes and until when: until Friday, as far as the station.  
+  → Скажите, докуда что-то идёт и до какого времени: до пятницы, до вокзала.
+- [ ] **16269.** How long are you in Tartu?  
   → Надолго ты в Тарту?
-- [ ] **16269.** Until Friday. I'm working there from Monday to Friday.  
+- [ ] **16270.** Until Friday. I'm working there from Monday to Friday.  
   → До пятницы. Я работаю там с понедельника по пятницу.
-- [ ] **16270.** Does the bus go from the station to the town center?  
-  → Автобус идет от вокзала до центра города?
-- [ ] **16271.** Yes, but I'm going on foot.  
+- [ ] **16271.** Does the bus go from the station to the town center?  
+  → Автобус идёт от вокзала до центра города?
+- [ ] **16272.** Yes, but I'm going on foot.  
   → Да, но я пойду пешком.
-- [ ] **16272.** When are you coming back?  
-  → Когда ты вернешься?
-- [ ] **16273.** On Saturday. I'm at the office until five.  
+- [ ] **16273.** When are you coming back?  
+  → Когда ты вернёшься?
+- [ ] **16274.** On Saturday. I'm at the office until five.  
   → В субботу. Я в офисе до пяти.
-- [ ] **16274.** All right. Have a good trip!  
+- [ ] **16275.** All right. Have a good trip!  
   → Хорошо. Счастливого пути!
-- [ ] **16275.** of Friday  
+- [ ] **16276.** of Friday  
   → пятницы
-- [ ] **16276.** of Monday  
+- [ ] **16277.** of Monday  
   → понедельника
-- [ ] **16277.** of the clock  
+- [ ] **16278.** of the clock  
   → часа, часов
-- [ ] **16278.** of five  
+- [ ] **16279.** of five  
   → пяти
-- [ ] **16279.** until, up to  
+- [ ] **16280.** until, up to  
   → до, вплоть до
-- [ ] **16280.** Tartu, the university town  
+- [ ] **16281.** Tartu, the university town  
   → Тарту, университетский город
-- [ ] **16281.** of Tartu  
+- [ ] **16282.** of Tartu  
   → Тарту, в родительном
-- [ ] **16282.** office  
+- [ ] **16283.** office  
   → офис
-- [ ] **16283.** of the office  
+- [ ] **16284.** of the office  
   → офиса
-- [ ] **16284.** Have a good trip!  
+- [ ] **16285.** Have a good trip!  
   → Счастливого пути!
-- [ ] **16285.** Until and as far as is -ni on the stem: {reede} and then {reedeni}, {kesklinna} and then {kesklinnani}. It's \[rajav\] (-ni, until), for time and for place alike.  
-  → «До» и «докуда» это -ni на основе: {reede}, а затем {reedeni}, {kesklinna}, а затем {kesklinnani}. Это \[rajav\] (-ni, до), и для времени, и для места.
-- [ ] **16286.** Until, as far as  
+- [ ] **16286.** Until and as far as is -ni on the stem: {reede} and then {reedeni}, {kesklinna} and then {kesklinnani}. It's \[rajav\] (-ni, until), for time and for place alike.  
+  → «До» и «докуда» выражаются окончанием -ni на основе: {reede}, а затем {reedeni}, {kesklinna}, а затем {kesklinnani}. Это \[rajav\] (-ni, до), и для времени, и для места.
+- [ ] **16287.** Until, as far as  
   → До, докуда
-- [ ] **16287.** From and to go together: {esmaspäevast reedeni} is from Monday to Friday, {jaamast kesklinnani} from the station to the town center.  
-  → «С» и «до» идут вместе: {esmaspäevast reedeni} это с понедельника по пятницу, {jaamast kesklinnani} от вокзала до центра города.
-- [ ] **16288.** Until five o'clock puts both words on their stem and -ni on the last: {kella viieni}.  
-  → «До пяти часов» ставит оба слова на основу, а -ni на последнее: {kella viieni}.
-- [ ] **16289.** {Kuni} in front says the same a little more firmly: {kuni reedeni}.  
-  → {Kuni} впереди говорит то же самое чуть настойчивее: {kuni reedeni}.
-- [ ] **16290.** {Tartusse} is into Tartu, where you're going. {Tartuni} is as far as Tartu, where something stops.  
-  → {Tartusse} это в Тарту, куда вы едете. {Tartuni} это до Тарту, где что-то заканчивается.
-- [ ] **16291.** Say until Friday.  
+- [ ] **16288.** From and to go together: {esmaspäevast reedeni} is from Monday to Friday, {jaamast kesklinnani} from the station to the town center.  
+  → «С» и «до» идут вместе: {esmaspäevast reedeni} значит «с понедельника по пятницу», {jaamast kesklinnani} значит «от вокзала до центра города».
+- [ ] **16289.** Until five o'clock puts both words on their stem and -ni on the last: {kella viieni}.  
+  → В «до пяти часов» оба слова стоят на основе, а -ni только на последнем: {kella viieni}.
+- [ ] **16290.** {Kuni} in front says the same a little more firmly: {kuni reedeni}.  
+  → {Kuni} перед словом говорит то же самое чуть твёрже: {kuni reedeni}.
+- [ ] **16291.** {Tartusse} is into Tartu, where you're going. {Tartuni} is as far as Tartu, where something stops.  
+  → {Tartusse} значит «в Тарту», куда вы едете. {Tartuni} значит «до Тарту», где что-то заканчивается.
+- [ ] **16292.** Say until Friday.  
   → Скажите: до пятницы.
-- [ ] **16292.** Until Friday.  
+- [ ] **16293.** Until Friday.  
   → До пятницы.
-- [ ] **16293.** Say you work from Monday to Friday.  
+- [ ] **16294.** Say you work from Monday to Friday.  
   → Скажите, что вы работаете с понедельника по пятницу.
-- [ ] **16294.** I work from Monday to Friday.  
+- [ ] **16295.** I work from Monday to Friday.  
   → Я работаю с понедельника по пятницу.
-- [ ] **16295.** Say you're at the office until five.  
+- [ ] **16296.** Say you're at the office until five.  
   → Скажите, что вы в офисе до пяти.
-- [ ] **16296.** I'm at the office until five.  
+- [ ] **16297.** I'm at the office until five.  
   → Я в офисе до пяти.
-- [ ] **16297.** I'm going to Tartu tomorrow.  
+- [ ] **16298.** I'm going to Tartu tomorrow.  
   → Завтра я еду в Тарту.
-- [ ] **16298.** Wish them a good trip.  
+- [ ] **16299.** Wish them a good trip.  
   → Пожелайте счастливого пути.
-- [ ] **16299.** At a hotel  
+- [ ] **16300.** At a hotel  
   → В гостинице
-- [ ] **16300.** Check in at a hotel, and ask about breakfast and the wifi.  
+- [ ] **16301.** Check in at a hotel, and ask about breakfast and the wifi.  
   → Заселитесь в гостиницу и спросите про завтрак и вайфай.
-- [ ] **16301.** Hello! I have a booking. My name is Tom Smith.  
+- [ ] **16302.** Hello! I have a booking. My name is Tom Smith.  
   → Здравствуйте! У меня бронь. Меня зовут Том Смит.
-- [ ] **16302.** Welcome! Two nights, right?  
+- [ ] **16303.** Welcome! Two nights, right?  
   → Добро пожаловать! Две ночи, верно?
-- [ ] **16303.** Yes, two nights.  
+- [ ] **16304.** Yes, two nights.  
   → Да, две ночи.
-- [ ] **16304.** Your room is on the third floor. Here's the key.  
+- [ ] **16305.** Your room is on the third floor. Here's the key.  
   → Ваш номер на третьем этаже. Вот ключ.
-- [ ] **16305.** Thank you. What time is breakfast?  
+- [ ] **16306.** Thank you. What time is breakfast?  
   → Спасибо. Во сколько завтрак?
-- [ ] **16306.** From seven to ten.  
+- [ ] **16307.** From seven to ten.  
   → С семи до десяти.
-- [ ] **16307.** Is there wifi in the room?  
+- [ ] **16308.** Is there wifi in the room?  
   → В номере есть вайфай?
-- [ ] **16308.** Yes, and it's free.  
+- [ ] **16309.** Yes, and it's free.  
   → Да, и он бесплатный.
-- [ ] **16309.** booking, reservation  
+- [ ] **16310.** booking, reservation  
   → бронь, бронирование
-- [ ] **16310.** nights, after a number  
+- [ ] **16311.** nights, after a number  
   → ночи, после числа
-- [ ] **16311.** right?, isn't it? at the end of a sentence  
+- [ ] **16312.** right?, isn't it? at the end of a sentence  
   → верно?, да? в конце предложения
-- [ ] **16312.** breakfast  
+- [ ] **16313.** breakfast  
   → завтрак
-- [ ] **16313.** of seven  
+- [ ] **16314.** of seven  
   → семи
-- [ ] **16314.** wifi  
+- [ ] **16315.** wifi  
   → вайфай
-- [ ] **16315.** free, costing nothing  
+- [ ] **16316.** free, costing nothing  
   → бесплатный
-- [ ] **16316.** At a hotel, times run from and until: {seitsmest kümneni}, from seven to ten. The number goes on its stem, then -st and -ni.  
-  → В гостинице время идет с и до: {seitsmest kümneni}, с семи до десяти. Число ставится на основу, затем -st и -ni.
-- [ ] **16317.** I have a booking.  
+- [ ] **16317.** At a hotel, times run from and until: {seitsmest kümneni}, from seven to ten. The number goes on its stem, then -st and -ni.  
+  → В гостинице время называют через «с» и «до»: {seitsmest kümneni}, с семи до десяти. Число ставится на основу, затем -st и -ni.
+- [ ] **16318.** I have a booking.  
   → У меня бронь.
-- [ ] **16318.** Two nights, right?  
+- [ ] **16319.** Two nights, right?  
   → Две ночи, верно?
-- [ ] **16319.** Breakfast is from seven to ten.  
+- [ ] **16320.** Breakfast is from seven to ten.  
   → Завтрак с семи до десяти.
-- [ ] **16320.** The wifi is free.  
+- [ ] **16321.** The wifi is free.  
   → Вайфай бесплатный.
-- [ ] **16321.** A night is {öö}, and two nights {kaks ööd}, in the \[osastav\] (3rd form) after a number like {kaks kohvi}.  
-  → Ночь это {öö}, а две ночи {kaks ööd}, в \[osastav\] (3-я форма) после числа, как {kaks kohvi}.
-- [ ] **16322.** {Eks} at the end asks for a yes: {Kaks ööd, eks?} is two nights, right?  
+- [ ] **16322.** A night is {öö}, and two nights {kaks ööd}, in the \[osastav\] (3rd form) after a number like {kaks kohvi}.  
+  → Ночь по-эстонски {öö}, а «две ночи» будет {kaks ööd}, в \[osastav\] (3-я форма) после числа, как {kaks kohvi}.
+- [ ] **16323.** {Eks} at the end asks for a yes: {Kaks ööd, eks?} is two nights, right?  
   → {Eks} в конце просит ответить «да»: {Kaks ööd, eks?} значит «две ночи, верно?»
-- [ ] **16323.** {Tasuta} is free of charge, and {vaba} free to use, as in part four: {Kas tuba on vaba?}  
-  → {Tasuta} это бесплатно, а {vaba} свободный, как в четвертой части: {Kas tuba on vaba?}
-- [ ] **16324.** A room is {tuba}, and in the room is {toas}, on its stem {toa}. The ending never goes on {tuba} itself.  
-  → Комната это {tuba}, а в комнате {toas}, на основе {toa}. Окончание никогда не ставится на само {tuba}.
-- [ ] **16325.** Tell the hotel you have a booking.  
+- [ ] **16324.** {Tasuta} is free of charge, and {vaba} free to use, as in part four: {Kas tuba on vaba?}  
+  → {Tasuta} значит «бесплатно», а {vaba} значит «свободный», как в четвёртой части: {Kas tuba on vaba?}
+- [ ] **16325.** A room is {tuba}, and in the room is {toas}, on its stem {toa}. The -s ending goes on {toa}, not on {tuba} itself.  
+  → Комната по-эстонски {tuba}, а «в комнате» будет {toas}, на основе {toa}. Окончание -s ставится на {toa}, а не на само {tuba}.
+- [ ] **16326.** Tell the hotel you have a booking.  
   → Скажите в гостинице, что у вас бронь.
-- [ ] **16326.** Hello! I have a booking.  
+- [ ] **16327.** Hello! I have a booking.  
   → Здравствуйте! У меня бронь.
-- [ ] **16327.** Say yes, two nights.  
+- [ ] **16328.** Say yes, two nights.  
   → Скажите: да, две ночи.
-- [ ] **16328.** Ask what time breakfast is.  
+- [ ] **16329.** Ask what time breakfast is.  
   → Спросите, во сколько завтрак.
-- [ ] **16329.** What time is breakfast?  
+- [ ] **16330.** What time is breakfast?  
   → Во сколько завтрак?
-- [ ] **16330.** Ask if there's wifi in the room.  
+- [ ] **16331.** Ask if there's wifi in the room.  
   → Спросите, есть ли в номере вайфай.
-- [ ] **16331.** A weekend in Tartu  
+- [ ] **16332.** A weekend in Tartu  
   → Выходные в Тарту
-- [ ] **16332.** Tell a friend about a trip: how you went, where you stayed and what you saw.  
+- [ ] **16333.** Tell a friend about a trip: how you went, where you stayed and what you saw.  
   → Расскажите другу о поездке: как вы ехали, где жили и что видели.
-- [ ] **16333.** How was the trip?  
+- [ ] **16334.** How was the trip?  
   → Как прошла поездка?
-- [ ] **16334.** Very good. We went to Tartu by train. The journey took two hours.  
+- [ ] **16335.** Very good. We went to Tartu by train. The journey took two hours.  
   → Очень хорошо. Мы поехали в Тарту на поезде. Дорога заняла два часа.
-- [ ] **16335.** Where did you stay the night?  
+- [ ] **16336.** Where did you stay the night?  
   → Где вы ночевали?
-- [ ] **16336.** In a small hotel in the town center.  
+- [ ] **16337.** In a small hotel in the town center.  
   → В маленькой гостинице в центре города.
-- [ ] **16337.** We went to the university and a museum. In the evening we ate at a restaurant.  
+- [ ] **16338.** We went to the university and a museum. In the evening we ate at a restaurant.  
   → Мы сходили в университет и в музей. Вечером поели в ресторане.
-- [ ] **16338.** Did you come back by train?  
+- [ ] **16339.** Did you come back by train?  
   → Обратно вы тоже приехали на поезде?
-- [ ] **16339.** No, by bus. The train was late.  
+- [ ] **16340.** No, by bus. The train was late.  
   → Нет, на автобусе. Поезд опоздал.
-- [ ] **16340.** trip, journey  
+- [ ] **16341.** trip, journey  
   → поездка, путешествие
-- [ ] **16341.** a ride, the journey itself  
+- [ ] **16342.** a ride, the journey itself  
   → поездка, сама дорога
-- [ ] **16342.** hours, after a number  
+- [ ] **16343.** hours, after a number  
   → часа, часов, после числа
-- [ ] **16343.** I traveled, I drove  
+- [ ] **16344.** I traveled, I drove  
   → я ехал, я ездил
-- [ ] **16344.** he, she traveled  
+- [ ] **16345.** he, she traveled  
   → он, она ехал(а)
-- [ ] **16345.** to last, to take (time)  
+- [ ] **16346.** to last, to take (time)  
   → длиться, занимать (время)
-- [ ] **16346.** I last  
+- [ ] **16347.** I last  
   → я длюсь
-- [ ] **16347.** it lasted  
+- [ ] **16348.** it lasted  
   → это длилось
-- [ ] **16348.** to stay the night  
+- [ ] **16349.** to stay the night  
   → ночевать
-- [ ] **16349.** I stay the night  
+- [ ] **16350.** I stay the night  
   → я ночую
-- [ ] **16350.** I stayed the night  
+- [ ] **16351.** I stayed the night  
   → я ночевал
-- [ ] **16351.** he, she stayed the night  
+- [ ] **16352.** he, she stayed the night  
   → он, она ночевал(а)
-- [ ] **16352.** museum  
+- [ ] **16353.** museum  
   → музей
-- [ ] **16353.** of the museum  
+- [ ] **16354.** of the museum  
   → музея
-- [ ] **16354.** to be late  
+- [ ] **16355.** to be late  
   → опаздывать
-- [ ] **16355.** I'm late  
+- [ ] **16356.** I'm late  
   → я опаздываю
-- [ ] **16356.** he, she, it was late  
-  → он, она, оно опоздал(а)
-- [ ] **16357.** of the hotel  
+- [ ] **16357.** he, she, it was late  
+  → он, она, оно опоздал, опоздала, опоздало
+- [ ] **16358.** of the hotel  
   → гостиницы
-- [ ] **16358.** A trip told afterwards is part three again: {sõitsime}, {ööbisite}, {käisime}. Learn the \[olevik\] (I form) and the he-and-she form, and the rest follow.  
-  → Рассказ о поездке это снова третья часть: {sõitsime}, {ööbisite}, {käisime}. Выучите \[olevik\] (форма «я») и форму «он, она», остальное следует за ними.
-- [ ] **16359.** We  
+- [ ] **16359.** A trip told afterwards is part three again: {sõitsime}, {ööbisite}, {käisime}. Learn the \[olevik\] (I form) and the he-and-she form, and the rest follow.  
+  → Рассказ о поездке снова строится на третьей части: {sõitsime}, {ööbisite}, {käisime}. Выучите \[olevik\] (форма «я») и форму «он, она», остальные формы образуются по ним.
+- [ ] **16360.** We  
   → Мы
-- [ ] **16360.** {Reis} is the whole trip, and {sõit} the ride itself: {Sõit kestis kaks tundi}.  
-  → {Reis} это вся поездка, а {sõit} сама дорога: {Sõit kestis kaks tundi}.
-- [ ] **16361.** {Ööbima} is to stay somewhere overnight, the word for a hotel or a friend's sofa.  
+- [ ] **16361.** {Reis} is the whole trip, and {sõit} the ride itself: {Sõit kestis kaks tundi}.  
+  → {Reis} значит поездку целиком, а {sõit} значит саму дорогу: {Sõit kestis kaks tundi}.
+- [ ] **16362.** {Ööbima} is to stay somewhere overnight, the word for a hotel or a friend's sofa.  
   → {Ööbima} значит остаться где-то на ночь, это слово для гостиницы или дивана у друга.
-- [ ] **16362.** Where you stayed is -s on the stem: {väikeses hotellis}. The describing word takes the ending too, like in part two.  
-  → Где вы останавливались, это -s на основе: {väikeses hotellis}. Описательное слово тоже получает окончание, как во второй части.
-- [ ] **16363.** {Kestis} is how long something lasted. How long you were somewhere is {olin}: {Ma olin seal kaks päeva}.  
-  → {Kestis} говорит, сколько что-то длилось. Сколько вы где-то были, это {olin}: {Ma olin seal kaks päeva}.
-- [ ] **16364.** Say very good, you went to Tartu by train.  
+- [ ] **16363.** Where you stayed is -s on the stem: {väikeses hotellis}. The describing word takes the ending too, like in part two.  
+  → То, где вы останавливались, выражается окончанием -s на основе: {väikeses hotellis}. Описательное слово тоже получает окончание, как во второй части.
+- [ ] **16364.** {Kestis} is how long something lasted. How long you were somewhere is {olin}: {Ma olin seal kaks päeva}.  
+  → {Kestis} показывает, сколько что-то длилось. А сколько вы где-то были, передаёт {olin}: {Ma olin seal kaks päeva}.
+- [ ] **16365.** Say very good, you went to Tartu by train.  
   → Скажите: очень хорошо, вы поехали в Тарту на поезде.
-- [ ] **16365.** Very good. We went to Tartu by train.  
+- [ ] **16366.** Very good. We went to Tartu by train.  
   → Очень хорошо. Мы поехали в Тарту на поезде.
-- [ ] **16366.** Say in a small hotel.  
+- [ ] **16367.** Say in a small hotel.  
   → Скажите: в маленькой гостинице.
-- [ ] **16367.** In a small hotel.  
+- [ ] **16368.** In a small hotel.  
   → В маленькой гостинице.
-- [ ] **16368.** Say you went to a museum.  
+- [ ] **16369.** Say you went to a museum.  
   → Скажите, что вы сходили в музей.
-- [ ] **16369.** We went to a museum.  
+- [ ] **16370.** We went to a museum.  
   → Мы сходили в музей.
-- [ ] **16370.** Say the train was late.  
+- [ ] **16371.** Say the train was late.  
   → Скажите, что поезд опоздал.
-- [ ] **16371.** The train was late.  
+- [ ] **16372.** The train was late.  
   → Поезд опоздал.
-- [ ] **16372.** How far is it?  
-  → Далеко это?
-- [ ] **16373.** Ask how far a place is and how to get there, and say what it's like.  
+- [ ] **16373.** How far is it?  
+  → Это далеко?
+- [ ] **16374.** Ask how far a place is and how to get there, and say what it's like.  
   → Спросите, как далеко находится место и как туда добраться, и скажите, какое оно.
-- [ ] **16374.** How far is Pärnu?  
+- [ ] **16375.** How far is Pärnu?  
   → Как далеко до Пярну?
-- [ ] **16375.** From Tallinn to Pärnu it's about a hundred and thirty kilometers.  
+- [ ] **16376.** From Tallinn to Pärnu it's about a hundred and thirty kilometers.  
   → От Таллина до Пярну примерно сто тридцать километров.
-- [ ] **16376.** Can you get there by bus?  
+- [ ] **16377.** Can you get there by bus?  
   → Туда можно доехать на автобусе?
-- [ ] **16377.** Yes, the bus goes every hour. The ride takes two hours.  
+- [ ] **16378.** Yes, the bus goes every hour. The ride takes two hours.  
   → Да, автобус ходит каждый час. Дорога занимает два часа.
-- [ ] **16378.** What kind of town is it?  
+- [ ] **16379.** What kind of town is it?  
   → Что это за город?
-- [ ] **16379.** Small and pretty. Pärnu is by the sea.  
-  → Маленький и красивый. Пярну у моря.
-- [ ] **16380.** I'll definitely go in the summer!  
+- [ ] **16380.** Small and pretty. Pärnu is by the sea.  
+  → Маленький и красивый. Пярну находится у моря.
+- [ ] **16381.** I'll definitely go in the summer!  
   → Летом обязательно поеду!
-- [ ] **16381.** Pärnu, a town by the sea  
+- [ ] **16382.** Pärnu, a town by the sea  
   → Пярну, город у моря
-- [ ] **16382.** of Pärnu  
+- [ ] **16383.** of Pärnu  
   → Пярну (род. падеж)
-- [ ] **16383.** from Tallinn  
+- [ ] **16384.** from Tallinn  
   → из Таллина
-- [ ] **16384.** about, roughly  
+- [ ] **16385.** about, roughly  
   → примерно, около
-- [ ] **16385.** kilometer  
+- [ ] **16386.** kilometer  
   → километр
-- [ ] **16386.** kilometers, after a number  
+- [ ] **16387.** kilometers, after a number  
   → километров, после числа
-- [ ] **16387.** sea  
+- [ ] **16388.** sea  
   → море
-- [ ] **16388.** of the sea  
+- [ ] **16389.** of the sea  
   → моря
-- [ ] **16389.** by, at the edge of  
+- [ ] **16390.** by, at the edge of  
   → у, на краю
-- [ ] **16390.** How far is {Kui kaugel?}, and the answer runs from one place to the other: {Tallinnast Pärnuni}, with -st on the first and -ni on the second.  
-  → «Как далеко» это {Kui kaugel?}, а ответ идет от одного места к другому: {Tallinnast Pärnuni}, с -st на первом и -ni на втором.
-- [ ] **16391.** From Tallinn to Pärnu it's about a hundred kilometers.  
-  → От Таллина до Пярну примерно сто километров.
+- [ ] **16391.** How far is {Kui kaugel?}, and the answer runs from one place to the other: {Tallinnast Pärnuni}, with -st on the first and -ni on the second.  
+  → «Как далеко» по-эстонски {Kui kaugel?}, а ответ идёт от одного места к другому: {Tallinnast Pärnuni}, с -st на первом и -ni на втором.
 - [ ] **16392.** Pärnu is by the sea.  
-  → Пярну у моря.
+  → Пярну находится у моря.
 - [ ] **16393.** {Kas sinna saab bussiga?} is can you get there by bus: {saab} with nobody in front of it means it can be done.  
-  → {Kas sinna saab bussiga?} значит «можно ли доехать туда на автобусе»: {saab} без никого перед ним значит, что это можно сделать.
+  → {Kas sinna saab bussiga?} значит «можно ли доехать туда на автобусе»: {saab}, перед которым никого нет, значит, что это можно сделать.
 - [ ] **16394.** {Ääres} comes after its word, on the stem: {mere ääres}, by the sea. It works like {laua peal} in part one.  
   → {Ääres} стоит после своего слова, на основе: {mere ääres}, у моря. Это работает как {laua peal} в первой части.
 - [ ] **16395.** {Umbes} is about, for a number you're not sure of: {umbes kaks tundi}.  
@@ -33056,7 +33056,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16403.** Say it's by the sea.  
   → Скажите, что он у моря.
 - [ ] **16404.** By boat and by plane  
-  → На корабле и на самолете
+  → На корабле и на самолёте
 - [ ] **16405.** Talk about a trip abroad: the ferry, the airport and your passport.  
   → Расскажите о поездке за границу: паром, аэропорт и ваш паспорт.
 - [ ] **16406.** Tom, how are you getting to Helsinki?  
@@ -33064,9 +33064,9 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16407.** By boat. The ferry leaves the port at nine.  
   → На корабле. Паром отходит из порта в девять.
 - [ ] **16408.** And how are you getting to London?  
-  → А как ты доберешься до Лондона?
+  → А как ты доберёшься до Лондона?
 - [ ] **16409.** I'm flying. The plane leaves at six in the morning.  
-  → Я лечу. Самолет вылетает в шесть утра.
+  → Я лечу. Самолёт вылетает в шесть утра.
 - [ ] **16410.** So early! You have to be at the airport at four.  
   → Так рано! Тебе нужно быть в аэропорту в четыре.
 - [ ] **16411.** I know. My passport and suitcase are ready already.  
@@ -33088,9 +33088,9 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16419.** I fly  
   → я лечу
 - [ ] **16420.** plane  
-  → самолет
+  → самолёт
 - [ ] **16421.** of the plane  
-  → самолета
+  → самолёта
 - [ ] **16422.** airport  
   → аэропорт
 - [ ] **16423.** of the airport  
@@ -33101,20 +33101,20 @@ _lib/copy/i18n/areas/lessonText.ts_
   → паспорт
 - [ ] **16426.** suitcase  
   → чемодан
-- [ ] **16427.** How you go is -ga: {laevaga}, {lennukiga}, {rongiga}. Where you go is -sse, and where from is -st: {sadamast}, {lennujaama}.  
-  → Как вы едете, это -ga: {laevaga}, {lennukiga}, {rongiga}. Куда вы едете, это -sse, а откуда, это -st: {sadamast}, {lennujaama}.
+- [ ] **16427.** How you go is -ga: {laevaga}, {lennukiga}, {rongiga}. Where from is -st: {sadamast}. Where to is -sse, and some words have a short form too: {lennujaama} is the same as {lennujaamasse}.  
+  → Окончание -ga показывает, на чём вы едете: {laevaga}, {lennukiga}, {rongiga}. Окончание -st показывает, откуда: {sadamast}. Окончание -sse показывает, куда, а у некоторых слов есть и короткая форма: {lennujaama} значит то же, что {lennujaamasse}.
 - [ ] **16428.** By  
-  → На чем
+  → На чём
 - [ ] **16429.** At  
   → Где
-- [ ] **16430.** {Lennujaam} is a station for planes: {lennuk} plus {jaam}. The endings go on its last part, {lennujaama}.  
-  → {Lennujaam} это вокзал для самолетов: {lennuk} плюс {jaam}. Окончания ставятся на последнюю часть, {lennujaama}.
+- [ ] **16430.** {Lennujaam} is a flight station, {lennu} plus {jaam}, and {lennuk} comes from the same word. The endings go on its last part, {lennujaama}.  
+  → {Lennujaam} значит «аэропорт», дословно «станция полётов»: {lennu} плюс {jaam}, а {lennuk} происходит от того же слова. Окончания ставятся на последнюю часть: {lennujaama}.
 - [ ] **16431.** {Ma lendan} is I fly. But you can always say {Ma sõidan lennukiga} too.  
   → {Ma lendan} значит «я лечу». Но всегда можно сказать и {Ma sõidan lennukiga}.
 - [ ] **16432.** {Valmis} is ready, and it never changes: {Pass on valmis}, {Ma olen valmis}.  
   → {Valmis} значит «готов», и это слово никогда не меняется: {Pass on valmis}, {Ma olen valmis}.
-- [ ] **16433.** A ferry to Helsinki is a {laev}, however small: the word is for any boat that carries people across the sea.  
-  → Паром в Хельсинки это {laev}, каким бы маленьким он ни был: это слово для любого судна, которое везет людей через море.
+- [ ] **16433.** A ferry to Helsinki is a {laev}: the word covers any ship or ferry that carries people across the sea.  
+  → Паром в Хельсинки по-эстонски {laev}: это слово обозначает любое судно или паром, который возит людей через море.
 - [ ] **16434.** How are you getting to Helsinki?  
   → Как ты поедешь в Хельсинки?
 - [ ] **16435.** Say by boat.  
@@ -33122,9 +33122,9 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16436.** By boat.  
   → На корабле.
 - [ ] **16437.** Say the plane leaves at six in the morning.  
-  → Скажите, что самолет вылетает в шесть утра.
+  → Скажите, что самолёт вылетает в шесть утра.
 - [ ] **16438.** The plane leaves at six in the morning.  
-  → Самолет вылетает в шесть утра.
+  → Самолёт вылетает в шесть утра.
 - [ ] **16439.** Are you ready?  
   → Ты готов?
 - [ ] **16440.** Say yes, your passport and suitcase are ready.  
@@ -33138,7 +33138,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16444.** At the ticket window  
   → У билетной кассы
 - [ ] **16445.** Buy a ticket out of town, and get every detail you need for the trip.  
-  → Купите билет за город и узнайте все, что нужно для поездки.
+  → Купите билет за город и узнайте всё, что нужно для поездки.
 - [ ] **16446.** Hello! Where are you traveling to?  
   → Здравствуйте! Куда вы едете?
 - [ ] **16447.** Hello! To Pärnu. Is there a bus tomorrow morning?  
@@ -33154,13 +33154,13 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16452.** Thank you! How much is it?  
   → Спасибо! Сколько это стоит?
 - [ ] **16453.** A whole ticket bought, made of part five: where to, when it leaves, there and back, and how long.  
-  → Целый купленный билет, собранный из пятой части: куда, когда отправляется, туда и обратно и сколько ехать.
+  → Покупка билета от начала до конца на материале пятой части: куда, когда отправляется, туда и обратно и сколько ехать.
 - [ ] **16454.** The seller asks the questions in a fixed order: where, when, one way or round trip, when you're coming back.  
-  → Кассир задает вопросы в определенном порядке: куда, когда, в одну сторону или туда и обратно, когда вы возвращаетесь.
+  → Кассир задаёт вопросы в определённом порядке: куда, когда, в одну сторону или туда и обратно, когда вы возвращаетесь.
 - [ ] **16455.** At the end, the seller speaks to you. Answer as yourself, one turn at a time.  
   → В конце кассир обращается к вам. Отвечайте от себя, по одной реплике.
-- [ ] **16456.** {Kas homme on bussi?} is is there a bus tomorrow: whether something exists takes the \[osastav\] (3rd form) after {kas on}.  
-  → {Kas homme on bussi?} значит «есть ли автобус завтра»: то, существует ли что-то, требует \[osastav\] (3-я форма) после {kas on}.
+- [ ] **16456.** {Kas homme on bussi?} is is there a bus tomorrow: when you ask whether there is any at all, the thing often takes the \[osastav\] (3rd form) after {kas on}.  
+  → {Kas homme on bussi?} значит «есть ли автобус завтра»: когда спрашивают, есть ли что-то вообще, после {kas on} часто стоит \[osastav\] (3-я форма).
 - [ ] **16457.** Where are you traveling to?  
   → Куда вы едете?
 - [ ] **16458.** Say to Pärnu, and ask if there's a bus tomorrow morning.  
@@ -33194,7 +33194,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16472.** We would like a table  
   → Мы хотели бы столик
 - [ ] **16473.** Ask for a table and say what you'd like, politely.  
-  → Попросить столик и вежливо сказать, что вы хотели бы.
+  → Попросите столик и вежливо скажите, чего бы вы хотели.
 - [ ] **16474.** Good evening! Do you have a booking?  
   → Добрый вечер! У вас есть бронь?
 - [ ] **16475.** No. We'd like a table for two.  
@@ -33214,13 +33214,13 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16482.** for two  
   → на двоих
 - [ ] **16483.** beer, as what you have  
-  → пиво, как то, что вы берете
+  → пиво, как то, что вы берёте
 - [ ] **16484.** to sit, after could or want  
-  → сидеть, после «мочь» или «хотеть»
+  → сесть, после «мочь» или «хотеть»
 - [ ] **16485.** would be  
   → было бы
 - [ ] **16486.** Would is -ks- before the ending: {võtan} and then {võtaksin}, {saan} and then {saaksin}. It turns any ask into a polite one, and it works for every verb you know. A class calls it the \[tingiv kõneviis\] (-ks, would).  
-  → «Бы» это -ks- перед окончанием: {võtan}, а затем {võtaksin}, {saan}, а затем {saaksin}. Так любая просьба становится вежливой, и это работает с каждым глаголом, который вы знаете. На занятиях это называют \[tingiv kõneviis\] (-ks, бы).
+  → «Бы» передаётся вставкой -ks- перед окончанием: {võtan}, а затем {võtaksin}, {saan}, а затем {saaksin}. Так любая просьба становится вежливой, и это работает с любым глаголом, который вы знаете. На занятиях это называют \[tingiv kõneviis\] (-ks, бы).
 - [ ] **16487.** I do  
   → Я делаю
 - [ ] **16488.** I would  
@@ -33230,11 +33230,11 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16490.** Take the \[olevik\] (I form), drop the -n, and add -ksin, -ksid, -ks, -ksime, -ksite, -ksid: {võta} and then {võtaksin}, {võtaks}.  
   → Возьмите \[olevik\] (форма «я»), уберите -n и добавьте -ksin, -ksid, -ks, -ksime, -ksite, -ksid: {võta}, а затем {võtaksin}, {võtaks}.
 - [ ] **16491.** {Kas me võiksime...?} is could we, the softest way to ask for something. A waiter says {Kas te sooviksite...?}  
-  → {Kas me võiksime...?} значит «могли бы мы», самый мягкий способ о чем-то попросить. Официант говорит {Kas te sooviksite...?}
+  → {Kas me võiksime...?} значит «могли бы мы», самый мягкий способ о чём-то попросить. Официант говорит {Kas te sooviksite...?}
 - [ ] **16492.** To be has it too: {See oleks tore} is that would be nice.  
   → У «быть» она тоже есть: {See oleks tore} значит «это было бы здорово».
 - [ ] **16493.** {Tahaksin} is not I wanted. Wanted is the past of part three; would like, now, is {tahaksin}.  
-  → {Tahaksin} не значит «я хотел». «Хотел» это прошедшее время из третьей части; «хотел бы», сейчас, это {tahaksin}.
+  → {Tahaksin} не значит «я хотел». «Хотел» относится к прошедшему времени из третьей части, а «хотел бы», сейчас, передаёт {tahaksin}.
 - [ ] **16494.** Do you have a booking?  
   → У вас есть бронь?
 - [ ] **16495.** Say no, you'd like a table for two.  
@@ -33254,7 +33254,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16502.** Read a menu, ask what the waiter recommends, and order a starter and a main.  
   → Прочитайте меню, спросите, что советует официант, и закажите закуску и основное блюдо.
 - [ ] **16503.** Are you ready to order?  
-  → Вы готовы заказать?
+  → Вы готовы сделать заказ?
 - [ ] **16504.** Yes. What do you recommend?  
   → Да. Что вы посоветуете?
 - [ ] **16505.** The fish is very good today.  
@@ -33284,21 +33284,21 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16517.** dessert  
   → десерт
 - [ ] **16518.** Ordering, the dish comes after {võtaksin} or {mulle} in the \[osastav\] (3rd form): {Ma võtaksin suppi}, {Mulle praadi, palun}.  
-  → При заказе блюдо идет после {võtaksin} или {mulle} в \[osastav\] (3-я форма): {Ma võtaksin suppi}, {Mulle praadi, palun}.
+  → При заказе блюдо идёт после {võtaksin} или {mulle} в \[osastav\] (3-я форма): {Ma võtaksin suppi}, {Mulle praadi, palun}.
 - [ ] **16519.** On the menu  
   → В меню
 - [ ] **16520.** Ordering it  
   → Заказ
 - [ ] **16521.** A menu runs {eelroog}, {praad}, {magustoit}: starter, main, dessert. {Praad} is any main course, not only a roast.  
-  → Меню идет так: {eelroog}, {praad}, {magustoit}: закуска, основное блюдо, десерт. {Praad} это любое основное блюдо, не только жаркое.
+  → В меню блюда идут по порядку: {eelroog}, {praad}, {magustoit}, то есть закуска, основное блюдо, десерт. {Praad} обозначает любое основное блюдо, не только жаркое.
 - [ ] **16522.** {Mida te soovitate?} is what do you recommend, and a waiter is always glad to be asked.  
   → {Mida te soovitate?} значит «что вы посоветуете», и официант всегда рад этому вопросу.
-- [ ] **16523.** {Mulle} with nothing after it is the quickest order there is: {Mulle kala, palun}.  
-  → {Mulle} без ничего после него это самый быстрый заказ: {Mulle kala, palun}.
+- [ ] **16523.** {Mulle} with no verb after it is the quickest order there is: {Mulle kala, palun}.  
+  → Самый быстрый заказ: {Mulle} без глагола после него, например {Mulle kala, palun}.
 - [ ] **16524.** {Kala} looks the same as what you order, but that's because its \[osastav\] (3rd form) is {kala} too. {Supp} and {praad} change: {suppi}, {praadi}.  
-  → {Kala} выглядит так же, как то, что вы заказываете, но это потому, что его \[osastav\] (3-я форма) тоже {kala}. {Supp} и {praad} меняются: {suppi}, {praadi}.
+  → {Kala} при заказе выглядит так же, но это потому, что его \[osastav\] (3-я форма) тоже {kala}. {Supp} и {praad} меняются: {suppi}, {praadi}.
 - [ ] **16525.** Say yes, and ask what they recommend.  
-  → Скажите «да» и спросите, что они посоветуют.
+  → Скажите «да» и спросите, что посоветует официант.
 - [ ] **16526.** Say then you'd have the fish.  
   → Скажите, что тогда вы бы взяли рыбу.
 - [ ] **16527.** Then I'd have the fish.  
@@ -33308,15 +33308,15 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16529.** Say later, thank you.  
   → Скажите «позже, спасибо».
 - [ ] **16530.** The bill, please  
-  → Счет, пожалуйста
+  → Счёт, пожалуйста
 - [ ] **16531.** Say how the food was, ask for the bill and pay, together or separately.  
-  → Скажите, какой была еда, попросите счет и заплатите, вместе или отдельно.
+  → Скажите, какой была еда, попросите счёт и заплатите, вместе или отдельно.
 - [ ] **16532.** Excuse me! Could we have the bill?  
-  → Извините! Можно нам счет?
+  → Извините! Можно нам счёт?
 - [ ] **16533.** Right away. Was everything all right?  
-  → Сейчас. Все было в порядке?
+  → Сейчас. Всё было в порядке?
 - [ ] **16534.** Yes, everything was delicious. But the soup was a bit salty.  
-  → Да, все было вкусно. Но суп был немного соленым.
+  → Да, всё было вкусно. Но суп был немного солёным.
 - [ ] **16535.** Sorry. Are you paying together or separately?  
   → Простите. Вы платите вместе или отдельно?
 - [ ] **16536.** Separately, please. Can I pay by card?  
@@ -33324,13 +33324,13 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16537.** Of course.  
   → Конечно.
 - [ ] **16538.** Excuse me!, to get somebody's attention politely  
-  → Извините!, чтобы вежливо привлечь чье-то внимание
+  → Извините!, чтобы вежливо привлечь чьё-то внимание
 - [ ] **16539.** the bill, an invoice  
-  → счет
+  → счёт
 - [ ] **16540.** delicious, tasty  
   → вкусный
 - [ ] **16541.** salty  
-  → соленый
+  → солёный
 - [ ] **16542.** separately  
   → отдельно
 - [ ] **16543.** to pay, after can or want  
@@ -33338,11 +33338,11 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16544.** a tip  
   → чаевые
 - [ ] **16545.** {Kas me saaksime arve?} is could we have the bill: {saama} with -ks-, the would form of the last lesson, which is how a request is softened.  
-  → {Kas me saaksime arve?} значит «можно нам счет»: {saama} с -ks-, форма «бы» из прошлого урока, так просьбу делают мягче.
+  → {Kas me saaksime arve?} значит «можно нам счёт»: {saama} с -ks-, форма «бы» из прошлого урока, так просьбу делают мягче.
 - [ ] **16546.** Could we have the bill?  
-  → Можно нам счет?
+  → Можно нам счёт?
 - [ ] **16547.** Everything was delicious.  
-  → Все было вкусно.
+  → Всё было вкусно.
 - [ ] **16548.** Are you paying together or separately?  
   → Вы платите вместе или отдельно?
 - [ ] **16549.** Can I pay by card?  
@@ -33350,19 +33350,19 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16550.** {Vabandage!} is how you call a waiter over. {Vabandust} is sorry, said after the fact.  
   → {Vabandage!} так подзывают официанта. {Vabandust} значит «простите», это говорят после того, как что-то случилось.
 - [ ] **16551.** {Kas saab...?} with nobody in front of it is can one: {Kas saab kaardiga maksta?}  
-  → {Kas saab...?} без никого впереди значит «можно ли»: {Kas saab kaardiga maksta?}
+  → {Kas saab...?} без указания, кто именно, значит «можно ли»: {Kas saab kaardiga maksta?}
 - [ ] **16552.** A tip is {jootraha}, drinking money. In Estonia it's welcome, not expected.  
-  → Чаевые это {jootraha}, деньги на выпивку. В Эстонии их рады получить, но не ждут.
+  → Чаевые по-эстонски {jootraha}, буквально «деньги на выпивку». В Эстонии их рады получить, но не ждут.
 - [ ] **16553.** {Arve} is the whole bill. Asking for it, it stays as it is: {Kas me saaksime arve?}, because you want all of it.  
-  → {Arve} это весь счет. Когда вы его просите, он не меняется: {Kas me saaksime arve?}, потому что вам нужен он весь.
+  → {Arve} означает весь счёт. Когда вы его просите, слово не меняется: {Kas me saaksime arve?}, потому что вам нужен весь счёт.
 - [ ] **16554.** Call the waiter over and ask for the bill.  
-  → Подзовите официанта и попросите счет.
+  → Подзовите официанта и попросите счёт.
 - [ ] **16555.** Was everything all right?  
-  → Все было в порядке?
+  → Всё было в порядке?
 - [ ] **16556.** Say everything was delicious.  
-  → Скажите, что все было вкусно.
+  → Скажите, что всё было вкусно.
 - [ ] **16557.** Yes, everything was delicious.  
-  → Да, все было вкусно.
+  → Да, всё было вкусно.
 - [ ] **16558.** Say separately.  
   → Скажите «отдельно».
 - [ ] **16559.** Separately, please.  
@@ -33382,7 +33382,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16566.** The other one is smaller, but cheaper and newer.  
   → Другая меньше, но дешевле и новее.
 - [ ] **16567.** Newer is better than bigger!  
-  → Новее лучше, чем больше!
+  → Лучше новее, чем больше!
 - [ ] **16568.** Yes, I think so too.  
   → Да, я тоже так думаю.
 - [ ] **16569.** which, of two  
@@ -33390,11 +33390,11 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16570.** of the big one  
   → большого
 - [ ] **16571.** of the cheap one  
-  → дешевого
+  → дешёвого
 - [ ] **16572.** of the new one  
   → нового
-- [ ] **16573.** of the dear one  
-  → дорогого
+- [ ] **16573.** of the expensive one  
+  → дорогого (по цене)
 - [ ] **16574.** bigger  
   → больше
 - [ ] **16575.** smaller  
@@ -33412,11 +33412,11 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16581.** I think  
   → я думаю
 - [ ] **16582.** More is -m on the \[omastav\] (2nd form): {suure} and then {suurem}, {odava} and then {odavam}. Than is {kui}: {suurem kui}.  
-  → «Более» это -m на \[omastav\] (2-я форма): {suure}, а затем {suurem}, {odava}, а затем {odavam}. «Чем» это {kui}: {suurem kui}.
-- [ ] **16583.** Stems ending in -a or -e keep it: {odava} gives {odavam}. A stem ending in -i drops it: {kalli} gives {kallim}.  
-  → Основы на -a или -e сохраняют ее: {odava} дает {odavam}. Основа на -i ее теряет: {kalli} дает {kallim}.
-- [ ] **16584.** Good and bad are their own words, like in English: {hea} and {parem}, {halb} and {halvem}.  
-  → «Хороший» и «плохой» имеют свои слова, как в английском: {hea} и {parem}, {halb} и {halvem}.
+  → Сравнительная степень образуется добавлением -m к \[omastav\] (2-я форма): {suure}, а затем {suurem}, {odava}, а затем {odavam}. «Чем» по-эстонски {kui}: {suurem kui}.
+- [ ] **16583.** Most words just add -m to the \[omastav\] (2nd form): {odava} gives {odavam}, {kalli} gives {kallim}. A short word whose \[omastav\] (2nd form) ends in -a changes the -a to -e: {vana} gives {vanem}.  
+  → Большинство слов просто добавляют -m к \[omastav\] (2-я форма): {odava} даёт {odavam}, {kalli} даёт {kallim}. У коротких слов, у которых \[omastav\] (2-я форма) заканчивается на -a, это -a меняется на -e: {vana} даёт {vanem}.
+- [ ] **16584.** Good has its own word, like in English: {hea} and {parem}. Bad follows the rule: {halb}, {halva}, {halvem}.  
+  → Только у «хорошего» своё особое слово, как в английском: {hea} и {parem}. «Плохой» подчиняется правилу: {halb}, {halva}, {halvem}.
 - [ ] **16585.** {Kumb} asks which of two: {Kumb on parem?} For more than two, it's {mis}.  
   → {Kumb} спрашивает «который из двух»: {Kumb on parem?} Если больше двух, это {mis}.
 - [ ] **16586.** {Väike} is irregular too: {väiksem}, smaller, with an -s- in the middle.  
@@ -33430,9 +33430,9 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16590.** The other one is smaller, but cheaper.  
   → Другая меньше, но дешевле.
 - [ ] **16591.** Say newer is better than bigger.  
-  → Скажите, что новее лучше, чем больше.
+  → Скажите, что лучше новее, чем больше.
 - [ ] **16592.** Newer is better than bigger.  
-  → Новее лучше, чем больше.
+  → Лучше новее, чем больше.
 - [ ] **16593.** Say yes, you think so.  
   → Скажите, что да, вы так думаете.
 - [ ] **16594.** Yes, I think so.  
@@ -33440,7 +33440,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16595.** The biggest and the best  
   → Самый большой и самый лучший
 - [ ] **16596.** Say which is the biggest, the most beautiful and the best.  
-  → Скажите, что самое большое, самое красивое и самое лучшее.
+  → Назовите самое большое, самое красивое и самое лучшее.
 - [ ] **16597.** What's the biggest town in Estonia?  
   → Какой самый большой город в Эстонии?
 - [ ] **16598.** Tallinn, of course. Tartu is the second biggest.  
@@ -33452,7 +33452,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16601.** What's the best Estonian food?  
   → Какая самая лучшая эстонская еда?
 - [ ] **16602.** Black bread! It's the best.  
-  → Черный хлеб! Он самый лучший.
+  → Чёрный хлеб! Он самый лучший.
 - [ ] **16603.** most, the -est, before a word ending in -m  
   → самый, превосходная степень, перед словом на -m
 - [ ] **16604.** more beautiful  
@@ -33464,15 +33464,15 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16607.** the best  
   → самый лучший
 - [ ] **16608.** The most is {kõige} in front of the more word: {suurem} and then {kõige suurem}, {parem} and then {kõige parem}. One more word, nothing else changes.  
-  → «Самый» это {kõige} перед словом со значением «более»: {suurem}, а затем {kõige suurem}, {parem}, а затем {kõige parem}. На одно слово больше, больше ничего не меняется.
+  → «Самый» по-эстонски {kõige}, оно ставится перед сравнительной степенью: {suurem}, а затем {kõige suurem}, {parem}, а затем {kõige parem}. Добавляется одно слово, остальное не меняется.
 - [ ] **16609.** {Parim} is a shorter way to say {kõige parem}, the best. Both are right.  
-  → {Parim} это более короткий способ сказать {kõige parem}, самый лучший. Оба варианта верны.
+  → {Parim} означает то же, что {kõige parem}, «самый лучший», только короче. Оба варианта верны.
 - [ ] **16610.** {Minu arvates} is in my opinion, the way to say what you think: {Minu arvates Pärnu}.  
-  → {Minu arvates} значит «по-моему», так говорят, что думают: {Minu arvates Pärnu}.
+  → {Minu arvates} значит «по-моему», так выражают своё мнение: {Minu arvates Pärnu}.
 - [ ] **16611.** {Suuruselt teine} is the second biggest, second by size.  
   → {Suuruselt teine} значит «второй по величине», второй по размеру.
-- [ ] **16612.** {Kõige} never changes and never stands alone. It always comes before a word with -m on it.  
-  → {Kõige} никогда не меняется и никогда не стоит одно. Оно всегда идет перед словом с -m.
+- [ ] **16612.** In the most form, {kõige} doesn't change, and it comes before a word with -m on it: {kõige suurem}.  
+  → В превосходной степени {kõige} не меняется и стоит перед словом с -m: {kõige suurem}.
 - [ ] **16613.** Ask what the biggest town in Estonia is.  
   → Спросите, какой самый большой город в Эстонии.
 - [ ] **16614.** What's the most beautiful town?  
@@ -33482,19 +33482,19 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16616.** Pärnu, in my opinion.  
   → Пярну, по-моему.
 - [ ] **16617.** Say black bread is the best.  
-  → Скажите, что черный хлеб самый лучший.
+  → Скажите, что чёрный хлеб самый лучший.
 - [ ] **16618.** Black bread is the best.  
-  → Черный хлеб самый лучший.
+  → Чёрный хлеб самый лучший.
 - [ ] **16619.** Say this one is the cheapest.  
-  → Скажите, что этот самый дешевый.
+  → Скажите, что этот самый дешёвый.
 - [ ] **16620.** This one is the cheapest.  
-  → Этот самый дешевый.
+  → Этот самый дешёвый.
 - [ ] **16621.** Can I try it on?  
   → Можно примерить?
 - [ ] **16622.** Ask to try clothes on, and ask for a bigger or a smaller one.  
   → Попросите примерить одежду и попросите размер побольше или поменьше.
-- [ ] **16623.** Yes. Could I try this jacket on?  
-  → Да. Можно мне примерить эту куртку?
+- [ ] **16623.** Hello! Could I try this jacket on?  
+  → Здравствуйте! Можно примерить эту куртку?
 - [ ] **16624.** Of course. The fitting room is over there.  
   → Конечно. Примерочная вон там.
 - [ ] **16625.** It's too small. Do you have a bigger one?  
@@ -33502,7 +33502,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16626.** Yes, this one is bigger.  
   → Да, эта побольше.
 - [ ] **16627.** This one fits well. I'll take it.  
-  → Эта хорошо сидит. Я ее возьму.
+  → Эта хорошо сидит. Я её возьму.
 - [ ] **16628.** to try, after could or want  
   → примерить, после «можно» или «хочу»
 - [ ] **16629.** fitting room  
@@ -33514,7 +33514,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16632.** this one, the whole of it, as an object  
   → эту, целиком, как дополнение
 - [ ] **16633.** In a shop, a bigger one is -t on the more word: {suuremat}, {väiksemat}. That's the \[osastav\] (3rd form), the form of {Kas teil on...?}  
-  → В магазине «побольше» это -t на слове «больше»: {suuremat}, {väiksemat}. Это \[osastav\] (3-я форма), форма после {Kas teil on...?}
+  → В магазине «побольше» выражают окончанием -t на сравнительной степени: {suuremat}, {väiksemat}. Это \[osastav\] (3-я форма), форма после {Kas teil on...?}
 - [ ] **16634.** Could I try it on?  
   → Можно примерить?
 - [ ] **16635.** Do you have a bigger one?  
@@ -33522,13 +33522,13 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16636.** Do you have a smaller one?  
   → У вас есть поменьше?
 - [ ] **16637.** Trying something on is {proovima}, the same verb as trying a sauna in part three: {Kas ma võiksin seda proovida?}  
-  → Примерять это {proovima}, тот же глагол, что и попробовать сауну в третьей части: {Kas ma võiksin seda proovida?}
+  → «Примерять» по-эстонски {proovima}, тот же глагол, что и «попробовать сауну» в третьей части: {Kas ma võiksin seda proovida?}
 - [ ] **16638.** Clothes that fit {sobivad}: {See sobib hästi}, the verb of the appointment that suits you in part four.  
-  → Одежда, которая подходит, {sobivad}: {See sobib hästi}, глагол из четвертой части, про время, которое вам подходит.
+  → Про одежду, которая подходит, говорят {sobivad}: {See sobib hästi}. Это глагол из четвёртой части, про время, которое вам подходит.
 - [ ] **16639.** {Ma võtan selle} is I'll take it, the whole thing: part three's whole object, with {selle}.  
-  → {Ma võtan selle} значит «я ее возьму», целиком: целое дополнение из третьей части, с {selle}.
+  → {Ma võtan selle} значит «я её возьму», целиком: целое дополнение из третьей части, с {selle}.
 - [ ] **16640.** Trying is {seda}, some of it, since you haven't decided. Taking is {selle}, the whole of it.  
-  → Примерять это {seda}, частично, потому что вы еще не решили. Брать это {selle}, целиком.
+  → При примерке говорят {seda}, частично, потому что вы ещё не решили. Когда берёте, говорят {selle}, целиком.
 - [ ] **16641.** Ask if you could try this jacket on.  
   → Спросите, можно ли примерить эту куртку.
 - [ ] **16642.** Could I try this jacket on?  
@@ -33537,10 +33537,10 @@ _lib/copy/i18n/areas/lessonText.ts_
   → Скажите, что она слишком мала, и попросите побольше.
 - [ ] **16644.** Ask for a smaller one.  
   → Попросите поменьше.
-- [ ] **16645.** How does it fit?  
-  → Как сидит?
+- [ ] **16645.** Does it fit?  
+  → Подходит?
 - [ ] **16646.** Say it fits well, you'll take it.  
-  → Скажите, что хорошо сидит, вы возьмете.
+  → Скажите, что хорошо сидит, вы возьмёте.
 - [ ] **16647.** It fits well. I'll take it.  
   → Хорошо сидит. Я возьму.
 - [ ] **16648.** Dinner out  
@@ -33556,11 +33556,11 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16653.** The fish is the best today.  
   → Рыба сегодня лучше всего.
 - [ ] **16654.** Delicious, thank you. Could we have the bill?  
-  → Очень вкусно, спасибо. Можно нам счет?
+  → Очень вкусно, спасибо. Можно нам счёт?
 - [ ] **16655.** A whole evening at a restaurant, made of part six: the would form for every ask, ordering, and the bill.  
-  → Целый вечер в ресторане, из шестой части: форма «бы» для каждой просьбы, заказ и счет.
+  → Целый вечер в ресторане по материалам шестой части: форма «бы» для каждой просьбы, заказ и счёт.
 - [ ] **16656.** Every request here is softened with -ks-: {sooviksime}, {võtaksin}, {saaksime}. That's what makes it polite.  
-  → Каждая просьба здесь смягчена -ks-: {sooviksime}, {võtaksin}, {saaksime}. Именно это делает ее вежливой.
+  → Каждая просьба здесь смягчена с помощью -ks-: {sooviksime}, {võtaksin}, {saaksime}. Именно это делает её вежливой.
 - [ ] **16657.** At the end, the waiter speaks to you. Answer as yourself, one turn at a time.  
   → В конце официант обращается к вам. Отвечайте от себя, по одной реплике.
 - [ ] **16658.** With no booking, say what you'd like in one go: {Me sooviksime lauda kahele}. The waiter does the rest.  
@@ -33570,7 +33570,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16660.** Ask what they recommend.  
   → Спросите, что они посоветуют.
 - [ ] **16661.** Say it was delicious, and ask for the bill.  
-  → Скажите, что было вкусно, и попросите счет.
+  → Скажите, что было вкусно, и попросите счёт.
 - [ ] **16662.** You've come into a restaurant with a friend. The waiter speaks first. Answer as yourself.  
   → Вы пришли в ресторан с другом. Официант говорит первым. Отвечайте от себя.
 - [ ] **16663.** Say no, and ask for a table for two.  
@@ -33578,13 +33578,13 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16664.** Here you are. What would you like to drink?  
   → Пожалуйста. Что будете пить?
 - [ ] **16665.** Say what you'd have.  
-  → Скажите, что вы возьмете.
+  → Скажите, что вы возьмёте.
 - [ ] **16666.** I'd have a juice.  
   → Мне бы сок.
 - [ ] **16667.** Order something.  
   → Закажите что-нибудь.
 - [ ] **16668.** Say how it was, and ask for the bill.  
-  → Скажите, как было, и попросите счет.
+  → Скажите, как было, и попросите счёт.
 - [ ] **16669.** What do you work as?  
   → Кем вы работаете?
 - [ ] **16670.** Say what you work as and where, and ask somebody else.  
@@ -33593,8 +33593,8 @@ _lib/copy/i18n/areas/lessonText.ts_
   → Том, кем ты работаешь?
 - [ ] **16672.** I work as a programmer. And you?  
   → Я работаю программистом. А ты?
-- [ ] **16673.** I'm a teacher. I work at a school as a teacher.  
-  → Я учительница. Я работаю в школе учительницей.
+- [ ] **16673.** I'm a teacher. I work at a school.  
+  → Я учительница. Я работаю в школе.
 - [ ] **16674.** And your husband?  
   → А твой муж?
 - [ ] **16675.** He works as a cook at a restaurant.  
@@ -33626,7 +33626,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16688.** in one, in a  
   → в одном, в каком-то
 - [ ] **16689.** As is -na on the stem: {õpetaja} and then {õpetajana}, {koka} and then {kokana}. It's \[olev\] (-na, as), for the job you do.  
-  → «Кем» это -na на основе: {õpetaja}, а потом {õpetajana}, {koka}, а потом {kokana}. Это \[olev\] (-na, в качестве), для работы, которую вы делаете.
+  → «Кем» (в качестве кого) передаётся окончанием -na на основе: {õpetaja}, а потом {õpetajana}, {koka}, а потом {kokana}. Это \[olev\] (-na, в качестве), для профессии, которой вы занимаетесь.
 - [ ] **16690.** Job  
   → Профессия
 - [ ] **16691.** Working as  
@@ -33636,7 +33636,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16693.** The question is {Kellena sa töötad?}, -na on {kelle}, from part one.  
   → Вопрос: {Kellena sa töötad?}, -na на {kelle}, из первой части.
 - [ ] **16694.** Where you work is part two again: {koolis}, {firmas}, {ühes restoranis}.  
-  → Где вы работаете, это снова вторая часть: {koolis}, {firmas}, {ühes restoranis}.
+  → Место работы снова из второй части: {koolis}, {firmas}, {ühes restoranis}.
 - [ ] **16695.** No a in front of the job, ever: {Ma olen õpetaja}, never one teacher.  
   → Перед профессией никогда не ставят «один»: {Ma olen õpetaja}, а не «один учитель».
 - [ ] **16696.** Say you work as a programmer.  
@@ -33668,15 +33668,15 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16709.** A new phone. I'm buying it for tomorrow.  
   → Новый телефон. Я покупаю его к завтрашнему дню.
 - [ ] **16710.** It's her birthday tomorrow? Congratulations!  
-  → У нее завтра день рождения? Поздравляю!
+  → У неё завтра день рождения? Поздравляю!
 - [ ] **16711.** Thank you! And the weather's getting warm too.  
-  → Спасибо! И погода тоже становится теплой.
+  → Спасибо! И погода тоже становится тёплой.
 - [ ] **16712.** to become, to get, after want  
   → стать, получить, после «хотеть»
 - [ ] **16713.** of tomorrow  
   → завтрашнего
 - [ ] **16714.** of the warm  
-  → теплого
+  → тёплого
 - [ ] **16715.** of the cold  
   → холодного
 - [ ] **16716.** a new one, as an object  
@@ -33684,17 +33684,17 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16717.** a phone, as an object  
   → телефон, как дополнение
 - [ ] **16718.** Becoming and for is -ks on the stem: {arsti} and then {arstiks}, {sünnipäeva} and then {sünnipäevaks}. It's \[saav\] (-ks, becoming).  
-  → «Стать» и «для» это -ks на основе: {arsti}, а потом {arstiks}, {sünnipäeva}, а потом {sünnipäevaks}. Это \[saav\] (-ks, становиться).
+  → «Стать» и «для» передаются окончанием -ks на основе: {arsti}, а потом {arstiks}, {sünnipäeva}, а потом {sünnipäevaks}. Это \[saav\] (-ks, становиться).
 - [ ] **16719.** Becoming, for  
   → Стать, для
 - [ ] **16720.** What you become: {saada arstiks}, to become a doctor. What something is for: {sünnipäevaks}, for a birthday, {homseks}, for tomorrow.  
   → Кем вы станете: {saada arstiks}, стать врачом. Для чего что-то: {sünnipäevaks}, на день рождения, {homseks}, на завтра.
 - [ ] **16721.** What changes: {Ilm läheb soojaks}, the weather is getting warm, and {külmaks}, cold.  
-  → Что меняется: {Ilm läheb soojaks}, погода становится теплой, и {külmaks}, холодной.
+  → Что меняется: {Ilm läheb soojaks}, погода становится тёплой, и {külmaks}, холодной.
 - [ ] **16722.** The question is {Kelleks?}, for a person, -ks on {kelle}.  
   → Вопрос: {Kelleks?}, для человека, -ks на {kelle}.
 - [ ] **16723.** {Palju õnne sünnipäevaks!} from A1 was this ending all along: happy birthday is much luck for the birthday.  
-  → {Palju õnne sünnipäevaks!} из A1 все это время было с этим окончанием: «с днем рождения» значит «много счастья на день рождения».
+  → {Palju õnne sünnipäevaks!} из A1 всё это время было с этим окончанием: «с днём рождения» значит «много счастья на день рождения».
 - [ ] **16724.** What do you want to become?  
   → Кем вы хотите стать?
 - [ ] **16725.** Say you want to become a doctor.  
@@ -33706,9 +33706,9 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16728.** What do you want for your birthday?  
   → Что ты хочешь на день рождения?
 - [ ] **16729.** Say the weather is getting warm.  
-  → Скажите, что погода становится теплой.
+  → Скажите, что погода становится тёплой.
 - [ ] **16730.** The weather's getting warm.  
-  → Погода становится теплой.
+  → Погода становится тёплой.
 - [ ] **16731.** Say the weather is getting cold.  
   → Скажите, что погода становится холодной.
 - [ ] **16732.** The weather's getting cold.  
@@ -33726,7 +33726,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16738.** Who's taking out the trash?  
   → Кто выносит мусор?
 - [ ] **16739.** You! And hang the washing out to dry too.  
-  → Ты! И повесь белье сушиться.
+  → Ты! И повесь бельё сушиться.
 - [ ] **16740.** Fine. But then you're cooking.  
   → Ладно. Но тогда ты готовишь.
 - [ ] **16741.** guests  
@@ -33744,31 +33744,31 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16747.** trash, garbage  
   → мусор
 - [ ] **16748.** laundry, the washing  
-  → белье, стирка
+  → бельё, стирка
 - [ ] **16749.** to dry, to be drying  
   → сушить, сушиться
 - [ ] **16750.** OK, fine, all right then.  
   → Ладно, хорошо, ну ладно.
 - [ ] **16751.** Doing a job right through takes the whole object: {Ma koristan elutoa} is I'll clean the living room, all of it. Part three's whole object, at home.  
-  → Сделать работу до конца требует целого дополнения: {Ma koristan elutoa} значит «я уберу гостиную», всю. Целое дополнение из третьей части, дома.
+  → Когда работу делают до конца, нужно целое дополнение: {Ma koristan elutoa} значит «я уберу гостиную», всю целиком. Это целое дополнение из третьей части, только дома.
 - [ ] **16752.** I'll clean the living room.  
   → Я уберу гостиную.
 - [ ] **16753.** I'll wash the dishes.  
   → Я помою посуду.
 - [ ] **16754.** Hang the washing out to dry.  
-  → Повесь белье сушиться.
+  → Повесь бельё сушиться.
 - [ ] **16755.** The present is often the future at home: {Mina pesen nõud} is I'll wash the dishes.  
   → Дома настоящее время часто означает будущее: {Mina pesen nõud} значит «я помою посуду».
 - [ ] **16756.** {Mina} and {sina} in place of {ma} and {sa} say me, not you: {Mina koristan!}  
   → {Mina} и {sina} вместо {ma} и {sa} означают «я, а не ты»: {Mina koristan!}
 - [ ] **16757.** {Olgu} is the shrugging yes: fine, all right then.  
-  → {Olgu} это «да» с пожатием плеч: ладно, ну хорошо.
+  → {Olgu} означает «да» с пожатием плеч: ладно, ну хорошо.
 - [ ] **16758.** {Nõud} is already more than one: the dishes. Washing up in Estonian is always {nõud}, never one of them.  
   → {Nõud} уже множественное число: посуда. Мыть посуду по-эстонски всегда {nõud}, никогда не одну тарелку.
 - [ ] **16759.** Who's cleaning?  
   → Кто убирает?
 - [ ] **16760.** Say you'll clean the kitchen.  
-  → Скажите, что вы уберете кухню.
+  → Скажите, что вы уберёте кухню.
 - [ ] **16761.** I'll clean the kitchen.  
   → Я уберу кухню.
 - [ ] **16762.** Say you'll wash the dishes.  
@@ -33798,11 +33798,11 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16774.** Tomorrow until two.  
   → Завтра до двух.
 - [ ] **16775.** All right. The repairman will come tomorrow morning and fix them.  
-  → Хорошо. Мастер придет завтра утром и все починит.
+  → Хорошо. Мастер придёт завтра утром и всё починит.
 - [ ] **16776.** from the apartment  
   → из квартиры
 - [ ] **16777.** work, after {ei}, of a machine  
-  → работать, после {ei}, о машине
+  → работать, после {ei}, о приборе
 - [ ] **16778.** tap, faucet  
   → кран
 - [ ] **16779.** oh!  
@@ -33820,7 +33820,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16785.** of two  
   → двух
 - [ ] **16786.** Broken is {katki}, and it never changes: {Kraan on katki}. A machine that isn't working {ei tööta}, the same verb as a person at work.  
-  → Сломано это {katki}, и оно никогда не меняется: {Kraan on katki}. Машина, которая не работает, {ei tööta}, тот же глагол, что и про человека на работе.
+  → «Сломан» по-эстонски {katki}, и это слово никогда не меняется: {Kraan on katki}. О приборе, который не работает, говорят {ei tööta}, тот же глагол, что и о человеке на работе.
 - [ ] **16787.** The fridge isn't working.  
   → Холодильник не работает.
 - [ ] **16788.** The tap's broken.  
@@ -33832,7 +33832,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16791.** {Katki} goes after {on}, like {valmis} in part five: {Uks on katki}, {Aken on katki}.  
   → {Katki} стоит после {on}, как {valmis} в пятой части: {Uks on katki}, {Aken on katki}.
 - [ ] **16792.** Until two is part five's -ni: {kella kaheni}, on {kahe}, the stem of {kaks}.  
-  → «До двух» это -ni из пятой части: {kella kaheni}, на {kahe}, основе {kaks}.
+  → «До двух» передаётся окончанием -ni из пятой части: {kella kaheni}, на {kahe}, основе {kaks}.
 - [ ] **16793.** On the phone, say who you are first: {Siin on Tom}, it's Tom here.  
   → По телефону сначала скажите, кто вы: {Siin on Tom}, это Том.
 - [ ] **16794.** A landlord sends a {meister}, a tradesman, not an artist. It's the word for anybody who fixes things.  
@@ -33846,29 +33846,29 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16798.** Say tomorrow until two.  
   → Скажите: завтра до двух.
 - [ ] **16799.** Ask when the repairman is coming.  
-  → Спросите, когда придет мастер.
+  → Спросите, когда придёт мастер.
 - [ ] **16800.** When is the repairman coming?  
-  → Когда придет мастер?
+  → Когда придёт мастер?
 - [ ] **16801.** At the bank  
   → В банке
 - [ ] **16802.** Open an account, and give your personal code and your card details.  
-  → Откройте счет и назовите свой личный код и данные карты.
+  → Откройте счёт и назовите свой личный код и данные карты.
 - [ ] **16803.** Hello! I'd like to open an account.  
-  → Здравствуйте! Я бы хотел открыть счет.
+  → Здравствуйте! Я бы хотел открыть счёт.
 - [ ] **16804.** Do you have an Estonian personal code?  
   → У вас есть эстонский личный код?
 - [ ] **16805.** Yes, I do. Here's my ID card.  
   → Да, есть. Вот моя ID-карта.
 - [ ] **16806.** Thank you. Your bank card will come in a week.  
-  → Спасибо. Ваша банковская карта придет через неделю.
+  → Спасибо. Ваша банковская карта придёт через неделю.
 - [ ] **16807.** Can I take out cash too?  
   → А снять наличные тоже можно?
-- [ ] **16808.** Yes, at any ATM.  
-  → Да, в любом банкомате.
+- [ ] **16808.** Yes, from any ATM.  
+  → Да, из любого банкомата.
 - [ ] **16809.** bank account  
-  → банковский счет
+  → банковский счёт
 - [ ] **16810.** an account, as an object  
-  → счет, как дополнение
+  → счёт, как полное дополнение
 - [ ] **16811.** to open  
   → открывать
 - [ ] **16812.** I open  
@@ -33885,30 +33885,30 @@ _lib/copy/i18n/areas/lessonText.ts_
   → наличные
 - [ ] **16818.** to take, after can or want  
   → взять, после «можно» или «хочу»
-- [ ] **16819.** in every, at any  
-  → в каждом, в любом
+- [ ] **16819.** from every, from any  
+  → из каждого, из любого
 - [ ] **16820.** ATM, cash machine  
   → банкомат
-- [ ] **16821.** at an ATM  
-  → в банкомате
-- [ ] **16822.** Wanting to do something takes the da-form after it: {Ma tahaksin kontot avada}. Learn the da-form with each new verb, as in A1.  
-  → Желание что-то сделать требует после себя da-формы: {Ma tahaksin kontot avada}. Учите da-форму с каждым новым глаголом, как в A1.
+- [ ] **16821.** from an ATM  
+  → из банкомата
+- [ ] **16822.** Wanting to do something takes the da-form after it: {Ma tahaksin konto avada}. Learn the da-form with each new verb, as in A1.  
+  → После глаголов желания нужна da-форма: {Ma tahaksin konto avada}. Учите da-форму вместе с каждым новым глаголом, как в A1.
 - [ ] **16823.** After would like  
   → После «хотел бы»
 - [ ] **16824.** An {isikukood} is the eleven-digit code every resident of Estonia has. A bank, a doctor and the state all ask for it.  
-  → {isikukood} это одиннадцатизначный код, который есть у каждого жителя Эстонии. Его спрашивают банк, врач и государство.
-- [ ] **16825.** {Kontot} is an account in the \[osastav\] (3rd form), as the object of {avada}: you're opening one, not all of it yet.  
-  → {Kontot} это счет в \[osastav\] (3-я форма), как дополнение к {avada}: вы открываете счет, но еще не до конца.
-- [ ] **16826.** {Igas} is in every, part two's -s on {iga}: {igas pangaautomaadis}.  
-  → {Igas} значит «в каждом», -s из второй части на {iga}: {igas pangaautomaadis}.
+  → {isikukood} означает одиннадцатизначный код, который есть у каждого жителя Эстонии. Его запрашивают и банк, и врач, и государство.
+- [ ] **16825.** {Konto} is in the \[omastav\] (2nd form): you open the whole account, as in part three's {Ma ostsin raamatu}.  
+  → {Konto} стоит в \[omastav\] (2-я форма): вы открываете счёт целиком, как в {Ma ostsin raamatu} из третьей части.
+- [ ] **16826.** {Igast} is from every, part two's -st on {iga}: {igast pangaautomaadist}.  
+  → {Igast} значит «из каждого», -st из второй части на {iga}: {igast pangaautomaadist}.
 - [ ] **16827.** {ID-kaart} is said with the letters in Estonian, ee-dee rather than eye-dee.  
   → {ID-kaart} произносят по-эстонски буквами: «и-дэ», а не «ай-ди».
 - [ ] **16828.** Say you'd like to open an account.  
-  → Скажите, что вы бы хотели открыть счет.
+  → Скажите, что вы бы хотели открыть счёт.
 - [ ] **16829.** I'd like to open an account.  
-  → Я бы хотел открыть счет.
+  → Я бы хотел открыть счёт.
 - [ ] **16830.** Say yes, here's your ID card.  
-  → Скажите «да», вот ваша ID-карта.
+  → Скажите «да» и что вот ваша ID-карта.
 - [ ] **16831.** Ask if you can take out cash too.  
   → Спросите, можно ли также снять наличные.
 - [ ] **16832.** Say you'd like to pay by card.  
@@ -33952,17 +33952,17 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16851.** of the month  
   → месяца
 - [ ] **16852.** From next month is {järgmisest kuust}: both words take -st, part two's from, on their stems {järgmise} and {kuu}.  
-  → «Со следующего месяца» это {järgmisest kuust}: оба слова получают -st, «из» из второй части, на основах {järgmise} и {kuu}.
+  → «Со следующего месяца» по-эстонски {järgmisest kuust}: оба слова получают окончание -st со значением «из» из второй части, на основах {järgmise} и {kuu}.
 - [ ] **16853.** I have five years of experience.  
   → У меня пять лет опыта.
 - [ ] **16854.** {Alustama} is to start something yourself, and {algama} for something that starts by itself: {Ma alustan}, but {Film algab}.  
   → {Alustama} значит начинать что-то самому, а {algama} про то, что начинается само: {Ma alustan}, но {Film algab}.
 - [ ] **16855.** {Rääkige endast} is tell me about yourself, the first thing every interview asks.  
-  → {Rääkige endast} значит «расскажите о себе», первое, о чем спрашивают на любом собеседовании.
+  → {Rääkige endast} значит «расскажите о себе», первое, о чём спрашивают на любом собеседовании.
 - [ ] **16856.** Experience is something you have: {Mul on kogemust}, in the \[osastav\] (3rd form).  
-  → Опыт это то, что у вас есть: {Mul on kogemust}, в \[osastav\] (3-я форма).
+  → Об опыте говорят как о том, что у вас есть: {Mul on kogemust}, в \[osastav\] (3-я форма).
 - [ ] **16857.** An interviewer says {teie} and {te}: keep to it in your answers too.  
-  → Собеседник говорит {teie} и {te}: придерживайтесь этого и в своих ответах.
+  → Интервьюер говорит {teie} и {te}: придерживайтесь этого и в своих ответах.
 - [ ] **16858.** Tell me a little about yourself.  
   → Расскажите немного о себе.
 - [ ] **16859.** Say what you are and how much experience you have.  
@@ -33992,13 +33992,13 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16871.** Yes, a little. I study every day.  
   → Да, немного. Я занимаюсь каждый день.
 - [ ] **16872.** A whole interview, made of part seven and the parts before it: what you are, where you worked, and when you could start.  
-  → Целое собеседование из седьмой части и всех частей до неё: кто вы по профессии, где работали и когда могли бы начать.
+  → Целое собеседование по материалам седьмой части и всех предыдущих: кто вы по профессии, где работали и когда могли бы начать.
 - [ ] **16873.** The past of part three tells where you worked, and part seven's -na what as: {töötasin pangas programmeerijana}.  
   → Прошедшее время из третьей части говорит, где вы работали, а -na из седьмой части говорит, кем: {töötasin pangas programmeerijana}.
 - [ ] **16874.** At the end, the interviewer speaks to you. Answer as yourself, one turn at a time.  
-  → В конце собеседник обращается к вам. Отвечайте от своего имени, по одной реплике.
+  → В конце интервьюер обращается к вам. Отвечайте от своего имени, по одной реплике.
 - [ ] **16875.** {Istuge} is sit down, said politely, and the answer is just to sit: no reply needed.  
-  → {Istuge} значит «садитесь», сказанное вежливо, и ответ на это просто сесть: говорить ничего не нужно.
+  → {Istuge} значит «садитесь», вежливо, и в ответ нужно просто сесть: говорить ничего не нужно.
 - [ ] **16876.** Say who you are, what you do and where you live.  
   → Скажите, кто вы, чем занимаетесь и где живёте.
 - [ ] **16877.** I'm Tom. I'm a programmer and I live in Tallinn.  
@@ -34008,7 +34008,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16879.** I worked in London as a programmer.  
   → Я работал в Лондоне программистом.
 - [ ] **16880.** You're at a job interview. The interviewer speaks first. Answer as yourself.  
-  → Вы на собеседовании. Собеседник говорит первым. Отвечайте от своего имени.
+  → Вы на собеседовании. Интервьюер говорит первым. Отвечайте от своего имени.
 - [ ] **16881.** Say who you are and what you do.  
   → Скажите, кто вы и чем занимаетесь.
 - [ ] **16882.** Hello! I'm Tom. I'm a programmer.  
@@ -34034,7 +34034,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16892.** Congratulations! And in the summer?  
   → Поздравляю! А летом?
 - [ ] **16893.** In the summer I have time off. I plan to go to the country. And you?  
-  → Летом у меня отпуск. Я собираюсь поехать в деревню. А ты?
+  → Летом у меня отпуск. Я планирую поехать в деревню. А ты?
 - [ ] **16894.** I'm going to start teaching Estonian.  
   → Я собираюсь начать преподавать эстонский.
 - [ ] **16895.** Really? Then I'll come to your class!  
@@ -34058,19 +34058,19 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16904.** vacation, time off work  
   → отпуск, свободное от работы время
 - [ ] **16905.** time off, as some of it  
-  → отпуск, как часть чего-то
+  → отпуск, какая-то его часть
 - [ ] **16906.** Going to do is {hakkama} and the \[ma-tegevusnimi\] (-ma): {Ma hakkan töötama}, I'm starting to work. Planning to is {kavatsema} and the \[da-tegevusnimi\] (-da): {Ma kavatsen minna}.  
-  → «Собираться что-то делать» это {hakkama} с \[ma-tegevusnimi\] (-ma): {Ma hakkan töötama}, я начинаю работать. «Намереваться» это {kavatsema} с \[da-tegevusnimi\] (-da): {Ma kavatsen minna}.
+  → «Собираться что-то делать» по-эстонски {hakkama} с \[ma-tegevusnimi\] (-ma): {Ma hakkan töötama}, я начинаю работать. «Намереваться» по-эстонски {kavatsema} с \[da-tegevusnimi\] (-da): {Ma kavatsen minna}.
 - [ ] **16907.** I'm starting work at a new company.  
   → Я начинаю работать в новой фирме.
 - [ ] **16908.** I plan to go to the country.  
   → Я собираюсь поехать в деревню.
 - [ ] **16909.** Estonian has no will. The present does most of it: {Homme ma lähen}, I'll go tomorrow. {Hakkan} is for starting something new.  
-  → В эстонском нет будущего времени. Почти всё делает настоящее: {Homme ma lähen}, завтра я пойду. {Hakkan} говорят, когда начинают что-то новое.
+  → В эстонском нет будущего времени. Обычно его заменяет настоящее: {Homme ma lähen}, завтра я пойду. {Hakkan} говорят, когда начинают что-то новое.
 - [ ] **16910.** {Hakkama} takes the \[ma-tegevusnimi\] (-ma), like {pidama}. {Kavatsema} takes the \[da-tegevusnimi\] (-da), like {tahtma}.  
   → После {Hakkama} идёт \[ma-tegevusnimi\] (-ma), как после {pidama}. После {Kavatsema} идёт \[da-tegevusnimi\] (-da), как после {tahtma}.
 - [ ] **16911.** {Sinu tundi} is to your class: {tund} is an hour and a lesson both.  
-  → {Sinu tundi} значит «к тебе на урок»: {tund} это и час, и урок.
+  → {Sinu tundi} значит «к тебе на урок»: {tund} значит и «час», и «урок».
 - [ ] **16912.** {Ma hakkan minema} is I'm about to leave. It's the \[ma-tegevusnimi\] (-ma) after {hakkama}, every time.  
   → {Ma hakkan minema} значит «я сейчас пойду». После {hakkama} всегда \[ma-tegevusnimi\] (-ma).
 - [ ] **16913.** What are your plans?  
@@ -34094,7 +34094,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16922.** I think that, because  
   → Я думаю, что, потому что
 - [ ] **16923.** Say what you think and why, and agree or disagree.  
-  → Скажите, что вы думаете и почему, и согласитесь или не согласитесь.
+  → Скажите, что вы думаете и почему, и выразите согласие или несогласие.
 - [ ] **16924.** You went to Tartu. How did you like Tartu?  
   → Ты ездил в Тарту. Как тебе понравился Тарту?
 - [ ] **16925.** A lot! I think Tartu is better than Tallinn, because it's smaller and quieter.  
@@ -34120,7 +34120,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16935.** You're right.  
   → Ты прав.
 - [ ] **16936.** What you think comes after {Ma arvan, et}, with a comma before {et}. Why comes after {sest}, with a comma too.  
-  → Что вы думаете, идёт после {Ma arvan, et}, с запятой перед {et}. Почему, идёт после {sest}, тоже с запятой.
+  → Мнение идёт после {Ma arvan, et}, а перед {et} ставится запятая. Причина идёт после {sest}, и перед ним тоже ставится запятая.
 - [ ] **16937.** I think Tartu is better.  
   → Я думаю, что Тарту лучше.
 - [ ] **16938.** Tartu is better because it's smaller.  
@@ -34130,11 +34130,11 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16940.** I don't agree.  
   → Я не согласен.
 - [ ] **16941.** Agree is {olema nõus}, to be in agreement: {Ma olen nõus}. Disagreeing is {ei ole}: {Ma ei ole nõus}.  
-  → «Соглашаться» это {olema nõus}, быть согласным: {Ma olen nõus}. Не соглашаться это {ei ole}: {Ma ei ole nõus}.
+  → «Соглашаться» по-эстонски {olema nõus}, то есть быть согласным: {Ma olen nõus}. Для несогласия нужно {ei ole}: {Ma ei ole nõus}.
 - [ ] **16942.** {Sul on õigus} is you're right: you have the right of it, with {sul} like {sul on}.  
   → {Sul on õigus} значит «ты прав»: правда на твоей стороне, с {sul}, как в {sul on}.
-- [ ] **16943.** {Et} and {sest} always take a comma in front of them. Estonian is strict about it.  
-  → Перед {Et} и {sest} всегда стоит запятая. В эстонском это строго.
+- [ ] **16943.** Inside a sentence, {et} and {sest} take a comma in front of them. Estonian is strict about it.  
+  → Внутри предложения перед {et} и {sest} ставится запятая. В эстонском с этим строго.
 - [ ] **16944.** English can drop that. Estonian can't: {Ma arvan, et...}, every time.  
   → В английском «that» можно опустить. В эстонском нельзя: {Ma arvan, et...}, каждый раз.
 - [ ] **16945.** How did you like Tartu?  
@@ -34158,7 +34158,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16954.** If it rains  
   → Если пойдёт дождь
 - [ ] **16955.** Say what you'll do if: if the weather's nice, if it rains.  
-  → Скажите, что вы сделаете, если: если погода хорошая, если пойдёт дождь.
+  → Скажите, что вы будете делать, если погода будет хорошей и если пойдёт дождь.
 - [ ] **16956.** What should we do on Saturday?  
   → Что будем делать в субботу?
 - [ ] **16957.** If the weather's nice, let's go to the beach.  
@@ -34168,23 +34168,23 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16959.** Then we'll stay at home and watch a film.  
   → Тогда останемся дома и посмотрим фильм.
 - [ ] **16960.** Good plan! If it's warm, I'll bring my swimming things.  
-  → Хороший план! Если будет тепло, я возьму купальные вещи.
+  → Хороший план! Если будет тепло, я возьму вещи для купания.
 - [ ] **16961.** to the beach  
   → на пляж
 - [ ] **16962.** we stay  
   → мы остаёмся
 - [ ] **16963.** swimming things, swimwear  
-  → купальные вещи, купальник
+  → вещи для купания, купальник
 - [ ] **16964.** along, with you  
   → с собой
 - [ ] **16965.** If is {kui}, at the start, with a comma after its half: {Kui ilm on ilus, lähme randa}. Then is {siis}.  
-  → «Если» это {kui}, в начале, с запятой после своей половины: {Kui ilm on ilus, lähme randa}. «Тогда» это {siis}.
+  → «Если» по-эстонски {kui}. Оно стоит в начале, а после его части предложения ставится запятая: {Kui ilm on ilus, lähme randa}. «Тогда» по-эстонски {siis}.
 - [ ] **16966.** If  
   → Если
 - [ ] **16967.** Then  
   → Тогда
 - [ ] **16968.** {Kui} is the same word as in {kui palju} and {suurem kui}. At the start of a sentence it means if or when.  
-  → {Kui} то же слово, что в {kui palju} и {suurem kui}. В начале предложения оно значит «если» или «когда».
+  → {Kui} здесь то же слово, что в {kui palju} и {suurem kui}. В начале предложения оно значит «если» или «когда».
 - [ ] **16969.** Both halves are in the present: {Kui sajab, jääme koju}. Estonian doesn't need will for the second half.  
   → Обе половины в настоящем времени: {Kui sajab, jääme koju}. Эстонскому не нужно будущее время для второй половины.
 - [ ] **16970.** {Võtan kaasa} is I'll bring along: {kaasa} goes at the end.  
@@ -34202,9 +34202,9 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16976.** If it's cold, I'll stay at home.  
   → Если будет холодно, я останусь дома.
 - [ ] **16977.** Say you'll bring your swimming things.  
-  → Скажите, что возьмёте купальные вещи.
+  → Скажите, что возьмёте вещи для купания.
 - [ ] **16978.** I'll bring my swimming things.  
-  → Я возьму купальные вещи.
+  → Я возьму вещи для купания.
 - [ ] **16979.** A day in the forest  
   → День в лесу
 - [ ] **16980.** Talk about a day out in nature: the forest, the lake, mushrooms and berries.  
@@ -34240,9 +34240,9 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **16995.** of the lake  
   → озера
 - [ ] **16996.** berries, as some  
-  → ягоды, какие-то
+  → ягоды, какое-то количество
 - [ ] **16997.** blueberries, as some  
-  → черника, какая-то
+  → черника, какое-то количество
 - [ ] **16998.** basket  
   → корзина
 - [ ] **16999.** me, as an object  
@@ -34250,7 +34250,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **17000.** to know, to recognize, to feel  
   → знать, узнавать, чувствовать
 - [ ] **17001.** Going to do something is -ma after a verb of going: {Lähme seeni korjama}, we're going mushrooming. It's the same -ma as after {pean}.  
-  → Идти что-то делать это -ma после глагола движения: {Lähme seeni korjama}, мы идём за грибами. Это та же -ma, что после {pean}.
+  → «Идти что-то делать» передаётся формой на -ma после глагола движения: {Lähme seeni korjama}, мы идём за грибами. Это та же форма на -ma, что после {pean}.
 - [ ] **17002.** We're going to the forest to pick mushrooms.  
   → Мы идём в лес за грибами.
 - [ ] **17003.** The forest is by a lake.  
@@ -34261,12 +34261,12 @@ _lib/copy/i18n/areas/lessonText.ts_
   → Я не разбираюсь в грибах.
 - [ ] **17006.** {Metsa} is into the forest, the short form, like {randa} and {koju}: {lähme metsa}.  
   → {Metsa} значит «в лес», это короткая форма, как {randa} и {koju}: {lähme metsa}.
-- [ ] **17007.** {Seeni}, {marju} and {mustikaid} are some of them, more than one. You pick some, never all.  
-  → {Seeni}, {marju} и {mustikaid} значат «какие-то из них», больше одного. Собирают всегда часть, никогда не всё.
+- [ ] **17007.** {Seeni}, {marju} and {mustikaid} are the \[osastav\] (3rd form), more than one: some of them, an open amount. That's how you say what you pick and what there is.  
+  → {Seeni}, {marju} и {mustikaid} стоят в \[osastav\] (3-я форма) множественного числа и означают какое-то количество, без точной меры. Так говорят о том, что собирают и что есть вокруг.
 - [ ] **17008.** {Tundma} is to know a person or a thing well enough to recognize it: {Ma ei tunne seeni}. To know a fact is {teadma}.  
-  → {Tundma} значит знать человека или вещь достаточно хорошо, чтобы узнать: {Ma ei tunne seeni}. Знать факт это {teadma}.
+  → {Tundma} значит знать человека или вещь достаточно хорошо, чтобы узнать: {Ma ei tunne seeni}. А знать факт по-эстонски {teadma}.
 - [ ] **17009.** Estonians pick in the forest the way others go shopping: going mushrooming is a whole outing, and part of autumn.  
-  → Эстонцы ходят собирать в лес так, как другие ходят по магазинам: поход за грибами это целая прогулка и часть осени.
+  → Эстонцы ходят в лес за грибами и ягодами, как другие ходят по магазинам: поход за грибами для них целое событие и часть осени.
 - [ ] **17010.** Are you coming along?  
   → Пойдёшь с нами?
 - [ ] **17011.** Say you'd love to, and ask where the forest is.  
@@ -34303,16 +34303,16 @@ _lib/copy/i18n/areas/lessonText.ts_
   → оставить, после «можно»
 - [ ] **17027.** tell!, say!, polite  
   → скажите!, передайте!, вежливо
-- [ ] **17028.** On the phone, every ask takes the would form: {Kas ma võiksin...?}, {Kas ma saaksin...?} It's part six's politeness on the line.  
-  → По телефону каждая просьба идёт в условной форме: {Kas ma võiksin...?}, {Kas ma saaksin...?} Это вежливость из шестой части, только по телефону.
+- [ ] **17028.** On the phone, a polite ask usually takes the would form: {Kas ma võiksin...?}, {Kas ma saaksin...?} It's part six's politeness on the line.  
+  → По телефону вежливую просьбу обычно выражают условной формой: {Kas ma võiksin...?}, {Kas ma saaksin...?} Это вежливость из шестой части, только по телефону.
 - [ ] **17029.** Could I speak to Mari?  
   → Можно поговорить с Мари?
 - [ ] **17030.** I'll call back this evening.  
   → Я перезвоню вечером.
-- [ ] **17031.** Answering the phone, you say your name and {kuuleb}: {Liis kuuleb}, Liis is listening.  
-  → Отвечая на звонок, называют своё имя и {kuuleb}: {Liis kuuleb}, Лийс слушает.
+- [ ] **17031.** Answering the phone, you say your name and {kuuleb}: {Liis kuuleb}, Liis speaking (literally, Liis hears).  
+  → Отвечая на звонок, называют своё имя и {kuuleb}: {Liis kuuleb}, Лийс слушает (дословно «Лийс слышит»).
 - [ ] **17032.** Speak to somebody is with somebody: {Mariga rääkida}, part two's -ga.  
-  → Поговорить с кем-то это -ga из второй части: {Mariga rääkida}.
+  → «Поговорить с кем-то» передаётся через -ga из второй части: {Mariga rääkida}.
 - [ ] **17033.** {Talle} is to him or to her. Estonian has one word for both.  
   → {Talle} значит «ему» или «ей». В эстонском одно слово для обоих.
 - [ ] **17034.** A message you leave is the whole of it: {sõnumi jätta}, never some of a message.  
@@ -34332,7 +34332,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **17041.** Let's agree on a time  
   → Договоримся о времени
 - [ ] **17042.** Agree a day, a time and a place to meet, and change it if it doesn't suit.  
-  → Договоритесь о дне, времени и месте встречи и измените их, если не подходит.
+  → Договоритесь о дне, времени и месте встречи и измените их, если что-то не подходит.
 - [ ] **17043.** When should we meet?  
   → Когда встретимся?
 - [ ] **17044.** Does Friday at six suit you?  
@@ -34350,7 +34350,7 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **17050.** It's a deal! Agreed!  
   → Договорились! Решено!
 - [ ] **17051.** A time that works {sobib}, for somebody in -le: {Kas sulle sobib?}, does it suit you? And a time agreed is {Lepime kokku!}  
-  → Время, которое подходит, это {sobib}, кому, с -le: {Kas sulle sobib?}, тебе подходит? А время, о котором договорились, это {Lepime kokku!}
+  → Если время подходит, говорят {sobib}, а того, кому оно подходит, ставят в форму на -le: {Kas sulle sobib?}, тебе подходит? А когда о времени договорились, говорят {Lepime kokku!}
 - [ ] **17052.** Does Friday suit you?  
   → Тебе подходит пятница?
 - [ ] **17053.** Friday doesn't suit.  
@@ -34360,15 +34360,15 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **17055.** {Kokku saama} is to meet up, together: {Millal me kokku saame?}  
   → {Kokku saama} значит встретиться, вместе: {Millal me kokku saame?}
 - [ ] **17056.** Who it suits takes -le: {sulle}, {mulle}, {teile}. Part four's {sobib}, now with the person.  
-  → Кому подходит, идёт с -le: {sulle}, {mulle}, {teile}. Это {sobib} из четвёртой части, теперь с человеком.
+  → Тот, кому подходит, стоит в форме на -le: {sulle}, {mulle}, {teile}. Это {sobib} из четвёртой части, теперь с человеком.
 - [ ] **17057.** A place is part two: {kohvikus}, {kiriku kõrval}.  
-  → Место это вторая часть: {kohvikus}, {kiriku kõrval}.
+  → Место выражают так же, как во второй части: {kohvikus}, {kiriku kõrval}.
 - [ ] **17058.** {Lepime kokku!} closes the plan. Said without a time in it, it's a promise to make one.  
-  → {Lepime kokku!} закрывает план. Сказанное без времени, это обещание о нём договориться.
+  → {Lepime kokku!} завершает план. Если сказать это без времени, это обещание договориться позже.
 - [ ] **17059.** Ask when you'll meet.  
   → Спросите, когда встретитесь.
 - [ ] **17060.** Ask if Friday at six suits them.  
-  → Спросите, подходит ли им пятница в шесть.
+  → Спросите, подходит ли собеседнику пятница в шесть.
 - [ ] **17061.** Say Friday doesn't suit, but Saturday's fine.  
   → Скажите, что пятница не подходит, а суббота подходит.
 - [ ] **17062.** Friday doesn't suit. But Saturday's fine.  
@@ -34392,9 +34392,9 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **17071.** I'd love to! If I get time off.  
   → С удовольствием! Если будет отпуск.
 - [ ] **17072.** A whole catch-up, made of all of A2: the past, the endings on the stem, the would form, what you think and what you plan.  
-  → Целый разговор после долгой разлуки из всего A2: прошедшее время, окончания на основе, условная форма, что вы думаете и что планируете.
+  → Целый разговор старых знакомых, составленный из всего A2: прошедшее время, окончания на основе, условная форма, что вы думаете и что планируете.
 - [ ] **17073.** Every part of A2 is in it: {Tartus} and {Saaremaale} are part two, {olin} and {töötasin} part three, {kõige ilusam} part six, {programmeerijana} part seven, {kavatsen} and {Ma arvan, et} part eight.  
-  → Здесь есть каждая часть A2: {Tartus} и {Saaremaale} из второй части, {olin} и {töötasin} из третьей, {kõige ilusam} из шестой, {programmeerijana} из седьмой, {kavatsen} и {Ma arvan, et} из восьмой.
+  → Здесь есть все части A2: {Tartus} и {Saaremaale} из второй части, {olin} и {töötasin} из третьей, {kõige ilusam} из шестой, {programmeerijana} из седьмой, {kavatsen} и {Ma arvan, et} из восьмой.
 - [ ] **17074.** At the end, an old friend speaks to you. Answer as yourself, one turn at a time.  
   → В конце к вам обращается старая подруга. Отвечайте от своего имени, по одной реплике.
 - [ ] **17075.** {Kas tuleksid kaasa?} is would you come along: the would form makes an invitation gentle.  
@@ -34444,27 +34444,27 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **17097.** A whole first meeting with a neighbor, made of things from all over A1.  
   → Целое первое знакомство с соседом, составленное из всего уровня A1.
 - [ ] **17098.** Part one gave you hello and names, part two where you're from, part three a day and a time, and the invitation is lesson 46's command: {Tule laupäeval meile!}  
-  → Первая часть дала вам приветствия и имена, вторая: откуда вы, третья: день и время, а приглашение взято из повелительной формы урока 46: {Tule laupäeval meile!}
+  → Из первой части здесь приветствия и имена, из второй вопрос, откуда вы, из третьей день и время, а приглашение построено на повелительной форме из урока 46: {Tule laupäeval meile!}
 - [ ] **17099.** A whole visit to a desk, made only of what this part has taught.  
-  → Целый визит к стойке, составленный только из того, чему научила эта часть.
+  → Целый разговор у стойки, составленный только из того, чему научила эта часть.
 - [ ] **17100.** Near the end, the \[omastav\] (2nd form) asks whose: {kelle telefon}, whose phone.  
-  → Ближе к концу \[omastav\] (2nd form) спрашивает «чей»: {kelle telefon}, чей телефон.
-- [ ] **17101.** {Olin}, {tegin}, {käisin}, {sõin} and {jõin} from A1 work the same way, with -in in place of -sin: {sõid}, {jõime}, {lugesite}.  
-  → {Olin}, {tegin}, {käisin}, {sõin} и {jõin} из A1 устроены так же, только с -in вместо -sin: {sõid}, {jõime}, {lugesite}.
+  → Ближе к концу \[omastav\] (2-я форма) спрашивает «чей»: {kelle telefon}, чей телефон.
+- [ ] **17101.** {Olin}, {tegin}, {sõin} and {jõin} from A1 work the same way, with -in in place of -sin: {sõid}, {jõime}, {tegite}.  
+  → {Olin}, {tegin}, {sõin} и {jõin} из A1 устроены так же, только с -in вместо -sin: {sõid}, {jõime}, {tegite}.
 - [ ] **17102.** Five years ago. My wife works here.  
   → Пять лет назад. Моя жена работает здесь.
 - [ ] **17103.** You met {ära} in part two: {Ära unusta!} It only goes to one person you say {sina} to. To two people, or politely, it's another word, which the next lesson teaches.  
-  → Вы встречали {ära} во второй части: {Ära unusta!} Это слово только для одного человека, к которому вы обращаетесь на {sina}. Двоим или вежливо говорят другое слово, его даёт следующий урок.
+  → Вы встречали {ära} во второй части: {Ära unusta!} Это слово только для одного человека, к которому вы обращаетесь на {sina}. Для двух человек или при вежливом обращении нужно другое слово, оно будет в следующем уроке.
 - [ ] **17104.** Platform one is the first platform: {esimeselt platvormilt}, from part one's {esimene} with -lt on its stem.  
-  → Первая платформа: {esimeselt platvormilt}: {esimene} из первой части с -lt на основе.
+  → Платформу номер один называют первой платформой: {esimeselt platvormilt}, это {esimene} из первой части с -lt на основе.
 - [ ] **17105.** A trip told afterwards is part three again: {sõitsime}, {ööbisite}, {käisime}. Learn the \[lihtminevik\] (past) for I and for he or she, and the rest follow.  
-  → Рассказ о поездке снова из третья часть: {sõitsime}, {ööbisite}, {käisime}. Выучите \[lihtminevik\] (past) для «я» и для «он, она», остальное следует из них.
+  → Рассказ о поездке снова строится на материале третьей части: {sõitsime}, {ööbisite}, {käisime}. Выучите \[lihtminevik\] (прошедшее время) для «я» и для «он, она», остальное следует из них.
 - [ ] **17106.** A whole catch-up, made of A2: the past, the endings on the stem, the would form, what you think and what you plan.  
   → Целый разговор старых знакомых, составленный из A2: прошедшее время, окончания на основе, условная форма, что вы думаете и что планируете.
 - [ ] **17107.** Most of A2 is in it: {Tartus} and {Saaremaale} are part two, {olin} and {töötasin} part three, {kõige ilusam} part six, {programmeerijana} part seven, {kavatsen} and {Ma arvan, et} part eight.  
   → В нём большая часть A2: {Tartus} и {Saaremaale} из второй части, {olin} и {töötasin} из третьей, {kõige ilusam} из шестой, {programmeerijana} из седьмой, {kavatsen} и {Ma arvan, et} из восьмой.
 - [ ] **17108.** {Minu naise oma} is my wife's: the \[omastav\] (2nd form) says whose, and {oma} says it's theirs.  
-  → {Minu naise oma} значит «моей жены»: \[omastav\] (2-я форма) говорит чей, а {oma} говорит, что это их вещь.
+  → {Minu naise oma} значит «моей жены»: \[omastav\] (2-я форма) показывает, чей, а {oma} показывает, что вещь принадлежит этому человеку.
 - [ ] **17109.** {Teie oma} is yours, said politely, and {kelle telefon} asks whose.  
   → {Teie oma} значит «ваш», вежливо, а {kelle telefon} спрашивает чей.
 - [ ] **17110.** Hello, Tom! How can I help?  
@@ -34477,8 +34477,8 @@ _lib/copy/i18n/areas/lessonText.ts_
   → Понятно. А как зовут вашу жену?
 - [ ] **17114.** Anna Smith. She's at home today.  
   → Анна Смит. Она сегодня дома.
-- [ ] **17115.** Thank you. Is that bag on the chair yours too?  
-  → Спасибо. Сумка на стуле тоже ваша?
+- [ ] **17115.** Thank you. Is that bag on the chair yours?  
+  → Спасибо. Сумка на стуле ваша?
 - [ ] **17116.** Yes, that's my bag. But whose phone is this?  
   → Да, это моя сумка. А чей это телефон?
 - [ ] **17117.** That's my phone! It was under the desk. Thank you so much!  
@@ -34486,17 +34486,17 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **17118.** A question, a problem, an idea  
   → Вопрос, проблема, идея
 - [ ] **17119.** Say you have a question, a problem or an idea, and that something's no problem.  
-  → Сказать, что у вас есть вопрос, проблема или идея, и что всё в порядке.
+  → Скажите, что у вас есть вопрос, проблема или идея, и что ничего страшного.
 - [ ] **17120.** Say you have one with {mul on}: {Mul on küsimus}, {Mul on idee}. Say you don't with {mul ei ole} and the \[osastav\] (3rd form): {Mul ei ole ideed}.  
-  → Что у вас что-то есть, скажите через {mul on}: {Mul on küsimus}, {Mul on idee}. Что нет, через {mul ei ole} и \[osastav\] (3-я форма): {Mul ei ole ideed}.
+  → Чтобы сказать, что у вас что-то есть, используйте {mul on}: {Mul on küsimus}, {Mul on idee}. Чтобы сказать, что нет, используйте {mul ei ole} и \[osastav\] (3-я форма): {Mul ei ole ideed}.
 - [ ] **17121.** {Viga} is a mistake, but {Pole viga!} is no problem, the way you'd say never mind.  
-  → {Viga} это ошибка, но {Pole viga!} значит «ничего страшного», так говорят «не беда».
+  → {Viga} значит «ошибка», но {Pole viga!} значит «ничего страшного», примерно как «не беда».
 - [ ] **17122.** {Mis asi?} is what is it?, or what's up? {Asi} is a thing, and also a matter.  
-  → {Mis asi?} значит «в чём дело?» или «что такое?». {Asi} это вещь, а ещё дело.
+  → {Mis asi?} значит «в чём дело?» или «что такое?». {Asi} значит «вещь», а ещё «дело».
 - [ ] **17123.** {Raha} is the same in the \[osastav\] (3rd form), so {Mul ei ole raha} looks just like {Mul on raha}.  
   → {Raha} в \[osastav\] (3-я форма) не меняется, поэтому {Mul ei ole raha} выглядит так же, как {Mul on raha}.
 - [ ] **17124.** {Paar} is a pair, and before a number word or a noun it's a couple of something.  
-  → {Paar} это пара, а перед числом или существительным значит «пара, несколько».
+  → {Paar} значит «пара», а перед числительным или существительным «пара, несколько».
 - [ ] **17125.** I have a question.  
   → У меня есть вопрос.
 - [ ] **17126.** I have a problem.  
@@ -34554,17 +34554,17 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **17152.** Looking for it, finding it  
   → Искать и найти
 - [ ] **17153.** Say what you're looking for, that you can't find it, and what you remember.  
-  → Сказать, что вы ищете, что не можете найти и что вы помните.
+  → Скажите, что вы ищете, что не можете это найти и что вы помните.
 - [ ] **17154.** Every verb here works the way you know: learn the \[olevik\] (I form) and the rest follow. No is {ei} and the word without -n: {Ma ei leia}.  
-  → Каждый глагол здесь работает так, как вы знаете: выучите \[olevik\] (форма «я»), остальное следует из неё. Отрицание это {ei} и слово без -n: {Ma ei leia}.
+  → Каждый глагол здесь устроен так, как вы уже знаете: выучите \[olevik\] (форма «я»), остальное следует из неё. Отрицание строится из {ei} и слова без -n: {Ma ei leia}.
 - [ ] **17155.** {Otsima} is look for and {leidma} is find: {Ma otsin, aga ma ei leia}, I'm looking, but I can't find it.  
   → {Otsima} значит «искать», а {leidma} «найти»: {Ma otsin, aga ma ei leia}, я ищу, но не могу найти.
 - [ ] **17156.** {Ma arvan, et...} is I think that, and {Ma usun, et...} is I believe that. Both go before a whole sentence.  
   → {Ma arvan, et...} значит «я думаю, что», а {Ma usun, et...} «я верю, что». Оба ставятся перед целым предложением.
 - [ ] **17157.** {Mõtlema} is thinking something over, where {arvama} is what you think of it.  
-  → {Mõtlema} это обдумывать что-то, а {arvama} это ваше мнение о чём-то.
-- [ ] **17158.** What you look for, find or need takes the \[osastav\] (3rd form) or the \[omastav\] (2nd form), the way {Ma ostsin raamatu} does.  
-  → То, что ищут, находят или что нужно, стоит в \[osastav\] (3-я форма) или в \[omastav\] (2-я форма), как в {Ma ostsin raamatu}.
+  → {Mõtlema} значит «обдумывать что-то», а {arvama} выражает ваше мнение о чём-то.
+- [ ] **17158.** {Otsima} and {vajama} always take the \[osastav\] (3rd form): {Ma otsin telefoni}. {Leidma} takes the \[omastav\] (2nd form) for a whole thing found, the way {Ma ostsin raamatu} does, but after {ei} it takes the \[osastav\]: {Ma ei leia seda}.  
+  → {Otsima} и {vajama} всегда требуют \[osastav\] (3-я форма): {Ma otsin telefoni}. {Leidma} требует \[omastav\] (2-я форма), когда найдено что-то целое, как в {Ma ostsin raamatu}, но после {ei} нужен \[osastav\]: {Ma ei leia seda}.
 - [ ] **17159.** I'm looking for  
   → я ищу
 - [ ] **17160.** I find  
@@ -34634,17 +34634,17 @@ _lib/copy/i18n/areas/lessonText.ts_
 - [ ] **17192.** Small words that do a lot  
   → Маленькие слова, которые много значат
 - [ ] **17193.** Say still, not anymore, sometimes, even and probably, the small words that make talk sound like you.  
-  → Говорить «всё ещё», «больше не», «иногда», «даже» и «наверное», маленькие слова, с которыми речь звучит по-вашему.
-- [ ] **17194.** These small words don't change, and they go where English puts them: {Ma töötan isegi laupäeval}, I even work on Saturday.  
-  → Эти маленькие слова не меняются и стоят там же, где в английском: {Ma töötan isegi laupäeval}, я работаю даже в субботу.
+  → Скажите «всё ещё», «больше не», «иногда», «даже» и «наверное»: с этими маленькими словами ваша речь звучит естественно.
+- [ ] **17194.** Most of these small words don't change, and they go right before the word they're about: {Ma töötan isegi laupäeval}, I work even on Saturday.  
+  → Большинство этих маленьких слов не меняются и стоят прямо перед словом, к которому относятся: {Ma töötan isegi laupäeval}, я работаю даже в субботу.
 - [ ] **17195.** {Vist} is the word for a guess. {Ta on vist kodus} is she's probably at home, and you'd say it when you're not sure.  
-  → {Vist} это слово для догадки. {Ta on vist kodus} значит «она, наверное, дома», так говорят, когда не уверены.
+  → {Vist} выражает догадку. {Ta on vist kodus} значит «она, наверное, дома», так говорят, когда не уверены.
 - [ ] **17196.** {Ei} goes with a verb and {mitte} with anything else: {Ma ei tööta}, but {mitte nii tihti}, not so often.  
   → {Ei} ставится с глаголом, а {mitte} со всем остальным: {Ma ei tööta}, но {mitte nii tihti}, не так часто.
 - [ ] **17197.** {Enam} after {ei} is not anymore: {Ma ei ela enam Tallinnas}.  
   → {Enam} после {ei} значит «больше не»: {Ma ei ela enam Tallinnas}.
 - [ ] **17198.** {Keegi} is somebody, and with {ei} it's nobody: {Keegi ei tea}, nobody knows.  
-  → {Keegi} это «кто-то», а с {ei} «никто»: {Keegi ei tea}, никто не знает.
+  → {Keegi} значит «кто-то», а с {ei} «никто»: {Keegi ei tea}, никто не знает.
 - [ ] **17199.** Do you still go to the forest?  
   → Ты всё ещё ходишь в лес?
 - [ ] **17200.** Not as often as before.  
@@ -34683,582 +34683,594 @@ _lib/copy/i18n/areas/lessonText.ts_
   → может быть; вдруг
 - [ ] **17217.** which, what kind of  
   → какой, который
-- [ ] **17218.** such, this kind of  
+- [ ] **17218.** concert ticket  
+  → билет на концерт
+- [ ] **17219.** of a flight  
+  → полёта
+- [ ] **17220.** next, as in next summer  
+  → следующий, как в «следующим летом»
+- [ ] **17221.** of the bad one  
+  → плохого
+- [ ] **17222.** older  
+  → старше
+- [ ] **17223.** in the meantime, since then  
+  → тем временем, за это время
+- [ ] **17224.** such, this kind of  
   → такой
-- [ ] **17219.** Say sometimes.  
+- [ ] **17225.** Say sometimes.  
   → Скажите «иногда».
-- [ ] **17220.** Sometimes.  
+- [ ] **17226.** Sometimes.  
   → Иногда.
-- [ ] **17221.** Say you don't have the time anymore.  
+- [ ] **17227.** Say you don't have the time anymore.  
   → Скажите, что у вас больше нет времени.
-- [ ] **17222.** Say exactly!  
+- [ ] **17228.** Say exactly!  
   → Скажите «точно!».
-- [ ] **17223.** Exactly!  
+- [ ] **17229.** Exactly!  
   → Точно!
-- [ ] **17224.** Funny, strange and important  
+- [ ] **17230.** Funny, strange and important  
   → Смешное, странное и важное
-- [ ] **17225.** Say what something was like, and whether you're sure.  
-  → Сказать, каким что-то было и уверены ли вы.
-- [ ] **17226.** After {on} or {oli} a describing word stays as it is: {Film oli naljakas}. Before a noun it goes first: {viimane õhtu}, the last evening.  
+- [ ] **17231.** Say what something was like, and whether you're sure.  
+  → Скажите, каким что-то было и уверены ли вы в этом.
+- [ ] **17232.** After {on} or {oli} a describing word stays as it is: {Film oli naljakas}. Before a noun it goes first: {viimane õhtu}, the last evening.  
   → После {on} или {oli} прилагательное не меняется: {Film oli naljakas}. Перед существительным оно стоит первым: {viimane õhtu}, последний вечер.
-- [ ] **17227.** {Viimane} is the last of all, and {eelmine} is the one before this one: {eelmine nädal}, last week.  
-  → {Viimane} это последний из всех, а {eelmine} это предыдущий: {eelmine nädal}, прошлая неделя.
-- [ ] **17228.** {Päris} before a describing word is pretty, quite: {päris rumal}, pretty silly.  
+- [ ] **17233.** {Viimane} is the last of all, and {eelmine} is the one before this one: {eelmine nädal}, last week.  
+  → {Viimane} значит «последний из всех», а {eelmine} «предыдущий»: {eelmine nädal}, прошлая неделя.
+- [ ] **17234.** {Päris} before a describing word is pretty, quite: {päris rumal}, pretty silly.  
   → {Päris} перед прилагательным значит «довольно»: {päris rumal}, довольно глупый.
-- [ ] **17229.** {Kindlasti} is definitely, and {kindel} is sure: {Ma olen kindel}, I'm sure.  
+- [ ] **17235.** {Kindlasti} is definitely, and {kindel} is sure: {Ma olen kindel}, I'm sure.  
   → {Kindlasti} значит «обязательно», а {kindel} «уверенный»: {Ma olen kindel}, я уверен.
-- [ ] **17230.** {Lõbus} is fun and {naljakas} is funny: a party is {lõbus}, a joke is {naljakas}.  
+- [ ] **17236.** {Lõbus} is fun and {naljakas} is funny: a party is {lõbus}, a joke is {naljakas}.  
   → {Lõbus} значит «весёлый», а {naljakas} «смешной»: вечеринка {lõbus}, шутка {naljakas}.
-- [ ] **17231.** The film was funny.  
+- [ ] **17237.** The film was funny.  
   → Фильм был смешной.
-- [ ] **17232.** That's right.  
+- [ ] **17238.** That's right.  
   → Это верно.
-- [ ] **17233.** That's wrong.  
+- [ ] **17239.** That's wrong.  
   → Это неверно.
-- [ ] **17234.** Tonight's the last evening.  
+- [ ] **17240.** Tonight's the last evening.  
   → Сегодня последний вечер.
-- [ ] **17235.** How was the film?  
+- [ ] **17241.** How was the film?  
   → Как фильм?
-- [ ] **17236.** Really funny! And a bit strange.  
+- [ ] **17242.** Really funny! And a bit strange.  
   → Очень смешной! И немного странный.
-- [ ] **17237.** Was it better than the last one?  
+- [ ] **17243.** Was it better than the last one?  
   → Он лучше предыдущего?
-- [ ] **17238.** Yes, definitely. The last one was pretty silly.  
+- [ ] **17244.** Yes, definitely. The last one was pretty silly.  
   → Да, точно. Предыдущий был довольно глупый.
-- [ ] **17239.** I want to go too. Is today the right evening?  
-  → Я тоже хочу пойти. Сегодня подходящий вечер?
-- [ ] **17240.** Yes, but be quick: it's the last evening!  
-  → Да, но поспеши: это последний вечер!
-- [ ] **17241.** strange, odd  
+- [ ] **17245.** I want to go too. Can I still go today?  
+  → Я тоже хочу пойти. Сегодня ещё можно?
+- [ ] **17246.** Yes, but only today: it's the last evening!  
+  → Да, но только сегодня: это последний вечер!
+- [ ] **17247.** strange, odd  
   → странный
-- [ ] **17242.** silly, stupid  
+- [ ] **17248.** silly, stupid  
   → глупый
-- [ ] **17243.** clever, wise  
+- [ ] **17249.** clever, wise  
   → умный, мудрый
-- [ ] **17244.** sweet, lovely  
+- [ ] **17250.** sweet, lovely  
   → милый
-- [ ] **17245.** nice, pretty  
+- [ ] **17251.** nice, pretty  
   → приятный, симпатичный
-- [ ] **17246.** sure, certain  
+- [ ] **17252.** sure, certain  
   → уверенный, точный
-- [ ] **17247.** right, correct  
+- [ ] **17253.** right, correct  
   → правильный, верный
-- [ ] **17248.** previous, the one before  
+- [ ] **17254.** previous, the one before  
   → предыдущий
-- [ ] **17249.** last, final  
+- [ ] **17255.** last, final  
   → последний
-- [ ] **17250.** Say it was really funny.  
+- [ ] **17256.** Say it was really funny.  
   → Скажите, что было очень смешно.
-- [ ] **17251.** Really funny!  
+- [ ] **17257.** Really funny!  
   → Очень смешно!
-- [ ] **17252.** Say that's right.  
+- [ ] **17258.** Say that's right.  
   → Скажите, что это верно.
-- [ ] **17253.** Say you're sure.  
+- [ ] **17259.** Say you're sure.  
   → Скажите, что вы уверены.
-- [ ] **17254.** I'm sure.  
+- [ ] **17260.** I'm sure.  
   → Я уверен.
-- [ ] **17255.** I'm looking for my phone.  
+- [ ] **17261.** I'm looking for my phone.  
   → Я ищу свой телефон.
-- [ ] **17256.** Your experience  
+- [ ] **17262.** Your experience  
   → Ваш опыт
 
 ## sounds (176 lines)
 
 _lib/copy/i18n/areas/sounds.ts_
 
-- [ ] **17257.** Hear the sound {sound}  
+- [ ] **17263.** Hear the sound {sound}  
   → Послушать звук {sound}
-- [ ] **17258.** Hear both  
+- [ ] **17264.** Hear both  
   → Послушать оба
-- [ ] **17259.** Hear them in a row  
+- [ ] **17265.** Hear them in a row  
   → Послушать подряд
-- [ ] **17260.** Hear the letter {letter}  
+- [ ] **17266.** Hear the letter {letter}  
   → Послушать букву {letter}
-- [ ] **17261.** The sounds  
+- [ ] **17267.** The sounds  
   → Звуки
-- [ ] **17262.** Press a letter to hear it on its own, and a word to hear it in use. A native speaker says every one.  
+- [ ] **17268.** Press a letter to hear it on its own, and a word to hear it in use. A native speaker says every one.  
   → Нажмите на букву, чтобы услышать её отдельно, и на слово, чтобы услышать её в слове. Всё произносит носитель языка.
-- [ ] **17263.** Every sound of Estonian  
+- [ ] **17269.** Every sound of Estonian  
   → Все звуки эстонского
-- [ ] **17264.** said by a native speaker  
+- [ ] **17270.** said by a native speaker  
   → произносит носитель языка
-- [ ] **17265.** Hear the difference  
+- [ ] **17271.** Hear the difference  
   → Услышьте разницу
-- [ ] **17266.** How Estonian sounds  
+- [ ] **17272.** How Estonian sounds  
   → Как звучит эстонский
-- [ ] **17267.** Every sound, said by a native speaker. Press a letter and hear it.  
+- [ ] **17273.** Every sound, said by a native speaker. Press a letter and hear it.  
   → Каждый звук произносит носитель языка. Нажмите на букву и послушайте.
-- [ ] **17268.** Every sound, said by a native speaker  
+- [ ] **17274.** Every sound, said by a native speaker  
   → Каждый звук произносит носитель языка
-- [ ] **17269.** Every sound here is said by a native speaker. Press anything to hear it.  
+- [ ] **17275.** Every sound here is said by a native speaker. Press anything to hear it.  
   → Каждый звук здесь произносит носитель языка. Нажмите на что угодно, чтобы послушать.
-- [ ] **17270.** Said the way it's written.  
+- [ ] **17276.** Said the way it's written.  
   → Говорится так, как пишется.
-- [ ] **17271.** One letter is one sound, and every letter is said. Four letters make most of the difference.  
+- [ ] **17277.** One letter is one sound, and every letter is said. Four letters make most of the difference.  
   → Одна буква означает один звук, и произносится каждая буква. Главную разницу делают четыре буквы.
-- [ ] **17272.** each one held on its own  
+- [ ] **17278.** each one held on its own  
   → каждый протянут отдельно
-- [ ] **17273.** Nine vowels  
+- [ ] **17279.** Nine vowels  
   → Девять гласных
-- [ ] **17274.** a double letter is held longer  
+- [ ] **17280.** a double letter is held longer  
   → двойную букву тянут дольше
-- [ ] **17275.** Short, long and gliding  
+- [ ] **17281.** Short, long and gliding  
   → Краткие, долгие и скользящие
-- [ ] **17276.** the ones English says differently  
+- [ ] **17282.** the ones English says differently  
   → те, что звучат иначе, чем в английском
-- [ ] **17277.** Consonants to listen for  
+- [ ] **17283.** Consonants to listen for  
   → Согласные, к которым стоит прислушаться
-- [ ] **17278.** hold a double letter, or it's another word  
+- [ ] **17284.** hold a double letter, or it's another word  
   → тяните двойную букву, иначе получится другое слово
-- [ ] **17279.** Length changes the word  
+- [ ] **17285.** Length changes the word  
   → Долгота меняет слово
-- [ ] **17280.** listen for the first sound, or the middle  
+- [ ] **17286.** listen for the first sound, or the middle  
   → слушайте первый звук или звук в середине
-- [ ] **17281.** Easy to mix up  
+- [ ] **17287.** Easy to mix up  
   → Легко перепутать
-- [ ] **17282.** always the first syllable  
+- [ ] **17288.** always the first syllable  
   → всегда на первом слоге
-- [ ] **17283.** Where the stress goes  
+- [ ] **17289.** Where the stress goes  
   → Куда падает ударение
-- [ ] **17284.** for spelling your name out loud  
+- [ ] **17290.** for spelling your name out loud  
   → чтобы продиктовать своё имя по буквам
-- [ ] **17285.** The alphabet  
+- [ ] **17291.** The alphabet  
   → Алфавит
-- [ ] **17286.** The dashed letters are only in borrowed words and names.  
+- [ ] **17292.** The dashed letters are only in borrowed words and names.  
   → Буквы в пунктирной рамке встречаются только в заимствованных словах и именах.
-- [ ] **17287.** an e said with rounded lips  
+- [ ] **17293.** an e said with rounded lips  
   → э, сказанное с округлёнными губами
-- [ ] **17288.** an i said with rounded lips  
+- [ ] **17294.** an i said with rounded lips  
   → и, сказанное с округлёнными губами
-- [ ] **17289.** rolled with the tip of the tongue  
+- [ ] **17295.** rolled with the tip of the tongue  
   → раскатистый, кончиком языка
-- [ ] **17290.** always an s, never a z  
+- [ ] **17296.** always an s, never a z  
   → всегда с, никогда не з
-- [ ] **17291.** the sh in shoe  
+- [ ] **17297.** the sh in shoe  
   → как русское ш
-- [ ] **17292.** the s in pleasure  
+- [ ] **17298.** the s in pleasure  
   → как русское ж
-- [ ] **17293.** like an English v  
+- [ ] **17299.** like an English v  
   → как русское в
-- [ ] **17294.** a short m  
+- [ ] **17300.** a short m  
   → краткое м
-- [ ] **17295.** One vowel, short  
+- [ ] **17301.** One vowel, short  
   → Одна гласная: краткий звук
-- [ ] **17296.** Two the same: one long vowel, held  
+- [ ] **17302.** Two the same: one long vowel, held  
   → Две одинаковые: один долгий звук, протянутый
-- [ ] **17297.** tea, road  
+- [ ] **17303.** tea, road  
   → чай, дорога
-- [ ] **17298.** moon, month  
+- [ ] **17304.** moon, month  
   → луна, месяц
-- [ ] **17299.** Two different: they glide into one  
+- [ ] **17305.** Two different: they glide into one  
   → Две разные: сливаются в один слог
-- [ ] **17300.** bread  
+- [ ] **17306.** bread  
   → хлеб
-- [ ] **17301.** a cupboard  
+- [ ] **17307.** a cupboard  
   → шкаф
-- [ ] **17302.** a bag  
+- [ ] **17308.** a bag  
   → сумка
-- [ ] **17303.** a roasted flour mix  
+- [ ] **17309.** a roasted flour mix  
   → смесь из обжаренной муки
-- [ ] **17304.** a comb  
+- [ ] **17310.** a comb  
   → расчёска
-- [ ] **17305.** Three lengths: short, long and longer still  
+- [ ] **17311.** Three lengths: short, long and longer still  
   → Три долготы: краткая, долгая и ещё длиннее
-- [ ] **17306.** a hoof  
+- [ ] **17312.** a hoof  
   → копыто
-- [ ] **17307.** of the cupboard  
+- [ ] **17313.** of the cupboard  
   → шкафа
-- [ ] **17308.** into the cupboard  
+- [ ] **17314.** into the cupboard  
   → в шкаф
-- [ ] **17309.** Spelled alike, said apart: the last one is held longer  
+- [ ] **17315.** Spelled alike, said apart: the last one is held longer  
   → Пишутся одинаково, звучат по-разному: последнее тянут дольше
-- [ ] **17310.** linen  
+- [ ] **17316.** linen  
   → льняная ткань
-- [ ] **17311.** of the town  
+- [ ] **17317.** of the town  
   → города
-- [ ] **17312.** I'm going to town  
+- [ ] **17318.** I'm going to town  
   → я еду в город
-- [ ] **17313.** eight  
+- [ ] **17319.** eight  
   → восемь
-- [ ] **17314.** nine  
+- [ ] **17320.** nine  
   → девять
-- [ ] **17315.** six  
+- [ ] **17321.** six  
   → шесть
-- [ ] **17316.** hello  
+- [ ] **17322.** hello  
   → привет
-- [ ] **17317.** please  
+- [ ] **17323.** please  
   → пожалуйста
-- [ ] **17318.** thank you  
+- [ ] **17324.** thank you  
   → спасибо
-- [ ] **17319.** bye  
+- [ ] **17325.** bye  
   → пока
-- [ ] **17320.** morning, as in good morning  
+- [ ] **17326.** morning, as in good morning  
   → утро, как в «доброе утро»
-- [ ] **17321.** evening, as in good evening  
+- [ ] **17327.** evening, as in good evening  
   → вечер, как в «добрый вечер»
-- [ ] **17322.** a phone number, one digit at a time  
+- [ ] **17328.** a phone number, one digit at a time  
   → номер телефона, по одной цифре
-- [ ] **17323.** a phone number  
+- [ ] **17329.** a phone number  
   → номер телефона
-- [ ] **17324.** Write down what's spelled to you  
+- [ ] **17330.** Write down what's spelled to you  
   → Запишите то, что вам продиктуют по буквам
-- [ ] **17325.** A word you've met, spelled out letter by letter the Estonian way, the way a name comes down a phone line. A box for each letter lights up as it's said.  
+- [ ] **17331.** A word you've met, spelled out letter by letter the Estonian way, the way a name comes down a phone line. A box for each letter lights up as it's said.  
   → Знакомое вам слово, продиктованное по буквам по-эстонски, как имя по телефону. Клетка каждой буквы загорается, когда её называют.
-- [ ] **17326.** Type the word. Hear it again, or slower, as often as you like. Nothing here counts against you.  
+- [ ] **17332.** Type the word. Hear it again, or slower, as often as you like. Nothing here counts against you.  
   → Напишите слово. Слушайте его снова или медленнее сколько угодно. Здесь ничего не идёт вам в минус.
-- [ ] **17327.** A word you know, spelled out letter by letter. Write it down.  
+- [ ] **17333.** A word you know, spelled out letter by letter. Write it down.  
   → Знакомое слово, продиктованное по буквам. Запишите его.
-- [ ] **17328.** It spells words you've already met. Meet a few first.  
+- [ ] **17334.** It spells words you've already met. Meet a few first.  
   → Здесь диктуются слова, которые вы уже встречали. Сначала познакомьтесь с несколькими.
-- [ ] **17329.** Every word caught  
+- [ ] **17335.** Every word caught  
   → Все слова записаны
-- [ ] **17330.** {n} of {total} caught  
+- [ ] **17336.** {n} of {total} caught  
   → Записано {n} из {total}
-- [ ] **17331.** Every one on the first hearing. You can take a name down over the phone.  
+- [ ] **17337.** Every one on the first hearing. You can take a name down over the phone.  
   → Все с первого раза. Вы сможете записать имя по телефону.
-- [ ] **17332.** The letters' names take a while. Spell your own name on the sounds page to hear them again.  
+- [ ] **17338.** The letters' names take a while. Spell your own name on the sounds page to hear them again.  
   → К названиям букв нужно привыкнуть. Продиктуйте своё имя на странице звуков, чтобы услышать их снова.
-- [ ] **17333.** First hearing  
+- [ ] **17339.** First hearing  
   → С первого раза
-- [ ] **17334.** Caught  
+- [ ] **17340.** Caught  
   → Записано
-- [ ] **17335.** {n} letters  
+- [ ] **17341.** {n} letters  
   → Букв: {n}
-- [ ] **17336.** Caught it.  
+- [ ] **17342.** Caught it.  
   → Записали.
-- [ ] **17337.** Fix the letters marked. It's spelled again, slower.  
+- [ ] **17343.** Fix the letters marked. It's spelled again, slower.  
   → Исправьте отмеченные буквы. Слово продиктуют ещё раз, медленнее.
-- [ ] **17338.** Write down the word you hear spelled.  
+- [ ] **17344.** Write down the word you hear spelled.  
   → Запишите слово, которое вам диктуют по буквам.
-- [ ] **17339.** The letters  
+- [ ] **17345.** The letters  
   → Буквы
-- [ ] **17340.** (wrong letter)  
+- [ ] **17346.** (wrong letter)  
   → (неверная буква)
-- [ ] **17341.** The word you heard spelled  
+- [ ] **17347.** The word you heard spelled  
   → Слово, которое вам продиктовали
-- [ ] **17342.** Type the word  
+- [ ] **17348.** Type the word  
   → Напишите слово
-- [ ] **17343.** Again  
+- [ ] **17349.** Again  
   → Ещё раз
-- [ ] **17344.** Not quite. The letters marked are wrong. Listen once more.  
+- [ ] **17350.** Not quite. The letters marked are wrong. Listen once more.  
   → Не совсем. Отмеченные буквы неверны. Послушайте ещё раз.
-- [ ] **17345.** Spelled down the phone  
+- [ ] **17351.** Spelled down the phone  
   → По буквам, как по телефону
-- [ ] **17346.** A word spelled down the phone. Write it down.  
+- [ ] **17352.** A word spelled down the phone. Write it down.  
   → Слово по буквам, как по телефону. Запишите его.
-- [ ] **17347.** A word you know, spelled out letter by letter the way Estonians spell a name on the phone. Write it down.  
+- [ ] **17353.** A word you know, spelled out letter by letter the way Estonians spell a name on the phone. Write it down.  
   → Знакомое слово, продиктованное по буквам, как эстонцы диктуют имя по телефону. Запишите его.
-- [ ] **17348.** Six words  
+- [ ] **17354.** Six words  
   → Шесть слов
-- [ ] **17349.** Spell your name  
+- [ ] **17355.** Spell your name  
   → Продиктуйте своё имя по буквам
-- [ ] **17350.** At a desk or on the phone you'll be asked to spell it. Hear it the way you'll say it.  
+- [ ] **17356.** At a desk or on the phone you'll be asked to spell it. Hear it the way you'll say it.  
   → В регистратуре или по телефону вас попросят продиктовать его по буквам. Послушайте, как вы будете это говорить.
-- [ ] **17351.** Letters have Estonian names. Type your name and hear it spelled the way you'll say it.  
+- [ ] **17357.** Letters have Estonian names. Type your name and hear it spelled the way you'll say it.  
   → У букв есть эстонские названия. Введите своё имя и послушайте, как его продиктовать по буквам.
-- [ ] **17352.** The whole alphabet  
+- [ ] **17358.** The whole alphabet  
   → Весь алфавит
-- [ ] **17353.** A name to spell  
+- [ ] **17359.** A name to spell  
   → Имя, которое нужно продиктовать
-- [ ] **17354.** Type your name  
+- [ ] **17360.** Type your name  
   → Введите своё имя
-- [ ] **17355.** Spell it  
+- [ ] **17361.** Spell it  
   → По буквам
-- [ ] **17356.** Letter by letter  
+- [ ] **17362.** Letter by letter  
   → По буквам
-- [ ] **17357.** {char}, which has no Estonian name  
+- [ ] **17363.** {char}, which has no Estonian name  
   → {char}, у этого знака нет эстонского названия
-- [ ] **17358.** Four letters English doesn't have  
+- [ ] **17364.** Four letters English doesn't have  
   → Четыре буквы, которых нет в английском
-- [ ] **17359.** Each is a letter with a sound of its own, not a mark on another letter.  
+- [ ] **17365.** Each is a letter with a sound of its own, not a mark on another letter.  
   → Каждая из них отдельная буква со своим звуком, а не значок над другой буквой.
-- [ ] **17360.** Listen for these too  
+- [ ] **17366.** Listen for these too  
   → Прислушайтесь и к этим
-- [ ] **17361.** On this page  
+- [ ] **17367.** On this page  
   → На этой странице
-- [ ] **17362.** Vowels  
+- [ ] **17368.** Vowels  
   → Гласные
-- [ ] **17363.** Vowel pairs  
+- [ ] **17369.** Vowel pairs  
   → Пары гласных
-- [ ] **17364.** Consonants  
+- [ ] **17370.** Consonants  
   → Согласные
-- [ ] **17365.** Soft consonants  
+- [ ] **17371.** Soft consonants  
   → Мягкие согласные
-- [ ] **17366.** Length  
+- [ ] **17372.** Length  
   → Долгота
-- [ ] **17367.** Mix-ups  
+- [ ] **17373.** Mix-ups  
   → Легко спутать
-- [ ] **17368.** Stress  
+- [ ] **17374.** Stress  
   → Ударение
-- [ ] **17369.** Alphabet  
+- [ ] **17375.** Alphabet  
   → Алфавит
-- [ ] **17370.** one vowel apart, another word  
+- [ ] **17376.** one vowel apart, another word  
   → одна гласная, и уже другое слово
-- [ ] **17371.** Vowels that change the word  
+- [ ] **17377.** Vowels that change the word  
   → Гласные, которые меняют слово
-- [ ] **17372.** not written, but it changes the word  
+- [ ] **17378.** not written, but it changes the word  
   → на письме не видно, но слово меняется
-- [ ] **17373.** A soft l, n, t or s is said with the middle of the tongue raised, as if a little y came with it.  
+- [ ] **17379.** A soft l, n, t or s is said with the middle of the tongue raised, as if a little y came with it.  
   → Мягкие l, n, t и s произносят, приподняв середину языка, как будто к ним добавляется лёгкий й.
-- [ ] **17374.** Spelled alike, said apart  
+- [ ] **17380.** Spelled alike, said apart  
   → Пишутся одинаково, звучат по-разному
-- [ ] **17375.** Plain beside soft  
+- [ ] **17381.** Plain beside soft  
   → Твёрдый рядом с мягким
-- [ ] **17376.** soft _(context: `sound`)_  
+- [ ] **17382.** soft _(context: `sound`)_  
   → мягкий
-- [ ] **17377.** plain _(context: `sound`)_  
+- [ ] **17383.** plain _(context: `sound`)_  
   → твёрдый
-- [ ] **17378.** Hear "{text}", {tag}, in Estonian  
+- [ ] **17384.** Hear "{text}", {tag}, in Estonian  
   → Послушать «{text}», {tag}, по-эстонски
-- [ ] **17379.** Two double n's, held for different lengths  
+- [ ] **17385.** Two double n's, held for different lengths  
   → Два двойных n, протянутых по-разному
-- [ ] **17380.** With b, p and pp  
+- [ ] **17386.** With b, p and pp  
   → С b, p и pp
-- [ ] **17381.** With g, k and kk  
+- [ ] **17387.** With g, k and kk  
   → С g, k и kk
-- [ ] **17382.** With a vowel  
+- [ ] **17388.** With a vowel  
   → С гласной
-- [ ] **17383.** Long, shorter, and long again  
+- [ ] **17389.** Long, shorter, and long again  
   → Долго, короче и снова долго
-- [ ] **17384.** an apple  
+- [ ] **17390.** an apple  
   → яблоко
-- [ ] **17385.** full _(context: `gloss`)_  
+- [ ] **17391.** full _(context: `gloss`)_  
   → полный
-- [ ] **17386.** a rope  
+- [ ] **17392.** a rope  
   → верёвка
-- [ ] **17387.** a chin  
+- [ ] **17393.** a chin  
   → подбородок
-- [ ] **17388.** a belly  
+- [ ] **17394.** a belly  
   → живот
-- [ ] **17389.** a mouth  
+- [ ] **17395.** a mouth  
   → рот
-- [ ] **17390.** guilt  
+- [ ] **17396.** guilt  
   → вина
-- [ ] **17391.** fire _(context: `gloss`)_  
+- [ ] **17397.** fire _(context: `gloss`)_  
   → огонь
-- [ ] **17392.** a quarrel  
+- [ ] **17398.** a quarrel  
   → ссора
-- [ ] **17393.** a nail  
+- [ ] **17399.** a nail  
   → ноготь
-- [ ] **17394.** a sphere  
+- [ ] **17400.** a sphere  
   → шар
-- [ ] **17395.** a racket, a din  
+- [ ] **17401.** a racket, a din  
   → шум, гам
-- [ ] **17396.** a salary  
+- [ ] **17402.** a salary  
   → зарплата
-- [ ] **17397.** a log  
+- [ ] **17403.** a log  
   → бревно
-- [ ] **17398.** a lamb  
+- [ ] **17404.** a lamb  
   → ягнёнок
-- [ ] **17399.** a stable  
+- [ ] **17405.** a stable  
   → конюшня
-- [ ] **17400.** frost  
+- [ ] **17406.** frost  
   → заморозки
-- [ ] **17401.** gray  
+- [ ] **17407.** gray  
   → серый
-- [ ] **17402.** wool  
+- [ ] **17408.** wool  
   → шерсть
-- [ ] **17403.** a blister  
+- [ ] **17409.** a blister  
   → волдырь
-- [ ] **17404.** invite!  
+- [ ] **17410.** invite!  
   → пригласи!
-- [ ] **17405.** a trumpet  
+- [ ] **17411.** a trumpet  
   → труба
-- [ ] **17406.** a boy  
+- [ ] **17412.** a boy  
   → мальчик
-- [ ] **17407.** a bus  
+- [ ] **17413.** a bus  
   → автобус
-- [ ] **17408.** a ball  
+- [ ] **17414.** a ball  
   → мяч
-- [ ] **17409.** pour!  
+- [ ] **17415.** pour!  
   → налей!
-- [ ] **17410.** dear  
+- [ ] **17416.** dear  
   → дорогой
-- [ ] **17411.** a jug  
+- [ ] **17417.** a jug  
   → кувшин
-- [ ] **17412.** a frying pan  
+- [ ] **17418.** a frying pan  
   → сковорода
-- [ ] **17413.** a puppy  
+- [ ] **17419.** a puppy  
   → щенок
-- [ ] **17414.** a forest  
+- [ ] **17420.** a forest  
   → лес
-- [ ] **17415.** a hat  
+- [ ] **17421.** a hat  
   → шапка
-- [ ] **17416.** asks a yes or no  
+- [ ] **17422.** asks a yes or no  
   → задаёт вопрос «да или нет»
-- [ ] **17417.** a cat  
+- [ ] **17423.** a cat  
   → кошка
-- [ ] **17418.** a fish  
+- [ ] **17424.** a fish  
   → рыба
-- [ ] **17419.** come!  
+- [ ] **17425.** come!  
   → иди сюда!
-- [ ] **17420.** into the fire  
+- [ ] **17426.** into the fire  
   → в огонь
-- [ ] **17421.** a hen  
+- [ ] **17427.** a hen  
   → курица
-- [ ] **17422.** carry!  
+- [ ] **17428.** carry!  
   → неси!
-- [ ] **17423.** a frog  
+- [ ] **17429.** a frog  
   → лягушка
-- [ ] **17424.** cute  
+- [ ] **17430.** cute  
   → милый
-- [ ] **17425.** a ceiling  
+- [ ] **17431.** a ceiling  
   → потолок
-- [ ] **17426.** of the lacquer  
+- [ ] **17432.** of the lacquer  
   → лака
-- [ ] **17427.** into the lacquer  
+- [ ] **17433.** into the lacquer  
   → в лак
-- [ ] **17428.** a hundred  
+- [ ] **17434.** a hundred  
   → сто
-- [ ] **17429.** send!  
+- [ ] **17435.** send!  
   → отправь!
-- [ ] **17430.** I want to get it  
+- [ ] **17436.** I want to get it  
   → я хочу это получить
-- [ ] **17431.** of the frog  
+- [ ] **17437.** of the frog  
   → лягушки
-- [ ] **17432.** I see a frog  
+- [ ] **17438.** I see a frog  
   → я вижу лягушку
 
 ## adminSpeech (39 lines)
 
 _lib/copy/i18n/areas/adminSpeech.ts_
 
-- [ ] **17433.** Speech figures  
+- [ ] **17439.** Speech figures  
   → Данные о речи
-- [ ] **17434.** How speaking is used across this copy, for whoever runs it.  
+- [ ] **17440.** How speaking is used across this copy, for whoever runs it.  
   → Как в этой копии пользуются речью. Для того, кто ею управляет.
-- [ ] **17435.** These figures are read by whoever runs this copy.  
+- [ ] **17441.** These figures are read by whoever runs this copy.  
   → Эти данные читает тот, кто управляет этой копией.
-- [ ] **17436.** Nobody has been made a reviewer here yet.  
+- [ ] **17442.** Nobody has been made a reviewer here yet.  
   → Здесь пока никто не назначен проверяющим.
-- [ ] **17437.** How speaking is used across this copy, read when this page opened. It names nobody.  
+- [ ] **17443.** How speaking is used across this copy, read when this page opened. It names nobody.  
   → Как в этой копии пользуются речью, на момент открытия страницы. Здесь никто не назван.
-- [ ] **17438.** {share} of {heard} heard words changed, over {turns} spoken turns  
+- [ ] **17444.** {share} of {heard} heard words changed, over {turns} spoken turns  
   → изменено {share} из {heard} услышанных слов, за {turns} устных реплик
-- [ ] **17439.** Only {turns} spoken turns so far, too few to give a share.  
+- [ ] **17445.** Only {turns} spoken turns so far, too few to give a share.  
   → Пока только {turns} устных реплик, слишком мало для доли.
-- [ ] **17440.** {share}, {recalled} of {pairs}  
+- [ ] **17446.** {share}, {recalled} of {pairs}  
   → {share}, {recalled} из {pairs}
-- [ ] **17441.** Only {pairs} pairs so far, too few to give a share.  
+- [ ] **17447.** Only {pairs} pairs so far, too few to give a share.  
   → Пока только {pairs} пар, слишком мало для доли.
-- [ ] **17442.** Learners changed {share} of heard words over {turns} spoken turns, past the line of {line}% over {min} turns. Read below, and decide whether to switch speech off.  
+- [ ] **17448.** Learners changed {share} of heard words over {turns} spoken turns, past the line of {line}% over {min} turns. Read below, and decide whether to switch speech off.  
   → Ученики изменили {share} услышанных слов за {turns} устных реплик, это выше порога {line}% за {min} реплик. Прочитайте ниже и решите, не отключить ли речь.
-- [ ] **17443.** Answers said aloud  
+- [ ] **17449.** Answers said aloud  
   → Ответы вслух
-- [ ] **17444.** Answers on a card given aloud  
+- [ ] **17450.** Answers on a card given aloud  
   → Ответов на карточки вслух
-- [ ] **17445.** Learners who answered aloud  
+- [ ] **17451.** Learners who answered aloud  
   → Учеников, отвечавших вслух
-- [ ] **17446.** Conversation turns said aloud  
+- [ ] **17452.** Conversation turns said aloud  
   → Реплик в разговорах вслух
-- [ ] **17447.** The line: {line}% over {min} turns  
+- [ ] **17453.** The line: {line}% over {min} turns  
   → Порог: {line}% за {min} реплик
-- [ ] **17448.** Heard words changed before sending  
+- [ ] **17454.** Heard words changed before sending  
   → Услышанные слова, изменённые перед отправкой
-- [ ] **17449.** No spoken conversation turn carries its counts yet, so there is nothing to read.  
+- [ ] **17455.** No spoken conversation turn carries its counts yet, so there is nothing to read.  
   → Пока ни одна устная реплика не несёт своих подсчётов, так что читать нечего.
-- [ ] **17450.** Everybody  
+- [ ] **17456.** Everybody  
   → Все
-- [ ] **17451.** At {band}  
+- [ ] **17457.** At {band}  
   → На уровне {band}
-- [ ] **17452.** Glosses read in {language}  
+- [ ] **17458.** Glosses read in {language}  
   → Значения на языке {language}
-- [ ] **17453.** An upper bound on what the recognizer got wrong: a learner also changes their own grammar, and that counts here too.  
+- [ ] **17459.** An upper bound on what the recognizer got wrong: a learner also changes their own grammar, and that counts here too.  
   → Это верхняя граница ошибок распознавания: ученик правит и свою грамматику, и это тоже здесь учитывается.
-- [ ] **17454.** Recall after a spoken answer  
+- [ ] **17460.** Recall after a spoken answer  
   → Запоминание после ответа вслух
-- [ ] **17455.** Next answer to the same card recalled, after a spoken answer  
+- [ ] **17461.** Next answer to the same card recalled, after a spoken answer  
   → Следующий ответ на ту же карточку верный, после ответа вслух
-- [ ] **17456.** After a typed answer, from the same learners  
+- [ ] **17462.** After a typed answer, from the same learners  
   → После набранного ответа, у тех же учеников
-- [ ] **17457.** Observational: people choose when to speak, and an easy card is likelier to be said aloud. Not a trial.  
+- [ ] **17463.** Observational: people choose when to speak, and an easy card is likelier to be said aloud. Not a trial.  
   → Это наблюдение: люди сами выбирают, когда говорить, и лёгкую карточку чаще произносят вслух. Это не эксперимент.
-- [ ] **17458.** Today’s chat  
+- [ ] **17464.** Today’s chat  
   → Сегодняшний чат
-- [ ] **17459.** Finished days that met at least {n} new words  
+- [ ] **17465.** Finished days that met at least {n} new words  
   → Завершённых дней, в которых было не меньше {n} новых слов
-- [ ] **17460.** A chat opened  
+- [ ] **17466.** A chat opened  
   → Чат открыт
-- [ ] **17461.** A chat finished  
+- [ ] **17467.** A chat finished  
   → Чат завершён
-- [ ] **17462.** The chat’s words recalled at their next review  
+- [ ] **17468.** The chat’s words recalled at their next review  
   → Слова чата верно вспомнены при следующем повторении
-- [ ] **17463.** The same days’ other words  
+- [ ] **17469.** The same days’ other words  
   → Другие слова тех же дней
-- [ ] **17464.** The first figure is an upper bound: this page cannot tell whether a model was configured on a given day.  
+- [ ] **17470.** The first figure is an upper bound: this page cannot tell whether a model was configured on a given day.  
   → Первая цифра это верхняя граница: страница не знает, была ли в тот день настроена модель.
-- [ ] **17465.** Turns answered by ear  
+- [ ] **17471.** Turns answered by ear  
   → Реплики, отвеченные на слух
-- [ ] **17466.** No spoken turn has answered a line that was only heard yet.  
+- [ ] **17472.** No spoken turn has answered a line that was only heard yet.  
   → Пока ни одна устная реплика не ответила на фразу, которую было только слышно.
-- [ ] **17467.** A spoken turn that answered a line the learner only heard, and did what the line asked.  
+- [ ] **17473.** A spoken turn that answered a line the learner only heard, and did what the line asked.  
   → Устная реплика, ответившая на фразу, которую ученик только слышал, и сделавшая то, о чём фраза просила.
-- [ ] **17468.** Words in a spoken turn, by month  
+- [ ] **17474.** Words in a spoken turn, by month  
   → Слов в устной реплике, по месяцам
-- [ ] **17469.** Not enough yet: this needs two months with at least {n} spoken turns each.  
+- [ ] **17475.** Not enough yet: this needs two months with at least {n} spoken turns each.  
   → Пока мало данных: нужны два месяца, в каждом не меньше {n} устных реплик.
-- [ ] **17470.** {median} words in the middle turn, over {turns} turns  
+- [ ] **17476.** {median} words in the middle turn, over {turns} turns  
   → {median} слов в средней реплике, всего {turns} реплик
-- [ ] **17471.** A share over fewer than {floor} turns or pairs is not shown; the count is. The first four readings are what {command} prints.  
+- [ ] **17477.** A share over fewer than {floor} turns or pairs is not shown; the count is. The first four readings are what {command} prints.  
   → Доля по менее чем {floor} репликам или парам не показывается, показывается только число. Первые четыре показателя печатает {command}.
 
 ## account (18 lines)
 
 _lib/copy/i18n/areas/account.ts_
 
-- [ ] **17472.** Deleting your account  
+- [ ] **17478.** Deleting your account  
   → Удаление аккаунта
-- [ ] **17473.** How to delete your Kodukeel account, what goes with it and what stays, with or without the app.  
+- [ ] **17479.** How to delete your Kodukeel account, what goes with it and what stays, with or without the app.  
   → Как удалить аккаунт Kodukeel, что удаляется вместе с ним и что остаётся, с приложением или без него.
-- [ ] **17474.** You can delete your Kodukeel account, and everything it holds, whenever you like. It takes one press, and nobody has to agree to it. This page deletes nothing itself: it tells you where the button is.  
+- [ ] **17480.** You can delete your Kodukeel account, and everything it holds, whenever you like. It takes one press, and nobody has to agree to it. This page deletes nothing itself: it tells you where the button is.  
   → Вы можете удалить свой аккаунт Kodukeel и всё, что в нём хранится, когда захотите. Для этого достаточно одного нажатия, и ничьё согласие не требуется. Сама эта страница ничего не удаляет: она говорит, где находится кнопка.
-- [ ] **17475.** How to delete it  
+- [ ] **17481.** How to delete it  
   → Как его удалить
-- [ ] **17476.** You’re signed in. Open {path} and press \*\*Delete everything\*\*. You’ll be asked to type a word to confirm.  
+- [ ] **17482.** You’re signed in. Open {path} and press \*\*Delete everything\*\*. You’ll be asked to type a word to confirm.  
   → Вы вошли в систему. Откройте {path} и нажмите \*\*Удалить всё\*\*. Для подтверждения вас попросят ввести слово.
-- [ ] **17477.** Sign in first, the same way and with the same address you used before. Then open {path} and press \*\*Delete everything\*\*. You’ll be asked to type a word to confirm.  
+- [ ] **17483.** Sign in first, the same way and with the same address you used before. Then open {path} and press \*\*Delete everything\*\*. You’ll be asked to type a word to confirm.  
   → Сначала войдите тем же способом и с тем же адресом, что и раньше. Затем откройте {path} и нажмите \*\*Удалить всё\*\*. Для подтверждения вас попросят ввести слово.
-- [ ] **17478.** In the Kodukeel app on a phone, the same choice is in its settings.  
+- [ ] **17484.** In the Kodukeel app on a phone, the same choice is in its settings.  
   → В приложении Kodukeel на телефоне то же самое есть в его настройках.
-- [ ] **17479.** Sign in to delete it  
+- [ ] **17485.** Sign in to delete it  
   → Войдите, чтобы удалить
-- [ ] **17480.** What is deleted  
+- [ ] **17486.** What is deleted  
   → Что удаляется
-- [ ] **17481.** Every card, review, task, setting, scanned page, level check, mock exam paper with your composition in it, tutor message, suggested fix, starred word, word put aside, badge and class membership, along with your sign-in record. All of it goes immediately, in one go.  
+- [ ] **17487.** Every card, review, task, setting, scanned page, level check, mock exam paper with your composition in it, tutor message, suggested fix, starred word, word put aside, badge and class membership, along with your sign-in record. All of it goes immediately, in one go.  
   → Каждая карточка, повторение, задание, настройка, отсканированная страница, проверка уровня, пробный экзамен с вашим сочинением, сообщение репетитору, предложенное исправление, отмеченное слово, отложенное слово, значок и членство в группе, а также ваша учётная запись для входа. Всё это удаляется сразу, одним действием.
-- [ ] **17482.** What is not  
+- [ ] **17488.** What is not  
   → Что не удаляется
-- [ ] **17483.** The shared dictionary stays, because other learners have cards built on it, but any entry you edited stops being attributed to you.  
+- [ ] **17489.** The shared dictionary stays, because other learners have cards built on it, but any entry you edited stops being attributed to you.  
   → Общий словарь остаётся, потому что на нём построены карточки других учеников, но любая исправленная вами статья перестаёт быть записанной на вас.
-- [ ] **17484.** If this installation is not set up to delete the sign-in record itself, the button says so, and the address on the {privacy} page is who to ask.  
+- [ ] **17490.** If this installation is not set up to delete the sign-in record itself, the button says so, and the address on the {privacy} page is who to ask.  
   → Если эта установка не настроена удалять учётную запись для входа сама, кнопка так и скажет, и обращаться нужно по адресу, указанному на странице {privacy}.
-- [ ] **17485.** There is no separate archive, and no backup that outlives a deletion by more than the hosting provider’s own retention window.  
+- [ ] **17491.** There is no separate archive, and no backup that outlives a deletion by more than the hosting provider’s own retention window.  
   → Отдельного архива нет, и нет резервной копии, которая переживала бы удаление дольше, чем длится собственный срок хранения хостинг-провайдера.
-- [ ] **17486.** Before you delete  
+- [ ] **17492.** Before you delete  
   → Перед удалением
-- [ ] **17487.** Take an export first: this keeps no copy. {path} gives you everything as one file, and the same file restores into a fresh installation.  
+- [ ] **17493.** Take an export first: this keeps no copy. {path} gives you everything as one file, and the same file restores into a fresh installation.  
   → Сначала сделайте экспорт: копия не сохраняется. {path} отдаёт вам всё одним файлом, и этот же файл восстанавливается в новой установке.
-- [ ] **17488.** {link} says what goes and what stays, and works without the app.  
+- [ ] **17494.** {link} says what goes and what stays, and works without the app.  
   → На странице {link} сказано, что удаляется и что остаётся; она работает и без приложения.
-- [ ] **17489.** Without the app, or before you have signed in, {link} says where the button is and what it removes.  
+- [ ] **17495.** Without the app, or before you have signed in, {link} says where the button is and what it removes.  
   → Без приложения или до входа в систему страница {link} говорит, где находится кнопка и что она удаляет.
 
 ## phones (7 lines)
 
 _lib/copy/i18n/areas/phones.ts_
 
-- [ ] **17490.** Google, through Firebase Cloud Messaging  
+- [ ] **17496.** Google, through Firebase Cloud Messaging  
   → Google, через Firebase Cloud Messaging
-- [ ] **17491.** a reminder you allowed on a phone with the app: the token that names the app on that phone, and the two lines the reminder says  
+- [ ] **17497.** a reminder you allowed on a phone with the app: the token that names the app on that phone, and the two lines the reminder says  
   → напоминание, которое вы разрешили на телефоне с приложением: токен, обозначающий приложение на этом телефоне, и две строки, которые говорит напоминание
-- [ ] **17492.** \*\*Reminders on a phone.\*\* If you allow notifications in the Kodukeel app, the phone gives us a token that names the app on it, and we keep that token, which kind of phone it is and the app's version. A reminder is sent through Google's Firebase Cloud Messaging with that token and the two lines it says, the ones an email's subject and preview carry. It is booked like an email, and we keep no record of whether it was shown or opened. Turning notifications off, or signing out in the app, stops it.  
+- [ ] **17498.** \*\*Reminders on a phone.\*\* If you allow notifications in the Kodukeel app, the phone gives us a token that names the app on it, and we keep that token, which kind of phone it is and the app's version. A reminder is sent through Google's Firebase Cloud Messaging with that token and the two lines it says, the ones an email's subject and preview carry. It is booked like an email, and we keep no record of whether it was shown or opened. Turning notifications off, or signing out in the app, stops it.  
   → \*\*Напоминания на телефоне.\*\* Если вы разрешите уведомления в приложении Kodukeel, телефон передаст нам токен, обозначающий приложение на нём, и мы храним этот токен, тип телефона и версию приложения. Напоминание отправляется через Firebase Cloud Messaging от Google с этим токеном и двумя строками, которые оно говорит, теми же, что несут тема и превью письма. Оно записывается так же, как письмо, и мы не храним никаких сведений о том, было ли оно показано или открыто. Чтобы прекратить напоминания, выключите уведомления или выйдите из аккаунта в приложении.
-- [ ] **17493.** Notifications on a phone  
+- [ ] **17499.** Notifications on a phone  
   → Уведомления на телефоне
-- [ ] **17494.** Carries the reminders a learner allowed to a phone running the app, on Android itself and on an iPhone through Apple's service.  
+- [ ] **17500.** Carries the reminders a learner allowed to a phone running the app, on Android itself and on an iPhone through Apple's service.  
   → Доставляет напоминания, которые ученик разрешил, на телефон с приложением: на Android напрямую, на iPhone через службу Apple.
-- [ ] **17495.** Reminders go to the computer the learner asked on, or by email, as they did before the app existed.  
+- [ ] **17501.** Reminders go to the computer the learner asked on, or by email, as they did before the app existed.  
   → Напоминания идут на компьютер, где ученик их включил, или по почте, как до появления приложения.
-- [ ] **17496.** Firebase Cloud Messaging carries no charge on any plan, so Google bears the cost of every message.  
+- [ ] **17502.** Firebase Cloud Messaging carries no charge on any plan, so Google bears the cost of every message.  
   → Firebase Cloud Messaging бесплатен на любом тарифе, поэтому стоимость каждого сообщения несёт Google.
 

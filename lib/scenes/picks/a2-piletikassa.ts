@@ -11,7 +11,7 @@ export const a2Piletikassa: ScenePicks = {
     { et: "Tere päevast!", en: "Good afternoon!" },
   ],
   where: [
-    { et: "Tallinnasse.", en: "To Tallinn." },
+    { et: "Saaremaale.", en: "To Saaremaa." },
     { et: "Tartusse, palun.", en: "To Tartu, please." },
   ],
   time: [

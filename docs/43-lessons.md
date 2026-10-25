@@ -572,3 +572,8 @@ voices the app has, form names with their agreed hint) is asked of every level t
    and a weapon, which no level should hurry.
 10. **A native speaker reads the pull request** (ADR-005 amendment 6), and the role-plays are played
    by hand once before it merges.
+11. **List what waits on a person.** Run `npx tsx scripts/export-language-reviews.ts --since <ref>`
+   and `npx tsx scripts/export-translations.ts --since <ref> --out docs/translations/<level>`, so the
+   Estonian to read, the voice lines to record and the Russian and Ukrainian to check are one file
+   each (`docs/44-language-reviews.md` is A1 and A2's). The recordings stop at A1's lesson 13, and a
+   man's part plays the native voice only where every line of it is recorded.
