@@ -5,15 +5,16 @@ import { useRouter } from "next/navigation";
 import { setUiLocale } from "@/app/actions";
 import { ChoiceSegment } from "@/components/Choice";
 import { useT } from "@/components/Locale";
-import { LOCALES, LOCALE_NAMES, MACHINE_SHORT, type Locale } from "@/lib/copy/locale";
+import { LOCALES, LOCALE_NAMES, MACHINE_SHORT, REVIEWED, type Locale } from "@/lib/copy/locale";
 
 /**
  * The language the app's own words are in.
  *
  * Each option is named in its own language and its line under it is in that
  * language too, because somebody looking for Russian is reading for
- * `Русский` rather than down a list of English names for languages. The two
- * machine-translated ones say so on the choice itself. See lib/copy/locale.ts.
+ * `Русский` rather than down a list of English names for languages. A
+ * machine-translated one nobody fluent has read yet says so on the choice
+ * itself, and a read one says nothing. See lib/copy/locale.ts.
  */
 export function InterfaceLanguagePanel({ current }: { current: Locale }) {
   const t = useT();
@@ -49,9 +50,11 @@ export function InterfaceLanguagePanel({ current }: { current: Locale }) {
            Somebody still on English sees each note in its own language. */
         detail: id === "en"
           ? t("The app in English.")
-          : value === "en"
-            ? <span lang={id}>{MACHINE_SHORT[id]}</span>
-            : <span lang={value}>{MACHINE_SHORT[value]}</span>,
+          : REVIEWED[id]
+            ? undefined
+            : value === "en"
+              ? <span lang={id}>{MACHINE_SHORT[id]}</span>
+              : <span lang={value}>{MACHINE_SHORT[value]}</span>,
       }))}
     />
   );

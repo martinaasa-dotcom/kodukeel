@@ -46,8 +46,8 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "poodi-piima", beat: "item", text: "Mida sa tahad osta?", model: "minimax/minimax-m3:free", draftedAt: "2026-09-04", reviewedAt: "2026-10-15" },
   { scene: "poodi-piima", beat: "item", text: "Mida sa poest osta tahad?", model: "gemini-3.8-flash", draftedAt: "2026-09-12", level: "A1", reviewedAt: "2026-10-15" },
   { scene: "poodi-piima", beat: "item", text: "Mida sa ostad?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
-  { scene: "poodi-piima", beat: "close", text: "Hästi, siis näeme varsti. Head aega!", model: "authored", draftedAt: "2026-10-23" },
-  { scene: "poodi-piima", beat: "close", text: "Tore, räägime hiljem. Nägemist!", model: "authored", draftedAt: "2026-10-23" },
+  { scene: "poodi-piima", beat: "close", text: "Hästi, siis näeme varsti. Head aega!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },
+  { scene: "poodi-piima", beat: "close", text: "Tore, räägime hiljem. Nägemist!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },
 ];
 
 export default LINES;

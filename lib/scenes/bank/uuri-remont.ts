@@ -43,8 +43,8 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "uuri-remont", beat: "since", text: "Millisest päevast alates?", model: "minimax/minimax-m3:free", draftedAt: "2026-09-04", reviewedAt: "2026-10-15" },
   { scene: "uuri-remont", beat: "where", text: "Mis ruumis see on, ja mis korrusel te elate?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "uuri-remont", beat: "where", text: "Mis toas see on? Ja mis korrusel te elate?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
-  { scene: "uuri-remont", beat: "close", text: "Hästi, me teeme selle korda. Head aega!", model: "authored", draftedAt: "2026-10-23" },
-  { scene: "uuri-remont", beat: "close", text: "Selge, aitäh teile. Nägemist!", model: "authored", draftedAt: "2026-10-23" },
+  { scene: "uuri-remont", beat: "close", text: "Hästi, me teeme selle korda. Head aega!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },
+  { scene: "uuri-remont", beat: "close", text: "Selge, aitäh teile. Nägemist!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },
 ];
 
 export default LINES;

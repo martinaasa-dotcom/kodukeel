@@ -51,7 +51,7 @@ export function LanguageSwitcher({ locale, hrefs, drawnIn = PUBLIC_LOCALES, clas
  * What a translated public page says about itself, at the top.
  *
  * A policy page says the legal line (`LEGAL_NOTICE`): a convenience, made with
- * AI, checked by no native speaker and no lawyer, the English prevailing. Any
+ * AI, checked by no lawyer, the English prevailing. Any
  * other public page says the entry pages' line, for as long as nobody fluent
  * has read the language. Both in the page's language and in English beside
  * it, for a reader of neither. Nothing at all in English, which is the

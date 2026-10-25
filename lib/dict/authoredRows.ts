@@ -467,7 +467,7 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["vältima", "Ma väldin kohvi.", "I avoid coffee."],
   ["hoiatama", "Ma hoiatan sind.", "I'm warning you."],
   ["tagastama", "Ma tahan selle tagastada.", "I'd like to return this."],
-  ["puuduma", "Täna puudub kaks õpilast.", "Two students are absent today."],
+  ["puuduma", "Täna puudub üks õpilane.", "One student is absent today."],
   // B1: liitverbid
   ["üles tõusma", "Ma tõusen kell seitse üles.", "I get up at seven."],
   ["välja nägema", "Sa näed väga hea välja.", "You look very good."],

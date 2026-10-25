@@ -179,8 +179,7 @@ export function sayShort(slot: string, locale: Locale = "en"): string | null {
 export function plainAskLine(slot: string, locale: Locale = "en"): string | null {
   const phrase = sayShort(slot, locale);
   if (!phrase) return null;
-  if (locale === "ru") return `Скажите «${phrase}»`;
-  if (locale === "uk") return `Скажіть «${phrase}»`;
+  if (locale === "ru" || locale === "uk") return `Скажи «${phrase}»`;
   return `Say “${phrase}”`;
 }
 
@@ -268,10 +267,10 @@ const CLAUSES_IN: Readonly<Record<Translated, Readonly<Record<string, string>>>>
     IndPrSg1: "о себе, сейчас",
     IndPrSg3: "о ком-то другом, сейчас",
     IndPrPl1: "о себе и других, сейчас",
-    IndPrPs_: "чтобы сказать, что вы этого не делаете",
+    IndPrPs_: "чтобы сказать, что ты этого не делаешь",
     IndIpfSg1: "о себе, в прошлом",
     IndIpfSg3: "о ком-то другом, в прошлом",
-    KndPrSg1: "о себе, как о том, что вы сделали бы",
+    KndPrSg1: "о себе, как о том, что ты сделал бы",
     ImpPrSg2: "чтобы сказать знакомому человеку это сделать",
     ImpPrPl2: "чтобы попросить группу или кого-то вежливо это сделать",
     Inf: "когда имеется в виду «делать это»",
@@ -297,10 +296,10 @@ const CLAUSES_IN: Readonly<Record<Translated, Readonly<Record<string, string>>>>
     IndPrSg1: "про себе, зараз",
     IndPrSg3: "про когось іншого, зараз",
     IndPrPl1: "про себе й інших, зараз",
-    IndPrPs_: "щоб сказати, що ви цього не робите",
+    IndPrPs_: "щоб сказати, що ти цього не робиш",
     IndIpfSg1: "про себе, у минулому",
     IndIpfSg3: "про когось іншого, у минулому",
-    KndPrSg1: "про себе, як про те, що ви зробили б",
+    KndPrSg1: "про себе, як про те, що ти зробив би",
     ImpPrSg2: "щоб сказати знайомій людині це зробити",
     ImpPrPl2: "щоб попросити групу або когось увічливо це зробити",
     Inf: "коли йдеться про «робити це»",

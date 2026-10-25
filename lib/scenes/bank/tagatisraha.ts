@@ -31,8 +31,8 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "tagatisraha", beat: "hurdle:interrupted", text: "Vabandust, üks minut.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "tagatisraha", beat: "hurdle:faster", text: "Mul on kiire, öelge kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "tagatisraha", beat: "hurdle:faster", text: "Kiire on, rääkige kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "tagatisraha", beat: "close", text: "Hästi, nii me teeme. Nägemist!", model: "authored", draftedAt: "2026-10-23" },
-  { scene: "tagatisraha", beat: "close", text: "Raha tuleb varsti. Head aega!", model: "authored", draftedAt: "2026-10-23" },
+  { scene: "tagatisraha", beat: "close", text: "Hästi, nii me teeme. Nägemist!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },
+  { scene: "tagatisraha", beat: "close", text: "Raha tuleb varsti. Head aega!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },
 ];
 
 export default LINES;

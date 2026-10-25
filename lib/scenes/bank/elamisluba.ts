@@ -36,8 +36,8 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "elamisluba", beat: "hurdle:contradiction", text: "Ei, kaart ei ole veel valmis.", model: "authored", draftedAt: "2026-10-15", about: "collect", reviewedAt: "2026-10-16" },
   { scene: "elamisluba", beat: "hurdle:other-register", text: "Kas sul on kõik kaasas?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15", about: "booking" },
   { scene: "elamisluba", beat: "hurdle:other-register", text: "Mis su broneeritud aja number on?", model: "authored", draftedAt: "2026-10-16", about: "want", reviewedAt: "2026-10-16" },
-  { scene: "elamisluba", beat: "close", text: "Kõik on tehtud, aitäh. Nägemist!", model: "authored", draftedAt: "2026-10-23" },
-  { scene: "elamisluba", beat: "close", text: "Selge, siis näeme. Head aega!", model: "authored", draftedAt: "2026-10-23" },
+  { scene: "elamisluba", beat: "close", text: "Kõik on tehtud, aitäh. Nägemist!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },
+  { scene: "elamisluba", beat: "close", text: "Selge, siis näeme. Head aega!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },
 ];
 
 export default LINES;

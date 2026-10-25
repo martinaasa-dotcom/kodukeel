@@ -1,9 +1,9 @@
 # Kodukeel and Ekilex: what we take, how we ask, and what we give back
 
 A brief for the Institute of the Estonian Language (EKI), written to go with the operator's first letter.
-It is in English and then in Estonian. **The Estonian half was drafted in a session and is awaiting the
-reading of the native Estonian speaker who develops this app; it is not to be sent until that reading
-is done** (`docs/44-sixth-batch.md` D16).
+It is in English and then in Estonian. The Estonian half was drafted in a session and read by the
+native Estonian speaker who develops this app on 2026-10-25, whose corrections are in it
+(`docs/44-sixth-batch.md` D16).
 
 Everything here is checkable against the repository, and each claim names the file it lives in.
 
@@ -94,36 +94,34 @@ supplied.
 
 ## Eesti keeles
 
-*Mustand, mis ootab selle rakenduse arendaja, emakeelse eesti keele kõneleja läbilugemist. Enne seda
-mitte saata.*
-
 ### 1. Mis on Kodukeel
 
 Kodukeel on tasuta veebirakendus täiskasvanutele, kes õpivad eesti keelt. Enamik neist elab Eestis ja
 räägib juba vene, ukraina või inglise keelt. Rakenduses on sõnastik, kursus, kordamine ja
-vestlusharjutused. Selle üks kindel reegel on, et rakendus ei kirjuta ise eesti keelt: iga sõnavorm ja
-iga näitelause, mida õppijale õpetatakse või mille järgi teda hinnatakse, tuleb Ekilexist või on lõpp,
-mis on lisatud Ekilexis talletatud tüvele, ja ekraan ütleb, kumb see on.
+vestlusharjutused. Rakendusel on üks kindel reegel: sõnastikus ja harjutustes ei kirjuta see ise eesti
+keelt. Iga sõnavorm ja iga näitelause, mida õppijale õpetatakse või mille järgi teda hinnatakse, pärineb
+Ekilexist või on saadud Ekilexis talletatud tüvele lõpu lisamisel, ja ekraan näitab, kumb see on.
 
 ### 2. Mida rakendus Ekilexist võtab ja millal
 
 - **Märksõnade loend**, et eristada päris sõna trükiveast: 32 otsingut, üks iga algustähe kohta, Ekilexi
-  enda metamärgiga. Üks kord, kui loend käsitsi uuesti ehitatakse (`scripts/build-wordlist.ts`).
+  enda metamärgiga. Seda tehakse üks kord, kui loend käsitsi uuesti koostatakse
+  (`scripts/build-wordlist.ts`).
 - **Kursuse sõnad**: otsing ja üksikasjade päring iga sõna kohta, umbes 1550 sõna, kui kursus muutub.
   Iga vastus salvestatakse kettale (`scripts/harvest-ekilex.ts`).
 - **Laiem sõnastik**, umbes 5360 kirjet: üksikasjade päring juba talletatud sõna id järgi, harva ja
   käsitsi (`scripts/expand-seed.ts` ja kaks sarnast skripti).
 - **Otsing reaalajas** ainult paigalduses, kus on võti, ja ainult sõna kohta, mida selles andmebaasis
-  pole. Kõik, mis vastuseks tuleb, salvestatakse, nii et sama sõna teine otsing masinast välja ei lähe
+  pole. Kõik, mis vastuseks tuleb, salvestatakse, nii et sama sõna teine otsing Ekilexini enam ei jõua
   (`lib/dict/lookup.ts`).
 
 ### 3. Kuidas rakendus küsib
 
-- **Korraga kõige rohkem kaks päringut** iga töötava protsessi kohta, rakenduses ja igas skriptis.
-  Skript võib kahest üle minna ainult siis, kui keegi annab lipu `--past-the-limit`, mis trükib hoiatuse.
+- **Korraga kõige rohkem kaks päringut** iga töötava protsessi kohta, rakenduses ja igas skriptis. Skript
+  võib kahest üle minna ainult siis, kui see käivitatakse lipuga `--past-the-limit`, mis kuvab hoiatuse.
 - **Kasvav ooteaeg koos juhuslikkusega vastuse 429 või 5xx korral**, kokku kolm katset, ja teie saadetud
   `Retry-After` võetakse arvesse. Keeldumist (4xx) ei korrata. Päring, millele vastust ei tulnud,
-  märgitakse vastamata päringuks, mitte kui "Ekilexis seda sõna pole".
+  märgitakse vastamata päringuks, mitte tulemuseks „Ekilexis seda sõna pole“.
 - **Iga päring ütleb, kellelt see tuleb**: `Kodukeel/<versioon> (+https://<sait>/trust; <haldaja e-post>)`.
   Paigaldus, mis haldajat ei nimeta, e-posti ei saada.
 - **Tühi vastus jäetakse meelde**: sõna kohta, mille kohta Ekilexis midagi polnud, ei küsita päeva jooksul
@@ -134,24 +132,26 @@ mis on lisatud Ekilexis talletatud tüvele, ja ekraan ütleb, kumb see on.
 
 Iga paigaldus loendab päevade kaupa, mitte õppijate kaupa, Ekilexile saadetud päringud, keeldumised ja
 vastamata päringud ning selle, mitu korda avati Ekilexist pärit kirje siin talletatud koopiast ilma
-päringuta. Avalik leht **/impact** näitab viimast kolmekümmet päeva kahe arvu ja nende osakaaluna. Need on
-ühe paigalduse liikluse arvud, mitte hinnang Ekilexile.
+päringuta. Avalik leht **/impact** näitab viimase kolmekümne päeva kohta kaks arvu ja nende suhet. Need
+on ühe paigalduse liikluse arvud, mitte hinnang Ekilexile.
 
 ### 5. Viide allikale
 
-Iga Ekilexist pärit sõnastikukirje all on üks rida: vormid ja näitelaused pärinevad Ekilexist, Eesti Keele
-Instituudilt, litsentsiga CC BY 4.0 koos lingiga litsentsile, ja et arvutatuna näidatud vorm on tuletatud
-sellest, mida Ekilex talletab.
+Iga Ekilexist pärit sõnastikukirje all on rida, mis ütleb, et vormid ja näitelaused pärinevad Eesti Keele
+Instituudi Ekilexist (litsents CC BY 4.0, koos lingiga litsentsile) ning et arvutatud vorm on tuletatud
+Ekilexis talletatud andmetest.
 
 ### 6. Mida me tagasi anname
 
-Kui õppija teatab veast ja ülevaataja selle siin heaks kiidab, parandatakse ainult selle rakenduse koopiat.
-`npm run export:corrections` kirjutab kõik heakskiidetud parandused Ekilexi sõna id-ga kirjetele CSV-faili:
-sõna id, märksõna, mis muutus millest milleks, ülevaataja märkus ja kuupäev. Teatajat see ei nimeta.
+Kui õppija teatab veast ja ülevaataja selle siin heaks kiidab, parandatakse ainult selle rakenduse
+koopiat. `npm run export:corrections` kirjutab CSV-faili kõik heakskiidetud parandused, millel on Ekilexi
+sõna id: sõna id, märksõna, mis muutus millest milleks, ülevaataja märkus ja kuupäev. Teatajat see ei
+nimeta.
 
 ### 7. Mida me tahaksime küsida
 
-- Kas te annaksite Kodukeelele nimelise võtme, et selle liiklust saaks teistest eristada.
-- Kas on päringute piir, millest te sooviksite, et me kinni peaksime.
-- Kontakti andmetes leitud vigadest teatamiseks ja kas ülaltoodud parandusfail on selleks sobiv kuju.
-- Kas kirje all olev viide on sõnastatud nii, nagu te soovite.
+- Kas te annaksite Kodukeelele nimelise võtme, et selle liiklust saaks teistest eristada?
+- Kas on päringute piir, millest peaksime teie soovil kinni pidama?
+- Kelle poole võiksime pöörduda andmetes leitud vigadest teatamiseks ja kas ülaltoodud parandusfail on
+  selleks sobivas vormis?
+- Kas kirje all olev viide on sõnastatud nii, nagu te soovite?

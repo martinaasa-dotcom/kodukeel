@@ -18,10 +18,10 @@ export const SPEAKING: Area = {
     "Say it along": "Сказать вместе",
     "Stop listening": "Перестать слушать",
     "Getting ready to listen": "Готовлюсь слушать",
-    "Reading what you said": "Разбираю, что вы сказали",
-    "Listening. Press again when you are done.": "Слушаю. Нажмите ещё раз, когда закончите.",
+    "Reading what you said": "Разбираю сказанное",
+    "Listening. Press again when you are done.": "Слушаю. Нажми ещё раз, когда закончишь.",
     "That is very loud. Hold the microphone a little further away.":
-      "Очень громко. Держите микрофон чуть дальше.",
+      "Очень громко. Держи микрофон чуть дальше.",
     "Heard: {text}": "Услышано: {text}",
     "Nothing was heard.": "Ничего не услышано.",
     "Every word was understood.": "Понято каждое слово.",
@@ -29,10 +29,10 @@ export const SPEAKING: Area = {
 
     // You, then them (CompareVoices): the sound is checked by ear.
     "Hear yourself, then them": "Послушать себя, потом их",
-    "Your voice": "Ваш голос",
+    "Your voice": "Твой голос",
     "Native voice": "Голос носителя",
-    "The app checks the words. Your ear checks the sound.": "Приложение проверяет слова. Звучание проверяет ваш слух.",
-    "Playing your recording.": "Звучит ваша запись.",
+    "The app checks the words. Your ear checks the sound.": "Приложение проверяет слова. Звучание проверяет твой слух.",
+    "Playing your recording.": "Звучит твоя запись.",
     "Playing the native recording.": "Звучит запись носителя языка.",
     "We heard {heard} for {word}.": "Мы услышали {heard} вместо {word}.",
 
@@ -42,11 +42,11 @@ export const SPEAKING: Area = {
     "Downloading {done} of {total} MB": "Загружено {done} из {total} МБ",
     "Starting the download": "Начинаю загрузку",
     "Speaking is new. It needs a one-time download of {mb} MB, which stays on this device, so hearing works offline and nothing you say ever leaves it.":
-      "Устная речь появилась недавно. Для неё нужна разовая загрузка {mb} МБ. Она остаётся на этом устройстве, поэтому распознавание работает без сети, а сказанное вами никуда не уходит.",
+      "Устная речь появилась недавно. Для неё нужна разовая загрузка {mb} МБ. Она остаётся на этом устройстве, поэтому распознавание работает без сети, а сказанное тобой никуда не уходит.",
     "What you see is the machine's hearing. You can always change it before it counts.":
-      "То, что вы видите, услышала машина. Вы всегда можете это исправить, прежде чем ответ засчитается.",
+      "То, что ты видишь, услышала машина. Ты всегда можешь это исправить, прежде чем ответ засчитается.",
     "You seem to be on mobile data, so you might want to wait for Wi-Fi.":
-      "Похоже, вы подключены через мобильный интернет. Возможно, лучше дождаться Wi-Fi.",
+      "Похоже, у тебя мобильный интернет. Возможно, лучше дождаться Wi-Fi.",
     "Your browser cleared the speaking download to save space. Getting it back is {mb} MB, once.":
       "Браузер удалил загрузку для устной речи, чтобы освободить место. Вернуть её можно одной загрузкой {mb} МБ.",
 
@@ -56,14 +56,14 @@ export const SPEAKING: Area = {
       "Микрофон для этого сайта заблокирован. Его можно разрешить в настройках сайта в браузере или продолжать печатать.",
     "Speaking needs its download first.": "Сначала нужна загрузка для устной речи.",
     "Your browser cleared the speaking download. Press the microphone to get it back.":
-      "Браузер удалил загрузку для устной речи. Нажмите на микрофон, чтобы вернуть её.",
+      "Браузер удалил загрузку для устной речи. Нажми на микрофон, чтобы вернуть её.",
     "The download did not check out, so it was not used. Try it again.":
-      "Загрузка не прошла проверку, поэтому она не используется. Попробуйте ещё раз.",
+      "Загрузка не прошла проверку, поэтому она не используется. Попробуй ещё раз.",
     "This device is too slow to hear speech as you say it, so typing stays as it was.":
       "Это устройство слишком медленное, чтобы распознавать речь на ходу, поэтому всё печатается, как раньше.",
     "There is not enough room on this device for the download.": "На этом устройстве не хватает места для загрузки.",
     "The download stopped. Check your connection and try again.":
-      "Загрузка прервалась. Проверьте подключение и попробуйте ещё раз.",
+      "Загрузка прервалась. Проверь подключение и попробуй ещё раз.",
     "Something went wrong with listening. Typing works as before.":
       "Со слушанием что-то пошло не так. Печатать можно, как раньше.",
 
@@ -73,12 +73,12 @@ export const SPEAKING: Area = {
     "This installation has no speech model, so everything is typed as before.":
       "На этой установке нет модели распознавания речи, поэтому всё печатается, как раньше.",
     "Speaking is new. Your Estonian is turned into text on this device and the sound never leaves it. What you see is the machine's hearing, and you can always change it before it counts.":
-      "Устная речь появилась недавно. Ваша эстонская речь превращается в текст на этом устройстве, и звук никуда не уходит. То, что вы видите, услышала машина, и вы всегда можете это исправить, прежде чем ответ засчитается.",
+      "Устная речь появилась недавно. Твоя эстонская речь превращается в текст на этом устройстве, и звук никуда не уходит. То, что ты видишь, услышала машина, и ты всегда можешь это исправить, прежде чем ответ засчитается.",
     "Checking this device.": "Проверяю это устройство.",
     "Downloaded on this device ({mb} MB).": "Загружено на это устройство ({mb} МБ).",
     "Your browser cleared the download to save space.": "Браузер удалил загрузку, чтобы освободить место.",
     "The speech model is not on this device yet. It downloads by itself in the background, {mb} MB once.": "Модели распознавания речи на этом устройстве пока нет. Она загрузится сама в фоновом режиме, {mb} МБ один раз.",
-    "The speech model is not on this device yet. It downloads on Wi-Fi or the first time you press a microphone, {mb} MB once.": "Модели распознавания речи на этом устройстве пока нет. Она загрузится через Wi-Fi или когда вы впервые нажмёте на микрофон, {mb} МБ один раз.",
+    "The speech model is not on this device yet. It downloads on Wi-Fi or the first time you press a microphone, {mb} MB once.": "Модели распознавания речи на этом устройстве пока нет. Она загрузится по Wi-Fi или когда ты впервые нажмёшь на микрофон. Это {mb} МБ, один раз.",
     "Download now ({mb} MB)": "Загрузить сейчас ({mb} МБ)",
     "Delete the download": "Удалить загрузку",
     "Microphone in answer boxes": "Микрофон в полях для ответа",
@@ -101,10 +101,10 @@ export const SPEAKING: Area = {
     "Say it along": "Сказати разом",
     "Stop listening": "Перестати слухати",
     "Getting ready to listen": "Готуюся слухати",
-    "Reading what you said": "Розбираю, що ви сказали",
-    "Listening. Press again when you are done.": "Слухаю. Натисніть ще раз, коли закінчите.",
+    "Reading what you said": "Розбираю сказане",
+    "Listening. Press again when you are done.": "Слухаю. Натисни ще раз, коли закінчиш.",
     "That is very loud. Hold the microphone a little further away.":
-      "Дуже гучно. Тримайте мікрофон трохи далі.",
+      "Дуже гучно. Тримай мікрофон трохи далі.",
     "Heard: {text}": "Почуто: {text}",
     "Nothing was heard.": "Нічого не почуто.",
     "Every word was understood.": "Зрозуміло кожне слово.",
@@ -112,10 +112,10 @@ export const SPEAKING: Area = {
 
     // You, then them (CompareVoices): the sound is checked by ear.
     "Hear yourself, then them": "Послухати себе, потім їх",
-    "Your voice": "Ваш голос",
+    "Your voice": "Твій голос",
     "Native voice": "Голос носія",
-    "The app checks the words. Your ear checks the sound.": "Застосунок перевіряє слова. Звучання перевіряє ваш слух.",
-    "Playing your recording.": "Звучить ваш запис.",
+    "The app checks the words. Your ear checks the sound.": "Застосунок перевіряє слова. Звучання перевіряє твій слух.",
+    "Playing your recording.": "Звучить твій запис.",
     "Playing the native recording.": "Звучить запис носія мови.",
     "We heard {heard} for {word}.": "Ми почули {heard} замість {word}.",
 
@@ -125,11 +125,11 @@ export const SPEAKING: Area = {
     "Downloading {done} of {total} MB": "Завантажено {done} з {total} МБ",
     "Starting the download": "Починаю завантаження",
     "Speaking is new. It needs a one-time download of {mb} MB, which stays on this device, so hearing works offline and nothing you say ever leaves it.":
-      "Усне мовлення з'явилося нещодавно. Для нього потрібне одноразове завантаження {mb} МБ. Воно лишається на цьому пристрої, тож розпізнавання працює без мережі, а сказане вами нікуди не йде.",
+      "Усне мовлення з'явилося нещодавно. Для нього потрібне одноразове завантаження {mb} МБ. Воно лишається на цьому пристрої, тож розпізнавання працює без мережі, а сказане тобою нікуди не йде.",
     "What you see is the machine's hearing. You can always change it before it counts.":
-      "Те, що ви бачите, почула машина. Ви завжди можете це виправити, перш ніж відповідь зарахують.",
+      "Те, що ти бачиш, почула машина. Ти завжди можеш це виправити, перш ніж відповідь зарахують.",
     "You seem to be on mobile data, so you might want to wait for Wi-Fi.":
-      "Схоже, ви під'єднані через мобільний інтернет. Можливо, краще дочекатися Wi-Fi.",
+      "Схоже, в тебе мобільний інтернет. Можливо, краще дочекатися Wi-Fi.",
     "Your browser cleared the speaking download to save space. Getting it back is {mb} MB, once.":
       "Браузер видалив завантаження для усного мовлення, щоб звільнити місце. Повернути його можна одним завантаженням {mb} МБ.",
 
@@ -139,14 +139,14 @@ export const SPEAKING: Area = {
       "Мікрофон для цього сайту заблоковано. Його можна дозволити в налаштуваннях сайту в браузері або далі друкувати.",
     "Speaking needs its download first.": "Спершу потрібне завантаження для усного мовлення.",
     "Your browser cleared the speaking download. Press the microphone to get it back.":
-      "Браузер видалив завантаження для усного мовлення. Натисніть на мікрофон, щоб повернути його.",
+      "Браузер видалив завантаження для усного мовлення. Натисни на мікрофон, щоб повернути його.",
     "The download did not check out, so it was not used. Try it again.":
-      "Завантаження не пройшло перевірку, тому воно не використовується. Спробуйте ще раз.",
+      "Завантаження не пройшло перевірку, тому воно не використовується. Спробуй ще раз.",
     "This device is too slow to hear speech as you say it, so typing stays as it was.":
       "Цей пристрій надто повільний, щоб розпізнавати мовлення на ходу, тому все друкується, як раніше.",
     "There is not enough room on this device for the download.": "На цьому пристрої не вистачає місця для завантаження.",
     "The download stopped. Check your connection and try again.":
-      "Завантаження перервалося. Перевірте з'єднання і спробуйте ще раз.",
+      "Завантаження перервалося. Перевір з'єднання й спробуй ще раз.",
     "Something went wrong with listening. Typing works as before.":
       "Зі слуханням щось пішло не так. Друкувати можна, як раніше.",
 
@@ -156,12 +156,12 @@ export const SPEAKING: Area = {
     "This installation has no speech model, so everything is typed as before.":
       "На цій установці немає моделі розпізнавання мовлення, тому все друкується, як раніше.",
     "Speaking is new. Your Estonian is turned into text on this device and the sound never leaves it. What you see is the machine's hearing, and you can always change it before it counts.":
-      "Усне мовлення з'явилося нещодавно. Ваше естонське мовлення перетворюється на текст на цьому пристрої, і звук нікуди не йде. Те, що ви бачите, почула машина, і ви завжди можете це виправити, перш ніж відповідь зарахують.",
+      "Усне мовлення з'явилося нещодавно. Твоє естонське мовлення перетворюється на текст на цьому пристрої, і звук нікуди не йде. Те, що ти бачиш, почула машина, і ти завжди можеш це виправити, перш ніж відповідь зарахують.",
     "Checking this device.": "Перевіряю цей пристрій.",
     "Downloaded on this device ({mb} MB).": "Завантажено на цей пристрій ({mb} МБ).",
     "Your browser cleared the download to save space.": "Браузер видалив завантаження, щоб звільнити місце.",
     "The speech model is not on this device yet. It downloads by itself in the background, {mb} MB once.": "Моделі розпізнавання мовлення на цьому пристрої поки немає. Вона завантажиться сама у фоновому режимі, {mb} МБ один раз.",
-    "The speech model is not on this device yet. It downloads on Wi-Fi or the first time you press a microphone, {mb} MB once.": "Моделі розпізнавання мовлення на цьому пристрої поки немає. Вона завантажиться через Wi-Fi або коли ви вперше натиснете на мікрофон, {mb} МБ один раз.",
+    "The speech model is not on this device yet. It downloads on Wi-Fi or the first time you press a microphone, {mb} MB once.": "Моделі розпізнавання мовлення на цьому пристрої поки немає. Вона завантажиться через Wi-Fi або коли ти вперше натиснеш на мікрофон. Це {mb} МБ, один раз.",
     "Download now ({mb} MB)": "Завантажити зараз ({mb} МБ)",
     "Delete the download": "Видалити завантаження",
     "Microphone in answer boxes": "Мікрофон у полях для відповіді",

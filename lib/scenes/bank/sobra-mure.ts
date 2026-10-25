@@ -29,8 +29,8 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "sobra-mure", beat: "hurdle:interrupted", text: "Vabandust, üks minut.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "sobra-mure", beat: "hurdle:misheard", text: "Kas sa ootad mind?", model: "authored", draftedAt: "2026-10-15", about: "help", reviewedAt: "2026-10-16" },
   { scene: "sobra-mure", beat: "hurdle:misheard", text: "Mida? Sa ootad mind?", model: "authored", draftedAt: "2026-10-15", about: "help", reviewedAt: "2026-10-16" },
-  { scene: "sobra-mure", beat: "close", text: "Aitäh, et sa siin oled. Nägemist!", model: "authored", draftedAt: "2026-10-23" },
-  { scene: "sobra-mure", beat: "close", text: "Tore oli sind näha. Nägemist!", model: "authored", draftedAt: "2026-10-23" },
+  { scene: "sobra-mure", beat: "close", text: "Hea, et sa mul oled. Nägemist!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },
+  { scene: "sobra-mure", beat: "close", text: "Tore oli sind näha. Nägemist!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },
 ];
 
 export default LINES;

@@ -41,8 +41,8 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "tehniline-tugi", beat: "hurdle:interrupted", text: "Vabandust, üks minut.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "tehniline-tugi", beat: "hurdle:contradiction", text: "Aga minu ekraanil ühendus töötab.", model: "authored", draftedAt: "2026-10-15", about: "problem", reviewedAt: "2026-10-16" },
   { scene: "tehniline-tugi", beat: "hurdle:contradiction", text: "Aga meil on näha, et teie ühendus töötab.", model: "authored", draftedAt: "2026-10-15", about: "screen", reviewedAt: "2026-10-16" },
-  { scene: "tehniline-tugi", beat: "close", text: "Nüüd peaks kõik töötama. Head aega!", model: "authored", draftedAt: "2026-10-23" },
-  { scene: "tehniline-tugi", beat: "close", text: "Kui midagi on, helistage jälle. Nägemist!", model: "authored", draftedAt: "2026-10-23" },
+  { scene: "tehniline-tugi", beat: "close", text: "Nüüd peaks kõik töötama. Head aega!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },
+  { scene: "tehniline-tugi", beat: "close", text: "Kui ei tööta, helistage uuesti. Nägemist!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },
 ];
 
 export default LINES;

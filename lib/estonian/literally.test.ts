@@ -65,8 +65,12 @@ function words(text: string): string[] {
 */
 const SAME_IMAGE_BOTH = ["külmkapp", "uksekell", "liivakell", "silmamuna", "nahkhiir", "raamatukoi", "lasteaed", "käekell", "tolmuimeja", "kiirabi", "raudtee", "õietolm", "seljaaju", "põhjapõder", "nelkpipar", "vintpüss"];
 const SAME_IMAGE: Record<"ru" | "uk", ReadonlySet<string>> = {
-  ru: new Set([...SAME_IMAGE_BOTH, "asesõna", "sõnaraamat", "ninasarvik"]),
-  uk: new Set([...SAME_IMAGE_BOTH, "ööliblikas", "lumememm", "linnapea", "sõnaraamat", "ninasarvik"]),
+  // The words from hüüumärk on are the fluent reader's own Russian and
+  // Ukrainian (2026-10-25): a восклицательный знак and a знак оклику, a сосед
+  // по парте, a сложное слово, a гостьовий дім and a рідня are what the two
+  // languages call them, built on the same picture as the Estonian.
+  ru: new Set([...SAME_IMAGE_BOTH, "asesõna", "sõnaraamat", "ninasarvik", "hüüumärk", "pinginaaber", "liitsõna"]),
+  uk: new Set([...SAME_IMAGE_BOTH, "ööliblikas", "lumememm", "linnapea", "sõnaraamat", "ninasarvik", "hüüumärk", "pinginaaber", "liitsõna", "võõrastemaja", "suguvõsa"]),
 };
 
 describe("compounds", () => {

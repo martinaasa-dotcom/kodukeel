@@ -666,6 +666,82 @@ export const REFUSED_SENTENCES: readonly RefusedSentence[] = [
       "Found on reading the usages Ekilex returned for töötu when the job-center " +
       "scene's words were harvested.",
   },
+  {
+    et: "Kas maksate pangakaardiga või sularahas?",
+    why: "Kaasaütlev sularahaga fits the gap just as naturally as sularahas. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Tulemus valmistas pettumuse.",
+    why: "Osastav pettumust is at least as natural as pettumuse after valmistas. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Raputasin tuha tuhatoosi.",
+    why: "Osastav tuhka fits equally well, raputasin tuhka tuhatoosi is very common. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Kopli tramm sõitis rööbastelt maha.",
+    why: "Kopli here is a Tallinn district name, not the common noun koppel, which misleads learners. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Tihe lumesadu tekitas maanteedel kaose.",
+    why: "Osastav kaost fits equally well after tekitas, so the gap is ambiguous. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Täna puudub kaks õpilast.",
+    why: "With a numeral subject both puudub and puuduvad are correct, and the English are absent points to plural. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Aias kasvab kolm pirni.",
+    why: "With a numeral subject both kasvab and kasvavad are correct, and the English are growing points to plural. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Valged alustavad \u2013 ja ei võida.",
+    why: "Cryptic chess remark that is confusing and misleading without its original context. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Ta nägi õnnetust pealt ja andis kohtus tunnistuse.",
+    why: "Osastav tunnistust fits the gap equally well after andma, so a correct answer would be marked wrong. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Mis ime rahadest te siin räägite?",
+    why: "The phrase ime rahad is odd and unclear out of context, and confusing for learners. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Vaid üks kümnest ükssarvikust jääb turul ellu.",
+    why: "Startup jargon about unicorns is misleading out of context and reads as nonsense to learners. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Ma ei saanud aru, kus viibin.",
+    why: "Past viibisin fits the gap equally well, and the English 'was' points the learner to it. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Neid küsimusi arutleme koosolekul.",
+    why: "Arutlema is not used with a direct object; standard Estonian would say arutame neid küsimusi. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Mul ei ole sutenööri, ise otsustan, millal töötan.",
+    why: "Sex work context with a pimp reference is unsuitable for a general learner workbook. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Ministeerium kutsub häkkima.",
+    why: "Headline-style sentence is odd and unclear without its news context about a hackathon. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Lisasin salatisse soola ja pipart.",
+    why: "Salatile fits the gap as naturally as salatisse, and the English 'to the salad' does not decide between them. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Pahemat kätt jääb meri.",
+    why: "Pahemat kätt is a dated fixed expression; the osastav kätt cannot be produced from käsi without knowing the idiom. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Seks on armastuse skelett: hoiab teda koos.",
+    why: "Odd sexual aphorism out of context, unsuitable and confusing as a learner exercise sentence. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Ilma temata on nagu mingi vürts puudu.",
+    why: "Puudu here is the adverb in olema puudu, not an imperative of puuduma; the theme is misleading. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
 ];
 
 /**

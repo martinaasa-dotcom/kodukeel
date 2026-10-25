@@ -97,19 +97,19 @@ export function signInHref(locale: PublicLocale): string {
  * A privacy notice and a set of terms are the two pages where a translation
  * that reads well and is wrong costs somebody something. So the Russian and
  * Ukrainian versions open on a line saying what they are: a convenience, made
- * with AI, read by neither a native speaker nor a lawyer, with the English
- * deciding wherever the two differ. Said in the page's own language and in
- * English beside it, for a reader of neither. This stays even once a fluent
- * reader has checked the language, because "the English prevails" is true
+ * with AI, read by a fluent speaker and checked by no lawyer, with the
+ * English deciding wherever the two differ. Said in the page's own language
+ * and in English beside it, for a reader of neither. It stayed when a fluent
+ * reader checked the language, because "the English prevails" is true
  * whoever has read it.
  */
 export const LEGAL_NOTICE: Readonly<Record<Exclude<PublicLocale, "en">, string>> = {
-  ru: "Этот перевод сделан для удобства с помощью ИИ. Его не проверяли ни носитель языка, ни юрист. Если перевод расходится с английским текстом, действует английский текст.",
-  uk: "Цей переклад зроблено для зручності за допомогою ШІ. Його не перевіряли ні носій мови, ні юрист. Якщо переклад розходиться з англійським текстом, чинним є англійський текст.",
-  // Drafted and waiting for the native speaker's reading (D16), like every
-  // Estonian line on these pages; the English prevails whoever has read it.
-  et: "See tõlge on mõeldud lugemise hõlbustamiseks ja koostatud tehisintellekti abil. Eesti keelt emakeelena kõnelev inimene ega jurist ei ole seda veel üle vaadanud. Kui tõlge erineb ingliskeelsest tekstist, kehtib ingliskeelne tekst.",
+  ru: "Этот перевод сделан для удобства с помощью ИИ. Его не проверял юрист. Если перевод расходится с английским текстом, действует английский текст.",
+  uk: "Цей переклад зроблено для зручності за допомогою ШІ. Його не перевіряв юрист. Якщо переклад розходиться з англійським текстом, чинним є англійський текст.",
+  // Read by the native speaker with the rest of the public pages (D16); the
+  // English prevails whoever has read it.
+  et: "See tõlge on mõeldud lugemise hõlbustamiseks ja koostatud tehisintellekti abil. Jurist ei ole seda üle vaadanud. Kui tõlge erineb ingliskeelsest tekstist, kehtib ingliskeelne tekst.",
 };
 
 export const LEGAL_NOTICE_EN =
-  "This translation is a convenience, made with AI and reviewed by neither a native speaker nor a lawyer. Where it differs from the English text, the English text prevails.";
+  "This translation is a convenience, made with AI and not checked by a lawyer. Where it differs from the English text, the English text prevails.";
