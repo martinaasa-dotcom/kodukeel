@@ -64,7 +64,7 @@ export function shieldLetter(input: ShieldInput): Letter {
      noun after, and the figure with the noun's own form in the other two. */
   const more = locale === "en" ? spelledCount(input.remaining) : figured(locale, input.remaining, "shield");
 
-  blocks.push({ t: "heading", text: say("A shield covered yesterday.") });
+  blocks.push({ t: "heading", text: say("A shield kept your run going.") });
 
   /*
     WHAT HAPPENED, IN THE ORDER IT HAPPENED, WITH NO ADJECTIVE IN IT.
@@ -76,7 +76,7 @@ export function shieldLetter(input: ShieldInput): Letter {
   blocks.push({
     t: "text",
     text: say(
-      "You took yesterday off, so one of the shields you'd earned stepped in. " +
+      "You had a day off yesterday, so one of the shields you'd earned quietly stepped in. " +
         "Your run of {days} is still going.",
       { days },
     ),
@@ -108,16 +108,17 @@ export function shieldLetter(input: ShieldInput): Letter {
   blocks.push({
     t: "quiet",
     text: say(
-      "A day off costs you nothing here. Your words wait where you left them.",
+      "Rest days are part of learning a language. Your words will be right where you left them.",
     ),
   });
 
-  blocks.push({ t: "button", label: say("See today's module"), href: `${input.origin}/course` });
+  blocks.push({ t: "button", label: say("Open today's module"), href: `${input.origin}/course` });
+  blocks.push({ t: "signoff", text: say("Talk soon,") });
 
   return {
     kind: "shield",
     locale,
-    subject: say("A shield covered yesterday"),
+    subject: say("A shield kept your run going"),
     preheader: input.remaining > 0
       ? say("Your run of {days} is still going, and you've got {more} saved.", {
           days,

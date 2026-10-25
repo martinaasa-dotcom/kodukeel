@@ -9,7 +9,7 @@
 */
 import { describe, expect, it } from "vitest";
 
-import { renderHtml, renderText, type Chrome } from "./render";
+import { PREHEADER_PAD, renderHtml, renderText, type Chrome } from "./render";
 import type { Letter } from "./letter";
 import { tonightLetter } from "./letters/tonight";
 import { welcomeLetter } from "./letters/welcome";
@@ -326,7 +326,22 @@ describe("the escaping really happens", () => {
 describe("the preheader", () => {
   it("is padded, so a client cannot reach past it into the body", () => {
     const html = renderHtml(EVERY[0]!, CHROME);
-    expect(html).toContain("&#8204;&nbsp;");
+    expect(html).toContain(PREHEADER_PAD);
+  });
+
+  it("is padded with nothing a lock screen can draw", () => {
+    /*
+      The padding used to carry a non-breaking space in every repeat, and the
+      iPhone notification for a letter drew all sixty of them: the preview
+      read as a sentence, a stretch of blank space, and then the first words
+      of the body. Whatever pads it may only be characters with no width.
+    */
+    const decoded = PREHEADER_PAD.replace(/&#(\d+);/g, (_, n: string) => String.fromCodePoint(Number(n)))
+      .replace(/&zwnj;/g, "\u200c");
+    expect(decoded.length).toBeGreaterThan(100);
+    expect(decoded).not.toMatch(/[\s\u00a0&;]/);
+    expect([...new Set(decoded)].sort()).toEqual(["\u034f", "\u200c"]);
+    for (const letter of EVERY) expect(renderHtml(letter, CHROME)).not.toContain("&nbsp;&#8204;");
   });
 });
 

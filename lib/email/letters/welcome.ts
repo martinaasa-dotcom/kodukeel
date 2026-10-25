@@ -57,7 +57,7 @@ export function welcomeLetter(input: WelcomeInput): Letter {
     alt: say("Kodukeel. The four letters an English keyboard has no key for: o-tilde, a-umlaut, o-umlaut, u-umlaut."),
   });
 
-  blocks.push({ t: "heading", text: say("Your first cards are ready.") });
+  blocks.push({ t: "heading", text: say("Welcome. Your first cards are ready.") });
 
   /*
     ENDOWED PROGRESS: THE DECK IS ALREADY THERE.
@@ -70,11 +70,11 @@ export function welcomeLetter(input: WelcomeInput): Letter {
     t: "text",
     text: input.opensOn && subtitle !== null
       ? say(
-          "{cards} are already waiting for you, made from the first lessons of your course. Your first evening is “{title}”, which is {subtitle}.",
+          "We've made you {cards} from the first lessons of your course. Your first module is “{title}”, which is {subtitle}.",
           { cards, title: input.opensOn.title, subtitle },
         )
       : say(
-          "{cards} are already waiting for you, made from the first lessons of your course. Open the course and it'll show you where to start.",
+          "We've made you {cards} from the first lessons of your course. Open the course and it'll show you where to begin.",
           { cards },
         ),
   });
@@ -94,11 +94,11 @@ export function welcomeLetter(input: WelcomeInput): Letter {
     app will ever be.
   */
   blocks.push({ t: "rule" });
-  blocks.push({ t: "heading", text: say("Fifteen minutes an evening.") });
+  blocks.push({ t: "heading", text: say("Fifteen minutes a day.") });
   blocks.push({
     t: "text",
     text: say(
-      "Each evening is a short reading, two quick exercises and a few cards to go over. It takes about a quarter of an hour at any level, and when you're done, the app tells you so.",
+      "Each day's module is a short reading, two quick exercises and a few cards to go over. It takes about a quarter of an hour at any level, and the app tells you when you're done.",
     ),
   });
 
@@ -106,7 +106,7 @@ export function welcomeLetter(input: WelcomeInput): Letter {
     blocks.push({
       t: "text",
       text: say(
-        "You picked {time}. Put it in your calendar and your phone will remind you, which works far better than an email from us.",
+        "You picked {time}. Add it to your calendar and your phone will gently remind you, which works far better than an email from us.",
         { time: input.reminderAt },
       ),
     });
@@ -125,7 +125,7 @@ export function welcomeLetter(input: WelcomeInput): Letter {
     });
   }
 
-  blocks.push({ t: "button", label: say("Open your first evening"), href: `${input.origin}/course` });
+  blocks.push({ t: "button", label: say("Start your first module"), href: `${input.origin}/course` });
 
   /*
     AND WHAT WILL ARRIVE, SAID PLAINLY, WITH THE WAY OUT IN THE SAME BREATH.
@@ -134,19 +134,21 @@ export function welcomeLetter(input: WelcomeInput): Letter {
   blocks.push({
     t: "quiet",
     text: say(
-      "What we'll send you: a short nudge on evenings you haven't studied yet, a look back at your " +
+      "What we'll send you: a gentle nudge on days you haven't studied yet, a look back at your " +
         "week on Sundays, and now and then a note when there's real news, like finishing a level. " +
         "The link at the bottom of any of them turns them off, and the course works just the same without them.",
     ),
   });
 
+  blocks.push({ t: "signoff", text: say("We're so glad you're here,") });
+
   return {
     kind: "welcome",
     locale,
-    subject: say("Your first cards are ready"),
+    subject: say("Welcome to Kodukeel"),
     preheader: subtitle !== null
-      ? say("{cards} are waiting, and your first evening is {subtitle}.", { cards, subtitle })
-      : say("{cards} are waiting, and your first evening takes fifteen minutes.", { cards }),
+      ? say("{cards} are ready for you, and your first module is {subtitle}.", { cards, subtitle })
+      : say("{cards} are ready for you, and your first module takes about fifteen minutes.", { cards }),
     blocks,
   };
 }

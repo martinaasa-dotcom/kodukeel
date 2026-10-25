@@ -128,6 +128,7 @@ export function deadlineLetter(input: DeadlineInput): Letter {
   }
 
   blocks.push({ t: "button", label: say("See your plan"), href: `${input.origin}/assess` });
+  blocks.push({ t: "signoff", text: say("Talk soon,") });
 
   return {
     kind: "deadline",

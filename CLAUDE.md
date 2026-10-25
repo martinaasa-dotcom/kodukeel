@@ -854,6 +854,16 @@ evening, describing a course they had stepped out of. The branch returns either 
 answer after that one letter is silence. Found by driving `letterOwed` over a fortnight of made-up
 days, which is the argument for the decision being a pure function of an explicit `now`.
 
+**A letter's preview line is padded with nothing anybody can see.** The hidden preheader used to be
+followed by sixty repeats of a zero-width non-joiner and a non-breaking space, the recipe most
+templates copy, and the iPhone lock screen drew every one of those spaces: a reminder previewed as
+one sentence, a stretch of blank space, then the first words of the body. `PREHEADER_PAD` in
+`lib/email/render.ts` is zero-width characters only, asserted in `render.test.ts`. And every drawing
+in `lib/email/art.ts` names `FONT` itself, because one that did not fell back to Times on Apple
+Mail under a heading in San Francisco. `npx tsx scripts/preview-letters.ts <dir>` renders every
+letter to disk, with an index showing each subject and preview line as an inbox lists them; look at
+it in both themes before changing how a letter looks.
+
 **There is no image in a letter and no pixel counting who opened one.** `/privacy` says there are
 no third-party trackers and no analytics; a one-pixel image in an email is both, aimed at
 somebody reading their own mail, and it is the single most standard thing in this genre. It is
