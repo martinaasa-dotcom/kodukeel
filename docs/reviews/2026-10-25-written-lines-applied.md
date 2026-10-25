@@ -84,7 +84,12 @@ sheet the same day. It came back with these changes, all applied:
 - The policy notice in Russian and Ukrainian reads more naturally: «Этот перевод сделан с помощью ИИ,
   чтобы текст было удобнее читать. Юрист его не проверял.»
 - `plainAsk.ts` writes the feminine out: «что ты сделал (сделала) бы», «що ти зробив (зробила) б».
-- The store listing keeps saying a fluent speaker read and corrected the Russian and Ukrainian. The sheet
-  proposed "checked by AI" on the reading that an AI had done the reviews; Martin Aasa confirmed he
-  reviewed every line himself, with AI only filtering the output, so the original stands.
+- The store listing says how the review was done. The sheet proposed "checked by AI"; Martin Aasa
+  reviewed every line himself, using AI to flag possible problems and deciding every change. In all four
+  languages it now reads that a fluent speaker reviewed and corrected the translations, used AI to flag
+  possible mistakes and made every decision themselves. The session wrote these sentences:
+  "Selle on üle vaadanud ja parandanud keelt valdav inimene, kes kasutas võimalike vigade leidmiseks
+  tehisintellekti, kuid tegi iga otsuse ise.", «ИИ помогал ему находить возможные ошибки, но каждое
+  решение он принимал сам.», «ШІ допомагав їй знаходити можливі помилки, але кожне рішення вона
+  ухвалювала сама.»
 
