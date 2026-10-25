@@ -658,9 +658,15 @@ const entryLevelFrom = (value: unknown): string | null | undefined => {
 };
 
 
-/** Two glosses as one claim: the same words, whatever the case and spacing. */
+/**
+ * Two glosses as one claim: the same words, whatever the case, the spacing and
+ * the punctuation at either end. Never a match on part of a gloss: the card the
+ * adopting learner gets shows the stored gloss whole, so "hello" matching a
+ * stranger's "hello, and whatever else they wrote" would put that on it.
+ */
 function sameGloss(a: string, b: string): boolean {
-  const fold = (value: string) => value.trim().replace(/\s+/g, " ").toLocaleLowerCase("en");
+  const fold = (value: string) => value.trim().replace(/\s+/g, " ").toLocaleLowerCase("en")
+    .replace(/^[\p{P}\s]+|[\p{P}\s]+$/gu, "");
   return fold(a) === fold(b);
 }
 
@@ -3513,10 +3519,15 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
     rest of the app reads with rather than a second one held for two minutes
     beside the restore's own (`restorableParts`).
   */
-  const reachableParts = await restorableParts(ownerId, [
-    ...(backup.settings ?? []).flatMap((row) => row.key === SETTING_KEYS.programme ? [String(row.value ?? "")] : []),
-    ...(backup.courseSteps ?? []).map((row) => String(row.programmeId ?? "")),
-  ]);
+  let reachableParts: Set<string>;
+  try {
+    reachableParts = await restorableParts(ownerId, [
+      ...(backup.settings ?? []).flatMap((row) => row.key === SETTING_KEYS.programme ? [String(row.value ?? "")] : []),
+      ...(backup.courseSteps ?? []).map((row) => String(row.programmeId ?? "")),
+    ]);
+  } catch {
+    return { ok: false as const, error: tr(await localeFor(ownerId).catch(() => "en" as const), "The restore didn't finish, so nothing was changed.") };
+  }
 
   try {
     await prisma.$transaction(async (tx) => {

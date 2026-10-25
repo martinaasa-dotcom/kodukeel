@@ -2,6 +2,7 @@ import { apiError } from "@/lib/api/errors";
 import { apiJson, readBody } from "@/lib/api/respond";
 import { SceneHelpRequest, type SceneHelpResponse } from "@/lib/api/contract";
 import { requireBearerUser } from "@/lib/auth/bearer";
+import { SCENE_BODY_BYTES } from "@/lib/security/body";
 import { sceneHelpFor } from "@/lib/progress/sceneRuns";
 import { throttleShared } from "@/lib/usage/sharedThrottle";
 
@@ -19,7 +20,7 @@ export const runtime = "nodejs";
 export async function POST(request: Request, { params }: { params: Promise<{ runId: string }> }) {
   const who = await requireBearerUser(request);
   if (who instanceof Response) return who;
-  const body = await readBody(request, SceneHelpRequest);
+  const body = await readBody(request, SceneHelpRequest, SCENE_BODY_BYTES);
   if (!body.ok) return body.response;
   const { runId } = await params;
   const busy = await throttleShared(who.ownerId, "sceneHelp");
