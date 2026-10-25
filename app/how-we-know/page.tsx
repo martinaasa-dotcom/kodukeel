@@ -1,5 +1,5 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { ENGLISH_AND_ESTONIAN, Legal, P, S, updatedIn } from "@/components/Legal";
+import { Legal, P, S, updatedIn } from "@/components/Legal";
 import { rich } from "@/components/Rich";
 import { CLAIMS, commandFor, evidenceRows, measuredOn, type EvidenceRow, type Measured } from "@/lib/evidence/claims";
 import measured from "@/lib/evidence/measured.json";
@@ -9,14 +9,14 @@ import { publicPageTitle, resolvePublicPage, type PublicSearch } from "@/lib/pro
 import { publicCard } from "@/lib/copy/publicCards";
 
 /*
-  English and Estonian (D16 in docs/44-sixth-batch.md, which widens D12 of
-  docs/38-third-batch.md): a reviewer at the Institute reads the frame in
-  Estonian. Each claim, its figure and the file that asserts it stay as the
+  In every public language (D16 in docs/44-sixth-batch.md widened D12 of
+  docs/38-third-batch.md to Estonian, and the follow-up to that batch to
+  Russian and Ukrainian): a reviewer reads the frame in their language. Each claim, its figure and the file that asserts it stay as the
   repository writes them, in English, marked so, since a translated claim
   would be a second copy of it nobody measures.
 */
 export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
-  return publicPageTitle(searchParams, "How we know", undefined, publicCard("/how-we-know"), ENGLISH_AND_ESTONIAN);
+  return publicPageTitle(searchParams, "How we know", undefined, publicCard("/how-we-know"));
 }
 
 /*
@@ -37,12 +37,12 @@ const REPO = "https://github.com/martinaasa-dotcom/kodukeel/blob/main";
  * the day and the place they ran it. Nothing on this page is typed into it.
  */
 export default async function HowWeKnowPage({ searchParams }: { searchParams: PublicSearch }) {
-  const { locale, explicit } = await resolvePublicPage(searchParams, ENGLISH_AND_ESTONIAN);
+  const { locale, explicit } = await resolvePublicPage(searchParams);
   const t = (english: string) => tr(locale, english);
   const href = (to: string) => localeHref(to, locale, explicit);
   const rows = evidenceRows(measured as Measured);
   return (
-    <Legal title={t("How we know")} updated="15 October 2026" locale={locale} explicit={explicit} path="/how-we-know" drawnIn={ENGLISH_AND_ESTONIAN}>
+    <Legal title={t("How we know")} updated="15 October 2026" locale={locale} explicit={explicit} path="/how-we-know">
       <P>
         {t("Each claim this project makes about itself, the figure behind it, the day it was measured, and the command that measures it again. Run the command on a copy of the repository and you should get the same figure. The file named under each claim is the one that fails if the rule behind it breaks.")}
       </P>

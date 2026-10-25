@@ -30,14 +30,6 @@ export function switcherHrefs(path: string, drawnIn: readonly PublicLocale[] = P
 }
 
 /**
- * The two shapes of a public page's languages: every one, and English with
- * Estonian, for a page whose English is not yet in Russian and Ukrainian
- * (/curriculum, /how-we-know, /pilots). A page offers only the languages it
- * is drawn in.
- */
-export const ENGLISH_AND_ESTONIAN: readonly PublicLocale[] = ["en", "et"];
-
-/**
  * Shared shell for the policy pages, which are reachable without a session.
  *
  * Drawn in English, Russian, Ukrainian or Estonian (lib/copy/publicLocale.ts):

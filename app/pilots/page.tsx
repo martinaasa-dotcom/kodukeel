@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { ENGLISH_AND_ESTONIAN, Legal, P, S } from "@/components/Legal";
+import { Legal, P, S } from "@/components/Legal";
 import { rich } from "@/components/Rich";
 import { resolveOperator } from "@/lib/legal/operator";
 import { tr } from "@/lib/copy/locale";
@@ -11,7 +11,7 @@ import { publicCard } from "@/lib/copy/publicCards";
 // Its own words where it is shared, rather than the landing page's pitch to a
 // learner, in the language the page is drawn in.
 export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
-  return publicPageTitle(searchParams, "Running a pilot", undefined, publicCard("/pilots"), ENGLISH_AND_ESTONIAN);
+  return publicPageTitle(searchParams, "Running a pilot", undefined, publicCard("/pilots"));
 }
 
 /*
@@ -30,13 +30,14 @@ const REPO = "https://github.com/martinaasa-dotcom/kodukeel/blob/main";
  * source of the text and the document is a summary pointing here, so it is
  * said once (docs/37-second-batch.md, D4).
  *
- * English and Estonian. It was English only, because a machine translation of
- * a page about what has and has not been verified is where a softened sentence
- * could slip in unread. D16 (docs/44-sixth-batch.md) adds Estonian for a
- * reviewer at the Institute or a ministry, and keeps that guard: the page
- * carries the policy pages' notice, so it says first, in Estonian, that the
- * translation awaits the native speaker and that the English prevails.
- * Russian and Ukrainian are not drawn, and the switch does not offer them.
+ * In every public language. It was English only, because a machine
+ * translation of a page about what has and has not been verified is where a
+ * softened sentence could slip in unread. D16 (docs/44-sixth-batch.md) added
+ * Estonian for a reviewer at the Institute or a ministry, and the follow-up to
+ * that batch added Russian and Ukrainian for the organizations whose people
+ * read those, with the same guard: the page carries the policy pages' notice,
+ * so it says first, in the reader's language, that the translation is a
+ * machine's and that the English prevails.
  *
  * WHAT THIS IS NOT READY FOR STAYS AS LOUD AS THE REST. No SOC 2 report, no
  * external penetration test and no contractual uptime: a reader who catches one
@@ -45,7 +46,7 @@ const REPO = "https://github.com/martinaasa-dotcom/kodukeel/blob/main";
  * already states.
  */
 export default async function PilotsPage({ searchParams }: { searchParams: PublicSearch }) {
-  const { locale, explicit } = await resolvePublicPage(searchParams, ENGLISH_AND_ESTONIAN);
+  const { locale, explicit } = await resolvePublicPage(searchParams);
   const t = (english: string) => tr(locale, english);
   const contact = resolveOperator().email;
   const page = (to: string, label: string) => (
@@ -56,7 +57,7 @@ export default async function PilotsPage({ searchParams }: { searchParams: Publi
   );
 
   return (
-    <Legal title={t("Running a pilot")} updated="14 October 2026" locale={locale} explicit={explicit} path="/pilots" drawnIn={ENGLISH_AND_ESTONIAN} legal>
+    <Legal title={t("Running a pilot")} updated="14 October 2026" locale={locale} explicit={explicit} path="/pilots" legal>
       <P>
         {t("For a company, a school, a ministry or a university deciding whether to put Kodukeel in front of a group of people. It says what a pilot is, what it costs, what is asked of you, what you get back, and what happens to your people’s data.")}
         {/* Only where there is an address to point at: unset, the last section says why there is none. */}
