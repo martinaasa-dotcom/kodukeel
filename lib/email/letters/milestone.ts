@@ -78,7 +78,7 @@ export function milestoneLetter(input: MilestoneInput): Letter {
   blocks.push({
     t: "text",
     text: say(
-      "That's {words} that are properly yours now. Each one came back days after you met it, and you still knew it, so this letter comes a little after the work.",
+      "That's {words} that are truly yours now. Each one came back days after you first met it, and you still knew it. This letter comes a little after the hard work, because that's how long it takes to be sure.",
       { words },
     ),
   });
@@ -109,13 +109,14 @@ export function milestoneLetter(input: MilestoneInput): Letter {
     });
   }
 
-  blocks.push({ t: "button", label: say("Keep going"), href: `${input.origin}/course` });
+  blocks.push({ t: "button", label: say("Continue the course"), href: `${input.origin}/course` });
+  blocks.push({ t: "signoff", text: say("So proud of you,") });
 
   return {
     kind: "milestone",
     locale,
     subject: say("You've made it through {level}", { level: level.key }),
-    preheader: say("{words} that are properly yours now. {title}.", { words, title: level.title }),
+    preheader: say("{words} that are truly yours now, and the next level is already in sight.", { words }),
     blocks,
   };
 }

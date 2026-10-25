@@ -16,6 +16,7 @@ import {
   type LadderProgress, type LadderVerdict, type Programme, type ProgrammeStanding,
 } from "@/lib/course";
 import { lessonStates, type LessonState } from "@/lib/course/lessonCourse";
+import { goOverAgain } from "@/lib/course/placement";
 
 /**
  * WHERE A LEARNER IS IN A PLANNED PROGRAM, READ RATHER THAN STORED.
@@ -116,8 +117,11 @@ export async function programmeFor(ownerId: string): Promise<Programme | null> {
  * for a C1 speaker, and a named level now always names a part, since holding
  * C1 opens on the top of the ladder rather than on a screen with nothing on it.
  */
-export function openingPart(held: Level | null, target: string | null | undefined): Programme {
-  const level = startingLevel(held, target);
+export function openingPart(
+  held: Level | null, target: string | null | undefined, goOver = false,
+): Programme {
+  // `goOver` is the learner asking to go over the level held first (`goOverAgain`).
+  const level = (goOver ? goOverAgain(held, target) : null) ?? startingLevel(held, target);
   return PROGRAMMES.find((p) => p.level === level) ?? defaultProgramme();
 }
 

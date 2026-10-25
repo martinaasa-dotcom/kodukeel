@@ -55,7 +55,7 @@ import { resolveOneWord } from "@/lib/dict/resolveScan";
 import { MAX_ITEMS as SCAN_MAX_ITEMS } from "@/lib/scan/extract";
 import { parseItems, serialiseItems } from "@/lib/scan/items";
 import { deleteAccountFor } from "@/lib/account/erase";
-import { changeCourseLevel } from "@/lib/progress/courseLevel";
+import { changeCourseLevel, changeCourseStart } from "@/lib/progress/courseLevel";
 import { changeAccountSettings } from "@/lib/settings/account";
 import { translateSentenceWithAnu } from "@/lib/tutor/translate";
 import {
@@ -120,7 +120,7 @@ import { solvedEntries } from "@/lib/games/crossword";
 import { crosswordFor } from "@/lib/progress/crossword";
 import { puzzleFor } from "@/lib/progress/sonad";
 import { courseLevelFor, courseStandingFor, currentLevelAnswer } from "@/lib/progress/level";
-import { heldLevel } from "@/lib/course/placement";
+import { heldLevel, HELD_MEANING, isHeldChoice, type HeldChoice } from "@/lib/course/placement";
 import type { DayKey } from "@/lib/time/day";
 import { FREQUENCY_GROUPS, type FrequencyGroup } from "@/lib/collections/frequency";
 import { lemmasIn, nextCommonBatch } from "@/lib/progress/common";
@@ -2011,7 +2011,13 @@ export async function setClassDisplayName(input: { displayName: string }) {
  */
 export async function completeOnboarding(input: {
   displayName: string;
+  /** The level held, as the chips name it: A0 for nothing yet, then A1 to C1. */
   cefr: string;
+  /**
+   * Where the course opens: past the level held ("next", the default), or on
+   * it, for somebody who asked to go over it first ("held").
+   */
+  startOn?: string;
   dailyGoal: number;
   unitIds: string[];
   /**
@@ -2052,16 +2058,18 @@ export async function completeOnboarding(input: {
     shape; a caller that does is refused rather than trusted.
   */
   if (!Number.isFinite(input.dailyGoal)) return { ok: false as const, error: "Pick a daily goal from the list." };
-  if (!(LEVELS as readonly string[]).includes(text(input.cefr))) {
+  if (!isHeldChoice(text(input.cefr))) {
     return { ok: false as const, error: "Pick a level from the list." };
   }
+  const cefr = text(input.cefr) as HeldChoice;
   const busy = throttleAction(ownerId, "completeOnboarding");
   if (busy) return await sayRefusal(ownerId, busy);
   const goal = Math.min(200, Math.max(5, Math.round(input.dailyGoal)));
 
   await Promise.all([
     writeSetting(ownerId, SETTING_KEYS.displayName, cleanDisplayName(input?.displayName) || "A learner"),
-    writeSetting(ownerId, SETTING_KEYS.cefrGoal, input.cefr),
+    // A0 is not a band anything aims at; the goal key has only ever held one.
+    writeSetting(ownerId, SETTING_KEYS.cefrGoal, cefr === "A0" ? "A1" : cefr),
     /*
       The level somebody declares at sign-up is the best guess available until
       they take the placement test, and the course needs *some* starting point
@@ -2074,8 +2082,10 @@ export async function completeOnboarding(input: {
       it must never outrank the check sat on the next screen of this same
       wizard. The blank clears a stamp left by an earlier life of the account.
     */
-    writeSetting(ownerId, SETTING_KEYS.cefrPlacement, input.cefr),
+    writeSetting(ownerId, SETTING_KEYS.cefrPlacement, cefr),
     writeSetting(ownerId, SETTING_KEYS.cefrPlacementAt, ""),
+    // Written under the rule that a level named is held, so an A1 here is A1 and not "just starting".
+    writeSetting(ownerId, SETTING_KEYS.cefrPlacementMeaning, HELD_MEANING),
     writeSetting(ownerId, SETTING_KEYS.dailyGoal, String(goal)),
     writeSetting(ownerId, SETTING_KEYS.letterBar, letterBarFrom(input.letterBar)),
     writeSetting(ownerId, SETTING_KEYS.glossLanguage, glossLanguageFrom(text(input.glossLanguage))),
@@ -2118,7 +2128,7 @@ export async function completeOnboarding(input: {
   await writeSetting(
     ownerId,
     SETTING_KEYS.programme,
-    openingPart(heldLevel(answer), input.goals?.target ?? null).id,
+    openingPart(heldLevel(answer), input.goals?.target ?? null, text(input.startOn) === "held").id,
   );
 
   /*
@@ -2441,6 +2451,28 @@ export async function setCourseLevel(level: string) {
   revalidatePath("/practice");
   revalidatePath("/");
   return { ok: true as const, level: changed.level };
+}
+
+/**
+ * Go over the level held before moving on, or move on past it after all.
+ *
+ * The other start beside the one a level opens (`changeCourseStart`): the
+ * level the learner holds, or the level past it. Which levels those are is
+ * worked out off the learner's own standing, never named by the caller.
+ */
+export async function setCourseStart(which: string) {
+  const ownerId = await requireUserId();
+  const changed = await changeCourseStart(ownerId, text(which), new Date());
+  if (!changed.ok) return { ok: false as const, error: changed.error };
+  if (changed.moved) {
+    revalidatePath("/course");
+    revalidatePath("/course/learn");
+    revalidatePath("/learn");
+    revalidatePath("/settings");
+    revalidatePath("/review");
+    revalidatePath("/");
+  }
+  return { ok: true as const, moved: changed.moved };
 }
 
 /**
@@ -4086,17 +4118,12 @@ export async function acceptCourseMove(kind: string) {
 
   /*
     THE LEVEL, WHERE THE MOVE CHANGES IT. Null is nothing held yet, which is
-    how a beginner's A1 is written, so a step down to the first part of A1
-    stores A1 and the course reads it as a beginner. A held A1 cannot be
-    declared (a stated A1 reads as "just starting"), so a skip out of A1 leaves
-    the level alone rather than write one that means the opposite.
+    written as A0, so a step down to the first part of A1 stores a beginner;
+    every other level held is written as itself.
   */
   const now = new Date();
   const was = standing?.held ?? null;
-  const levelWrite = move.held === was ? null
-    : move.held === null ? "A1" as const
-    : move.held === "A1" ? null
-    : move.held;
+  const levelWrite = move.held === was ? null : (move.held ?? "A0");
 
   await Promise.all([
     writeSetting(ownerId, SETTING_KEYS.programme, move.to.id),

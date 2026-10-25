@@ -137,7 +137,13 @@ export type Block =
    * part is the one nobody looks at, so it is the one the types have to hold.
    */
   | { readonly t: "art"; readonly html: Html; readonly alt: string }
-  | { readonly t: "rule" };
+  | { readonly t: "rule" }
+  /**
+   * How the letter says goodbye, signed by the app: "Talk soon," over
+   * "Kodukeel". Last in the card, at most one, and every letter ends on one,
+   * because a note from a teacher ends on a person rather than on a button.
+   */
+  | { readonly t: "signoff"; readonly text: string };
 
 export interface Letter {
   readonly kind: EmailKind;

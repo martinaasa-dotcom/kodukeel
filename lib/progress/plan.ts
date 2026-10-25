@@ -54,5 +54,6 @@ export async function standingFor(ownerId: string): Promise<Standing> {
   const answer = await currentLevelAnswer(ownerId);
   if (!answer) return { level: PRE_A1, source: "estimated" };
   if (answer.kind === "measured") return { level: answer.level, source: "measured", skills: answer.skills };
-  return { level: answer.level, source: "estimated" };
+  // A0 is a beginner, who stands where nothing has been measured: below A1.
+  return { level: answer.level === "A0" ? PRE_A1 : answer.level, source: "estimated" };
 }

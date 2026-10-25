@@ -80,11 +80,13 @@ export function worddayLetter(input: WorddayInput): Letter {
     href: `${input.origin}/dictionary?q=${encodeURIComponent(word.lemma)}`,
   });
 
+  blocks.push({ t: "signoff", text: say("Until tomorrow,") });
+
   return {
     kind: "wordday",
     locale,
     subject: `${word.lemma}: ${word.translation}`,
-    preheader: word.occasion ?? say("One word for today."),
+    preheader: word.occasion ?? say("One little word for your day, and nothing else to do."),
     blocks,
   };
 }

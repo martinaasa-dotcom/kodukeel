@@ -854,6 +854,16 @@ evening, describing a course they had stepped out of. The branch returns either 
 answer after that one letter is silence. Found by driving `letterOwed` over a fortnight of made-up
 days, which is the argument for the decision being a pure function of an explicit `now`.
 
+**A letter's preview line is padded with nothing anybody can see.** The hidden preheader used to be
+followed by sixty repeats of a zero-width non-joiner and a non-breaking space, the recipe most
+templates copy, and the iPhone lock screen drew every one of those spaces: a reminder previewed as
+one sentence, a stretch of blank space, then the first words of the body. `PREHEADER_PAD` in
+`lib/email/render.ts` is zero-width characters only, asserted in `render.test.ts`. And every drawing
+in `lib/email/art.ts` names `FONT` itself, because one that did not fell back to Times on Apple
+Mail under a heading in San Francisco. `npx tsx scripts/preview-letters.ts <dir>` renders every
+letter to disk, with an index showing each subject and preview line as an inbox lists them; look at
+it in both themes before changing how a letter looks.
+
 **There is no image in a letter and no pixel counting who opened one.** `/privacy` says there are
 no third-party trackers and no analytics; a one-pixel image in an email is both, aimed at
 somebody reading their own mail, and it is the single most standard thing in this genre. It is
@@ -6683,8 +6693,21 @@ off `currentLevelAnswer` rather than off the level a browser sent, the wizard sh
 off the same function and says in one sentence why, and `openingPartFor` is the one reader for the
 course screen, Settings and the fallback. **The climb credits the level held**, capped below the
 level of the part in play (`creditedThrough`), because a bar calling B1 done over an evening
-teaching B1 is two answers on one screen. A declared A1 reads as a beginner rather than as A1 held,
-since the chip that stores it says "tere, aitäh, and not much else yet".
+teaching B1 is two answers on one screen.
+
+**And "just starting" is A0, so every chip means the level held.** The bottom chip used to be A1 and
+mean "just starting" while every chip above it meant "I have this", so A1 opened A1, A2 opened B1,
+and no chip in first run or Settings reached A2 at all; a learner reported A2 as missing from the
+course. `HELD_CHOICES` is A0 then A1 to C1, A0 is held as nothing (`heldFromChoice`), and every chip
+says where it sends you ("You'll start on A2"), because landing one level above the chip you
+pressed is a surprise unless it is said. **The other start is offered beside it**: `goOverAgain` is
+the level held, for somebody who would rather go over it first, on first run's last screen
+(`startOn`) and under the Settings picker (`changeCourseStart`), and only where it differs from
+where the level opens. **A stored A1 from before A0 is still a beginner**: `declaredFrom` reads an A1
+with no `cefrPlacementMeaning` marker beside it as A0, and every writer of a declaration writes the
+marker now, so nobody who ticked "just starting" is moved to A2 by this. The door up out of the A1
+lessons is asked of where the choice *sends* you, and a refused pick is said in the panel rather
+than leaving the chip moved and the course where it was.
 
 **And believing somebody is only kind if the app then watches whether it was right.**
 `lib/course/adapt.ts` reads the last fortnight of answers, or since the last move, into struggling,

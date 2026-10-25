@@ -24,7 +24,7 @@ import { LocaleProvider } from "@/components/Locale";
 import { loadTable, tableReady } from "@/lib/copy/i18n/load";
 import { fillNodes } from "@/components/TemplateNodes";
 import { DAY_MINUTES as COURSE_DAY_MINUTES } from "@/lib/course/types";
-import { heldLevel, startingLevel } from "@/lib/course/placement";
+import { goOverAgain, heldLevel, opensOn, startingLevel, type HeldChoice } from "@/lib/course/placement";
 import { uiWantsEnglish } from "@/lib/copy/uiLanguage";
 import {
   DEFAULT_GLOSS_LANGUAGE, GLOSS_LANGUAGES, type GlossLanguage,
@@ -94,8 +94,18 @@ export interface StarterDeck {
   sentence around them is translated. In English it reads exactly as it did.
 */
 const FIRST_WORDS = "Tere, aitäh";
+/*
+  A LEVEL NAMED IS A LEVEL HELD, AND A0 IS HOLDING NONE YET.
+
+  The bottom chip was A1 and meant "just starting", while every chip above it
+  meant "I have this", so A1 opened A1 and A2 opened B1 and nobody could pick
+  their way onto A2. With A0 every chip means the level held, and each one
+  says where the course opens (`opensOn`), since landing one level above the
+  chip you pressed is a surprise unless it is said.
+*/
 const LEVELS = [
-  { key: "A1", label: "Just starting", detail: "{words}, and not much else yet." },
+  { key: "A0", label: "Just starting", detail: "{words}, and not much else yet." },
+  { key: "A1", label: "The basics", detail: "You can greet people, count and say a few things about yourself." },
   { key: "A2", label: "I get by", detail: "You can shop, order things and put a simple sentence together." },
   { key: "B1", label: "Conversational", detail: "You can hold up your end of a clear conversation." },
   { key: "B2", label: "Confident", detail: "You can follow a meeting and read an article without stopping." },
@@ -274,16 +284,18 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
 
   const [checking, setChecking] = useState(false);
   const [measured, setMeasured] = useState<Placement | null>(null);
-  const [estimated, setEstimated] = useState<string | null>(null);
+  const [estimated, setEstimated] = useState<HeldChoice | null>(null);
+  /** True once they have asked to go over the level they hold before moving on. */
+  const [goOver, setGoOver] = useState(false);
 
   const [goal, setGoal] = useState<number>(15);
   const [pending, start] = useTransition();
   const [failed, setFailed] = useState<string | null>(null);
 
+  /** A stated level as the plan reads one: A0 is somebody below A1. */
+  const estimatedBand: Level | null = estimated === "A0" ? PRE_A1 : estimated;
   /** The level everything downstream uses: measured if it was, stated if not. */
-  const level: Level | null = measured ? measured.overall : (estimated as Band | null);
-  /** The band the starting deck is chosen from. Below A1 starts at A1. */
-  const startBand = level === null || level === PRE_A1 ? "A1" : level;
+  const level: Level | null = measured ? measured.overall : estimatedBand;
   /*
     Where they stand, for the plan, with how the app knows kept beside it. A
     measured check carries its scored skills, so a learner who reads at B2 and
@@ -300,8 +312,8 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
           .map((s) => s.level as Level),
       };
     }
-    return { level: (estimated as Band | null) ?? PRE_A1, source: "estimated" };
-  }, [measured, estimated]);
+    return { level: estimatedBand ?? PRE_A1, source: "estimated" };
+  }, [measured, estimatedBand]);
 
   const goals: Goals = useMemo(() => ({
     reason: reasonsToStored(reasons),
@@ -313,8 +325,9 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
   const firstSceneId = firstSceneFor(reasons);
   const firstScene = firstSceneId ? scenes[firstSceneId] : undefined;
 
-  const chooseLevel = (key: string) => {
+  const chooseLevel = (key: HeldChoice) => {
     setEstimated(key);
+    setGoOver(false);
     setMeasured(null);
   };
 
@@ -359,7 +372,14 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
   const held = measured
     ? heldLevel(measured.overall === null ? null : { kind: "measured", level: measured.overall })
     : heldLevel(estimated ? { kind: "declared", level: estimated } : null);
-  const openLevel = startingLevel(held, target);
+  /*
+    And the one start below that, for somebody who would rather go over the
+    level they hold first (`goOverAgain`). Null where there is nothing to offer,
+    which also ends a choice made before the target moved it away.
+  */
+  const again = goOverAgain(held, target);
+  const openLevel = (goOver ? again : null) ?? startingLevel(held, target);
+  const goingOver = goOver && again !== null;
 
   /*
     The deck follows the level the course opens on, which is the answer to the
@@ -389,7 +409,14 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
       */
       const result = await completeOnboarding({
         displayName: name,
-        cefr: startBand,
+        /*
+          The level held, as the chips name it: what they ticked, or what the
+          check measured, with nothing measured and nothing ticked as A0.
+        */
+        cefr: measured
+          ? (measured.overall === null || measured.overall === PRE_A1 ? "A0" : measured.overall)
+          : (estimated ?? "A0"),
+        startOn: goingOver ? "held" : "next",
         dailyGoal: goal,
         unitIds: deck?.unitIds ?? [],
         letterBar: letters,
@@ -762,12 +789,17 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
                       onSelect={() => chooseLevel(l.key)}
                       lead={l.key}
                       title={t(l.label)}
-                      detail={fill(t(l.detail), { words: FIRST_WORDS })}
+                      detail={<>
+                        {fill(t(l.detail), { words: FIRST_WORDS })}{" "}
+                        <span className="font-semibold" data-opens-on={opensOn(l.key, target)}>
+                          {fill(t("You’ll start on {level}."), { level: opensOn(l.key, target) })}
+                        </span>
+                      </>}
                     />
                   ))}
                 </ChoiceGroup>
 
-                {estimated === "A1" && (
+                {(estimated === "A0" || estimated === "A1") && (
                   <div className="mt-4">
                     <NewLettersNote t={t} />
                   </div>
@@ -1014,8 +1046,28 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
                 </p>
                 <Explain label={t("Why this part, and what’s in it")}>
                   <p>{t(openingPart.blurb)}</p>
-                  <p data-opening-why>{openingWhy(held, openLevel, measured !== null, t)}</p>
+                  <p data-opening-why>{openingWhy(held, openLevel, measured !== null, goingOver, t)}</p>
                 </Explain>
+              </div>
+            )}
+
+            {/*
+              ONE LEVEL LOWER, FOR ANYBODY WHO WOULD RATHER GO OVER WHAT THEY HOLD.
+              A level held opens the course past it, which is right for most
+              people and wrong for somebody whose certificate is two years old.
+              Offered only where it differs from where the course opens, and it
+              can be taken back on the same screen or later in Settings.
+            */}
+            {openingPart && again && (
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2" data-go-over>
+                <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+                  {goingOver
+                    ? fill(t("You’ll go over {level} first."), { level: again })
+                    : fill(t("Rather go over {level} before moving on?"), { level: again })}
+                </p>
+                <Button variant="ghost" onClick={() => setGoOver(!goingOver)}>
+                  {fill(t("Start on {level} instead"), { level: goingOver ? startingLevel(held, target) : again })}
+                </Button>
               </div>
             )}
 
@@ -1218,7 +1270,9 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
           )}
           {step === 1 && level !== null && (
             <Chip tone="accent">
-              {fill(t(measured ? "Measured {level}" : "Estimated {level}"), { level: level === PRE_A1 ? t("below A1") : level })}
+              {fill(t(measured ? "Measured {level}" : "Estimated {level}"), {
+                level: measured ? (level === PRE_A1 ? t("below A1") : level) : (estimated ?? level),
+              })}
             </Chip>
           )}
           {step < STEPS.length - 1 ? (
@@ -1289,10 +1343,18 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
  * name or a check did not find, and it ends on the same promise each time: the
  * course watches how the first evenings go and offers to move them either way.
  */
-function openingWhy(held: Level | null, open: string, measured: boolean, t: (english: string) => string): string {
+function openingWhy(
+  held: Level | null, open: string, measured: boolean, goingOver: boolean, t: (english: string) => string,
+): string {
   const later = t("If it turns out too hard or too easy, the course will notice and offer to move you.");
   if (held === null || held === PRE_A1) {
     return `${t("You start at the very beginning, with the first words anybody needs.")} ${later}`;
+  }
+  if (goingOver) {
+    const sentence = measured
+      ? "Your level check put you at {level}, and you asked to go over it before moving on."
+      : "You said you’re at {level}, and you asked to go over it before moving on.";
+    return `${fill(t(sentence), { level: held })} ${later}`;
   }
   /*
     Each branch is one whole sentence to translate, never a clause dropped into
