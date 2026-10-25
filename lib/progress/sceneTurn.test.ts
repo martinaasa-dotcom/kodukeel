@@ -27,9 +27,20 @@ const rows: Row[] = shippedDictionary().map((e) => ({
   extraForms: e.extraForms, usages: e.usages, government: e.government, gloss: e.gloss,
 }));
 
-function setUp(scene: SceneSpec, lines: StoredDraw["lines"] = "scripted") {
-  const base = contextFromRows(scene, rows.filter((r) => sceneLemmas(scene).has(r.lemma)), "A2");
+/* A scene's context is the same in every test, and building it reads the whole dictionary. */
+const contexts = new Map<string, ReturnType<typeof contextFromRows>>();
+function contextFor(scene: SceneSpec) {
+  const kept = contexts.get(scene.id);
+  if (kept) return kept;
+  const lemmas = sceneLemmas(scene);
+  const base = contextFromRows(scene, rows.filter((r) => lemmas.has(r.lemma)), "A2");
   const context = { ...base, marker: { ...base.marker, ...acceptFromRows(scene, rows) } };
+  contexts.set(scene.id, context);
+  return context;
+}
+
+function setUp(scene: SceneSpec, lines: StoredDraw["lines"] = "scripted") {
+  const context = contextFor(scene);
   const run = planRun(scene, `scene-turn-${scene.id}`, "A2", "textbook");
   const draw: StoredDraw = {
     persona: run.persona.id, card: run.card, curveballs: [], lines, patience: run.patience,
