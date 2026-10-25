@@ -157,9 +157,9 @@ export const START: Area = {
     "Rather go over {level} before moving on?": "Хочешь сначала повторить уровень {level}?",
     "Start on {level} instead": "Начать с уровня {level}",
     "Your level check put you at {level}, and you asked to go over it before moving on.":
-      "Проверка показала уровень {level}, и ты решил сначала его повторить.",
+      "Проверка показала уровень {level}, и ты хочешь сначала его повторить.",
     "You said you’re at {level}, and you asked to go over it before moving on.":
-      "Ты указал уровень {level} и решил сначала его повторить.",
+      "По твоим словам, у тебя уровень {level}, и ты хочешь сначала его повторить.",
     "I get by": "Могу объясниться",
     "You can shop, order things and put a simple sentence together.":
       "Можешь сходить в магазин, что-нибудь заказать и составить простое предложение.",
@@ -469,9 +469,9 @@ export const START: Area = {
     "Rather go over {level} before moving on?": "Хочеш спершу повторити рівень {level}?",
     "Start on {level} instead": "Почати з рівня {level}",
     "Your level check put you at {level}, and you asked to go over it before moving on.":
-      "Перевірка показала рівень {level}, і ти вирішив спершу його повторити.",
+      "Перевірка показала рівень {level}, і ти хочеш спершу його повторити.",
     "You said you’re at {level}, and you asked to go over it before moving on.":
-      "Ти вказав рівень {level} і вирішив спершу його повторити.",
+      "За твоїми словами, у тебе рівень {level}, і ти хочеш спершу його повторити.",
     "I get by": "Можу порозумітися",
     "You can shop, order things and put a simple sentence together.":
       "Можеш сходити в магазин, щось замовити й скласти просте речення.",

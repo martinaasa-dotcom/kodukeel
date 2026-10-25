@@ -1186,7 +1186,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["What Kodukeel is", "Что такое Kodukeel", "Що таке Kodukeel"],
   ["It is for adults who live in Estonia and read English, Russian or Ukrainian, and the app is written in all three.",
     "Он для взрослых, которые живут в Эстонии и читают по-русски или по-английски, и всё приложение есть на обоих языках.",
-    "Він для дорослих, які живуть в Естонії й читають українською чи англійською, і весь застосунок є обома мовами."],
+    "Він для дорослих, які живуть в Естонії й читають українською чи англійською, і весь застосунок доступний обома мовами."],
   ["A shared demo with two months of made-up history behind it, wiped every night, at {demo}. Nothing needs signing up for, and it costs nobody anything.",
     "Общая демоверсия с двумя месяцами придуманной истории, которая обнуляется каждую ночь: {demo}. Регистрироваться не нужно, и никому это ничего не стоит.",
     "Спільна демоверсія з двома місяцями вигаданої історії, яка обнуляється щоночі: {demo}. Реєструватися не треба, і нікому це нічого не коштує."],

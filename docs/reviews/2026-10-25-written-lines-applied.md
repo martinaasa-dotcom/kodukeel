@@ -72,3 +72,19 @@ chose other attested sentences, each one Ekilex recorded:
 - ET-W592 reads the ambiguous English as the learner losing nothing.
 - Nine Ukrainian ids had no Ukrainian line in the file; the fix written for them was dropped.
 - Lines that add a note for a Russian or Ukrainian reader the English lacks were left in.
+
+## The second sheet
+
+Every line above that the session wrote, and the 68 per language left unconfirmed, went back on a second
+sheet the same day. It came back with these changes, all applied:
+
+- Russian 19 and Ukrainian 23 table lines corrected, the rest confirmed: most rephrase a line that made
+  the learner male (`ты решил`, `где ты остановился`), and «Сегодняшний чат» is «Разговор на сегодня»
+  like its twin. Both tables are confirmed in full.
+- The policy notice in Russian and Ukrainian reads more naturally: «Этот перевод сделан с помощью ИИ,
+  чтобы текст было удобнее читать. Юрист его не проверял.»
+- `plainAsk.ts` writes the feminine out: «что ты сделал (сделала) бы», «що ти зробив (зробила) б».
+- The store listing says the Russian and Ukrainian were translated by machine and then checked and
+  corrected by AI, in all four languages, where it said a fluent speaker did. The sheet's note gives the
+  reason: the reviews were done by an AI. The English sentence was changed to match the other three.
+
