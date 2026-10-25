@@ -54,9 +54,13 @@ marked with what the code does today and the file it lives in, read on 2026-10-2
   search that found nothing for ten minutes on that server, and two people asking at once make one
   request (`lib/cache/singleFlight.ts`).*
 - **Long TTL.** Dictionary entries change on the scale of months. TTL 30 days; stale entries are
-  served immediately and refreshed in the background. *Not built as written: a stored entry is
-  served as it is and never refreshed, so the load is lower than this promised. A correction to
-  Ekilex reaches this app when the harvest is run again.*
+  served immediately and refreshed in the background. *Not built, and decided against on
+  2026-10-25: a stored entry is served as it is and never refreshed, so the load is lower than
+  this promised. A refresh in the background is a job asking a free academic service about
+  thousands of words nobody looked up that day, and it would write into the shared dictionary
+  with no person reading what changed. A correction to Ekilex reaches this app when the harvest is
+  run again (`npm run harvest`, whose diff somebody reads), and a correction a learner reports
+  reaches it through the queue at `/admin/suggestions`.*
 - **Debounced search.** 300 ms on keystroke; no request per character. *Kept differently: the search
   runs when a word is submitted, never per keystroke (`app/(app)/dictionary/DictionaryClient.tsx`),
   and a learner is held to thirty live lookups a minute (`lookupAndStore`).*
@@ -64,7 +68,11 @@ marked with what the code does today and the file it lives in, read on 2026-10-2
   request in the app and in every script goes through one gate, at most two in flight per process,
   three tries with exponential backoff and jitter on a 429 or a 5xx, a `Retry-After` honored, a page's
   2,500 ms deadline respected, and a `User-Agent` naming the app and the operator
-  (`lib/ekilex/client.ts`, `lib/legal/operator.ts`). A script goes past two only with
+  (`lib/ekilex/client.ts`, `lib/legal/operator.ts`). Two is per process rather than per
+  deployment: on a serverless host each warm instance holds its own two, so a burst spread over
+  several instances can have more in flight at once. What bounds the total is that a live lookup
+  happens only for a word somebody searched and the dictionary did not hold, at thirty a minute
+  per learner, and the daily count below is what to read if that ever looks wrong. A script goes past two only with
   `--past-the-limit` (`scripts/lib/ekilexJobs.ts`). Every live request and every answer from the
   stored copy is counted per day (`EkilexDay`, `lib/dict/ekilexCount.ts`) and printed on /impact.*
 - **Seed set.** ~500 common A1-B1 lexemes fetched once and committed as a fixture, so development,

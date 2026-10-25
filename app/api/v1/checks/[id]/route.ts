@@ -3,6 +3,8 @@ import { apiJson, readBody } from "@/lib/api/respond";
 import { CheckRequest, type CheckResponse, type CheckResultResponse } from "@/lib/api/contract";
 import { requireBearerUser } from "@/lib/auth/bearer";
 import { checkView, submitCheckFor } from "@/lib/progress/lessons";
+import { localeFor } from "@/lib/progress/locale";
+import { tr } from "@/lib/copy/locale";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -21,8 +23,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   if (who instanceof Response) return who;
   const { id } = await params;
   const raw = new URL(request.url).searchParams.get("attempt");
-  const view = await checkView(who.ownerId, id, Number.parseInt(raw ?? "1", 10) || 1);
+  const [view, locale] = await Promise.all([
+    checkView(who.ownerId, id, Number.parseInt(raw ?? "1", 10) || 1),
+    localeFor(who.ownerId),
+  ]);
   if (!view) return apiError("not_found", { message: "We couldn't find that check." });
+  const done = view.levelDone;
   const body: CheckResponse = {
     checkId: view.check.id,
     attempt: view.attempt,
@@ -30,7 +36,13 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     items: view.paper,
     needed: view.needed,
     alreadyPassed: view.alreadyPassed,
-    next: view.next ? { id: view.next.id, label: view.next.id.toUpperCase() } : null,
+    next: view.next && view.nextLabel !== null ? { id: view.next.id, label: tr(locale, view.nextLabel) } : null,
+    levelDone: done && {
+      ...done,
+      arrival: tr(locale, done.arrival),
+      parts: done.parts.map((p) => tr(locale, p)),
+      next: done.next && { ...done.next, title: tr(locale, done.next.title), summary: tr(locale, done.next.summary) },
+    },
   };
   return apiJson(body);
 }

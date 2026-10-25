@@ -3833,3 +3833,62 @@ drafted. The share-card test now finds a page in the `(chromeless)` group.
 
 **What is left** is the operator's (the demo deployment, the Apple, Google and Firebase setup, the
 native speaker's reading) and is listed on the pull request.
+
+## 70. The sixty-fourth pass: what the sixth batch left open
+
+**Every question #929 left for a follow-up was answered and closed in one pull request.** Eight were
+listed; each is a commit, and none touches the course, the lessons, the scenes or the recordings.
+
+**The reviewer's pages in Russian and Ukrainian.** `/curriculum`, `/how-we-know` and `/pilots` were
+English and Estonian, so a school whose people read Russian or Ukrainian got English. All three are
+drawn in every public language now, machine translated like the other public pages and marked so,
+and `/pilots` keeps the notice that the English prevails, which is the guard against a softened
+claim that had kept it English. The lessons, units and claims stay in English, marked so. Links to
+these pages stopped saying "(in English)", and the page coverage test reads the labels handed to a
+page's own link helpers, which found nine missing on `/pilots`.
+
+**The grammar reference and `/offline` stay out of Estonian, on purpose.** Both are screens of the
+app rather than pages about it: the reference explains Estonian to somebody learning it, and the
+fallback is what a learner meets mid-review in their own language. ADR-005 amendment 7 keeps the app
+out of the language being learned, and the invariant behind it now names both.
+
+**The A2 lessons are mapped to the A2 examination.** Each of the eight parts names the exam parts it
+prepares for, with a reason citing the task on the A2 paper (`LESSON_PART_PREPARES` in
+`lib/curriculum/align.ts`, by part rather than by lesson for the reason units are mapped one by
+one). `/curriculum` sums a lesson level the way it sums a level of units, and names no gap at A2,
+because there is none. The final check's sentence names its own level instead of always A1 and A2.
+
+**The app's check says where a pass leads the way the page does.** `whereAPassLeads`
+(`lib/course/checks.ts`) names the next part by its title and a new level by its level, and says
+what a finished level was. `checkView` carries both, so `GET /api/v1/checks/{id}` labels the next
+part "Where you live" rather than `A1.2` and adds `levelDone`, a field the contract only grew by.
+
+**WebKit stops reloading Settings.** `pushManager.getSubscription()` reloads the page that calls it
+in Playwright's WebKit, and the reminders panel called it on arrival, so Settings reloaded for as
+long as it was open. A subscription is no use without the permission, so a browser that has not
+granted it is shown "off" without the question, and a tab marks itself before asking so a reload
+does not ask again. The engines suite runs the panel checks in WebKit instead of waiving them.
+
+**Ekilex is not refreshed in the background, and that is decided rather than missing.** A refresh
+would ask a free academic service about words nobody looked up and write into the shared dictionary
+with no person reading the change; corrections arrive through the harvest and the report queue
+(`docs/05-integrations.md` §1.4, which also says the two-in-flight cap is per warm instance).
+
+**The two slowest unit tests are cheap now rather than given more time.** One asked the forms list
+word by word and re-read a shard on every eviction (43 seconds, now 6); the other rebuilt a scene's
+word list once per dictionary row (`sceneLemmas` is memoized per scene now). And `/accessibility`
+says the looping motion was fixed everywhere, not only on the public pages.
+
+**A review of the pass found four more, all fixed in it.** A live lookup whose request to Ekilex
+timed out or was refused wrote `lookupMissAt`, so a bad minute at Ekilex read as the word not
+existing for a day; only an answer with nothing in it is a miss now, and a `Retry-After` past the cap
+ends the retry rather than being slept and asked again. A phone token inside the contract's 4,096
+characters but past what the unique index can hold was a 500 from Postgres; past 1,024 it is refused
+as `invalid` and nothing is written, since the frozen contract may not narrow. Deleting the account
+answered a failure partway as `invalid`, which tells an app the learner typed the wrong word; it is
+`upstream` now. And the contract says what a token does in the hour after `DELETE /api/v1/me`: it
+still verifies, so the app drops the session on a 200, and anything written in that hour belongs to
+nobody the mailout, the export or a screen ever reads.
+
+**What is left** is the operator's and is unchanged: the native speaker's reading of the Estonian,
+the demo deployment, and the Apple, Google, Firebase and store setup.

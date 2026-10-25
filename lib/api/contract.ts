@@ -468,7 +468,21 @@ export const CheckResponse = z.object({
     .describe("The attempt's questions as the web's check screen receives them, the right answers included, which the web uses for feedback too; the mark is the server's."),
   needed: z.number().int().describe("How many marks a pass takes."),
   alreadyPassed: z.boolean(),
-  next: z.object({ id: z.string(), label: z.string() }).nullable(),
+  next: z.object({ id: z.string(), label: z.string() }).nullable()
+    .describe("The part a pass opens: its id, and what the web's check calls it, a lesson part by its name, a new level by its level, a part taught as units by its id; in the learner's language."),
+  levelDone: z.object({
+    level: z.string(),
+    arrival: z.string().describe("What somebody can now do, one sentence."),
+    parts: z.array(z.string()).describe("The level's parts, by name."),
+    lessons: z.number().int(),
+    next: z.object({
+      level: z.string(),
+      title: z.string(),
+      summary: z.string(),
+      lessons: z.boolean().describe("Whether the next level is taught as lessons."),
+    }).nullable(),
+  }).nullable().optional()
+    .describe("Set on the last check of a level: what the level was and what is next, in the learner's language, as the web's check says it after a pass."),
 }).describe("One attempt's paper at a part's check.");
 
 export type CheckResponse = z.infer<typeof CheckResponse>;
@@ -970,7 +984,7 @@ export const DeleteMeResponse = z.object({
   deleted: z.literal(true),
   identityErased: z.boolean().describe("Whether the sign-in record went too; false on a local install and where the operator holds no key that can."),
   remaining: z.string().nullable().describe("What is left and who to ask, in English, or null where nothing is."),
-});
+}).describe("Everything is gone. Drop the session on the device at once: the access token verifies until it expires, and a request made with it in that hour writes as a new, empty learner, which nothing reads, reminds or exports. A failure partway answers `upstream` and deletes nothing.");
 
 export const ExportResponse = z.looseObject({
   exportedAt: z.string(),
@@ -984,7 +998,7 @@ export type DeleteMeResponse = z.infer<typeof DeleteMeResponse>;
 
 /** A Firebase Cloud Messaging registration token, as the app was handed it. */
 const PushToken = z.string().min(20).max(4096).regex(/^[A-Za-z0-9_:.-]+$/)
-  .describe("The registration token Firebase Cloud Messaging gave the app on this phone.");
+  .describe("The registration token Firebase Cloud Messaging gave the app on this phone. A registration past 1,024 characters is refused with `invalid`, since no token Firebase hands out is that long.");
 
 export const PushDeviceRequest = z.object({
   platform: z.enum(["ios", "android"]).describe("The platforms `X-Kodukeel-Build` names (`lib/api/build.ts`)."),

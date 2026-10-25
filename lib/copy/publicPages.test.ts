@@ -14,7 +14,7 @@ import { SOURCE_CREDITS } from "@/lib/legal/credits";
  * THE PUBLIC PAGES ARE TRANSLATED WHOLE, AND THIS IS WHAT SAYS SO.
  *
  * The landing page, /privacy, /terms, /trust, /accessibility, /offline,
- * /state-exam and /funding pass every line they print through `t` or `tr`,
+ * /state-exam, /funding, /curriculum, /how-we-know and /pilots pass every line they print through `t` or `tr`,
  * and a line a table does not hold prints its English. That fallback is right
  * for the app and wrong for a privacy notice, where a paragraph left in
  * English in the middle of a Russian page reads as the one clause somebody did
@@ -42,6 +42,9 @@ const FILES = [
   "app/funding/page.tsx",
   "app/funding/CostExplorer.tsx",
   "app/partners/page.tsx",
+  "app/curriculum/page.tsx",
+  "app/how-we-know/page.tsx",
+  "app/pilots/page.tsx",
   "components/ImpactFigures.tsx",
   "components/Legal.tsx",
   "components/PublicLanguage.tsx",
@@ -58,6 +61,8 @@ function literals(file: string): { english: string; context?: string }[] {
     new RegExp(String.raw`\bt\(\s*${str}(?:\s*,\s*"(\w+)")?\s*\)`, "g"),
     new RegExp(String.raw`\btr\(\s*\w+\s*,\s*${str}(?:\s*,\s*"(\w+)")?\s*\)`, "g"),
     new RegExp(String.raw`\btemplate=${str}`, "g"),
+    // A link's label handed to a page's own helper, which translates it inside.
+    new RegExp(String.raw`\b(?:page|doc)\(\s*"[^"\n]*"\s*,\s*${str}\s*\)`, "g"),
   ];
   for (const re of patterns) {
     for (const m of source.matchAll(re)) {

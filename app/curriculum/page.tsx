@@ -1,10 +1,11 @@
 import type { ReactNode } from "react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { ENGLISH_AND_ESTONIAN, Legal, P, S } from "@/components/Legal";
+import { Legal, P, S } from "@/components/Legal";
 import { SYLLABUS } from "@/lib/collections/syllabus";
-import { EXAM_PARTS, alignCourse, lessonLevels, outlineLessons, type ExamPart, type LevelAlignment, type PartOutline } from "@/lib/curriculum/align";
+import { EXAM_PARTS, alignCourse, lessonLevelCoverage, lessonLevels, outlineLessons, type ExamPart, type LevelAlignment, type PartOutline } from "@/lib/curriculum/align";
 import { PROGRAMMES } from "@/lib/course";
 import { courseChecks } from "@/lib/course/checks";
+import { levelAfter } from "@/lib/course/placement";
 import { LESSONS, LESSON_PARTS, lessonLabel, type LessonSpec, type PartOfLessons } from "@/lib/course/lessons";
 import { sceneForLesson } from "@/lib/scenes/lessonScenes";
 import { publicPageTitle, resolvePublicPage, type PublicSearch } from "@/lib/progress/publicLocale";
@@ -14,12 +15,14 @@ import { publicCard } from "@/lib/copy/publicCards";
 import { sceneTesting } from "@/lib/scenes/catalogue";
 
 /*
-  In English and Estonian (D16 in docs/44-sixth-batch.md): a reviewer at the
-  Institute or a ministry reads what the course covers in Estonian. Not yet in
-  Russian or Ukrainian (docs/38-third-batch.md, D12), so it offers neither.
+  In every public language: a reviewer at the Institute or a ministry reads
+  what the course covers in Estonian (D16 in docs/44-sixth-batch.md), and a
+  school whose pupils read Russian or Ukrainian reads it in those since the
+  follow-up to that batch. The lessons and units describe themselves in
+  English, marked so, as the course is written.
 */
 export async function generateMetadata({ searchParams }: { searchParams: PublicSearch }) {
-  return publicPageTitle(searchParams, "What the course covers", undefined, publicCard("/curriculum"), ENGLISH_AND_ESTONIAN);
+  return publicPageTitle(searchParams, "What the course covers", undefined, publicCard("/curriculum"));
 }
 
 /*
@@ -30,8 +33,8 @@ export async function generateMetadata({ searchParams }: { searchParams: PublicS
 export const dynamic = "force-dynamic";
 
 const PART_NAME = new Map(EXAM_PARTS.map((p) => [p.part, p]));
-/** An exam part by the name the reader's language gives it: the state's own Estonian name, or the English. */
-const partName = (part: ExamPart, locale: PublicLocale) => (locale === "et" ? PART_NAME.get(part)!.et : PART_NAME.get(part)!.en);
+/** An exam part by the name the reader's language gives it: the state's own Estonian name, or the English translated. */
+const partName = (part: ExamPart, locale: PublicLocale) => (locale === "et" ? PART_NAME.get(part)!.et : tr(locale, PART_NAME.get(part)!.en));
 const named = (parts: readonly ExamPart[], locale: PublicLocale) => parts.map((p) => partName(p, locale)).join(", ");
 /** A conversation's title in the reader's own quotation marks: „…“ in Estonian, “…” in English. */
 const quoted = (locale: PublicLocale, title: ReactNode) => (locale === "et" ? <>„{title}“</> : <>“{title}”</>);
@@ -39,16 +42,17 @@ const quoted = (locale: PublicLocale, title: ReactNode) => (locale === "et" ? <>
 /**
  * WHAT THE COURSE TEACHES AT EACH LEVEL, AND WHAT IT PREPARES SOMEBODY FOR.
  *
- * Generated from the repository rather than typed. A1 is the lessons: each
- * part, its lessons, the role-play it ends on and the check that closes it,
- * off `LESSONS`, `LESSON_PARTS` and the course's own checks. The levels above
+ * Generated from the repository rather than typed. A1 and A2 are the lessons:
+ * each part, its lessons, the role-play it ends on, the check that closes it
+ * and at A2 the exam parts it prepares for, off `LESSONS`, `LESSON_PARTS`, the
+ * course's own checks and `lib/curriculum/align.ts`. The levels above
  * are units: their "can do" sentences are the syllabus, the exam parts are
  * `lib/curriculum/align.ts`, and the conversation is the scene that tests the
  * unit. A teacher or a reviewer reads it to see where the course has nothing,
  * so the gaps are printed as plainly as the rest.
  */
 export default async function CurriculumPage({ searchParams }: { searchParams: PublicSearch }) {
-  const { locale, explicit } = await resolvePublicPage(searchParams, ENGLISH_AND_ESTONIAN);
+  const { locale, explicit } = await resolvePublicPage(searchParams);
   const t = (english: string) => tr(locale, english);
   const taught = lessonLevels(LESSONS);
   const levels = alignCourse(SYLLABUS.filter((u) => !taught.has(u.level)), sceneTesting);
@@ -58,12 +62,12 @@ export default async function CurriculumPage({ searchParams }: { searchParams: P
   const lessonLevelList = [...taught];
   const through = lessonLevelList[lessonLevelList.length - 1] ?? "A1";
   return (
-    <Legal title={t("What the course covers")} updated="24 October 2026" locale={locale} explicit={explicit} path="/curriculum" drawnIn={ENGLISH_AND_ESTONIAN}>
+    <Legal title={t("What the course covers")} updated="25 October 2026" locale={locale} explicit={explicit} path="/curriculum">
       <P>
         {fill(t("The whole course, by level. The levels up to {through} are taught as {lessons} lessons in {parts} parts, and the levels above as units until each of them becomes lessons too."), { through, lessons: LESSONS.length, parts: LESSON_PARTS.length })}
       </P>
       <P>
-        {t("For every lesson, what a learner can do afterwards. For every unit, what it says a learner can do, which part of the Estonian language examination it prepares for, and the conversation that tests it where there is one. The levels are the Council of Europe’s CEFR scale. The “can do” sentences are this course’s own, and this page does not claim to follow any official curriculum document.")}
+        {t("For every lesson, what a learner can do afterwards, and for every part of the lessons at an examined level, which part of the Estonian language examination it prepares for. For every unit, what it says a learner can do, which part of the examination it prepares for, and the conversation that tests it where there is one. The levels are the Council of Europe’s CEFR scale. The “can do” sentences are this course’s own, and this page does not claim to follow any official curriculum document.")}
       </P>
       {/*
         The course describes its lessons and units in English, in the
@@ -76,18 +80,28 @@ export default async function CurriculumPage({ searchParams }: { searchParams: P
       <P>
         {t("The state examines A2, B1, B2 and C1, each in four parts: writing, listening, reading and speaking. There is no A1 examination, so the A1 lessons prepare for no part of one.")}{" "}
         <Link href={localeHref("/state-exam", locale, explicit)} className="underline underline-offset-2">{t("What each part sets is on the page about the examination.")}</Link>{" "}
-        {t("Under each level taught as units, a part no unit is aimed at is named as a gap.")}
-        {taught.has("A2") && <>{" "}{t("The A2 lessons are not mapped to the parts of the A2 examination yet, so this page names no gap at A2.")}</>}
+        {t("Under each examined level, a part of the examination that nothing at that level is aimed at is named as a gap.")}
       </P>
       {lessonLevelList.map((level) => {
         const parts = lessonParts.filter((outline) => outline.part.level === level);
         const lessons = LESSONS.filter((lesson) => lesson.level === level).length;
         if (parts.length === 0) return null;
+        const coverage = lessonLevelCoverage(level, parts);
+        const gapParts = locale !== "et" ? named(coverage.gaps, locale).toLowerCase() : named(coverage.gaps, locale);
         return (
           <S key={level} id={level.toLowerCase()} title={fill(t("{level}, {lessons} lessons in {parts} parts"), { level, lessons, parts: parts.length })}>
             <P>
               {fill(t("Each lesson is one evening: a conversation to listen to, the words, how it works, practice, saying it, and a review. Some parts end on a role-play with a live conversation, and every part ends in a check of what its lessons taught. Moving on from a part means passing its check, and the last check covers the whole of {level}."), { level })}
             </P>
+            {coverage.examined && (
+              <P>
+                {coverage.gaps.length === 0
+                  ? fill(t("Every part of the {level} examination has at least one part of the lessons aimed at it."), { level })
+                  : fill(t("No part of the {level} lessons is aimed at {parts}, so that part is a gap."), { level, parts: gapParts })}
+                {" "}
+                {coverage.byPart.map(({ part, units }) => `${partName(part, locale)}: ${units.length}`).join(", ")}.
+              </P>
+            )}
             {parts.map((outline) => <LessonPart key={outline.part.id} outline={outline} locale={locale} />)}
           </S>
         );
@@ -101,12 +115,20 @@ export default async function CurriculumPage({ searchParams }: { searchParams: P
 const courseLang = (locale: PublicLocale) => (locale === "en" ? undefined : "en");
 
 function LessonPart({ outline, locale }: { outline: PartOutline<LessonSpec, PartOfLessons>; locale: PublicLocale }) {
-  const { part, lessons, roleplays, check } = outline;
+  const { part, lessons, roleplays, check, preparation } = outline;
   const t = (english: string) => tr(locale, english);
   return (
     <div className="flex flex-col gap-3" data-curriculum-part={part.id}>
       <h3 className="font-semibold" lang={courseLang(locale)} style={{ color: "var(--ink)" }}>{part.title}</h3>
       <p className="text-sm" lang={courseLang(locale)} style={{ color: "var(--ink-2)" }}>{part.about}</p>
+      {preparation && (
+        <p className="text-sm" data-curriculum-prepares={part.id} style={{ color: "var(--ink-2)" }}>
+          <span className="font-semibold" style={{ color: "var(--ink)" }}>
+            {fill(t("Prepares for {parts}."), { parts: locale !== "et" ? named(preparation.parts, locale).toLowerCase() : named(preparation.parts, locale) })}
+          </span>{" "}
+          <span lang={courseLang(locale)}>{preparation.why}</span>
+        </p>
+      )}
       <ol className="flex flex-col gap-3" data-curriculum-lessons={part.id}>
         {lessons.map((lesson) => (
           <li key={lesson.id} data-lesson={lesson.id} className="rounded-[var(--r)] border p-4" style={{ borderColor: "var(--edge)", background: "var(--surface)" }}>
@@ -127,7 +149,7 @@ function LessonPart({ outline, locale }: { outline: PartOutline<LessonSpec, Part
       {check && (
         <p className="text-sm" style={{ color: "var(--ink-2)" }}>
           {check.final
-            ? fill(t("The part closes with the check on the whole of A1: {questions} questions on all {lessons} lessons, passed to move on to A2."), { questions: check.questions, lessons: check.lessons })
+            ? fill(t("The part closes with the check on the whole of {level}: {questions} questions on all {lessons} lessons, passed to move on to {next}."), { level: part.level, next: levelAfter(part.level) ?? t("the next level"), questions: check.questions, lessons: check.lessons })
             : fill(t("The part closes with a check of {questions} questions on its {lessons} lessons, passed to move on to the next part."), { questions: check.questions, lessons: check.lessons })}
         </p>
       )}
@@ -137,9 +159,9 @@ function LessonPart({ outline, locale }: { outline: PartOutline<LessonSpec, Part
 
 function Level({ level, locale }: { level: LevelAlignment<(typeof SYLLABUS)[number]>; locale: PublicLocale }) {
   const t = (english: string) => tr(locale, english);
-  // The English sentence names the parts in lower case after "aimed at"; the
+  // The sentence names the parts in lower case after "aimed at"; the
   // Estonian names are lower case already.
-  const gapParts = locale === "en" ? named(level.gaps, locale).toLowerCase() : named(level.gaps, locale);
+  const gapParts = locale !== "et" ? named(level.gaps, locale).toLowerCase() : named(level.gaps, locale);
   return (
     <S id={level.level.toLowerCase()} title={fill(t("{level}, {units} units"), { level: level.level, units: level.units.length })}>
       {level.examined ? (
@@ -162,7 +184,7 @@ function Level({ level, locale }: { level: LevelAlignment<(typeof SYLLABUS)[numb
             {preparation && (
               <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
                 <span className="font-semibold" style={{ color: "var(--ink)" }}>
-                  {fill(t("Prepares for {parts}."), { parts: locale === "en" ? named(preparation.parts, locale).toLowerCase() : named(preparation.parts, locale) })}
+                  {fill(t("Prepares for {parts}."), { parts: locale !== "et" ? named(preparation.parts, locale).toLowerCase() : named(preparation.parts, locale) })}
                 </span>{" "}
                 <span lang={courseLang(locale)}>{preparation.why}</span>
               </p>

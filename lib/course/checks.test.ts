@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { PROGRAMMES, programmeById } from "@/lib/course";
+import { PROGRAMMES, programmeAfter, programmeById } from "@/lib/course";
 import { LESSONS, LESSON_LEVELS } from "@/lib/course/lessons";
 import { ledgerThrough, lessonRank } from "@/lib/course/lessons/ledger";
 import { CHECK_PASS, LEVEL_CHECK, PART_CHECK, checkLength, itemEstonian, markCheck } from "@/lib/course/lessons/practice";
 import { uncovered } from "@/lib/course/lessons/ledger";
-import { blockedBy, checkAfter, checkPaper, courseChecks, passedFrom } from "./checks";
+import { blockedBy, checkAfter, checkPaper, courseChecks, passedFrom, whereAPassLeads } from "./checks";
 
 const checks = courseChecks(PROGRAMMES);
 const lessonParts = PROGRAMMES.filter((p) => p.days.every((d) => d.lesson));
@@ -114,5 +114,37 @@ describe("the checks between the parts of the lessons", () => {
     expect([...passedFrom("check-a1.1 check-a1.2 junk ")]).toEqual(["check-a1.1", "check-a1.2"]);
     expect(passedFrom(null).size).toBe(0);
     expect(checkAfter(PROGRAMMES, programmeById("a1.1")!.id)?.id).toBe("check-a1.1");
+  });
+});
+
+describe("where a pass leads, said once for the check page and the app", () => {
+  it("names a part by its title, a new level by its level, and says what a finished level was", () => {
+    let parts = 0;
+    let finals = 0;
+    for (const check of checks) {
+      const part = programmeById(check.programmeId)!;
+      const next = programmeAfter(part) ?? null;
+      const { nextLabel, levelDone } = whereAPassLeads(check, part, next);
+      if (!next) {
+        expect(nextLabel).toBeNull();
+      } else if (next.level !== part.level) {
+        expect(nextLabel).toBe(next.level);
+      } else {
+        expect(nextLabel).toBe(next.title);
+        expect(nextLabel).not.toBe(next.id.toUpperCase());
+        parts += 1;
+      }
+      expect(levelDone === null).toBe(!check.final);
+      if (levelDone) {
+        finals += 1;
+        expect(levelDone.level).toBe(part.level);
+        expect(levelDone.lessons).toBe(LESSONS.filter((l) => l.level === part.level).length);
+        expect(levelDone.parts.length).toBeGreaterThan(1);
+        expect(levelDone.arrival.length).toBeGreaterThan(10);
+        expect(levelDone.next?.level ?? null).toBe(next?.level ?? null);
+      }
+    }
+    expect(parts).toBeGreaterThan(5);
+    expect(finals).toBe(LESSON_LEVELS.size);
   });
 });

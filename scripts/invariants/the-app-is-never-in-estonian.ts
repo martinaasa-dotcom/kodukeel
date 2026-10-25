@@ -39,5 +39,20 @@ export default function theAppIsNeverInEstonian({ check, code, APP }: InvariantK
     assert.ok(signedIn.length > 100, `only ${signedIn.length} signed-in files read, so this check stopped looking`);
     const reaching = signedIn.filter((f) => PUBLIC_ONLY.test(code(f)));
     assert.deepEqual(reaching, [], `a signed-in screen reads the public pages' languages: ${reaching.join(", ")}`);
+
+    /*
+      And the two public screens that are the app rather than a page about it:
+      the grammar reference drawn for a reader with no account, which is the
+      same reference a learner reads signed in, and the offline fallback, which
+      the worker caches in the learner's own language. Both were left out of
+      the Estonian pages on purpose (decided in the follow-up to the sixth
+      batch): grammar explained in Estonian helps nobody learning it, and a
+      fallback a learner meets mid-review is a screen of the app.
+    */
+    for (const file of ["components/grammar/PublicReference.tsx", "app/offline/page.tsx"]) {
+      assert.doesNotMatch(code(file), PUBLIC_ONLY, `${file} reads the public pages' languages, so it could be drawn in Estonian`);
+    }
+    assert.match(code("components/grammar/PublicReference.tsx"), /drawnIn=\{LOCALES\}/,
+      "the public grammar reference no longer offers only the learner's languages");
   });
 }

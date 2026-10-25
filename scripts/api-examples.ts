@@ -106,7 +106,8 @@ write("get-checks-id.json", {
   items: paper,
   needed: sat.needed,
   alreadyPassed: sat.alreadyPassed,
-  next: sat.next ? { id: sat.next.id, label: sat.next.id.toUpperCase() } : null,
+  next: sat.next && sat.nextLabel !== null ? { id: sat.next.id, label: sat.nextLabel } : null,
+  levelDone: sat.levelDone,
 });
 const marked = markCheck(paper, paper.map((item) => (item.kind === "match" ? null : item.answer)));
 write("post-checks-id.json", { score: marked.score, total: marked.total, passed: marked.passed, marks: marked.marks });

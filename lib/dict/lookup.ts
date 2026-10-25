@@ -2,7 +2,7 @@ import { bucketForOwner, checkRateLimit } from "@/lib/security/rateLimit";
 import { editExamples } from "./editExamples";
 import { prisma } from "@/lib/db";
 import {
-  PAGE_DEADLINE_MS, emptyTally, ekilexConfigured, fetchEkilexDetails, searchEkilex, type GateOptions,
+  PAGE_DEADLINE_MS, emptyTally, ekilexConfigured, fetchEkilexDetailsAnswered, searchEkilexAnswered, type GateOptions,
 } from "@/lib/ekilex/client";
 import { recordEkilexTally, recordStoredAnswer } from "./ekilexCount";
 import { mapEkilexDetails } from "@/lib/ekilex/mapper";
@@ -170,16 +170,25 @@ async function runEnrich(lexemeId: string, gate: GateOptions): Promise<boolean> 
     forms, sentences and word id with the other homonym's, under the first
     one's gloss, on the first open of the entry, for everybody.
   */
+  /*
+    A MISS IS WHAT EKILEX SAID, NEVER WHAT THE GATE COULD NOT ASK. The page's
+    deadline reaches the gate, so a request still queued for one of its two
+    slots when the page gives up comes back unanswered. That is written down as
+    nothing, and the next render asks again; only an answer with nothing in it
+    is a miss for a day.
+  */
   let wordId = lexeme.ekilexWordId;
   if (wordId == null) {
-    const matches = await searchEkilex(lexeme.lemma, gate);
+    const matches = await searchEkilexAnswered(lexeme.lemma, gate);
+    if (matches === null) return false;
     const first = matches.find((m) => m.wordValue === lexeme.lemma) ?? matches[0];
     if (!first) return recordMiss(lexeme.id);
     wordId = first.wordId;
   }
 
-  const details = await fetchEkilexDetails(wordId, gate);
-  const mapped = details ? mapEkilexDetails(details) : null;
+  const asked = await fetchEkilexDetailsAnswered(wordId, gate);
+  if (!asked.answered) return false;
+  const mapped = asked.details ? mapEkilexDetails(asked.details) : null;
   if (!mapped || mapped.lemma !== lexeme.lemma) return recordMiss(lexeme.id);
 
   await prisma.lexeme.update({
@@ -340,14 +349,18 @@ export async function countStoredAnswer(entry: { ekilexWordId: number | null } |
 async function runLookup(ownerId: string, query: string, gate: GateOptions): Promise<LookupResult | null> {
   const missKey = `ekilex:q:${query}`;
 
-  const matches = await searchEkilex(query, gate);
+  // Remembered as a miss only where Ekilex answered with nothing (see runEnrich).
+  const matches = await searchEkilexAnswered(query, gate);
+  if (matches === null) return null;
   const first = matches[0];
   if (!first) {
     rememberMiss(missKey, QUERY_MISS_TTL_MS);
     return null;
   }
 
-  const details = await fetchEkilexDetails(first.wordId, gate);
+  const asked = await fetchEkilexDetailsAnswered(first.wordId, gate);
+  if (!asked.answered) return null;
+  const details = asked.details;
   if (!details) {
     rememberMiss(missKey, QUERY_MISS_TTL_MS);
     return null;

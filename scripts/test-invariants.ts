@@ -9743,6 +9743,12 @@ check("nothing is stored on a device that would need asking first", () => {
     // Nothing about the learner: the same 71 MB on every device. /privacy
     // names it, and Settings deletes it.
     "components/speech/webEngine.ts",
+    // A mark that this tab is about to ask the push manager whether it holds a
+    // subscription, a time and nothing else, in `sessionStorage` so it goes
+    // with the tab, and removed the moment the answer comes. It exists because
+    // WebKit reloads a page that asks, and without it Settings asked again on
+    // every reload, for ever.
+    "app/(app)/settings/PushPanel.tsx",
   ];
   for (const file of storage) {
     assert.ok(

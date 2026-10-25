@@ -756,7 +756,8 @@
           "deleted",
           "identityErased",
           "remaining"
-        ]
+        ],
+        "description": "Everything is gone. Drop the session on the device at once: the access token verifies until it expires, and a request made with it in that hour writes as a new, empty learner, which nothing reads, reminds or exports. A failure partway answers `upstream` and deletes nothing."
       }
     },
     "GET /api/v1/export": {
@@ -824,7 +825,7 @@
             "minLength": 20,
             "maxLength": 4096,
             "pattern": "^[A-Za-z0-9_:.-]+$",
-            "description": "The registration token Firebase Cloud Messaging gave the app on this phone."
+            "description": "The registration token Firebase Cloud Messaging gave the app on this phone. A registration past 1,024 characters is refused with `invalid`, since no token Firebase hands out is that long."
           }
         },
         "required": [
@@ -864,7 +865,7 @@
             "minLength": 20,
             "maxLength": 4096,
             "pattern": "^[A-Za-z0-9_:.-]+$",
-            "description": "The registration token Firebase Cloud Messaging gave the app on this phone."
+            "description": "The registration token Firebase Cloud Messaging gave the app on this phone. A registration past 1,024 characters is refused with `invalid`, since no token Firebase hands out is that long."
           }
         },
         "required": [
@@ -3433,6 +3434,77 @@
                 "required": [
                   "id",
                   "label"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The part a pass opens: its id, and what the web's check calls it, a lesson part by its name, a new level by its level, a part taught as units by its id; in the learner's language."
+          },
+          "levelDone": {
+            "description": "Set on the last check of a level: what the level was and what is next, in the learner's language, as the web's check says it after a pass.",
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "level": {
+                    "type": "string"
+                  },
+                  "arrival": {
+                    "type": "string",
+                    "description": "What somebody can now do, one sentence."
+                  },
+                  "parts": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "The level's parts, by name."
+                  },
+                  "lessons": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "next": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "level": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "summary": {
+                            "type": "string"
+                          },
+                          "lessons": {
+                            "type": "boolean",
+                            "description": "Whether the next level is taught as lessons."
+                          }
+                        },
+                        "required": [
+                          "level",
+                          "title",
+                          "summary",
+                          "lessons"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "level",
+                  "arrival",
+                  "parts",
+                  "lessons",
+                  "next"
                 ]
               },
               {

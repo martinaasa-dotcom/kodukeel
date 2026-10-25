@@ -96,6 +96,11 @@ describe("POST and DELETE /api/v1/push-devices", () => {
   it("refuses a token nobody can read, and keeps nothing where no Firebase account is set", async () => {
     const bad = await route.POST(request("POST", { platform: "android", token: "short" }));
     expect(bad.status).toBe(400);
+    // Inside the contract's 4,096 and past what the column's unique index holds: refused, never a 500.
+    const long = await route.POST(request("POST", { platform: "android", token: "a".repeat(3000) }));
+    expect(long.status).toBe(400);
+    expect((await long.json()).error.code).toBe("invalid");
+    expect(await (await route.DELETE(request("DELETE", { token: "a".repeat(3000) }))).json()).toEqual({ forgotten: false });
     delete process.env.FCM_SERVICE_ACCOUNT;
     const off = await route.POST(request("POST", { platform: "android", token: token(3) }));
     expect(off.status).toBe(503);

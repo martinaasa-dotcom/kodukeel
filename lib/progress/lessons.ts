@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 import { LESSON_STEP, PROGRAMMES, lessonDayFor, programmeAfter, programmeById, type Programme } from "@/lib/course";
-import { checkById, checkPaper, type CourseCheck } from "@/lib/course/checks";
+import { checkById, checkPaper, whereAPassLeads, type CourseCheck, type LevelEnd } from "@/lib/course/checks";
 import { CHECK_PASS, markCheck, type CheckResult, type PracticeItem } from "@/lib/course/lessons/practice";
 import { dayIsInPlay, programmeFor } from "@/lib/progress/course";
 import { checksPassedFor, recordCheckPassed } from "@/lib/progress/checks";
@@ -114,7 +114,17 @@ export interface CheckView {
   /** The part this check closes, and the part a pass opens. */
   part: Programme;
   next: Programme | null;
+  /**
+   * What the next part is called, in English for the edge to translate: a
+   * lesson part by its name ("Where you live" says where the learner is
+   * going, `A1.2` says where it is filed), a new level by its level, and a
+   * part taught as units by its id.
+   */
+  nextLabel: string | null;
+  /** Set on the last check of a level: what the level was and what is next. */
+  levelDone: LevelEnd | null;
 }
+
 
 /**
  * ONE ATTEMPT'S PAPER AT A PART'S CHECK, FOR BOTH DOORS.
@@ -131,6 +141,7 @@ export async function checkView(ownerId: string, checkId: string, attempt: numbe
   const passed = await checksPassedFor(ownerId);
   const part = programmeById(check.programmeId)!;
   const paper = checkPaper(check, at);
+  const next = programmeAfter(part) ?? null;
   return {
     check,
     attempt: at,
@@ -138,6 +149,7 @@ export async function checkView(ownerId: string, checkId: string, attempt: numbe
     needed: Math.ceil(paper.length * CHECK_PASS),
     alreadyPassed: passed.has(check.id),
     part,
-    next: programmeAfter(part) ?? null,
+    next,
+    ...whereAPassLeads(check, part, next),
   };
 }

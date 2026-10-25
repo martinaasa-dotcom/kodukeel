@@ -20,6 +20,16 @@ import type { NativePlatform } from "@/lib/push/native";
  */
 export const MAX_NATIVE_DEVICES = 10;
 
+/**
+ * The longest token kept. The contract takes up to 4,096 characters, which is
+ * frozen in v1 and may not narrow, and the unique index on the column cannot
+ * hold a value past about 2,700 bytes: Postgres refuses the insert, which was
+ * a 500. Firebase tokens run to a few hundred characters, so a longer one is
+ * not a token Firebase handed out: nothing is written, and the route answers
+ * `invalid`.
+ */
+export const MAX_STORED_TOKEN = 1024;
+
 export interface NativeDeviceRow {
   readonly id: string;
   readonly token: string;
@@ -27,7 +37,8 @@ export interface NativeDeviceRow {
 }
 
 /**
- * Keep a phone's token for this learner, or note that it was seen again.
+ * Keep a phone's token for this learner, or note that it was seen again. False,
+ * with nothing written, for a token past `MAX_STORED_TOKEN`.
  *
  * An upsert on the token, inside the learner's own advisory lock so two
  * launches at once cannot both slip past the count, and past
@@ -37,7 +48,8 @@ export async function registerNativeDevice(
   ownerId: string,
   device: { token: string; platform: NativePlatform; appBuild: string | null },
   now: Date = new Date(),
-): Promise<void> {
+): Promise<boolean> {
+  if (device.token.length > MAX_STORED_TOKEN) return false;
   await prisma.$transaction(async (tx) => {
     await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`native-push:${ownerId}`}, 0))`;
     await tx.nativePushDevice.upsert({
@@ -55,6 +67,7 @@ export async function registerNativeDevice(
       await tx.nativePushDevice.deleteMany({ where: { id: { in: surplus.map((row) => row.id) } } });
     }
   });
+  return true;
 }
 
 /** Stop reminding one of this learner's phones. True where there was one to stop. */

@@ -4,8 +4,7 @@ import { checkView } from "@/lib/progress/lessons";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { fill, tr } from "@/lib/copy/locale";
 import { Page } from "@/components/ui";
-import { LEVEL_INFO } from "@/lib/collections/syllabus";
-import { LESSON_PARTS, LESSONS, isLessonLevel } from "@/lib/course/lessons";
+import { isLessonLevel } from "@/lib/course/lessons";
 import { CheckRunner } from "./CheckRunner";
 
 export async function generateMetadata() {
@@ -34,35 +33,19 @@ export default async function CheckPage({ params, searchParams }: {
     localeFor(ownerId),
   ]);
   if (!view) notFound();
-  const { check, attempt, paper, needed, part, next } = view;
-  /*
-    WHAT THE NEXT PART IS CALLED, by its name rather than its id: "Where you
-    live" says where the learner is going, `A1.2` says where it is filed. A
-    new level is named by its level, since its first part is not the point.
-  */
-  const nextName = !next ? null
-    : next.level !== part.level ? next.level
-    : isLessonLevel(next.level) ? tr(locale, next.title) : next.id.toUpperCase();
-  /*
-    THE END OF A LEVEL IS A THING THAT HAPPENED. Passing the last check of a
-    level used to read "B1.1 is open", the same sentence a part's check gets,
-    so the screen a learner reaches after a hundred evenings said less than
-    the screen after one. A final check carries what the level was (its parts
-    and what somebody can now do) and what the next one is, including that
-    from B1 on an evening is built differently.
-  */
-  const level = check.final ? {
-    level: part.level,
-    arrival: tr(locale, LEVEL_INFO[part.level].arrival),
-    parts: LESSON_PARTS.filter((p) => p.level === part.level).map((p) => tr(locale, p.title)),
-    lessons: LESSONS.filter((l) => l.level === part.level).length,
-    next: next ? {
-      level: next.level,
-      title: tr(locale, LEVEL_INFO[next.level].titleEn),
-      summary: tr(locale, LEVEL_INFO[next.level].summary),
-      lessons: isLessonLevel(next.level),
-    } : null,
-  } : null;
+  const { check, attempt, paper, needed, part, next, levelDone } = view;
+  // Where a pass leads is `checkView`'s, so the app's check says the same.
+  const nextName = view.nextLabel === null ? null : tr(locale, view.nextLabel);
+  const level = levelDone && {
+    ...levelDone,
+    arrival: tr(locale, levelDone.arrival),
+    parts: levelDone.parts.map((p) => tr(locale, p)),
+    next: levelDone.next && {
+      ...levelDone.next,
+      title: tr(locale, levelDone.next.title),
+      summary: tr(locale, levelDone.next.summary),
+    },
+  };
 
   return (
     <Page

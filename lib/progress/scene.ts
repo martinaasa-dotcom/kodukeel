@@ -455,7 +455,22 @@ export function moneyInPlay(card: RoleCard | null, lexicon: Lexicon): GateContex
 const MONEY_UNIT = "euro";
 
 /** Every lemma a scene may reach: its units, its beats' topics, its props, and the way out. */
-export function sceneLemmas(scene: SceneSpec): Set<string> {
+export function sceneLemmas(scene: SceneSpec): ReadonlySet<string> {
+  /*
+    Worked out once per scene object: a caller filtering the dictionary by it
+    used to ask for it once per row, which was six thousand rebuilds a scene
+    and most of what the scene tests spent their time on.
+  */
+  const kept = LEMMAS_OF.get(scene);
+  if (kept) return kept;
+  const lemmas = buildSceneLemmas(scene);
+  LEMMAS_OF.set(scene, lemmas);
+  return lemmas;
+}
+
+const LEMMAS_OF = new WeakMap<SceneSpec, ReadonlySet<string>>();
+
+function buildSceneLemmas(scene: SceneSpec): Set<string> {
   const lemmas = new Set<string>();
   for (const unit of scene.units) for (const lemma of unitById(unit)?.lemmas ?? []) lemmas.add(lemma);
   for (const lemma of scene.lemmas ?? []) lemmas.add(lemma);

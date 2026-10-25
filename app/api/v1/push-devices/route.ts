@@ -50,7 +50,8 @@ export async function POST(request: Request) {
   const body = await readBody(request, PushDeviceRequest);
   if (!body.ok) return body.response;
   const build = clip(request.headers.get(BUILD_HEADER)?.trim() ?? "", 40) || null;
-  await registerNativeDevice(who.ownerId, { token: body.data.token, platform: body.data.platform, appBuild: build });
+  const kept = await registerNativeDevice(who.ownerId, { token: body.data.token, platform: body.data.platform, appBuild: build });
+  if (!kept) return apiError("invalid", { message: "That is not a token Firebase hands out." });
   const answer: PushDeviceResponse = { registered: true };
   return apiJson(answer);
 }

@@ -220,6 +220,7 @@
   "alreadyPassed": false,
   "next": {
     "id": "a1.2",
-    "label": "A1.2"
-  }
+    "label": "Where you live"
+  },
+  "levelDone": null
 }

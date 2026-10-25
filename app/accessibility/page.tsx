@@ -173,7 +173,7 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
           </li>
         </ul>
         <P>
-          {t("Where a limitation above is ours rather than one the exercise requires, it is on the list to fix. The practice clocks, the phone sweep, the single-key shortcuts, the clips that played whatever their length and the loops on the public pages were all on this list and are fixed now. The examination clock stays, for the reason beside it.")}
+          {t("Where a limitation above is ours rather than one the exercise requires, it is on the list to fix. The practice clocks, the phone sweep, the single-key shortcuts, the clips that played whatever their length and the looping motion everywhere were all on this list and are fixed now. The examination clock stays, for the reason beside it.")}
         </P>
       </S>
 

@@ -63,8 +63,9 @@ export async function DELETE(request: Request) {
   const body = await readBody(request, DeleteMeRequest);
   if (!body.ok) return body.response;
   const result = await deleteAccountFor(who.ownerId, body.data.confirmation);
-  // A failure partway rolls the whole transaction back, so either way nothing was deleted.
-  if (!result.ok) return apiError("invalid", { message: result.error });
+  // A failure partway rolls the whole transaction back, so either way nothing was deleted:
+  // a word that was not the confirmation is the caller's to correct, a failure is ours to retry.
+  if (!result.ok) return apiError(result.reason === "unconfirmed" ? "invalid" : "upstream", { message: result.error });
   const gone: DeleteMeResponse = { deleted: true, identityErased: result.identityErased, remaining: result.remaining };
   return apiJson(gone);
 }
