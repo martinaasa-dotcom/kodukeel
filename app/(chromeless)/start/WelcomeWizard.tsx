@@ -18,7 +18,7 @@ import { weeksToLearn, type Standing } from "@/lib/assessment/plan";
 import { PRE_A1, type Band, type Item, type Level, type Placement } from "@/lib/assessment/types";
 import { LETTER_BAR_CHOICES, letterBarDefaultFor, type LetterBar } from "@/lib/ux/letterBar";
 import {
-  LOCALES, LOCALE_NAMES, MACHINE_NOTICE, MACHINE_NOTICE_EN, countOf, fill, tr, type Locale,
+  LOCALES, LOCALE_NAMES, MACHINE_NOTICE, MACHINE_NOTICE_EN, REVIEWED, countOf, fill, tr, type Locale,
 } from "@/lib/copy/locale";
 import { LocaleProvider } from "@/components/Locale";
 import { loadTable, tableReady } from "@/lib/copy/i18n/load";
@@ -558,11 +558,12 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper, initialLo
                 </ChoiceGroup>
               </div>
               {/*
-                The notice stays on the first screen, in the reader's own
-                language, and the English of it is one press away. Both at
+                Until a fluent reader has checked the language, the notice
+                stays on the first screen, in the reader's own language, and
+                the English of it is one press away. Both at
                 once took a third of a phone before the first question.
               */}
-              {locale !== "en" && (
+              {locale !== "en" && !REVIEWED[locale] && (
                 <div data-machine-notice className="mt-3 max-w-[62ch]">
                   <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }} lang={locale}>
                     {MACHINE_NOTICE[locale]}

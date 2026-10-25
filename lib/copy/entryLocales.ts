@@ -9,17 +9,17 @@
  * the page says about being a translation: its address, its title for a search
  * engine, the notice, and what language the app opens in.
  *
- * MACHINE-TRANSLATED AND SAID SO. These were translated by a model and nobody
- * who speaks either language as a first language has read them yet. So every
+ * MACHINE-TRANSLATED, THEN READ. These were translated by a model, and every
  * page built from this table prints `notice` in its own language and in
  * English, at the top, for as long as `reviewed` is false, and an invariant
- * holds it there. When somebody fluent has read and corrected a locale, they
- * set `reviewed` to true with their name in the commit, and the notice goes.
+ * holds it there. A fluent reader read and corrected all three on 2026-10-25
+ * (Martin Aasa), so `reviewed` is true for each and the notice is gone; a new
+ * locale starts false and is set with the reader's name in the commit.
  *
  * No Estonian is written here beyond the app's own name, which is the rule
  * every other copy table keeps (ADR-005), except in the `et` row: Estonian
  * prose about the app for the public pages (ADR-005 amendment 7), drafted by
- * a model and waiting for the native speaker who develops this app to read it.
+ * a model and read by the native speaker who develops this app.
  * The app itself is never in Estonian, so that row's `appLanguage` says which
  * languages it is in rather than promising this one.
  */
@@ -55,7 +55,7 @@ export const ENTRY_COPY: Readonly<Record<EntryLocale, EntryCopy>> = {
     lang: "ru",
     name: "Русский",
     href: "/welcome/ru",
-    reviewed: false,
+    reviewed: true,
     notice: "Эта страница переведена с помощью ИИ, и носитель языка её ещё не проверял.",
     title: "Kodukeel: эстонский, который наконец остаётся в голове",
     description:
@@ -67,7 +67,7 @@ export const ENTRY_COPY: Readonly<Record<EntryLocale, EntryCopy>> = {
     lang: "uk",
     name: "Українська",
     href: "/welcome/uk",
-    reviewed: false,
+    reviewed: true,
     notice: "Цю сторінку перекладено за допомогою ШІ, і носій мови її ще не перевіряв.",
     title: "Kodukeel: естонська, яка нарешті лишається в голові",
     description:
@@ -79,7 +79,7 @@ export const ENTRY_COPY: Readonly<Record<EntryLocale, EntryCopy>> = {
     lang: "et",
     name: "Eesti",
     href: "/welcome/et",
-    reviewed: false,
+    reviewed: true,
     notice: "Selle lehe eestikeelne tekst on koostatud tehisintellekti abil ja ootab veel emakeelse kõneleja ülevaatust.",
     title: "Kodukeel: eesti keel, mis lõpuks meelde jääb",
     description:

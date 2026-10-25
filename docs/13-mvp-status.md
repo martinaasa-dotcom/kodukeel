@@ -3892,3 +3892,25 @@ nobody the mailout, the export or a screen ever reads.
 
 **What is left** is the operator's and is unchanged: the native speaker's reading of the Estonian,
 the demo deployment, and the Apple, Google, Firebase and store setup.
+
+## 71. The sixty-fifth pass: every written line read
+
+**The Estonian, the Russian and the Ukrainian are read, so the machine-translation notice is off.** The
+native speaker who develops this app read every written line nobody had confirmed, 32,847 entries, and
+the pass applied his verdicts: 4,280 Russian and 4,472 Ukrainian corrections, 413 to the Estonian
+public pages, and the rest across the jokes, the scene goodbyes, the brief for EKI, the store listing,
+the openers, the grammar examples and the workbook. `REVIEWED` in `lib/copy/locale.ts` and `reviewed`
+in `lib/copy/entryLocales.ts` are set in the commit that names him, so Settings, the shell, first run,
+the public pages and a letter's footer stop saying the words are a machine's. The policy pages still
+say the English prevails, now without claiming nobody fluent read them. Recordings are the one review
+left, and `docs/44-language-reviews.md` §2 lists them.
+
+**The learner is ты / ти.** The reading settled the register across both languages, and the three model
+prompts that write Russian or Ukrainian to a learner were told the same, since they had asked for вы / ви.
+
+**Where a correction met a rule, the rule held and the line moved as little as it could.** Four scene
+goodbyes used a word the scene does not teach, one public line named the other language, and five
+pinned sentences were among the workbook refusals. Each is listed with the reader's line beside what
+shipped in `docs/reviews/2026-10-25-written-lines-applied.md`, beside the 66 lines per language that
+landed after the export and are left unconfirmed for his next sheet. `docs/49-language-reviews.md` is
+the count of what is open, which is those and the 60 picture-scene sentences nobody has written yet.

@@ -24,8 +24,8 @@
  * names an Estonian form: the screen puts the words beside the line. The
  * meanings are written for contrast rather than copied from the gloss,
  * because a gloss says what one word means and this has to say how two
- * differ. They were written by the developer's best judgment and are for a
- * native speaker to read; edit them here.
+ * differ. They were written by the developer's best judgment and read by the
+ * native speaker on 2026-10-25, all 71 groups as they stand; edit them here.
  *
  * Pure: no React, no Next, no Prisma, no network, no clock. The round's screen
  * imports from here and from nothing that builds questions, because those reach

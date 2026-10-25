@@ -31,7 +31,7 @@
 import { esc, html, join, raw, url, type Html } from "./html";
 import type { Block, Letter } from "./letter";
 import { DARK, FONT, PALETTE as P } from "./palette";
-import { fill, MACHINE_SHORT, tr, type Locale } from "@/lib/copy/locale";
+import { fill, MACHINE_SHORT, REVIEWED, tr, type Locale } from "@/lib/copy/locale";
 
 const CARD = 600;
 
@@ -256,9 +256,10 @@ function preheader(text: string): Html {
  *
  * The way out arrives as the English label `unsubscribeLink` writes and is
  * looked up here, so the URL and the words for it stay one decision. In
- * Russian and Ukrainian the footer also says, once, that the words were
- * translated with AI and not yet read by a native speaker, which is what the
- * app says beside the language choice (`MACHINE_SHORT`).
+ * a language no fluent reader has checked yet (`REVIEWED`), the footer also
+ * says, once, that the words were translated with AI and not yet read by a
+ * native speaker, which is what the app says beside the language choice
+ * (`MACHINE_SHORT`). Russian and Ukrainian were read on 2026-10-25.
  */
 function footer(locale: Locale, chrome: Chrome) {
   return {
@@ -267,7 +268,7 @@ function footer(locale: Locale, chrome: Chrome) {
       : "Kodukeel.",
     unsubscribe: tr(locale, chrome.unsubscribeLabel),
     privacy: tr(locale, "What we keep about you"),
-    machine: locale === "en" ? null : MACHINE_SHORT[locale],
+    machine: locale === "en" || REVIEWED[locale] ? null : MACHINE_SHORT[locale],
   };
 }
 

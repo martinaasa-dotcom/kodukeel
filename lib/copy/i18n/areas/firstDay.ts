@@ -9,7 +9,7 @@ import type { Area } from "../area";
 export const FIRST_DAY: Area = {
   ru: {
     "That means “welcome”, your first words of Estonian.":
-      "Это значит «добро пожаловать», ваши первые слова по-эстонски.",
+      "Это значит «добро пожаловать», твои первые слова по-эстонски.",
     "Today's module is “{title}”: {words}, then {steps} that put them to use.":
       "Занятие на сегодня: «{title}». {words}, а потом {steps}, чтобы пустить их в ход.",
     "Steps": "Шаги",
@@ -18,7 +18,7 @@ export const FIRST_DAY: Area = {
   },
   uk: {
     "That means “welcome”, your first words of Estonian.":
-      "Це означає «ласкаво просимо», ваші перші слова естонською.",
+      "Це означає «ласкаво просимо», твої перші слова естонською.",
     "Today's module is “{title}”: {words}, then {steps} that put them to use.":
       "Заняття на сьогодні: «{title}». {words}, а потім {steps}, щоб пустити їх у хід.",
     "Steps": "Кроки",

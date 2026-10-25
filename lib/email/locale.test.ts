@@ -24,7 +24,7 @@ import { deadlineLetter } from "./letters/deadline";
 import { classroomLetter } from "./letters/classroom";
 import { worddayLetter } from "./letters/wordday";
 import { OPTIONAL_KINDS } from "./letter";
-import { MACHINE_SHORT } from "@/lib/copy/locale";
+import { MACHINE_SHORT, REVIEWED } from "@/lib/copy/locale";
 
 const ORIGIN = "https://kodukeel.ee";
 
@@ -110,10 +110,11 @@ describe("a letter in the learner's own language", () => {
           if (letter.kind !== "wordday") expect(letter.subject).toMatch(/[Ѐ-ӿ]/);
         });
 
-        it("names its language on the document and says the words are a machine's", () => {
+        it("names its language on the document, and says the words are a machine's only while nobody fluent has read them", () => {
           expect(html).toContain(`<html lang="${locale}"`);
-          expect(html).toContain(MACHINE_SHORT[locale]);
-          expect(text).toContain(MACHINE_SHORT[locale]);
+          const said = !REVIEWED[locale];
+          expect(html.includes(MACHINE_SHORT[locale])).toBe(said);
+          expect(text.includes(MACHINE_SHORT[locale])).toBe(said);
           expect(html).not.toContain(label);
         });
 

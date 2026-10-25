@@ -16,8 +16,8 @@ export interface Area {
   readonly uk: Readonly<Record<string, string>>;
   /**
    * Estonian, for an area a public page reads and nowhere else (D16 in
-   * docs/44-sixth-batch.md). Drafted and waiting for the native speaker's
-   * reading; the rows live in `areas/et/`, one file per area.
+   * docs/44-sixth-batch.md). Drafted by a model and read by the native
+   * speaker on 2026-10-25; the rows live in `areas/et/`, one file per area.
    */
   readonly et?: Readonly<Record<string, string>>;
   readonly counted?: Readonly<Record<string, {

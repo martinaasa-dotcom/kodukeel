@@ -44,8 +44,8 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "bussipilet", beat: "when", text: "Millal te soovite sõita?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "bussipilet", beat: "when", text: "Mis kell te sõidate?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "bussipilet", beat: "when", text: "Mis kell?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
-  { scene: "bussipilet", beat: "close", text: "Palun, siin on teie pilet. Head aega!", model: "authored", draftedAt: "2026-10-23" },
-  { scene: "bussipilet", beat: "close", text: "Head reisi! Nägemist!", model: "authored", draftedAt: "2026-10-23" },
+  { scene: "bussipilet", beat: "close", text: "Palun, siin on teie pilet. Head aega!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },
+  { scene: "bussipilet", beat: "close", text: "Head reisi! Nägemist!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },
 ];
 
 export default LINES;

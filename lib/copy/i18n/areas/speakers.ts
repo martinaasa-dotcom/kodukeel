@@ -18,14 +18,14 @@ export const SPEAKERS: Area = {
     // The page and its link on the grammar index.
     "Estonian for Ukrainian speakers": "Естонська для україномовних",
     "What your Ukrainian already gives you, and where it leads you astray.":
-      "Що вам уже дає українська і де вона збиває з пантелику.",
-    "Practice it: {round}": "Потренуйтеся у вправі «{round}»",
+      "Що тобі вже дає українська й де вона збиває з пантелику.",
+    "Practice it: {round}": "Потренуйся у вправі «{round}»",
     "In the dictionary: {gloss}": "У словнику: {gloss}",
 
     // What you already have.
-    "What you already have": "Що у вас уже є",
+    "What you already have": "Що в тебе вже є",
     "Much of what makes Estonian hard for English speakers is already in your Ukrainian.":
-      "Багато з того, що англомовним здається в естонській важким, у вашій українській уже є.",
+      "Багато з того, що англомовним здається в естонській важким, у твоїй українській уже є.",
     "Cases. Ukrainian has seven and Estonian has fourteen, but eleven of the fourteen are one form with an ending added.":
       "Відмінки. В українській їх сім, в естонській чотирнадцять, але одинадцять із чотирнадцяти утворюються від однієї форми додаванням закінчення.",
     "No articles, just as in Ukrainian, and the same free word order.":
@@ -42,7 +42,7 @@ export const SPEAKERS: Area = {
     // What is new.
     "What is new": "Що нового",
     "Five places where Ukrainian habits lead you the wrong way.":
-      "П'ять місць, де українські звички ведуть вас не туди.",
+      "П'ять місць, де українські звички ведуть тебе не туди.",
     "No grammatical gender. The one word {he} means both «він» and «вона», and an adjective never changes to match.":
       "Граматичного роду немає. Одне слово {he} означає і «він», і «вона», а прикметник ніколи не змінюється за родом.",
     "The verb {be} stays in the present. Ukrainian says «Я студент»; Estonian needs the verb every time.":
@@ -52,17 +52,17 @@ export const SPEAKERS: Area = {
     "After every number from {two} up, the noun takes the {part} and stays singular. Ukrainian says «п'ять книжок» with a plural; Estonian never does.":
       "Після будь-якого числа від {two} і більше іменник стоїть у формі {part} і в однині. Українською кажуть «п'ять книжок» у множині, естонською так не кажуть ніколи.",
     "Ukrainian uses one instrumental for «працювати вчителем» and «стати вчителем». Estonian splits it: {as} for a role you have, {become} for one you take on.":
-      "В українській і «працювати вчителем», і «стати вчителем» мають один орудний відмінок. Естонська їх розділяє: {as} для ролі, яку ви маєте, {become} для ролі, якої набуваєте.",
+      "В українській і «працювати вчителем», і «стати вчителем» мають один орудний відмінок. Естонська їх розділяє: {as} для ролі, яку ти маєш, {become} для ролі, яку ти береш на себе.",
 
     // Sounds.
     "Sounds": "Звуки",
     "Four vowels Ukrainian does not have, and a few habits to unlearn.":
       "Чотири голосні, яких немає в українській, і кілька звичок, яких варто позбутися.",
     "Say «о», then spread your lips as if smiling, keeping the tongue where it was.":
-      "Скажіть «о», а потім розтягніть губи, ніби в усмішці, не рухаючи язика.",
+      "Скажи «о», а потім розтягни губи, ніби в усмішці, не рухаючи язиком.",
     "Between «е» and «а», with the mouth open wide.": "Щось середнє між «е» і «а», з широко відкритим ротом.",
-    "Say «е» with your lips rounded.": "Скажіть «е» з округленими губами.",
-    "Say «і» and push your lips forward as for «у».": "Скажіть «і» і витягніть губи вперед, як для «у».",
+    "Say «е» with your lips rounded.": "Скажи «е» з округленими губами.",
+    "Say «і» and push your lips forward as for «у».": "Скажи «і» та витягни губи вперед, як для «у».",
     "Estonian has three lengths of sound, and a doubled letter is a long one. Ukrainian has no long vowels, but its long consonants in «знання» and «життя» are the same idea.":
       "В естонській три ступені довготи звука, і подвоєна літера позначає довгий звук. В українській довгих голосних немає, але довгі приголосні в «знання» і «життя» працюють так само.",
     "Estonian g is always «ґ», never «г». Estonian h is close to «г», only without the voice.":
@@ -74,39 +74,39 @@ export const SPEAKERS: Area = {
     // Typing.
     "Typing": "Набір тексту",
     "A Ukrainian keyboard has no {a}, {b}, {c} or {d}. Add the Estonian layout and switch to it when you write Estonian.":
-      "На українській клавіатурі немає {a}, {b}, {c} і {d}. Додайте естонську розкладку й перемикайтеся на неї, коли пишете естонською.",
+      "На українській клавіатурі немає {a}, {b}, {c} і {d}. Додай естонську розкладку й перемикайся на неї, коли пишеш естонською.",
     "Android, with Gboard: in the keyboard, tap Settings, then Languages, then Add keyboard, and choose Estonian. Touch and hold the space bar to switch.":
-      "Android, Gboard: на клавіатурі торкніться «Налаштування», потім «Мови», потім «Додати клавіатуру» й виберіть естонську. Щоб перемкнути мову, торкніться пробілу й утримуйте.",
+      "Android, Gboard: на клавіатурі торкнися «Налаштування», потім «Мови», потім «Додати клавіатуру» й вибери естонську. Щоб перемкнути мову, торкнися пробілу й утримуй.",
     "iPhone: Settings, General, Keyboard, Keyboards, Add New Keyboard, then Estonian. Touch and hold the globe key to switch.":
-      "iPhone: «Параметри», «Загальні», «Клавіатура», «Клавіатури», «Додати нову клавіатуру», потім естонська. Щоб перемкнути, торкніться клавіші з глобусом і утримуйте.",
+      "iPhone: «Параметри», «Загальні», «Клавіатура», «Клавіатури», «Додати нову клавіатуру», потім естонська. Щоб перемкнути, торкнися клавіші з глобусом і утримуй.",
     "Windows 11: Settings, Time and language, Language and region. Open the menu beside your language, choose Language options, then Add a keyboard and pick Estonian. The Windows key and Space switch layouts.":
-      "Windows 11: «Налаштування», «Час і мова», «Мова та регіон». Відкрийте меню поруч із вашою мовою, виберіть «Параметри мови», потім «Додати клавіатуру» й виберіть естонську. Розкладку перемикають клавіші Windows і пробіл.",
+      "Windows 11: «Налаштування», «Час і мова», «Мова та регіон». Відкрий меню поруч зі своєю мовою, вибери «Параметри мови», потім «Додати клавіатуру» й вибери естонську. Розкладку перемикають клавіші Windows і пробіл.",
     "Mac: System Settings, Keyboard, then Edit beside Input Sources under Text Input. Press the plus button, choose Estonian and press Add. Control and Space switch.":
-      "Mac: «Системні параметри», «Клавіатура», потім «Змінити» поруч із «Джерела введення» в розділі «Введення тексту». Натисніть «+», виберіть естонську й натисніть «Додати». Перемикають клавіші Control і пробіл.",
+      "Mac: «Системні параметри», «Клавіатура», потім «Змінити» поруч із «Джерела введення» в розділі «Введення тексту». Натисни «+», вибери естонську й натисни «Додати». Перемикають клавіші Control і пробіл.",
     "On a computer, the row of letters under every box types them for you, if you asked for it. You can turn it on or off in Settings.":
-      "На комп'ютері їх набирає за вас рядок літер під кожним полем, якщо ви його ввімкнули. Увімкнути чи вимкнути його можна в налаштуваннях.",
+      "На комп'ютері їх набирає за тебе рядок літер під кожним полем, якщо його ввімкнено. Увімкнути чи вимкнути його можна в налаштуваннях.",
 
     // Ти or ви.
     "«Ти» or «ви»": "«Ти» чи «ви»",
-    "Customs vary, so follow the other person's lead.": "Звичаї бувають різні, тож орієнтуйтеся на співрозмовника.",
+    "Customs vary, so follow the other person's lead.": "Звичаї бувають різні, тож орієнтуйся на співрозмовника.",
     "Estonians move to {youOne} sooner than Ukrainians move to «ти»: with colleagues, with people your own age, and often in shops.":
       "Естонці переходять на {youOne} швидше, ніж українці на «ти»: з колегами, з ровесниками, а часто й у магазинах.",
     "Use {youMany} with officials, with older people you do not know, and with more than one person.":
-      "Звертайтеся на {youMany} до посадовців, до незнайомих старших людей і до кількох людей одразу.",
+      "Звертайся на {youMany} до посадовців, до незнайомих старших людей і до кількох людей одразу.",
 
     // Words that look familiar.
     "Words that look familiar": "Слова, що здаються знайомими",
     "A few Estonian words you will recognize, and a few that only look like Ukrainian.":
-      "Кілька естонських слів, які ви впізнаєте, і кілька таких, що лише схожі на українські.",
+      "Кілька естонських слів, які ти впізнаєш, і кілька таких, що лише схожі на українські.",
     "You will recognize these, or a relative of them in Ukrainian.":
-      "Ці слова ви впізнаєте самі або за їхніми українськими родичами.",
+      "Ці слова легко впізнати самі по собі або за їхніми українськими родичами.",
     "These look like Ukrainian words and mean something else.":
       "Ці слова схожі на українські, але означають інше.",
     "It came into Estonian from German.": "В естонську прийшло з німецької.",
     "It came into Estonian from a Slavic language. Compare «грамота».":
-      "В естонську прийшло зі слов'янської мови. Порівняйте «грамота».",
+      "В естонську прийшло зі слов'янської мови. Порівняй «грамота».",
     "It came into Estonian from a Slavic language. Compare «торг».":
-      "В естонську прийшло зі слов'янської мови. Порівняйте «торг».",
+      "В естонську прийшло зі слов'янської мови. Порівняй «торг».",
     "It came into Estonian from a Slavic language.": "В естонську прийшло зі слов'янської мови.",
     "A week, not «неділя».": "Тиждень, а не «неділя».",
     "A stage, not «лава», the bench.": "Сцена, а не «лава», на якій сидять.",
