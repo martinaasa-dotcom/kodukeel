@@ -476,11 +476,15 @@ try {
         const context = await browser.newContext({ viewport: { width: 1280, height: 1000 } });
         if (init) await context.addInitScript(init);
         const page = await context.newPage();
-        /* A reload is counted as a second document, not as `framenavigated`, which
-           also fires for the router's own same-document address update on Settings. */
+        /* A reload is a new document, which drops anything set on the old window.
+           Counting events cannot say that in every engine: `framenavigated` also
+           fires for the router's same-document address update on Settings, and
+           Playwright's Firefox reports the blank page it opened with as a load. So
+           the window is marked once Settings is up, and the mark has to survive. */
         let documents = 0;
-        page.on("domcontentloaded", () => { documents += 1; });
+        page.on("domcontentloaded", () => { if (page.url().startsWith(B)) documents += 1; });
         await page.goto(`${B}/settings?tab=account`, { waitUntil: "domcontentloaded" });
+        await page.evaluate(() => { window.__settingsStayed = true; });
         await page.locator("#email").waitFor({ timeout: 20_000 }).catch(() => {});
         /* What the browser offers, asked without asking the push manager: the
            interfaces, and a worker to hold a subscription. */
@@ -492,8 +496,9 @@ try {
         // The panel waits up to four seconds for the worker before it decides.
         await page.waitForTimeout(6000);
         const state = await page.evaluate(() => document.querySelector("[data-push-panel]")?.getAttribute("data-push-panel") ?? null);
+        const stayed = await page.evaluate(() => window.__settingsStayed === true).catch(() => false);
         await context.close();
-        return { supported, state, documents };
+        return { supported, state, documents, stayed };
       };
       const native = await panel(null);
       const can = native.supported === "yes";
@@ -502,8 +507,8 @@ try {
         can ? native.state === "off" || native.state === "denied" : native.state === null,
         `Web Push: ${native.supported}; panel ${native.state ?? "absent"}`,
       );
-      check("Settings stays put while the reminders panel decides", native.documents === 1,
-        `${native.documents} documents loaded`);
+      check("Settings stays put while the reminders panel decides", native.stayed,
+        `${native.stayed ? "the window kept its mark" : "the window was replaced"}; ${native.documents} loads on this site`);
       const without = await panel(() => { delete window.PushManager; });
       check("with Web Push taken away, nothing is offered", without.state === null, `panel ${without.state ?? "absent"}`);
     }
