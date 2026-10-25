@@ -155,7 +155,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
     "{minutes}, і на сьогодні все. За {evenings} таких, як цей, ти дійдеш аж до C1."],
   ["Evening one, step one", "Вечер первый, шаг первый", "Вечір перший, крок перший"],
   ["About this translation", "Об этом переводе", "Про цей переклад"],
-  ["Got them, now quiz me", "Понятно, теперь проверь меня", "Зрозуміло, тепер перевір мене"],
+  ["Got them, now quiz me", "Понятно, проверь меня", "Зрозуміло, перевір мене"],
   ["Now they come back one at a time. Pick what each one means. {n} of {all}",
     "Теперь они возвращаются по одному. Выбери, что значит каждое. {n} из {all}",
     "Тепер вони повертаються по одному. Вибери, що означає кожне. {n} з {all}"],

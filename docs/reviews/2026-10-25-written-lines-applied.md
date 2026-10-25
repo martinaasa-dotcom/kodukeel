@@ -30,6 +30,8 @@ Each is the nearest line the rule allows. Please read these.
 | Scene `sobra-mure` | Aitäh, et sa olemas oled. Nägemist! | Hea, et sa mul oled. Nägemist! | `olemas` is not taught there |
 | Public page, RU | ...читают по-английски, по-русски или по-украински, и всё приложение есть на всех трёх языках. | ...читают по-русски или по-английски, и всё приложение есть на обоих языках. | The Russian may not name Ukrainian, and the Ukrainian may not name Russian (`purity-*.test.ts`) |
 | Public page, UK | ...читають англійською, російською чи українською, і весь застосунок є всіма трьома мовами. | ...читають українською чи англійською, і весь застосунок є обома мовами. | The same rule |
+| Landing page button, RU | Понятно, теперь проверь меня | Понятно, проверь меня | At 320px the card leaves the button 240px, and the label with the button's padding needed about 270. A button's label may not wrap, and every route has to reflow at 320 (WCAG 1.4.10) |
+| Landing page button, UK | Зрозуміло, тепер перевір мене | Зрозуміло, перевір мене | The same |
 | Wordplay, RU and UK | восклицательный знак, сосед по парте, сложное слово; знак оклику, сусід по парті, складне слово, гостьовий дім, рідня | As written | These share a word with the literal reading, so the round's no-giveaway test now lists them as the same image the Estonian uses |
 
 The workbook refusals took five sentences that grammar pages and sayings had pinned, so the session

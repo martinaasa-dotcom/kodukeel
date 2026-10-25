@@ -15766,7 +15766,7 @@ _lib/copy/i18n/areas/landing.ts_
 - [ ] **7815.** About this translation  
   → Об этом переводе
 - [ ] **7816.** Got them, now quiz me  
-  → Понятно, теперь проверь меня
+  → Понятно, проверь меня
 - [ ] **7817.** Now they come back one at a time. Pick what each one means. {n} of {all}  
   → Теперь они возвращаются по одному. Выбери, что значит каждое. {n} из {all}
 - [ ] **7818.** Next word  

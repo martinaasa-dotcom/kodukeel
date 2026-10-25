@@ -325,9 +325,10 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
           <p className="label-xs mb-3" style={{ color: "var(--ink-3)" }}>
             {fill(t("Then glue on an ending, the same {n} for every word"), { n: num(derived.length) })}
           </p>
-          {/* A key's own padding narrowed, so "(поверхности)", the widest word
-              any of these says, fits a half-width key at 360 whole. */}
-          <ChoiceGroup ariaLabel={t("Endings")} className="grid grid-cols-2 items-start gap-2 sm:grid-cols-3 lg:grid-cols-4 [&>button]:px-2.5">
+          {/* A key's own padding narrowed, and no column narrower than
+              "(поверхности)", the widest word any of these says, with that
+              padding: two keys a row at 360, one at 320, every word whole. */}
+          <ChoiceGroup ariaLabel={t("Endings")} className="grid grid-cols-[repeat(auto-fill,minmax(7.75rem,1fr))] items-start gap-2 sm:grid-cols-3 lg:grid-cols-4 [&>button]:px-2.5">
             {derived.map((c, n) => {
               const suf = CASES.find((k) => k.et === c.et);
               const means = t((suf?.gloss ?? "").replace(/\s+(the|a)\s+book$/, ""), "ending");

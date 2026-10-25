@@ -15784,7 +15784,7 @@ _lib/copy/i18n/areas/landing.ts_
 - [ ] **7824.** About this translation  
   → Про цей переклад
 - [ ] **7825.** Got them, now quiz me  
-  → Зрозуміло, тепер перевір мене
+  → Зрозуміло, перевір мене
 - [ ] **7826.** Now they come back one at a time. Pick what each one means. {n} of {all}  
   → Тепер вони повертаються по одному. Вибери, що означає кожне. {n} з {all}
 - [ ] **7827.** Next word  

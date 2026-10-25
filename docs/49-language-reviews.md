@@ -11,7 +11,7 @@ A count goes stale the day somebody writes a new line, so regenerate before you 
 |---|---|---|---|
 | Lesson lines | ET | None | `docs/44-language-reviews.md` §1 |
 | Lesson recordings | ET | 1,673 lines and words to record | `docs/44-language-reviews.md` §2 |
-| Interface and lesson translations | RU, UK | 67 of 17,070 (RU), 67 of 17,129 (UK), all written after the export | `export-translations.ts --unconfirmed` |
+| Interface and lesson translations | RU, UK | 68 of 17,070 (RU), 68 of 17,129 (UK), all written after the reading | `export-translations.ts --unconfirmed` |
 | Lines the session wrote while applying the reading | ET, RU, UK | About 30, listed in the record | `docs/reviews/2026-10-25-written-lines-applied.md` |
 | One sentence per picture scene | ET | 60 to write, none yet | `npm run scenes:template` |
 | Sounds page | ET | 64 English glosses and the 32 letter names, with the recordings | `lib/collections/sounds.ts` |
@@ -37,9 +37,9 @@ A line written or changed after a reading is not confirmed. To read those:
 3. `npm run apply:translation-review -- ru.csv --write` records it in `docs/translations/confirmed.json`
    and updates the count in `docs/34-interface-languages.md`.
 
-The 67 open today are the onboarding and level lines that landed in #933 and #934 after the export,
-which the session translated into ты / ти, and one public line whose correction named the other language
-(see the record).
+The 68 open today are the onboarding and level lines that landed in #933 and #934 after the export,
+which the session translated into ты / ти, one public line whose correction named the other language, and
+the landing page's quiz button, shortened to fit a 320px window (see the record).
 
 ## 2. Estonian
 
