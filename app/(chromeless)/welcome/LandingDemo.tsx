@@ -325,7 +325,9 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
           <p className="label-xs mb-3" style={{ color: "var(--ink-3)" }}>
             {fill(t("Then glue on an ending, the same {n} for every word"), { n: num(derived.length) })}
           </p>
-          <ChoiceGroup ariaLabel={t("Endings")} className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+          {/* A key's own padding narrowed, so "(поверхности)", the widest word
+              any of these says, fits a half-width key at 360 whole. */}
+          <ChoiceGroup ariaLabel={t("Endings")} className="grid grid-cols-2 items-start gap-2 sm:grid-cols-3 lg:grid-cols-4 [&>button]:px-2.5">
             {derived.map((c, n) => {
               const suf = CASES.find((k) => k.et === c.et);
               const means = t((suf?.gloss ?? "").replace(/\s+(the|a)\s+book$/, ""), "ending");
@@ -339,11 +341,13 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
                     rememberBuilt((c.singular ?? "").split(PARTS)[0] ?? "");
                   }}
                 >
-                  {/* The ending over what it means, below `sm`: side by side, a
-                      half-width key at 320px broke "becoming" in two. */}
-                  <span className="flex flex-col items-center leading-tight sm:flex-row sm:items-baseline sm:gap-2">
+                  {/* The ending over what it means, at every width: side by side,
+                      a half-width key at 320px broke "becoming" in two, and the
+                      Russian "становиться (кем-то, чем-то)" ran out of the key at
+                      768. The meaning may wrap between its words, never inside one. */}
+                  <span className="flex flex-col items-center leading-tight">
                     <span lang="et" className="whitespace-nowrap font-bold">-{suf?.suffix}</span>
-                    <span className="whitespace-nowrap text-xs font-medium">{means}</span>
+                    <span className="text-center text-xs font-medium">{means}</span>
                   </span>
                   {built.has(`${word.lemma}:${c.et}`) && <Check size={13} aria-label={t("built")} />}
                 </ChoiceChip>
