@@ -67,6 +67,18 @@ export const SETTING_KEYS = {
    * had.
    */
   cefrPlacementAt: "cefrPlacementAt",
+  /**
+   * Whether `cefrPlacement` was written under the rule that a level named is a
+   * level held, which is "held" on every row written since A0 existed.
+   *
+   * The bottom chip used to store A1 and mean "just starting", because there
+   * was no A0 to pick. Those rows are still in somebody's settings and still
+   * mean a beginner, so a stored A1 with no "held" beside it is read as A0
+   * (`currentLevelAnswer`). A marker rather than a rewrite of every row,
+   * because the seed never touches a learner's settings and a migration that
+   * did would have to run on every deployment before the code that reads it.
+   */
+  cefrPlacementMeaning: "cefrPlacementMeaning",
 
   /*
     Why this person is here, what they want to reach, and by when. Asked once

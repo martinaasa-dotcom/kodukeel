@@ -2,10 +2,11 @@ import { z } from "zod";
 
 import { PROGRAMMES } from "@/lib/course";
 import { moveBlockedFor } from "@/lib/progress/checks";
-import { openingPartFor, programmeFor } from "@/lib/progress/course";
+import { openingPart, openingPartFor, programmeFor } from "@/lib/progress/course";
+import { goOverAgain, heldFromChoice, HELD_CHOICES, startingLevel, type HeldChoice } from "@/lib/course/placement";
 import { restartPart } from "@/lib/progress/courseReset";
-import { courseLevelFor, recordCourseLevel } from "@/lib/progress/level";
-import { SETTING_KEYS, writeSetting } from "@/lib/settings/store";
+import { courseLevelFor, courseStandingFor, recordCourseLevel } from "@/lib/progress/level";
+import { readSetting, SETTING_KEYS, writeSetting } from "@/lib/settings/store";
 
 /**
  * THE LEVEL THE LEARNER SAYS THEY ARE AT, CHANGED FROM EITHER DOOR (N-8, D2).
@@ -27,21 +28,29 @@ import { SETTING_KEYS, writeSetting } from "@/lib/settings/store";
  * because a level is not a score.
  */
 export type CourseLevelChange =
-  | { ok: true; level: "A1" | "A2" | "B1" | "B2" | "C1"; moved: boolean }
+  | { ok: true; level: HeldChoice; moved: boolean }
   | { ok: false; reason: "invalid" | "blocked"; error: string };
 
 export async function changeCourseLevel(ownerId: string, level: unknown, now: Date): Promise<CourseLevelChange> {
-  const parsed = z.enum(["A1", "A2", "B1", "B2", "C1"]).safeParse((typeof level === "string" ? level : "").toUpperCase());
+  const parsed = z.enum(HELD_CHOICES as [HeldChoice, ...HeldChoice[]])
+    .safeParse((typeof level === "string" ? level : "").toUpperCase());
   if (!parsed.success) return { ok: false, reason: "invalid", error: "Pick a level from the list." };
 
-  const following = await programmeFor(ownerId);
+  const [following, target] = await Promise.all([
+    programmeFor(ownerId),
+    readSetting(ownerId, SETTING_KEYS.goalTarget),
+  ]);
   /*
     A LEARNER WHO STARTED AT A1 MOVES UP BY PASSING, and the picker is a door
     up like any other: from a part of the A1 lessons, a higher level waits on
     the checks between (`lib/course/checks.ts`). Going down is always open.
+
+    Asked of where the choice SENDS them, not of the level on the chip: a level
+    named is a level held and the course opens past it, so picking A1 opens A2
+    and it is A2's door that has to be open.
   */
-  const firstOfLevel = PROGRAMMES.find((p) => p.level === parsed.data);
-  const blocked = firstOfLevel ? await moveBlockedFor(ownerId, following, firstOfLevel) : null;
+  const destination = openingPart(heldFromChoice(parsed.data), target);
+  const blocked = await moveBlockedFor(ownerId, following, destination);
   if (blocked) {
     return { ok: false, reason: "blocked", error: "Pass the checks to move up a level. Each part of the lessons ends in one." };
   }
@@ -89,4 +98,46 @@ export async function changeCourseLevel(ownerId: string, level: unknown, now: Da
   }
 
   return { ok: true, level: parsed.data, moved };
+}
+
+/**
+ * GO OVER THE LEVEL HELD, OR MOVE ON PAST IT.
+ *
+ * A level held opens the course one past it, and the chip in Settings says so.
+ * Some people would rather go over the level they hold first, so this is the
+ * other start: "held" puts the course on the first part of the level held, and
+ * "next" puts it back where the level opens it. Worked out here off the
+ * learner's own standing and target, never off a level the caller names, and
+ * a start already in play moves nothing. Going over a level is going down and
+ * is always open; moving on is a door up and asks the checks like any other.
+ */
+export type CourseStartChange =
+  | { ok: true; moved: boolean }
+  | { ok: false; reason: "invalid" | "blocked"; error: string };
+
+export async function changeCourseStart(ownerId: string, which: unknown, now: Date): Promise<CourseStartChange> {
+  if (which !== "held" && which !== "next") return { ok: false, reason: "invalid", error: "That isn't a start we offer." };
+  const [standing, target, following] = await Promise.all([
+    courseStandingFor(ownerId),
+    readSetting(ownerId, SETTING_KEYS.goalTarget),
+    programmeFor(ownerId),
+  ]);
+  const held = standing?.held ?? null;
+  const again = goOverAgain(held, target);
+  if (!again) return { ok: false, reason: "invalid", error: "There's no level to go over again." };
+  const level = which === "held" ? again : startingLevel(held, target);
+  const to = PROGRAMMES.find((p) => p.level === level);
+  if (!to) return { ok: false, reason: "invalid", error: "That level has no course yet." };
+  if (following?.level === to.level) return { ok: true, moved: false };
+  const blocked = await moveBlockedFor(ownerId, following, to);
+  if (blocked) {
+    return { ok: false, reason: "blocked", error: "Pass the checks to move up a level. Each part of the lessons ends in one." };
+  }
+  await Promise.all([
+    writeSetting(ownerId, SETTING_KEYS.programme, to.id),
+    restartPart(ownerId, to.id),
+    writeSetting(ownerId, SETTING_KEYS.adaptMovedAt, now.toISOString()),
+    writeSetting(ownerId, SETTING_KEYS.adaptSnoozedUntil, ""),
+  ]);
+  return { ok: true, moved: true };
 }
