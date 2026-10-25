@@ -11,7 +11,7 @@ A count goes stale the day somebody writes a new line, so regenerate before you 
 |---|---|---|---|
 | Lesson lines | ET | None | `docs/44-language-reviews.md` §1 |
 | Lesson recordings | ET | 1,673 lines and words to record | `docs/44-language-reviews.md` §2 |
-| Interface and lesson translations | RU, UK | None: 17,070 of 17,070 (RU), 17,129 of 17,129 (UK) | `export-translations.ts --unconfirmed` |
+| Interface and lesson translations | RU, UK | 28 of 17,090 (RU), 28 of 17,149 (UK), all from #935 | `export-translations.ts --unconfirmed` |
 | Lines the session wrote while applying the reading | ET, RU, UK | None, read on the second sheet | `docs/reviews/2026-10-25-written-lines-applied.md` |
 | One sentence per picture scene | ET | 60 to write, none yet | `npm run scenes:template` |
 | Sounds page | ET | 64 English glosses and the 32 letter names, with the recordings | `lib/collections/sounds.ts` |
@@ -37,9 +37,10 @@ A line written or changed after a reading is not confirmed. To read those:
 3. `npm run apply:translation-review -- ru.csv --write` records it in `docs/translations/confirmed.json`
    and updates the count in `docs/34-interface-languages.md`.
 
-None is open today. A second sheet the same day took the 68 left after the first: the onboarding and
-level lines that landed in #933 and #934 after the export, one public line, the landing page's quiz
-button, and every line the session wrote while applying the first (see the record).
+A second sheet the same day took the 68 left after the first: the onboarding and level lines that landed
+in #933 and #934 after the export, one public line, the landing page's quiz button, and every line the
+session wrote while applying the first (see the record). The 28 open today came with the security pass
+(#935): its new messages, the archived class screens and four paragraphs of the privacy policy.
 
 ## 2. Estonian
 
