@@ -476,8 +476,10 @@ try {
         const context = await browser.newContext({ viewport: { width: 1280, height: 1000 } });
         if (init) await context.addInitScript(init);
         const page = await context.newPage();
-        let navigations = 0;
-        page.on("framenavigated", (frame) => { if (frame === page.mainFrame()) navigations += 1; });
+        /* A reload is counted as a second document, not as `framenavigated`, which
+           also fires for the router's own same-document address update on Settings. */
+        let documents = 0;
+        page.on("domcontentloaded", () => { documents += 1; });
         await page.goto(`${B}/settings?tab=account`, { waitUntil: "domcontentloaded" });
         await page.locator("#email").waitFor({ timeout: 20_000 }).catch(() => {});
         /* What the browser offers, asked without asking the push manager: the
@@ -491,7 +493,7 @@ try {
         await page.waitForTimeout(6000);
         const state = await page.evaluate(() => document.querySelector("[data-push-panel]")?.getAttribute("data-push-panel") ?? null);
         await context.close();
-        return { supported, state, navigations };
+        return { supported, state, documents };
       };
       const native = await panel(null);
       const can = native.supported === "yes";
@@ -500,8 +502,8 @@ try {
         can ? native.state === "off" || native.state === "denied" : native.state === null,
         `Web Push: ${native.supported}; panel ${native.state ?? "absent"}`,
       );
-      check("Settings stays put while the reminders panel decides", native.navigations === 1,
-        `${native.navigations} navigations of the page`);
+      check("Settings stays put while the reminders panel decides", native.documents === 1,
+        `${native.documents} documents loaded`);
       const without = await panel(() => { delete window.PushManager; });
       check("with Web Push taken away, nothing is offered", without.state === null, `panel ${without.state ?? "absent"}`);
     }
