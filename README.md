@@ -589,10 +589,13 @@ as it is. Then under **Authentication → URL Configuration → Redirect URLs**,
 `https://<your-app>/auth/callback`. Every way of signing in lands on that one address, so the list of
 who's allowed in is checked in one place.
 
-**Turn off the sign-in methods this app doesn't use.** Under **Authentication → Providers**, leave
-email and Google on and switch off password sign-in, anonymous sign-in and phone. The app refuses a
-token from an anonymous session and gives reviewer rights only to an account signed in with Google or
-a mailed link, but a provider left on is one more door into the project for no reason.
+**Turn off the sign-in methods this app doesn't use.** Under **Authentication → Sign In / Providers**,
+leave email and Google on, switch off anonymous sign-ins and the phone provider, and keep **Confirm
+email** on. The email provider carries both the mailed link and passwords, so where the dashboard has
+no separate switch for passwords, Confirm email is what stops an address nobody proved from getting
+in. The app refuses a token from an anonymous session and gives reviewer rights only to an account
+signed in with Google or a mailed link, never a password, but a provider left on is one more door into
+the project for no reason.
 
 **Set up your own email sending (SMTP) before you tell anybody about the site.** Supabase's built-in
 email service sends only a couple of messages an hour for the whole project, and says itself that
