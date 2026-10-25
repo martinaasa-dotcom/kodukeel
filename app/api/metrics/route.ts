@@ -1,4 +1,4 @@
-import { timingSafeEqual } from "node:crypto";
+import { bearerMatches } from "@/lib/security/bearerSecret";
 
 import { NextRequest, NextResponse } from "next/server";
 
@@ -40,23 +40,12 @@ import {
 export const dynamic = "force-dynamic";
 
 function authorised(request: NextRequest): boolean {
-  const expected = process.env.METRICS_TOKEN;
-  if (!expected) return false;
-
-  const header = request.headers.get("authorization") ?? "";
-  const offered = header.startsWith("Bearer ") ? header.slice(7) : "";
-  if (!offered) return false;
-
-  // Same length before comparing, because timingSafeEqual throws on a mismatch
-  // and the throw itself would leak the length.
-  const a = Buffer.from(offered);
-  const b = Buffer.from(expected);
-  if (a.length !== b.length) return false;
-  return timingSafeEqual(a, b);
+  // Constant time, hashed to one length, and refused where the token is unset or short.
+  return bearerMatches(request.headers.get("authorization"), process.env.METRICS_TOKEN);
 }
 
 export async function GET(request: NextRequest) {
-  if (!process.env.METRICS_TOKEN || !authorised(request)) {
+  if (!authorised(request)) {
     return new NextResponse("Not found", { status: 404 });
   }
 

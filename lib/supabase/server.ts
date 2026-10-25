@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
+import { arrivedSecure, sessionCookieOptions } from "@/lib/supabase/cookieOptions";
 
 /**
  * Supabase client for Server Components, Server Actions and Route Handlers.
@@ -14,13 +15,16 @@ import { cookies } from "next/headers";
  * back on, and cutting it short would fail a sign-in that was about to work.
  */
 export async function createClient(fetchImpl?: typeof globalThis.fetch) {
-  const cookieStore = await cookies();
+  const [cookieStore, head] = await Promise.all([cookies(), headers()]);
+  const secure = arrivedSecure(null, head.get("x-forwarded-proto"))
+    || (process.env.NEXT_PUBLIC_SITE_URL ?? "").startsWith("https://");
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       ...(fetchImpl ? { global: { fetch: fetchImpl } } : null),
+      cookieOptions: sessionCookieOptions(secure),
       cookies: {
         getAll() {
           return cookieStore.getAll();

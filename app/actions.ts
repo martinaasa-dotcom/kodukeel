@@ -12,6 +12,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { busyMessage, throttleAction, type ActionRefusal } from "@/lib/security/actionLimits";
 import { recordSuggestion } from "@/lib/suggestions/record";
+import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
 import { visibleLine, visibleProse } from "@/lib/security/visibleText";
 import { glossSentences } from "@/lib/dict/glossed";
 import { MAX_READING_CHARS, readingParagraphs } from "@/lib/estonian/readingText";
@@ -33,20 +34,22 @@ import { createWithFreshCode } from "@/lib/classroom/create";
 import { cohortKind } from "@/lib/classroom/cohort";
 import { EXAM_LEVELS, type ExamLevel } from "@/lib/exam/spec";
 import { loadRecentMessages } from "@/lib/tutor/history";
-import { isExactForm } from "@/lib/dict/forms";
+import { coldBudget, isExactForm } from "@/lib/dict/forms";
+import { COLD_SHARDS_PER_REQUEST } from "@/lib/progress/speechForms";
 import { mergeExamples, parseExamples } from "@/lib/dict/examples";
 import { restoredEntry } from "@/lib/dict/restoredEntry";
 import { lookupAndStore } from "@/lib/dict/lookup";
 import { upsertLexemeWithForms } from "@/lib/dict/upsert";
 import { editExamples } from "@/lib/dict/editExamples";
-import { requireAdminId } from "@/lib/auth/admin";
+import { isAdmin, requireAdminId } from "@/lib/auth/admin";
 import { applyPatch } from "@/lib/suggestions/apply";
+import { correctionReports } from "@/lib/suggestions/correction";
 import { resetCourseProgress } from "@/lib/progress/courseReset";
 import {
   PATCH_POS, SUGGESTION_LIMITS, acknowledgement, groupKeyFor, isCategory, parsePatch, parsePatchValue,
   patchFitsCategory, triggerLimit,
 } from "@/lib/suggestions/model";
-import { CEFR_LEVELS } from "@/lib/estonian/types";
+import { CEFR_LEVELS, PRINCIPAL_FORM_TYPES } from "@/lib/estonian/types";
 import { LIMITS, MAX_SCAN_TITLE } from "@/lib/progress/fieldLimits";
 import { resolveOneWord } from "@/lib/dict/resolveScan";
 import { MAX_ITEMS as SCAN_MAX_ITEMS } from "@/lib/scan/extract";
@@ -545,10 +548,23 @@ export async function addExample(lexemeId: string, sentence: string, translation
   if (et.length < 4) return { ok: false as const, error: "That's a bit short for a sentence. Try a few more words." };
 
   const en = visibleLine(translation ?? "", LIMITS.translation) || null;
+  /*
+    THE SENTENCE IS THE AUTHOR'S, AND ONLY A REVIEWER'S IS EVERYBODY'S.
+
+    It is stored on the shared entry, signed with who typed it, and
+    `usableExamples` hands it to that learner alone (`typedReaches`): it no
+    longer reaches anybody else's entry, cards or examination. A reviewer's
+    sentence is marked as passed and reaches everybody, which is how a good line
+    from class becomes part of the dictionary. And it does not sign the entry:
+    `editedBy` says who changed a word, and a sentence only this learner sees is
+    not a change to anybody else's word, nor a way to make a stranger's entry
+    read as this learner's own.
+  */
+  const admin = await isAdmin();
   const saved = await editExamples(
     typeof lexemeId === "string" ? lexemeId : "",
-    (now) => ({ next: mergeExamples(now, [{ et, en, source: "USER" }]), result: null }),
-    { editedBy: ownerId, editedAt: new Date() },
+    (now) => ({ next: mergeExamples(now, [{ et, en, source: "USER", by: ownerId, ...(admin ? { reviewed: true } : {}) }]), result: null }),
+    admin ? { editedBy: ownerId, editedAt: new Date() } : {},
   );
   if (!saved.found) return { ok: false as const, error: "That word isn't in the dictionary any more." };
   revalidatePath("/dictionary");
@@ -753,18 +769,80 @@ export async function createLexemeWithForms(input: {
     return { ok: false as const, error: "Pick a level from the list." };
   }
 
+  // An id off the wire or none: an object here reached a `findUnique` as a
+  // filter and came back as a 500.
+  const id = text(input.id) || undefined;
+  const government = visibleLine(input.government, LIMITS.government);
+  const forms = Object.fromEntries(
+    Object.entries(fieldsOf(input.forms)).map(([type, value]) => [type, visibleLine(value, LIMITS.form)]),
+  );
+
+  /*
+    AN ENTRY THAT IS NOT THIS LEARNER'S OWN IS CORRECTED THROUGH THE QUEUE.
+
+    The dictionary is shared, and this action wrote straight into it: any
+    signed-in account could rewrite the English, the headword, the band, the
+    kind of word and the principal parts of any entry for every learner, and an
+    entry Ekilex supplied kept its Ekilex label afterwards. Without an id it was
+    the same door, since a headword and kind of word that already exist are
+    upserted onto the existing row. So a reviewer writes those directly, a
+    learner writes directly only to a word they added themselves that nobody
+    has since changed, and everything else is filed as reports a reviewer
+    accepts in one press (`lib/suggestions/correction.ts`). The learner is told
+    it went for review rather than shown a change that did not happen.
+  */
+  const admin = await isAdmin();
+  const target = await prisma.lexeme.findUnique({
+    where: id ? { id } : { lemma_pos: { lemma, pos } },
+    select: {
+      id: true, lemma: true, translation: true, pos: true, cefr: true, government: true,
+      provenance: true, editedBy: true,
+      forms: { where: { formType: { in: [...PRINCIPAL_FORM_TYPES] } }, orderBy: { orderIndex: "asc" }, select: { formType: true, value: true } },
+    },
+  });
+  if (id && !target) return { ok: false as const, error: "That entry isn't in the dictionary any more." };
+  const theirs = target !== null && (target.provenance === "USER" || target.provenance === "AI") && target.editedBy === ownerId;
+  if (target && !admin && !theirs) {
+    const now = {
+      ...target,
+      forms: Object.fromEntries(target.forms.map((f) => [f.formType, f.value])),
+    };
+    const reports = correctionReports(now, {
+      lemma, translation, pos, government, forms,
+      cefr: level === undefined ? undefined : (level ?? ""),
+    });
+    for (const report of reports) {
+      await recordSuggestion(ownerId, {
+        category: report.category,
+        groupKey: groupKeyFor({ category: report.category, lexemeId: target.id, lemma: target.lemma, patch: report.patch }),
+        note: report.note,
+        context: clip(`/dictionary?q=${target.lemma}`, SUGGESTION_LIMITS.context),
+        trigger: null,
+        lemma: target.lemma,
+        lexemeId: target.id,
+        patch: report.patch ? JSON.stringify(report.patch) : "{}",
+      });
+    }
+    if (reports.length > 0) revalidatePath("/suggestions");
+    return {
+      ok: true as const, id: target.id, lemma: target.lemma, updated: false, queued: reports.length > 0,
+      message: reports.length > 0 ? acknowledgement("WRONG_MEANING") : null,
+    };
+  }
+
   const lexeme = await upsertLexemeWithForms({
-    // An id off the wire or none: an object here reached a `findUnique` as a
-    // filter and came back as a 500.
-    id: text(input.id) || undefined,
+    id,
     lemma,
     translation,
     pos,
-    cefr: level === null ? "" : level,
-    government: visibleLine(input.government, LIMITS.government),
-    forms: Object.fromEntries(
-      Object.entries(fieldsOf(input.forms)).map(([type, value]) => [type, visibleLine(value, LIMITS.form)]),
-    ),
+    /*
+      A level is a reviewer's to set. A band is what puts a word in front of
+      other learners, as a decoy, a word of the day or an examination question,
+      so a learner's own new word is unbanded until something vouches for it.
+    */
+    cefr: admin ? (level === null ? "" : level) : (target ? undefined : ""),
+    government,
+    forms,
     editedBy: ownerId,
   });
 
@@ -788,7 +866,7 @@ export async function createLexemeWithForms(input: {
   revalidatePath("/dictionary");
   revalidatePath("/words");
   revalidatePath("/");
-  return { ok: true as const, id: lexeme.id, lemma, updated: lexeme.previous !== null };
+  return { ok: true as const, id: lexeme.id, lemma, updated: lexeme.previous !== null, queued: false, message: null };
 }
 
 /**
@@ -2487,6 +2565,9 @@ export async function createClassroom(name: string, kind?: string, targetLevel?:
  * about a class is retroactive or hidden, and leaving removes the membership
  * and nothing else.
  */
+/** How many classes one account may try to join in a day, counted across instances. */
+const JOINS_PER_DAY = 30;
+
 export async function joinClassroom(code: string, displayName?: string) {
   const ownerId = await requireUserId();
 
@@ -2494,6 +2575,17 @@ export async function joinClassroom(code: string, displayName?: string) {
   if (busy) return await sayRefusal(ownerId, busy);
   if (!isValidCode(code)) {
     return { ok: false as const, error: "That code doesn't look quite right. Check it and try again." };
+  }
+  /*
+    A code is the only thing between a stranger and a roster, and the minute
+    throttle above lives in one instance's memory. The day's ceiling is counted
+    where every instance sees it, so guessing codes from many cold starts buys
+    no more tries than guessing from one. Thirty joins a day is far more than
+    anybody joining real classes needs.
+  */
+  const guesses = await checkSharedRateLimit(`join:o:${ownerId}`, JOINS_PER_DAY, 24 * 60 * 60 * 1000);
+  if (!guesses.ok) {
+    return { ok: false as const, error: "Too many tries today. Try again tomorrow, or ask your teacher for the code." };
   }
 
   const classroom = await prisma.classroom.findUnique({
@@ -2820,6 +2912,13 @@ export async function toggleTask(id: string, done?: boolean) {
  * the other side as something a calendar can draw, and the owner comes from
  * `requireUserId` rather than from the caller.
  */
+/**
+ * How many of one learner's own rows a table may hold, past which an add is
+ * refused rather than written. Far above a real term of classes, reminders
+ * and a few years of answers about the day; far below a loop.
+ */
+const OWN_ROWS = { studyEvent: 300, task: 2000, encounterPerDay: 4 } as const;
+
 export async function addStudyEvent(input: {
   title: string;
   notes?: string;
@@ -2830,6 +2929,11 @@ export async function addStudyEvent(input: {
   onDate?: string | null;
 }) {
   const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "personalWrite");
+  if (busy) return await sayRefusal(ownerId, busy);
+  if (await prisma.studyEvent.count({ where: { ownerId } }) >= OWN_ROWS.studyEvent) {
+    return { ok: false as const, error: "Your calendar is full. Take something off it first." };
+  }
   input = fieldsOf(input);
 
   const title = clip(text(input.title).trim(), 120);
@@ -2885,6 +2989,11 @@ export async function deleteStudyEvent(id: string) {
  */
 export async function addReminder(input: { title: string; notes?: string; dueAt?: string | null }) {
   const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "personalWrite");
+  if (busy) return await sayRefusal(ownerId, busy);
+  if (await prisma.task.count({ where: { ownerId } }) >= OWN_ROWS.task) {
+    return { ok: false as const, error: "There are too many reminders here. Clear some old ones first." };
+  }
   input = fieldsOf(input);
   const title = clip(text(input.title).trim(), 200);
   if (!title) return { ok: false as const, error: "Give it a name." };
@@ -3022,7 +3131,8 @@ export async function readHeard(linesIn: unknown) {
   const words = [...new Set(lines.flatMap((line) => line.split(/\s+/))
     .map((word) => word.normalize("NFC").toLocaleLowerCase("et").replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, ""))
     .filter((word) => word.length > 0 && word.length <= 40))].slice(0, READING_WORD_BUDGET);
-  const held = await Promise.all(words.map(async (word) => [word, await isExactForm(word)] as const));
+  const budget = coldBudget(COLD_SHARDS_PER_REQUEST);
+  const held = await Promise.all(words.map(async (word) => [word, await isExactForm(word, budget)] as const));
   return {
     ok: true as const,
     lines: lines.map((sentence, i) => ({ sentence, tokens: glossed[i] ?? [] })),
@@ -3250,6 +3360,19 @@ export async function inspectBackup(json: string): Promise<
  *
  * A backup you have never restored is a hypothesis, which is why this exists at all.
  */
+/** The settings the server keeps for itself, which a backup may not set. */
+const NOT_RESTORED = [
+  SETTING_KEYS.checksPassed,
+  SETTING_KEYS.streakShields,
+  SETTING_KEYS.streakShieldDates,
+  SETTING_KEYS.streakShieldsAwarded,
+  SETTING_KEYS.milestoneToldFor,
+  SETTING_KEYS.shieldToldFor,
+  SETTING_KEYS.emailUndeliverable,
+] as const;
+/** The longest setting a backup may write. The longest real one is a list of ids. */
+const MAX_RESTORED_SETTING = 4000;
+
 export async function restoreBackup(json: string, mode: "merge" | "replace") {
   const ownerId = await requireUserId();
 
@@ -3423,11 +3546,21 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         measured alone. The other four are upserts, because a setting or a star
         is a current value rather than a fact about a moment.
       */
+      /*
+        Only a setting this app has, and only one the learner chose. A backup is
+        a file anybody can write, and this took every key in it at any length:
+        a made-up key was a row nothing reads and nothing bounds, and the
+        server's own records (the checks passed, the shields awarded, which
+        letters have been sent, whether an address bounced) came back as
+        whatever the file said. Those are worked out here, never restored.
+      */
+      const restorable = new Set<string>(Object.values(SETTING_KEYS));
+      for (const key of NOT_RESTORED) restorable.delete(key);
       const settings = new Map<string, string>();
       for (const raw of backup.settings ?? []) {
         const data = revive(raw, []);
         const key = String(data.key ?? "");
-        if (key) settings.set(key, String(data.value ?? ""));
+        if (key && restorable.has(key)) settings.set(key, String(data.value ?? "").slice(0, MAX_RESTORED_SETTING));
       }
       const heldKeys = new Set((await tx.setting.findMany({
         where: { ownerId, key: { in: [...settings.keys()] } }, select: { key: true },
@@ -4018,6 +4151,17 @@ export async function recordEncounter(errandId: string | null, outcome: string) 
   if (named === undefined || !result) {
     return { ok: false as const, error: "That isn't one of the answers." };
   }
+  const busy = throttleAction(ownerId, "personalWrite");
+  if (busy) return await sayRefusal(ownerId, busy);
+  /*
+    An answer about yesterday is given once a morning, twice where two tabs are
+    open. Past a handful in a day it is not a person answering, and these rows
+    are what the conversations-outside-the-app figure is counted from.
+  */
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  if (await prisma.encounter.count({ where: { ownerId, createdAt: { gte: since } } }) >= OWN_ROWS.encounterPerDay) {
+    return { ok: true as const };
+  }
   await prisma.encounter.create({ data: { ownerId, errandId: named?.id ?? null, outcome: result } });
   revalidatePath("/");
   revalidatePath("/progress");
@@ -4209,6 +4353,15 @@ export async function recordAssessment(input: unknown) {
   const { seed, builtAt, answers } = parsed.data;
   const result = await markSitting(ownerId, seed, Math.min(builtAt, Date.now()), answers);
   if (!result) return { ok: false as const, error: "That result doesn't match the paper you sat, so it wasn't saved." };
+  /*
+    ONE PAPER IS SAT ONCE. The browser holds the answers to mark as it goes,
+    so a paper replayed with every answer right was a measured level for the
+    asking, and a sponsor's cohort view reads that level. A paper is recorded
+    once per seed, counted where every instance sees it; a fresh sitting is a
+    fresh paper.
+  */
+  const once = await checkSharedRateLimit(`assess-paper:${ownerId}:${seed}`, 1, 7 * 24 * 60 * 60 * 1000);
+  if (!once.ok) return { ok: false as const, error: "That paper has already been handed in, so it wasn't saved again." };
   const stored = await saveResult(ownerId, result);
 
   revalidatePath("/assess");
@@ -4576,6 +4729,12 @@ export async function resetCourseFor(target: unknown) {
   if (!all && !ownerId) return { ok: false as const, error: "Nobody was named, so nothing was reset." };
   try {
     const done = await resetCourseProgress(all ? "all" : [ownerId]);
+    /* A reviewer resetting other people's progress is the one admin action
+       that rewrites learners' own rows, so it leaves a line in the server log
+       naming who did it and how wide it went, and no learner's name. */
+    console.info(JSON.stringify({
+      at: "admin.resetCourse", by: adminId, scope: all ? "all" : "one", ticks: done.ticks, when: new Date().toISOString(),
+    }));
     revalidatePath("/admin/suggestions");
     return { ok: true as const, ...done };
   } catch (error) {
@@ -4596,6 +4755,7 @@ export async function resetCourseFor(target: unknown) {
 export async function realSpellings(tokens: unknown): Promise<string[]> {
   await requireUserId();
   const list = Array.isArray(tokens) ? tokens.slice(0, 12).map((t) => text(t).trim().toLowerCase()).filter((t) => t && t.length <= 40) : [];
-  const found = await Promise.all(list.map(async (t) => ((await isExactForm(t)) ? t : null)));
+  const budget = coldBudget(COLD_SHARDS_PER_REQUEST);
+  const found = await Promise.all(list.map(async (t) => ((await isExactForm(t, budget)) ? t : null)));
   return found.filter((t): t is string => t !== null);
 }

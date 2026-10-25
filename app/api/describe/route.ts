@@ -2,7 +2,8 @@ import { after } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { pictureById, SENTENCES_PER_PICTURE } from "@/lib/collections/pictures";
-import { lemmasOfForm } from "@/lib/dict/forms";
+import { coldBudget, lemmasOfForm } from "@/lib/dict/forms";
+import { COLD_SHARDS_PER_REQUEST } from "@/lib/progress/speechForms";
 import { oneEntryPerLemma, VOUCHED_ROW } from "@/lib/dict/search";
 import { acceptedUses } from "@/lib/exam/written";
 import { correctionsFor, markPicture, sameWordIn, spellingsToCheck, type PictureWord } from "@/lib/games/picture";
@@ -113,8 +114,10 @@ export async function POST(request: Request) {
   const spellings = spellingsToCheck(sentences).slice(0, 120);
   // Which headwords each spelling is a form of. `known` is the spellings that have any.
   const headwordsOf = new Map<string, string[]>();
+  // A bounded number of cold shards per request: see `ColdBudget` in lib/dict/forms.ts.
+  const budget = coldBudget(COLD_SHARDS_PER_REQUEST);
   await Promise.all(spellings.map(async (w) => {
-    const found = await lemmasOfForm(w);
+    const found = await lemmasOfForm(w, budget);
     if (found.length > 0) headwordsOf.set(w, found.slice(0, 3));
   }));
   const known = new Set(headwordsOf.keys());

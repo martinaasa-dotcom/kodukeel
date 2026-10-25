@@ -32,6 +32,7 @@ const UNSET: Record<string, string> = {
   ASR_BENCH: "",
   ASR_MODEL_BUNDLED: "",
   KODUKEEL_BUILT_AT: "",
+  KODUKEEL_LOCAL_MODE: "",
   DEMO_DEPLOYMENT: "",
   DEMO_URL: "",
   ALLOWED_EMAILS: "",

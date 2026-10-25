@@ -145,6 +145,16 @@ showing an empty list to everybody.
 The action is also throttled. `lib/security/actionLimits.ts` caps `sendSuggestion` at 20 a minute per
 learner and `editDictionary` at 30.
 
+Since 25 October 2026 a learner who is not a reviewer cannot change a shared entry at all. The
+add-and-correct form still works on their own words; on anybody else's, or on a seeded or Ekilex
+entry, it files the change in the suggestion queue as reports (`lib/suggestions/correction.ts`) and
+says so. What a learner writes stays theirs until a reviewer accepts it: a typed sentence is shown to
+its author and to nobody else until reviewed (`typedReaches` in `lib/dict/examples.ts`), a word a
+learner typed or Anu suggested is found by its author's search alone, and every shared picker, the
+tutor's dictionary block and the exam pool read only seeded and Ekilex rows (`VOUCHED_ROW`). A
+search that ties ranks a seeded entry above an Ekilex one above anything else, so a planted row can
+never lead.
+
 **Residual.** A named reviewer is trusted. The mitigation is that the list is short enough to read
 aloud and every change carries the reviewer's id.
 
@@ -211,9 +221,14 @@ noticing. Everything they write from then on goes into a deck you can read.
 
 **Control.** `app/auth/callback/route.ts`. The `token_hash` branch is deliberately not tied to the
 browser that asked, which is the whole reason that email template shape exists, so the tie has to be
-made here instead. A link that would change who is signed in never just does it: the session in the
-browser is ended and the learner is sent to `/sign-in?switched=1` with a sentence saying what
-happened. The `next` parameter is dropped, because it was chosen by whoever wrote the link.
+made here instead. Opening the link does nothing on its own: the GET only sends the browser to a
+page on `/sign-in` that says a link was opened and asks for one press of "Finish signing in", which
+POSTs the token to the callback. That matters twice. A mail scanner or link preview that fetches the
+URL spends nothing, and a page somewhere else cannot sign anybody out or in by embedding the link,
+because the forged-request gate refuses a cross-site POST. On the POST, a browser that already holds
+a session is signed out on this device only (`scope: "local"`, never every device the account has)
+and sent to `/sign-in?switched=1` with a sentence saying what happened. The `next` parameter is
+dropped there, because it was chosen by whoever wrote the link.
 
 Nobody signed in is the ordinary case and is untouched, so the link works exactly as it should for
 the person it was mailed to.
@@ -290,9 +305,10 @@ dictionary is left alone, and a word that is not is created as the restorer's ow
 and the Ekilex identifiers stripped.
 
 Size is bounded twice, and both limits are set to the same number on purpose because two limits on
-one upload that disagree is how the last fault happened. `serverActions.bodySizeLimit` and
-`proxyClientMaxBodySize` in `next.config.ts` are both 16 MB, and `/api/restore` checks
-`content-length` against the same 16 MB before reading. It used to declare 128 MB, which no request
+one upload that disagree is how the last fault happened. `proxyClientMaxBodySize` in `next.config.ts`
+is 16 MB, and `/api/restore` checks `content-length` against the same 16 MB before reading. Every
+other Server Action is held to `serverActions.bodySizeLimit`, 2 MB, since a backup no longer travels
+as one. It used to declare 128 MB, which no request
 could reach: the proxy truncates a larger body rather than refusing it, so an oversized backup was
 parsed half-read and reported as not a backup at all. `inspectBackup`, which parses the same
 whole file and writes nothing, is throttled too, because it never looked expensive and is a public
@@ -661,5 +677,78 @@ hostname, which on a host with HSTS preloaded is not a position anybody reaches 
 it buys is a deployment behind a reverse proxy, which sees `Host: localhost:3000` on a request whose
 `Origin` is the public address: comparing whole origins would refuse every mutation on it. Recorded
 here rather than left to be rediscovered.
+
+### The second review, 25 October 2026
+
+Done before the native apps, as a full pass over the source with every finding checked against the
+code before it was fixed. Fixed in the same pass:
+
+- **A public workflow published learner names.** `.github/workflows/reset-course.yml` appended the
+  reset script's output to the run summary, which on a public repository anybody can read, and that
+  output listed every learner's display name and account id. The script prints counts now and names
+  only with `--show-names` in a terminal. Past run summaries should be deleted by hand.
+- **Opening a sign-in link signed the browser out everywhere.** The GET verified the token and, where
+  another session was present, called a global sign-out. It is a confirmation page and a POST now
+  (section 4.6), and every sign-out the callback makes is local to the device.
+- **A token that was not a learner's was accepted.** The anon key, a `service_role` token and an
+  anonymous session are all signed by the same project. `isLearnerToken` in `lib/auth/identity.ts`
+  requires an `authenticated` audience and role and a real account, on the cookie path and the native
+  bearer path alike.
+- **Reviewer rights followed an address the account had not proved.** `ADMIN_EMAILS` matched the
+  email claim whatever method signed the account in. Admin now needs a sign-in method that proves the
+  inbox (Google or a mailed link); password, anonymous, web3 and SSO sessions are refused.
+- **A deployment could fall into local mode.** With no Supabase keys every request was one shared
+  learner and an admin. `localModeRefused` in `lib/auth/mode.ts` refuses it on Vercel and in a
+  production build against a database that is not on loopback, unless `KODUKEEL_LOCAL_MODE=1`.
+- **Any learner could change shared dictionary entries and have them read as attested.** See
+  section 4.2: corrections are moderated, typed sentences and typed words reach only their author
+  until reviewed, and shared pickers read seeded and Ekilex rows only.
+- **Erasing an account reset that day's AI allowance.** The ledger's rows went with the account, so
+  erasing and signing up again bought a fresh allowance. Today's rows are kept under a one-way key
+  (`lib/usage/erasedSpend.ts`) that still counts against the same account and names nobody, and
+  erasure itself is capped at ten a day.
+- **The export carried other people's ids.** A word somebody else corrected carried their account
+  id in `editedBy`, and an accepted report carried the reviewer's. Both are cleared unless they are
+  the owner's own, and other learners' typed sentences are not exported.
+- **A restore could raise its own settings.** It wrote any key in the file, including a passed check
+  and a banked streak shield. It restores only known keys and never the earned ones, with values
+  capped in length, and a restored entry carries no level.
+- **A placement paper could be handed in many times.** Each seed is marked once a week now.
+- **Cron and research tokens were compared in a way that leaked length, and short ones were
+  accepted.** `bearerMatches` in `lib/security/bearerSecret.ts` hashes both sides before a
+  constant-time compare and refuses a secret under 16 characters.
+- **The cookie session was not marked `Secure` behind a proxy**, and error reports could carry an
+  email address. Both fixed (`lib/supabase/cookieOptions.ts`, `lib/security/redact.ts`).
+- **A Server Action body could be 16 MB.** It is 2 MB, the size of the largest backup.
+- **One request could decompress hundreds of forms-list shards**, which is CPU on the miss path.
+  Decompression is asynchronous, one flight per shard, and a request may open at most twelve cold
+  ones.
+- **A search could send Ekilex a wildcard.** `searchableWord` refuses wildcards, very long input and
+  input of dots alone before anything is asked upstream.
+- **Join codes came from `Math.random`**, whose state can be recovered from its outputs, and failed
+  joins were limited per instance. Codes are drawn from `crypto.getRandomValues` and joins are capped
+  at thirty a day across instances.
+- **Personal rows had no ceiling.** Calendar events, reminders and the daily conversation report are
+  throttled and capped per account, and the shelf and undo inputs are bounded before any query.
+- **`.env` files were not ignored**, and a vulnerable `fast-uri` sat in the lockfile. Both fixed.
+
+Accepted, with the reasoning, and to be revisited before the native apps ship:
+
+- **A word a learner typed can still be picked up by another learner's scan or import** where both
+  name the same headword and part of speech, because the dictionary is keyed that way. It is no
+  longer shown, ranked or lent to anybody, and it is marked as the author's. The full fix is words
+  scoped to their owner, which is a schema change.
+- **The placement check marks in the browser and posts what was answered.** The server rebuilds the
+  paper and marks it, but the client holds the paper, so a determined learner can answer it with the
+  key in hand. It sets their own starting level and nothing anybody else reads.
+- **A revoked session lives until its token expires**, about an hour (section 6).
+- **Session cookies are readable by script**, because the Supabase browser client reads them. The
+  Content Security Policy is what stands in front of that.
+- **Speech clips are cached by phrase**, so timing can tell whether somebody has heard a phrase
+  before. It reveals no account.
+- **Deleting an account needs only a signed-in session and a typed confirmation.** A step-up check
+  is on the list for the native apps.
+- **An admin's bulk course reset** writes one structured line to the server log and nothing more
+  durable. An audit table is on the list.
 
 If you find something not on this list, `SECURITY.md` says where to send it.

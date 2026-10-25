@@ -93,6 +93,14 @@ describe("readBearer", () => {
     expect(await readBearer(asking(`Bearer ${token}`), deps())).toEqual({ state: "out" });
   });
 
+  it("says out for a token the project signed that is not a learner's session", async () => {
+    stubProject([good.jwk]);
+    for (const over of [{ aud: "anon", role: "anon" }, { role: "service_role" }, { is_anonymous: true }]) {
+      const token = await sign(good.privateKey, "key-1", claims(over));
+      expect(await readBearer(asking(`Bearer ${token}`), deps())).toEqual({ state: "out" });
+    }
+  });
+
   it("says out for a token signed by another key under the same name", async () => {
     stubProject([good.jwk]);
     const token = await sign(other.privateKey, "key-1", claims());

@@ -45,7 +45,10 @@ Otherwise, change the two URLs and run `npm run setup` again.
 accounts, and everything stays in the database on your machine. Add `NEXT_PUBLIC_SUPABASE_URL` and
 `NEXT_PUBLIC_SUPABASE_ANON_KEY` and it becomes a multi-user site with Google sign-in, where every
 page needs you to be signed in and each person's deck is their own. Those keys are the only switch.
-A deployment that has them set can never slip back into the open local mode.
+A deployment that has them set can never slip back into the open local mode. Nor can one that
+lost them: on Vercel, or in a production build pointed at a database that is not on this machine,
+the app answers with an error page naming the missing keys rather than opening up as one shared
+learner. Set `KODUKEEL_LOCAL_MODE=1` only if you really mean to run a production build in local mode.
 
 To stop it, press Ctrl-C in the terminal. To start it again later, just run `npm run dev`.
 
@@ -586,6 +589,11 @@ as it is. Then under **Authentication → URL Configuration → Redirect URLs**,
 `https://<your-app>/auth/callback`. Every way of signing in lands on that one address, so the list of
 who's allowed in is checked in one place.
 
+**Turn off the sign-in methods this app doesn't use.** Under **Authentication → Providers**, leave
+email and Google on and switch off password sign-in, anonymous sign-in and phone. The app refuses a
+token from an anonymous session and gives reviewer rights only to an account signed in with Google or
+a mailed link, but a provider left on is one more door into the project for no reason.
+
 **Set up your own email sending (SMTP) before you tell anybody about the site.** Supabase's built-in
 email service sends only a couple of messages an hour for the whole project, and says itself that
 it's for testing. On a public site, the second person to ask for a link won't get one. It lives
@@ -620,7 +628,8 @@ you, nothing breaks, and the course works exactly as it does now.
 RESEND_API_KEY=re_...            # the same key the SMTP settings above use
 EMAIL_FROM="Kodukeel <hei@your-domain>"   # a verified sending address on your domain
 EMAIL_TOKEN_SECRET=...           # 32+ random bytes, signs the unsubscribe links
-CRON_SECRET=...                  # the scheduler's bearer token
+CRON_SECRET=...                  # the scheduler's bearer token, 16+ characters
+                                 # (a shorter one is refused as unset)
 EMAIL_REPLY_TO=hei@your-domain   # optional, and worth setting: a letter nobody
                                  # can answer is a letter from a machine
 RESEND_WEBHOOK_SECRET=whsec_...  # verifies what Resend sends back
@@ -699,7 +708,9 @@ The sign-in link opens in the browser that asked for it, because that's where th
 lives, and the sign-in screen says so. If you'd rather the link still worked after being forwarded
 to a phone, change the magic-link email template to point at
 `{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=email`.
-`app/auth/callback/route.ts` already handles that shape, so nothing in the app needs changing.
+`app/auth/callback/route.ts` already handles that shape, so nothing in the app needs changing. A link
+of that shape opens the sign-in screen with one button to press, because a link any page can send
+somebody to may not sign anybody in or out on its own.
 
 **Company sign-in, for a workplace running a pilot.** A workplace with its own sign-in system
 usually can't use either of the two ways in above: a Google account belongs to somebody else, and an
@@ -759,7 +770,7 @@ right, because the scheduler needs it. Put together across everybody, that's a p
 learners of Estonian actually go wrong, by case, by stem change and by word. That's something no
 textbook or single classroom can measure.
 
-Set `RESEARCH_TOKEN` and `/api/research` produces it as a CSV file you can send to somebody who
+Set `RESEARCH_TOKEN` (16 characters or more) and `/api/research` produces it as a CSV file you can send to somebody who
 teaches Estonian or studies how it's learned. Leave it unset and that address doesn't exist.
 
 ```

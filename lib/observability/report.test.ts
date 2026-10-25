@@ -11,6 +11,13 @@ describe("redact", () => {
     expect(out.note).toBe("fine");
   });
 
+  it("removes an email address written inside a string", () => {
+    expect(redact("Unique constraint failed on (email)=(ann.tamm+kool@example.co.uk)")).toBe(
+      "Unique constraint failed on (email)=([redacted])",
+    );
+    expect(redact("nothing@here")).toBe("nothing@here");
+  });
+
   it("removes an email even though it is not obviously a secret", () => {
     // Personal data. An opaque user id is what belongs in a log.
     const out = redact({ email: "ann@example.com" }) as Record<string, unknown>;

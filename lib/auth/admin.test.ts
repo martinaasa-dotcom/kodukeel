@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { adminEmails, isAdminEmail, reviewersNamed } from "./admin";
+import { adminEmails, isAdminEmail, methodsProveAddress, reviewersNamed } from "./admin";
 
 /*
   Who may rewrite the shared dictionary from the review queue. Both functions
@@ -70,5 +70,32 @@ describe("reviewersNamed", () => {
 
   it("is true as soon as one address is", () => {
     expect(reviewersNamed({ ADMIN_EMAILS: "ann@example.com" })).toBe(true);
+  });
+});
+
+describe("methodsProveAddress", () => {
+  /*
+    The admin gate trusts the token's email, so it has to trust the door the
+    token came through. A password sign-up on a project with "confirm email"
+    off, or a SAML assertion, can carry any address, an administrator's
+    included, without anybody reading that inbox.
+  */
+  it("accepts the doors this app draws, which each prove the address", () => {
+    expect(methodsProveAddress(["oauth"])).toBe(true);
+    expect(methodsProveAddress(["otp"])).toBe(true);
+    expect(methodsProveAddress(["magiclink"])).toBe(true);
+    expect(methodsProveAddress(["oauth", "mfa/totp"])).toBe(true);
+  });
+
+  it("refuses a password, an anonymous session, a wallet and a SAML assertion", () => {
+    for (const method of ["password", "anonymous", "web3", "sso/saml"]) {
+      expect(methodsProveAddress([method])).toBe(false);
+      expect(methodsProveAddress(["oauth", method])).toBe(false);
+    }
+  });
+
+  it("refuses a session whose methods it cannot read", () => {
+    expect(methodsProveAddress(undefined)).toBe(false);
+    expect(methodsProveAddress([])).toBe(false);
   });
 });

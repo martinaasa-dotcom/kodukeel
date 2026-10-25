@@ -149,7 +149,7 @@ function ExampleRow({ lexemeId, example, tutorReady, onTranslated }: {
         onTranslated={onTranslated}
       />
 
-      {example.source === "USER" && (
+      {example.source === "USER" && !example.reviewed && (
         <span className="mt-1 block text-2xs" style={{ color: "var(--ink-3)" }}>{t("your own sentence")}</span>
       )}
     </li>

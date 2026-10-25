@@ -210,7 +210,17 @@ const config: NextConfig = {
       exceed this they are told, and told to say so, instead of watching a
       button do nothing.
     */
-    serverActions: { bodySizeLimit: "16mb" },
+    /*
+      AND THEN THE RESTORE LEFT, SO THE CEILING CAME BACK DOWN. A backup goes
+      to `/api/restore` as a Route Handler now (its own header says why), and
+      that route is bounded by `proxyClientMaxBodySize` below. What was left on
+      16 MB was every other Server Action, each a public endpoint whose body
+      Next decodes before the action has asked who is calling, so any caller
+      could hand any of them 16 MB to parse. The largest real one is an offline
+      replay of `REPLAY_BATCH` grades, a few kilobytes; 2 MB is far above that
+      and far below what was open.
+    */
+    serverActions: { bodySizeLimit: "2mb" },
 
     /*
       AND THE SAME CEILING AGAIN, THROUGH A DOOR THAT DID NOT EXIST WHEN THE
@@ -243,9 +253,11 @@ const config: NextConfig = {
       words that learner's own rows point at now, 0.08 MB on a demo deck, and
       the ceiling below stopped being a countdown.
 
-      Matched to `bodySizeLimit` above deliberately. Two limits on the same
-      upload that disagree is how this happened, and the next person to raise
-      one needs to find the other in the same glance.
+      Matched to `MAX_BACKUP_BYTES` in `app/api/restore/route.ts` deliberately,
+      which is the upload this is for. Two limits on the same upload that
+      disagree is how this happened, and the next person to raise one needs to
+      find the other in the same glance. `bodySizeLimit` above is no longer
+      that upload's and stays smaller.
 
       Next 16 renamed the key to `proxyClientMaxBodySize`. The old spelling
       still builds and prints a deprecation on every start, which is the shape

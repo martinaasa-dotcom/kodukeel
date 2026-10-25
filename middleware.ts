@@ -1,10 +1,11 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { halfConfigured, supabaseConfigured } from "@/lib/auth/mode";
+import { halfConfigured, localModeRefused, supabaseConfigured } from "@/lib/auth/mode";
 import { isAllowedEmail, safeNext } from "@/lib/auth/access";
 import { canonicalRedirect } from "@/lib/auth/canonical";
 import { boundedTransport, hasSessionCookie, readIdentity } from "@/lib/auth/identity";
 import { buildContentSecurityPolicy } from "@/lib/security/headers";
+import { sessionCookieOptions } from "@/lib/supabase/cookieOptions";
 import { isMutatingRequest, isSameOriginMutation } from "@/lib/security/sameOrigin";
 import { isPublicReference } from "@/lib/ux/publicReference";
 
@@ -120,6 +121,19 @@ export async function middleware(request: NextRequest) {
     return withCsp(new NextResponse(
       `This installation is half configured: ${missing} is not set. `
       + "Set it, or unset the other Supabase variable to run as a single local learner.",
+      { status: 503, headers: { "content-type": "text/plain; charset=utf-8" } },
+    ));
+  }
+
+  /*
+    Local mode served to the internet is every visitor signed in as one
+    learner with admin rights. See `localModeRefused` in lib/auth/mode.ts.
+  */
+  const refused = localModeRefused();
+  if (refused) {
+    return withCsp(new NextResponse(
+      `This installation has no sign-in configured and will not run without one, because ${refused}. `
+      + "Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY, or set KODUKEEL_LOCAL_MODE=1 if a single shared learner is really meant.",
       { status: 503, headers: { "content-type": "text/plain; charset=utf-8" } },
     ));
   }
@@ -374,6 +388,7 @@ export async function middleware(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       global: { fetch: transport.fetch },
+      cookieOptions: sessionCookieOptions(secure),
       cookies: {
         getAll() {
           return request.cookies.getAll();
@@ -472,8 +487,16 @@ function signedOutTarget(request: NextRequest): URL {
   return target;
 }
 
+/*
+  The files left out are named, not matched by their ending. The exclusion used
+  to be any path ending in an image extension, which took the middleware off
+  `/exam/result/x.png`, `/class/x.png/report` and `/api/v1/checks/x.png` as
+  readily as off an icon: those are app routes, and they were answered with no
+  Content Security Policy, no canonical redirect and no forged-request gate. The
+  images in `public/` are the four app icons, so those are what is skipped.
+*/
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|icon.svg|manifest.webmanifest|sw.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon\\.ico$|icon\\.svg$|manifest\\.webmanifest$|sw\\.js$|app-icon(?:-[a-z0-9]+)?\\.(?:svg|png)$).*)",
   ],
 };

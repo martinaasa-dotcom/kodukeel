@@ -449,10 +449,19 @@ deliberately not tied to the browser that asked, which is what makes the emailed
 and is also login CSRF: an attacker requests a link for an address they control and gets a signed-in
 learner to open it, and everything that learner writes afterwards goes into a stranger's account.
 
-**Mitigation.** A link that would change the signed-in account ends the session that is there and
+**Mitigation.** Opening the link is never enough. A GET to `/auth/callback` with a `token_hash`
+only hands it to the sign-in screen, which asks for one press, and the press is a same-origin POST
+that the forged-request gate in `middleware.ts` covers, so a page elsewhere can send somebody to the
+screen and cannot press for them. On that press, a link that would change the signed-in account ends
+the session in this browser only (`signOut({ scope: "local" })`, never the default global one) and
 sends the learner to `/sign-in?switched=1` with a sentence saying what happened. `next` is dropped,
-because it was chosen by whoever wrote the link. Nobody signed in is the ordinary case and is
-untouched, so the link works exactly as it did for the person it was mailed to. `app/auth/callback/route.ts`.
+because it was chosen by whoever wrote the link. The press also stops a mail client's link scanner
+spending a single-use link nobody has opened. `app/auth/callback/route.ts`.
+
+Until 25 October 2026 the GET acted on the link itself, and with a session present it signed the
+learner out before checking the token, through Supabase's default global sign-out: a made-up link on
+any other site ended every session that learner had, on every device. Found in the security pass of
+that date and fixed in the same change.
 
 **Residual: low.**
 

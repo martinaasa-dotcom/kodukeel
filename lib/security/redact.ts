@@ -37,6 +37,13 @@ const SECRET_SHAPE = new RegExp(
     String.raw`EKILEX_API_KEY["'\x60\s]*[:=]\s*["'\x60]?[^"'\x60\s]{8,}`,
     String.raw`\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{6,}`,
     String.raw`postgres(?:ql)?:\/\/[^\s]+:[^\s@]+@`,
+    /*
+      An email address inside a string. A key named for one was already
+      dropped, but a Prisma error quotes the value that collided, and a
+      learner's address is personal data on its way to a webhook that is not a
+      data processor anybody listed.
+    */
+    String.raw`[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}`,
   ].join("|"),
   "g",
 );

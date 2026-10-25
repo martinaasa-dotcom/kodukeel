@@ -1,3 +1,4 @@
+import { bearerMatches } from "@/lib/security/bearerSecret";
 import { runMailout } from "@/lib/mailer/run";
 import { reportError } from "@/lib/observability/report";
 
@@ -33,24 +34,8 @@ export const maxDuration = 300;
   inbox.
 */
 function authorised(request: Request): boolean {
-  const secret = process.env.CRON_SECRET?.trim();
-  if (!secret) return false;
-
-  const given = request.headers.get("authorization")?.trim() ?? "";
-  const expected = `Bearer ${secret}`;
-  if (given.length !== expected.length) return false;
-
-  /*
-    Constant time, byte by byte, because the alternative leaks how much of the
-    secret was right to anybody willing to make enough requests. `timingSafeEqual`
-    is the usual answer and it throws on a length mismatch, which is why the
-    lengths are compared first and why the comparison below cannot short-circuit.
-  */
-  let same = 0;
-  for (let i = 0; i < expected.length; i += 1) {
-    same |= given.charCodeAt(i) ^ expected.charCodeAt(i);
-  }
-  return same === 0;
+  // Constant time, hashed to one length, and refused where the secret is unset or short.
+  return bearerMatches(request.headers.get("authorization"), process.env.CRON_SECRET);
 }
 
 export async function GET(request: Request) {

@@ -2,8 +2,13 @@ node_modules
 .next/
 out/
 build/
+# Every environment file, whatever it is called (.env.production, a pulled
+# Vercel file), since this repository is public and one `git add .` of a real
+# one would publish every key. The template is the one exception.
 .env
-.env*.local
+.env*
+!.env.example
+.vercel/
 *.db
 *.db-journal
 .data/

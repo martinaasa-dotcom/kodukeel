@@ -25,9 +25,12 @@ concurrency:
 permissions:
   contents: read
 
-# Placeholders only. Real keys stay on the deployment; nothing here maps a
-# repository secret into a job, so a workflow file cannot become a way to read
-# one. The build job brings up its own Postgres beside it.
+# Placeholders only. Real keys stay on the deployment, and nothing in this file
+# maps a secret into a job. That is a property of this file and not of the
+# repository: anybody who can push a branch can push a workflow that reads a
+# repository-level secret, so the production database credentials belong in the
+# `production` environment, restricted to `main` with a required reviewer
+# (docs/27-security.md, section 6). The build job brings up its own Postgres.
 env:
   NEXT_TELEMETRY_DISABLED: "1"
 

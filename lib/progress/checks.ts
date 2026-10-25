@@ -31,7 +31,7 @@ export async function moveBlockedFor(
 ): Promise<CourseCheck | null> {
   const blocked = blockedBy(PROGRAMMES, from, to, await checksPassedFor(ownerId));
   if (!blocked) return null;
-  if (await movesFreely()) return null;
+  if (await movesFreely(ownerId)) return null;
   /*
     SOMEBODY WHO HAS WORKED ABOVE THE LESSONS IS NOT WALKED BACK UP THEM. A
     learner placed at B1 may take the offer to step down and refresh A2

@@ -64,13 +64,20 @@ says spending records are kept for the running year. The rows are keyed by UTC d
 reads a day at a time (`lib/usage/quota.ts`), so nothing older than the current day is read by the
 app for any purpose. Pruning last year's rows is an operator task rather than something the app does
 on a schedule, and this document does not claim a job runs. What the app guarantees is the erasure:
-an account's ledger rows go with the account, immediately, like everything else.
+an account's ledger rows go with the account, immediately, with one exception that exists so erasing
+cannot be used to buy a fresh daily allowance. The rows of the current UTC day are kept, with the
+account id replaced by a one-way key of that id and the day (`lib/usage/erasedSpend.ts`). The key
+names nobody and cannot be turned back into the id; what it can do is be recomputed by the same
+account if it signs in again that day, so the spend still counts. On any later erasure those rows
+are re-keyed to a single shared value, `erased`, and they go with the year turning over like the rest
+of the ledger. The rows hold an amount, a kind of call and a model name, never anything the learner
+wrote.
 
 ### Rate limit counters, owned by nobody
 
 | Category | Kept for | Trigger | Enforced by |
 | --- | --- | --- | --- |
-| Shared rate limit windows (`RateLimit`) | Until the window has passed, at most an hour. Each row is an unsalted SHA-256 digest of the caller and the endpoint, a window start and a count. The caller is a user id, or an IP address where nobody is signed in, so the row is pseudonymous rather than anonymous: it does not hold the id or the address, and anybody holding a candidate can confirm it by hashing | The next prune after the window, which runs at most once a minute per instance while a limited route is being called. There is no scheduled job, so on an idle deployment an expired row stays until the next call | `pruneSoon` in `lib/usage/sharedLimit.ts`. Not in the export or the erasure, since it carries no owner id to find it by |
+| Shared rate limit windows (`RateLimit`) | Until the window has passed: an hour for most, a day for account erasure and class joins, a week for a handed-in placement paper. Each row is an unsalted SHA-256 digest of the caller and the endpoint, a window start and a count. The caller is a user id, or an IP address where nobody is signed in, so the row is pseudonymous rather than anonymous: it does not hold the id or the address, and anybody holding a candidate can confirm it by hashing | The next prune after the window, which runs at most once a minute per instance while a limited route is being called. There is no scheduled job, so on an idle deployment an expired row stays until the next call | `pruneSoon` in `lib/usage/sharedLimit.ts`. Not in the export or the erasure, since it carries no owner id to find it by |
 | Words twenty questions could not read (`TwentyGap`, `TwentyLearned`) | Kept while the game is, since what it learned is answered to every later round. A row holds an Estonian spelling, a count of reports, and what a model said the word asks of each thing; nothing about who asked, and the question it came from is neither stored nor sent anywhere | An admin retiring a learned word, which keeps the row so it is not learned again | `lib/progress/twentyLearned.ts`. Not in the export or the erasure, since it carries no owner id |
 | Errors the app reported (`ErrorEvent`) | 30 days. A row holds where it happened, the message, the stack and any context, after `redact` has removed keys, tokens and connection strings; the learner's id is dropped before it is written, so the row is about the app rather than about anybody. The first of each new kind in a day is also emailed to the addresses in `ADMIN_EMAILS` | Deleted on the next error written after the 30 days are up. There is no scheduled job, so on a deployment where nothing goes wrong an old row stays until something does | `lib/observability/store.ts`, read on `/admin/errors`. Not in the export or the erasure, since it carries no owner id |
 

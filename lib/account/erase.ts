@@ -5,6 +5,12 @@ import { tr } from "@/lib/copy/locale";
 import { safeMessage } from "@/lib/observability/report";
 import { localeFor } from "@/lib/progress/locale";
 import { forgetSettings } from "@/lib/settings/store";
+import { ERASED_OWNER, ERASED_PREFIX, erasedOwnerKey } from "@/lib/usage/erasedSpend";
+import { utcDay } from "@/lib/usage/quota";
+import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
+
+const ERASURES_PER_DAY = 10;
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 /**
  * DELETES EVERYTHING BELONGING TO ONE ACCOUNT (D8, ADR-029).
@@ -42,6 +48,17 @@ export async function deleteAccountFor(ownerId: string, confirmation: unknown): 
   if (!isConfirmed(confirmation, "delete")) {
     return { ok: false, reason: "unconfirmed", error: 'Type "delete" to confirm.' };
   }
+  /*
+    A two-minute transaction over every table this person owns, behind a word
+    anybody can type, from a public endpoint on each door. Counted where every
+    instance sees it and keyed on the id, which outlives the account, so a
+    script cannot make the database do this on a loop. Nobody deletes an
+    account ten times in a day.
+  */
+  const allowed = await checkSharedRateLimit(`erase:o:${ownerId}`, ERASURES_PER_DAY, DAY_MS);
+  if (!allowed.ok) {
+    return { ok: false, reason: "failed", error: tr(await localeFor(ownerId), "Too many tries today, so nothing was deleted. Try again tomorrow.") };
+  }
 
   try {
     await prisma.$transaction(async (tx) => {
@@ -75,6 +92,19 @@ export async function deleteAccountFor(ownerId: string, confirmation: unknown): 
       await tx.nativePushDevice.deleteMany({ where: { ownerId } });
       await tx.setting.deleteMany({ where: { ownerId } });
       forgetSettings(ownerId);
+      /*
+        Today's spending stays on the ledger under a key that names nobody,
+        because the daily caps are sums over these rows and deleting them handed
+        the day's allowance back: spend, delete, and the same token carries on.
+        Everything older goes, and any earlier day's keys are swept down to the
+        one anonymous owner. See lib/usage/erasedSpend.ts.
+      */
+      const today = utcDay(new Date());
+      await tx.usageEvent.updateMany({ where: { ownerId, day: today }, data: { ownerId: erasedOwnerKey(ownerId, today) } });
+      await tx.usageEvent.updateMany({
+        where: { ownerId: { startsWith: ERASED_PREFIX }, day: { lt: today } },
+        data: { ownerId: ERASED_OWNER },
+      });
       await tx.usageEvent.deleteMany({ where: { ownerId } });
       await tx.scan.deleteMany({ where: { ownerId } });
       /*

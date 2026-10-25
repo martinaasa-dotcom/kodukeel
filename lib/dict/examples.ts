@@ -55,6 +55,20 @@ export interface Example {
    * of a head taught a postposition as a case. See `lentFor`.
    */
   via?: readonly string[];
+  /**
+   * WHO TYPED A `USER` SENTENCE, AND WHETHER A REVIEWER HAS PASSED IT.
+   *
+   * `Lexeme` is shared and a learner's sentence used to be shared with it: it
+   * was printed on every learner's entry, labeled "your own sentence" to all of
+   * them, and cut into other people's cards and examination questions with the
+   * author's own English beside it. That is unreviewed text from any account
+   * reaching strangers, and an app store asks for the opposite. So a typed
+   * sentence carries its author, `usableExamples` lets it through only to that
+   * author (`viewer`) or once `reviewed` says a reviewer added it, and a typed
+   * sentence stored before this, which names nobody, reaches nobody.
+   */
+  by?: string;
+  reviewed?: boolean;
 }
 
 /**
@@ -119,6 +133,9 @@ export function serialiseExamples(examples: Example[]): string {
     // Kept, or the reviewer's decision lives exactly as long as the row does.
     ...(e.enRefused ? { enRefused: true } : {}),
     source: e.source,
+    // Who may see a typed sentence (`typedReaches`): dropped here, it reached nobody.
+    ...(typeof e.by === "string" && e.by ? { by: e.by } : {}),
+    ...(e.reviewed === true ? { reviewed: true } : {}),
   })));
 }
 
@@ -162,11 +179,30 @@ export function serialiseExamples(examples: Example[]): string {
  * caller that has the word's part of speech, through `teachingSentence`'s own
  * optional third argument or `borrow.ts`'s.
  */
-export function usableExamples(examples: Example[], plainest?: Rank): Example[] {
+/**
+ * Whose typed sentences a caller may see. `viewer` is the learner the list is
+ * for, where one is; `keepTyped` is the stored column itself, which a write
+ * reads back whole so nobody's sentence is dropped by somebody else's edit.
+ */
+export interface ExampleReader {
+  viewer?: string | null;
+  keepTyped?: boolean;
+}
+
+/** Whether a typed or model-written sentence may reach this reader. */
+export function typedReaches(example: Pick<Example, "source" | "by" | "reviewed">, reader: ExampleReader = {}): boolean {
+  if (example.source !== "USER" && example.source !== "AI") return true;
+  if (reader.keepTyped) return true;
+  if (example.reviewed === true) return true;
+  return Boolean(reader.viewer) && example.by === reader.viewer;
+}
+
+export function usableExamples(examples: Example[], plainest?: Rank, reader: ExampleReader = {}): Example[] {
   const seen = new Set<string>();
   const out: Example[] = [];
 
   for (const example of examples) {
+    if (!typedReaches(example, reader)) continue;
     const et = example.et.trim().replace(/\s+/g, " ");
     const key = et.toLowerCase();
     if (et.length < MIN_CHARS || et.length > MAX_CHARS) continue;
@@ -181,7 +217,13 @@ export function usableExamples(examples: Example[], plainest?: Rank): Example[] 
     if (!naturalSentence(et)) continue;
     if (seen.has(key)) continue;
     seen.add(key);
-    out.push({ ...example, et });
+    /* Who typed it decides who sees it, and goes no further than this: a list
+       read for a screen carries no account id, a reviewer's included. */
+    if (reader.keepTyped) out.push({ ...example, et });
+    else {
+      const { by: _by, ...shown } = example;
+      out.push({ ...shown, et });
+    }
   }
 
   /*
@@ -246,7 +288,7 @@ export function mergeExamples(existing: Example[], incoming: Example[]): Example
       ...(held?.enRefused ? { enRefused: true } : {}),
     });
   }
-  return usableExamples([...byText.values()]);
+  return usableExamples([...byText.values()], undefined, { keepTyped: true });
 }
 
 

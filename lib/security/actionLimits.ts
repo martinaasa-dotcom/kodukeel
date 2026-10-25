@@ -12,10 +12,11 @@ import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
  * `requireUserId` mean this is not reachable by an anonymous scraper, so this
  * is not the hole `/api/tutor` would be without its limiter — but sign-up is
  * open by default, and one signed-in account could call any action as fast as
- * it liked. `serverActions.bodySizeLimit` is 16 MB, raised for backup
+ * it liked. `serverActions.bodySizeLimit` was 16 MB, raised for backup
  * restores and therefore the ceiling on *every* action's payload, so a loop
  * posting near-16 MB bodies at a database-touching action had nothing in the
- * app slowing it down.
+ * app slowing it down. Restores moved to `/api/restore` and the ceiling is
+ * 2 MB again (25 October 2026).
  *
  * Not every action needs one. Grading a card, starring a word or toggling a
  * task is a single indexed write, and a person tapping quickly is a person
@@ -212,6 +213,15 @@ export const ACTION_LIMITS = {
    * and `MAX_DEVICES` bounds what it could keep anyway.
    */
   rememberPushDevice: { perMinute: 10 },
+  /**
+   * The rows a learner writes about their own week: a calendar slot, a
+   * reminder, an answer about yesterday's conversation. One small write each,
+   * here because nothing else bounded how many: a loop could grow a table
+   * without end, and the conversation answers are counted into the figures a
+   * funder reads. Each also stops at a ceiling per learner (`OWN_ROWS` in
+   * app/actions.ts). Thirty a minute is a busy person setting a term up.
+   */
+  personalWrite: { perMinute: 30 },
 } as const;
 
 export type ActionLimit = keyof typeof ACTION_LIMITS;

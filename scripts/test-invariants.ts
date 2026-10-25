@@ -2001,6 +2001,9 @@ check("a beginner's word is taught with its plainest sentence, and every picker 
     // Asks which cases a word can build a card for at all, as a set. No
     // sentence it could pick reaches a screen, only whether one exists.
     "lib/srs/retire.ts": "asks which cases a word can build, as a set, and picks no sentence",
+    // The backup writes every sentence the learner may see, in the order the
+    // column holds them; a restore puts them back and every reader re-ranks.
+    "lib/account/export.ts": "copies a learner's own entries into their backup, picks none",
     // Asks whether a form is recorded in any sentence at all, to lead a round
     // with a word said in that case. Which sentence it is never reaches a screen.
     "app/(app)/review/write/page.tsx": "asks whether a form is recorded in a sentence, and picks none",
@@ -4759,12 +4762,12 @@ check("which of two entries for one word wins is decided, not left to the rows",
   */
   const body = /function bySubstance\(([\s\S]*?)\n\}/.exec(search)?.[1] ?? "";
   const posAt = body.indexOf('pos !== "OTHER"');
-  const provAt = body.indexOf("HAND_WRITTEN.has");
+  const provAt = body.indexOf("rankOf(");
   const formsAt = body.indexOf("forms.length");
   assert.ok(posAt >= 0 && provAt >= 0 && formsAt >= 0, "bySubstance lost one of its three tests");
   assert.ok(
     posAt < provAt && provAt < formsAt,
-    "bySubstance reordered: a known part of speech, then a hand-written source, then how much is stored",
+    "bySubstance reordered: a known part of speech, then the source, then how much is stored",
   );
   assert.match(
     search,
@@ -8584,7 +8587,13 @@ check("the restore route reads no more than the proxy in front of it lets throug
     return Number(m[1]);
   };
   const proxy = mb("proxyClientMaxBodySize");
-  assert.equal(mb("bodySizeLimit"), proxy, "the Server Action body limit and the proxy limit disagree");
+  /*
+    A backup no longer travels as a Server Action, so the action limit is not
+    the upload's: it is the ceiling on every public action's body, and is held
+    small rather than matched to the proxy.
+  */
+  assert.ok(mb("bodySizeLimit") <= 2, `every Server Action accepts a ${mb("bodySizeLimit")} MB body, which no action needs`);
+  assert.ok(mb("bodySizeLimit") <= proxy, "the Server Action body limit is above the proxy's");
   const route = /const MAX_BACKUP_BYTES = (\d+) \* 1024 \* 1024;/.exec(code("app/api/restore/route.ts"));
   assert.ok(route, "app/api/restore/route.ts states no MAX_BACKUP_BYTES in megabytes");
   assert.equal(Number(route[1]), proxy, `the restore route reads ${route[1]} MB behind a proxy that truncates at ${proxy} MB`);
@@ -17286,14 +17295,29 @@ check("the research export authenticates itself and hides when unconfigured", ()
   assert.match(route, /process\.env\.RESEARCH_TOKEN/, "the research route stopped reading its token");
   assert.match(
     route,
-    /timingSafeEqual\(/,
-    "the research token is compared in a way that leaks how much of it was right",
+    /bearerMatches\(request\.headers\.get\("authorization"\), process\.env\.RESEARCH_TOKEN\)/,
+    "the research token is no longer compared through the one constant-time check",
   );
   assert.match(
     route,
-    /!process\.env\.RESEARCH_TOKEN[\s\S]{0,120}status:\s*404/,
+    /!authorised\(request\)[\s\S]{0,120}status:\s*404/,
     "an unconfigured deployment now advertises the research endpoint instead of 404ing",
   );
+  /*
+    The one comparison all three self-authenticating routes share: hashed to one
+    length so neither the time nor the length of the secret leaks, and a short
+    secret read as none, which each route answers 404.
+  */
+  const shared = code("lib/security/bearerSecret.ts");
+  assert.match(shared, /timingSafeEqual\(digest\(/, "the shared bearer check no longer compares in constant time");
+  assert.match(shared, /MIN_SECRET_LENGTH = (\d+)/, "the shared bearer check no longer has a floor on the secret");
+  assert.ok(Number(/MIN_SECRET_LENGTH = (\d+)/.exec(shared)?.[1]) >= 16, "the floor on a bearer secret was lowered under 16");
+  for (const [file, name] of [
+    ["app/api/email/send/route.ts", "CRON_SECRET"],
+    ["app/api/metrics/route.ts", "METRICS_TOKEN"],
+  ] as const) {
+    assert.match(code(file), new RegExp(`bearerMatches\\([^)]*\\), process\\.env\\.${name}\\)`), `${file} no longer checks ${name} through the shared constant-time comparison`);
+  }
 });
 
 /**
@@ -18285,24 +18309,33 @@ check("every design document a file cites is a document that exists", () => {
 
 check("a mailed sign-in link never changes who is signed in without saying so", () => {
   /*
-    Login CSRF, stated in CLAUDE.md and held by nothing: the `token_hash`
-    branch of the callback is not tied to the browser that asked, so an
-    attacker's own mailed link opened by a signed-in learner would land them
-    in the attacker's account. The callback ends an existing session and sends
-    them to sign in with `switched=1`, and drops `next`. Read in order: the
-    session check before the verification, the sign-out and the switched
-    redirect inside it, and `next` nowhere in that block.
+    Login CSRF, stated in CLAUDE.md: the `token_hash` link is not tied to the
+    browser that asked. It used to be acted on by the GET, which any other site
+    can cause with a navigation, so a made-up token signed a learner out
+    everywhere (Supabase's default sign-out is global) and an attacker's real
+    one signed a stranger into the attacker's account. So the GET may only hand
+    the link on to the sign-in screen, and the POST that screen sends does the
+    rest: the session check before the verification, a local sign-out and the
+    switched redirect inside it, and `next` nowhere in that block.
   */
   const cb = code("app/auth/callback/route.ts");
-  const branch = cb.slice(cb.indexOf("tokenHash && type"));
-  assert.ok(branch.length > 0 && cb.includes("tokenHash && type"), "the callback no longer has a token_hash branch this can read");
-  const guard = branch.indexOf("hasSessionCookie(");
-  const verify = branch.indexOf("verifyOtp(");
+  const get = cb.slice(cb.indexOf("export async function GET"), cb.indexOf("export async function POST"));
+  const post = cb.slice(cb.indexOf("export async function POST"));
+  assert.ok(get.length > 0 && post.length > 0, "the callback no longer has a GET and a POST this can read");
+  const tokenBranch = get.slice(get.indexOf("tokenHash && type"));
+  assert.ok(get.includes("tokenHash && type"), "the GET no longer has a token_hash branch this can read");
+  assert.doesNotMatch(tokenBranch, /verifyOtp\(|signOut\(/, "a GET acts on a mailed link, which any other page can cause");
+  assert.match(tokenBranch, /sign-in\?/, "a mailed link opened by a GET is no longer handed to the sign-in screen");
+  const guard = post.indexOf("hasSessionCookie(");
+  const verify = post.indexOf("verifyOtp(");
   assert.ok(guard >= 0 && verify > guard, "a mailed link is verified before the callback asks whether somebody is already signed in");
-  const block = branch.slice(guard, verify);
-  assert.match(block, /signOut\(/, "a mailed link opened in a signed-in browser no longer ends that session");
+  const block = post.slice(guard, verify);
+  assert.match(block, /signOut\(\{ scope: "local" \}\)/, "a mailed link opened in a signed-in browser no longer ends that session locally");
   assert.match(block, /switched=1/, "a mailed link that ends a session no longer says so on the sign-in screen");
   assert.doesNotMatch(block, /\bnext\b/, "a refused mailed link still follows the next its author chose");
+  assert.doesNotMatch(cb, /signOut\(\)/, "the callback signs a learner out of every device, which a navigation from anywhere can trigger");
+  const signIn = code("app/(chromeless)/sign-in/page.tsx");
+  assert.match(signIn, /method="post" action="\/auth\/callback"/, "the sign-in screen no longer offers the press that finishes a mailed link");
 });
 
 check("every gate that hands out a signed-in identity asks the allowlist", () => {
@@ -26975,7 +27008,8 @@ check("the scheduled run is the only thing that sends, and it is gated", () => {
   */
   const route = code("app/api/email/send/route.ts");
   assert.match(route, /CRON_SECRET/, "the mail run no longer checks a secret");
-  assert.match(route, /if \(!secret\) return false/, "the mail run allows everybody when no secret is set");
+  assert.match(route, /bearerMatches\(request\.headers\.get\("authorization"\), process\.env\.CRON_SECRET\)/, "the mail run no longer compares its secret through bearerMatches");
+  assert.match(code("lib/security/bearerSecret.ts"), /if \(!secret\) return false/, "the mail run allows everybody when no secret is set");
   assert.match(route, /404/, "the mail run says what it is to a caller who is not the scheduler");
 
   /*
