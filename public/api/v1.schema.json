@@ -3438,6 +3438,77 @@
               {
                 "type": "null"
               }
+            ],
+            "description": "The part a pass opens: its id, and what the web's check calls it, a lesson part by its name, a new level by its level, a part taught as units by its id; in the learner's language."
+          },
+          "levelDone": {
+            "description": "Set on the last check of a level: what the level was and what is next, in the learner's language, as the web's check says it after a pass.",
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "level": {
+                    "type": "string"
+                  },
+                  "arrival": {
+                    "type": "string",
+                    "description": "What somebody can now do, one sentence."
+                  },
+                  "parts": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "The level's parts, by name."
+                  },
+                  "lessons": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "next": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "level": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "summary": {
+                            "type": "string"
+                          },
+                          "lessons": {
+                            "type": "boolean",
+                            "description": "Whether the next level is taught as lessons."
+                          }
+                        },
+                        "required": [
+                          "level",
+                          "title",
+                          "summary",
+                          "lessons"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "level",
+                  "arrival",
+                  "parts",
+                  "lessons",
+                  "next"
+                ]
+              },
+              {
+                "type": "null"
+              }
             ]
           }
         },

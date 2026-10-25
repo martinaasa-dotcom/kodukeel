@@ -468,7 +468,21 @@ export const CheckResponse = z.object({
     .describe("The attempt's questions as the web's check screen receives them, the right answers included, which the web uses for feedback too; the mark is the server's."),
   needed: z.number().int().describe("How many marks a pass takes."),
   alreadyPassed: z.boolean(),
-  next: z.object({ id: z.string(), label: z.string() }).nullable(),
+  next: z.object({ id: z.string(), label: z.string() }).nullable()
+    .describe("The part a pass opens: its id, and what the web's check calls it, a lesson part by its name, a new level by its level, a part taught as units by its id; in the learner's language."),
+  levelDone: z.object({
+    level: z.string(),
+    arrival: z.string().describe("What somebody can now do, one sentence."),
+    parts: z.array(z.string()).describe("The level's parts, by name."),
+    lessons: z.number().int(),
+    next: z.object({
+      level: z.string(),
+      title: z.string(),
+      summary: z.string(),
+      lessons: z.boolean().describe("Whether the next level is taught as lessons."),
+    }).nullable(),
+  }).nullable().optional()
+    .describe("Set on the last check of a level: what the level was and what is next, in the learner's language, as the web's check says it after a pass."),
 }).describe("One attempt's paper at a part's check.");
 
 export type CheckResponse = z.infer<typeof CheckResponse>;
