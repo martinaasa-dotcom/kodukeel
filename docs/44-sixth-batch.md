@@ -417,13 +417,13 @@ stops. Size is the work in one pull request: a day, a few days, or a week or mor
 | --- | --- | --- | --- |
 | S-1 The public pages describe the course as it is | S: ready to be shown | Day | Done in PR #929 (6702c9c, 5f8e075) |
 | S-2 Ekilex, used as promised, credited and counted | S | Days | Done in PR #929 (8a713c9, f567f5e) |
-| S-3 The public pages in Estonian | S | Week | Done in PR #929 (ec8898b, a32a578, 21a27d7); the Estonian awaits the native speaker, and /curriculum, /how-we-know and /pilots are English and Estonian only |
+| S-3 The public pages in Estonian | S | Week | Done in PR #929 (ec8898b, a32a578, 21a27d7); the Estonian awaits the native speaker. The follow-up drew /curriculum, /how-we-know and /pilots in Russian and Ukrainian too, and kept the grammar reference and /offline out of Estonian on purpose |
 | S-4 What the accessibility statement admits, fixed | S | Days | Done in PR #929 (9411936, d25952e, 0852f31); 2.2.2 is met app-wide |
 | S-5 `security.txt`, and the registers a reviewer asks for | S | Day | Done in PR #929 (fc9fbe3) |
 | S-6 A demo a reviewer can walk | S | Day | Done in PR #929 (f655638); the demo deployment is the operator's |
 | S-7 One page for a reviewer, and the check before the email | S | Days | Done in PR #929 (f22f45f) |
 | C-1 The voice model and mobile data | 0: what batch 5 left | Day | Done in PR #929 (4b5170f, 769dcf0) |
-| C-2 Safari and Firefox in CI | 0 | Days | Done in PR #929 (1690f00, a630638, 8371950, 9bf3df7); the `engines` CI job first runs on this PR |
+| C-2 Safari and Firefox in CI | 0 | Days | Done in PR #929 (1690f00, a630638, 8371950, 9bf3df7); the `engines` job ran green on #929's final head, and the follow-up stopped Settings reloading in WebKit, so its push checks run |
 | C-3 The speech figures on an admin page | 0 | Day | Done in PR #929 (7c54ed3) |
 | C-4 The ear, worded on the situation pages | 0 | Day | Done in PR #929 (1224886) |
 | C-5 The situations list on a phone | 0 | Day | Done in PR #929 (554e632, 8adb981) |
@@ -439,7 +439,7 @@ stops. Size is the work in one pull request: a day, a few days, or a week or mor
 | N-4 The daily review over HTTP | 2: the daily path | Week | Done in PR #929 (f1166ff) |
 | N-5 Conversations over HTTP | 2 | Days | Done in PR #929 (f63b291) |
 | N-6 Words and sound over HTTP | 2 | Days | Done in PR #929 (dfbb574) |
-| N-7 Today's lesson and the part checks over HTTP | 2 | Days | Done in PR #929 (e7a9d8d) |
+| N-7 Today's lesson and the part checks over HTTP | 2 | Days | Done in PR #929 (e7a9d8d); the follow-up names the next part and a finished level as the check page does |
 | N-8 The account over HTTP, and deletion without the app | 2 | Days | Done in PR #929 (32ef386) |
 | N-9 Native notifications | 3: reach | Week | Done in PR #929 (f9f3d2a, ce48d1e); Firebase and APNs keys are the operator's |
 | N-10 Anu and the scanner over HTTP | 3 | Day | Done in PR #929 (57c73b3) |
