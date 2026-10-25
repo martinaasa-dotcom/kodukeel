@@ -40,7 +40,8 @@ import { courseForms } from "@/lib/dict/facts";
 import { lessonGate } from "@/lib/scenes/inLesson";
 import { substitutes } from "@/lib/dict/acceptFacts";
 import { sensesOf, substitutesFrom } from "@/lib/dict/synonyms";
-import { isExactForm, isKnownForm, lemmasOfForm } from "@/lib/dict/forms";
+import { coldBudget, isExactForm, isKnownForm, lemmasOfForm } from "@/lib/dict/forms";
+import { COLD_SHARDS_PER_REQUEST } from "@/lib/progress/speechForms";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
 import { lookupAndStore } from "@/lib/dict/lookup";
 import { planRun, RECENCY_WINDOW, type Recency, type SceneRun as SceneRunPlan } from "@/lib/scenes/run";
@@ -302,9 +303,10 @@ export async function knowing(
   */
   const found = new Set<string>();
   const folded = new Set<string>();
+  const budget = coldBudget(COLD_SHARDS_PER_REQUEST);
   await Promise.all(asking.map(async (word) => {
-    if (await isExactForm(word)) found.add(word);
-    else if (await isKnownForm(word)) folded.add(word);
+    if (await isExactForm(word, budget)) found.add(word);
+    else if (await isKnownForm(word, budget)) folded.add(word);
   }));
   if (found.size === 0 && folded.size === 0) return context;
 

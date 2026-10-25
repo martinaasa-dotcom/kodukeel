@@ -101,6 +101,18 @@ describe("summariseCohort", () => {
     expect(summariseCohort([member({ ownerId: "a", daysSinceLastReview: 6 })], level).active).toBe(1);
   });
 
+  it("hands a sponsor whether somebody practiced, and no count of how much", () => {
+    const summary = summariseCohort([
+      member({ ownerId: "a", daysSinceLastReview: 2, reviewsThisWeek: 40 }),
+      member({ ownerId: "b", daysSinceLastReview: 30 }),
+    ], level);
+    expect(summary.members.map((m) => m.practicedRecently)).toEqual([true, false]);
+    for (const m of summary.members) {
+      expect(Object.keys(m)).not.toContain("reviewsThisWeek");
+      expect(Object.keys(m)).not.toContain("daysSinceLastReview");
+    }
+  });
+
   it("gives a member with no history at all no band rather than a bad one", () => {
     const summary = summariseCohort([member({ ownerId: "a" })], level);
     expect(summary.members[0]!.band).toBe("unknown");

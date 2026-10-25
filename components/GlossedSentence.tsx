@@ -86,6 +86,8 @@ export function GlossedSentence({ tokens, sentence, speak, prose = false, offerT
     rate?: number;
     autoplay?: boolean;
     insist?: boolean;
+    /** The learner's own text, spoken and stored nowhere (`Speak`'s `transient`). */
+    transient?: boolean;
   } | false;
 }) {
   const panelId = useId();

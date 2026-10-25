@@ -73,8 +73,33 @@ export function decodeImageDataUrl(input: unknown): ImageResult {
 
   const bytes = decodedBytes(base64);
   if (bytes > MAX_IMAGE_BYTES) return { problem: "TOO_LARGE" };
+  /*
+    AND THE BYTES ARE THE PICTURE THE LABEL SAYS. The type was read off the
+    label alone, so any blob under the size limit labelled `image/png` went to
+    a vision provider at a picture's metered price. The first bytes of every
+    allowed format say what it is, and they are read without decoding the rest.
+  */
+  if (!signatureMatches(mediaType as ImageMediaType, base64)) return { problem: "TYPE" };
 
   return { image: { mediaType: mediaType as ImageMediaType, base64, bytes } };
+}
+
+/** Whether the first bytes of a base64 body are the signature of its declared type. */
+export function signatureMatches(mediaType: ImageMediaType, base64: string): boolean {
+  let head: Buffer;
+  try {
+    head = Buffer.from(base64.slice(0, 24), "base64");
+  } catch {
+    return false;
+  }
+  const starts = (...bytes: number[]) => bytes.every((b, i) => head[i] === b);
+  const ascii = (at: number, text: string) => head.subarray(at, at + text.length).toString("latin1") === text;
+  switch (mediaType) {
+    case "image/jpeg": return starts(0xff, 0xd8, 0xff);
+    case "image/png": return starts(0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a);
+    case "image/webp": return ascii(0, "RIFF") && ascii(8, "WEBP");
+    default: return false;
+  }
 }
 
 /**

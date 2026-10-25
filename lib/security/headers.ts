@@ -152,20 +152,91 @@ function appleIdentitySrc(): string[] {
 }
 
 /**
+ * A fresh nonce for one response: sixteen random bytes, base64.
+ *
+ * `crypto.getRandomValues` rather than `Math.random`, because the whole worth
+ * of a nonce is that an injected script cannot guess it.
+ */
+export function mintNonce(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary);
+}
+
+/**
+ * Which policy a path is answered under.
+ *
+ * NONCE FOR EVERYTHING RENDERED PER REQUEST, which is every page but four.
+ * Next.js reads the nonce off the request's own policy header and stamps it on
+ * every script it renders, the inline Flight payload included, so a nonce and
+ * `'strict-dynamic'` let the app run and refuse a script somebody managed to
+ * inject: that matters here because the Supabase session cookie is readable by
+ * script, which `'unsafe-inline'` left within reach of any injected `<script>`.
+ *
+ * The four that are not are the landing page and its three translations,
+ * which are prerendered and served from the cache (`revalidate = 3600`). A
+ * cached page carries the inline scripts it was built with and no nonce, so a
+ * fresh nonce in the header would refuse every one of them and the page would
+ * never hydrate. They keep the inline allowance, which is the residual
+ * docs/27-security.md names: those pages are the same for every reader, render
+ * nothing from the request, and carry no learner data. Making them dynamic
+ * would close it and is one line in each page, paid for in a stranger's first
+ * visit.
+ *
+ * The other prerendered page is the root 404, served for an address no route
+ * matches, and it cannot be told apart here. It is answered under the nonce
+ * policy and so draws without hydrating: its text and its links work, which is
+ * all it has. Making it dynamic (`connection()` in app/not-found.tsx) was
+ * tried and turned every page dynamic, the landing page included, because the
+ * root boundary is rendered as part of every route.
+ *
+ * `worker` is the speech worker's own script (`/asr/runtime/`). A dedicated
+ * worker takes its policy from its own response, and under `'strict-dynamic'`
+ * the `importScripts` it loads its runtime with would be refused, since that
+ * call carries no nonce and the policy no longer trusts `'self'`.
+ */
+export type PolicyKind = "nonce" | "static" | "worker";
+
+/** The prerendered pages, exactly: a prefix would hand the inline allowance to anything beneath them. */
+const PRERENDERED = new Set(["/welcome", "/welcome/et", "/welcome/ru", "/welcome/uk"]);
+
+export function policyKindFor(path: string): PolicyKind {
+  const bare = path.length > 1 ? path.replace(/\/+$/, "") : path;
+  if (PRERENDERED.has(bare)) return "static";
+  if (bare.startsWith("/asr/")) return "worker";
+  return "nonce";
+}
+
+export interface PolicyOptions {
+  readonly secure?: boolean;
+  /** The request's nonce. Absent, the policy is the inline one a prerendered page needs. */
+  readonly nonce?: string;
+  /** `'sha256-...'` sources for the layout's own inline scripts (lib/security/inlineScripts.ts). */
+  readonly scriptHashes?: readonly string[];
+  /** For the speech worker's script: `'self'` and WebAssembly, and nothing inline. */
+  readonly worker?: boolean;
+}
+
+/**
  * The policy.
  *
- * `'unsafe-inline'` in `script-src` is required rather than chosen: the app
- * shell is prerendered and CDN-cached, and Next.js only stamps a nonce onto
- * markup it renders per request. A fresh nonce in the header against cached
- * inline Flight scripts that carry none means the browser refuses to hydrate
- * and the page never becomes interactive. A nonce would also silently disable
- * `'unsafe-inline'` for every other inline script, the theme script in
- * app/layout.tsx included.
+ * `script-src`, per request: `'nonce-...'` and `'strict-dynamic'` are what a
+ * current browser obeys. A script runs if it carries the nonce, matches one of
+ * the layout's hashes, or was added by a script that did, which is how Next's
+ * own chunks and Google's and Apple's sign-in scripts (loaded through
+ * `next/script`) get in. `'strict-dynamic'` makes that browser ignore `'self'`,
+ * the named hosts and `'unsafe-inline'`, and a nonce or a hash makes a CSP2
+ * browser ignore `'unsafe-inline'` too; those are there for a browser too old
+ * to know either keyword, which then falls back to this origin and the two
+ * named sign-in hosts rather than to anything.
  *
  * The rest is as tight as the app allows, and every entry has a reason:
  *
- * - `img-src` takes `https:` because a Google account's avatar is served from
- *   whichever googleusercontent host that account happens to be on.
+ * - `img-src` is this origin, `data:` and `blob:`. Nothing here draws a picture
+ *   from anywhere else: the avatar a Google account carries is read into the
+ *   session and drawn as an initial, never as an image, and the scanner's
+ *   preview is a blob. Google's button draws inside its own frame.
  * - `media-src` takes `blob:` because a recording in speaking practice never
  *   leaves the device, and a blob URL is how it is played back.
  * - `connect-src` is this origin and, where Supabase is configured, that one
@@ -179,7 +250,12 @@ function appleIdentitySrc(): string[] {
  *   button inside an `accounts.google.com` iframe, so a deployment with a
  *   Google client ID configured allows that one origin and no other.
  */
-export function buildContentSecurityPolicy({ secure = true }: { readonly secure?: boolean } = {}): string {
+export function buildContentSecurityPolicy({
+  secure = true,
+  nonce,
+  scriptHashes = [],
+  worker = false,
+}: PolicyOptions = {}): string {
   const isDev = process.env.NODE_ENV !== "production";
   const google = googleIdentitySrc();
 
@@ -188,7 +264,13 @@ export function buildContentSecurityPolicy({ secure = true }: { readonly secure?
     worker runs the model in it (ADR-028). It is not `'unsafe-eval'`, which
     stays a development-only allowance, and the test reads the two as tokens.
   */
-  const scriptSrc = ["'self'", "'unsafe-inline'", "'wasm-unsafe-eval'", ...google, ...appleIdentitySrc(), ...(isDev ? ["'unsafe-eval'"] : [])];
+  const hosts = [...google, ...appleIdentitySrc()];
+  const devEval = isDev ? ["'unsafe-eval'"] : [];
+  const scriptSrc = worker
+    ? ["'self'", "'wasm-unsafe-eval'", ...devEval]
+    : nonce
+      ? [`'nonce-${nonce}'`, "'strict-dynamic'", ...scriptHashes, "'self'", ...hosts, "'unsafe-inline'", "'wasm-unsafe-eval'", ...devEval]
+      : ["'self'", "'unsafe-inline'", "'wasm-unsafe-eval'", ...hosts, ...devEval];
   const connectSrc = [
     "'self'",
     ...supabaseConnectSrc(),
@@ -203,7 +285,7 @@ export function buildContentSecurityPolicy({ secure = true }: { readonly secure?
     // Google's button fetches a stylesheet of its own; refused, it logged a
     // CSP violation on every sign-in screen (PageSpeed, 14 October 2026).
     `style-src 'self' 'unsafe-inline'${google.length > 0 ? " https://accounts.google.com/gsi/style" : ""}`,
-    "img-src 'self' data: blob: https:",
+    "img-src 'self' data: blob:",
     // The faces are committed files in app/fonts/, served from this origin, so no font CDN is needed.
     "font-src 'self'",
     "media-src 'self' blob: data:",

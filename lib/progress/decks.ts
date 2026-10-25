@@ -1,3 +1,4 @@
+import { clip } from "@/lib/copy/clip";
 import { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/db";
@@ -181,10 +182,17 @@ export async function removeWordFromDeck(ownerId: string, deckId: string, lexeme
  * written, so one learner cannot file a word into another's shelf by
  * guessing an id.
  */
+/** The most shelves one word may be filed under in a single press. */
+const MAX_DECKS_PER_WORD = 100;
+/** The longest filter text a shelf's search is asked about. */
+const MAX_QUERY = 80;
+
 export async function setDecksForWord(
   ownerId: string, lexemeId: string, deckIds: readonly string[],
 ): Promise<void> {
-  const wanted = [...new Set(deckIds)];
+  /* Bounded before it reaches a query: the list arrives off the wire, and a
+     learner owns a handful of shelves rather than thousands. */
+  const wanted = [...new Set(deckIds)].slice(0, MAX_DECKS_PER_WORD);
   if (wanted.length === 0) {
     await prisma.deckWord.deleteMany({ where: { ownerId, lexemeId } });
     return;
@@ -240,7 +248,7 @@ export async function wordsToFile(
   const owns = await prisma.deck.count({ where: { id: deckId, ownerId } });
   if (owns === 0) return [];
 
-  const q = query.trim();
+  const q = clip(query.trim(), MAX_QUERY);
   const wanted = Math.min(Math.max(limit, 1), 50);
   /*
     An empty box is the ordinary way in, so it drops the clause rather than

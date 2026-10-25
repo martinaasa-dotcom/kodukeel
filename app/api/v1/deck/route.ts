@@ -3,7 +3,7 @@ import { apiJson, readBody } from "@/lib/api/respond";
 import { DeckDeleteRequest, DeckPostRequest, type DeckResponse } from "@/lib/api/contract";
 import { requireBearerUser } from "@/lib/auth/bearer";
 import { bringBack, keepWord, putAside, setStar } from "@/lib/progress/wordActions";
-import { throttleAction } from "@/lib/security/actionLimits";
+import { throttleShared } from "@/lib/usage/sharedThrottle";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     const answer: DeckResponse = { ...NONE, action: "star", starred: starred.starred };
     return apiJson(answer);
   }
-  const busy = throttleAction(who.ownerId, "putAside");
+  const busy = await throttleShared(who.ownerId, "putAside");
   if (busy) return apiError("rate_limited", { retryAfterSec: busy.retryAfterSec });
   const aside = await putAside(who.ownerId, ask.lexemeId, ask.context);
   if (!aside.ok) return apiError("not_found", { message: aside.error });

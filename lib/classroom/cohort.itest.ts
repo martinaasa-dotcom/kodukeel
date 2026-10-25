@@ -185,8 +185,7 @@ describe("what a sponsor's query reads", () => {
     await history(ANU, 12, 3);
     const sponsor = await workplaceRoster(workplaceId, "B1");
     const anu = sponsor.members.find((m) => m.displayName === "Anu");
-    expect(anu?.daysSinceLastReview).toBe(0);
-    expect(anu?.reviewsThisWeek).toBeGreaterThan(0);
+    expect(anu?.practicedRecently).toBe(true);
     expect(sponsor.active).toBe(1);
   });
 
@@ -208,7 +207,7 @@ describe("what a sponsor's query reads", () => {
 
     const sponsor = await workplaceRoster(workplaceId, "B1");
     const jaan = sponsor.members.find((m) => m.displayName === "Jaan");
-    expect(jaan?.daysSinceLastReview).toBeGreaterThan(365);
+    expect(jaan?.practicedRecently).toBe(false);
     expect(sponsor.active).toBe(0);
   });
 });
@@ -289,6 +288,30 @@ describe("what it costs", () => {
       expect(three).toBeLessThanOrEqual(10);
     } finally {
       for (const { delegate, method, original } of patched) delegate[method] = original;
+    }
+  });
+
+  it("reads nobody's practice once a group is archived", async () => {
+    await history(ANU, 30, 3);
+    await prisma.classroom.updateMany({ where: { id: { in: [classroomId, workplaceId] } }, data: { archived: true } });
+
+    const board = await classRoster(classroomId);
+    expect(board.archived).toBe(true);
+    expect(board.entries.map((e) => e.displayName).sort()).toEqual(["Anu", "Boss"]);
+    for (const entry of board.entries) {
+      expect(entry.reviewsThisWeek).toBe(0);
+      expect(entry.streak).toBe(0);
+      expect(entry.daysSinceLastReview).toBeNull();
+      expect(entry.weakestCase).toBeNull();
+    }
+    expect(board.weakestCases).toEqual([]);
+
+    const sponsor = await workplaceRoster(workplaceId, "B1");
+    expect(sponsor.archived).toBe(true);
+    expect(sponsor.active).toBe(0);
+    for (const member of sponsor.members) {
+      expect(member.band).toBe("unknown");
+      expect(member.practicedRecently).toBe(false);
     }
   });
 });

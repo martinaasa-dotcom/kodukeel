@@ -46,6 +46,8 @@ export interface SeenCard {
   answerLang: "et" | "en";
   /** The one form worth hearing again, or null where neither side is Estonian. */
   speak: string | null;
+  /** The form came out of the learner's own text, so it is spoken and kept nowhere (`Speak`'s `transient`). */
+  speakTransient?: boolean;
 }
 
 /**

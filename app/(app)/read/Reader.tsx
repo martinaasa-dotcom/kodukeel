@@ -153,7 +153,7 @@ export function Reader() {
             {read.map((paragraph, p) => (
               <div key={p} className="flex flex-col gap-3">
                 {paragraph.map((s, i) => (
-                  <GlossedSentence key={i} tokens={s.tokens} sentence={s.sentence} prose offerTurnOff={false} speak={{}} />
+                  <GlossedSentence key={i} tokens={s.tokens} sentence={s.sentence} prose offerTurnOff={false} speak={{ transient: true }} />
                 ))}
               </div>
             ))}

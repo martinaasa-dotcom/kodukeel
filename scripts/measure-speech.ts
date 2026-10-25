@@ -108,8 +108,8 @@ async function heard(bytes: Uint8Array): Promise<string> {
   };
   for (let attempt = 0; attempt < 5; attempt++) {
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${process.env.GEMINI_API_KEY}`,
-      { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body), signal: AbortSignal.timeout(120_000) },
+      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,
+      { method: "POST", redirect: "error", headers: { "content-type": "application/json", "x-goog-api-key": process.env.GEMINI_API_KEY ?? "" }, body: JSON.stringify(body), signal: AbortSignal.timeout(120_000) },
     );
     if (res.ok) {
       const data = (await res.json()) as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };

@@ -50,6 +50,18 @@ describe("undoGradeFor", () => {
     expect(await prisma.review.count({ where: { ownerId: OWNER } })).toBe(1);
   });
 
+  it("refuses a state no grade of this card could have come from", async () => {
+    const card = await makeCard();
+    // No grade at all: nothing to take back, so a forged "before" is refused.
+    const forged = { ...snapshotOf(card), state: 2, reps: 50, stability: 99_999, due: new Date(Date.now() + 3650 * DAY).toISOString() };
+    expect(await undoGradeFor(OWNER, card.id, forged)).toMatchObject({ ok: false, reason: "invalid" });
+
+    // A real grade, then the same forgery: still not the state that grade left.
+    await applyGradeBatch(OWNER, [{ id: "u2", cardId: card.id, rating: 3, durationMs: 1000, reviewedAt: Date.now() }]);
+    expect(await undoGradeFor(OWNER, card.id, forged)).toMatchObject({ ok: false, reason: "invalid" });
+    expect((await prisma.card.findUniqueOrThrow({ where: { id: card.id } })).reps).toBe(1);
+  });
+
   it("will not touch a card somebody else holds", async () => {
     const theirs = await makeCard(OTHER);
     const result = await undoGradeFor(OWNER, theirs.id, { ...snapshotOf(theirs), reps: 9 });

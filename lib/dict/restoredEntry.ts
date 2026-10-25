@@ -84,12 +84,15 @@ export function restoredEntry(raw: Record<string, unknown>, ownerId: string): Re
 
   const examples = parseExamples(typeof raw.examples === "string" ? raw.examples : null)
     .slice(0, MAX_USER_PER_WORD)
-    .map((e) => ({ et: e.et, ...(e.en ? { en: e.en } : {}), source: "USER" as const }));
+    // Signed as the restorer's, so they reach the restorer and nobody else (`typedReaches`).
+    .map((e) => ({ et: e.et, ...(e.en ? { en: e.en } : {}), source: "USER" as const, by: ownerId }));
 
   return {
     lexeme: {
       id, lemma, pos, translation,
-      cefr: text(raw.cefr),
+      /* A band is what puts a word in front of other learners, so a word a file
+         brought in arrives unbanded, as one a learner adds by hand does. */
+      cefr: null,
       government: text(raw.government),
       gradation: gradation.type,
       gradationNote: gradation.note ?? null,

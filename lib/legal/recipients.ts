@@ -80,7 +80,7 @@ export function resolveRecipients(): Recipient[] {
     recipients.push({
       id: PROVIDER_ID[label] ?? `ai:${label}`,
       name: label,
-      what: "what you type to Anu, and any page you photograph",
+      what: "what you type to Anu and the text of the screen you ask her from, your turns in a conversation, what you write in the writing round, Say what you see and a mock exam, a word you ask about in Twenty Questions, a word or sentence the dictionary has no English for, and any page or picture you photograph",
       eea: PROVIDER_HOME[label] ?? null,
     });
   }

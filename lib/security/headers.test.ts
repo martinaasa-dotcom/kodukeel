@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
-import { buildContentSecurityPolicy, STATIC_SECURITY_HEADERS } from "@/lib/security/headers";
+import { buildContentSecurityPolicy, mintNonce, policyKindFor, STATIC_SECURITY_HEADERS } from "@/lib/security/headers";
 
-function directive(name: string): string {
-  const found = buildContentSecurityPolicy()
+function directive(name: string, policy: string = buildContentSecurityPolicy()): string {
+  const found = policy
     .split("; ")
     .find((part) => part === name || part.startsWith(`${name} `));
   if (!found) throw new Error(`no ${name} in the policy`);
@@ -90,8 +90,10 @@ describe("the policy says what the app actually needs", () => {
     expect(directive("manifest-src")).toBe("manifest-src 'self'");
   });
 
-  it("allows an avatar from wherever Google serves it", () => {
-    expect(directive("img-src")).toContain("https:");
+  it("draws pictures from this origin and the device, and nowhere else", () => {
+    // Nothing draws a remote image: the account avatar is an initial, and the
+    // scanner's preview is a blob. `https:` here was any picture from anywhere.
+    expect(directive("img-src")).toBe("img-src 'self' data: blob:");
   });
 
   it("names no third party to connect to", () => {
@@ -191,5 +193,48 @@ describe("the static headers", () => {
 
   it("does not leak a path to another site in the referrer", () => {
     expect(header("Referrer-Policy")).toBe("strict-origin-when-cross-origin");
+  });
+});
+
+describe("a page's scripts are allowed by the request's nonce", () => {
+  const hash = "'sha256-AAAA'";
+  const policy = () => buildContentSecurityPolicy({ nonce: "bm9uY2U=", scriptHashes: [hash] });
+
+  it("carries the nonce and strict-dynamic, so an injected inline script is refused", () => {
+    const tokens = directive("script-src", policy()).split(/\s+/);
+    expect(tokens).toContain("'nonce-bm9uY2U='");
+    expect(tokens).toContain("'strict-dynamic'");
+    expect(tokens).toContain(hash);
+    // What a browser too old for either keyword falls back to: this origin and
+    // the named sign-in hosts, never every https origin.
+    expect(tokens).not.toContain("https:");
+  });
+
+  it("is the nonce Next reads: the first nonce source in script-src", () => {
+    // The same pattern as next/dist/server/app-render/get-script-nonce-from-header.js.
+    const nonce = mintNonce();
+    const src = directive("script-src", buildContentSecurityPolicy({ nonce }));
+    expect(src.split(/\s+/).find((t) => /^'nonce-[A-Za-z0-9+/_-]+={0,2}'$/.test(t))).toBe(`'nonce-${nonce}'`);
+  });
+
+  it("mints a different nonce every time, from sixteen random bytes", () => {
+    const a = mintNonce();
+    const b = mintNonce();
+    expect(a).not.toBe(b);
+    expect(atob(a)).toHaveLength(16);
+  });
+
+  it("keeps the inline allowance only for the prerendered landing pages, and gives the worker its own", () => {
+    expect(policyKindFor("/welcome")).toBe("static");
+    expect(policyKindFor("/welcome/ru")).toBe("static");
+    expect(policyKindFor("/welcome/ru/anything")).toBe("nonce");
+    expect(policyKindFor("/sign-in")).toBe("nonce");
+    expect(policyKindFor("/")).toBe("nonce");
+    expect(policyKindFor("/asr/runtime/speech-worker.js")).toBe("worker");
+    const worker = directive("script-src", buildContentSecurityPolicy({ worker: true })).split(/\s+/);
+    expect(worker).toContain("'self'");
+    expect(worker).toContain("'wasm-unsafe-eval'");
+    expect(worker).not.toContain("'unsafe-inline'");
+    expect(worker).not.toContain("'strict-dynamic'");
   });
 });

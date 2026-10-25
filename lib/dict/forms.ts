@@ -1,5 +1,7 @@
 import { readFile } from "node:fs/promises";
-import { gunzipSync } from "node:zlib";
+import { promisify } from "node:util";
+import { gunzip as gunzipCallback } from "node:zlib";
+import { singleFlight } from "@/lib/cache/singleFlight";
 import path from "node:path";
 import { fold } from "@/lib/estonian/fold";
 import { LENGTH_FILE, SHARD_DIR, shardKey } from "./formsLayout";
@@ -72,8 +74,31 @@ export function parseShard(text: string): Shard {
 }
 
 const held = new Map<string, Shard>();
+const gunzip = promisify(gunzipCallback);
 
-async function shard(key: string): Promise<Shard> {
+/**
+ * How many shards one caller may read cold, for a request that asks about a
+ * list of spellings it was handed.
+ *
+ * A cold shard is a read, a gunzip and a parse of up to a quarter of a million
+ * lines, and the parse holds the event loop: measured at about two seconds for
+ * the sixty largest. The speech route takes sixty words a request and sixty
+ * requests a minute, so one account sending one word from each of the largest
+ * shards, alternating two sets so the cache never helps, kept an instance busy
+ * for most of every minute and everybody else on it waiting. A real turn names
+ * a dozen words at most and most of them share a warm shard, so a caller hands
+ * in a budget and a word past it is answered as unknown rather than read.
+ */
+export interface ColdBudget {
+  left: number;
+}
+
+export function coldBudget(shards: number): ColdBudget {
+  return { left: shards };
+}
+
+/** The shard for a key, or null where it is cold and the caller's budget is spent. */
+async function shard(key: string, budget?: ColdBudget): Promise<Shard | null> {
   const kept = held.get(key);
   if (kept) {
     // Re-insert so the map's order is least recently used first.
@@ -81,22 +106,29 @@ async function shard(key: string): Promise<Shard> {
     held.set(key, kept);
     return kept;
   }
-  let lines: Shard;
-  try {
-    const bytes = await readFile(path.join(DIR, SHARD_DIR, `${key}.tsv.gz`));
-    lines = parseShard(gunzipSync(bytes).toString("utf8"));
-  } catch (error) {
-    // A shard nothing starts with is an ordinary answer, not a fault: no
-    // Estonian word begins with `qx`. Anything else is worth hearing about.
-    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
-    lines = new Map();
+  if (budget) {
+    if (budget.left <= 0) return null;
+    budget.left -= 1;
   }
-  held.set(key, lines);
-  if (held.size > HELD_SHARDS) {
-    const oldest = held.keys().next().value;
-    if (oldest !== undefined) held.delete(oldest);
-  }
-  return lines;
+  // Concurrent asks for one cold shard read it once.
+  return singleFlight(`forms:${key}`, async () => {
+    let lines: Shard;
+    try {
+      const bytes = await readFile(path.join(DIR, SHARD_DIR, `${key}.tsv.gz`));
+      lines = parseShard((await gunzip(bytes)).toString("utf8"));
+    } catch (error) {
+      // A shard nothing starts with is an ordinary answer, not a fault: no
+      // Estonian word begins with `qx`. Anything else is worth hearing about.
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+      lines = new Map();
+    }
+    held.set(key, lines);
+    if (held.size > HELD_SHARDS) {
+      const oldest = held.keys().next().value;
+      if (oldest !== undefined) held.delete(oldest);
+    }
+    return lines;
+  });
 }
 
 /**
@@ -104,11 +136,11 @@ async function shard(key: string): Promise<Shard> {
  * spelling's headwords come first, so `pohjas` and `põhjas` both answer with
  * `põhi` and a spelling that is itself a headword leads with itself.
  */
-export async function lemmasOfForm(query: string): Promise<string[]> {
+export async function lemmasOfForm(query: string, budget?: ColdBudget): Promise<string[]> {
   const trimmed = query.trim().toLowerCase();
   const folded = fold(trimmed);
   if (!folded) return [];
-  const lines = (await shard(shardKey(folded))).get(folded) ?? [];
+  const lines = (await shard(shardKey(folded), budget))?.get(folded) ?? [];
   const exact: string[] = [];
   const near: string[] = [];
   for (const line of lines) {
@@ -126,11 +158,11 @@ export async function lemmasOfForm(query: string): Promise<string[]> {
  * folded reading above is right for a search box and wrong for telling a slip of
  * the hand from a real word: `poder` folds onto `põder` and is still a slip.
  */
-export async function isExactForm(query: string): Promise<boolean> {
+export async function isExactForm(query: string, budget?: ColdBudget): Promise<boolean> {
   const trimmed = query.trim().toLowerCase();
   const folded = fold(trimmed);
   if (!folded) return false;
-  return ((await shard(shardKey(folded))).get(folded) ?? []).some((line) => line.form === trimmed);
+  return ((await shard(shardKey(folded), budget))?.get(folded) ?? []).some((line) => line.form === trimmed);
 }
 
 /**
@@ -145,7 +177,7 @@ export async function formsOfHeadword(lemma: string): Promise<string[]> {
   const folded = fold(head);
   if (!folded) return [];
   const out = new Set<string>([head]);
-  for (const lines of (await shard(shardKey(folded))).values()) {
+  for (const lines of (await shard(shardKey(folded)))?.values() ?? []) {
     for (const line of lines) {
       if (line.form === line.form.toLowerCase() && line.lemmas.includes(head)) out.add(line.form);
     }
@@ -154,8 +186,8 @@ export async function formsOfHeadword(lemma: string): Promise<string[]> {
 }
 
 /** Whether the spelling is a form of any Estonian word at all. */
-export async function isKnownForm(query: string): Promise<boolean> {
-  return (await lemmasOfForm(query)).length > 0;
+export async function isKnownForm(query: string, budget?: ColdBudget): Promise<boolean> {
+  return (await lemmasOfForm(query, budget)).length > 0;
 }
 
 /**
@@ -168,7 +200,7 @@ export async function isKnownForm(query: string): Promise<boolean> {
 export async function formsOfLength(length: number): Promise<string[]> {
   try {
     const bytes = await readFile(path.join(DIR, LENGTH_FILE(length)));
-    return gunzipSync(bytes).toString("utf8").split("\n").filter(Boolean);
+    return (await gunzip(bytes)).toString("utf8").split("\n").filter(Boolean);
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
     return [];

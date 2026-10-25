@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SCREEN_LIMITS, screenBlock, screenFrom, screenWords, withScreen } from "./screen";
+import { SCREEN_LIMITS, screenBlock, screenFrom, screenIsPrivate, screenWords, withScreen } from "./screen";
 
 const card = {
   path: "/review",
@@ -79,5 +79,24 @@ describe("screenWords", () => {
   it("hands the dictionary the highlight and the Estonian, never the English around them", () => {
     expect(screenWords(screenFrom({ ...card, selection: "toas" }))).toBe("toas Ma olen praegu toas.");
     expect(screenWords(null)).toBe("");
+  });
+});
+
+describe("screenIsPrivate", () => {
+  it("names the screens that show somebody else's data, and the account", () => {
+    for (const path of ["/class", "/class/abc", "/admin/suggestions", "/settings", "/settings?tab=x", "/suggestions", "/privacy", "/terms"]) {
+      expect(screenIsPrivate(path), path).toBe(true);
+    }
+  });
+
+  it("leaves a learning screen and a lookalike route alone", () => {
+    for (const path of ["/", "/review", "/learn/kodu", "/classroom", "/dictionary?q=klass", "/grammar/case/sisseytlev"]) {
+      expect(screenIsPrivate(path), path).toBe(false);
+    }
+  });
+
+  it("is refused again on the server, whatever the browser sent", () => {
+    expect(screenFrom({ path: "/class/abc", title: "Roster", visible: "Kadri 6 days" })).toBeNull();
+    expect(screenFrom({ path: "/review", title: "Review", visible: "tuba" })).not.toBeNull();
   });
 });

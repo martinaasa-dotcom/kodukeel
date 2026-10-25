@@ -27,6 +27,11 @@ updates:
       time: "06:00"
       timezone: Europe/Tallinn
     open-pull-requests-limit: 5
+    # A version is a week old before it is offered. A package taken over and
+    # republished is usually found and pulled inside a few days, and an update
+    # that waits a week has waited past that. Security updates are not held.
+    cooldown:
+      default-days: 7
     # Grouped so a week of patch bumps is one pull request that CI runs once,
     # rather than five that each spend a full browser job. This repository's
     # suite is not cheap: it builds the app, brings up a Postgres, seeds the

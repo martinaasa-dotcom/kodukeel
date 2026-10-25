@@ -144,7 +144,15 @@ export function likeLiteral(text: string): string {
   return text.replace(/[\\%_]/g, "\\$&");
 }
 
-export async function searchLexemes(query: string, limit = 40): Promise<SearchHit[]> {
+/**
+ * `viewer` is the learner searching. A row a learner added by hand, pasted in a
+ * list or confirmed off a photograph carries an English of their own and was
+ * found by everybody else's search, which is a stranger's text in front of
+ * whoever typed the same letters; such a row is found by the learner who wrote
+ * it and nobody else. Without a viewer only the dictionary a source vouches for
+ * is searched.
+ */
+export async function searchLexemes(query: string, limit = 40, viewer: string | null = null): Promise<SearchHit[]> {
   const q = query.trim();
   if (!q) return [];
 
@@ -255,7 +263,10 @@ export async function searchLexemes(query: string, limit = 40): Promise<SearchHi
   if (rows.length === 0) return [];
 
   const candidates: Candidate[] = await prisma.lexeme.findMany({
-    where: { id: { in: rows.map((r) => r.id) } },
+    where: {
+      id: { in: rows.map((r) => r.id) },
+      OR: [VOUCHED_ROW, ...(viewer ? [{ editedBy: viewer }] : [])],
+    },
     select: {
       id: true, lemma: true, translation: true, pos: true,
       cefr: true, gradationNote: true, provenance: true,
@@ -315,16 +326,29 @@ export async function searchLexemes(query: string, limit = 40): Promise<SearchHi
  * expansion loads with `ON CONFLICT DO NOTHING` and never an update, "so a
  * hand-written entry, a learner's correction and a live Ekilex fetch all win
  * over it". That was a rule about writes and it is just as true about reads.
- * SEED and USER are the rows a person wrote; EKILEX is the built expansion, which is
+ * SEED is the rows the course wrote; EKILEX is the built expansion, which is
  * every row it wrote and is where a wrong part of speech comes from in the
- * first place.
+ * first place. (USER was here too, and is not any more: see `SOURCE_RANK`.)
  *
  * It sits *after* the OTHER test on purpose. An unvouched word confirmed off a
  * photograph is USER and is filed as OTHER, so putting provenance first would
  * hand a formless stub the entry page again, which is the bug this function
  * exists for.
  */
-const HAND_WRITTEN = new Set(["SEED", "USER"]);
+/*
+ * AND A LEARNER'S OWN ROW IS NOT A SOURCE. This said SEED and USER both, on the
+ * reading that a learner's correction should win over the built expansion. A
+ * correction to an entry is a reviewer's now and keeps that entry's row and
+ * provenance (`createLexemeWithForms`), so what a USER row is today is a word
+ * one account added for itself. Ranked above Ekilex, any account could add
+ * `tuba` as an adjective with three forms and an English of its own choosing,
+ * and that row, not the Institute's, was the one entry every learner's unit
+ * page, worksheet and search showed for the word. So the seed leads, Ekilex
+ * follows, and a row a learner or a model wrote never leads a word anybody
+ * else meets.
+ */
+const SOURCE_RANK: Readonly<Record<string, number>> = { SEED: 2, EKILEX: 1 };
+const rankOf = (provenance: string) => SOURCE_RANK[provenance] ?? 0;
 
 /** The least a row has to carry for the rule above to have an opinion about it. */
 export interface Substantial {
@@ -336,7 +360,7 @@ export interface Substantial {
 
 export function bySubstance(a: Substantial, b: Substantial): number {
   return Number(b.pos !== "OTHER") - Number(a.pos !== "OTHER")
-    || Number(HAND_WRITTEN.has(b.provenance)) - Number(HAND_WRITTEN.has(a.provenance))
+    || rankOf(b.provenance) - rankOf(a.provenance)
     || b.forms.length - a.forms.length
     || a.id.localeCompare(b.id);
 }
@@ -756,10 +780,18 @@ export interface FormMatch {
  * Pure, like `rankCandidates`, so the boundary can be tested over fixtures.
  */
 export function vouchable(candidate: Candidate): boolean {
-  if (candidate.provenance === "AI") return false;
-  return candidate.forms.length > 0
-    || candidate.provenance === "SEED"
-    || candidate.provenance === "EKILEX";
+  /*
+    AND NOR DOES ONE A LEARNER TYPED. A `USER` row with a form used to vouch,
+    on the argument that somebody had at least typed the parts, and any account
+    can type them: a row named `poodi` with one form scored as an exact
+    headword, above the real `pood`'s stored form, so its gloss, up to two
+    hundred characters of whatever the author wrote, was printed under every
+    other learner's sentences and handed to their conversation's model as what
+    they had said. What vouches for a spelling is a source: the seed and
+    Ekilex, which is `VOUCHED_ROW` below. A learner's own word still reaches
+    their own deck by id; it no longer answers for anybody's spelling.
+  */
+  return candidate.provenance === "SEED" || candidate.provenance === "EKILEX";
 }
 
 /**
@@ -775,7 +807,18 @@ export function vouchable(candidate: Candidate): boolean {
  * every learner as today's word or as an examination answer, which is the one
  * thing ADR-005 exists to stop.
  */
-export const VOUCHED_ROW = { provenance: { not: "AI" } } as const;
+/*
+ * AND NOT A ROW ANOTHER LEARNER TYPED IN, WHICH IS THE SAME REFUSAL ONE DOOR
+ * OVER. A `USER` row is a word somebody added by hand, pasted in a list or
+ * confirmed off a photograph, with an English gloss they chose and nobody else
+ * read. That is a word for their own deck, and it reaches theirs by id. Read by
+ * these pickers it was a stranger's text handed to every learner as today's
+ * word, a decoy or an examination answer, and any account could write one.
+ * So what these pickers draw from is the dictionary a source vouches for: the
+ * seed and Ekilex. A reviewer's accepted correction keeps its row's provenance,
+ * so nothing a reviewer passed is lost here.
+ */
+export const VOUCHED_ROW: { provenance: { in: string[] } } = { provenance: { in: ["SEED", "EKILEX"] } };
 
 export function matchEstonianForm(candidates: Candidate[], word: string): FormMatch | null {
   const raw = word.trim();

@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { candidatesFor } from "@/lib/dict/resolveScan";
-import { matchEstonianForm } from "@/lib/dict/search";
+import { matchEstonianForm, VOUCHED_ROW } from "@/lib/dict/search";
 import { glossAnswers, glossWords, MAX_QUESTION_WORDS, questionWords, type WordFacts } from "@/lib/tutor/words";
 
 /**
@@ -54,7 +54,13 @@ const FACTS_SELECT = {
 } satisfies Prisma.LexemeSelect;
 
 async function factsFor(ids: readonly string[], asked: ReadonlyMap<string, string[]>): Promise<WordFacts[]> {
-  const rows = await prisma.lexeme.findMany({ where: { id: { in: [...ids] } }, select: FACTS_SELECT });
+  /*
+    What Anu is told about a word is read as a fact, so only the dictionary a
+    source vouches for may say it. A row another learner added carries an
+    English and a government of their own choosing, and printed into this
+    learner's briefing it was a stranger's text inside the prompt.
+  */
+  const rows = await prisma.lexeme.findMany({ where: { id: { in: [...ids] }, ...VOUCHED_ROW }, select: FACTS_SELECT });
   // In the order the question named them, which `in` does not promise.
   return ids
     .map((id) => rows.find((r) => r.id === id))
@@ -74,6 +80,7 @@ async function glossedWords(words: readonly string[]): Promise<WordFacts[]> {
   if (words.length === 0) return [];
   const rows = await prisma.lexeme.findMany({
     where: {
+      ...VOUCHED_ROW,
       OR: words.flatMap((w) => [
         { translation: { equals: w, mode: "insensitive" as const } },
         { translation: { startsWith: `${w},`, mode: "insensitive" as const } },

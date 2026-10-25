@@ -477,9 +477,38 @@ describe("usableExamples keeps the shared dictionary the lexicographer's", () =>
     expect(out.slice(0, 2).every((e) => e.source === "EKILEX")).toBe(true);
   });
 
-  it("lets one learner occupy at most two of a word's sentences", () => {
-    const out = usableExamples(pool);
+  it("lets one learner occupy at most two of a word's sentences, in the stored column", () => {
+    const out = usableExamples(pool, undefined, { keepTyped: true });
     expect(out.filter((e) => e.source === "USER")).toHaveLength(2);
     expect(out).toHaveLength(4);
+  });
+
+  /*
+    A typed sentence is its author's. It reached every learner's entry, cards
+    and examination questions, which is unreviewed text from any account in
+    front of strangers. Now it reaches the learner who typed it, or everybody
+    once a reviewer added it, and a typed sentence that names nobody reaches
+    nobody.
+  */
+  it("hands a typed sentence to its author and to nobody else", () => {
+    const mine: Example = { et: "Ma joon hommikul kohvi.", source: "USER", by: "ann" };
+    const theirs: Example = { et: "Sa jood õhtul kohvi.", source: "USER", by: "bob" };
+    const passed: Example = { et: "Me joome koos kohvi.", source: "USER", by: "admin", reviewed: true };
+    const orphan: Example = { et: "Te joote palju kohvi.", source: "USER" };
+    const all = [ek("Ta joob hommikul alati kohvi piimaga."), mine, theirs, passed, orphan];
+    const forAnn = usableExamples(all, undefined, { viewer: "ann" }).map((e) => e.et);
+    expect(forAnn).toContain(mine.et);
+    expect(forAnn).toContain(passed.et);
+    expect(forAnn).not.toContain(theirs.et);
+    expect(forAnn).not.toContain(orphan.et);
+    const forNobody = usableExamples(all).map((e) => e.et);
+    expect(forNobody).toEqual(["Ta joob hommikul alati kohvi piimaga.", passed.et]);
+    // And the reader is never handed an account id.
+    expect(usableExamples(all, undefined, { viewer: "ann" }).some((e) => "by" in e)).toBe(false);
+  });
+
+  it("keeps the author on the stored row, so the rule survives a write", () => {
+    const stored = parseExamples(serialiseExamples([{ et: "Ma joon hommikul kohvi.", source: "USER", by: "ann", reviewed: true }]));
+    expect(stored[0]).toMatchObject({ by: "ann", reviewed: true });
   });
 });

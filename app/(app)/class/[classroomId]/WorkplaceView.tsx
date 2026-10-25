@@ -75,7 +75,7 @@ export function WorkplaceView({ summary, sponsor, locale }: {
         ) : (
           <ul className="flex flex-col gap-1.5">
             {summary.members.map((member) => {
-              const quiet = member.daysSinceLastReview === null || member.daysSinceLastReview >= QUIET_DAYS;
+              const quiet = !member.practicedRecently;
               return (
                 <li
                   key={member.ownerId}
@@ -101,13 +101,10 @@ export function WorkplaceView({ summary, sponsor, locale }: {
                     <span className="block text-base font-semibold" style={{ color: "var(--ink)" }}>
                       {member.displayName}
                     </span>
+                    {/* Whether, never how much or how long ago: the join
+                        screen promises a colleague exactly that. */}
                     <span className="block text-xs" style={{ color: quiet ? "var(--hard-ink)" : "var(--ink-3)" }}>
-                      {member.daysSinceLastReview === null
-                        ? t("no reviews yet")
-                        : member.daysSinceLastReview === 0
-                          ? t("reviewed today")
-                          : fill(t("last review {days} ago"), { days: countOf(locale, member.daysSinceLastReview, "day") })}
-                      {member.reviewsThisWeek > 0 && `, ${fill(t("{n} this week"), { n: member.reviewsThisWeek })}`}
+                      {t(member.practicedRecently ? "practiced this week" : "not practiced this week")}
                     </span>
                   </span>
                   <Chip tone={BAND_TONE[member.band]}>{bandLabel(member.band)}</Chip>

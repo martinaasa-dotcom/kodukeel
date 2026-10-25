@@ -30,8 +30,8 @@ function classSummary(entries: RosterEntry[]): ClassSummary {
 const workplace: CohortSummary = {
   level: "B1",
   members: [
-    { ownerId: "w1", displayName: "Mari", band: "likely", evidence: "good", reviewsThisWeek: 12, daysSinceLastReview: 2 },
-    { ownerId: "w2", displayName: "Jaan", band: "close", evidence: "fair", reviewsThisWeek: 0, daysSinceLastReview: null },
+    { ownerId: "w1", displayName: "Mari", band: "likely", evidence: "good", practicedRecently: true },
+    { ownerId: "w2", displayName: "Jaan", band: "close", evidence: "fair", practicedRecently: false },
   ],
   counts: { likely: 1, close: 1, far: 0, unknown: 0 },
   active: 1,
@@ -95,11 +95,29 @@ describe("the roster file", () => {
   it("gives a workplace group no column and no cell a case could go in", () => {
     const text = rosterCsv({ kind: "WORKPLACE", className: "Work", date: "2026-10-14", say: say("en"), summary: workplace });
     const [header, mari, jaan] = rowsOf(text);
-    expect(header).toBe("Name,Reviews this week,Days since last review,Band,Evidence");
-    expect(mari).toBe("Mari,12,2,On track,backed by plenty of practice");
-    expect(jaan).toBe("Jaan,0,,Close to passing,a rough estimate");
+    expect(header).toBe("Name,Practiced in the last 7 days,Band");
+    expect(mari).toBe("Mari,yes,On track");
+    expect(jaan).toBe("Jaan,no,Close to passing");
     expect(text).not.toMatch(/case/i);
     expect(text).toContain("# The bands are about the exam at B1");
+    expect(text).toContain("# What the bands rest on: a rough estimate");
+  });
+
+  it("carries whether a colleague practiced, never how much or how long ago", () => {
+    const text = rosterCsv({ kind: "WORKPLACE", className: "Work", date: "2026-10-14", say: say("en"), summary: workplace });
+    expect(text).not.toMatch(/Reviews this week|Days since/);
+    for (const row of rowsOf(text).slice(1)) expect(row).not.toMatch(/,\d+,/);
+  });
+
+  it("lists only who was in an archived group", () => {
+    const klass = { ...classSummary([entry({}), entry({ ownerId: "t", displayName: "Õpetaja", role: "TEACHER" })]), archived: true } as ClassSummary;
+    const text = rosterCsv({ kind: "CLASS", className: "A2", date: "2026-10-14", say: say("en"), summary: klass });
+    expect(rowsOf(text)).toEqual(["Name,Role,Joined", "Kadri,student,2026-09-01", "Õpetaja,teacher,2026-09-01"]);
+    expect(text).toContain("archived");
+    expect(text).not.toContain("osastav");
+
+    const group = rosterCsv({ kind: "WORKPLACE", className: "Work", date: "2026-10-14", say: say("en"), summary: { ...workplace, archived: true } });
+    expect(rowsOf(group)).toEqual(["Name", "Mari", "Jaan"]);
   });
 });
 

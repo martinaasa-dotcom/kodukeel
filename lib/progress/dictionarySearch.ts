@@ -32,7 +32,7 @@ const WORTH_TRYING = 3;
 
 export async function searchDictionary(ownerId: string, query: string): Promise<DictionarySearch> {
   const q = query;
-  let hits = q ? await searchLexemes(q) : [];
+  let hits = q ? await searchLexemes(q, undefined, ownerId) : [];
 
   /*
     NOTHING LOCALLY, SO ASK WHICH WORD THAT SPELLING IS A FORM OF.
@@ -49,7 +49,7 @@ export async function searchDictionary(ownerId: string, query: string): Promise<
   const knownAs = q && hits.length === 0 ? await knownLemmas(q) : [];
   for (const lemma of knownAs.slice(0, WORTH_TRYING)) {
     if (hits.length > 0 || lemma === q.trim()) break;
-    hits = await searchLexemes(lemma);
+    hits = await searchLexemes(lemma, undefined, ownerId);
   }
 
   // Still nothing: ask Ekilex, store what comes back, and search again. The
@@ -60,7 +60,7 @@ export async function searchDictionary(ownerId: string, query: string): Promise<
     for (const wanted of [...knownAs.slice(0, WORTH_TRYING), q]) {
       const found = await lookupAndStore(ownerId, wanted);
       if (found) {
-        hits = await searchLexemes(found.lemma);
+        hits = await searchLexemes(found.lemma, undefined, ownerId);
         fetched = true;
         break;
       }

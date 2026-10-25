@@ -37,7 +37,7 @@ const B = baseUrl();
 // Floor: 36, measured against a local-mode build, which is what the browser
 // job runs. Hosted waives the handful that need a route to answer rather than
 // refuse, and says so.
-const { check, absent, done } = suite("Security", { floor: 44 });
+const { check, absent, done } = suite("Security", { floor: 46 });
 
 /** GET with no cleverness, returning status, headers and body together. */
 async function get(path, init) {
@@ -103,11 +103,18 @@ for (const [path, what] of [["/welcome", "a public page"], ["/api/health", "an A
   check("no unsafe-eval anywhere in the policy, only the WebAssembly allowance",
     !csp.split(/[\s;]+/).includes("'unsafe-eval'") && csp.split(/[\s;]+/).includes("'wasm-unsafe-eval'"));
   /*
-    `script-src` carries 'unsafe-inline' and that is argued at length in
-    lib/security/headers.ts: the shell is prerendered and CDN-cached and Next
-    only stamps a nonce on a dynamically rendered response. What must not
-    happen is the policy widening past it.
+    /welcome is one of the four prerendered pages, so its `script-src` keeps
+    the inline allowance (lib/security/headers.ts `policyKindFor`). Every page
+    rendered per request runs on a nonce, asked below. What must not happen
+    is either policy widening past that.
   */
+  const page = await get("/offline");
+  const pagePolicy = page.headers.get("content-security-policy") ?? "";
+  const nonce = /'nonce-([A-Za-z0-9+/_-]+={0,2})'/.exec(pagePolicy)?.[1];
+  check("a page rendered per request runs its scripts on a nonce and strict-dynamic",
+    Boolean(nonce) && /'strict-dynamic'/.test(pagePolicy), pagePolicy.match(/script-src [^;]*/)?.[0]?.slice(0, 80));
+  check("the nonce in the header is the one stamped on the page's scripts",
+    Boolean(nonce) && page.body.includes(`nonce="${nonce}"`));
   check("connect-src names hosts rather than allowing anything",
     /connect-src [^;]*'self'/.test(csp) && !/connect-src [^;]*\*/.test(csp), csp.match(/connect-src [^;]*/)?.[0]?.slice(0, 60));
 }

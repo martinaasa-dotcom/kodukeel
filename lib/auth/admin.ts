@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { currentIdentity } from "@/lib/auth/session";
 import { isAllowedEmail } from "@/lib/auth/access";
-import { LOCAL_USER_ID, supabaseConfigured } from "@/lib/auth/mode";
+import { LOCAL_USER_ID, localModeRefused, supabaseConfigured } from "@/lib/auth/mode";
 
 /**
  * Who may read the suggestion queue and push a change through it.
@@ -58,6 +58,26 @@ export function isAdminEmail(email: string | null | undefined, admins: string[])
   return admins.includes(address);
 }
 
+/**
+ * Whether how a session was signed in proves the address is its owner's.
+ *
+ * The admin gate trusts the token's `email` claim, and that claim is only as
+ * good as the door it came through. A password sign-up on a project where
+ * "confirm email" is off hands out a session for any address typed, an
+ * administrator's included, without anybody reading that inbox; a SAML
+ * identity provider asserts whatever address its own administrator writes. The
+ * app's own doors are Google, Apple and the mailed link, each of which proves
+ * the address, so a session carrying any other method is never a reviewer,
+ * whatever it says its address is. A session whose methods are unknown is
+ * refused too: a privilege check is where "we could not tell" means no.
+ */
+const ADMIN_REFUSED_METHOD = /^(password|anonymous|web3|sso)/;
+
+export function methodsProveAddress(methods: readonly string[] | undefined): boolean {
+  if (!methods || methods.length === 0) return false;
+  return !methods.some((method) => ADMIN_REFUSED_METHOD.test(method));
+}
+
 /** True when somebody has been named as a reviewer. Pure, on the env given. */
 export function reviewersNamed(env: AdminEnv = process.env): boolean {
   return adminEmails(env).length > 0;
@@ -82,7 +102,7 @@ export function adminsConfigured(): boolean {
  * six admin-only sections should not ask six times.
  */
 export const isAdmin = cache(async (): Promise<boolean> => {
-  if (!supabaseConfigured()) return true;
+  if (!supabaseConfigured()) return localModeRefused() === null;
   const admins = adminEmails();
   if (admins.length === 0) return false;
   /*
@@ -95,6 +115,7 @@ export const isAdmin = cache(async (): Promise<boolean> => {
   if (who.state !== "in") return false;
   // Off the allowlist is off the app, reviewers included.
   if (!isAllowedEmail(who.learner.email)) return false;
+  if (!methodsProveAddress(who.learner.signInMethods)) return false;
   return isAdminEmail(who.learner.email, admins);
 });
 
@@ -107,11 +128,14 @@ export const isAdmin = cache(async (): Promise<boolean> => {
  * all of them.
  */
 export async function requireAdminId(): Promise<string> {
-  if (!supabaseConfigured()) return LOCAL_USER_ID;
+  if (!supabaseConfigured()) {
+    if (localModeRefused()) throw new Error("No sign-in is configured on this deployment.");
+    return LOCAL_USER_ID;
+  }
   const who = await currentIdentity();
   if (who.state !== "in") throw new Error("Not signed in.");
   if (!isAllowedEmail(who.learner.email)) throw new Error("Not allowed.");
-  if (!isAdminEmail(who.learner.email, adminEmails())) {
+  if (!isAdminEmail(who.learner.email, adminEmails()) || !methodsProveAddress(who.learner.signInMethods)) {
     throw new Error("Only the people who run this app can review suggestions.");
   }
   return who.learner.id;
@@ -127,7 +151,16 @@ export async function requireAdminId(): Promise<string> {
  * the checks out of the course they are walking, or out of the browser suites
  * that walk it.
  */
-export const movesFreely = cache(async (): Promise<boolean> => {
+export const movesFreely = cache(async (ownerId: string): Promise<boolean> => {
   if (!supabaseConfigured()) return false;
+  /*
+    The admin answer comes off the cookie session, and a native request names
+    its owner by a bearer token instead. A phone's token for one account beside
+    a browser cookie for an admin is two people, so the privilege is granted
+    only where the cookie is the owner being asked about.
+  */
+  const who = await currentIdentity();
+  if (who.state !== "in" || who.learner.id !== ownerId) return false;
+  if (!isAllowedEmail(who.learner.email)) return false;
   return isAdmin();
 });

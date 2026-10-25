@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { buildRecord, redact, safeMessage } from "./report";
+import { buildRecord, redact, safeMessage, WEBHOOK_VALUE_MAX, webhookPayload } from "./report";
 
 describe("redact", () => {
   it("removes a value whose key names a credential", () => {
@@ -9,6 +9,13 @@ describe("redact", () => {
     expect(out.apiKey).toBe("[redacted]");
     expect(out.ANTHROPIC_API_KEY).toBe("[redacted]");
     expect(out.note).toBe("fine");
+  });
+
+  it("removes an email address written inside a string", () => {
+    expect(redact("Unique constraint failed on (email)=(ann.tamm+kool@example.co.uk)")).toBe(
+      "Unique constraint failed on (email)=([redacted])",
+    );
+    expect(redact("nothing@here")).toBe("nothing@here");
   });
 
   it("removes an email even though it is not obviously a secret", () => {
@@ -186,5 +193,21 @@ describe("redact covers every shape the bundle scan refuses", () => {
     const out = String(redact(`upstream said: ${sample} was rejected`));
     expect(out).not.toContain(secretOf(name, sample));
     expect(out).toContain("[redacted]");
+  });
+});
+
+describe("what the webhook is sent", () => {
+  it("pings nobody and cuts every value it was handed", () => {
+    const record = buildRecord(new Error("broke for @here"), {
+      at: "api/test",
+      extra: { said: `<!channel> ${"a".repeat(500)}`, who: "<@U123>", status: 500 },
+    });
+    const posted = webhookPayload(record);
+    const text = JSON.stringify(posted);
+    expect(text).not.toMatch(/@here|<!channel>|<@U123>/);
+    expect(posted.message).toContain("@​here");
+    const extra = posted.extra as Record<string, unknown>;
+    expect((extra.said as string).length).toBeLessThanOrEqual(WEBHOOK_VALUE_MAX + 3);
+    expect(extra.status).toBe(500);
   });
 });

@@ -13,6 +13,7 @@ import { reportError } from "@/lib/observability/report";
 import type { CaseKey } from "@/lib/estonian/types";
 import { clip } from "@/lib/copy/clip";
 import { NO_STORE } from "@/lib/security/headers";
+import { readJsonCapped, JSON_BODY_BYTES } from "@/lib/security/body";
 import { localeFor } from "@/lib/progress/locale";
 import { courseLevelFor } from "@/lib/progress/level";
 
@@ -52,7 +53,7 @@ export async function POST(request: Request) {
   let caseKey: CaseKey;
   let sentence: string;
   try {
-    const body = (await request.json()) as Record<string, unknown>;
+    const body = (await readJsonCapped(request, JSON_BODY_BYTES)) as Record<string, unknown>;
     if (typeof body.lexemeId !== "string" || typeof body.caseKey !== "string" ||
         typeof body.sentence !== "string") {
       return Response.json({ error: "Something went wrong sending that. Reload the page and try again." }, { headers: NO_STORE, status: 400 });

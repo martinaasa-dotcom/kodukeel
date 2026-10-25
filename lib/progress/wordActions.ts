@@ -29,6 +29,26 @@ function idOf(value: unknown): string {
 }
 
 /**
+ * Whether this learner may act on a dictionary entry at all.
+ *
+ * A seeded or Ekilex word is everybody's. A word a learner typed is theirs
+ * until a reviewer passes it, and a stranger's only once it is in the
+ * stranger's own deck, which is the rule the entry page reads
+ * (`lib/progress/dictionaryEntry.ts`). Building cards, starring or putting a
+ * word aside by id was a way round it: a card built that way made the entry
+ * show it, so a typed word reached a learner it was hidden from.
+ */
+export async function wordReaches(ownerId: string, id: string): Promise<boolean> {
+  if (!id) return false;
+  const lex = await prisma.lexeme.findUnique({
+    where: { id },
+    select: { provenance: true, editedBy: true, cards: { where: { ownerId }, select: { id: true }, take: 1 } },
+  });
+  if (!lex) return false;
+  return lex.provenance === "SEED" || lex.provenance === "EKILEX" || lex.editedBy === ownerId || lex.cards.length > 0;
+}
+
+/**
  * Add a word to the deck.
  *
  * `types` is filtered against the table that defines what a card type is and
@@ -39,6 +59,7 @@ export async function keepWord(
   ownerId: string, lexemeId: unknown, types: unknown, source: unknown = "LOOKUP", deckIds?: unknown,
 ) {
   const id = idOf(lexemeId);
+  if (!await wordReaches(ownerId, id)) return { ok: false as const, error: "That word isn't in the dictionary any more." };
   const wanted = [...new Set(Array.isArray(types) ? types : [])]
     .filter((t): t is CardType => typeof t === "string" && KNOWN_TYPES.has(t));
   const result = await addCardsFor(
@@ -77,8 +98,7 @@ export async function keepWord(
 export async function setStar(ownerId: string, lexemeId: unknown, starred?: unknown) {
   const id = idOf(lexemeId);
   if (!id) return { ok: false as const, error: "We couldn't tell which word you meant." };
-  const exists = await prisma.lexeme.findUnique({ where: { id }, select: { id: true } });
-  if (!exists) return { ok: false as const, error: "That word isn't in the dictionary." };
+  if (!await wordReaches(ownerId, id)) return { ok: false as const, error: "That word isn't in the dictionary." };
 
   const key = { ownerId_lexemeId: { ownerId, lexemeId: id } };
   const existing = await prisma.starredWord.findUnique({ where: key });
@@ -101,6 +121,7 @@ export async function setStar(ownerId: string, lexemeId: unknown, starred?: unkn
 export async function putAside(ownerId: string, lexemeId: unknown, context: unknown) {
   const id = idOf(lexemeId);
   if (!id) return { ok: false as const, error: "We couldn't tell which word you meant." };
+  if (!await wordReaches(ownerId, id)) return { ok: false as const, error: "That word isn't in the dictionary." };
 
   // The level is read here rather than inside, so `lib/progress/deferrals.ts`
   // and `lib/progress/level.ts` stay one-way: the second calls the first when

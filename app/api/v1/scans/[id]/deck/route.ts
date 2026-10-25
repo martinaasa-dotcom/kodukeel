@@ -3,7 +3,7 @@ import { apiJson } from "@/lib/api/respond";
 import type { ScanDeckResponse } from "@/lib/api/contract";
 import { requireBearerUser } from "@/lib/auth/bearer";
 import { addScanToDeckFor } from "@/lib/progress/scans";
-import { throttleAction } from "@/lib/security/actionLimits";
+import { throttleShared } from "@/lib/usage/sharedThrottle";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -18,7 +18,7 @@ export const runtime = "nodejs";
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const who = await requireBearerUser(request);
   if (who instanceof Response) return who;
-  const busy = throttleAction(who.ownerId, "addScanToDeck");
+  const busy = await throttleShared(who.ownerId, "addScanToDeck");
   if (busy) return apiError("rate_limited", { retryAfterSec: busy.retryAfterSec });
   const { id } = await params;
   const result = await addScanToDeckFor(who.ownerId, id.slice(0, 64));

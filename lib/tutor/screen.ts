@@ -38,6 +38,27 @@ export interface ScreenContext {
   typed: string[];
 }
 
+/*
+  SOME SCREENS ARE NOT THE LEARNER'S TO SEND.
+
+  What the panel reads goes to a model run by another company, so a screen
+  showing somebody else's data is never read: a class roster names pupils and
+  their weakest case, a workplace group names colleagues and their bands, the
+  admin pages are other people's reports and errors, and Settings is the
+  learner's own account. Those routes send no screen at all, decided here so
+  the browser and the route ask the same question, and an element marked
+  `data-private` is never read on any screen. A denylist rather than a list of
+  learning routes, because a learning route left off an allowlist only makes
+  Anu less useful, and these are the routes where a leak is the fault.
+*/
+const PRIVATE_SCREENS = ["/class", "/admin", "/settings", "/suggestions", "/dev", "/privacy", "/terms"] as const;
+
+/** Whether a route is one whose screen may never be sent to a model. */
+export function screenIsPrivate(pathname: string): boolean {
+  const path = pathname.split(/[?#]/, 1)[0] ?? "";
+  return PRIVATE_SCREENS.some((root) => path === root || path.startsWith(`${root}/`));
+}
+
 /** Caps, applied again on the server whatever the browser sent. */
 export const SCREEN_LIMITS = {
   path: 120,
@@ -77,6 +98,8 @@ function lines(value: unknown, count: number, each: number): string[] {
 export function screenFrom(raw: unknown): ScreenContext | null {
   if (typeof raw !== "object" || raw === null) return null;
   const r = raw as Record<string, unknown>;
+  // The browser already sends nothing from these; refused again here, since a body is whatever the caller typed.
+  if (typeof r.path === "string" && screenIsPrivate(r.path)) return null;
   const screen: ScreenContext = {
     path: clip(r.path, SCREEN_LIMITS.path),
     title: clip(r.title, SCREEN_LIMITS.title),

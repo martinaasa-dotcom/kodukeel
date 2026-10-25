@@ -18,8 +18,22 @@
 const ALPHABET = "ABCDEFGHJKMNPQRSTWXYZ23456789";
 export const CODE_LENGTH = 6;
 
+/**
+ * A uniform draw in [0, 1) from the platform's cryptographic generator.
+ *
+ * A join code is the only thing between a stranger and a class roster, so it
+ * is drawn the way a token is rather than off `Math.random`, whose state can
+ * be recovered from a handful of its outputs. `getRandomValues` exists in
+ * every browser and in Node, so this file stays importable from both.
+ */
+function secureRandom(): number {
+  const word = new Uint32Array(1);
+  globalThis.crypto.getRandomValues(word);
+  return (word[0] ?? 0) / 0x1_0000_0000;
+}
+
 /** A new random code. Uniqueness is the caller's job — it owns the database. */
-export function generateCode(random: () => number = Math.random): string {
+export function generateCode(random: () => number = secureRandom): string {
   let out = "";
   for (let i = 0; i < CODE_LENGTH; i++) {
     out += ALPHABET[Math.floor(random() * ALPHABET.length)] ?? "A";

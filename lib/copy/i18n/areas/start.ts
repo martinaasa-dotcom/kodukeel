@@ -29,6 +29,9 @@ export const START: Area = {
       "С этим адресом нельзя войти в эту копию Kodukeel: она настроена для определённой группы. Попробуй аккаунт, на который тебя пригласили.",
     "That link would have signed you in as someone else, so to be safe we signed you out and didn’t follow it. If the link is yours, sign in below. If you didn’t ask for it, you can safely ignore it.":
       "Эта ссылка вела в чужой аккаунт, поэтому для безопасности мы вывели тебя из аккаунта и не стали её открывать. Если ссылка твоя, войди ниже. Если нет, просто не обращай на неё внимания.",
+    "Only continue if you asked for this sign-in link yourself just now. If you didn’t, close this page.":
+      "Продолжай, только если эта ссылка для входа пришла по твоему собственному запросу только что. Если нет, закрой эту страницу.",
+    "Finish signing in": "Завершить вход",
     "This browser couldn’t finish that sign-in. Either the link was opened in a different browser from the one that asked for it, or you ended up on a different address from the one you started on. Try again from here.":
       "Этот браузер не смог завершить вход. Либо ссылку открыли не в том браузере, в котором её запросили, либо открылся не тот адрес сайта, с которого начинался вход. Попробуй ещё раз отсюда.",
     "If it keeps happening, let {email} know: this address needs adding to the sign-in settings.":
@@ -341,6 +344,9 @@ export const START: Area = {
       "З цією адресою не можна увійти в цю копію Kodukeel, бо її налаштовано для певної групи. Спробуй обліковий запис, на який тебе запросили.",
     "That link would have signed you in as someone else, so to be safe we signed you out and didn’t follow it. If the link is yours, sign in below. If you didn’t ask for it, you can safely ignore it.":
       "Це посилання вело в чужий обліковий запис, тож для безпеки ми завершили твій сеанс і не стали його відкривати. Якщо посилання твоє, увійди нижче. Якщо ні, просто не зважай на нього.",
+    "Only continue if you asked for this sign-in link yourself just now. If you didn’t, close this page.":
+      "Продовжуй, лише якщо це посилання для входу щойно прийшло на твій власний запит. Якщо ні, закрий цю сторінку.",
+    "Finish signing in": "Завершити вхід",
     "This browser couldn’t finish that sign-in. Either the link was opened in a different browser from the one that asked for it, or you ended up on a different address from the one you started on. Try again from here.":
       "Цей браузер не зміг завершити вхід. Або посилання відкрили не в тому браузері, де його запитували, або відкрилася не та адреса, з якої починався вхід. Спробуй ще раз звідси.",
     "If it keeps happening, let {email} know: this address needs adding to the sign-in settings.":

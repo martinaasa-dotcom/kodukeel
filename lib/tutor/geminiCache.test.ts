@@ -46,6 +46,24 @@ describe("the scene prompt held on Google's side", () => {
     vi.unstubAllEnvs();
   });
 
+  it("sends the key as a header on every call and never in an address, and follows no redirect", async () => {
+    // An address is written into every proxy and egress log on the way out; a header is not.
+    const seen: { url: string; key: string | null; redirect?: RequestRedirect }[] = [];
+    const answer = google([]);
+    vi.stubGlobal("fetch", async (url: string, init: RequestInit = {}) => {
+      seen.push({ url: String(url), key: new Headers(init.headers).get("x-goog-api-key"), redirect: init.redirect });
+      return answer(url, init);
+    });
+    await geminiCachedReply(LINK, "the rules and the list", [{ role: "user", content: "tere" }], "Your move: ask.");
+    expect(seen.length).toBeGreaterThanOrEqual(3);
+    for (const call of seen) {
+      expect(call.url).not.toContain("gem-key");
+      expect(call.url).not.toMatch(/[?&]key=/);
+      expect(call.key).toBe("gem-key");
+      expect(call.redirect).toBe("error");
+    }
+  });
+
   it("makes the entry once and names it on every call after", async () => {
     const calls: { url: string; body: string; method?: string }[] = [];
     vi.stubGlobal("fetch", google(calls));

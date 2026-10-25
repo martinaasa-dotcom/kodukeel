@@ -36,7 +36,9 @@
     "next-env.d.ts",
     ".next-signin/types/**/*.ts",
     ".next/dev/types/**/*.ts",
-    ".next-signin/dev/types/**/*.ts"
+    ".next-signin/dev/types/**/*.ts",
+    ".next-secbuild/types/**/*.ts",
+    ".next-secbuild/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

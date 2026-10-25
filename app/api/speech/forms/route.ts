@@ -2,6 +2,7 @@ import { requireUserId } from "@/lib/auth/session";
 import { FORMS_PER_MINUTE, heardSpellings } from "@/lib/progress/speechForms";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
 import { NO_STORE } from "@/lib/security/headers";
+import { readJsonCapped, JSON_BODY_BYTES } from "@/lib/security/body";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +21,7 @@ export async function POST(request: Request) {
 
   let body: unknown;
   try {
-    body = await request.json();
+    body = await readJsonCapped(request, JSON_BODY_BYTES);
   } catch {
     return Response.json({ error: "That request could not be read." }, { status: 400, headers: NO_STORE });
   }

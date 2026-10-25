@@ -6,6 +6,7 @@ import { OpenOnArrival } from "@/components/OpenOnArrival";
 import { PlayOnce } from "@/components/motion/PlayOnce";
 import { canonicalOrigin } from "@/lib/auth/canonical";
 import { AWAKE_SCRIPT } from "@/lib/ux/awake";
+import { THEME_SCRIPT } from "@/lib/ux/themeScript";
 import "./globals.css";
 
 /**
@@ -243,29 +244,11 @@ export const viewport: Viewport = {
 };
 
 /*
-  THE THEME, DECIDED BEFORE THE FIRST PAINT RATHER THAN AFTER IT.
-
-  `ThemeToggle` writes `data-theme` on <html> from a `useEffect`, which runs
-  after React has hydrated, which is after the browser has already painted.
-  So a learner who chose dark got a full frame of the light palette on every
-  single page load: a white flash, at whatever hour somebody who chose dark is
-  most likely to be reviewing.
-
-  There is no way to read `localStorage` from the server, so the only thing
-  that can answer before paint is a blocking inline script. It is three lines,
-  it runs once, and `suppressHydrationWarning` on <html> is what lets it write
-  an attribute React did not render without React objecting on arrival.
-
-  Nothing stored means nothing written, and bare `:root` in globals.css is the
-  light palette, which is the default for everybody: the system's own dark
-  setting is deliberately not read. A `try` around it because Safari throws on
-  `localStorage` outright in private browsing rather than returning null, and
-  a theme is not worth a blank page.
+  The theme is decided before the first paint by a blocking inline script, and
+  the reasons are in lib/ux/themeScript.ts. Both scripts below are allowed by
+  their hash rather than by the request's nonce (lib/security/inlineScripts.ts),
+  because reading the nonce here would make every page dynamic.
 */
-const THEME_SCRIPT =
-  "try{var t=localStorage.getItem('theme');" +
-  "if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}";
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     // The font variable goes on <html>, not <body>: `--font-sans` is declared on

@@ -5,7 +5,7 @@ import { Volume2, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { inEditable } from "@/lib/ux/advanceKey";
 import { SpaceKeyCap } from "./KeyCaps";
-import { playClip } from "@/lib/audio/clip";
+import { playClip, playHeard } from "@/lib/audio/clip";
 import type { Condition } from "@/lib/audio/conditions";
 import { useAudioPrefs } from "./AudioPrefs";
 import { useT } from "./Locale";
@@ -35,7 +35,7 @@ export function Speak(props: Parameters<typeof SpeakButton>[0]) {
 }
 
 function SpeakButton({
-  text, slow, label, size = 15, className, style, onUnavailable, onPlay, disabled, children, autoplay, insist, voice: askedVoice, native, condition, rate, spaceKey,
+  text, slow, label, size = 15, className, style, onUnavailable, onPlay, disabled, children, autoplay, insist, voice: askedVoice, native, condition, rate, spaceKey, transient,
 }: {
   text: string; slow?: boolean; label?: string;
   /** A playback rate other than the clip's own, with the pitch held (`LEARNING_RATE`). */
@@ -114,6 +114,15 @@ function SpeakButton({
    * so neither is taken; and a held key plays once.
    */
   spaceKey?: boolean | "silent";
+  /**
+   * The text is the learner's own (a passage they pasted, a sentence they
+   * typed), so it is spoken and kept nowhere: not in the shared audio store
+   * every learner's clips are drawn from, not in the service worker's cache,
+   * and not in this tab past the play (`playHeard` in lib/audio/clip.ts). A
+   * stored clip is addressed by its text, so keeping one would keep what
+   * somebody pasted for as long as the store lasts.
+   */
+  transient?: boolean;
 }) {
   const t = useT();
   const [state, setState] = useState<"idle" | "loading" | "gone">("idle");
@@ -145,7 +154,9 @@ function SpeakButton({
         round paid for it: its own copy of this caught both and told a learner
         their connection was down. `playClip` is the one answer now.
       */
-      const outcome = await playClip({ text, slow, voice, condition, rate, pace, native: native ?? !askedVoice }, { unasked, chosen: !!insist });
+      const outcome = transient
+        ? await playHeard({ text, slow, voice, rate, pace })
+        : await playClip({ text, slow, voice, condition, rate, pace, native: native ?? !askedVoice }, { unasked, chosen: !!insist });
       setState("idle");
       if (outcome === "played") onPlay?.();
     } catch {

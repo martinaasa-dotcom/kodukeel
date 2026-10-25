@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { readCapped } from "./body";
+import { BodyTooLargeError, readCapped, readJsonCapped } from "./body";
 
 function streamed(parts: string[], headers: Record<string, string> = {}): Request {
   const encoder = new TextEncoder();
@@ -30,5 +30,16 @@ describe("readCapped", () => {
 
   it("reads a body with none as empty", async () => {
     expect(await readCapped(new Request("https://x.example/hook", { method: "POST" }), 64)).toBe("");
+  });
+});
+
+describe("readJsonCapped", () => {
+  it("parses a body under the ceiling", async () => {
+    expect(await readJsonCapped(streamed(['{"a":', '"õ"}']), 64)).toEqual({ a: "õ" });
+  });
+
+  it("throws the size error over the ceiling, and a parse error on a body that is not JSON", async () => {
+    await expect(readJsonCapped(streamed(["x".repeat(100)]), 64)).rejects.toBeInstanceOf(BodyTooLargeError);
+    await expect(readJsonCapped(streamed(["not json"]), 64)).rejects.toBeInstanceOf(SyntaxError);
   });
 });

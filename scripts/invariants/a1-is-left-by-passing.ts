@@ -77,7 +77,7 @@ export default function a1IsLeftByPassing({ check, code }: InvariantKit) {
     const at = admin.indexOf("export const movesFreely");
     assert.ok(at >= 0, "movesFreely is gone");
     assert.match(admin.slice(at, at + 300), /if \(!supabaseConfigured\(\)\) return false;/, "a local install would move freely past every check, and so would the browser suites");
-    assert.match(code("lib/progress/checks.ts"), /movesFreely\(\)/, "the gate no longer lets a named admin through");
+    assert.match(code("lib/progress/checks.ts"), /movesFreely\(ownerId\)/, "the gate no longer lets a named admin through");
   });
 
   check("the rule about checks stays pure", () => {

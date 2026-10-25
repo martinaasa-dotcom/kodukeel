@@ -148,7 +148,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
       <Stack>
         {classroom.archived && (
           <Note tone="hard">
-            {t("This class has been archived, so the join code doesn’t work any more. Everything here stays put.")}
+            {t("This class has been archived, so the join code doesn’t work any more. It shows who was in it, and nothing about anybody’s practice.")}
           </Note>
         )}
         {/* The records of a class that has ended are still the owner's to keep. */}
@@ -190,9 +190,25 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
           </Card>
         )}
 
-        {workplace && cohort && <WorkplaceView summary={cohort} sponsor={isTeacher} locale={locale} />}
+        {workplace && cohort && !cohort.archived && <WorkplaceView summary={cohort} sponsor={isTeacher} locale={locale} />}
 
-        {roster && (
+        {/*
+          An archived group is read by name alone (`ClassSummary.archived`,
+          `CohortSummary.archived`), so it is drawn as a list of who was in it.
+          A workplace group's names stay the sponsor's, as on the live board.
+        */}
+        {(roster?.archived || cohort?.archived) && (isTeacher || !workplace) && (
+          <section>
+            <SectionTitle>{t("Who was in it")}</SectionTitle>
+            <ul className="flex flex-col gap-1.5">
+              {(roster ? rows.map((e) => ({ id: e.ownerId, name: e.displayName })) : cohort!.members.map((m) => ({ id: m.ownerId, name: m.displayName }))).map((person) => (
+                <li key={person.id} className="text-base" style={{ color: "var(--ink-2)" }}>{person.name}</li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {roster && !roster.archived && (
           <>
         <ClassFigures joined={roster.joined} active={roster.activeThisWeek} reviews={roster.totalReviewsThisWeek} locale={locale} />
 
