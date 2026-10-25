@@ -40,7 +40,7 @@ const GLOSSES: readonly CaseGloss[] = [
     en: "off, and from a person", ru: "с (с поверхности), от (человека)", uk: "з (з поверхні), від (людини)",
     short: { en: "off", ru: "с (поверхности)", uk: "з (поверхні)" },
   },
-  { en: "becoming", ru: "становясь", uk: "стаючи" },
+  { en: "becoming", ru: "становиться (кем-то, чем-то)", uk: "ставати (кимось, чимось)" },
   { en: "up to", ru: "до", uk: "до" },
   { en: "as", ru: "в роли", uk: "у ролі" },
   { en: "without", ru: "без", uk: "без" },

@@ -35,8 +35,8 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "hadaabi", beat: "hurdle:faster", text: "Kiiresti, palun!", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "hadaabi", beat: "hurdle:misheard", text: "Kiriku juures, jah?", model: "authored", draftedAt: "2026-10-15", about: "where", reviewedAt: "2026-10-16" },
   { scene: "hadaabi", beat: "hurdle:misheard", text: "Kas tal valutab kõht?", model: "authored", draftedAt: "2026-10-15", about: "part", reviewedAt: "2026-10-16" },
-  { scene: "hadaabi", beat: "close", text: "Kiirabi on kohe teie juures. Head aega!", model: "authored", draftedAt: "2026-10-23" },
-  { scene: "hadaabi", beat: "close", text: "Abi on teel. Nägemist!", model: "authored", draftedAt: "2026-10-23" },
+  { scene: "hadaabi", beat: "close", text: "Kiirabi on kohe teie juures. Head aega!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },
+  { scene: "hadaabi", beat: "close", text: "Abi on teel. Nägemist!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },
 ];
 
 export default LINES;

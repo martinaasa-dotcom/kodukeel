@@ -384,13 +384,13 @@ export const SAYINGS: readonly Saying[] = [
   },
 
   {
-    id: "saama-aru", phrase: "saanud aru", particle: "aru", verb: SAA,
+    id: "saama-aru", phrase: "said aru", particle: "aru", verb: SAA,
     means: "to understand", literal: "to get reason",
     parts: ["got", "reason"],
     when: "The teacher explains the rule a second time and it finally clicks.",
     sentences: [
-      { lemma: "kus", et: "Ma ei saanud aru, kus viibin.", run: "ei saanud aru" },
       { lemma: "õigesti", et: "Jaa, sa said õigesti aru.", run: "said õigesti aru" },
+      { lemma: "miski", et: "Sain kohe aru, et midagi on valesti.", run: "Sain kohe aru" },
     ],
   },
 
@@ -1605,12 +1605,12 @@ export const SAYINGS: readonly Saying[] = [
   },
 
   {
-    id: "nagema-pealt", phrase: "nägi pealt", particle: "pealt", verb: NAG,
-    means: "saw it happen, witnessed it", literal: "saw from above",
-    parts: ["saw", "from above"],
-    when: "You were on the street when two cars collided, and the police ask what you saw.",
+    id: "raakima-pehmeks", phrase: "pehmeks rääkida", particle: "pehmeks", verb: RAA,
+    means: "to talk round, to win over", literal: "to talk soft",
+    parts: ["soft", "to talk"],
+    when: "A child keeps asking her parents for a puppy until they give in.",
     sentences: [
-      { lemma: "tunnistus", et: "Ta nägi õnnetust pealt ja andis kohtus tunnistuse.", run: "nägi õnnetust pealt" },
+      { lemma: "pehmeks rääkima", et: "Aita mul vanemaid pehmeks rääkida, et nad mulle sünnipäevaks koera kingiks!", run: "pehmeks rääkida" },
     ],
   },
 
@@ -2129,12 +2129,11 @@ export const SAYINGS: readonly Saying[] = [
   },
 
   {
-    id: "jaama-ellu", phrase: "jääb ellu", particle: "ellu", verb: JAA,
+    id: "jaama-ellu", phrase: "ellu jääda", particle: "ellu", verb: JAA,
     means: "survives, makes it", literal: "stays into life",
     parts: ["stays", "into life"],
     when: "Only one seedling in ten makes it through the winter frost.",
     sentences: [
-      { lemma: "ükssarvik", et: "Vaid üks kümnest ükssarvikust jääb turul ellu.", run: "jääb turul ellu" },
       { lemma: "leegiheitja", et: "Leegiheitjate, tankide ja helikopterite rünnaku all on raske ellu jääda.", run: "ellu jääda" },
     ],
   },
@@ -4065,16 +4064,6 @@ export const SAYINGS: readonly Saying[] = [
     when: "Three years at school plus one of practice: that comes to four.",
     sentences: [
       { lemma: "kokku tegema", et: "See teeb kokku neli aastat.", run: "teeb kokku" },
-    ],
-  },
-
-  {
-    id: "raakima-pehmeks", phrase: "pehmeks rääkida", particle: "pehmeks", verb: RAA,
-    means: "to talk round, to win over", literal: "to talk soft",
-    parts: ["soft", "to talk"],
-    when: "A child keeps asking her parents for a puppy until they give in.",
-    sentences: [
-      { lemma: "pehmeks rääkima", et: "Aita mul vanemaid pehmeks rääkida, et nad mulle sünnipäevaks koera kingiks!", run: "pehmeks rääkida" },
     ],
   },
 

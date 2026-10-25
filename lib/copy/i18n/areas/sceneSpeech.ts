@@ -16,26 +16,26 @@ export const SCENE_SPEECH: Area = {
   ru: {
     // Answering by voice.
     "Pick what you'd say, or say it out loud. Picked lines don't count toward your words.":
-      "Выберите, что бы вы сказали, или скажите это вслух. Выбранные фразы не засчитываются в ваши слова.",
-    "Say one of these": "Скажите одну из этих фраз",
+      "Выбери, что сказать, или скажи это вслух. Выбранные фразы не засчитываются в твои слова.",
+    "Say one of these": "Скажи одну из этих фраз",
     "That's the line you said. It goes in a moment. Press anywhere or any key to stop it.":
-      "Это фраза, которую вы сказали. Она отправится через мгновение. Чтобы остановить, нажмите в любом месте или любую клавишу.",
-    "That's the line you said. Press it to send it.": "Это фраза, которую вы сказали. Нажмите на неё, чтобы отправить.",
+      "Вот твоя фраза. Она отправится через мгновение. Чтобы остановить, нажми в любом месте или любую клавишу.",
+    "That's the line you said. Press it to send it.": "Вот твоя фраза. Нажми на неё, чтобы отправить.",
     "That wasn't one of these lines, so it's in the box to change and send.":
       "Это не одна из этих фраз, поэтому она в поле, где её можно изменить и отправить.",
-    "Say your answer": "Скажите свой ответ",
-    "Your words appear here": "Здесь появятся ваши слова",
+    "Say your answer": "Скажи свой ответ",
+    "Your words appear here": "Здесь появятся твои слова",
     "This goes in a moment. Press anywhere or any key to stop it and change the words.":
-      "Это отправится через мгновение. Чтобы остановить и изменить слова, нажмите в любом месте или любую клавишу.",
+      "Это отправится через мгновение. Чтобы остановить и изменить слова, нажми в любом месте или любую клавишу.",
     "Sending in a moment. Press anywhere or any key to stop it.":
-      "Отправка через мгновение. Чтобы остановить, нажмите в любом месте или любую клавишу.",
+      "Отправка через мгновение. Чтобы остановить, нажми в любом месте или любую клавишу.",
     "We heard {heard}. They say {said}.": "Мы услышали {heard}. Они говорят {said}.",
     "Hear it": "Послушать",
 
     // A call.
     "On a call": "Идёт звонок",
     "They're speaking": "Они говорят",
-    "Listening to you": "Слушаю вас",
+    "Listening to you": "Слушаю тебя",
     "On a call the microphone opens by itself after they speak.":
       "Во время звонка микрофон включается сам, когда они договорят.",
 
@@ -44,50 +44,50 @@ export const SCENE_SPEECH: Area = {
     "Their opening lines, one at a time, to say along with. Nothing is marked.":
       "Их первые фразы, по одной, чтобы повторять за ними. Ничего не оценивается.",
     "Line {n} of {total}": "Фраза {n} из {total}",
-    "Listen, then say it along.": "Послушайте, затем скажите вместе с ними.",
+    "Listen, then say it along.": "Послушай, затем скажи вместе с ними.",
     "Previous line": "Предыдущая фраза",
     "Next line": "Следующая фраза",
     "Talk it through": "Поговорить вслух",
     "Nothing to read: you hear them and answer out loud.":
-      "Читать ничего не нужно: вы слушаете собеседника и отвечаете вслух.",
+      "Читать ничего не нужно: ты слушаешь собеседника и отвечаешь вслух.",
 
     // The debrief.
     "What we heard": "Что мы услышали",
     "This is the machine's hearing beside what you sent. It is not a mark.":
-      "Это то, что услышала машина, рядом с тем, что вы отправили. Это не оценка.",
+      "Это то, что услышала машина, рядом с твоим ответом. Это не оценка.",
     "The machine heard": "Машина услышала",
-    "You sent": "Вы отправили",
+    "You sent": "Отправлено",
 
     // Today.
-    "Say it once before you go": "Скажите это один раз перед выходом",
-    "Hear what they'll say": "Послушать, что вам скажут",
-    "They'll say:": "Вам скажут:",
-    "And you say, out loud ({meaning}):": "А вы говорите вслух ({meaning}):",
-    "Say your line": "Скажите свою фразу",
+    "Say it once before you go": "Скажи это один раз перед выходом",
+    "Hear what they'll say": "Послушать, что тебе скажут",
+    "They'll say:": "Тебе скажут:",
+    "And you say, out loud ({meaning}):": "А ты говоришь вслух ({meaning}):",
+    "Say your line": "Скажи свою фразу",
   },
   uk: {
     // Answering by voice.
     "Pick what you'd say, or say it out loud. Picked lines don't count toward your words.":
-      "Виберіть, що б ви сказали, або скажіть це вголос. Вибрані фрази не зараховуються до ваших слів.",
-    "Say one of these": "Скажіть одну з цих фраз",
+      "Вибери, що сказати, або скажи це вголос. Вибрані фрази не зараховуються до твоїх слів.",
+    "Say one of these": "Скажи одну з цих фраз",
     "That's the line you said. It goes in a moment. Press anywhere or any key to stop it.":
-      "Це фраза, яку ви сказали. Вона надішлеться за мить. Щоб зупинити, натисніть будь-де або будь-яку клавішу.",
-    "That's the line you said. Press it to send it.": "Це фраза, яку ви сказали. Натисніть на неї, щоб надіслати.",
+      "Ось твоя фраза. Вона надішлеться за мить. Щоб зупинити, натисни будь-де або будь-яку клавішу.",
+    "That's the line you said. Press it to send it.": "Ось твоя фраза. Натисни на неї, щоб надіслати.",
     "That wasn't one of these lines, so it's in the box to change and send.":
       "Це не одна з цих фраз, тому вона в полі, де її можна змінити й надіслати.",
-    "Say your answer": "Скажіть свою відповідь",
-    "Your words appear here": "Тут з'являться ваші слова",
+    "Say your answer": "Скажи свою відповідь",
+    "Your words appear here": "Тут з'являться твої слова",
     "This goes in a moment. Press anywhere or any key to stop it and change the words.":
-      "Це надішлеться за мить. Щоб зупинити й змінити слова, натисніть будь-де або будь-яку клавішу.",
+      "Це надішлеться за мить. Щоб зупинити й змінити слова, натисни будь-де або будь-яку клавішу.",
     "Sending in a moment. Press anywhere or any key to stop it.":
-      "Надсилання за мить. Щоб зупинити, натисніть будь-де або будь-яку клавішу.",
+      "Надсилання за мить. Щоб зупинити, натисни будь-де або будь-яку клавішу.",
     "We heard {heard}. They say {said}.": "Ми почули {heard}. Вони кажуть {said}.",
     "Hear it": "Послухати",
 
     // A call.
     "On a call": "Триває дзвінок",
     "They're speaking": "Вони говорять",
-    "Listening to you": "Слухаю вас",
+    "Listening to you": "Слухаю тебе",
     "On a call the microphone opens by itself after they speak.":
       "Під час дзвінка мікрофон вмикається сам, коли вони договорять.",
 
@@ -96,25 +96,25 @@ export const SCENE_SPEECH: Area = {
     "Their opening lines, one at a time, to say along with. Nothing is marked.":
       "Їхні перші фрази, по одній, щоб повторювати за ними. Нічого не оцінюється.",
     "Line {n} of {total}": "Фраза {n} з {total}",
-    "Listen, then say it along.": "Послухайте, потім скажіть разом із ними.",
+    "Listen, then say it along.": "Послухай, потім скажи разом із ними.",
     "Previous line": "Попередня фраза",
     "Next line": "Наступна фраза",
     "Talk it through": "Поговорити вголос",
     "Nothing to read: you hear them and answer out loud.":
-      "Читати нічого не треба: ви слухаєте співрозмовника й відповідаєте вголос.",
+      "Читати нічого не треба: ти слухаєш співрозмовника й відповідаєш вголос.",
 
     // The debrief.
     "What we heard": "Що ми почули",
     "This is the machine's hearing beside what you sent. It is not a mark.":
-      "Це те, що почула машина, поруч із тим, що ви надіслали. Це не оцінка.",
+      "Це те, що почула машина, поруч із твоєю відповіддю. Це не оцінка.",
     "The machine heard": "Машина почула",
-    "You sent": "Ви надіслали",
+    "You sent": "Надіслано",
 
     // Today.
-    "Say it once before you go": "Скажіть це один раз перед виходом",
-    "Hear what they'll say": "Послухати, що вам скажуть",
-    "They'll say:": "Вам скажуть:",
-    "And you say, out loud ({meaning}):": "А ви кажете вголос ({meaning}):",
-    "Say your line": "Скажіть свою фразу",
+    "Say it once before you go": "Скажи це один раз перед виходом",
+    "Hear what they'll say": "Послухати, що тобі скажуть",
+    "They'll say:": "Тобі скажуть:",
+    "And you say, out loud ({meaning}):": "А ти кажеш вголос ({meaning}):",
+    "Say your line": "Скажи свою фразу",
   },
 };

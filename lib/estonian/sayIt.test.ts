@@ -70,8 +70,8 @@ describe("on a Russian or Ukrainian screen", () => {
     expect(sayIn("en", "IndIpfSg3", english)).toBe("he/she thinks, but in the past");
     expect(sayIn("ru", "IndIpfSg3", english)).toBe("он/она …, в прошлом");
     expect(sayIn("uk", "IndIpfSg3", english)).toBe("він/вона …, у минулому");
-    expect(sayLineIn("ru", "COMITATIVE", sayLine("COMITATIVE", "bird", thing("lind")))).toBe("Скажите «с этим»");
-    expect(sayLineIn("uk", "COMITATIVE", sayLine("COMITATIVE", "bird", thing("lind")))).toBe("Скажіть «з цим»");
+    expect(sayLineIn("ru", "COMITATIVE", sayLine("COMITATIVE", "bird", thing("lind")))).toBe("Скажи «с этим»");
+    expect(sayLineIn("uk", "COMITATIVE", sayLine("COMITATIVE", "bird", thing("lind")))).toBe("Скажи «з цим»");
   });
 
   it("has no phrase where the screen had none", () => {

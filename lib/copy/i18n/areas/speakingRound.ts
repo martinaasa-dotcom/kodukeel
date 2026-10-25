@@ -13,16 +13,16 @@ import type { Area } from "../area";
 export const SPEAKING_ROUND: Area = {
   ru: {
     // The round.
-    "Say it with them": "Скажите вместе с ними",
+    "Say it with them": "Скажи вместе с ними",
     "Say it back": "Повторить",
-    "Say it from the meaning": "Скажите по значению",
-    "Listen, then say it with the words in front of you": "Послушайте, затем скажите это, глядя на слова",
-    "Listen, then say it back": "Послушайте, затем повторите",
-    "The words are hidden until you have said them.": "Слова скрыты, пока вы их не скажете.",
+    "Say it from the meaning": "Скажи по значению",
+    "Listen, then say it with the words in front of you": "Послушай, затем скажи это, глядя на слова",
+    "Listen, then say it back": "Послушай, затем повтори",
+    "The words are hidden until you have said them.": "Слова скрыты, пока ты их не скажешь.",
     "Answer out loud": "Ответить вслух",
-    "Or type it": "Или напечатайте",
+    "Or type it": "Или напечатай",
     "This is what was heard. Change anything that is not what you said, then check it.":
-      "Вот что было услышано. Исправьте всё, что вы говорили иначе, затем проверьте.",
+      "Вот что было услышано. Исправь всё, что не совпадает со сказанным, затем проверь.",
     "Next line": "Следующая фраза",
     "{n} said aloud": "Вслух: {n}",
     "Heard, and right.": "Услышано, и это верно.",
@@ -35,16 +35,16 @@ export const SPEAKING_ROUND: Area = {
     "Said aloud": "Вслух",
     "From memory": "По памяти",
     "That wasn't heard as the word this time. Say it again whenever you like.":
-      "На этот раз это не распозналось как нужное слово. Скажите ещё раз, когда захотите.",
+      "На этот раз это не распозналось как нужное слово. Скажи ещё раз, когда захочешь.",
 
     // Hands-free.
     "Hands-free": "Без рук",
     "Stop hands-free": "Остановить режим без рук",
-    "Paused. Tap anywhere here to carry on.": "Пауза. Нажмите в любом месте здесь, чтобы продолжить.",
-    "Listening. Tap anywhere here to pause.": "Слушаю. Нажмите в любом месте здесь, чтобы поставить на паузу.",
-    "Tap anywhere here to pause.": "Нажмите в любом месте здесь, чтобы поставить на паузу.",
+    "Paused. Tap anywhere here to carry on.": "Пауза. Нажми в любом месте здесь, чтобы продолжить.",
+    "Listening. Tap anywhere here to pause.": "Слушаю. Нажми в любом месте здесь, чтобы поставить на паузу.",
+    "Tap anywhere here to pause.": "Нажми в любом месте здесь, чтобы поставить на паузу.",
     "The browser held back the sound in this background tab. Bring the tab forward to carry on.":
-      "Браузер придержал звук в этой фоновой вкладке. Откройте вкладку, чтобы продолжить.",
+      "Браузер придержал звук в этой фоновой вкладке. Открой вкладку, чтобы продолжить.",
     "This browser would not keep the screen on, so the round stops when the screen sleeps.":
       "Этот браузер не держит экран включённым, поэтому раунд остановится, когда экран погаснет.",
     "The screen stays on. On a computer it keeps listening in a background tab, and your browser shows the microphone is on.":
@@ -53,18 +53,18 @@ export const SPEAKING_ROUND: Area = {
       "Экран остаётся включённым, так что телефон можно убрать в карман. Здесь ничего не оценивается.",
 
     // On meeting a word.
-    "Say it yourself": "Скажите сами",
+    "Say it yourself": "Скажи самостоятельно",
     "Understood. That's the word.": "Понятно. Это то самое слово.",
     "Understood.": "Понятно.",
     "That wasn't heard as the word this time. Here it is again; say it once more if you like.":
-      "На этот раз это не распозналось как нужное слово. Вот оно ещё раз; скажите снова, если хотите.",
+      "На этот раз это не распозналось как нужное слово. Вот оно ещё раз; скажи снова, если хочешь.",
 
     // The mock exam's spoken part.
-    "Speak your answer": "Произнесите ответ",
+    "Speak your answer": "Произнеси ответ",
     "What was understood": "Что было понято",
     "Suggested words heard:": "Услышаны предложенные слова:",
     "This is the machine's hearing of your words, not a mark. You decide the marks below.":
-      "Это то, как машина услышала ваши слова, а не оценка. Баллы ниже решаете вы.",
+      "Это то, как машина услышала твои слова, а не оценка. Баллы ниже ставишь ты.",
     "I said it out loud": "Сказано вслух",
 
     // Progress.
@@ -74,16 +74,16 @@ export const SPEAKING_ROUND: Area = {
   },
   uk: {
     // The round.
-    "Say it with them": "Скажіть разом із ними",
+    "Say it with them": "Скажи разом із ними",
     "Say it back": "Повторити",
-    "Say it from the meaning": "Скажіть за значенням",
-    "Listen, then say it with the words in front of you": "Послухайте, потім скажіть це, дивлячись на слова",
-    "Listen, then say it back": "Послухайте, потім повторіть",
-    "The words are hidden until you have said them.": "Слова приховані, доки ви їх не скажете.",
+    "Say it from the meaning": "Скажи за значенням",
+    "Listen, then say it with the words in front of you": "Послухай, потім скажи це, дивлячись на слова",
+    "Listen, then say it back": "Послухай, потім повтори",
+    "The words are hidden until you have said them.": "Слова приховані, доки ти їх не скажеш.",
     "Answer out loud": "Відповісти вголос",
-    "Or type it": "Або надрукуйте",
+    "Or type it": "Або надрукуй",
     "This is what was heard. Change anything that is not what you said, then check it.":
-      "Ось що почуто. Виправте все, що ви казали інакше, потім перевірте.",
+      "Ось що почуто. Виправ усе, що не збігається зі сказаним, потім перевір.",
     "Next line": "Наступна фраза",
     "{n} said aloud": "Вголос: {n}",
     "Heard, and right.": "Почуто, і це правильно.",
@@ -96,7 +96,7 @@ export const SPEAKING_ROUND: Area = {
     "Said aloud": "Вголос",
     "From memory": "З пам'яті",
     "That wasn't heard as the word this time. Say it again whenever you like.":
-      "Цього разу це не розпізнано як потрібне слово. Скажіть ще раз, коли захочете.",
+      "Цього разу це не розпізнано як потрібне слово. Скажи ще раз, коли захочеш.",
 
     // Hands-free.
     "Hands-free": "Без рук",
@@ -105,7 +105,7 @@ export const SPEAKING_ROUND: Area = {
     "Listening. Tap anywhere here to pause.": "Слухаю. Торкніться будь-де тут, щоб поставити на паузу.",
     "Tap anywhere here to pause.": "Торкніться будь-де тут, щоб поставити на паузу.",
     "The browser held back the sound in this background tab. Bring the tab forward to carry on.":
-      "Браузер притримав звук у цій фоновій вкладці. Відкрийте вкладку, щоб продовжити.",
+      "Браузер притримав звук у цій фоновій вкладці. Відкрий вкладку, щоб продовжити.",
     "This browser would not keep the screen on, so the round stops when the screen sleeps.":
       "Цей браузер не тримає екран увімкненим, тож раунд зупиниться, коли екран згасне.",
     "The screen stays on. On a computer it keeps listening in a background tab, and your browser shows the microphone is on.":
@@ -114,18 +114,18 @@ export const SPEAKING_ROUND: Area = {
       "Екран лишається увімкненим, тож телефон можна сховати в кишеню. Тут нічого не оцінюється.",
 
     // On meeting a word.
-    "Say it yourself": "Скажіть самі",
+    "Say it yourself": "Скажи самостійно",
     "Understood. That's the word.": "Зрозуміло. Це саме те слово.",
     "Understood.": "Зрозуміло.",
     "That wasn't heard as the word this time. Here it is again; say it once more if you like.":
-      "Цього разу це не розпізнано як потрібне слово. Ось воно ще раз; скажіть знову, якщо хочете.",
+      "Цього разу це не розпізнано як потрібне слово. Ось воно ще раз; скажи знову, якщо хочеш.",
 
     // The mock exam's spoken part.
     "Speak your answer": "Вимовте відповідь",
     "What was understood": "Що зрозуміло",
     "Suggested words heard:": "Почуто запропоновані слова:",
     "This is the machine's hearing of your words, not a mark. You decide the marks below.":
-      "Це те, як машина почула ваші слова, а не оцінка. Бали нижче вирішуєте ви.",
+      "Це те, як машина почула твої слова, а не оцінка. Бали нижче ставиш ти.",
     "I said it out loud": "Сказано вголос",
 
     // Progress.

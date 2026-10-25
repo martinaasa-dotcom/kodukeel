@@ -13,25 +13,25 @@ import type { Area } from "../area";
 export const RECORDINGS: Area = {
   ru: {
     // The reading page: opening a recording.
-    "Or open a recording": "Или откройте запись",
+    "Or open a recording": "Или открой запись",
     "A voice message from a landlord, a colleague or your child's teacher, up to {minutes} minutes. It's heard on this device, and the sound never leaves it.":
-      "Голосовое сообщение от арендодателя, коллеги или учителя вашего ребёнка, до {minutes} минут. Оно распознаётся на этом устройстве, и звук никуда с него не уходит.",
+      "Голосовое сообщение от арендодателя, коллеги или учителя твоего ребёнка, до {minutes} мин. Оно распознаётся на этом устройстве, и звук никуда с него не уходит.",
     "Choose a recording": "Выбрать запись",
-    "or drop one onto this page": "или перетащите её на эту страницу",
-    "Drop the recording to hear it": "Отпустите запись, чтобы её распознать",
+    "or drop one onto this page": "или перетащи её на эту страницу",
+    "Drop the recording to hear it": "Отпусти запись, чтобы её распознать",
     "Safari opens Ogg voice messages only partly. MP3 and M4A always open.":
       "Safari открывает голосовые сообщения в формате Ogg лишь частично. MP3 и M4A открываются всегда.",
     "This device is too slow to hear a recording, so pasting the text is the way in here.":
       "Это устройство слишком медленное, чтобы распознать запись, поэтому здесь можно только вставить текст.",
     "Hearing a recording needs a one-time download of {mb} MB. It stays on this device, so nothing you open is ever sent anywhere.":
-      "Чтобы распознать запись, нужна разовая загрузка {mb} МБ. Она остаётся на этом устройстве, поэтому ничего из того, что вы открываете, никуда не отправляется.",
+      "Чтобы распознать запись, нужна разовая загрузка {mb} МБ. Она остаётся на этом устройстве, поэтому ничего из того, что ты открываешь, никуда не отправляется.",
 
     // Hearing it.
     "Opening the recording": "Открываю запись",
     "Hearing it on this device: {done} of {total} pieces": "Распознаю на этом устройстве: {done} из {total} частей",
     "Looking the words up": "Ищу слова в словаре",
     "A long message can take a minute on a phone. Stop, and you'll read what was heard so far.":
-      "Длинное сообщение на телефоне может занять минуту. Остановите, и вы прочитаете то, что уже услышано.",
+      "Длинное сообщение на телефоне может занять минуту. Останови, и ты прочитаешь то, что уже услышано.",
     "Stop here": "Остановить здесь",
 
     // What went wrong.
@@ -42,15 +42,15 @@ export const RECORDINGS: Area = {
     "That file couldn't be opened as sound. A voice message saved as MP3, M4A, Ogg or WAV works.":
       "Этот файл не удалось открыть как звук. Подойдёт голосовое сообщение, сохранённое как MP3, M4A, Ogg или WAV.",
     "This browser couldn't open an Ogg voice message. Safari opens them only partly: open this page in Chrome or Firefox, or save the message as MP3 or M4A.":
-      "Этот браузер не смог открыть голосовое сообщение в формате Ogg. Safari открывает их лишь частично: откройте эту страницу в Chrome или Firefox или сохраните сообщение как MP3 или M4A.",
+      "Этот браузер не смог открыть голосовое сообщение в формате Ogg. Safari открывает их лишь частично: открой эту страницу в Chrome или Firefox или сохрани сообщение как MP3 или M4A.",
     "This Ogg voice message couldn't be opened. It may be damaged or only partly saved. Saving it again as MP3 or M4A usually works.":
       "Это голосовое сообщение в формате Ogg не удалось открыть. Возможно, оно повреждено или сохранено не полностью. Обычно помогает сохранить его заново как MP3 или M4A.",
     "This device is too slow to hear a recording, so it wasn't opened. Pasting the text still works.":
       "Это устройство слишком медленное, чтобы распознать запись, поэтому она не была открыта. Вставить текст по-прежнему можно.",
-    "The recording couldn't be heard just now. Try it again.": "Сейчас не удалось распознать запись. Попробуйте ещё раз.",
+    "The recording couldn't be heard just now. Try it again.": "Сейчас не удалось распознать запись. Попробуй ещё раз.",
     "This browser didn't keep the speech files it downloaded, so the recording couldn't be opened. Pasting the text still works.":
       "Этот браузер не сохранил загруженные файлы для распознавания речи, поэтому запись не удалось открыть. Вставить текст по-прежнему можно.",
-    "You stopped it before any words were heard.": "Вы остановили распознавание, прежде чем были услышаны какие-либо слова.",
+    "You stopped it before any words were heard.": "Распознавание остановлено ещё до того, как прозвучало хоть одно слово.",
     "No words were heard in that recording. It may be music, or very quiet.":
       "В этой записи не услышано ни одного слова. Возможно, это музыка или запись очень тихая.",
 
@@ -59,13 +59,13 @@ export const RECORDINGS: Area = {
       "Это то, что услышала машина. Слова с волнистым подчёркиванием она расслышала хуже всего. В тихой комнате она ошибается примерно в одном слове из {n}, а если на фоне музыка или разговор, то чаще.",
     "What was heard in {name}": "Что услышано в {name}",
     "Hear it all as it was": "Прослушать целиком, как есть",
-    "Play from {at}, at your pace": "Воспроизвести с {at} в вашем темпе",
+    "Play from {at}, at your pace": "Воспроизвести с {at} в твоём темпе",
     "Slow, from {at}": "Медленно, с {at}",
     "heard least surely": "расслышано неуверенно",
     "Only the first {minutes} minutes were heard, which is as long as a recording can be here.":
       "Распознаны только первые {minutes} мин: длиннее запись здесь быть не может.",
     "You stopped it partway, so this is the beginning of the recording.":
-      "Вы остановили распознавание на полпути, поэтому здесь начало записи.",
+      "Распознавание остановлено на полпути, поэтому здесь начало записи.",
     "The dictionary needs a connection, so the words aren't underlined yet.":
       "Словарю нужно подключение, поэтому слова пока не подчёркнуты.",
     "Look the words up": "Найти слова в словаре",
@@ -84,23 +84,23 @@ export const RECORDINGS: Area = {
     "A page of words": "Страницу со словами",
     "Things around me": "Вещи вокруг меня",
     "Photograph your kitchen, your desk or the street outside, and get the Estonian for what's in it. The things are named in English, and every Estonian word comes from the dictionary.":
-      "Сфотографируйте свою кухню, стол или улицу за окном и узнайте, как всё это называется по-эстонски. Вещи называются по-английски, а каждое эстонское слово берётся из словаря.",
+      "Сфотографируй свою кухню, стол или улицу за окном и узнай, как всё это называется по-эстонски. Вещи называются по-английски, а каждое эстонское слово берётся из словаря.",
     "Use the webcam": "Использовать веб-камеру",
     "Up to {n} things a photo. The photo is made smaller on your device before it's sent, and it's never saved anywhere.":
-      "До {n} вещей на одном фото. Перед отправкой фото уменьшается на вашем устройстве и нигде не сохраняется.",
+      "Вещей на одном фото: до {n}. Перед отправкой фото уменьшается на твоём устройстве и нигде не сохраняется.",
     "You can also drop a picture onto this page.": "Можно также перетащить картинку на эту страницу.",
-    "Drop the picture to look at it": "Отпустите картинку, чтобы её рассмотреть",
+    "Drop the picture to look at it": "Отпусти картинку, чтобы её рассмотреть",
     "Looking at the photo": "Рассматриваю фото",
     "Naming the things in a photo needs a connection.": "Чтобы назвать вещи на фото, нужно подключение.",
     "Review still works offline, and so does everything already in your deck.":
-      "Повторение работает и без сети, как и всё, что уже есть в вашей колоде.",
+      "Повторение работает и без сети, как и всё, что уже есть в твоей колоде.",
     "That isn't a picture. A photo from a camera or a phone works.":
       "Это не картинка. Подойдёт фото с камеры или телефона.",
-    "That picture couldn't be opened. Try another one.": "Эту картинку не удалось открыть. Попробуйте другую.",
+    "That picture couldn't be opened. Try another one.": "Эту картинку не удалось открыть. Попробуй другую.",
     "We couldn't make out any things in that photo. Try more light, and fewer things at once.":
-      "На этом фото не удалось разобрать ни одной вещи. Попробуйте больше света и меньше вещей за раз.",
+      "На этом фото не удалось разобрать ни одной вещи. Попробуй больше света и меньше вещей за раз.",
     "We saw the photo, but couldn't look its words up just now. Try it again in a moment.":
-      "Фото мы рассмотрели, но сейчас не удалось найти слова в словаре. Попробуйте ещё раз чуть позже.",
+      "Фото мы рассмотрели, но сейчас не удалось найти слова в словаре. Попробуй ещё раз чуть позже.",
     "Things from {date}": "Вещи от {date}",
     "Seen in the photo: {n}. In the dictionary: {found}.": "Увидено на фото: {n}. Есть в словаре: {found}.",
     "Its Estonian word is spelled like another one, so it isn't offered here.":
@@ -113,11 +113,11 @@ export const RECORDINGS: Area = {
     "Use {word}, {meaning}": "Выбрать {word}, {meaning}",
     "Say them": "Сказать их вслух",
     "Say them once, in this order. Nothing is marked: it's just the first time you say them.":
-      "Скажите их один раз, в этом порядке. Ничего не оценивается: вы просто произносите их впервые.",
+      "Скажи их один раз, в этом порядке. Ничего не оценивается: ты просто произносишь их впервые.",
     "Another photo": "Другое фото",
 
     // The webcam.
-    "What your camera sees": "Что видит ваша камера",
+    "What your camera sees": "Что видит твоя камера",
     "Starting the camera": "Включаю камеру",
     "The camera is blocked for this site. You can allow it in your browser's site settings, or choose a picture instead.":
       "Камера для этого сайта заблокирована. Её можно разрешить в настройках сайта в браузере или вместо этого выбрать картинку.",
@@ -125,24 +125,24 @@ export const RECORDINGS: Area = {
     "Take the photo": "Сделать фото",
   },
   uk: {
-    "Or open a recording": "Або відкрийте запис",
+    "Or open a recording": "Або відкрий запис",
     "A voice message from a landlord, a colleague or your child's teacher, up to {minutes} minutes. It's heard on this device, and the sound never leaves it.":
-      "Голосове повідомлення від орендодавця, колеги чи вчителя вашої дитини, до {minutes} хвилин. Воно розпізнається на цьому пристрої, і звук нікуди з нього не йде.",
+      "Голосове повідомлення від орендодавця, колеги чи вчителя твоєї дитини, до {minutes} хв. Воно розпізнається на цьому пристрої, і звук нікуди з нього не йде.",
     "Choose a recording": "Вибрати запис",
-    "or drop one onto this page": "або перетягніть його на цю сторінку",
-    "Drop the recording to hear it": "Відпустіть запис, щоб його розпізнати",
+    "or drop one onto this page": "або перетягни його на цю сторінку",
+    "Drop the recording to hear it": "Відпусти запис, щоб його розпізнати",
     "Safari opens Ogg voice messages only partly. MP3 and M4A always open.":
       "Safari відкриває голосові повідомлення у форматі Ogg лише частково. MP3 і M4A відкриваються завжди.",
     "This device is too slow to hear a recording, so pasting the text is the way in here.":
       "Цей пристрій надто повільний, щоб розпізнати запис, тому тут можна лише вставити текст.",
     "Hearing a recording needs a one-time download of {mb} MB. It stays on this device, so nothing you open is ever sent anywhere.":
-      "Щоб розпізнати запис, потрібне одноразове завантаження {mb} МБ. Воно залишається на цьому пристрої, тому ніщо з того, що ви відкриваєте, нікуди не надсилається.",
+      "Щоб розпізнати запис, потрібне одноразове завантаження {mb} МБ. Воно залишається на цьому пристрої, тому ніщо з того, що ти відкриваєш, нікуди не надсилається.",
 
     "Opening the recording": "Відкриваю запис",
     "Hearing it on this device: {done} of {total} pieces": "Розпізнаю на цьому пристрої: {done} з {total} частин",
     "Looking the words up": "Шукаю слова в словнику",
     "A long message can take a minute on a phone. Stop, and you'll read what was heard so far.":
-      "Довге повідомлення на телефоні може забрати хвилину. Зупиніть, і ви прочитаєте те, що вже почуто.",
+      "Довге повідомлення на телефоні може забрати хвилину. Зупини, і ти прочитаєш те, що вже почуто.",
     "Stop here": "Зупинити тут",
 
     "That isn't a sound file. A voice message saved as MP3, M4A, Ogg or WAV works.":
@@ -152,15 +152,15 @@ export const RECORDINGS: Area = {
     "That file couldn't be opened as sound. A voice message saved as MP3, M4A, Ogg or WAV works.":
       "Цей файл не вдалося відкрити як звук. Підійде голосове повідомлення, збережене як MP3, M4A, Ogg або WAV.",
     "This browser couldn't open an Ogg voice message. Safari opens them only partly: open this page in Chrome or Firefox, or save the message as MP3 or M4A.":
-      "Цей браузер не зміг відкрити голосове повідомлення у форматі Ogg. Safari відкриває їх лише частково: відкрийте цю сторінку в Chrome або Firefox чи збережіть повідомлення як MP3 або M4A.",
+      "Цей браузер не зміг відкрити голосове повідомлення у форматі Ogg. Safari відкриває їх лише частково: відкрий цю сторінку в Chrome або Firefox чи збережи повідомлення як MP3 або M4A.",
     "This Ogg voice message couldn't be opened. It may be damaged or only partly saved. Saving it again as MP3 or M4A usually works.":
       "Це голосове повідомлення у форматі Ogg не вдалося відкрити. Можливо, воно пошкоджене або збережене не повністю. Зазвичай допомагає зберегти його наново як MP3 або M4A.",
     "This device is too slow to hear a recording, so it wasn't opened. Pasting the text still works.":
       "Цей пристрій надто повільний, щоб розпізнати запис, тому його не відкрито. Вставити текст, як і раніше, можна.",
-    "The recording couldn't be heard just now. Try it again.": "Зараз не вдалося розпізнати запис. Спробуйте ще раз.",
+    "The recording couldn't be heard just now. Try it again.": "Зараз не вдалося розпізнати запис. Спробуй ще раз.",
     "This browser didn't keep the speech files it downloaded, so the recording couldn't be opened. Pasting the text still works.":
       "Цей браузер не зберіг завантажені файли для розпізнавання мовлення, тому запис не вдалося відкрити. Вставити текст, як і раніше, можна.",
-    "You stopped it before any words were heard.": "Ви зупинили розпізнавання, перш ніж було почуто будь-які слова.",
+    "You stopped it before any words were heard.": "Розпізнавання зупинено ще до того, як прозвучало хоч одне слово.",
     "No words were heard in that recording. It may be music, or very quiet.":
       "У цьому записі не почуто жодного слова. Можливо, це музика або запис дуже тихий.",
 
@@ -168,13 +168,13 @@ export const RECORDINGS: Area = {
       "Це те, що почула машина. Слова з хвилястим підкресленням вона розчула найгірше. У тихій кімнаті вона помиляється приблизно в одному слові з {n}, а якщо на тлі музика чи розмова, то частіше.",
     "What was heard in {name}": "Що почуто в {name}",
     "Hear it all as it was": "Прослухати повністю, як є",
-    "Play from {at}, at your pace": "Відтворити з {at} у вашому темпі",
+    "Play from {at}, at your pace": "Відтворити з {at} у твоєму темпі",
     "Slow, from {at}": "Повільно, з {at}",
     "heard least surely": "розчуто непевно",
     "Only the first {minutes} minutes were heard, which is as long as a recording can be here.":
       "Розпізнано лише перші {minutes} хв: довшим запис тут бути не може.",
     "You stopped it partway, so this is the beginning of the recording.":
-      "Ви зупинили розпізнавання на півдорозі, тому тут початок запису.",
+      "Розпізнавання зупинено на півдорозі, тому тут початок запису.",
     "The dictionary needs a connection, so the words aren't underlined yet.":
       "Словнику потрібне підключення, тому слова поки не підкреслені.",
     "Look the words up": "Знайти слова в словнику",
@@ -192,23 +192,23 @@ export const RECORDINGS: Area = {
     "A page of words": "Сторінку зі словами",
     "Things around me": "Речі навколо мене",
     "Photograph your kitchen, your desk or the street outside, and get the Estonian for what's in it. The things are named in English, and every Estonian word comes from the dictionary.":
-      "Сфотографуйте свою кухню, стіл чи вулицю за вікном і дізнайтеся, як усе це називається естонською. Речі називаються англійською, а кожне естонське слово береться зі словника.",
+      "Сфотографуй свою кухню, стіл чи вулицю за вікном і дізнайся, як усе це називається естонською. Речі називаються англійською, а кожне естонське слово береться зі словника.",
     "Use the webcam": "Використати вебкамеру",
     "Up to {n} things a photo. The photo is made smaller on your device before it's sent, and it's never saved anywhere.":
-      "До {n} речей на одному фото. Перед надсиланням фото зменшується на вашому пристрої й ніде не зберігається.",
+      "Речей на одному фото: до {n}. Перед надсиланням фото зменшується на твоєму пристрої й ніде не зберігається.",
     "You can also drop a picture onto this page.": "Можна також перетягнути картинку на цю сторінку.",
-    "Drop the picture to look at it": "Відпустіть картинку, щоб її роздивитися",
+    "Drop the picture to look at it": "Відпусти картинку, щоб її роздивитися",
     "Looking at the photo": "Роздивляюся фото",
     "Naming the things in a photo needs a connection.": "Щоб назвати речі на фото, потрібне підключення.",
     "Review still works offline, and so does everything already in your deck.":
-      "Повторення працює й без мережі, як і все, що вже є у вашій колоді.",
+      "Повторення працює й без мережі, як і все, що вже є у твоїй колоді.",
     "That isn't a picture. A photo from a camera or a phone works.":
       "Це не картинка. Підійде фото з камери чи телефона.",
-    "That picture couldn't be opened. Try another one.": "Цю картинку не вдалося відкрити. Спробуйте іншу.",
+    "That picture couldn't be opened. Try another one.": "Цю картинку не вдалося відкрити. Спробуй іншу.",
     "We couldn't make out any things in that photo. Try more light, and fewer things at once.":
-      "На цьому фото не вдалося розібрати жодної речі. Спробуйте більше світла й менше речей за раз.",
+      "На цьому фото не вдалося розібрати жодної речі. Спробуй більше світла й менше речей за раз.",
     "We saw the photo, but couldn't look its words up just now. Try it again in a moment.":
-      "Фото ми роздивилися, але зараз не вдалося знайти слова в словнику. Спробуйте ще раз трохи згодом.",
+      "Фото ми роздивилися, але зараз не вдалося знайти слова в словнику. Спробуй ще раз трохи згодом.",
     "Things from {date}": "Речі від {date}",
     "Seen in the photo: {n}. In the dictionary: {found}.": "Побачено на фото: {n}. Є в словнику: {found}.",
     "Its Estonian word is spelled like another one, so it isn't offered here.":
@@ -221,10 +221,10 @@ export const RECORDINGS: Area = {
     "Use {word}, {meaning}": "Вибрати {word}, {meaning}",
     "Say them": "Сказати їх вголос",
     "Say them once, in this order. Nothing is marked: it's just the first time you say them.":
-      "Скажіть їх один раз, у цьому порядку. Нічого не оцінюється: ви просто вимовляєте їх уперше.",
+      "Скажи їх один раз, у цьому порядку. Нічого не оцінюється: ти просто вимовляєш їх уперше.",
     "Another photo": "Інше фото",
 
-    "What your camera sees": "Що бачить ваша камера",
+    "What your camera sees": "Що бачить твоя камера",
     "Starting the camera": "Вмикаю камеру",
     "The camera is blocked for this site. You can allow it in your browser's site settings, or choose a picture instead.":
       "Камеру для цього сайту заблоковано. Її можна дозволити в налаштуваннях сайту в браузері або натомість вибрати картинку.",

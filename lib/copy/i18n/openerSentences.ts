@@ -16,8 +16,9 @@ import { OPENER_WORDS } from "@/lib/estonian/openers";
  *
  * A few templates agree with the noun's gender ("мне нужен телефон", «мені
  * потрібна сумка»), and nothing here guesses the speaker's own gender: a
- * sentence about "I" is built so that it reads the same said by anybody
- * («мне хотелось бы», never «я хотел бы»).
+ * sentence about "I" either reads the same said by anybody («мне хотелось бы
+ * иметь») or writes both forms out («я хотел (хотела)»), which is what the
+ * reader asked for where the impersonal form is not what a native says.
  *
  * Anything this file cannot build (a word or an opener added later) falls back
  * to the English line, which is what a missing translation does everywhere.
@@ -58,7 +59,7 @@ const NOUNS: Readonly<Record<Lang, Readonly<Record<string, NounForms>>>> = {
   uk: {
     book: { nom: "книжка", acc: "книжку", gen: "книжки", nomPl: "книжки", accPl: "книжки", genPl: "книжок", gender: "f" },
     car: { nom: "машина", acc: "машину", gen: "машини", nomPl: "машини", accPl: "машини", genPl: "машин", gender: "f" },
-    phone: { nom: "телефон", acc: "телефон", gen: "телефона", nomPl: "телефони", accPl: "телефони", genPl: "телефонів", gender: "m" },
+    phone: { nom: "телефон", acc: "телефон", gen: "телефону", nomPl: "телефони", accPl: "телефони", genPl: "телефонів", gender: "m" },
     dog: { nom: "собака", acc: "собаку", gen: "собаки", nomPl: "собаки", accPl: "собак", genPl: "собак", gender: "m" },
     cat: { nom: "кішка", acc: "кішку", gen: "кішки", nomPl: "кішки", accPl: "кішок", genPl: "кішок", gender: "f" },
     computer: { nom: "комп'ютер", acc: "комп'ютер", gen: "комп'ютера", nomPl: "комп'ютери", accPl: "комп'ютери", genPl: "комп'ютерів", gender: "m" },
@@ -87,7 +88,7 @@ const SENTENCES: Readonly<Record<Lang, Readonly<Record<string, string>>>> = {
     need: "Мне {need} {nom}.",
     look: "Я ищу {acc}.",
     wish: "Мне хотелось бы иметь {acc}.",
-    wouldwant: "Мне бы хотелось {acc}.",
+    wouldwant: "Я бы хотел (хотела) {acc}.",
     wait: "Я жду {acc}.",
     taste: "{Nom} мне по вкусу.",
     table: "На столе есть {nom}.",
@@ -99,8 +100,8 @@ const SENTENCES: Readonly<Record<Lang, Readonly<Record<string, string>>>> = {
     wehavenot: "У нас нет {gen}.",
     tablenot: "На столе нет {gen}.",
     notlike: "Мне не нравится {nom}.",
-    wanted: "Мне хотелось {acc}.",
-    notwanted: "Мне не хотелось {acc}.",
+    wanted: "Я хотел (хотела) {acc}.",
+    notwanted: "Я не хотел (хотела) {acc}.",
     had: "У меня {was} {nom}.",
     hadnot: "У меня не было {gen}.",
     liked: "Мне {liked} {nom}.",
@@ -119,7 +120,7 @@ const SENTENCES: Readonly<Record<Lang, Readonly<Record<string, string>>>> = {
     need: "Мені {need} {nom}.",
     look: "Я шукаю {acc}.",
     wish: "Мені хотілося б мати {acc}.",
-    wouldwant: "Мені б хотілося {acc}.",
+    wouldwant: "Я б хотів (хотіла) {acc}.",
     wait: "Я чекаю на {acc}.",
     taste: "{Nom} мені до смаку.",
     table: "На столі є {nom}.",
@@ -131,8 +132,8 @@ const SENTENCES: Readonly<Record<Lang, Readonly<Record<string, string>>>> = {
     wehavenot: "У нас немає {gen}.",
     tablenot: "На столі немає {gen}.",
     notlike: "Мені не подобається {nom}.",
-    wanted: "Мені хотілося {acc}.",
-    notwanted: "Мені не хотілося {acc}.",
+    wanted: "Я хотів (хотіла) {acc}.",
+    notwanted: "Я не хотів (хотіла) {acc}.",
     had: "У мене {was} {nom}.",
     hadnot: "У мене не було {gen}.",
     liked: "Мені {liked} {nom}.",

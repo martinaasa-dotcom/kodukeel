@@ -9,7 +9,7 @@ import type { Area } from "../area";
 export const SWEEP: Area = {
   ru: {
     // The rail's row for a class the learner belongs to, as its hover title.
-    "Your homework, and how the class is getting on": "Ваше домашнее задание и как идут дела у группы",
+    "Your homework, and how the class is getting on": "Твоё домашнее задание и как идут дела у группы",
 
     // The ways a word is asked, on the mastery bar's label (`lib/srs/slots.ts`).
     "what it means": "что значит",
@@ -26,16 +26,16 @@ export const SWEEP: Area = {
     "Fill some gaps": "Заполнить пропуски",
 
     // A written task's mark on the exam result (`lib/exam/score.ts`).
-    "{min} to {max} words": "от {min} до {max} слов",
-    "{min} words or more": "не меньше {min} слов",
+    "{min} to {max} words": "Слов: от {min} до {max}",
+    "{min} words or more": "Слов: не меньше {min}",
     "{range}, using {words}": "{range}, со словами {words}",
     "{n} words": "слов: {n}",
     "That's over the limit of {max} words, which costs length marks.":
-      "Это больше предела в {max} слов, и за длину снимаются баллы.",
-    "You didn't use {words}.": "Вы не использовали {words}.",
+      "Слов больше допустимого ({max}), и за длину снимаются баллы.",
+    "You didn't use {words}.": "Не использовано: {words}.",
   },
   uk: {
-    "Your homework, and how the class is getting on": "Ваше домашнє завдання і як ідуть справи в групі",
+    "Your homework, and how the class is getting on": "Твоє домашнє завдання і як ідуть справи в групі",
 
     "what it means": "що означає",
     "saying it": "як сказати",
@@ -48,12 +48,12 @@ export const SWEEP: Area = {
 
     "Fill some gaps": "Заповнити пропуски",
 
-    "{min} to {max} words": "від {min} до {max} слів",
-    "{min} words or more": "не менше {min} слів",
+    "{min} to {max} words": "Слів: від {min} до {max}",
+    "{min} words or more": "Слів: не менше {min}",
     "{range}, using {words}": "{range}, зі словами {words}",
     "{n} words": "слів: {n}",
     "That's over the limit of {max} words, which costs length marks.":
-      "Це більше за межу в {max} слів, і за довжину знімаються бали.",
-    "You didn't use {words}.": "Ви не використали {words}.",
+      "Слів більше, ніж дозволено ({max}), і за довжину знімають бали.",
+    "You didn't use {words}.": "Не використано: {words}.",
   },
 };

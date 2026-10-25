@@ -7,8 +7,10 @@ import { dismissLocaleNotice } from "@/app/actions";
 import { MACHINE_NOTICE, MACHINE_NOTICE_EN, tr, type Locale } from "@/lib/copy/locale";
 
 /**
- * Said once, the first time the app is opened in Russian or Ukrainian: these
- * words were translated with AI and no native speaker has read them yet.
+ * Said once, the first time the app is opened in a language no fluent reader
+ * has checked (`REVIEWED`): these words were translated with AI and no native
+ * speaker has read them yet. Russian and Ukrainian were read on 2026-10-25, so
+ * neither draws it now.
  *
  * In the language itself and in English under it, for a reader of neither.
  * Closing it is stored on the server against the locale, so it comes back for

@@ -16,9 +16,9 @@ anybody learns.
 | Language | State |
 | --- | --- |
 | English | Written in the session and read against `docs/18-voice.md`. |
-| Estonian | Drafted in the session. **Awaiting the native Estonian speaker's reading** before it is uploaded (D16). It is prose about the app and teaches nothing, so ADR-005 does not govern it the way it governs the course. |
-| Russian | Machine-written in the session, like the app's own Russian, and not yet read by anybody fluent. |
-| Ukrainian | Machine-written in the session, like the app's own Ukrainian, and not yet read by anybody fluent. |
+| Estonian | Drafted in the session and read, with corrections, by the native Estonian speaker who develops this app on 2026-10-25 (D16). It is prose about the app and teaches nothing, so ADR-005 does not govern it the way it governs the course. |
+| Russian | Machine-written in the session, like the app's own Russian, and read with corrections on 2026-10-25. |
+| Ukrainian | Machine-written in the session, like the app's own Ukrainian, and read with corrections on 2026-10-25. |
 
 The app's own screens are in English, Russian and Ukrainian. Estonian is a listing language only, for
 the reader in Estonia who looks for an app in their own language, and the screens a learner reads stay
@@ -30,20 +30,20 @@ Both stores count characters. The App Store's name and subtitle take 30 each, it
 promotional text 170; Google Play's title takes 30 and its short description 80. Every field below was
 counted against those on 2026-10-24.
 
-| Field | English | Estonian (draft) | Russian (machine) | Ukrainian (machine) |
+| Field | English | Estonian | Russian | Ukrainian |
 | --- | --- | --- | --- | --- |
-| App name / Play title | Kodukeel: learn Estonian | Kodukeel: õpi eesti keelt | Kodukeel: эстонский язык | Kodukeel: естонська мова |
+| App name / Play title | Kodukeel: learn Estonian | Kodukeel: õpi eesti keelt | Kodukeel: учи эстонский | Kodukeel: вчи естонську |
 | Subtitle (App Store) | Lessons, review, conversations | Tunnid, kordamine, vestlused | Уроки, повторение, диалоги | Уроки, повторення, діалоги |
 | Keywords (App Store) | estonian,eesti,learn,language,vocabulary,grammar,dictionary,flashcards,cases,course,tallinn | eesti keel,õppimine,sõnavara,grammatika,sõnaraamat,käänded,kursus,keeleõpe | эстонский,язык,учить,eesti,грамматика,словарь,слова,курс,падежи | естонська,мова,вивчати,eesti,граматика,словник,слова,курс,відмінки |
 
 **Short description (Google Play)**
 
 - English: Estonian for the people around you: short lessons, review and conversations.
-- Estonian (draft): Eesti keel inimestega suhtlemiseks: lühikesed tunnid, kordamine ja vestlused.
-- Russian (machine): Эстонский для общения с людьми вокруг: короткие уроки, повторение и диалоги.
-- Ukrainian (machine): Естонська для спілкування з людьми навколо: короткі уроки, повторення й діалоги.
+- Estonian: Eesti keel, et rääkida inimestega enda ümber: lühikesed tunnid, kordamine ja vestlused.
+- Russian: Эстонский, чтобы общаться с людьми вокруг: короткие уроки, повторение и диалоги.
+- Ukrainian: Естонська, щоб спілкуватися з людьми довкола: короткі уроки, повторення й діалоги.
 
-**Promotional text (App Store), English only until the others are read:** Fifteen minutes a day:
+**Promotional text (App Store), English only:** Fifteen minutes a day:
 today's lesson, the cards that are due, and a conversation to rehearse before you have it for real.
 
 ## The long description
@@ -74,102 +74,99 @@ When you say an answer out loud, your speech is recognized on your phone. Your v
 anywhere and is not stored.
 
 The screens can be read in English, Russian or Ukrainian. The Russian and Ukrainian were translated by
-machine, and the app says so.
+machine and then read and corrected by a fluent speaker.
 
 There are no ads and nothing to buy. Settings lets you download everything the app keeps about you, or
 delete your account.
 
-### Estonian (draft, awaiting the native speaker's reading)
+### Estonian
 
-Kodukeel on neile, kes õpivad eesti keelt, sest elavad selle keskel: tööl, poeleti taga, elukaaslase
-perega.
+Kodukeel on neile, kes õpivad eesti keelt, sest elavad selle keskel: tööl, poes, elukaaslase peres.
 
-Iga päev on üks lühike tund ühe eesmärgiga. Kõigepealt kuulad vestlust, siis tutvud sõnadega, näed,
-kuidas need toimivad, harjutad, ütled need välja ja kordad. Tund küsib ainult seda, mida ta on juba
-näidanud.
+Iga päev ootab sind üks lühike tund ühe eesmärgiga. Kõigepealt kuulad vestlust, siis tutvud sõnadega,
+näed, kuidas need toimivad, harjutad, ütled need valjult välja ja kordad. Tund küsib ainult seda, mida
+see on juba näidanud.
 
 Kordamine toob iga sõna tagasi siis, kui see hakkab ununema, ja arvestab sinu enda vastuseid.
 
 Vestlustes saad olukorra läbi mängida enne, kui see päriselt ette tuleb: kohvikus tellimine, arsti
-vastuvõtt, kõne üürileandjale. Teine inimene vastab sellele, mida sa ütled.
+vastuvõtt, kõne üürileandjale. Vestluskaaslane vastab sellele, mida sa ütled.
 
-Sõnaraamat tuleb Ekilexist, Eesti Keele Instituudi andmebaasist, koos sõnade vormide ja
-leksikograafide kirja pandud lausetega. Tähendused on inglise keeles ning vene või ukraina keeles seal,
-kus Ekilex need annab.
+Sõnastik pärineb Ekilexist, Eesti Keele Instituudi andmebaasist, koos sõnavormide ja leksikograafide
+kirja pandud näitelausetega. Tähendused on inglise keeles ning vene või ukraina keeles seal, kus Ekilex
+need annab.
 
 Anu, sinu juhendaja, vastab grammatikaküsimustele lihtsas inglise keeles. Anu on keelemudel ja iga
 vastuse juures on kirjas, milline mudel selle kirjutas.
 
-Kui ütled vastuse valjult välja, tuntakse kõne ära sinu telefonis. Sinu häält ei saadeta kuhugi ega
+Kui ütled vastuse valjult välja, tunneb telefon su kõne ise ära. Sinu häält ei saadeta kuhugi ega
 salvestata.
 
-Rakenduse ekraanid on inglise, vene või ukraina keeles. Vene- ja ukrainakeelse tõlke on teinud masin
-ning rakendus ütleb seda.
+Rakendus on inglise, vene ja ukraina keeles. Vene- ja ukrainakeelse tõlke on teinud masin ning selle on
+üle vaadanud ja parandanud keelt valdav inimene.
 
 Reklaame ei ole ja midagi ei pea ostma. Seadetes saad alla laadida kõik, mida rakendus sinu kohta
 hoiab, või oma konto kustutada.
 
-### Russian (machine-written)
+### Russian
 
-Kodukeel для тех, кто учит эстонский, потому что живёт рядом с ним: на работе, у прилавка в магазине,
+Kodukeel для тех, кто учит эстонский, потому что слышит его вокруг каждый день: на работе, в магазине,
 в семье партнёра.
 
-Каждый день это короткий урок с одной целью. Сначала вы слушаете разговор, затем знакомитесь со
-словами, видите, как они работают, тренируетесь, произносите их вслух и повторяете. Урок спрашивает
+Каждый день тебя ждёт короткий урок с одной целью. Сначала ты слушаешь разговор, потом знакомишься со
+словами, видишь, как они работают, тренируешься, произносишь их вслух и повторяешь. Урок проверяет
 только то, что уже показал.
 
-Повторение возвращает каждое слово, когда вы вот-вот его забудете, и рассчитывается по вашим
-собственным ответам.
+Повторение возвращает каждое слово, когда ты вот-вот его забудешь, и подстраивается под твои ответы.
 
-В диалогах можно отрепетировать ситуацию до того, как она случится на самом деле: заказ в кафе, приём
-у врача, звонок арендодателю. Собеседник отвечает на то, что вы говорите.
+В диалогах можно отрепетировать ситуацию до того, как она случится на самом деле: заказ в кафе, приём у
+врача, звонок арендодателю. Собеседник отвечает на то, что ты говоришь.
 
-Словарь взят из Ekilex, базы данных Института эстонского языка: формы каждого слова и предложения,
-записанные лексикографами. Значения даны на английском, а также на русском или украинском там, где их
-приводит Ekilex.
+Словарь взят из Ekilex, базы данных Института эстонского языка: формы каждого слова и примеры,
+записанные лексикографами. Значения даны на английском, а там, где они есть в Ekilex, ещё и на русском
+или украинском.
 
-Ану, ваш репетитор, отвечает на вопросы о грамматике простым английским языком. Ану является языковой
-моделью, и у каждого ответа указано, какая модель его написала.
+Ану, твой репетитор, отвечает на вопросы по грамматике на простом английском. Ану не человек, а
+языковая модель, и у каждого ответа указано, какая модель его написала.
 
-Когда вы отвечаете вслух, речь распознаётся на вашем телефоне. Ваш голос никуда не отправляется и не
-сохраняется.
+Когда ты отвечаешь вслух, речь распознаётся прямо на твоём телефоне. Твой голос никуда не отправляется
+и не сохраняется.
 
-Экраны приложения доступны на английском, русском и украинском. Русский и украинский переведены
-машиной, и приложение об этом говорит.
+Приложение работает на английском, русском и украинском. Русскую и украинскую версии перевела машина, а
+потом их проверил и поправил человек, свободно владеющий языком.
 
 Здесь нет рекламы и ничего не нужно покупать. В настройках можно скачать всё, что приложение хранит о
-вас, или удалить аккаунт.
+тебе, или удалить аккаунт.
 
-### Ukrainian (machine-written)
+### Ukrainian
 
-Kodukeel для тих, хто вчить естонську, бо живе поруч із нею: на роботі, біля прилавка в магазині, у
-родині партнера.
+Kodukeel для тих, хто вчить естонську, бо чує її довкола щодня: на роботі, у магазині, у родині
+партнера.
 
-Кожен день це короткий урок з однією метою. Спершу ви слухаєте розмову, потім знайомитеся зі словами,
-бачите, як вони працюють, тренуєтеся, промовляєте їх уголос і повторюєте. Урок питає лише те, що вже
-показав.
+Щодня на тебе чекає короткий урок з однією метою. Спершу ти слухаєш розмову, потім знайомишся зі
+словами, бачиш, як вони працюють, тренуєшся, промовляєш їх вголос і повторюєш. Урок перевіряє лише те,
+що вже показав.
 
-Повторення повертає кожне слово тоді, коли ви ось-ось його забудете, і розраховується за вашими
-власними відповідями.
+Повторення повертає кожне слово тоді, коли ти ось-ось його забудеш, і підлаштовується під твої
+відповіді.
 
 У діалогах можна відрепетирувати ситуацію до того, як вона станеться насправді: замовлення в кав'ярні,
-прийом у лікаря, дзвінок орендодавцю. Співрозмовник відповідає на те, що ви кажете.
+прийом у лікаря, дзвінок орендодавцю. Співрозмовник відповідає на те, що ти кажеш.
 
-Словник узято з Ekilex, бази даних Інституту естонської мови: форми кожного слова і речення, записані
-лексикографами. Значення подано англійською, а також російською чи українською там, де їх наводить
-Ekilex.
+Словник узято з Ekilex, бази даних Інституту естонської мови: форми кожного слова й приклади, записані
+лексикографами. Значення подано англійською, а там, де вони є в Ekilex, ще й російською чи українською.
 
-Ану, ваш репетитор, відповідає на запитання про граматику простою англійською. Ану є мовною моделлю, і
-біля кожної відповіді зазначено, яка модель її написала.
+Ану, твій репетитор, відповідає на запитання з граматики простою англійською. Ану не людина, а мовна
+модель, і біля кожної відповіді вказано, яка модель її написала.
 
-Коли ви відповідаєте вголос, мовлення розпізнається на вашому телефоні. Ваш голос нікуди не
-надсилається і не зберігається.
+Коли ти відповідаєш вголос, мовлення розпізнається просто на твоєму телефоні. Твій голос нікуди не
+надсилається й не зберігається.
 
-Екрани застосунку доступні англійською, російською та українською. Російську й українську переклала
-машина, і застосунок про це каже.
+Застосунок працює англійською, російською та українською. Російську та українську версії переклала
+машина, а потім їх перевірила й виправила людина, яка вільно володіє мовою.
 
 Тут немає реклами й нічого не треба купувати. У налаштуваннях можна завантажити все, що застосунок
-зберігає про вас, або видалити обліковий запис.
+зберігає про тебе, або видалити обліковий запис.
 
 ## Category and addresses
 

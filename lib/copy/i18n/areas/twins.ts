@@ -11,19 +11,19 @@ export const TWINS: Area = {
     // The round.
     "Tell look-alikes apart": "Различать похожие слова",
     "Two or three words that look alike, a real sentence with one of them missing, and what the sentence means in English. Pick the one the writer used, then see the other one in a sentence of its own.":
-      "Два или три похожих слова, настоящее предложение, в котором одного из них не хватает, и смысл предложения по-английски. Выберите слово, которое использовал автор, а потом посмотрите на другое в его собственном предложении.",
-    "Tell the look-alikes apart": "Различите похожие слова",
+      "Два или три похожих слова, настоящее предложение, в котором одного из них не хватает, и смысл предложения по-английски. Выбери слово, которое использовал автор, а потом посмотри на другое в своём предложении.",
+    "Tell the look-alikes apart": "Различи похожие слова",
     "A real sentence with one word missing, what the sentence means in English, and two or three words that look alike underneath. Some questions show one word of a pair and ask what the other one means.":
       "Настоящее предложение без одного слова, его смысл по-английски, а под ним два или три похожих слова. В некоторых вопросах показано одно слово пары и спрашивается, что значит другое.",
     "Pick the word that fits. Afterwards you'll see the other word in a sentence of its own. There's no clock.":
-      "Выберите подходящее слово. Потом вы увидите другое слово в его собственном предложении. Времени на ответ никто не ограничивает.",
+      "Выбери подходящее слово. Потом ты увидишь другое слово в своём предложении. Время не ограничено.",
     "Words that look alike and mean different things.": "Слова, которые похожи, но значат разное.",
     "No pairs to practice yet": "Пока нечего тренировать",
-    "The pairs open as the course teaches both words of them.": "Пары открываются, когда курс научит вас обоим словам пары.",
+    "The pairs open as the course teaches both words of them.": "Пары открываются, когда ты пройдёшь в курсе оба слова.",
     "See the pairs": "Посмотреть пары",
-    "You told {n} of {total} apart.": "Вы различили {n} из {total}.",
+    "You told {n} of {total} apart.": "Получилось различить {n} из {total}.",
     "{n} of {total}. The ones you mixed up come back sooner in your reviews.":
-      "{n} из {total}. Те, что вы перепутали, раньше вернутся в повторении.",
+      "{n} из {total}. Перепутанные слова раньше вернутся в повторении.",
     "See all the pairs": "Все пары",
     "Yes. {word} is the one that fits.": "Да. Подходит именно {word}.",
     "{picked} works here too. The writer used {word}.": "{picked} здесь тоже подходит. Автор написал {word}.",
@@ -40,7 +40,7 @@ export const TWINS: Area = {
     // The review card's note about a mix-up.
     "That's {twin}, {means}. This card wanted {word}, {wanted}.":
       "Это {twin}, «{means}». Карточка ждала {word}, «{wanted}».",
-    "These two are easy to mix up. Practice the pair": "Эти два слова легко перепутать. Потренируйте пару",
+    "These two are easy to mix up. Practice the pair": "Эти два слова легко перепутать. Потренируй пару",
 
     // The grammar page.
     "Words that look alike": "Похожие слова",
@@ -50,53 +50,53 @@ export const TWINS: Area = {
     "Three kinds of look-alike, and each needs a different kind of help.":
       "Похожие слова бывают трёх видов, и каждому нужна своя помощь.",
     "Some pairs are one word with a suffix that changes who does what, and one rule covers dozens of them. Some are one English word that Estonian splits in two. The rest are a coincidence, and you learn them side by side.":
-      "Одни пары это одно слово с суффиксом, который меняет, кто что делает, и одно правило охватывает десятки таких пар. Другие это одно английское слово, которое эстонский делит на два. Остальные совпали случайно, и их учат рядом друг с другом.",
+      "Одни пары образованы от одного слова с суффиксом, который меняет, кто что делает, и одно правило объясняет десятки таких пар. Другие соответствуют одному английскому слову, которое в эстонском распадается на два. Остальные похожи случайно, их просто учишь вместе.",
     "The rule misleads here": "Здесь правило подводит",
     "Practice this pair": "Потренировать эту пару",
 
     // The three kinds, and the rest of `lib/collections/twins.ts`.
-    "It happens, or you make it happen": "Происходит само или вы заставляете это произойти",
+    "It happens, or you make it happen": "Происходит само или это делаешь ты",
     "Add -ta- and somebody makes it happen": "С -ta- кто-то делает так, чтобы это произошло",
     "Add -ta- (sometimes -sta-) and the verb gets a doer. The short one happens by itself. The long one is somebody making it happen to something else.":
       "С -ta- (иногда -sta-) у глагола появляется деятель. Короткий глагол означает, что что-то происходит само. Длинный означает, что кто-то делает так, чтобы это произошло с чем-то другим.",
-    "You do it, or it happens by itself": "Вы это делаете или это происходит само",
+    "You do it, or it happens by itself": "Ты это делаешь или это происходит само",
     "Add -u- and it happens by itself": "С -u- это происходит само",
     "Add -u- (sometimes -du-) and nobody is doing it any more. The short one is you doing something to something. The long one is the change happening on its own, or to you.":
-      "С -u- (иногда -du-) деятеля больше нет. Короткий глагол означает, что вы что-то делаете с чем-то. Длинный означает, что изменение происходит само или с вами.",
-    "It reaches you, or you reach for it": "Доходит до вас само или вы к этому тянетесь",
+      "С -u- (иногда -du-) деятеля больше нет. Короткий глагол означает, что ты что-то делаешь с чем-то. Длинный означает, что изменение происходит само или с тобой.",
+    "It reaches you, or you reach for it": "Доходит до тебя само или ты к этому тянешься",
     "The longer one is on purpose": "Длинное слово означает намеренное действие",
     "One of each pair just arrives at your ears or eyes. The other is on purpose: you choose to listen, or you choose to look.":
-      "Одно слово пары означает то, что само доходит до ушей или глаз. Другое означает намерение: вы решаете слушать или смотреть.",
+      "Одно слово пары означает то, что само доходит до ушей или глаз. Другое означает намерение: ты решаешь слушать или смотреть.",
     "One English word, several Estonian ones": "Одно английское слово, несколько эстонских",
     "The sentence decides": "Решает предложение",
     "English uses one verb where Estonian has two or three. What comes after the verb in the sentence usually tells you which one it is.":
       "Там, где в английском один глагол, в эстонском их два или три. Какой нужен, обычно подсказывает то, что стоит в предложении после глагола.",
-    "They look alike and mean nothing alike": "Похожи на вид, но значат совсем разное",
-    "No rule, learn them as a pair": "Правила нет, учите их парой",
+    "They look alike and mean nothing alike": "С виду похожи, но значат совсем разное",
+    "No rule, learn them as a pair": "Правила нет, учи их вместе",
     "No rule joins these. They differ by a letter or two and mean different things, so they are learned side by side.":
       "Эти слова не связаны никаким правилом. Они отличаются одной-двумя буквами и значат разное, поэтому их учат рядом.",
     "The rule built this pair, but the meaning has moved on. Learn the two as separate words.":
-      "Эту пару создало правило, но значение ушло в сторону. Учите эти два слова как отдельные.",
+      "Эту пару создало правило, но значение ушло в сторону. Учи эти два слова как отдельные.",
     "Running into somebody takes them as an object. Meeting them on purpose is meeting with them.":
-      "Случайно встретить кого-то значит встретить его самого. Договорённая встреча это встреча с ним.",
+      "Если встречаешь кого-то случайно, человек стоит как прямое дополнение. Если встречаешься по договорённости, то встречаешься с ним.",
     "No shared root here, but the same split: seeing just happens, looking is on purpose.":
-      "Общего корня здесь нет, но разделение то же: видеть получается само, а смотрят намеренно.",
+      "Общего корня здесь нет, но разделение то же: видим мы невольно, а смотрим намеренно.",
     "Nothing after it: the thing begins by itself. An object after it: you begin something. Another verb after it: you start doing that.":
-      "Ничего после глагола: что-то начинается само. Дополнение после глагола: вы что-то начинаете. Другой глагол после него: вы начинаете это делать.",
+      "Ничего после глагола: что-то начинается само. Дополнение после глагола: ты что-то начинаешь. Другой глагол после него: ты начинаешь это делать.",
     "Facts and answers take the first. People, places and feelings take the second.":
-      "Для фактов и ответов первое слово. Для людей, мест и чувств второе.",
+      "Первое слово используют для фактов и ответов, второе для людей, мест и чувств.",
     "Going somewhere is a trip with a direction. The other is a round trip or a habit.":
-      "Первое слово это поездка в одну сторону. Второе это поездка туда и обратно или привычка.",
+      "Первое слово означает поездку в одну сторону. Второе означает поездку туда и обратно или привычку.",
     "A skill you learned, the strength to do it, a possibility, or permission.":
-      "Навык, которому вы научились, силы это сделать, возможность или разрешение.",
+      "Выученный навык, силы это сделать, возможность или разрешение.",
     "You stay somewhere yourself. You leave something somewhere else.":
-      "Остаётесь где-то вы сами. Оставляете вы что-то где-то.",
+      "Остаёшься где-то ты сам. Оставляешь ты что-то где-то.",
     "Away from where you are, towards where you are, or simply holding it as you go.":
       "Отсюда, сюда или просто держа это в руках на ходу.",
     "An opinion takes the first. Thinking something over, or meaning something, takes the second.":
-      "Для мнения первое слово. Чтобы обдумать что-то или иметь в виду, второе.",
+      "Первое слово про мнение. Второе, когда что-то обдумываешь или что-то имеешь в виду.",
     "The first is everyday and also means managing in time. The second is the arrivals board.":
-      "Первое слово обычное и значит ещё «успеть». Второе как на табло прибытия.",
+      "Первое слово обычное и значит ещё «успеть». Второе пишут на табло прибытия.",
     "English lies in two ways. Telling a lie and lying on the sofa are two words here.":
       "В английском «лгать» и «лежать» звучат одинаково. Здесь это два разных слова.",
 
@@ -246,19 +246,19 @@ export const TWINS: Area = {
   uk: {
     "Tell look-alikes apart": "Розрізняти схожі слова",
     "Two or three words that look alike, a real sentence with one of them missing, and what the sentence means in English. Pick the one the writer used, then see the other one in a sentence of its own.":
-      "Два чи три схожі слова, справжнє речення, у якому одного з них бракує, і зміст речення англійською. Виберіть слово, яке вжив автор, а тоді подивіться на інше в його власному реченні.",
-    "Tell the look-alikes apart": "Розрізніть схожі слова",
+      "Два чи три схожі слова, справжнє речення, у якому одного з них бракує, і зміст речення англійською. Обери слово, яке вжив автор, а тоді подивися на інше у своєму реченні.",
+    "Tell the look-alikes apart": "Розрізни схожі слова",
     "A real sentence with one word missing, what the sentence means in English, and two or three words that look alike underneath. Some questions show one word of a pair and ask what the other one means.":
       "Справжнє речення без одного слова, його зміст англійською, а під ним два чи три схожі слова. У деяких запитаннях показано одне слово пари й запитано, що означає інше.",
     "Pick the word that fits. Afterwards you'll see the other word in a sentence of its own. There's no clock.":
-      "Виберіть слово, що пасує. Потім ви побачите інше слово в його власному реченні. Часу на відповідь ніхто не обмежує.",
+      "Обери слово, яке пасує. Потім ти побачиш інше слово у своєму реченні. Час не обмежений.",
     "Words that look alike and mean different things.": "Слова, які схожі, але означають різне.",
     "No pairs to practice yet": "Поки що нема чого тренувати",
-    "The pairs open as the course teaches both words of them.": "Пари відкриваються, коли курс навчить вас обох слів пари.",
+    "The pairs open as the course teaches both words of them.": "Пари відкриваються, коли ти пройдеш у курсі обидва слова.",
     "See the pairs": "Подивитися пари",
-    "You told {n} of {total} apart.": "Ви розрізнили {n} з {total}.",
+    "You told {n} of {total} apart.": "Вдалося розрізнити {n} з {total}.",
     "{n} of {total}. The ones you mixed up come back sooner in your reviews.":
-      "{n} з {total}. Ті, що ви сплутали, раніше повернуться в повторенні.",
+      "{n} з {total}. Сплутані слова раніше повернуться в повторенні.",
     "See all the pairs": "Усі пари",
     "Yes. {word} is the one that fits.": "Так. Пасує саме {word}.",
     "{picked} works here too. The writer used {word}.": "{picked} тут теж пасує. Автор написав {word}.",
@@ -274,7 +274,7 @@ export const TWINS: Area = {
 
     "That's {twin}, {means}. This card wanted {word}, {wanted}.":
       "Це {twin}, «{means}». Картка чекала {word}, «{wanted}».",
-    "These two are easy to mix up. Practice the pair": "Ці два слова легко сплутати. Потренуйте пару",
+    "These two are easy to mix up. Practice the pair": "Ці два слова легко сплутати. Потренуй пару",
 
     "Words that look alike": "Схожі слова",
     "Pairs that are easy to mix up, and how to tell them apart": "Пари, які легко сплутати, і як їх розрізняти",
@@ -283,52 +283,52 @@ export const TWINS: Area = {
     "Three kinds of look-alike, and each needs a different kind of help.":
       "Схожі слова бувають трьох видів, і кожному потрібна своя допомога.",
     "Some pairs are one word with a suffix that changes who does what, and one rule covers dozens of them. Some are one English word that Estonian splits in two. The rest are a coincidence, and you learn them side by side.":
-      "Одні пари це одне слово із суфіксом, який змінює, хто що робить, і одне правило охоплює десятки таких пар. Інші це одне англійське слово, яке естонська ділить на два. Решта збіглися випадково, і їх вчать поруч.",
+      "Одні пари утворені від одного слова із суфіксом, який змінює, хто що робить, і одне правило пояснює десятки таких пар. Інші відповідають одному англійському слову, яке в естонській розпадається на два. Решта схожі випадково, їх просто вчиш разом.",
     "The rule misleads here": "Тут правило підводить",
     "Practice this pair": "Потренувати цю пару",
 
-    "It happens, or you make it happen": "Відбувається само або ви робите так, щоб це сталося",
+    "It happens, or you make it happen": "Відбувається само або це робиш ти",
     "Add -ta- and somebody makes it happen": "З -ta- хтось робить так, щоб це сталося",
     "Add -ta- (sometimes -sta-) and the verb gets a doer. The short one happens by itself. The long one is somebody making it happen to something else.":
       "З -ta- (інколи -sta-) у дієслова з'являється виконавець. Коротке дієслово означає, що щось відбувається само. Довге означає, що хтось робить так, щоб це сталося з чимось іншим.",
-    "You do it, or it happens by itself": "Ви це робите або це відбувається само",
+    "You do it, or it happens by itself": "Ти це робиш або це відбувається само",
     "Add -u- and it happens by itself": "З -u- це відбувається само",
     "Add -u- (sometimes -du-) and nobody is doing it any more. The short one is you doing something to something. The long one is the change happening on its own, or to you.":
-      "З -u- (інколи -du-) виконавця вже нема. Коротке дієслово означає, що ви щось робите з чимось. Довге означає, що зміна відбувається сама або з вами.",
-    "It reaches you, or you reach for it": "Доходить до вас само або ви до цього тягнетеся",
-    "The longer one is on purpose": "Довше слово означає дію навмисно",
+      "З -u- (інколи -du-) виконавця вже нема. Коротке дієслово означає, що ти щось робиш із чимось. Довге означає, що зміна відбувається сама або з тобою.",
+    "It reaches you, or you reach for it": "Доходить до тебе само або ти до цього тягнешся",
+    "The longer one is on purpose": "Довше слово означає навмисну дію",
     "One of each pair just arrives at your ears or eyes. The other is on purpose: you choose to listen, or you choose to look.":
-      "Одне слово пари означає те, що само доходить до вух чи очей. Інше означає намір: ви вирішуєте слухати чи дивитися.",
+      "Одне слово пари означає те, що само доходить до вух чи очей. Інше означає намір: ти вирішуєш слухати чи дивитися.",
     "One English word, several Estonian ones": "Одне англійське слово, кілька естонських",
     "The sentence decides": "Вирішує речення",
     "English uses one verb where Estonian has two or three. What comes after the verb in the sentence usually tells you which one it is.":
       "Там, де в англійській одне дієслово, в естонській їх два чи три. Яке потрібне, зазвичай підказує те, що стоїть у реченні після дієслова.",
     "They look alike and mean nothing alike": "Схожі на вигляд, але означають зовсім різне",
-    "No rule, learn them as a pair": "Правила нема, вчіть їх парою",
+    "No rule, learn them as a pair": "Правила нема, вчи їх разом",
     "No rule joins these. They differ by a letter or two and mean different things, so they are learned side by side.":
       "Ці слова не пов'язує жодне правило. Вони відрізняються однією-двома літерами й означають різне, тож їх вчать поруч.",
     "The rule built this pair, but the meaning has moved on. Learn the two as separate words.":
-      "Цю пару створило правило, але значення відійшло вбік. Вчіть ці два слова як окремі.",
+      "Цю пару створило правило, але значення відійшло вбік. Вчи ці два слова як окремі.",
     "Running into somebody takes them as an object. Meeting them on purpose is meeting with them.":
-      "Випадково зустріти когось означає зустріти саму людину. Домовлена зустріч це зустріч із нею.",
+      "Якщо зустрічаєш когось випадково, людина стоїть як прямий додаток. Якщо зустрічаєшся за домовленістю, то зустрічаєшся з нею.",
     "No shared root here, but the same split: seeing just happens, looking is on purpose.":
-      "Спільного кореня тут нема, але поділ той самий: бачити виходить само, а дивляться навмисно.",
+      "Спільного кореня тут нема, але поділ той самий: бачимо ми мимоволі, а дивимося навмисно.",
     "Nothing after it: the thing begins by itself. An object after it: you begin something. Another verb after it: you start doing that.":
-      "Нічого після дієслова: щось починається само. Додаток після дієслова: ви щось починаєте. Інше дієслово після нього: ви починаєте це робити.",
+      "Нічого після дієслова: щось починається само. Додаток після дієслова: ти щось починаєш. Інше дієслово після нього: ти починаєш це робити.",
     "Facts and answers take the first. People, places and feelings take the second.":
-      "Для фактів і відповідей перше слово. Для людей, місць і почуттів друге.",
+      "Перше слово вживають для фактів і відповідей, друге для людей, місць і почуттів.",
     "Going somewhere is a trip with a direction. The other is a round trip or a habit.":
-      "Перше слово це поїздка в один бік. Друге це поїздка туди й назад або звичка.",
+      "Перше слово означає поїздку в один бік. Друге означає поїздку туди й назад або звичку.",
     "A skill you learned, the strength to do it, a possibility, or permission.":
-      "Навичка, якої ви навчилися, сили це зробити, можливість або дозвіл.",
+      "Набута навичка, сили це зробити, можливість або дозвіл.",
     "You stay somewhere yourself. You leave something somewhere else.":
-      "Залишаєтеся десь ви самі. Залишаєте ви щось десь.",
+      "Залишаєшся десь ти сам. Залишаєш ти щось десь.",
     "Away from where you are, towards where you are, or simply holding it as you go.":
       "Звідси, сюди або просто тримаючи це в руках на ходу.",
     "An opinion takes the first. Thinking something over, or meaning something, takes the second.":
-      "Для думки як погляду перше слово. Щоб обміркувати щось або мати на увазі, друге.",
+      "Перше слово про думку, погляд. Друге, коли щось обмірковуєш або маєш щось на увазі.",
     "The first is everyday and also means managing in time. The second is the arrivals board.":
-      "Перше слово звичайне й означає ще «встигнути». Друге як на табло прибуття.",
+      "Перше слово звичайне й означає ще «встигнути». Друге пишуть на табло прибуття.",
     "English lies in two ways. Telling a lie and lying on the sofa are two words here.":
       "В англійській «брехати» і «лежати» звучать однаково. Тут це два різні слова.",
 
@@ -389,7 +389,7 @@ export const TWINS: Area = {
     "to go (somewhere)": "іти, їхати (кудись)",
     "to go and come back, to go regularly": "ходити, бувати",
     "to know how to": "уміти",
-    "to manage to": "змогти, бути в силі",
+    "to manage to": "змогти, бути в змозі",
     "may, can (it is possible)": "могти (це можливо)",
     "to be allowed to": "мати право, сміти",
     "to stay, to remain": "залишатися",

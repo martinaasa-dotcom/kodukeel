@@ -27,11 +27,12 @@ import { keyOf } from "./i18n/table";
  * translates the new one, which `locale.test.ts` reports for the surfaces it
  * covers.
  *
- * MACHINE TRANSLATED AND SAID SO. Nobody who speaks either language as a
- * first language has read these yet. Settings says so in the language itself
- * and in English beside the choice, and the shell says it once on arrival
- * (`components/LocaleNotice.tsx`). When somebody fluent has read a locale,
- * `REVIEWED` is set for it, with their name in the commit.
+ * MACHINE TRANSLATED, THEN READ. A model translated these and a fluent reader
+ * read and corrected every line of both on 2026-10-25 (Martin Aasa), so
+ * `REVIEWED` is set for both. Until a locale is set, Settings says it is
+ * machine translated in the language itself and in English beside the
+ * choice, and the shell says it once on arrival (`components/LocaleNotice.tsx`).
+ * A third locale starts unset, and is set with the reader's name in the commit.
  *
  * NO ESTONIAN IS WRITTEN HERE OR IN THE TABLES (ADR-005). An Estonian word on
  * a screen still comes off the dictionary; this only changes the words around
@@ -95,7 +96,7 @@ export const LOCALE_NAMES: Readonly<Record<Locale, string>> = {
 };
 
 /** Whether a fluent reader has checked this locale. */
-export const REVIEWED: Readonly<Record<Locale, boolean>> = { en: true, ru: false, uk: false };
+export const REVIEWED: Readonly<Record<Locale, boolean>> = { en: true, ru: true, uk: true };
 
 /**
  * The disclaimer, in the language it is about. Said beside the English one

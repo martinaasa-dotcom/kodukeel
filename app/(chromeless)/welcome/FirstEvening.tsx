@@ -149,7 +149,7 @@ export function FirstEvening({ words, steps, title, canDo, evenings }: {
             </ul>
             <div>
               <Button type="button" variant="primary" onClick={() => setStage("pick")}>
-                {t("Got them, now quiz me")} <ArrowRight size={16} aria-hidden />
+                {t("Got them, now quiz me")} <ArrowRight size={16} className="hidden sm:inline" aria-hidden />
               </Button>
             </div>
           </>

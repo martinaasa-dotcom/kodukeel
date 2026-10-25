@@ -156,7 +156,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
     "Some very common verbs use -i- instead of -si-": [
       { lemma: "vesi", et: "Jõin klaasi vett.", form: "Jõin", slot: "VERB:IndIpfSg1" },
-      { lemma: "kala", et: "Kala ujus sügavamale.", form: "ujus", slot: "VERB:IndIpfSg3" },
+      { lemma: "kook", et: "Sõin kohvikus tüki kooki.", form: "Sõin", slot: "VERB:IndIpfSg1" },
     ],
     "For anything that's over, even if it was five minutes ago": [
       { lemma: "jooma", et: "Jõin tassi kohvi.", form: "Jõin", slot: "VERB:IndIpfSg1" },
@@ -180,7 +180,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
   pluperfect: {
     "Something that was over before something else happened": [
       { lemma: "vistrik", et: "Näkku oli tekkinud uus vistrik.", form: "oli", slot: "VERB:IndIpfSg3" },
-      { lemma: "isand", et: "Kohale olid tulnud tähtsad vaimulikud isandad.", form: "olid" },
+      { lemma: "meenuma", et: "Järsku meenus mulle, kuhu ma oma võtmed olin unustanud.", form: "olin", slot: "VERB:IndIpfSg1" },
     ],
     "Common in stories, and when you retell what someone said": [
       { lemma: "seen", et: "Nikolai oli läinud hommikul metsa seenele ja polnud õhtuks tagasi jõudnud.", form: "oli", slot: "VERB:IndIpfSg3" },
@@ -194,7 +194,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
   conditional: {
     "Wishes and what-ifs: \"if I had time, I'd come\"": [
       { lemma: "elukoht", et: "Hea, kui elukoht asuks töökoha lähedal.", form: "asuks", slot: "VERB:KndPrPs" },
-      { lemma: "kündma", et: "Kui oleksin maal edasi, künnaksin traktoriga põldu.", form: "oleksin", slot: "VERB:KndPrSg1" },
+      { lemma: "tuba", et: "Oleks mul ometi oma tuba!", form: "Oleks", slot: "VERB:KndPrPs" },
     ],
     "Asking nicely: \"I'd like a coffee\", rather than \"I want\"": [
       { lemma: "paluma", et: "Ma tahaksin sinult midagi paluda.", form: "tahaksin", slot: "VERB:KndPrSg1" },
@@ -302,7 +302,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
     "The -da one comes after \"want\" and \"can\"": [
       { lemma: "valuuta", et: "Kus saab valuutat vahetada?", form: "vahetada", slot: "VERB:Inf" },
-      { lemma: "võima", et: "Haige võib varsti surra.", form: "surra", slot: "VERB:Inf" },
+      { lemma: "tõde", et: "Uurija tahab teada tõde.", form: "teada", slot: "VERB:Inf" },
     ],
   },
   "particle-verbs": {
@@ -321,11 +321,11 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
   },
   converb: {
     "Two things at once, with no \"and\" or \"while\" needed": [
-      { lemma: "ige", et: "Naerdes paljastusid laiad esihambad ja igemed.", form: "Naerdes" },
-      { lemma: "tatt", et: "Mees köhib tatti pritsides.", form: "pritsides" },
+      { lemma: "hoiak", et: "Harjutusi tehes tuleks jälgida keha hoiakut.", form: "tehes" },
+      { lemma: "kihutama", et: "Tüdruk kihutas joostes kodu poole.", form: "joostes" },
     ],
     "Writers much prefer it to two sentences joined up": [
-      { lemma: "pidur", et: "Peo edenedes pidurid kadusid.", form: "edenedes" },
+      { lemma: "kompuuter", et: "Koju jõudes istusin kohe kompuutri taha.", form: "jõudes" },
       { lemma: "otsustama", et: "Purustuste järgi otsustades võis tegu olla keeristormiga.", form: "otsustades" },
     ],
     "Whoever does it is whoever does the rest of the sentence": [
@@ -345,7 +345,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
   },
   numerals: {
     "From two up, the noun takes the singular \"some of it\" form": [
-      { lemma: "pirn", et: "Aias kasvab kolm pirni.", form: "pirni", slot: "CASE:PARTITIVE" },
+      { lemma: "pere", et: "Nende peres on viis last.", form: "last", slot: "CASE:PARTITIVE" },
       { lemma: "pudel", et: "Ostsin kaks pudelit vett.", form: "pudelit", slot: "CASE:PARTITIVE" },
     ],
     "Numbers take endings too, when the noun after them does": [
@@ -364,7 +364,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
     "Adjectives meaning \"-ish\" and \"-less\"": [
       { lemma: "arglik", et: "Kõlas arglik koputus.", form: "arglik" },
-      { lemma: "abikaasa", et: "Abikaasad on võrdõiguslikud.", form: "võrdõiguslikud" },
+      { lemma: "öö", et: "Veetsin enne eksamit unetu öö.", form: "unetu" },
     ],
     "An adjective gives a noun for the quality, like \"kindness\"": [
       { lemma: "sõprus", et: "Meid seob ammune sõprus.", form: "sõprus", slot: "CASE:NOMINATIVE" },
@@ -413,7 +413,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
   },
   comparative: {
     "Add -m to the form meaning \"of\", the one the endings go on": [
-      { lemma: "väike", et: "Anna väiksem lusikas!", form: "väiksem" },
+      { lemma: "tunduma", et: "Teine kleit tundub ilusam.", form: "ilusam" },
       { lemma: "palk", et: "Eesti keskmine palk on suurem kui Lätis.", form: "suurem" },
     ],
     "Either \"than\" plus the plain word, or no \"than\" and -st": [
@@ -465,12 +465,12 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
   },
   "reported-speech": {
     "\"She said that...\" plus a clause, much like English": [
-      { lemma: "imelik", et: "Imelik, et teda kodus pole.", form: "et" },
+      { lemma: "paanika", et: "Arst ütles, et paanikaks pole põhjust.", form: "et" },
       { lemma: "hotell", et: "Hotelli administraator ütles, et vabu tube ei ole.", form: "et" },
     ],
     "Or the -vat form, which needs no \"said\" at all": [
       { lemma: "tammetõru", et: "Tammetõrude rohkus ennustavat karmi talve.", form: "ennustavat" },
-      { lemma: "meel", et: "Hiinlased olevat tuntud oma praktilise meele poolest.", form: "olevat" },
+      { lemma: "aus", et: "Aus ülestunnistus pidavat karistust kergendama.", form: "pidavat" },
     ],
   },
   concession: {
@@ -500,7 +500,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
     "Ordering and adding: first, also, finally": [
       { lemma: "pühak", et: "Patukotist sai lõpuks pühak.", form: "lõpuks", slot: "CASE:TRANSLATIVE" },
-      { lemma: "lehtpuu", et: "Leiliruumi lagi ja seinad, samuti lava on lehtpuust.", form: "samuti" },
+      { lemma: "otse", et: "Kuus kilomeetrit sõitke otse, seejärel keerake paremale.", form: "seejärel" },
     ],
     "Pointing back to something without repeating it": [
       { lemma: "kiikuma", et: "Kiikusin toolil ja see läks katki.", form: "see", slot: "CASE:NOMINATIVE" },
@@ -521,7 +521,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
   },
   subordination: {
     "The word order changes inside that part": [
-      { lemma: "firma", et: "Töötan firmas, mis toodab autode varuosi.", form: "mis", slot: "CASE:NOMINATIVE" },
+      { lemma: "valima", et: "Vali välja, kus sa puhata tahad.", form: "tahad", slot: "VERB:IndPrSg2" },
       { lemma: "hoolima", et: "Sa oled väga tubli, et oma tervisest hoolid.", form: "hoolid", slot: "VERB:IndPrSg2" },
     ],
   },
@@ -600,7 +600,7 @@ export const CASE_EXAMPLES: Readonly<Record<string, PointPins>> = {
   ADESSIVE: {
     "Position on a surface": [
       { lemma: "söök", et: "Söök on laual.", form: "laual" },
-      { lemma: "diivan", et: "Eva oli diivanil röötsakil.", form: "diivanil" },
+      { lemma: "lamama", et: "Koer lamab põrandal.", form: "põrandal" },
     ],
     "Having something: the owner takes this ending": [
       { lemma: "oma", et: "Mul on oma maja.", form: "Mul" },
@@ -614,7 +614,7 @@ export const CASE_EXAMPLES: Readonly<Record<string, PointPins>> = {
   ABLATIVE: {
     "Coming off a surface": [
       { lemma: "korjama", et: "Korjasin peenralt lilli.", form: "peenralt" },
-      { lemma: "tramm", et: "Kopli tramm sõitis rööbastelt maha.", form: "rööbastelt" },
+      { lemma: "katus", et: "Antennipaigaldaja kukkus katuselt alla.", form: "katuselt" },
     ],
     "The person something is taken, bought or asked from": [
       { lemma: "paluma", et: "Pead vanematelt luba paluma.", form: "vanematelt" },
@@ -655,7 +655,7 @@ export const CASE_EXAMPLES: Readonly<Record<string, PointPins>> = {
       { lemma: "arhitekt", et: "Ema töötab arhitektina.", form: "arhitektina" },
     ],
     "A role or a capacity you are in for now": [
-      { lemma: "vallaline", et: "Marie suri vallalisena.", form: "vallalisena" },
+      { lemma: "kokk", et: "Ta töötab restoranis kokana.", form: "kokana" },
       { lemma: "terve", et: "Majaelanikud pääsesid põlengust tervena.", form: "tervena" },
     ],
   },
@@ -696,7 +696,7 @@ export const CASE_EXAMPLES: Readonly<Record<string, PointPins>> = {
   ELATIVE: {
     "Coming out of a place": [
       { lemma: "laev", et: "Laev väljub sadamast.", form: "sadamast" },
-      { lemma: "buss", et: "Me jäime bussist maha.", form: "bussist" },
+      { lemma: "garaaž", et: "Ajasin auto garaažist välja.", form: "garaažist" },
     ],
     "What something is made of": [
       { lemma: "oder", et: "Odrast saab karaskit.", form: "Odrast" },

@@ -126,10 +126,12 @@ describe("Estonian is a language of the public pages and of nothing else", () =>
     expect(signInHref("ru")).toBe("/sign-in?lang=ru");
   });
 
-  it("says on a legal page, in Estonian, that the English prevails, and that the page awaits a native reading", () => {
+  it("says on a legal page, in Estonian, that the English prevails, and keeps a notice for a page nobody has read", () => {
     expect(LEGAL_NOTICE.et).toMatch(/ingliskeelne tekst/);
     expect(LEGAL_NOTICE.et).not.toMatch(/[–—]/);
-    expect(ENTRY_COPY.et.reviewed).toBe(false);
+    // Read by the native speaker on 2026-10-25, so the notice stands down;
+    // it stays written for the day a page is drafted and not yet read.
+    expect(ENTRY_COPY.et.reviewed).toBe(true);
     expect(ENTRY_COPY.et.notice.length).toBeGreaterThan(20);
   });
 
