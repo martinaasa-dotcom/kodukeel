@@ -64,6 +64,7 @@ vi.mock("@/lib/usage/ledger", () => ({
     flags.settled.push({ micros: input.reservation ? input.reservation.micros : null });
   },
   releaseReservation: async () => { flags.released += 1; },
+  wouldAuthorise: async () => true,
 }));
 
 vi.mock("@/lib/dict/glossed", async (original) => {

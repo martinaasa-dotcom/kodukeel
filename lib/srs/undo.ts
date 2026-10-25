@@ -123,7 +123,9 @@ export async function undoGradeFor(ownerId: string, cardId: string, previous: un
   };
   const reproduces = recent.some((r) => {
     if (r.rating !== 1 && r.rating !== 2 && r.rating !== 3 && r.rating !== 4) return false;
-    return sameScheduling(grade(before, r.rating, r.reviewedAt), card);
+    // A forged snapshot can be a memory state the scheduler refuses outright,
+    // and a refusal is the answer here, not a server error.
+    try { return sameScheduling(grade(before, r.rating, r.reviewedAt), card); } catch { return false; }
   });
   if (!reproduces) {
     return { ok: false, reason: "invalid", error: "That answer can't be taken back any more." };
