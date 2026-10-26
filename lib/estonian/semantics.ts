@@ -242,6 +242,15 @@ export function isNumber(codes: readonly string[] | string | null | undefined): 
   return codesOf(codes).includes("esitus_arv");
 }
 
+/**
+ * A thing and never somebody: classified, and no code of it a being. Read by
+ * the sentence check, which takes `Siin olen menüü` for `Siin on menüü`
+ * because a thing cannot be "I", for the reason `isTime` is.
+ */
+export function isThing(codes: readonly string[] | string | null | undefined): boolean {
+  return semanticGroup(codes) === "THING";
+}
+
 /** True only where the dictionary says so, and says nothing against it. */
 export function isAnimate(codes: readonly string[] | string | null | undefined): boolean {
   return semanticGroup(codes) === "ANIMATE";

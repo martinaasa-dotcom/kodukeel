@@ -68,6 +68,19 @@ export function SentenceFindings({ findings }: { findings: readonly Finding[] })
         return fillNodes(t("After {after}, use the da-form: {right}, not {word}."), { after: et(f.after), right: et(f.right), word: et(f.word) });
       case "count":
         return fillNodes(t("After {after}, the word takes the {case}: {right}, not {word}."), { after: et(f.after), case: part, right: et(f.right), word: et(f.word) });
+      case "experiencer":
+        if (f.case === "ALLATIVE") {
+          return fillNodes(t("With {verb}, whoever likes it takes the -le ending: {right}, not {word}."), { verb: et(f.verb), right: et(f.right), word: et(f.word) });
+        }
+        return fillNodes(t("With {verb}, the person it is about takes the -l ending: {right}, not {word}."), { verb: et(f.verb), right: et(f.right), word: et(f.word) });
+      case "possessive":
+        return fillNodes(t("To say whose {noun} it is, use {right}, not {word}."), { noun: et(f.noun), right: et(f.right), word: et(f.word) });
+      case "governed":
+        return fillNodes(t("After {after}, the word takes the {case}: {right}, not {word}."), {
+          after: et(f.after), case: casePlainName({ key: f.case }, locale), right: et(f.right), word: et(f.word),
+        });
+      case "command":
+        return fillNodes(t("After {after}, use the command form: {right}, not {word}."), { after: et(f.after), right: et(f.right), word: et(f.word) });
       case "postposition":
         return fillNodes(t("Before {before}, the word takes the {case}: {right}, not {word}."), { before: et(f.before), case: gen, right: et(f.right), word: et(f.word) });
       case "object":

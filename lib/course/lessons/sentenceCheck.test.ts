@@ -38,7 +38,7 @@ describe("checkSentence", () => {
     ]);
   });
 
-  it("offers only the partitive where the verb's object is partitive, or the clause is negative", () => {
+  it("offers only the partitive after a verb of wanting, or where the clause is negative", () => {
     const wants = check("Ma soovin raamatukogukaart.");
     expect(wants).toHaveLength(1);
     expect(wants[0]).toMatchObject({ kind: "object", genitive: null, partitive: "raamatukogukaarti" });
@@ -191,6 +191,40 @@ describe("checkSentence", () => {
 
   it("keeps the learner's capital on a suggestion", () => {
     expect(check("Aitah!")).toEqual([{ kind: "spelling", word: "Aitah", suggestion: "Aitäh", diacritics: true }]);
+  });
+
+  it("finds who a feeling happens to, and whose a thing is, written as the subject", () => {
+    expect(check("Ma meeldib kohv.")).toEqual([{ kind: "experiencer", word: "Ma", verb: "meeldib", right: "Mulle", case: "ALLATIVE" }]);
+    expect(check("Ma valutab pea.")).toEqual([{ kind: "experiencer", word: "Ma", verb: "valutab", right: "Mul", case: "ADESSIVE" }]);
+    expect(check("Mina kass on suur.")).toEqual([{ kind: "possessive", word: "Mina", noun: "kass", right: "Minu" }]);
+    expect(check("Mul valutab pea.")).toEqual([]);
+  });
+
+  it("finds the case koos asks for, and the command after ära", () => {
+    expect(check("Ma lähen koos sõber.")).toEqual([{ kind: "governed", word: "sõber", after: "koos", right: "sõbraga", case: "COMITATIVE" }]);
+    expect(check("Ära tuled homme!")).toEqual([{ kind: "command", word: "tuled", after: "Ära", right: "tule" }]);
+  });
+
+  it("finds a thing as the subject with the verb saying I or you", () => {
+    expect(check("See olen hea mõte.")).toEqual([{ kind: "person", word: "olen", subject: "see", right: "on" }]);
+    expect(check("Meie naaber olen väga sõbralik.")).toEqual([{ kind: "person", word: "olen", subject: "naaber", right: "on" }]);
+    expect(check("Siin olen teie pilet.")).toEqual([{ kind: "person", word: "olen", subject: "pilet", right: "on" }]);
+    // A fronted predicate with the pronoun dropped, and a person after olema, are the speaker.
+    for (const text of ["See olen mina.", "Õpetaja olen juba kümme aastat.", "Siin olen õpetaja."]) expect(check(text), text).toEqual([]);
+  });
+
+  it("finds the endings a noun phrase, a count and a word of time ask for", () => {
+    expect(check("Me ostame uus raamatut.")).toEqual([{ kind: "agreement", word: "uus", noun: "raamatut", right: "uut" }]);
+    expect(check("Ma tulen järgmine nädalal.")).toEqual([{ kind: "agreement", word: "järgmine", noun: "nädalal", right: "järgmisel" }]);
+    expect(check("Kolm aasta juba.")).toEqual([{ kind: "count", word: "aasta", after: "Kolm", right: "aastat" }]);
+    expect(check("Ma tulen tund pärast.")).toEqual([{ kind: "postposition", word: "tund", before: "pärast", right: "tunni" }]);
+    // An adjective saying something about a clause: the partitive belongs to the infinitive.
+    expect(check("Oli kerge tööd leida.")).toEqual([]);
+  });
+
+  it("reads a second object joined by ja to one spelled alike in every case", () => {
+    expect(check("Ostsin kala ja kartul.")).toEqual([{ kind: "object", word: "kartul", verb: "Ostsin", partitive: "kartulit", genitive: "kartuli" }]);
+    expect(check("Ma kuulan muusika.")).toEqual([{ kind: "object", word: "muusika", verb: "kuulan", partitive: "muusikat", genitive: null }]);
   });
 
   it("counts the words it read", () => {

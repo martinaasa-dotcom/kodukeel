@@ -23,6 +23,7 @@
  *
  *   npm run measure:sentence-check              # both numbers, every false alarm
  *   npm run measure:sentence-check -- --missed  # and every broken sentence it let through
+ *   npm run measure:sentence-check -- --say "Ma meeldib kohv."  # one sentence, read as the server reads it
  *
  * The check reads exactly what the server hands it: the shipped dictionary,
  * which is what the seed loads, for the rows, and the forms list on disk for
@@ -38,7 +39,8 @@ import { isNumber } from "../lib/estonian/semantics";
 import { DA_ONLY_EXEMPT, DA_ONLY_VERBS } from "../lib/scenes/lexicon";
 import { couldBeCompound, headwordsOfExactForm, isExactForm, lemmasOfForm, spellingsNear } from "../lib/dict/forms";
 import {
-  ALWAYS_READ, GENITIVE_POSTPOSITIONS, caseTable, checkSentence, verbTable, type CheckEntry, type Finding,
+  ALSO_DA_ONLY, ALWAYS_READ, GENITIVE_POSTPOSITIONS, MA_ONLY_BUT_THIRD, MA_ONLY_VERBS, caseTable, checkSentence, verbTable,
+  type CheckEntry, type Finding,
 } from "../lib/course/lessons/sentenceCheck";
 
 async function main(): Promise<void> {
@@ -80,7 +82,7 @@ async function know(words: Iterable<string>): Promise<void> {
     const spellings = exactSet.has(word) || exactSet.has(word.slice(0, -2)) ? [] : await spellingsNear(word);
     if (spellings.length > 0) around.set(word, spellings);
     const near = [...new Set(spellings.flatMap((n) => n.lemmas))].slice(0, 12);
-    headwords.set(word, [...(await lemmasOfForm(word)).slice(0, 6), ...near]);
+    headwords.set(word, [...(await lemmasOfForm(word)).slice(0, 6), ...own.slice(0, 10), ...near]);
     if (near.length > 0 && (await couldBeCompound(word)) !== false) compounds.add(word);
   }
 }
@@ -103,6 +105,15 @@ function entriesFor(text: string): CheckEntry[] {
 }
 const check = (text: string): readonly Finding[] =>
   checkSentence(text, entriesFor(text), (w) => exactSet.has(w), "", { claims: (w) => owners.get(w), compound: (w) => compounds.has(w), near: (w) => around.get(w) }).findings;
+
+// `--say "Ma meeldib kohv."`: what the check makes of sentences typed here, read the way the server reads them.
+const say = process.argv.indexOf("--say");
+if (say >= 0) {
+  const typed = process.argv.slice(say + 1);
+  await know(typed.flatMap(spellings));
+  for (const text of typed) console.log(`${text}\n   ${check(text).map((f) => JSON.stringify(f)).join("\n   ") || "(nothing)"}`);
+  return;
+}
 
 // THE SENTENCES KNOWN TO BE RIGHT.
 const learner = new Set<string>();
@@ -175,12 +186,52 @@ for (const e of ENTRIES) {
   if (codes.includes("aeg_nädalapäev") || (codes.includes("aeg_kuu") && e.lemma.length > 3)) calendar.add(e.lemma);
 }
 const SUBJECT = /\b(ma|mina|sa|sina|me|meie|te|teie)\b/i;
+/*
+  Each pronoun's allative and adessive to the nominative a learner writes in
+  their place, short to short and long to long (`mulle` to `ma`, `minule` to
+  `mina`), and its genitive likewise (`minu` to `mina`), read off the rows.
+*/
+const EXPERIENCER_NOMINATIVE = new Map<string, string>();
+const ALLATIVE_FORMS = new Set<string>();
+const POSSESSIVE_NOMINATIVE = new Map<string, string>();
+for (const lemma of ["mina", "sina", "meie", "teie"]) {
+  const entry = byLemma.get(lemma)?.[0];
+  if (!entry) continue;
+  const of = (codes: string[]) => [...new Set((entry.extraForms ?? []).filter((f) => codes.includes(f.code)).map((f) => f.value.toLowerCase()))]
+    .sort((a, b) => a.length - b.length);
+  const noms = [...new Set([lemma, ...of(["SgN", "PlN"])])].sort((a, b) => a.length - b.length);
+  const pair = (forms: string[], into: Map<string, string>) => {
+    if (forms.length === 0 || noms.length === 0) return;
+    into.set(forms[0]!, noms[0]!);
+    into.set(forms[forms.length - 1]!, noms[noms.length - 1]!);
+  };
+  const alls = of(["SgAll", "PlAll"]);
+  for (const f of alls) ALLATIVE_FORMS.add(f);
+  pair(alls, EXPERIENCER_NOMINATIVE);
+  pair(of(["SgAd", "PlAd"]), EXPERIENCER_NOMINATIVE);
+  // `meie` and `teie` are their own genitive, so only the singulars can be put wrong.
+  if (lemma === "mina" || lemma === "sina") pair(of(["SgG"]), POSSESSIVE_NOMINATIVE);
+}
+for (const [form, nom] of EXPERIENCER_NOMINATIVE) if (ALLATIVE_FORMS.has(nom)) EXPERIENCER_NOMINATIVE.delete(form);
 const OWNERS: Record<string, string> = { mul: "olen", sul: "oled", meil: "oleme", teil: "olete" };
 
 /** The one headword the forms list says owns this spelling, or null. */
+const formsByLemma = new Map<string, string[]>();
+for (const [form, readings] of nounForms) for (const r of readings) formsByLemma.set(r.lemma, [...(formsByLemma.get(r.lemma) ?? []), form]);
 const ownedBy = (word: string): string | null => {
   const own = owners.get(word);
-  return own && own.length === 1 ? own[0]! : null;
+  if (!own || own.length === 0) return null;
+  if (own.length === 1) return own[0]!;
+  /*
+    The list files some of a word's own forms as headwords of their own
+    (`suur` is claimed by `suurelt` and `suurt`): one headword whose forms
+    hold every other claim is still that one word.
+  */
+  const formsOf = (lemma: string) => new Set([lemma, ...(formsByLemma.get(lemma) ?? []), ...(tableOf.get(lemma)?.values() ?? [])]);
+  const heads = own.filter((l) => byLemma.has(l));
+  if (heads.length !== 1) return null;
+  const mine = formsOf(heads[0]!);
+  return own.every((l) => l === heads[0] || mine.has(l.toLowerCase())) ? heads[0]! : null;
 };
 /** The one reading a spelling has as a nominal, where the forms list and the rows agree on it. */
 const nounOf = (word: string): NounForm | null => {
@@ -277,6 +328,48 @@ for (const text of learner) {
     if (noun?.pos === "NOUN" && !noun.plural && noun.key !== "NOMINATIVE" && prev === "ja" && i >= 2 && i === low.length - 1) {
       const other = nounOf(low[i - 2]!);
       if (other?.pos === "NOUN" && other.key === noun.key && !other.plural) add("pair", i, nomOf.get(noun.lemma)?.sg);
+    }
+    // The person a feeling happens to, written as the one who does it: `mulle meeldib` as `ma meeldib`.
+    if (next !== undefined && EXPERIENCER_NOMINATIVE.has(word)) {
+      const verb = verbReadings(next)[0];
+      const after = low[i + 2];
+      if (verb && (verb.lemma === "meeldima" || verb.lemma === "valutama" || (verb.lemma === "olema" && next === "on" && after === "vaja"))
+        && /Sg3$/.test(verb.code) && (verb.lemma === "meeldima") === ALLATIVE_FORMS.has(word)) {
+        add("experiencer", i, EXPERIENCER_NOMINATIVE.get(word));
+      }
+    }
+    // A pronoun saying whose, written as the subject: `minu kass on` as `mina kass on`.
+    if (next !== undefined && POSSESSIVE_NOMINATIVE.has(word) && nounOf(next)?.pos === "NOUN" && nounOf(next)?.key === "NOMINATIVE") {
+      const verbAt = low.findIndex((w, j) => j > i + 1 && verbReadings(w).some((r) => /Sg3$|Pl3$/.test(r.code)));
+      if (verbAt === i + 2) add("possessive", i, POSSESSIVE_NOMINATIVE.get(word));
+    }
+    // `koos` and what it governs.
+    if (prev === "koos" && noun?.pos === "NOUN" && noun.key === "COMITATIVE" && !noun.plural) add("governed", i, nomOf.get(noun.lemma)?.sg);
+    // `palju` and `vähe` before a plural, put back in the plain form.
+    if ((prev === "palju" || prev === "vähe") && noun?.pos === "NOUN" && noun.key === "PARTITIVE" && noun.plural) add("count", i, nomOf.get(noun.lemma)?.pl);
+    // An adjective in the plural before a plural noun, put in the singular.
+    if (noun?.pos === "ADJECTIVE" && noun.key === "NOMINATIVE" && noun.plural && next !== undefined) {
+      const head = nounOf(next);
+      if (head?.pos === "NOUN" && head.key === "NOMINATIVE" && head.plural) add("agreement", i, nomOf.get(noun.lemma)?.sg);
+    }
+    // The da-infinitive after the wider list of verbs that take it, and after `vaja`.
+    if (v?.code === "Inf" && prev !== undefined) {
+      const finite = verbReadings(prev)[0];
+      if ((finite && (ALSO_DA_ONLY as readonly string[]).includes(finite.lemma) && /^(IndPr|IndIpf|KndPr)/.test(finite.code)) || (prev === "vaja" && v.lemma !== "minema")) {
+        add("infinitive", i, tableOf.get(v.lemma)!.get("Sup"));
+      }
+    }
+    // The ma-infinitive after the wider list of verbs that take it.
+    if (v?.code === "Sup" && prev !== undefined) {
+      const finite = verbReadings(prev)[0];
+      const ma = finite && (MA_ONLY_VERBS as readonly string[]).includes(finite.lemma) && finite.lemma !== "pidama" && finite.lemma !== "hakkama"
+        && /^(IndPr|IndIpf|KndPr)/.test(finite.code) && !(MA_ONLY_BUT_THIRD.has(finite.lemma) && /Sg3$/.test(finite.code));
+      if (ma) add("infinitive", i, tableOf.get(v.lemma)!.get("Inf"));
+    }
+    // A command after `ära` or `ärge`, put in a person.
+    if ((prev === "ära" || prev === "ärge") && i === 1 && v) {
+      const code = prev === "ära" ? "ImpPrSg2" : "ImpPrPl2";
+      if (verbs.some((r) => r.code === code)) add("command", i, tableOf.get(v.lemma)!.get(prev === "ära" ? "IndPrSg2" : "IndPrPl2"));
     }
     // A day or a month with a capital.
     if (i > 0 && calendar.has(ownedBy(word) ?? "") && word === matches[i]![0]) add("lowercase", i, word.charAt(0).toLocaleUpperCase("et") + word.slice(1));

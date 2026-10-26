@@ -11,6 +11,9 @@ const MAX_WORDS = 40;
 /** Headwords taken per spelling. A spelling claimed by more is a common short word, and the first few are enough. */
 const HEADWORDS_PER_WORD = 6;
 
+/** Headwords read per spelling that owns it exactly, the homographs a rule must see before it corrects anything. */
+const OWNERS_PER_WORD = 10;
+
 /** Headwords read for the words one slip from a spelling that is no word, so the one meant can be offered off its row. */
 const HEADWORDS_NEAR = 12;
 
@@ -68,7 +71,10 @@ export async function checkTypedSentence(text: string, sample: string): Promise<
     the course teaches whole is stored as it is said (`Palun`), and `palun`
     has to be read as that phrase rather than as "I ask".
   */
-  const lemmas = new Set<string>([...ALWAYS_READ, ...read.flatMap((r) => [r.word, ...r.headwords]), ...near.flat()]);
+  // Every headword that owns a spelling exactly is read too, so a homograph the check must not correct is in hand.
+  const lemmas = new Set<string>([
+    ...ALWAYS_READ, ...read.flatMap((r) => [r.word, ...r.headwords, ...r.owners.slice(0, OWNERS_PER_WORD)]), ...near.flat(),
+  ]);
   const asked = [...lemmas].flatMap((l) => [l, l.charAt(0).toLocaleUpperCase("et") + l.slice(1)]);
   const rows = await prisma.lexeme.findMany({
     where: { lemma: { in: asked }, ...VOUCHED_ROW },
