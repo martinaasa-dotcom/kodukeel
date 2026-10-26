@@ -577,3 +577,216 @@ voices the app has, form names with their agreed hint) is asked of every level t
    Estonian to read, the voice lines to record and the Russian and Ukrainian to check are one file
    each (`docs/44-language-reviews.md` is A1 and A2's). The recordings stop at A1's lesson 13, and a
    man's part plays the native voice only where every line of it is recorded.
+
+## 11. B1 and B2 as lessons: the measurement, and the plan (for approval)
+
+Written on 2026-10-26. Nothing in this section is built. It is §10's first two steps for B1 and B2:
+what the two levels assume, measured against the lessons a learner actually has, and a plan part by
+part for the operator to approve before any code is written, as §4 and §9 were.
+
+### 11.0 What the operator has already decided
+
+| # | Question | Decision |
+| --- | --- | --- |
+| B-L1 | Writing or speaking as the main step? | **Speaking.** Talk is the main step of every B evening, on by default, with "Type it instead tonight" beside it as at A1 and A2. Writing is not a step on every evening: two or three evenings of a part build toward the part's one real text, and the part ends by writing it. |
+| B-L2 | How long is an evening? | **As long as its goal needs.** The step list says how long the evening is; nothing holds a B lesson to fifteen minutes. |
+| B-L3 | May the learner's own sentences become review cards? | **Yes, with no opt-in.** They are the learner's, in their own deck, and nobody else sees them (11.2, "Your sentences"). |
+
+### 11.1 The measurement
+
+Read on 2026-10-26 off `ledgerThrough` of `a2-55-end`, the last A2 lesson, against
+`lib/collections/syllabus/`, `lib/collections/frequency.ts`, the shipped dictionary
+(`scripts/lib/dictionary.ts`) and the scene catalog. The script was a one-off and is to be committed
+with the build (11.6, step 1), so the figures can be read again rather than trusted.
+
+**What the lessons have taught by the end of A2.** 122 lessons, 769 headwords, 3,419 spellings, and
+twelve patterns: the present, the negative, the imperative, the inside and outside cases, the
+comitative, the past, the abessive, the terminative, the conditional, the essive and the translative.
+The reference pages read count as explained: the genitive, gradation, the -nud form and the perfect,
+the two infinitives, time expressions, numerals, politeness, the comparative, the superlative and the
+future.
+
+**The old B1 assumed everything the old A1 and A2 units taught, and 416 of those 1,002 words no
+lesson teaches.** The lessons are leaner than the units by design: a lesson teaches what its goal
+needs. What that leaves out is uneven. Some of it should wait or never come (`sink`, `taskurätik`,
+`ratsutama`), and a lot of it is what a B1 sentence is made of. **73 of the 416 are among the 400
+commonest words in Estonian**: `koht`, `osa`, `oluline`, `võimalik`, `terve`, `tunduma`, `kohtuma`,
+`lubama`, `paluma`, `kandma`, `hoidma`, `toimuma`, `ise`, `üle`, `läbi`, `ümber`, `ju`, `üldse`,
+`tegelikult`, `ehk`, `ning`, `kuna`, `ega`, `sellepärast`, `koer`, `keha`, `nägu`, `lugu`, `maailm`.
+
+**136 of the 400 commonest words are untaught after A2**, and only 17 of them sit in a B1 or B2 unit.
+The rest are either the glue above or subtitle vocabulary (`kolonel`, `relv`, `kurat`) that no level
+should hurry.
+
+**B1's and B2's own words are nearly all new.** B1's fifteen units name 228 words and the lessons
+have taught 34 of them; B2's sixteen name 233 and the lessons have taught 2. That is right, since
+those are the words B1 and B2 exist to teach, and it means every one of them arrives through a
+lesson's own conversation rather than being assumed.
+
+**Grammar.** Of B1's twenty grammar points, nine are already explained (the partitive, the genitive,
+the comitative, the allative, politeness, the elative, the perfect, the inessive). What B1 has to
+explain is the **object rule and aspect, verb government, the -tud participle, the impersonal, the
+pluperfect, the conditional as a whole tense, adjective agreement, derivation, subordinate and
+relative clauses, and particle verbs**. B2 adds the **quotative and reported speech, the converb
+(`tehes`), nominalization, concession and hedging**, and returns to the impersonal and the
+pluperfect at length.
+
+**Recorded sentences a B learner can read are almost none.** Every B1 word has a sentence a
+lexicographer recorded, and for **35 of the 228** one of them is made only of words taught by the
+end of A2 (36 of 877 sentences). At B2 it is **11 of 233** (12 of 804). The single blocking words are
+scattered (`endale`, `sõpru`, `üle`, `läbi`, `avalik`), so no one lesson unblocks them. This decides
+where B practice comes from: the lessons' own lines (ADR-005 amendment 6) and the learner's own
+sentences, with the dictionary's sentences arriving later as reading (11.5, B-D1).
+
+**The situations.** 38 catalog conversations open on a B1 or B2 unit today, and between 56 and 76
+percent of the words their declared units name are taught by the end of A2. Each part's lesson scene
+is built from that part's ledger, as A2's are, and the catalog conversations stay in Situations.
+
+### 11.2 What a B lesson is
+
+The same six steps, so B1 reads as the same course. What happens inside them changes, because at B
+level the learner has the words and lacks the speed and accuracy of putting them together.
+
+| # | Step | What changes at B level |
+| --- | --- | --- |
+| 1 | **Listen** | A longer exchange, eight to fourteen lines, or a short text a person meets: a notice in the stairwell, an email, a news item read aloud. |
+| 2 | **Words** | The table gains what each verb asks for (`aitama` + whom, `huvituma` + from what), because at B1 a verb is learned with its case or not learned. |
+| 3 | **How it works** | One pattern, shown as a change to a sentence the learner already says: `Ma lugesin raamatut` and `Ma lugesin raamatu läbi`, side by side, with what the change does. |
+| 4 | **Practice** | Rework, then Fix (below). A little recognition first, never a whole step of picking out of four. |
+| 5 | **Talk** | The main event (below). |
+| 6 | **Review** | As now, with the learner's own sentences among the cards. |
+
+On a part's writing evenings a **Write** step sits between Practice and Talk.
+
+**Rework: change a sentence, don't choose one.** B grammar is about turning one sentence into
+another, so the drill is the turning. A line from the evening's conversation and an instruction in
+English: "say it without naming who did it" (`Ehitajad parandasid katuse` to `Katus parandati`),
+"Mari told you this, pass it on" (`Ta on haige` to `Ta olevat haige`), "say he finished it", "say
+it had already happened", "join the two with `mis`", "say it to your boss". The target is a lesson
+line the native speaker read, with the other ways of saying it that the native speaker accepts listed
+beside it; anything else is compared against forms the dictionary vouches for, so the marking is
+mechanical and no model grades. Each instruction is a pattern in the ledger, so no lesson asks for a
+change it has not explained.
+
+**Fix: your own mix-ups, put right.** `Review.reachedSlot` and `lib/stats/confusions.ts` already
+know which two forms a learner confuses. From B1 on, two or three Practice items are a lesson line
+with one word swapped for the form this learner keeps reaching for, and the learner corrects it. The
+swapped word is always a real dictionary form of the same word, so nothing on the screen is Estonian
+the app wrote wrongly on purpose: the sentence is a native-read line and the slip is a spelling
+Ekilex records. Where the learner has no confusion on record, the item draws on the commonest one for
+the evening's pattern.
+
+**Talk: longer than one line.** Three exercises on the on-device recognizer, each marking what was
+understood and never how it sounded (ADR-018, ADR-028):
+
+- **Retell it.** A short story is heard twice and retold aloud. A checklist under it lights up as its
+  points and the evening's forms are heard ("you said `oli tehtud`", "you mentioned the fire"). It is
+  the dictogloss done aloud, and it is the B1 exam's own move.
+- **Again, faster.** The same short answer three times, in 90, 60 and 45 seconds. The screen shows
+  the three side by side, how many words came across and how long the pauses were, so a learner sees
+  their own fluency move inside one evening. There is no score.
+- **Say along, then alone.** The evening's key lines said with the screen. On each pass more words
+  are hidden, the endings that carry the evening's grammar first, until the line is said with nothing
+  on screen.
+
+A part's last lesson ends on a **role-play with something at stake**, at the level's pitch: the
+landlord keeping the deposit, a colleague disagreeing, a clerk wanting a paper you haven't got. The
+curveballs and the difficulty dial already exist; at B level the default is one curveball.
+
+**Write: one real text a part.** Each part names the text a person at this level has to write, and
+three of its evenings build it:
+
+1. **Read the model**, a native-read text that does the job.
+2. **Fill in the frame**: the same text with the evening's grammar taken out, written back in.
+3. **Write your own**: the same situation with the learner's details, using two or three of the
+   part's patterns.
+4. **The marking.** The dictionary first: was each pattern used, and is each required form a
+   spelling Ekilex vouches for (`checkForm`, `acceptedUses`). Then the grader says whether the text
+   holds together, behind `verify.ts`, which withholds any comment carrying a form it was not given.
+   A deployment with no model key gets the dictionary's half and says so.
+5. **Redraft**: the learner rewrites with the comments beside them, and both versions stay side by side.
+
+The genres follow the exam (`lib/exam/spec.ts`): at B1 a `teade` (a note that has to get something
+done), an `isiklik kiri` and a `jutt`; at B2 a `poolametlik kiri`, a `mitteametlik kiri` and a
+`kokkuvõte` with a comment of your own.
+
+**Your sentences become review cards.** Where a learner wrote a form correctly and the dictionary
+vouches for that spelling, the sentence is kept and comes back in review with that word gapped and
+its headword as the cue: `Ma kolisin eelmisel aastal ____, sest mu naine sai seal tööd.` (Tartu).
+The sentence is the learner's and the form is the dictionary's, so ADR-005 holds; only a word they
+wrote right is ever gapped; and the cards sit in their own deck, in the export and in the erasure.
+This is also the answer to 11.1's shortage: a learner who writes ten sentences a part has ten
+readable sentences of their own for every one the dictionary could offer.
+
+### 11.3 What the ledger has to learn
+
+New patterns, each explained once and then usable by every later lesson:
+
+- `object`: the whole object or some of it, with aspect, on taught verbs.
+- `governs`: a verb taught with the case it wants (`aitama` + partitive), as a new kind of taught
+  item beside `verb`, so a later line may use the case on that verb and no other.
+- `tudForm`: the -tud participle, as an adjective (`remonditud korter`) and in the passive perfect.
+- `impersonal`: `tehakse`, `tehti`, and later `on tehtud`.
+- `pluperfect`: `olin teinud`.
+- `relative`: `mis` and `kes` in their cases (`mida`, `millest`, `kellega`).
+- `particleVerb`: `ära`, `läbi`, `kinni`, `maha` with a taught verb, tied to aspect.
+- B2: `quotative` (`olevat`, `tegevat`), `converb` (`tehes`), and `nominal` (the -mine and -us nouns).
+
+And **a transformation is a taught thing**: Rework may only ask "pass it on" once `quotative` has been
+explained. The ledger check walks the instructions as it walks the lines.
+
+### 11.4 B1, part by part (for approval)
+
+Seven parts, about fifty-five core lessons and a handful of lettered word lessons, like A2. Every
+part weaves in the glue words of 11.1 where its conversations need them, five or so an evening, so
+the 73 common words arrive without a part spent on a list.
+
+| Part | What it teaches | The text it writes | Ends in |
+| --- | --- | --- | --- |
+| `b1-objekt` The whole thing or some of it | the object rule and aspect, on doing and finishing at home and at work | a note to the handyman: what's done, what isn't | the repair visit |
+| `b1-rektsioon` What each verb asks for | government, the people in your life, relations and favors | a reply to an invitation, with a favor asked | a new colleague |
+| `b1-raha` Work and money | the conditional as a whole tense, requests and offers, the translative and essive in use (`töötan õpetajana`) | an email asking to change your hours | talking about your pay |
+| `b1-kodu` Renting | the -tud participle as an adjective, describing a flat, rules and contracts | a complaint to the landlord | getting your deposit back |
+| `b1-uudised` What happened, not who did it | the impersonal, present and past, and the pluperfect, on the news and the workplace | a short report of what happened | the residents' meeting |
+| `b1-arvamus` What you think and why | subordinate and relative clauses, agreeing and disagreeing, technology and the environment | a forum post with your opinion | a meeting where you disagree |
+| `b1-asjaajamine` Getting things done | particle verbs and aspect again, offices, forms and problems | a formal application (`avaldus`) | the B1 speaking exam, practiced |
+
+### 11.5 B2, part by part (for approval)
+
+Six parts, about forty-five core lessons. B2 is register: every part shows one thing said the spoken
+way and the written way side by side.
+
+| Part | What it teaches | The text it writes | Ends in |
+| --- | --- | --- | --- |
+| `b2-umbisikuline` Without a name | the impersonal at length, society and services | a public notice | the citizens' services office |
+| `b2-kaudne` What people say | the quotative and reported speech, the economy | a summary of what somebody told you | passing on news you heard |
+| `b2-des` Two things at once | the converb, how things are done, processes | instructions for a process | explaining your job to a newcomer |
+| `b2-sonad` Building words | derivation, nominalization, the formal register | a semiformal letter | a formal phone call |
+| `b2-ajalugu` Before that | the pluperfect and the participles in narrative, history and politics | a story told in the past | two minutes on a topic, the long turn |
+| `b2-argument` Making a case | concession, hedging, figures and statistics | a summary of a table with your comment | the B2 speaking exam, practiced |
+
+### 11.6 The build, after approval
+
+Each phase is its own pull request, none before the one above is merged, and every new line is read
+by the native speaker (ADR-005 amendment 6).
+
+1. **The engine.** Commit the measurement as a script; the new practice kinds in
+   `lib/course/lessons/practice.ts` (rework, fix, frame, retell, again-faster, say-along); Write as a
+   step; own sentences as review cards; the ledger patterns of 11.3. Unit tested, no B1 content yet.
+2. **`b1-objekt`**, behind the reviewers' flag, played by hand once end to end.
+3. **The other six B1 parts**, one pull request each, each with its lesson scene played keyless by
+   `lessonScenes.test.ts`.
+4. **B1 becomes the course**: the old B1 parts go with their day ids (the A1 and A2 precedent), the
+   reference pages B1 explains join `LESSON_PAGES`, `npm run check:authored` is run again, and the
+   translations are done.
+5. **B2**, the same way.
+
+### 11.7 Open questions for the operator
+
+| # | Question | Recommendation |
+| --- | --- | --- |
+| B-D1 | **Real Estonian at B2.** The skill B2 measures is reading text nobody simplified, and the ledger refuses any untaught word. Allow a reading step, from `b2-sonad` on, of a recorded sentence or a headline with untaught words underlined to their dictionary entries? | Yes, from `b2-sonad`, marked as a stretch, and never asked about: it is read, not tested. |
+| B-D2 | **The size of B1.** Seven parts and about fifty-five lessons, the same as A2? | Yes. B1 is the longest level in hours for an English speaker, and fifty-five lessons matches A2. |
+| B-D3 | **The native speaker's reading.** B1 is about 800 new lines and the model texts, at the A2 rate. | Read part by part, one pull request each, as A2 was. |
+| B-D4 | **Writing with no model key.** The dictionary half still marks the forms and the patterns. | Ship it that way, with the screen saying the comments on the whole text need a model. |
+| B-D5 | **People on the old B1 and B2.** | They restart the level at its first lesson, keeping every card and review, which is the A1 and A2 precedent. |
