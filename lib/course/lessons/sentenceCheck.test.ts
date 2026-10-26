@@ -77,7 +77,7 @@ describe("checkSentence", () => {
   });
 
   it("finds the ma-infinitive after a verb that takes the da-infinitive", () => {
-    expect(check("Ma tahan ostma kohvi.")).toEqual([{ kind: "infinitive", word: "ostma", after: "tahan", right: "osta" }]);
+    expect(check("Ma tahan ostma kohvi.")).toEqual([{ kind: "infinitive", word: "ostma", after: "tahan", right: "osta", form: "da" }]);
   });
 
   it("finds a misspelling and offers the word meant", () => {
@@ -116,6 +116,77 @@ describe("checkSentence", () => {
     ]) {
       expect(check(text), text).toEqual([]);
     }
+  });
+
+  it("reads a verb's person in the past as well as the present", () => {
+    expect(check("Ta lugesin raamatut.")).toEqual([{ kind: "person", word: "lugesin", subject: "ta", right: "luges" }]);
+    expect(check("Sa lähen homme.")).toEqual([{ kind: "person", word: "lähen", subject: "sa", right: "lähed" }]);
+  });
+
+  it("finds a person ending after ei in any tense, and on olema", () => {
+    expect(check("Ma ei lugesin raamatut.")).toEqual([{ kind: "negative", word: "lugesin", right: "lugenud" }]);
+    expect(check("Ma ei on kodus.")).toEqual([{ kind: "negative", word: "on", right: "ole" }]);
+  });
+
+  it("finds who has something read as who is something", () => {
+    expect(check("Mul olen auto.")).toEqual([{ kind: "have", word: "olen", owner: "mul", right: "on" }]);
+  });
+
+  it("finds the da-infinitive after a verb that takes the ma-infinitive", () => {
+    expect(check("Ma pean minna koju.")).toEqual([{ kind: "infinitive", word: "minna", after: "pean", right: "minema", form: "ma" }]);
+    expect(check("Ta tahab sõitma Tartusse.")).toEqual([{ kind: "infinitive", word: "sõitma", after: "tahab", right: "sõita", form: "da" }]);
+  });
+
+  it("finds an adjective left plain before a noun with an ending, and a counted plural", () => {
+    expect(check("Ma elan suur majas.")).toEqual([{ kind: "agreement", word: "suur", noun: "majas", right: "suures" }]);
+    expect(check("Ma ostsin kaks raamatud.")).toEqual([{ kind: "count", word: "raamatud", after: "kaks", right: "raamatut" }]);
+  });
+
+  it("finds a noun joined by ja left without the ending of the one before", () => {
+    expect(check("Mina koristan elutoa ja köök.")).toEqual([{ kind: "pair", word: "köök", with: "elutoa", right: "köögi" }]);
+  });
+
+  it("reads a plain form spelled like the genitive where only the partitive can be the object or counted", () => {
+    expect(check("Ma ei näe proosa.")).toEqual([{ kind: "object", word: "proosa", verb: "näe", partitive: "proosat", genitive: null }]);
+    expect(check("Kokku kolm euro.")).toEqual([{ kind: "count", word: "euro", after: "kolm", right: "eurot" }]);
+  });
+
+  it("finds a weekday written with a capital", () => {
+    expect(check("Me kohtume Esmaspäeval.")).toEqual([{ kind: "lowercase", word: "Esmaspäeval", right: "esmaspäeval" }]);
+  });
+
+  it("says nothing where the rule's own guards hold", () => {
+    for (const text of [
+      // Two people coming, one of them me.
+      "Mari ja mina tuleme homme.",
+      // The negative past, and an adjective that agrees.
+      "Ma ei olnud kodus.",
+      "Me elame ilusas linnas.",
+      // `olid` is "they were" too, and a plural is what this person has.
+      "Tal olid head kavatsused.",
+      // `viis` is five and "took".
+      "Talumees viis lehmad tapale.",
+      // Two pronouns, and the check cannot tell whose verb it is.
+      "Kust te ta leidsite?",
+      // A clitic on a word is the word.
+      "Ta ei töötagi kusagil.",
+      // An address is not Estonian.
+      "Vaata seljakotirandur.com lehte.",
+      // Both places in one case, and a genitive saying whose.
+      "Ma käisin poes ja raamatukogus.",
+      "Ma ei oota proosa lugemist.",
+      // A genitive object of a verb Ekilex records with `mida` alone, and a number before a number.
+      "Lükkasin kaardi automaadi pilusse.",
+      "Kakskümmend üheksa!",
+      // `ära` here is the particle of the verb, not "don't".
+      "Tahan võla ära õiendada.",
+    ]) {
+      expect(check(text), text).toEqual([]);
+    }
+  });
+
+  it("only speaks about spelling where it can name the word meant", () => {
+    expect(check("Ma joon qwrtzk.")).toEqual([]);
   });
 
   it("keeps the learner's capital on a suggestion", () => {

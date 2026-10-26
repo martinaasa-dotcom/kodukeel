@@ -34,4 +34,14 @@ describe("checkTypedSentence", () => {
       { kind: "spelling", word: "raamatukogukart", suggestion: "raamatukogukaart", diacritics: false },
     ]);
   });
+
+  it("asks the forms list who else spells a word, and names no compound a slip", async () => {
+    // `kandis` is "in the area" as well as "carried", so a pronoun beside it says nothing about its person.
+    expect((await checkTypedSentence("Meie kandis kasvatatakse kartulit.", "")).findings).toEqual([]);
+    // A compound nobody listed is not a slip of the hand.
+    expect((await checkTypedSentence("Lehmasitt.", "")).findings).toEqual([]);
+    expect((await checkTypedSentence("Ma ei lugesin raamatut.", "")).findings).toEqual([
+      { kind: "negative", word: "lugesin", right: "lugenud" },
+    ]);
+  });
 });

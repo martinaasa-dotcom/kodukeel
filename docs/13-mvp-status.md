@@ -3926,23 +3926,43 @@ without a paid model. `lib/course/lessons/sentenceCheck.ts` is the judgment and 
 the sentence; `checkLessonSentence` in `app/actions.ts` is the door, throttled, storing and grading
 nothing; `components/course/SentenceFindings.tsx` is the panel under the card.
 
-**Eight things, each drawn to miss rather than to fire.** A spelling no word has, with the word meant
-where folding the diacritics or one letter finds it (the sample breaks a tie). A verb in another
-person than its one subject pronoun. A person ending after `ei`. The ma-infinitive straight after a
-subject pronoun. The ma-infinitive after a verb that only takes the da-infinitive (`DA_ONLY_VERBS`,
-the gate's list). A noun in its plain form after a number above one or a word of quantity, which
-takes the osastav. A noun in its plain form before a postposition that takes the omastav. And an
-object left in its plain form in a clause whose subject is I, you or we: offered as the osastav, and
-the omastav too where the verb's recorded government names one and nothing negates the clause, or
-said to need an ending, and not which, where the verb records no object. Every form a finding offers
-is read off a dictionary row (ADR-005); the forms list only says whether a spelling exists.
+**Twelve things, each drawn to miss rather than to fire.** A spelling no word has, offered the word
+meant only where it is the one Estonian spelling that close: a mark left off or put on the wrong letter
+keeps every mark the learner did type (`soön` is `söön`, not `soon`), and a word one letter from two
+words (`tulmast`, `tulemast` or `tulvast`) is left alone. A day or a month with a capital. A verb in
+another person than its one subject pronoun, in the present, the past and the conditional. A person
+ending after `ei` in any tense (`ei lugesin` is `ei lugenud`, `ei on` is `ei ole`). `olema` after
+`mul` in a person other than the third (`mul olen`). The ma-infinitive straight after a subject
+pronoun. The wrong infinitive both ways round, after the da-only verbs and after `pidama` and
+`hakkama`. An adjective left plain before a noun with an ending, closing a clause a verb opened (`elan
+suur majas`). A noun joined by `ja` without the ending of the noun before it (`elutoa ja köök`). A
+noun after a number above one in its plain form, its genitive or its nominative plural (`kolm euro`,
+`kaks raamatud`). A noun in its plain form before a postposition that takes the omastav. And an object
+left in its plain form in a clause whose subject is I, you or we, or in the genitive in a negated
+clause. Every form a finding offers is read off a dictionary row (ADR-005); the forms list says
+whether a spelling exists, which headwords own it, which spellings are one slip away and whether an
+unlisted word could be a compound, and decides nothing on its own.
 
-**Measured, and the number to keep is the first one.** `npm run measure:sentence-check` runs it over
-every lesson line and every usage in the shipped dictionary, 16,843 sentences known to be correct:
-nought flagged. The first runs flagged 17, and each became a guard: a spelling that is another word in
-another case (`maal`, `last`, `mulle`), a numeral, a word of time, `kell` and `kord`, a command, a
-second clause after `ja`, a pronoun after `kui`, a quoted word, a postposition used as an adverb
-(`vesi sees`). Broken on purpose, the lessons' own sentences are caught 89 times in 128 where a verb
-is moved into another person, and 94 in 346 where a partitive or genitive is put back in its plain
-form, most of which are not objects at all. A clean result says "No mistakes found in your spelling
-or your endings", which is what it checked; word order and meaning are outside it.
+**A rule corrects a word only where nothing else in the language is spelled that way.**
+`CheckReads.claims` is every headword the forms list says owns an exact spelling, so `Meie kandis
+kasvatatakse kartulit` is "in our area" rather than the verb in the wrong person, `viis` the verb is
+never a number, and `Tal olid kavatsused` is never told it means "you were". A spelling the list
+does not hold is not therefore wrong, since Estonian builds compounds and participles nobody has
+listed, so a word that splits into two the list holds (`lehmasitt`), a word ending the way those are
+built (`askeldamist`, `tundvad`), a word after a name (`Helianthus annuus`) and an address are left
+alone, and a clitic `-gi` or `-ki` is read off the word under it.
+
+**Measured both ways, and the number to keep is the first one.** `npm run measure:sentence-check`
+runs it over every lesson line, every sentence written for a beginner, every scene line and every
+usage in the shipped dictionary, 18,389 sentences known to be correct, reading the forms list on disk
+exactly as the server does: nought flagged, beside one quoted line of dialect, which it is right
+about. Every guard above was a false alarm a run printed, and the runs before them flagged up to 716.
+Then it breaks the 2,798 learner-sized sentences one way at a time, the ways a learner breaks them,
+and counts what is caught and whether the form offered is the word that was there: 2,629 of 3,938
+caught, and 2 offered a form other than the original, both the partitive where a genitive stood,
+which is still Estonian. Every rule catches at least half of what it is for and most catch nearly
+all: the dictionary form as a verb 542 of 543, the negative 53 of 53, `mul olen` 159 of 159, a
+dropped mark 852 of 1,102, a verb's person 696 of 899. A slip of one letter is caught 203 times in
+1,027, because a word one letter from two others is not one it can name. A clean result says "No
+mistakes found in your spelling or your endings", which is what it checked; word order and meaning
+are outside it.

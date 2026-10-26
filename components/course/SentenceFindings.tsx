@@ -45,12 +45,26 @@ export function SentenceFindings({ findings }: { findings: readonly Finding[] })
         if (f.suggestion) return fillNodes(t("{word} isn't a word the dictionary knows. Did you mean {right}?"), { word: et(f.word), right: et(f.suggestion) });
         return fillNodes(t("{word} isn't a word the dictionary knows."), { word: et(f.word) });
       case "person":
+        if (f.have) {
+          return fillNodes(t("With {subject}, the verb is {right}, not {word}. If you meant that somebody has something, whoever has it takes the -l ending."), {
+            subject: et(f.subject), right: et(f.right), word: et(f.word),
+          });
+        }
         return fillNodes(t("With {subject}, the verb is {right}, not {word}."), { subject: et(f.subject), right: et(f.right), word: et(f.word) });
+      case "have":
+        return fillNodes(t("{owner} says who has something, and then the verb is {right}, not {word}."), { owner: et(f.owner), right: et(f.right), word: et(f.word) });
+      case "agreement":
+        return fillNodes(t("{word} describes {noun} and takes the same ending: {right}, not {word}."), { word: et(f.word), noun: et(f.noun), right: et(f.right) });
+      case "pair":
+        return fillNodes(t("{word} is joined to {with} and takes the same ending: {right}, not {word}."), { word: et(f.word), with: et(f.with), right: et(f.right) });
+      case "lowercase":
+        return fillNodes(t("Days and months are written small in Estonian: {right}, not {word}."), { right: et(f.right), word: et(f.word) });
       case "negative":
         return fillNodes(t("After ei, the verb has no person ending: {right}, not {word}."), { right: et(f.right), word: et(f.word) });
       case "dictionaryForm":
         return fillNodes(t("{word} is the dictionary form. With {subject}, say {right}."), { word: et(f.word), subject: et(f.subject), right: et(f.right) });
       case "infinitive":
+        if (f.form === "ma") return fillNodes(t("After {after}, use the ma-form: {right}, not {word}."), { after: et(f.after), right: et(f.right), word: et(f.word) });
         return fillNodes(t("After {after}, use the da-form: {right}, not {word}."), { after: et(f.after), right: et(f.right), word: et(f.word) });
       case "count":
         return fillNodes(t("After {after}, the word takes the {case}: {right}, not {word}."), { after: et(f.after), case: part, right: et(f.right), word: et(f.word) });
