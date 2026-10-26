@@ -594,6 +594,8 @@ part for the operator to approve before any code is written, as §4 and §9 were
 | B-L4 | **Real Estonian at B2.** The ledger refuses any untaught word, which makes a text nobody simplified impossible. | **Yes, in a reading step only**, from `b2-sonad` on: a recorded sentence or a headline with its untaught words underlined to their dictionary entries, read and never asked about. Anything a learner answers, picks, types or says is still held to the ledger. |
 | B-L5 | **The size of B1.** | **Whatever teaches best**, so the build sizes each part by its goal. The draft in 11.4 is seven parts and about fifty core lessons, the writing evenings among them. |
 | B-L6 | **People on the old B1 and B2.** | They restart the level at its first lesson, keeping every card and review, which is the A1 and A2 precedent. |
+| B-L7 | **Does a native speaker read every new line?** B1 alone is about 800 lines and the model texts. | **Only the flagged ones.** A second model pass reads every new line and flags anything doubtful (a case, a word order, a phrase nobody says); the native speaker reads the flagged lines and listens through each part's role-play once; the report button catches the rest. The mechanical checks run as before. This narrows ADR-005 amendment 6 for B1 and above, and the build's first pull request records it in `docs/03-architecture.md`. The flagging pass may only flag: it never writes or rewrites a line. |
+| B-L8 | **Writing feedback on a deployment with no model key.** | The dictionary's checks (the patterns used, the forms spelled as Ekilex has them) work everywhere. The comments on the text as a whole need a model, so a deployment without one shows the checks alone and says the comments need a model. kodukeel.ee has a model, so its learners get both. |
 
 ### 11.1 The measurement
 
@@ -783,10 +785,3 @@ by the native speaker (ADR-005 amendment 6).
    reference pages B1 explains join `LESSON_PAGES`, `npm run check:authored` is run again, and the
    translations are done.
 5. **B2**, the same way.
-
-### 11.7 Open questions for the operator
-
-| # | Question | Recommendation |
-| --- | --- | --- |
-| B-D3 | **The native speaker's reading.** B1 is about 800 new lines and the model texts, at the A2 rate. | Read part by part, one pull request each, as A2 was. |
-| B-D4 | **Writing with no model key.** The dictionary half still marks the forms and the patterns. | Ship it that way, with the screen saying the comments on the whole text need a model. |
