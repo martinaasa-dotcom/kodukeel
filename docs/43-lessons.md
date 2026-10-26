@@ -591,6 +591,9 @@ part for the operator to approve before any code is written, as §4 and §9 were
 | B-L1 | Writing or speaking as the main step? | **Speaking.** Talk is the main step of every B evening, on by default, with "Type it instead tonight" beside it as at A1 and A2. Writing is not a step on every evening: two or three evenings of a part build toward the part's one real text, and the part ends by writing it. |
 | B-L2 | How long is an evening? | **As long as its goal needs.** The step list says how long the evening is; nothing holds a B lesson to fifteen minutes. |
 | B-L3 | May the learner's own sentences become review cards? | **Yes, with no opt-in.** They are the learner's, in their own deck, and nobody else sees them (11.2, "Your sentences"). |
+| B-L4 | **Real Estonian at B2.** The ledger refuses any untaught word, which makes a text nobody simplified impossible. | **Yes, in a reading step only**, from `b2-sonad` on: a recorded sentence or a headline with its untaught words underlined to their dictionary entries, read and never asked about. Anything a learner answers, picks, types or says is still held to the ledger. |
+| B-L5 | **The size of B1.** | **Whatever teaches best**, so the build sizes each part by its goal. The draft in 11.4 is seven parts and about fifty core lessons, the writing evenings among them. |
+| B-L6 | **People on the old B1 and B2.** | They restart the level at its first lesson, keeping every card and review, which is the A1 and A2 precedent. |
 
 ### 11.1 The measurement
 
@@ -636,7 +639,7 @@ lexicographer recorded, and for **35 of the 228** one of them is made only of wo
 end of A2 (36 of 877 sentences). At B2 it is **11 of 233** (12 of 804). The single blocking words are
 scattered (`endale`, `sõpru`, `üle`, `läbi`, `avalik`), so no one lesson unblocks them. This decides
 where B practice comes from: the lessons' own lines (ADR-005 amendment 6) and the learner's own
-sentences, with the dictionary's sentences arriving later as reading (11.5, B-D1).
+sentences, with the dictionary's sentences arriving later as reading (B-L4).
 
 **The situations.** 38 catalog conversations open on a B1 or B2 unit today, and between 56 and 76
 percent of the words their declared units name are taught by the end of A2. Each part's lesson scene
@@ -737,7 +740,7 @@ explained. The ledger check walks the instructions as it walks the lines.
 
 ### 11.4 B1, part by part (for approval)
 
-Seven parts, about fifty-five core lessons and a handful of lettered word lessons, like A2. Every
+Seven parts, about fifty core lessons and a handful of lettered word lessons. Every
 part weaves in the glue words of 11.1 where its conversations need them, five or so an evening, so
 the 73 common words arrive without a part spent on a list.
 
@@ -785,8 +788,5 @@ by the native speaker (ADR-005 amendment 6).
 
 | # | Question | Recommendation |
 | --- | --- | --- |
-| B-D1 | **Real Estonian at B2.** The skill B2 measures is reading text nobody simplified, and the ledger refuses any untaught word. Allow a reading step, from `b2-sonad` on, of a recorded sentence or a headline with untaught words underlined to their dictionary entries? | Yes, from `b2-sonad`, marked as a stretch, and never asked about: it is read, not tested. |
-| B-D2 | **The size of B1.** Seven parts and about fifty-five lessons, the same as A2? | Yes. B1 is the longest level in hours for an English speaker, and fifty-five lessons matches A2. |
 | B-D3 | **The native speaker's reading.** B1 is about 800 new lines and the model texts, at the A2 rate. | Read part by part, one pull request each, as A2 was. |
 | B-D4 | **Writing with no model key.** The dictionary half still marks the forms and the patterns. | Ship it that way, with the screen saying the comments on the whole text need a model. |
-| B-D5 | **People on the old B1 and B2.** | They restart the level at its first lesson, keeping every card and review, which is the A1 and A2 precedent. |
