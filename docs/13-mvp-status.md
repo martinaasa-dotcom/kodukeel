@@ -3914,3 +3914,35 @@ pinned sentences were among the workbook refusals. Each is listed with the reade
 shipped in `docs/reviews/2026-10-25-written-lines-applied.md`, beside the 66 lines per language that
 landed after the export and are left unconfirmed for his next sheet. `docs/49-language-reviews.md` is
 the count of what is open, which is those and the 60 picture-scene sentences nobody has written yet.
+
+## 72. The sixty-sixth pass: a typed answer is told whether it is Estonian
+
+**A role-play answer that differs from the sample is read by the dictionary, not by a model.** A
+learner typed `Tere! Ma soovin raamatukogukaart osta.` on a lesson's Say it card and asked how they
+would know if it was right: the card compared it with one way to say it and said "Yours can be
+different", so a wrong ending and a perfect sentence looked the same. The operator's call was to do it
+without a paid model. `lib/course/lessons/sentenceCheck.ts` is the judgment and is pure;
+`lib/progress/sentenceCheck.ts` reads the forms list and the vouched dictionary rows for the words in
+the sentence; `checkLessonSentence` in `app/actions.ts` is the door, throttled, storing and grading
+nothing; `components/course/SentenceFindings.tsx` is the panel under the card.
+
+**Eight things, each drawn to miss rather than to fire.** A spelling no word has, with the word meant
+where folding the diacritics or one letter finds it (the sample breaks a tie). A verb in another
+person than its one subject pronoun. A person ending after `ei`. The ma-infinitive straight after a
+subject pronoun. The ma-infinitive after a verb that only takes the da-infinitive (`DA_ONLY_VERBS`,
+the gate's list). A noun in its plain form after a number above one or a word of quantity, which
+takes the osastav. A noun in its plain form before a postposition that takes the omastav. And an
+object left in its plain form in a clause whose subject is I, you or we: offered as the osastav, and
+the omastav too where the verb's recorded government names one and nothing negates the clause, or
+said to need an ending, and not which, where the verb records no object. Every form a finding offers
+is read off a dictionary row (ADR-005); the forms list only says whether a spelling exists.
+
+**Measured, and the number to keep is the first one.** `npm run measure:sentence-check` runs it over
+every lesson line and every usage in the shipped dictionary, 16,843 sentences known to be correct:
+nought flagged. The first runs flagged 17, and each became a guard: a spelling that is another word in
+another case (`maal`, `last`, `mulle`), a numeral, a word of time, `kell` and `kord`, a command, a
+second clause after `ja`, a pronoun after `kui`, a quoted word, a postposition used as an adverb
+(`vesi sees`). Broken on purpose, the lessons' own sentences are caught 89 times in 128 where a verb
+is moved into another person, and 94 in 346 where a partitive or genitive is put back in its plain
+form, most of which are not objects at all. A clean result says "No mistakes found in your spelling
+or your endings", which is what it checked; word order and meaning are outside it.

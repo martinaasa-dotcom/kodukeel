@@ -21,6 +21,9 @@ import { hasStandIn, personal } from "@/lib/course/lessons/ownAnswer";
 import { wordsOf } from "@/lib/course/lessons/ledger";
 import type { LessonSpec, Prompt } from "@/lib/course/lessons/types";
 import { VERDICT_CLASS } from "@/lib/ux/verdict";
+import { checkLessonSentence } from "@/app/actions";
+import { SentenceFindings } from "@/components/course/SentenceFindings";
+import type { Finding } from "@/lib/course/lessons/sentenceCheck";
 
 /**
  * SAY IT: THE HEADLINE OF THE EVENING, AND OPTIONAL (docs/43-lessons.md §2).
@@ -63,7 +66,11 @@ type Mode = "say" | "type";
 
 type SayCard =
   | { readonly kind: "lines" }
-  | { readonly kind: "answer"; readonly prompt: Prompt; readonly label: string; readonly scene?: string; readonly own: boolean; readonly aboutYou: boolean };
+  | {
+    readonly kind: "answer"; readonly prompt: Prompt; readonly label: string; readonly scene?: string; readonly own: boolean; readonly aboutYou: boolean;
+    /** Which list the card came from and where, so the server can find its sample (`checkLessonSentence`). */
+    readonly which: "answers" | "turns"; readonly index: number;
+  };
 
 /**
  * One turn already taken: what they said, and what the learner answered, or
@@ -90,6 +97,7 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, onComplete }: 
   const cards = useMemo<SayCard[]>(() => {
     const answers = lesson.answers.map((prompt, i): SayCard => ({
       kind: "answer", prompt, label: fill(t("About you, {n} of {total}"), { n: String(i + 1), total: String(lesson.answers.length) }), own: true, aboutYou: true,
+      which: "answers", index: i,
     }));
     const turns = (lesson.roleplay?.turns ?? []).map((prompt, i): SayCard => ({
       kind: "answer", prompt, label: fill(t("Role-play, {n} of {total}"), { n: String(i + 1), total: String(lesson.roleplay!.turns.length) }),
@@ -99,6 +107,7 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, onComplete }: 
       own: true,
       // And one about themselves says so, since their name and country are theirs.
       aboutYou: /yourself|your own|your name|about you/i.test(prompt.cue) || hasStandIn(prompt.model.et),
+      which: "turns", index: i,
     }));
     // The capstone is the conversation alone: the questions about yourself were the practice.
     if (capstone) return turns;
@@ -177,7 +186,7 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, onComplete }: 
       {card.kind === "lines" ? (
         <SayTheLines lesson={lesson} onNext={() => next()} />
       ) : (
-        <AnswerCard key={at} card={card} mode={mode} voice={voice} name={name} onNext={next} last={at >= cards.length - 1} />
+        <AnswerCard key={at} lessonId={lesson.id} card={card} mode={mode} voice={voice} name={name} onNext={next} last={at >= cards.length - 1} />
       )}
     </div>
   );
@@ -235,7 +244,8 @@ function SayTheLines({ lesson, onNext }: { lesson: LessonSpec; onNext: () => voi
  * Nothing is graded either way (ADR-028). A spoken answer that is the model,
  * a slip of it or their line back checks itself the moment it is heard.
  */
-function AnswerCard({ card, mode, voice, name, onNext, last }: {
+function AnswerCard({ lessonId, card, mode, voice, name, onNext, last }: {
+  lessonId: string;
   card: Extract<SayCard, { kind: "answer" }>;
   mode: Mode;
   voice: string | undefined;
@@ -252,6 +262,8 @@ function AnswerCard({ card, mode, voice, name, onNext, last }: {
   const [text, setText] = useState("");
   const [shown, setShown] = useState(false);
   const [mark, setMark] = useState<TypedMark | null>(null);
+  // What the dictionary found in an answer that is not the sample, or null until it answers.
+  const [found, setFound] = useState<readonly Finding[] | null>(null);
   const nextRef = useRef<HTMLButtonElement>(null);
   const expect = useMemo(() => new Set(wordsOf(model.et).map((w) => w.low)), [model.et]);
   const said = normalisePhrase(text);
@@ -264,6 +276,17 @@ function AnswerCard({ card, mode, voice, name, onNext, last }: {
     if (m && m.verdict !== "wrong") sound("right");
     setMark(m);
     setShown(true);
+    /*
+      AN ANSWER THAT IS NOT THE SAMPLE IS READ BY THE DICTIONARY, so a
+      different sentence is told whether it is Estonian rather than only that
+      it differs. A slip of the sample already has its note above. No model and nothing graded (`checkLessonSentence`). A
+      request that never lands leaves the card as it was.
+    */
+    if (m && m.verdict === "wrong" && !isEcho(value)) {
+      void checkLessonSentence(lessonId, card.which, card.index, value)
+        .then((result) => { if (result.ok) setFound(result.findings); })
+        .catch(() => null);
+    }
     requestAnimationFrame(() => nextRef.current?.focus());
   };
 
@@ -344,6 +367,7 @@ function AnswerCard({ card, mode, voice, name, onNext, last }: {
         {!shown && <div className="under-field"><DiacriticBar /></div>}
       </div>
 
+      {shown && found !== null && <div className="mt-4"><SentenceFindings findings={found} /></div>}
       <div className="mt-4 flex flex-col gap-3" role="status" aria-live="polite">
         {shown && mark !== null && (mark.verdict !== "wrong" || (mark.close && !card.own)) && (
           <div className={`verdict-panel ${VERDICT_CLASS[mark.verdict === "wrong" ? "nearly" : mark.verdict]}`}>
