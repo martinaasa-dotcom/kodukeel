@@ -88,6 +88,15 @@ export function levelContractProblems(lessons: readonly LessonSpec[], parts: rea
     if (!parts.some((p) => p.id === lesson.part)) problems.push(`${lesson.id}: belongs to no part`);
     // A finale is the conversation the part was for; a scene description is what the learner reads first.
     if (lesson.roleplay && lesson.roleplay.turns.length < 3) problems.push(`${lesson.id}: a role-play of ${lesson.roleplay.turns.length} turns is not a conversation`);
+    /*
+      A part's closing evening is its conversation and nothing else: Say it there
+      runs the role-play's turns alone (`SayIt`), so a story to retell or an
+      answer to say faster on it is never shown and is still counted in the
+      lesson's minutes. Refused rather than silently dropped.
+    */
+    if (lesson.kind !== "lesson" && lesson.roleplay && (lesson.retell || lesson.faster)) {
+      problems.push(`${lesson.id}: a closing conversation carries a ${lesson.retell ? "retell" : "faster"} its Say it never shows`);
+    }
   }
   // A grammar point is explained once in a level and practiced from then on.
   for (const level of levels) {

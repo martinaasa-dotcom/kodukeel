@@ -54,7 +54,7 @@ describe("the program is a request against the course, never a copy of it", () =
   it("builds every part from B2 up out of units, and only those", () => {
     expect(BUILT.length).toBe(PARTS.length);
     expect(BUILT.every((p) => !LESSON_LEVELS.has(p.level))).toBe(true);
-    expect(DAYS.length).toBeGreaterThan(60);
+    expect(DAYS.length).toBeGreaterThanOrEqual(70);
   });
 
   it("names a unit that exists", () => {
@@ -858,7 +858,7 @@ describe("what a day reads and where it goes", () => {
     // A2's units of verbs were the ones that dealt the table most; A2 is the
     // lessons now, which drill the persons inside each lesson. The pinning
     // itself is held by the tests of `rounds`.
-    expect(pairs).toBeGreaterThanOrEqual(1);
+    expect(pairs).toBeGreaterThanOrEqual(2);
   });
 
   /*

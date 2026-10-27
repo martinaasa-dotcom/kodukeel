@@ -31,10 +31,10 @@ import type { LessonSpec } from "@/lib/course/lessons/types";
  * conversation along at A1 and A2, since typing a line you were just shown is
  * not practice of anything.
  */
-export function SayAlongFade({ lesson, onDone }: { lesson: LessonSpec; onDone: () => void }) {
+export function SayAlongFade({ lesson, partAt = 1, onDone }: { lesson: LessonSpec; partAt?: number; onDone: () => void }) {
   const t = useT();
   const locale = useLocale();
-  const plan = useMemo(() => fadePlan(lesson), [lesson]);
+  const plan = useMemo(() => fadePlan(lesson, partAt), [lesson, partAt]);
   const [at, setAt] = useState(0);
   const step = plan[Math.min(at, plan.length - 1)]!;
   const native = nativePart(lesson.conversation);
@@ -45,7 +45,9 @@ export function SayAlongFade({ lesson, onDone }: { lesson: LessonSpec; onDone: (
       <SectionTitle hint={fill(t("Round {n} of 3"), { n: String(step.pass) })}>{t("Say it along, then alone")}</SectionTitle>
       <p className="mb-4 text-base" style={{ color: "var(--ink-2)" }}>
         {step.pass === 1
-          ? t("Hear the line, then say it with the words in front of you.")
+          ? step.hidden.some(Boolean)
+            ? t("Hear the line, then say it. Today's words are already gone: each comes back when it's heard.")
+            : t("Hear the line, then say it with the words in front of you.")
           : step.pass === 2
             ? t("Now today's words are gone. Say the whole line: a word comes back when it's heard.")
             : t("Now say it with nothing on the screen but the English.")}
@@ -95,9 +97,19 @@ function FadeLine({ line, en, hidden, voice, native, who, locale }: {
   const words = useMemo(() => lineWords(line), [line]);
   const expect = useMemo(() => new Set(words.map((w) => w.text.toLocaleLowerCase("et"))), [words]);
   const [heard, setHeard] = useState("");
+  // Every try of this line so far, so a word that came back stays back when the learner tries again.
+  const [before, setBefore] = useState<readonly boolean[]>(() => words.map(() => false));
   const [shown, setShown] = useState(false);
-  const speech = useSpeech({ endpoint: true, expect, onHeard: (h) => setHeard(h.understood) });
-  const lit = lightUp(words, speech.listening ? speech.partial : heard);
+  const speech = useSpeech({
+    endpoint: true,
+    expect,
+    onHeard: (h) => {
+      setHeard(h.understood);
+      setBefore((was) => lightUp(words, h.understood).map((now, i) => now || (was[i] ?? false)));
+    },
+  });
+  const now = lightUp(words, speech.listening ? speech.partial : heard);
+  const lit = now.map((l, i) => l || (before[i] ?? false));
   const share = shareLit(lit);
   const anyHidden = hidden.some(Boolean);
 

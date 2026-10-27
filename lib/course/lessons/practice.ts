@@ -616,6 +616,24 @@ export function markRework(typed: string, item: Extract<PracticeItem, { kind: "r
       ? { verdict: "wrong", note: "That's the line with the slip still in it.", close: false }
       : { verdict: "wrong", note: "That's the sentence as it was. Change it the way the line above asks.", close: false };
   }
+  /*
+    A FIX IS ABOUT ONE WORD. The whole line is retyped, so a slip of the hand
+    anywhere else in it used to cost the fix itself: the learner put the slip
+    right and read "Not quite". Where the word in question is now right and the
+    only other difference is one near miss, it is nearly, and says which half
+    they got.
+  */
+  if (item.kind === "fix") {
+    const typedWords = said.split(" ");
+    const wanted = normalisePhrase(item.answer).split(" ");
+    const right = normalisePhrase(item.right);
+    if (typedWords.length === wanted.length && typedWords.includes(right) && !typedWords.includes(normalisePhrase(item.wrong))) {
+      const off = typedWords.map((w, i) => ({ w, want: wanted[i]! })).filter(({ w, want }) => w !== want);
+      if (off.length === 1 && nearMiss(off[0]!.w, off[0]!.want)) {
+        return { verdict: "nearly", note: "The slip is put right. Mind the spelling of one other word.", close: false };
+      }
+    }
+  }
   return { verdict: "wrong", note: "Not quite.", close: wants.some((w) => nearMiss(said, w)) };
 }
 

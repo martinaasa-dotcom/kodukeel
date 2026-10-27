@@ -835,7 +835,7 @@ describe("today's chat, the new kind", () => {
 
   it("is built for most evenings that offer one", () => {
     // A built evening from B2 up; A1 to B1 are the lessons, which have their own role-plays.
-    expect(chats.length).toBeGreaterThan(60);
+    expect(chats.length).toBeGreaterThanOrEqual(70);
   });
 
   it("is in no catalog, so the listing and the bank never meet it", () => {

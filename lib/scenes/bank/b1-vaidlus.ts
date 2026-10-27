@@ -21,6 +21,8 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "b1-vaidlus", beat: "view", text: "Kodus töötada on mugav. Mis sa arvad?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-vaidlus", beat: "why", text: "Miks mitte?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-vaidlus", beat: "why", text: "Tõesti? Miks mitte?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
+  { scene: "b1-vaidlus", beat: "bus", text: "Aga kodus ei pea hommikul bussiga sõitma, eks?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
+  { scene: "b1-vaidlus", beat: "bus", text: "Hea küll. Aga kodus ei pea bussiga sõitma, eks?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-vaidlus", beat: "cost", text: "Aga kas suur kontor pole kallis?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-vaidlus", beat: "cost", text: "Aga suur kontor on ju kallis, eks?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-vaidlus", beat: "plan", text: "Mis sa siis teeksid?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },

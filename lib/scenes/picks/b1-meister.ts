@@ -26,6 +26,10 @@ export const b1Meister: ScenePicks = {
     { et: "Reedel ma olen tööl. Kas esmaspäeval sobib?", en: "On Friday I'm at work. Does Monday suit you?" },
     { et: "Reedel sobib.", en: "Friday suits me." },
   ],
+  key: [
+    { et: "Siis on võti naabri juures.", en: "Then the key will be at the neighbor's." },
+    { et: "Naabri juures.", en: "At the neighbor's." },
+  ],
   close: [
     { et: "Aitäh! Head aega!", en: "Thank you! Goodbye!" },
     { et: "Head aega!", en: "Goodbye!" },

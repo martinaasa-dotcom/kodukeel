@@ -15,8 +15,16 @@
  * every key is a lesson and every value a catalog conversation, and every
  * conversation that no evening of B2 and on opens is offered by one lesson.
  *
+ * And the board agrees with the finish screen (`situationsOfferedThrough`): a
+ * conversation a lesson has offered is one the course has brought in, so the
+ * situations board stops calling it "later" from the evening that lesson is
+ * finished. Its words come from units B1's lessons teach by goal rather than
+ * unit by unit, so the unit rule alone would call it early for the whole level.
+ *
  * Pure: no React, no Prisma, no clock.
  */
+import { LESSONS } from "./lessons";
+
 export const LESSON_SITUATIONS: Readonly<Record<string, string>> = {
   "b1-03-some-or-all": "turul",
   "b1-04-waiting": "ootamine",
@@ -44,4 +52,19 @@ export const LESSON_SITUATIONS: Readonly<Record<string, string>> = {
 /** The catalog conversation a lesson's finish screen offers, by id, or null. */
 export function situationFor(lessonId: string): string | null {
   return LESSON_SITUATIONS[lessonId] ?? null;
+}
+
+/**
+ * The catalog conversations the lessons have offered by the end of one, in the
+ * course's own order. `lessonId` is the furthest finished lesson; null is a
+ * learner past every lesson, who has been offered all of them.
+ */
+export function situationsOfferedThrough(lessonId: string | null): ReadonlySet<string> {
+  const out = new Set<string>();
+  for (const lesson of LESSONS) {
+    const scene = LESSON_SITUATIONS[lesson.id];
+    if (scene) out.add(scene);
+    if (lesson.id === lessonId) break;
+  }
+  return out;
 }

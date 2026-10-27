@@ -2687,7 +2687,7 @@
                 }
               },
               "listenFor": {
-                "description": "Questions on what was heard, asked before the text is shown, B1 on.",
+                "description": "Questions on what was heard, asked before the text is shown, B1 on. Draw the options in the order the web does: shuffled with a seed taken from the question.",
                 "readOnly": true,
                 "type": "array",
                 "items": {
@@ -2715,6 +2715,15 @@
                     "answer"
                   ]
                 }
+              },
+              "hearing": {
+                "description": "The room the hidden first play of the conversation is heard in (B1 on): a phone line, a café, or sped up. Absent is a quiet room.",
+                "type": "string",
+                "enum": [
+                  "phone",
+                  "cafe",
+                  "quick"
+                ]
               },
               "retell": {
                 "description": "A short story heard twice and told back aloud, B1 on; a point lights on any of its spellings.",
@@ -2773,7 +2782,7 @@
                 ]
               },
               "faster": {
-                "description": "One answer said three times, in 90, 60 and 45 seconds, B1 on.",
+                "description": "One answer said three times, in 90, 60 and 45 seconds at the standard pace (times `timeMultiplier`), B1 on.",
                 "type": "object",
                 "properties": {
                   "ask": {
@@ -3261,7 +3270,7 @@
                   ]
                 }
               ],
-              "description": "One question, built on the server; the client never decides what a learner is asked."
+              "description": "One question, built on the server; the client never decides what a learner is asked. A kind is added and never removed within v1 (`rework` and `fix` came with B1), so a client skips an item whose kind it does not know rather than failing the lesson: a lesson with one question fewer is still a lesson."
             }
           },
           "review": {
@@ -3568,7 +3577,7 @@
                   ]
                 }
               ],
-              "description": "One question, built on the server; the client never decides what a learner is asked."
+              "description": "One question, built on the server; the client never decides what a learner is asked. A kind is added and never removed within v1 (`rework` and `fix` came with B1), so a client skips an item whose kind it does not know rather than failing the lesson: a lesson with one question fewer is still a lesson."
             }
           },
           "next": {
@@ -3723,6 +3732,17 @@
             ],
             "description": "The part this lesson is in, lesson by lesson, with the ones the learner has done."
           },
+          "partAt": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991,
+            "description": "Which part of its level the lesson is in, counted from 1; the say-along fade starts with words hidden from the fourth part."
+          },
+          "timeMultiplier": {
+            "type": "number",
+            "minimum": 1,
+            "description": "How many times the standard a timed go runs for this learner (their round pace), for \"Again, faster\"."
+          },
           "locale": {
             "type": "string",
             "enum": [
@@ -3761,6 +3781,8 @@
           "due",
           "check",
           "part",
+          "partAt",
+          "timeMultiplier",
           "locale",
           "nativePart",
           "translations"
@@ -4127,7 +4149,7 @@
                   ]
                 }
               ],
-              "description": "One question, built on the server; the client never decides what a learner is asked."
+              "description": "One question, built on the server; the client never decides what a learner is asked. A kind is added and never removed within v1 (`rework` and `fix` came with B1), so a client skips an item whose kind it does not know rather than failing the lesson: a lesson with one question fewer is still a lesson."
             }
           },
           "needed": {

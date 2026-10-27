@@ -385,6 +385,15 @@ export interface LessonSpec {
   readonly fixes?: readonly Fix[];
   /** Questions on what was heard, before the text is shown (B1 on). */
   readonly listenFor?: readonly Gist[];
+  /**
+   * How the conversation is heard on that first, hidden play (B1 on): down a
+   * phone line, over café noise, or sped up, which are the rooms
+   * `lib/audio/conditions.ts` already makes out of the one clip. Absent is a
+   * quiet room. Only the listen-first play takes it; reading the text after,
+   * and every line pressed on its own, is clean, since the point is to have
+   * caught it once in the room and then to see what it was.
+   */
+  readonly hearing?: "phone" | "cafe" | "quick";
   /** A short story to hear twice and tell back aloud (B1 on). */
   readonly retell?: Retell;
   /** One answer said three times, faster each time (B1 on). */

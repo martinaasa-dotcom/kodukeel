@@ -8,7 +8,9 @@ import { FAREWELLS, HELLOS } from "./shared";
   The part taught would have done, asking politely, working as and becoming,
   the payslip, shifts and an email about your hours. Here the manager asks
   what the learner wants to talk about, what they've done, why they didn't ask
-  sooner and what would be fair, then makes an offer, and they agree.
+  sooner and what would be fair, then makes an offer, asks what they'd like to
+  become next year (which the lesson's own conversation never asks), and they
+  agree.
 
   Lemmas only, as in every scene file; the lines are in `bank/b1-palgatous.ts`.
 */
@@ -89,6 +91,17 @@ export default inLesson("b1-21-pay", {
       shape: "word",
     },
     {
+      id: "plan",
+      goal: "Say what you'd like to become next year.",
+      they: "She agrees to talk again at the end of the year, and asks what you'd like to become next year.",
+      move: "ask",
+      topic: ["saama", "järgmine"],
+      needs: [{ kind: "anyOf", of: [{ kind: "lemma", oneOf: ["saama", "juht"] }, { kind: "any" }] }],
+      required: true,
+      patience: 2,
+      shape: "word",
+    },
+    {
       id: "close",
       goal: "Thank her and say goodbye.",
       they: "She says it's a deal, and goodbye.",
@@ -102,7 +115,7 @@ export default inLesson("b1-21-pay", {
     },
   ],
   outcomes: [
-    { id: "raised", when: ["greet", "topic", "done", "earlier", "amount", "offer", "close"], says: "You asked for a raise, made your case and agreed on something, all in Estonian." },
+    { id: "raised", when: ["greet", "topic", "done", "earlier", "amount", "offer", "plan", "close"], says: "You asked for a raise, made your case and agreed on something, all in Estonian." },
     { id: "raised-thin", when: ["topic", "amount"], says: "You said what you wanted and what would be fair. That's the heart of it." },
     { id: "left", when: [], says: "You left before you asked. Next time, ask sooner." },
   ],

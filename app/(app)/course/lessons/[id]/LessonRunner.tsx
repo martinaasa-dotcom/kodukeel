@@ -96,8 +96,12 @@ const STEP_TITLE: Record<Step, string> = {
 /** The three teaching steps are finished by being open. */
 const ASKS: ReadonlySet<Step> = new Set(["practise", "write", "say", "review"]);
 
-export function LessonRunner({ lesson, practice, review, next, scene, situation = null, conversation, place, name, due = 0, check = null, part }: {
+export function LessonRunner({ lesson, practice, review, next, scene, situation = null, conversation, place, name, due = 0, check = null, part, timeMultiplier, partAt }: {
   lesson: LessonSpec;
+  /** How much longer than the standard a timed go runs for this learner (`lib/ux/roundClock.ts`). */
+  timeMultiplier: number;
+  /** Which part of its level the lesson is in, counted from 1: the fade starts harder later on (`fade.ts`). */
+  partAt: number;
   practice: readonly PracticeItem[];
   review: readonly PracticeItem[];
   next: { id: string; title: string } | null;
@@ -179,7 +183,15 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
       setReached((r) => Math.max(r, n));
     }
   };
-  const done = !ASKS.has(step) || finished.has(step) || (step === "review" && review.length === 0);
+  /*
+    B1's conversation is heard before it is read, and that is held here rather
+    than in the step: the step unmounts whenever another is pressed, and coming
+    back to reread it is not a reason to have it hidden again. Until it has
+    been heard (or shown on purpose), the foot of the screen offers to skip,
+    so the step's own "Read it" is its one loud button.
+  */
+  const [heard, setHeard] = useState(() => !(lesson.listenFor && lesson.listenFor.length > 0));
+  const done = step === "listen" ? heard : !ASKS.has(step) || finished.has(step) || (step === "review" && review.length === 0);
 
   const inPart = part.lessons.findIndex((l) => l.id === lesson.id);
   const partEnd = inPart === part.lessons.length - 1;
@@ -452,12 +464,12 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
           <h2 id="lesson-step" ref={heading} tabIndex={-1} className="mb-4 text-xl font-bold scroll-mt-24" style={{ color: "var(--ink)" }}>
             {fill(t("Step {n} of {total}: {step}"), { n: String(at + 1), total: String(steps.length), step: t(titleOf(step)) })}
           </h2>
-          {step === "listen" && <Listen lesson={lesson} />}
+          {step === "listen" && <Listen lesson={lesson} heard={heard} onHeard={() => setHeard(true)} />}
           {step === "words" && <Words lesson={lesson} />}
           {step === "how" && <How lesson={lesson} />}
           {step === "practise" && <Quiz key="practise" items={practice} onFinished={(result) => { setScore(result); finish("practise"); }} />}
           {step === "write" && lesson.write && <WriteStep lesson={lesson} onDone={() => { finish("write"); go(at + 1); }} />}
-          {step === "say" && <SayIt lesson={lesson} scene={scene} sceneHref={scene ? lessonSceneHref(scene, focus) : null} capstone={capstone} name={name} onComplete={() => finish("say")} />}
+          {step === "say" && <SayIt lesson={lesson} timeMultiplier={timeMultiplier} partAt={partAt} scene={scene} sceneHref={scene ? lessonSceneHref(scene, focus) : null} capstone={capstone} name={name} onComplete={() => finish("say")} />}
           {step === "review" && (review.length > 0
             ? <Quiz key="review" items={review} onFinished={() => finish("review")} />
             : (
@@ -511,12 +523,11 @@ function wordsUsed(lesson: LessonSpec): number {
 }
 
 /** Step 1: the conversation, in the cast's voices, with the English under each line. */
-function Listen({ lesson }: { lesson: LessonSpec }) {
+function Listen({ lesson, heard, onHeard }: { lesson: LessonSpec; heard: boolean; onHeard: () => void }) {
   const t = useT();
   const [english, setEnglish] = useState(true);
   // B1 on, the conversation is heard before it is read (`ListenFirst`).
-  const [heard, setHeard] = useState(!(lesson.listenFor && lesson.listenFor.length > 0));
-  if (!heard) return <ListenFirst lesson={lesson} onRead={() => setHeard(true)} />;
+  if (!heard) return <ListenFirst lesson={lesson} onRead={onHeard} />;
   return (
     <Card>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -601,7 +612,7 @@ function Words({ lesson }: { lesson: LessonSpec }) {
                   )}
                   {/* B1: a verb is learned with the case it wants, so the Words table says it. */}
                   {(row[0]!.kind === "verb" || row[0]!.kind === "word") && row[0]!.asks && (
-                    <span className="mt-1 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-sm font-semibold" style={{ background: "var(--butter-soft)", color: "var(--ink)" }} data-asks>
+                    <span className="mt-1 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-sm font-semibold" style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }} data-asks>
                       <LessonText text={row[0]!.asks} locale={locale} />
                     </span>
                   )}

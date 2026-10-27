@@ -273,7 +273,9 @@ export const PARTS: readonly PartSpec[] = [
     A1, A2 and B1 a learner actually had. B1's old parts (b1.1 to b1.3, built
     from the objekt to liitverbid units) went when B1 became lessons, with
     their day ids, which is the A2 precedent: a learner on one restarts B1 at
-    its first lesson and keeps every card and review.
+    its first lesson and keeps every card and review. The lesson parts reuse the
+    old ids, so that restart is worked out off the learner's own ticks
+    (`rehomed` in `lib/progress/course.ts`, held by `rehome.itest.ts`).
   */
   {
     id: "b2.1", level: "B2",

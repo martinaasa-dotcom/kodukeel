@@ -16,7 +16,7 @@ import type { LessonView } from "@/lib/progress/lessonView";
 */
 
 /** The half of a lesson's view that is the same for every learner, which is all of it but three fields. */
-export type LessonPlan = Omit<LessonView, "name" | "due" | "check" | "part" | "next"> & {
+export type LessonPlan = Omit<LessonView, "name" | "due" | "check" | "part" | "next" | "partAt" | "timeMultiplier"> & {
   closes: CourseCheck | null;
   /** The next lesson, and whether it opens another part, which waits behind this part's check. */
   after: { id: string; title: string; crossesPart: boolean } | null;

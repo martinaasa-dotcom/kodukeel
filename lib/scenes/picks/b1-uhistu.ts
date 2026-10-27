@@ -18,6 +18,10 @@ export const b1Uhistu: ScenePicks = {
     { et: "Torumees kutsuti ja toru vahetati välja.", en: "A plumber was called and the pipe was replaced." },
     { et: "Toru vahetati välja.", en: "The pipe was replaced." },
   ],
+  wet: [
+    { et: "Vett ei ole, aga kõik on veel märg.", en: "There's no water, but everything is still wet." },
+    { et: "Kõik on veel märg.", en: "Everything is still wet." },
+  ],
   before: [
     { et: "Ei, toru oli juba eelmisel talvel katki läinud.", en: "No, the pipe had already burst last winter." },
     { et: "Ei, see oli juba katki läinud.", en: "No, it had burst before." },

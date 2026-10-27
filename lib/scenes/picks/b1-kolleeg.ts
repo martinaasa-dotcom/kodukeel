@@ -11,12 +11,16 @@ export const b1Kolleeg: ScenePicks = {
     { et: "Tere! Muidugi.", en: "Hi! Of course." },
   ],
   computer: [
-    { et: "Arvutiga aitab sind Anna.", en: "Anna helps with computers." },
-    { et: "Anna aitab sind.", en: "Anna will help you." },
+    { et: "Arvutiga aitan sind mina.", en: "I help with computers." },
+    { et: "Mina aitan sind.", en: "I'll help you." },
   ],
   report: [
     { et: "Räägi ülemusega.", en: "Talk to the boss." },
     { et: "Ülemusega.", en: "With the boss." },
+  ],
+  away: [
+    { et: "Siis küsi ülemuselt.", en: "Then ask the boss." },
+    { et: "Ülemuselt.", en: "The boss." },
   ],
   into: [
     { et: "Ma huvitun muusikast.", en: "I'm into music." },

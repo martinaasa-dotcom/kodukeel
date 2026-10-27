@@ -7,8 +7,9 @@ import { FAREWELLS } from "./shared";
 
   The part taught joining reasons with {kuna} and {kuigi}, weighing things up,
   and agreeing and disagreeing politely. A colleague thinks the team should
-  work from home; the learner doesn't quite agree, gives a reason, grants her
-  point, suggests a middle way, and they agree on it.
+  work from home; the learner doesn't quite agree, gives a reason, answers her
+  point about the bus (the one turn the lesson's own conversation never has),
+  grants her point about the cost, suggests a middle way, and they agree on it.
 
   Lemmas only, as in every scene file; the lines are in `bank/b1-vaidlus.ts`.
 */
@@ -40,6 +41,17 @@ export default inLesson("b1-42-disagree", {
       move: "ask",
       topic: ["miks"],
       needs: [{ kind: "any" }],
+      required: true,
+      patience: 2,
+      shape: "word",
+    },
+    {
+      id: "bus",
+      goal: "Answer her point about the bus.",
+      they: "She says that at home you don't have to catch the bus in the morning.",
+      move: "ask",
+      topic: ["buss", "sõitma"],
+      needs: [{ kind: "anyOf", of: [{ kind: "lemma", oneOf: ["buss", "meeldima", "õige"] }, { kind: "any" }] }],
       required: true,
       patience: 2,
       shape: "word",
@@ -91,7 +103,7 @@ export default inLesson("b1-42-disagree", {
     },
   ],
   outcomes: [
-    { id: "middle-way", when: ["view", "why", "cost", "plan", "agree", "close"], says: "You disagreed, gave your reasons, and found a middle way, using all of part six." },
+    { id: "middle-way", when: ["view", "why", "bus", "cost", "plan", "agree", "close"], says: "You disagreed, gave your reasons, and found a middle way, using all of part six." },
     { id: "middle-way-thin", when: ["view", "plan"], says: "You said where you stood and offered a way out. The reasons can come next time." },
     { id: "left", when: [], says: "The meeting ran out of time. There's another one next week." },
   ],

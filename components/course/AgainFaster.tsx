@@ -26,14 +26,22 @@ import type { Faster } from "@/lib/course/lessons/types";
  *
  * Typed works too, in the same three windows, since a typed answer against a
  * shrinking clock is the same exercise with the hands.
+ *
+ * THE WINDOWS ARE THE LEARNER'S PACE, not ours. A clock that ends the answer is
+ * a time limit, and a time limit is adjusted before it starts (WCAG 2.2.1,
+ * `lib/ux/roundClock.ts`): the setting that gives a timed round more time
+ * gives each of these the same multiple, so "faster each time" still holds.
+ * And a microphone that fails to start falls back to the box rather than
+ * leaving a go that cannot end.
  */
-export function AgainFaster({ faster, voice, typed, onDone }: { faster: Faster; voice: string | undefined; typed: boolean; onDone: () => void }) {
+export function AgainFaster({ faster, voice, typed, multiplier = 1, onDone }: { faster: Faster; voice: string | undefined; typed: boolean; multiplier?: number; onDone: () => void }) {
   const t = useT();
   const locale = useLocale();
   const [goes, setGoes] = useState<readonly Go[]>([]);
   const [helped, setHelped] = useState(false);
   const round = goes.length;
   const over = round >= FASTER_SECONDS.length;
+  const windows = FASTER_SECONDS.map((s) => Math.round(s * multiplier));
 
   return (
     <Card>
@@ -48,11 +56,11 @@ export function AgainFaster({ faster, voice, typed, onDone }: { faster: Faster; 
         </div>
         <p className="text-lg font-semibold" style={{ color: "var(--ink)" }}><LessonText text={faster.cue} locale={locale} /></p>
         <p className="text-base" style={{ color: "var(--ink-2)" }}>
-          {t("Answer it three times: in 90 seconds, then 60, then 45. The same answer, quicker each time.")}
+          {fill(t("Answer it three times: in {a} seconds, then {b}, then {c}. The same answer, quicker each time."), { a: String(windows[0]), b: String(windows[1]), c: String(windows[2]) })}
         </p>
       </div>
 
-      {!over && <OneGo key={round} seconds={FASTER_SECONDS[round]!} typed={typed} onGo={(go) => setGoes((all) => [...all, go])} />}
+      {!over && <OneGo key={round} seconds={windows[round]!} typed={typed} onGo={(go) => setGoes((all) => [...all, go])} />}
 
       {round > 0 && !helped && !over && (
         <Button variant="ghost" size="sm" onClick={() => setHelped(true)}>{t("Need an idea?")}</Button>
@@ -91,7 +99,12 @@ function OneGo({ seconds, typed, onGo }: { seconds: number; typed: boolean; onGo
     onHeard: (h) => finish(h.understood, h.seconds),
     onNothing: () => finish("", seconds),
   });
-  const mic = !typed && speech.offered;
+  // A microphone that would not start (no permission, no model) hands the go to the box.
+  const [micFailed, setMicFailed] = useState(false);
+  useEffect(() => {
+    if (speech.error && !speech.listening) setMicFailed(true);
+  }, [speech.error, speech.listening]);
+  const mic = !typed && speech.offered && !micFailed;
 
   const finish = (said: string, took: number) => {
     if (done.current) return;
@@ -107,14 +120,15 @@ function OneGo({ seconds, typed, onGo }: { seconds: number; typed: boolean; onGo
       setLeft(remaining);
       if (remaining <= 0) {
         clearInterval(id);
-        if (mic) speech.stop();
+        // Listening, the engine's own close ends the go with what it heard; otherwise the box does.
+        if (mic && speech.listening) speech.stop();
         else finish(text, seconds);
       }
     }, 200);
     return () => clearInterval(id);
     // The clock depends on when it started; the text it closes on is read at the end.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [started, text]);
+  }, [started, text, mic]);
 
   const start = () => {
     setStarted(Date.now());

@@ -14,7 +14,11 @@ describe("what is new at a level", () => {
     expect(b1.length).toBe(49);
     expect(b1.every((l) => l.listenFor && l.listenFor.length > 0), "every B1 lesson is heard first").toBe(true);
     expect(b1.filter((l) => !l.extra && l.kind !== "partEnd").every((l) => (l.reworks?.length ?? 0) > 0), "every core B1 lesson reworks a sentence").toBe(true);
-    expect(b1.every((l) => l.retell || l.faster), "every B1 lesson talks for longer").toBe(true);
+    // A part's closing conversation talks for longer by being the whole conversation, with a turn
+    // it never rehearsed; every other lesson retells a story or gives one answer faster.
+    const closing = (l: (typeof b1)[number]) => l.kind !== "lesson" && l.roleplay !== undefined;
+    expect(b1.filter((l) => !closing(l)).every((l) => l.retell || l.faster), "every B1 lesson talks for longer").toBe(true);
+    expect(b1.filter(closing).length).toBe(7);
     // "about twenty-five minutes, and a writing lesson about forty", within five.
     const plain = b1.filter((l) => !l.write).map(lessonMinutes);
     const writing = b1.filter((l) => l.write).map(lessonMinutes);

@@ -30,6 +30,10 @@ export const b1Eksam: ScenePicks = {
     { et: "Minu arvates ei ole, sest kesklinnas on vähe parkimiskohti.", en: "In my opinion it isn't, because there are few parking spaces in the center." },
     { et: "Minu arvates ei ole see lihtne, kuigi mul on parkimisluba.", en: "In my opinion it isn't easy, although I have a parking permit." },
   ],
+  compare: [
+    { et: "Minu arvates on linnas parem, sest seal on töö ja kool lähedal.", en: "In my opinion town is better, because work and school are close by there." },
+    { et: "Maal on vaikne ja ilus.", en: "The country is quiet and beautiful." },
+  ],
   learn: [
     { et: "Ma õppisin iga päev ja rääkisin palju kolleegidega.", en: "I studied every day and talked a lot with my colleagues." },
     { et: "Ma õppisin iga päev.", en: "I studied every day." },

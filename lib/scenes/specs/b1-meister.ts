@@ -9,7 +9,8 @@ import { FAREWELLS, HELLOS } from "./shared";
   whole thing, a no takes the [osastav], and so does a verb that never
   finishes. The handyman comes to the flat, asks what's broken, what the
   learner fixed themselves and what still doesn't work, and they agree on a
-  day for him to come back.
+  day for him to come back, and then where the key will be if they're out,
+  which the lesson's own conversation never asked.
 
   Lemmas only, as in every scene file; the lines are in `bank/b1-meister.ts`.
 */
@@ -79,6 +80,17 @@ export default inLesson("b1-07-repair", {
       shape: "word",
     },
     {
+      id: "key",
+      goal: "Say where the key will be if you're not at home.",
+      they: "He asks what happens if you're not at home that day.",
+      move: "ask",
+      topic: ["võti", "kodu"],
+      needs: [{ kind: "anyOf", of: [{ kind: "lemma", oneOf: ["võti", "naaber"] }, { kind: "any" }] }],
+      required: true,
+      patience: 2,
+      shape: "word",
+    },
+    {
       id: "close",
       goal: "Say goodbye.",
       they: "He says it's settled, and goodbye.",
@@ -91,7 +103,7 @@ export default inLesson("b1-07-repair", {
     },
   ],
   outcomes: [
-    { id: "fixed-up", when: ["greet", "broken", "fixed", "notdone", "when", "close"], says: "You told the handyman what's broken and what's done, and agreed on a day, using the whole part." },
+    { id: "fixed-up", when: ["greet", "broken", "fixed", "notdone", "when", "key", "close"], says: "You told the handyman what's broken and what's done, and agreed on a day, using the whole part." },
     { id: "fixed-up-thin", when: ["broken", "when"], says: "You said what's broken and when he can come. The rest can wait for his next visit." },
     { id: "left", when: [], says: "He went before you'd told him anything. He'll be back." },
   ],

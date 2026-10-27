@@ -14,6 +14,10 @@ export const b1Vaidlus: ScenePicks = {
     { et: "Kuigi kodus on mugav, on mul seal igav.", en: "Although it's comfortable at home, I get bored there." },
     { et: "Kontoris saab kohvi koos juua.", en: "At the office you can have coffee together." },
   ],
+  bus: [
+    { et: "See on õige, aga mulle meeldib bussiga sõita.", en: "That's right, but I like taking the bus." },
+    { et: "Mulle meeldib bussiga sõita.", en: "I like taking the bus." },
+  ],
   cost: [
     { et: "Ühest küljest on sul õigus.", en: "On the one hand, you're right." },
     { et: "Teisest küljest on kodus igav.", en: "On the other hand, it's boring at home." },

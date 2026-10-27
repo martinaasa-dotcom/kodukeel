@@ -8,7 +8,9 @@ import { FAREWELLS, HELLOS } from "./shared";
   The part taught what each verb asks for: who helps with what, who you ask,
   who you talk with, what you're into. A new colleague asks the learner to
   help her on her first day, asks who to go to with the computer and the
-  report, asks what they're into, and offers her help back.
+  report, asks who to ask when the learner isn't there (which the lesson's
+  own conversation never asked), asks what they're into, and offers her help
+  back.
 
   Lemmas only, as in every scene file; the lines are in `bank/b1-kolleeg.ts`.
 */
@@ -35,7 +37,7 @@ export default inLesson("b1-14-colleague", {
     },
     {
       id: "computer",
-      goal: "Say who helps with the computer.",
+      goal: "Say who helps with the computer: you do.",
       they: "She asks who she should ask if she has a problem with her computer.",
       move: "ask",
       topic: ["arvuti", "aitama"],
@@ -51,6 +53,17 @@ export default inLesson("b1-14-colleague", {
       move: "ask",
       topic: ["aruanne", "rääkima"],
       needs: [{ kind: "anyOf", of: [{ kind: "lemma", oneOf: ["rääkima", "ülemus"] }, { kind: "any" }] }],
+      required: true,
+      patience: 2,
+      shape: "word",
+    },
+    {
+      id: "away",
+      goal: "Tell her who to ask when you're not there.",
+      they: "She asks who she should ask when you're not there.",
+      move: "ask",
+      topic: ["küsima"],
+      needs: [{ kind: "anyOf", of: [{ kind: "lemma", oneOf: ["küsima", "ülemus"] }, { kind: "any" }] }],
       required: true,
       patience: 2,
       shape: "word",
@@ -91,7 +104,7 @@ export default inLesson("b1-14-colleague", {
     },
   ],
   outcomes: [
-    { id: "shown-around", when: ["greet", "computer", "report", "into", "offer", "close"], says: "You showed a new colleague around, said who helps with what, and made her welcome." },
+    { id: "shown-around", when: ["greet", "computer", "report", "away", "into", "offer", "close"], says: "You showed a new colleague around, said who helps with what, and made her welcome." },
     { id: "shown-around-thin", when: ["computer", "report"], says: "You told her who to ask. The rest can wait for Friday." },
     { id: "left", when: [], says: "You were busy. She'll find her own way, and ask you on Friday." },
   ],

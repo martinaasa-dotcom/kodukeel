@@ -8,8 +8,10 @@ import { FAREWELLS, HELLOS } from "./shared";
   The last part taught offices, forms, phone calls and the small words that
   finish a verb. The examiner asks the learner about themselves, their work,
   a problem they solved, what they would do differently, what they think,
-  and how they learned Estonian. Something is at stake: it is the exam, and
-  a one-word answer is not enough.
+  and how they learned Estonian. One question, town or country, is not in
+  the lesson's own conversation, so the learner meets something new, as at
+  the real exam. Something is at stake: it is the exam, and a one-word answer
+  is not enough.
 
   Not the catalog's `eksam-b1`, which rehearses the real exam's shape with its
   curveballs: this is the lesson's own role-play, held to the lessons' ledger.
@@ -18,8 +20,8 @@ import { FAREWELLS, HELLOS } from "./shared";
 */
 export default inLesson("b1-49-end", {
   id: "b1-eksam",
-  title: "The speaking exam, at the end of B1",
-  place: "A quiet room, an examiner across the table",
+  title: "The B1 speaking exam",
+  place: "A quiet room, an examiner you've never met across the table",
   tests: "liitverbid",
   register: "teie",
   role: "You're at the B1 speaking exam. Answer as yourself, in two or three sentences.",
@@ -83,11 +85,22 @@ export default inLesson("b1-49-end", {
     },
     {
       id: "opinion",
-      goal: "Give your opinion on living in Tallinn with a car, with a reason.",
-      they: "She asks whether it's easy to live in Tallinn with a car.",
+      goal: "Give your opinion on driving in Tallinn, with a reason.",
+      they: "She asks whether it's easy to drive in Tallinn.",
       move: "ask",
-      topic: ["lihtne", "auto", "elama"],
+      topic: ["lihtne", "auto", "sõitma"],
       needs: [{ kind: "anyOf", of: [{ kind: "lemma", oneOf: ["arvama", "sest", "kuigi"] }, { kind: "any" }] }],
+      required: true,
+      patience: 2,
+      shape: "word",
+    },
+    {
+      id: "compare",
+      goal: "Say which is better, town or the country, and why.",
+      they: "She asks which is better, living in town or in the country, and why.",
+      move: "ask",
+      topic: ["linn", "maa", "parem"],
+      needs: [{ kind: "anyOf", of: [{ kind: "lemma", oneOf: ["linn", "maa", "parem", "sest"] }, { kind: "any" }] }],
       required: true,
       patience: 2,
       shape: "word",
@@ -116,7 +129,7 @@ export default inLesson("b1-49-end", {
     },
   ],
   outcomes: [
-    { id: "examined", when: ["greet", "about", "work", "problem", "nexttime", "opinion", "learn", "close"], says: "You got through a whole speaking exam in Estonian, made of all of B1." },
+    { id: "examined", when: ["greet", "about", "work", "problem", "nexttime", "opinion", "compare", "learn", "close"], says: "You got through a whole speaking exam in Estonian, made of all of B1." },
     { id: "examined-thin", when: ["about", "problem", "opinion"], says: "You talked about yourself, a problem and what you think. That's the heart of the exam." },
     { id: "left", when: [], says: "You left before the exam began. There'll be another sitting." },
   ],

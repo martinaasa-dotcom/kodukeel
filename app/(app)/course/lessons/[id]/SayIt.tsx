@@ -92,7 +92,7 @@ interface Taken {
   readonly shown: boolean;
 }
 
-export function SayIt({ lesson, scene, sceneHref, capstone, name, onComplete }: { lesson: LessonSpec; scene: string | null; sceneHref: string | null; capstone: boolean; name: string | null; onComplete: () => void }) {
+export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier = 1, partAt = 1, onComplete }: { lesson: LessonSpec; scene: string | null; sceneHref: string | null; capstone: boolean; name: string | null; timeMultiplier?: number; partAt?: number; onComplete: () => void }) {
   const t = useT();
   const [mode, setMode] = useState<Mode | null>(null);
   const [at, setAt] = useState(0);
@@ -210,11 +210,11 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, onComplete }: 
       {card.kind === "lines" ? (
         <SayTheLines lesson={lesson} onNext={() => next()} />
       ) : card.kind === "fade" ? (
-        <SayAlongFade lesson={lesson} onDone={() => next()} />
+        <SayAlongFade lesson={lesson} partAt={partAt} onDone={() => next()} />
       ) : card.kind === "retell" ? (
         <RetellIt retell={lesson.retell!} voice={lesson.cast[lesson.retell!.who]} typed={mode === "type"} onDone={() => next()} />
       ) : card.kind === "faster" ? (
-        <AgainFaster faster={lesson.faster!} voice={voice} typed={mode === "type"} onDone={() => next()} />
+        <AgainFaster faster={lesson.faster!} voice={voice} typed={mode === "type"} multiplier={timeMultiplier} onDone={() => next()} />
       ) : (
         <AnswerCard key={at} lessonId={lesson.id} card={card} mode={mode} voice={voice} name={name} onNext={next} last={at >= cards.length - 1} />
       )}

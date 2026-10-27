@@ -9,6 +9,7 @@ import { checksPassedFor } from "@/lib/progress/checks";
 import { reviewQueue } from "@/lib/progress/dailyQueue";
 import { prisma } from "@/lib/db";
 import { confusions } from "@/lib/stats/confusions";
+import { multiplierFor, roundPaceFrom } from "@/lib/ux/roundClock";
 
 /**
  * How far back a lesson looks for the learner's own mix-ups: the newest
@@ -40,6 +41,10 @@ export interface LessonView {
   check: { id: string; final: boolean; passed: boolean } | null;
   /** The part this lesson is in, lesson by lesson, for "4 of 8" and the track on the finish. */
   part: { title: string; lessons: readonly { id: string; label: string; title: string; done: boolean }[] };
+  /** Which part of its level the lesson is in, counted from 1: the fade starts harder from the fourth (`fade.ts`). */
+  partAt: number;
+  /** How many times the standard a timed go runs for this learner (`lib/ux/roundClock.ts`). */
+  timeMultiplier: number;
 }
 
 /**
@@ -58,21 +63,24 @@ export async function lessonView(
 ): Promise<LessonView | null> {
   const lesson = lessonById(lessonId) ?? (allowPreview ? PREVIEW_LESSONS.find((l) => l.id === lessonId) ?? null : null);
   if (!lesson) return null;
-  const mixups = lesson.fixes?.length
-    ? await prisma.review.findMany({
-      where: { ownerId, reachedSlot: { not: null } },
-      select: { slot: true, reachedSlot: true },
-      orderBy: [{ reviewedAt: "desc" }, { id: "asc" }],
-      take: MIXUPS_READ,
-    })
-    : [];
-  const { closes, after, ...plan } = lessonPlan(lesson, confusions(mixups).map((c) => c.pair));
-  const [nameSetting, queue, passed, states] = await Promise.all([
+  // Every read at once: none of them needs another's answer, and each is a round trip.
+  const [mixups, nameSetting, pace, queue, passed, states] = await Promise.all([
+    lesson.fixes?.length
+      ? prisma.review.findMany({
+        where: { ownerId, reachedSlot: { not: null } },
+        select: { slot: true, reachedSlot: true },
+        orderBy: [{ reviewedAt: "desc" }, { id: "asc" }],
+        take: MIXUPS_READ,
+      })
+      : Promise.resolve([]),
     readSetting(ownerId, SETTING_KEYS.displayName),
+    readSetting(ownerId, SETTING_KEYS.roundPace),
     reviewQueue(ownerId, null, now),
-    closes ? checksPassedFor(ownerId) : Promise.resolve(new Set<string>()),
+    // Whether the part's check is passed is asked whatever the lesson, since knowing which lesson closes a part needs the plan.
+    checksPassedFor(ownerId),
     lessonListStates(ownerId),
   ]);
+  const { closes, after, ...plan } = lessonPlan(lesson, confusions(mixups).map((c) => c.pair));
   /*
     THE PART THIS LESSON IS IN, lesson by lesson, so the screen can say "4 of
     8 in First words" and the finish can light the one just done. A lesson
@@ -95,5 +103,7 @@ export async function lessonView(
     name: sayableName(nameSetting),
     due: queue.due.length,
     check: closes ? { id: closes.id, final: closes.final, passed: passed.has(closes.id) } : null,
+    partAt: Math.max(1, [...LESSON_PARTS, ...PREVIEW_PARTS].filter((p) => p.level === lesson.level).findIndex((p) => p.id === lesson.part) + 1),
+    timeMultiplier: multiplierFor(roundPaceFrom(pace)),
   };
 }

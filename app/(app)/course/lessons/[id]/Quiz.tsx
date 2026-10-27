@@ -212,7 +212,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
         )}
 
         {(item.kind === "hear" || item.kind === "pick" || item.kind === "gap" || item.kind === "reply") && (
-          <ChoiceGroup ariaLabel={item.kind === "gap" ? t("Which word fits") : item.kind === "reply" ? t("What they say back") : t("What it means")} select="one" className="choice-grid mt-4">
+          <ChoiceGroup ariaLabel={item.kind === "gap" ? t("Which word fits") : item.kind === "reply" ? t("What they say back") : t("What it means")} select="one" answer className="choice-grid mt-4">
             {item.options.map((option) => {
               const state = picked === null ? null : optionState(option === item.answer, option === picked);
               const estonian = item.kind === "gap" || item.kind === "reply";
@@ -263,7 +263,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
               className="field-lg w-full"
               value={typed}
               disabled={mark !== null}
-              aria-label={t("The changed sentence, in Estonian")}
+              aria-label={item.kind === "fix" ? t("The line put right, in Estonian") : t("The changed sentence, in Estonian")}
               autoComplete="off"
               autoCapitalize="off"
               spellCheck={false}

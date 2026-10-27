@@ -143,7 +143,7 @@ const ROUTES = [
   "/privacy?lang=et", "/trust?lang=et", "/funding?lang=et", "/partners?lang=et", "/curriculum?lang=et", "/accessibility?lang=et",
   "/teachers?lang=et", "/state-exam?lang=et", "/help?lang=et", "/how-we-know?lang=et", "/pilots?lang=et",
   "/welcome", "/sign-in", "/start", "/suggestions", "/admin/suggestions", "/admin/errors", "/admin/speech", "/dev/asr",
-  "/course", "/course/learn", "/course/forms", "/course/chat", "/course/lessons", "/course/lessons/a1-04-persons", "/course/check/check-a1.1", "/review/letters", "/review/workbook", "/review/numbers", "/review/sayings", "/review/wordplay", "/review/lookups",
+  "/course", "/course/learn", "/course/forms", "/course/chat", "/course/lessons", "/course/lessons/a1-04-persons", "/course/lessons/b1-06-note", "/course/check/check-a1.1", "/review/letters", "/review/workbook", "/review/numbers", "/review/sayings", "/review/wordplay", "/review/lookups",
   "/exam/A1", "/grammar/topic/object", "/learn/checkpoint/A1",
   "/learn/uhiskond/lesson", "/learn/uhiskond/worksheet",
   "/review", "/review/write", "/review/government", "/review/openers", "/review/twenty", "/review/conjugation", "/review/cloze", "/review/clinic",

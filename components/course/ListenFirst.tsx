@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ArrowRight, Ear } from "lucide-react";
 import { Button } from "@/components/Button";
 import { ChoiceGroup } from "@/components/Choice";
@@ -11,6 +11,9 @@ import { LessonConversation } from "@/components/course/LessonConversation";
 import { Card } from "@/components/ui";
 import { fill } from "@/lib/copy/locale";
 import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
+import { conditionById } from "@/lib/audio/conditions";
+import { shuffle } from "@/lib/random/shuffle";
+import { rng, seedFrom } from "@/lib/random/seeded";
 import type { Gist, LessonSpec } from "@/lib/course/lessons/types";
 
 /**
@@ -28,6 +31,15 @@ import type { Gist, LessonSpec } from "@/lib/course/lessons/types";
  * speech, not about a word, and the review log is for words (ADR-016). The
  * text can always be shown straight away, since somebody on a train without
  * headphones is not going to listen to anything.
+ *
+ * THE OPTIONS ARE SHUFFLED, off the question itself. Written by hand, the right
+ * one was first in most questions of the level, and a learner works out "press
+ * the first" by the second part. Seeded rather than random, so the server and
+ * the browser draw the same order and a reload keeps it.
+ *
+ * AND IT IS HEARD IN ITS ROOM where the lesson says so (`LessonSpec.hearing`):
+ * a phone call down a phone line, a café over its noise. Only this first,
+ * hidden play: the text that follows reads clean.
  */
 export function ListenFirst({ lesson, onRead }: { lesson: LessonSpec; onRead: () => void }) {
   const t = useT();
@@ -37,6 +49,7 @@ export function ListenFirst({ lesson, onRead }: { lesson: LessonSpec; onRead: ()
   const answered = picks.filter((p) => p !== null).length;
   const right = picks.filter((p, i) => p !== null && p === gists[i]!.answer).length;
   const all = answered === gists.length;
+  const room = lesson.hearing ? conditionById(lesson.hearing) : undefined;
 
   return (
     <Card>
@@ -46,9 +59,10 @@ export function ListenFirst({ lesson, onRead }: { lesson: LessonSpec; onRead: ()
         </span>
         <p className="text-base" style={{ color: "var(--ink-2)" }}>
           {t("At B1 you hear it before you read it. Play the conversation, then answer what it was about. The words come after.")}
+          {room && <>{" "}<span className="font-semibold" style={{ color: "var(--ink)" }}>{fill(t("You'll hear it {said}."), { said: t(room.said) })}</span></>}
         </p>
       </div>
-      <LessonConversation lines={lesson.conversation} cast={lesson.cast} english={false} hidden onPlayed={() => setPlayed(true)} />
+      <LessonConversation lines={lesson.conversation} cast={lesson.cast} english={false} hidden condition={room} onPlayed={() => setPlayed(true)} />
       <div className="mt-6 flex flex-col gap-5" data-gists>
         {gists.map((g, i) => (
           <GistQuestion
@@ -79,12 +93,15 @@ function GistQuestion({ gist, n, of, picked, onPick }: { gist: Gist; n: number; 
   const t = useT();
   const locale = useLocale();
   const sound = useFeedbackSound();
+  // Drawn in an order of its own, off the question, so the right one is not always first.
+  const order = useMemo(() => shuffle(gist.options.map((_, i) => i), rng(seedFrom(`gist:${gist.q}`))), [gist]);
   return (
     <div>
       <p className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>{fill(t("Question {n} of {total}"), { n: String(n), total: String(of) })}</p>
       <p className="mb-3 text-lg font-semibold" style={{ color: "var(--ink)" }}><LessonText text={gist.q} locale={locale} /></p>
-      <ChoiceGroup ariaLabel={gist.q} select="one" className="choice-grid">
-        {gist.options.map((option, i) => {
+      <ChoiceGroup ariaLabel={gist.q} select="one" answer className="choice-grid">
+        {order.map((i) => {
+          const option = gist.options[i]!;
           const state = picked === null ? null : optionState(i === gist.answer, i === picked);
           return (
             <button

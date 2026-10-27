@@ -1,16 +1,16 @@
 "use client";
 
-import { Fragment, useMemo, useState } from "react";
-import { ArrowRight, BookmarkPlus, Check, Circle, Loader2, MessageCircleQuestion, PenLine, ShieldCheck } from "lucide-react";
+import { Fragment, useEffect, useId, useLayoutEffect, useMemo, useState } from "react";
+import { ArrowRight, BookmarkPlus, Check, Circle, Loader2, PenLine } from "lucide-react";
 import { Button } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { Speak } from "@/components/Speak";
-import { AnuProse } from "@/components/anu/Prose";
+import { AnuTextReading } from "@/components/anu/TextReading";
 import { SentenceFindings } from "@/components/course/SentenceFindings";
 import { useFeedbackSound } from "@/components/AudioPrefs";
 import { useLocale, useT } from "@/components/Locale";
 import { LessonText } from "@/components/course/LessonText";
-import { Card, Note, SectionTitle } from "@/components/ui";
+import { Card, SectionTitle } from "@/components/ui";
 import { fill, tr } from "@/lib/copy/locale";
 import { NOT_REACHED } from "@/lib/copy/values";
 import { VERDICT_CLASS } from "@/lib/ux/verdict";
@@ -18,6 +18,8 @@ import { frameOf, markGap, usesIn, wordCount } from "@/lib/course/lessons/frame"
 import type { LessonSpec, WriteTask } from "@/lib/course/lessons/types";
 import type { Finding } from "@/lib/course/lessons/sentenceCheck";
 import { checkLessonText, keepLessonSentences } from "@/app/actions";
+import { MOST_KEPT, MOST_READ } from "@/lib/course/lessons/own";
+import { forgetWriting, loadWriting, saveWriting, type WriteStage } from "./writeResume";
 
 /**
  * WRITE: ONE REAL TEXT A PART (B1 on, docs/43-lessons.md §11.2).
@@ -32,30 +34,73 @@ import { checkLessonText, keepLessonSentences } from "@/app/actions";
  *      deployment; then Anu on the text as a whole, on request, behind the
  *      guard every graded comment passes, so a note quoting a form nobody can
  *      vouch for is held back whole (`/api/exam/write`, `verify.ts`).
- *   5. Redraft beside the first version, and keep the sentences: each one
- *      holding a word the course taught, spelled as it taught it, becomes a gap
- *      card in the learner's own deck (`keepLessonSentences`).
+ *   5. Redraft beside the first version, have Anu read the second draft too,
+ *      and keep the sentences: the learner ticks the ones they are sure of,
+ *      only a sentence the dictionary read with nothing to say can be ticked,
+ *      and each one kept becomes a gap card in their own deck with a word the
+ *      course taught taken out (`keepLessonSentences`).
+ *
+ * WHAT WAS TYPED SURVIVES LEAVING THE STEP. The step pills are pressable and a
+ * phone takes tabs away, so the stage, the frame's gaps, the draft and the
+ * second draft are kept on the device per lesson (`writeResume.ts`) and put
+ * back on arrival, and forgotten when the learner presses "Done writing".
  *
  * NOTHING HERE IS A MARK. The dictionary's findings say where a spelling is
  * not one it knows; Anu's note is advice. A learner who writes a different
  * text from the model has not got it wrong, which is the whole point of
  * writing your own.
  */
-type Stage = "model" | "frame" | "own" | "redraft";
+type Stage = WriteStage;
 const STAGES: readonly Stage[] = ["model", "frame", "own", "redraft"];
 
 export function WriteStep({ lesson, onDone }: { lesson: LessonSpec; onDone: () => void }) {
   const t = useT();
   const write = lesson.write!;
+  const gapCount = useMemo(() => frameOf(write).flatMap((l) => l.parts.filter((p) => p.kind === "gap")).length, [write]);
   const [stage, setStage] = useState<Stage>("model");
+  const [frameTyped, setFrameTyped] = useState<readonly string[]>(() => Array.from({ length: gapCount }, () => ""));
+  const [frameChecked, setFrameChecked] = useState(false);
   const [draft, setDraft] = useState("");
   const [second, setSecond] = useState("");
+  const [looked, setLooked] = useState(false);
+
+  /*
+    Picked up from the device before the first paint, so the draft somebody
+    was writing is the one drawn, and never during render, since the server
+    has no device to read. Once, on arrival.
+  */
+  useLayoutEffect(() => {
+    const saved = loadWriting(lesson.id);
+    if (saved) {
+      setStage(saved.stage);
+      if (saved.frame.length === gapCount) {
+        setFrameTyped(saved.frame);
+        setFrameChecked(saved.frameChecked);
+      }
+      setDraft(saved.draft);
+      setSecond(saved.second);
+    }
+    setLooked(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!looked) return;
+    // Nothing typed and nothing moved past is nothing to lose.
+    if (stage === "model" && !draft && !second && frameTyped.every((g) => g === "")) return;
+    saveWriting(lesson.id, { stage, frame: [...frameTyped], frameChecked, draft, second });
+  }, [looked, lesson.id, stage, frameTyped, frameChecked, draft, second]);
+
   const at = STAGES.indexOf(stage);
   const titles: Record<Stage, string> = {
     model: t("Read the model"),
     frame: t("Fill in the frame"),
     own: t("Write your own"),
     redraft: t("Redraft and keep it"),
+  };
+  const done = () => {
+    forgetWriting(lesson.id);
+    onDone();
   };
 
   return (
@@ -77,9 +122,18 @@ export function WriteStep({ lesson, onDone }: { lesson: LessonSpec; onDone: () =
       </ol>
       <Genre write={write} />
       {stage === "model" && <Model lesson={lesson} onNext={() => setStage("frame")} />}
-      {stage === "frame" && <Frame write={write} onNext={() => setStage("own")} />}
-      {stage === "own" && <Own lesson={lesson} draft={draft} setDraft={setDraft} onNext={() => { setSecond(draft); setStage("redraft"); }} />}
-      {stage === "redraft" && <Redraft lesson={lesson} first={draft} second={second} setSecond={setSecond} onDone={onDone} />}
+      {stage === "frame" && (
+        <Frame
+          write={write}
+          typed={frameTyped}
+          setTyped={setFrameTyped}
+          checked={frameChecked}
+          setChecked={setFrameChecked}
+          onNext={() => setStage("own")}
+        />
+      )}
+      {stage === "own" && <Own lesson={lesson} draft={draft} setDraft={setDraft} onNext={() => { if (!second) setSecond(draft); setStage("redraft"); }} />}
+      {stage === "redraft" && <Redraft lesson={lesson} first={draft} second={second} setSecond={setSecond} onDone={done} />}
     </div>
   );
 }
@@ -119,7 +173,7 @@ function Model({ lesson, onNext }: { lesson: LessonSpec; onNext: () => void }) {
               <Speak text={write.model[i]!.et} size={14} />{" "}
               {line.parts.map((p, j) => p.kind === "text"
                 ? <Fragment key={j}>{p.text}</Fragment>
-                : <mark key={j} className="rounded px-1 font-bold" style={{ background: "var(--butter-soft)", color: "var(--ink)" }}>{p.answer}</mark>)}
+                : <mark key={j} className="rounded px-1 font-bold" style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}>{p.answer}</mark>)}
             </p>
             {english && <p className="text-base" style={{ color: "var(--ink-2)" }}><LessonText text={line.en} locale={locale} /></p>}
           </div>
@@ -141,14 +195,19 @@ function Model({ lesson, onNext }: { lesson: LessonSpec; onNext: () => void }) {
 }
 
 /** Stage 2: the model with its key words taken out, written back in. */
-function Frame({ write, onNext }: { write: WriteTask; onNext: () => void }) {
+function Frame({ write, typed, setTyped, checked, setChecked, onNext }: {
+  write: WriteTask;
+  typed: readonly string[];
+  setTyped: (update: (all: readonly string[]) => readonly string[]) => void;
+  checked: boolean;
+  setChecked: (checked: boolean) => void;
+  onNext: () => void;
+}) {
   const t = useT();
   const locale = useLocale();
   const sound = useFeedbackSound();
   const frame = useMemo(() => frameOf(write), [write]);
   const gaps = frame.flatMap((l) => l.parts.filter((p) => p.kind === "gap"));
-  const [typed, setTyped] = useState<readonly string[]>(() => gaps.map(() => ""));
-  const [checked, setChecked] = useState(false);
   const marks = gaps.map((g, i) => markGap(typed[i] ?? "", g.kind === "gap" ? g.answer : ""));
   const right = marks.filter((m) => m !== "wrong").length;
 
@@ -174,7 +233,7 @@ function Frame({ write, onNext }: { write: WriteTask; onNext: () => void }) {
                       autoComplete="off"
                       autoCapitalize="off"
                       spellCheck={false}
-                      onChange={(e) => setTyped((all) => all.map((v, k) => (k === p.n ? e.target.value : v)))}
+                      onChange={(e) => { const value = e.target.value; setTyped((all) => gaps.map((_, k) => (k === p.n ? value : all[k] ?? ""))); }}
                     />
                     <span className="text-sm" style={{ color: "var(--ink-3)" }}><LessonText text={p.en} locale={locale} /></span>
                     {checked && mark !== "right" && <span lang="et" className="text-sm font-bold" style={{ color: "var(--ink)" }}>{p.answer}</span>}
@@ -240,7 +299,7 @@ function Own({ lesson, draft, setDraft, onNext }: { lesson: LessonSpec; draft: s
         </ul>
       </div>
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm" style={{ color: "var(--ink-3)" }}>{t("Your details, your text. The model is one way; yours doesn't have to match it.")}</p>
+        <p className="text-sm" style={{ color: "var(--ink-3)" }}>{t("Write about your own life. It doesn't have to match the model.")}</p>
         <Button variant={enough ? "primary" : "secondary"} onClick={onNext} disabled={words < 5}>
           {t("Have it read")} <ArrowRight size={15} aria-hidden />
         </Button>
@@ -249,92 +308,109 @@ function Own({ lesson, draft, setDraft, onNext }: { lesson: LessonSpec; draft: s
   );
 }
 
-interface AnuNote { comment: string; rule: string; aiAvailable: boolean; withheld?: string[]; quotaMessage?: string }
+interface Read {
+  /** The text the dictionary read, so a draft changed since is never kept off a stale reading. */
+  readonly text: string;
+  readonly sentences: readonly { sentence: string; findings: readonly Finding[]; card: { before: string; answer: string; after: string } | null }[];
+  /** Pieces under three words, not read as sentences. */
+  readonly short: number;
+  /** Sentences past the ones read. */
+  readonly beyond: number;
+}
 
 /** Stages 4 and 5: the reading, the second draft beside the first, and the sentences kept. */
 function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonSpec; first: string; second: string; setSecond: (s: string) => void; onDone: () => void }) {
   const t = useT();
-  const [findings, setFindings] = useState<readonly { sentence: string; findings: readonly Finding[] }[] | null>(null);
+  const id = useId();
+  const [read, setRead] = useState<Read | null>(null);
   const [reading, setReading] = useState(false);
-  const [note, setNote] = useState<AnuNote | null>(null);
-  const [asking, setAsking] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [kept, setKept] = useState<{ kept: number; already: number } | null>(null);
+  const [ticked, setTicked] = useState<ReadonlySet<number>>(new Set());
+  const [kept, setKept] = useState<{ kept: number; already: number; refused: number } | null>(null);
   const [keeping, setKeeping] = useState(false);
+  const current = second || first;
+  const stale = read !== null && read.text !== current;
 
-  const read = (text: string) => {
+  const readIt = (text: string) => {
     setReading(true);
     setError(null);
     checkLessonText(lesson.id, text)
-      .then((r) => { if (r.ok) setFindings(r.sentences); else setError(t(r.error)); })
+      .then((r) => {
+        if (!r.ok) { setError(t(r.error)); return; }
+        setRead({ text, sentences: r.sentences, short: r.short, beyond: r.beyond });
+        // Ticked by default: the sentences the dictionary found nothing in that make a card, as many as a draft keeps.
+        const clean = r.sentences.flatMap((s, i) => (s.card ? [i] : [])).slice(0, MOST_KEPT);
+        setTicked(new Set(clean));
+        setKept(null);
+      })
       .catch(() => setError(t(NOT_REACHED)))
       .finally(() => setReading(false));
   };
-  const ask = async () => {
-    setAsking(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/exam/write", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ text: second || first, level: lesson.level }) });
-      const body = await res.json();
-      if (!res.ok) setError(body.error ? t(body.error) : t("We couldn't read that."));
-      else setNote(body as AnuNote);
-    } catch {
-      setError(t("Anu needs a connection to read it. Your text is still here."));
-    } finally {
-      setAsking(false);
-    }
-  };
   const keep = () => {
+    if (!read || stale) return;
     setKeeping(true);
-    keepLessonSentences(lesson.id, second || first)
-      .then((r) => { if (r.ok) setKept({ kept: r.kept, already: r.already }); else setError(t(r.error)); })
+    setError(null);
+    keepLessonSentences(lesson.id, read.sentences.filter((_, i) => ticked.has(i)).map((s) => s.sentence))
+      .then((r) => { if (r.ok) setKept({ kept: r.kept, already: r.already, refused: r.refused }); else setError(t(r.error)); })
       .catch(() => setError(t(NOT_REACHED)))
       .finally(() => setKeeping(false));
   };
-  const noted = findings?.filter((s) => s.findings.length > 0).length ?? 0;
+  const toggle = (i: number) => setTicked((all) => {
+    const next = new Set(all);
+    if (next.has(i)) next.delete(i);
+    else if (next.size < MOST_KEPT) next.add(i);
+    return next;
+  });
+  const noted = read?.sentences.filter((s) => s.findings.length > 0).length ?? 0;
+  const total = read ? read.sentences.length + read.short + read.beyond : 0;
 
   return (
     <div className="flex flex-col gap-5">
       <Card>
-        <SectionTitle hint={t("no model, nothing graded")}>{t("The dictionary reads it")}</SectionTitle>
-        {findings === null ? (
-          <Button onClick={() => read(second || first)} disabled={reading}>
+        <SectionTitle hint={t("spelling and common slips")}>{t("The dictionary reads it")}</SectionTitle>
+        {read === null ? (
+          <Button onClick={() => readIt(current)} disabled={reading}>
             {reading ? <><Loader2 size={15} className="animate-spin" aria-hidden /> {t("Reading")}</> : t("Read my text")}
           </Button>
         ) : (
           <div className="flex flex-col gap-4" data-write-findings>
             <p className="text-base font-semibold" role="status" style={{ color: "var(--ink)" }}>
               {noted === 0
-                ? t("Every word is one the dictionary knows. The rest is how you said it, which is yours.")
-                : fill(t("{n} of {total} sentences have something to look at."), { n: String(noted), total: String(findings.length) })}
+                ? t("The dictionary found nothing to point out. It checks spelling and the commonest slips, not every ending.")
+                : fill(t("{n} of {total} sentences have something to look at."), { n: String(noted), total: String(read.sentences.length) })}
             </p>
-            {findings.filter((s) => s.findings.length > 0).map((s) => (
-              <div key={s.sentence} className="flex flex-col gap-2">
+            {read.sentences.length < total && (
+              <p className="text-base" style={{ color: "var(--ink-2)" }}>
+                {fill(t("It read {n} of your {total} sentences. It skips anything under three words, and stops after {max}."), {
+                  n: String(read.sentences.length), total: String(total), max: String(MOST_READ),
+                })}
+              </p>
+            )}
+            {read.sentences.map((s, i) => s.findings.length > 0 && (
+              <div key={i} className="flex flex-col gap-2">
                 <p lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>{s.sentence}</p>
                 <SentenceFindings findings={s.findings} />
               </div>
             ))}
-            <Button variant="ghost" size="sm" onClick={() => read(second || first)} disabled={reading}>{t("Read it again")}</Button>
+            {stale && <p className="text-base" style={{ color: "var(--ink-2)" }}>{t("You've changed your text since the dictionary read it.")}</p>}
+            <div>
+              <Button variant={stale ? "secondary" : "ghost"} size="sm" onClick={() => readIt(current)} disabled={reading}>
+                {reading ? <><Loader2 size={15} className="animate-spin" aria-hidden /> {t("Reading")}</> : t("Read it again")}
+              </Button>
+            </div>
           </div>
         )}
       </Card>
 
       <Card>
         <SectionTitle hint={t("on request")}>{t("Anu reads it")}</SectionTitle>
-        {note ? (
-          note.comment
-            ? <AnuProse text={note.comment} className="text-md" />
-            : note.aiAvailable
-              ? <Note tone="neutral"><ShieldCheck size={14} className="mr-1.5 inline" aria-hidden />{t("Anu used an Estonian word the dictionary couldn't check, so we've held her note back. We only show an Estonian word in feedback when we can check it.")}</Note>
-              : <Note tone="neutral">{note.quotaMessage ? t(note.quotaMessage) : t("Anu's comments need a model, and this deployment has none. The dictionary's reading above is all there is here.")}</Note>
-        ) : (
-          <div className="flex flex-wrap items-center gap-3">
-            <Button onClick={ask} disabled={asking}>
-              {asking ? <><Loader2 size={15} className="animate-spin" aria-hidden /> {t("Reading")}</> : <><MessageCircleQuestion size={15} aria-hidden /> {t("Ask Anu to read it")}</>}
-            </Button>
-            <span className="text-sm" style={{ color: "var(--ink-3)" }}>{t("Whether the text holds together, and one thing to do better.")}</span>
-          </div>
-        )}
+        <AnuTextReading
+          text={current}
+          level={lesson.level}
+          heading={t("Anu's read it. It's advice, and nothing here is marked.")}
+          invite={t("Whether the text holds together, and one thing to do better.")}
+          offline={t("Anu needs a connection to read it. Your text is still here.")}
+        />
       </Card>
 
       <Card>
@@ -353,23 +429,58 @@ function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonS
       </Card>
 
       <Card tone="sky">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="max-w-[52ch]">
-            <p className="text-lg font-semibold" style={{ color: "var(--ink)" }}>{t("Keep your sentences for review")}</p>
-            <p className="text-base" style={{ color: "var(--ink-2)" }}>
-              {kept
-                ? kept.kept > 0
-                  ? fill(t(kept.kept === 1 ? "1 of your sentences is in your reviews now, with one word to fill in." : "{n} of your sentences are in your reviews now, each with one word to fill in."), { n: String(kept.kept) })
-                  : kept.already > 0 ? t("You kept these already.") : t("None of these sentences has a word from the course in it yet to fill in.")
-                : t("Each sentence comes back in review with one word you were taught taken out. Your sentence, your deck.")}
-            </p>
-          </div>
-          {!kept && (
-            <Button onClick={keep} disabled={keeping || wordCount(second || first) < 5}>
-              {keeping ? <Loader2 size={15} className="animate-spin" aria-hidden /> : <BookmarkPlus size={15} aria-hidden />} {t("Keep them")}
-            </Button>
-          )}
-        </div>
+        <p className="text-lg font-semibold" style={{ color: "var(--ink)" }}>{t("Keep your sentences for review")}</p>
+        {kept ? (
+          <p className="text-base" role="status" style={{ color: "var(--ink-2)" }}>
+            {kept.kept > 0
+              ? fill(t(kept.kept === 1 ? "1 of your sentences is in your reviews now, with one word to fill in." : "{n} of your sentences are in your reviews now, each with one word to fill in."), { n: String(kept.kept) })
+              : kept.already > 0 ? t("You kept these already.") : t("None of these sentences has a word from the course in it yet to fill in.")}
+            {kept.refused > 0 && <> {t("Some couldn't be kept, because the dictionary found something to point out in them.")}</>}
+          </p>
+        ) : read === null || stale ? (
+          <p className="text-base" style={{ color: "var(--ink-2)" }}>
+            {read === null
+              ? t("Have the dictionary read your text first. Then tick the sentences you're sure of.")
+              : t("Read it again, then tick the sentences you're sure of.")}
+          </p>
+        ) : (
+          <fieldset className="mt-1 flex flex-col gap-3" data-write-keep>
+            <legend className="text-base" style={{ color: "var(--ink-2)" }}>
+              {t("Tick the sentences you're sure of. Each comes back in review with the marked word to fill in.")}
+            </legend>
+            <ul className="flex flex-col gap-1">
+              {read.sentences.map((s, i) => {
+                const blocked = s.findings.length > 0 || !s.card;
+                return (
+                  <li key={i}>
+                    <label htmlFor={`${id}-${i}`} className="flex min-h-11 cursor-pointer items-start gap-3 py-1.5 text-base leading-relaxed" style={{ color: blocked ? "var(--ink-3)" : "var(--ink)" }}>
+                      <input
+                        id={`${id}-${i}`}
+                        type="checkbox"
+                        checked={!blocked && ticked.has(i)}
+                        disabled={blocked || (!ticked.has(i) && ticked.size >= MOST_KEPT)}
+                        onChange={() => toggle(i)}
+                        className="mt-1.5 h-4 w-4 shrink-0"
+                        style={{ accentColor: "var(--accent)" }}
+                      />
+                      <span className="flex flex-col">
+                        <span lang="et">{s.card ? <Marked {...s.card} /> : s.sentence}</span>
+                        {s.findings.length > 0
+                          ? <span className="text-sm" style={{ color: "var(--ink-3)" }}>{t("The dictionary found something here. Put it right first.")}</span>
+                          : !s.card && <span className="text-sm" style={{ color: "var(--ink-3)" }}>{t("No word from the course to take out.")}</span>}
+                      </span>
+                    </label>
+                  </li>
+                );
+              })}
+            </ul>
+            <div className="flex justify-end">
+              <Button onClick={keep} disabled={keeping || ticked.size === 0}>
+                {keeping ? <Loader2 size={15} className="animate-spin" aria-hidden /> : <BookmarkPlus size={15} aria-hidden />} {t("Keep them")}
+              </Button>
+            </div>
+          </fieldset>
+        )}
       </Card>
 
       {error && <p className="text-base" role="alert" style={{ color: "var(--blush-ink)" }}>{error}</p>}
@@ -377,5 +488,16 @@ function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonS
         <Button variant="primary" onClick={onDone}>{t("Done writing")} <ArrowRight size={15} aria-hidden /></Button>
       </div>
     </div>
+  );
+}
+
+/** A kept sentence with the word that will be taken out of it marked in place. */
+function Marked({ before, answer, after }: { before: string; answer: string; after: string }) {
+  return (
+    <>
+      {before}
+      <b className="rounded px-0.5" style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}>{answer}</b>
+      {after}
+    </>
   );
 }

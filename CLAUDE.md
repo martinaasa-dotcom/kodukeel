@@ -10696,7 +10696,12 @@ or one answer given three times faster (`faster`); and a part's writing evening 
 read by the dictionary first and by Anu behind `verify.ts`, with a sentence written right kept as a
 `WRITTEN` card. `lessonEnglish` collects all of that English, so the translation check covers it.
 Twenty-one lessons offer the catalog conversation they rehearse on their finish
-(`lessonSituations.ts`), which is where the conversations that opened on old B1 evenings went.
+(`lessonSituations.ts`), which is where the conversations that opened on old B1 evenings went,
+and the board and Today count one as reached once its lesson is done (`situationsOfferedThrough`).
+**B1 is one family's year and a name is one person** (`docs/reviews/b1-cast.md`): read it before
+writing a line that names anybody. Each part asks more than the one before (its ramp table), a
+part's closing conversation carries a turn it never rehearsed and no retell or race
+(`levelContractProblems`), and `scripts/test-lessons.mjs` walks the shapes in a browser.
 
 ## Conventions
 

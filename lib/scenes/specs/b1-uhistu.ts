@@ -7,8 +7,10 @@ import { FAREWELLS, HELLOS } from "./shared";
 
   The part taught what people do and what was done with nobody named, and
   what had happened before. A pipe burst in the cellar; the chair of the house
-  association asks the learner, who saw it, what happened, what was done,
-  whether it had happened before, and what should be done now.
+  association, Helgi, asks the learner, who saw it, what happened, what was
+  done, whether the cellar is still wet (the one question the lesson's own
+  conversation never asks), whether it had happened before, and what should
+  be done now.
 
   Lemmas only, as in every scene file; the lines are in `bank/b1-uhistu.ts`.
 */
@@ -51,6 +53,17 @@ export default inLesson("b1-35-residents", {
       move: "ask",
       topic: ["tegema"],
       needs: [{ kind: "anyOf", of: [{ kind: "lemma", oneOf: ["toru", "kutsuma"] }, { kind: "any" }] }],
+      required: true,
+      patience: 2,
+      shape: "word",
+    },
+    {
+      id: "wet",
+      goal: "Say whether there's still water in the cellar.",
+      they: "She asks if there's still water in the cellar.",
+      move: "ask",
+      topic: ["vesi", "kelder"],
+      needs: [{ kind: "anyOf", of: [{ kind: "lemma", oneOf: ["vesi", "märg"] }, { kind: "any" }] }],
       required: true,
       patience: 2,
       shape: "word",
@@ -101,7 +114,7 @@ export default inLesson("b1-35-residents", {
     },
   ],
   outcomes: [
-    { id: "decided", when: ["greet", "what", "done", "before", "suggest", "when", "close"], says: "You told the whole meeting what happened, what had happened before and what should be done." },
+    { id: "decided", when: ["greet", "what", "done", "wet", "before", "suggest", "when", "close"], says: "You told the whole meeting what happened, what had happened before and what should be done." },
     { id: "decided-thin", when: ["what", "suggest"], says: "You said what happened and what should be done. That's what the meeting needed." },
     { id: "left", when: [], says: "You left before the meeting started. The pipes will wait." },
   ],

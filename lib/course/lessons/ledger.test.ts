@@ -269,4 +269,15 @@ describe("a slip to put right (Fix)", () => {
     expect(markRework("Ma lugesin raamatut.", item).verdict).toBe("right");
     expect(markRework(item.shown, item).note).toContain("slip still in it");
   });
+
+  it("calls the slip put right nearly, where a hand slipped on another word", () => {
+    const item = practiceFor(lesson({ ...base, fixes: [fix] }), EMPTY_LEDGER).find((i) => i.kind === "fix");
+    expect(item?.kind).toBe("fix");
+    if (item?.kind !== "fix") return;
+    const nearly = markRework("Ma lugeisn raamatut.", item);
+    expect(nearly.verdict).toBe("nearly");
+    expect(nearly.note).toContain("slip is put right");
+    // The slip itself still in it is wrong however the rest is spelled.
+    expect(markRework("Ma lugeisn raamatu.", item).verdict).toBe("wrong");
+  });
 });

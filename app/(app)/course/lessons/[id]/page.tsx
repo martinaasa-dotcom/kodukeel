@@ -7,6 +7,7 @@ import { LessonRunner } from "./LessonRunner";
 import { lessonView } from "@/lib/progress/lessonView";
 import { isAdmin } from "@/lib/auth/admin";
 
+
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const lesson = lessonById((await params).id);
   return titleFor(lesson ? lesson.title : "A lesson");
@@ -43,6 +44,8 @@ export default async function LessonPage({ params, searchParams }: { params: Pro
       name={view.name}
       due={view.due}
       check={view.check}
+      timeMultiplier={view.timeMultiplier}
+      partAt={view.partAt}
     />
   );
 }

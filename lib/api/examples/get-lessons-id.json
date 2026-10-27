@@ -397,6 +397,8 @@
       }
     ]
   },
+  "partAt": 1,
+  "timeMultiplier": 1,
   "name": null,
   "due": 33,
   "check": null,

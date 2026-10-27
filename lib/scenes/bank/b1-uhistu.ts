@@ -23,6 +23,8 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "b1-uhistu", beat: "what", text: "Mis keldris juhtus?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-uhistu", beat: "done", text: "Mis siis tehti?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-uhistu", beat: "done", text: "Selge. Ja mida te siis tegite?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
+  { scene: "b1-uhistu", beat: "wet", text: "Kas keldris on veel vett?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
+  { scene: "b1-uhistu", beat: "wet", text: "Selge. Aga kas keldris on veel vett?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-uhistu", beat: "before", text: "Kas see oli esimene kord?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-uhistu", beat: "before", text: "Kas toru oli ka varem katki läinud?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-uhistu", beat: "suggest", text: "Mida te soovitate?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },

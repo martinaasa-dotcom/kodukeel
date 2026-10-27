@@ -798,7 +798,7 @@ call, ending on the B1 speaking exam, practiced.
 
 | Part | Lessons | What it teaches | It writes | Ends in |
 | --- | --- | --- | --- | --- |
-| `b1-objekt` The whole thing or some of it | 1 to 7 | the object rule and aspect, the negative object, the imperative of doing and finishing | a note to the handyman | the repair visit |
+| `b1-objekt` Getting the job done | 1 to 7 | the object rule and aspect, the negative object, the imperative of doing and finishing | a note to the handyman | the repair visit |
 | `b1-rektsioon` What each verb asks for | 8 to 14 | government (`aitama` whom, `huvituma` from what, `sõltuma` on what), the pronouns in their cases | a reply to an invitation | a new colleague |
 | `b1-raha` Work and money | 15 to 21 | would have and should have, requests and offers, `-na` against `-ks` in use, pay, tax and shifts | an email asking to change your hours | talking about your pay |
 | `b1-kodu` Renting a place | 22 to 28 | the -tud word as an adjective, agreement, house rules, things that break, a contract | a complaint to the landlord | getting your deposit back |
@@ -821,6 +821,24 @@ Words step names what each new verb asks for (`asks`). Each part ends in a role-
 rehearses the same errand on their finish (`lessonSituations.ts`): the payday lesson the bank, the
 leak the landlord, the speaking exam lesson the B1 exam conversation.
 
+**One year, one cast, and a level that ramps.** B1 is one family's year (`docs/reviews/b1-cast.md`):
+a name is one person from A1 to B1, the move in part 4 is the move every later part lives with, and
+a stranger is a one-off name. Each part asks more than the one before, in a table the lessons are
+held to there: the retell grows from four sentences to eight and from part 5 sometimes changes
+person, the writing from forty words to a hundred, the questions before the text from what it was
+about to who said it and which came first, the reworks combine two patterns from part 5, and from
+part 4 the fade hides tonight's words on its first pass (`fadePlan`, handed the part's place).
+Every part has a listening that isn't a conversation (a voicemail, a notice, a radio item, a hold
+message), heard where the story is (`hearing`: a phone line, a café, a quick news voice, through
+`lib/audio/conditions.ts`). A part's closing conversation carries a turn its lesson never
+rehearsed and no retell or race, since its Say it is the conversation (`levelContractProblems`).
+The answer options are shuffled on the screen by a seed of the question, the arrow keys move focus
+rather than answer on every marked question (`ChoiceGroup`'s `answer`), the race is lengthened by
+the learner's own round pace, and a slip put right with one other word misspelled is "nearly".
+A conversation a finished lesson has offered counts as reached on the situations board and on
+Today (`situationsOfferedThrough`), since the lessons open no unit of their own level.
+`scripts/test-lessons.mjs` walks six lessons through every step in a browser, axe on each.
+
 **How the parts were written.** All seven were drafted at once against A1, A2 and the first B1
 lesson, each held to `scripts/check-lesson-part.ts`, and merged in teaching order. Where two parts
 taught one word, the later one stopped teaching it (`lessonProblems` reports "taught already"),
@@ -839,5 +857,5 @@ now starts at B2. 130 written sentences for words that only the old B1 units tau
 since no evening teaches those words now.
 
 **What waits on a person.** Every new Estonian line is in `docs/44-language-reviews.md` section 1.
-The native speaker reads the lines the second model flagged first (B-L7), which are in
-`docs/reviews/b1-flags.md` beside the lines each part's author was unsure of. The Russian and Ukrainian need a fluent reader, as A2's do.
+The native speaker reads `docs/reviews/b1-flags.md` first (B-L7): what the rewrite kept on
+purpose, the new lines worth a first look, and the one line a second model flagged that is still open. The Russian and Ukrainian need a fluent reader, as A2's do.

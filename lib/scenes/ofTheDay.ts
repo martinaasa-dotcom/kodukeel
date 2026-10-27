@@ -17,15 +17,21 @@ import type { SceneSpec } from "./types";
  * A1, there is no conversation to offer and the answer is null rather than a
  * scene whose words the evenings have not handed over.
  *
+ * And a conversation a finished lesson has offered on its finish screen is
+ * open too (`offered`, off `situationsOfferedThrough`), because the lessons
+ * teach by goal and open no unit of their own level: without it a B1 learner
+ * would be offered nothing past A2 for the whole level.
+ *
  * Pure: a day and a catalog in, a scene out.
  */
 export function sceneOfDay(
   day: string,
   scenes: readonly SceneSpec[],
   unitsMet: ReadonlySet<string> | null,
+  offered: ReadonlySet<string>,
 ): SceneSpec | null {
   const open = scenes
-    .filter((scene) => !unitsMet || scene.units.every((unit) => unitsMet.has(unit)))
+    .filter((scene) => !unitsMet || offered.has(scene.id) || scene.units.every((unit) => unitsMet.has(unit)))
     .sort((a, b) => a.id.localeCompare(b.id));
   if (open.length === 0) return null;
   return open[dayIndex(day, "scene-of-the-day", open.length)] ?? null;

@@ -83,7 +83,7 @@ const MAX_RESOLVE = 2;
 export async function programmeFor(ownerId: string): Promise<Programme | null> {
   const stored = await readSetting(ownerId, SETTING_KEYS.programme);
   if (stored === "off") return null;
-  if (stored) return programmeById(stored) ?? null;
+  if (stored) return rehomed(ownerId, programmeById(stored) ?? null);
   /*
     AND A LEARNER ALREADY PART WAY THROUGH ONE STAYS ON IT. Nothing is stored
     for somebody who was led here by this fallback without ever pressing
@@ -98,7 +98,42 @@ export async function programmeFor(ownerId: string): Promise<Programme | null> {
     select: { programmeId: true },
   });
   const inFlight = last ? programmeById(last.programmeId) : undefined;
-  return inFlight ?? openingPartFor(ownerId);
+  return inFlight ? rehomed(ownerId, inFlight) : openingPartFor(ownerId);
+}
+
+/**
+ * A LEARNER WHO WAS PART WAY THROUGH A PART THAT HAS SINCE BECOME LESSONS
+ * STARTS ITS LEVEL AT ITS FIRST LESSON.
+ *
+ * When a level moves from unit-built evenings to lessons (B1 did), its parts
+ * keep their ids and lose their days. Somebody stored on the old third part
+ * would otherwise open on the new third part's first lesson, whose ledger
+ * assumes the two parts before it: a lesson full of words they never met.
+ * What says which happened is their own ticks: every one of them in this part
+ * is on a day id it no longer holds, and none on a day it does. Such a learner
+ * starts the level again from its first part, which is what the switch
+ * promised them (docs/43-lessons.md §11.6), and is then wherever they have got
+ * to in the new lessons since: the furthest of the level's parts holding a
+ * tick on one of its own days. Read every time rather than written over the
+ * stored part, so nothing about a learner is changed by opening a screen.
+ */
+async function rehomed(ownerId: string, programme: Programme | null): Promise<Programme | null> {
+  if (!programme || programme.days.length === 0 || !programme.days.every((d) => d.lesson)) return programme;
+  const days = programme.days.map((d) => d.id);
+  const [old, current] = await Promise.all([
+    prisma.courseStep.findFirst({ where: { ownerId, programmeId: programme.id, dayId: { notIn: days } }, select: { id: true }, orderBy: { id: "asc" } }),
+    prisma.courseStep.findFirst({ where: { ownerId, programmeId: programme.id, dayId: { in: days } }, select: { id: true }, orderBy: { id: "asc" } }),
+  ]);
+  if (!old || current) return programme;
+  // Back to where they have been working since, which is the level's first part until they move on from it.
+  const parts = PROGRAMMES.filter((p) => p.level === programme.level && p.days.length > 0 && p.days.every((d) => d.lesson));
+  const worked = await prisma.courseStep.groupBy({
+    by: ["programmeId"],
+    where: { ownerId, programmeId: { in: parts.map((p) => p.id) }, dayId: { in: parts.flatMap((p) => p.days.map((d) => d.id)) } },
+    orderBy: { programmeId: "asc" },
+  });
+  const since = new Set(worked.map((w) => w.programmeId));
+  return [...parts].reverse().find((p) => since.has(p.id)) ?? parts[0] ?? programme;
 }
 
 /**

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Check, Circle, Pause, Play } from "lucide-react";
 import { Button } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
@@ -56,21 +56,26 @@ export function RetellIt({ retell, voice, typed, onDone }: { retell: Retell; voi
   // One loud button a screen: hearing the story until it has been heard twice or told, then Next.
   const hearFirst = plays < 2 && said.trim() === "";
 
+  // Leaving the card ends the story after the line in the air, rather than playing the rest over the next one.
+  useEffect(() => () => { stop.current = true; }, []);
+
   const play = async () => {
     if (playing) { stop.current = true; return; }
     stop.current = false;
     setPlaying(true);
+    let heard = 0;
     for (const line of retell.story) {
       if (stop.current) break;
       try {
-        await playClip({ text: line.et, voice, pace: prefs.pace });
+        if ((await playClip({ text: line.et, voice, pace: prefs.pace })) === "played") heard += 1;
         await untilQuiet(20_000);
       } catch {
         // A line the speech service would not say is skipped rather than ending the story.
       }
       await new Promise((r) => setTimeout(r, 250));
     }
-    if (!stop.current) setPlays((n) => n + 1);
+    // A play counts as heard only where something was said: over silence it would read "Heard once" about nothing.
+    if (!stop.current && heard > 0) setPlays((n) => n + 1);
     setPlaying(false);
   };
 

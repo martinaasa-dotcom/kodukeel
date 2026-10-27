@@ -3,7 +3,7 @@ import { PROGRAMMES, programmeAfter, programmeById } from "@/lib/course";
 import { LESSONS, LESSON_LEVELS } from "@/lib/course/lessons";
 import { ledgerThrough, lessonRank } from "@/lib/course/lessons/ledger";
 import { CHECK_PASS, LEVEL_CHECK, PART_CHECK, checkLength, itemEstonian, markCheck } from "@/lib/course/lessons/practice";
-import { uncovered } from "@/lib/course/lessons/ledger";
+import { namesOf, uncovered } from "@/lib/course/lessons/ledger";
 import { blockedBy, checkAfter, checkPaper, courseChecks, passedFrom, whereAPassLeads } from "./checks";
 
 const checks = courseChecks(PROGRAMMES);
@@ -42,11 +42,13 @@ describe("the checks between the parts of the lessons", () => {
       const covered = new Set(check.lessons.map(lessonRank));
       const ledger = ledgerThrough(LESSONS, last.id)!;
       const taught = new Set(ledger.items.filter((d) => covered.has(d.lesson)).map((d) => d.item.et));
+      // A line is quoted with the names its own lesson's cast allows: Kadri is a colleague from B1 on.
+      const names = new Set(check.lessons.flatMap((l) => [...namesOf(l)]));
       for (const item of checkPaper(check, 1)) {
         asked += 1;
         if (item.kind === "gap") {
           // A gap is a line of the part's own conversations, every word of it taught by the part's end.
-          for (const et of itemEstonian(item)) expect(uncovered(et, ledger), `${check.id}: ${et}`).toEqual([]);
+          for (const et of itemEstonian(item)) expect(uncovered(et, ledger, names), `${check.id}: ${et}`).toEqual([]);
           expect(check.lessons.some((l) => l.conversation.some((line) => line.et?.includes(`${item.before}${item.answer}${item.after}`)))).toBe(true);
           continue;
         }

@@ -61,7 +61,8 @@ export async function POST(request: Request) {
   // The grader's own chain, not the general head (see `PURPOSE_CHAINS`).
   const config = resolveProviders({ purpose: "grader" })[0];
   if (!config) {
-    return Response.json({ comment: "", rule: "", aiAvailable: false }, { headers: NO_STORE });
+    // Said apart from a call that failed, so the screen does not tell somebody this site has no Anu over a bad minute.
+    return Response.json({ comment: "", rule: "", aiAvailable: false, unconfigured: true }, { headers: NO_STORE });
   }
 
   const decision = await authoriseCall(ownerId, "GRADER");

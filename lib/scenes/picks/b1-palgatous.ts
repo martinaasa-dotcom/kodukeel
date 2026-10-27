@@ -30,6 +30,10 @@ export const b1Palgatous: ScenePicks = {
     { et: "Kas me võiksime aasta lõpus uuesti rääkida?", en: "Could we talk again at the end of the year?" },
     { et: "See sobib mulle.", en: "That works for me." },
   ],
+  plan: [
+    { et: "Ma tahaksin saada meeskonna juhiks.", en: "I'd like to become the team lead." },
+    { et: "Ma tahaksin saada heaks arendajaks.", en: "I'd like to become a good developer." },
+  ],
   close: [
     { et: "Aitäh! Head aega!", en: "Thank you! Goodbye!" },
     { et: "Nägemist!", en: "See you!" },

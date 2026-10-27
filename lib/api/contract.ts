@@ -389,13 +389,15 @@ export const LessonSpecSchema = z.object({
   })).readonly().optional().describe("Lines with a slip in them, B1 on; the practice step carries them as `fix` items."),
   listenFor: z.array(z.object({
     q: z.string(), options: z.array(z.string()).readonly(), answer: z.number().int(),
-  })).readonly().optional().describe("Questions on what was heard, asked before the text is shown, B1 on."),
+  })).readonly().optional().describe("Questions on what was heard, asked before the text is shown, B1 on. Draw the options in the order the web does: shuffled with a seed taken from the question."),
+  hearing: z.enum(["phone", "cafe", "quick"]).optional()
+    .describe("The room the hidden first play of the conversation is heard in (B1 on): a phone line, a café, or sped up. Absent is a quiet room."),
   retell: z.object({
     who: z.string(),
     story: z.array(EtEn).readonly(),
     points: z.array(z.object({ en: z.string(), any: z.array(z.string()).readonly() })).readonly(),
   }).optional().describe("A short story heard twice and told back aloud, B1 on; a point lights on any of its spellings."),
-  faster: z.object({ ask: EtEn, cue: z.string(), model: EtEn }).optional().describe("One answer said three times, in 90, 60 and 45 seconds, B1 on."),
+  faster: z.object({ ask: EtEn, cue: z.string(), model: EtEn }).optional().describe("One answer said three times, in 90, 60 and 45 seconds at the standard pace (times `timeMultiplier`), B1 on."),
   write: z.object({
     genre: z.string(), purpose: z.string(),
     model: z.array(EtEn).readonly(), uses: z.array(EtEn).readonly(),
@@ -441,7 +443,11 @@ export const PracticeItemSchema = z.discriminatedUnion("kind", [
     accept: z.array(z.string()).readonly().describe("Every spelling that counts, the asked one first."),
     note: z.string().optional(),
   }),
-]).describe("One question, built on the server; the client never decides what a learner is asked.");
+]).describe(
+  "One question, built on the server; the client never decides what a learner is asked. A kind is added " +
+  "and never removed within v1 (`rework` and `fix` came with B1), so a client skips an item whose kind it " +
+  "does not know rather than failing the lesson: a lesson with one question fewer is still a lesson.",
+);
 
 export const LessonResponse = z.object({
   lesson: LessonSpecSchema,
@@ -460,6 +466,8 @@ export const LessonResponse = z.object({
     title: z.string(),
     lessons: z.array(z.object({ id: z.string(), label: z.string(), title: z.string(), done: z.boolean() })).readonly(),
   }).describe("The part this lesson is in, lesson by lesson, with the ones the learner has done."),
+  partAt: z.number().int().min(1).describe("Which part of its level the lesson is in, counted from 1; the say-along fade starts with words hidden from the fourth part."),
+  timeMultiplier: z.number().min(1).describe("How many times the standard a timed go runs for this learner (their round pace), for \"Again, faster\"."),
   locale: InterfaceLanguage,
   nativePart: z.string().nullable().describe(
     "The one part of the conversation the native speaker recorded whole, which a phone plays in his voice by " +

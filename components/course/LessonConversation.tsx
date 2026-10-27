@@ -10,6 +10,7 @@ import { fill } from "@/lib/copy/locale";
 import { LessonText } from "@/components/course/LessonText";
 import { playClip, untilQuiet } from "@/lib/audio/clip";
 import { nativePart } from "@/lib/audio/native";
+import type { Condition } from "@/lib/audio/conditions";
 import type { Line } from "@/lib/course/lessons/types";
 
 /**
@@ -28,7 +29,7 @@ import type { Line } from "@/lib/course/lessons/types";
  * the air finishes: cutting a word in half is the one thing a learner would
  * notice more than the wait.
  */
-export function LessonConversation({ lines, cast, english, hidden = false, onPlayed }: {
+export function LessonConversation({ lines, cast, english, hidden = false, condition, onPlayed }: {
   lines: readonly Line[];
   cast: Readonly<Record<string, string>>;
   english: boolean;
@@ -38,6 +39,11 @@ export function LessonConversation({ lines, cast, english, hidden = false, onPla
    * ear before it is read (`ListenFirst`). Each line still plays on its own.
    */
   hidden?: boolean;
+  /**
+   * The room it is heard in, on that hidden first play (`LessonSpec.hearing`):
+   * a phone line, a café, or sped up. Absent is a quiet room.
+   */
+  condition?: Condition;
   /** Called when "Play the conversation" reaches the end, which is when a gist question is fair. */
   onPlayed?: () => void;
 }) {
@@ -67,7 +73,7 @@ export function LessonConversation({ lines, cast, english, hidden = false, onPla
       setActive(i);
       items.current[i]?.scrollIntoView({ block: "nearest", behavior: "smooth" });
       try {
-        await playClip({ text: line.et, voice: cast[line.who], pace: prefs.pace, native: line.who === played });
+        await playClip({ text: line.et, voice: cast[line.who], pace: prefs.pace, native: line.who === played, condition });
         await untilQuiet(20_000);
       } catch {
         // A line the speech service would not say is skipped rather than ending the play.
@@ -119,10 +125,10 @@ export function LessonConversation({ lines, cast, english, hidden = false, onPla
                 }}
               >
                 <div className="flex items-start gap-2">
-                  <Speak text={line.et} voice={cast[line.who]} native={line.who === played} size={18} label={fill(t("Hear {who} say it"), { who: line.who })} />
+                  <Speak text={line.et} voice={cast[line.who]} native={line.who === played} condition={condition} size={18} label={fill(t("Hear {who} say it"), { who: line.who })} />
                   {hidden ? (
                     // How long the line is, as bars that move while it is said: the shape of speech, not its words.
-                    <span className={`voice-bars ${lit ? "voice-bars-live" : ""}`} aria-label={t("A line, not shown yet")} data-hidden-line>
+                    <span role="img" className={`voice-bars ${lit ? "voice-bars-live" : ""}`} aria-label={t("A line, not shown yet")} data-hidden-line>
                       {Array.from({ length: Math.min(14, Math.max(3, Math.round(line.et.split(/\s+/).length * 1.4))) }, (_, b) => (
                         <span key={b} style={{ animationDelay: `${(b % 5) * 90}ms` }} />
                       ))}

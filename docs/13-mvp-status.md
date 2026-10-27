@@ -4012,3 +4012,33 @@ closes on a check, unit homework starts at B2, and 130 written sentences for wor
 units taught were dropped. The Russian and Ukrainian of every B1 line is machine-written and not
 yet read by anybody fluent, and every new Estonian line waits on the native speaker, the lines a
 second model flagged first (`docs/reviews/b1-flags.md`).
+
+## 74. The sixty-eighth pass: B1 read as a year, and the engine under it finished
+
+A code review and a content review each scored the B1 build at six and a half of ten, and this pass
+is what they found. **The content** was rewritten part by part against one cast and one storyline
+(`docs/reviews/b1-cast.md`): Anna is at home and never at Tom's office, the manager is Kristi
+throughout, the family moves within Tallinn in part 4 to a flat whose landlord is Urmas and whose
+downstairs neighbor Helgi chairs the residents' meeting in part 5, and the people Tom does not know
+are new names used once. Each part asks more than the one before (the ramp table in that doc), has a
+listening that isn't a conversation, and ends on a conversation with a turn the lesson never
+rehearsed. The right answer before the text was the longest option about half the time and is now
+spread across positions and lengths. Part 1 is called "Getting the job done".
+
+**The engine.** A learner on the old B1 starts at the lesson part they have worked in since, or the
+first (`rehomed`), and their old evenings count as having been above the lessons so the A2 checks do
+not trap them. The listening plays on a phone line or in a café where the story is one. The fade gets
+harder from part 4. The race is lengthened by the round pace setting, and a microphone that fails
+mid-race falls back to typing. A fix with the slip put right and one other word misspelled is
+"nearly". Arrow keys move focus on every marked question rather than answering it, which an
+invariant holds. The writing step re-reads every kept sentence on the server and keeps only those
+the learner ticked, keeps its draft across steps, and shares Anu's reading with the exam
+(`components/anu/TextReading.tsx`). A conversation a lesson offered is reached on the situations
+board and Today's card. The v1 contract says a client skips a practice kind it does not know.
+
+**What checks it.** `scripts/test-lessons.mjs` is a new browser suite in CI: six lessons, every
+step, axe on each, 139 checks. Two invariants are new: a marked question is not answered by an
+arrow key, and a clock inside a lesson step reads the learner's pace. Every line the rewrite kept
+on purpose or newly wrote is listed for the native speaker in `docs/reviews/b1-flags.md`, and every
+new Russian and Ukrainian line is machine-written and waits on a fluent reader.
+

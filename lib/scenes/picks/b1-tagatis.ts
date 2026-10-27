@@ -26,6 +26,10 @@ export const b1Tagatis: ScenePicks = {
     { et: "Ei. Ma parandasin ise köögis kraani.", en: "No. I fixed the kitchen tap myself." },
     { et: "Ei, kõik töötab.", en: "No, everything works." },
   ],
+  light: [
+    { et: "See on ainult pirn. Pirn tuleb vahetada.", en: "It's only the bulb. The bulb needs changing." },
+    { et: "Pirn tuleb vahetada.", en: "The bulb needs changing." },
+  ],
   back: [
     { et: "Kas ma saan terve tagatisraha tagasi?", en: "Do I get the whole deposit back?" },
     { et: "Nii et ma saan tagatisraha tagasi?", en: "So I get the deposit back?" },
