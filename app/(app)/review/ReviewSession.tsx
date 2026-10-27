@@ -51,6 +51,7 @@ import { HintLadder } from "@/components/round/HintLadder";
 import { useHints } from "@/components/round/useHints";
 import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey, isNotYetKey } from "@/lib/ux/advanceKey";
 import { useResumeCard } from "@/components/useResumeCard";
+import { useRoundSnapshot } from "@/components/useRoundSnapshot";
 import { useUiText } from "@/components/UiLanguage";
 import { useLocale, useT } from "@/components/Locale";
 import { localiseReadings } from "@/lib/copy/questionReading";
@@ -471,7 +472,14 @@ export function ReviewSession({
   // *last* grade of a session would see an empty prop and render "nothing
   // due" instead of the session summary — the pool the page found on the
   // very first load is the only one this session should ever know about.
-  const [queue, setQueue] = useState(initialCards);
+  /*
+    A page that reloads under a running round (a deploy landing mid-session, a
+    phone suspending the tab) carries on from where it was rather than starting
+    over. `lib/ux/sessionSnapshot.ts` says why; the restored round, where there
+    is one, is the queue this session froze the first time, not a new one.
+  */
+  const { restored, save: saveRound } = useRoundSnapshot(initialCards);
+  const [queue, setQueue] = useState(() => restored?.queue ?? initialCards);
   const [wasEmptyAtStart] = useState(initialCards.length === 0);
   /* Whether this round was opened as a step of today's module, which decides
      what an empty queue means and therefore what the screen may say about it. */
@@ -497,7 +505,7 @@ export function ReviewSession({
   const uiText = useUiText();
   const t = useT();
   const locale = useLocale();
-  const [index, setIndex] = useState(initialIndex);
+  const [index, setIndex] = useState(() => restored?.index ?? initialIndex);
   const [revealed, setRevealed] = useState(false);
   /*
     WHAT THE "TOO COMPLICATED" BUTTON DID, SAID OUT LOUD.
@@ -531,7 +539,7 @@ export function ReviewSession({
   const [retyped, setRetyped] = useState("");
   const [retypeOk, setRetypeOk] = useState(false);
   const [retypeNote, setRetypeNote] = useState<string | null>(null);
-  const [done, setDone] = useState(0);
+  const [done, setDone] = useState(() => restored?.done ?? 0);
   /*
     How many times this session has dealt a question, which the hint ladder is
     keyed on beside the card. A card graded Again goes back through `requeue`,
@@ -541,7 +549,7 @@ export function ReviewSession({
     asking after and never left the session.
   */
   const [asking, setAsking] = useState(0);
-  const [correct, setCorrect] = useState(0);
+  const [correct, setCorrect] = useState(() => restored?.correct ?? 0);
   const [busy, setBusy] = useState(false);
   const [history, setHistory] = useState<Done[]>([]);
   /*
@@ -588,7 +596,7 @@ export function ReviewSession({
     key, which is the same gesture) and from nowhere else.
   */
   /** Cards whose word has been met this session and which are now asked properly. */
-  const [met, setMet] = useState<ReadonlySet<string>>(() => new Set());
+  const [met, setMet] = useState<ReadonlySet<string>>(() => new Set(restored?.met ?? []));
   const [pendingOffline, setPendingOffline] = useState(0);
   const { pending: outboxPending, refresh: refreshOutbox, drainFirst } = useOffline();
   const shownAt = useRef(Date.now());
@@ -642,6 +650,11 @@ export function ReviewSession({
     sound(right ? "right" : "wrong", run.current);
   }, [sound]);
 
+  // What `submit` saves synchronously reads the round as it stands, since its
+  // own closure is not rebuilt on every count.
+  const round = useRef({ queue, index, done, correct, met });
+  round.current = { queue, index, done, correct, met };
+
   const card = queue[index];
   const finished = !card;
   const ask = card ? askFor(card, mode, met) : "flip";
@@ -680,6 +693,11 @@ export function ReviewSession({
   // rather than to whatever a fresh queue opens with; cleared once the round
   // actually finishes.
   useEffect(() => { rememberCard(card); }, [rememberCard, card]);
+  // The whole round, after every change, so a reload resumes it. A finished
+  // round removes it (`index` past the end), and the next visit starts fresh.
+  useEffect(() => {
+    saveRound({ queue, index, done, correct, met: [...met] });
+  }, [saveRound, queue, index, done, correct, met]);
 
   /*
     Whether the answer is on the screen, which is not the same question as
@@ -1019,11 +1037,38 @@ export function ReviewSession({
       refreshOutbox();
     }
 
-    setDone((d) => d + 1);
-    setAsking((n) => n + 1);
     // A second right word is right, whatever it was graded: the tally may not
     // count as a miss what the panel above it has just called right.
     const counted = rating >= 3 || !!verdict?.neighbour;
+    /*
+      WRITTEN NOW, NOT BY THE EFFECT AFTER THE NEXT RENDER.
+
+      The grade has just landed, and the revalidation that came back with it is
+      exactly what reloads the page after a deploy. That reload can take the
+      page before React renders again, so the round is saved here, as it will
+      be once this answer is counted, or the resumed round would open on the
+      card that was just graded and ask it a second time.
+    */
+    {
+      const r = round.current;
+      const again = rating === 1;
+      let nextQueue = r.queue;
+      if (again) {
+        const q = [...r.queue];
+        const [failed] = q.splice(r.index, 1);
+        nextQueue = failed ? requeue(q, failed, r.index) : q;
+      }
+      saveRound({
+        queue: nextQueue,
+        index: again ? r.index : r.index + 1,
+        done: r.done + 1,
+        correct: r.correct + (counted ? 1 : 0),
+        met: [...r.met],
+      });
+    }
+
+    setDone((d) => d + 1);
+    setAsking((n) => n + 1);
     if (counted) setCorrect((c) => c + 1);
     setHistory((h) => [...h, { cardId: card.id, lexemeId: card.lexemeId, index, rating, before, reviewId, counted }]);
     recordSeen(card, false);
@@ -1050,7 +1095,7 @@ export function ReviewSession({
     } finally {
       setBusy(false);
     }
-  }, [card, busy, index, refreshOutbox, drainFirst, hints, recordSeen, verdict, ask]);
+  }, [card, busy, index, refreshOutbox, drainFirst, hints, recordSeen, verdict, ask, saveRound]);
 
   /**
    * Puts the last graded card back.
