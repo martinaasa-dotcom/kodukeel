@@ -12,7 +12,7 @@ import { applyExpandedEquivalents, applyGlossCorrections, applyNotesCorrections,
 import { writeWordlist } from "./wordlist";
 import {
   fillExampleEnglish,
-  repairCardSeparators, repairCaseFronts, repairCardSpelling, repairGovernmentBacks, repairProductionBacks,
+  repairCardSeparators, repairCaseFronts, repairCardSpelling, repairGovernmentBacks, repairProductionBacks, repairPronounBacks,
   repairAmericanSpelling, repairThinExamples,
   clearModelBands, fillEkilexIds,
 } from "./repair";
@@ -124,6 +124,10 @@ async function main() {
   if (widened > 0) {
     console.log(`Widened ${widened} production cards whose prompt has more than one answer.`);
   }
+
+  // And a pronoun's everyday spelling, `ta` beside `tema`, on the cards built before it.
+  const pronouns = await repairPronounBacks(prisma);
+  if (pronouns > 0) console.log(`Took the everyday spelling on ${pronouns} pronoun production cards.`);
 
   /*
     And the case cards built before the builder put the question in a sentence.

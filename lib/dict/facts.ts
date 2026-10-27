@@ -18,7 +18,7 @@ import { exceptionsFor, type WordException } from "@/lib/estonian/exceptions";
 import { borrowSentences } from "@/lib/dict/borrow";
 import { plainReach, type PlainReach } from "@/lib/dict/plainness";
 import { parseExamples, type Example } from "@/lib/dict/examples";
-import { twinsOf } from "@/lib/estonian/pronouns";
+import { PRONOUN_LEMMAS, twinsOf } from "@/lib/estonian/pronouns";
 
 /**
  * FACTS ABOUT THE SHARED DICTIONARY, READ ONCE RATHER THAN ONCE PER LEARNER.
@@ -426,6 +426,32 @@ export async function everydaySpellings(): Promise<ReadonlyMap<string, string>> 
       const everyday = twinsOf(row.pos, row.forms, row.lemma).shorter;
       if (everyday) out.set(row.lemma, everyday);
     }
+    return out;
+  });
+}
+
+/**
+ * WHICH PERSONAL PRONOUN A SPELLING IS, read off the six entries' own forms.
+ *
+ * What the contrast panel needs to say that `sa` and `te` are two different
+ * "you"s (`lib/questions/difference.ts`). A spelling two of the six claim is
+ * left out, since which one it is would be a guess.
+ */
+export async function pronounSpellings(): Promise<ReadonlyMap<string, string>> {
+  return remember("pronoun-spellings", DICTIONARY, async () => {
+    const wanted = new Set<string>(PRONOUN_LEMMAS);
+    const rows = (await entriesWithForms()).filter((row) => row.pos === "PRONOUN" && wanted.has(row.lemma));
+    const claims = new Map<string, Set<string>>();
+    for (const row of rows) {
+      for (const spelling of [row.lemma, ...row.forms.map((f) => f.value)]) {
+        const key = spelling.toLocaleLowerCase("et");
+        const held = claims.get(key) ?? new Set<string>();
+        held.add(row.lemma);
+        claims.set(key, held);
+      }
+    }
+    const out = new Map<string, string>();
+    for (const [spelling, lemmas] of claims) if (lemmas.size === 1) out.set(spelling, [...lemmas][0]!);
     return out;
   });
 }

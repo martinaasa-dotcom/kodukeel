@@ -1500,13 +1500,41 @@
                                   "type": "null"
                                 }
                               ]
+                            },
+                            "note": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "spelling": {
+                                      "type": "string"
+                                    },
+                                    "register": {
+                                      "type": "string",
+                                      "enum": [
+                                        "informal",
+                                        "polite"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "spelling",
+                                    "register"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ],
+                              "description": "Which \"you\" this phrase uses, where that is all that tells it from the other."
                             }
                           },
                           "required": [
                             "lexemeId",
                             "lemma",
                             "gloss",
-                            "sentence"
+                            "sentence",
+                            "note"
                           ]
                         },
                         "neighbours": {
@@ -1557,13 +1585,41 @@
                                     "type": "null"
                                   }
                                 ]
+                              },
+                              "note": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "spelling": {
+                                        "type": "string"
+                                      },
+                                      "register": {
+                                        "type": "string",
+                                        "enum": [
+                                          "informal",
+                                          "polite"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "spelling",
+                                      "register"
+                                    ]
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ],
+                                "description": "Which \"you\" this phrase uses, where that is all that tells it from the other."
                               }
                             },
                             "required": [
                               "lexemeId",
                               "lemma",
                               "gloss",
-                              "sentence"
+                              "sentence",
+                              "note"
                             ]
                           }
                         }
