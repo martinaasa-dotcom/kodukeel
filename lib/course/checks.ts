@@ -3,17 +3,17 @@
  *
  * The operator's call, which amends "the ladder warns about the next part
  * and never blocks it" for the lessons: a learner who started in the lessons
- * moves up by passing. Every lesson part, A1's and A2's, ends in a short check
- * of what its lessons taught (`PART_CHECK`), and the last part of a level is
- * the whole of that level (`LEVEL_CHECK`), so A2 opens on a pass at the end of
- * A1 and B1 on a pass at the end of A2, rather than on a tick at the end of a
- * lesson. A check is passed at `CHECK_PASS`, can be taken again as often as
+ * moves up by passing. Every lesson part, A1's, A2's and B1's, ends in a short
+ * check of what its lessons taught (`PART_CHECK`), and the last part of a level
+ * is the whole of that level (`LEVEL_CHECK`), so A2 opens on a pass at the end
+ * of A1, B1 on a pass at the end of A2 and B2 on a pass at the end of B1,
+ * rather than on a tick at the end of a lesson. A check is passed at `CHECK_PASS`, can be taken again as often as
  * somebody likes, and asks a different selection each time.
  *
  * What it gates is moving up from a lesson part, by any door: the next part,
  * the level picker and the module's own "skip ahead". Nothing else: a learner
  * who was placed at A2 never sat the A1 lessons and is not asked to pass
- * them, one placed at B1 is asked nothing, going back is always open, and the
+ * them, one placed at B2 is asked nothing, going back is always open, and the
  * level check is a measurement in its own right. An admin moves freely, for
  * testing (`lib/auth/admin.ts`).
  *
