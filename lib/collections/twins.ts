@@ -80,10 +80,11 @@ export interface TwinGroup {
   readonly drifted?: true;
   /**
    * Pairs inside the group that Estonian lets stand in for each other in some
-   * sentences. A pick of the other one there is accepted as nearly right and
-   * the difference is shown, which is the same call the review card makes
-   * about a second right word (`lib/questions/neighbours.ts`): refusing
-   * correct Estonian is the dearer mistake.
+   * sentences. A round asking which word the writer used never offers the
+   * other one there (`lib/progress/twinQuestions.ts`): a multiple choice with
+   * two right answers is a question that marks correct Estonian wrong or,
+   * accepted as nearly right, tells the learner the difference they were
+   * asked about does not matter in that sentence.
    */
   readonly overlap?: readonly Overlap[];
 }
