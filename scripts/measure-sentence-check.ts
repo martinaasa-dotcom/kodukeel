@@ -55,6 +55,9 @@ const showMissed = process.argv.includes("--missed");
 */
 const SOURCE_SLIPS: Readonly<Record<string, string>> = {
   tüdrekud: "a dialect spelling of tüdrukud, in a quoted line of dialect",
+  hädabisse: "hädaabisse with a letter gone, in a usage Ekilex files under hädaabi beside the right spelling",
+  võistusest: "võistlusest with a letter gone, in a usage of kabe",
+  proksi: "no form of any word, in a usage about an emerald's color; which word was meant is not clear",
 };
 
 const ENTRIES: CheckEntry[] = shippedDictionary().map((w) => ({
@@ -66,12 +69,22 @@ const byLemma = new Map<string, CheckEntry[]>();
 for (const e of ENTRIES) byLemma.set(e.lemma, [...(byLemma.get(e.lemma) ?? []), e]);
 const fixed = ENTRIES.filter((e) => ALWAYS_READ.includes(e.lemma));
 
+/** The band the dictionary gives a headword, as the server reads it: the best of its rows, null where none has one. */
+function band(lemma: string): string | null {
+  const rows = [...(byLemma.get(lemma) ?? []), ...(byLemma.get(lemma.charAt(0).toLocaleUpperCase("et") + lemma.slice(1)) ?? [])];
+  const best = rows.map((e) => e.cefr).filter((c): c is string => !!c).sort((a, b) => rankOf(a) - rankOf(b))[0];
+  return best ?? null;
+}
+function rankOf(b: string | null | undefined): number {
+  return b ? ["A1", "A2", "B1", "B2", "C1", "C2"].indexOf(b) : 9;
+}
+
 // WHAT THE FORMS LIST SAYS ABOUT EVERY SPELLING, asked once and in shard order.
 const exactSet = new Set<string>();
 const owners = new Map<string, string[]>();
 const headwords = new Map<string, string[]>();
 const compounds = new Set<string>();
-const around = new Map<string, { spelling: string; distance: number }[]>();
+const around = new Map<string, { spelling: string; distance: number; lemmas: string[] }[]>();
 async function know(words: Iterable<string>): Promise<void> {
   const fresh = [...new Set([...words].map((w) => w.toLowerCase()))].filter((w) => !headwords.has(w));
   fresh.sort((a, b) => fold(a).localeCompare(fold(b)));
@@ -81,7 +94,8 @@ async function know(words: Iterable<string>): Promise<void> {
     if (own.length > 0) owners.set(word, own);
     const spellings = exactSet.has(word) || exactSet.has(word.slice(0, -2)) ? [] : await spellingsNear(word);
     if (spellings.length > 0) around.set(word, spellings);
-    const near = [...new Set(spellings.flatMap((n) => n.lemmas))].slice(0, 12);
+    // Ordered by band before the cut, the way the server orders them.
+    const near = [...new Set(spellings.flatMap((n) => n.lemmas))].sort((a, b) => rankOf(band(a)) - rankOf(band(b))).slice(0, 12);
     headwords.set(word, [...(await lemmasOfForm(word)).slice(0, 6), ...own.slice(0, 10), ...near]);
     if (near.length > 0 && (await couldBeCompound(word)) !== false) compounds.add(word);
   }
@@ -104,7 +118,7 @@ function entriesFor(text: string): CheckEntry[] {
   return [...out];
 }
 const check = (text: string): readonly Finding[] =>
-  checkSentence(text, entriesFor(text), (w) => exactSet.has(w), "", { claims: (w) => owners.get(w), compound: (w) => compounds.has(w), near: (w) => around.get(w) }).findings;
+  checkSentence(text, entriesFor(text), (w) => exactSet.has(w), "", { claims: (w) => owners.get(w), compound: (w) => compounds.has(w), near: (w) => around.get(w), band }).findings;
 
 // `--say "Ma meeldib kohv."`: what the check makes of sentences typed here, read the way the server reads them.
 const say = process.argv.indexOf("--say");

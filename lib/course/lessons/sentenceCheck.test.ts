@@ -227,6 +227,18 @@ describe("checkSentence", () => {
     expect(check("Ma kuulan muusika.")).toEqual([{ kind: "object", word: "muusika", verb: "kuulan", partitive: "muusikat", genitive: null }]);
   });
 
+  it("breaks a tie between two slips toward the word a learner meets years earlier", () => {
+    const text = "Mulle meedib suvi.";
+    const near = (lemmas: Record<string, string[]>) => () => Object.entries(lemmas).map(([spelling, l]) => ({ spelling, distance: 1, lemmas: l }));
+    const run = (lemmas: Record<string, string[]>, bands: Record<string, string | null>) =>
+      checkSentence(text, entriesFor(text, "meeldib"), exact, "", { near: near(lemmas), band: (l) => (l in bands ? bands[l] : undefined) }).findings;
+    const one = { meedia: ["meedia"], meeldib: ["meeldima"] };
+    expect(run(one, { meedia: null, meeldima: "A1" })).toEqual([{ kind: "spelling", word: "meedib", suggestion: "meeldib", diacritics: false }]);
+    // Two words a band apart is no tie anybody can break, and a word not asked its band might be the common one.
+    expect(run(one, { meedia: "A2", meeldima: "A1" })).toEqual([]);
+    expect(run(one, { meeldima: "A1" })).toEqual([]);
+  });
+
   it("counts the words it read", () => {
     expect(checkSentence("Tere! Ma soovin kohvi.", entriesFor("Tere! Ma soovin kohvi."), exact).words).toBe(4);
   });

@@ -35,10 +35,14 @@ import type { CaseKey } from "@/lib/estonian/types";
  * - SPELLING. A word no form in the language is spelled like, where the word
  *   meant can be named: a mark left off or put on the wrong letter, which
  *   keeps every mark the learner did type (`soön` is `söön`, not `soon`), or
- *   one letter out. Silent otherwise, since Estonian builds compounds and
- *   participles nobody has listed: a word that may be one of those
- *   (`lehmasitt`, `askeldamist`), a word after a name, and a long word two
- *   letters out are corrected only toward a word on the card.
+ *   one letter out. Where several words are one slip away, the one a learner
+ *   meets two bands earlier than any other is the one meant (`meedib` is
+ *   `meeldib`, not `meemib`), never a word shorter than what was typed, since
+ *   a slip drops a letter far oftener than it adds one. Silent otherwise,
+ *   since Estonian builds compounds and participles nobody has listed: a word
+ *   that may be one of those (`lehmasitt`, `askeldamist`), unless a common
+ *   word with a letter put back is the reading, and a long word two letters
+ *   out, are corrected only toward a word on the card.
  * - A DAY OR A MONTH WITH A CAPITAL, which Estonian writes small.
  * - PERSON, in the present, the past and the conditional. Exactly one
  *   pronoun in the clause and a verb in none of its persons: `ma soovib` is
@@ -185,7 +189,14 @@ export interface CheckReads {
    * Every spelling the forms list holds one slip from this one, a mark
    * counting as no slip, with how far off each is; undefined where not asked.
    */
-  readonly near?: (word: string) => readonly { readonly spelling: string; readonly distance: number }[] | undefined;
+  readonly near?: (word: string) => readonly { readonly spelling: string; readonly distance: number; readonly lemmas?: readonly string[] }[] | undefined;
+  /**
+   * The CEFR band the dictionary gives a headword, null where it gives none,
+   * undefined where it was not asked. Of two words one slip from a slip, the
+   * one a learner meets years earlier is the one meant (`meedib` is `meeldib`
+   * and not `meemib`), so a band breaks the tie a spelling alone cannot.
+   */
+  readonly band?: (lemma: string) => string | null | undefined;
 }
 
 export interface SentenceCheck {
@@ -498,6 +509,62 @@ function nearest(word: string, pool: ReadonlySet<string>, preferred: ReadonlySet
   return closest.length === 1 ? { form: closest[0]!, diacritics: false } : null;
 }
 
+const BANDS = ["A1", "A2", "B1", "B2", "C1", "C2"];
+/** The band at or under which a word counts as one a learner has met: A2. */
+const COMMON_RANK = 2;
+/** How many bands earlier the word meant has to be than any other one slip away. */
+const COMMON_MARGIN = 2;
+
+/**
+ * Of the spellings one slip from a slip, the one whose word a learner meets
+ * first, where it is the only one at its band and the band is a learner's
+ * own. Every rival has to have been asked its band, since a word not asked
+ * might be the common one, and the winner has to be a form already in hand,
+ * since the form offered comes off a dictionary row (ADR-005).
+ */
+function commonest(
+  word: string,
+  around: CheckReads["near"] extends ((w: string) => infer R) | undefined ? R : never,
+  band: CheckReads["band"],
+  pool: ReadonlySet<string>,
+): { form: string; rank: number; marks: boolean } | null {
+  if (!around || !band || around.length === 0) return null;
+  /*
+    A spelling a mark away is a rival like any other (`korusel` beside the
+    rare `kõrusel`), and where it is the one that wins, the marks rule reads
+    it instead.
+  */
+  const least = Math.min(...around.filter((n) => n.distance > 0).map((n) => n.distance));
+  const ranked: { form: string; rank: number; marks: boolean }[] = [];
+  for (const n of around) {
+    if ((n.distance !== least && n.distance !== 0) || n.spelling.includes(" ")) continue;
+    /*
+      A slip drops a letter far oftener than it adds one, so a word shorter
+      than what was typed is no word to break a tie toward: `kogmust` is
+      `kogemust` with a letter gone, not `kogust` with one too many.
+    */
+    const marks = n.distance === 0;
+    if (!marks && n.spelling.length < word.length) continue;
+    // One slip and no more: a letter put back and a mark left off besides is two (`tootvad` is no `töötavad`).
+    if (!marks && editDistance(word, n.spelling, 1) > 1) continue;
+    if (!n.lemmas || n.lemmas.length === 0) return null;
+    let rank = 9;
+    for (const lemma of n.lemmas) {
+      const b = band(lemma);
+      if (b === undefined) return null;
+      const r = b === null ? 9 : BANDS.indexOf(b) + 1 || 9;
+      rank = Math.min(rank, r);
+    }
+    ranked.push({ form: n.spelling, rank, marks });
+  }
+  ranked.sort((a, b) => a.rank - b.rank);
+  const first = ranked[0];
+  const second = ranked[1];
+  if (!first || first.marks || first.rank > COMMON_RANK + 1 || (second && second.rank < first.rank + COMMON_MARGIN)) return null;
+  if (!pool.has(first.form) || word.length < 5) return null;
+  return first;
+}
+
 /** Whether a spelling keeps every mark the learner typed, letter for letter. */
 function keepsMarks(form: string, typed: string): boolean {
   if (form.length !== typed.length) return false;
@@ -806,7 +873,12 @@ export function checkSentence(
     tokens.forEach((token, at) => {
       if (token.name || isWord(token.low)) return;
       unknown.add(at);
-      const near = nearest(token.low, pool, preferred);
+      const around = reads.near?.(token.low);
+      const common = commonest(token.low, around, reads.band, pool);
+      const pick = nearest(token.low, pool, preferred);
+      const near = pick ?? (common ? { form: common.form, diacritics: false } : null);
+      // Picked by being the one word a learner meets first, where the spelling alone named none.
+      const byCommon = common !== null && near !== null && common.form === near.form;
       /*
         A word the forms list does not hold is not therefore wrong: Estonian
         builds compounds and participles nobody has listed (`erihaigla`,
@@ -815,7 +887,8 @@ export function checkSentence(
       */
       if (!near) return;
       // A word straight after a name is the rest of it (`Helianthus annuus`).
-      if (at > 0 && tokens[at - 1]!.name) return;
+      // A mark put back is never the second half of a name, and a place is said before a verb all the time (`Tartus kainud`).
+      if (at > 0 && tokens[at - 1]!.name && !near.diacritics) return;
       // Two slips away is a guess about a long word, and is made only toward a word on the card.
       if (!near.diacritics && editDistance(fold(token.low), fold(near.form), 2) > 1 && !sampleForms.has(near.form)) return;
       /*
@@ -824,11 +897,27 @@ export function checkSentence(
         list holds only some, so a word one letter from one that is listed is
         as likely the unlisted word as a slip. A dropped mark is still a slip.
       */
-      if (!near.diacritics && BUILT_AT_WILL.test(token.low)) return;
+      const restored = byCommon && near.form.length > token.low.length;
+      if (!near.diacritics && BUILT_AT_WILL.test(token.low) && !restored) return;
       // A word that may be a compound nobody listed is corrected only toward a word on the card.
-      if (!near.diacritics && compound?.(token.low) && !sampleForms.has(near.form)) return;
+      /*
+        Unless the word meant is a common one with a letter put back, which is
+        what a dropped letter looks like (`abiaasa` is `abikaasa`), where a
+        compound nobody listed keeps every letter it was built from.
+      */
+      if (!near.diacritics && compound?.(token.low) && !sampleForms.has(near.form) && !restored) return;
       // A capital at the start of a sentence may be a name (`Jaak`, `Merle`), unless the word stands alone or is the one on the card.
-      if (token.first && /^\p{Lu}/u.test(token.raw) && !token.alone && !preferred.has(near.form)) return;
+      /*
+        A name is the likelier reading, so only a common word with a letter put
+        back, and only as its dictionary form or a place said in a case
+        (`Vabndust`, `Kohikus`): `Riina` is somebody, and no rare case of a
+        shelf.
+      */
+      const said = (byCommon && near.form.length > token.low.length
+        && (byLemma.has(near.form) || (nounReadings.get(near.form) ?? []).some((r) => LOCAL.has(r.case))))
+        // Or a mark left off a word a learner meets in their first months (`Tana`, `Hasti`), which no name is.
+        || (near.diacritics && [...(entriesHolding.get(near.form) ?? [])].some((l) => byLemma.get(l)?.some((e) => BANDS.indexOf(e.cefr ?? "") >= 0 && BANDS.indexOf(e.cefr ?? "") < COMMON_RANK)));
+      if (token.first && /^\p{Lu}/u.test(token.raw) && !token.alone && !preferred.has(near.form) && !said) return;
       /*
         And only where it is the one word that close. Where the forms list was
         asked, it knows every Estonian spelling one slip away, and a slip one
@@ -836,8 +925,7 @@ export function checkSentence(
         name, nor is a word a dropped mark makes into another (`tostis` is
         `tõstis` before it is anything one letter off).
       */
-      const around = reads.near?.(token.low);
-      if (around) {
+      if (around && !byCommon) {
         const off = near.diacritics ? 0 : editDistance(fold(token.low), fold(near.form), 2);
         const rivals = around.filter((n) => n.spelling !== near.form
           && (n.distance < off || (n.distance === off && (off > 0 || keepsMarks(n.spelling, token.low)))));
@@ -1402,11 +1490,25 @@ export function checkSentence(
       caught.add(at);
       findings.push({ kind: "postposition", word: tokens[at]!.raw, before: tokens[at + 1]!.raw, right });
     }
-    for (let at = 0; at + 1 < lower.length && (!placed || (mine && !unread)) && (hasVerb || wholeAnswer); at += 1) {
+    /*
+      A clause of two words, a thing and a postposition, after a comma (`Ma
+      olen kesklinnas, pank ees`): where somebody is, said again more
+      closely. Not a part of the body or something worn, since `selg ees`
+      and `müts peas` are how a body is held, and not a place word already
+      settled by the clause before it.
+    */
+    const pointer = tokens.length === 2 && !hasVerb && !unread && GENITIVE_POSTPOSITIONS.has(lower[1]!) && (() => {
+      const noun = plainNoun(0);
+      const codes = (noun?.semanticTypes ?? "").split(/\s+/);
+      return noun !== null && isThing(noun.semanticTypes) && !isTime(noun.semanticTypes)
+        && !codes.some((c) => c.startsWith("kehaosa") || c.startsWith("ese_riie"));
+    })();
+    for (let at = 0; at + 1 < lower.length && (pointer || ((!placed || (mine && !unread)) && (hasVerb || wholeAnswer))); at += 1) {
       if (caught.has(at) || !GENITIVE_POSTPOSITIONS.has(lower[at + 1]!)) continue;
-      // `buss poole tunni pärast`: a word that is a postposition and a noun's form, read as the noun's.
+      // `buss poole tunni pärast`: a word that is a postposition and a noun's form, read as the noun's where it could own the next.
       const after = lower[at + 2];
-      if (after !== undefined && nounReadings.has(after) && !verbOf.has(after)) continue;
+      if (after !== undefined && !verbOf.has(after)
+        && (nounReadings.get(after) ?? []).some((r) => r.case === "NOMINATIVE" || r.case === "GENITIVE" || r.case === "PARTITIVE")) continue;
       const noun = plainNoun(at);
       const right = noun ? formOf(noun, "GENITIVE") : null;
       if (!noun || !right) continue;

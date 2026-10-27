@@ -57,7 +57,26 @@ export async function checkTypedSentence(text: string, sample: string): Promise<
   */
   const slips = read.filter((r) => !r.exact && !exact.has(r.word.slice(0, -2)));
   const around = await Promise.all(slips.map((r) => spellingsNear(r.word, budget)));
-  const near = around.map((spellings) => [...new Set(spellings.flatMap((n) => n.lemmas))].slice(0, HEADWORDS_NEAR));
+  /*
+    The band of every headword one slip away, so a tie between two spellings
+    goes to the word a learner meets first. One light query, and it orders
+    which of them are read in full, so the likely word is never sliced off.
+  */
+  const nearLemmas = [...new Set(around.flat().flatMap((n) => n.lemmas))];
+  const banded = nearLemmas.length === 0 ? [] : await prisma.lexeme.findMany({
+    where: { lemma: { in: [...nearLemmas, ...nearLemmas.map((l) => l.charAt(0).toLocaleUpperCase("et") + l.slice(1))] }, ...VOUCHED_ROW },
+    select: { lemma: true, cefr: true },
+    orderBy: [{ lemma: "asc" }, { id: "asc" }],
+  });
+  // Every headword asked reads null until a row says otherwise; a row under a capital answers for the lower-case headword.
+  const bands = new Map<string, string | null>(nearLemmas.map((l) => [l, null]));
+  const rank = (b: string | null | undefined) => (b ? ["A1", "A2", "B1", "B2", "C1", "C2"].indexOf(b) : 9);
+  for (const row of banded) {
+    const key = bands.has(row.lemma) ? row.lemma : row.lemma.toLowerCase();
+    if (bands.has(key) && rank(row.cefr) < rank(bands.get(key))) bands.set(key, row.cefr);
+  }
+  const near = around.map((spellings) => [...new Set(spellings.flatMap((n) => n.lemmas))]
+    .sort((a, b) => rank(bands.get(a)) - rank(bands.get(b))).slice(0, HEADWORDS_NEAR));
   const nearBy = new Map(slips.map((r, i) => [r.word, around[i]!] as const));
   // A slip with a word close to it may instead be a compound nobody listed; one the budget could not settle counts as one.
   const compound = new Set<string>();
@@ -102,5 +121,6 @@ export async function checkTypedSentence(text: string, sample: string): Promise<
     claims: (word) => claims.get(word),
     compound: (word) => compound.has(word),
     near: (word) => nearBy.get(word),
+    band: (lemma) => bands.get(lemma),
   });
 }
