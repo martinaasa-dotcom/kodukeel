@@ -330,7 +330,7 @@ function learnerTurn(
 }
 
 /*
-  TONIGHT'S CHAT (VB-11), PLAYED HERE TOO. `--scene chat --day b1.1-03` builds
+  TONIGHT'S CHAT (VB-11), PLAYED HERE TOO. `--scene chat --day b2.1-03` builds
   the chat a learner would be offered after that evening, the way `planChat`
   does off the database and with nothing remembered: the evening's new words
   first, each with the dictionary's first English sense, and none the forms list
@@ -561,8 +561,8 @@ async function play(sceneId: string) {
 
 (async () => {
   if (only === CHAT_ID) {
-    chatScene = await harnessChat(arg("day") ?? "b1.1-03");
-    if (!chatScene) throw new Error(`no chat to have after ${arg("day") ?? "b1.1-03"}: the evening is unknown or has no readable new words`);
+    chatScene = await harnessChat(arg("day") ?? "b2.1-03");
+    if (!chatScene) throw new Error(`no chat to have after ${arg("day") ?? "b2.1-03"}: the evening is unknown or has no readable new words`);
     await play(CHAT_ID);
   }
   /*

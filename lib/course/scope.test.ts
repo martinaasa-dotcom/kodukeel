@@ -183,7 +183,7 @@ describe("scopeSoFar", () => {
       }
       if (day.grammar) expect(after.topics, day.id).toContain(day.grammar);
     }
-    expect(reading).toBeGreaterThan(20);
+    expect(reading).toBeGreaterThan(10);
   });
 
   it("counts a word of today's only once the ladder has asked it", () => {

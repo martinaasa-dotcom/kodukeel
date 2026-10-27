@@ -7,22 +7,25 @@ import { LESSON_STEP, PROGRAMMES, grammarThrough, lessonDayFor, taughtThrough, u
 import { scopeSoFar } from "./scope";
 
 /*
-  A1 AND A2 ARE THE LESSONS (docs/43-lessons.md). Each lesson is one evening
+  A1, A2 AND B1 ARE THE LESSONS (docs/43-lessons.md). Each lesson is one evening
   of the course, with one step, the lesson, and finishing it is the evening.
 */
 const PARTS = lessonProgrammes();
 const A1 = PROGRAMMES.filter((p) => p.level === "A1");
-const LESSON_LEVELS = PROGRAMMES.filter((p) => p.level === "A1" || p.level === "A2");
+const LESSON_LEVELS = PROGRAMMES.filter((p) => p.level === "A1" || p.level === "A2" || p.level === "B1");
 
-describe("A1 and A2 as lessons", () => {
+describe("A1, A2 and B1 as lessons", () => {
   it("is every lesson, once, in teaching order, one evening each", () => {
     expect(LESSON_LEVELS.map((p) => p.id)).toEqual(PARTS.map((p) => p.id));
     expect(LESSON_LEVELS.length).toBe(LESSON_PARTS.length);
     expect(LESSON_LEVELS.flatMap((p) => p.days.map((d) => d.lesson))).toEqual(LESSONS.map((l) => l.id));
-    // Each level's parts are counted from one: a1.1 to a1.8, then a2.1 to a2.8.
-    expect(PARTS.filter((p) => p.level === "A2").map((p) => p.id)).toEqual(
-      Array.from({ length: PARTS.filter((p) => p.level === "A2").length }, (_, i) => `a2.${i + 1}`),
-    );
+    // Each level's parts are counted from one: a1.1 to a1.8, then a2.1 to a2.8, then b1.1 to b1.7.
+    for (const level of ["A2", "B1"]) {
+      const prefix = level.toLowerCase();
+      expect(PARTS.filter((p) => p.level === level).map((p) => p.id)).toEqual(
+        Array.from({ length: PARTS.filter((p) => p.level === level).length }, (_, i) => `${prefix}.${i + 1}`),
+      );
+    }
     for (const programme of LESSON_LEVELS) {
       programme.days.forEach((d, at) => {
         expect(d.index, d.id).toBe(at + 1);
@@ -122,14 +125,14 @@ describe("A1 and A2 as lessons", () => {
     expect(unitsThrough(b1, 1)).toEqual(expect.arrayContaining(["korraldused", "minevik", "restoranis"]));
   });
 
-  it("hands B1 what the lessons taught, so its first evening marks those words as met before", () => {
+  it("hands B2 what the lessons taught, so its first evening marks those words as met before", () => {
     const lessonWordsAll = new Set(LESSON_LEVELS.flatMap((p) => p.days.flatMap((d) => d.words)));
-    const b1 = PROGRAMMES.filter((p) => p.level === "B1").flatMap((p) => p.days);
-    const again = b1.flatMap((d) => d.again ?? []);
+    const b2 = PROGRAMMES.filter((p) => p.level === "B2").flatMap((p) => p.days);
+    const again = b2.flatMap((d) => d.again ?? []);
     expect(again.length).toBeGreaterThan(0);
     expect(again.some((w) => lessonWordsAll.has(w))).toBe(true);
-    // And taughtThrough on B1's first evening credits every lesson's words.
-    const first = PROGRAMMES.find((p) => p.level === "B1")!;
+    // And taughtThrough on B2's first evening credits every lesson's words.
+    const first = PROGRAMMES.find((p) => p.level === "B2")!;
     const taught = new Set(taughtThrough(first, 1));
     for (const w of lessonWordsAll) expect(taught.has(w), w).toBe(true);
   });

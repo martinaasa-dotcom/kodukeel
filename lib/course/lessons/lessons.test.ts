@@ -211,7 +211,10 @@ describe("the lessons, A1 and on", () => {
         const lemma = families.of.get(item.answer.toLocaleLowerCase("et"));
         expect(lemma, `${lesson.id}: ${item.answer}`).toBeDefined();
         for (const option of item.options) expect(families.of.get(option.toLocaleLowerCase("et")), `${lesson.id}: ${option}`).toBe(lemma);
-        expect(item.options.some((o) => o.toLocaleLowerCase("et").endsWith("sse") && o !== item.answer), `${lesson.id}`).toBe(false);
+        // A long illative built by rule is never offered, since the short one can be right too;
+        // one a lesson teaches as its own item (B1's `sinusse`, the only illative `sina` has) can be.
+        const ownItem = (o: string) => ledger.items.some(({ item: t }) => t.et.toLocaleLowerCase("et") === o.toLocaleLowerCase("et"));
+        expect(item.options.some((o) => o.toLocaleLowerCase("et").endsWith("sse") && o !== item.answer && !ownItem(o)), `${lesson.id}`).toBe(false);
         const line = lesson.conversation.find((l) => l.et?.includes(`${item.before}${item.answer}${item.after}`));
         expect(line, `${lesson.id}: ${item.before}_${item.after}`).toBeDefined();
       }

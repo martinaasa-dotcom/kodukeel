@@ -106,6 +106,12 @@ export const LESSON_PAGES: Readonly<Record<string, { cases?: readonly string[]; 
   "a2-38-compare": { topics: ["comparative"] },
   "a2-39-best": { topics: ["superlative"] },
   "a2-49-will": { topics: ["future"] },
+  /*
+    B1: finishing a thing against being on it, which is what the object rule
+    turns on (the object page is the pattern's), and -na against -ks in use.
+  */
+  "b1-01-done": { topics: ["aspect"] },
+  "b1-16-as": { cases: ["ESSIVE", "TRANSLATIVE"] },
 };
 
 /**

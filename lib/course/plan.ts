@@ -150,18 +150,15 @@ export const ROTATION: Record<string, readonly ActivityKey[]> = {
  */
 export const SCENE_FOR_UNIT: Record<string, string> = {
   /*
-    A2 IS THE LESSONS NOW (docs/43-lessons.md §9), and its role-plays are the
-    lessons' own conversations (`lib/scenes/lessonScenes.ts`). The catalog's
-    conversations declare A2 units, which count as taught once the A2 lessons
-    are behind a learner (`unitsThrough`), so B1 is the first place the module
-    can open one, and the five that used to come back from A2 a level up are
-    met here for the first time.
+    A1, A2 AND B1 ARE THE LESSONS NOW (docs/43-lessons.md §9 and §12), and
+    their role-plays are the lessons' own conversations
+    (`lib/scenes/lessonScenes.ts`). The catalog's conversations that used to
+    open on a B1 unit are offered on the finish of the B1 lesson that
+    rehearses them (`lib/course/lessonSituations.ts`), and the ones below
+    declare units a learner has once B1's lessons are behind them
+    (`unitsThrough`), so B2 is the first place the module opens one.
   */
-  haridus: "toovestlus",
-  eluase: "uuri-remont",
-  probleemid: "ametiasutus",
   oigus: "kaebus",
-  inimsuhted: "trepikoda",
   uhiskond: "bussipilet",
   tervishoid: "arsti-aeg",
   toomaailm: "toovestlus",
@@ -169,31 +166,18 @@ export const SCENE_FOR_UNIT: Record<string, string> = {
   register: "uuri-remont",
   rahvusvaheline: "helistamine",
   /*
-    THE THIRD BATCH'S EVERYDAY SCENES (docs/38-third-batch.md, TB-10), each on
-    the last evening of the unit the brief names for it (D6).
-  */
-  objekt: "turul",
-  rektsioon: "bussipeatus",
-  tingiv: "raamatukogu",
-  /*
-    Three moved off the unit the brief named, each because course.test.ts
-    refused the placement, and each scene's own comment says why: `sobra-mure`
-    is on `kunst` (its sorry beat needs `probleemid`, taught later than the
-    unit named), `kuulsin` on `nominalisatsioon` (`kaudne` has one reading and
-    the scene evening would take it), and `eksam-b1` on `iseloom` (the second
-    evening of `liitverbid` is its only reading of aspect, and every later B1
-    unit already carries a scene).
+    THE THIRD BATCH'S SCENES (docs/38-third-batch.md, TB-10) from B2 on. Two
+    moved off the unit the brief named, each because course.test.ts refused
+    the placement, and each scene's own comment says why: `sobra-mure` is on
+    `kunst` (its sorry beat needs `probleemid`), and `kuulsin` on
+    `nominalisatsioon` (`kaudne` has one reading and the scene evening would
+    take it).
   */
   teadus: "nadalavahetus",
-  "too-ja-raha": "pangas",
   "des-vorm": "perearst",
   majandus: "tootukassa",
   umbisikuline: "elamisluba",
   ajalugu: "peretoetus",
-  keskkond: "lastevanemad",
-  tehnoloogia: "tehniline-tugi",
-  arvamus: "koosolek",
-  meedia: "soovitus",
   kunst: "sobra-mure",
   sonamoodustus: "palk",
   psuhholoogia: "tagatisraha",
@@ -202,18 +186,17 @@ export const SCENE_FOR_UNIT: Record<string, string> = {
   poliitika: "elanike-koosolek",
   statistika: "graafik",
   kirjandus: "raamatuklubi",
-  iseloom: "eksam-b1",
   argumenteerimine: "eksam-b2",
 };
 
 /**
  * THE EVERYDAY ERRANDS THAT USED TO OPEN ON AN A2 UNIT, ON A FREE EVENING OF
- * A B1 ONE.
+ * A B2 ONE.
  *
  * Eleven conversations of the catalog rehearsed A2's own errands, the shop,
  * the café, the pharmacy, the way to somewhere, and sat on the A2 units the
- * lessons replaced. They still need a learner who has A2 behind them, so they
- * go to B1 and the start of B2, on an evening of a unit that reads no page that night: a scene
+ * lessons replaced. Eight are offered on the finish of a B1 lesson now
+ * (`lessonSituations.ts`); these go to the start of B2, on an evening of a unit that reads no page that night: a scene
  * evening shows no reading (`day()` in types.ts), so an evening that had none
  * to show loses nothing. The builder deals each, in order, on the unit's
  * earliest evening with no page left to read and before its last, which is
@@ -221,18 +204,10 @@ export const SCENE_FOR_UNIT: Record<string, string> = {
  * having landed.
  */
 export const EARLIER_SCENES_FOR_UNIT: Readonly<Record<string, readonly string[]>> = {
-  "too-ja-raha": ["uus-kolleeg"],
-  haridus: ["kokkulepe"],
-  eluase: ["abi-palumine"],
-  iseloom: ["ootamine"],
-  meedia: ["tee-kusimine"],
-  arvamus: ["restoranis-tellimine"],
-  keskkond: ["riidepood"],
-  probleemid: ["apteek"],
   /*
-    B1 takes eight of them without three conversations running on one
-    unit, so the last three go one part on, each where it is nearest home:
-    the café among the society unit's people, the corner shop with the
+    The other eight are offered by the B1 lessons that rehearse them
+    (`lessonSituations.ts`). These three sit in B2, each where it is nearest
+    home: the café among the society unit's people, the corner shop with the
     economy, and the emergency call with health.
   */
   uhiskond: ["kohvikus"],
@@ -291,44 +266,15 @@ export interface PartSpec {
  */
 export const PARTS: readonly PartSpec[] = [
   /*
-    A1 AND A2 ARE THE LESSONS (docs/43-lessons.md), built by
-    `lessonProgrammes` in `lessonCourse.ts`, and these parts start at B1. The
-    builder's ledger is handed what the lessons taught before B1.1 is built
-    (`teachLessons` in `build.ts`), so B1's first evening is dealt against the
-    A1 and A2 a learner actually had.
+    A1, A2 AND B1 ARE THE LESSONS (docs/43-lessons.md), built by
+    `lessonProgrammes` in `lessonCourse.ts`, and these parts start at B2. The
+    builder's ledger is handed what the lessons taught before B2.1 is built
+    (`teachLessons` in `build.ts`), so B2's first evening is dealt against the
+    A1, A2 and B1 a learner actually had. B1's old parts (b1.1 to b1.3, built
+    from the objekt to liitverbid units) went when B1 became lessons, with
+    their day ids, which is the A2 precedent: a learner on one restarts B1 at
+    its first lesson and keeps every card and review.
   */
-  {
-    id: "b1.1", level: "B1",
-    title: "Sihitis ja rektsioon", subtitle: "Objects, the people in your life, what each verb asks for, money, and would",
-    blurb:
-      "Two things separate knowing Estonian words from knowing Estonian: getting the object of "
-      + "a sentence right, and knowing which ending each verb wants after it. You learn each one "
-      + "on everyday words, first the people in your life, then work and money. Then comes would, "
-      + "for wishes and polite requests. Grammar and new words take turns, so it's never two "
-      + "weeks of tables.",
-    units: ["objekt", "inimsuhted", "rektsioon", "too-ja-raha", "tingiv"],
-  },
-  {
-    id: "b1.2", level: "B1",
-    title: "Kool, minevik ja kodu", subtitle: "School, two new past forms, renting, what people are like, and the news",
-    blurb:
-      "School and a job interview first. Then the verb forms ending in -nud and -tud, and the "
-      + "two past tenses built from them. Then renting an apartment, what people are like, and the "
-      + "news, which leans on those same forms to say what happened without saying who did it. By "
-      + "the end you can get through an interview, read a news story and phone a landlord.",
-    units: ["haridus", "kesksonad", "eluase", "iseloom", "meedia"],
-  },
-  {
-    id: "b1.3", level: "B1",
-    title: "Arvamused ja probleemid", subtitle: "Technology, opinions, the environment, things going wrong, and two-part verbs",
-    blurb:
-      "Disagreeing with somebody, the things the papers argue about, and coping when something "
-      + "breaks. B1 ends on verbs that come in two parts, because they follow the same object "
-      + "rule you met at the start of B1. By the end you can argue your side without switching to "
-      + "English.",
-    units: ["tehnoloogia", "arvamus", "keskkond", "probleemid", "liitverbid"],
-  },
-
   {
     id: "b2.1", level: "B2",
     title: "Kes seda ütles", subtitle: "Leaving out who did it, society, hearsay, the economy, and doing two things at once",

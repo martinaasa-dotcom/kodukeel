@@ -659,7 +659,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       { kind: "verb", et: "valima", first: "valin", en: "to choose", firstEn: "I choose" },
       { kind: "form", et: "lõpus", of: "lõpp", en: "at the end" },
       { kind: "form", et: "koosolekuid", of: "koosolek", en: "meetings, as an object" },
-      { kind: "form", et: "väiksema", of: "väiksem", en: "of the smaller", stem: true },
+      { kind: "form", et: "väiksema", of: "väike", en: "of the smaller", stem: true },
       { kind: "form", et: "lause", of: "lause", en: "of the sentence", stem: true },
       { kind: "verb", et: "kustutama", first: "kustutan", en: "to delete, to put out", firstEn: "I delete" },
       { kind: "word", et: "alates", en: "from, starting from" },
