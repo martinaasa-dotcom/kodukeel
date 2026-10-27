@@ -1,4 +1,5 @@
 import { lessonById, lessonLabel, LESSON_PARTS, LESSONS, type LessonSpec } from "@/lib/course/lessons";
+import { PREVIEW_LESSONS, PREVIEW_PARTS } from "@/lib/course/lessons/preview";
 import { lessonListStates } from "@/lib/progress/course";
 import type { PracticeItem } from "@/lib/course/lessons/practice";
 import { sayableName } from "@/lib/course/lessons/ownAnswer";
@@ -48,8 +49,12 @@ export interface LessonView {
  * afterwards and a learner reported going through all 49 without ever opening
  * Review; and whether the check that closes the part is passed.
  */
-export async function lessonView(ownerId: string, lessonId: string, now: Date = new Date()): Promise<LessonView | null> {
-  const lesson = lessonById(lessonId);
+export async function lessonView(
+  ownerId: string, lessonId: string, now: Date = new Date(),
+  /** Whether a lesson in preview may be opened: a reviewer on the website, never the native door. */
+  allowPreview = false,
+): Promise<LessonView | null> {
+  const lesson = lessonById(lessonId) ?? (allowPreview ? PREVIEW_LESSONS.find((l) => l.id === lessonId) ?? null : null);
   if (!lesson) return null;
   const mixups = lesson.fixes?.length
     ? await prisma.review.findMany({
@@ -72,10 +77,10 @@ export async function lessonView(ownerId: string, lessonId: string, now: Date = 
     opened from the list ahead of the course reads the same; what it records
     is `finishLesson`'s decision.
   */
-  const partSpec = LESSON_PARTS.find((p) => p.id === lesson.part)!;
+  const partSpec = [...LESSON_PARTS, ...PREVIEW_PARTS].find((p) => p.id === lesson.part)!;
   const part = {
     title: partSpec.title,
-    lessons: LESSONS.filter((l) => l.part === lesson.part).map((l) => ({
+    lessons: [...LESSONS, ...PREVIEW_LESSONS].filter((l) => l.part === lesson.part).map((l) => ({
       id: l.id, label: lessonLabel(l), title: l.title, done: states.get(l.id) === "done",
     })),
   };

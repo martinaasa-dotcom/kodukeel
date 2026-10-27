@@ -5,6 +5,7 @@ import { titleFor } from "@/lib/progress/locale";
 import { conversationFrom } from "@/lib/scenes/lessonReturn";
 import { LessonRunner } from "./LessonRunner";
 import { lessonView } from "@/lib/progress/lessonView";
+import { isAdmin } from "@/lib/auth/admin";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const lesson = lessonById((await params).id);
@@ -23,9 +24,9 @@ export const dynamic = "force-dynamic";
  * planned course, and finishing it records the evening (`finishLesson`).
  */
 export default async function LessonPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ conversation?: string | string[] }> }) {
-  const [ownerId, { id }, query] = await Promise.all([requireUserId(), params, searchParams]);
-  // Built in `lessonView`, which `GET /api/v1/lessons/{id}` answers with too.
-  const view = await lessonView(ownerId, id);
+  const [ownerId, { id }, query, reviewer] = await Promise.all([requireUserId(), params, searchParams, isAdmin()]);
+  // Built in `lessonView`, which `GET /api/v1/lessons/{id}` answers with too; only a reviewer here opens a lesson in preview.
+  const view = await lessonView(ownerId, id, new Date(), reviewer);
   if (!view) notFound();
   return (
     <LessonRunner

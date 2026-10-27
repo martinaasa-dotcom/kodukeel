@@ -1,4 +1,8 @@
-import { ledgersBefore, LESSONS, practiceFor, reviewFor, type LessonSpec } from "@/lib/course/lessons";
+import { ledgersBefore, LESSONS as COURSE_LESSONS, practiceFor, reviewFor, type LessonSpec } from "@/lib/course/lessons";
+import { PREVIEW_LESSONS } from "@/lib/course/lessons/preview";
+
+/** The course and, after it, the lessons in preview, which the ledger walks in that order. */
+const LESSONS: readonly LessonSpec[] = [...COURSE_LESSONS, ...PREVIEW_LESSONS];
 import { PROGRAMMES, lessonDayFor } from "@/lib/course";
 import { checkAfter, type CourseCheck } from "@/lib/course/checks";
 import { sceneForLesson } from "@/lib/scenes/lessonScenes";

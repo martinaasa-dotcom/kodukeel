@@ -7,7 +7,12 @@ import { A1_LESSONS } from "./a1";
 import { NAMES, PLACE_SPELLINGS, estonianOf, familiesOf, ledgersBefore, lessonProblems, lessonRank, namesOf, teach, uncovered, wordsOf } from "./ledger";
 import { everyTypedQuestion, itemEstonian, markPhrase, meaningShows, practiceFor, reviewFor } from "./practice";
 import { estonianIn } from "./ledger";
-import { LESSONS, LESSON_PARTS } from "./index";
+import { LESSONS as COURSE_LESSONS, LESSON_PARTS as COURSE_PARTS } from "./index";
+import { PREVIEW_LESSONS, PREVIEW_PARTS } from "./preview";
+
+/* The course and the lessons in preview after it: a lesson in preview is held to every check a course lesson is. */
+const LESSONS = [...COURSE_LESSONS, ...PREVIEW_LESSONS];
+const LESSON_PARTS = [...COURSE_PARTS, ...PREVIEW_PARTS];
 import { CASES, caseNameWithNumber, casePlainName, shortIllativeName } from "@/lib/estonian/cases";
 import { PERSON_ENDINGS, VERB_FORM_NAMES, verbFormName, type Person, type VerbForm } from "@/lib/estonian/verbNames";
 
@@ -24,6 +29,7 @@ const TAUGHT_NAMES = new Set(LESSONS.flatMap((l) => l.teaches.map((t) => t.et)).
 describe("the lessons, A1 and on", () => {
   it("never show a word before it is taught", () => {
     expect(lessonProblems(A1_LESSONS)).toEqual([]);
+    expect(lessonProblems(LESSONS)).toEqual([]);
   });
 
   it("introduce the four letters of their own together, on the first evening", () => {

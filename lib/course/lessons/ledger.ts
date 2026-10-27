@@ -508,10 +508,16 @@ export function lessonProblems(lessons: readonly LessonSpec[]): string[] {
     });
     // A slip is another taught form of the same word, standing once in the line, or it is not a slip.
     const families = familiesOf(tonight);
+    // A word taught as itself is the dictionary form of its own family: `auto` beside `autot`.
+    const headwords = new Set(tonight.items.filter((d) => d.item.kind === "word").map((d) => d.item.et.toLocaleLowerCase("et")));
+    const wordOfSpelling = (s: string) => {
+      const low = s.toLocaleLowerCase("et");
+      return families.of.get(low) ?? (headwords.has(low) ? low : undefined);
+    };
     lesson.fixes?.forEach((f, i) => {
       if (withSlip(f) === f.line.et) problems.push(`${at}, fix ${i + 1}: "${f.right}" is not in the line once as a word`);
-      const of = families.of.get(f.right.toLocaleLowerCase("et"));
-      if (!of || families.of.get(f.wrong.toLocaleLowerCase("et")) !== of || f.wrong === f.right) {
+      const of = wordOfSpelling(f.right);
+      if (!of || wordOfSpelling(f.wrong) !== of || f.wrong === f.right) {
         problems.push(`${at}, fix ${i + 1}: "${f.wrong}" is not another taught form of the word "${f.right}" is`);
       }
     });
