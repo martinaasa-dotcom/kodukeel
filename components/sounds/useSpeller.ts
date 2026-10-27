@@ -21,7 +21,8 @@ import { LETTER_GAP_MS, PAUSE_GAP_MS, SLOW_GAPS, type SpellPart } from "@/lib/co
  * in one word came out at anything from a third of a second to over one,
  * which was reported as some letters starting at once and some after half a
  * second. Joined, the gaps are exactly `LETTER_GAP_MS` and `PAUSE_GAP_MS`,
- * and each letter lights off the clip's own play position.
+ * and each letter lights off the clip's own play position, held through the
+ * gap after it and never skipped, whatever steps the browser reports it in.
  */
 export function useSpeller() {
   const run = useRef(0);
@@ -71,11 +72,19 @@ export function useSpeller() {
       return;
     }
     playing.current = play;
+    // A letter lights from the moment its sound starts until the next one
+    // starts, so it stays lit through the gap after it, and the light walks
+    // one letter a frame and never back. Safari reports the play position in
+    // jumps, and lit only while the position sat inside a letter's sound, a
+    // short letter was stepped over and never lit: "Mari" lit M, R and I.
+    let shown = -1;
     const frame = () => {
       if (run.current !== me) return;
       const now = play.audio.currentTime;
-      const index = play.spans.findIndex((span) => now >= span.from && now < span.to);
-      setActive(index < 0 ? null : said[index]!.at);
+      let reached = -1;
+      play.spans.forEach((span, i) => { if (now >= span.from) reached = i; });
+      if (reached > shown) shown += 1;
+      setActive(shown < 0 ? null : said[shown]!.at);
       requestAnimationFrame(frame);
     };
     requestAnimationFrame(frame);
