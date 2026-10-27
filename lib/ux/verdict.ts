@@ -112,7 +112,11 @@ export function verdictOfCheck(check: {
  * decides, as it always did.
  */
 export function verdictOfMark(mark: { right: boolean; rating: number; close?: boolean }): Verdict {
-  if (mark.right) return "right";
+  // A forgiven slip or a dropped diacritic is `right` with the middle rating:
+  // the word, nearly, which is what `verdictOfCheck` says about the same two
+  // readings. Painted as a recall, it read "That's it" over "So close", with a
+  // retype box under it, which is three signals and two of them disagreeing.
+  if (mark.right) return mark.rating >= 3 ? "right" : "nearly";
   if (mark.close) return "nearly";
   return verdictOfRating(mark.rating);
 }
