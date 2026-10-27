@@ -74,7 +74,13 @@ export type PracticeItem =
    * word of it, is what is asked about.
    */
   | { readonly kind: "reply"; readonly ask: { readonly et: string; readonly en: string };
-      readonly options: readonly string[]; readonly answer: string; readonly answerEn: string };
+      readonly options: readonly string[]; readonly answer: string; readonly answerEn: string }
+  /**
+   * A sentence to change, typed (`Rework`): the sentence, what to do to it,
+   * and every way of saying the result that counts, the lesson's own first.
+   */
+  | { readonly kind: "rework"; readonly from: { readonly et: string; readonly en: string }; readonly ask: string;
+      readonly answer: string; readonly answerEn: string; readonly accept: readonly string[] };
 
 /** The Estonian a practice item asks about, which the ledger has to cover. */
 export function itemEstonian(item: PracticeItem): string[] {
@@ -83,6 +89,7 @@ export function itemEstonian(item: PracticeItem): string[] {
     case "match": return item.pairs.map((p) => p.et);
     case "gap": return [`${item.before}${item.answer}${item.after}`, ...item.options];
     case "reply": return [item.ask.et, ...item.options];
+    case "rework": return [item.from.et, ...item.accept];
     default: return [item.et];
   }
 }
@@ -105,6 +112,9 @@ export const CHECKIN_REACH = 4;
  */
 export const RECOGNISE_AT_MOST = 10;
 export const PRODUCE_AT_MOST = 6;
+
+/** At most this many sentences to change in one evening's practice. */
+export const REWORK_AT_MOST = 4;
 
 /** Options under a recognize question, the answer included. */
 const OPTIONS = 4;
@@ -470,7 +480,10 @@ export function practiceFor(lesson: LessonSpec, before: Ledger, history: readonl
   const asked = shuffle(chosen.filter((item) => wordsOf(item.et).length <= TYPE_UP_TO_WORDS), random)
     .slice(0, PRODUCE_AT_MOST)
     .map((item) => produce(item, pool));
-  return [...(match ? [match] : []), ...recog, ...gaps, ...replies, ...asked];
+  const reworks = (lesson.reworks ?? []).slice(0, REWORK_AT_MOST).map((r): PracticeItem => ({
+    kind: "rework", from: r.from, ask: r.ask, answer: r.to.et, answerEn: r.to.en, accept: [r.to.et, ...(r.also ?? [])],
+  }));
+  return [...(match ? [match] : []), ...recog, ...gaps, ...replies, ...reworks, ...asked];
 }
 
 /**
@@ -545,6 +558,28 @@ export function markPhrase(typed: string, accept: readonly string[]): TypedMark 
     return { verdict: "nearly", note: "Half right: the word is in there, but only that one word was asked for.", close: false };
   }
   if (wants.some((w) => w.length >= SLIP_FLOOR && editDistance(said, w, 1) <= 1)) return { verdict: "nearly", note: "Nearly: one letter out.", close: false };
+  return { verdict: "wrong", note: "Not quite.", close: wants.some((w) => nearMiss(said, w)) };
+}
+
+/**
+ * HOW A CHANGED SENTENCE COMPARES WITH THE ONES THAT COUNT.
+ *
+ * Not `markPhrase`, for one reason: its slip rule forgives a letter out from
+ * eight letters up, and in a sentence that letter is often the whole point,
+ * since `raamatu` and `raamatut` are one letter and two meanings. So a changed
+ * sentence is right where its words are the words of one that counts, nearly
+ * where only the letters with marks on them differ, and otherwise not, with
+ * one more thing worth saying: the sentence typed back unchanged.
+ */
+export function markRework(typed: string, item: Extract<PracticeItem, { kind: "rework" }>): TypedMark {
+  const said = normalisePhrase(typed);
+  const wants = item.accept.map(normalisePhrase);
+  if (said.length === 0) return { verdict: "wrong", note: "Nothing typed.", close: false };
+  if (wants.includes(said)) return { verdict: "right", note: "That's it.", close: false };
+  if (wants.some((w) => fold(w) === fold(said))) return { verdict: "nearly", note: "Nearly: mind the letters with marks on them.", close: false };
+  if (said === normalisePhrase(item.from.et)) {
+    return { verdict: "wrong", note: "That's the sentence as it was. Change it the way the line above asks.", close: false };
+  }
   return { verdict: "wrong", note: "Not quite.", close: wants.some((w) => nearMiss(said, w)) };
 }
 
@@ -664,8 +699,8 @@ export function markCheck(items: readonly PracticeItem[], responses: readonly (s
     const said = responses[i] ?? "";
     // A match is never on a check: it is several answers in one, and a check marks one each.
     if (item.kind === "match") return "wrong" as const;
-    if (item.kind !== "type") return said === item.answer ? "right" as const : "wrong" as const;
-    const mark = markPhrase(said, item.accept).verdict;
+    if (item.kind !== "type" && item.kind !== "rework") return said === item.answer ? "right" as const : "wrong" as const;
+    const mark = (item.kind === "rework" ? markRework(said, item) : markPhrase(said, item.accept)).verdict;
     return mark === "right" ? "right" as const : mark === "nearly" ? "nearly" as const : "wrong" as const;
   });
   const score = marks.reduce((sum, m) => sum + (m === "right" ? 1 : m === "nearly" ? 0.5 : 0), 0);

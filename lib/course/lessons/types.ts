@@ -208,6 +208,27 @@ export interface Prompt {
   readonly model: { readonly et: string; readonly en: string };
 }
 
+/**
+ * CHANGE A SENTENCE RATHER THAN CHOOSE ONE (docs/43-lessons.md §11.2, Rework).
+ *
+ * B1 grammar is turning one sentence into another: "say he finished it",
+ * "say it without naming who did it". `from` is a sentence the learner has
+ * met, `ask` says what to change in English (Estonian in braces), and `to` is
+ * the changed sentence, written for the lesson and held to the same two
+ * checks as every other line (ADR-005 amendment 6). `also` is any other way of
+ * saying it that counts. The marking is a comparison with those, so no model
+ * ever decides whether a change was right. `pattern` is the rule the change
+ * is about, and the level check refuses a rework whose pattern has not been
+ * explained by that lesson.
+ */
+export interface Rework {
+  readonly from: { readonly et: string; readonly en: string };
+  readonly ask: string;
+  readonly to: { readonly et: string; readonly en: string };
+  readonly also?: readonly string[];
+  readonly pattern: PatternId;
+}
+
 /** Which kind of evening it is. A check-in teaches nothing new; a part ends on one. */
 export type LessonKind = "lesson" | "checkin" | "partEnd";
 
@@ -241,6 +262,8 @@ export interface LessonSpec {
   readonly how: HowItWorks;
   /** Questions about the learner, answered aloud or typed. */
   readonly answers: readonly Prompt[];
+  /** Sentences to change, B1 on: practice that asks for the evening's pattern by name. */
+  readonly reworks?: readonly Rework[];
   /** A role-play, on a check-in and at the end of a part. */
   readonly roleplay?: { readonly scene: string; readonly turns: readonly Prompt[] };
 }

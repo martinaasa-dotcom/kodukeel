@@ -273,6 +273,9 @@ export function familiesOf(ledger: Ledger): Families {
   return { forms, of };
 }
 
+/** Words lower-cased and joined, as two sentences are compared. */
+const normalisePhraseOf = (text: string) => wordsOf(text).map((w) => w.low).join(" ");
+
 /** The names a lesson may use: the shared list and its own cast. */
 export function namesOf(lesson: Pick<LessonSpec, "cast">): ReadonlySet<string> {
   return new Set([...NAMES, ...Object.keys(lesson.cast)]);
@@ -337,6 +340,14 @@ export function estonianOf(lesson: LessonSpec): { where: string; et: string; hea
       out.push({ where: `${label} ${i + 1}, model`, et: p.model.et });
     });
   prompts("question", lesson.answers);
+  lesson.reworks?.forEach((r, i) => {
+    out.push({ where: `rework ${i + 1}, from`, et: r.from.et });
+    english(`rework ${i + 1}, from English`, r.from.en);
+    english(`rework ${i + 1}, ask`, r.ask);
+    out.push({ where: `rework ${i + 1}, to`, et: r.to.et });
+    english(`rework ${i + 1}, to English`, r.to.en);
+    r.also?.forEach((et, j) => out.push({ where: `rework ${i + 1}, also ${j + 1}`, et }));
+  });
   if (lesson.roleplay) {
     english("the role-play's scene", lesson.roleplay.scene);
     prompts("role-play turn", lesson.roleplay.turns);
@@ -472,6 +483,11 @@ export function lessonProblems(lessons: readonly LessonSpec[]): string[] {
       if (item.kind === "verb" && !item.et.endsWith("ma")) problems.push(`${at}: the verb "${item.et}" is not a ma-form`);
     }
     const tonight = teach(ledger, lesson.teaches, lessonRank(lesson), lesson.patterns);
+    // A change is asked for by its rule, so the rule has to have been explained by tonight.
+    lesson.reworks?.forEach((r, i) => {
+      if (!tonight.patterns.has(r.pattern)) problems.push(`${at}, rework ${i + 1}: asks for the ${r.pattern} pattern before it is explained`);
+      if (normalisePhraseOf(r.from.et) === normalisePhraseOf(r.to.et)) problems.push(`${at}, rework ${i + 1}: the sentence it asks for is the one it starts from`);
+    });
     const names = namesOf(lesson);
     for (const { where, et, heard } of estonianOf(lesson)) {
       if (heard) continue;

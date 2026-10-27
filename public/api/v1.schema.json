@@ -2477,6 +2477,85 @@
                   ]
                 }
               },
+              "reworks": {
+                "description": "Sentences to change, B1 on; the practice step carries them as `rework` items.",
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "from": {
+                      "type": "object",
+                      "properties": {
+                        "et": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "et",
+                        "en"
+                      ]
+                    },
+                    "ask": {
+                      "type": "string"
+                    },
+                    "to": {
+                      "type": "object",
+                      "properties": {
+                        "et": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "et",
+                        "en"
+                      ]
+                    },
+                    "also": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "pattern": {
+                      "type": "string",
+                      "enum": [
+                        "present",
+                        "negative",
+                        "imperative",
+                        "inside",
+                        "outside",
+                        "comitative",
+                        "translative",
+                        "terminative",
+                        "essive",
+                        "abessive",
+                        "past",
+                        "conditional",
+                        "object",
+                        "government",
+                        "impersonal",
+                        "pluperfect",
+                        "relative",
+                        "particleVerb"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "from",
+                    "ask",
+                    "to",
+                    "pattern"
+                  ]
+                }
+              },
               "roleplay": {
                 "type": "object",
                 "properties": {
@@ -2671,6 +2750,56 @@
                     "answerEn"
                   ],
                   "description": "A question from a conversation, and what was said back, among the answers to other questions."
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "rework"
+                    },
+                    "from": {
+                      "type": "object",
+                      "properties": {
+                        "et": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "et",
+                        "en"
+                      ]
+                    },
+                    "ask": {
+                      "type": "string"
+                    },
+                    "answer": {
+                      "type": "string"
+                    },
+                    "answerEn": {
+                      "type": "string"
+                    },
+                    "accept": {
+                      "readOnly": true,
+                      "description": "Every sentence that counts, the lesson's own first.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "from",
+                    "ask",
+                    "answer",
+                    "answerEn",
+                    "accept"
+                  ],
+                  "description": "A sentence to change the way `ask` says (B1 on), typed and marked against `accept`."
                 },
                 {
                   "type": "object",
@@ -2883,6 +3012,56 @@
                     "answerEn"
                   ],
                   "description": "A question from a conversation, and what was said back, among the answers to other questions."
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "rework"
+                    },
+                    "from": {
+                      "type": "object",
+                      "properties": {
+                        "et": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "et",
+                        "en"
+                      ]
+                    },
+                    "ask": {
+                      "type": "string"
+                    },
+                    "answer": {
+                      "type": "string"
+                    },
+                    "answerEn": {
+                      "type": "string"
+                    },
+                    "accept": {
+                      "readOnly": true,
+                      "description": "Every sentence that counts, the lesson's own first.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "from",
+                    "ask",
+                    "answer",
+                    "answerEn",
+                    "accept"
+                  ],
+                  "description": "A sentence to change the way `ask` says (B1 on), typed and marked against `accept`."
                 },
                 {
                   "type": "object",
@@ -3323,6 +3502,56 @@
                     "answerEn"
                   ],
                   "description": "A question from a conversation, and what was said back, among the answers to other questions."
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "rework"
+                    },
+                    "from": {
+                      "type": "object",
+                      "properties": {
+                        "et": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "et",
+                        "en"
+                      ]
+                    },
+                    "ask": {
+                      "type": "string"
+                    },
+                    "answer": {
+                      "type": "string"
+                    },
+                    "answerEn": {
+                      "type": "string"
+                    },
+                    "accept": {
+                      "readOnly": true,
+                      "description": "Every sentence that counts, the lesson's own first.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "from",
+                    "ask",
+                    "answer",
+                    "answerEn",
+                    "accept"
+                  ],
+                  "description": "A sentence to change the way `ask` says (B1 on), typed and marked against `accept`."
                 },
                 {
                   "type": "object",

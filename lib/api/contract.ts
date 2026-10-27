@@ -331,6 +331,14 @@ const LessonPrompt = z.object({
   model: EtEn,
 });
 
+const LessonPattern = z.enum([
+  "present", "negative", "imperative",
+  "inside", "outside", "comitative", "translative", "terminative", "essive", "abessive",
+  "past", "conditional",
+  // B1's rules about choosing, added for the B1 lessons (docs/43-lessons.md §11.3). Within v1 an enum only grows.
+  "object", "government", "impersonal", "pluperfect", "relative", "particleVerb",
+]);
+
 export const LessonSpecSchema = z.object({
   id: z.string(),
   n: z.number().int(),
@@ -343,13 +351,7 @@ export const LessonSpecSchema = z.object({
   cast: z.record(z.string(), z.string()).describe("Who speaks, by name, and the voice each is read in."),
   conversation: z.array(LessonLine).readonly(),
   teaches: z.array(LessonTaught).readonly(),
-  patterns: z.array(z.enum([
-    "present", "negative", "imperative",
-    "inside", "outside", "comitative", "translative", "terminative", "essive", "abessive",
-    "past", "conditional",
-    // B1's rules about choosing, added for the B1 lessons (docs/43-lessons.md §11.3). Within v1 an enum only grows.
-    "object", "government", "impersonal", "pluperfect", "relative", "particleVerb",
-  ])).readonly().optional(),
+  patterns: z.array(LessonPattern).readonly().optional(),
   how: z.object({
     point: z.string(),
     notes: z.array(z.string()).readonly().optional(),
@@ -373,6 +375,11 @@ export const LessonSpecSchema = z.object({
     examples: z.array(z.number().int()).readonly().optional().describe("Lines of the conversation, by index."),
   }),
   answers: z.array(LessonPrompt).readonly(),
+  reworks: z.array(z.object({
+    from: z.object({ et: z.string(), en: z.string() }), ask: z.string(),
+    to: z.object({ et: z.string(), en: z.string() }), also: z.array(z.string()).readonly().optional(),
+    pattern: LessonPattern,
+  })).readonly().optional().describe("Sentences to change, B1 on; the practice step carries them as `rework` items."),
   roleplay: z.object({ scene: z.string(), turns: z.array(LessonPrompt).readonly() }).optional(),
 }).describe(
   "One lesson as the web's lesson screen receives it. Two conventions run through its English, and a " +
@@ -395,6 +402,11 @@ export const PracticeItemSchema = z.discriminatedUnion("kind", [
     kind: z.literal("reply"), ask: z.object({ et: z.string(), en: z.string() }),
     options: z.array(z.string()).readonly(), answer: z.string(), answerEn: z.string(),
   }).describe("A question from a conversation, and what was said back, among the answers to other questions."),
+  z.object({
+    kind: z.literal("rework"), from: z.object({ et: z.string(), en: z.string() }), ask: z.string(),
+    answer: z.string(), answerEn: z.string(),
+    accept: z.array(z.string()).readonly().describe("Every sentence that counts, the lesson's own first."),
+  }).describe("A sentence to change the way `ask` says (B1 on), typed and marked against `accept`."),
   z.object({ kind: z.literal("hear"), et: z.string(), options: z.array(z.string()).readonly(), answer: z.string() }),
   z.object({ kind: z.literal("pick"), et: z.string(), options: z.array(z.string()).readonly(), answer: z.string() }),
   z.object({

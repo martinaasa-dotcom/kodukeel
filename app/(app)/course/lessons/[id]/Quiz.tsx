@@ -12,7 +12,7 @@ import { LessonText } from "@/components/course/LessonText";
 import { Card, Meter, SectionTitle } from "@/components/ui";
 import { fill } from "@/lib/copy/locale";
 // By its own module, never the barrel, which imports every lesson the course has.
-import { markPhrase, type PracticeItem, type TypedMark } from "@/lib/course/lessons/practice";
+import { markPhrase, markRework, type PracticeItem, type TypedMark } from "@/lib/course/lessons/practice";
 import { rng, seedFrom } from "@/lib/random/seeded";
 import { shuffle } from "@/lib/random/shuffle";
 import { isAdvanceKey } from "@/lib/ux/advanceKey";
@@ -62,7 +62,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
 
   const item = items[Math.min(at, items.length - 1)];
   const answered = item
-    ? item.kind === "type" ? mark !== null : item.kind === "match" ? matched !== null : picked !== null
+    ? item.kind === "type" || item.kind === "rework" ? mark !== null : item.kind === "match" ? matched !== null : picked !== null
     : false;
 
   useEffect(() => {
@@ -127,8 +127,8 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
   };
 
   const check = () => {
-    if (item.kind !== "type" || mark !== null) return;
-    const m = markPhrase(typed, item.accept);
+    if ((item.kind !== "type" && item.kind !== "rework") || mark !== null) return;
+    const m = item.kind === "rework" ? markRework(typed, item) : markPhrase(typed, item.accept);
     setMark(m);
     onAnswer?.(at, typed);
     scored(m.verdict === "right");
@@ -149,6 +149,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
     match: t("Match them up"),
     gap: t("Which word fits?"),
     reply: t("What do they say back?"),
+    rework: t("Change the sentence"),
   }[item.kind];
 
   return (
@@ -237,6 +238,50 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
           </p>
         )}
 
+        {item.kind === "rework" && (
+          <div className="mt-2 flex flex-col gap-3" data-rework>
+            <div className="flex items-start gap-2">
+              <Speak key={`${at}-${item.from.et}`} text={item.from.et} size={18} label={t("Hear the sentence")} />
+              <p lang="et" className="text-xl font-bold" style={{ color: "var(--ink)" }}>{item.from.et}</p>
+            </div>
+            <p className="text-base" style={{ color: "var(--ink-2)" }}><LessonText text={item.from.en} locale={locale} /></p>
+            <p className="text-lg font-semibold" style={{ color: "var(--ink)" }}><LessonText text={item.ask} locale={locale} /></p>
+            <input
+              lang="et"
+              className="field-lg w-full"
+              value={typed}
+              disabled={mark !== null}
+              aria-label={t("The changed sentence, in Estonian")}
+              autoComplete="off"
+              autoCapitalize="off"
+              spellCheck={false}
+              onChange={(e) => setTyped(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && mark === null) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  check();
+                }
+              }}
+            />
+            {mark === null && <div className="under-field"><DiacriticBar /></div>}
+            {mark !== null && (
+              <div className={`verdict-panel ${VERDICT_CLASS[mark.verdict === "wrong" && mark.close ? "nearly" : mark.verdict]}`}>
+                <p>{t(mark.note)}</p>
+                <p className="mt-1">
+                  <span lang="et" className="font-bold">{item.answer}</span>{" "}
+                  <LessonText text={item.answerEn} locale={locale} />
+                </p>
+              </div>
+            )}
+            {mark !== null && (
+              <span className="inline-flex items-center gap-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
+                <Speak text={item.answer} size={15} /> {t("hear it")}
+              </span>
+            )}
+          </div>
+        )}
+
         {item.kind === "type" && (
           <div className="mt-2 flex flex-col gap-3">
             <p className="text-xl font-bold" style={{ color: "var(--ink)" }}><LessonText text={item.en} locale={locale} /></p>
@@ -283,7 +328,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
         <p role="status" aria-live="polite" className="sr-only">{liveLine(item, picked, mark, matched, t)}</p>
 
         <div className="mt-5 flex flex-wrap items-center justify-end gap-3">
-          {item.kind === "type" && mark === null ? (
+          {(item.kind === "type" || item.kind === "rework") && mark === null ? (
             <Button variant="primary" onClick={check}>
               <Check size={15} aria-hidden /> {t("Check")}
             </Button>
@@ -302,7 +347,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
 function liveLine(
   item: PracticeItem, picked: string | null, mark: TypedMark | null, matched: boolean | null, t: (s: string) => string,
 ): string {
-  if (item.kind === "type") return mark ? `${t(mark.note)} ${item.answer}` : "";
+  if (item.kind === "type" || item.kind === "rework") return mark ? `${t(mark.note)} ${item.answer}` : "";
   if (item.kind === "match") return matched === null ? "" : matched ? t("All matched, first time.") : t("All matched.");
   if (picked === null) return "";
   if (picked === item.answer) return t("Right.");

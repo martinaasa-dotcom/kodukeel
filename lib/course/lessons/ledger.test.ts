@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { EMPTY_LEDGER, estonianIn, lessonProblems, teach, uncovered } from "./ledger";
+import { markRework, practiceFor } from "./practice";
 import { B_PATTERNS, type LessonSpec } from "./types";
 
 const lesson = (over: Partial<LessonSpec>): LessonSpec => ({
@@ -176,5 +177,54 @@ describe("the check over a level", () => {
     expect(lessonProblems([lesson({}), a2])).toEqual([]);
     expect(lessonProblems([lesson({}), { ...a2, n: 2 }]).join(" ")).toMatch(/numbered 2 where the core lessons are at 1/);
     expect(lessonProblems([a2, lesson({ id: "t-a1", teaches: [] })]).join(" ")).toMatch(/A1 comes after A2/);
+  });
+});
+
+describe("a sentence to change (Rework)", () => {
+  const read = { kind: "phrase", et: "Ma lugesin raamatut.", en: "I was reading the book." } as const;
+  const finished = { kind: "phrase", et: "Ma lugesin raamatu läbi.", en: "I read the book through." } as const;
+  const rework = {
+    from: { et: read.et, en: read.en }, ask: "Say you finished it.",
+    to: { et: finished.et, en: finished.en }, pattern: "object",
+  } as const;
+  const conversation = [{ who: "Mari", et: read.et, en: read.en }, { who: "Mari", et: finished.et, en: finished.en }];
+  const answers = [{ cue: "c", model: { et: read.et, en: read.en } }];
+
+  it("passes a rework whose pattern the lesson explains and whose words are taught", () => {
+    expect(lessonProblems([lesson({ conversation, answers, teaches: [read, finished], patterns: ["object"], reworks: [rework] })])).toEqual([]);
+  });
+
+  it("fails a rework asking for a pattern nobody has explained", () => {
+    const problems = lessonProblems([lesson({ conversation, answers, teaches: [read, finished], reworks: [rework] })]);
+    expect(problems.some((p) => p.includes("asks for the object pattern before it is explained"))).toBe(true);
+  });
+
+  it("fails a rework whose sentence holds a word not taught by now", () => {
+    const problems = lessonProblems([lesson({ conversation, answers, teaches: [read, finished], patterns: ["object"],
+      reworks: [{ ...rework, to: { et: "Ma lugesin raamatu kiiresti läbi.", en: "I read it quickly." } }] })]);
+    expect(problems.some((p) => p.includes("rework 1, to") && p.includes("kiiresti"))).toBe(true);
+  });
+
+  it("fails a rework that asks for the sentence it starts from", () => {
+    const problems = lessonProblems([lesson({ conversation, answers, teaches: [read, finished], patterns: ["object"],
+      reworks: [{ ...rework, to: rework.from }] })]);
+    expect(problems.some((p) => p.includes("the one it starts from"))).toBe(true);
+  });
+
+  it("puts the lesson's reworks in its practice, and marks them by comparison", () => {
+    const spec = lesson({ conversation, answers, teaches: [read, finished], patterns: ["object"], reworks: [rework] });
+    const items = practiceFor(spec, EMPTY_LEDGER);
+    const item = items.find((i) => i.kind === "rework");
+    expect(item).toBeDefined();
+    if (item?.kind !== "rework") return;
+    expect(item.accept).toEqual([finished.et]);
+    expect(markRework("ma lugesin raamatu läbi", item).verdict).toBe("right");
+    expect(markRework("Ma lugesin raamatu labi.", item).verdict).toBe("nearly");
+    // One letter apart is the whole point of the object rule, so it is wrong, never a slip.
+    expect(markRework("Ma lugesin raamatut läbi.", item).verdict).toBe("wrong");
+    const unchanged = markRework(read.et, item);
+    expect(unchanged.verdict).toBe("wrong");
+    expect(unchanged.note).toContain("as it was");
+    expect(markRework("", item).note).toBe("Nothing typed.");
   });
 });
