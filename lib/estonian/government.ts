@@ -183,6 +183,17 @@ export function parseGovernment(raw: string | null | undefined): Government | nu
 }
 
 /**
+ * A stored government cut into its parts, one per thing the word takes:
+ * "mille/mida · kust (source)" is `mille/mida` and `kust (source)`. The one
+ * reader of that separator for code that asks what a part says, such as the
+ * sentence check asking whether a verb takes an object
+ * (`lib/course/lessons/sentenceCheck.ts`).
+ */
+export function governmentParts(raw: string | null | undefined): string[] {
+  return (raw ?? "").split("·").map((part) => part.trim()).filter((part) => part.length > 0);
+}
+
+/**
  * THE STORED STRING AS A LEARNER SHOULD READ IT.
  *
  * Ekilex records a government as the question word a verb answers with the

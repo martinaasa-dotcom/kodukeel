@@ -34,6 +34,12 @@ export const ACTION_LIMITS = {
   buildCloze: { perMinute: 10 },
   /** Asks the dictionary about every word of a pasted text, up to 4,000 characters, for reading mode. */
   readText: { perMinute: 10 },
+  /**
+   * Checks one typed answer on a lesson card against the dictionary: a forms
+   * list read per word and one query. A press per card, so thirty a minute is
+   * never met by anybody answering.
+   */
+  checkSentence: { perMinute: 30 },
   /** Writes a row and a card per line of a pasted list. */
   importWords: { perMinute: 10 },
   /**

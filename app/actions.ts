@@ -16,6 +16,7 @@ import { recordSuggestion } from "@/lib/suggestions/record";
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
 import { visibleLine, visibleProse } from "@/lib/security/visibleText";
 import { glossSentences } from "@/lib/dict/glossed";
+import { checkTypedSentence } from "@/lib/progress/sentenceCheck";
 import { MAX_READING_CHARS, readingParagraphs } from "@/lib/estonian/readingText";
 import { setTaskDone } from "@/lib/progress/tasks";
 import { keepBest } from "@/lib/progress/personalBest";
@@ -3224,6 +3225,40 @@ export async function readEstonian(textIn: unknown) {
 
 /** Distinct words reading mode asks the dictionary about; a 4,000 character text holds fewer. */
 const READING_WORD_BUDGET = 900;
+
+/** The longest typed answer a lesson card checks. A role-play line is a sentence or two. */
+const MAX_CHECKED_CHARS = 300;
+
+/**
+ * IS MY SENTENCE RIGHT, ON A LESSON'S SAY-IT CARD, WITH NO MODEL.
+ *
+ * The card compares an answer with one way to say it and, where the answer is
+ * different, says "Yours can be different", which is true and tells a learner
+ * nothing about whether theirs was Estonian. This reads it against the
+ * dictionary (`lib/course/lessons/sentenceCheck.ts`): spelling, the person of
+ * a verb, `ei` with a verb, the two infinitives, and a noun left in its plain
+ * form where it needed an ending. No model is asked and nothing is stored or
+ * graded; the sentence goes back to the card that sent it.
+ *
+ * The sample is read off the lesson here rather than taken from the browser,
+ * since it is only a tie-breaker for a spelling suggestion and the lesson
+ * already holds it. `which` and `index` name the card the way the screen
+ * builds it, the questions about you or the role-play's turns.
+ */
+export async function checkLessonSentence(lessonIdIn: unknown, whichIn: unknown, indexIn: unknown, textIn: unknown) {
+  const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "checkSentence");
+  if (busy) return await sayRefusal(ownerId, busy);
+  const lesson = LESSONS.find((l) => l.id === text(lessonIdIn));
+  const index = typeof indexIn === "number" && Number.isInteger(indexIn) ? indexIn : -1;
+  const prompts = text(whichIn) === "turns" ? lesson?.roleplay?.turns ?? [] : lesson?.answers ?? [];
+  const prompt = prompts[index];
+  if (!lesson || !prompt) return { ok: false as const, error: "That card isn't in this lesson any more." };
+  const typed = visibleLine(textIn, MAX_CHECKED_CHARS);
+  if (!typed) return { ok: false as const, error: "Type an answer first." };
+  const checked = await checkTypedSentence(typed, prompt.model.et);
+  return { ok: true as const, findings: checked.findings, words: checked.words };
+}
 
 /** The most lines a recording's transcript arrives in: three minutes cut at its pauses is far fewer. */
 const MAX_HEARD_LINES = 200;
