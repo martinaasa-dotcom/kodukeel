@@ -71,11 +71,29 @@ export function useSpeller() {
       return;
     }
     playing.current = play;
+    /*
+      EVERY LETTER IS LIT, AND IN ORDER, HOWEVER SLOWLY FRAMES ARRIVE. Lit only
+      while a frame landed inside its own recording, a short letter could be
+      passed over whole: a busy phone or WebKit's coarse play position read
+      `currentTime` before the letter and again after it, and the letter
+      never lit (CI caught "M, r, i" for Mari). The light now follows the
+      last letter that has started and steps one letter a frame, so it can
+      fall a frame behind but never skip, and it stays on a letter through
+      the gap after it rather than going dark between letters.
+    */
+    let shown = -1;
+    let lastLit = false;
+    const last = play.spans.length - 1;
     const frame = () => {
       if (run.current !== me) return;
       const now = play.audio.currentTime;
-      const index = play.spans.findIndex((span) => now >= span.from && now < span.to);
-      setActive(index < 0 ? null : said[index]!.at);
+      let started = -1;
+      play.spans.forEach((span, i) => { if (now >= span.from) started = i; });
+      if (started > shown) shown += 1;
+      // The last letter goes dark once it has finished, and only once it has lit.
+      const over = lastLit && now >= play.spans[last]!.to;
+      if (shown === last) lastLit = true;
+      setActive(shown < 0 || over ? null : said[shown]!.at);
       requestAnimationFrame(frame);
     };
     requestAnimationFrame(frame);
