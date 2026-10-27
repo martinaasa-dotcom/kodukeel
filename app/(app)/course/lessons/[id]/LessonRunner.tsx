@@ -95,13 +95,15 @@ const STEP_TITLE: Record<Step, string> = {
 /** The three teaching steps are finished by being open. */
 const ASKS: ReadonlySet<Step> = new Set(["practise", "write", "say", "review"]);
 
-export function LessonRunner({ lesson, practice, review, next, scene, conversation, place, name, due = 0, check = null, part }: {
+export function LessonRunner({ lesson, practice, review, next, scene, situation = null, conversation, place, name, due = 0, check = null, part }: {
   lesson: LessonSpec;
   practice: readonly PracticeItem[];
   review: readonly PracticeItem[];
   next: { id: string; title: string } | null;
   /** The lesson's own conversation, where it has one (`sceneForLesson`). */
   scene: string | null;
+  /** A conversation out there the lesson rehearses, from the catalog (`lessonSituations.ts`). */
+  situation?: { id: string; title: string } | null;
   /**
    * Back from the lesson's own conversation: `done` from its debrief, `left`
    * from its way out. The scripted conversation was held before the link was
@@ -302,6 +304,20 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
                     {t("Have the conversation")} <ArrowRight size={15} aria-hidden />
                   </ButtonLink>
                 </div>
+              </div>
+            )}
+            {/*
+              AND ONE STEP FURTHER OUT, WHERE THE LESSON REHEARSES AN ERRAND
+              (B1 on, `lessonSituations.ts`): the same situation with somebody
+              who talks the way people do at that counter, in Situations.
+            */}
+            {situation && (
+              <div className="mt-4 rounded-[var(--r-xl)] border px-5 py-4 text-left" style={{ background: "var(--surface)", borderColor: "var(--edge)" }} data-lesson-situation={situation.id}>
+                <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>{t("Try it out there")}</p>
+                <p className="mt-1 max-w-[56ch] text-base" style={{ color: "var(--ink-2)" }}>
+                  {fill(t("The same kind of moment, with somebody who talks the way people really do: {title}."), { title: t(situation.title) })}
+                </p>
+                <div className="mt-3"><ButtonLink href={`/situations/${situation.id}`}>{t("Open the conversation")} <ArrowRight size={15} aria-hidden /></ButtonLink></div>
               </div>
             )}
             {/*

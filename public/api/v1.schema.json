@@ -3601,6 +3601,29 @@
               "null"
             ]
           },
+          "situation": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "title"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "A conversation from the situations catalog that the lesson rehearses, offered on its finish (B1 on)."
+          },
           "place": {
             "type": "object",
             "properties": {
@@ -3732,6 +3755,7 @@
           "review",
           "next",
           "scene",
+          "situation",
           "place",
           "name",
           "due",

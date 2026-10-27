@@ -32,6 +32,8 @@ export interface LessonView {
   review: readonly PracticeItem[];
   next: { id: string; title: string } | null;
   scene: string | null;
+  /** A conversation out there the lesson rehearses, from the catalog, offered on its finish (`lessonSituations.ts`). */
+  situation: { id: string; title: string } | null;
   place: { at: number; of: number };
   name: string | null;
   due: number;

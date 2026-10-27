@@ -35,6 +35,7 @@ export default async function LessonPage({ params, searchParams }: { params: Pro
       review={view.review}
       next={view.next}
       scene={view.scene}
+      situation={view.situation}
       part={view.part}
       /* The lesson's own conversation sends the learner back here, finished or left partway (`lessonReturn.ts`). */
       conversation={conversationFrom(query.conversation)}

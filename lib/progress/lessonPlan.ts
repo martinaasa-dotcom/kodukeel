@@ -6,6 +6,8 @@ const LESSONS: readonly LessonSpec[] = [...COURSE_LESSONS, ...PREVIEW_LESSONS];
 import { PROGRAMMES, lessonDayFor } from "@/lib/course";
 import { checkAfter, type CourseCheck } from "@/lib/course/checks";
 import { sceneForLesson } from "@/lib/scenes/lessonScenes";
+import { sceneById } from "@/lib/scenes/catalogue";
+import { situationFor } from "@/lib/course/lessonSituations";
 import type { LessonView } from "@/lib/progress/lessonView";
 
 /*
@@ -49,8 +51,16 @@ export function lessonPlan(
     review: reviewFor(lesson, before, history),
     after: next ? { id: next.id, title: next.title, crossesPart: next.part !== lesson.part } : null,
     scene: sceneForLesson(lesson.id)?.id ?? null,
+    situation: situationOf(lesson.id),
     place: { at: ofLevel.indexOf(lesson) + 1, of: ofLevel.length },
     closes,
   };
 }
 
+
+/** The catalog conversation a lesson points at, with its title, or null (`lessonSituations.ts`). */
+function situationOf(lessonId: string): { id: string; title: string } | null {
+  const id = situationFor(lessonId);
+  const spec = id ? sceneById(id) : undefined;
+  return spec ? { id: spec.id, title: spec.title } : null;
+}

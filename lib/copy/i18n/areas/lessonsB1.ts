@@ -9,6 +9,9 @@ import type { Area } from "../area";
  */
 export const LESSONS_B1_AREA: Area = {
   ru: {
+    "Try it out there": "Попробуй в жизни",
+    "Open the conversation": "Открыть разговор",
+    "The same kind of moment, with somebody who talks the way people really do: {title}.": "Похожая ситуация, с собеседником, который говорит так, как говорят на самом деле: {title}.",
     "Say today's key lines along and then alone, answer questions about yourself, then go longer: retell a story, or give one answer three times, faster each time. A word lights up when it's understood.": "Скажи главные фразы урока сначала вместе с экраном, потом сам, ответь на вопросы о себе, а потом говори дольше: перескажи историю или ответь на один вопрос три раза, каждый раз быстрее. Слово загорается, когда его поняли.",
     "Again, faster": "Ещё раз, быстрее",
     "Answer it three times: in 90 seconds, then 60, then 45. The same answer, quicker each time.": "Ответь три раза: за 90 секунд, потом за 60, потом за 45. Тот же ответ, каждый раз быстрее.",
@@ -99,6 +102,9 @@ export const LESSONS_B1_AREA: Area = {
     "Line {n} of {total}": "Фраза {n} из {total}",
   },
   uk: {
+    "Try it out there": "Спробуй у житті",
+    "Open the conversation": "Відкрити розмову",
+    "The same kind of moment, with somebody who talks the way people really do: {title}.": "Схожа ситуація, зі співрозмовником, який говорить так, як говорять насправді: {title}.",
     "Say today's key lines along and then alone, answer questions about yourself, then go longer: retell a story, or give one answer three times, faster each time. A word lights up when it's understood.": "Скажи головні фрази уроку спершу разом з екраном, потім сам, відповідай на питання про себе, а потім говори довше: перекажи історію або дай одну відповідь тричі, щоразу швидше. Слово засвічується, коли його зрозуміли.",
     "Again, faster": "Ще раз, швидше",
     "Answer it three times: in 90 seconds, then 60, then 45. The same answer, quicker each time.": "Відповідай тричі: за 90 секунд, потім за 60, потім за 45. Та сама відповідь, щоразу швидше.",

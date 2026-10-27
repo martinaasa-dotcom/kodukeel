@@ -449,6 +449,8 @@ export const LessonResponse = z.object({
   review: z.array(PracticeItemSchema).readonly(),
   next: z.object({ id: z.string(), title: z.string() }).nullable().describe("The next lesson in the same level, or null at its end and past a part's end until its check is passed."),
   scene: z.string().nullable().describe("The lesson's own conversation, a scene id, where it has one."),
+  situation: z.object({ id: z.string(), title: z.string() }).nullable()
+    .describe("A conversation from the situations catalog that the lesson rehearses, offered on its finish (B1 on)."),
   place: z.object({ at: z.number().int(), of: z.number().int() }),
   name: z.string().nullable().describe("The learner's own first name, for a model answer about them."),
   due: z.number().int().min(0).describe("Cards due in the learner's reviews now."),
