@@ -84,3 +84,27 @@ export function sequence(pieces: readonly Piece[]): Sequence {
   });
   return { pcm: { rate, samples: out }, spans };
 }
+
+/**
+ * WHICH PIECE TO LIGHT AT A PLAY POSITION, NEVER SKIPPING ONE.
+ *
+ * The screen reads the play position once a frame, and a letter's name can be
+ * shorter than a frame on a busy device: "a" in "Mari" started and ended
+ * between two frames on a loaded runner, the screen lit 0, 2, 3, and the
+ * letter a listener was writing down never lit at all. So where the position
+ * has reached past a piece nothing has lit yet, that piece is lit for this
+ * frame, one at a time, and the lighting catches up a frame later. Otherwise
+ * it is the piece the position is inside, or -1 in a gap between two.
+ *
+ * `lit` is the furthest piece lit so far in this play, -1 before the first.
+ */
+export function pieceToLight(
+  spans: readonly { readonly from: number; readonly to: number }[],
+  now: number,
+  lit: number,
+): number {
+  let reached = -1;
+  for (let i = 0; i < spans.length; i++) if (now >= spans[i]!.from) reached = i;
+  if (reached > lit) return lit + 1;
+  return spans.findIndex((span) => now >= span.from && now < span.to);
+}

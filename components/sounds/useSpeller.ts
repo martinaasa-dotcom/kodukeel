@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { playNativeSequence, type PlayingSequence } from "@/lib/audio/clip";
+import { pieceToLight } from "@/lib/audio/sequence";
 import { LETTER_GAP_MS, PAUSE_GAP_MS, SLOW_GAPS, type SpellPart } from "@/lib/collections/spelling";
 
 /**
@@ -71,10 +72,12 @@ export function useSpeller() {
       return;
     }
     playing.current = play;
+    // Every letter gets at least one frame, however short its name.
+    let lit = -1;
     const frame = () => {
       if (run.current !== me) return;
-      const now = play.audio.currentTime;
-      const index = play.spans.findIndex((span) => now >= span.from && now < span.to);
+      const index = pieceToLight(play.spans, play.audio.currentTime, lit);
+      if (index > lit) lit = index;
       setActive(index < 0 ? null : said[index]!.at);
       requestAnimationFrame(frame);
     };

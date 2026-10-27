@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { KEEP_LEAD_MS, KEEP_TRAIL_MS, sequence } from "./sequence";
+import { KEEP_LEAD_MS, KEEP_TRAIL_MS, pieceToLight, sequence } from "./sequence";
 import { LEAD_MS, TRAIL_MS, trimSilence, type Pcm } from "./wav";
 
 const RATE = 22_050;
@@ -77,5 +77,33 @@ describe("sequence", () => {
 
   it("refuses pieces at two rates rather than playing one at the wrong speed", () => {
     expect(() => sequence([{ pcm: letter(100), gapAfterMs: 0 }, { pcm: { rate: 44_100, samples: new Float32Array(10) }, gapAfterMs: 0 }])).toThrow();
+  });
+});
+
+describe("which letter is lit", () => {
+  const spans = [{ from: 0.1, to: 0.4 }, { from: 0.5, to: 0.51 }, { from: 0.6, to: 0.9 }, { from: 1.0, to: 1.3 }];
+
+  it("lights the letter the play position is inside, and nothing in a gap", () => {
+    expect(pieceToLight(spans, 0.2, -1)).toBe(0);
+    expect(pieceToLight(spans, 0.45, 0)).toBe(-1);
+    expect(pieceToLight(spans, 0.7, 2)).toBe(2);
+  });
+
+  it("never skips a letter shorter than a frame", () => {
+    // Frames at 0.2 and 0.7 straddle the second letter, which lasts 10ms.
+    const order: number[] = [];
+    let lit = -1;
+    for (const now of [0.2, 0.7, 0.72, 1.1, 1.4]) {
+      const index = pieceToLight(spans, now, lit);
+      if (index > lit) lit = index;
+      if (index >= 0 && order.at(-1) !== index) order.push(index);
+    }
+    expect(order).toEqual([0, 1, 2, 3]);
+  });
+
+  it("catches up one letter a frame when several were missed", () => {
+    expect(pieceToLight(spans, 1.1, -1)).toBe(0);
+    expect(pieceToLight(spans, 1.1, 0)).toBe(1);
+    expect(pieceToLight(spans, 1.1, 2)).toBe(3);
   });
 });
