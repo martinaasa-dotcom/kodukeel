@@ -30,9 +30,10 @@ const EXEMPT: Record<string, string> = {
   "lib/scenes/specs/": "role cards are fiction the learner plays, so they may say tonight",
   "lib/copy/i18n/areas/situations.ts": "the translations of the role cards",
   "lib/course/lessons/": "what a lesson teaches may use the time of day, as a course book does",
-  "lib/copy/i18n/areas/lessonText.ts": "the translations of the lessons",
+  "lib/copy/i18n/areas/lessonText*": "the translations of the lessons, one area a level or part",
 };
-const exempt = (f: string) => Object.keys(EXEMPT).some((k) => (k.endsWith("/") ? f.startsWith(k) : f === k));
+const covers = (k: string, f: string) => (k.endsWith("/") ? f.startsWith(k) : k.endsWith("*") ? f.startsWith(k.slice(0, -1)) : f === k);
+const exempt = (f: string) => Object.keys(EXEMPT).some((k) => covers(k, f));
 
 const LITERAL = /"((?:[^"\\\n]|\\.)*)"|'((?:[^'\\\n]|\\.)*)'|`((?:[^`\\]|\\.)*)`/g;
 const TELLS = /\btonight\b|\blast night\b|\bthis evening\b/i;
@@ -53,7 +54,7 @@ export default function nothingIsCalledTonight({ check, ALL, code }: InvariantKi
     }
     assert.deepEqual(offenders, [], `say "today" (or "yesterday"), never the time of day: ${offenders.join("; ")}`);
     for (const k of Object.keys(EXEMPT)) {
-      const hit = scanned.some((f) => (k.endsWith("/") ? f.startsWith(k) : f === k) && TELLS.test(code(f)));
+      const hit = scanned.some((f) => covers(k, f) && TELLS.test(code(f)));
       assert.ok(hit, `${k} no longer says it, so drop it from EXEMPT`);
     }
   });

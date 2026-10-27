@@ -58,11 +58,10 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "suletud", of: "sulgema", en: "shut, closed, as a sign says it" },
       { kind: "form", et: "vaadata", of: "vaatama", en: "to look, after may or want" },
       { kind: "word", et: "täiesti", en: "completely" },
-      { kind: "verb", et: "tunduma", first: "tundun", en: "to seem, to look", firstEn: "I seem" },
     ],
     patterns: ["participle"],
     how: {
-      point: "A verb's -tud form says what was done to a thing: {remonditud korter} is an apartment somebody fixed up. It's the [tud-kesksõna] (-tud, done to), and in front of a noun it never changes: {suletud uks}, {suletud uksega}.",
+      point: "The [tud-kesksõna] (-tud, done to) of a verb says what was done to a thing: {remonditud korter} is an apartment somebody fixed up. In front of a noun it never changes: {suletud uks}, {suletud uksega}.",
       table: {
         head: ["The verb", "Done to it", "In a sentence"],
         rows: [
@@ -159,9 +158,6 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "heleda", of: "hele", en: "of the bright one", stem: true },
       { kind: "form", et: "punase", of: "punane", en: "of the red one", stem: true },
       { kind: "form", et: "vana", of: "vana", en: "of the old one", stem: true },
-      { kind: "word", et: "külla", en: "on a visit, round to see somebody" },
-      { kind: "word", et: "kuna", en: "since, because" },
-      { kind: "word", et: "ehk", en: "maybe, perhaps" },
     ],
     patterns: ["agreement"],
     how: {
@@ -397,7 +393,6 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "vahetada", of: "vahetama", en: "to change, after must or can" },
       { kind: "form", et: "vahetage", of: "vahetama", en: "change!, polite" },
       { kind: "form", et: "vahetas", of: "vahetama", en: "he changed, she changed" },
-      { kind: "form", et: "saatis", of: "saatma", en: "he sent, she sent" },
     ],
     how: {
       point: "Say what's wrong in one short sentence: {Kraan lekib}, {Valamu on ummistunud}, {Lamp ei tööta}. Then say what has to happen: {Toru tuleb vahetada}.",
@@ -510,7 +505,6 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "lepingut", of: "leping", en: "the contract, after {ei}" },
       { kind: "word", et: "kirjas", en: "written down; {on kirjas}, it says" },
       { kind: "word", et: "üürnik", en: "a tenant" },
-      { kind: "form", et: "kuud", of: "kuu", en: "months, after a number" },
       { kind: "word", et: "ette", en: "ahead, in advance" },
       { kind: "verb", et: "teatama", first: "teatan", en: "to let know, to notify", firstEn: "I let know", asks: "{kellele?} somebody ([alaleütlev] (-le, onto/to))" },
       { kind: "verb", et: "kaotama", first: "kaotan", en: "to lose", firstEn: "I lose" },
@@ -621,7 +615,6 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "kirjalikult", en: "in writing" },
       { kind: "word", et: "viisakalt", en: "politely" },
       { kind: "word", et: "kindlalt", en: "firmly" },
-      { kind: "word", et: "vastus", en: "an answer, a reply" },
       { kind: "form", et: "vastust", of: "vastus", en: "an answer, while you wait for it" },
       { kind: "form", et: "vastas", of: "vastama", en: "he answered, she answered" },
       { kind: "form", et: "kirjutasin", of: "kirjutama", en: "I wrote", past: true },
@@ -632,7 +625,6 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "mütsiga", of: "müts", en: "with a hat, in a hat" },
       { kind: "form", et: "saatke", of: "saatma", en: "send!, polite" },
       { kind: "word", et: "hiljemalt", en: "at the latest" },
-      { kind: "word", et: "ning", en: "and (in writing)" },
     ],
     how: {
       point: "A complaint opens politely, says what's wrong and since when, says what you've done, and asks for one thing by a date: {Palun saatke meister hiljemalt reedeks}.",

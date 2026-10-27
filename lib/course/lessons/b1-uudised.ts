@@ -65,9 +65,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "liftis", of: "lift", en: "in the lift" },
       { kind: "word", et: "komme", en: "custom, habit" },
       { kind: "form", et: "ilmast", of: "ilm", en: "about the weather" },
-      { kind: "form", et: "eelmisel", of: "eelmine", en: "last, the one before (on, at)" },
       { kind: "form", et: "igal", of: "iga", en: "every (on, at)" },
-      { kind: "form", et: "aastal", of: "aasta", en: "in the year" },
       { kind: "form", et: "põles", of: "põlema", en: "burned, was burning" },
     ],
     patterns: ["impersonal"],
@@ -282,7 +280,6 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "lõunal", of: "lõuna", en: "at lunch" },
       { kind: "word", et: "vaene", en: "poor" },
       { kind: "form", et: "lugenud", of: "lugema", en: "read (-nud form)" },
-      { kind: "word", et: "uudis", en: "a piece of news" },
       { kind: "form", et: "unustanud", of: "unustama", en: "forgotten" },
       { kind: "form", et: "kohale", of: "koht", en: "there, to the place; with {jõudma}, to arrive" },
       { kind: "form", et: "pileti", of: "pilet", en: "the ticket, the whole of it" },
@@ -416,7 +413,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "õnnetus", en: "accident" },
     ],
     how: {
-      point: "The news is told with nobody named: {Kohale kutsuti päästjad}, the firefighters were called. And what has been done or said is {on} with the -tud form: {Uudistes on teatatud}, it's been reported in the news.",
+      point: "The news is told with nobody named: {Kohale kutsuti päästjad}, the firefighters were called. And what has been done or said is {on} with the [tud-kesksõna] (-tud, done to): {Uudistes on teatatud}, it's been reported in the news.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -518,7 +515,6 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "otsustas", of: "otsustama", en: "decided, he or she decided" },
       { kind: "form", et: "pannud", of: "panema", en: "put; with {kinni}, booked" },
       { kind: "form", et: "olulist", of: "oluline", en: "important, after {midagi}" },
-      { kind: "form", et: "kuulnud", of: "kuulma", en: "heard" },
       { kind: "form", et: "lepiti", of: "leppima", en: "with {kokku}, it was agreed" },
       { kind: "word", et: "protokoll", en: "the minutes, a written record" },
       { kind: "form", et: "protokolli", of: "protokoll", en: "of the minutes", stem: true },
@@ -639,8 +635,6 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "vahetatakse", of: "vahetama", en: "is changed, will be changed" },
       { kind: "word", et: "ühistu", en: "the house association, the building's owners" },
       { kind: "form", et: "ühistu", of: "ühistu", en: "of the house association", stem: true },
-      { kind: "word", et: "aruanne", en: "report" },
-      { kind: "form", et: "aruande", of: "aruanne", en: "a report, the whole of it" },
       { kind: "form", et: "tehti", of: "tegema", en: "was done" },
       { kind: "form", et: "vigu", of: "viga", en: "mistakes, as an object" },
       { kind: "word", et: "nagunii", en: "anyway" },
@@ -648,7 +642,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "vanad", of: "vana", en: "old (more than one)" },
     ],
     how: {
-      point: "A report says what happened and what was done, with nobody named: {Torumees kutsuti}, {toru vahetati välja}. What still has to be done is {tuleb} with the -da form: {Vanad torud tuleb välja vahetada}.",
+      point: "A report says what happened and what was done, with nobody named: {Torumees kutsuti}, {toru vahetati välja}. What still has to be done is {tuleb} with the [da-tegevusnimi] (-da): {Vanad torud tuleb välja vahetada}.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -660,8 +654,8 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "A short report runs in order: what happened, when, what was done, and what's still to do.",
-        "{Tuleb} with the -da form is has to be done, with nobody named: {Toru tuleb välja vahetada}.",
-        "Has been done is {on} with the -tud form: {Toru on parandatud}.",
+        "{Tuleb} with the [da-tegevusnimi] (-da) is has to be done, with nobody named: {Toru tuleb välja vahetada}.",
+        "Has been done is {on} with the [tud-kesksõna] (-tud, done to): {Toru on parandatud}.",
       ],
       watchOut: "A small word after the verb changes it: {vahetati} is was changed, {vahetati välja} is was replaced. Keep the {välja}.",
       examples: [0, 2, 3, 4],

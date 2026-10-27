@@ -65,7 +65,6 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "pastaka", of: "pastakas", en: "of the pen; the whole pen", stem: true },
       { kind: "word", et: "kaart", en: "card" },
       { kind: "word", et: "kogemata", en: "by accident" },
-      { kind: "form", et: "saatsin", of: "saatma", en: "I sent", past: true },
       { kind: "form", et: "täidetud", of: "täitma", en: "filled in, done: {blankett on täidetud}" },
     ],
     patterns: ["particleVerb"],

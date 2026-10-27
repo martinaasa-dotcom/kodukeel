@@ -64,6 +64,7 @@ import { b1Palgatous } from "./b1-palgatous";
 import { b1Meister } from "./b1-meister";
 import { b1Tagatis } from "./b1-tagatis";
 import { b1Eksam } from "./b1-eksam";
+import { b1Kolleeg } from "./b1-kolleeg";
 import { curveballPicks } from "./curveballs";
 
 /** Every scene's picks, by scene id. One file per scene, so two people writing picks never touch one file. */
@@ -132,6 +133,7 @@ export const PICKS: Readonly<Record<string, ScenePicks>> = {
   "b1-meister": b1Meister,
   "b1-tagatis": b1Tagatis,
   "b1-eksam": b1Eksam,
+  "b1-kolleeg": b1Kolleeg,
   "uus-kolleeg": uusKolleeg,
 };
 
