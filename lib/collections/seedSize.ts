@@ -148,5 +148,10 @@
  * rather than adding to the count, and the seven forms are the other two's.
  * `töötu` and `registreerima` came after them, for the job-center scene, and `kilo`
  * for the market stall's "kui palju?".
+ *
+ * Fourteen came with B1's lessons (docs/43-lessons.md §12), words a lesson
+ * teaches that no unit had asked for: `remontima`, `möbleerima`, `ületund`,
+ * `tööaeg`, `sotsiaalmeedia`, `parkimiskoht`, `ükski` and the rest, each put to
+ * Ekilex by the unit that suits it.
  */
-export const SEED_SET_SIZE = { words: 6_280, forms: 40_355 };
+export const SEED_SET_SIZE = { words: 6_294, forms: 40_487 };

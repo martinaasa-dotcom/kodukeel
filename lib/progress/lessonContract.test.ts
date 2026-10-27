@@ -70,5 +70,6 @@ describe("the v1 lesson contract", () => {
     }
     expect(compared).toBe(LESSONS.length);
     expect(compared).toBeGreaterThan(40);
-  });
+    // A whole course of plans, three levels of it, takes longer than the default twenty seconds under load.
+  }, 120_000);
 });

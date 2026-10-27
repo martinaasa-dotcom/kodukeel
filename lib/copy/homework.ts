@@ -1,10 +1,10 @@
 /**
  * WHY A CLASS CANNOT BE SENT AN A1 UNIT (docs/44-sixth-batch.md, S-1a).
  *
- * A1 and A2 are taught as lessons, and their units are the dictionary's request
+ * A1, A2 and B1 are taught as lessons, and their units are the dictionary's request
  * list rather than a place anybody is walked through, so homework set from a
- * unit starts at B1. One sentence, said in the picker, on /teachers and by
+ * unit starts at B2. One sentence, said in the picker, on /teachers and by
  * `assignUnit` when it refuses an A1 unit, so the three cannot word it three
  * ways. `homework.test.ts` holds the two levels it names to the course.
  */
-export const UNIT_HOMEWORK_FROM = "A1 and A2 are taught as lessons, so unit homework starts at B1.";
+export const UNIT_HOMEWORK_FROM = "A1, A2 and B1 are taught as lessons, so unit homework starts at B2.";

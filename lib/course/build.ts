@@ -825,9 +825,9 @@ export function withForms(
 }
 
 /**
- * WHAT THE A1 LESSONS TAUGHT, HANDED TO THE LEDGER BEFORE A2 IS BUILT.
+ * WHAT THE LESSONS TAUGHT, HANDED TO THE LEDGER BEFORE B2 IS BUILT.
  *
- * A1 and A2 are the lessons (`lessonCourse.ts`), and B1's first evening is dealt
+ * A1, A2 and B1 are the lessons (`lessonCourse.ts`), and B2's first evening is dealt
  * against what a learner had when it began: every word a lesson taught,
  * as the harvest holds it (its part of speech is whichever the harvest found
  * it under first, and a phrase the harvest does not hold teaches its own

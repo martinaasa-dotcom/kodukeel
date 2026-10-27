@@ -11084,7 +11084,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
     rus: ["постановление", "обстоятельство"], ukr: ["постанова", "ухвала"],
   },
   {
-    lemma: "möbleerima", gloss: "to furnish", pos: "VERB", cefr: null,
+    lemma: "möbleerima", gloss: "to furnish (with furniture)", pos: "VERB", cefr: null,
     ekilexWordId: 206215,
     ekilexPos: ["v"],
     parts: { INF_MA: "möbleerima", INF_DA: "möbleerida", PRES_1SG: "möbleerin", PAST_1SG: "möbleerisin", PART_TUD: "möbleeritud" },

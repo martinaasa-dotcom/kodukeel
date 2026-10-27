@@ -1,8 +1,8 @@
 /**
- * THE LADDER FROM B1 UP, PLANNED: B1.1 TO C1.3, NINE PARTS.
+ * THE LADDER FROM B2 UP, PLANNED: B2.1 TO C1.3, SIX PARTS.
  *
- * A1 and A2 are the lessons (`lib/course/lessons/`, docs/43-lessons.md),
- * eight parts each, which come in front of these. This file is the judgment
+ * A1, A2 and B1 are the lessons (`lib/course/lessons/`, docs/43-lessons.md),
+ * eight, eight and seven parts, which come in front of these. This file is the judgment
  * for the rest. Everything else in `lib/course/` is machinery
  * that turns it into evenings, and the machinery has no opinions: it does not
  * choose a word, a round or a grammar page, it reads what is decided here and
@@ -13,7 +13,7 @@
  * Not the words. `lib/collections/syllabus/` is the course, its units are in
  * teaching order and so are the words inside each one, and both were written
  * by somebody who knows the language. A program walks that order and slices
- * it into evenings. Every word of every unit from B1 up is in exactly one
+ * it into evenings. Every word of every unit from B2 up is in exactly one
  * evening of exactly one part, which is a stronger claim than a hand-picked
  * hundred, and it means nothing there is quietly unreachable through the short
  * way.
@@ -221,7 +221,7 @@ export const EARLIER_SCENES_FOR_UNIT: Readonly<Record<string, readonly string[]>
  *
  * Every scene in the catalog declares `korraldused` among the units it may
  * draw on, which is the unit for asking, telling and offering, and it is A2.
- * A1 and A2 are the lessons, which teach by goal rather than unit by unit, so
+ * A1, A2 and B1 are the lessons, which teach by goal rather than unit by unit, so
  * no unit of theirs counts as taught until the level's lessons are behind a
  * learner (`unitsThrough`), and `course.test.ts` asks the question
  * mechanically: a scene is opened only once every unit it declares has been
@@ -249,7 +249,7 @@ export interface PartSpec {
 }
 
 /**
- * The parts from B1 up. A1 and A2 are the lessons (`lessonCourse.ts`).
+ * The parts from B2 up. A1, A2 and B1 are the lessons (`lessonCourse.ts`).
  *
  * WHERE THE BREAKS FALL IS THE ONE THING ARITHMETIC COULD NOT DECIDE. A part
  * is two to three weeks of fifteen-minute evenings, which is short enough to

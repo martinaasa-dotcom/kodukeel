@@ -173,11 +173,6 @@ export const B1 = [
       */
       ["töötu", "unemployed", "ADJECTIVE"],
       ["registreerima", "to register"],
-      ["kulu", "expense, cost"],
-      ["ületund", "hour of overtime"],
-      ["tööaeg", "working hours"],
-      ["julgema", "to dare"],
-      ["hommikune", "morning, of the morning", "ADJECTIVE"],
     ],
   }),
 
@@ -210,7 +205,7 @@ export const B1 = [
       ["sisustama", "to furnish"],
       ["lekkima", "to leak"],
       ["remontima", "to renovate, to repair"],
-      ["möbleerima", "to furnish"],
+      ["möbleerima", "to furnish (with furniture)"],
       ["renoveerima", "to renovate"],
       ["ummistuma", "to get blocked"],
       ["kriimustama", "to scratch"],
@@ -340,6 +335,8 @@ export const B1 = [
       ["sooritama", "to perform, to sit (an exam)"],
       ["omandama", "to acquire"],
       ["kandideerima", "to apply, to stand for"],
+      ["tööaeg", "working hours"],
+      ["ületund", "hour of overtime"],
     ],
   }),
 
@@ -371,6 +368,9 @@ export const B1 = [
       ["hoolima", "to care"],
       ["mõistma", "to understand"],
       ["solvama", "to offend"],
+      ["julgema", "to dare"],
+      ["hommikune", "morning, of the morning", "ADJECTIVE"],
+      ["kulu", "expense, cost"],
     ],
   }),
 

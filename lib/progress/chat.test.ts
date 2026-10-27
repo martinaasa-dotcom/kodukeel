@@ -26,10 +26,11 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-// The first part built from units: A1 is the lessons, which end on their own conversation.
+// The first part built from units: A1 to B1 are the lessons, which end on their own conversation.
 const PROGRAMME = PROGRAMMES.find((p) => !p.days[0]?.lesson)!;
 const RICH = PROGRAMME.days.find((day) => newWordsIn(day) >= CHAT_MIN_NEW)!;
-const THIN = PROGRAMMES.flatMap((p) => p.days).find((day) => !day.lesson && newWordsIn(day) < CHAT_MIN_NEW)!;
+// An evening of units with too few new words; built from a rich one, since B2 up rarely has one.
+const THIN = { ...RICH, words: RICH.words.slice(0, CHAT_MIN_NEW - 1), again: [] };
 const LESSON = PROGRAMMES[0]!.days.find((day) => newWordsIn(day) >= CHAT_MIN_NEW)!;
 
 describe("whether a chat is offered", () => {

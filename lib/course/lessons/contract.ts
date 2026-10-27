@@ -3,7 +3,7 @@ import type { LessonSpec, PartOfLessons } from "./types";
 /**
  * WHAT A LEVEL OF LESSONS HAS TO BE, WHICHEVER LEVEL IT IS.
  *
- * A1 and A2 are lessons, and B1, B2 and C1 will be. Every rule here was true
+ * A1, A2 and B1 are lessons, and B2 and C1 will be. Every rule here was true
  * of A1 by the time A2 was written and was found broken by a reading of A2,
  * which is the argument for writing them down as a check rather than a
  * habit: four parts ended on an evening labeled "Check-in" where the rest

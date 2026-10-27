@@ -24,7 +24,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "b1-palgatous", beat: "done", text: "Hästi. Mida sa oled sel aastal teinud?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-palgatous", beat: "done", text: "Mida sa oled teinud?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-palgatous", beat: "earlier", text: "See on tõsi. Aga miks sa varem ei küsinud?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
-  { scene: "b1-palgatous", beat: "earlier", text: "Miks sa varem ei küsinud?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
+  { scene: "b1-palgatous", beat: "earlier", text: "Aga miks sa ei ole varem küsinud?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-palgatous", beat: "amount", text: "Ja mis summa sulle sobiks?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-palgatous", beat: "amount", text: "Mis summa sulle sobiks?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-palgatous", beat: "offer", text: "Kümme on palju. Ma saan pakkuda viis protsenti kohe.", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },

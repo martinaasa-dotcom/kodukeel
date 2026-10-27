@@ -42,7 +42,7 @@ const quoted = (locale: PublicLocale, title: ReactNode) => (locale === "et" ? <>
 /**
  * WHAT THE COURSE TEACHES AT EACH LEVEL, AND WHAT IT PREPARES SOMEBODY FOR.
  *
- * Generated from the repository rather than typed. A1 and A2 are the lessons:
+ * Generated from the repository rather than typed. A1, A2 and B1 are the lessons:
  * each part, its lessons, the role-play it ends on, the check that closes it
  * and at A2 the exam parts it prepares for, off `LESSONS`, `LESSON_PARTS`, the
  * course's own checks and `lib/curriculum/align.ts`. The levels above
