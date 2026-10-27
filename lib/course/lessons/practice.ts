@@ -18,10 +18,10 @@
  * are the course it is the review queue held to the ledger, which grades;
  * while lessons are in preview it is this, and grades nothing.
  *
- * TYPING IS MARKED HERE, NOT BY `checkAnswer`, and for one reason: that
- * marker splits an answer on its commas, because a dictionary gloss is a list,
- * so `Aeglasemalt, palun.` would accept `palun` on its own. A phrase is one
- * answer. The slip rule is the app's own, though: a dropped õ or ä is nearly,
+ * TYPING IS MARKED HERE, NOT BY `checkAnswer`. That marker used to split an
+ * Estonian answer on its commas, so `Aeglasemalt, palun.` would accept `palun`
+ * on its own; it splits only an English gloss that way now, and this one
+ * still reads a phrase as one answer. The slip rule is the app's own, though: a dropped õ or ä is nearly,
  * and a letter out is nearly only from eight letters up, which is
  * `lib/estonian/answer.ts`'s measured floor, because below it a letter out is
  * as often another word (`mina` and `sina`).

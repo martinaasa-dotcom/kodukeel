@@ -40,7 +40,8 @@ describe("the verdict vocabulary", () => {
     expect(verdictOfMark({ right: false, rating: 1, close: true })).toBe("nearly");
     expect(verdictOfMark({ right: false, rating: 1 })).toBe("wrong");
     expect(verdictOfMark({ right: false, rating: 2 })).toBe("nearly");
-    expect(verdictOfMark({ right: true, rating: 2 })).toBe("right");
+    expect(verdictOfMark({ right: true, rating: 2 })).toBe("nearly");
+    expect(verdictOfMark({ right: true, rating: 3 })).toBe("right");
   });
 
   it("lights the answer whoever pressed what", () => {

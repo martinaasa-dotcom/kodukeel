@@ -1456,7 +1456,7 @@ export function falseFriendFor(lemma: string): FalseFriend | null {
 
 /**
  * What a screen showing one word can say about it that is fun: the literal
- * reading of a compound, or the warning on a false friend, with its line.
+ * reading of a compound, or the warning on a false friend.
  *
  * One shape for both, so the first meeting and the dictionary entry draw one
  * thing rather than knowing about two tables. `label` is the short heading the
@@ -1469,8 +1469,16 @@ export interface WordFun {
   readonly kind: "compound" | "false-friend";
   readonly label: string;
   readonly reading: string;
-  readonly quip: string;
 }
+
+/*
+  No quip on a card. "Not “sigh”" and "leather mouse" are what a learner needs
+  under a word they are meeting for the first time, and a joke after either was
+  reported as confusing: a second sentence about a bakery or a fridge that reads
+  as another claim about the word. The quips stay in the tables for the
+  Sõnamäng round, which is a game about exactly these words and is where a
+  joke is the point.
+*/
 
 /** What the screen calls a false friend: one spelled like English, or only said like it. */
 export function friendLabel(friend: Pick<FalseFriend, "word" | "looksLike">): string {
@@ -1480,11 +1488,11 @@ export function friendLabel(friend: Pick<FalseFriend, "word" | "looksLike">): st
 export function wordFunFor(lemma: string, gloss: string | null): WordFun | null {
   const compound = compoundFor(lemma);
   if (compound && meansWhatIsShown(compound.means, gloss)) {
-    return { kind: "compound", label: "Word for word", reading: compound.literal, quip: compound.quip };
+    return { kind: "compound", label: "Word for word", reading: compound.literal };
   }
   const friend = falseFriendFor(lemma);
   if (friend && meansWhatIsShown(friend.means, gloss)) {
-    return { kind: "false-friend", label: friendLabel(friend), reading: friend.looksLike, quip: friend.quip };
+    return { kind: "false-friend", label: friendLabel(friend), reading: friend.looksLike };
   }
   return null;
 }

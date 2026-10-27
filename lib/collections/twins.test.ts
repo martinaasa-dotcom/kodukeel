@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { shippedDictionary } from "../../scripts/lib/dictionary";
 import {
-  KIND_ORDER, TWIN_GROUPS, guessable, letterRuns, mayStandIn, twinGroup, twinLemmas, twinTyped,
+  KIND_ORDER, TWIN_GROUPS, guessable, letterRuns, mayStandIn, twinGroup, twinLemmas, twinTyped, whyHere,
 } from "./twins";
 
 const SHIPPED = new Set(shippedDictionary().map((e) => `${e.lemma}|${e.pos}`));
@@ -24,7 +24,8 @@ describe("the twins table", () => {
 
   it("writes no Estonian in any line of English", () => {
     for (const g of TWIN_GROUPS) {
-      for (const line of [g.tell ?? "", ...g.words.map((w) => w.means)]) {
+      const notes = g.words.flatMap((w) => (w.uses ?? []).map((u) => u.note));
+      for (const line of [g.tell ?? "", ...g.words.map((w) => w.means), ...notes]) {
         expect(/[õäöüšž]/i.test(line), `${g.id}: ${line}`).toBe(false);
         for (const w of g.words) expect(line.includes(w.lemma), `${g.id} names ${w.lemma}`).toBe(false);
       }
@@ -65,6 +66,34 @@ describe("the twins table", () => {
     expect(guessable(twinGroup("nägema-vaatama")!)).toBe(false);
     expect(guessable(twinGroup("ostma-otsima")!)).toBe(false);
     expect(TWIN_GROUPS.filter(guessable).length).toBeGreaterThan(10);
+  });
+});
+
+describe("why a word is the one in its sentence", () => {
+  const [minema, kaima] = twinGroup("minema-käima")!.words;
+
+  it("reads the sense off the sentence's English, not off the pair", () => {
+    // The sentence a learner reported: the round trip and the habit say
+    // nothing about repairs being under way.
+    expect(whyHere(kaima!, "We are having renovations done.")).toMatch(/^something is under way/);
+    expect(whyHere(kaima!, "I went to the opera yesterday.")).toMatch(/where you were/);
+    expect(whyHere(kaima!, "The child can already walk.")).toMatch(/walking/);
+    expect(whyHere(kaima!, "I commute to work by bicycle.")).toMatch(/habit/);
+    expect(whyHere(minema!, "I went to the doctor.")).toMatch(/sets off/);
+    expect(whyHere(minema!, "It suddenly got dark.")).toMatch(/not a trip/);
+  });
+
+  it("says nothing where no sense matches, which leaves the pair's own line", () => {
+    expect(whyHere(kaima!, "Seventeen.")).toBeNull();
+    expect(whyHere(twinGroup("ostma-otsima")!.words[0]!, "I bought a car.")).toBeNull();
+  });
+
+  it("writes each note as a clause that reads on from a label", () => {
+    for (const g of TWIN_GROUPS) {
+      for (const w of g.words) {
+        for (const u of w.uses ?? []) expect(/^\p{Ll}/u.test(u.note), u.note).toBe(true);
+      }
+    }
   });
 });
 

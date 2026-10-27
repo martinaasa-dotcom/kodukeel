@@ -40,9 +40,9 @@ export type TwinsQuestion = TwinQuestion & { cardId: string | null; starred: boo
  * above it, or one word of a rule pair and what the other one means.
  *
  * A sentence question grades the answer's own card through `gradeCard`
- * (ADR-016): Good for the word the writer used, Hard for a word Estonian lets
- * stand in there, which is the call the review card makes about a second right
- * word, and Again for the look-alike. A word the learner holds no card for
+ * (ADR-016): Good for the word the writer used and Again for the look-alike.
+ * Every question has one right option, since a word Estonian lets stand in
+ * is never offered (`lib/progress/twinQuestions.ts`). A word the learner holds no card for
  * writes nothing, and neither does a guess, which is reasoned rather than
  * recalled.
  *
@@ -85,11 +85,7 @@ export function TwinsSession({ questions: initialQuestions, canTranslate, focusT
 
   useEffect(() => { shownAt.current = Date.now(); setPicked(null); }, [index]);
 
-  const verdictOf = useCallback((i: number): Verdict => {
-    if (!q) return "wrong";
-    if (i === q.answer) return "right";
-    return q.shape === "sentence" && q.standIns.includes(i) ? "nearly" : "wrong";
-  }, [q]);
+  const verdictOf = useCallback((i: number): Verdict => (q && i === q.answer ? "right" : "wrong"), [q]);
 
   const pick = useCallback(async (i: number) => {
     if (!q || answered || busy) return;
@@ -99,11 +95,11 @@ export function TwinsSession({ questions: initialQuestions, canTranslate, focusT
     sound(verdict === "wrong" ? "wrong" : "right");
     if (verdict === "wrong") hints.noteMiss();
     if (q.cardId) {
-      const earned = verdict === "right" ? 3 : verdict === "nearly" ? 2 : 1;
-      await grade(q.cardId, Math.min(earned, hints.ceiling) as 1 | 2 | 3, Date.now() - shownAt.current);
+      const earned = verdict === "right" ? 3 : 1;
+      await grade(q.cardId, Math.min(earned, hints.ceiling) as 1 | 3, Date.now() - shownAt.current);
     }
     setAsked((n) => n + 1);
-    if (verdict !== "wrong") setRight((n) => n + 1);
+    if (verdict === "right") setRight((n) => n + 1);
     setBusy(false);
   }, [q, answered, busy, verdictOf, hints, grade, sound]);
 
@@ -183,14 +179,11 @@ export function TwinsSession({ questions: initialQuestions, canTranslate, focusT
 
   const verdict = answered ? verdictOf(picked) : null;
   const group = twinGroup(q.groupId);
-  const pickedText = answered ? texts[picked] ?? "" : "";
   const said = !answered ? ""
     : q.shape === "sentence"
       ? verdict === "right"
         ? fill(t("Yes. {word} is the one that fits."), { word: correct })
-        : verdict === "nearly"
-          ? fill(t("{picked} works here too. The writer used {word}."), { picked: pickedText, word: correct })
-          : fill(t("Not this one. It's {word}."), { word: correct })
+        : fill(t("Not this one. It's {word}."), { word: correct })
       : verdict === "right"
         ? fill(t("Yes. {word} means {means}."), { word: q.asked.lemma, means: correct })
         : fill(t("Not quite. {word} means {means}."), { word: q.asked.lemma, means: correct });
@@ -315,6 +308,17 @@ export function TwinsSession({ questions: initialQuestions, canTranslate, focusT
                       );
                     })}
                   </ul>
+                  {/* Why this word is in this sentence leads, because it is what
+                      somebody who just picked the other one is asking; how the
+                      words differ in general follows it. */}
+                  {q.shape === "sentence" && q.why && (
+                    <p className="mt-3 text-base font-semibold" style={{ color: "var(--ink)" }}>
+                      <TrParts template="Why {word} here: {why}" parts={{
+                        word: <span lang="et" style={{ color: "var(--accent-deep)" }}>{q.lemma}</span>,
+                        why: t(q.why),
+                      }} />
+                    </p>
+                  )}
                   <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
                     {group.drifted ? t(DRIFTED_NOTE) : t(group.tell ?? KIND_COPY[group.kind].rule)}
                   </p>
@@ -337,6 +341,14 @@ export function TwinsSession({ questions: initialQuestions, canTranslate, focusT
                         canTranslate={canTranslate} form={q.contrast.form} ask="never"
                         speakLabel={t("Hear the sentence")}
                       />
+                      {q.contrast.why && (
+                        <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
+                          <TrParts template="Why {word} there: {why}" parts={{
+                            word: <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{q.contrast.lemma}</span>,
+                            why: t(q.contrast.why),
+                          }} />
+                        </p>
+                      )}
                     </div>
                   )}
                 </>

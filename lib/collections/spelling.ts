@@ -88,29 +88,3 @@ export function compareSpelling(typed: string, word: string): { exact: boolean; 
   const letters = b.map((c, i) => a[i] === c);
   return { exact: a.length === b.length && letters.every(Boolean), letters };
 }
-
-/**
- * WHICH LETTER TO LIGHT, AND NEVER ONE SKIPPED.
- *
- * A spelled word plays as one clip and each letter lights off its play
- * position (`components/sounds/useSpeller.ts`). Read straight off the
- * position, a frame that comes late, which is a browser busy for longer than
- * one letter's name, jumps from the letter before to the letter after, and the
- * one between is never lit: a listener writing the name down sees `M`, `r`,
- * `i` for `Mari`. So the light follows the clip one letter at a time: where the
- * clip has reached a letter not yet lit, the next unlit one lights this frame
- * and the rest follow a frame each, so a stall costs a moment of lag and never
- * a letter. `shown` is the last span lit, -1 before the first; `lit` is the
- * span to light now, or null in a gap between letters.
- */
-export function stepLit(
-  spans: readonly { readonly from: number; readonly to: number }[],
-  now: number,
-  shown: number,
-): { shown: number; lit: number | null } {
-  let started = -1;
-  spans.forEach((span, i) => { if (now >= span.from) started = i; });
-  if (shown < started) return { shown: shown + 1, lit: shown + 1 };
-  const span = spans[shown];
-  return { shown, lit: span && now < span.to ? shown : null };
-}

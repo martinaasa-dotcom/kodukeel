@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { dictionaryRows } from "../../scripts/lib/dictionary";
-import { TWIN_GROUPS, guessable, twinGroup } from "@/lib/collections/twins";
+import { TWIN_GROUPS, guessable, mayStandIn, twinGroup } from "@/lib/collections/twins";
 import { BLANK, mentions } from "@/lib/estonian/cloze";
 import { splitAtGap } from "@/lib/collections/twins";
 import { guessQuestionFor, sameSlot, sentenceQuestionsFor, slotIndex, type TwinRow } from "./twinQuestions";
@@ -57,12 +57,31 @@ describe("the sentence a twin question is cut from", () => {
     expect(asked).toBeGreaterThan(150);
   });
 
-  it("offers a stand-in only where the table says Estonian allows one", () => {
-    const begin = built.find((b) => b.group.id === "algama-alustama-hakkama")!.questions;
-    for (const q of begin) {
-      for (const i of q.standIns) expect(q.options[i]!.lemma === "hakkama" || q.lemma === "hakkama").toBe(true);
+  it("says why the word is in its sentence wherever the word's senses are written down", () => {
+    const pair = built.find((b) => b.group.id === "minema-käima")!.questions;
+    for (const q of pair) {
+      expect(q.why, `${q.sentence} / ${q.en}`).not.toBeNull();
+      if (q.contrast) expect(q.contrast.why, `${q.contrast.sentence} / ${q.contrast.en}`).not.toBeNull();
     }
-    for (const q of built.find((b) => b.group.id === "ostma-otsima")!.questions) expect(q.standIns).toEqual([]);
+    expect(pair.length).toBeGreaterThan(3);
+  });
+
+  it("never offers a second right answer", () => {
+    let checked = 0;
+    for (const { questions } of built) {
+      for (const q of questions) {
+        expect(q.options.length, q.sentence).toBeGreaterThanOrEqual(2);
+        for (const o of q.options) {
+          if (o.lemma === q.lemma) continue;
+          checked += 1;
+          expect(mayStandIn(o.lemma, q.lemma, q.en), `${q.sentence}: ${o.lemma} for ${q.lemma}`).toBe(false);
+        }
+      }
+    }
+    expect(checked).toBeGreaterThan(150);
+    // The pair the report came from: a "think" sentence is no question at all.
+    const think = built.find((b) => b.group.id === "arvama-mõtlema")?.questions ?? [];
+    for (const q of think) expect(/\b(think|thinks|thought)\b/i.test(q.en), q.en).toBe(false);
   });
 });
 

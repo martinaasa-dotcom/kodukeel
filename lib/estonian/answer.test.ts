@@ -110,6 +110,17 @@ describe("checkAnswer — Estonian", () => {
     expect(checkAnswer("raamatuus", "raamatus").verdict).toBe("typo");
   });
 
+  it("holds the word the slip is in to the floor, not the whole phrase", () => {
+    // `ei saada` is eight characters with the space and the negator, and the
+    // slip is in a five-letter word: `saata` is the da-infinitive of the same
+    // verb, the wrong form rather than a slip of the hand.
+    expect(checkAnswer("ei saata", "ei saada").verdict).toBe("wrong");
+    // A long word inside a phrase is still forgiven its slip.
+    expect(checkAnswer("ei kasjtama", "ei kasutama").verdict).toBe("typo");
+    // A dropped space belongs to no one word, so the whole is measured.
+    expect(checkAnswer("tere hommikust", "tere  hommikust").verdict).toBe("correct");
+  });
+
   it("does not forgive an inserted or dropped letter below eight, where it is often another word", () => {
     // `kuulma` (to hear) and `kuulama` (to listen) are both real; typing one
     // for the other is the wrong word, not a slip, and was graded as a recall.
@@ -234,6 +245,22 @@ describe("the correction shows the stored spelling", () => {
   it("leads with the first of the alternatives a stored value carries", () => {
     expect(checkAnswer("x", "raamatutes / raamatuis").expected).toBe("raamatutes");
     expect(checkAnswer("x", "woman, wife", "en").expected).toBe("woman");
+  });
+
+  it("reads a comma inside an Estonian answer as the sentence's own, never as a second answer", () => {
+    // Reported: the phrase copied out of the screen, letter for letter, was marked wrong.
+    expect(acceptedAnswers("aeglasemalt, palun.", "et")).toEqual(["aeglasemalt palun"]);
+    expect(checkAnswer("aeglasemalt, palun.", "aeglasemalt, palun.").verdict).toBe("correct");
+    expect(checkAnswer("palun", "aeglasemalt, palun.").verdict).toBe("wrong");
+    expect(checkAnswer("x", "aeglasemalt, palun.").expected).toBe("aeglasemalt, palun.");
+    // And the English side is still a list.
+    expect(acceptedAnswers("woman, wife", "en")).toEqual(["woman", "wife"]);
+  });
+
+  it("never asks for the punctuation of a phrase", () => {
+    expect(checkAnswer("aeglasemalt palun", "aeglasemalt, palun.").verdict).toBe("correct");
+    expect(checkAnswer("Head aega", "Head aega!").verdict).toBe("correct");
+    expect(checkAnswer("tere mina olen katrin", "Tere, mina olen Katrin.").verdict).toBe("correct");
   });
 
   it("still flattens for comparison, which is what acceptedAnswers reports", () => {
