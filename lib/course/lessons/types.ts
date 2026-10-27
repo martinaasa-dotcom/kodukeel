@@ -64,7 +64,16 @@ export interface Line {
  * them.
  */
 export type Taught =
-  | { readonly kind: "word"; readonly et: string; readonly en: string }
+  | {
+      readonly kind: "word"; readonly et: string; readonly en: string;
+      /**
+       * What the word asks for after it, in English with its Estonian in
+       * braces (B1): {huvitatud} wants the [seestütlev] (-st, out of). At B1
+       * a word is learned with its case or not learned, so the Words step
+       * prints it under the word.
+       */
+      readonly asks?: string;
+    }
   | {
       readonly kind: "form"; readonly et: string; readonly of: string; readonly en: string;
       /**
@@ -94,7 +103,11 @@ export type Taught =
    * The persons come off `lib/estonian/conjugate.ts`, which is the rule the
    * rest of the app conjugates with, so a lesson and a card cannot disagree.
    */
-  | { readonly kind: "verb"; readonly et: string; readonly first: string; readonly en: string; readonly firstEn: string };
+  | {
+      readonly kind: "verb"; readonly et: string; readonly first: string; readonly en: string; readonly firstEn: string;
+      /** What the verb asks for, as on a word: {aitama} wants somebody in the [osastav] (3rd form). B1 on. */
+      readonly asks?: string;
+    };
 
 /**
  * A pattern a lesson explains, which lets later lessons use forms it builds.
@@ -125,10 +138,14 @@ export type PatternId =
  * been explained, and the level contract holds each to being explained once.
  */
 export type BPatternId =
-  | "object" | "government" | "impersonal" | "pluperfect" | "relative" | "particleVerb";
+  | "object" | "government" | "impersonal" | "pluperfect" | "relative" | "particleVerb"
+  | "participle" | "conditionalPast" | "subordinate" | "agreement" | "derivation";
 
 /** Every B1 pattern, for a check that walks them all. */
-export const B_PATTERNS: readonly BPatternId[] = ["object", "government", "impersonal", "pluperfect", "relative", "particleVerb"];
+export const B_PATTERNS: readonly BPatternId[] = [
+  "object", "government", "impersonal", "pluperfect", "relative", "particleVerb",
+  "participle", "conditionalPast", "subordinate", "agreement", "derivation",
+];
 
 /** A cell of a pattern's table: Estonian or English, never both. */
 export type Cell = { readonly et: string } | { readonly en: string };
@@ -251,6 +268,84 @@ export interface Fix {
   readonly why: string;
 }
 
+/**
+ * LISTEN FOR THE GIST BEFORE READING IT (B1 on).
+ *
+ * An A1 learner reads along from the first second, which is right for
+ * somebody meeting every word for the first time. A B1 learner has to follow
+ * speech they cannot read, because that is what a person talking to them is.
+ * So a B lesson's Listen step opens with the text hidden: the conversation is
+ * played, two or three questions in English ask what it was about, and only
+ * then is the text shown. A wrong pick is told the right one and nothing is
+ * graded, since it is a question about listening rather than about a word.
+ */
+export interface Gist {
+  readonly q: string;
+  readonly options: readonly string[];
+  /** The right option, by index. */
+  readonly answer: number;
+}
+
+/**
+ * RETELL IT (B1 on, docs/43-lessons.md §11.2, Talk).
+ *
+ * A short story told by one of the cast, heard twice, then told back aloud.
+ * A checklist under it lights as each point is heard: a point is lit by any
+ * spelling in `any`, so "you said {oli parandatud}" or "you mentioned the
+ * roof" is a fact about the words that came across, never about the sound
+ * (ADR-018). The story is Estonian written for the lesson and is held to the
+ * ledger like a line of the conversation; so is every spelling a point lights
+ * on.
+ */
+export interface Retell {
+  readonly who: Speaker;
+  readonly story: readonly { readonly et: string; readonly en: string }[];
+  readonly points: readonly { readonly en: string; readonly any: readonly string[] }[];
+}
+
+/**
+ * AGAIN, FASTER (B1 on): the same short answer three times, in less time each
+ * time (90, 60 and 45 seconds), with how many words came across and how long
+ * it took drawn side by side. The 4/3/2 exercise, which moves fluency inside
+ * one evening because the second and third go reuse what the first built.
+ * There is no score; what the learner sees is their own three goes.
+ */
+export interface Faster {
+  readonly ask: { readonly et: string; readonly en: string };
+  readonly cue: string;
+  /** One way to answer, shown after the first go, for somebody who ran dry. */
+  readonly model: { readonly et: string; readonly en: string };
+}
+
+/**
+ * ONE REAL TEXT A PART (B1 on, docs/43-lessons.md §11.2, Write).
+ *
+ * A writing evening reads a model text that does the job, fills in the same
+ * text with its key words taken out, then writes the learner's own and has it
+ * read: the dictionary first (`checkTypedSentence`, sentence by sentence),
+ * then Anu's comments on the text as a whole where a model is configured,
+ * behind the same guard every graded comment passes (`verify.ts`). Then a
+ * second draft beside the first, and the sentences written right can be kept
+ * as review cards.
+ *
+ * `model` is the text a sentence at a time, written for the lesson and held to
+ * the ledger. `uses` are the words and forms the text turns on: they are the
+ * gaps in the frame and the checklist under the learner's own draft, so each
+ * has to stand in the model as a whole word.
+ */
+export interface WriteTask {
+  /** What the text is, in English: "A note to the handyman". */
+  readonly genre: string;
+  /** What it has to get done, in English, one line. */
+  readonly purpose: string;
+  readonly model: readonly { readonly et: string; readonly en: string }[];
+  readonly uses: readonly { readonly et: string; readonly en: string }[];
+  /** The learner's own version: the same job, with their details. */
+  readonly task: string;
+  /** The fewest words the learner's own text should run to. */
+  readonly least: number;
+}
+
 /** Which kind of evening it is. A check-in teaches nothing new; a part ends on one. */
 export type LessonKind = "lesson" | "checkin" | "partEnd";
 
@@ -288,6 +383,14 @@ export interface LessonSpec {
   readonly reworks?: readonly Rework[];
   /** Lines with a slip in them to put right, B1 on, the learner's own mix-ups first. */
   readonly fixes?: readonly Fix[];
+  /** Questions on what was heard, before the text is shown (B1 on). */
+  readonly listenFor?: readonly Gist[];
+  /** A short story to hear twice and tell back aloud (B1 on). */
+  readonly retell?: Retell;
+  /** One answer said three times, faster each time (B1 on). */
+  readonly faster?: Faster;
+  /** The part's one real text, on its writing evening (B1 on). */
+  readonly write?: WriteTask;
   /** A role-play, on a check-in and at the end of a part. */
   readonly roleplay?: { readonly scene: string; readonly turns: readonly Prompt[] };
 }

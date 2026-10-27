@@ -16,7 +16,11 @@
  *
  * Pure: no React, no Next, no Prisma, no clock.
  */
-import { LESSONS, NAMES, ledgerLemmas, ledgerThrough, untaughtIn, wordsOf, type Ledger } from "@/lib/course/lessons";
+import { LESSONS as COURSE_LESSONS, NAMES, ledgerLemmas, ledgerThrough, untaughtIn, wordsOf, type Ledger, type LessonSpec } from "@/lib/course/lessons";
+import { PREVIEW_LESSONS } from "@/lib/course/lessons/preview";
+
+/** The course and, after it, the lessons in preview, which a lesson scene may belong to as well. */
+const LESSONS: readonly LessonSpec[] = [...COURSE_LESSONS, ...PREVIEW_LESSONS];
 import type { GateContext } from "./gate";
 import type { Lexicon } from "./lexicon";
 import type { SceneSpec } from "./types";

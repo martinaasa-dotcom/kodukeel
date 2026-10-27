@@ -28,10 +28,18 @@ import type { Line } from "@/lib/course/lessons/types";
  * the air finishes: cutting a word in half is the one thing a learner would
  * notice more than the wait.
  */
-export function LessonConversation({ lines, cast, english }: {
+export function LessonConversation({ lines, cast, english, hidden = false, onPlayed }: {
   lines: readonly Line[];
   cast: Readonly<Record<string, string>>;
   english: boolean;
+  /**
+   * B1 on, the first time through: the words are not shown, only who is
+   * speaking and how long they talk for, so the conversation is followed by
+   * ear before it is read (`ListenFirst`). Each line still plays on its own.
+   */
+  hidden?: boolean;
+  /** Called when "Play the conversation" reaches the end, which is when a gist question is fair. */
+  onPlayed?: () => void;
 }) {
   const t = useT();
   const locale = useLocale();
@@ -66,8 +74,10 @@ export function LessonConversation({ lines, cast, english }: {
       }
       await new Promise((r) => setTimeout(r, 300));
     }
+    const whole = !stop.current;
     setActive(null);
     setPlaying(false);
+    if (whole) onPlayed?.();
   };
 
   return (
@@ -110,9 +120,18 @@ export function LessonConversation({ lines, cast, english }: {
               >
                 <div className="flex items-start gap-2">
                   <Speak text={line.et} voice={cast[line.who]} native={line.who === played} size={18} label={fill(t("Hear {who} say it"), { who: line.who })} />
-                  <p lang="et" className="text-lg font-semibold" style={{ color: "var(--ink)" }}>{line.et}</p>
+                  {hidden ? (
+                    // How long the line is, as bars that move while it is said: the shape of speech, not its words.
+                    <span className={`voice-bars ${lit ? "voice-bars-live" : ""}`} aria-label={t("A line, not shown yet")} data-hidden-line>
+                      {Array.from({ length: Math.min(14, Math.max(3, Math.round(line.et.split(/\s+/).length * 1.4))) }, (_, b) => (
+                        <span key={b} style={{ animationDelay: `${(b % 5) * 90}ms` }} />
+                      ))}
+                    </span>
+                  ) : (
+                    <p lang="et" className="text-lg font-semibold" style={{ color: "var(--ink)" }}>{line.et}</p>
+                  )}
                 </div>
-                {english && line.en && (
+                {english && !hidden && line.en && (
                   <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}><LessonText text={line.en} locale={locale} /></p>
                 )}
               </div>

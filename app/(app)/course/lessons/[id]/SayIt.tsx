@@ -23,6 +23,10 @@ import type { LessonSpec, Prompt } from "@/lib/course/lessons/types";
 import { VERDICT_CLASS } from "@/lib/ux/verdict";
 import { checkLessonSentence } from "@/app/actions";
 import { SentenceFindings } from "@/components/course/SentenceFindings";
+import { SayAlongFade } from "@/components/course/SayAlongFade";
+import { RetellIt } from "@/components/course/RetellIt";
+import { AgainFaster } from "@/components/course/AgainFaster";
+import { levelIndex } from "@/lib/collections/syllabus/types";
 import type { Finding } from "@/lib/course/lessons/sentenceCheck";
 
 /**
@@ -66,6 +70,10 @@ type Mode = "say" | "type";
 
 type SayCard =
   | { readonly kind: "lines" }
+  /* B1 on: the key lines said along and then alone, a story retold, and one answer said faster. */
+  | { readonly kind: "fade" }
+  | { readonly kind: "retell" }
+  | { readonly kind: "faster" }
   | {
     readonly kind: "answer"; readonly prompt: Prompt; readonly label: string; readonly scene?: string; readonly own: boolean; readonly aboutYou: boolean;
     /** Which list the card came from and where, so the server can find its sample (`checkLessonSentence`). */
@@ -111,7 +119,21 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, onComplete }: 
     }));
     // The capstone is the conversation alone: the questions about yourself were the practice.
     if (capstone) return turns;
-    return [...(mode === "say" ? [{ kind: "lines" } as SayCard] : []), ...answers, ...turns];
+    /*
+      FROM B1 THE STEP IS LONGER THAN ONE LINE (docs/43-lessons.md §11.2).
+      Saying the conversation along becomes saying its key lines along and
+      then alone, and after the questions about yourself come the story to
+      retell and the answer said faster, where the lesson has them. Typed,
+      the fading lines are skipped for the reason the read-along is, and the
+      other two run in the box.
+    */
+    const b = levelIndex(lesson.level) >= levelIndex("B1");
+    const opening: SayCard[] = mode === "say" ? [{ kind: b ? "fade" : "lines" }] : [];
+    const longer: SayCard[] = [
+      ...(lesson.retell ? [{ kind: "retell" } as SayCard] : []),
+      ...(lesson.faster ? [{ kind: "faster" } as SayCard] : []),
+    ];
+    return [...opening, ...answers, ...longer, ...turns];
   }, [lesson, mode, t, capstone]);
 
   if (mode === null) {
@@ -185,6 +207,12 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, onComplete }: 
       {capstone && taken.length > 0 && <Thread taken={taken} who={opener} voice={voice} title={t("The conversation so far")} />}
       {card.kind === "lines" ? (
         <SayTheLines lesson={lesson} onNext={() => next()} />
+      ) : card.kind === "fade" ? (
+        <SayAlongFade lesson={lesson} onDone={() => next()} />
+      ) : card.kind === "retell" ? (
+        <RetellIt retell={lesson.retell!} voice={lesson.cast[lesson.retell!.who]} typed={mode === "type"} onDone={() => next()} />
+      ) : card.kind === "faster" ? (
+        <AgainFaster faster={lesson.faster!} voice={voice} typed={mode === "type"} onDone={() => next()} />
       ) : (
         <AnswerCard key={at} lessonId={lesson.id} card={card} mode={mode} voice={voice} name={name} onNext={next} last={at >= cards.length - 1} />
       )}

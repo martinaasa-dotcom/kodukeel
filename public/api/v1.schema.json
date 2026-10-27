@@ -2223,6 +2223,10 @@
                         },
                         "en": {
                           "type": "string"
+                        },
+                        "asks": {
+                          "description": "What the word asks for after it, B1 on.",
+                          "type": "string"
                         }
                       },
                       "required": [
@@ -2293,6 +2297,10 @@
                         },
                         "firstEn": {
                           "type": "string"
+                        },
+                        "asks": {
+                          "description": "What the verb asks for after it, B1 on.",
+                          "type": "string"
                         }
                       },
                       "required": [
@@ -2329,7 +2337,12 @@
                     "impersonal",
                     "pluperfect",
                     "relative",
-                    "particleVerb"
+                    "particleVerb",
+                    "participle",
+                    "conditionalPast",
+                    "subordinate",
+                    "agreement",
+                    "derivation"
                   ]
                 }
               },
@@ -2600,7 +2613,12 @@
                         "impersonal",
                         "pluperfect",
                         "relative",
-                        "particleVerb"
+                        "particleVerb",
+                        "participle",
+                        "conditionalPast",
+                        "subordinate",
+                        "agreement",
+                        "derivation"
                       ]
                     }
                   },
@@ -2667,6 +2685,202 @@
                     "why"
                   ]
                 }
+              },
+              "listenFor": {
+                "description": "Questions on what was heard, asked before the text is shown, B1 on.",
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "q": {
+                      "type": "string"
+                    },
+                    "options": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "answer": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "q",
+                    "options",
+                    "answer"
+                  ]
+                }
+              },
+              "retell": {
+                "description": "A short story heard twice and told back aloud, B1 on; a point lights on any of its spellings.",
+                "type": "object",
+                "properties": {
+                  "who": {
+                    "type": "string"
+                  },
+                  "story": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "et": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "et",
+                        "en"
+                      ]
+                    }
+                  },
+                  "points": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "en": {
+                          "type": "string"
+                        },
+                        "any": {
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "en",
+                        "any"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "who",
+                  "story",
+                  "points"
+                ]
+              },
+              "faster": {
+                "description": "One answer said three times, in 90, 60 and 45 seconds, B1 on.",
+                "type": "object",
+                "properties": {
+                  "ask": {
+                    "type": "object",
+                    "properties": {
+                      "et": {
+                        "type": "string"
+                      },
+                      "en": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "et",
+                      "en"
+                    ]
+                  },
+                  "cue": {
+                    "type": "string"
+                  },
+                  "model": {
+                    "type": "object",
+                    "properties": {
+                      "et": {
+                        "type": "string"
+                      },
+                      "en": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "et",
+                      "en"
+                    ]
+                  }
+                },
+                "required": [
+                  "ask",
+                  "cue",
+                  "model"
+                ]
+              },
+              "write": {
+                "description": "The part's one real text, on its writing evening, B1 on.",
+                "type": "object",
+                "properties": {
+                  "genre": {
+                    "type": "string"
+                  },
+                  "purpose": {
+                    "type": "string"
+                  },
+                  "model": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "et": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "et",
+                        "en"
+                      ]
+                    }
+                  },
+                  "uses": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "et": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "et",
+                        "en"
+                      ]
+                    }
+                  },
+                  "task": {
+                    "type": "string"
+                  },
+                  "least": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "genre",
+                  "purpose",
+                  "model",
+                  "uses",
+                  "task",
+                  "least"
+                ]
               },
               "roleplay": {
                 "type": "object",

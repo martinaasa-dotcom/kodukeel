@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { CASES } from "@/lib/estonian/cases";
 import { grammarTopic } from "@/lib/estonian/grammar";
 import { LESSONS, LESSON_PARTS } from "./lessons";
-import { LESSON_MINUTES, LESSON_PAGES, PATTERN_PAGE, lessonProgrammes, lessonWords } from "./lessonCourse";
+import { LESSON_PAGES, PATTERN_PAGE, lessonMinutes, lessonProgrammes, lessonWords } from "./lessonCourse";
 import { LESSON_STEP, PROGRAMMES, grammarThrough, lessonDayFor, taughtThrough, unitsThrough } from "./index";
 import { scopeSoFar } from "./scope";
 
@@ -39,7 +39,7 @@ describe("A1 and A2 as lessons", () => {
       expect(step.kind).toBe("lesson");
       expect(step.href).toBe(`/course/lessons/${d.lesson}`);
       expect(step.derived).toBe(false);
-      expect(d.minutes).toBe(LESSON_MINUTES);
+      expect(d.minutes).toBe(lessonMinutes(LESSONS.find((l) => l.id === d.lesson)!));
       expect(d.practice).toEqual([]);
     }
   });

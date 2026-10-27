@@ -10,7 +10,24 @@
  * course, counts it or asks it for a translation reads it.
  */
 import { B1_OBJEKT_LESSONS, B1_OBJEKT_PART } from "./b1-objekt";
+import { B1_REKTSIOON_LESSONS, B1_REKTSIOON_PART } from "./b1-rektsioon";
+import { B1_RAHA_LESSONS, B1_RAHA_PART } from "./b1-raha";
+import { B1_KODU_LESSONS, B1_KODU_PART } from "./b1-kodu";
+import { B1_UUDISED_LESSONS, B1_UUDISED_PART } from "./b1-uudised";
+import { B1_ARVAMUS_LESSONS, B1_ARVAMUS_PART } from "./b1-arvamus";
+import { B1_ASJAAJAMINE_LESSONS, B1_ASJAAJAMINE_PART } from "./b1-asjaajamine";
 import type { LessonSpec, PartOfLessons } from "./types";
 
-export const PREVIEW_LESSONS: readonly LessonSpec[] = [...B1_OBJEKT_LESSONS];
-export const PREVIEW_PARTS: readonly PartOfLessons[] = [B1_OBJEKT_PART];
+/** B1's parts in teaching order. A part with no lessons yet is not listed. */
+const B1: readonly (readonly [PartOfLessons, readonly LessonSpec[]])[] = [
+  [B1_OBJEKT_PART, B1_OBJEKT_LESSONS],
+  [B1_REKTSIOON_PART, B1_REKTSIOON_LESSONS],
+  [B1_RAHA_PART, B1_RAHA_LESSONS],
+  [B1_KODU_PART, B1_KODU_LESSONS],
+  [B1_UUDISED_PART, B1_UUDISED_LESSONS],
+  [B1_ARVAMUS_PART, B1_ARVAMUS_LESSONS],
+  [B1_ASJAAJAMINE_PART, B1_ASJAAJAMINE_LESSONS],
+];
+
+export const PREVIEW_LESSONS: readonly LessonSpec[] = B1.flatMap(([, lessons]) => lessons);
+export const PREVIEW_PARTS: readonly PartOfLessons[] = B1.filter(([, lessons]) => lessons.length > 0).map(([part]) => part);

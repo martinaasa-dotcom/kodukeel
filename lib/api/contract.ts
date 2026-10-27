@@ -319,10 +319,10 @@ const LessonLine = z.object({
 });
 
 const LessonTaught = z.discriminatedUnion("kind", [
-  z.object({ kind: z.literal("word"), et: z.string(), en: z.string() }),
+  z.object({ kind: z.literal("word"), et: z.string(), en: z.string(), asks: z.string().optional().describe("What the word asks for after it, B1 on.") }),
   z.object({ kind: z.literal("form"), et: z.string(), of: z.string(), en: z.string() }),
   z.object({ kind: z.literal("phrase"), et: z.string(), en: z.string() }),
-  z.object({ kind: z.literal("verb"), et: z.string(), first: z.string(), en: z.string(), firstEn: z.string() }),
+  z.object({ kind: z.literal("verb"), et: z.string(), first: z.string(), en: z.string(), firstEn: z.string(), asks: z.string().optional().describe("What the verb asks for after it, B1 on.") }),
 ]);
 
 const LessonCell = z.union([z.object({ et: z.string() }), z.object({ en: z.string() })]);
@@ -339,6 +339,7 @@ const LessonPattern = z.enum([
   "past", "conditional",
   // B1's rules about choosing, added for the B1 lessons (docs/43-lessons.md §11.3). Within v1 an enum only grows.
   "object", "government", "impersonal", "pluperfect", "relative", "particleVerb",
+  "participle", "conditionalPast", "subordinate", "agreement", "derivation",
 ]);
 
 export const LessonSpecSchema = z.object({
@@ -386,6 +387,20 @@ export const LessonSpecSchema = z.object({
     line: z.object({ et: z.string(), en: z.string() }), right: z.string(), wrong: z.string(),
     pair: z.tuple([z.string(), z.string()]).readonly(), why: z.string(),
   })).readonly().optional().describe("Lines with a slip in them, B1 on; the practice step carries them as `fix` items."),
+  listenFor: z.array(z.object({
+    q: z.string(), options: z.array(z.string()).readonly(), answer: z.number().int(),
+  })).readonly().optional().describe("Questions on what was heard, asked before the text is shown, B1 on."),
+  retell: z.object({
+    who: z.string(),
+    story: z.array(EtEn).readonly(),
+    points: z.array(z.object({ en: z.string(), any: z.array(z.string()).readonly() })).readonly(),
+  }).optional().describe("A short story heard twice and told back aloud, B1 on; a point lights on any of its spellings."),
+  faster: z.object({ ask: EtEn, cue: z.string(), model: EtEn }).optional().describe("One answer said three times, in 90, 60 and 45 seconds, B1 on."),
+  write: z.object({
+    genre: z.string(), purpose: z.string(),
+    model: z.array(EtEn).readonly(), uses: z.array(EtEn).readonly(),
+    task: z.string(), least: z.number().int(),
+  }).optional().describe("The part's one real text, on its writing evening, B1 on."),
   roleplay: z.object({ scene: z.string(), turns: z.array(LessonPrompt).readonly() }).optional(),
 }).describe(
   "One lesson as the web's lesson screen receives it. Two conventions run through its English, and a " +

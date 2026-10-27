@@ -324,6 +324,7 @@ export function estonianOf(lesson: LessonSpec): { where: string; et: string; hea
   for (const t of lesson.teaches) {
     english(`the meaning of ${t.et}`, t.en);
     if (t.kind === "verb") english(`the meaning of ${t.first}`, t.firstEn);
+    if ((t.kind === "verb" || t.kind === "word") && t.asks) english(`what ${t.et} asks for`, t.asks);
   }
   const how = lesson.how;
   english("the point", how.point);
@@ -366,11 +367,58 @@ export function estonianOf(lesson: LessonSpec): { where: string; et: string; hea
     out.push({ where: `fix ${i + 1}, with the slip`, et: withSlip(f) });
     english(`fix ${i + 1}, why`, f.why);
   });
+  lesson.listenFor?.forEach((g, i) => {
+    english(`gist ${i + 1}, question`, g.q);
+    g.options.forEach((o) => english(`gist ${i + 1}, option`, o));
+  });
+  if (lesson.retell) {
+    lesson.retell.story.forEach((line, i) => {
+      out.push({ where: `retell line ${i + 1}`, et: line.et });
+      english(`retell line ${i + 1} English`, line.en);
+    });
+    lesson.retell.points.forEach((p, i) => {
+      english(`retell point ${i + 1}`, p.en);
+      p.any.forEach((et) => out.push({ where: `retell point ${i + 1}, heard as`, et }));
+    });
+  }
+  if (lesson.faster) {
+    out.push({ where: "again-faster, asked", et: lesson.faster.ask.et });
+    english("again-faster, cue", lesson.faster.cue);
+    out.push({ where: "again-faster, model", et: lesson.faster.model.et });
+  }
+  if (lesson.write) {
+    english("the writing's genre", lesson.write.genre);
+    english("the writing's purpose", lesson.write.purpose);
+    english("the writing task", lesson.write.task);
+    lesson.write.model.forEach((line, i) => {
+      out.push({ where: `model text sentence ${i + 1}`, et: line.et });
+      english(`model text sentence ${i + 1} English`, line.en);
+    });
+    lesson.write.uses.forEach((u, i) => {
+      out.push({ where: `writing use ${i + 1}`, et: u.et });
+      english(`writing use ${i + 1}, meaning`, u.en);
+    });
+  }
   if (lesson.roleplay) {
     english("the role-play's scene", lesson.roleplay.scene);
     prompts("role-play turn", lesson.roleplay.turns);
   }
   return out;
+}
+
+/**
+ * Whether a phrase stands in a text as whole words, case aside: a writing
+ * use is a gap in the frame and a tick under the draft, so it has to be in
+ * the model as it stands.
+ */
+export function standsIn(text: string, phrase: string): boolean {
+  const words = wordsOf(text).map((w) => w.low);
+  const want = wordsOf(phrase).map((w) => w.low);
+  if (want.length === 0) return false;
+  for (let i = 0; i + want.length <= words.length; i++) {
+    if (want.every((w, j) => words[i + j] === w)) return true;
+  }
+  return false;
 }
 
 /** The ledger as it stands when each lesson starts, by lesson id. */
@@ -521,6 +569,32 @@ export function lessonProblems(lessons: readonly LessonSpec[]): string[] {
         problems.push(`${at}, fix ${i + 1}: "${f.wrong}" is not another taught form of the word "${f.right}" is`);
       }
     });
+    lesson.listenFor?.forEach((g, i) => {
+      if (g.options.length < 2 || !Number.isInteger(g.answer) || g.answer < 0 || g.answer >= g.options.length) {
+        problems.push(`${at}, gist ${i + 1}: its answer is not one of its options`);
+      }
+    });
+    if (lesson.retell) {
+      if (!(lesson.retell.who in lesson.cast)) problems.push(`${at}: the retell is told by ${lesson.retell.who}, who is not in the cast`);
+      if (lesson.retell.story.length < 2) problems.push(`${at}: a story to retell is more than one line`);
+      if (lesson.retell.points.length < 2) problems.push(`${at}: a retell checks at least two points`);
+      lesson.retell.points.forEach((p, i) => {
+        if (p.any.length === 0) problems.push(`${at}, retell point ${i + 1}: lights on nothing`);
+        // A point lights on a word of the story, or the learner has nothing to retell it from.
+        if (!p.any.some((et) => lesson.retell!.story.some((line) => standsIn(line.et, et)))) {
+          problems.push(`${at}, retell point ${i + 1}: none of ${p.any.join(", ")} is in the story`);
+        }
+      });
+    }
+    if (lesson.write) {
+      const text = lesson.write.model.map((l) => l.et).join(" ");
+      if (lesson.write.model.length < 3) problems.push(`${at}: a model text is three sentences or more`);
+      if (lesson.write.uses.length < 2) problems.push(`${at}: a writing evening turns on two uses or more`);
+      lesson.write.uses.forEach((u, i) => {
+        if (!standsIn(text, u.et)) problems.push(`${at}, writing use ${i + 1}: "${u.et}" is not in the model text as it stands`);
+      });
+      if (!(lesson.write.least >= 20)) problems.push(`${at}: a text of its own runs to twenty words or more`);
+    }
     const names = namesOf(lesson);
     for (const { where, et, heard } of estonianOf(lesson)) {
       if (heard) continue;

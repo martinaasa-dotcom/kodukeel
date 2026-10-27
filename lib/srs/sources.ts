@@ -57,6 +57,14 @@ export const CARD_SOURCES = [
   "ALMANAC",
   "SENTENCE",
   "DICTIONARY",
+  /*
+    A sentence the learner wrote on a B1 writing evening, kept with one taught
+    word taken out (`lib/progress/ownSentences.ts`). In neither list below: it
+    is not a word they went and got, and it is not material this app chose,
+    since the sentence is theirs. Review asks it whatever the module has
+    reached (`reviewable`), because a learner can read their own sentence.
+  */
+  "WRITTEN",
 ] as const;
 
 export type CardSource = (typeof CARD_SOURCES)[number];

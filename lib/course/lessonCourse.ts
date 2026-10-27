@@ -62,6 +62,11 @@ export const PATTERN_PAGE: Readonly<Partial<Record<PatternId, string>>> = {
   pluperfect: "pluperfect",
   relative: "relative-clause",
   particleVerb: "particle-verbs",
+  participle: "participles",
+  conditionalPast: "conditional",
+  subordinate: "subordination",
+  agreement: "adjective-agreement",
+  derivation: "derivation",
 };
 
 /**
@@ -112,6 +117,21 @@ export function lessonWords(lesson: LessonSpec): string[] {
   return lessonHeads(lesson);
 }
 
+/**
+ * HOW LONG THIS LESSON TAKES, WHICH AT B1 IS AS LONG AS ITS GOAL NEEDS
+ * (docs/43-lessons.md B-L2). An A1 or A2 lesson is the six steps, eighteen
+ * minutes. A B1 lesson adds its longer talk (a story retold, an answer said
+ * three times) and its writing evening adds the text, so the evening says so
+ * rather than claiming eighteen minutes for forty.
+ */
+export function lessonMinutes(lesson: LessonSpec): number {
+  return LESSON_MINUTES
+    + (lesson.listenFor ? 2 : 0)
+    + (lesson.retell ? 5 : 0)
+    + (lesson.faster ? 4 : 0)
+    + (lesson.write ? 15 : 0);
+}
+
 /** Braces mark Estonian inside English for a screen; a sentence printed plain drops them. */
 const plain = (text: string) => text.replace(/[{}]/g, "");
 
@@ -143,10 +163,10 @@ export function lessonDay(lesson: LessonSpec, index: number, partTitle: string):
       title: `Lesson ${lessonLabel(lesson)}: ${lesson.title}`,
       why: "Hear it, meet the words, see how it works, then try it yourself.",
       href: `/course/lessons/${lesson.id}`,
-      minutes: LESSON_MINUTES,
+      minutes: lessonMinutes(lesson),
       derived: false,
     }],
-    minutes: LESSON_MINUTES,
+    minutes: lessonMinutes(lesson),
   };
 }
 

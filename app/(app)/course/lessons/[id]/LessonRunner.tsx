@@ -24,6 +24,8 @@ import { NOT_REACHED } from "@/lib/copy/values";
 import { HearSet } from "@/components/sounds/Native";
 import { SoundRows } from "@/components/sounds/SoundRows";
 import { SpellIt } from "@/components/sounds/SpellIt";
+import { ListenFirst } from "@/components/course/ListenFirst";
+import { WriteStep } from "@/components/course/WriteStep";
 import { Quiz } from "./Quiz";
 import { SayIt } from "./SayIt";
 import { lessonSceneHref, type ConversationReturn } from "@/lib/scenes/lessonReturn";
@@ -53,7 +55,15 @@ import { lessonSceneHref, type ConversationReturn } from "@/lib/scenes/lessonRet
  * module's own; opened from the list of lessons, it is the next lesson.
  */
 const STEPS = ["listen", "words", "how", "practise", "say", "review"] as const;
-type Step = (typeof STEPS)[number];
+/**
+ * A WRITING EVENING HAS A SEVENTH STEP, BETWEEN PRACTICE AND SAY IT (B1 on).
+ * Each B1 part writes one real text, and its writing evening reads a model,
+ * fills in the frame and writes the learner's own (`WriteStep`). It sits after
+ * Practice because the frame is practice of the same forms with more around
+ * them, and before Say it because a text written is easier to say.
+ */
+const WRITING_STEPS = ["listen", "words", "how", "practise", "write", "say", "review"] as const;
+type Step = (typeof WRITING_STEPS)[number];
 
 /**
  * A CHECK-IN ENDS ON THE CONVERSATION, NOT IN THE MIDDLE OF THE EVENING.
@@ -67,6 +77,7 @@ type Step = (typeof STEPS)[number];
  * thing, which is also what "finish the lesson" then follows.
  */
 const CAPSTONE_STEPS: readonly Step[] = ["listen", "words", "how", "practise", "review", "say"];
+const CAPSTONE_WRITING_STEPS: readonly Step[] = ["listen", "words", "how", "practise", "write", "review", "say"];
 
 /** Whether this evening is the one that puts a part together. */
 const isCapstone = (lesson: LessonSpec) => lesson.kind !== "lesson" && lesson.roleplay !== undefined;
@@ -76,12 +87,13 @@ const STEP_TITLE: Record<Step, string> = {
   words: "Words",
   how: "How it works",
   practise: "Practice",
+  write: "Write",
   say: "Say it",
   review: "Review",
 };
 
 /** The three teaching steps are finished by being open. */
-const ASKS: ReadonlySet<Step> = new Set(["practise", "say", "review"]);
+const ASKS: ReadonlySet<Step> = new Set(["practise", "write", "say", "review"]);
 
 export function LessonRunner({ lesson, practice, review, next, scene, conversation, place, name, due = 0, check = null, part }: {
   lesson: LessonSpec;
@@ -125,7 +137,9 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
   const heading = useRef<HTMLHeadingElement>(null);
   const moved = useRef(false);
   const capstone = isCapstone(lesson);
-  const steps: readonly Step[] = capstone ? CAPSTONE_STEPS : STEPS;
+  const steps: readonly Step[] = lesson.write
+    ? capstone ? CAPSTONE_WRITING_STEPS : WRITING_STEPS
+    : capstone ? CAPSTONE_STEPS : STEPS;
   const step = steps[at]!;
   const titleOf = (s: Step) => (capstone && s === "say" ? "Conversation" : STEP_TITLE[s]);
 
@@ -406,6 +420,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
           {step === "words" && <Words lesson={lesson} />}
           {step === "how" && <How lesson={lesson} />}
           {step === "practise" && <Quiz key="practise" items={practice} onFinished={(result) => { setScore(result); finish("practise"); }} />}
+          {step === "write" && lesson.write && <WriteStep lesson={lesson} onDone={() => { finish("write"); go(at + 1); }} />}
           {step === "say" && <SayIt lesson={lesson} scene={scene} sceneHref={scene ? lessonSceneHref(scene, focus) : null} capstone={capstone} name={name} onComplete={() => finish("say")} />}
           {step === "review" && (review.length > 0
             ? <Quiz key="review" items={review} onFinished={() => finish("review")} />
@@ -463,6 +478,9 @@ function wordsUsed(lesson: LessonSpec): number {
 function Listen({ lesson }: { lesson: LessonSpec }) {
   const t = useT();
   const [english, setEnglish] = useState(true);
+  // B1 on, the conversation is heard before it is read (`ListenFirst`).
+  const [heard, setHeard] = useState(!(lesson.listenFor && lesson.listenFor.length > 0));
+  if (!heard) return <ListenFirst lesson={lesson} onRead={() => setHeard(true)} />;
   return (
     <Card>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -544,6 +562,12 @@ function Words({ lesson }: { lesson: LessonSpec }) {
                   <LessonText text={row[0]!.en} locale={locale} />
                   {row[0]!.kind === "verb" && (
                     <span className="mt-0.5 block"><span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{row[0]!.first}</span>: <LessonText text={row[0]!.firstEn} locale={locale} /></span>
+                  )}
+                  {/* B1: a verb is learned with the case it wants, so the Words table says it. */}
+                  {(row[0]!.kind === "verb" || row[0]!.kind === "word") && row[0]!.asks && (
+                    <span className="mt-1 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-sm font-semibold" style={{ background: "var(--butter-soft)", color: "var(--ink)" }} data-asks>
+                      <LessonText text={row[0]!.asks} locale={locale} />
+                    </span>
                   )}
                 </td>
               </tr>
