@@ -37,6 +37,7 @@
  * readily as a seeded one.
  */
 import { PARTS } from "../lib/copy/values";
+import { twinsOf, withEverydaySpelling } from "../lib/estonian/pronouns";
 import { Prisma, type PrismaClient } from "@prisma/client";
 import { spellingFor } from "../lib/srs/cardSpelling";
 import { alsoAcceptedByLemma, sharedPrompts } from "../lib/collections/senses";
@@ -95,6 +96,38 @@ export async function repairProductionBacks(prisma: PrismaClient): Promise<numbe
         AND c."cardType" = 'PRODUCTION'
         AND c.back = v.from_back
     `;
+  }
+  return widened;
+}
+
+/**
+ * A PRONOUN'S EVERYDAY SPELLING ON THE PRODUCTION CARDS ALREADY IN A DECK.
+ *
+ * "he, she" took `tema` and marked `ta` wrong, which is the spelling nearly
+ * every sentence uses. The builder writes both now and the review queue reads
+ * both off the entry's forms, so this is the stored half: it brings the row in
+ * line with what the builder makes today, touching `back` and nothing else.
+ * `withEverydaySpelling` leaves a back that already holds the spelling alone,
+ * so a second run matches nothing, and the `UPDATE` compares the back it read.
+ */
+export async function repairPronounBacks(prisma: PrismaClient): Promise<number> {
+  const cards = await prisma.card.findMany({
+    where: { cardType: "PRODUCTION", lexeme: { pos: "PRONOUN" } },
+    select: {
+      id: true, back: true,
+      lexeme: { select: { lemma: true, pos: true, forms: { select: { formType: true, value: true, morphCode: true } } } },
+    },
+  });
+  let widened = 0;
+  for (const card of cards) {
+    if (!card.lexeme) continue;
+    // Only a back the builder wrote, which leads with the headword.
+    if (card.back.split(PARTS)[0]?.trim() !== card.lexeme.lemma) continue;
+    const everyday = twinsOf(card.lexeme.pos, card.lexeme.forms, card.lexeme.lemma).shorter;
+    const back = withEverydaySpelling(card.back, everyday);
+    if (back === card.back) continue;
+    const { count } = await prisma.card.updateMany({ where: { id: card.id, back: card.back }, data: { back } });
+    widened += count;
   }
   return widened;
 }
