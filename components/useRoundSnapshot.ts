@@ -11,31 +11,22 @@ function currentKey(): string | null {
 }
 
 /**
- * Whether this tab holds an unfinished round for the page it is on.
- *
- * Read by the briefing, so a learner whose page reloaded under them is put
- * straight back into the round rather than shown "here is what is about to
- * happen" over something that is already half done.
- */
-export function hasRoundToResume(): boolean {
-  const key = currentKey();
-  if (!key) return false;
-  try {
-    return readSnapshot(window.sessionStorage.getItem(key), Date.now()) !== null;
-  } catch {
-    return false;
-  }
-}
-
-/**
  * THE ROUND, KEPT WHERE A RELOAD CANNOT TAKE IT (lib/ux/sessionSnapshot.ts).
  *
  * `restored` is read once, on the first render, and only where the server
  * handed down cards: every page that renders a review session wraps it in the
  * briefing, which mounts the round after a press, so this never runs during
- * hydration and cannot draw something the server did not. A page with no
- * cards draws its empty state, and that is honest, since a round whose cards
- * are all answered has nothing left to resume.
+ * hydration and cannot draw something the server did not.
+ *
+ * THE BRIEFING IS STILL SHOWN AFTER A RELOAD, AND ITS BUTTON IS THE WAY BACK
+ * IN. Skipping it was tried: the server draws the briefing before the page
+ * hydrates, the snapshot can only be read after, so the briefing appeared and
+ * then vanished on its own, and a key pressed at it in that moment landed on
+ * the card instead (a flip card turned over, an answer moved on). One press
+ * that resumes the round is cheaper than a screen that changes under a key.
+ *
+ * A page with no cards draws its empty state, and that is honest, since a
+ * round whose cards are all answered has nothing left to resume.
  *
  * Storage that throws, a private window or a full quota, is a round that is
  * simply not remembered: the session goes on exactly as it did before this.

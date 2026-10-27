@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Eye, MousePointerClick } from "lucide-react";
 import { Button } from "@/components/Button";
 import { KeyCap } from "@/components/ui";
@@ -10,7 +10,6 @@ import { briefingFor, type BriefingId } from "@/lib/copy/briefings";
 import { useLocale, useT } from "@/components/Locale";
 import { countOf, fill, tr } from "@/lib/copy/locale";
 import { FreshRound } from "@/components/round/FreshRound";
-import { hasRoundToResume } from "@/components/useRoundSnapshot";
 
 /**
  * THE SCREEN A ROUND OPENS ON, AND THE ROUND IS NOT BEHIND IT YET.
@@ -74,23 +73,6 @@ export function BeforeYouStart({ id, ready = true, count, children }: {
     if (next) window.scrollTo({ top: 0 });
   };
   const started = pressed || !brief || !ready;
-
-  /*
-    A ROUND THE PAGE RELOADED UNDER IS NOT BRIEFED AGAIN.
-
-    After a deploy or a phone suspending the tab, the review session finds its
-    own round in this tab's storage and carries on (lib/ux/sessionSnapshot.ts).
-    Putting "here is what is about to happen" in front of a round twenty cards
-    in reads as having been sent back to the start, which is the report this
-    was written for. Read after mount, since storage is not there on the
-    server, and before paint where the browser allows it.
-  */
-  useLayoutEffect(() => {
-    if (!started && hasRoundToResume()) setPressedState(true);
-    // Once, on arrival: a round that finishes clears its snapshot, and a
-    // later press is the learner's own.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   useEffect(() => {
     if (started) return;
