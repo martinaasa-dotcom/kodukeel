@@ -25,10 +25,12 @@ import A2_PILETIKASSA from "./specs/a2-piletikassa";
 import A2_RESTORAN from "./specs/a2-restoran";
 import A2_INTERVJUU from "./specs/a2-intervjuu";
 import A2_VANA_SOBER from "./specs/a2-vana-sober";
+import B1_VAIDLUS from "./specs/b1-vaidlus";
 
 export const LESSON_SCENES: readonly SceneSpec[] = [
   A1_TREPIL, A1_KURSUS, A1_PLAAN, A1_KOHVIK, A1_TEE, A1_MUTSIPOOD, A1_NADAL, A1_KUTSE,
   A2_RAAMATUKOGU, A2_LINNAS, A2_SUVI, A2_ARST, A2_PILETIKASSA, A2_RESTORAN, A2_INTERVJUU, A2_VANA_SOBER,
+  B1_VAIDLUS,
 ];
 
 /** The conversation a lesson's role-play opens, if it has one. */

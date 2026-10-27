@@ -73,6 +73,7 @@ import A2_PILETIKASSA_LINES from "./bank/a2-piletikassa";
 import A2_RESTORAN_LINES from "./bank/a2-restoran";
 import A2_INTERVJUU_LINES from "./bank/a2-intervjuu";
 import A2_VANA_SOBER_LINES from "./bank/a2-vana-sober";
+import B1_VAIDLUS_LINES from "./bank/b1-vaidlus";
 
 /** Every scene's prepared lines, one file a scene under `lib/scenes/bank/`, in scene order. */
 export const BANK: readonly ScriptedLine[] = [
@@ -135,4 +136,5 @@ export const BANK: readonly ScriptedLine[] = [
   ...A2_RESTORAN_LINES,
   ...A2_INTERVJUU_LINES,
   ...A2_VANA_SOBER_LINES,
+  ...B1_VAIDLUS_LINES,
 ];

@@ -189,6 +189,7 @@ export const SCENERY: Readonly<Record<string, Scenery>> = {
   "a2-restoran": { icon: "Utensils", setting: "restaurant" },
   "a2-intervjuu": { icon: "Briefcase", setting: "office" },
   "a2-vana-sober": { icon: "MessagesSquare", setting: "street" },
+  "b1-vaidlus": { icon: "Users", setting: "meeting" },
 };
 
 /**
