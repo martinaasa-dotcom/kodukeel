@@ -5,6 +5,7 @@ import { BLANK, buildCloze, mentions, naturalSentence, nominalOpener } from "@/l
 import { readableGovernment } from "@/lib/estonian/government";
 import { grammarTerm } from "@/lib/estonian/terms";
 import { gapForms } from "@/lib/estonian/gapForms";
+import { twinsOf, withEverydaySpelling } from "@/lib/estonian/pronouns";
 import { ekilexCodeOf, numberFromMorphCode } from "@/lib/estonian/morph";
 import { caseAnswer, stemsFrom } from "@/lib/estonian/derive";
 import { caseIndex, readCase } from "@/lib/estonian/whichCase";
@@ -367,10 +368,15 @@ export function generateCards(lex: LexemeForCards, types: readonly CardType[]): 
           on which entry the deck happened to build first.
         */
         const answers = [lex.lemma, ...(lex.alsoAccepted ?? []).filter((w) => w !== lex.lemma)];
+        /*
+          And a pronoun's everyday spelling, which is the same word: "he, she"
+          is `tema` and `ta`, both stored under `SgN`. See `withEverydaySpelling`.
+        */
+        const everyday = twinsOf(lex.pos, lex.forms, lex.lemma).shorter;
         out.push({
           cardType: type,
           front: plainPhrase(lex.translation, lex.pos),
-          back: answers.map((answer) => plainPhrase(answer, lex.pos)).join(PARTS),
+          back: withEverydaySpelling(answers.map((answer) => plainPhrase(answer, lex.pos)).join(PARTS), everyday),
           hint: lex.pos.toLowerCase(),
           targetCase: null,
           slot: null,
