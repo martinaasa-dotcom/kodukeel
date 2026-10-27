@@ -313,9 +313,10 @@ describe("wordFunFor", () => {
     expect(falseFriendFor("pea")?.means).toBe("head");
   });
 
-  it("warns about a false friend without a joke after it, and keeps a compound's line", () => {
-    for (const f of FALSE_FRIENDS) expect(wordFunFor(f.word, f.means)?.quip ?? null, f.word).toBeNull();
-    expect(wordFunFor("nahkhiir", "bat")?.quip).toBeTruthy();
+  it("carries no joke onto a card, for a false friend or a compound", () => {
+    const fun = [...FALSE_FRIENDS.map((f) => wordFunFor(f.word, f.means)), ...COMPOUNDS.map((c) => wordFunFor(c.word, c.means))];
+    expect(fun.filter(Boolean).length).toBeGreaterThan(100);
+    for (const f of fun) if (f) expect(Object.keys(f)).not.toContain("quip");
   });
 
   it("says nothing about a word with nothing to say", () => {
