@@ -74,6 +74,10 @@ import A2_RESTORAN_LINES from "./bank/a2-restoran";
 import A2_INTERVJUU_LINES from "./bank/a2-intervjuu";
 import A2_VANA_SOBER_LINES from "./bank/a2-vana-sober";
 import B1_VAIDLUS_LINES from "./bank/b1-vaidlus";
+import B1_UHISTU_LINES from "./bank/b1-uhistu";
+import B1_PALGATOUS_LINES from "./bank/b1-palgatous";
+import B1_MEISTER_LINES from "./bank/b1-meister";
+import B1_TAGATIS_LINES from "./bank/b1-tagatis";
 
 /** Every scene's prepared lines, one file a scene under `lib/scenes/bank/`, in scene order. */
 export const BANK: readonly ScriptedLine[] = [
@@ -137,4 +141,8 @@ export const BANK: readonly ScriptedLine[] = [
   ...A2_INTERVJUU_LINES,
   ...A2_VANA_SOBER_LINES,
   ...B1_VAIDLUS_LINES,
+  ...B1_UHISTU_LINES,
+  ...B1_PALGATOUS_LINES,
+  ...B1_MEISTER_LINES,
+  ...B1_TAGATIS_LINES,
 ];
