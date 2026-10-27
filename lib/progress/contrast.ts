@@ -14,6 +14,8 @@ import { plainPhrase } from "@/lib/copy/values";
 import { parseExamples, teachingSentence } from "@/lib/dict/examples";
 import { authoredFor } from "@/lib/dict/authored";
 import { neighbours as neighbourFacts } from "@/lib/dict/neighbourFacts";
+import { pronounSpellings } from "@/lib/dict/facts";
+import { registerContrast, type RegisterNote } from "@/lib/questions/difference";
 import { neighboursOf } from "@/lib/questions/neighbours";
 import { plainerFirst, type PlainReach } from "@/lib/dict/plainness";
 
@@ -23,6 +25,11 @@ export interface ContrastWord {
   lemma: string;
   gloss: string;
   sentence: { et: string; en: string | null; form: string | null } | null;
+  /**
+   * What sets this one apart where the two glosses are the same English, or
+   * null: today only which "you" a phrase uses (`lib/questions/difference.ts`).
+   */
+  note: RegisterNote | null;
 }
 
 /** The word asked for, and the words that would also have been right. */
@@ -60,8 +67,13 @@ function side(lexemeId: string | null, lex: ContrastLexeme, reach: PlainReach | 
     lemma: plainPhrase(lex.lemma, lex.pos),
     gloss: plainPhrase(lex.translation, lex.pos),
     sentence: found ? { et: found.example.et, en: found.example.en ?? null, form: found.form } : null,
+    note: null,
   };
 }
+
+/** One gloss against another, ignoring case and the closing mark. */
+const sameEnglish = (a: string, b: string): boolean =>
+  a.trim().replace(/[?!.]+$/, "").toLowerCase() === b.trim().replace(/[?!.]+$/, "").toLowerCase();
 
 /**
  * The contrast for each ask, keyed by its position. One query for every
@@ -96,11 +108,34 @@ export async function contrastsFor(
   const byId = new Map(entries.map((e) => [e.id, e]));
 
   for (const { ask, at, near } of found) {
+    const own = side(ask.lexemeId, ask.lexeme, reach);
     const neighbours = near
       .map((n) => byId.get(n.id))
       .filter((lex): lex is NonNullable<typeof lex> => !!lex)
       .map((lex) => side(lex.id, lex, reach));
-    if (neighbours.length > 0) out.set(at, { own: side(ask.lexemeId, ask.lexeme, reach), neighbours });
+    if (neighbours.length > 0) out.set(at, { own, neighbours });
+  }
+
+  /*
+    Where a neighbor's English is the card's own word for word, the glosses
+    cannot show the difference, so it is read off the words themselves. Asked
+    only then, and the pronoun table only once anything needs it.
+  */
+  const unexplained = [...out.values()].some((c) => c.neighbours.some((n) => sameEnglish(n.gloss, c.own.gloss)));
+  if (unexplained) {
+    const pronouns = await pronounSpellings();
+    const pronounOf = (spelling: string) => pronouns.get(spelling) ?? null;
+    for (const [at, contrast] of out) {
+      let ownNote: RegisterNote | null = null;
+      const neighbours = contrast.neighbours.map((n) => {
+        if (!sameEnglish(n.gloss, contrast.own.gloss)) return n;
+        const pair = registerContrast(n.lemma, contrast.own.lemma, pronounOf);
+        if (!pair) return n;
+        ownNote ??= pair[1];
+        return { ...n, note: pair[0] };
+      });
+      out.set(at, { own: { ...contrast.own, note: ownNote }, neighbours });
+    }
   }
   return out;
 }

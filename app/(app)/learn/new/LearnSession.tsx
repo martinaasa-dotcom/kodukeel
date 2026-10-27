@@ -23,6 +23,7 @@ import { useOffline } from "@/components/OfflineProvider";
 import { useResumeCard } from "@/components/useResumeCard";
 import { prefetchClip } from "@/lib/audio/clip";
 import { acceptedAnswers, checkAnswer, countsAsRecalled, noteIn, type AnswerCheck } from "@/lib/estonian/answer";
+import { withEverydaySpelling } from "@/lib/estonian/pronouns";
 import { AnswerMic, useSpokenBox } from "@/components/speech/SpokenBox";
 import { YourTurn } from "@/components/speech/YourTurn";
 import { NEIGHBOUR_RATING, typedNeighbour } from "@/lib/questions/neighbours";
@@ -361,7 +362,7 @@ export function LearnSession({
   const repairedAnswer = useRef(false);
   const answerGapRef = useRef<(said?: string) => void>(() => {});
   const spokenAccepted = useMemo(
-    () => (word && rung === "gap" ? acceptedAnswers(word.gap ? word.gap.answer : word.lemma, "et") : []),
+    () => (word && rung === "gap" ? acceptedAnswers(word.gap ? word.gap.answer : withEverydaySpelling(word.lemma, word.alsoSaid), "et") : []),
     [word, rung],
   );
   const spoken = useSpokenBox({
@@ -661,7 +662,8 @@ export function LearnSession({
 
   const answerGap = useCallback((said?: string) => {
     if (!word || busy || phase === "feedback") return;
-    const expected = word.gap ? word.gap.answer : word.lemma;
+    // Asked from the meaning, a pronoun's everyday spelling is the word too: `ta` for "he, she".
+    const expected = word.gap ? word.gap.answer : withEverydaySpelling(word.lemma, word.alsoSaid);
     const answer = said ?? typed;
     /* Written as spoken only where what is marked is what was heard (`saidAsIs`,
        D4, VB-6); a repaired word left in the box writes nothing, edited or not (D13). */

@@ -26,6 +26,7 @@ import { caseFormChoices, verbFormChoices } from "@/lib/questions/caseChoices";
 import { acceptedAnswers } from "@/lib/estonian/answer";
 import { stemsFrom } from "@/lib/estonian/derive";
 import { gapForms } from "@/lib/estonian/gapForms";
+import { twinsOf, withEverydaySpelling } from "@/lib/estonian/pronouns";
 import { starredAmong } from "@/lib/progress/stars";
 import { sentenceFronts } from "@/lib/progress/formCards";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
@@ -644,10 +645,16 @@ export async function withChoices(
       const forms = lexemeId ? held.get(lexemeId) : undefined;
       const lexeme = rows[i]?.lexeme;
       if (!forms || !lexeme) return card;
-      const accepted = new Set(acceptedAnswers(card.back, "et").map((a) => a.trim().toLowerCase()));
+      /*
+        A pronoun's everyday spelling is the word itself, so `ta` is right on
+        "he, she" however long ago the card was built: a `Card` row keeps its
+        back, and the builder fix alone reaches no deck that already exists.
+      */
+      const back = withEverydaySpelling(card.back, twinsOf(lexeme.pos, forms, lexeme.lemma).shorter);
+      const accepted = new Set(acceptedAnswers(back, "et").map((a) => a.trim().toLowerCase()));
       const kin = [...gapForms({ lemma: lexeme.lemma, pos: lexeme.pos, forms }).keys()]
         .filter((form) => !accepted.has(form));
-      return { ...card, kin };
+      return { ...card, back, kin };
     }
     if (!wantsFormChoices(card) || !lexemeId) return card;
     const forms = held.get(lexemeId);

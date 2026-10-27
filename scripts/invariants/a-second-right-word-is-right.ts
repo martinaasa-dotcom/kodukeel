@@ -49,11 +49,25 @@ export default function aSecondRightWordIsRight({ check, code }: InvariantKit) {
   check("the lesson is the dictionary's, and holds no Estonian of its own", () => {
     assert.doesNotMatch(code("lib/questions/neighbours.ts"), /[õäöüšž]/i, "the neighbor rule has started writing Estonian");
     assert.doesNotMatch(code("components/round/SameMeaning.tsx"), /[õäöüšž]/i, "the contrast panel has started writing Estonian");
+    assert.doesNotMatch(code("lib/questions/difference.ts"), /[õäöüšž]/i, "the difference reading has started writing Estonian");
     assert.doesNotMatch(
       code("lib/questions/neighbours.ts"), /@\/lib\/db|@prisma\/client|\bprisma\./,
       "the neighbor rule has become a database read rather than a rule over glosses",
     );
     // Its sentences are drawn through the one drawing that carries the English.
     assert.match(code("components/round/SameMeaning.tsx"), /<EstonianSentence\b/, "the contrast panel draws a sentence without its English");
+  });
+
+  check("the panel promises a difference only where it can name one", () => {
+    const panel = code("components/round/SameMeaning.tsx");
+    // Two identical glosses printed under "here is how they differ" was the
+    // report: the promise has to be gated on the glosses differing or a note.
+    assert.match(
+      panel, /const explained = plain\(typed\.gloss\) !== plain\(own\.gloss\) \|\| \(!!typed\.note && !!own\.note\)/,
+      "the contrast panel says how two words differ whether or not it has anything to say",
+    );
+    assert.match(panel, /explained\s*\?\s*t\("We were after \{word\}\. Both get you understood, and here is how they differ:"\)/,
+      "the promise of a difference is no longer gated on there being one");
+    assert.match(code("lib/progress/contrast.ts"), /registerContrast\(/, "the contrast builder no longer reads which \"you\" a phrase uses");
   });
 }
