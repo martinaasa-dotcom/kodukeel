@@ -666,7 +666,7 @@ if (hasRound) {
 
 // ─── The printable worksheet ──────────────────────────────────────────────────
 
-await page.goto(`${B}/learn/too-ja-raha/worksheet`, { waitUntil: "networkidle" });
+await page.goto(`${B}/learn/uhiskond/worksheet`, { waitUntil: "networkidle" });
 check("a unit prints as a worksheet", (await page.getByText(/What does it mean/i).count()) > 0);
 check("with an answer key", (await page.getByText("Answer key").count()) > 0);
 check("built from principal parts the dictionary holds",

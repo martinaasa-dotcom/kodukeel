@@ -15,7 +15,7 @@ import { baseUrl, suite } from "./lib/checks.mjs";
 const B = baseUrl();
 const PAGES = ["/", "/practice", "/grammar", "/grammar/cases", "/grammar/partitive", "/grammar/build-a-word",
   "/progress", "/progress/readiness", "/progress/readiness/sook-ja-jook", "/learn",
-  "/learn/too-ja-raha", "/dictionary?q=tuba", "/words", "/words/mastery", "/settings", "/review",
+  "/learn/uhiskond", "/dictionary?q=tuba", "/words", "/words/mastery", "/settings", "/review",
   "/review/dictation", "/class", "/tutor", "/scan", "/welcome", "/funding", "/exam",
   /*
     The one screen in the app that takes the shell off and paints its own
