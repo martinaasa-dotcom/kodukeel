@@ -4200,6 +4200,13 @@ check("every path that adds cards reads and writes under one lock", () => {
       read: "card.count",
       write: "card.createMany",
     },
+    // The fourth: a B1 learner's own sentences, kept as gap cards off a writing evening.
+    {
+      what: "keepOwnSentences",
+      body: /export async function keepOwnSentences\(([\s\S]*?)\n\}/.exec(code("lib/progress/ownSentences.ts"))?.[1] ?? "",
+      read: "card.findMany",
+      write: "card.createMany",
+    },
   ];
 
   for (const { what, body, read: readCall, write } of lockedPaths) {
@@ -22550,6 +22557,7 @@ check("a text box has one shape, and the keys under it stand one distance off", 
   const exempt: Record<string, string> = {
     "app/(app)/crossword/CrosswordSession.tsx": "a cell in a grid, sized by the grid",
     "app/(app)/words/WordsTable.tsx": "a pill beside a row of pill filters",
+    "components/course/WriteStep.tsx": "a gap in a line of running text, as wide as the word it takes, inline with the words around it",
   };
   let fields = 0;
   for (const file of ALL) {

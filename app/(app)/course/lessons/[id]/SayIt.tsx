@@ -142,7 +142,9 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, onComplete }: 
         <p className="max-w-[60ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           {capstone
             ? fill(t("This is the whole conversation, with you in it. {who} speaks first and you answer as yourself, out loud or typed, one turn at a time. Each turn is added to the conversation, so by the end you've held all of it."), { who: opener })
-            : t("Say the conversation along with the screen, then answer a few questions about yourself out loud. A word lights up when it's understood, even said with an accent, so play yourself back beside the recording to hear how it sounded.")}
+            : levelIndex(lesson.level) >= levelIndex("B1")
+              ? t("Say today's key lines along and then alone, answer questions about yourself, then go longer: retell a story, or give one answer three times, faster each time. A word lights up when it's understood.")
+              : t("Say the conversation along with the screen, then answer a few questions about yourself out loud. A word lights up when it's understood, even said with an accent, so play yourself back beside the recording to hear how it sounded.")}
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
           <Button size="lg" onClick={() => setMode("type")}>

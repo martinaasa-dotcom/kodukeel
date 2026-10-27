@@ -115,7 +115,7 @@ export function RetellIt({ retell, voice, typed, onDone }: { retell: Retell; voi
 
       <ul className="mt-5 flex flex-col gap-2" data-retell-points aria-live="polite">
         {retell.points.map((point, i) => (
-          <li key={point.en} className="flex items-center gap-2 rounded-[var(--r-md)] px-3 py-2" style={{ background: lit[i] ? "var(--sky-soft)" : "var(--raised)" }} data-lit={lit[i] ? "true" : "false"}>
+          <li key={point.en} className="flex items-center gap-2 rounded-[var(--r)] px-3 py-2" style={{ background: lit[i] ? "var(--sky-soft)" : "var(--raised)" }} data-lit={lit[i] ? "true" : "false"}>
             {lit[i] ? <Check size={16} aria-hidden style={{ color: "var(--sky-ink)" }} /> : <Circle size={14} aria-hidden style={{ color: "var(--ink-3)" }} />}
             <span className="text-base" style={{ color: lit[i] ? "var(--sky-ink)" : "var(--ink-2)" }}><LessonText text={point.en} locale={locale} /></span>
             <span className="sr-only">{lit[i] ? t("came across") : t("not yet")}</span>

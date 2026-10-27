@@ -103,7 +103,7 @@ function GistQuestion({ gist, n, of, picked, onPick }: { gist: Gist; n: number; 
       </ChoiceGroup>
       {picked !== null && (
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }} role="status">
-          {picked === gist.answer ? t("That's it.") : <>{t("It was:")} <LessonText text={gist.options[gist.answer]!} locale={locale} /></>}
+          {picked === gist.answer ? t("That's it.") : <>{t("The answer:")} <LessonText text={gist.options[gist.answer]!} locale={locale} /></>}
         </p>
       )}
     </div>

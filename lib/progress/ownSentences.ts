@@ -15,6 +15,7 @@
 import { prisma } from "@/lib/db";
 import { lockDeck } from "@/lib/srs/deck";
 import { emptyScheduling } from "@/lib/srs/scheduler";
+import { deferredDues } from "@/lib/progress/deferrals";
 import { ledgerThrough, LESSONS as COURSE_LESSONS, type LessonSpec } from "@/lib/course/lessons";
 import { PREVIEW_LESSONS } from "@/lib/course/lessons/preview";
 import { MOST_KEPT, ownCardFor, sentencesOf, type OwnCard } from "@/lib/course/lessons/own";
@@ -54,10 +55,14 @@ export async function keepOwnSentences(ownerId: string, lessonId: string, text: 
   const now = new Date();
   return prisma.$transaction(async (tx) => {
     await lockDeck(tx, ownerId);
-    const existing = await tx.card.findMany({
-      where: { ownerId, source: "WRITTEN", front: { in: cards.map((c) => c.front) } },
-      select: { front: true },
-    });
+    const [existing, held] = await Promise.all([
+      tx.card.findMany({
+        where: { ownerId, source: "WRITTEN", front: { in: cards.map((c) => c.front) } },
+        select: { front: true },
+      }),
+      // A word put aside stays aside: its card is built with the date the deferral wrote.
+      deferredDues(tx, ownerId, [...byLemma.values()].map((l) => l.id), now),
+    ]);
     const have = new Set(existing.map((c) => c.front));
     const fresh = cards.filter((c) => !have.has(c.front));
     if (fresh.length > 0) {
@@ -73,6 +78,7 @@ export async function keepOwnSentences(ownerId: string, lessonId: string, text: 
             hint: lexeme ? `${c.lemma}, ${lexeme.translation}` : c.lemma,
             source: "WRITTEN",
             ...emptyScheduling(now),
+            ...(lexeme && held.has(lexeme.id) ? { due: held.get(lexeme.id)! } : {}),
           };
         }),
       });

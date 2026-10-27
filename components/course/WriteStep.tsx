@@ -342,7 +342,7 @@ function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonS
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <p className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>{t("First draft")}</p>
-            <p lang="et" className="whitespace-pre-wrap rounded-[var(--r-md)] px-3 py-2 text-base leading-relaxed" style={{ background: "var(--raised)", color: "var(--ink-2)" }} data-write-first>{first}</p>
+            <p lang="et" className="whitespace-pre-wrap rounded-[var(--r)] px-3 py-2 text-base leading-relaxed" style={{ background: "var(--raised)", color: "var(--ink-2)" }} data-write-first>{first}</p>
           </div>
           <div>
             <p className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>{t("Second draft")}</p>

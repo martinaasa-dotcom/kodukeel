@@ -47,7 +47,7 @@ export function SayAlongFade({ lesson, onDone }: { lesson: LessonSpec; onDone: (
         {step.pass === 1
           ? t("Hear the line, then say it with the words in front of you.")
           : step.pass === 2
-            ? t("Now tonight's words are gone. Say the whole line: a word comes back when it's heard.")
+            ? t("Now today's words are gone. Say the whole line: a word comes back when it's heard.")
             : t("Now say it with nothing on the screen but the English.")}
       </p>
       <PassMeter pass={step.pass} />

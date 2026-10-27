@@ -161,7 +161,7 @@ function Goes({ goes }: { goes: readonly Go[] }) {
       <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("Your goes")}</p>
       <ol className="grid grid-cols-3 gap-3">
         {goes.map((go, i) => (
-          <li key={i} className="flex flex-col items-center gap-1.5 rounded-[var(--r-md)] px-2 py-3" style={{ background: "var(--surface)", border: "1px solid var(--edge)" }}>
+          <li key={i} className="flex flex-col items-center gap-1.5 rounded-[var(--r)] px-2 py-3" style={{ background: "var(--surface)", border: "1px solid var(--edge)" }}>
             <div className="flex h-24 w-8 items-end overflow-hidden rounded-full" style={{ background: "var(--scale-track)" }} aria-hidden>
               <div className="pop-in w-full rounded-full" style={{ height: `${Math.max(6, (go.perMinute / most) * 100)}%`, background: "var(--scale-3)" }} />
             </div>
@@ -173,7 +173,7 @@ function Goes({ goes }: { goes: readonly Go[] }) {
       </ol>
       {goes.length >= 2 && goes[goes.length - 1]!.perMinute > goes[0]!.perMinute && (
         <p className="mt-3 text-base font-semibold" style={{ color: "var(--ink)" }} role="status">
-          {fill(t("From {a} to {b} words a minute in one evening."), { a: String(goes[0]!.perMinute), b: String(goes[goes.length - 1]!.perMinute) })}
+          {fill(t("From {a} to {b} words a minute in one lesson."), { a: String(goes[0]!.perMinute), b: String(goes[goes.length - 1]!.perMinute) })}
         </p>
       )}
     </div>

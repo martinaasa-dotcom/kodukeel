@@ -44,6 +44,7 @@ const KEPT: Readonly<Record<string, { readonly kind: Kind; readonly selectors: r
   "cafe-dot": { kind: "loading", selectors: [".cafe-typing > span"], why: "the landing café's typing dots, between a press and the reply" },
   "ptr-working": { kind: "loading", selectors: [".ptr-ring[data-working]"], why: "the pull-to-refresh ring while a refresh somebody pulled for is on its way" },
   "snd-bar": { kind: "playing", selectors: [".snd-bars > span"], why: "the bars beside a native recording, drawn only while one the learner pressed is playing" },
+  "voice-bar": { kind: "playing", selectors: [".voice-bars-live > span"], why: "the bars standing in for a B1 line not shown yet, moving only while that line, which the learner pressed play on, is being said" },
   "mark-giddy": { kind: "pointer", selectors: [".mark-play[data-play] .mark-live .mark-giddy"], why: "the mark under a hover or a press" },
   "tilde-tip": { kind: "pointer", selectors: [".mark-play[data-play] .mark-live .mark-tip"], why: "the mark under a hover or a press" },
   "pixel-dance": { kind: "pointer", selectors: [".mark-play[data-play] .mark-live .pixel"], why: "the mark under a hover or a press" },
