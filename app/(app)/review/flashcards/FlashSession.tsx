@@ -11,7 +11,9 @@ import { rich } from "@/components/round/rich";
 import { endingName, sayIn } from "@/lib/estonian/plainAsk";
 import { PARTS, partOfSpeechCue, UNNAMED_WORD, wordName } from "@/lib/copy/values";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, CircleAlert } from "lucide-react";
+import { Check, CircleAlert, MessageCircleQuestion } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { openAnu, tutorHref } from "@/components/anu/openAnu";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { gradeCard } from "@/app/actions";
 import { Button } from "@/components/Button";
@@ -312,8 +314,12 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
          keydown, so `needsRetype` already reads false: a key from the box is
          the box's, exactly as it is on the daily quest. */
       if (mark) { if (!needsRetype && !inEditable(e.target) && isAdvanceKey(e)) { e.preventDefault(); next(); } return; }
+      /* A sentence is one line, so Enter checks it here as it does in every
+         other box: it used to want ⌘ Enter and put a line break in the
+         sentence instead. Shift+Enter is still a line break for anybody who
+         wants one, and a key still composing an IME character is not a press. */
       if (e.key !== "Enter") return;
-      if (shape === "build" && !(e.metaKey || e.ctrlKey)) return;
+      if (shape === "build" && (e.shiftKey || e.isComposing)) return;
       e.preventDefault();
       void check();
     };
@@ -434,7 +440,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
             )}
           </div>
 
-          {mark && <Feedback task={task} mark={mark} />}
+          {mark && <Feedback task={task} mark={mark} typed={typed} />}
           {mark && owesRetype && <RetypeBox retype={retype} />}
         </div>
 
@@ -446,7 +452,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
               disabled={typed.trim().length === 0}
               onClick={() => void check()}
             >
-              {t("Check it")} <KeyCap className="ml-1">{shape === "build" ? `⌘ ${ADVANCE_KEY_GLYPH}` : ADVANCE_KEY_GLYPH}</KeyCap>
+              {t("Check it")} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : (
             <Button variant="primary" className="w-full py-3" onClick={needsRetype ? retype.check : next} autoFocus>
@@ -687,7 +693,7 @@ function slotCase(task: FlashPrompt) {
  * box now says which without anybody reading a word. It says it in words too,
  * since a hue is never the only thing carrying a distinction here.
  */
-function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
+function Feedback({ task, mark, typed }: { task: FlashPrompt; mark: FlashMark; typed: string }) {
   const spec = caseByKey(task.slot);
   const english = asksInEnglish(task.slot);
   /*
@@ -697,6 +703,7 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
   */
   const t = useT();
   const locale = useLocale();
+  const router = useRouter();
   const verdict = verdictOfMark(mark);
   const head = t({ right: "That's it", nearly: "Nearly", wrong: "Not quite" }[verdict]);
   const note = answerNote(mark.note, locale);
@@ -750,6 +757,35 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
           </p>
         )}
       </div>
+
+      {/*
+        WHAT "THAT'S IT" WAS ABOUT. A sentence of the learner's own is marked
+        on one thing, whether the asked form is in it (`markSentence`), because
+        whether a form is right is the dictionary's answer alone and nothing
+        here may ask a model (ADR-005). So "Ma kogun nuppud" read "That's it"
+        with `nuppud` wrong in it and nothing on the screen saying the rest had
+        not been looked at. The screen says so, and hands the whole sentence to
+        Anu, whose reply is checked against the dictionary on its way out.
+      */}
+      {task.shape === "build" && typed.trim() && (
+        <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
+          <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+            {t("Only the form was checked, not the rest of your sentence.")}
+          </p>
+          <button
+            type="button"
+            aria-haspopup="dialog"
+            onClick={() => {
+              const question = fill(t("Is this sentence right? “{sentence}”"), { sentence: typed.trim() });
+              if (!openAnu(question)) router.push(tutorHref(question));
+            }}
+            className="press inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold transition-ui hover:-translate-y-px"
+            style={{ background: "var(--raised)", color: "var(--ink-2)" }}
+          >
+            <MessageCircleQuestion size={14} aria-hidden /> {t("Ask Anu about the whole sentence")}
+          </button>
+        </div>
+      )}
 
       {task.sentence && (
         <>

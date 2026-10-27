@@ -2,6 +2,7 @@
 
 import { hasSessionCookie } from "@/lib/auth/identity";
 import { deleteLocalDatabase, forgetStashedSession, outboxSize } from "./db";
+import { SNAPSHOT_PREFIX } from "@/lib/ux/sessionSnapshot";
 
 /**
  * Forgetting a learner on a device they are leaving.
@@ -196,11 +197,14 @@ export const PUZZLE_KEY_PREFIX = "kodukeel.puzzle.";
 function forgetSittings(): void {
   forgetByPrefix(SITTING_KEY_PREFIX);
   forgetByPrefix(PUZZLE_KEY_PREFIX);
+  // A review round kept so a reload can resume it (lib/ux/sessionSnapshot.ts):
+  // per tab, and still somebody's cards in a tab the next person may use.
+  forgetByPrefix(SNAPSHOT_PREFIX, "session");
 }
 
-function forgetByPrefix(prefix: string): void {
+function forgetByPrefix(prefix: string, where: "local" | "session" = "local"): void {
   try {
-    const store = window.localStorage;
+    const store = where === "session" ? window.sessionStorage : window.localStorage;
     const doomed: string[] = [];
     for (let i = 0; i < store.length; i++) {
       const key = store.key(i);

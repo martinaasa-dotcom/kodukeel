@@ -110,6 +110,17 @@ describe("checkAnswer — Estonian", () => {
     expect(checkAnswer("raamatuus", "raamatus").verdict).toBe("typo");
   });
 
+  it("holds the word the slip is in to the floor, not the whole phrase", () => {
+    // `ei saada` is eight characters with the space and the negator, and the
+    // slip is in a five-letter word: `saata` is the da-infinitive of the same
+    // verb, the wrong form rather than a slip of the hand.
+    expect(checkAnswer("ei saata", "ei saada").verdict).toBe("wrong");
+    // A long word inside a phrase is still forgiven its slip.
+    expect(checkAnswer("ei kasjtama", "ei kasutama").verdict).toBe("typo");
+    // A dropped space belongs to no one word, so the whole is measured.
+    expect(checkAnswer("tere hommikust", "tere  hommikust").verdict).toBe("correct");
+  });
+
   it("does not forgive an inserted or dropped letter below eight, where it is often another word", () => {
     // `kuulma` (to hear) and `kuulama` (to listen) are both real; typing one
     // for the other is the wrong word, not a slip, and was graded as a recall.
