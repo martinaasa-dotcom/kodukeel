@@ -226,6 +226,31 @@ export function kindStated(codes: readonly string[] | string | null | undefined)
   return codesOf(codes).some((code) => !code.startsWith("omadus"));
 }
 
+/**
+ * A span or a point of time: `tund`, `päev`, `aasta`, a month, a season.
+ *
+ * Read by the sentence check (`lib/course/lessons/sentenceCheck.ts`), because
+ * a time noun in its plain form is an ordinary adverbial, not an object:
+ * `Ma ootasin tund aega` is right. The family and every subdivision of it.
+ */
+export function isTime(codes: readonly string[] | string | null | undefined): boolean {
+  return codesOf(codes).some((code) => code === "aeg" || code.startsWith("aeg_"));
+}
+
+/** A number word: `kaks`, `viisteist`, `pool`. Read by the sentence check for the reason `isTime` is. */
+export function isNumber(codes: readonly string[] | string | null | undefined): boolean {
+  return codesOf(codes).includes("esitus_arv");
+}
+
+/**
+ * A thing and never somebody: classified, and no code of it a being. Read by
+ * the sentence check, which takes `Siin olen menüü` for `Siin on menüü`
+ * because a thing cannot be "I", for the reason `isTime` is.
+ */
+export function isThing(codes: readonly string[] | string | null | undefined): boolean {
+  return semanticGroup(codes) === "THING";
+}
+
 /** True only where the dictionary says so, and says nothing against it. */
 export function isAnimate(codes: readonly string[] | string | null | undefined): boolean {
   return semanticGroup(codes) === "ANIMATE";

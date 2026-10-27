@@ -3914,3 +3914,73 @@ pinned sentences were among the workbook refusals. Each is listed with the reade
 shipped in `docs/reviews/2026-10-25-written-lines-applied.md`, beside the 66 lines per language that
 landed after the export and are left unconfirmed for his next sheet. `docs/49-language-reviews.md` is
 the count of what is open, which is those and the 60 picture-scene sentences nobody has written yet.
+
+## 72. The sixty-sixth pass: a typed answer is told whether it is Estonian
+
+**A role-play answer that differs from the sample is read by the dictionary, not by a model.** A
+learner typed `Tere! Ma soovin raamatukogukaart osta.` on a lesson's Say it card and asked how they
+would know if it was right: the card compared it with one way to say it and said "Yours can be
+different", so a wrong ending and a perfect sentence looked the same. The operator's call was to do it
+without a paid model. `lib/course/lessons/sentenceCheck.ts` is the judgment and is pure;
+`lib/progress/sentenceCheck.ts` reads the forms list and the vouched dictionary rows for the words in
+the sentence; `checkLessonSentence` in `app/actions.ts` is the door, throttled, storing and grading
+nothing; `components/course/SentenceFindings.tsx` is the panel under the card.
+
+**Fifteen things, each drawn to miss rather than to fire.** A spelling no word has, offered the word
+meant only where it is the one Estonian spelling that close: a mark left off or put on the wrong letter
+keeps every mark the learner did type (`soön` is `söön`, not `soon`), and a word one letter from two
+words is offered the one a learner meets at least two bands earlier than the other (`meedib` is
+`meeldib`, not `meemib`) and is otherwise left alone, never offered a word shorter than what was typed,
+since a slip drops a letter far oftener than it adds one. The band comes off the same vouched rows,
+one light query for every headword one slip away (`CheckReads.band`). A day or a month with a capital. A verb in
+another person than its one subject pronoun, in the present, the past and the conditional, and a thing
+as the subject with a verb saying I or you (`See olen hea mõte`, `Siin olen menüü`), where no pronoun
+is in the clause and, after `olema`, something is said about the subject or the subject is a thing,
+since `Õpetaja olen juba kümme aastat` is the speaker with the pronoun dropped. A person ending after
+`ei` in any tense (`ei lugesin` is `ei lugenud`, `ei on` is `ei ole`). `olema` after `mul` in a person
+other than the third (`mul olen`). The ma-infinitive straight after a subject pronoun. The wrong
+infinitive both ways round. Who a feeling happens to and whose a thing is, each written as a subject
+(`ma meeldib`, `ma valutab pea`, `mina kass on`), named as what it is rather than told to change the
+verb. The comitative after `koos`, and the command after `ära`. An adjective left plain before a noun
+with an ending (`elan suur majas`, `ostan uus raamatut`) or in the singular before a plural. A noun
+joined by `ja` without the ending of the noun before it, and a second object after `ja` (`Ostsin kala
+ja kartul`). A noun after a number above one in its plain form, its genitive or its nominative plural
+(`kolm euro`, `kaks raamatud`), and a plural after `palju`. A noun in its plain form before a
+postposition that takes the omastav, and a word of time before `pärast` wherever the clause says it is.
+And an object left in its plain form in a clause whose subject is I, you or we, offered as the partitive
+and the genitive unless the clause rules a whole thing out: a negative, a verb whose object is only
+ever partial (`ootan`, `kuulan`), or a verb of wanting (`soovin kaarti`). Every form a finding offers
+is read off a dictionary row (ADR-005); the forms list says whether a spelling exists, which headwords
+own it, which spellings are one slip away and whether an unlisted word could be a compound, and
+decides nothing on its own.
+
+**A rule corrects a word only where nothing else in the language is spelled that way.**
+`CheckReads.claims` is every headword the forms list says owns an exact spelling, so `Meie kandis
+kasvatatakse kartulit` is "in our area" rather than the verb in the wrong person, `viis` the verb is
+never a number, and `Tal olid kavatsused` is never told it means "you were". A spelling the list
+does not hold is not therefore wrong, since Estonian builds compounds and participles nobody has
+listed, so a word that splits into two the list holds (`lehmasitt`), a word ending the way those are
+built (`askeldamist`, `tundvad`), a word after a name (`Helianthus annuus`) and an address are left
+alone, and a clitic `-gi` or `-ki` is read off the word under it.
+
+**Measured both ways, and the number to keep is the first one.** `npm run measure:sentence-check`
+runs it over every lesson line, every sentence written for a beginner, every scene line and every
+usage in the shipped dictionary, 18,389 sentences known to be correct, reading the forms list on disk
+exactly as the server does: nought flagged, beside four lines misspelled in the source itself, which
+it is right about. Every guard above was a false alarm a run printed. Then it breaks the 2,798 learner-sized
+sentences one way at a time, the ways a learner breaks them, and counts what is caught and whether the
+form offered is the word that was there: 3,755 of 4,320 caught, and two offered something other than
+the original: `Mul` for `Ma kõht valutab` where `Mu` stood, which is still Estonian, and `kaubas` for
+`kautas` where `kaustas` stood, the commoner word where the learner meant a rarer one. The dictionary
+form as a verb 608 of 609, the negative 61 of 61, `mul olen` 159 of 159, who a feeling happens to 59
+of 59, whose a thing is 40 of 40, a verb's person 873 of 1,008, a counted
+noun 33 of 37, an object 41 of 48, an adjective's ending 25 of 33, a postposition 31 of 40, a
+dropped mark 1,064 of 1,102 and a slip of one letter 667 of 1,027, with no sentence on the card. What it
+still misses is a homograph it will not guess through (`laud` is a table and the plural of an eyelid,
+`vead` is "mistakes" and "you carry") and a person change that leaves the sentence Estonian (`Siis jään
+koju`). The slips it leaves are a word one letter from two that a learner meets at the same time
+(`klasis` is `klassis` or `klaasis`), or a word the dictionary holds no band for (`telrit`); on a
+lesson card the card's own sentence names them. Measuring it turned up three misspellings in the
+dictionary's own usages: `hädabisse` filed under `hädaabi`, `võistusest` for `võistlusest`, and
+`proksi`, which is no word at all. A clean result says "No mistakes found in your spelling or your
+endings", which is what it checked; word order and meaning are outside it.

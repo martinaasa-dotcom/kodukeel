@@ -3,6 +3,7 @@ import { promisify } from "node:util";
 import { gunzip as gunzipCallback } from "node:zlib";
 import { singleFlight } from "@/lib/cache/singleFlight";
 import path from "node:path";
+import { editDistance } from "@/lib/estonian/answer";
 import { fold } from "@/lib/estonian/fold";
 import { LENGTH_FILE, SHARD_DIR, shardKey } from "./formsLayout";
 
@@ -151,6 +152,89 @@ export async function lemmasOfForm(query: string, budget?: ColdBudget): Promise<
   // The spelling itself leads where it is a headword, then everything else.
   out.sort((a, b) => Number(b === trimmed) - Number(a === trimmed));
   return out;
+}
+
+/**
+ * Every headword this exact spelling, diacritics and all, is a form of. Where
+ * `lemmasOfForm` folds to help somebody find a word, this answers what the
+ * spelling in front of us can be, which is the question a grammar check asks
+ * before it calls one reading of it wrong: `kandis` is `kandma` and `kant`.
+ */
+export async function headwordsOfExactForm(query: string, budget?: ColdBudget): Promise<string[]> {
+  const trimmed = query.trim().toLowerCase();
+  const folded = fold(trimmed);
+  if (!folded) return [];
+  const lines = (await shard(shardKey(folded), budget))?.get(folded) ?? [];
+  return [...new Set(lines.filter((line) => line.form === trimmed).flatMap((line) => line.lemmas))];
+}
+
+/**
+ * Every spelling the forms list holds one slip from this one (two on a long
+ * word), a dropped or misplaced mark counting as no slip at all, with how far
+ * off each is. Not the spelling itself. It is what tells a grammar check that
+ * `tulmast` is one letter from `tulemast` and from `tulvast` both, and so is
+ * not a slip it can name, and which words' dictionary rows to read for the one
+ * it can. A list of spellings to compare and of words to look up, and never a
+ * form offered: whatever a check offers comes off a row (ADR-005).
+ */
+export async function spellingsNear(query: string, budget?: ColdBudget): Promise<{ spelling: string; distance: number; lemmas: string[] }[]> {
+  const trimmed = query.trim().toLowerCase();
+  const folded = fold(trimmed);
+  const allowance = folded.length >= 9 ? 2 : folded.length >= 5 ? 1 : 0;
+  const lines = await shard(shardKey(folded), budget);
+  if (!lines) return [];
+  const out: { spelling: string; distance: number; lemmas: string[] }[] = [];
+  for (const [form, found] of lines) {
+    if (Math.abs(form.length - folded.length) > allowance) continue;
+    const distance = form === folded ? 0 : editDistance(form, folded, allowance);
+    if (distance > allowance) continue;
+    for (const line of found) if (line.form !== trimmed) out.push({ spelling: line.form, distance, lemmas: line.lemmas });
+  }
+  return out;
+}
+
+/**
+ * Whether a spelling the forms list does not hold could still be a word built
+ * from ones it does: a compound (`lehmasitt` is `lehma` and `sitt`) or a
+ * hyphenated pair (`üle-venemaalises`). Estonian makes these at will and no
+ * list holds them all. Null where the budget ran out before it could tell,
+ * which a caller reads as "it may be a word", never as "it is not one".
+ */
+export async function couldBeCompound(query: string, budget?: ColdBudget): Promise<boolean | null> {
+  const word = query.trim().toLowerCase();
+  const isPart = async (part: string): Promise<boolean | null> => {
+    if (budget && budget.left <= 0 && !held.has(shardKey(fold(part)))) return null;
+    return isExactForm(part, budget);
+  };
+  if (word.includes("-")) {
+    let unsure = false;
+    for (const part of word.split("-").filter(Boolean)) {
+      const known = (await isPart(part)) ?? null;
+      if (known === null) unsure = true;
+      else if (!known && !(await couldBeCompound(part, budget))) return false;
+    }
+    return unsure ? null : true;
+  }
+  let unsure = false;
+  for (let at = 2; at <= word.length - 3; at += 1) {
+    const tail = await isPart(word.slice(at));
+    if (tail === null) { unsure = true; continue; }
+    if (!tail) continue;
+    const head = word.slice(0, at);
+    const whole = await isPart(head);
+    if (whole === null) { unsure = true; continue; }
+    if (whole) return true;
+    // Three parts: the head is itself a compound (`taastusravi` before `haigla`).
+    if (head.length >= 5) {
+      for (let cut = 2; cut <= head.length - 3; cut += 1) {
+        const a = await isPart(head.slice(0, cut));
+        const b = a ? await isPart(head.slice(cut)) : false;
+        if (a === null || b === null) { unsure = true; continue; }
+        if (a && b) return true;
+      }
+    }
+  }
+  return unsure ? null : false;
 }
 
 /**
