@@ -194,6 +194,7 @@ export const SCENERY: Readonly<Record<string, Scenery>> = {
   "b1-palgatous": { icon: "Briefcase", setting: "meeting" },
   "b1-meister": { icon: "House", setting: "stairwell" },
   "b1-tagatis": { icon: "KeyRound", setting: "stairwell" },
+  "b1-eksam": { icon: "GraduationCap", setting: "classroom" },
 };
 
 /**
