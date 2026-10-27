@@ -19,7 +19,10 @@ import { mayStandIn, type TwinGroup, type TwinKind, type TwinWord } from "@/lib/
  * THE SENTENCE DECIDES. A sentence a lexicographer recorded, with one word of
  * the group taken out, its English line above it, and every word of the group
  * offered in the form the gap needs: `Ma ____ võtmeid` over "I'm looking for
- * my keys", with `otsin` and `ostan` underneath. The English is what makes it
+ * my keys", with `otsin` and `ostan` underneath. Exactly one of them is right:
+ * where Estonian lets another word of the group stand in (`mayStandIn`), that
+ * word is not offered, because a round asking which one the writer used is
+ * misleading the moment two of its options fit. The English is what makes it
  * fair, because a lookalike often fits a sentence grammatically and means
  * something else, and saying what the sentence means is the only honest way
  * to ask which one the writer used. Afterwards a sentence using the other word
@@ -81,9 +84,8 @@ export interface TwinSentenceQuestion {
   form: string;
   en: string;
   options: TwinOption[];
+  /** The one right option: a word Estonian lets stand in here is never offered. */
   answer: number;
-  /** Options Estonian lets stand in here, accepted as nearly right. */
-  standIns: number[];
   /** A sentence using one of the other words, for after the answer. */
   contrast: TwinSentence | null;
 }
@@ -238,11 +240,15 @@ export function sentenceQuestionsFor(
     const options: TwinOption[] = [{ lemma: word.lemma, text: cloze.answer, means: word.means }];
     let complete = true;
     for (const o of others) {
+      // A word Estonian lets stand in here is a second right answer, and a
+      // round that asks "which one" may not offer two. It is left out, and the
+      // sentence goes with it where nothing else is left to tell apart.
+      if (mayStandIn(o.lemma, word.lemma, found.en)) continue;
       const spelling = sameSlot(indexes.get(o.lemma)!, found.slots);
       if (!spelling) { complete = false; break; }
       options.push({ lemma: o.lemma, text: capitalLike(spelling, cloze.answer), means: o.means });
     }
-    if (!complete) continue;
+    if (!complete || options.length < 2) continue;
     const texts = options.map((o) => o.text.toLocaleLowerCase("et"));
     if (new Set(texts).size !== texts.length) continue;
     // The gap may not leave another option standing in the line beside it.
@@ -265,7 +271,6 @@ export function sentenceQuestionsFor(
       en: found.en,
       options: ordered,
       answer: ordered.findIndex((o) => o.lemma === word.lemma),
-      standIns: ordered.flatMap((o, i) => (o.lemma !== word.lemma && mayStandIn(o.lemma, word.lemma, found.en) ? [i] : [])),
       contrast,
     });
     if (out.length >= limit) break;
