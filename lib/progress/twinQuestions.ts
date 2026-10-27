@@ -8,7 +8,7 @@ import { lentFor, parseExamples, sentenceWords, type Example, type Rank } from "
 import { sentenceEnglish } from "@/lib/dict/sentenceEnglish";
 import { formSentencesFor, type LexemeForCards } from "@/lib/srs/cards";
 import { slotWithin, type ModuleScope } from "@/lib/course/scope";
-import { mayStandIn, type TwinGroup, type TwinKind, type TwinWord } from "@/lib/collections/twins";
+import { mayStandIn, whyHere, type TwinGroup, type TwinKind, type TwinWord } from "@/lib/collections/twins";
 
 /**
  * THE QUESTIONS A ROUND OF KAKSIKUD ASKS, BUILT FROM THE DICTIONARY.
@@ -66,6 +66,8 @@ export interface TwinSentence {
   sentence: string;
   form: string;
   en: string;
+  /** Why the word is the one in this sentence, where its senses say (`whyHere`). */
+  why: string | null;
 }
 
 export interface TwinSentenceQuestion {
@@ -74,6 +76,8 @@ export interface TwinSentenceQuestion {
   kind: TwinKind;
   drifted: boolean;
   tell: string | null;
+  /** Why the answer is the one this sentence uses, where its senses say. */
+  why: string | null;
   lexemeId: string;
   lemma: string;
   /** The dictionary's gloss of the answer, which is what `gapMeaning` marks in the English. */
@@ -262,6 +266,7 @@ export function sentenceQuestionsFor(
       kind: group.kind,
       drifted: group.drifted === true,
       tell: group.tell ?? null,
+      why: whyHere(word, found.en),
       lexemeId: row.id,
       lemma: word.lemma,
       gloss: row.translation,
@@ -303,7 +308,12 @@ function contrastFor(
     const index = indexes.get(other.lemma);
     if (!row || !index) continue;
     const found = sentencesOf(row, index, borrowed(row.id), rank(row))[0];
-    if (found) return { lemma: other.lemma, lexemeId: row.id, sentence: found.example.et, form: found.form, en: found.en };
+    if (found) {
+      return {
+        lemma: other.lemma, lexemeId: row.id, sentence: found.example.et, form: found.form, en: found.en,
+        why: whyHere(other, found.en),
+      };
+    }
   }
   return null;
 }

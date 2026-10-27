@@ -9751,6 +9751,13 @@ check("nothing is stored on a device that would need asking first", () => {
     // itself finishes. The key is built in lib/ux/resumePosition.ts, which is
     // pure and stores nothing; the hook is what writes it.
     "components/useResumeCard.ts",
+    // And the rest of that round: its frozen queue, where it is in it and
+    // what it has counted, so a deploy landing mid-session or a phone
+    // suspending the tab does not start the learner over (lib/ux/sessionSnapshot.ts).
+    // The same cards the outbox's saved session already holds, in
+    // `sessionStorage` so it goes with the tab, removed when the round
+    // finishes, not resumed after three hours, and swept by the sign-out.
+    "components/useRoundSnapshot.ts",
     // The speech model, which the learner asked for by pressing Download with
     // its size in front of them (D7), and one line saying it was downloaded
     // once, so a cache the browser cleared can be told from a first visit.

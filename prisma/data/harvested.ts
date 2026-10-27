@@ -5060,7 +5060,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
     rus: ["медведь", "медведица"], ukr: ["ведмідь", "ведмедиця"],
   },
   {
-    lemma: "kas", gloss: "whether (opens a yes or no question)", pos: "ADVERB", cefr: "A1",
+    lemma: "kas", gloss: "do? is? are? can? (starts a yes-or-no question)", pos: "ADVERB", cefr: "A1",
     ekilexWordId: 178555,
     ekilexPos: ["adv"],
     parts: {  },

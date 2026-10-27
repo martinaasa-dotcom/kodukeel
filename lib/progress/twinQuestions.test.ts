@@ -57,6 +57,15 @@ describe("the sentence a twin question is cut from", () => {
     expect(asked).toBeGreaterThan(150);
   });
 
+  it("says why the word is in its sentence wherever the word's senses are written down", () => {
+    const pair = built.find((b) => b.group.id === "minema-käima")!.questions;
+    for (const q of pair) {
+      expect(q.why, `${q.sentence} / ${q.en}`).not.toBeNull();
+      if (q.contrast) expect(q.contrast.why, `${q.contrast.sentence} / ${q.contrast.en}`).not.toBeNull();
+    }
+    expect(pair.length).toBeGreaterThan(3);
+  });
+
   it("never offers a second right answer", () => {
     let checked = 0;
     for (const { questions } of built) {

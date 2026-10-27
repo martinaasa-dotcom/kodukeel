@@ -84,8 +84,8 @@ export const TWINS: Area = {
       "Ничего после глагола: что-то начинается само. Дополнение после глагола: ты что-то начинаешь. Другой глагол после него: ты начинаешь это делать.",
     "Facts and answers take the first. People, places and feelings take the second.":
       "Первое слово используют для фактов и ответов, второе для людей, мест и чувств.",
-    "Going somewhere is a trip with a direction. The other is a round trip or a habit.":
-      "Первое слово означает поездку в одну сторону. Второе означает поездку туда и обратно или привычку.",
+    "The first sets off in one direction, to somewhere. The second is going there and back, so a visit says where you were, and it is also walking, a habit, or something under way, like repairs or a meeting.":
+      "Первое слово значит отправиться в одну сторону, куда-то. Второе значит сходить туда и обратно, поэтому при посещении говорят, где ты был, а ещё это ходьба, привычка или то, что идёт сейчас, например ремонт или заседание.",
     "A skill you learned, the strength to do it, a possibility, or permission.":
       "Выученный навык, силы это сделать, возможность или разрешение.",
     "You stay somewhere yourself. You leave something somewhere else.":
@@ -153,8 +153,27 @@ export const TWINS: Area = {
     "to start doing": "начать делать",
     "to know (a fact)": "знать (факт)",
     "to know (a person or place), to feel": "знать (человека или место), чувствовать",
-    "to go (somewhere)": "идти, ехать (куда-то)",
-    "to go and come back, to go regularly": "ходить, бывать",
+    "to go (somewhere), to set off": "идти, ехать (куда-то), отправляться",
+    "to walk, to visit (and come back), to be going on": "ходить пешком, бывать (и возвращаться), идти (о деле, событии)",
+    // Why one word of a pair is in this sentence: a clause after "Why {word} here:".
+    "Why {word} here: {why}": "Почему здесь {word}: {why}",
+    "Why {word} there: {why}": "Почему там {word}: {why}",
+    "it is not a trip. Something starts, or turns into something else (goes flat, gets dark), and that takes this word.":
+      "это не поездка. Что-то начинается или становится чем-то другим (сдувается, темнеет), и для этого нужно это слово.",
+    "it says how something is going: well, badly or slowly.":
+      "оно говорит, как идут дела: хорошо, плохо или медленно.",
+    "somebody sets off in one direction, towards somewhere. One trip that way, not there and back, takes this word.":
+      "кто-то отправляется в одну сторону, куда-то. Для поездки туда, а не туда и обратно, нужно это слово.",
+    "it is a move in a game. A piece or a card being played takes this word.":
+      "это ход в игре. Для фигуры или карты, которой ходят, нужно это слово.",
+    "something is under way. Work, repairs, a meeting or a war going on takes this word, and so does a clock or an engine running.":
+      "что-то идёт прямо сейчас. Для работы, ремонта, заседания или войны, которые идут, нужно это слово, и для часов или мотора, которые работают, тоже.",
+    "it says how things are done, which is a fixed use of this word.":
+      "оно говорит, как что-то делается, и это устойчивое употребление этого слова.",
+    "it is walking, moving on your own feet with nowhere to get to in the sentence.":
+      "это ходьба, движение на своих ногах, и в предложении нет места, куда нужно попасть.",
+    "it is a visit there and back, or a habit. Estonian then says where you were (in the theater, at work), not where you headed.":
+      "это посещение туда и обратно или привычка. Тогда по-эстонски говорят, где ты был (в театре, на работе), а не куда направлялся.",
     "to know how to": "уметь",
     "to manage to": "суметь, быть в силах",
     "may, can (it is possible)": "мочь (это возможно)",
@@ -315,8 +334,8 @@ export const TWINS: Area = {
       "Нічого після дієслова: щось починається само. Додаток після дієслова: ти щось починаєш. Інше дієслово після нього: ти починаєш це робити.",
     "Facts and answers take the first. People, places and feelings take the second.":
       "Перше слово вживають для фактів і відповідей, друге для людей, місць і почуттів.",
-    "Going somewhere is a trip with a direction. The other is a round trip or a habit.":
-      "Перше слово означає поїздку в один бік. Друге означає поїздку туди й назад або звичку.",
+    "The first sets off in one direction, to somewhere. The second is going there and back, so a visit says where you were, and it is also walking, a habit, or something under way, like repairs or a meeting.":
+      "Перше слово означає вирушити в один бік, кудись. Друге означає сходити туди й назад, тому про відвідини кажуть, де ти був, а ще це ходьба, звичка або те, що триває зараз, наприклад ремонт чи засідання.",
     "A skill you learned, the strength to do it, a possibility, or permission.":
       "Набута навичка, сили це зробити, можливість або дозвіл.",
     "You stay somewhere yourself. You leave something somewhere else.":
@@ -384,8 +403,27 @@ export const TWINS: Area = {
     "to start doing": "почати робити",
     "to know (a fact)": "знати (факт)",
     "to know (a person or place), to feel": "знати (людину чи місце), відчувати",
-    "to go (somewhere)": "іти, їхати (кудись)",
-    "to go and come back, to go regularly": "ходити, бувати",
+    "to go (somewhere), to set off": "іти, їхати (кудись), вирушати",
+    "to walk, to visit (and come back), to be going on": "ходити пішки, бувати (і повертатися), тривати (про справу, подію)",
+    // Why one word of a pair is in this sentence: a clause after "Why {word} here:".
+    "Why {word} here: {why}": "Чому тут {word}: {why}",
+    "Why {word} there: {why}": "Чому там {word}: {why}",
+    "it is not a trip. Something starts, or turns into something else (goes flat, gets dark), and that takes this word.":
+      "це не поїздка. Щось починається або стає чимось іншим (спускає, темніє), і для цього потрібне це слово.",
+    "it says how something is going: well, badly or slowly.":
+      "воно каже, як ідуть справи: добре, погано чи повільно.",
+    "somebody sets off in one direction, towards somewhere. One trip that way, not there and back, takes this word.":
+      "хтось вирушає в один бік, кудись. Для поїздки туди, а не туди й назад, потрібне це слово.",
+    "it is a move in a game. A piece or a card being played takes this word.":
+      "це хід у грі. Для фігури чи карти, якою ходять, потрібне це слово.",
+    "something is under way. Work, repairs, a meeting or a war going on takes this word, and so does a clock or an engine running.":
+      "щось триває просто зараз. Для роботи, ремонту, засідання чи війни, що тривають, потрібне це слово, і для годинника чи мотора, що працюють, теж.",
+    "it says how things are done, which is a fixed use of this word.":
+      "воно каже, як щось робиться, і це стале вживання цього слова.",
+    "it is walking, moving on your own feet with nowhere to get to in the sentence.":
+      "це ходьба, рух на власних ногах, і в реченні немає місця, куди треба потрапити.",
+    "it is a visit there and back, or a habit. Estonian then says where you were (in the theater, at work), not where you headed.":
+      "це відвідини туди й назад або звичка. Тоді естонською кажуть, де ти був (у театрі, на роботі), а не куди прямував.",
     "to know how to": "уміти",
     "to manage to": "змогти, бути в змозі",
     "may, can (it is possible)": "могти (це можливо)",

@@ -45,6 +45,22 @@ export interface TwinWord {
   readonly pos: TwinPos;
   /** What it means, written to be told apart from the words beside it. English. */
   readonly means: string;
+  /**
+   * The senses a sentence may be using it in, each with why the word fits
+   * there, picked by the sentence's English (`whyHere`). A group's `tell` says
+   * how the words differ in general; this says why this word is in this
+   * sentence, which is what a learner who just picked the other one asks.
+   * First match wins, so the narrow senses go first. English, naming no
+   * Estonian form, and written as a clause that reads on from "Why käima
+   * here:", which is how the screen prints it.
+   */
+  readonly uses?: readonly TwinUse[];
+}
+
+/** One sense of a word, and the English a sentence in that sense tends to carry. */
+export interface TwinUse {
+  readonly when: RegExp;
+  readonly note: string;
 }
 
 export interface TwinGroup {
@@ -132,7 +148,8 @@ export const DRIFTED_NOTE =
 /** The order the kinds are taught in: the rules first, because a rule pays for itself. */
 export const KIND_ORDER: readonly TwinKind[] = ["makes", "itself", "attends", "sense", "lookalike"];
 
-const v = (lemma: string, means: string): TwinWord => ({ lemma, pos: "VERB", means });
+const v = (lemma: string, means: string, uses?: readonly TwinUse[]): TwinWord =>
+  (uses ? { lemma, pos: "VERB", means, uses } : { lemma, pos: "VERB", means });
 const n = (lemma: string, means: string): TwinWord => ({ lemma, pos: "NOUN", means });
 const a = (lemma: string, means: string): TwinWord => ({ lemma, pos: "ADJECTIVE", means });
 
@@ -197,8 +214,54 @@ export const TWIN_GROUPS: readonly TwinGroup[] = [
   group("sense", [v("teadma", "to know (a fact)"), v("tundma", "to know (a person or place), to feel")], {
     tell: "Facts and answers take the first. People, places and feelings take the second.",
   }),
-  group("sense", [v("minema", "to go (somewhere)"), v("käima", "to go and come back, to go regularly")], {
-    tell: "Going somewhere is a trip with a direction. The other is a round trip or a habit.",
+  /*
+    The English is often the same for both ("I went to the opera", "I went to
+    the doctor"), so the note says which sense this sentence is in. A finished
+    visit is said with where you were, and setting off with where you are
+    heading: that case is the cue a learner can see in the sentence itself.
+  */
+  group("sense", [
+    v("minema", "to go (somewhere), to set off", [
+      {
+        when: /\b(got|get|gets|turned|turns|became|becomes|conscripted|starting to|started to|starts to)\b|\bwent (flat|off|bad|dark|cold|sour)\b|to your head|on the market|time to/i,
+        note: "it is not a trip. Something starts, or turns into something else (goes flat, gets dark), and that takes this word.",
+      },
+      {
+        when: /going (well|badly)|\bis slow\b|how .* going|\bbusiness\b/i,
+        note: "it says how something is going: well, badly or slowly.",
+      },
+      {
+        when: /\b(went|go|goes|going|gone|left|leave|leaves|leaving|crossed|walked|heads?|headed|heading|into|first)\b/i,
+        note: "somebody sets off in one direction, towards somewhere. One trip that way, not there and back, takes this word.",
+      },
+    ]),
+    v("käima", "to walk, to visit (and come back), to be going on", [
+      {
+        when: /\b(moves?|moved)\b.*\bto\b|\bled (diamonds|hearts|spades|clubs)\b|\b(knight|queen|rook|bishop|pawn)\b/i,
+        note: "it is a move in a game. A piece or a card being played takes this word.",
+      },
+      {
+        when: /going on|going off|in session|under ?way|in progress|renovat|repair|buzzing|\bwar\b|\bclock\b|\bengine\b|\brunning\b|keeping .*time/i,
+        note: "something is under way. Work, repairs, a meeting or a war going on takes this word, and so does a clock or an engine running.",
+      },
+      {
+        when: /\bhow (things|it|this|that) (work|works|is done|are done|goes)\b/i,
+        note: "it says how things are done, which is a fixed use of this word.",
+      },
+      {
+        when: /\bwalk|tiptoe|on foot/i,
+        note: "it is walking, moving on your own feet with nowhere to get to in the sentence.",
+      },
+      {
+        when: /\b(often|every|always|usually|regularly|commutes?|went|go|goes|going|visit\w*|been)\b/i,
+        note: "it is a visit there and back, or a habit. Estonian then says where you were (in the theater, at work), not where you headed.",
+      },
+    ]),
+  ], {
+    tell:
+      "The first sets off in one direction, to somewhere. The second is going there and back, " +
+      "so a visit says where you were, and it is also walking, a habit, or something under way, " +
+      "like repairs or a meeting.",
   }),
   group("sense", [
     v("oskama", "to know how to"),
@@ -277,6 +340,15 @@ export const TWIN_GROUPS: readonly TwinGroup[] = [
   group("lookalike", [a("vihane", "angry"), a("vihmane", "rainy")]),
   group("lookalike", [a("raske", "heavy, difficult"), a("rase", "pregnant")]),
 ];
+
+/**
+ * Why `word` is the one a sentence meaning `english` uses: the note of the
+ * first sense whose English the line carries, or null where none does, which
+ * leaves the group's `tell` to say it.
+ */
+export function whyHere(word: Pick<TwinWord, "uses">, english: string): string | null {
+  return word.uses?.find((u) => u.when.test(english))?.note ?? null;
+}
 
 /** A group by its slug, or nothing for a slug no group has. */
 export function twinGroup(id: string | null | undefined): TwinGroup | undefined {

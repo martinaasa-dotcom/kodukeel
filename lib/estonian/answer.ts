@@ -440,7 +440,7 @@ export function checkAnswer(
   for (const answer of answers) {
     const sameLength = given.length === answer.compared.length;
     const floor = sameLength ? TYPO_SUBSTITUTION_FLOOR : TYPO_LENGTH_CHANGE_FLOOR;
-    if (answer.compared.length >= floor && editDistance(given, answer.compared, 1) <= 1) {
+    if (slipLength(given, answer.compared) >= floor && editDistance(given, answer.compared, 1) <= 1) {
       return {
         verdict: "typo",
         expected: answer.shown,
@@ -457,6 +457,29 @@ export function checkAnswer(
     suggestedRating: 1,
     close: nearMiss(typed, expected, language),
   };
+}
+
+/**
+ * How long the word holding a one-edit slip is, which is what the floor is
+ * about.
+ *
+ * THE FLOOR IS A FACT ABOUT A WORD, AND IT WAS MEASURED AGAINST A PHRASE. The
+ * collision counts above are over single words, and the length compared was
+ * the whole answer, so `ei saada` reached eight characters on the strength of
+ * a space and the negator: `ei saata` was forgiven as a slip and graded Hard,
+ * though the five-letter word it changed is `saata`, the da-infinitive of the
+ * very verb asked about, which is the wrong form rather than a slip of the
+ * hand. Where both answers hold the same number of words the edit sits in
+ * exactly one of them, and that word's length is the one held to the floor;
+ * where the count differs the slip is a space, which belongs to no one word,
+ * and the whole answer is measured as before.
+ */
+function slipLength(given: string, compared: string): number {
+  const a = given.split(/\s+/);
+  const b = compared.split(/\s+/);
+  if (a.length !== b.length) return compared.length;
+  const differing = b.filter((word, i) => word !== a[i]);
+  return differing.length === 1 ? differing[0]!.length : compared.length;
 }
 
 /** True when a verdict should still count as recalled in the session tally. */

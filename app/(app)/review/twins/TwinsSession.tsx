@@ -308,6 +308,17 @@ export function TwinsSession({ questions: initialQuestions, canTranslate, focusT
                       );
                     })}
                   </ul>
+                  {/* Why this word is in this sentence leads, because it is what
+                      somebody who just picked the other one is asking; how the
+                      words differ in general follows it. */}
+                  {q.shape === "sentence" && q.why && (
+                    <p className="mt-3 text-base font-semibold" style={{ color: "var(--ink)" }}>
+                      <TrParts template="Why {word} here: {why}" parts={{
+                        word: <span lang="et" style={{ color: "var(--accent-deep)" }}>{q.lemma}</span>,
+                        why: t(q.why),
+                      }} />
+                    </p>
+                  )}
                   <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
                     {group.drifted ? t(DRIFTED_NOTE) : t(group.tell ?? KIND_COPY[group.kind].rule)}
                   </p>
@@ -330,6 +341,14 @@ export function TwinsSession({ questions: initialQuestions, canTranslate, focusT
                         canTranslate={canTranslate} form={q.contrast.form} ask="never"
                         speakLabel={t("Hear the sentence")}
                       />
+                      {q.contrast.why && (
+                        <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
+                          <TrParts template="Why {word} there: {why}" parts={{
+                            word: <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{q.contrast.lemma}</span>,
+                            why: t(q.contrast.why),
+                          }} />
+                        </p>
+                      )}
                     </div>
                   )}
                 </>

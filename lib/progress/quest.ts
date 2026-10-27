@@ -11,6 +11,7 @@ import { sentenceEnglish } from "@/lib/dict/sentenceEnglish";
 import { BLANK, filledSentence, primaryAnswer } from "@/lib/estonian/cloze";
 import { offered } from "@/lib/tutor/provider";
 import { learnerScopeSoFar, moduleSpellings } from "@/lib/progress/moduleScope";
+import { sentenceFronts } from "@/lib/progress/formCards";
 import { reviewable } from "@/lib/course/scope";
 import { sayLine } from "@/lib/estonian/sayIt";
 import { conjugationSlotFromFront } from "@/lib/srs/slots";
@@ -169,7 +170,26 @@ export async function questFor(ownerId: string): Promise<Quest> {
     so it asks Review's own question (`reviewable`) rather than a second one.
   */
   const taught = await moduleSpellings(scope);
-  const rows = read.filter((c) => reviewable(scope, c, taught));
+  const allowed = read.filter((c) => reviewable(scope, c, taught));
+  /*
+    A FORM IS NEVER ASKED BARE, HERE EITHER. A deck built before case cards
+    became sentences still holds `ravim → millele?`, and this round drew it as
+    the word alone under `Say "onto the medicine"`: a form nobody uses, with
+    nothing to say when anybody would. Review has read every such card through
+    `sentenceFronts` since that rule landed and the quest never did, so the
+    card it leads with, the one a learner "often misses", was exactly the shape
+    the app no longer asks anywhere. A card the builder can rebuild is asked as
+    its sentence; one with no recorded sentence behind it is left out of the
+    round. Only what is read changes, never the row (lib/progress/formCards.ts).
+  */
+  const upgrades = await sentenceFronts(allowed);
+  const rows = allowed.flatMap((c) => {
+    if (!upgrades.has(c.id)) return [c];
+    const upgrade = upgrades.get(c.id);
+    return upgrade
+      ? [{ ...c, front: upgrade.front, back: upgrade.back, hint: upgrade.hint, slot: upgrade.slot ?? c.slot }]
+      : [];
+  });
 
   const onWeakCase = rows.filter((c) => c.targetCase && weakKeys.includes(c.targetCase));
   const rest = rows.filter((c) => !c.targetCase || !weakKeys.includes(c.targetCase));

@@ -310,7 +310,7 @@ export const A1 = [
       ["millal", "when", "ADVERB"],
       ["miks", "why", "ADVERB", 202839],
       ["kuidas", "how", "ADVERB"],
-      ["kas", "whether (opens a yes or no question)", "ADVERB"],
+      ["kas", "do? is? are? can? (starts a yes-or-no question)", "ADVERB"],
       ["milline", "which, what kind of", "PRONOUN"],
       ["kumb", "which of the two", "PRONOUN"],
       ["mitu", "how many", "PRONOUN"],
