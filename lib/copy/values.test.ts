@@ -92,6 +92,11 @@ describe("a phrase dropped to the case a card teaches in", () => {
   */
   it("leaves a sense past the first alone, and a spelling variant alone", () => {
     expect(plainPhrase("Probably, I think", "PHRASE")).toBe("probably, I think");
+    // An abbreviation is all capitals, so there is no sentence capital to drop.
+    expect(plainPhrase("TV, after watch", "PHRASE")).toBe("TV, after watch");
+    expect(plainPhrase("OK, fine, all right then.", "PHRASE")).toBe("OK, fine, all right then.");
+    expect(plainPhrase("ID-kaart", "PHRASE")).toBe("ID-kaart");
+    expect(plainPhrase("Ice cream", "PHRASE")).toBe("ice cream");
     expect(plainPhrase("Favorite/favourite", "PHRASE")).toBe("favorite/favourite");
   });
 
