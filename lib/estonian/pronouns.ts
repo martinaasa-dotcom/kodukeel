@@ -1,4 +1,5 @@
 import { morphCodeOf } from "./morph";
+import { PARTS } from "@/lib/copy/values";
 import type { CaseKey } from "./types";
 
 /**
@@ -228,4 +229,28 @@ export function twinsOf(pos: string, forms: readonly StoredForm[], spelling: str
     shorter: shortest(parallel.filter((v) => v.length < wanted.length)),
     longer: shortest(parallel.filter((v) => v.length > wanted.length)),
   };
+}
+
+/**
+ * A production card's answer with the pronoun's everyday spelling taken too.
+ *
+ * "he, she" asked for `tema` and marked `ta` wrong, which is the spelling
+ * nearly every sentence in the app uses and the one anybody says out loud.
+ * Both are the nominative and Ekilex stores both under `SgN`, so a card asking
+ * for the word from its meaning has two right answers, exactly as `tuppa /
+ * toasse` does. The everyday spelling goes straight after the headword, the
+ * headword still leading because it is what the card teaches, and both reach
+ * the marker through `acceptedAnswers`, which splits on `PARTS`.
+ *
+ * `everyday` is `twinsOf(...).shorter` for the headword, so a word that is not
+ * a pronoun or has no short form passes through unchanged, and a back that
+ * already holds the spelling is left as it is, which is what makes this safe to
+ * run on a card built before and on one built after.
+ */
+export function withEverydaySpelling(back: string, everyday: string | null): string {
+  if (!everyday) return back;
+  const parts = back.split(PARTS);
+  const wanted = everyday.trim().toLocaleLowerCase("et");
+  if (!wanted || parts.some((part) => part.trim().toLocaleLowerCase("et") === wanted)) return back;
+  return [parts[0], everyday, ...parts.slice(1)].join(PARTS);
 }

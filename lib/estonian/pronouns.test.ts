@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { HARVESTED } from "@/prisma/data/harvested";
-import { PRONOUN_LEMMAS, isPersonalPronoun, pronounReading, twinsOf } from "./pronouns";
+import { PRONOUN_LEMMAS, isPersonalPronoun, pronounReading, twinsOf, withEverydaySpelling } from "./pronouns";
+import { acceptedAnswers, checkAnswer } from "./answer";
+import { generateCards } from "@/lib/srs/cards";
 
 /**
  * The six the course teaches, in the English each role takes, and the pair.
@@ -132,5 +134,37 @@ describe("twinsOf", () => {
       { formType: "EKILEX:PlP", value: "haiguseid" },
     ];
     expect(twinsOf("NOUN", forms, "haiguseid")).toEqual({ shorter: null, longer: null });
+  });
+});
+
+/*
+  "he, she" asked for `tema` and marked `ta` wrong. Driven through the real
+  builder and the real marker, over every personal pronoun the course ships,
+  so a seventh pronoun or a change to either half fails here.
+*/
+describe("a pronoun asked from its meaning takes both spellings", () => {
+  const pairs = [
+    ["mina", "ma"], ["sina", "sa"], ["tema", "ta"], ["meie", "me"], ["teie", "te"], ["nemad", "nad"],
+  ] as const;
+
+  it.each(pairs)("%s takes %s", (lemma, short) => {
+    const word = entry(lemma);
+    expect(word, lemma).toBeDefined();
+    const [card] = generateCards({
+      lemma, translation: word!.gloss, pos: word!.pos, semanticTypes: null,
+      gradation: "NONE", gradationNote: null, government: null, examples: null,
+      forms: formsOf(lemma),
+    }, ["PRODUCTION"]);
+    expect(card!.back).toBe(`${lemma} / ${short}`);
+    expect(checkAnswer(short, card!.back, "et").verdict).toBe("correct");
+    expect(checkAnswer(lemma, card!.back, "et").verdict).toBe("correct");
+  });
+
+  it("widens an old back once and leaves everything else alone", () => {
+    expect(withEverydaySpelling("tema", "ta")).toBe("tema / ta");
+    expect(withEverydaySpelling("tema / ta", "ta")).toBe("tema / ta");
+    expect(withEverydaySpelling("mina / Ma", "ma")).toBe("mina / Ma");
+    expect(withEverydaySpelling("tuba", null)).toBe("tuba");
+    expect(acceptedAnswers(withEverydaySpelling("nemad", "nad"), "et")).toEqual(["nemad", "nad"]);
   });
 });
