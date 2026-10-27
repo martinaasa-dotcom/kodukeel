@@ -1868,7 +1868,7 @@ boundary between them, so the obvious spelling misses the words this language is
 **And Ekilex's own part of speech was being discarded**, so a deliberate coarsening could not be
 told from a mistake. `ekilexPos` records it. The table of legitimate coarsenings was set by
 narrowing until something honest complained rather than widening until nothing did, and with it
-written down the course's label and Ekilex's agree on all 1,867 words. `PRONOUN` is a part of speech for it, harvested as a nominal
+written down the course's label and Ekilex's agree on all 1,881 words. `PRONOUN` is a part of speech for it, harvested as a nominal
 because it declines like one (`kes`, `kelle`, `keda`), and a pronoun with no singular (`meie`,
 `nemad`) is kept the way an adverb is, attested and formless, rather than dropped.
 `lib/collections/syllabus/retired.ts` is the other half: the ten C2 units were cut in §19 of the
@@ -10651,11 +10651,11 @@ steps (Listen, Words, How it works, Practice, Say it, Review), the first three a
 `lib/course/lessons/` is the engine and `lessonProblems` is the rule: every spelling on every screen
 of a lesson has to be in the ledger by then, a phrase covering its words only where they stand
 together, and the unit suite fails otherwise. The conversations are written and read by the native
-speaker (ADR-005 amendment 6). A1 and A2 are the lessons and nothing else (P3, and §9 for A2's sixty-one): `lib/course/lessonCourse.ts` makes each lesson one evening
+speaker (ADR-005 amendment 6). A1, A2 and B1 are the lessons and nothing else (P3, §9 for A2's sixty-one and §12 for B1's forty-nine): `lib/course/lessonCourse.ts` makes each lesson one evening
 of the course with one step, finishing it ticks the evening and hands its words to the deck
-(`finishLesson`), and the builder's ledger is seeded with every lesson before B1 (`teachLessons`). A lesson
-level is asked through `isLessonLevel`, never by naming A1 or A2. The
-A1 and A2 units stay as the dictionary's request list and are no longer walked, so a link to one lands on
+(`finishLesson`), and the builder's ledger is seeded with every lesson before B2 (`teachLessons`). A lesson
+level is asked through `isLessonLevel`, never by naming A1, A2 or B1. The
+A1, A2 and B1 units stay as the dictionary's request list and are no longer walked, so a link to one lands on
 `/course/lessons`, and a beginner's first run builds no starter deck. Nobody was on the old A1, so the
 switch broke it rather than placing anybody (L4 not needed). Every lesson item becomes a card of
 something the seed writes (`lessonHeads.ts`): a headword once it has been taught, or the lesson's own
@@ -10672,19 +10672,31 @@ every lesson was right on its own. `lib/course/lessons/contract.ts` is the shape
 levels, core lessons numbered from 1, four to ten a part, each part ending on its own `partEnd`
 with a role-play and a live scene, at most `MOST_TAUGHT` new things an evening, a point explained
 once a level, `LEVEL_INFO` filled in, and every line in Russian and Ukrainian. The rest of
-`lessons.test.ts` is asked of every level too. `docs/43-lessons.md` §10 is the list for moving B1,
+`lessons.test.ts` is asked of every level too. `docs/43-lessons.md` §10 is the list for moving
 B2 and C1 to lessons, starting with measuring what the level assumes against the lesson ledger
 rather than the old unit order. A finale says "made of what this part has taught" and never counts
 lessons, and a cross-reference names a part only after checking which part taught it.
 
 **A lesson's role-play is also a live scene, and it says only what that lesson has taught.**
-`lib/scenes/lessonScenes.ts` holds one scene per A1 and A2 lesson that ends in a role-play, off the situations
+`lib/scenes/lessonScenes.ts` holds one scene per A1, A2 and B1 lesson that ends in a role-play, off the situations
 listing (`sceneById` reads it after the catalog). `inLesson` takes the scene's word list from the
 lesson ledger instead of the old units, `lessonGate` hands the gate the `taught` check and the lesson's
 own spellings, and the app and the harness both read it (asserted). `lessonScenes.test.ts` plays every
 scene keyless as seven kinds of beginner, at its own lesson's level, and fails on any word the other side says that the lesson has
 not taught, which is how the engine's own `või`, `aga` and `selge` were caught. A word a card deals must
 be a dictionary entry, or no answer can meet it.
+
+**And B1 is a level up in how it is learned, not A2 with harder words.** The same six steps, so it
+reads as one course, and inside them the learner who has the words is asked for the ear, the speed
+and the accuracy (`docs/43-lessons.md` §11.2 and §12). Every B1 lesson is heard before it is read
+(`listenFor`, `ListenFirst`); Practice changes a sentence into another (`reworks`) and puts right the
+learner's own recorded slip (`fixes`); Say it opens on saying lines along as more of each is hidden
+(`fade.ts`), then a story retold with a checklist lit by the words heard (`retell`, scored by nothing)
+or one answer given three times faster (`faster`); and a part's writing evening writes one real text,
+read by the dictionary first and by Anu behind `verify.ts`, with a sentence written right kept as a
+`WRITTEN` card. `lessonEnglish` collects all of that English, so the translation check covers it.
+Twenty-one lessons offer the catalog conversation they rehearse on their finish
+(`lessonSituations.ts`), which is where the conversations that opened on old B1 evenings went.
 
 ## Conventions
 

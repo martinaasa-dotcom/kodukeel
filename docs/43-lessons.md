@@ -772,8 +772,9 @@ way and the written way side by side.
 
 ### 11.6 The build, after approval
 
-Each phase is its own pull request, none before the one above is merged, and every new line is read
-by the native speaker (ADR-005 amendment 6).
+Phases 1 to 4 landed together in one pull request, at the operator's word, and §12 is what was
+built. Every line the second model flags is read by the native speaker (ADR-005 amendment 6,
+narrowed for B1).
 
 1. **The engine.** Commit the measurement as a script; the new practice kinds in
    `lib/course/lessons/practice.ts` (rework, fix, frame, retell, again-faster, say-along); Write as a
@@ -785,3 +786,58 @@ by the native speaker (ADR-005 amendment 6).
    reference pages B1 explains join `LESSON_PAGES`, `npm run check:authored` is run again, and the
    translations are done.
 5. **B2**, the same way.
+
+## 12. B1, as built
+
+**Forty-nine lessons in seven parts**, numbered 1 to 49, and the same ledger walks A1, A2 and B1 as
+one course: a B1 lesson may show nothing an earlier lesson of any level has not taught. B1 ends
+where a learner can say whether a job got done, ask the right case after a verb, ask for a change at
+work and talk about their pay, rent an apartment and get the deposit back, follow the news and tell
+a meeting what happened, say what they think and why, and get through an office, a form and a phone
+call, ending on the B1 speaking exam, practiced.
+
+| Part | Lessons | What it teaches | It writes | Ends in |
+| --- | --- | --- | --- | --- |
+| `b1-objekt` The whole thing or some of it | 1 to 7 | the object rule and aspect, the negative object, the imperative of doing and finishing | a note to the handyman | the repair visit |
+| `b1-rektsioon` What each verb asks for | 8 to 14 | government (`aitama` whom, `huvituma` from what, `sõltuma` on what), the pronouns in their cases | a reply to an invitation | a new colleague |
+| `b1-raha` Work and money | 15 to 21 | would have and should have, requests and offers, `-na` against `-ks` in use, pay, tax and shifts | an email asking to change your hours | talking about your pay |
+| `b1-kodu` Renting a place | 22 to 28 | the -tud word as an adjective, agreement, house rules, things that break, a contract | a complaint to the landlord | getting your deposit back |
+| `b1-uudised` What happened, not who did it | 29 to 35 | the impersonal, present and past, the pluperfect, the news | a short report of what happened | the residents' meeting |
+| `b1-arvamus` What you think and why | 36 to 42 | `sest`, `kuigi`, `et`, relative clauses with `mis` and `kes`, agreeing and disagreeing | a forum post with your opinion | a meeting where you disagree |
+| `b1-asjaajamine` Getting things done | 43 to 49 | particle verbs and aspect again, word-building (`-ja`, `-mine`, `-lik`, `-tu`), offices and calls | a formal application | the B1 speaking exam, practiced |
+
+**What a B1 lesson adds to the A2 shape** is §11.2 built. Every lesson is heard before it is read
+(`listenFor`, two or three questions about the gist with the text hidden). Practice turns one sentence
+into another (`reworks`) and puts right the slip the learner keeps making (`fixes`, ranked by their
+own `Review.reachedSlot`). Say it opens on saying the key lines along with the screen, with more of
+each line hidden on every pass (`fade.ts`), and then either a story retold, with a checklist that
+lights as its points are heard (`retell`), or one answer given three times in 90, 60 and 45 seconds
+(`faster`). Each part's writing evening is the Write step: read the model, fill in the frame, write
+your own, have it read by the dictionary and, where a model is configured, by Anu behind
+`verify.ts`, and redraft; a sentence written right can be kept as a review card (`WRITTEN`). The
+Words step names what each new verb asks for (`asks`). Each part ends in a role-play played live
+(`lib/scenes/specs/b1-*.ts`), and every scene is played keyless as seven kinds of learner in
+`lessonScenes.test.ts`, at B1's pitch. Twenty-one lessons offer a catalog conversation that
+rehearses the same errand on their finish (`lessonSituations.ts`): the payday lesson the bank, the
+leak the landlord, the speaking exam lesson the B1 exam conversation.
+
+**How the parts were written.** All seven were drafted at once against A1, A2 and the first B1
+lesson, each held to `scripts/check-lesson-part.ts`, and merged in teaching order. Where two parts
+taught one word, the later one stopped teaching it (`lessonProblems` reports "taught already"),
+which took about 190 items out of later parts. Every line of English, the exercises' included
+(`lessonEnglish` reads reworks, fixes, gist questions, retell, faster and write), is in Russian and
+Ukrainian, machine-written and not yet read by a fluent speaker.
+
+**What B1 replaced, and what moved.** The old B1 parts `b1.1` to `b1.3`, built from fifteen units,
+are gone and their day ids with them, the A1 and A2 precedent, and a learner on one restarts B1 at
+its first lesson. The B1 units stay as the dictionary's request list; fourteen words the lessons
+teach and no unit had asked for (`remontima`, `ületund`, `tööaeg`, `ükski` and the rest) were added
+to them and asked of Ekilex. The catalog conversations that opened on a B1 unit are offered by the
+lesson that rehearses them, and the three that sat further on stay at B2. The checks follow the
+lessons, a check closing each B1 part and the last one covering the whole level, and unit homework
+now starts at B2. 130 written sentences for words that only the old B1 units taught were dropped,
+since no evening teaches those words now.
+
+**What waits on a person.** Every new Estonian line is in `docs/44-language-reviews.md` section 1.
+The native speaker reads the lines the second model flagged first (B-L7), which are in
+`docs/reviews/b1-flags.md` beside the lines each part's author was unsure of. The Russian and Ukrainian need a fluent reader, as A2's do.
