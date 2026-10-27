@@ -20,7 +20,7 @@ export const B1_ARVAMUS_PART: PartOfLessons = {
   id: "b1-arvamus",
   level: "B1",
   title: "What you think and why",
-  about: "Joining reasons with because and although, saying which one with mis and kes, agreeing and disagreeing.",
+  about: "Joining reasons with because and although, saying which one with {mis} and {kes}, agreeing and disagreeing.",
 };
 
 export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [

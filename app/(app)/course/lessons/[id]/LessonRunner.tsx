@@ -26,6 +26,7 @@ import { SoundRows } from "@/components/sounds/SoundRows";
 import { SpellIt } from "@/components/sounds/SpellIt";
 import { ListenFirst } from "@/components/course/ListenFirst";
 import { WriteStep } from "@/components/course/WriteStep";
+import { levelNewsFor } from "@/lib/course/lessons/levelNew";
 import { Quiz } from "./Quiz";
 import { SayIt } from "./SayIt";
 import { lessonSceneHref, type ConversationReturn } from "@/lib/scenes/lessonReturn";
@@ -127,6 +128,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
   const focus = useModuleFocus();
   const moduleNext = useModuleNext();
   const [at, setAt] = useState(0);
+  const news = levelNewsFor(lesson);
   const [finished, setFinished] = useState<ReadonlySet<Step>>(new Set());
   const [reached, setReached] = useState(0);
   const [score, setScore] = useState<{ right: number; total: number } | null>(null);
@@ -386,6 +388,24 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
           a step ahead is drawn and not pressable, since skipping is what the
           button at the foot is for and says so.
         */}
+        {/*
+          WHAT IS NEW AT THIS LEVEL, ON ITS FIRST LESSON AND ITS FIRST STEP
+          (`levelNew.ts`): the step up explained where it happens, once.
+        */}
+        {news && at === 0 && (
+          <section aria-labelledby="level-new" className="rounded-[var(--r-xl)] border px-5 py-4" style={{ background: "var(--accent-soft)", borderColor: "var(--edge)" }} data-level-new={lesson.level}>
+            <h2 id="level-new" className="text-lg font-bold" style={{ color: "var(--ink)" }}>{fill(t("What's new at {level}"), { level: lesson.level })}</h2>
+            <p className="mt-1 max-w-[62ch] text-base" style={{ color: "var(--ink-2)" }}>{t(news.lead)}</p>
+            <ul className="mt-3 flex flex-col gap-2">
+              {news.items.map((item) => (
+                <li key={item.what} className="flex items-start gap-2 text-base">
+                  <Check size={16} aria-hidden className="mt-1 shrink-0" style={{ color: "var(--accent-deep)" }} />
+                  <span><span className="font-semibold" style={{ color: "var(--ink)" }}>{t(item.what)}</span>{" "}<span style={{ color: "var(--ink-2)" }}>{t(item.why)}</span></span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
         <nav aria-label={t("Today's steps")}>
           <ol className="flex flex-wrap gap-2" data-lesson-steps>
             {steps.map((s, i) => {

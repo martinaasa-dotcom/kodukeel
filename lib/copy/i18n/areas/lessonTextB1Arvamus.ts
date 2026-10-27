@@ -13,7 +13,7 @@ import type { Area } from "../area";
 export const LESSON_TEXT_B1_ARVAMUS: Area = {
   ru: {
     "What you think and why": "Что ты думаешь и почему",
-    "Joining reasons with because and although, saying which one with mis and kes, agreeing and disagreeing.": "Как связать причины словами «потому что» и «хотя», уточнить, о ком или о чём речь, с помощью mis и kes, как соглашаться и спорить.",
+    "Joining reasons with because and although, saying which one with {mis} and {kes}, agreeing and disagreeing.": "Как связать причины словами «потому что» и «хотя», уточнить, о ком или о чём речь, с помощью {mis} и {kes}, как соглашаться и спорить.",
 
     "Because, although, so that": "Потому что, хотя, чтобы",
     "Give a reason, a but and a what for in one sentence, and decide something out loud.": "Назвать причину, возражение и цель в одном предложении и принять решение вслух.",
@@ -551,7 +551,7 @@ export const LESSON_TEXT_B1_ARVAMUS: Area = {
   },
   uk: {
     "What you think and why": "Що ти думаєш і чому",
-    "Joining reasons with because and although, saying which one with mis and kes, agreeing and disagreeing.": "Як пов'язати причини словами «тому що» і «хоча», уточнити, про кого чи про що мова, за допомогою mis і kes, як погоджуватися і сперечатися.",
+    "Joining reasons with because and although, saying which one with {mis} and {kes}, agreeing and disagreeing.": "Як пов'язати причини словами «тому що» і «хоча», уточнити, про кого чи про що мова, за допомогою {mis} і {kes}, як погоджуватися і сперечатися.",
 
     "Because, although, so that": "Тому що, хоча, щоб",
     "Give a reason, a but and a what for in one sentence, and decide something out loud.": "Назвати причину, заперечення і мету в одному реченні та ухвалити рішення вголос.",
