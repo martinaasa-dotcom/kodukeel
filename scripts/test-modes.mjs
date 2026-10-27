@@ -985,11 +985,11 @@ const lineFor = async (q) => {
   return (await page.locator("[data-word-fun]").allInnerTexts()).join(" | ");
 };
 const bat = await lineFor("nahkhiir");
-check("a compound in the dictionary reads word for word", /Word for word: .leather mouse./.test(bat), bat);
+check("a compound in the dictionary reads word for word, with no joke after it", /^Word for word: .leather mouse.\.$/.test(bat.trim()), bat);
 const head = await lineFor("pea");
 const plain = await lineFor("raamat");
-check("a word that only looks English says so, and an ordinary word says nothing",
-  /Looks English, isn't: not .pea./.test(head) && plain === "", `${head} / ${plain || "(none)"}`);
+check("a word that only looks English says so with no joke after it, and an ordinary word says nothing",
+  /^Looks English, isn't: not .pea.\.$/.test(head.trim()) && plain === "", `${head} / ${plain || "(none)"}`);
 
 console.log(errors.length ? `\nconsole/page errors:\n  ${errors.join("\n  ")}` : "\nno console errors");
 await browser.close();
