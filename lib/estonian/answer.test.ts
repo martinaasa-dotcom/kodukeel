@@ -236,6 +236,22 @@ describe("the correction shows the stored spelling", () => {
     expect(checkAnswer("x", "woman, wife", "en").expected).toBe("woman");
   });
 
+  it("reads a comma inside an Estonian answer as the sentence's own, never as a second answer", () => {
+    // Reported: the phrase copied out of the screen, letter for letter, was marked wrong.
+    expect(acceptedAnswers("aeglasemalt, palun.", "et")).toEqual(["aeglasemalt palun"]);
+    expect(checkAnswer("aeglasemalt, palun.", "aeglasemalt, palun.").verdict).toBe("correct");
+    expect(checkAnswer("palun", "aeglasemalt, palun.").verdict).toBe("wrong");
+    expect(checkAnswer("x", "aeglasemalt, palun.").expected).toBe("aeglasemalt, palun.");
+    // And the English side is still a list.
+    expect(acceptedAnswers("woman, wife", "en")).toEqual(["woman", "wife"]);
+  });
+
+  it("never asks for the punctuation of a phrase", () => {
+    expect(checkAnswer("aeglasemalt palun", "aeglasemalt, palun.").verdict).toBe("correct");
+    expect(checkAnswer("Head aega", "Head aega!").verdict).toBe("correct");
+    expect(checkAnswer("tere mina olen katrin", "Tere, mina olen Katrin.").verdict).toBe("correct");
+  });
+
   it("still flattens for comparison, which is what acceptedAnswers reports", () => {
     expect(acceptedAnswers("Head aega!", "et")).toEqual(["head aega"]);
     expect(acceptedForms("Head aega!", "et")).toEqual([

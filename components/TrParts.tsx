@@ -15,14 +15,29 @@ import { useT } from "@/components/Locale";
  * appended, and `{name}` the parts do not supply is printed as written, so a
  * missing translation reads as English rather than as a hole.
  */
-export function TrParts({ template, parts }: { template: string; parts: Readonly<Record<string, ReactNode>> }) {
+export function TrParts({
+  template,
+  parts,
+  stopped = [],
+}: {
+  template: string;
+  parts: Readonly<Record<string, ReactNode>>;
+  /**
+   * Slots whose own text already ends a sentence, `Aeglasemalt, palun.` or
+   * `Head aega!`. The template's full stop straight after one is dropped,
+   * since a stored phrase carries its own and two in a row read as a fault.
+   */
+  stopped?: readonly string[];
+}) {
   const t = useT();
   const pieces = t(template).split(/(\{\w+\})/);
   return (
     <>
       {pieces.map((piece, i) => {
         const name = /^\{(\w+)\}$/.exec(piece)?.[1];
-        return <Fragment key={i}>{name !== undefined && name in parts ? parts[name] : piece}</Fragment>;
+        const before = /^\{(\w+)\}$/.exec(pieces[i - 1] ?? "")?.[1];
+        const text = before !== undefined && stopped.includes(before) ? piece.replace(/^\./, "") : piece;
+        return <Fragment key={i}>{name !== undefined && name in parts ? parts[name] : text}</Fragment>;
       })}
     </>
   );

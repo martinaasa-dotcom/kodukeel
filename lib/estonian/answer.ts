@@ -136,6 +136,20 @@ export interface Accepted {
   compared: string;
 }
 
+/**
+ * Where one stored answer ends and the next begins.
+ *
+ * An English gloss is a list, `woman, wife` or `favorite/favourite`, so a
+ * comma, a semicolon and the word `or` each separate two answers there. An
+ * Estonian answer is never a list joined that way: the builder joins two
+ * spellings with `PARTS`, a slash, and a comma inside Estonian is the comma
+ * of the sentence. Split on it and `Aeglasemalt, palun.` became two answers,
+ * `aeglasemalt` and `palun`, so the phrase itself, copied out of the screen
+ * letter for letter, matched neither and was marked wrong twice over.
+ */
+const ENGLISH_PARTS = /\s*[/,;]\s*|\s+or\s+/;
+const ESTONIAN_PARTS = /\s*\/\s*/;
+
 export function acceptedForms(expected: string, language: "et" | "en"): Accepted[] {
   const out: Accepted[] = [];
   const seen = new Set<string>();
@@ -144,7 +158,7 @@ export function acceptedForms(expected: string, language: "et" | "en"): Accepted
     seen.add(compared);
     out.push({ shown, compared });
   };
-  for (const raw of expected.split(/\s*[/,;]\s*|\s+or\s+/)) {
+  for (const raw of expected.split(language === "et" ? ESTONIAN_PARTS : ENGLISH_PARTS)) {
     const trimmed = raw.trim();
     if (!trimmed) continue;
     add(trimmed, normalise(trimmed.replace(/[()]/g, " "), language));

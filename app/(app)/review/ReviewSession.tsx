@@ -1503,6 +1503,11 @@ export function ReviewSession({
     names the form is said as the note, as it is drawn.
   */
   const shownAnswer = primaryAnswer(card.back);
+  /* A stored phrase carries its own stop, so the sentence naming it does not
+     add a second: "The answer is aeglasemalt, palun." rather than "palun..". */
+  const answerEndsSentence = /[.!?]$/.test(shownAnswer);
+  const answerIs = (answer: string) =>
+    fill(t("The answer is {answer}."), { answer }).replace(/([.!?])\.$/, "$1");
   const rightAt = card.choices?.indexOf(rightChoice) ?? -1;
   const rightShown = rightAt >= 0 ? card.choiceMeanings?.[rightAt] : null;
   const rightShownAs = rightShown?.english ? `${rightShown.lead.text} (${rightShown.english})` : rightChoice;
@@ -1519,13 +1524,13 @@ export function ReviewSession({
             ? fill(t("Close: {note}"), { note: verdictNote })
             : verdictNote.includes(shownAnswer)
               ? verdictNote
-              : `${verdictNote} ${fill(t("The answer is {answer}."), { answer: shownAnswer })}`
+              : `${verdictNote} ${answerIs(shownAnswer)}`
       : ask === "choice" && chosen
         ? choiceIsRight(chosen, card.back, answerLanguage)
           ? t("Right.")
           : fill(t("Not this time. It's {answer}."), { answer: rightShownAs })
         : ask === "flip" && revealed
-          ? fill(t("The answer is {answer}."), { answer: shownAnswer })
+          ? answerIs(shownAnswer)
           : "";
 
   return (
@@ -1829,7 +1834,7 @@ export function ReviewSession({
                      form was drawn below the box instead. */
                   <>
                     {verdictNote}{" "}
-                    <TrParts template="The answer is {answer}." parts={{
+                    <TrParts template="The answer is {answer}." stopped={answerEndsSentence ? ["answer"] : []} parts={{
                       answer: <span lang={backLang} className="font-semibold">{shownAnswer}</span>,
                     }} />
                   </>
