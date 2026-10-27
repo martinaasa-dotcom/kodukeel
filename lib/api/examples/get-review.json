@@ -100,7 +100,8 @@
             "et": "Mida sa arvad?",
             "en": "What do you think?",
             "form": null
-          }
+          },
+          "note": null
         },
         "neighbours": [
           {
@@ -111,7 +112,8 @@
               "et": "Ma mõtlen sinule.",
               "en": "I'm thinking of you.",
               "form": null
-            }
+            },
+          "note": null
           }
         ]
       },
