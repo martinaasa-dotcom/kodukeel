@@ -313,12 +313,18 @@ describe("wordFunFor", () => {
     expect(falseFriendFor("pea")?.means).toBe("head");
   });
 
+  it("carries no joke onto a card, for a false friend or a compound", () => {
+    const fun = [...FALSE_FRIENDS.map((f) => wordFunFor(f.word, f.means)), ...COMPOUNDS.map((c) => wordFunFor(c.word, c.means))];
+    expect(fun.filter(Boolean).length).toBeGreaterThan(100);
+    for (const f of fun) if (f) expect(Object.keys(f)).not.toContain("quip");
+  });
+
   it("says nothing about a word with nothing to say", () => {
     expect(wordFunFor("raamat", "book")).toBeNull();
   });
 
   it("tells the joke only about the sense the screen is showing", () => {
-    expect(wordFunFor("pea", "head")?.quip).toMatch(/doctor/);
+    expect(wordFunFor("pea", "head")?.reading).toBe("pea");
     expect(wordFunFor("pea", "pea (the vegetable)")).toBeNull();
     expect(wordFunFor("pea", null)).toBeNull();
     expect(wordFunFor("nahkhiir", "bat")?.reading).toBe("leather mouse");
