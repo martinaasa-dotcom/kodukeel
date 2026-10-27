@@ -40,6 +40,15 @@ export function lessonEnglish(lesson: LessonSpec): string[] {
     ...lesson.teaches.flatMap((t) => (t.kind === "verb" ? [t.en, t.firstEn] : [t.en])),
     ...[...lesson.answers, ...(lesson.roleplay?.turns ?? [])].flatMap((p) => [p.cue, p.model.en, p.ask?.en ?? ""]),
     ...(lesson.roleplay ? [lesson.roleplay.scene] : []),
+    // The B1 exercises (types.ts): every English line they draw through `LessonText`.
+    ...(lesson.reworks ?? []).flatMap((r) => [r.from.en, r.ask, r.to.en]),
+    ...(lesson.fixes ?? []).flatMap((f) => [f.line.en, f.why]),
+    ...(lesson.listenFor ?? []).flatMap((g) => [g.q, ...g.options]),
+    ...(lesson.retell ? [...lesson.retell.story.map((l) => l.en), ...lesson.retell.points.map((p) => p.en)] : []),
+    ...(lesson.faster ? [lesson.faster.ask.en, lesson.faster.cue, lesson.faster.model.en] : []),
+    ...(lesson.write
+      ? [lesson.write.genre, lesson.write.purpose, lesson.write.task, ...lesson.write.model.map((l) => l.en), ...lesson.write.uses.map((u) => u.en)]
+      : []),
   ].filter((s) => s.trim() !== "");
 }
 
