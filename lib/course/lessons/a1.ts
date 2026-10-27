@@ -323,7 +323,7 @@ const TERE_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Ei, ta pole inglane. Ta on eestlane.", en: "No, he's not English. He's Estonian." },
     ],
     teaches: [
-      { kind: "word", et: "kas", en: "starts a yes-or-no question" },
+      { kind: "word", et: "kas", en: "do? is? are? can? (starts a yes-or-no question)" },
       { kind: "form", et: "ole", of: "olema", en: "be, after {ei}: not" },
       { kind: "form", et: "pole", of: "olema", en: "isn't, aren't, the short way" },
       { kind: "word", et: "eestlane", en: "an Estonian" },
