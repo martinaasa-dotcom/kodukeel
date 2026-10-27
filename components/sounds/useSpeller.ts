@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { playNativeSequence, type PlayingSequence } from "@/lib/audio/clip";
-import { LETTER_GAP_MS, PAUSE_GAP_MS, SLOW_GAPS, type SpellPart } from "@/lib/collections/spelling";
+import { LETTER_GAP_MS, PAUSE_GAP_MS, SLOW_GAPS, stepLit, type SpellPart } from "@/lib/collections/spelling";
 
 /**
  * SAYS A TEXT LETTER BY LETTER, in the native speaker's recordings of the
@@ -71,15 +71,23 @@ export function useSpeller() {
       return;
     }
     playing.current = play;
+    // One letter at a time, so a late frame lags the light rather than skipping a letter (`stepLit`).
+    let shown = -1;
     const frame = () => {
       if (run.current !== me) return;
-      const now = play.audio.currentTime;
-      const index = play.spans.findIndex((span) => now >= span.from && now < span.to);
-      setActive(index < 0 ? null : said[index]!.at);
+      const step = stepLit(play.spans, play.audio.currentTime, shown);
+      shown = step.shown;
+      setActive(step.lit === null ? null : said[step.lit]!.at);
       requestAnimationFrame(frame);
     };
     requestAnimationFrame(frame);
     await play.ended;
+    // A clip that ended inside a stall still lights the letters it said, a frame each, before the light goes out.
+    while (run.current === me && play.audio.ended && shown < play.spans.length - 1) {
+      shown += 1;
+      setActive(said[shown]!.at);
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+    }
     if (run.current === me) {
       run.current += 1;
       playing.current = null;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { nativeClip } from "@/lib/audio/native";
-import { compareSpelling, letterOf, spellOut, spellableWord, SPELL_MAX } from "./spelling";
+import { compareSpelling, letterOf, spellOut, spellableWord, stepLit, SPELL_MAX } from "./spelling";
 
 describe("spelling a text out loud", () => {
   it("names every letter of the Estonian alphabet by its own recording", () => {
@@ -44,5 +44,26 @@ describe("spelling a text out loud", () => {
     expect(missed.exact).toBe(false);
     expect(missed.letters).toEqual([true, false, false, true]);
     expect(compareSpelling("tub", "tuba").letters).toEqual([true, true, true, false]);
+  });
+});
+
+describe("which spelled letter to light", () => {
+  const spans = [{ from: 0, to: 0.4 }, { from: 0.6, to: 1 }, { from: 1.2, to: 1.6 }, { from: 1.8, to: 2.2 }];
+
+  it("lights the letter being said, and nothing in a gap", () => {
+    expect(stepLit(spans, 0.1, -1)).toEqual({ shown: 0, lit: 0 });
+    expect(stepLit(spans, 0.5, 0)).toEqual({ shown: 0, lit: null });
+    expect(stepLit(spans, 0.7, 0)).toEqual({ shown: 1, lit: 1 });
+  });
+
+  it("never skips a letter when a frame comes late, catching up one a frame", () => {
+    // The clip is in the third letter and only the first was ever lit.
+    let state = { shown: 0, lit: 0 as number | null };
+    const lit: (number | null)[] = [];
+    for (let frame = 0; frame < 3; frame++) {
+      state = stepLit(spans, 1.3, state.shown);
+      lit.push(state.lit);
+    }
+    expect(lit).toEqual([1, 2, 2]);
   });
 });
