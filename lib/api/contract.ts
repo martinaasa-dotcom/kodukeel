@@ -347,6 +347,8 @@ export const LessonSpecSchema = z.object({
     "present", "negative", "imperative",
     "inside", "outside", "comitative", "translative", "terminative", "essive", "abessive",
     "past", "conditional",
+    // B1's rules about choosing, added for the B1 lessons (docs/43-lessons.md §11.3). Within v1 an enum only grows.
+    "object", "government", "impersonal", "pluperfect", "relative", "particleVerb",
   ])).readonly().optional(),
   how: z.object({
     point: z.string(),

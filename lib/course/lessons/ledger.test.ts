@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { EMPTY_LEDGER, estonianIn, lessonProblems, teach, uncovered } from "./ledger";
-import type { LessonSpec } from "./types";
+import { B_PATTERNS, type LessonSpec } from "./types";
 
 const lesson = (over: Partial<LessonSpec>): LessonSpec => ({
   id: "t-1", n: 1, level: "A1", part: "t", kind: "lesson", title: "t", goal: "t",
@@ -157,6 +157,18 @@ describe("the check over a level", () => {
     const want = teach(EMPTY_LEDGER, [{ kind: "verb", et: "tahtma", first: "tahan", en: "to want", firstEn: "I want" }], 1);
     expect(uncovered("tahaksin", want)).toEqual(["tahaksin"]);
     expect(uncovered("tahaksin tahaksid tahaks", teach(want, [], 2, ["conditional"]))).toEqual([]);
+  });
+
+  it("builds no spelling off a B1 pattern, which is a rule about choosing", () => {
+    const items = [
+      { kind: "verb", et: "lugema", first: "loen", en: "to read", firstEn: "I read" },
+      { kind: "form", et: "raamatu", of: "raamat", en: "of the book", stem: true },
+    ] as const;
+    const plain = teach(EMPTY_LEDGER, items, 1, ["present"]);
+    const withB = teach(EMPTY_LEDGER, items, 1, ["present", ...B_PATTERNS]);
+    expect(B_PATTERNS.length).toBeGreaterThan(0);
+    expect([...withB.spellings].sort()).toEqual([...plain.spellings].sort());
+    for (const p of B_PATTERNS) expect(withB.patterns.has(p), p).toBe(true);
   });
 
   it("numbers each level from 1, and keeps the levels in order", () => {

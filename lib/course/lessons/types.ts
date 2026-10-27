@@ -107,7 +107,28 @@ export type Taught =
 export type PatternId =
   | "present" | "negative" | "imperative"
   | "inside" | "outside" | "comitative" | "translative" | "terminative" | "essive" | "abessive"
-  | "past" | "conditional";
+  | "past" | "conditional"
+  | BPatternId;
+
+/**
+ * B1'S PATTERNS ARE RULES ABOUT CHOOSING, NOT RULES THAT BUILD A SPELLING
+ * (docs/43-lessons.md §11.3).
+ *
+ * The whole object or some of it, what a verb asks for, the impersonal, had
+ * done, `mis` and `kes` joining two clauses, and a verb with its particle:
+ * none of these joins an ending to a taught stem the way `inside` does. The
+ * object rule chooses between an [omastav] (2nd form) and an [osastav] (3rd
+ * form) the learner already has; `tehakse` and `tehti` are stored per verb
+ * because no rule reaches them, so they are taught by name, as the past's
+ * third person is. So the ledger builds nothing off these. What they decide is
+ * what a lesson may ask: Rework may only ask for a change whose pattern has
+ * been explained, and the level contract holds each to being explained once.
+ */
+export type BPatternId =
+  | "object" | "government" | "impersonal" | "pluperfect" | "relative" | "particleVerb";
+
+/** Every B1 pattern, for a check that walks them all. */
+export const B_PATTERNS: readonly BPatternId[] = ["object", "government", "impersonal", "pluperfect", "relative", "particleVerb"];
 
 /** A cell of a pattern's table: Estonian or English, never both. */
 export type Cell = { readonly et: string } | { readonly en: string };

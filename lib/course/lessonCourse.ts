@@ -55,6 +55,13 @@ export const PATTERN_PAGE: Readonly<Partial<Record<PatternId, string>>> = {
   imperative: "imperative",
   past: "imperfect",
   conditional: "conditional",
+  // B1's rules about choosing (`BPatternId`), each read off the grammar page that explains it.
+  object: "object",
+  government: "government",
+  impersonal: "impersonal",
+  pluperfect: "pluperfect",
+  relative: "relative-clause",
+  particleVerb: "particle-verbs",
 };
 
 /**

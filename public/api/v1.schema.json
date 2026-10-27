@@ -2267,7 +2267,13 @@
                     "essive",
                     "abessive",
                     "past",
-                    "conditional"
+                    "conditional",
+                    "object",
+                    "government",
+                    "impersonal",
+                    "pluperfect",
+                    "relative",
+                    "particleVerb"
                   ]
                 }
               },
