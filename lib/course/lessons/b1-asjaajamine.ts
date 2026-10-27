@@ -562,7 +562,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       examples: [2, 6, 8, 10],
     },
     listenFor: [
-      { q: "What does Tom want from the city?", options: ["A parking permit", "A new passport", "A flat"], answer: 0 },
+      { q: "What does Tom want from the city?", options: ["A parking permit", "A new passport", "An apartment"], answer: 0 },
       { q: "Where does Tom end up after being put through twice?", options: ["Back at the start", "With the right official", "Cut off"], answer: 0 },
       { q: "What does he decide in the end?", options: ["To write an application himself", "To call again tomorrow", "To go to the office"], answer: 0 },
     ],

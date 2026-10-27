@@ -53,6 +53,8 @@ export function RetellIt({ retell, voice, typed, onDone }: { retell: Retell; voi
   const lit = pointsHeard(retell, live);
   const litCount = lit.filter(Boolean).length;
   const mic = !typed && speech.offered;
+  // One loud button a screen: hearing the story until it has been heard twice or told, then Next.
+  const hearFirst = plays < 2 && said.trim() === "";
 
   const play = async () => {
     if (playing) { stop.current = true; return; }
@@ -86,7 +88,7 @@ export function RetellIt({ retell, voice, typed, onDone }: { retell: Retell; voi
         })}
       </ol>
       <div className="mb-5 flex flex-wrap items-center gap-3">
-        <Button variant={plays < 2 ? "primary" : "secondary"} onClick={play} aria-pressed={playing}>
+        <Button variant={hearFirst ? "primary" : "secondary"} onClick={play} aria-pressed={playing}>
           {playing ? <Pause size={15} aria-hidden /> : <Play size={15} aria-hidden />}
           {playing ? t("Stop") : plays === 0 ? t("Hear the story") : t("Hear it again")}
         </Button>
@@ -139,7 +141,7 @@ export function RetellIt({ retell, voice, typed, onDone }: { retell: Retell; voi
       )}
       <div className="mt-5 flex flex-wrap justify-end gap-3">
         {!shown && <Button variant="ghost" onClick={() => setShown(true)}>{t("Show the story")}</Button>}
-        <Button variant="primary" onClick={onDone}>{t("Next")} <ArrowRight size={15} aria-hidden /></Button>
+        <Button variant={hearFirst ? "secondary" : "primary"} onClick={onDone}>{t("Next")} <ArrowRight size={15} aria-hidden /></Button>
       </div>
     </Card>
   );

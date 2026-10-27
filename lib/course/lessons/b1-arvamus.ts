@@ -733,7 +733,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
     },
     listenFor: [
       { q: "What is the meeting about?", options: ["Moving the office or working from home", "Hiring a new colleague", "A trip in the summer"], answer: 0 },
-      { q: "Why doesn't Tom want to work from home every day?", options: ["His computer is old", "He gets bored there", "His flat is too small"], answer: 1 },
+      { q: "Why doesn't Tom want to work from home every day?", options: ["His computer is old", "He gets bored there", "His apartment is too small"], answer: 1 },
       { q: "What do they agree on?", options: ["Moving to a bigger office", "Working from home every day", "Two days at the office and three at home"], answer: 2 },
     ],
     answers: [

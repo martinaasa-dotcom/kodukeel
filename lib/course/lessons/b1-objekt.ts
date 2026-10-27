@@ -502,7 +502,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
     goal: "Tell somebody to do a job, or not to, with the thing in the right form.",
     cast: { Mari: "mari", Tom: "kalev" },
     conversation: [
-      { who: "Mari", et: "Tom, too see kast siia!", en: "Tom, bring that box here!", stage: "Mari is moving into a new flat, and Tom is helping." },
+      { who: "Mari", et: "Tom, too see kast siia!", en: "Tom, bring that box here!", stage: "Mari is moving into a new apartment, and Tom is helping." },
       { who: "Tom", et: "See on väga raske. Mis seal sees on?", en: "It's really heavy. What's in it?" },
       { who: "Mari", et: "Raamatud. Pane kast lauale.", en: "Books. Put the box on the table." },
       { who: "Tom", et: "Ja nüüd? Kas ma toon diivani ka?", en: "And now? Shall I bring the sofa too?" },
@@ -601,14 +601,14 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
     retell: {
       who: "Mari",
       story: [
-        { et: "Eile ma kolisin uude korterisse.", en: "Yesterday I moved into a new flat." },
+        { et: "Eile ma kolisin uude korterisse.", en: "Yesterday I moved into a new apartment." },
         { et: "Tom tõi mu kastid autost tuppa.", en: "Tom brought my boxes in from the car." },
         { et: "Siis ta tõi ka diivani, aga see ei mahtunud uksest läbi.", en: "Then he brought the sofa too, but it didn't fit through the door." },
         { et: "See ei olnud minu diivan, see oli naabri oma!", en: "It wasn't my sofa, it was the neighbor's!" },
         { et: "Tom viis selle kohe tagasi.", en: "Tom took it straight back." },
       ],
       points: [
-        { en: "she moved into a new flat", any: ["kolisin", "korterisse"] },
+        { en: "she moved into a new apartment", any: ["kolisin", "korterisse"] },
         { en: "Tom brought the boxes in", any: ["kastid", "tõi"] },
         { en: "the sofa didn't fit through the door", any: ["mahtunud", "läbi"] },
         { en: "it was the neighbor's", any: ["naabri"] },
@@ -622,7 +622,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
     part: "b1-objekt",
     kind: "lesson",
     title: "A note to the handyman",
-    goal: "Write a note saying what's done in your flat, what isn't, and where the key is.",
+    goal: "Write a note saying what's done in your apartment, what isn't, and where the key is.",
     cast: { Peeter: "peeter", Tom: "kalev" },
     conversation: [
       { who: "Peeter", et: "Tere, Tom! Meister tuleb homme kell kümme.", en: "Hello, Tom! The handyman's coming tomorrow at ten.", stage: "The landlord, on the phone." },
@@ -633,7 +633,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Kraani parandasin ma ise ära. Aga aken ei lähe ikka kinni.", en: "I fixed the tap myself. But the window still won't close." },
       { who: "Peeter", et: "Ja dušš?", en: "And the shower?" },
       { who: "Tom", et: "Dušš tilgub terve öö. Ma ei maganud üldse.", en: "The shower drips all night. I didn't sleep at all." },
-      { who: "Peeter", et: "See on oluline. Kirjuta see kõik üles. Meister ei tunne korterit.", en: "That's important. Write it all down. The handyman doesn't know the flat." },
+      { who: "Peeter", et: "See on oluline. Kirjuta see kõik üles. Meister ei tunne korterit.", en: "That's important. Write it all down. The handyman doesn't know the apartment." },
       { who: "Tom", et: "Ja köögis ei põle lamp. Pirn on läbi.", en: "And the kitchen light isn't working. The bulb's gone." },
       { who: "Peeter", et: "Vaheta pirn ise ära, see on lihtne!", en: "Change the bulb yourself, it's easy!" },
       { who: "Tom", et: "Ei, aitäh. Ma kardan elektrit.", en: "No, thanks. I'm scared of electricity." },
@@ -650,7 +650,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "tilgub", of: "tilkuma", en: "drips" },
       { kind: "form", et: "maganud", of: "magama", en: "slept, after {ei}" },
       { kind: "word", et: "oluline", en: "important" },
-      { kind: "form", et: "korterit", of: "korter", en: "the flat, after a no" },
+      { kind: "form", et: "korterit", of: "korter", en: "the apartment, after a no" },
       { kind: "verb", et: "põlema", first: "põlen", en: "to burn; of a light, to be on", firstEn: "I burn" },
       { kind: "word", et: "pirn", en: "a light bulb; a pear" },
       { kind: "form", et: "pirni", of: "pirn", en: "a bulb, as the thing bought" },
@@ -718,7 +718,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
     ],
     fixes: [
       { line: { et: "Palun parandage dušš ära.", en: "Please fix the shower." }, right: "dušš", wrong: "duši", pair: ["NOMINATIVE", "GENITIVE"], why: "A command for the whole job, even with {palun}: the [nimetav] (1st form)." },
-      { line: { et: "Meister ei tunne korterit.", en: "The handyman doesn't know the flat." }, right: "korterit", wrong: "korteri", pair: ["GENITIVE", "PARTITIVE"], why: "After {ei}, the [osastav] (3rd form)." },
+      { line: { et: "Meister ei tunne korterit.", en: "The handyman doesn't know the apartment." }, right: "korterit", wrong: "korteri", pair: ["GENITIVE", "PARTITIVE"], why: "After {ei}, the [osastav] (3rd form)." },
     ],
     listenFor: [
       { q: "When is the handyman coming?", options: ["Tomorrow at ten", "Tonight", "On Friday", "Next week"], answer: 0 },
@@ -726,7 +726,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       { q: "Why won't Tom change the bulb?", options: ["He has no bulb", "He's scared of electricity", "He has no time", "It isn't broken"], answer: 1 },
     ],
     faster: {
-      ask: { et: "Mis su korteris katki on?", en: "What's broken in your flat?" },
+      ask: { et: "Mis su korteris katki on?", en: "What's broken in your apartment?" },
       cue: "Say what's broken, what you fixed yourself, and what still doesn't work.",
       model: { et: "Köögis ei põle lamp. Kraani parandasin ma ise ära. Aga aken ei lähe ikka kinni.", en: "The kitchen light isn't working. I fixed the tap myself. But the window still won't close." },
     },
@@ -734,7 +734,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       genre: "A note to the handyman",
       purpose: "Tell the handyman what's done, what's still broken, and where the key is.",
       model: [
-        { et: "Tere! Mina olen Tom ja ma elan selles korteris.", en: "Hello! I'm Tom and I live in this flat." },
+        { et: "Tere! Mina olen Tom ja ma elan selles korteris.", en: "Hello! I'm Tom and I live in this apartment." },
         { et: "Kraani parandasin ma ise ära.", en: "I fixed the tap myself." },
         { et: "Aken ei lähe ikka kinni.", en: "The window still won't close." },
         { et: "Dušš tilgub terve öö, palun parandage see ära.", en: "The shower drips all night, please fix it." },
@@ -752,7 +752,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
         { et: "juba", en: "already" },
         { et: "helistage", en: "please call" },
       ],
-      task: "Write your own note to the handyman: what's done in your flat, what isn't, and when they should come.",
+      task: "Write your own note to the handyman: what's done in your apartment, what isn't, and when they should come.",
       least: 40,
     },
   },
@@ -766,7 +766,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
     goal: "Tell a handyman what's broken, what you've done yourself and what isn't done, and agree when he'll finish.",
     cast: { Rein: "meelis", Tom: "kalev" },
     conversation: [
-      { who: "Rein", et: "Tere! Mina olen Rein, meister. Kas see on korter number kolm?", en: "Hello! I'm Rein, the handyman. Is this flat number three?" },
+      { who: "Rein", et: "Tere! Mina olen Rein, meister. Kas see on korter number kolm?", en: "Hello! I'm Rein, the handyman. Is this apartment number three?" },
       { who: "Tom", et: "Jah, tulge sisse! Kas te lugesite mu kirja?", en: "Yes, come in! Did you read my note?" },
       { who: "Rein", et: "Lugesin. Kraani te parandasite ise ära?", en: "I did. You fixed the tap yourself?" },
       { who: "Tom", et: "Jah, aga dušš tilgub ikka edasi.", en: "Yes, but the shower keeps on dripping." },
@@ -817,7 +817,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       model: { et: "Köögi ma koristasin ära. Raamatut ma loen veel. Akent ma pole veel parandanud.", en: "I got the kitchen cleaned. I'm still reading the book. I haven't fixed the window yet." },
     },
     roleplay: {
-      scene: "The handyman has come to your flat. Tell him what's broken and what you fixed yourself, and agree when he'll finish.",
+      scene: "The handyman has come to your apartment. Tell him what's broken and what you fixed yourself, and agree when he'll finish.",
       turns: [
         { ask: { et: "Tere! Mina olen meister. Mis on katki?", en: "Hello! I'm the handyman. What's broken?" }, cue: "Say hello, and that the shower drips.", model: { et: "Tere! Dušš tilgub.", en: "Hello! The shower drips." } },
         { ask: { et: "Aga kraan?", en: "And the tap?" }, cue: "Say you fixed the tap yourself.", model: { et: "Kraani parandasin ma ise ära.", en: "I fixed the tap myself." } },

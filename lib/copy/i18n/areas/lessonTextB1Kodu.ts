@@ -921,7 +921,7 @@ export const LESSON_TEXT_B1_KODU: Area = {
     "and (in writing)": "і (у письмовій мові)",
     "Say the heating hasn't worked for a week.": "Скажи, що опалення не працює вже тиждень.",
     "The heating hasn't worked for a week.": "Опалення не працює вже тиждень.",
-    "What's broken in your apartment?": "Що в тебе в квартирі зламано?",
+    "What's broken in your apartment?": "Що в тебе в квартирі зламане?",
     "Say you called the landlord three times.": "Скажи, що дзвонив власникові квартири тричі.",
     "I called him three times.": "Я дзвонив йому тричі.",
     "Ask the landlord politely to send a repairman by Friday at the latest.": "Ввічливо попроси власника квартири надіслати майстра не пізніше п'ятниці.",
