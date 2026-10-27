@@ -11,7 +11,7 @@ import { useFeedbackSound } from "@/components/AudioPrefs";
 import { useLocale, useT } from "@/components/Locale";
 import { LessonText } from "@/components/course/LessonText";
 import { Card, Note, SectionTitle } from "@/components/ui";
-import { fill } from "@/lib/copy/locale";
+import { fill, tr } from "@/lib/copy/locale";
 import { NOT_REACHED } from "@/lib/copy/values";
 import { VERDICT_CLASS } from "@/lib/ux/verdict";
 import { frameOf, markGap, usesIn, wordCount } from "@/lib/course/lessons/frame";
@@ -170,7 +170,7 @@ function Frame({ write, onNext }: { write: WriteTask; onNext: () => void }) {
                       style={{ width: `${Math.max(6, p.answer.length + 2)}ch` }}
                       value={typed[p.n] ?? ""}
                       readOnly={checked}
-                      aria-label={fill(t("Gap {n}: {meaning}"), { n: String(p.n + 1), meaning: p.en })}
+                      aria-label={fill(t("Gap {n}: {meaning}"), { n: String(p.n + 1), meaning: tr(locale, p.en) })}
                       autoComplete="off"
                       autoCapitalize="off"
                       spellCheck={false}
