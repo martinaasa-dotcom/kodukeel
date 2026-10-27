@@ -313,12 +313,17 @@ describe("wordFunFor", () => {
     expect(falseFriendFor("pea")?.means).toBe("head");
   });
 
+  it("warns about a false friend without a joke after it, and keeps a compound's line", () => {
+    for (const f of FALSE_FRIENDS) expect(wordFunFor(f.word, f.means)?.quip ?? null, f.word).toBeNull();
+    expect(wordFunFor("nahkhiir", "bat")?.quip).toBeTruthy();
+  });
+
   it("says nothing about a word with nothing to say", () => {
     expect(wordFunFor("raamat", "book")).toBeNull();
   });
 
   it("tells the joke only about the sense the screen is showing", () => {
-    expect(wordFunFor("pea", "head")?.quip).toMatch(/doctor/);
+    expect(wordFunFor("pea", "head")?.reading).toBe("pea");
     expect(wordFunFor("pea", "pea (the vegetable)")).toBeNull();
     expect(wordFunFor("pea", null)).toBeNull();
     expect(wordFunFor("nahkhiir", "bat")?.reading).toBe("leather mouse");

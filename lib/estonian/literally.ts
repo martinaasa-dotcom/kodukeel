@@ -1469,7 +1469,14 @@ export interface WordFun {
   readonly kind: "compound" | "false-friend";
   readonly label: string;
   readonly reading: string;
-  readonly quip: string;
+  /**
+   * The line after the reading, for a compound. A false friend carries none on
+   * a card: "not “sigh”" is the warning a learner needs, and a joke after it
+   * was reported as confusing, a second sentence about a bakery under a word
+   * somebody is meeting for the first time. The quip stays in the table for
+   * the Sõnamäng round, which is a game about exactly these words.
+   */
+  readonly quip: string | null;
 }
 
 /** What the screen calls a false friend: one spelled like English, or only said like it. */
@@ -1484,7 +1491,7 @@ export function wordFunFor(lemma: string, gloss: string | null): WordFun | null 
   }
   const friend = falseFriendFor(lemma);
   if (friend && meansWhatIsShown(friend.means, gloss)) {
-    return { kind: "false-friend", label: friendLabel(friend), reading: friend.looksLike, quip: friend.quip };
+    return { kind: "false-friend", label: friendLabel(friend), reading: friend.looksLike, quip: null };
   }
   return null;
 }

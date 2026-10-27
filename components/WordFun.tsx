@@ -39,8 +39,8 @@ export function WordFun({ lemma, gloss, t, locale, className = "" }: {
       <span className="font-semibold" style={{ color: "var(--accent-deep)" }}>{t(fun.label)}</span>
       {": "}
       <span style={{ color: "var(--ink)" }}>{reading}</span>
-      {". "}
-      {t(fun.quip, "wordplay")}
+      {"."}
+      {fun.quip && ` ${t(fun.quip, "wordplay")}`}
     </p>
   );
 }
