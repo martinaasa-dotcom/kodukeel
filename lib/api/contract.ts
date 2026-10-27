@@ -197,6 +197,8 @@ const ContrastWord = z.object({
   lemma: z.string(),
   gloss: z.string(),
   sentence: z.object({ et: z.string(), en: z.string().nullable(), form: z.string().nullable() }).nullable(),
+  note: z.object({ spelling: z.string(), register: z.enum(["informal", "polite"]) }).nullable()
+    .describe("Which \"you\" this phrase uses, where that is all that tells it from the other."),
 });
 
 /**

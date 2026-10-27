@@ -38,6 +38,9 @@ import type { CaseKey } from "./types";
  * Pure: no React, no Next, no Prisma, no Estonian.
  */
 
+/** The two "you"s English lost the difference between. */
+export type YouRegister = "informal" | "polite";
+
 /** The four things English calls one person, where they are four words. */
 interface PronounEnglish {
   /** Doing it: "I", "he, she". */
@@ -61,6 +64,12 @@ interface PronounEnglish {
    */
   readonly qualifier?: string;
   /**
+   * Which "you" this is, on the two that are one, for a screen that has to say
+   * how two phrases differ when their English is identical
+   * (`lib/questions/difference.ts`). The words are the screen's to write.
+   */
+  readonly register?: YouRegister;
+  /**
    * The have-construction, written out whole.
    *
    * Estonian has no verb for have: the owner takes the alalütlev and the thing
@@ -78,13 +87,13 @@ const PRONOUNS: Record<string, PronounEnglish> = {
   mina: { subject: "I", object: "me", possessive: "my", has: "I have it" },
   sina: {
     subject: "you", object: "you", possessive: "your", has: "you have it",
-    qualifier: "one person you know",
+    qualifier: "one person you know", register: "informal",
   },
   tema: { subject: "he, she", object: "him, her", possessive: "his, her", has: "he has it, she has it" },
   meie: { subject: "we", object: "us", possessive: "our", has: "we have it" },
   teie: {
     subject: "you", object: "you", possessive: "your", has: "you have it",
-    qualifier: "polite, or more than one",
+    qualifier: "polite, or more than one", register: "polite",
   },
   nemad: { subject: "they", object: "them", possessive: "their", has: "they have it" },
 };
@@ -95,6 +104,11 @@ export const PRONOUN_LEMMAS = Object.keys(PRONOUNS);
 /** Whether the table has anything to say about this word at all. */
 export function isPersonalPronoun(lemma: string): boolean {
   return Object.hasOwn(PRONOUNS, lemma.trim().toLocaleLowerCase("et"));
+}
+
+/** Which "you" a pronoun is, or null for the four that are not one. */
+export function youRegisterOf(lemma: string): YouRegister | null {
+  return PRONOUNS[lemma.trim().toLocaleLowerCase("et")]?.register ?? null;
 }
 
 /** The four fields a frame may reach for: the words, never the register note. */
