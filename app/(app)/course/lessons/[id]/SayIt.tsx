@@ -92,7 +92,7 @@ interface Taken {
   readonly shown: boolean;
 }
 
-export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier = 1, partAt = 1, onComplete }: { lesson: LessonSpec; scene: string | null; sceneHref: string | null; capstone: boolean; name: string | null; timeMultiplier?: number; partAt?: number; onComplete: () => void }) {
+export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier, partAt, onComplete }: { lesson: LessonSpec; scene: string | null; sceneHref: string | null; capstone: boolean; name: string | null; timeMultiplier: number; partAt: number; onComplete: () => void }) {
   const t = useT();
   const [mode, setMode] = useState<Mode | null>(null);
   const [at, setAt] = useState(0);
@@ -143,7 +143,12 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier
           {capstone
             ? fill(t("This is the whole conversation, with you in it. {who} speaks first and you answer as yourself, out loud or typed, one turn at a time. Each turn is added to the conversation, so by the end you've held all of it."), { who: opener })
             : levelIndex(lesson.level) >= levelIndex("B1")
-              ? t("Say today's key lines along and then alone, answer questions about yourself, then go longer: retell a story, or give one answer three times, faster each time. A word lights up when it's understood.")
+              // Named for what this lesson holds, the story or the race, rather than "one or the other".
+              ? lesson.retell
+                ? t("Say today's key lines along and then alone, answer questions about yourself, then tell a short story back in your own words. A word lights up when it's understood.")
+                : lesson.faster
+                  ? t("Say today's key lines along and then alone, answer questions about yourself, then give one answer three times, faster each time. A word lights up when it's understood.")
+                  : t("Say today's key lines along and then alone, then answer questions about yourself. A word lights up when it's understood.")
               : t("Say the conversation along with the screen, then answer a few questions about yourself out loud. A word lights up when it's understood, even said with an accent, so play yourself back beside the recording to hear how it sounded.")}
         </p>
         <div className="grid gap-3 sm:grid-cols-2">

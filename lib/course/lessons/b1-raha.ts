@@ -157,19 +157,20 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
     kind: "lesson",
     title: "Working as, becoming",
     goal: "Say what people work as, what they started as, and what they became.",
-    cast: { Kristi: "liivika", Kadri: "vesta", Marko: "tambet", Tom: "kalev" },
+    cast: { Kristi: "liivika", Siim: "albert", Kadri: "vesta", Marko: "tambet", Tom: "kalev" },
     conversation: [
-      { who: "Kristi", et: "Tere hommikust, kõik! Täna on meie meeskonnas uus inimene: Kadri.", en: "Good morning, everybody! There's somebody new in our team today: Kadri.", stage: "The Monday team meeting. Kristi, the manager, welcomes Kadri and introduces the team. Nobody else speaks." },
-      { who: "Kristi", et: "Kadri alustab meil praktikandina, aga ta tahab saada heaks arendajaks.", en: "Kadri is starting with us as an intern, but she wants to become a good developer." },
+      { who: "Kristi", et: "Tere hommikust, kõik! Täna on meie meeskonnas uus inimene: Siim.", en: "Good morning, everybody! There's somebody new in our team today: Siim.", stage: "The Monday team meeting. Kristi, the manager, welcomes Siim, a new intern, and introduces the team. Nobody else speaks." },
+      { who: "Kristi", et: "Siim alustab meil praktikandina, aga ta tahab saada heaks arendajaks.", en: "Siim is starting with us as an intern, but he wants to become a good developer." },
       { who: "Kristi", et: "Akna juures istub Marko. Ta töötab meil arendajana.", en: "By the window is Marko. He works here as a developer." },
       { who: "Kristi", et: "Marko on siin töötanud kaks aastat. Enne töötas ta kokana. Tema supp oli kõige parem!", en: "Marko has worked here for two years. Before that he worked as a cook. His soup was the best!" },
       { who: "Kristi", et: "Jah, kokk sai arendajaks. Ja eelmisel aastal valiti ta meie meeskonna juhiks.", en: "Yes, a cook became a developer. And last year he was chosen to lead our team." },
       { who: "Kristi", et: "Tom töötab meil programmeerijana. Ta tuli meile Londonist.", en: "Tom works here as a programmer. He came to us from London." },
+      { who: "Kristi", et: "Kadri tuli meile eelmisel kuul. Ta istub ukse juures.", en: "Kadri joined us last month. She sits by the door." },
       { who: "Kristi", et: "Ja mina? Mina alustasin siin ka praktikandina. Ma tegin rohkem kohvi kui koodi.", en: "And me? I started here as an intern too. I made more coffee than code.", stage: "Everybody laughs." },
       { who: "Kristi", et: "Nüüd olen ma projektijuht.", en: "Now I'm a project manager." },
       { who: "Kristi", et: "Ja eelmisel nädalal valiti mind ka korteriühistu esimeheks. Nüüd helistavad mulle kõik naabrid.", en: "And last week I was elected chair of my apartment association too. Now all the neighbors call me." },
       { who: "Kristi", et: "Palju õnne? Ei, pigem jõudu!", en: "Congratulations? No, good luck, more like!", stage: "Somebody at the table says congratulations." },
-      { who: "Kristi", et: "Kadri, jõudu ka sulle! Siin on kõik võimalik.", en: "Good luck to you too, Kadri! Anything is possible here." },
+      { who: "Kristi", et: "Siim, jõudu ka sulle! Siin on kõik võimalik.", en: "Good luck to you too, Siim! Anything is possible here." },
     ],
     teaches: [
       { kind: "word", et: "arendaja", en: "developer" },
@@ -206,17 +207,17 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Saama} with -ks is to become: {sai juhiks}. {Valiti} means was chosen, and it takes -ks too: {valiti juhiks}. Learn {valiti} as one word for now; lesson 29 shows how it's made.",
+        "{Saama} with -ks is to become: {sai juhiks}. {Valiti} means was chosen, and it takes -ks too: {valiti juhiks}. Learn {valiti} as one word for now; lesson 30 shows how it's made.",
         "A word in front takes the ending too: {heaks arendajaks}, a good developer.",
         "The questions are {kellena?}, as what, and {kelleks?}, into what.",
       ],
       watchOut: "English says works as a developer and became a developer with the same bare word. Estonian adds an ending, and it's a different one: -na for being, -ks for becoming.",
-      examples: [1, 4, 8],
+      examples: [1, 4, 9],
     },
     listenFor: [
       { q: "What did Marko do before he became a developer?", options: ["He was a teacher", "He was an intern", "He sold cars", "He was a cook"], answer: 3 },
       { q: "What happened to Kristi last week?", options: ["She was elected chair of her apartment association", "She was made the boss of a second team", "She started a new job in another company", "She moved into a bigger apartment on the other side of town"], answer: 0 },
-      { q: "What is Kadri starting as?", options: ["A developer", "A project manager", "An intern", "A cook"], answer: 2 },
+      { q: "What is Siim starting as?", options: ["A developer", "A project manager", "An intern", "A cook"], answer: 2 },
     ],
     answers: [
       { ask: { et: "Kellena sa töötad?", en: "What do you work as?" }, cue: "Say you work as a developer.", model: { et: "Ma töötan arendajana.", en: "I work as a developer." } },
@@ -281,7 +282,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       { who: "Kristi", et: "Võiksid küll. Aga kas sa saaksid mind siis ühes asjas aidata?", en: "Sure you could. But could you help me with something, then?" },
       { who: "Tom", et: "Muidugi. Millega?", en: "Of course. With what?" },
       { who: "Kristi", et: "Meil on uus praktikant. Kas sa võiksid talle meie süsteemi näidata?", en: "We have a new intern. Could you show him our system?" },
-      { who: "Tom", et: "Hea meelega. Ma pakuksin talle ka lõunat. Esimene päev on alati raske.", en: "Gladly. I'd offer him lunch too. The first day is always hard." },
+      { who: "Tom", et: "Hea meelega. Ma võiksin talle ka lõuna välja teha. Esimene päev on alati raske.", en: "Gladly. I could buy him lunch too. The first day is always hard." },
       { who: "Kristi", et: "Väga hea. Ja veel üks palve: kas sa saaksid esmaspäeval koosolekul natuke rääkida?", en: "Very good. And one more favor: could you say a few words at the meeting on Monday?" },
       { who: "Tom", et: "Eesti keeles?", en: "In Estonian?" },
       { who: "Kristi", et: "Muidugi eesti keeles. Sa ju õpid!", en: "In Estonian, of course. You're learning it, after all!" },
@@ -296,6 +297,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       { kind: "verb", et: "pakkuma", first: "pakun", en: "to offer, to suggest", firstEn: "I offer" },
       { kind: "form", et: "pakkuda", of: "pakkuma", en: "to offer, after can" },
       { kind: "form", et: "lõunat", of: "lõuna", en: "lunch, some of it" },
+      { kind: "form", et: "lõuna", of: "lõuna", en: "lunch, the whole meal; {lõuna välja tegema}, to buy somebody lunch", stem: true },
       { kind: "word", et: "koosolek", en: "meeting" },
       { kind: "form", et: "koosoleku", of: "koosolek", en: "of the meeting", stem: true },
       { kind: "form", et: "küsisin", of: "küsima", en: "I asked", past: true },
@@ -426,6 +428,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "üür", en: "rent" },
       { kind: "form", et: "üüri", of: "üür", en: "the rent, as an object" },
       { kind: "form", et: "arved", of: "arve", en: "the bills" },
+      { kind: "form", et: "arveid", of: "arve", en: "bills, some of them" },
       { kind: "word", et: "üle", en: "over; with {jääma}, left over" },
       { kind: "form", et: "kulusid", of: "kulu", en: "costs, after many" },
       { kind: "verb", et: "säästma", first: "säästan", en: "to save, money or time", firstEn: "I save" },
@@ -453,7 +456,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
     },
     listenFor: [
       { q: "Why is Tom surprised?", options: ["His pay came a week early", "He was paid twice this month", "His pay is smaller than the contract says", "His bank card doesn't work in the shop any more"], answer: 2 },
-      { q: "What does Anna say he should pay first?", options: ["The rent and the bills", "The new bike", "The books he bought", "The trip to Saaremaa"], answer: 0 },
+      { q: "What does Anna say he should pay first?", options: ["The rent and the bills", "The new bike", "The books he bought", "The trip to Saaremaa in the summer"], answer: 0 },
       { q: "What is Anna's plan for saving?", options: ["Stop buying books for a year", "Put money in a second account", "Ask the boss for a raise", "Work more hours at the weekend"], answer: 1 },
     ],
     answers: [
@@ -492,7 +495,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
     ],
     fixes: [
       { line: { et: "Lepingus on palk enne makse.", en: "The contract has the pay before tax." }, right: "makse", wrong: "maksud", pair: ["PARTITIVE", "NOMINATIVE"], why: "After {enne}, the [osastav] (3rd form): {enne makse}." },
-      { line: { et: "Kõigepealt maksad üüri ja arved.", en: "First you pay the rent and the bills." }, right: "üüri", wrong: "üür", pair: ["GENITIVE", "NOMINATIVE"], why: "When you pay all of the rent, it's {üüri}, just as all the bills are {arved}. {Üür} is only for a command: {Maksa üür ära!}" },
+      { line: { et: "Ma maksan arved ära.", en: "I'll pay the bills, all of them." }, right: "arved", wrong: "arveid", pair: ["NOMINATIVE", "PARTITIVE"], why: "All the bills, paid and done, so {arved}. {Arveid} would be some of them, or paying that is still going on." },
     ],
     faster: {
       ask: { et: "Mida sa oma palgaga teed?", en: "What do you do with your pay?" },
@@ -569,7 +572,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
     listenFor: [
       { q: "Why does Mari need somebody to take her shift?", options: ["She's ill with a cold", "She's going on holiday with her family", "She has an exam", "Her sister is getting married"], answer: 3 },
       { q: "What does Mari offer Liis in return?", options: ["Some extra money", "Liis's Sunday morning shift", "A week of her own holiday in the summer", "A better place on the rota"], answer: 1 },
-      { q: "How many hours of overtime has Liis done this month?", options: ["Six", "Ten", "Sixteen", "Twenty"], answer: 2 },
+      { q: "How many hours of overtime has Liis done this month?", options: ["Six", "Ten", "Sixteen", "Twenty-six"], answer: 2 },
     ],
     answers: [
       { ask: { et: "Kas sa saaksid minu vahetuse võtta?", en: "Could you take my shift?" }, cue: "Say yes, and ask when.", model: { et: "Jah. Millal?", en: "Yes. When?" } },
@@ -690,7 +693,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
     listenFor: [
       { q: "Why does Tom want to work four days a week?", options: ["He has an Estonian course on Fridays", "He wants to go fishing on Fridays", "Anna needs him at home on Fridays", "He's always too tired at the end of the week"], answer: 0 },
       { q: "What does Anna think of Tom's first sentence?", options: ["It's perfect as it is", "It has a spelling mistake in every line", "It's far too blunt for the boss", "It's much too long"], answer: 2 },
-      { q: "Which option does Tom choose?", options: ["Four days a week for less pay", "Keep working on Fridays", "Work from home on Fridays", "Ten hours a day, Monday to Thursday"], answer: 3 },
+      { q: "Which option does Tom choose?", options: ["Four days a week, and a slightly smaller salary", "Keep working on Fridays", "Work from home on Fridays", "Ten hours a day, Monday to Thursday"], answer: 3 },
     ],
     answers: [
       { cue: "Say you'd like to change your working hours.", model: { et: "Ma sooviksin muuta oma tööaega.", en: "I'd like to change my working hours." } },
@@ -771,7 +774,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
     goal: "Ask your manager for a raise: say what you've done, what you'd like, and agree on something.",
     cast: { Tom: "kalev", Kristi: "liivika" },
     conversation: [
-      { who: "Tom", et: "Kristi, kas sul oleks täna pool tundi aega?", en: "Kristi, would you have half an hour today?", stage: "In Kristi's office." },
+      { who: "Tom", et: "Kas sul oleks täna pool tundi aega?", en: "Would you have half an hour today?", stage: "In Kristi's office." },
       { who: "Kristi", et: "Muidugi. Istu. Millest sa rääkida tahaksid?", en: "Of course. Sit down. What would you like to talk about?" },
       { who: "Tom", et: "Ma olen siin töötanud pool aastat. Ma tahaksin rääkida oma palgast.", en: "I've been working here for half a year. I'd like to talk about my pay." },
       { who: "Kristi", et: "Hästi. Räägi, mida sa oled teinud.", en: "All right. Tell me what you've done." },
@@ -797,7 +800,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       examples: [4, 6, 8, 12],
     },
     listenFor: [
-      { q: "What does Tom want to talk about?", options: ["His working hours", "His pay", "A new project", "A week's holiday"], answer: 1 },
+      { q: "How long has Tom worked there?", options: ["Two years", "Since last month", "A few weeks", "Half a year"], answer: 3 },
       { q: "Why didn't Tom ask earlier?", options: ["He didn't dare", "He was too busy", "Kristi was away", "He didn't need the money"], answer: 0 },
       { q: "What do they agree on?", options: ["Ten percent, starting at once", "Nothing yet, they'll talk again in the spring", "Five percent now and five more later", "A bonus instead of a raise"], answer: 2 },
     ],

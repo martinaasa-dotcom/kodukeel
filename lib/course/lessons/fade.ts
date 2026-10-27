@@ -46,7 +46,7 @@ export const FADE_HARDER_FROM = 4;
  * handed in rather than looked up, because this module is drawn in the browser
  * and the list of parts holds every lesson of the course.
  */
-export function fadePlan(lesson: LessonSpec, partAt = 1): FadePass[] {
+export function fadePlan(lesson: LessonSpec, partAt: number): FadePass[] {
   const spoken = lesson.conversation.map((line, i) => ({ line, i })).filter(({ line }) => line.et && line.en);
   const named = (lesson.how.examples ?? []).map((i) => spoken.find((s) => s.i === i)).filter((s) => s !== undefined);
   const lines = (named.length > 0 ? named : spoken.slice(0, 3)).slice(0, FADE_LINES);

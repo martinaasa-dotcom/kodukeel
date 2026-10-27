@@ -117,8 +117,17 @@ export async function programmeFor(ownerId: string): Promise<Programme | null> {
  * tick on one of its own days. Read every time rather than written over the
  * stored part, so nothing about a learner is changed by opening a screen.
  */
+/*
+  Asked only of the levels that became lessons while learners were on them,
+  which is B1: A1 and A2 had nobody on their unit-built parts when they moved,
+  and every page calls `programmeFor`, so the two reads below would otherwise
+  be a cost every learner pays on every page for a learner nobody is.
+*/
+const REHOMED_LEVELS: ReadonlySet<string> = new Set(["B1"]);
+
 async function rehomed(ownerId: string, programme: Programme | null): Promise<Programme | null> {
-  if (!programme || programme.days.length === 0 || !programme.days.every((d) => d.lesson)) return programme;
+  if (!programme || !REHOMED_LEVELS.has(programme.level)) return programme;
+  if (programme.days.length === 0 || !programme.days.every((d) => d.lesson)) return programme;
   const days = programme.days.map((d) => d.id);
   const [old, current] = await Promise.all([
     prisma.courseStep.findFirst({ where: { ownerId, programmeId: programme.id, dayId: { notIn: days } }, select: { id: true }, orderBy: { id: "asc" } }),

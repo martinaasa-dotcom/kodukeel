@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Ear } from "lucide-react";
 import { Button } from "@/components/Button";
 import { ChoiceGroup } from "@/components/Choice";
@@ -9,7 +9,7 @@ import { useLocale, useT } from "@/components/Locale";
 import { LessonText } from "@/components/course/LessonText";
 import { LessonConversation } from "@/components/course/LessonConversation";
 import { Card } from "@/components/ui";
-import { fill } from "@/lib/copy/locale";
+import { fill, tr } from "@/lib/copy/locale";
 import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
 import { conditionById } from "@/lib/audio/conditions";
 import { shuffle } from "@/lib/random/shuffle";
@@ -50,6 +50,23 @@ export function ListenFirst({ lesson, onRead }: { lesson: LessonSpec; onRead: ()
   const right = picks.filter((p, i) => p !== null && p === gists[i]!.answer).length;
   const all = answered === gists.length;
   const room = lesson.hearing ? conditionById(lesson.hearing) : undefined;
+  /*
+    A PICK DISABLES ITS OPTIONS, SO THE CARET MOVES ON. Left where it was it
+    falls to the page, and a keyboard or screen-reader learner has to find the
+    next question from the top. It goes to the next unanswered question's first
+    option, and after the last to "Read it".
+  */
+  const questionsRef = useRef<HTMLDivElement>(null);
+  const readRef = useRef<HTMLButtonElement>(null);
+  const [moved, setMoved] = useState(-1);
+  useEffect(() => {
+    if (moved < 0) return;
+    const next = picks.findIndex((p, i) => p === null && i > moved);
+    const target = next >= 0
+      ? questionsRef.current?.children[next]?.querySelector<HTMLButtonElement>('[role="radio"]:not([disabled])')
+      : readRef.current;
+    target?.focus();
+  }, [moved, picks]);
 
   return (
     <Card>
@@ -63,7 +80,7 @@ export function ListenFirst({ lesson, onRead }: { lesson: LessonSpec; onRead: ()
         </p>
       </div>
       <LessonConversation lines={lesson.conversation} cast={lesson.cast} english={false} hidden condition={room} onPlayed={() => setPlayed(true)} />
-      <div className="mt-6 flex flex-col gap-5" data-gists>
+      <div ref={questionsRef} className="mt-6 flex flex-col gap-5" data-gists>
         {gists.map((g, i) => (
           <GistQuestion
             key={g.q}
@@ -71,7 +88,7 @@ export function ListenFirst({ lesson, onRead }: { lesson: LessonSpec; onRead: ()
             n={i + 1}
             of={gists.length}
             picked={picks[i] ?? null}
-            onPick={(option) => setPicks((all) => all.map((p, j) => (j === i ? option : p)))}
+            onPick={(option) => { setPicks((all) => all.map((p, j) => (j === i ? option : p))); setMoved(i); }}
           />
         ))}
       </div>
@@ -81,7 +98,7 @@ export function ListenFirst({ lesson, onRead }: { lesson: LessonSpec; onRead: ()
             ? fill(t("{n} of {total} caught by ear. Now read it."), { n: String(right), total: String(gists.length) })
             : played ? t("Answer what you can. A guess is fine.") : t("Press play, and listen to the end.")}
         </p>
-        <Button variant={all ? "primary" : "ghost"} onClick={onRead}>
+        <Button ref={readRef} variant={all ? "primary" : "ghost"} onClick={onRead}>
           {all ? t("Read it") : t("Show the words now")} <ArrowRight size={15} aria-hidden />
         </Button>
       </div>
@@ -99,7 +116,7 @@ function GistQuestion({ gist, n, of, picked, onPick }: { gist: Gist; n: number; 
     <div>
       <p className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>{fill(t("Question {n} of {total}"), { n: String(n), total: String(of) })}</p>
       <p className="mb-3 text-lg font-semibold" style={{ color: "var(--ink)" }}><LessonText text={gist.q} locale={locale} /></p>
-      <ChoiceGroup ariaLabel={gist.q} select="one" answer className="choice-grid">
+      <ChoiceGroup ariaLabel={tr(locale, gist.q)} select="one" answer className="choice-grid">
         {order.map((i) => {
           const option = gist.options[i]!;
           const state = picked === null ? null : optionState(i === gist.answer, i === picked);

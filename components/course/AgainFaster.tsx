@@ -34,7 +34,7 @@ import type { Faster } from "@/lib/course/lessons/types";
  * And a microphone that fails to start falls back to the box rather than
  * leaving a go that cannot end.
  */
-export function AgainFaster({ faster, voice, typed, multiplier = 1, onDone }: { faster: Faster; voice: string | undefined; typed: boolean; multiplier?: number; onDone: () => void }) {
+export function AgainFaster({ faster, voice, typed, multiplier, onDone }: { faster: Faster; voice: string | undefined; typed: boolean; multiplier: number; onDone: () => void }) {
   const t = useT();
   const locale = useLocale();
   const [goes, setGoes] = useState<readonly Go[]>([]);
@@ -112,23 +112,59 @@ function OneGo({ seconds, typed, onGo }: { seconds: number; typed: boolean; onGo
     onGo(goOf(said, took, seconds));
   };
 
+  /*
+    THE CLOCK READS THE LIVE STATE, NOT THE RENDER IT STARTED IN. The interval
+    is set up on the render that pressed Start, when the microphone is still
+    opening, so a `speech.listening` read from that closure was false for the
+    whole go: at nought the go closed on an empty box and the engine's answer
+    arrived to a go already finished, reading nothing said. Refs carry what is
+    true now.
+  */
+  const live = useRef({ speech, text, mic, finish });
+  live.current = { speech, text, mic, finish };
+
   useEffect(() => {
     if (started === null) return;
+    let grace: ReturnType<typeof setTimeout> | undefined;
     const id = setInterval(() => {
       const gone = (Date.now() - started) / 1000;
       const remaining = Math.max(0, seconds - gone);
       setLeft(remaining);
       if (remaining <= 0) {
         clearInterval(id);
-        // Listening, the engine's own close ends the go with what it heard; otherwise the box does.
-        if (mic && speech.listening) speech.stop();
-        else finish(text, seconds);
+        const now = live.current;
+        if (now.mic) {
+          /*
+            The engine closes with what it heard, which on a ninety-second turn
+            takes a while to decode: the go waits while it is listening or
+            thinking, and closes on nothing only once it has been neither for
+            a few seconds, or after half a minute whatever it says.
+          */
+          now.speech.stop();
+          let idle = 0;
+          let waited = 0;
+          const wait = () => {
+            const sp = live.current.speech;
+            idle = sp.listening || sp.thinking ? 0 : idle + 1;
+            waited += 1;
+            if (idle >= 4 || waited >= 30) live.current.finish("", seconds);
+            else grace = setTimeout(wait, 1000);
+          };
+          grace = setTimeout(wait, 1000);
+        } else {
+          now.finish(now.text, seconds);
+        }
       }
     }, 200);
-    return () => clearInterval(id);
-    // The clock depends on when it started; the text it closes on is read at the end.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [started, text, mic]);
+    return () => { clearInterval(id); if (grace) clearTimeout(grace); };
+  }, [started, seconds]);
+
+  // Start is replaced by the microphone or the box; the caret goes to whichever arrived.
+  const goRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (started === null || !mic) return;
+    goRef.current?.querySelector<HTMLButtonElement>("button")?.focus();
+  }, [started, mic]);
 
   const start = () => {
     setStarted(Date.now());
@@ -137,7 +173,7 @@ function OneGo({ seconds, typed, onGo }: { seconds: number; typed: boolean; onGo
   const angle = useMemo(() => `${(left / seconds) * 360}deg`, [left, seconds]);
 
   return (
-    <div className="flex flex-col gap-3 rounded-[var(--r-lg)] border px-4 py-4" style={{ borderColor: "var(--edge)", background: "var(--raised)" }} data-faster-go={seconds}>
+    <div ref={goRef} className="flex flex-col gap-3 rounded-[var(--r-lg)] border px-4 py-4" style={{ borderColor: "var(--edge)", background: "var(--raised)" }} data-faster-go={seconds}>
       <div className="flex flex-wrap items-center gap-4">
         <div className="run-clock" data-low={left <= 10 && started !== null ? "true" : "false"} style={{ "--clock-left": angle } as CSSProperties} aria-hidden>
           <span className="font-display text-xl font-bold tabular-nums" style={{ color: "var(--ink)" }}>{Math.ceil(left)}</span>

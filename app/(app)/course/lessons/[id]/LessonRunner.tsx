@@ -323,9 +323,12 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
             {/*
               AND ONE STEP FURTHER OUT, WHERE THE LESSON REHEARSES AN ERRAND
               (B1 on, `lessonSituations.ts`): the same situation with somebody
-              who talks the way people do at that counter, in Situations.
+              who talks the way people do at that counter, in Situations. Not
+              inside a module, where the one way on is the next step and every
+              other door stands down; the situations board and Today count it
+              as reached from this lesson on, so it is there to open later.
             */}
-            {situation && (
+            {situation && !focus && (
               <div className="mt-4 rounded-[var(--r-xl)] border px-5 py-4 text-left" style={{ background: "var(--surface)", borderColor: "var(--edge)" }} data-lesson-situation={situation.id}>
                 <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>{t("Try it out there")}</p>
                 <p className="mt-1 max-w-[56ch] text-base" style={{ color: "var(--ink-2)" }}>
@@ -531,7 +534,12 @@ function Listen({ lesson, heard, onHeard }: { lesson: LessonSpec; heard: boolean
   return (
     <Card>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <p className="text-base" style={{ color: "var(--ink-2)" }}>{t("Read it, and press a line to hear it. Nothing is asked yet.")}</p>
+        <p className="text-base" style={{ color: "var(--ink-2)" }}>
+          {/* At B1 the questions came first, so "nothing is asked" would be false a breath after asking. */}
+          {lesson.listenFor && lesson.listenFor.length > 0
+            ? t("Now read what you heard. Press a line to hear it again.")
+            : t("Read it, and press a line to hear it. Nothing is asked yet.")}
+        </p>
         <Button variant="ghost" size="sm" onClick={() => setEnglish((on) => !on)} aria-pressed={!english}>
           {english ? t("Hide the English") : t("Show the English")}
         </Button>

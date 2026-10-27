@@ -113,6 +113,10 @@ export function LessonConversation({ lines, cast, english, hidden = false, condi
               data-line-side={left ? "left" : "right"}
               aria-current={lit ? "true" : undefined}
             >
+              {/* The first line's direction is the setting, so it comes before anybody speaks. */}
+              {i === 0 && line.stage && (
+                <p className="mb-1 self-stretch px-1 text-base italic" style={{ color: "var(--ink-3)" }} data-setting><LessonText text={line.stage} locale={locale} /></p>
+              )}
               <span className="label-xs px-1" style={{ color: "var(--ink-3)" }}>{line.who}</span>
               <div
                 className={`max-w-full rounded-[var(--r-lg)] border px-4 py-3 transition-shadow ${lit ? "pop-in" : ""}`}
@@ -141,7 +145,7 @@ export function LessonConversation({ lines, cast, english, hidden = false, condi
                   <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}><LessonText text={line.en} locale={locale} /></p>
                 )}
               </div>
-              {line.stage && (
+              {i > 0 && line.stage && (
                 <p className="px-1 text-base italic" style={{ color: "var(--ink-3)" }}><LessonText text={line.stage} locale={locale} /></p>
               )}
             </li>

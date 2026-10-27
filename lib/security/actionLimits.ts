@@ -42,7 +42,8 @@ export const ACTION_LIMITS = {
   checkSentence: { perMinute: 30 },
   /**
    * Reads a whole text a learner wrote on a writing evening, sentence by
-   * sentence, against the dictionary: up to eight sentence checks a press.
+   * sentence, against the dictionary: up to two dozen sentences a press, read
+   * in one pass (`checkTypedSentences`).
    * A draft and a redraft an evening, so ten a minute is never met.
    */
   checkText: { perMinute: 10 },

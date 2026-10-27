@@ -44,7 +44,11 @@ export interface Line {
   readonly who: Speaker;
   readonly et?: string;
   readonly en?: string;
-  /** What happens, in English, in place of or after the words. */
+  /**
+   * What happens, in English, in place of or after the words. On the first
+   * line it is the setting, and is drawn before the line rather than after it
+   * (`LessonConversation`): the scene is set before anybody speaks.
+   */
   readonly stage?: string;
 }
 

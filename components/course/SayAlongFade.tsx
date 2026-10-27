@@ -31,7 +31,7 @@ import type { LessonSpec } from "@/lib/course/lessons/types";
  * conversation along at A1 and A2, since typing a line you were just shown is
  * not practice of anything.
  */
-export function SayAlongFade({ lesson, partAt = 1, onDone }: { lesson: LessonSpec; partAt?: number; onDone: () => void }) {
+export function SayAlongFade({ lesson, partAt, onDone }: { lesson: LessonSpec; partAt: number; onDone: () => void }) {
   const t = useT();
   const locale = useLocale();
   const plan = useMemo(() => fadePlan(lesson, partAt), [lesson, partAt]);

@@ -98,6 +98,36 @@ export function levelContractProblems(lessons: readonly LessonSpec[], parts: rea
       problems.push(`${lesson.id}: a closing conversation carries a ${lesson.retell ? "retell" : "faster"} its Say it never shows`);
     }
   }
+  /*
+    A VOICE IS A PERSON. B1 is heard before it is read, so who is speaking is
+    told by the voice alone: two speakers of one conversation in one voice are
+    one person to the ear, and a person who changes voice between lessons of a
+    level is two. Asked of the people who speak, not of the cast list, since a
+    name can be in the cast only to be mentioned.
+  */
+  for (const lesson of lessons) {
+    const speaking = [...new Set(lesson.conversation.filter((l) => l.et).map((l) => l.who))];
+    const byVoice = new Map<string, string>();
+    for (const who of speaking) {
+      const voice = lesson.cast[who];
+      if (!voice) continue;
+      const other = byVoice.get(voice);
+      if (other) problems.push(`${lesson.id}: ${other} and ${who} speak in one voice, ${voice}`);
+      else byVoice.set(voice, who);
+    }
+  }
+  for (const level of levels) {
+    const voiceOf = new Map<string, { voice: string; at: string }>();
+    for (const lesson of lessons.filter((l) => l.level === level)) {
+      for (const who of new Set(lesson.conversation.filter((l) => l.et).map((l) => l.who))) {
+        const voice = lesson.cast[who];
+        if (!voice) continue;
+        const before = voiceOf.get(who);
+        if (before && before.voice !== voice) problems.push(`${lesson.id}: ${who} speaks in ${voice}, and in ${before.voice} in ${before.at}`);
+        else if (!before) voiceOf.set(who, { voice, at: lesson.id });
+      }
+    }
+  }
   // A grammar point is explained once in a level and practiced from then on.
   for (const level of levels) {
     const seen = new Map<string, string>();

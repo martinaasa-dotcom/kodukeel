@@ -179,6 +179,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
     teaches: [
       { kind: "word", et: "raekoda", en: "town hall" },
       { kind: "form", et: "ehitati", of: "ehitama", en: "was built" },
+      { kind: "form", et: "ehitatud", of: "ehitama", en: "built; {oli ehitatud}, had been built" },
       { kind: "form", et: "renoveeriti", of: "renoveerima", en: "was renovated" },
       { kind: "form", et: "avati", of: "avama", en: "was opened" },
       { kind: "form", et: "avatakse", of: "avama", en: "is opened, opens" },
@@ -209,12 +210,12 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
         "A year goes with {aastal}, and the number is read as which year: {1930. aastal}, in 1930.",
         "{Ju} says you both know it: {Muuseum on ju kinni!}, but the museum's closed, as we know.",
       ],
-      watchOut: "Was built is the one word {ehitati}. Don't put {oli} in front of it.",
+      watchOut: "Was built is the one word {ehitati}. {Oli ehitatud} is something else: had been built, before another thing happened.",
       examples: [0, 2, 4, 8],
     },
     listenFor: [
       { q: "Which building do they look at first?", options: ["The museum", "The yellow building", "The town hall"], answer: 2 },
-      { q: "Who wants to go into the museum?", options: ["Tom", "Mari"], answer: 0 },
+      { q: "Who wants to go into the museum?", options: ["Mari", "Tom", "Both of them"], answer: 1 },
       { q: "True or false: the old money was taken to a bank.", options: ["True", "False"], answer: 1 },
     ],
     answers: [
@@ -320,7 +321,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
     listenFor: [
       { q: "What had happened when Tom got to work?", options: ["The meeting had started", "His boss had gone home early", "Nobody else had come in yet"], answer: 0 },
       { q: "Who says today wasn't Tom's day?", options: ["Tom himself", "His boss", "Mari"], answer: 2 },
-      { q: "Which came first in Tom's day?", options: ["The soup ran out", "He missed his train", "His phone died"], answer: 1 },
+      { q: "Which came first in Tom's day?", options: ["The soup at lunch ran out", "He missed his train", "His phone went dead"], answer: 1 },
     ],
     answers: [
       { ask: { et: "Kuidas su päev läks?", en: "How did your day go?" }, cue: "Say that when you got to work, the meeting had already started.", model: { et: "Kui ma tööle jõudsin, oli koosolek juba alanud.", en: "When I got to work, the meeting had already started." } },
@@ -448,7 +449,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       examples: [2, 3, 7, 10],
     },
     listenFor: [
-      { q: "Where was the fire, according to the radio?", options: ["In a hotel by the sea", "In a shop", "In a restaurant kitchen"], answer: 2 },
+      { q: "Where was the fire, according to the radio?", options: ["In a big hotel by the sea", "In a shop", "In a restaurant kitchen"], answer: 2 },
       { q: "Who asks whether anybody was hurt?", options: ["Jaan", "Tom", "Anna"], answer: 0 },
       { q: "True or false: the restaurant will open again in a week.", options: ["True", "False"], answer: 1 },
     ],
@@ -620,7 +621,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       points: [
         { en: "Yesterday's meeting lasted two hours.", any: ["kestis", "tundi"] },
         { en: "First, who makes the coffee was discussed.", any: ["arutati", "kohvi"] },
-        { en: "That was discussed for half an hour.", any: ["pool"] },
+        { en: "That was discussed for half an hour.", any: ["pool tundi"] },
         { en: "Marko doesn't drink coffee, only tea.", any: ["Marko", "teed"] },
         { en: "In the end it was decided that everybody makes their own.", any: ["igaüks", "otsustati"] },
         { en: "The new project only came up at the end.", any: ["projektist", "lõpus"] },
@@ -711,7 +712,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
         from: { et: "Toru on katki.", en: "The pipe is broken." },
         ask: "Say it has been fixed.",
         to: { et: "Toru on parandatud.", en: "The pipe has been fixed." },
-        pattern: "impersonal",
+        pattern: "participle",
       },
       {
         from: { et: "Torumees vahetab toru välja.", en: "The plumber is replacing the pipe." },
@@ -798,14 +799,14 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       notes: [
         "Nobody named: {kutsuti}, {vahetati välja}, {ei parandatud}. Had happened before: {oli juba katki läinud}. Has to be done: {tuleb välja vahetada}.",
         "{Minu arvates} from A2 starts a suggestion politely, and {Otsustame nii} is how the chair closes a point.",
-        "At the end, the chair asks you about the cellar, and one question is one you haven't heard yet. Answer politely, one turn at a time.",
+        "At the end the chair asks you about the cellar, and one of her questions wasn't asked at the meeting above.",
       ],
       watchOut: "It happened before last week's burst, so {oli katki läinud}.",
       examples: [2, 4, 5, 8],
     },
     listenFor: [
-      { q: "Who chairs the meeting?", options: ["Ants", "Tom", "Helgi"], answer: 2 },
-      { q: "Which happened first?", options: ["The pipe burst last winter", "The pipe burst last week"], answer: 0 },
+      { q: "Who chairs the meeting?", options: ["Ants, from the top floor", "Tom", "Helgi"], answer: 2 },
+      { q: "Which happened first?", options: ["The pipe burst last week", "The pipe burst last winter", "A plumber replaced the pipe"], answer: 1 },
       { q: "True or false: Ants thinks replacing all the pipes costs a lot.", options: ["True", "False"], answer: 0 },
     ],
     answers: [

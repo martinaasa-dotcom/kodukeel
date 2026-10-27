@@ -15,6 +15,17 @@ import type { LessonView } from "@/lib/progress/lessonView";
   can build every lesson's plan without one (`lessonPlan.test.ts`).
 */
 
+/*
+  The ledger before every lesson, walked once a process. It is the same for
+  every learner and every request, and walking 170 lessons was about 130 ms of
+  a lesson page that renders on every visit. Ledgers are values (`teach`
+  returns a new one), so a held map cannot be changed by whoever reads it.
+*/
+let BEFORE: Map<string, ReturnType<typeof ledgersBefore> extends Map<string, infer L> ? L : never> | null = null;
+function ledgerBefore(id: string) {
+  return (BEFORE ??= ledgersBefore(LESSONS)).get(id)!;
+}
+
 /** The half of a lesson's view that is the same for every learner, which is all of it but three fields. */
 export type LessonPlan = Omit<LessonView, "name" | "due" | "check" | "part" | "next" | "partAt" | "timeMultiplier"> & {
   closes: CourseCheck | null;
@@ -31,7 +42,7 @@ export function lessonPlan(
   /** The pairs of forms the learner mixes up, commonest first, which put their own slips first. */
   confusions: readonly (readonly [string, string])[] = [],
 ): LessonPlan {
-  const before = ledgersBefore(LESSONS).get(lesson.id)!;
+  const before = ledgerBefore(lesson.id);
   // The one after it in teaching order, which after lesson 26 may be 26a; never into another level.
   const after = LESSONS[LESSONS.indexOf(lesson) + 1];
   const next = after && after.level === lesson.level ? after : null;

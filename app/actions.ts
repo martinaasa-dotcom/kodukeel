@@ -19,7 +19,7 @@ import { recordSuggestion } from "@/lib/suggestions/record";
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
 import { visibleLine, visibleProse } from "@/lib/security/visibleText";
 import { glossSentences } from "@/lib/dict/glossed";
-import { checkTypedSentence } from "@/lib/progress/sentenceCheck";
+import { checkTypedSentence, checkTypedSentences } from "@/lib/progress/sentenceCheck";
 import { MAX_READING_CHARS, readingParagraphs } from "@/lib/estonian/readingText";
 import { setTaskDone } from "@/lib/progress/tasks";
 import { keepBest } from "@/lib/progress/personalBest";
@@ -3274,12 +3274,13 @@ function writingLesson(lessonId: unknown) {
   return lesson?.write ? lesson : null;
 }
 
-/** Each sentence through `checkTypedSentence`, the model text as the tie-breaker for a spelling suggestion. */
+/**
+ * Every sentence read in one pass of the dictionary (`checkTypedSentences`), the model text as the
+ * tie-breaker for a spelling suggestion: one read for the whole draft rather than one per sentence.
+ */
 async function readSentences(sentences: readonly string[], sample: string) {
-  return Promise.all(sentences.map(async (sentence) => {
-    const checked = await checkTypedSentence(sentence, sample);
-    return { sentence, findings: checked.findings };
-  }));
+  const checked = await checkTypedSentences(sentences, sample);
+  return sentences.map((sentence, i) => ({ sentence, findings: checked[i]!.findings }));
 }
 
 /**
@@ -3306,6 +3307,8 @@ export async function checkLessonText(lessonIdIn: unknown, textIn: unknown) {
   if (!lesson?.write) return { ok: false as const, error: "That writing task isn't in this lesson any more." };
   const typed = visibleProse(textIn, MAX_WRITTEN_CHARS);
   if (!typed) return { ok: false as const, error: "Write something first." };
+  // Past the longest text a task asks for the draft is cut, and the screen says so rather than reading half.
+  const cut = typeof textIn === "string" && visibleProse(textIn, MAX_WRITTEN_CHARS + 1).length > MAX_WRITTEN_CHARS;
   const whole = sentencesOf(typed);
   const sentences = whole.slice(0, MOST_READ);
   if (sentences.length === 0) return { ok: false as const, error: "Write whole sentences, three words or more each." };
@@ -3321,6 +3324,8 @@ export async function checkLessonText(lessonIdIn: unknown, textIn: unknown) {
     short: piecesOf(typed).length - whole.length,
     /** Sentences past the ones read. */
     beyond: whole.length - sentences.length,
+    /** Whether the draft ran past the longest text read, so its end was never looked at. */
+    cut,
   };
 }
 
@@ -3342,10 +3347,12 @@ export async function keepLessonSentences(lessonIdIn: unknown, sentencesIn: unkn
   if (busy) return await sayRefusal(ownerId, busy);
   const lesson = writingLesson(lessonIdIn);
   if (!lesson?.write) return { ok: false as const, error: "That writing task isn't in this lesson any more." };
+  // Each ticked string read as the sentences it holds, since a card is made per sentence and one long
+  // string past the reader's word limit would otherwise make cards out of words nobody read.
   const ticked = [...new Set((Array.isArray(sentencesIn) ? sentencesIn : [])
     .slice(0, MOST_READ)
     .map((s) => visibleLine(s, MAX_KEPT_SENTENCE_CHARS))
-    .filter((s) => s !== ""))].slice(0, MOST_KEPT);
+    .flatMap((s) => sentencesOf(s)))].slice(0, MOST_KEPT);
   if (ticked.length === 0) return { ok: false as const, error: "Tick a sentence to keep first." };
   const read = await readSentences(ticked, lesson.write.model.map((l) => l.et).join(" "));
   const kept = keptOf(ticked, read);

@@ -5,13 +5,13 @@ import { FAREWELLS, HELLOS } from "./shared";
   THE B1 SPEAKING EXAM, PRACTICED, AT THE END OF B1, LESSON 49, PLAYED
   RATHER THAN READ.
 
-  The last part taught offices, forms, phone calls and the small words that
-  finish a verb. The examiner asks the learner about themselves, their work,
-  a problem they solved, what they would do differently, what they think,
-  and how they learned Estonian. One question, town or country, is not in
-  the lesson's own conversation, so the learner meets something new, as at
-  the real exam. Something is at stake: it is the exam, and a one-word answer
-  is not enough.
+  The exam in the three parts the real one has. First the learner talks
+  about themselves and their work. Then a situation: the examiner plays a
+  bank clerk, and the learner has lost a wallet, gets the card blocked and
+  asks for a new one. Then a topic: driving in Tallinn, and one question that
+  is not in the lesson's own conversation, town or country, so the learner
+  meets something new, as at the real exam. Something is at stake: it is the
+  exam, and a one-word answer is not enough.
 
   Not the catalog's `eksam-b1`, which rehearses the real exam's shape with its
   curveballs: this is the lesson's own role-play, held to the lessons' ledger.
@@ -24,7 +24,7 @@ export default inLesson("b1-49-end", {
   place: "A quiet room, an examiner you've never met across the table",
   tests: "liitverbid",
   register: "teie",
-  role: "You're at the B1 speaking exam. Answer as yourself, in two or three sentences.",
+  role: "You're at the B1 speaking exam, in its three parts. In part two the examiner plays a bank clerk and you've lost your wallet. Answer as yourself, in two or three sentences.",
   props: [],
   curveballs: [],
   beats: [
@@ -41,8 +41,8 @@ export default inLesson("b1-49-end", {
     },
     {
       id: "about",
-      goal: "Say who you are, where you live and what you do.",
-      they: "She asks you to sit down and tell her a little about yourself.",
+      goal: "Part one: say who you are, where you're from, where you live and what you do.",
+      they: "She asks you to sit down, says the exam has three parts, and asks you to tell her a little about yourself.",
       move: "instruct",
       topic: ["rääkima"],
       needs: [{ kind: "any" }],
@@ -62,31 +62,42 @@ export default inLesson("b1-49-end", {
       shape: "word",
     },
     {
-      id: "problem",
-      goal: "Tell her about a problem, and what you did about it.",
-      they: "She asks you to tell her about a problem, and how you solved it.",
+      id: "lost",
+      goal: "Part two: tell the clerk you've lost your wallet, and ask her to block your card.",
+      they: "Part two: she plays a bank clerk and asks how she can help you.",
       move: "ask",
-      topic: ["probleem", "lahendama"],
-      needs: [{ kind: "anyOf", of: [{ kind: "lemma", oneOf: ["kaotama", "lahendama", "kinni"] }, { kind: "any" }] }],
+      topic: ["aitama"],
+      needs: [{ kind: "anyOf", of: [{ kind: "lemma", oneOf: ["kaotama", "rahakott", "kinni"] }, { kind: "any" }] }],
       required: true,
       patience: 2,
       shape: "word",
     },
     {
-      id: "nexttime",
-      goal: "Say what you would do differently next time.",
-      they: "She asks what you would do next time.",
+      id: "card",
+      goal: "Say yes, and ask what you have to do and when the new card comes.",
+      they: "She says the card is blocked now and asks whether you want a new card.",
       move: "ask",
-      topic: ["järgmine", "tegema"],
-      needs: [{ kind: "anyOf", of: [{ kind: "lemma", oneOf: ["vaatama", "järgmine"] }, { kind: "any" }] }],
+      topic: ["kaart"],
+      needs: [{ kind: "anyOf", of: [{ kind: "lemma", oneOf: ["millal", "tegema", "jah"] }, { kind: "any" }] }],
+      required: true,
+      patience: 2,
+      shape: "word",
+    },
+    {
+      id: "form",
+      goal: "Say you'll fill in the form now, and thank her.",
+      they: "She asks you to fill in a form, and says the new card comes in a week.",
+      move: "instruct",
+      topic: ["blankett", "täitma"],
+      needs: [{ kind: "anyOf", of: [{ kind: "lemma", oneOf: ["täitma", "Aitäh!", "hästi"] }, { kind: "any" }] }],
       required: true,
       patience: 2,
       shape: "word",
     },
     {
       id: "opinion",
-      goal: "Give your opinion on driving in Tallinn, with a reason.",
-      they: "She asks whether it's easy to drive in Tallinn.",
+      goal: "Part three: give your opinion on driving in Tallinn, with a reason.",
+      they: "Part three: she asks your opinion, whether it's easy to drive in Tallinn.",
       move: "ask",
       topic: ["lihtne", "auto", "sõitma"],
       needs: [{ kind: "anyOf", of: [{ kind: "lemma", oneOf: ["arvama", "sest", "kuigi"] }, { kind: "any" }] }],
@@ -96,22 +107,11 @@ export default inLesson("b1-49-end", {
     },
     {
       id: "compare",
-      goal: "Say which is better, town or the country, and why.",
+      goal: "Say which is better, town or the country, with a reason for it and one against.",
       they: "She asks which is better, living in town or in the country, and why.",
       move: "ask",
       topic: ["linn", "maa", "parem"],
       needs: [{ kind: "anyOf", of: [{ kind: "lemma", oneOf: ["linn", "maa", "parem", "sest"] }, { kind: "any" }] }],
-      required: true,
-      patience: 2,
-      shape: "word",
-    },
-    {
-      id: "learn",
-      goal: "Say how you learned Estonian.",
-      they: "She asks how you learned Estonian.",
-      move: "ask",
-      topic: ["õppima", "keel"],
-      needs: [{ kind: "anyOf", of: [{ kind: "lemma", oneOf: ["õppima", "rääkima"] }, { kind: "any" }] }],
       required: true,
       patience: 2,
       shape: "word",
@@ -129,8 +129,8 @@ export default inLesson("b1-49-end", {
     },
   ],
   outcomes: [
-    { id: "examined", when: ["greet", "about", "work", "problem", "nexttime", "opinion", "compare", "learn", "close"], says: "You got through a whole speaking exam in Estonian, made of all of B1." },
-    { id: "examined-thin", when: ["about", "problem", "opinion"], says: "You talked about yourself, a problem and what you think. That's the heart of the exam." },
+    { id: "examined", when: ["greet", "about", "work", "lost", "card", "form", "opinion", "compare", "close"], says: "You got through all three parts of a speaking exam in Estonian, made of all of B1." },
+    { id: "examined-thin", when: ["about", "lost", "opinion"], says: "You talked about yourself, handled the bank and gave your view. That's the heart of the exam." },
     { id: "left", when: [], says: "You left before the exam began. There'll be another sitting." },
   ],
 });

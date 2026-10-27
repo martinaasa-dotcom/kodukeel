@@ -36,17 +36,15 @@ import { lessonHead } from "../lessonHeads";
 import { tonightSpellings } from "./fade";
 import { familiesOf, unfold, wordsOf, type Ledger } from "./ledger";
 import type { LessonSpec } from "./types";
+import { MOST_KEPT, MOST_READ } from "./limits";
 
-/** The most sentences one draft keeps, so one evening cannot flood a deck. */
-export const MOST_KEPT = 8;
-
-/**
- * The most sentences of a draft the dictionary reads one by one. The longest
- * writing task asks for a hundred words, and a B1 sentence runs to five words
- * or more, so this reads the whole of any text a task asks for. A test holds
- * it to the longest `least` there is.
- */
-export const MOST_READ = 24;
+/*
+  The two limits live in a leaf module (`./limits.ts`) because the writing
+  step's screen needs them, and this module reaches the lesson heads, which
+  build every lesson and the harvest when they load: imported from here, the
+  screen put the whole course and the dictionary into the browser.
+*/
+export { MOST_KEPT, MOST_READ };
 
 /** Shorter than this and a piece of a draft is not read as a sentence. */
 const SENTENCE_WORDS = 3;

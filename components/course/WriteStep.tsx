@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useEffect, useId, useLayoutEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, BookmarkPlus, Check, Circle, Loader2, PenLine } from "lucide-react";
 import { Button } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
@@ -18,29 +18,30 @@ import { frameOf, markGap, usesIn, wordCount } from "@/lib/course/lessons/frame"
 import type { LessonSpec, WriteTask } from "@/lib/course/lessons/types";
 import type { Finding } from "@/lib/course/lessons/sentenceCheck";
 import { checkLessonText, keepLessonSentences } from "@/app/actions";
-import { MOST_KEPT, MOST_READ } from "@/lib/course/lessons/own";
+import { MOST_KEPT, MOST_READ } from "@/lib/course/lessons/limits";
 import { forgetWriting, loadWriting, saveWriting, type WriteStage } from "./writeResume";
 
 /**
  * WRITE: ONE REAL TEXT A PART (B1 on, docs/43-lessons.md §11.2).
  *
- * Five stages, always in this order, each one the scaffold for the next:
+ * Four stages, always in this order, each one the scaffold for the next, and
+ * named in the strip above them:
  *
  *   1. Read the model, a text that does the job, its key words marked.
  *   2. Fill in the frame: the same text with those words taken out.
  *   3. Write your own: the same job, with your details, and the key words
  *      ticking themselves off as they appear in it.
- *   4. Have it read: the dictionary first, sentence by sentence, on every
- *      deployment; then Anu on the text as a whole, on request, behind the
- *      guard every graded comment passes, so a note quoting a form nobody can
- *      vouch for is held back whole (`/api/exam/write`, `verify.ts`).
- *   5. Redraft beside the first version, have Anu read the second draft too,
- *      and keep the sentences: the learner ticks the ones they are sure of,
- *      only a sentence the dictionary read with nothing to say can be ticked,
- *      and each one kept becomes a gap card in their own deck with a word the
- *      course taught taken out (`keepLessonSentences`).
+ *   4. Redraft and keep it: the draft is read by the dictionary first,
+ *      sentence by sentence, on every deployment, and by Anu on the text as a
+ *      whole on request, behind the guard every graded comment passes, so a
+ *      note quoting a form nobody can vouch for is held back whole
+ *      (`/api/exam/write`, `verify.ts`); the second draft sits beside the
+ *      first; and the learner ticks the sentences they are sure of, only one
+ *      the dictionary read with nothing to say can be ticked, and each kept
+ *      becomes a gap card in their own deck with a word the course taught
+ *      taken out (`keepLessonSentences`).
  *
- * WHAT WAS TYPED SURVIVES LEAVING THE STEP. The step pills are pressable and a
+ * WHAT WAS TYPED SURVIVES LEAVING THE STEP. The lesson's step pills are pressable and a
  * phone takes tabs away, so the stage, the frame's gaps, the draft and the
  * second draft are kept on the device per lesson (`writeResume.ts`) and put
  * back on arrival, and forgotten when the learner presses "Done writing".
@@ -316,6 +317,8 @@ interface Read {
   readonly short: number;
   /** Sentences past the ones read. */
   readonly beyond: number;
+  /** The draft ran past the longest text read, so its end was never looked at. */
+  readonly cut: boolean;
 }
 
 /** Stages 4 and 5: the reading, the second draft beside the first, and the sentences kept. */
@@ -323,6 +326,9 @@ function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonS
   const t = useT();
   const id = useId();
   const [read, setRead] = useState<Read | null>(null);
+  // "Read my text" is replaced by what was found, so the caret goes to the finding's own line.
+  const findingsRef = useRef<HTMLParagraphElement>(null);
+  useEffect(() => { if (read) findingsRef.current?.focus(); }, [read]);
   const [reading, setReading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [ticked, setTicked] = useState<ReadonlySet<number>>(new Set());
@@ -337,7 +343,7 @@ function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonS
     checkLessonText(lesson.id, text)
       .then((r) => {
         if (!r.ok) { setError(t(r.error)); return; }
-        setRead({ text, sentences: r.sentences, short: r.short, beyond: r.beyond });
+        setRead({ text, sentences: r.sentences, short: r.short, beyond: r.beyond, cut: r.cut });
         // Ticked by default: the sentences the dictionary found nothing in that make a card, as many as a draft keeps.
         const clean = r.sentences.flatMap((s, i) => (s.card ? [i] : [])).slice(0, MOST_KEPT);
         setTicked(new Set(clean));
@@ -374,11 +380,16 @@ function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonS
           </Button>
         ) : (
           <div className="flex flex-col gap-4" data-write-findings>
-            <p className="text-base font-semibold" role="status" style={{ color: "var(--ink)" }}>
+            <p ref={findingsRef} tabIndex={-1} className="text-base font-semibold outline-none" role="status" style={{ color: "var(--ink)" }}>
               {noted === 0
                 ? t("The dictionary found nothing to point out. It checks spelling and the commonest slips, not every ending.")
                 : fill(t("{n} of {total} sentences have something to look at."), { n: String(noted), total: String(read.sentences.length) })}
             </p>
+            {read.cut && (
+              <p className="text-base" style={{ color: "var(--ink-2)" }}>
+                {t("Your text runs past what one reading takes, so its end wasn't read. Shorten it and read it again.")}
+              </p>
+            )}
             {read.sentences.length < total && (
               <p className="text-base" style={{ color: "var(--ink-2)" }}>
                 {fill(t("It read {n} of your {total} sentences. It skips anything under three words, and stops after {max}."), {

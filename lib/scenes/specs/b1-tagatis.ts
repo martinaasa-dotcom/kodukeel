@@ -17,7 +17,7 @@ import { FAREWELLS, HELLOS } from "./shared";
 export default inLesson("b1-28-deposit", {
   id: "b1-tagatis",
   title: "Getting the deposit back",
-  place: "An empty rented apartment, a few days after the move",
+  place: "An empty rented apartment, on the old contract's last day",
   tests: "eluase",
   register: "teie",
   role: "You've moved out. Your old landlord is walking through the empty apartment with you and would like to keep part of your deposit. Answer as yourself.",

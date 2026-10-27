@@ -580,6 +580,17 @@ export const LESSON_TEXT_B1_UUDISED: Area = {
     "to know: the [da-tegevusnimi] (-da)": "знать: [da-tegevusnimi] (-da)",
     "was announced, it was reported": "сообщили, было объявлено",
     "{Õnneks} is luckily: {Õnneks ei saanud keegi vigastada}.": "{Õnneks} значит «к счастью»: {Õnneks ei saanud keegi vigastada}.",
+
+    // review fixes (lessons rewritten after the content review)
+    "Was built is the one word {ehitati}. {Oli ehitatud} is something else: had been built, before another thing happened.": "«Был построен» это одно слово {ehitati}. {Oli ehitatud} это другое: «был построен» ещё до того, как случилось что-то другое.",
+    "built; {oli ehitatud}, had been built": "построенный; {oli ehitatud}, был построен (раньше)",
+    "Both of them": "Оба",
+    "In a big hotel by the sea": "В большом отеле у моря",
+    "At the end the chair asks you about the cellar, and one of her questions wasn't asked at the meeting above.": "В конце председатель спрашивает тебя о подвале, и одного из её вопросов на собрании выше не было.",
+    "A plumber replaced the pipe": "Сантехник заменил трубу",
+    "The soup at lunch ran out": "Суп за обедом закончился",
+    "His phone went dead": "У него сел телефон",
+    "Ants, from the top floor": "Антс с верхнего этажа",
   },
   uk: {
     "What people do here": "Що тут прийнято",
@@ -1148,5 +1159,16 @@ export const LESSON_TEXT_B1_UUDISED: Area = {
     "to know: the [da-tegevusnimi] (-da)": "знати: [da-tegevusnimi] (-da)",
     "was announced, it was reported": "повідомили, було оголошено",
     "{Õnneks} is luckily: {Õnneks ei saanud keegi vigastada}.": "{Õnneks} означає «на щастя»: {Õnneks ei saanud keegi vigastada}.",
+
+    // review fixes (lessons rewritten after the content review)
+    "Was built is the one word {ehitati}. {Oli ehitatud} is something else: had been built, before another thing happened.": "«Було збудовано» це одне слово {ehitati}. {Oli ehitatud} це інше: «було збудовано» ще до того, як сталося щось інше.",
+    "built; {oli ehitatud}, had been built": "збудований; {oli ehitatud}, було збудовано (раніше)",
+    "Both of them": "Обоє",
+    "In a big hotel by the sea": "У великому готелі біля моря",
+    "At the end the chair asks you about the cellar, and one of her questions wasn't asked at the meeting above.": "Наприкінці голова питає тебе про підвал, і одного з її запитань на зборах вище не було.",
+    "A plumber replaced the pipe": "Сантехнік замінив трубу",
+    "The soup at lunch ran out": "Суп в обід закінчився",
+    "His phone went dead": "У нього розрядився телефон",
+    "Ants, from the top floor": "Антс із верхнього поверху",
   },
 };

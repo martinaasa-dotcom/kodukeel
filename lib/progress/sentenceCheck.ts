@@ -34,10 +34,30 @@ const HEADWORDS_NEAR = 12;
  * learner as a form; every form a finding prints comes off a dictionary row.
  */
 export async function checkTypedSentence(text: string, sample: string): Promise<SentenceCheck> {
-  const said = [...new Set([text, sample].flatMap((t) => (t.match(ESTONIAN_WORD) ?? []).map((w) => w.toLowerCase())))];
+  return (await checkTypedSentences([text], sample, MAX_WORDS))[0]!;
+}
+
+/** Distinct words read for a whole written text and its model, which a hundred-word task stays well under. */
+const MAX_TEXT_WORDS = 220;
+
+/**
+ * SEVERAL SENTENCES OF ONE TEXT, READ IN ONE PASS.
+ *
+ * A writing step reads a draft of up to two dozen sentences, and each read on
+ * its own asked the forms list and the dictionary for the model text again
+ * and ran its own queries: two dozen at once on a pooled connection is the
+ * press that stalls everybody else's page. The spellings of every sentence and
+ * of the sample are gathered and read once, and each sentence is judged
+ * against that one read, which is the same judgment (`checkSentence`) with the
+ * same rows in hand.
+ */
+export async function checkTypedSentences(texts: readonly string[], sample: string, cap = MAX_TEXT_WORDS): Promise<SentenceCheck[]> {
+  if (texts.length === 0) return [];
+  // The sentences' own words first, so the cap never drops a word somebody wrote for one the model holds.
+  const said = [...new Set([...texts, sample].flatMap((t) => (t.match(ESTONIAN_WORD) ?? []).map((w) => w.toLowerCase())))];
   // A clitic `-gi` or `-ki` is read off the word under it, so that word is asked too.
   const spellings = [...new Set([...said, ...said.flatMap((w) => (/[gk]i$/.test(w) && w.length > 4 ? [w.slice(0, -2)] : []))])]
-    .slice(0, MAX_WORDS);
+    .slice(0, cap);
   const budget = coldBudget(COLD_SHARDS_PER_REQUEST);
   const compoundBudget = coldBudget(COLD_SHARDS_PER_REQUEST);
   const read = await Promise.all(spellings.map(async (word) => ({
@@ -117,10 +137,10 @@ export async function checkTypedSentence(text: string, sample: string): Promise<
     };
   });
 
-  return checkSentence(text, entries, (word) => exact.has(word), sample, {
+  return texts.map((text) => checkSentence(text, entries, (word) => exact.has(word), sample, {
     claims: (word) => claims.get(word),
     compound: (word) => compound.has(word),
     near: (word) => nearBy.get(word),
     band: (lemma) => bands.get(lemma),
-  });
+  }));
 }

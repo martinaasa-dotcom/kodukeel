@@ -9,7 +9,7 @@ const partNumber = (lesson: LessonSpec) =>
 
 describe("say along, then alone", () => {
   const lesson = LESSONS.find((l) => (l.how.examples ?? []).length >= 2)!;
-  const plan = fadePlan(lesson);
+  const plan = fadePlan(lesson, 1);
   const lines = plan.length / 3;
 
   it("says each key line three times, the first with nothing hidden and the last with everything", () => {

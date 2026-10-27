@@ -69,6 +69,18 @@ describe("the contract itself", () => {
     expect(levelContractProblems([...lessons.slice(0, 3), at(4, "partEnd")], [part])).toEqual([]);
   });
 
+  it("refuses two speakers in one voice, and a person who changes voice within a level", () => {
+    const lessons = [1, 2, 3].map((n) => at(n, "lesson")).concat(at(4, "partEnd"));
+    expect(levelContractProblems(lessons, [part])).toEqual([]);
+    const speakers = [...new Set(lesson.conversation.filter((l) => l.et).map((l) => l.who))];
+    expect(speakers.length).toBeGreaterThanOrEqual(2);
+    const [a, b] = speakers as [string, string];
+    const sameVoice = { ...lessons[1]!, cast: { ...lesson.cast, [b]: lesson.cast[a]! } };
+    expect(levelContractProblems([lessons[0]!, sameVoice, lessons[2]!, lessons[3]!], [part]).join(" ")).toMatch(/speak in one voice/);
+    const otherVoice = { ...lessons[1]!, cast: { ...lesson.cast, [a]: lesson.cast[a] === "albert" ? "indrek" : "albert" } };
+    expect(levelContractProblems([lessons[0]!, otherVoice, lessons[2]!, lessons[3]!], [part]).join(" ")).toMatch(new RegExp(`${a} speaks in`));
+  });
+
   it("refuses a gap in the numbering and a part too small to be one", () => {
     expect(levelContractProblems([at(1, "lesson"), at(3, "lesson"), at(4, "lesson"), at(5, "partEnd")], [part]).join(" ")).toMatch(/numbered 3/);
     expect(levelContractProblems([at(1, "lesson"), at(2, "partEnd")], [part]).join(" ")).toMatch(/2 core lessons/);

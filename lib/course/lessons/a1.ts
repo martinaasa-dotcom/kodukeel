@@ -102,7 +102,8 @@ const TERE_LESSONS: readonly LessonSpec[] = [
     goal: "Say you don't understand, ask for it again and slower, and ask whether somebody speaks English.",
     cast: { Liis: "liivika", Tom: "kalev" },
     conversation: [
-      { who: "Liis", et: "Tere!", en: "Hello!", stage: "And then a long sentence, very fast." },
+      { who: "Liis", et: "Tere!", en: "Hello!" },
+      { who: "Liis", stage: "And then a long sentence, very fast." },
       { who: "Tom", et: "Vabandust, ma ei saa aru. Palun korrake.", en: "Sorry, I don't understand. Could you say that again?" },
       { who: "Liis", stage: "She says it again, just as fast." },
       { who: "Tom", et: "Aeglasemalt, palun.", en: "Slower, please." },
@@ -131,7 +132,7 @@ const TERE_LESSONS: readonly LessonSpec[] = [
         "{Selge} is clear, and on its own it's how you say you've got it: {Selge! Aitäh!}",
       ],
       watchOut: "Don't apologize and switch to English at the first word you miss. Say {Aeglasemalt, palun} first: most people are happy to slow down.",
-      examples: [1, 3],
+      examples: [2, 4],
     },
     answers: [
       { cue: "Somebody speaks to you very fast. Say sorry, you don't understand.", model: { et: "Vabandust, ma ei saa aru.", en: "Sorry, I don't understand." } },

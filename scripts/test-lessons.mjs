@@ -33,7 +33,7 @@ import { requireLocalDatabase } from "./lib/local-db.mjs";
 const B = baseUrl();
 const OWNER = "local-single-user";
 
-const { check, done } = suite("The lessons, walked", {
+const { check, absent, done } = suite("The lessons, walked", {
   /*
     Per B1 lesson: the step heading, the hidden conversation and its reveal,
     the questions answered, a practice that finishes, Say it reaching its end,
@@ -176,6 +176,7 @@ async function sayThrough(lesson, mode) {
     if (await page.locator('[data-say-it="done"]').count()) break;
     const say = page.locator("[data-say-it]").first();
     if (await say.locator("[data-fade-line]").count()) {
+      if (!fade && SHOTS) await shoot(`${where} fade`);
       fade = true;
       await say.getByRole("button", { name: /^(Next|Done)/ }).click();
       continue;
@@ -185,6 +186,7 @@ async function sayThrough(lesson, mode) {
       await say.getByLabel("What you told, in Estonian").fill(lesson.retell);
       await page.waitForTimeout(200);
       const lit = await say.locator('[data-retell-points] [data-lit="true"]').count();
+      if (SHOTS) await shoot(`${where} retell`);
       check(`${where}: retelling the story lights its points as they come across`, lit > 0, `${lit} lit`);
       await say.getByRole("button", { name: /^Show the story/ }).click();
       check(`${where}: and the story is there to check against`, (await say.locator("[data-retell-story]").count()) === 1);
@@ -199,6 +201,7 @@ async function sayThrough(lesson, mode) {
         await say.getByRole("button", { name: /^Done$/ }).click();
       }
       const goes = await say.locator("[data-faster-goes] li, [data-faster-goes] [data-go]").count();
+      if (SHOTS) await shoot(`${where} faster`);
       check(`${where}: three goes at the answer are drawn side by side`, goes >= 3 || /45/.test(await say.innerText()), `${goes}`);
       check(`${where}: and one way to say it is shown after them`, (await say.locator("[data-faster-model]").count()) === 1);
       await say.getByRole("button", { name: /^Next/ }).click();
@@ -228,6 +231,7 @@ async function writeThrough(lesson) {
   for (let i = 0; i < n; i++) await gaps.nth(i).fill("x");
   await page.getByRole("button", { name: /^Check it/ }).click();
   check(`${where}: checking the frame says how many were written back`, /written back/.test(await text()));
+  if (SHOTS) await shoot(`${where} frame`);
   await page.getByRole("button", { name: /^Write your own/ }).click();
   await page.locator("[data-write-draft]").fill(lesson.write.model);
   await page.waitForTimeout(200);
@@ -238,6 +242,19 @@ async function writeThrough(lesson) {
   await page.getByRole("button", { name: /^Read my text/ }).click();
   await page.locator("[data-write-findings]").waitFor({ timeout: 15_000 }).catch(() => {});
   check(`${where}: the dictionary reads the text, sentence by sentence`, (await page.locator("[data-write-findings]").count()) === 1);
+  if (SHOTS) await shoot(`${where} read`);
+  /*
+    The model text read back, so every sentence is clean and a word the
+    course taught can be taken out of it: ticked by default, kept on a press,
+    and a card in this learner's deck afterwards.
+  */
+  const ticks = await page.locator('[data-write-keep] input[type="checkbox"]:checked').count();
+  check(`${where}: a clean sentence is ticked to keep`, ticks > 0, `${ticks} ticked`);
+  const before = await prisma.card.count({ where: { ownerId: OWNER, source: "WRITTEN" } });
+  await page.getByRole("button", { name: /^Keep them/ }).click();
+  await eventually(async () => (await prisma.card.count({ where: { ownerId: OWNER, source: "WRITTEN" } })) > before, { timeoutMs: 10_000 });
+  const after = await prisma.card.count({ where: { ownerId: OWNER, source: "WRITTEN" } });
+  check(`${where}: keeping them puts the ticked sentences in the deck`, after - before > 0 && after - before <= ticks, `${after - before} of ${ticks}`);
   await page.getByRole("button", { name: /^Done writing/ }).click();
 }
 
@@ -278,11 +295,72 @@ async function walk(lesson, { mode = "type" } = {}) {
   }
   await page.locator("[data-lesson-done]").waitFor({ timeout: 15_000 }).catch(() => {});
   check(`${where}: ends on the finished screen`, (await page.locator("[data-lesson-done]").count()) === 1);
+  if (SHOTS) await shoot(`${where} finished`);
   return said;
+}
+
+/*
+  THE RACE, ANSWERED OUT LOUD, TO THE CLOCK. The typed walk above never meets
+  the microphone, and the spoken go is where the race once closed on nothing:
+  the timer read whether the microphone was listening from the render that
+  pressed Start, when it was still opening, so a go that ran to the clock
+  recorded no words at all. Chromium's fake microphone plays a committed clip
+  TartuNLP read, on a loop, so the first go has something to hear for its
+  whole ninety seconds. It needs the speech model this server serves, and is
+  stated rather than failed where there is none.
+*/
+async function spokenRace(lesson) {
+  const where = `${lesson.id} out loud`;
+  const model = await fetch(`${B}/asr/model/7edbacc1d13a4bc8fba21307753569e8334938a0/tokens.txt`).catch(() => null);
+  if (!model?.ok) {
+    absent(2, "this server serves no speech model: run npm run asr:fetch before the build");
+    return;
+  }
+  const mic = await launchChromium({ args: [
+    "--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream",
+    "--use-file-for-fake-audio-capture=scripts/fixtures/speech/voice-message.wav",
+  ] });
+  try {
+    const ctx = await mic.newContext({ viewport: { width: 1280, height: 900 } });
+    await ctx.grantPermissions(["microphone"], { origin: B });
+    const p = await ctx.newPage();
+    await p.goto(`${B}/course/lessons/${lesson.id}`, { waitUntil: "networkidle" });
+    await p.getByRole("button", { name: /^Show the words now/ }).click();
+    for (let n = 0; n < 6 && !/Say it/.test(await p.locator("#lesson-step").innerText()); n++) {
+      await p.getByRole("button", { name: /^(Skip this step|Continue)/ }).last().click();
+      await p.waitForTimeout(300);
+    }
+    await p.getByRole("button", { name: /^Say it$/ }).last().click();
+    const say = p.locator("[data-say-it]").first();
+    // The first fade line's microphone fetches the model, so the race does not spend its clock downloading.
+    await say.locator("button").first().click();
+    const download = p.getByRole("button", { name: /^Download \d/ }).first();
+    if (await download.isVisible().catch(() => false)) await download.click();
+    await p.waitForTimeout(3000);
+    for (let i = 0; i < 60 && !(await say.locator("[data-faster-go]").count()); i++) {
+      const next = say.getByRole("button", { name: /^(Next|Done)$/ });
+      if (await next.count()) { await next.last().click(); await p.waitForTimeout(150); continue; }
+      const box = say.getByLabel(/^(Your answer|What you said), in Estonian/);
+      if (!(await box.count())) break;
+      await box.fill("Ma ei tea.");
+      await say.getByRole("button", { name: /^Check it/ }).click();
+      await say.getByRole("button", { name: /^(Next|Done)/ }).click();
+    }
+    const start = say.getByRole("button", { name: /^Start, and speak/ });
+    check(`${where}: the race offers the microphone`, (await start.count()) === 1);
+    if (!(await start.count())) return;
+    await start.click();
+    await say.locator("[data-faster-goes]").waitFor({ timeout: 150_000 }).catch(() => {});
+    const heard = Number((await say.locator("[data-faster-goes]").innerText().catch(() => "")).match(/(\d+) words,/)?.[1] ?? 0);
+    check(`${where}: a go run to the clock keeps what the microphone heard`, heard > 0, `${heard} words`);
+  } finally {
+    await mic.close();
+  }
 }
 
 const ONLY = process.argv.find((a) => a.startsWith("--only="))?.slice(7) ?? null;
 try {
+  if (ONLY === "spoken") { await spokenRace(byRole.faster); done(); }
   if (ONLY) { await walk(byRole[ONLY]); done(); }
   const first = await walk(byRole.first, { mode: "say" });
   check("B1's first lesson fades the key lines as they are said", first?.fade === true);
@@ -294,6 +372,7 @@ try {
   const capstone = await walk(byRole.capstone);
   check("a part's closing conversation asks no retell and no race", capstone?.retold === false && capstone?.faster === false);
   await walk(byRole.a2);
+  await spokenRace(byRole.faster);
   if (errors.length) console.log(errors.slice(0, 5).join("\n"));
   check("no console errors", errors.length === 0, `${errors.length}`);
 } finally {

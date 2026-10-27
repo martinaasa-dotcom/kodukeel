@@ -2,9 +2,9 @@
  * B1: RENTING A PLACE (docs/43-lessons.md §11.4).
  *
  * The family needs a bigger apartment, so they move within Tallinn: they look
- * at a furnished one with Urmas, the new landlord, read the old contract with
- * Peeter before giving notice, move, meet Helgi downstairs, live through a leak
- * and a week with no heating, and get the deposit back from Peeter. Two patterns: the -tud form of a verb as a
+ * at a furnished one with Urmas, the new landlord, move, meet Helgi downstairs,
+ * live through a leak, read the new contract to see who pays for repairs, go a
+ * week with no heating, and get the deposit back from Peeter. Two patterns: the -tud form of a verb as a
  * describing word ({remonditud korter}), which never changes in front of its
  * noun, and an ordinary describing word, which takes its noun's ending
  * ({suures heledas toas}). The writing evening is a complaint to the
@@ -48,7 +48,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Siin on ju kümme tooli!", en: "There are ten chairs in here!" },
       { who: "Urmas", et: "Jah. See tuba on eriti hästi möbleeritud.", en: "Yes. This room is especially well furnished." },
       { who: "Tom", et: "Ja maja? Kas see on ka renoveeritud?", en: "And the building? Has that been renovated too?" },
-      { who: "Urmas", et: "Jah, kaks aastat tagasi. All on pood ja see on avatud ka öösel.", en: "Yes, two years ago. There's a shop downstairs, and it's open at night too." },
+      { who: "Urmas", et: "Jah, kaks aastat tagasi. All on pood ja see on lahti ka öösel.", en: "Yes, two years ago. There's a shop downstairs, and it's open at night too." },
       { who: "Tom", et: "Väga hea. Mulle see korter meeldib!", en: "Very good. I like this apartment!" },
     ],
     teaches: [
@@ -78,7 +78,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         "{Avatud} and {suletud} are what a sign says. Talking, people say {lahti} and {kinni}: {Uks on kinni}.",
       ],
       watchOut: "A -tud word in front of a noun never takes the noun's ending: {suletud uksega}, with -ga on the door alone.",
-      examples: [2, 3, 5, 12],
+      examples: [2, 3, 5, 11],
     },
     listenFor: [
       { q: "What is behind the shut door?", options: ["The landlord's cat", "A brand-new bathroom with a big bath", "A room full of old chairs", "Nothing at all"], answer: 2 },
@@ -89,7 +89,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { ask: { et: "Kas korter on möbleeritud?", en: "Is the apartment furnished?" }, cue: "Say yes, it's furnished and the kitchen is new.", model: { et: "Jah, korter on möbleeritud ja köök on uus.", en: "Yes, the apartment is furnished and the kitchen is new." } },
       { cue: "Ask if the whole apartment has been fixed up.", model: { et: "Kas terve korter on remonditud?", en: "Has the whole apartment been fixed up?" } },
       { cue: "Say the door is shut, the way people say it.", model: { et: "Uks on kinni.", en: "The door's shut." } },
-      { ask: { et: "Kas pood on öösel avatud?", en: "Is the shop open at night?" }, cue: "Say yes, it's open at night too.", model: { et: "Jah, see on avatud ka öösel.", en: "Yes, it's open at night too." } },
+      { ask: { et: "Kas pood on öösel lahti?", en: "Is the shop open at night?" }, cue: "Say yes, it's open at night too.", model: { et: "Jah, see on lahti ka öösel.", en: "Yes, it's open at night too." } },
     ],
     reworks: [
       {
@@ -145,8 +145,8 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Meil on nüüd kolm tuba ja köök. Elutuba on suur ja hele.", en: "We've got three rooms and a kitchen now. The living room is big and bright." },
       { who: "Tom", et: "Ma töötan suures heledas toas. Minu koht on akna juures.", en: "I work in the big bright room. My spot is by the window." },
       { who: "Tom", et: "Poeg ja tütar magavad väikeses toas, kuna seal on vaikne.", en: "Our son and daughter sleep in the small room, since it's quiet there." },
-      { who: "Tom", et: "Köök ei ole suur. Tegelikult on see väikese köögiga korter.", en: "The kitchen isn't big. It's actually an apartment with a small kitchen." },
-      { who: "Tom", et: "Aga külmkapp on suurem kui mina!", en: "But the fridge is bigger than me!" },
+      { who: "Tom", et: "Ainult köök on väike, aga väikese köögiga saab ka elada.", en: "Only the kitchen is small, but you can live with a small kitchen." },
+      { who: "Tom", et: "Ja külmkapp on suurem kui mina!", en: "And the fridge is bigger than me!" },
       { who: "Tom", et: "Tule meile laupäeval külla!", en: "Come and visit us on Saturday!" },
       { who: "Tom", et: "Me elame kolmandal korrusel, punase uksega korteris.", en: "We live on the third floor, in the apartment with the red door." },
       { who: "Tom", et: "Ja kui sa tahad, too kooki! Head aega!", en: "And bring cake, if you like! Bye!" },
@@ -156,6 +156,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "heleda", of: "hele", en: "of the bright one", stem: true },
       { kind: "form", et: "punase", of: "punane", en: "of the red one", stem: true },
       { kind: "form", et: "vana", of: "vana", en: "of the old one", stem: true },
+      { kind: "form", et: "elada", of: "elama", en: "to live, after can or want" },
     ],
     patterns: ["agreement"],
     how: {
@@ -179,8 +180,8 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
     },
     listenFor: [
       { q: "What is Tom's message about?", options: ["His new job", "A problem with the kitchen", "A party at the café on Saturday night", "The family's new apartment"], answer: 3 },
-      { q: "Where does Tom work at home?", options: ["In the big bright room", "In the kitchen, by the fridge", "In the small quiet room", "In the hall, by the door"], answer: 0 },
-      { q: "What does Tom ask Mari to bring?", options: ["Flowers", "Cake", "Coffee", "Some wine"], answer: 1 },
+      { q: "Where do the children sleep?", options: ["In the big bright room", "In the small room", "In the living room, by the window", "In the kitchen, by the fridge"], answer: 1 },
+      { q: "What does Tom ask Mari to bring?", options: ["Flowers", "Coffee", "Cake", "Some wine"], answer: 2 },
     ],
     answers: [
       { ask: { et: "Kus sa elad?", en: "Where do you live?" }, cue: "Say you live in a big bright apartment.", model: { et: "Ma elan suures heledas korteris.", en: "I live in a big bright apartment." } },
@@ -227,15 +228,15 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       story: [
         { et: "Eelmisel nädalal me kolisime uude korterisse.", en: "Last week we moved into a new apartment." },
         { et: "Vana korter oli väikeses majas kesklinnas.", en: "The old apartment was in a small building in the center." },
-        { et: "Uus korter on suures heledas majas mere ääres.", en: "The new apartment is in a big bright building by the sea." },
+        { et: "Uus korter on suures uues majas mere ääres.", en: "The new apartment is in a big new building by the sea." },
         { et: "Ma töötan nüüd suures toas akna juures.", en: "Now I work in the big room, by the window." },
         { et: "Ainult köök on väike, aga külmkapp on suurem kui mina.", en: "Only the kitchen is small, but the fridge is bigger than me." },
       ],
       points: [
-        { en: "You moved into a new apartment", any: ["uude", "kolisime"] },
-        { en: "The old one was in a small building", any: ["väikeses", "vana"] },
-        { en: "The new building is big and bright, by the sea", any: ["heledas", "mere"] },
-        { en: "The kitchen is small, the fridge is huge", any: ["köök", "külmkapp"] },
+        { en: "Tell it as Tom, with {me}: we moved into a new apartment.", any: ["uude", "kolisime"] },
+        { en: "The old one was in a small building.", any: ["väikeses", "vana"] },
+        { en: "The new building is big and new, by the sea.", any: ["uues", "mere"] },
+        { en: "The kitchen is small, the fridge is huge.", any: ["köök", "külmkapp"] },
       ],
     },
   },
@@ -305,7 +306,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
     },
     listenFor: [
       { q: "Who is the noisy upstairs neighbor?", options: ["Helgi's dog", "Tom", "Somebody Helgi doesn't know", "The man on the top floor"], answer: 1 },
-      { q: "What does Tom promise?", options: ["To stop smoking", "To walk Helgi's dog", "To be quieter at night", "To read every notice"], answer: 2 },
+      { q: "What does Tom promise?", options: ["To stop smoking", "To walk Helgi's dog every evening", "To be quieter at night", "To read every notice"], answer: 2 },
       { q: "Who checks every day that the trash is sorted?", options: ["Tom", "The landlord", "Nobody", "Helgi"], answer: 3 },
     ],
     answers: [
@@ -377,7 +378,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { who: "Urmas", et: "Võimalik, et toru tuleb vahetada. Ma saadan homme meistri.", en: "The pipe may need changing. I'll send a repairman tomorrow." },
       { who: "Tom", et: "Aitäh! Ja vannitoas ei tööta lamp.", en: "Thank you! And the light in the bathroom isn't working." },
       { who: "Urmas", et: "Siis vahetage pirn ise ära. Seda te ju oskate?", en: "Then change the bulb yourself. You can do that, can't you?" },
-      { who: "Tom", et: "Oskan küll. Aga mul ei ole uut pirni.", en: "Sure I can. But I don't have a new bulb." },
+      { who: "Tom", et: "Oskan küll! Ma ei karda enam elektrit. Aga mul ei ole uut pirni.", en: "Sure I can! I'm not scared of electricity any more. But I don't have a new bulb." },
       { who: "Urmas", et: "Olgu, meister toob ka pirni.", en: "Fine, the repairman will bring a bulb too.", stage: "He laughs." },
     ],
     teaches: [
@@ -413,9 +414,9 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       examples: [2, 6, 9],
     },
     listenFor: [
-      { q: "What is Tom phoning about?", options: ["Things that are broken in the apartment", "The rent for next month", "A noisy neighbor upstairs who plays music at night", "A key he has lost"], answer: 0 },
-      { q: "What did Tom put down the sink?", options: ["Rice and tea", "A light bulb", "Bread and milk", "Potato and coffee"], answer: 3 },
-      { q: "Who will bring a new bulb?", options: ["Tom", "Helgi", "The repairman", "Anna"], answer: 2 },
+      { q: "What is wrong in the kitchen?", options: ["The fridge is broken", "The tap is leaking", "The window won't shut", "The light isn't working"], answer: 1 },
+      { q: "What did Tom put down the sink?", options: ["Rice and tea", "A light bulb", "Bread, milk and some old tea", "Potato and coffee"], answer: 3 },
+      { q: "Who will bring a new bulb?", options: ["Tom", "Helgi from downstairs", "The repairman", "Anna"], answer: 2 },
     ],
     answers: [
       { ask: { et: "Mis juhtus?", en: "What happened?" }, cue: "Say the kitchen tap is leaking.", model: { et: "Köögis lekib kraan.", en: "The kitchen tap is leaking." } },
@@ -465,10 +466,10 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         { et: "Nüüd töötab kõik, aga lamp vannitoas on ikka katki.", en: "Now everything works, but the bathroom light is still broken." },
       ],
       points: [
-        { en: "The kitchen tap was leaking", any: ["lekkis", "kraan"] },
-        { en: "You tried to fix it yourself", any: ["proovisin", "parandada"] },
-        { en: "The sink was blocked", any: ["ummistunud", "valamu"] },
-        { en: "A repairman changed the pipe", any: ["toru", "vahetas", "meistri"] },
+        { en: "Tell it as Tom, with {ma}: last week the kitchen tap was leaking.", any: ["lekkis", "kraan"] },
+        { en: "I tried to fix it myself.", any: ["proovisin", "parandada"] },
+        { en: "The sink was blocked.", any: ["ummistunud", "valamu"] },
+        { en: "Urmas sent a repairman, and he changed the pipe.", any: ["toru", "vahetas", "meistri"] },
       ],
     },
   },
@@ -482,20 +483,20 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
     goal: "Read what a rental contract says about the rent, the deposit and moving out.",
     cast: { Tom: "kalev", Mari: "mari" },
     conversation: [
-      { who: "Tom", et: "Mari, meie korter on meile nüüd liiga väike. Sellepärast peame kolima.", en: "Mari, our apartment is too small for us now. That's why we have to move.", stage: "Before the move. Tom and Mari, still neighbors in Peeter's building, at Tom's kitchen table with the rental contract between them." },
-      { who: "Mari", et: "Oi! Aga sul on ju üürileping. Loeme seda koos.", en: "Oh! But you have a rental contract. Let's read it together." },
-      { who: "Tom", et: "Siin on kirjas: üürnik peab kaks kuud ette teatama.", en: "It says here: the tenant has to give two months' notice." },
+      { who: "Tom", et: "Mari, vaata! See on meie uus üürileping.", en: "Mari, look! This is our new rental contract.", stage: "Mari has come to see the new apartment. The tap and the sink are broken again, so she and Tom sit at the kitchen table with the contract, to see who has to pay." },
+      { who: "Mari", et: "Loeme seda koos. Kes maksab, kui midagi katki läheb?", en: "Let's read it together. Who pays when something breaks?" },
+      { who: "Tom", et: "Siin on kirjas: kui midagi läheb katki, parandab selle üürileandja.", en: "It says here: if something breaks, the landlord fixes it." },
+      { who: "Mari", et: "Väga hea. Siis ei pea sina maksma.", en: "Very good. Then you don't have to pay." },
+      { who: "Tom", et: "Ja siin on veel: üürnik peab kaks kuud ette teatama.", en: "And there's more here: the tenant has to give two months' notice." },
       { who: "Mari", et: "Kaks kuud? See on pikk aeg.", en: "Two months? That's a long time." },
       { who: "Tom", et: "Ja kui ma lõpetan lepingu varem, siis kaotan osa tagatisrahast.", en: "And if I end the contract early, I lose part of the deposit." },
-      { who: "Mari", et: "Kui suur on su tagatisraha?", en: "How big is your deposit?" },
-      { who: "Tom", et: "Ühe kuu üür. 800 eurot.", en: "One month's rent. 800 euros." },
+      { who: "Mari", et: "Kui suur on teie tagatisraha?", en: "How big is your deposit?" },
+      { who: "Tom", et: "Ühe kuu üür. 900 eurot.", en: "One month's rent. 900 euros." },
       { who: "Mari", et: "Ja mis see lause tähendab?", en: "And what does this sentence mean?", stage: "She points at a very long sentence." },
       { who: "Tom", et: "Ma ei saa sellest lausest üldse aru. Ja ma olen programmeerija!", en: "I don't understand that sentence at all. And I'm a programmer!" },
-      { who: "Mari", et: "Aga see on lihtne. Sa teatad Peetrile kaks kuud ette ja saad tagatisraha tagasi.", en: "But it's simple. You tell Peeter two months ahead and you get the deposit back." },
-      { who: "Tom", et: "Jah, kui korter on korras. Aga põrand on natuke kriimustatud.", en: "Yes, if the apartment is in good order. But the floor is a bit scratched." },
-      { who: "Mari", et: "Kes seda tegi?", en: "Who did that?" },
-      { who: "Tom", et: "Mina mitte! See oli juba enne mind kriimustatud.", en: "Not me! It was scratched before I came." },
-      { who: "Mari", et: "Siis ütle seda Peetrile kohe!", en: "Then tell Peeter right away!" },
+      { who: "Mari", et: "Aga see on lihtne. Kui korter on korras, saad sa tagatisraha tagasi.", en: "But it's simple. If the apartment is in good order, you get the deposit back." },
+      { who: "Tom", et: "Nagu Peetriga. Tema põrand oli juba enne mind kriimustatud ja see on lepingus kirjas.", en: "Like with Peeter. His floor was scratched before I came, and that's written in the contract." },
+      { who: "Mari", et: "Hea, et see on kirjas!", en: "Good thing it's written down!" },
     ],
     teaches: [
       { kind: "word", et: "üürileping", en: "a rental contract, a lease" },
@@ -504,6 +505,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "lepingut", of: "leping", en: "the contract, after {ei}" },
       { kind: "word", et: "kirjas", en: "written down; {on kirjas}, it says" },
       { kind: "word", et: "üürnik", en: "a tenant" },
+      { kind: "word", et: "üürileandja", en: "a landlord" },
       { kind: "word", et: "ette", en: "ahead, in advance" },
       { kind: "verb", et: "teatama", first: "teatan", en: "to let know, to notify", firstEn: "I let know", asks: "{kellele?} somebody ([alaleütlev] (-le, onto/to))" },
       { kind: "verb", et: "kaotama", first: "kaotan", en: "to lose", firstEn: "I lose" },
@@ -530,12 +532,12 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         "{Siin on kirjas} is how you point at what a paper says: it says here.",
       ],
       watchOut: "Moving out is {välja kolima}, with {välja}: {Ma kolin välja}. {Ma kolin} alone could be moving anywhere.",
-      examples: [2, 4, 9],
+      examples: [4, 6, 11],
     },
     listenFor: [
-      { q: "Why does the family have to move?", options: ["The rent went up", "Peeter is selling the apartment", "The apartment is too small now", "The neighbors are too loud"], answer: 2 },
-      { q: "How much notice does Tom have to give?", options: ["One month", "Two months", "Two weeks", "Six months"], answer: 1 },
-      { q: "What's wrong with the floor?", options: ["It's a bit scratched", "It's wet in one corner", "It's brand new", "Nothing at all"], answer: 0 },
+      { q: "Who fixes what breaks, by the new contract?", options: ["Tom and Anna", "The landlord", "Whoever broke it", "Helgi, who chairs the association"], answer: 1 },
+      { q: "How much notice does a tenant have to give?", options: ["One month", "Two weeks", "Six months", "Two months"], answer: 3 },
+      { q: "What does Tom say about Peeter's floor?", options: ["He scratched it with a chair last winter", "It was new when he moved in", "It was scratched before he came", "He fixed it himself"], answer: 2 },
     ],
     answers: [
       { ask: { et: "Kui suur on sinu üür?", en: "How much is your rent?" }, cue: "Say what your rent is a month.", model: { et: "Minu üür on 600 eurot kuus.", en: "My rent is 600 euros a month." } },
@@ -642,13 +644,13 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         "In a letter to a landlord you write {teie} all the way through: {Ma ootan teie vastust}.",
         "{Hiljemalt reedeks} is by Friday at the latest: -ks on a day says by then.",
       ],
-      watchOut: "English says it has been broken for a week, in the past. Estonian keeps the present: {Küte ei tööta juba nädal aega}.",
+      watchOut: "English says it has been broken for a week, with has been. Estonian keeps the plain present: {Küte ei tööta juba nädal aega}.",
       examples: [1, 6, 8],
     },
     listenFor: [
       { q: "Why is Tom wearing a hat at work?", options: ["The office is cold today", "The heating at home is broken", "He forgot to take it off when he came in", "It's a new fashion"], answer: 1 },
-      { q: "What does Kadri tell Tom to do?", options: ["Move out at once", "Fix the heating himself", "Call the repairman again, and keep calling", "Write the landlord a complaint"], answer: 3 },
-      { q: "How should the letter sound?", options: ["Polite but firm", "Angry and loud", "Funny", "Short and cold"], answer: 0 },
+      { q: "By when should the landlord answer?", options: ["By tomorrow", "Within a week", "By Friday", "By the end of the month"], answer: 2 },
+      { q: "How should the letter sound?", options: ["Polite but firm", "Angry and loud", "Funny, so he laughs", "Short and cold"], answer: 0 },
     ],
     answers: [
       { ask: { et: "Mis sinu korteris katki on?", en: "What's broken in your apartment?" }, cue: "Say the heating hasn't worked for a week.", model: { et: "Küte ei tööta juba nädal aega.", en: "The heating hasn't worked for a week." } },
@@ -729,10 +731,10 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         { et: "Nüüd on toas jälle soe ja müts on kapis.", en: "Now it's warm indoors again and the hat is back in the cupboard." },
       ],
       points: [
-        { en: "The apartment was cold", any: ["külm"] },
-        { en: "The heating wasn't working", any: ["küte", "töötanud"] },
-        { en: "You wrote the landlord a letter", any: ["kirjutasin", "kirja"] },
-        { en: "He answered and sent a repairman", any: ["vastas", "saatis", "meistri"] },
+        { en: "Tell it as Tom, with {ma}: last week the new apartment was cold.", any: ["külm"] },
+        { en: "The heating wasn't working.", any: ["küte", "töötanud"] },
+        { en: "I wrote the landlord a letter.", any: ["kirjutasin", "kirja"] },
+        { en: "He answered and sent a repairman.", any: ["vastas", "saatis", "meistri"] },
       ],
     },
   },
@@ -746,24 +748,24 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
     goal: "Stand up for your deposit when you move out: what was already broken, what you fixed, and what the contract says.",
     cast: { Peeter: "peeter", Tom: "kalev" },
     conversation: [
-      { who: "Peeter", et: "Tere, Tom. Vaatame korteri koos läbi.", en: "Hello, Tom. Let's walk through the apartment together.", stage: "A few days after the move, back in Peeter's old apartment. It's empty, and Peeter walks through it slowly, looking at everything." },
+      { who: "Peeter", et: "Tere, Tom. Vaatame korteri koos läbi.", en: "Hello, Tom. Let's walk through the apartment together.", stage: "The old contract's last day, back in Peeter's old apartment. It's empty, and Peeter walks through it slowly, looking at everything." },
       { who: "Tom", et: "Tere! Kõik on korras. Ma koristasin eile terve päeva.", en: "Hello! Everything's in order. I cleaned all day yesterday." },
       { who: "Peeter", et: "Jah, köök on ilus. Aga põrand on kriimustatud.", en: "Yes, the kitchen looks nice. But the floor is scratched." },
       { who: "Tom", et: "See oli juba enne mind kriimustatud.", en: "It was scratched before I came." },
       { who: "Peeter", et: "Võimalik, aga osa tagatisrahast jääb mulle.", en: "Maybe, but part of the deposit stays with me." },
-      { who: "Tom", et: "Vabandage, aga kui ma sisse kolisin, oli põrand juba kriimustatud. See on lepingus kirjas.", en: "Excuse me, but when I moved in, the floor was already scratched. It's written in the contract." },
+      { who: "Tom", et: "Vabandust, aga kui ma sisse kolisin, oli põrand juba kriimustatud. See on lepingus kirjas.", en: "Sorry, but when I moved in, the floor was already scratched. It's written in the contract." },
       { who: "Peeter", et: "Tõesti? Vaatame lepingut.", en: "Really? Let's look at the contract." },
       { who: "Peeter", et: "Jah, siin on see kirjas.", en: "Yes, it says so here.", stage: "He reads the contract for a long time." },
       { who: "Tom", et: "Ja ma parandasin ise köögis kraani.", en: "And I fixed the kitchen tap myself." },
       { who: "Peeter", et: "Ma mäletan seda kraani väga hästi.", en: "I remember that tap very well.", stage: "He laughs." },
       { who: "Tom", et: "Nii et ma saan terve tagatisraha tagasi?", en: "So I get the whole deposit back?" },
-      { who: "Peeter", et: "Jah, saate. Te olite hea üürnik. Ainult natuke liiga hea meister.", en: "Yes, you do. You were a good tenant. Just a bit too good a handyman." },
+      { who: "Peeter", et: "Jah, saad. Sa olid hea üürnik. Ainult natuke liiga hea meister.", en: "Yes, you do. You were a good tenant. Just a bit too good a handyman." },
     ],
     teaches: [],
     how: {
       point: "The whole part at once: what the apartment is like in -tud words ({kriimustatud}), what's in the contract ({lepingus kirjas}), what broke and what you fixed, and the deposit.",
       notes: [
-        "Disagree politely: {Vabandage, aga} and then the fact.",
+        "Disagree politely: {Vabandust, aga} and then the fact. {Vabandage, aga} says the same to somebody you call {teie}.",
         "Point at the paper: {See on lepingus kirjas}.",
         "Then ask for the one thing you want: {Kas ma saan terve tagatisraha tagasi?}",
       ],
@@ -773,7 +775,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
     listenFor: [
       { q: "Why does Peeter want to keep part of the deposit?", options: ["The kitchen is dirty", "Tom didn't give notice", "The tap is still leaking", "The floor is scratched"], answer: 3 },
       { q: "How does Tom show the floor was scratched before?", options: ["It's written in the contract", "He has a photo of it on his phone", "Mari saw it happen", "Peeter's notes say so"], answer: 0 },
-      { q: "What does Peeter decide?", options: ["He keeps half of it", "He'll decide next week", "Tom gets the whole deposit back", "Tom pays for a new floor out of the deposit"], answer: 2 },
+      { q: "What does Peeter remember very well?", options: ["The day Tom moved in", "The kitchen tap", "Tom's loud music at night", "The broken bathroom light"], answer: 1 },
     ],
     answers: [
       { ask: { et: "Kas korter on korras?", en: "Is the apartment in order?" }, cue: "Say everything's in order, and you cleaned all day yesterday.", model: { et: "Kõik on korras. Ma koristasin eile terve päeva.", en: "Everything's in order. I cleaned all day yesterday." } },
