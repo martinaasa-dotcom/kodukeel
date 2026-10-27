@@ -109,7 +109,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
         from: { et: "Auto on katki. Sa ei ole vaba.", en: "The car's broken. You're not free." },
         ask: "Make it an if with {kui}, the if first.",
         to: { et: "Kui auto on katki, ei ole sa vaba.", en: "If the car's broken, you're not free." },
-        also: ["Kui auto on katki, sa ei ole vaba."],
+        also: ["Kui auto on katki, ei ole sa vaba."],
         pattern: "subordinate",
       },
     ],

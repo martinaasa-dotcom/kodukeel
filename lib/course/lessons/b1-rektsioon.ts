@@ -39,7 +39,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { who: "Anna", et: "Muidugi. Mis juhtus?", en: "Of course. What happened?" },
       { who: "Tom", et: "Ülemus tahab aruannet homseks. Ma tegin seda terve päeva, aga midagi on ikka vale.", en: "The boss wants the report by tomorrow. I've been on it all day, and something's still wrong." },
       { who: "Anna", et: "Terve päeva? Miks sa minult abi ei küsinud?", en: "All day? Why didn't you ask me for help?" },
-      { who: "Tom", et: "Ma ei tahtnud sind segada. Sul on ju ise palju tööd.", en: "I didn't want to bother you. You've got plenty of work yourself." },
+      { who: "Tom", et: "Ma ei tahtnud sind segada. Sul on ju palju tööd.", en: "I didn't want to bother you. You've got plenty of work yourself." },
       { who: "Anna", et: "Pole hullu. Näita! Siin on viga. See number on vale.", en: "That's all right. Show me! Here's the mistake. This number is wrong." },
       { who: "Tom", et: "Ainult üks viga? Ma otsisin seda kolm tundi!", en: "Just one mistake? I spent three hours looking for it!" },
       { who: "Anna", et: "Tegelikult on mul ka probleem arvutiga. Aita mind sellega!", en: "Actually, I've got a problem with my computer too. Help me with it!" },

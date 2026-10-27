@@ -77,3 +77,20 @@ shown).
 - 49: `Ma helistasin pangale tagasi ja nad tegid kaardi jälle lahti.` (is it right for unblocking a card?) and `Nüüd täidan ma kõik blanketid eesti keeles ära!`
 
 ## What a second model flagged
+
+Read on 2026-10-27 by the scene chain's lead model over all 1,647 distinct B1 lines
+(`npx tsx scripts/flag-lessons.ts --level B1 --budget 1`, $0.27). It flagged 11. Five were plainly
+right and are fixed; the other six are left as they were for the native speaker to decide.
+
+| Lesson | Line | Why it was flagged | What was done |
+| --- | --- | --- | --- |
+| `b1-08-help` | `Sul on ju ise palju tööd.` | With `sul`, the emphatic pronoun is `endal`, not `ise`. | Fixed: `Sul on ju palju tööd.` (`endal` is not taught yet) |
+| `b1-35-residents` | `Tere õhtust! Täna arutame keldrit.` | One discusses a question, not a place. | Fixed: `Täna räägime keldrist.`, in the lesson and the scene's lines |
+| `b1-36-although` | `Kui auto on katki, sa ei ole vaba.` (an accepted answer) | After a fronted clause the verb comes before the subject. | Fixed: `Kui auto on katki, ei ole sa vaba.` |
+| `b1-43-sign-here` | `Kus ma pean alla kirjutama?` | Where to sign is `kuhu`. | Fixed: `Kuhu ma pean alla kirjutama?` |
+| `b1-11-together` | `Me tutvume tööl.` (a rework's source line) | `tutvuma` is a one-time event, so the present reads oddly with no future context. | Left for the native speaker |
+| `b1-12-depends` | `Ma loodan ilusale ilmale.` | Hoping for something takes the partitive, `loodan ilusat ilma`. | Left: the lesson teaches `lootma` with the [alaleütlev] (-le, onto/to) as counting on something; please confirm |
+| `b1-31-had-gone` | `Kas su juht oli vihane?` | `ülemus` is the everyday word for a boss. | Left for the native speaker |
+| `b1-41-forum` | `Linnal on foorum, kus saab oma arvamust kirjutada.` | The idiom is `oma arvamust avaldada`. | Left: `avaldama` is not taught by then |
+| `b1-43-sign-here` | `Aga kõigepealt kirjutasin alla tema kohas.` | `tema kohas` is a calque; `tema asemel`. | Left: `asemel` is not taught by then |
+| `b1-49-end` | `Kas Tallinnas on lihtne autoga elada?` (twice) | `autoga elada` is a calque; `autot omada` or `autoga liigelda`. | Left for the native speaker |

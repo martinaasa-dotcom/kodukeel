@@ -95,7 +95,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
     ],
     answers: [
       { ask: { et: "Kas blankett on täidetud?", en: "Is the form filled in?" }, cue: "Say yes, you've filled it in.", model: { et: "Jah, ma täitsin blanketi ära.", en: "Yes, I've filled in the form." } },
-      { cue: "Ask where you should sign.", model: { et: "Kus ma pean alla kirjutama?", en: "Where should I sign?" } },
+      { cue: "Ask where you should sign.", model: { et: "Kuhu ma pean alla kirjutama?", en: "Where should I sign?" } },
       { cue: "Say you'll bring the old card back tomorrow.", model: { et: "Ma toon vana kaardi homme tagasi.", en: "I'll bring the old card back tomorrow." } },
       { cue: "Say sorry, you put the pen in your pocket by accident.", model: { et: "Vabandust, ma panin pastaka kogemata taskusse.", en: "Sorry, I put the pen in my pocket by accident." } },
     ],

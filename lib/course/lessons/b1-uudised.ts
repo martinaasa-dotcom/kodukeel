@@ -733,7 +733,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
     goal: "At a residents' meeting, say what you saw, what had happened before, and what should be done.",
     cast: { Liis: "liivika", Tom: "kalev", Peeter: "peeter" },
     conversation: [
-      { who: "Liis", et: "Tere õhtust! Täna arutame keldrit.", en: "Good evening, everybody! Tonight we're talking about the cellar." },
+      { who: "Liis", et: "Tere õhtust! Täna räägime keldrist.", en: "Good evening, everybody! Tonight we're talking about the cellar." },
       { who: "Liis", et: "Tom, teie nägite seda ise. Mis juhtus?", en: "Tom, you saw it yourself. What happened?" },
       { who: "Tom", et: "Eelmisel nädalal läks öösel keldris toru katki. Hommikul oli vett põlvini.", en: "Last week a pipe burst in the cellar during the night. By the morning the water was up to your knees." },
       { who: "Peeter", et: "Ja minu kartulid olid seal all!", en: "And my potatoes were down there!" },
