@@ -103,8 +103,13 @@ export const PARTS = " / ";
  *
  * It is asked of the Estonian side too, which costs nothing and is worth
  * saying: no Estonian word is spelled `I`, so the guard cannot fire there.
+ *
+ * AND AN ABBREVIATION IS ALL CAPITALS, SO IT IS NOT A CAPITAL TO DROP. A
+ * phrase opening on two capitals in a row is `TV`, `OK` or `ID-kaart`, and
+ * lowering its first letter drew `tV, after watch`, `oK, fine` and `iD-kaart`
+ * on the cards for three words the course teaches.
  */
-const ALWAYS_CAPITAL = /^I(?=$|[\s'’])/;
+const ALWAYS_CAPITAL = /^(?:I(?=$|[\s'’])|\p{Lu}{2})/u;
 
 /**
  * A phrase's own capital letter and exclamation mark, dropped for word

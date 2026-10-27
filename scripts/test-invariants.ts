@@ -1564,11 +1564,12 @@ check("a screen that prints a case form prints both where Estonian has two", () 
     And the pair on screen has to be a pair the marker accepts, or a learner
     copies what they were shown and is told they are wrong. ` / ` is the
     separator `acceptedAnswers` splits on, so this is the one spelling of it
-    that keeps those two facts the same fact.
+    that keeps those two facts the same fact. An Estonian answer splits on the
+    slash alone, since a comma inside one is the sentence's own.
   */
   assert.match(
     code("lib/estonian/answer.ts"),
-    /split\(\/\\s\*\[\/,;\]/,
+    /ESTONIAN_PARTS = \/\\s\*\\\/\\s\*\//,
     "acceptedAnswers stopped splitting on the separator every screen shows a pair with",
   );
 });
