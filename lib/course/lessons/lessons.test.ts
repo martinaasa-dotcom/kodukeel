@@ -138,7 +138,7 @@ describe("the lessons, A1 and on", () => {
         for (const et of itemEstonian(item)) {
           expect(uncovered(et, tonight, names), `${lesson.id}: ${et}`).toEqual([]);
         }
-        if (item.kind !== "type" && item.kind !== "match" && item.kind !== "rework") {
+        if (item.kind !== "type" && item.kind !== "match" && item.kind !== "rework" && item.kind !== "fix") {
           expect(item.options).toContain(item.answer);
           expect(new Set(item.options.map((o) => o.toLowerCase())).size).toBe(item.options.length);
         }
@@ -165,6 +165,7 @@ describe("the lessons, A1 and on", () => {
           : item.kind === "gap" ? [[item.answer, [item.en]]]
           : item.kind === "reply" ? [[item.answer, [item.ask.en]]]
           : item.kind === "rework" ? [[item.answer, [item.from.en]]]
+          : item.kind === "fix" ? [[item.right, [item.en]]]
           : [[item.et, item.options]];
         for (const [et, shown] of pairs) {
           const answer = new Set(wordsOf(et).map((w) => w.low));

@@ -2556,6 +2556,62 @@
                   ]
                 }
               },
+              "fixes": {
+                "description": "Lines with a slip in them, B1 on; the practice step carries them as `fix` items.",
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "line": {
+                      "type": "object",
+                      "properties": {
+                        "et": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "et",
+                        "en"
+                      ]
+                    },
+                    "right": {
+                      "type": "string"
+                    },
+                    "wrong": {
+                      "type": "string"
+                    },
+                    "pair": {
+                      "readOnly": true,
+                      "type": "array",
+                      "prefixItems": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "string"
+                        }
+                      ],
+                      "items": false,
+                      "minItems": 2,
+                      "maxItems": 2
+                    },
+                    "why": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "line",
+                    "right",
+                    "wrong",
+                    "pair",
+                    "why"
+                  ]
+                }
+              },
               "roleplay": {
                 "type": "object",
                 "properties": {
@@ -2800,6 +2856,51 @@
                     "accept"
                   ],
                   "description": "A sentence to change the way `ask` says (B1 on), typed and marked against `accept`."
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "fix"
+                    },
+                    "shown": {
+                      "type": "string"
+                    },
+                    "en": {
+                      "type": "string"
+                    },
+                    "answer": {
+                      "type": "string"
+                    },
+                    "accept": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "wrong": {
+                      "type": "string"
+                    },
+                    "right": {
+                      "type": "string"
+                    },
+                    "why": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "shown",
+                    "en",
+                    "answer",
+                    "accept",
+                    "wrong",
+                    "right",
+                    "why"
+                  ],
+                  "description": "A line with one word swapped for another form of it (B1 on); typed back put right."
                 },
                 {
                   "type": "object",
@@ -3062,6 +3163,51 @@
                     "accept"
                   ],
                   "description": "A sentence to change the way `ask` says (B1 on), typed and marked against `accept`."
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "fix"
+                    },
+                    "shown": {
+                      "type": "string"
+                    },
+                    "en": {
+                      "type": "string"
+                    },
+                    "answer": {
+                      "type": "string"
+                    },
+                    "accept": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "wrong": {
+                      "type": "string"
+                    },
+                    "right": {
+                      "type": "string"
+                    },
+                    "why": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "shown",
+                    "en",
+                    "answer",
+                    "accept",
+                    "wrong",
+                    "right",
+                    "why"
+                  ],
+                  "description": "A line with one word swapped for another form of it (B1 on); typed back put right."
                 },
                 {
                   "type": "object",
@@ -3552,6 +3698,51 @@
                     "accept"
                   ],
                   "description": "A sentence to change the way `ask` says (B1 on), typed and marked against `accept`."
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "fix"
+                    },
+                    "shown": {
+                      "type": "string"
+                    },
+                    "en": {
+                      "type": "string"
+                    },
+                    "answer": {
+                      "type": "string"
+                    },
+                    "accept": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "wrong": {
+                      "type": "string"
+                    },
+                    "right": {
+                      "type": "string"
+                    },
+                    "why": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "shown",
+                    "en",
+                    "answer",
+                    "accept",
+                    "wrong",
+                    "right",
+                    "why"
+                  ],
+                  "description": "A line with one word swapped for another form of it (B1 on); typed back put right."
                 },
                 {
                   "type": "object",

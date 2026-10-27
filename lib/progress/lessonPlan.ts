@@ -20,7 +20,11 @@ export type LessonPlan = Omit<LessonView, "name" | "due" | "check" | "part" | "n
  * What a lesson asks, built from what the lessons before it taught, and where
  * it stands in its level. Pure, so it is unit tested lesson by lesson.
  */
-export function lessonPlan(lesson: LessonSpec): LessonPlan {
+export function lessonPlan(
+  lesson: LessonSpec,
+  /** The pairs of forms the learner mixes up, commonest first, which put their own slips first. */
+  confusions: readonly (readonly [string, string])[] = [],
+): LessonPlan {
   const before = ledgersBefore(LESSONS).get(lesson.id)!;
   // The one after it in teaching order, which after lesson 26 may be 26a; never into another level.
   const after = LESSONS[LESSONS.indexOf(lesson) + 1];
@@ -37,7 +41,7 @@ export function lessonPlan(lesson: LessonSpec): LessonPlan {
   const history = LESSONS.slice(0, LESSONS.indexOf(lesson));
   return {
     lesson,
-    practice: practiceFor(lesson, before, history),
+    practice: practiceFor(lesson, before, history, confusions),
     review: reviewFor(lesson, before, history),
     after: next ? { id: next.id, title: next.title, crossesPart: next.part !== lesson.part } : null,
     scene: sceneForLesson(lesson.id)?.id ?? null,

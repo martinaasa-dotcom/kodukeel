@@ -51,7 +51,7 @@ describe("the checks between the parts of the lessons", () => {
           continue;
         }
         expect(item.kind).not.toBe("match");
-        if (item.kind === "match" || item.kind === "reply" || item.kind === "rework") continue;
+        if (item.kind === "match" || item.kind === "reply" || item.kind === "rework" || item.kind === "fix") continue;
         expect(taught.has(item.kind === "type" ? item.answer : item.et), `${check.id}: ${JSON.stringify(item)}`).toBe(true);
       }
     }

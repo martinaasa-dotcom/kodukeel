@@ -229,6 +229,28 @@ export interface Rework {
   readonly pattern: PatternId;
 }
 
+/**
+ * PUT RIGHT THE SLIP YOU KEEP MAKING (docs/43-lessons.md §11.2, Fix).
+ *
+ * A line the learner has met, with one word swapped for another form of the
+ * same word: `Ma lugesin raamatu` where the line says `raamatut`. The learner
+ * types the line put right. Both spellings are taught forms of one word, so
+ * nothing on the screen is Estonian the app wrote wrongly on purpose: the line
+ * was written for the lesson and the slip is a real form. `pair` is the two
+ * slots the swap is between (`PARTITIVE` and `GENITIVE`), which is how a
+ * learner's own recorded mix-ups (`lib/stats/confusions.ts`) put the fixes
+ * they need first. `why` is one line of English for after the answer.
+ */
+export interface Fix {
+  readonly line: { readonly et: string; readonly en: string };
+  /** The word as the line spells it. */
+  readonly right: string;
+  /** Another taught form of the same word, put in its place. */
+  readonly wrong: string;
+  readonly pair: readonly [string, string];
+  readonly why: string;
+}
+
 /** Which kind of evening it is. A check-in teaches nothing new; a part ends on one. */
 export type LessonKind = "lesson" | "checkin" | "partEnd";
 
@@ -264,6 +286,8 @@ export interface LessonSpec {
   readonly answers: readonly Prompt[];
   /** Sentences to change, B1 on: practice that asks for the evening's pattern by name. */
   readonly reworks?: readonly Rework[];
+  /** Lines with a slip in them to put right, B1 on, the learner's own mix-ups first. */
+  readonly fixes?: readonly Fix[];
   /** A role-play, on a check-in and at the end of a part. */
   readonly roleplay?: { readonly scene: string; readonly turns: readonly Prompt[] };
 }

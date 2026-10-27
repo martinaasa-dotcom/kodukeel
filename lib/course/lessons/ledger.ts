@@ -31,7 +31,7 @@ import { buildCaseTable } from "@/lib/estonian/derive";
 import { levelIndex } from "@/lib/collections/syllabus/types";
 import { nativeClip } from "@/lib/audio/native";
 import { lessonLabel } from "./label";
-import type { LessonSpec, PatternId, Taught } from "./types";
+import type { Fix, LessonSpec, PatternId, Taught } from "./types";
 
 /** A taught item as a learner is asked about it: a verb counts as its two spellings. */
 export type Asked = Exclude<Taught, { kind: "verb" }>;
@@ -273,6 +273,18 @@ export function familiesOf(ledger: Ledger): Families {
   return { forms, of };
 }
 
+/**
+ * A fix's line with its slip in, or the line unchanged where the word it names
+ * is not in the line once as a whole word, which the level check refuses.
+ */
+export function withSlip(fix: Pick<Fix, "line" | "right" | "wrong">): string {
+  const at = [...fix.line.et.matchAll(/\p{L}+/gu)].filter((m) => m[0] === fix.right);
+  if (at.length !== 1) return fix.line.et;
+  const m = at[0]!;
+  const i = m.index ?? 0;
+  return fix.line.et.slice(0, i) + fix.wrong + fix.line.et.slice(i + m[0].length);
+}
+
 /** Words lower-cased and joined, as two sentences are compared. */
 const normalisePhraseOf = (text: string) => wordsOf(text).map((w) => w.low).join(" ");
 
@@ -347,6 +359,12 @@ export function estonianOf(lesson: LessonSpec): { where: string; et: string; hea
     out.push({ where: `rework ${i + 1}, to`, et: r.to.et });
     english(`rework ${i + 1}, to English`, r.to.en);
     r.also?.forEach((et, j) => out.push({ where: `rework ${i + 1}, also ${j + 1}`, et }));
+  });
+  lesson.fixes?.forEach((f, i) => {
+    out.push({ where: `fix ${i + 1}, the line`, et: f.line.et });
+    english(`fix ${i + 1}, the line's English`, f.line.en);
+    out.push({ where: `fix ${i + 1}, with the slip`, et: withSlip(f) });
+    english(`fix ${i + 1}, why`, f.why);
   });
   if (lesson.roleplay) {
     english("the role-play's scene", lesson.roleplay.scene);
@@ -487,6 +505,15 @@ export function lessonProblems(lessons: readonly LessonSpec[]): string[] {
     lesson.reworks?.forEach((r, i) => {
       if (!tonight.patterns.has(r.pattern)) problems.push(`${at}, rework ${i + 1}: asks for the ${r.pattern} pattern before it is explained`);
       if (normalisePhraseOf(r.from.et) === normalisePhraseOf(r.to.et)) problems.push(`${at}, rework ${i + 1}: the sentence it asks for is the one it starts from`);
+    });
+    // A slip is another taught form of the same word, standing once in the line, or it is not a slip.
+    const families = familiesOf(tonight);
+    lesson.fixes?.forEach((f, i) => {
+      if (withSlip(f) === f.line.et) problems.push(`${at}, fix ${i + 1}: "${f.right}" is not in the line once as a word`);
+      const of = families.of.get(f.right.toLocaleLowerCase("et"));
+      if (!of || families.of.get(f.wrong.toLocaleLowerCase("et")) !== of || f.wrong === f.right) {
+        problems.push(`${at}, fix ${i + 1}: "${f.wrong}" is not another taught form of the word "${f.right}" is`);
+      }
     });
     const names = namesOf(lesson);
     for (const { where, et, heard } of estonianOf(lesson)) {

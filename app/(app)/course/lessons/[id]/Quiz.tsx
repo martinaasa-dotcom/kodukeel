@@ -62,7 +62,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
 
   const item = items[Math.min(at, items.length - 1)];
   const answered = item
-    ? item.kind === "type" || item.kind === "rework" ? mark !== null : item.kind === "match" ? matched !== null : picked !== null
+    ? item.kind === "type" || item.kind === "rework" || item.kind === "fix" ? mark !== null : item.kind === "match" ? matched !== null : picked !== null
     : false;
 
   useEffect(() => {
@@ -127,8 +127,8 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
   };
 
   const check = () => {
-    if ((item.kind !== "type" && item.kind !== "rework") || mark !== null) return;
-    const m = item.kind === "rework" ? markRework(typed, item) : markPhrase(typed, item.accept);
+    if ((item.kind !== "type" && item.kind !== "rework" && item.kind !== "fix") || mark !== null) return;
+    const m = item.kind === "type" ? markPhrase(typed, item.accept) : markRework(typed, item);
     setMark(m);
     onAnswer?.(at, typed);
     scored(m.verdict === "right");
@@ -150,6 +150,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
     gap: t("Which word fits?"),
     reply: t("What do they say back?"),
     rework: t("Change the sentence"),
+    fix: t("Put it right"),
   }[item.kind];
 
   return (
@@ -238,14 +239,25 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
           </p>
         )}
 
-        {item.kind === "rework" && (
-          <div className="mt-2 flex flex-col gap-3" data-rework>
-            <div className="flex items-start gap-2">
-              <Speak key={`${at}-${item.from.et}`} text={item.from.et} size={18} label={t("Hear the sentence")} />
-              <p lang="et" className="text-xl font-bold" style={{ color: "var(--ink)" }}>{item.from.et}</p>
-            </div>
-            <p className="text-base" style={{ color: "var(--ink-2)" }}><LessonText text={item.from.en} locale={locale} /></p>
-            <p className="text-lg font-semibold" style={{ color: "var(--ink)" }}><LessonText text={item.ask} locale={locale} /></p>
+        {(item.kind === "rework" || item.kind === "fix") && (
+          <div className="mt-2 flex flex-col gap-3" data-rework={item.kind}>
+            {item.kind === "rework" ? (
+              <>
+                <div className="flex items-start gap-2">
+                  <Speak key={`${at}-${item.from.et}`} text={item.from.et} size={18} label={t("Hear the sentence")} />
+                  <p lang="et" className="text-xl font-bold" style={{ color: "var(--ink)" }}>{item.from.et}</p>
+                </div>
+                <p className="text-base" style={{ color: "var(--ink-2)" }}><LessonText text={item.from.en} locale={locale} /></p>
+                <p className="text-lg font-semibold" style={{ color: "var(--ink)" }}><LessonText text={item.ask} locale={locale} /></p>
+              </>
+            ) : (
+              <>
+                {/* The line with the slip is never played: hearing it said wrong is how a slip sticks. */}
+                <p lang="et" className="text-xl font-bold" style={{ color: "var(--ink)" }}>{item.shown}</p>
+                <p className="text-base" style={{ color: "var(--ink-2)" }}><LessonText text={item.en} locale={locale} /></p>
+                <p className="text-lg font-semibold" style={{ color: "var(--ink)" }}>{t("One word is in the wrong form. Type the line put right.")}</p>
+              </>
+            )}
             <input
               lang="et"
               className="field-lg w-full"
@@ -270,8 +282,9 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
                 <p>{t(mark.note)}</p>
                 <p className="mt-1">
                   <span lang="et" className="font-bold">{item.answer}</span>{" "}
-                  <LessonText text={item.answerEn} locale={locale} />
+                  <LessonText text={item.kind === "rework" ? item.answerEn : item.en} locale={locale} />
                 </p>
+                {item.kind === "fix" && <p className="mt-1"><LessonText text={item.why} locale={locale} /></p>}
               </div>
             )}
             {mark !== null && (
@@ -328,7 +341,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
         <p role="status" aria-live="polite" className="sr-only">{liveLine(item, picked, mark, matched, t)}</p>
 
         <div className="mt-5 flex flex-wrap items-center justify-end gap-3">
-          {(item.kind === "type" || item.kind === "rework") && mark === null ? (
+          {(item.kind === "type" || item.kind === "rework" || item.kind === "fix") && mark === null ? (
             <Button variant="primary" onClick={check}>
               <Check size={15} aria-hidden /> {t("Check")}
             </Button>
@@ -347,7 +360,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
 function liveLine(
   item: PracticeItem, picked: string | null, mark: TypedMark | null, matched: boolean | null, t: (s: string) => string,
 ): string {
-  if (item.kind === "type" || item.kind === "rework") return mark ? `${t(mark.note)} ${item.answer}` : "";
+  if (item.kind === "type" || item.kind === "rework" || item.kind === "fix") return mark ? `${t(mark.note)} ${item.answer}` : "";
   if (item.kind === "match") return matched === null ? "" : matched ? t("All matched, first time.") : t("All matched.");
   if (picked === null) return "";
   if (picked === item.answer) return t("Right.");

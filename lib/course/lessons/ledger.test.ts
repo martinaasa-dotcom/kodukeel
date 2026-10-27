@@ -228,3 +228,45 @@ describe("a sentence to change (Rework)", () => {
     expect(markRework("", item).note).toBe("Nothing typed.");
   });
 });
+
+describe("a slip to put right (Fix)", () => {
+  const teaches = [
+    { kind: "phrase", et: "Ma lugesin", en: "I read" },
+    { kind: "word", et: "raamat", en: "book" },
+    { kind: "form", et: "raamatut", of: "raamat", en: "some of the book" },
+    { kind: "form", et: "raamatu", of: "raamat", en: "the whole book" },
+    { kind: "word", et: "kass", en: "cat" },
+  ] as const;
+  const line = { et: "Ma lugesin raamatut.", en: "I was reading the book." };
+  const fix = { line, right: "raamatut", wrong: "raamatu", pair: ["PARTITIVE", "GENITIVE"], why: "Still reading: some of it." } as const;
+  const base = {
+    conversation: [{ who: "Mari", et: line.et, en: line.en }],
+    answers: [{ cue: "c", model: { et: line.et, en: line.en } }],
+    teaches, patterns: ["object"] as const,
+  };
+
+  it("passes a slip that is another taught form of the same word", () => {
+    expect(lessonProblems([lesson({ ...base, fixes: [fix] })])).toEqual([]);
+  });
+
+  it("fails a slip that is a different word, and a word not in the line", () => {
+    const other = lessonProblems([lesson({ ...base, fixes: [{ ...fix, wrong: "kass" }] })]);
+    expect(other.some((p) => p.includes("is not another taught form"))).toBe(true);
+    const missing = lessonProblems([lesson({ ...base, fixes: [{ ...fix, right: "raamatu", wrong: "raamatut" }] })]);
+    expect(missing.some((p) => p.includes("is not in the line once"))).toBe(true);
+  });
+
+  it("puts the learner's own mix-up first, and marks the line typed back unchanged", () => {
+    const other = { ...fix, line: { et: "Ma lugesin raamatu.", en: "I read the book." }, right: "raamatu", wrong: "raamatut", pair: ["INESSIVE", "ELATIVE"] } as const;
+    const spec = lesson({ ...base, conversation: [...base.conversation, { who: "Mari", et: other.line.et, en: other.line.en }], fixes: [other, fix] });
+    const plain = practiceFor(spec, EMPTY_LEDGER).filter((i) => i.kind === "fix");
+    expect(plain.map((i) => i.kind === "fix" && i.answer)).toEqual([other.line.et, line.et]);
+    const mine = practiceFor(spec, EMPTY_LEDGER, [], [["GENITIVE", "PARTITIVE"]]).filter((i) => i.kind === "fix");
+    expect(mine.map((i) => i.kind === "fix" && i.answer)).toEqual([line.et, other.line.et]);
+    const item = mine[0]!;
+    if (item.kind !== "fix") return;
+    expect(item.shown).toBe("Ma lugesin raamatu.");
+    expect(markRework("Ma lugesin raamatut.", item).verdict).toBe("right");
+    expect(markRework(item.shown, item).note).toContain("slip still in it");
+  });
+});

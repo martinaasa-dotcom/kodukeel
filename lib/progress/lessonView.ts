@@ -6,6 +6,15 @@ import { lessonPlan } from "@/lib/progress/lessonPlan";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { checksPassedFor } from "@/lib/progress/checks";
 import { reviewQueue } from "@/lib/progress/dailyQueue";
+import { prisma } from "@/lib/db";
+import { confusions } from "@/lib/stats/confusions";
+
+/**
+ * How far back a lesson looks for the learner's own mix-ups: the newest
+ * answers that reached for another form, which is plenty to rank a few pairs
+ * and bounds the read for somebody with years of reviews.
+ */
+const MIXUPS_READ = 1000;
 
 /**
  * WHAT ONE LESSON'S SCREEN IS HANDED, BUILT ONCE FOR BOTH DOORS.
@@ -42,7 +51,15 @@ export interface LessonView {
 export async function lessonView(ownerId: string, lessonId: string, now: Date = new Date()): Promise<LessonView | null> {
   const lesson = lessonById(lessonId);
   if (!lesson) return null;
-  const { closes, after, ...plan } = lessonPlan(lesson);
+  const mixups = lesson.fixes?.length
+    ? await prisma.review.findMany({
+      where: { ownerId, reachedSlot: { not: null } },
+      select: { slot: true, reachedSlot: true },
+      orderBy: [{ reviewedAt: "desc" }, { id: "asc" }],
+      take: MIXUPS_READ,
+    })
+    : [];
+  const { closes, after, ...plan } = lessonPlan(lesson, confusions(mixups).map((c) => c.pair));
   const [nameSetting, queue, passed, states] = await Promise.all([
     readSetting(ownerId, SETTING_KEYS.displayName),
     reviewQueue(ownerId, null, now),

@@ -380,6 +380,10 @@ export const LessonSpecSchema = z.object({
     to: z.object({ et: z.string(), en: z.string() }), also: z.array(z.string()).readonly().optional(),
     pattern: LessonPattern,
   })).readonly().optional().describe("Sentences to change, B1 on; the practice step carries them as `rework` items."),
+  fixes: z.array(z.object({
+    line: z.object({ et: z.string(), en: z.string() }), right: z.string(), wrong: z.string(),
+    pair: z.tuple([z.string(), z.string()]).readonly(), why: z.string(),
+  })).readonly().optional().describe("Lines with a slip in them, B1 on; the practice step carries them as `fix` items."),
   roleplay: z.object({ scene: z.string(), turns: z.array(LessonPrompt).readonly() }).optional(),
 }).describe(
   "One lesson as the web's lesson screen receives it. Two conventions run through its English, and a " +
@@ -407,6 +411,10 @@ export const PracticeItemSchema = z.discriminatedUnion("kind", [
     answer: z.string(), answerEn: z.string(),
     accept: z.array(z.string()).readonly().describe("Every sentence that counts, the lesson's own first."),
   }).describe("A sentence to change the way `ask` says (B1 on), typed and marked against `accept`."),
+  z.object({
+    kind: z.literal("fix"), shown: z.string(), en: z.string(), answer: z.string(),
+    accept: z.array(z.string()).readonly(), wrong: z.string(), right: z.string(), why: z.string(),
+  }).describe("A line with one word swapped for another form of it (B1 on); typed back put right."),
   z.object({ kind: z.literal("hear"), et: z.string(), options: z.array(z.string()).readonly(), answer: z.string() }),
   z.object({ kind: z.literal("pick"), et: z.string(), options: z.array(z.string()).readonly(), answer: z.string() }),
   z.object({
