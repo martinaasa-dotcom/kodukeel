@@ -16,7 +16,7 @@ import { FAREWELLS, HELLOS } from "./shared";
 */
 export default inLesson("b1-21-pay", {
   id: "b1-palgatous",
-  title: "Asking for a raise, at the end of B1's third part",
+  title: "Asking for a raise",
   place: "The manager's office, for a talk about pay",
   tests: "too-ja-raha",
   register: "sina",

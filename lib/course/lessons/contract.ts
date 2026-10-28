@@ -37,7 +37,7 @@ export function lessonEnglish(lesson: LessonSpec): string[] {
     ...(how.sounds ?? []).flatMap((row) => [row.like, ...(row.en ? [row.en] : [])]),
     ...(how.listen ?? []).flatMap((set) => set.words.map((w) => w.en)),
     ...lesson.conversation.flatMap((line) => [line.en ?? "", line.stage ?? ""]),
-    ...lesson.teaches.flatMap((t) => (t.kind === "verb" ? [t.en, t.firstEn] : [t.en])),
+    ...lesson.teaches.flatMap((t) => [...(t.kind === "verb" ? [t.en, t.firstEn] : [t.en]), ...("asks" in t && t.asks ? [t.asks] : [])]),
     ...[...lesson.answers, ...(lesson.roleplay?.turns ?? [])].flatMap((p) => [p.cue, p.model.en, p.ask?.en ?? ""]),
     ...(lesson.roleplay ? [lesson.roleplay.scene] : []),
     // The B1 exercises (types.ts): every English line they draw through `LessonText`.

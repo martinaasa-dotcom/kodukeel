@@ -627,7 +627,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       { who: "Peeter", et: "Tere, Tom! Peeter siin.", en: "Hello, Tom! It's Peeter.", stage: "A voicemail from Peeter, the landlord." },
       { who: "Peeter", et: "Meister tuleb homme kell kümme.", en: "The handyman's coming tomorrow at ten." },
       { who: "Peeter", et: "Sa oled siis tööl, aga pole viga.", en: "You'll be at work then, but never mind." },
-      { who: "Peeter", et: "Jäta talle lauale väike kiri.", en: "Leave him a little note on the table." },
+      { who: "Peeter", et: "Jäta talle lauale sedel.", en: "Leave him a note on the table." },
       { who: "Peeter", et: "Kirjuta, mis on tehtud ja mis on veel katki.", en: "Write what's done and what's still broken." },
       { who: "Peeter", et: "Kraani sa parandasid ju ise ära.", en: "You fixed the tap yourself, after all." },
       { who: "Peeter", et: "Aga aken ei lähe ikka kinni ja dušš tilgub terve öö.", en: "But the window still won't close, and the shower drips all night." },
@@ -638,8 +638,8 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       { who: "Peeter", et: "Võti jäta naabrile. Head aega!", en: "Leave the key with the neighbor. Bye!" },
     ],
     teaches: [
-      { kind: "word", et: "kiri", en: "a note, a letter" },
-      { kind: "form", et: "kirja", of: "kiri", en: "the note, as the thing you write" },
+      { kind: "word", et: "sedel", en: "a note, a slip of paper you leave somebody" },
+      { kind: "form", et: "sedelit", of: "sedel", en: "the note, as the thing you read" },
       { kind: "form", et: "tehtud", of: "tegema", en: "done, finished" },
       { kind: "form", et: "kraani", of: "kraan", en: "the tap, as the job done" },
       { kind: "word", et: "dušš", en: "a shower" },
@@ -765,7 +765,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
     cast: { Rein: "albert", Tom: "kalev" },
     conversation: [
       { who: "Rein", et: "Tere! Mina olen Rein, meister. Kas see on korter number kaksteist?", en: "Hello! I'm Rein, the handyman. Is this apartment number twelve?", stage: "The next morning. Tom has taken the morning off to let the handyman in himself." },
-      { who: "Tom", et: "Jah, tulge sisse! Kas te lugesite mu kirja?", en: "Yes, come in! Did you read my note?" },
+      { who: "Tom", et: "Jah, tulge sisse! Kas te lugesite mu sedelit?", en: "Yes, come in! Did you read my note?" },
       { who: "Rein", et: "Lugesin. Kraani te parandasite ise ära?", en: "I did. You fixed the tap yourself?" },
       { who: "Tom", et: "Jah, aga dušš tilgub ikka edasi.", en: "Yes, but the shower keeps on dripping." },
       { who: "Rein", et: "Duši parandan ma kohe ära.", en: "I'll fix the shower right away.", stage: "He looks at the shower for a minute." },
@@ -793,7 +793,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "The thing often comes first when it's what you're talking about: {Akent ma täna ei paranda}. The ending decides, wherever the word stands.",
-        "With a stranger, use {teie} the whole way: {tulge sisse}, {Kas te lugesite mu kirja?}",
+        "With a stranger, use {teie} the whole way: {tulge sisse}, {Kas te lugesite mu sedelit?}",
       ],
       watchOut: "A job that will get done takes the whole thing in a question too: {Millal te akna ära parandate?}, not {akent}.",
       examples: [2, 4, 6, 11],

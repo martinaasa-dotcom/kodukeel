@@ -147,6 +147,38 @@ A second pass over the same reading, for the story holding together across lesso
 - A2 lesson 45 (`a2-too`): `Tere, Peeter! Siin on Tom korterist number kaksteist.` (Peeter's apartment
   is 12 everywhere else).
 
+A third pass, for the story and for what each line is answering:
+
+- A2 lesson 42 (`a2-too`): Liis works in the café with Mari and Jaan is a doctor, as in B1:
+  `Ma töötan kohvikus, Mariga koos.`, `Ja Jaan? Mis tema teeb?`, `Jaan töötab arstina.`,
+  `Arstina? See on raske töö.`, and the table's `arst`, `arsti`, `arstina`.
+- Lesson 6: `Jäta talle lauale sedel.` (was `väike kiri`); lesson 7: `Kas te lugesite mu sedelit?`
+  ({kiri} is taught in lesson 13 now, where it is an email).
+- Lesson 8: the fix is on `Aita mind sellega!` (a line of the conversation), with `seda` as the slip.
+- Lesson 11: `Lõpuks! Te olete ju juba kuus aastat koos.`
+- Lesson 13's point now quotes `Kas ma võiksin oma naise kaasa võtta?` as the favor.
+- Lesson 17: `Siim alles alustas. Kas sa võiksid talle meie süsteemi näidata?` and
+  `Hea meelega. Ma võiksin talle ka lõuna välja teha. Esimene nädal on alati raske.` (Siim was
+  introduced in lesson 16).
+- Lesson 23: `Mu laud on suures heledas toas, akna juures.` and the story's `Mu laud on nüüd suures
+  toas akna juures.`
+- Lesson 29: `Jaaniõhtul tehakse lõket ja käiakse saunas.`, the table, rework, model answer and fix's
+  `Jaaniõhtul tehakse lõket.`, `Mida jaaniõhtul tehakse?`, `Me teeme jaaniõhtul lõket.`, and the
+  story's `Eelmisel suvel olin ma jaaniõhtul maal.`
+- Lesson 31: `Halvasti. Kui ma hommikul peatusse jõudsin, oli buss juba läinud.`, the point's and the
+  rework's `Kui ma jõudsin, oli buss juba läinud.`, `Buss on läinud.`, and `Kas buss oli juba läinud?`
+- Lesson 38: `Ma saan sinust aru, aga minu meelest oli see ikka igav.` (also the fix line).
+- Lesson 39: `Muidugi! Vana telefoni juhtmega, terve öö. Aga ekraan on ikka must.`
+- Lesson 40: `Oi, sorteerimine on ju kohustuslik. Kuhu see siis läheb?` (Tom read the house rules in
+  lesson 24), and Helgi's `Jah, aga meie majas me sorteerime prügi.` is gone.
+- Lesson 42: `Hea küll. Kaks päeva kontoris ja kolm kodus? Reedeti on mul nagunii kursus.` (Tom
+  works Monday to Thursday).
+- Lesson 43's story: `Teenindaja andis mulle blanketi ja ma täitsin selle ära.`, `Teenindaja saatis
+  blanketi kohe ära.`, `Aga teenindaja pani kogemata minu pastaka oma taskusse!` ({ametnik} is taught
+  in lesson 44 now).
+- Lesson 46: `Ma kirjutan: programmeerija.` (the -ja note stays in the table), and the fix is on
+  `Ma töötan, nii et ma ei ole töötu.`
+
 ## What a second model flagged
 
 Read on 2026-10-27 by the scene chain's lead model over all 1,647 distinct B1 lines

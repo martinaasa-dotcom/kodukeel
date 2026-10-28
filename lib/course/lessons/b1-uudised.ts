@@ -2,7 +2,7 @@
  * B1: WHAT HAPPENED, NOT WHO DID IT (docs/43-lessons.md §11.4).
  *
  * The impersonal, which is how Estonian says what people do and what was
- * done without naming anybody: customs ({Jaanipäeval tehakse lõket}), a town's
+ * done without naming anybody: customs ({Jaaniõhtul tehakse lõket}), a town's
  * history ({See maja ehitati 1930. aastal}), the news and a meeting's
  * decisions. And the pluperfect, {olin teinud}, for the day where everything
  * happened before Tom got there. It ends in a report of a burst pipe in the
@@ -42,7 +42,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Kes selle toob?", en: "Who brings it?" },
       { who: "Anna", et: "Sina ise! Ja siis juuakse koos kohvi.", en: "You do, yourself! And then everybody has coffee together." },
       { who: "Tom", et: "Huvitav. Mida Eestis veel tehakse?", en: "Interesting. What else do people do in Estonia?" },
-      { who: "Anna", et: "Jaanipäeval tehakse lõket ja käiakse saunas.", en: "On Midsummer Day people light a bonfire and go to the sauna." },
+      { who: "Anna", et: "Jaaniõhtul tehakse lõket ja käiakse saunas.", en: "On Midsummer Eve people light a bonfire and go to the sauna." },
       { who: "Tom", et: "Seda ma tean. Aga miks liftis keegi ei räägi?", en: "That I know. But why does nobody talk in the lift?" },
       { who: "Anna", et: "Liftis ei räägita. Siin on selline komme.", en: "People don't talk in the lift. That's the custom here." },
       { who: "Tom", et: "Üldse mitte?", en: "Not at all?" },
@@ -60,7 +60,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "süüakse", of: "sööma", en: "people eat, it's eaten" },
       { kind: "form", et: "suitsetata", of: "suitsetama", en: "people smoke, after {ei}" },
       { kind: "form", et: "keelt", of: "keel", en: "a language, as an object" },
-      { kind: "form", et: "jaanipäeval", of: "jaanipäev", en: "on Midsummer Day" },
+      { kind: "word", et: "jaaniõhtul", en: "on Midsummer Eve, June 23" },
       { kind: "word", et: "lõke", en: "bonfire" },
       { kind: "form", et: "lõket", of: "lõke", en: "a bonfire, as an object" },
       { kind: "form", et: "liftis", of: "lift", en: "in the lift" },
@@ -71,11 +71,11 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
     ],
     patterns: ["impersonal"],
     how: {
-      point: "To say what people do without naming anybody, Estonian has one form of the verb, the [umbisikuline] (-takse, people do): {Eestis räägitakse eesti keelt}, {Jaanipäeval tehakse lõket}. After {ei} it ends in -ta: {Siin ei suitsetata}.",
+      point: "To say what people do without naming anybody, Estonian has one form of the verb, the [umbisikuline] (-takse, people do): {Eestis räägitakse eesti keelt}, {Jaaniõhtul tehakse lõket}. After {ei} it ends in -ta: {Siin ei suitsetata}.",
       table: {
         head: ["Somebody named", "Nobody named", "In English"],
         rows: [
-          [{ et: "Me teeme lõket." }, { et: "Jaanipäeval tehakse lõket." }, { en: "On Midsummer Day people light a bonfire." }],
+          [{ et: "Me teeme lõket." }, { et: "Jaaniõhtul tehakse lõket." }, { en: "On Midsummer Eve people light a bonfire." }],
           [{ et: "Me räägime eesti keelt." }, { et: "Eestis räägitakse eesti keelt." }, { en: "Estonian is spoken in Estonia." }],
           [{ et: "Sa tood kooki." }, { et: "Sünnipäeval tuuakse kooki." }, { en: "Cake gets brought on your birthday." }],
           [{ et: "Me ei räägi liftis." }, { et: "Liftis ei räägita." }, { en: "People don't talk in the lift." }],
@@ -92,19 +92,19 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
     listenFor: [
       { q: "Who brings the cake to work on a birthday in Estonia?", options: ["The colleagues, all together", "The boss", "Whoever's birthday it is"], answer: 2 },
       { q: "True or false: in the lift, people talk about nothing at all.", options: ["True", "False"], answer: 1 },
-      { q: "What do they talk about first?", options: ["The cake for Tom's birthday", "What people do on Midsummer Day", "Why nobody talks in the lift"], answer: 0 },
+      { q: "What do they talk about first?", options: ["The cake for Tom's birthday", "What people do on Midsummer Eve", "Why nobody talks in the lift"], answer: 0 },
     ],
     answers: [
       { ask: { et: "Mis keelt Eestis räägitakse?", en: "What language is spoken in Estonia?" }, cue: "Say Estonian is spoken in Estonia.", model: { et: "Eestis räägitakse eesti keelt.", en: "Estonian is spoken in Estonia." } },
-      { ask: { et: "Mida jaanipäeval tehakse?", en: "What do people do on Midsummer Day?" }, cue: "Say people light a bonfire and go to the sauna.", model: { et: "Jaanipäeval tehakse lõket ja käiakse saunas.", en: "On Midsummer Day people light a bonfire and go to the sauna." } },
+      { ask: { et: "Mida jaaniõhtul tehakse?", en: "What do people do on Midsummer Eve?" }, cue: "Say people light a bonfire and go to the sauna.", model: { et: "Jaaniõhtul tehakse lõket ja käiakse saunas.", en: "On Midsummer Eve people light a bonfire and go to the sauna." } },
       { cue: "Say there's no smoking here.", model: { et: "Siin ei suitsetata.", en: "No smoking here." } },
       { ask: { et: "Mida sünnipäeval tööle tuuakse?", en: "What gets brought to work on a birthday?" }, cue: "Say cake gets brought.", model: { et: "Sünnipäeval tuuakse kooki.", en: "Cake gets brought on a birthday." } },
     ],
     reworks: [
       {
-        from: { et: "Me teeme jaanipäeval lõket.", en: "We light a bonfire on Midsummer Day." },
+        from: { et: "Me teeme jaaniõhtul lõket.", en: "We light a bonfire on Midsummer Eve." },
         ask: "Say what people do, without naming anybody.",
-        to: { et: "Jaanipäeval tehakse lõket.", en: "On Midsummer Day people light a bonfire." },
+        to: { et: "Jaaniõhtul tehakse lõket.", en: "On Midsummer Eve people light a bonfire." },
         pattern: "impersonal",
       },
       {
@@ -127,14 +127,14 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Jaanipäeval tehakse lõket.", en: "On Midsummer Day people light a bonfire." }, right: "tehakse", wrong: "teeb", pair: ["IndPrIps", "IndPrSg3"], why: "Nobody is named, so the [umbisikuline] (-takse, people do): {tehakse}." },
+      { line: { et: "Jaaniõhtul tehakse lõket.", en: "On Midsummer Eve people light a bonfire." }, right: "tehakse", wrong: "teeb", pair: ["IndPrIps", "IndPrSg3"], why: "Nobody is named, so the [umbisikuline] (-takse, people do): {tehakse}." },
       { line: { et: "Liftis ei räägita.", en: "People don't talk in the lift." }, right: "räägita", wrong: "räägitakse", pair: ["IndPrIpsNeg", "IndPrIps"], why: "After {ei} the ending is -ta: {ei räägita}." },
       { line: { et: "Sünnipäeval tuuakse tööle kooki.", en: "On your birthday, cake gets brought to work." }, right: "kooki", wrong: "kook", pair: ["PARTITIVE", "NOMINATIVE"], why: "Some cake, as an object: the [osastav] (3rd form), {kooki}." },
     ],
     retell: {
       who: "Anna",
       story: [
-        { et: "Eelmisel suvel olin ma jaanipäeval maal.", en: "Last summer I was in the country for Midsummer." },
+        { et: "Eelmisel suvel olin ma jaaniõhtul maal.", en: "Last summer I was in the country for Midsummer Eve." },
         { et: "Ma olin seal esimest korda.", en: "It was my first time there." },
         { et: "Seal tehakse igal aastal suur lõke.", en: "They build a big bonfire there every year." },
         { et: "Õhtul käiakse saunas ja süüakse koos.", en: "In the evening people go to the sauna and eat together." },
@@ -143,7 +143,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
         { et: "Hommikul olid kõik väsinud.", en: "In the morning everybody was tired." },
       ],
       points: [
-        { en: "Anna was in the country for Midsummer. Tell it about her: {ta oli}, not {ma olin}.", any: ["maal"] },
+        { en: "Anna was in the country for Midsummer Eve. Tell it about her: {ta oli}, not {ma olin}.", any: ["maal"] },
         { en: "It was her first time there.", any: ["esimest korda"] },
         { en: "A big bonfire is built there every year.", any: ["lõke", "tehakse"] },
         { en: "People go to the sauna and eat together.", any: ["saunas", "süüakse"] },
@@ -268,7 +268,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
     hearing: "cafe",
     conversation: [
       { who: "Mari", et: "Tere, Tom! Kuidas su päev läks?", en: "Hi, Tom! How did your day go?", stage: "Tom drops in at the café where Mari works." },
-      { who: "Tom", et: "Halvasti. Kui ma hommikul jaama jõudsin, oli rong juba läinud.", en: "Badly. When I got to the station this morning, the train had already gone." },
+      { who: "Tom", et: "Halvasti. Kui ma hommikul peatusse jõudsin, oli buss juba läinud.", en: "Badly. When I got to the stop this morning, the bus had already gone." },
       { who: "Mari", et: "Oi! Mis sa siis tegid?", en: "Oh! What did you do then?" },
       { who: "Tom", et: "Ma võtsin takso. Aga kui ma tööle jõudsin, oli koosolek juba alanud.", en: "I took a taxi. But when I got to work, the meeting had already started." },
       { who: "Mari", et: "Kas su ülemus oli vihane?", en: "Was your boss angry?" },
@@ -291,6 +291,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "lugenud", of: "lugema", en: "read (-nud form)" },
       { kind: "form", et: "unustanud", of: "unustama", en: "forgotten" },
       { kind: "form", et: "kohale", of: "koht", en: "there, to the place; with {jõudma}, to arrive" },
+      { kind: "form", et: "peatusse", of: "peatus", en: "to the stop, a bus stop" },
       { kind: "form", et: "pileti", of: "pilet", en: "the ticket, the whole of it" },
       { kind: "form", et: "diivanil", of: "diivan", en: "on the sofa" },
       { kind: "form", et: "polnud", of: "olema", en: "wasn't, hadn't been" },
@@ -299,7 +300,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
     ],
     patterns: ["pluperfect"],
     how: {
-      point: "Had done is {olin}, {oli} and the rest with the -nud form: {Kui ma jõudsin, oli rong juba läinud}. It's the [enneminevik] (had done), for what happened before something else in the past.",
+      point: "Had done is {olin}, {oli} and the rest with the -nud form: {Kui ma jõudsin, oli buss juba läinud}. It's the [enneminevik] (had done), for what happened before something else in the past.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -315,26 +316,26 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
         "{Juba} often goes with it: {oli juba alanud}, had already started.",
         "Not by then is {ei olnud} with the -nud form: {Kohv ei olnud veel otsa saanud}, the coffee hadn't run out yet.",
       ],
-      watchOut: "English sometimes skips had ('the train left before I came'). Estonian keeps it: {oli läinud}.",
+      watchOut: "English sometimes skips had ('the bus left before I came'). Estonian keeps it: {oli läinud}.",
       examples: [1, 3, 5, 9],
     },
     listenFor: [
       { q: "What had happened when Tom got to work?", options: ["The meeting had started", "His boss had gone home early", "Nobody else had come in yet"], answer: 0 },
       { q: "Who says today wasn't Tom's day?", options: ["Tom himself", "His boss", "Mari"], answer: 2 },
-      { q: "Which came first in Tom's day?", options: ["The soup at lunch ran out", "He missed his train", "His phone went dead"], answer: 1 },
+      { q: "Which came first in Tom's day?", options: ["The soup at lunch ran out", "He missed his bus", "His phone went dead"], answer: 1 },
     ],
     answers: [
       { ask: { et: "Kuidas su päev läks?", en: "How did your day go?" }, cue: "Say that when you got to work, the meeting had already started.", model: { et: "Kui ma tööle jõudsin, oli koosolek juba alanud.", en: "When I got to work, the meeting had already started." } },
       { cue: "Say you had forgotten your phone at home.", model: { et: "Ma olin telefoni koju unustanud.", en: "I'd left my phone at home." } },
       { cue: "Say the soup had already run out.", model: { et: "Supp oli juba otsa saanud.", en: "The soup had already run out." } },
-      { ask: { et: "Kas rong oli juba läinud?", en: "Had the train already gone?" }, cue: "Say no, it hadn't gone yet.", model: { et: "Ei, see ei olnud veel läinud.", en: "No, it hadn't gone yet." } },
+      { ask: { et: "Kas buss oli juba läinud?", en: "Had the bus already gone?" }, cue: "Say no, it hadn't gone yet.", model: { et: "Ei, see ei olnud veel läinud.", en: "No, it hadn't gone yet." } },
     ],
     reworks: [
       {
-        from: { et: "Rong on läinud.", en: "The train has gone." },
+        from: { et: "Buss on läinud.", en: "The bus has gone." },
         ask: "Say it had already gone when you got there. Start with {Kui ma jõudsin}.",
-        to: { et: "Kui ma jõudsin, oli rong juba läinud.", en: "When I got there, the train had already gone." },
-        also: ["Kui ma jõudsin, oli rong läinud."],
+        to: { et: "Kui ma jõudsin, oli buss juba läinud.", en: "When I got there, the bus had already gone." },
+        also: ["Kui ma jõudsin, oli buss läinud."],
         pattern: "pluperfect",
       },
       {

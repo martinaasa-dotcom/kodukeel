@@ -127,7 +127,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
     fixes: [
       { line: { et: "Siis ma kahjuks ei saa sind aidata.", en: "Then I'm afraid I can't help you." }, right: "sind", wrong: "sulle", pair: ["PARTITIVE", "ALLATIVE"], why: "{Aitama} wants the one helped in the [osastav] (3rd form): {sind}." },
       { line: { et: "Miks sa minult abi ei küsinud?", en: "Why didn't you ask me for help?" }, right: "minult", wrong: "mind", pair: ["ABLATIVE", "PARTITIVE"], why: "You ask from somebody: {minult}, in the [alaltütlev] (-lt, off)." },
-      { line: { et: "Selge. Ma palun ülemust appi.", en: "Right. I'll ask the boss to help." }, right: "ülemust", wrong: "ülemusele", pair: ["PARTITIVE", "ALLATIVE"], why: "{Paluma} wants the one asked in the [osastav] (3rd form): {ülemust}." },
+      { line: { et: "Aita mind sellega!", en: "Help me with it!" }, right: "sellega", wrong: "seda", pair: ["COMITATIVE", "PARTITIVE"], why: "You help somebody with something: the one helped is {mind}, and the thing takes the [kaasaütlev] (-ga, with), {sellega}." },
     ],
     faster: {
       ask: { et: "Kellelt sa abi küsid, kui sul on probleem?", en: "Who do you ask for help when you have a problem?" },
@@ -391,7 +391,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { who: "Liis", et: "Tom, mul on suur uudis. Ma abiellun!", en: "Tom, I've got big news. I'm getting married!" },
       { who: "Tom", et: "Palju õnne! Kellega?", en: "Congratulations! Who to?" },
       { who: "Liis", et: "Jaaniga muidugi! Kellega veel?", en: "Jaan, of course! Who else?" },
-      { who: "Tom", et: "Lõpuks! Te elate ju juba kuus aastat koos.", en: "At last! You've lived together for six years now." },
+      { who: "Tom", et: "Lõpuks! Te olete ju juba kuus aastat koos.", en: "At last! You've been together for six years now." },
       { who: "Liis", et: "Jah. Me tutvusime kuus aastat tagasi, aga ta küsis alles kaks kuud tagasi, kas ma abiellun temaga.", en: "Yes. We met six years ago, but he only asked me to marry him two months ago." },
       { who: "Tom", et: "Kuus aastat? Mida ta nii kaua tegi?", en: "Six years? What was he doing all that time?" },
       { who: "Liis", et: "Ta mõtles sellele. Aga mina armusin temasse juba esimesel päeval.", en: "Thinking about it. But I fell for him on the very first day." },
@@ -638,6 +638,8 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
     teaches: [
       { kind: "verb", et: "toimuma", first: "toimun", en: "to take place, to happen", firstEn: "I take place" },
       { kind: "form", et: "tutvuda", of: "tutvuma", en: "to get to know (after another verb)" },
+      { kind: "word", et: "kiri", en: "a letter, an email" },
+      { kind: "form", et: "kirja", of: "kiri", en: "the letter, the whole one" },
       { kind: "form", et: "saatsin", of: "saatma", en: "I sent", past: true },
       { kind: "form", et: "saatis", of: "saatma", en: "he sent, she sent" },
       { kind: "form", et: "vastanud", of: "vastama", en: "replied, after {pole} or {ei}" },
@@ -656,7 +658,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "ning", en: "and" },
     ],
     how: {
-      point: "A reply to an invitation thanks first, {Aitäh kutse eest!}, then answers, then asks the favor, with each verb in its own case: {Kas sa saaksid mind aruandega aidata?}",
+      point: "A reply to an invitation thanks first, {Aitäh kutse eest!}, then answers, then asks the favor, with each verb in its own case: {Kas ma võiksin oma naise kaasa võtta?}",
       table: {
         head: ["Estonian", "In English"],
         rows: [

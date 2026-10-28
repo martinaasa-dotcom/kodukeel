@@ -143,7 +143,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Tere, Mari! Siin Tom.", en: "Hi, Mari! It's Tom.", stage: "A week after the move, Tom leaves Mari a voice message." },
       { who: "Tom", et: "Me kolisime eelmisel nädalal uude korterisse ja kõik on väga hea!", en: "We moved into the new apartment last week, and everything's great!" },
       { who: "Tom", et: "Meil on nüüd kolm tuba ja köök. Elutuba on suur ja hele.", en: "We've got three rooms and a kitchen now. The living room is big and bright." },
-      { who: "Tom", et: "Ma töötan suures heledas toas. Minu koht on akna juures.", en: "I work in the big bright room. My spot is by the window." },
+      { who: "Tom", et: "Mu laud on suures heledas toas, akna juures.", en: "My desk is in the big bright room, by the window." },
       { who: "Tom", et: "Poeg ja tütar magavad väikeses toas, kuna seal on vaikne.", en: "Our son and daughter sleep in the small room, since it's quiet there." },
       { who: "Tom", et: "Ainult köök on väike, aga väikese köögiga saab ka elada.", en: "Only the kitchen is small, but you can live with a small kitchen." },
       { who: "Tom", et: "Ja külmkapp on suurem kui mina!", en: "And the fridge is bigger than me!" },
@@ -219,7 +219,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ma töötan suures heledas toas.", en: "I work in the big bright room." }, right: "heledas", wrong: "hele", pair: ["INESSIVE", "NOMINATIVE"], why: "In the room, so the describing word is in it too: {heledas}." },
+      { line: { et: "Mu laud on suures heledas toas, akna juures.", en: "My desk is in the big bright room, by the window." }, right: "heledas", wrong: "hele", pair: ["INESSIVE", "NOMINATIVE"], why: "In the room, so the describing word is in it too: {heledas}." },
       { line: { et: "Me kolisime eelmisel nädalal uude korterisse.", en: "We moved into the new apartment last week." }, right: "uude", wrong: "uus", pair: ["ILLATIVE", "NOMINATIVE"], why: "Into the apartment, so into for {uus} as well: {uude}." },
       { line: { et: "Me elame kolmandal korrusel, punase uksega korteris.", en: "We live on the third floor, in the apartment with the red door." }, right: "punase", wrong: "punasega", pair: ["GENITIVE", "COMITATIVE"], why: "With -ga only the noun takes the ending: {punase uksega}." },
     ],
@@ -229,7 +229,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         { et: "Eelmisel nädalal kolisime me uude korterisse.", en: "Last week we moved into a new apartment." },
         { et: "Vana korter oli väikeses majas kesklinnas.", en: "The old apartment was in a small building in the center." },
         { et: "Uus korter on suures majas mere ääres.", en: "The new apartment is in a big building by the sea." },
-        { et: "Ma töötan nüüd suures toas akna juures.", en: "Now I work in the big room, by the window." },
+        { et: "Mu laud on nüüd suures toas akna juures.", en: "Now my desk is in the big room, by the window." },
         { et: "Ainult köök on väike, aga külmkapp on suurem kui mina.", en: "Only the kitchen is small, but the fridge is bigger than me." },
       ],
       points: [
@@ -748,7 +748,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
     goal: "Stand up for your deposit when you move out: what was already broken, what you fixed, and what the contract says.",
     cast: { Peeter: "peeter", Tom: "kalev" },
     conversation: [
-      { who: "Peeter", et: "Tere, Tom. Vaatame korteri koos läbi.", en: "Hello, Tom. Let's walk through the apartment together.", stage: "The old contract's last day, back in Peeter's old apartment. It's empty, and Peeter walks through it slowly, looking at everything." },
+      { who: "Peeter", et: "Tere, Tom. Vaatame korteri koos läbi.", en: "Hello, Tom. Let's walk through the apartment together.", stage: "The old contract's last day, back in their old apartment. It's empty, and Peeter walks through it slowly, looking at everything." },
       { who: "Tom", et: "Tere! Kõik on korras. Ma koristasin eile terve päeva.", en: "Hello! Everything's in order. I cleaned all day yesterday." },
       { who: "Peeter", et: "Jah, köök on ilus. Aga põrand on kriimustatud.", en: "Yes, the kitchen looks nice. But the floor is scratched." },
       { who: "Tom", et: "See oli juba enne mind kriimustatud.", en: "It was scratched before I came." },
