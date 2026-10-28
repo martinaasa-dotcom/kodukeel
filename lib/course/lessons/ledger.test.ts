@@ -278,13 +278,13 @@ describe("a slip to put right (Fix)", () => {
     expect(markRework(item.shown, item).note).toContain("slip still in it");
   });
 
-  it("calls the slip put right nearly, where a hand slipped on another word", () => {
+  it("does not forgive another word that is a letter out under the slip floor", () => {
     const item = practiceFor(lesson({ ...base, fixes: [fix] }), EMPTY_LEDGER).find((i) => i.kind === "fix");
     expect(item?.kind).toBe("fix");
     if (item?.kind !== "fix") return;
-    const nearly = markRework("Ma lugeisn raamatut.", item);
-    expect(nearly.verdict).toBe("nearly");
-    expect(nearly.note).toContain("slip is put right");
+    // A letter out on a word under eight letters is another word as far as the marker can tell, as `sina` is for `mina`.
+    expect(markRework("Ma lugeisn raamatut.", item).verdict).toBe("wrong");
+    expect(markRework("Ma lugeisn raamatut.", item).close).toBe(false);
     // The slip itself still in it is wrong however the rest is spelled.
     expect(markRework("Ma lugeisn raamatu.", item).verdict).toBe("wrong");
   });

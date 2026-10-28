@@ -92,9 +92,9 @@ export function LessonConversation({ lines, cast, english, hidden = false, condi
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <Button variant={playing ? "secondary" : "primary"} size="sm" onClick={playAll} aria-pressed={playing}>
+        <Button variant={playing ? "secondary" : "primary"} size="sm" onClick={playAll}>
           {playing ? <Pause size={15} aria-hidden /> : <Play size={15} aria-hidden />}
-          {playing ? t("Stop after this line") : t("Play the conversation")}
+          {playing ? t("Stop") : t("Play the conversation")}
         </Button>
       </div>
       <ol className="flex flex-col gap-3" data-lesson-conversation>

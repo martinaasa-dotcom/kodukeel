@@ -635,12 +635,16 @@ export function markRework(typed: string, item: Extract<PracticeItem, { kind: "r
     const right = normalisePhrase(item.right);
     if (typedWords.length === wanted.length && typedWords.includes(right) && !typedWords.includes(normalisePhrase(item.wrong))) {
       const off = typedWords.map((w, i) => ({ w, want: wanted[i]! })).filter(({ w, want }) => w !== want);
-      if (off.length === 1 && nearMiss(off[0]!.w, off[0]!.want)) {
+      // A slip of the hand on the other word is only what `markPhrase` calls one: its marks, or one letter out from eight letters up, so `sina` typed for `mina` is a different word and not a slip.
+      const slip = off.length === 1 && (fold(off[0]!.w) === fold(off[0]!.want)
+        || (off[0]!.want.length >= SLIP_FLOOR && editDistance(off[0]!.w, off[0]!.want, 1) <= 1));
+      if (slip) {
         return { verdict: "nearly", note: "The slip is put right. Mind the spelling of one other word.", close: false };
       }
     }
   }
-  return { verdict: "wrong", note: "Not quite.", close: wants.some((w) => nearMiss(said, w)) };
+  // Never painted as nearly: a third of a sentence's letters is room for the one ending the exercise is about.
+  return { verdict: "wrong", note: "Not quite.", close: false };
 }
 
 /**

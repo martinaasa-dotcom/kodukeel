@@ -61,9 +61,10 @@ export function AnuTextReading({ text, level, heading, invite, offline }: {
     the reading is never there on arrival.
   */
   const headRef = useRef<HTMLParagraphElement>(null);
+  const noteRef = useRef<HTMLDivElement>(null);
   const asking = useRef(false);
   useEffect(() => {
-    if (reading && asking.current) { asking.current = false; headRef.current?.focus(); }
+    if (reading && asking.current) { asking.current = false; (headRef.current ?? noteRef.current)?.focus(); }
   }, [reading]);
 
   async function ask() {
@@ -102,11 +103,14 @@ export function AnuTextReading({ text, level, heading, invite, offline }: {
   return (
     <div>
       {body && (
-        <div>
-          <p ref={headRef} tabIndex={-1} className="label-xs mb-2 outline-none" style={{ color: "var(--accent-deep)" }}>
-            <MessageCircleQuestion size={12} className="mr-1 inline" aria-hidden />
-            {heading}
-          </p>
+        <div ref={noteRef} tabIndex={-1} className="outline-none">
+          {/* "Anu's read it" is said only over a note she wrote; the other outcomes speak for themselves, and the caret goes to them instead. */}
+          {body.comment && (
+            <p ref={headRef} tabIndex={-1} className="label-xs mb-2 outline-none" style={{ color: "var(--accent-deep)" }}>
+              <MessageCircleQuestion size={12} className="mr-1 inline" aria-hidden />
+              {heading}
+            </p>
+          )}
           {body.comment ? (
             <AnuProse text={body.comment} className="text-md" />
           ) : body.quotaMessage ? (
