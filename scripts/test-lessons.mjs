@@ -67,6 +67,12 @@ page.on("pageerror", (e) => errors.push(String(e)));
 */
 const AXE = readFileSync(createRequire(import.meta.url).resolve("axe-core/axe.min.js"), "utf8");
 async function axeHere(where) {
+  /*
+    A step arrives fading in, and contrast measured mid-fade is a card at half
+    its ink: on a slower runner axe met a whole Listen step that way. What is
+    measured is the step at rest, so the finite animations finish first.
+  */
+  await page.waitForFunction(() => document.getAnimations().every((a) => a.playState !== "running" || a.effect?.getTiming().iterations === Infinity), null, { timeout: 5000 }).catch(() => {});
   await page.addScriptTag({ content: AXE });
   const found = await page.evaluate(async () => {
     const r = await window.axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "best-practice"] } });
