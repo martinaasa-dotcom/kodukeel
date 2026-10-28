@@ -26,7 +26,7 @@ import { SentenceFindings } from "@/components/course/SentenceFindings";
 import { SayAlongFade } from "@/components/course/SayAlongFade";
 import { RetellIt } from "@/components/course/RetellIt";
 import { AgainFaster } from "@/components/course/AgainFaster";
-import { levelIndex } from "@/lib/collections/syllabus/types";
+import { saysItLonger } from "@/lib/course/lessons/limits";
 import type { Finding } from "@/lib/course/lessons/sentenceCheck";
 
 /**
@@ -127,7 +127,7 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier
       the fading lines are skipped for the reason the read-along is, and the
       other two run in the box.
     */
-    const b = levelIndex(lesson.level) >= levelIndex("B1");
+    const b = saysItLonger(lesson.level);
     const opening: SayCard[] = mode === "say" ? [{ kind: b ? "fade" : "lines" }] : [];
     const longer: SayCard[] = [
       ...(lesson.retell ? [{ kind: "retell" } as SayCard] : []),
@@ -142,7 +142,7 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier
         <p className="max-w-[60ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           {capstone
             ? fill(t("This is the whole conversation, with you in it. {who} speaks first and you answer as yourself, out loud or typed, one turn at a time. Each turn is added to the conversation, so by the end you've held all of it."), { who: opener })
-            : levelIndex(lesson.level) >= levelIndex("B1")
+            : saysItLonger(lesson.level)
               // Named for what this lesson holds, the story or the race, rather than "one or the other".
               ? lesson.retell
                 ? t("Say today's key lines along and then alone, answer questions about yourself, then tell a short story back in your own words. A word lights up when it's understood.")

@@ -41,6 +41,11 @@ export function AgainFaster({ faster, voice, typed, multiplier, onDone }: { fast
   const [helped, setHelped] = useState(false);
   const round = goes.length;
   const over = round >= FASTER_SECONDS.length;
+  // The go that held the caret is gone once it ends; after the last one the caret goes to the way on.
+  const endRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (over) endRef.current?.querySelector<HTMLButtonElement>("button")?.focus();
+  }, [over]);
   const windows = FASTER_SECONDS.map((s) => Math.round(s * multiplier));
 
   return (
@@ -60,7 +65,7 @@ export function AgainFaster({ faster, voice, typed, multiplier, onDone }: { fast
         </p>
       </div>
 
-      {!over && <OneGo key={round} seconds={windows[round]!} typed={typed} onGo={(go) => setGoes((all) => [...all, go])} />}
+      {!over && <OneGo key={round} seconds={windows[round]!} typed={typed} focusStart={round > 0} onGo={(go) => setGoes((all) => [...all, go])} />}
 
       {round > 0 && !helped && !over && (
         <Button variant="ghost" size="sm" onClick={() => setHelped(true)}>{t("Need an idea?")}</Button>
@@ -78,7 +83,7 @@ export function AgainFaster({ faster, voice, typed, multiplier, onDone }: { fast
 
       {goes.length > 0 && <Goes goes={goes} />}
 
-      <div className="mt-5 flex flex-wrap justify-end gap-3">
+      <div ref={endRef} className="mt-5 flex flex-wrap justify-end gap-3">
         <Button variant={over ? "primary" : "ghost"} onClick={onDone}>
           {over ? t("Next") : t("Skip the rest")} <ArrowRight size={15} aria-hidden />
         </Button>
@@ -87,7 +92,7 @@ export function AgainFaster({ faster, voice, typed, multiplier, onDone }: { fast
   );
 }
 
-function OneGo({ seconds, typed, onGo }: { seconds: number; typed: boolean; onGo: (go: Go) => void }) {
+function OneGo({ seconds, typed, focusStart, onGo }: { seconds: number; typed: boolean; focusStart: boolean; onGo: (go: Go) => void }) {
   const t = useT();
   const [started, setStarted] = useState<number | null>(null);
   /*
@@ -173,6 +178,10 @@ function OneGo({ seconds, typed, onGo }: { seconds: number; typed: boolean; onGo
 
   // Start is replaced by the microphone or the box; the caret goes to whichever arrived.
   const goRef = useRef<HTMLDivElement>(null);
+  // A go after the first replaces the one whose Done was pressed, so its Start takes the caret.
+  useEffect(() => {
+    if (focusStart) goRef.current?.querySelector<HTMLButtonElement>("button")?.focus();
+  }, [focusStart]);
   useEffect(() => {
     if (!armed || !mic) return;
     goRef.current?.querySelector<HTMLButtonElement>("button")?.focus();

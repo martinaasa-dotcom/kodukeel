@@ -27,5 +27,6 @@ describe("a lesson's conversation out there", () => {
       if (before) expect(situationsOfferedThrough(before.id).has(scene), `${scene} before ${lesson}`).toBe(false);
     }
     expect(situationsOfferedThrough(null).size).toBe(offers.length);
+    expect(situationsOfferedThrough("not-a-lesson").size).toBe(0);
   });
 });

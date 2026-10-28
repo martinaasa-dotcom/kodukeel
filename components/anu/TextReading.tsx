@@ -66,7 +66,8 @@ export function AnuTextReading({ text, level, heading, invite, offline }: {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ text: asked, level }),
       });
-      const body = await res.json();
+      // A platform error page is not JSON: it reads as a failed reading, not as the learner being offline.
+      const body = await res.json().catch(() => ({}));
       if (!res.ok) {
         setError(body.error ? t(body.error) : t("We couldn't read that."));
         return;

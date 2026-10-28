@@ -260,7 +260,10 @@ export interface Rework {
  * was written for the lesson and the slip is a real form. `pair` is the two
  * slots the swap is between (`PARTITIVE` and `GENITIVE`), which is how a
  * learner's own recorded mix-ups (`lib/stats/confusions.ts`) put the fixes
- * they need first. `why` is one line of English for after the answer.
+ * they need first. Only a pair of slots the review log records can be ranked
+ * that way; a pair of the impersonal's codes, which no card asks for, keeps the
+ * order it was written in, and `lessonProblems` refuses any other code.
+ * `why` is one line of English for after the answer.
  */
 export interface Fix {
   readonly line: { readonly et: string; readonly en: string };

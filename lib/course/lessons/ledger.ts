@@ -26,7 +26,8 @@
  * Pure: no React, no Prisma, no clock.
  */
 
-import { conditional, imperativeSingular, negativePresent, pastPersons, presentTense } from "@/lib/estonian/conjugate";
+import { conditional, imperativeSingular, negativePresent, pastPersons, presentTense, VERB_SLOTS } from "@/lib/estonian/conjugate";
+import { CASES } from "@/lib/estonian/cases";
 import { buildCaseTable } from "@/lib/estonian/derive";
 import { levelIndex } from "@/lib/collections/syllabus/types";
 import { nativeClip } from "@/lib/audio/native";
@@ -289,6 +290,15 @@ export function withSlip(fix: Pick<Fix, "line" | "right" | "wrong">): string {
 const normalisePhraseOf = (text: string) => wordsOf(text).map((w) => w.low).join(" ");
 
 /** The names a lesson may use: the shared list and its own cast. */
+/*
+  WHAT A FIX'S PAIR MAY NAME. A case, a verb slot the app records, or one of
+  the impersonal's codes, which the review log never records (no card asks
+  for them), so a fix on one is shown in the order it was written rather than
+  ahead of the learner's own mix-ups. Anything else is a misspelled code.
+*/
+const IMPERSONAL_CODES = ["IndPrIps", "IndIpfIps", "IndPrIpsNeg"] as const;
+const PAIR_CODES: ReadonlySet<string> = new Set([...CASES.map((c) => c.key as string), ...VERB_SLOTS, ...IMPERSONAL_CODES]);
+
 export function namesOf(lesson: Pick<LessonSpec, "cast">): ReadonlySet<string> {
   return new Set([...NAMES, ...Object.keys(lesson.cast)]);
 }
@@ -564,6 +574,10 @@ export function lessonProblems(lessons: readonly LessonSpec[]): string[] {
     };
     lesson.fixes?.forEach((f, i) => {
       if (withSlip(f) === f.line.et) problems.push(`${at}, fix ${i + 1}: "${f.right}" is not in the line once as a word`);
+      // A pair code nobody recognizes is a slip that never matches the learner's own mix-ups, and says so nowhere.
+      for (const code of f.pair) {
+        if (!PAIR_CODES.has(code)) problems.push(`${at}, fix ${i + 1}: "${code}" names no case or verb slot`);
+      }
       const of = wordOfSpelling(f.right);
       if (!of || wordOfSpelling(f.wrong) !== of || f.wrong === f.right) {
         problems.push(`${at}, fix ${i + 1}: "${f.wrong}" is not another taught form of the word "${f.right}" is`);

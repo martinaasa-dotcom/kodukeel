@@ -560,6 +560,12 @@ export function normalisePhrase(text: string): string {
 /** The slip floor for a one-letter difference (`lib/estonian/answer.ts`). */
 const SLIP_FLOOR = 8;
 
+/** An item answered by typing, which is marked by spelling rather than by the option picked. One test, so a new typed kind is added in one place. */
+export type TypedItem = Extract<PracticeItem, { kind: "type" | "rework" | "fix" }>;
+export function isTyped(item: PracticeItem): item is TypedItem {
+  return item.kind === "type" || item.kind === "rework" || item.kind === "fix";
+}
+
 export interface TypedMark {
   readonly verdict: Verdict;
   /** What to say, in English, beside the answer. */
@@ -753,7 +759,7 @@ export function markCheck(items: readonly PracticeItem[], responses: readonly (s
     const said = responses[i] ?? "";
     // A match is never on a check: it is several answers in one, and a check marks one each.
     if (item.kind === "match") return "wrong" as const;
-    if (item.kind !== "type" && item.kind !== "rework" && item.kind !== "fix") return said === item.answer ? "right" as const : "wrong" as const;
+    if (!isTyped(item)) return said === item.answer ? "right" as const : "wrong" as const;
     const mark = (item.kind === "type" ? markPhrase(said, item.accept) : markRework(said, item)).verdict;
     return mark === "right" ? "right" as const : mark === "nearly" ? "nearly" as const : "wrong" as const;
   });

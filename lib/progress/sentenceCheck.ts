@@ -53,13 +53,24 @@ const MAX_TEXT_WORDS = 220;
  */
 export async function checkTypedSentences(texts: readonly string[], sample: string, cap = MAX_TEXT_WORDS): Promise<SentenceCheck[]> {
   if (texts.length === 0) return [];
-  // The sentences' own words first, so the cap never drops a word somebody wrote for one the model holds.
-  const said = [...new Set([...texts, sample].flatMap((t) => (t.match(ESTONIAN_WORD) ?? []).map((w) => w.toLowerCase())))];
-  // A clitic `-gi` or `-ki` is read off the word under it, so that word is asked too.
-  const spellings = [...new Set([...said, ...said.flatMap((w) => (/[gk]i$/.test(w) && w.length > 4 ? [w.slice(0, -2)] : []))])]
-    .slice(0, cap);
-  const budget = coldBudget(COLD_SHARDS_PER_REQUEST);
-  const compoundBudget = coldBudget(COLD_SHARDS_PER_REQUEST);
+  /*
+    The sentences' own words first, so the cap never drops a word somebody
+    wrote for one the model holds; and a clitic `-gi` or `-ki` is read off
+    the word under it, so that word is asked straight after its own, where
+    the cap cannot reach it before the model's words.
+  */
+  const words = [...texts, sample].flatMap((t) => (t.match(ESTONIAN_WORD) ?? []).map((w) => w.toLowerCase()));
+  const spellings = [...new Set(words.flatMap((w) => (/[gk]i$/.test(w) && w.length > 4 ? [w, w.slice(0, -2)] : [w])))].slice(0, cap);
+  /*
+    A cold instance reads a bounded number of shards per request, and that
+    bound was set for one sentence of up to MAX_WORDS words. A whole draft
+    shared one sentence's budget, so most of its words went unread and a
+    correct sentence came back with findings it could not be ticked past.
+    The budget grows with the words asked, at the rate one sentence has.
+  */
+  const shards = COLD_SHARDS_PER_REQUEST * Math.max(1, Math.ceil(spellings.length / MAX_WORDS));
+  const budget = coldBudget(shards);
+  const compoundBudget = coldBudget(shards);
   const read = await Promise.all(spellings.map(async (word) => ({
     word,
     exact: await isExactForm(word, budget),

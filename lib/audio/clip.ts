@@ -403,6 +403,15 @@ export function untilQuiet(capMs: number): Promise<void> {
   });
 }
 
+/** The clip playing through an element, so a screen's Stop can end it mid-line rather than after it. */
+let playing: HTMLAudioElement | null = null;
+
+/** Ends the clip in the air, which fires its `pause` and so ends the speech it began. */
+export function stopClip(): void {
+  playing?.pause();
+  playing = null;
+}
+
 export async function playClip(
   request: ClipRequest,
   { unasked = false, chosen = false }: { unasked?: boolean; chosen?: boolean } = {},
@@ -429,8 +438,9 @@ export async function playClip(
     // an element plays through a phone's silent switch and a Web Audio graph
     // does not, and a learner who pressed the speaker asked to hear it.
     const audio = new Audio(clip.url);
+    playing = audio;
     for (const event of ["ended", "pause", "error"] as const) {
-      audio.addEventListener(event, end, { once: true });
+      audio.addEventListener(event, () => { if (playing === audio) playing = null; end(); }, { once: true });
     }
     try {
       await audio.play();

@@ -200,9 +200,9 @@ async function sayThrough(lesson, mode) {
         await say.getByLabel("Your answer, in Estonian").fill(lesson.faster);
         await say.getByRole("button", { name: /^Done$/ }).click();
       }
-      const goes = await say.locator("[data-faster-goes] li, [data-faster-goes] [data-go]").count();
+      const goes = await say.locator("[data-faster-goes] li").count();
       if (SHOTS) await shoot(`${where} faster`);
-      check(`${where}: three goes at the answer are drawn side by side`, goes >= 3 || /45/.test(await say.innerText()), `${goes}`);
+      check(`${where}: three goes at the answer are drawn side by side`, goes === 3, `${goes}`);
       check(`${where}: and one way to say it is shown after them`, (await say.locator("[data-faster-model]").count()) === 1);
       await say.getByRole("button", { name: /^Next/ }).click();
       continue;
@@ -258,9 +258,18 @@ async function writeThrough(lesson) {
   await page.getByRole("button", { name: /^Done writing/ }).click();
 }
 
+/** The lesson's step on screen and React holding it, so a press is heard rather than landing on server HTML. */
+async function hydrated(pg) {
+  await pg.waitForFunction(() => {
+    const el = document.querySelector("#lesson-step");
+    return !!el && Object.keys(el).some((k) => k.startsWith("__react"));
+  }, null, { timeout: 30_000 });
+}
+
 async function walk(lesson, { mode = "type" } = {}) {
   const where = lesson.id;
-  await page.goto(`${B}/course/lessons/${lesson.id}`, { waitUntil: "networkidle" });
+  await page.goto(`${B}/course/lessons/${lesson.id}`, { waitUntil: "domcontentloaded" });
+  await hydrated(page);
   await eventually(async () => (await stepHeading()).startsWith("Step 1"), { timeoutMs: 10_000 });
   check(`${where}: opens on its first step`, (await stepHeading()).startsWith("Step 1"), await stepHeading());
   check(`${where}: says what is new at the level on the level's first lesson only`,
@@ -324,7 +333,8 @@ async function spokenRace(lesson) {
     const ctx = await mic.newContext({ viewport: { width: 1280, height: 900 } });
     await ctx.grantPermissions(["microphone"], { origin: B });
     const p = await ctx.newPage();
-    await p.goto(`${B}/course/lessons/${lesson.id}`, { waitUntil: "networkidle" });
+    await p.goto(`${B}/course/lessons/${lesson.id}`, { waitUntil: "domcontentloaded" });
+    await hydrated(p);
     await p.getByRole("button", { name: /^Show the words now/ }).click();
     for (let n = 0; n < 6 && !/Say it/.test(await p.locator("#lesson-step").innerText()); n++) {
       await p.getByRole("button", { name: /^(Skip this step|Continue)/ }).last().click();

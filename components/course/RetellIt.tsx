@@ -11,7 +11,7 @@ import { useLocale, useT } from "@/components/Locale";
 import { LessonText } from "@/components/course/LessonText";
 import { Card, SectionTitle } from "@/components/ui";
 import { fill } from "@/lib/copy/locale";
-import { playClip, untilQuiet } from "@/lib/audio/clip";
+import { playClip, stopClip, untilQuiet } from "@/lib/audio/clip";
 import { pointsHeard } from "@/lib/course/lessons/retell";
 import type { Retell } from "@/lib/course/lessons/types";
 
@@ -51,7 +51,8 @@ export function RetellIt({ retell, voice, typed, onDone }: { retell: Retell; voi
   });
   const live = speech.listening ? `${said} ${speech.partial}` : said;
   const lit = pointsHeard(retell, live);
-  const litCount = lit.filter(Boolean).length;
+  // Announced off what has been said, not the words still arriving, so a point is not read out lighting and going out mid-sentence.
+  const settledCount = useMemo(() => pointsHeard(retell, said).filter(Boolean).length, [retell, said]);
   const mic = !typed && speech.offered;
   // One loud button a screen: hearing the story until it has been heard twice or told, then Next.
   const hearFirst = plays < 2 && said.trim() === "";
@@ -60,7 +61,7 @@ export function RetellIt({ retell, voice, typed, onDone }: { retell: Retell; voi
   useEffect(() => () => { stop.current = true; }, []);
 
   const play = async () => {
-    if (playing) { stop.current = true; return; }
+    if (playing) { stop.current = true; stopClip(); return; }
     stop.current = false;
     setPlaying(true);
     let heard = 0;
@@ -120,7 +121,8 @@ export function RetellIt({ retell, voice, typed, onDone }: { retell: Retell; voi
       />
       <div className="under-field"><DiacriticBar /></div>
 
-      <ul className="mt-5 flex flex-col gap-2" data-retell-points aria-live="polite">
+      {/* Not a live region: the points light as words arrive, and what is announced is the settled count under them. */}
+      <ul className="mt-5 flex flex-col gap-2" data-retell-points>
         {retell.points.map((point, i) => (
           <li key={point.en} className="flex items-center gap-2 rounded-[var(--r)] px-3 py-2" style={{ background: lit[i] ? "var(--sky-soft)" : "var(--raised)" }} data-lit={lit[i] ? "true" : "false"}>
             {lit[i] ? <Check size={16} aria-hidden style={{ color: "var(--sky-ink)" }} /> : <Circle size={14} aria-hidden style={{ color: "var(--ink-3)" }} />}
@@ -130,7 +132,7 @@ export function RetellIt({ retell, voice, typed, onDone }: { retell: Retell; voi
         ))}
       </ul>
       <p className="mt-3 text-base font-semibold" style={{ color: "var(--ink)" }} role="status">
-        {fill(t("{n} of {total} points came across."), { n: String(litCount), total: String(retell.points.length) })}
+        {fill(t("{n} of {total} points came across."), { n: String(settledCount), total: String(retell.points.length) })}
       </p>
 
       {shown && (

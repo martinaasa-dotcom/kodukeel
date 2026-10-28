@@ -8,7 +8,7 @@ import { useAudioPrefs } from "@/components/AudioPrefs";
 import { useLocale, useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
 import { LessonText } from "@/components/course/LessonText";
-import { playClip, untilQuiet } from "@/lib/audio/clip";
+import { playClip, stopClip, untilQuiet } from "@/lib/audio/clip";
 import { nativePart } from "@/lib/audio/native";
 import type { Condition } from "@/lib/audio/conditions";
 import type { Line } from "@/lib/course/lessons/types";
@@ -62,10 +62,12 @@ export function LessonConversation({ lines, cast, english, hidden = false, condi
   const playAll = async () => {
     if (playing) {
       stop.current = true;
+      stopClip();
       return;
     }
     stop.current = false;
     setPlaying(true);
+    let heard = 0;
     for (let i = 0; i < lines.length; i++) {
       if (stop.current) break;
       const line = lines[i]!;
@@ -73,14 +75,15 @@ export function LessonConversation({ lines, cast, english, hidden = false, condi
       setActive(i);
       items.current[i]?.scrollIntoView({ block: "nearest", behavior: "smooth" });
       try {
-        await playClip({ text: line.et, voice: cast[line.who], pace: prefs.pace, native: line.who === played, condition });
+        if ((await playClip({ text: line.et, voice: cast[line.who], pace: prefs.pace, native: line.who === played, condition })) === "played") heard += 1;
         await untilQuiet(20_000);
       } catch {
         // A line the speech service would not say is skipped rather than ending the play.
       }
       await new Promise((r) => setTimeout(r, 300));
     }
-    const whole = !stop.current;
+    // Heard only where something was said: a play over a speech service that refused every line is not a listen.
+    const whole = !stop.current && heard > 0;
     setActive(null);
     setPlaying(false);
     if (whole) onPlayed?.();

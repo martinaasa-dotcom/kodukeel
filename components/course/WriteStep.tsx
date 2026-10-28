@@ -59,6 +59,8 @@ export function WriteStep({ lesson, onDone }: { lesson: LessonSpec; onDone: () =
   const write = lesson.write!;
   const gapCount = useMemo(() => frameOf(write).flatMap((l) => l.parts.filter((p) => p.kind === "gap")).length, [write]);
   const [stage, setStage] = useState<Stage>("model");
+  // The stage last on screen, so the caret moves on a press and not on a draft picked up from the device.
+  const shownStage = useRef<Stage>("model");
   const [frameTyped, setFrameTyped] = useState<readonly string[]>(() => Array.from({ length: gapCount }, () => ""));
   const [frameChecked, setFrameChecked] = useState(false);
   const [draft, setDraft] = useState("");
@@ -73,6 +75,7 @@ export function WriteStep({ lesson, onDone }: { lesson: LessonSpec; onDone: () =
   useLayoutEffect(() => {
     const saved = loadWriting(lesson.id);
     if (saved) {
+      shownStage.current = saved.stage;
       setStage(saved.stage);
       if (saved.frame.length === gapCount) {
         setFrameTyped(saved.frame);
@@ -103,6 +106,15 @@ export function WriteStep({ lesson, onDone }: { lesson: LessonSpec; onDone: () =
     forgetWriting(lesson.id);
     onDone();
   };
+  /* Each stage replaces the one whose button was just pressed, so the caret
+     goes to the stage now current, which says its name, rather than to the
+     page. Not on arrival: opening the step is not moving through it. */
+  const currentRef = useRef<HTMLLIElement>(null);
+  useEffect(() => {
+    if (shownStage.current === stage) return;
+    shownStage.current = stage;
+    currentRef.current?.focus();
+  }, [stage]);
 
   return (
     <div className="flex flex-col gap-5" data-write-step={stage}>
@@ -110,6 +122,8 @@ export function WriteStep({ lesson, onDone }: { lesson: LessonSpec; onDone: () =
         {STAGES.map((s, i) => (
           <li
             key={s}
+            ref={s === stage ? currentRef : undefined}
+            tabIndex={s === stage ? -1 : undefined}
             aria-current={s === stage ? "step" : undefined}
             className="inline-flex items-center gap-1 rounded-full border px-3 py-1"
             style={s === stage
@@ -170,11 +184,14 @@ function Model({ lesson, onNext }: { lesson: LessonSpec; onNext: () => void }) {
       <div className="flex flex-col gap-3 rounded-[var(--r-lg)] border px-5 py-4" style={{ borderColor: "var(--edge)", background: "var(--surface)" }} data-write-model>
         {frame.map((line, i) => (
           <div key={i} className="flex flex-col gap-0.5">
-            <p lang="et" className="text-lg leading-relaxed" style={{ color: "var(--ink)" }}>
+            {/* The speaker's label is English, so the Estonian is the span beside it rather than the whole line. */}
+            <p className="text-lg leading-relaxed" style={{ color: "var(--ink)" }}>
               <Speak text={write.model[i]!.et} size={14} />{" "}
-              {line.parts.map((p, j) => p.kind === "text"
-                ? <Fragment key={j}>{p.text}</Fragment>
-                : <mark key={j} className="rounded px-1 font-bold" style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}>{p.answer}</mark>)}
+              <span lang="et">
+                {line.parts.map((p, j) => p.kind === "text"
+                  ? <Fragment key={j}>{p.text}</Fragment>
+                  : <mark key={j} className="rounded px-1 font-bold" style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}>{p.answer}</mark>)}
+              </span>
             </p>
             {english && <p className="text-base" style={{ color: "var(--ink-2)" }}><LessonText text={line.en} locale={locale} /></p>}
           </div>
@@ -218,9 +235,10 @@ function Frame({ write, typed, setTyped, checked, setChecked, onNext }: {
       <div className="flex flex-col gap-4" data-write-frame>
         {frame.map((line, i) => (
           <div key={i} className="flex flex-col gap-1">
-            <p lang="et" className="text-lg leading-loose" style={{ color: "var(--ink)" }}>
+            {/* Each gap carries its English under it, so the Estonian is marked span by span rather than on the line. */}
+            <p className="text-lg leading-loose" style={{ color: "var(--ink)" }}>
               {line.parts.map((p, j) => {
-                if (p.kind === "text") return <Fragment key={j}>{p.text}</Fragment>;
+                if (p.kind === "text") return <span key={j} lang="et">{p.text}</span>;
                 const mark = checked ? marks[p.n]! : null;
                 return (
                   <span key={j} className="inline-flex flex-col align-top">
@@ -283,7 +301,9 @@ function Own({ lesson, draft, setDraft, onNext }: { lesson: LessonSpec; draft: s
       />
       <div className="under-field"><DiacriticBar /></div>
       <div className="mt-4 flex flex-col gap-3">
-        <div className="flex items-center gap-3" aria-live="polite">
+        {/* The count is read on demand, not on every keystroke: what is announced is the one moment it matters. */}
+        <p className="sr-only" role="status">{words >= write.least ? t("That's long enough to go on.") : ""}</p>
+        <div className="flex items-center gap-3">
           <div className="h-2 flex-1 overflow-hidden rounded-full" style={{ background: "var(--scale-track)" }} aria-hidden>
             <div className="h-full rounded-full" style={{ width: `${Math.min(100, (words / write.least) * 100)}%`, background: "var(--scale-3)", transition: "width 0.2s" }} />
           </div>

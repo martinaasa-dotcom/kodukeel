@@ -56,11 +56,15 @@ export function situationFor(lessonId: string): string | null {
 
 /**
  * The catalog conversations the lessons have offered by the end of one, in the
- * course's own order. `lessonId` is the furthest finished lesson; null is a
- * learner past every lesson, who has been offered all of them.
+ * course's own order. `lessonId` is the furthest finished lesson, which is the
+ * furthest day carrying a tick, since a lesson evening is one step and it is
+ * ticked when the lesson ends; null is a learner past every lesson, who has
+ * been offered all of them. An id the course does not hold offers nothing,
+ * rather than reading as past the end.
  */
 export function situationsOfferedThrough(lessonId: string | null): ReadonlySet<string> {
   const out = new Set<string>();
+  if (lessonId !== null && !LESSONS.some((l) => l.id === lessonId)) return out;
   for (const lesson of LESSONS) {
     const scene = LESSON_SITUATIONS[lesson.id];
     if (scene) out.add(scene);

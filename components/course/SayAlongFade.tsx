@@ -125,7 +125,7 @@ function FadeLine({ line, en, hidden, voice, native, who, locale }: {
           return (
             <span key={`${i}-${w.text}`}>
               {gone
-                ? <span className="fade-word" style={{ minWidth: `${Math.max(2, w.text.length)}ch` }}><span className="sr-only">{t("a word to say")}</span>{"\u00a0".repeat(Math.max(2, w.text.length))}</span>
+                ? <span className="fade-word" style={{ minWidth: `${Math.max(2, w.text.length)}ch` }}><span className="sr-only" lang={locale}>{t("a word to say")}</span>{"\u00a0".repeat(Math.max(2, w.text.length))}</span>
                 : hidden[i] ? <span className="fade-word" data-back="true">{w.text}</span> : <span className="read-aloud-word" data-lit={lit[i] ? "true" : "false"}>{w.text}</span>}
               {i < words.length - 1 ? " " : ""}
             </span>

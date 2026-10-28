@@ -125,15 +125,35 @@ export async function programmeFor(ownerId: string): Promise<Programme | null> {
 */
 const REHOMED_LEVELS: ReadonlySet<string> = new Set(["B1"]);
 
+/*
+  WHO NEEDS NO MOVING IS SETTLED FOR GOOD, so it is asked once per instance.
+  A tick is append-only and is only ever written for a day the part holds now,
+  so a learner with a tick on one of today's days keeps it, and one with no
+  tick on a vanished day can never gain one. Either answer is "stays where
+  they are" from then on, and every page calls `programmeFor`: remembering it
+  takes the two reads below off every page for everybody but the few learners
+  actually being moved back. A restore is the one way old ticks arrive later,
+  and it reaches a learner here once the instance is replaced. Bounded, for an
+  instance that lives through many learners.
+*/
+const SETTLED = new Set<string>();
+const SETTLED_MAX = 50_000;
+
 async function rehomed(ownerId: string, programme: Programme | null): Promise<Programme | null> {
   if (!programme || !REHOMED_LEVELS.has(programme.level)) return programme;
   if (programme.days.length === 0 || !programme.days.every((d) => d.lesson)) return programme;
+  const key = `${ownerId}:${programme.id}`;
+  if (SETTLED.has(key)) return programme;
   const days = programme.days.map((d) => d.id);
   const [old, current] = await Promise.all([
     prisma.courseStep.findFirst({ where: { ownerId, programmeId: programme.id, dayId: { notIn: days } }, select: { id: true }, orderBy: { id: "asc" } }),
     prisma.courseStep.findFirst({ where: { ownerId, programmeId: programme.id, dayId: { in: days } }, select: { id: true }, orderBy: { id: "asc" } }),
   ]);
-  if (!old || current) return programme;
+  if (!old || current) {
+    if (SETTLED.size >= SETTLED_MAX) SETTLED.clear();
+    SETTLED.add(key);
+    return programme;
+  }
   // Back to where they have been working since, which is the level's first part until they move on from it.
   const parts = PROGRAMMES.filter((p) => p.level === programme.level && p.days.length > 0 && p.days.every((d) => d.lesson));
   const worked = await prisma.courseStep.groupBy({

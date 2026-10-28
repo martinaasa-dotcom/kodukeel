@@ -12,7 +12,7 @@ import { LessonText } from "@/components/course/LessonText";
 import { Card, Meter, SectionTitle } from "@/components/ui";
 import { fill } from "@/lib/copy/locale";
 // By its own module, never the barrel, which imports every lesson the course has.
-import { markPhrase, markRework, type PracticeItem, type TypedMark } from "@/lib/course/lessons/practice";
+import { isTyped, markPhrase, markRework, type PracticeItem, type TypedMark } from "@/lib/course/lessons/practice";
 import { rng, seedFrom } from "@/lib/random/seeded";
 import { shuffle } from "@/lib/random/shuffle";
 import { isAdvanceKey } from "@/lib/ux/advanceKey";
@@ -62,7 +62,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
 
   const item = items[Math.min(at, items.length - 1)];
   const answered = item
-    ? item.kind === "type" || item.kind === "rework" || item.kind === "fix" ? mark !== null : item.kind === "match" ? matched !== null : picked !== null
+    ? isTyped(item) ? mark !== null : item.kind === "match" ? matched !== null : picked !== null
     : false;
 
   useEffect(() => {
@@ -127,7 +127,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
   };
 
   const check = () => {
-    if ((item.kind !== "type" && item.kind !== "rework" && item.kind !== "fix") || mark !== null) return;
+    if (!isTyped(item) || mark !== null) return;
     const m = item.kind === "type" ? markPhrase(typed, item.accept) : markRework(typed, item);
     setMark(m);
     onAnswer?.(at, typed);
@@ -341,7 +341,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
         <p role="status" aria-live="polite" className="sr-only">{liveLine(item, picked, mark, matched, t)}</p>
 
         <div className="mt-5 flex flex-wrap items-center justify-end gap-3">
-          {(item.kind === "type" || item.kind === "rework" || item.kind === "fix") && mark === null ? (
+          {isTyped(item) && mark === null ? (
             <Button variant="primary" onClick={check}>
               <Check size={15} aria-hidden /> {t("Check")}
             </Button>
@@ -360,7 +360,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
 function liveLine(
   item: PracticeItem, picked: string | null, mark: TypedMark | null, matched: boolean | null, t: (s: string) => string,
 ): string {
-  if (item.kind === "type" || item.kind === "rework" || item.kind === "fix") return mark ? `${t(mark.note)} ${item.answer}` : "";
+  if (isTyped(item)) return mark ? `${t(mark.note)} ${item.answer}` : "";
   if (item.kind === "match") return matched === null ? "" : matched ? t("All matched, first time.") : t("All matched.");
   if (picked === null) return "";
   if (picked === item.answer) return t("Right.");

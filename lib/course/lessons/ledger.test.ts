@@ -56,6 +56,14 @@ describe("the check over a level", () => {
     expect(problems.some((p) => p.includes("question 1, model"))).toBe(true);
   });
 
+  it("fails a fix whose pair names no case or verb slot", () => {
+    const fixed = (pair: readonly [string, string]) => lessonProblems([lesson({
+      fixes: [{ line: { et: "Tere!", en: "Hello!" }, right: "Tere", wrong: "Tere", pair, why: "w" }],
+    })]).filter((p) => p.includes("names no case"));
+    expect(fixed(["IndPrSg9", "PARTITIVE"])).toHaveLength(1);
+    expect(fixed(["IndIpfIps", "PARTITIVE"])).toEqual([]);
+  });
+
   it("fails a check-in that teaches, and one with no role-play", () => {
     const problems = lessonProblems([lesson({}), lesson({ id: "t-2", n: 2, kind: "checkin" })]);
     expect(problems.some((p) => p.includes("teaches nothing new"))).toBe(true);
