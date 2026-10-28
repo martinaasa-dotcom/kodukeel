@@ -501,7 +501,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
     faster: {
       ask: { et: "Kas sa loed uudiseid? Miks?", en: "Do you read the news? Why?" },
       cue: "Say whether you follow the news, and give two reasons, with {sest} and {ja}.",
-      model: { et: "Jah, iga hommikul, sest ma tahan teada, mis linnas toimub. Ja nii õpin ma ka eesti keelt.", en: "Yes, every morning, because I want to know what's going on in town. And that way I learn Estonian too." },
+      model: { et: "Jah, igal hommikul, sest ma tahan teada, mis linnas toimub. Ja nii õpin ma ka eesti keelt.", en: "Yes, every morning, because I want to know what's going on in town. And that way I learn Estonian too." },
     },
   },
   {
