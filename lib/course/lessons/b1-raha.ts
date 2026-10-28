@@ -8,7 +8,7 @@
  * {juhiks}), the payslip, a swapped shift, an email asking to change your
  * hours, and talking about your pay.
  *
- * IN PREVIEW until B1 is whole (`preview.ts`). Read by the native speaker
+ * Part of the B1 course (`LESSONS`). Read by the native speaker
  * where the second model pass flags a line (docs/43-lessons.md B-L7), and held
  * to the same checks as every lesson (`lessons.test.ts`, `ledger.ts`,
  * `npx tsx scripts/check-lesson-part.ts --part b1-raha`).
@@ -159,12 +159,12 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
     goal: "Say what people work as, what they started as, and what they became.",
     cast: { Kristi: "liivika", Siim: "albert", Kadri: "vesta", Marko: "tambet", Tom: "kalev" },
     conversation: [
-      { who: "Kristi", et: "Tere hommikust, kõik! Täna on meie meeskonnas uus inimene: Siim.", en: "Good morning, everybody! There's somebody new in our team today: Siim.", stage: "The Monday team meeting. Kristi, the manager, welcomes Siim, a new intern, and introduces the team. Nobody else speaks." },
+      { who: "Kristi", et: "Tere hommikust, kõik! Täna on meie meeskonnas uus inimene: Siim.", en: "Good morning, everybody! There's somebody new in our team today: Siim.", stage: "The Monday team meeting. Kristi, the manager, welcomes Siim, a new intern, and introduces the team." },
       { who: "Kristi", et: "Siim alustab meil praktikandina, aga ta tahab saada heaks arendajaks.", en: "Siim is starting with us as an intern, but he wants to become a good developer." },
       { who: "Kristi", et: "Akna juures istub Marko. Ta töötab meil arendajana.", en: "By the window is Marko. He works here as a developer." },
       { who: "Kristi", et: "Marko on siin töötanud kaks aastat. Enne töötas ta kokana. Tema supp oli kõige parem!", en: "Marko has worked here for two years. Before that he worked as a cook. His soup was the best!" },
       { who: "Kristi", et: "Jah, kokk sai arendajaks. Ja eelmisel aastal valiti ta meie meeskonna juhiks.", en: "Yes, a cook became a developer. And last year he was chosen to lead our team." },
-      { who: "Kristi", et: "Tom töötab meil programmeerijana. Ta tuli meile Londonist.", en: "Tom works here as a programmer. He came to us from London." },
+      { who: "Kristi", et: "Tom töötab meil programmeerijana. Ta on pärit Inglismaalt.", en: "Tom works here as a programmer. He's from England." },
       { who: "Kristi", et: "Kadri tuli meile eelmisel kuul. Ta istub ukse juures.", en: "Kadri joined us last month. She sits by the door." },
       { who: "Kristi", et: "Ja mina? Mina alustasin siin ka praktikandina. Ma tegin rohkem kohvi kui koodi.", en: "And me? I started here as an intern too. I made more coffee than code.", stage: "Everybody laughs." },
       { who: "Kristi", et: "Nüüd olen ma projektijuht.", en: "Now I'm a project manager." },
@@ -515,12 +515,12 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
     hearing: "cafe",
     conversation: [
       { who: "Mari", et: "Liis, kas sa saaksid laupäeval minu vahetuse võtta?", en: "Liis, could you take my shift on Saturday?", stage: "In the café kitchen, before opening." },
-      { who: "Liis", et: "Laupäeval? Millest sa räägid? Mis toimub?", en: "On Saturday? What are you talking about? What's going on?" },
+      { who: "Liis", et: "Laupäeval? Mis toimub?", en: "On Saturday? What's going on?" },
       { who: "Mari", et: "Mu õde abiellub! Ta ütles mulle alles eile.", en: "My sister's getting married! She only told me yesterday." },
-      { who: "Liis", et: "Oi! Aga graafik on juba valmis. Ma olen sel nädalal kuus päeva tööl.", en: "Oh! But the rota's already done. I'm at work six days this week." },
+      { who: "Liis", et: "Oi! Aga graafik on juba valmis. Ma olen sel nädalal kuus päeva tööl, vaba on ainult laupäev.", en: "Oh! But the rota's already done. I'm at work six days this week, and only Saturday is free." },
       { who: "Mari", et: "Ma tean. Sa oled teinud nii palju ületunde.", en: "I know. You've done so much overtime." },
       { who: "Liis", et: "Kuusteist tundi sel kuul! Ma oleksin pidanud ammu puhkusele minema.", en: "Sixteen hours this month! I should have gone on holiday long ago." },
-      { who: "Mari", et: "Aga kui mina võtan sinu pühapäeva hommikuse vahetuse? Siis on sul kaks vaba päeva järjest.", en: "But what if I take your Sunday morning shift? Then you'll have two days off in a row." },
+      { who: "Mari", et: "Aga kui mina võtan sinu pühapäeva ja esmaspäeva vahetused? Siis on sul kaks vaba päeva järjest.", en: "But what if I take your Sunday and Monday shifts? Then you'll have two days off in a row." },
       { who: "Liis", et: "Kaks vaba päeva? See kõlab hästi.", en: "Two days off? That sounds good." },
       { who: "Mari", et: "Ma aitasin sind eelmisel kuul ka! Ja ma toon sulle pulmast torti.", en: "I helped you last month too! And I'll bring you some cake from the wedding." },
       { who: "Liis", et: "Kaks tükki. Ja ma pean juhilt luba küsima.", en: "Two pieces. And I have to ask the boss for permission." },
@@ -537,7 +537,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "ületunde", of: "ületund", en: "overtime hours, some of them" },
       { kind: "form", et: "puhkuse", of: "puhkus", en: "of the holiday", stem: true },
       { kind: "form", et: "pühapäeva", of: "pühapäev", en: "of Sunday", stem: true },
-      { kind: "form", et: "hommikuse", of: "hommikune", en: "of the morning, as in a morning shift" },
+      { kind: "form", et: "vahetused", of: "vahetus", en: "shifts, the whole of them" },
       { kind: "word", et: "järjest", en: "in a row" },
       { kind: "form", et: "kõlab", of: "kõlama", en: "sounds" },
       { kind: "form", et: "aitasin", of: "aitama", en: "I helped", past: true },
@@ -571,7 +571,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
     },
     listenFor: [
       { q: "Why does Mari need somebody to take her shift?", options: ["She's ill with a cold", "She's going on holiday with her family", "She has an exam", "Her sister is getting married"], answer: 3 },
-      { q: "What does Mari offer Liis in return?", options: ["Some extra money", "Liis's Sunday morning shift", "A week of her own holiday in the summer", "A better place on the rota"], answer: 1 },
+      { q: "What does Mari offer Liis in return?", options: ["Some extra money", "Her Sunday and Monday shifts", "A week of her own holiday in the summer", "A better place on the rota"], answer: 1 },
       { q: "How many hours of overtime has Liis done this month?", options: ["Six", "Ten", "Sixteen", "Twenty-six"], answer: 2 },
     ],
     answers: [
@@ -591,6 +591,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
         from: { et: "Mu õde abiellub laupäeval.", en: "My sister's getting married on Saturday." },
         ask: "Say it happened last Saturday. Use {abiellus}.",
         to: { et: "Mu õde abiellus eelmisel laupäeval.", en: "My sister got married last Saturday." },
+        also: ["Eelmisel laupäeval abiellus mu õde.", "Minu õde abiellus eelmisel laupäeval."],
         pattern: "past",
       },
       {
@@ -617,7 +618,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
         { et: "Mu õde abiellus laupäeval, aga mul oli tööl vahetus.", en: "My sister got married on Saturday, but I had a shift at work." },
         { et: "Ma küsisin oma kolleegilt, kas ta saaks minu vahetuse võtta.", en: "I asked my colleague if she could take my shift." },
         { et: "Tal oli sel kuul juba palju ületunde.", en: "She'd already done a lot of overtime this month." },
-        { et: "Ma võtsin tema pühapäeva vahetuse ja nüüd on tal kaks vaba päeva järjest.", en: "I took her Sunday shift, and now she has two days off in a row." },
+        { et: "Ma võtsin tema pühapäeva ja esmaspäeva vahetused ja nüüd on tal kaks vaba päeva järjest.", en: "I took her Sunday and Monday shifts, and now she has two days off in a row." },
         { et: "Pulmas oli väga tore ja ma tõin talle kaks tükki torti.", en: "The wedding was lovely, and I brought her two pieces of cake." },
       ],
       points: [
@@ -641,7 +642,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Anna, mul on küsimus. Kuidas ma kirjutan juhile, et tahan neli päeva nädalas töötada?", en: "Anna, I have a question. How do I write to the boss that I want to work four days a week?" },
       { who: "Anna", et: "Neli päeva? Miks?", en: "Four days? Why?" },
       { who: "Tom", et: "Reedeti on ülikoolis eesti keele kursus.", en: "There's an Estonian course at the university on Fridays." },
-      { who: "Anna", et: "Tore! Kirjuta talle. Mis sul praegu on?", en: "Nice! Write to her. What have you got so far?" },
+      { who: "Anna", et: "Tore! Kirjuta talle. Näita, mis sul juba on.", en: "Nice! Write to her. Show me what you've got so far." },
       { who: "Tom", et: "Tere, Kristi! Ma ei taha enam reedeti töötada.", en: "Hello Kristi! I don't want to work on Fridays any more.", stage: "He reads it out, proud of it." },
       { who: "Anna", et: "Appi! Nii ei saa. Kirjuta pigem: ma sooviksin muuta oma tööaega.", en: "Help! You can't say that. Write this instead: I'd like to change my working hours." },
       { who: "Tom", et: "Ja siis?", en: "And then?" },

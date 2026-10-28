@@ -9,7 +9,7 @@
  * every new verb taught with the question it asks, and lesson 8 explains the
  * idea once (`government`).
  *
- * IN PREVIEW until B1 is whole (`preview.ts`). Read by the native speaker
+ * Part of the B1 course (`LESSONS`). Read by the native speaker
  * where the second model pass flags a line (docs/43-lessons.md B-L7), and held
  * to the same checks as every lesson (`lessons.test.ts`, `ledger.ts`,
  * `npx tsx scripts/check-lesson-part.ts --part b1-rektsioon`).
@@ -119,8 +119,8 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       {
         from: { et: "Ma palun ülemust appi.", en: "I'll ask the boss to help." },
         ask: "Say you asked the boss to help yesterday.",
-        to: { et: "Eile ma palusin ülemust appi.", en: "Yesterday I asked the boss to help." },
-        also: ["Ma palusin eile ülemust appi.", "Eile palusin ma ülemust appi."],
+        to: { et: "Eile palusin ma ülemust appi.", en: "Yesterday I asked the boss to help." },
+        also: ["Ma palusin eile ülemust appi.", "Eile ma palusin ülemust appi."],
         pattern: "past",
       },
     ],
@@ -149,7 +149,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Ma huvitun muusikast. Ja spordist ka, aga seda ma ainult vaatan.", en: "I'm into music. And sport too, but only to watch." },
       { who: "Triin", et: "Muusikast? Väga tore! Kas sa laulad?", en: "Music? Lovely! Do you sing?" },
       { who: "Tom", et: "Natuke. Ainult kodus.", en: "A little. Only at home." },
-      { who: "Triin", et: "Meie koor otsib just meest! Kati laulab ka seal. Mulle tundub, et sa oleksid hea.", en: "Our choir is looking for a man right now! Kati sings in it too. I think you'd be good." },
+      { who: "Triin", et: "Meie koor vajab just mehi! Kati laulab ka seal. Mulle tundub, et sa oleksid hea.", en: "Men are just what our choir needs! Kati sings in it too. I think you'd be good." },
       { who: "Tom", et: "Tegelikult ma ei laula üldse hästi. Mulle meeldib rohkem kuulata.", en: "Actually, I don't sing well at all. I prefer listening." },
       { who: "Triin", et: "Pole hullu! Ka mina laulsin alguses väga halvasti.", en: "That doesn't matter! I sang really badly at first too." },
       { who: "Tom", et: "Ja millest sina huvitud?", en: "And what are you into?" },
@@ -176,7 +176,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "laulsin", of: "laulma", en: "I sang", past: true },
       { kind: "form", et: "laulda", of: "laulma", en: "to sing (after another verb)" },
       { kind: "form", et: "kuulata", of: "kuulama", en: "to listen (after another verb)" },
-      { kind: "form", et: "meest", of: "mees", en: "a man, as the one looked for" },
+      { kind: "form", et: "mehi", of: "mees", en: "men, some of them" },
       { kind: "form", et: "oleksid", of: "olema", en: "you would be" },
       { kind: "word", et: "vaikselt", en: "quietly" },
       { kind: "phrase", et: "esimest korda", en: "for the first time" },
@@ -235,8 +235,8 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       {
         from: { et: "Ma laulan vaikselt.", en: "I sing quietly." },
         ask: "Say you sang quietly yesterday.",
-        to: { et: "Eile ma laulsin vaikselt.", en: "Yesterday I sang quietly." },
-        also: ["Ma laulsin eile vaikselt.", "Eile laulsin ma vaikselt."],
+        to: { et: "Eile laulsin ma vaikselt.", en: "Yesterday I sang quietly." },
+        also: ["Ma laulsin eile vaikselt.", "Eile ma laulsin vaikselt."],
         pattern: "past",
       },
     ],
@@ -392,7 +392,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Palju õnne! Kellega?", en: "Congratulations! Who to?" },
       { who: "Liis", et: "Jaaniga muidugi! Kellega veel?", en: "Jaan, of course! Who else?" },
       { who: "Tom", et: "Lõpuks! Te elate ju juba kuus aastat koos.", en: "At last! You've lived together for six years now." },
-      { who: "Liis", et: "Jah. Me tutvusime kuus aastat tagasi, aga ta küsis minult alles kaks kuud tagasi.", en: "Yes. We met six years ago, but he only asked me two months ago." },
+      { who: "Liis", et: "Jah. Me tutvusime kuus aastat tagasi, aga ta küsis alles kaks kuud tagasi, kas ma abiellun temaga.", en: "Yes. We met six years ago, but he only asked me to marry him two months ago." },
       { who: "Tom", et: "Kuus aastat? Mida ta nii kaua tegi?", en: "Six years? What was he doing all that time?" },
       { who: "Liis", et: "Ta mõtles sellele. Aga mina armusin temasse juba esimesel päeval.", en: "Thinking about it. But I fell for him on the very first day." },
       { who: "Tom", et: "Esimesel päeval? Mis juhtus?", en: "On the first day? What happened?" },
@@ -516,7 +516,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
     goal: "Say what a plan depends on, what you're hoping for and what you're afraid of.",
     cast: { Mari: "mari", Tom: "kalev" },
     conversation: [
-      { who: "Mari", et: "Tom, kas me sõidame suvel Saaremaale või mitte?", en: "Tom, are we driving to Saaremaa this summer or not?" },
+      { who: "Mari", et: "Tom, kas me sõidame suvel kõik koos Saaremaale või mitte? Anna ja lapsed tahavad väga minna.", en: "Tom, are we all driving to Saaremaa together this summer or not? Anna and the kids really want to go." },
       { who: "Tom", et: "See sõltub ilmast. Ja minu ülemusest.", en: "That depends on the weather. And on my boss." },
       { who: "Mari", et: "Ilm pole oluline. Saaremaa on ilus ka siis, kui sajab vihma.", en: "The weather doesn't matter. Saaremaa's lovely even when it rains." },
       { who: "Tom", et: "Eelmisel suvel sadas terve nädala vihma. Ma loodan, et sel aastal on ilus ilm.", en: "Last summer it rained for a whole week. I hope the weather's good this year." },
@@ -526,7 +526,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Ei. Tegelikult töötab kõik väga hästi ka ilma minuta.", en: "No. Actually everything works fine without me too." },
       { who: "Mari", et: "Siis räägi temaga homme! Ma usun sinusse.", en: "Then talk to her tomorrow! I believe in you." },
       { who: "Tom", et: "Aga kui ta ütleb, et see pole võimalik?", en: "But what if she says it isn't possible?" },
-      { who: "Mari", et: "Siis me sõidame ilma sinuta. Jaan tahab ka meiega tulla.", en: "Then we'll go without you. Jaan wants to come with us too." },
+      { who: "Mari", et: "Siis sõidame ilma sinuta: mina, Anna ja lapsed. Liis ja Jaan tulevad ka meiega.", en: "Then we'll go without you: me, Anna and the kids. Liis and Jaan are coming with us too." },
       { who: "Tom", et: "Ilma minuta? Nüüd ma kardan sind.", en: "Without me? Now I'm scared of you." },
       { who: "Mari", et: "Õige! Nüüd sõltub kõik sinust.", en: "Good! Now it all depends on you." },
     ],
@@ -538,6 +538,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "minuta", of: "mina", en: "without me" },
       { kind: "form", et: "sinuta", of: "sina", en: "without you" },
       { kind: "form", et: "meiega", of: "meie", en: "with us" },
+      { kind: "form", et: "lapsed", of: "laps", en: "children" },
       { kind: "form", et: "ilusale", of: "ilus", en: "onto nice, onto good" },
       { kind: "form", et: "sadas", of: "sadama", en: "it rained, it fell" },
       { kind: "form", et: "vihma", of: "vihm", en: "rain, as what falls or what you fear" },
@@ -569,7 +570,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
     listenFor: [
       { q: "What are Mari and Tom planning?", options: ["A party at home", "A new job for Tom", "A trip to Saaremaa", "A concert in the old town"], answer: 2 },
       { q: "What was the weather like last summer?", options: ["Hot every day", "Cold and windy", "Snow in June", "A whole week of rain"], answer: 3 },
-      { q: "Who else wants to come along?", options: ["Kati", "Jaan", "Tom's boss", "Peeter"], answer: 1 },
+      { q: "Who else is coming along?", options: ["Kati and Triin", "Liis and Jaan", "Tom's boss", "Peeter"], answer: 1 },
     ],
     answers: [
       { ask: { et: "Kas sa tuled laupäeval?", en: "Are you coming on Saturday?" }, cue: "Say it depends on the weather.", model: { et: "See sõltub ilmast.", en: "It depends on the weather." } },
@@ -593,8 +594,8 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       {
         from: { et: "Ma kardan vihma.", en: "I'm afraid of the rain." },
         ask: "Say you were afraid of the rain last summer.",
-        to: { et: "Eelmisel suvel ma kartsin vihma.", en: "Last summer I was afraid of the rain." },
-        also: ["Eelmisel suvel kartsin ma vihma.", "Ma kartsin eelmisel suvel vihma."],
+        to: { et: "Eelmisel suvel kartsin ma vihma.", en: "Last summer I was afraid of the rain." },
+        also: ["Eelmisel suvel ma kartsin vihma.", "Ma kartsin eelmisel suvel vihma."],
         pattern: "past",
       },
       {
@@ -770,7 +771,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Tom", et: "Tere tulemast! Mina olen Tom. Ma aitan sind täna.", en: "Welcome! I'm Tom. I'll be helping you today." },
       { who: "Kadri", et: "Tere! Mina olen Kadri. Aitäh, ma natuke kardan.", en: "Hi! I'm Kadri. Thanks, I'm a bit nervous." },
-      { who: "Tom", et: "Pole hullu. Mina kartsin ka esimesel päeval. Ütle, millest sa huvitud?", en: "That's normal. I was nervous on my first day too. Tell me, what are you into?" },
+      { who: "Tom", et: "Pole hullu. Mina kartsin ka esimesel päeval. Ütle, millest sa huvitud?", en: "That's all right. I was nervous on my first day too. Tell me, what are you into?" },
       { who: "Kadri", et: "Ma olen huvitatud muusikast. Ma laulan kooris.", en: "I'm interested in music. I sing in a choir." },
       { who: "Tom", et: "Tõesti? Siis sa pead Katiga tutvuma. Ta laulab ka.", en: "Really? Then you have to meet Kati. She sings too." },
       { who: "Kadri", et: "Tore! Aga kellelt ma küsin, kui mul on arvutiga probleem?", en: "Great! But who do I ask if I have a problem with my computer?" },

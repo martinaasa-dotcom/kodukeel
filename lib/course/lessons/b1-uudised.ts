@@ -9,7 +9,7 @@
  * cellar of the family's new building, and the residents' meeting about it,
  * which Helgi, their downstairs neighbor, chairs (docs/reviews/b1-cast.md).
  *
- * IN PREVIEW until B1 is whole (`preview.ts`). Read by the native speaker
+ * Part of the B1 course (`LESSONS`). Read by the native speaker
  * where the second model pass flags a line (docs/43-lessons.md B-L7), and held
  * to the same checks as every lesson (`lessons.test.ts`, `ledger.ts`,
  * `npx tsx scripts/check-lesson-part.ts --part b1-uudised`).
@@ -44,7 +44,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Huvitav. Mida Eestis veel tehakse?", en: "Interesting. What else do people do in Estonia?" },
       { who: "Anna", et: "Jaanipäeval tehakse lõket ja käiakse saunas.", en: "On Midsummer Day people light a bonfire and go to the sauna." },
       { who: "Tom", et: "Seda ma tean. Aga miks liftis keegi ei räägi?", en: "That I know. But why does nobody talk in the lift?" },
-      { who: "Anna", et: "Liftis ei räägita. See on meie komme.", en: "People don't talk in the lift. It's our custom." },
+      { who: "Anna", et: "Liftis ei räägita. Siin on selline komme.", en: "People don't talk in the lift. That's the custom here." },
       { who: "Tom", et: "Üldse mitte?", en: "Not at all?" },
       { who: "Anna", et: "Natuke räägitakse ilmast. Ainult ilmast.", en: "A bit about the weather. Only the weather." },
       { who: "Tom", et: "Hästi. Homme toon kooki. Kui palju seda süüakse?", en: "All right. I'll bring cake tomorrow. How much of it gets eaten?" },
@@ -610,21 +610,21 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
     retell: {
       who: "Kadri",
       story: [
-        { et: "Eilne koosolek kestis kaks tundi.", en: "Yesterday's meeting lasted two hours." },
+        { et: "Eelmise nädala koosolek kestis kaks tundi.", en: "Last week's meeting lasted two hours." },
         { et: "Kõigepealt arutati, kes kohvi teeb.", en: "First they discussed who makes the coffee." },
         { et: "Seda arutati pool tundi!", en: "That took half an hour!" },
         { et: "Marko ütles, et tema ei joo kohvi, ainult teed.", en: "Marko said he doesn't drink coffee, only tea." },
         { et: "Kristi ütles, et kohvi teeb see, kes tuleb kõige varem.", en: "Kristi said the coffee is made by whoever comes in earliest." },
         { et: "Lõpuks otsustati, et igaüks teeb ise kohvi.", en: "In the end it was decided that everybody makes their own." },
-        { et: "Uuest projektist rääkisime ainult lõpus.", en: "We only talked about the new project at the end." },
+        { et: "Eilne koosolek oli parem: seal arutati kohe uut projekti.", en: "Yesterday's meeting was better: the new project came up straight away." },
       ],
       points: [
-        { en: "Yesterday's meeting lasted two hours.", any: ["kestis", "tundi"] },
+        { en: "Last week's meeting lasted two hours.", any: ["kestis", "tundi"] },
         { en: "First, who makes the coffee was discussed.", any: ["arutati", "kohvi"] },
         { en: "That was discussed for half an hour.", any: ["pool tundi"] },
         { en: "Marko doesn't drink coffee, only tea.", any: ["Marko", "teed"] },
         { en: "In the end it was decided that everybody makes their own.", any: ["igaüks", "otsustati"] },
-        { en: "The new project only came up at the end.", any: ["projektist", "lõpus"] },
+        { en: "Yesterday's meeting was better: the new project came up straight away.", any: ["eilne", "kohe"] },
       ],
     },
   },
@@ -750,7 +750,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
         { et: "Minu arvates tuleb ka kõik vanad torud välja vahetada.", en: "In my opinion all the old pipes have to be replaced too." },
         { et: "Kui me midagi ei tee, läheb toru järgmisel talvel jälle katki.", en: "If we don't do anything, a pipe will burst again next winter." },
         { et: "Palun rääkige sellest järgmisel koosolekul.", en: "Please talk about this at the next meeting." },
-        { et: "Tom, korter 12", en: "Tom, apartment 12" },
+        { et: "Tom, korter 9", en: "Tom, apartment 9" },
       ],
       uses: [
         { et: "katki", en: "broken; with {läks}, broke, burst" },

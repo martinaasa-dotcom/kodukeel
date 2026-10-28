@@ -13,17 +13,17 @@ write a line that names anybody, or a lesson that changes how hard the level is.
 | Mari | Their neighbor in Peeter's building, and a friend of the family. She works in a café with Liis. After the move (part 4) she is a friend who visits and phones. | Parts 1 to 7 |
 | Liis | Tom's friend. Engaged to Jaan, and they marry in part 2. Works in the café with Mari. | Parts 2 and 3, then as a friend |
 | Jaan | Liis's fiancé, then her husband. A doctor, as in A1. | As Liis's partner |
-| Peeter | Tom's old friend from A2, who rents the family his apartment. Their landlord until the move in part 4, then a friend again. | Parts 1 to 4 as landlord, after that as a friend |
+| Peeter | Tom's old friend from A2, who rents the family his apartment (third floor, number 12, as in A2). Their landlord until the move in part 4, then a friend again. | Parts 1 to 4 as landlord, after that as a friend |
 | Kati | A friend from A2 (she helped Tom move in). Sings in a choir and bakes. Never at Tom's work. | As a friend |
 | Kristi | Tom's manager at work. A woman, the same boss throughout. | Parts 2, 3, 5 and 6 |
 | Kadri | Tom's colleague, new in part 2 (lesson 14) and his colleague from then on. | Work |
 | Siim | The new intern Kristi welcomes in lesson 16. Tom helps him, and he is a developer by lesson 21. | Part 3 |
 | Marko | Another colleague: a developer who worked as a cook before, and has children at home. | Work |
 | Rein | The handyman. | Parts 1 and 4 |
-| Urmas | The landlord of the family's new, bigger flat from part 4, who promises the handyman "tomorrow". | Part 4 |
+| Urmas | The landlord of the family's new, bigger flat from part 4 (number 9), who promises the handyman "tomorrow". | Part 4 |
 | Triin | A friend of Kati's whom Tom meets at Kati's party, once. | Part 2 |
 | Ants | A neighbor on the top floor of the new building, at the residents' meeting. | Part 5 |
-| Helgi | An older woman, their downstairs neighbor in the new building from part 4. She chairs the residents' association, so she runs the meeting in part 5. | Parts 4 to 7 |
+| Helgi | An older woman, their downstairs neighbor in the new building from part 4, who tells Tom to say `sina` to her when they meet. She chairs the residents' association, so she runs the meeting in part 5. | Parts 4 to 7 |
 
 A stranger with a job is a role name (a clerk, an examiner, the switchboard), or a new name used
 in one lesson and never again. Nobody in the list above ever plays a clerk, an examiner or a

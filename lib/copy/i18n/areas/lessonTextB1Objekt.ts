@@ -462,7 +462,7 @@ export const LESSON_TEXT_B1_OBJEKT: Area = {
     "I'm scared of electricity.": "Я боюсь электричества.",
     "it never finishes": "это никогда не завершается",
     "a command": "просьба",
-    "Hello! I'm Rein, the handyman. Is this apartment number three?": "Здравствуйте! Я Рейн, мастер. Это квартира номер три?",
+    "Hello! I'm Rein, the handyman. Is this apartment number twelve?": "Здравствуйте! Я Рейн, мастер. Это квартира номер двенадцать?",
     "Yes, come in! Did you read my note?": "Да, проходите! Вы прочитали мою записку?",
     "I did. You fixed the tap yourself?": "Прочитал. Кран вы починили сами?",
     "Yes, but the shower keeps on dripping.": "Да, но душ так и капает.",
@@ -589,6 +589,7 @@ export const LESSON_TEXT_B1_OBJEKT: Area = {
     "On Friday morning": "В пятницу утром",
     "I won't fix the window today. It needs a spare part.": "Окно я сегодня чинить не буду. Для него нужна запчасть.",
     "It needs a spare part": "Нужна запчасть",
+    "The next morning. Tom has left work early to let the handyman in himself.": "На следующее утро. Том ушёл с работы пораньше, чтобы самому впустить мастера.",
   },
   uk: {
     "Saying whether a job got done: the object's ending, and the small words after a verb that finish it.": "Як сказати, чи справу зроблено: закінчення додатка і маленькі слова після дієслова, що завершують дію.",
@@ -1041,7 +1042,7 @@ export const LESSON_TEXT_B1_OBJEKT: Area = {
     "I'm scared of electricity.": "Я боюся електрики.",
     "it never finishes": "це ніколи не завершується",
     "a command": "прохання",
-    "Hello! I'm Rein, the handyman. Is this apartment number three?": "Добрий день! Я Рейн, майстер. Це квартира номер три?",
+    "Hello! I'm Rein, the handyman. Is this apartment number twelve?": "Добрий день! Я Рейн, майстер. Це квартира номер дванадцять?",
     "Yes, come in! Did you read my note?": "Так, заходьте! Ви прочитали мою записку?",
     "I did. You fixed the tap yourself?": "Прочитав. Кран ви полагодили самі?",
     "Yes, but the shower keeps on dripping.": "Так, але душ і далі капає.",
@@ -1168,5 +1169,6 @@ export const LESSON_TEXT_B1_OBJEKT: Area = {
     "On Friday morning": "У п'ятницю вранці",
     "I won't fix the window today. It needs a spare part.": "Вікна я сьогодні лагодити не буду. Для нього потрібна запчастина.",
     "It needs a spare part": "Потрібна запчастина",
+    "The next morning. Tom has left work early to let the handyman in himself.": "Наступного ранку. Том пішов з роботи раніше, щоб самому впустити майстра.",
   },
 };

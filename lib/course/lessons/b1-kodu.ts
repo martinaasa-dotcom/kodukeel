@@ -10,7 +10,7 @@
  * ({suures heledas toas}). The writing evening is a complaint to the
  * landlord, and the part ends on getting the deposit back.
  *
- * IN PREVIEW until B1 is whole (`preview.ts`). Read by the native speaker
+ * Part of the B1 course (`LESSONS`). Read by the native speaker
  * where the second model pass flags a line (docs/43-lessons.md B-L7), and held
  * to the same checks as every lesson (`lessons.test.ts`, `ledger.ts`,
  * `npx tsx scripts/check-lesson-part.ts --part b1-kodu`).
@@ -115,7 +115,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         from: { et: "Terve korter on remonditud.", en: "The whole apartment has been fixed up." },
         ask: "Say it hasn't.",
         to: { et: "Korter ei ole remonditud.", en: "The apartment hasn't been fixed up." },
-        also: ["Terve korter ei ole remonditud.", "Korter pole remonditud."],
+        also: ["Korter pole remonditud."],
         pattern: "participle",
       },
     ],
@@ -226,7 +226,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
     retell: {
       who: "Tom",
       story: [
-        { et: "Eelmisel nädalal me kolisime uude korterisse.", en: "Last week we moved into a new apartment." },
+        { et: "Eelmisel nädalal kolisime me uude korterisse.", en: "Last week we moved into a new apartment." },
         { et: "Vana korter oli väikeses majas kesklinnas.", en: "The old apartment was in a small building in the center." },
         { et: "Uus korter on suures majas mere ääres.", en: "The new apartment is in a big building by the sea." },
         { et: "Ma töötan nüüd suures toas akna juures.", en: "Now I work in the big room, by the window." },
@@ -250,12 +250,12 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
     goal: "Read a building's rules, and say what's allowed, what isn't and what's a must.",
     cast: { Helgi: "vesta", Tom: "kalev" },
     conversation: [
-      { who: "Helgi", et: "Tere! Kas sina oled uus naaber? Mina olen Helgi. Vaata, trepi juures on uus teade.", en: "Hello! Are you the new neighbor? I'm Helgi. Look, there's a new notice by the stairs.", stage: "Tom's first week in the new building. By the stairs he meets Helgi, an older woman who lives in the apartment below his." },
+      { who: "Helgi", et: "Tere! Kas sina oled uus naaber? Mina olen Helgi, ütle mulle sina. Vaata, trepi juures on uus teade.", en: "Hello! Are you the new neighbor? I'm Helgi, and you can call me {sina}. Look, there's a new notice by the stairs.", stage: "Tom's first week in the new building. By the stairs he meets Helgi, an older woman who lives in the apartment below his." },
       { who: "Tom", et: "Tere, Helgi! Mina olen Tom. Maja reeglid? Loeme koos!", en: "Hello, Helgi! I'm Tom. The house rules? Let's read them together!" },
       { who: "Tom", et: "Suitsetamine majas on keelatud.", en: "Smoking in the building is not allowed.", stage: "Reading aloud." },
       { who: "Helgi", et: "Väga hea. Mina ei suitseta üldse.", en: "Good. I don't smoke at all." },
       { who: "Tom", et: "Öörahu kell 23.00 kuni 7.00. Palume öösel mitte müra teha.", en: "Quiet hours from 23:00 to 7:00. Please make no noise at night." },
-      { who: "Helgi", et: "Seda peaks lugema minu naaber üleval. Ta teeb öösel palju müra.", en: "My upstairs neighbor should read that. He makes a lot of noise at night." },
+      { who: "Helgi", et: "Seda peaks lugema minu naaber, kes elab üleval. Ta teeb öösel palju müra.", en: "My neighbor who lives upstairs should read that. He makes a lot of noise at night." },
       { who: "Tom", et: "Üleval? Helgi, see olen ju mina!", en: "Upstairs? Helgi, that's me!" },
       { who: "Helgi", et: "Oi! Vabandust!", en: "Oh! Sorry!" },
       { who: "Tom", et: "Ei, mina pean vabandust paluma. Ma töötan õhtul hilja ja kuulan muusikat.", en: "No, I'm the one who should apologize. I work late in the evening and listen to music." },
@@ -429,7 +429,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         from: { et: "Kraan lekib.", en: "The tap is leaking." },
         ask: "Say it was leaking last week.",
         to: { et: "Eelmisel nädalal lekkis kraan.", en: "The tap was leaking last week." },
-        also: ["Kraan lekkis eelmisel nädalal."],
+        also: ["Kraan lekkis eelmisel nädalal.", "Eelmisel nädalal kraan lekkis."],
         pattern: "past",
       },
       {
@@ -566,9 +566,9 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         pattern: "past",
       },
       {
-        from: { et: "Sa teatad Peetrile kaks kuud ette.", en: "You tell Peeter two months ahead." },
+        from: { et: "Sa teatad Peetrile kaks kuud ette.", en: "You give Peeter two months' notice." },
         ask: "Tell a friend to do it.",
-        to: { et: "Teata Peetrile kaks kuud ette.", en: "Tell Peeter two months ahead." },
+        to: { et: "Teata Peetrile kaks kuud ette.", en: "Give Peeter two months' notice." },
         pattern: "imperative",
       },
     ],
@@ -662,8 +662,8 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       {
         from: { et: "Küte ei tööta.", en: "The heating isn't working." },
         ask: "Say it wasn't working last week.",
-        to: { et: "Eelmisel nädalal küte ei töötanud.", en: "The heating wasn't working last week." },
-        also: ["Küte ei töötanud eelmisel nädalal."],
+        to: { et: "Eelmisel nädalal ei töötanud küte.", en: "The heating wasn't working last week." },
+        also: ["Eelmisel nädalal küte ei töötanud.", "Küte ei töötanud eelmisel nädalal."],
         pattern: "past",
       },
       {

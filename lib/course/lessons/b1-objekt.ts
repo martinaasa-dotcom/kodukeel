@@ -8,10 +8,8 @@
  * (I was reading, I read it through), which is why an English speaker hears
  * nothing in `raamatu` against `raamatut`.
  *
- * IN PREVIEW. This part is not the course yet: it is in `PREVIEW_LESSONS`,
- * open to a reviewer on the website and to nobody else, and finishing it
- * records nothing, since no evening carries it (`finishLessonFor`). Its
- * Russian and Ukrainian are written when B1 becomes the course.
+ * The first part of the B1 course (`LESSONS`), with its Russian and Ukrainian
+ * in the area files beside the other six.
  *
  * Read by the native speaker where the second model pass flags a line
  * (docs/43-lessons.md B-L7), and held to the same two checks as every lesson
@@ -602,7 +600,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
     retell: {
       who: "Kati",
       story: [
-        { et: "Eile ma kolisin uude korterisse.", en: "Yesterday I moved into a new apartment." },
+        { et: "Eile kolisin ma uude korterisse.", en: "Yesterday I moved into a new apartment." },
         { et: "Tom tõi mu kastid autost tuppa.", en: "Tom brought my boxes in from the car." },
         { et: "Siis ta tõi ka diivani, aga see ei mahtunud uksest läbi.", en: "Then he brought the sofa too, but it didn't fit through the door." },
         { et: "See ei olnud minu diivan, see oli naabri oma!", en: "It wasn't my sofa, it was the neighbor's!" },
@@ -766,7 +764,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
     goal: "Tell a handyman what's broken, what you've done yourself and what isn't done, and agree when he'll finish.",
     cast: { Rein: "albert", Tom: "kalev" },
     conversation: [
-      { who: "Rein", et: "Tere! Mina olen Rein, meister. Kas see on korter number kolm?", en: "Hello! I'm Rein, the handyman. Is this apartment number three?" },
+      { who: "Rein", et: "Tere! Mina olen Rein, meister. Kas see on korter number kaksteist?", en: "Hello! I'm Rein, the handyman. Is this apartment number twelve?", stage: "The next morning. Tom has left work early to let the handyman in himself." },
       { who: "Tom", et: "Jah, tulge sisse! Kas te lugesite mu kirja?", en: "Yes, come in! Did you read my note?" },
       { who: "Rein", et: "Lugesin. Kraani te parandasite ise ära?", en: "I did. You fixed the tap yourself?" },
       { who: "Tom", et: "Jah, aga dušš tilgub ikka edasi.", en: "Yes, but the shower keeps on dripping." },
@@ -775,7 +773,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       { who: "Rein", et: "Akent ma täna ei paranda. Selle jaoks on vaja varuosa.", en: "I won't fix the window today. It needs a spare part." },
       { who: "Tom", et: "Millal te akna ära parandate?", en: "When will you get the window fixed?" },
       { who: "Rein", et: "Ma tellin varuosa ja tulen reedel tagasi.", en: "I'll order the part and come back on Friday." },
-      { who: "Tom", et: "Reedel ma olen tööl. Kas esmaspäeval sobib?", en: "On Friday I'm at work. Does Monday suit you?" },
+      { who: "Tom", et: "Reedel olen ma tööl. Kas esmaspäeval sobib?", en: "On Friday I'm at work. Does Monday suit you?" },
       { who: "Rein", et: "Sobib. Aga miks köögis lamp ei põle?", en: "Fine. But why isn't the kitchen light on?" },
       { who: "Tom", et: "Pirn on läbi. Ma kardan elektrit.", en: "The bulb's gone. I'm scared of electricity." },
       { who: "Rein", et: "Palun. Nüüd lamp põleb.", en: "There you go. Now the light's on.", stage: "He changes the bulb in ten seconds." },
@@ -804,7 +802,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       { ask: { et: "Mis on katki?", en: "What's broken?" }, cue: "Say the shower still drips.", model: { et: "Dušš tilgub ikka.", en: "The shower still drips." } },
       { ask: { et: "Kas te parandasite kraani ise?", en: "Did you fix the tap yourself?" }, cue: "Say yes, you fixed it yourself.", model: { et: "Jah, ma parandasin selle ise ära.", en: "Yes, I fixed it myself." } },
       { cue: "Ask the handyman when he'll get the window fixed.", model: { et: "Millal te akna ära parandate?", en: "When will you get the window fixed?" } },
-      { ask: { et: "Kas reedel sobib?", en: "Does Friday suit you?" }, cue: "Say you're at work on Friday, and ask about Monday.", model: { et: "Reedel ma olen tööl. Kas esmaspäeval sobib?", en: "On Friday I'm at work. Does Monday suit you?" } },
+      { ask: { et: "Kas reedel sobib?", en: "Does Friday suit you?" }, cue: "Say you're at work on Friday, and ask about Monday.", model: { et: "Reedel olen ma tööl. Kas esmaspäeval sobib?", en: "On Friday I'm at work. Does Monday suit you?" } },
     ],
     listenFor: [
       { q: "What does the handyman fix today?", options: ["The window", "The shower", "The tap", "The door"], answer: 1 },
@@ -818,7 +816,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
         { ask: { et: "Aga kraan?", en: "And the tap?" }, cue: "Say you fixed the tap yourself.", model: { et: "Kraani parandasin ma ise ära.", en: "I fixed the tap myself." } },
         { ask: { et: "Ja aken?", en: "And the window?" }, cue: "Say the window still won't close.", model: { et: "Aken ei lähe ikka kinni.", en: "The window still won't close." } },
         { ask: { et: "Akent ma täna ei paranda. Selle jaoks on vaja varuosa.", en: "I won't fix the window today. It needs a spare part." }, cue: "Ask when he'll get it fixed.", model: { et: "Millal te akna ära parandate?", en: "When will you get the window fixed?" } },
-        { ask: { et: "Reedel. Kas reedel sobib?", en: "On Friday. Does Friday suit you?" }, cue: "Say you're at work on Friday, and ask about Monday.", model: { et: "Reedel ma olen tööl. Kas esmaspäeval sobib?", en: "On Friday I'm at work. Does Monday suit you?" } },
+        { ask: { et: "Reedel. Kas reedel sobib?", en: "On Friday. Does Friday suit you?" }, cue: "Say you're at work on Friday, and ask about Monday.", model: { et: "Reedel olen ma tööl. Kas esmaspäeval sobib?", en: "On Friday I'm at work. Does Monday suit you?" } },
         { ask: { et: "Sobib. Esmaspäeval kell kümme. Aga kui te ei ole kodus?", en: "That works. Monday at ten. But what if you're not at home?" }, cue: "Say the key will be at the neighbor's.", model: { et: "Siis on võti naabri juures.", en: "Then the key will be at the neighbor's." } },
         { ask: { et: "Hästi. Siis kohtume esmaspäeval!", en: "Good. See you on Monday, then!" }, cue: "Say thank you and goodbye.", model: { et: "Aitäh! Head aega!", en: "Thank you! Goodbye!" } },
       ],

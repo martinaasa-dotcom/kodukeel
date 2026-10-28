@@ -13,7 +13,7 @@
  * The clerks, the switchboard, the official and the examiner are strangers,
  * so each is a new name used in that one lesson (docs/reviews/b1-cast.md).
  *
- * IN PREVIEW until B1 is whole (`preview.ts`). Read by the native speaker
+ * Part of the B1 course (`LESSONS`). Read by the native speaker
  * where the second model pass flags a line (docs/43-lessons.md B-L7), and held
  * to the same checks as every lesson (`lessons.test.ts`, `ledger.ts`,
  * `npx tsx scripts/check-lesson-part.ts --part b1-asjaajamine`).
@@ -167,17 +167,17 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
     part: "b1-asjaajamine",
     kind: "lesson",
     title: "At the office",
-    goal: "Apply for a residence permit, hand over your documents, and ask what's possible when something's missing.",
+    goal: "Apply to extend a residence permit, hand over your documents, and ask what's possible when something's missing.",
     cast: { Tiina: "liivika", Tom: "kalev" },
     conversation: [
       { who: "Tiina", et: "Järgmine! Number sada nelikümmend seitse!", en: "Next! Number one hundred forty-seven!" },
       { who: "Tom", et: "Lõpuks! Ma ootasin üle tunni.", en: "At last! I waited over an hour." },
       { who: "Tiina", et: "Vabandust, täna on palju inimesi ja ainult kaks ametnikku. Mida te soovite?", en: "Sorry, there are a lot of people today and only two clerks. What would you like?" },
-      { who: "Tom", et: "Ma tahaksin elamisluba taotleda.", en: "I'd like to apply for a residence permit." },
+      { who: "Tom", et: "Ma tahaksin elamisloa pikendamist taotleda.", en: "I'd like to apply to extend my residence permit." },
       { who: "Tiina", et: "Palun andke oma dokumendid.", en: "Please give me your documents." },
       { who: "Tom", et: "Siin on avaldus ja foto. Kõik blanketid on täidetud!", en: "Here's the application and the photo. All the forms are filled in!" },
       { who: "Tiina", et: "Väga hea. Ja teie pass?", en: "Very good. And your passport?" },
-      { who: "Tom", et: "Oi. Me hoiame passe ühes kotis, ja see kott on praegu mu naisel.", en: "Oh. We keep our passports in one bag, and my wife has that bag right now." },
+      { who: "Tom", et: "Oi. Me hoiame passe ühes kotis ja see kott on praegu mu naisel.", en: "Oh. We keep our passports in one bag, and my wife has that bag right now." },
       { who: "Tiina", et: "Ilma teie passita ma ei saa avaldust vastu võtta.", en: "Without your passport I can't accept the application." },
       { who: "Tom", et: "Kas ma võiksin passi homme tuua?", en: "Could I bring the passport tomorrow?" },
       { who: "Tiina", et: "Jah, see on võimalik. Aga siis võtke uus järjekorranumber.", en: "Yes, that's possible. But then take a new queue number." },
@@ -187,6 +187,8 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
     teaches: [
       { kind: "form", et: "ametnikku", of: "ametnik", en: "clerks, after a number" },
       { kind: "word", et: "elamisluba", en: "residence permit" },
+      { kind: "form", et: "elamisloa", of: "elamisluba", en: "of a residence permit", stem: true },
+      { kind: "word", et: "pikendamist", en: "extending, an extension, as an object: {elamisloa pikendamist}" },
       { kind: "verb", et: "taotlema", first: "taotlen", en: "to apply for", firstEn: "I apply for", asks: "{mida?} something, in the [osastav] (3rd form): {Ma taotlen elamisluba}" },
       { kind: "form", et: "taotleda", of: "taotlema", en: "to apply for, after would like or can" },
       { kind: "word", et: "dokument", en: "a document" },
@@ -240,7 +242,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
         from: { et: "Ametnik võtab avalduse vastu.", en: "The clerk accepts the application." },
         ask: "Say she didn't, yesterday. Start with {Ametnik ei}.",
         to: { et: "Ametnik ei võtnud eile avaldust vastu.", en: "The clerk didn't accept the application yesterday." },
-        also: ["Ametnik ei võtnud avaldust eile vastu."],
+        also: ["Ametnik ei võtnud avaldust eile vastu.", "Eile ei võtnud ametnik avaldust vastu."],
         pattern: "object",
       },
       {
@@ -534,7 +536,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Salvestus", et: "Tere! Te helistasite linnavalitsusse.", en: "Hello! You've called the city government.", stage: "Tom calls the city. A recorded message answers." },
       { who: "Salvestus", et: "Meie ametnikud vastavad esmaspäevast reedeni, kella üheksast viieni.", en: "Our officials answer from Monday to Friday, from nine to five." },
-      { who: "Salvestus", et: "Praegu on kõik ametnikud kõnel. Teie kõne on meile oluline. Palun jääge ootele.", en: "All our officials are on a call right now. Your call is important to us. Please hold." },
+      { who: "Salvestus", et: "Praegu on kõik ametnikud hõivatud. Teie kõne on meile oluline. Palun jääge ootele.", en: "All our officials are busy right now. Your call is important to us. Please hold." },
       { who: "Kaja", et: "Linnavalitsus, tere!", en: "City government, hello!", stage: "Music, then at last a person." },
       { who: "Tom", et: "Tere! Mul on küsimus parkimisloa kohta.", en: "Hello! I have a question about a parking permit." },
       { who: "Kaja", et: "Üks hetk, palun jääge ootele. Ma ühendan teid edasi.", en: "One moment, please hold. I'll put you through." },
@@ -544,7 +546,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Halloo? Ma olen juba kümme minutit ootel!", en: "Hello? I've been on hold for ten minutes already!", stage: "The same music again." },
       { who: "Kaja", et: "Linnavalitsus, tere!", en: "City government, hello!" },
       { who: "Tom", et: "Ei! Ma helistasin teile juba pool tundi tagasi!", en: "No! I called you half an hour ago!" },
-      { who: "Kaja", et: "Oi, vabandust. Ametnik on praegu kõnel. Kas jätate sõnumi?", en: "Oh, sorry. The official is on a call right now. Would you like to leave a message?" },
+      { who: "Kaja", et: "Oi, vabandust. Ametnik on praegu hõivatud. Kas jätate sõnumi?", en: "Oh, sorry. The official is busy right now. Would you like to leave a message?" },
       { who: "Tom", et: "Jah. Palun öelge, et ta helistaks mulle tagasi.", en: "Yes. Please ask them to call me back." },
       { who: "Kaja", et: "Muidugi. Aga kõige kiirem on kirjutada avaldus.", en: "Of course. But the quickest thing is to write an application." },
       { who: "Tom", et: "Siis kirjutan avalduse ise. Ma oleksin pidanud seda kohe tegema!", en: "Then I'll write the application myself. I should have done that right away!" },
@@ -562,7 +564,8 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       { kind: "verb", et: "ühendama", first: "ühendan", en: "to connect; {edasi ühendama}, to put through", firstEn: "I connect" },
       { kind: "form", et: "ühendati", of: "ühendama", en: "was put through, somebody put you through" },
       { kind: "form", et: "helistanud", of: "helistama", en: "called, after {ei}" },
-      { kind: "form", et: "kõne", of: "kõne", en: "a call; {kõnel}, on a call", stem: true },
+      { kind: "form", et: "kõne", of: "kõne", en: "a call", stem: true },
+      { kind: "word", et: "hõivatud", en: "busy, engaged (a person or a line)" },
       { kind: "form", et: "jätate", of: "jätma", en: "you leave, polite" },
       { kind: "form", et: "kiirem", of: "kiire", en: "quicker" },
       { kind: "form", et: "teid", of: "teie", en: "you, polite or more than one" },
@@ -626,7 +629,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
         from: { et: "Ma olen ootel.", en: "I'm on hold." },
         ask: "Say you were on hold for half an hour yesterday. Start with {Eile}.",
         to: { et: "Eile olin ma pool tundi ootel.", en: "Yesterday I was on hold for half an hour." },
-        also: ["Eile olin pool tundi ootel."],
+        also: ["Eile olin pool tundi ootel.", "Ma olin eile pool tundi ootel."],
         pattern: "past",
       },
     ],
@@ -812,7 +815,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Ma olen Tom ja ma olen pärit Inglismaalt. Ma elan perega Tallinnas ja töötan programmeerijana ühes väikeses firmas.", en: "I'm Tom, and I'm from England. I live in Tallinn with my family and work as a programmer at a small company." },
       { who: "Merike", et: "Mis teile oma töö juures meeldib?", en: "What do you like about your work?" },
       { who: "Tom", et: "Mulle meeldib mu töö, sest kolleegid on sõbralikud ja aitavad mind alati. Aga koosolekuid on natuke liiga palju.", en: "I like my job, because my colleagues are friendly and always help me. But there are a few too many meetings." },
-      { who: "Merike", et: "Teine osa. Mina olen pangas ametnik. Tere! Kuidas ma saan teid aidata?", en: "Part two. I'm a clerk at a bank. Hello! How can I help you?" },
+      { who: "Merike", et: "Teine osa. Nüüd töötan mina pangas. Tere! Kuidas ma saan teid aidata?", en: "Part two. Now I work at a bank. Hello! How can I help you?" },
       { who: "Tom", et: "Tere! Ma kaotasin eile oma rahakoti ära. Palun pange mu kaart kohe kinni.", en: "Hello! I lost my wallet yesterday. Please block my card right away." },
       { who: "Merike", et: "Selge, kaart on nüüd kinni. Kas te soovite uut kaarti?", en: "Fine, the card is blocked now. Would you like a new card?" },
       { who: "Tom", et: "Jah, palun. Mida ma pean tegema? Ja millal uus kaart tuleb?", en: "Yes, please. What do I have to do? And when does the new card come?" },
@@ -847,7 +850,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       turns: [
         { ask: { et: "Tere! Palun istuge. Eksamil on kolm osa. Esimene osa: rääkige natuke endast.", en: "Hello! Please sit down. The exam has three parts. Part one: tell me a little about yourself." }, cue: "Part one. Say hello, who you are, where you're from, where you live and what you do.", model: { et: "Tere! Ma olen Tom ja ma olen pärit Inglismaalt. Ma elan perega Tallinnas ja töötan programmeerijana.", en: "Hello! I'm Tom, and I'm from England. I live in Tallinn with my family and I work as a programmer." } },
         { ask: { et: "Mis teile oma töö juures meeldib?", en: "What do you like about your work?" }, cue: "Say what you like about your work and why, and one thing you like less.", model: { et: "Mulle meeldib mu töö, sest kolleegid on sõbralikud ja aitavad mind alati. Aga koosolekuid on natuke liiga palju.", en: "I like my job, because my colleagues are friendly and always help me. But there are a few too many meetings." } },
-        { ask: { et: "Teine osa. Mina olen pangas ametnik. Tere! Kuidas ma saan teid aidata?", en: "Part two. I'm a clerk at a bank. Hello! How can I help you?" }, cue: "Part two, a situation: you've lost your wallet. Say what happened, and ask her to block your card.", model: { et: "Tere! Ma kaotasin eile bussis oma rahakoti ära. Palun pange mu kaart kohe kinni.", en: "Hello! I lost my wallet on the bus yesterday. Please block my card right away." } },
+        { ask: { et: "Teine osa. Nüüd töötan mina pangas. Tere! Kuidas ma saan teid aidata?", en: "Part two. Now I work at a bank. Hello! How can I help you?" }, cue: "Part two, a situation: you've lost your wallet. Say what happened, and ask her to block your card.", model: { et: "Tere! Ma kaotasin eile bussis oma rahakoti ära. Palun pange mu kaart kohe kinni.", en: "Hello! I lost my wallet on the bus yesterday. Please block my card right away." } },
         { ask: { et: "Selge, kaart on nüüd kinni. Kas te soovite uut kaarti?", en: "Fine, the card is blocked now. Would you like a new card?" }, cue: "Say yes, and ask what you have to do and when the card comes.", model: { et: "Jah, palun. Mida ma pean tegema? Ja millal uus kaart tuleb?", en: "Yes, please. What do I have to do? And when does the new card come?" } },
         { ask: { et: "Täitke see blankett ära. Uus kaart tuleb nädala pärast.", en: "Fill in this form. The new card comes in a week." }, cue: "Say you'll fill it in now, and thank her.", model: { et: "Hästi, ma täidan blanketi kohe ära. Aitäh!", en: "All right, I'll fill in the form right away. Thank you!" } },
         { ask: { et: "Kolmas osa: teie arvamus. Kas Tallinnas on lihtne autoga sõita?", en: "Part three: your opinion. Is it easy to drive in Tallinn?" }, cue: "Part three, a topic. Give your view, with a reason.", model: { et: "Minu arvates ei ole. Kuigi mul on nüüd parkimisluba, on kesklinnas vähe parkimiskohti. Nii et tööle sõidan ma bussiga.", en: "In my opinion it isn't. Although I've got a parking permit now, there are few parking spaces in the center. So I take the bus to work." } },

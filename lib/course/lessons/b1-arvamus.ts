@@ -10,7 +10,7 @@
  * for, and a meeting where Tom disagrees with his colleagues
  * (docs/reviews/b1-cast.md).
  *
- * IN PREVIEW until B1 is whole (`preview.ts`). Read by the native speaker
+ * Part of the B1 course (`LESSONS`). Read by the native speaker
  * where the second model pass flags a line (docs/43-lessons.md B-L7), and held
  * to the same checks as every lesson (`lessons.test.ts`, `ledger.ts`,
  * `npx tsx scripts/check-lesson-part.ts --part b1-arvamus`).
@@ -90,7 +90,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       examples: [2, 5, 6, 9],
     },
     listenFor: [
-      { q: "Who says the bus to Saaremaa is cheaper?", options: ["Tom", "Mari"], answer: 1 },
+      { q: "Who says the bus is cheaper?", options: ["Tom", "Mari"], answer: 1 },
       { q: "What will the repair cost, the mechanic says?", options: ["Fifty euros", "Two hundred euros", "A hundred euros"], answer: 2 },
       { q: "What does Tom decide in the end?", options: ["To keep driving the old one", "To sell it and take the bus", "To buy a newer car next month"], answer: 0 },
     ],
@@ -173,6 +173,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "kirjutas", of: "kirjutama", en: "he, she wrote" },
       { kind: "form", et: "kolmandat", of: "kolmas", en: "the third one, some of it" },
       { kind: "form", et: "tundnud", of: "tundma", en: "known, after {ei}: {ma ei tundnud}" },
+      { kind: "form", et: "meest", of: "mees", en: "the man, as the one you know: {Ma tunnen seda meest}" },
     ],
     patterns: ["relative"],
     how: {
@@ -234,7 +235,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       },
       {
         from: { et: "Mees sööb kooki. Ma tunnen teda.", en: "A man is eating cake. I know him." },
-        ask: "Say you don't know the man who's eating cake, with {kes}. Mind what the man turns into after a no.",
+        ask: "Say you don't know the man who's eating cake, with {kes}.",
         to: { et: "Ma ei tunne meest, kes sööb kooki.", en: "I don't know the man who's eating cake." },
         pattern: "relative",
       },
@@ -648,7 +649,6 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "parkla", of: "parkla", en: "of a car park", stem: true },
       { kind: "form", et: "parklat", of: "parkla", en: "a car park, as some of it" },
       { kind: "form", et: "ehitada", of: "ehitama", en: "to build: the [da-tegevusnimi] (-da)" },
-      { kind: "form", et: "lapsed", of: "laps", en: "children" },
       { kind: "form", et: "koeraga", of: "koer", en: "with the dog" },
       { kind: "verb", et: "jalutama", first: "jalutan", en: "to go for a walk", firstEn: "I go for a walk" },
       { kind: "word", et: "foorum", en: "forum" },
@@ -753,7 +753,8 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       genre: "A forum post with your opinion",
       purpose: "Say what you think of the town's plan, give two reasons, and ask for something.",
       model: [
-        { et: "Lugupeetud linnavalitsus!", en: "Dear city government," },
+        { et: "Tere kõigile!", en: "Hi, everybody!" },
+        { et: "Linnavalitsus tahab meie pargi asemele parkla ehitada.", en: "The city government wants to build a car park in place of our park." },
         { et: "Me kolisime siia, sest maja lähedal on park.", en: "We moved here because there's a park near the building." },
         { et: "Ma olen linna plaani vastu.", en: "I'm against the town's plan." },
         { et: "Kuna park on koht, kus lapsed mängivad, ei ole parkla seal hea mõte.", en: "Since the park is a place where children play, a car park there isn't a good idea." },
@@ -767,7 +768,6 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
         { et: "Keskkond on meie kõigi kodu.", en: "The environment is home to all of us." },
         { et: "Ma tean, et ka meie naabrid on minuga nõus.", en: "I know our neighbors agree with me too." },
         { et: "Palun mõelge veel kord!", en: "Please think again!" },
-        { et: "Lugupidamisega, Tom", en: "Sincerely, Tom" },
       ],
       uses: [
         { et: "plaani vastu", en: "against the plan" },

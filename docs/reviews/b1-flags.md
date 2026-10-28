@@ -35,15 +35,14 @@ in `docs/44-language-reviews.md` section 1.
 
 - Kept: `iga õhtu` (`igal` is not taught yet), `Pole viga`, `Kas sul oleks hetk aega?`,
   `Ma pakuksin talle ka lõunat`, `palk enne/pärast makse`, `Säästa on raske`, `Kaks tükki.`,
-  `pühapäeva hommikuse vahetuse`, `Mis sul praegu on?`, `Tervitustega, Tom`.
+  `Tervitustega, Tom`.
 - New: lesson 16 opens on Kristi introducing the team at the Monday meeting (`Mina alustasin siin ka
   praktikandina. Ma tegin rohkem kohvi kui koodi.`, `Palju õnne? Ei, pigem jõudu!`).
 - New: lesson 21's added turn, `Kelleks sa tahaksid järgmisel aastal saada?`
 
 ### `b1-kodu` (lessons 22 to 28)
 
-- Kept: `Siin on ju kümme tooli!`, `Kas ma tohin sinna vaadata?`, `Seda peaks lugema minu naaber
-  üleval`, the quiet-hours notice, `See on lepingus kirjas.`, `Ainult natuke liiga hea meister.`
+- Kept: `Siin on ju kümme tooli!`, `Kas ma tohin sinna vaadata?`, the quiet-hours notice, `See on lepingus kirjas.`, `Ainult natuke liiga hea meister.`
 - Kept, and read as right by the rewrite: a -tud word stays as it is before its noun (`suletud
   uksega`) and after `on` (`Koerad on lubatud`). Please confirm.
 - New: lesson 23 is Tom's voicemail to Mari a week after the move (`Aga külmkapp on suurem kui mina!`).
@@ -52,7 +51,7 @@ in `docs/44-language-reviews.md` section 1.
 
 ### `b1-uudised` (lessons 29 to 35)
 
-- Kept: `See on meie komme`, `Seal tehakse igal aastal suur lõke`, `telefon oli tühjaks saanud`,
+- Kept: `Seal tehakse igal aastal suur lõke`, `telefon oli tühjaks saanud`,
   `aja kinni pannud`, `Ja minu kartulid? Kes neid nüüd sööb?`
 - New: lesson 32 opens on a radio news item (`Öösel oli kesklinnas tulekahju.`, `Uudistes teatati,
   et restoran avatakse kuu aja pärast uuesti.`).
@@ -64,7 +63,7 @@ in `docs/44-language-reviews.md` section 1.
 - Kept: `Noh, …`, `kõige parem osa`, `see kott ei käi siia`, `kollasesse kasti`, `Arvuti ei joo minuga kohvi`.
 - New: lesson 37, a neighbors' party (`Ta kirjutas selle raamatu, mida sa praegu loed!`, `See on Leena mees. Ja see on tema kook.`).
 - New: lesson 40's note on long and short forms: `-ne` words like `kollane` have only the long form, `pruun` and `kast` a short one (`pruuni`, `kasti`). Please check.
-- New: lesson 41 is Helgi's voicemail, and the letter's sign-off is `Teie naaber Tom`.
+- New: lesson 41 is Helgi's voicemail, and the forum post opens `Tere kõigile!` with no sign-off.
 - New: lesson 42's added turn, `Aga kodus ei pea hommikul bussiga sõitma, eks?` / `See on õige, aga mulle meeldib bussiga sõita.`
 
 ### `b1-asjaajamine` (lessons 43 to 49)
@@ -74,9 +73,40 @@ in `docs/44-language-reviews.md` section 1.
   `Ametlikult on see nii:`, `Lisan avaldusele auto dokumendid.`, `Väga ametlik, kuigi lühike!`
 - Unsure: `…nad tegid kaardi jälle lahti` (49) and `lahti` for a card unblocked (45).
 - New: lesson 43, the clerk pockets Tom's pen (`Hästi. Aga andke palun mu pastakas tagasi!`).
-- New: lesson 44, `Kas ma võiksin passi homme tuua?` and `Me hoiame passe ühes kotis, ja see kott on praegu mu naisel.`
+- New: lesson 44, `Kas ma võiksin passi homme tuua?` and `Me hoiame passe ühes kotis ja see kott on praegu mu naisel.`
 - New: lesson 47 opens on the city's recorded hold message (`Teie kõne on meile oluline. Palun jääge ootele.`).
 - New: lesson 49's added turn, `Kumb on parem, elada linnas või maal? Miks?`
+
+## Changed after the independent review (2026-10-28)
+
+An outside reader went through B1 for story, register and naturalness. These lines are new or
+rewritten because of it, and are the first to read:
+
+- Lesson 7: `Reedel olen ma tööl.` (verb second after a fronted time word, here and in the scene's
+  picks), `Kas see on korter number kaksteist?` (Peeter's apartment is 12, as in A2), and a stage
+  line saying Tom left work early to let the handyman in.
+- Lessons 8, 9, 12, 27: the rework targets are verb second, `Eile palusin ma ülemust appi.`,
+  `Eile laulsin ma vaikselt.`, `Eelmisel suvel kartsin ma vihma.`, `Eelmisel nädalal ei töötanud
+  küte.`, with the subject-first orders kept as accepted. Lesson 23's story: `Eelmisel nädalal
+  kolisime me uude korterisse.` Lesson 5's: `Eile kolisin ma uude korterisse.`
+- Lesson 9: `Meie koor vajab just mehi!` (was `otsib just meest`).
+- Lesson 11: `Me tutvusime kuus aastat tagasi, aga ta küsis alles kaks kuud tagasi, kas ma
+  abiellun temaga.`
+- Lesson 12: `Tom, kas me sõidame suvel kõik koos Saaremaale või mitte? Anna ja lapsed tahavad
+  väga minna.` and `Siis sõidame ilma sinuta: mina, Anna ja lapsed. Liis ja Jaan tulevad ka meiega.`
+- Lesson 16: `Ta on pärit Inglismaalt.` (was `Ta tuli meile Londonist.`).
+- Lesson 19: `Ma olen sel nädalal kuus päeva tööl, vaba on ainult laupäev.`, `Aga kui mina võtan
+  sinu pühapäeva ja esmaspäeva vahetused?`, `Laupäeval? Mis toimub?`
+- Lesson 20: `Tore! Kirjuta talle. Näita, mis sul juba on.`
+- Lesson 24: `Mina olen Helgi, ütle mulle sina.` and `Seda peaks lugema minu naaber, kes elab üleval.`
+- Lesson 29: `Liftis ei räägita. Siin on selline komme.`
+- Lesson 33's story is set at last week's meeting: `Eelmise nädala koosolek kestis kaks tundi.` and
+  `Eilne koosolek oli parem: seal arutati kohe uut projekti.`
+- Lesson 34: the notice is signed `Tom, korter 9` (the new flat is not Peeter's number).
+- Lesson 41's post: `Tere kõigile!`, `Linnavalitsus tahab meie pargi asemele parkla ehitada.`
+- Lesson 44: `Ma tahaksin elamisloa pikendamist taotleda.` (Tom has lived here for years).
+- Lesson 47: `Praegu on kõik ametnikud hõivatud.`, `Ametnik on praegu hõivatud.`
+- Lesson 49: `Teine osa. Nüüd töötan mina pangas.` (and the scene's `Teine osa. Nüüd oleme pangas.`)
 
 ## What a second model flagged
 

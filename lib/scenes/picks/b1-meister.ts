@@ -23,7 +23,7 @@ export const b1Meister: ScenePicks = {
     { et: "Aken ei lähe ikka kinni.", en: "The window still won't close." },
   ],
   when: [
-    { et: "Reedel ma olen tööl. Kas esmaspäeval sobib?", en: "On Friday I'm at work. Does Monday suit you?" },
+    { et: "Reedel olen ma tööl. Kas esmaspäeval sobib?", en: "On Friday I'm at work. Does Monday suit you?" },
     { et: "Reedel sobib.", en: "Friday suits me." },
   ],
   key: [

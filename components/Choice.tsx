@@ -120,7 +120,9 @@ export function ChoiceGroup({
     // A radio group selects as it moves, which is the behavior every other
     // radio group on the web has and the reason it needs only one tab stop.
     radios[next]?.focus();
-    if (!answer) radios[next]?.click();
+    // Where moving is not choosing, nothing re-renders, so the tab stop moves with the caret here.
+    if (answer) for (const r of host.querySelectorAll<HTMLButtonElement>('[role="radio"]')) r.tabIndex = r === radios[next] ? 0 : -1;
+    else radios[next]?.click();
   };
 
   return (
