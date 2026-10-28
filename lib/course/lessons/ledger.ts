@@ -26,12 +26,13 @@
  * Pure: no React, no Prisma, no clock.
  */
 
-import { conditional, imperativeSingular, negativePresent, pastPersons, presentTense } from "@/lib/estonian/conjugate";
+import { conditional, imperativeSingular, negativePresent, pastPersons, presentTense, VERB_SLOTS } from "@/lib/estonian/conjugate";
+import { CASES } from "@/lib/estonian/cases";
 import { buildCaseTable } from "@/lib/estonian/derive";
 import { levelIndex } from "@/lib/collections/syllabus/types";
 import { nativeClip } from "@/lib/audio/native";
 import { lessonLabel } from "./label";
-import type { LessonSpec, PatternId, Taught } from "./types";
+import type { Fix, LessonSpec, PatternId, Taught } from "./types";
 
 /** A taught item as a learner is asked about it: a verb counts as its two spellings. */
 export type Asked = Exclude<Taught, { kind: "verb" }>;
@@ -273,7 +274,31 @@ export function familiesOf(ledger: Ledger): Families {
   return { forms, of };
 }
 
+/**
+ * A fix's line with its slip in, or the line unchanged where the word it names
+ * is not in the line once as a whole word, which the level check refuses.
+ */
+export function withSlip(fix: Pick<Fix, "line" | "right" | "wrong">): string {
+  const at = [...fix.line.et.matchAll(/\p{L}+/gu)].filter((m) => m[0] === fix.right);
+  if (at.length !== 1) return fix.line.et;
+  const m = at[0]!;
+  const i = m.index ?? 0;
+  return fix.line.et.slice(0, i) + fix.wrong + fix.line.et.slice(i + m[0].length);
+}
+
+/** Words lower-cased and joined, as two sentences are compared. */
+const normalisePhraseOf = (text: string) => wordsOf(text).map((w) => w.low).join(" ");
+
 /** The names a lesson may use: the shared list and its own cast. */
+/*
+  WHAT A FIX'S PAIR MAY NAME. A case, a verb slot the app records, or one of
+  the impersonal's codes, which the review log never records (no card asks
+  for them), so a fix on one is shown in the order it was written rather than
+  ahead of the learner's own mix-ups. Anything else is a misspelled code.
+*/
+const IMPERSONAL_CODES = ["IndPrIps", "IndIpfIps", "IndPrIpsNeg"] as const;
+const PAIR_CODES: ReadonlySet<string> = new Set([...CASES.map((c) => c.key as string), ...VERB_SLOTS, ...IMPERSONAL_CODES]);
+
 export function namesOf(lesson: Pick<LessonSpec, "cast">): ReadonlySet<string> {
   return new Set([...NAMES, ...Object.keys(lesson.cast)]);
 }
@@ -309,6 +334,7 @@ export function estonianOf(lesson: LessonSpec): { where: string; et: string; hea
   for (const t of lesson.teaches) {
     english(`the meaning of ${t.et}`, t.en);
     if (t.kind === "verb") english(`the meaning of ${t.first}`, t.firstEn);
+    if ((t.kind === "verb" || t.kind === "word") && t.asks) english(`what ${t.et} asks for`, t.asks);
   }
   const how = lesson.how;
   english("the point", how.point);
@@ -337,11 +363,72 @@ export function estonianOf(lesson: LessonSpec): { where: string; et: string; hea
       out.push({ where: `${label} ${i + 1}, model`, et: p.model.et });
     });
   prompts("question", lesson.answers);
+  lesson.reworks?.forEach((r, i) => {
+    out.push({ where: `rework ${i + 1}, from`, et: r.from.et });
+    english(`rework ${i + 1}, from English`, r.from.en);
+    english(`rework ${i + 1}, ask`, r.ask);
+    out.push({ where: `rework ${i + 1}, to`, et: r.to.et });
+    english(`rework ${i + 1}, to English`, r.to.en);
+    r.also?.forEach((et, j) => out.push({ where: `rework ${i + 1}, also ${j + 1}`, et }));
+  });
+  lesson.fixes?.forEach((f, i) => {
+    out.push({ where: `fix ${i + 1}, the line`, et: f.line.et });
+    english(`fix ${i + 1}, the line's English`, f.line.en);
+    out.push({ where: `fix ${i + 1}, with the slip`, et: withSlip(f) });
+    english(`fix ${i + 1}, why`, f.why);
+  });
+  lesson.listenFor?.forEach((g, i) => {
+    english(`gist ${i + 1}, question`, g.q);
+    g.options.forEach((o) => english(`gist ${i + 1}, option`, o));
+  });
+  if (lesson.retell) {
+    lesson.retell.story.forEach((line, i) => {
+      out.push({ where: `retell line ${i + 1}`, et: line.et });
+      english(`retell line ${i + 1} English`, line.en);
+    });
+    lesson.retell.points.forEach((p, i) => {
+      english(`retell point ${i + 1}`, p.en);
+      p.any.forEach((et) => out.push({ where: `retell point ${i + 1}, heard as`, et }));
+    });
+  }
+  if (lesson.faster) {
+    out.push({ where: "again-faster, asked", et: lesson.faster.ask.et });
+    english("again-faster, cue", lesson.faster.cue);
+    out.push({ where: "again-faster, model", et: lesson.faster.model.et });
+  }
+  if (lesson.write) {
+    english("the writing's genre", lesson.write.genre);
+    english("the writing's purpose", lesson.write.purpose);
+    english("the writing task", lesson.write.task);
+    lesson.write.model.forEach((line, i) => {
+      out.push({ where: `model text sentence ${i + 1}`, et: line.et });
+      english(`model text sentence ${i + 1} English`, line.en);
+    });
+    lesson.write.uses.forEach((u, i) => {
+      out.push({ where: `writing use ${i + 1}`, et: u.et });
+      english(`writing use ${i + 1}, meaning`, u.en);
+    });
+  }
   if (lesson.roleplay) {
     english("the role-play's scene", lesson.roleplay.scene);
     prompts("role-play turn", lesson.roleplay.turns);
   }
   return out;
+}
+
+/**
+ * Whether a phrase stands in a text as whole words, case aside: a writing
+ * use is a gap in the frame and a tick under the draft, so it has to be in
+ * the model as it stands.
+ */
+export function standsIn(text: string, phrase: string): boolean {
+  const words = wordsOf(text).map((w) => w.low);
+  const want = wordsOf(phrase).map((w) => w.low);
+  if (want.length === 0) return false;
+  for (let i = 0; i + want.length <= words.length; i++) {
+    if (want.every((w, j) => words[i + j] === w)) return true;
+  }
+  return false;
 }
 
 /** The ledger as it stands when each lesson starts, by lesson id. */
@@ -472,6 +559,56 @@ export function lessonProblems(lessons: readonly LessonSpec[]): string[] {
       if (item.kind === "verb" && !item.et.endsWith("ma")) problems.push(`${at}: the verb "${item.et}" is not a ma-form`);
     }
     const tonight = teach(ledger, lesson.teaches, lessonRank(lesson), lesson.patterns);
+    // A change is asked for by its rule, so the rule has to have been explained by tonight.
+    lesson.reworks?.forEach((r, i) => {
+      if (!tonight.patterns.has(r.pattern)) problems.push(`${at}, rework ${i + 1}: asks for the ${r.pattern} pattern before it is explained`);
+      if (normalisePhraseOf(r.from.et) === normalisePhraseOf(r.to.et)) problems.push(`${at}, rework ${i + 1}: the sentence it asks for is the one it starts from`);
+    });
+    // A slip is another taught form of the same word, standing once in the line, or it is not a slip.
+    const families = familiesOf(tonight);
+    // A word taught as itself is the dictionary form of its own family: `auto` beside `autot`.
+    const headwords = new Set(tonight.items.filter((d) => d.item.kind === "word").map((d) => d.item.et.toLocaleLowerCase("et")));
+    const wordOfSpelling = (s: string) => {
+      const low = s.toLocaleLowerCase("et");
+      return families.of.get(low) ?? (headwords.has(low) ? low : undefined);
+    };
+    lesson.fixes?.forEach((f, i) => {
+      if (withSlip(f) === f.line.et) problems.push(`${at}, fix ${i + 1}: "${f.right}" is not in the line once as a word`);
+      // A pair code nobody recognizes is a slip that never matches the learner's own mix-ups, and says so nowhere.
+      for (const code of f.pair) {
+        if (!PAIR_CODES.has(code)) problems.push(`${at}, fix ${i + 1}: "${code}" names no case or verb slot`);
+      }
+      const of = wordOfSpelling(f.right);
+      if (!of || wordOfSpelling(f.wrong) !== of || f.wrong === f.right) {
+        problems.push(`${at}, fix ${i + 1}: "${f.wrong}" is not another taught form of the word "${f.right}" is`);
+      }
+    });
+    lesson.listenFor?.forEach((g, i) => {
+      if (g.options.length < 2 || !Number.isInteger(g.answer) || g.answer < 0 || g.answer >= g.options.length) {
+        problems.push(`${at}, gist ${i + 1}: its answer is not one of its options`);
+      }
+    });
+    if (lesson.retell) {
+      if (!(lesson.retell.who in lesson.cast)) problems.push(`${at}: the retell is told by ${lesson.retell.who}, who is not in the cast`);
+      if (lesson.retell.story.length < 2) problems.push(`${at}: a story to retell is more than one line`);
+      if (lesson.retell.points.length < 2) problems.push(`${at}: a retell checks at least two points`);
+      lesson.retell.points.forEach((p, i) => {
+        if (p.any.length === 0) problems.push(`${at}, retell point ${i + 1}: lights on nothing`);
+        // A point lights on a word of the story, or the learner has nothing to retell it from.
+        if (!p.any.some((et) => lesson.retell!.story.some((line) => standsIn(line.et, et)))) {
+          problems.push(`${at}, retell point ${i + 1}: none of ${p.any.join(", ")} is in the story`);
+        }
+      });
+    }
+    if (lesson.write) {
+      const text = lesson.write.model.map((l) => l.et).join(" ");
+      if (lesson.write.model.length < 3) problems.push(`${at}: a model text is three sentences or more`);
+      if (lesson.write.uses.length < 2) problems.push(`${at}: a writing evening turns on two uses or more`);
+      lesson.write.uses.forEach((u, i) => {
+        if (!standsIn(text, u.et)) problems.push(`${at}, writing use ${i + 1}: "${u.et}" is not in the model text as it stands`);
+      });
+      if (!(lesson.write.least >= 20)) problems.push(`${at}: a text of its own runs to twenty words or more`);
+    }
     const names = namesOf(lesson);
     for (const { where, et, heard } of estonianOf(lesson)) {
       if (heard) continue;

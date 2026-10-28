@@ -43,6 +43,7 @@ import { sceneForErrand } from "@/lib/collections/errandScenes";
 import { errandRehearsal } from "@/lib/scenes/rehearse";
 import { startedUnits } from "@/lib/collections/syllabus";
 import { courseReading, ladderPosition, moduleReached, programmeFor, targetFrom } from "@/lib/progress/course";
+import { situationsOfferedThrough } from "@/lib/course/lessonSituations";
 import { unitsThrough } from "@/lib/course";
 import { SCENES, sceneById } from "@/lib/scenes/catalogue";
 import { doneSceneTasks } from "@/lib/progress/homework";
@@ -268,6 +269,7 @@ export default async function TodayPage() {
     summary.dayKey,
     SCENES,
     reached ? new Set(unitsThrough(reached.programme, reached.day.index)) : programme ? new Set<string>() : null,
+    reached ? situationsOfferedThrough(reached.day.lesson ?? null) : new Set<string>(),
   );
   // The cards the learner hid in Settings: not dealt, and the two that cost a
   // read are not even asked for.
@@ -338,7 +340,7 @@ export default async function TodayPage() {
     startedUnitIds: new Set(units.filter((u) => u.state === "learning").map((u) => u.unit.id)),
     placement,
   });
-  // A1 and A2 are the lessons rather than units (docs/43-lessons.md), so a unit of theirs is never offered here.
+  // A1, A2 and B1 are the lessons rather than units (docs/43-lessons.md), so a unit of theirs is never offered here.
   const nextUnit = nextSyllabusUnit && !isLessonLevel(nextSyllabusUnit.level)
     ? units.find((u) => u.unit.id === nextSyllabusUnit.id)
     : undefined;

@@ -1,3 +1,4 @@
+import { LESSON_SITUATIONS } from "./lessonSituations";
 import { describe, expect, it } from "vitest";
 import { CASES } from "@/lib/estonian/cases";
 import { grammarTopic } from "@/lib/estonian/grammar";
@@ -50,10 +51,10 @@ const LESSON_UNITS = SYLLABUS.filter((u) => LESSON_LEVELS.has(u.level)).map((u) 
 const DAYS = BUILT.flatMap((p) => p.days.map((d) => ({ programme: p, day: d })));
 
 describe("the program is a request against the course, never a copy of it", () => {
-  it("builds every part from B1 up out of units, and only those", () => {
+  it("builds every part from B2 up out of units, and only those", () => {
     expect(BUILT.length).toBe(PARTS.length);
     expect(BUILT.every((p) => !LESSON_LEVELS.has(p.level))).toBe(true);
-    expect(DAYS.length).toBeGreaterThan(100);
+    expect(DAYS.length).toBeGreaterThanOrEqual(70);
   });
 
   it("names a unit that exists", () => {
@@ -312,8 +313,11 @@ describe("what a day reads and where it goes", () => {
   // the app has" with a count read off the catalog: a scene with no evening
   // is a scene the module never opens.
   it("puts every conversation the app has on an evening", () => {
+    // A conversation is placed on an evening of the units (B2 on), or offered by
+    // the B1 lesson that rehearses it, on its finish (`lessonSituations.ts`).
     const placed = new Set(DAYS.flatMap(({ day }) => (day.scene ? [day.scene] : [])));
-    for (const scene of SCENES) expect(placed.has(scene.id), `${scene.id} has no evening`).toBe(true);
+    const offered = new Set(Object.values(LESSON_SITUATIONS));
+    for (const scene of SCENES) expect(placed.has(scene.id) || offered.has(scene.id), `${scene.id} has no evening and no lesson offers it`).toBe(true);
     // And every scene the plan names is one an evening deals, so none of the
     // errands moved off A2 waits for an evening with no page that never comes.
     for (const scene of [...Object.values(SCENE_FOR_UNIT), ...Object.values(EARLIER_SCENES_FOR_UNIT).flat()]) {
@@ -385,7 +389,9 @@ describe("what a day reads and where it goes", () => {
       expect(BAND_ORDER.indexOf(day.level), `${day.id} repeats ${day.scene} at the level it met it`)
         .toBeGreaterThan(BAND_ORDER.indexOf(met));
     }
-    expect(first.size).toBe(SCENES.length);
+    // Every conversation is met on an evening, or offered by the B1 lesson that rehearses it.
+    const offeredOnly = Object.values(LESSON_SITUATIONS).filter((s) => !first.has(s));
+    expect(first.size + new Set(offeredOnly).size).toBe(SCENES.length);
     for (const [scene, n] of times) expect(n, `${scene} is had ${n} times`).toBeLessThanOrEqual(2);
     // And the step names the conversation, the way a reading step names its page.
     for (const { day } of DAYS) {
@@ -501,8 +507,8 @@ describe("what a day reads and where it goes", () => {
         `${day.id} reads ${day.grammarCase ?? day.grammar}`,
       ).toBe(true);
     }
-    // Most case pages are explained by the A2 lessons now, so B1 up reads fewer of them.
-    expect(walked).toBeGreaterThan(9);
+    // Most case pages are explained by the A2 lessons now and B1 is lessons too, so B2 up reads few of them.
+    expect(walked).toBeGreaterThan(1);
   });
 
   /*
@@ -534,8 +540,8 @@ describe("what a day reads and where it goes", () => {
         expect(day.practice, `${day.id} reads ${day.grammarCase}`).toContain("workbook");
       });
     }
-    expect(walked).toBeGreaterThan(4);
-    for (const level of ["B1", "B2", "C1"]) {
+    expect(walked).toBeGreaterThan(0);
+    for (const level of ["B2", "C1"]) {
       expect(DAYS.some(({ programme, day }) => programme.level === level && day.practice.includes("workbook")), level).toBe(true);
     }
   });
@@ -825,7 +831,8 @@ describe("what a day reads and where it goes", () => {
     for (const { programme, day } of DAYS) {
       if (programme.level === "A2") expect(day.grammar, day.id).not.toBe("object");
     }
-    expect(DAYS.some(({ programme, day }) => programme.level === "B1" && day.grammar === "object")).toBe(true);
+    // B1 is the lessons, and the object rule is explained there.
+    expect(PROGRAMMES.some((p) => p.level === "B1" && p.days.some((d) => d.topics?.includes("object")))).toBe(true);
   });
 
   it("alternates the table with the rotation's drill on a unit of verbs", () => {
@@ -851,7 +858,7 @@ describe("what a day reads and where it goes", () => {
     // A2's units of verbs were the ones that dealt the table most; A2 is the
     // lessons now, which drill the persons inside each lesson. The pinning
     // itself is held by the tests of `rounds`.
-    expect(pairs).toBeGreaterThanOrEqual(4);
+    expect(pairs).toBeGreaterThanOrEqual(2);
   });
 
   /*
@@ -993,16 +1000,16 @@ describe("what a day reads and where it goes", () => {
     expect(cardWithin(before, { ...past, slot: "KndPrSg1" }, spellings)).toBe(false);
     expect(cardWithin(at("a2-35-would"), { ...past, slot: "KndPrSg1" }, spellings)).toBe(true);
     // And a verb's past is learned verb by verb, so a card of one nothing has shown waits.
-    const b1 = BUILT.find((p) => p.id === "b1.1")!;
-    const scope = moduleScopeFrom({ module: `${b1.id}~${b1.days[0]!.id}~do:review~3~5~0` })!;
+    const b2 = BUILT.find((p) => p.id === "b2.1")!;
+    const scope = moduleScopeFrom({ module: `${b2.id}~${b2.days[0]!.id}~do:review~3~5~0` })!;
     expect(scope.formsShown).not.toContain("lugema");
     expect(cardWithin(scope, past, spellings)).toBe(false);
     expect(cardWithin(scope, present, spellings)).toBe(true);
   });
 
   it("reads the part off the front of a verb card built before Card.slot", () => {
-    const b1 = BUILT.find((p) => p.id === "b1.1")!;
-    const scope = moduleScopeFrom({ module: `${b1.id}~${b1.days[0]!.id}~do:review~3~5~0` })!;
+    const b2 = BUILT.find((p) => p.id === "b2.1")!;
+    const scope = moduleScopeFrom({ module: `${b2.id}~${b2.days[0]!.id}~do:review~3~5~0` })!;
     const old = { cardType: "CONJUGATION", targetCase: null, slot: null, back: "" };
     expect(cardWithin(scope, { ...old, front: "lugema \u2192 lihtminevik, ma" }, null)).toBe(false);
     expect(cardWithin(scope, { ...old, front: "lugema \u2192 olevik, ta" }, null)).toBe(true);
@@ -1011,17 +1018,15 @@ describe("what a day reads and where it goes", () => {
   it("conjugates a unit of verbs, and not a grammar unit that happens to hold verbs", () => {
     // A unit of verbs that declares the table is pinned to it (`rounds`).
     expect(rounds("B1", 0, true)[1]).toBe("conjugation");
-    // `rektsioon` is mostly verbs and is about government; it declares no
-    // conjugation card, and above A1 the rotation carries no table, so it is
-    // never dealt one.
+    // A unit that declares no conjugation card is never dealt the table,
+    // however many verbs it holds: above A1 the rotation carries none.
     for (const { programme, day } of DAYS) {
       if (programme.level === "A1") continue;
       const declares = unitById(day.unitId)!.cardTypes.includes("CONJUGATION");
       if (!declares) expect(day.practice, `${day.id} is pinned to the table`).not.toContain("conjugation");
     }
-    expect(DAYS.some(({ day }) => day.unitId === "rektsioon" && !day.practice.includes("conjugation"))).toBe(true);
     // And a unit of nouns is not.
-    const nounDay = DAYS.find(({ day }) => day.unitId === "inimsuhted")!;
+    const nounDay = DAYS.find(({ day }) => day.unitId === "uhiskond")!;
     expect(nounDay.day.practice).not.toContain("conjugation");
   });
 

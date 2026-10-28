@@ -4,6 +4,9 @@ import { moveBlockedFor, restorableParts } from "@/lib/progress/checks";
 import { throttleShared } from "@/lib/usage/sharedThrottle";
 import { COURSE_DAY_CARDS, finishLessonFor, submitCheckFor } from "@/lib/progress/lessons";
 import { LESSONS } from "@/lib/course/lessons";
+import { PREVIEW_LESSONS } from "@/lib/course/lessons/preview";
+import { keptOf, markedOf, MOST_KEPT, MOST_READ, piecesOf, sentencesOf } from "@/lib/course/lessons/own";
+import { keepOwnSentences, ownCardsFrom } from "@/lib/progress/ownSentences";
 import { lessonLevels } from "@/lib/curriculum/align";
 import { UNIT_HOMEWORK_FROM } from "@/lib/copy/homework";
 import { relearn, reportGaps, retireLearned } from "@/lib/progress/twentyLearned";
@@ -16,7 +19,7 @@ import { recordSuggestion } from "@/lib/suggestions/record";
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
 import { visibleLine, visibleProse } from "@/lib/security/visibleText";
 import { glossSentences } from "@/lib/dict/glossed";
-import { checkTypedSentence } from "@/lib/progress/sentenceCheck";
+import { checkTypedSentence, checkTypedSentences } from "@/lib/progress/sentenceCheck";
 import { MAX_READING_CHARS, readingParagraphs } from "@/lib/estonian/readingText";
 import { setTaskDone } from "@/lib/progress/tasks";
 import { keepBest } from "@/lib/progress/personalBest";
@@ -3258,6 +3261,104 @@ export async function checkLessonSentence(lessonIdIn: unknown, whichIn: unknown,
   if (!typed) return { ok: false as const, error: "Type an answer first." };
   const checked = await checkTypedSentence(typed, prompt.model.et);
   return { ok: true as const, findings: checked.findings, words: checked.words };
+}
+
+/** The longest text a writing evening reads: a B1 note or letter is well under it. */
+const MAX_WRITTEN_CHARS = 2400;
+/** The longest single sentence a learner may keep, which is a long sentence of a long draft. */
+const MAX_KEPT_SENTENCE_CHARS = 600;
+
+/** A writing lesson by id, the course's and the preview's alike. */
+function writingLesson(lessonId: unknown) {
+  const lesson = [...LESSONS, ...PREVIEW_LESSONS].find((l) => l.id === text(lessonId));
+  return lesson?.write ? lesson : null;
+}
+
+/**
+ * Every sentence read in one pass of the dictionary (`checkTypedSentences`), the model text as the
+ * tie-breaker for a spelling suggestion: one read for the whole draft rather than one per sentence.
+ */
+async function readSentences(sentences: readonly string[], sample: string) {
+  const checked = await checkTypedSentences(sentences, sample);
+  return sentences.map((sentence, i) => ({ sentence, findings: checked[i]!.findings }));
+}
+
+/**
+ * READ A WRITTEN TEXT AGAINST THE DICTIONARY, SENTENCE BY SENTENCE (B1 on).
+ *
+ * The writing evening's first reading, which works on every deployment: each
+ * sentence of the learner's draft through `checkTypedSentence`, the same check
+ * a say-it card's answer gets. No model is asked and nothing is stored. Anu's
+ * comments on the text as a whole are a separate press, behind the
+ * composition note's route and its guard (`/api/exam/write`).
+ *
+ * It says how much it read, because the screen says what it found: a piece
+ * under three words is not read as a sentence, and a text past `MOST_READ`
+ * sentences is read up to there, and "every word is one the dictionary knows"
+ * over a text it stopped reading halfway through was a claim about nothing.
+ * And each clean sentence says what card it would make, so the learner ticks
+ * the sentences to keep with the card in front of them.
+ */
+export async function checkLessonText(lessonIdIn: unknown, textIn: unknown) {
+  const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "checkText");
+  if (busy) return await sayRefusal(ownerId, busy);
+  const lesson = writingLesson(lessonIdIn);
+  if (!lesson?.write) return { ok: false as const, error: "That writing task isn't in this lesson any more." };
+  const typed = visibleProse(textIn, MAX_WRITTEN_CHARS);
+  if (!typed) return { ok: false as const, error: "Write something first." };
+  // Past the longest text a task asks for the draft is cut, and the screen says so rather than reading half.
+  const cut = typeof textIn === "string" && visibleProse(textIn, MAX_WRITTEN_CHARS + 1).length > MAX_WRITTEN_CHARS;
+  const whole = sentencesOf(typed);
+  const sentences = whole.slice(0, MOST_READ);
+  if (sentences.length === 0) return { ok: false as const, error: "Write whole sentences, three words or more each." };
+  const read = await readSentences(sentences, lesson.write.model.map((l) => l.et).join(" "));
+  return {
+    ok: true as const,
+    sentences: read.map((r) => {
+      const card = r.findings.length === 0 ? ownCardsFrom(lesson.id, [r.sentence])[0] ?? null : null;
+      // The sentence in three pieces, the word that will be taken out in the middle, so the screen can mark it.
+      return { ...r, card: card ? markedOf(card) : null };
+    }),
+    /** Pieces under three words, which are not read as sentences. */
+    short: piecesOf(typed).length - whole.length,
+    /** Sentences past the ones read. */
+    beyond: whole.length - sentences.length,
+    /** Whether the draft ran past the longest text read, so its end was never looked at. */
+    cut,
+  };
+}
+
+/**
+ * KEEP THE SENTENCES A LEARNER TICKED AS REVIEW CARDS (B1 on, `lib/progress/ownSentences.ts`).
+ *
+ * The learner's own sentences, each with one taught word taken out, into their
+ * own deck. Only what they ticked, and of that only a sentence the dictionary
+ * reads with nothing to say, read again here rather than taken on the screen's
+ * word: a sentence the learner wrote wrongly becomes a card that drills the
+ * mistake, and the gap of a taught word is no guard against that on its own
+ * (`Me sõime kook eile.` gapped `kook`). So the answer on a kept card is always
+ * a spelling the course taught, in a sentence nothing could find fault with,
+ * that the learner said they were sure of (ADR-005).
+ */
+export async function keepLessonSentences(lessonIdIn: unknown, sentencesIn: unknown) {
+  const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "keepSentences");
+  if (busy) return await sayRefusal(ownerId, busy);
+  const lesson = writingLesson(lessonIdIn);
+  if (!lesson?.write) return { ok: false as const, error: "That writing task isn't in this lesson any more." };
+  // Each ticked string read as the sentences it holds, since a card is made per sentence and one long
+  // string past the reader's word limit would otherwise make cards out of words nobody read.
+  const ticked = [...new Set((Array.isArray(sentencesIn) ? sentencesIn : [])
+    .slice(0, MOST_READ)
+    .map((s) => visibleLine(s, MAX_KEPT_SENTENCE_CHARS))
+    .flatMap((s) => sentencesOf(s)))].slice(0, MOST_KEPT);
+  if (ticked.length === 0) return { ok: false as const, error: "Tick a sentence to keep first." };
+  const read = await readSentences(ticked, lesson.write.model.map((l) => l.et).join(" "));
+  const kept = keptOf(ticked, read);
+  const result = await keepOwnSentences(ownerId, lesson.id, kept);
+  revalidatePath("/review");
+  return { ok: true as const, ...result, refused: ticked.length - kept.length };
 }
 
 /** The most lines a recording's transcript arrives in: three minutes cut at its pauses is far fewer. */

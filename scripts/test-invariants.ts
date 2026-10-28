@@ -2992,7 +2992,8 @@ check("a withheld note claims Estonian only when it caught Estonian", () => {
   }
   for (const file of [
     "app/(app)/review/write/WriteSession.tsx",
-    "app/(app)/exam/result/[id]/AnuReading.tsx",
+    // The one drawing of Anu reading a text back, for an exam composition and a writing evening alike.
+    "components/anu/TextReading.tsx",
   ]) {
     assert.match(
       code(file),
@@ -4200,6 +4201,13 @@ check("every path that adds cards reads and writes under one lock", () => {
       read: "card.count",
       write: "card.createMany",
     },
+    // The fourth: a B1 learner's own sentences, kept as gap cards off a writing evening.
+    {
+      what: "keepOwnSentences",
+      body: /export async function keepOwnSentences\(([\s\S]*?)\n\}/.exec(code("lib/progress/ownSentences.ts"))?.[1] ?? "",
+      read: "card.findMany",
+      write: "card.createMany",
+    },
   ];
 
   for (const { what, body, read: readCall, write } of lockedPaths) {
@@ -5033,7 +5041,7 @@ check("Anu's reply is drawn as typography, shown once finished, and the marker l
   assert.doesNotMatch(parts, /\/\^[^\n]*(?:FIX|VOCAB)/, "AnuParts has grown its own FIX or VOCAB regex again");
   assert.match(code("components/anu/Prose.tsx"), /parseReply\(/, "AnuProse no longer parses the reply");
   assert.match(
-    code("app/(app)/exam/result/[id]/AnuReading.tsx"),
+    code("components/anu/TextReading.tsx"),
     /<AnuProse/,
     "Anu's reading of a composition is drawn as raw text again",
   );
@@ -9743,6 +9751,12 @@ check("nothing is stored on a device that would need asking first", () => {
     // was typed, under the puzzle prefix the sign-out sweeps, removed when the
     // page is finished and dropped after half a day.
     "app/(app)/review/workbook/resume.ts",
+    // A writing evening's draft, by the workbook's argument a size up: fifty or
+    // a hundred words a learner wrote about their own life, lost to pressing
+    // another step of the lesson. What was typed and the stage it was typed at,
+    // never a reading, under the puzzle prefix the sign-out sweeps, removed when
+    // the learner presses "Done writing" and dropped after a week.
+    "components/course/writeResume.ts",
     // Which card a review round was on, so a detour to its dictionary entry
     // and back does not read as the round restarting. Never necessary in the
     // sense the outbox is, since nothing is lost by starting over, but the
@@ -22550,6 +22564,7 @@ check("a text box has one shape, and the keys under it stand one distance off", 
   const exempt: Record<string, string> = {
     "app/(app)/crossword/CrosswordSession.tsx": "a cell in a grid, sized by the grid",
     "app/(app)/words/WordsTable.tsx": "a pill beside a row of pill filters",
+    "components/course/WriteStep.tsx": "a gap in a line of running text, as wide as the word it takes, inline with the words around it",
   };
   let fields = 0;
   for (const file of ALL) {

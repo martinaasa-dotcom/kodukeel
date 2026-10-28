@@ -127,7 +127,7 @@ export const PREPARES: Readonly<Record<string, Preparation>> = {
  * Every part of the lessons at an examined level, keyed by part id, for the
  * reason `PREPARES` gives about units: an A2 part added and not here fails
  * `align.test.ts`, because its exam part is a decision, not a default. Each
- * reason names the task on the A2 paper (docs/16-exam.md, section 1) and the
+ * reason names the task on the A2 or B1 paper (docs/16-exam.md, section 1) and the
  * lesson that rehearses it.
  */
 export const LESSON_PART_PREPARES: Readonly<Record<string, Preparation>> = {
@@ -139,6 +139,19 @@ export const LESSON_PART_PREPARES: Readonly<Record<string, Preparation>> = {
   "a2-restoran": { parts: ["speaking", "reading"], why: "Describing the picture means saying what is bigger, cheaper or best, the idea card is asking for something, and the reading paper matches sentences to short texts." },
   "a2-too": { parts: ["speaking", "writing"], why: "The opening conversation asks what you do, and the writing part can ask for a note or a message, like one telling the landlord something is broken." },
   "a2-plaanid": { parts: ["writing", "speaking", "listening"], why: "A note or an invitation in the writing part is an arrangement, and the idea card is suggesting and agreeing. The listening paper sets true or false statements about a dialogue, like a message left on the phone." },
+  /*
+    B1: the paper's two writing tasks are the note of about 50 words and the
+    story or personal letter of about 100, and each part writes one of them on
+    its writing evening. The speaking part is a conversation, an agreed decision
+    and a phone call from a card (docs/16-exam.md, section 1).
+  */
+  "b1-objekt": { parts: ["writing", "reading"], why: "The writing paper's first task is a note of about 50 words, and this part writes one to the handyman. The reading paper's gaps out of three often turn on the whole object or some of it." },
+  "b1-rektsioon": { parts: ["writing", "reading"], why: "The second writing task can be a personal letter, like the reply to an invitation this part writes, and the reading paper's word-bank gaps ask for the case a verb wants." },
+  "b1-raha": { parts: ["writing", "speaking"], why: "A note asking for something is the first writing task, here an email asking to change your hours, and the speaking part's phone call is one person asking from a card." },
+  "b1-kodu": { parts: ["writing", "reading"], why: "The complaint to the landlord is the note of the writing paper, and the reading paper matches situations to notices like the house rules on a stairwell." },
+  "b1-uudised": { parts: ["listening", "writing"], why: "The listening paper sets a monologue and an interview, like a news item read aloud, and the second writing task can be a story told in the past." },
+  "b1-arvamus": { parts: ["speaking", "writing"], why: "The speaking part ends on agreeing a decision with another candidate, which this part's meeting rehearses, and a forum post says what you think and why." },
+  "b1-asjaajamine": { parts: ["speaking", "writing", "listening"], why: "The part ends on the speaking exam itself, the formal application is a note that gets something done, and the listening paper's short clips are calls like the one to the city office." },
 };
 
 export interface UnitLike {

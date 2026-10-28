@@ -11,8 +11,8 @@ import { lessonEnglish, levelContractProblems } from "./contract";
  * and A2 met it, so that B1, B2 and C1 meet it the day they are lessons too.
  */
 describe("every level of lessons", () => {
-  it("is A1 and A2 today, and the rules below are asked of whatever it becomes", () => {
-    expect([...LESSON_LEVELS]).toEqual(["A1", "A2"]);
+  it("is A1, A2 and B1 today, and the rules below are asked of whatever it becomes", () => {
+    expect([...LESSON_LEVELS]).toEqual(["A1", "A2", "B1"]);
   });
 
   it("never shows a word before it is taught, across the levels as one course", () => {
@@ -67,6 +67,18 @@ describe("the contract itself", () => {
     expect(levelContractProblems(lessons, [part]).join(" ")).toMatch(/ends on t-4, a lesson/);
     expect(levelContractProblems([...lessons.slice(0, 3), at(4, "checkin")], [part]).join(" ")).toMatch(/a checkin/);
     expect(levelContractProblems([...lessons.slice(0, 3), at(4, "partEnd")], [part])).toEqual([]);
+  });
+
+  it("refuses two speakers in one voice, and a person who changes voice within a level", () => {
+    const lessons = [1, 2, 3].map((n) => at(n, "lesson")).concat(at(4, "partEnd"));
+    expect(levelContractProblems(lessons, [part])).toEqual([]);
+    const speakers = [...new Set(lesson.conversation.filter((l) => l.et).map((l) => l.who))];
+    expect(speakers.length).toBeGreaterThanOrEqual(2);
+    const [a, b] = speakers as [string, string];
+    const sameVoice = { ...lessons[1]!, cast: { ...lesson.cast, [b]: lesson.cast[a]! } };
+    expect(levelContractProblems([lessons[0]!, sameVoice, lessons[2]!, lessons[3]!], [part]).join(" ")).toMatch(/speak in one voice/);
+    const otherVoice = { ...lessons[1]!, cast: { ...lesson.cast, [a]: lesson.cast[a] === "albert" ? "indrek" : "albert" } };
+    expect(levelContractProblems([lessons[0]!, otherVoice, lessons[2]!, lessons[3]!], [part]).join(" ")).toMatch(new RegExp(`${a} speaks in`));
   });
 
   it("refuses a gap in the numbering and a part too small to be one", () => {

@@ -24,6 +24,9 @@ import { NOT_REACHED } from "@/lib/copy/values";
 import { HearSet } from "@/components/sounds/Native";
 import { SoundRows } from "@/components/sounds/SoundRows";
 import { SpellIt } from "@/components/sounds/SpellIt";
+import { ListenFirst } from "@/components/course/ListenFirst";
+import { WriteStep } from "@/components/course/WriteStep";
+import { levelNewsFor } from "@/lib/course/lessons/levelNew";
 import { Quiz } from "./Quiz";
 import { SayIt } from "./SayIt";
 import { lessonSceneHref, type ConversationReturn } from "@/lib/scenes/lessonReturn";
@@ -53,7 +56,15 @@ import { lessonSceneHref, type ConversationReturn } from "@/lib/scenes/lessonRet
  * module's own; opened from the list of lessons, it is the next lesson.
  */
 const STEPS = ["listen", "words", "how", "practise", "say", "review"] as const;
-type Step = (typeof STEPS)[number];
+/**
+ * A WRITING EVENING HAS A SEVENTH STEP, BETWEEN PRACTICE AND SAY IT (B1 on).
+ * Each B1 part writes one real text, and its writing evening reads a model,
+ * fills in the frame and writes the learner's own (`WriteStep`). It sits after
+ * Practice because the frame is practice of the same forms with more around
+ * them, and before Say it because a text written is easier to say.
+ */
+const WRITING_STEPS = ["listen", "words", "how", "practise", "write", "say", "review"] as const;
+type Step = (typeof WRITING_STEPS)[number];
 
 /**
  * A CHECK-IN ENDS ON THE CONVERSATION, NOT IN THE MIDDLE OF THE EVENING.
@@ -67,6 +78,7 @@ type Step = (typeof STEPS)[number];
  * thing, which is also what "finish the lesson" then follows.
  */
 const CAPSTONE_STEPS: readonly Step[] = ["listen", "words", "how", "practise", "review", "say"];
+const CAPSTONE_WRITING_STEPS: readonly Step[] = ["listen", "words", "how", "practise", "write", "review", "say"];
 
 /** Whether this evening is the one that puts a part together. */
 const isCapstone = (lesson: LessonSpec) => lesson.kind !== "lesson" && lesson.roleplay !== undefined;
@@ -76,20 +88,27 @@ const STEP_TITLE: Record<Step, string> = {
   words: "Words",
   how: "How it works",
   practise: "Practice",
+  write: "Write",
   say: "Say it",
   review: "Review",
 };
 
 /** The three teaching steps are finished by being open. */
-const ASKS: ReadonlySet<Step> = new Set(["practise", "say", "review"]);
+const ASKS: ReadonlySet<Step> = new Set(["practise", "write", "say", "review"]);
 
-export function LessonRunner({ lesson, practice, review, next, scene, conversation, place, name, due = 0, check = null, part }: {
+export function LessonRunner({ lesson, practice, review, next, scene, situation = null, conversation, place, name, due = 0, check = null, part, timeMultiplier, partAt }: {
   lesson: LessonSpec;
+  /** How much longer than the standard a timed go runs for this learner (`lib/ux/roundClock.ts`). */
+  timeMultiplier: number;
+  /** Which part of its level the lesson is in, counted from 1: the fade starts harder later on (`fade.ts`). */
+  partAt: number;
   practice: readonly PracticeItem[];
   review: readonly PracticeItem[];
   next: { id: string; title: string } | null;
   /** The lesson's own conversation, where it has one (`sceneForLesson`). */
   scene: string | null;
+  /** A conversation out there the lesson rehearses, from the catalog (`lessonSituations.ts`). */
+  situation?: { id: string; title: string } | null;
   /**
    * Back from the lesson's own conversation: `done` from its debrief, `left`
    * from its way out. The scripted conversation was held before the link was
@@ -113,6 +132,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
   const focus = useModuleFocus();
   const moduleNext = useModuleNext();
   const [at, setAt] = useState(0);
+  const news = levelNewsFor(lesson);
   const [finished, setFinished] = useState<ReadonlySet<Step>>(new Set());
   const [reached, setReached] = useState(0);
   const [score, setScore] = useState<{ right: number; total: number } | null>(null);
@@ -125,7 +145,9 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
   const heading = useRef<HTMLHeadingElement>(null);
   const moved = useRef(false);
   const capstone = isCapstone(lesson);
-  const steps: readonly Step[] = capstone ? CAPSTONE_STEPS : STEPS;
+  const steps: readonly Step[] = lesson.write
+    ? capstone ? CAPSTONE_WRITING_STEPS : WRITING_STEPS
+    : capstone ? CAPSTONE_STEPS : STEPS;
   const step = steps[at]!;
   const titleOf = (s: Step) => (capstone && s === "say" ? "Conversation" : STEP_TITLE[s]);
 
@@ -161,7 +183,15 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
       setReached((r) => Math.max(r, n));
     }
   };
-  const done = !ASKS.has(step) || finished.has(step) || (step === "review" && review.length === 0);
+  /*
+    B1's conversation is heard before it is read, and that is held here rather
+    than in the step: the step unmounts whenever another is pressed, and coming
+    back to reread it is not a reason to have it hidden again. Until it has
+    been heard (or shown on purpose), the foot of the screen offers to skip,
+    so the step's own "Read it" is its one loud button.
+  */
+  const [heard, setHeard] = useState(() => !(lesson.listenFor && lesson.listenFor.length > 0));
+  const done = step === "listen" ? heard : !ASKS.has(step) || finished.has(step) || (step === "review" && review.length === 0);
 
   const inPart = part.lessons.findIndex((l) => l.id === lesson.id);
   const partEnd = inPart === part.lessons.length - 1;
@@ -291,6 +321,23 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
               </div>
             )}
             {/*
+              AND ONE STEP FURTHER OUT, WHERE THE LESSON REHEARSES AN ERRAND
+              (B1 on, `lessonSituations.ts`): the same situation with somebody
+              who talks the way people do at that counter, in Situations. Not
+              inside a module, where the one way on is the next step and every
+              other door stands down; the situations board and Today count it
+              as reached from this lesson on, so it is there to open later.
+            */}
+            {situation && !focus && (
+              <div className="mt-4 rounded-[var(--r-xl)] border px-5 py-4 text-left" style={{ background: "var(--surface)", borderColor: "var(--edge)" }} data-lesson-situation={situation.id}>
+                <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>{t("Try it out there")}</p>
+                <p className="mt-1 max-w-[56ch] text-base" style={{ color: "var(--ink-2)" }}>
+                  {fill(t("The same kind of moment, with somebody who talks the way people really do: {title}."), { title: t(situation.title) })}
+                </p>
+                <div className="mt-3"><ButtonLink href={`/situations/${situation.id}`}>{t("Open the conversation")} <ArrowRight size={15} aria-hidden /></ButtonLink></div>
+              </div>
+            )}
+            {/*
               WHAT MAKES TODAY'S WORDS STAY IS GOING OVER THEM AGAIN. A learner
               went through all 49 lessons without opening Review once, because
               nothing on this screen said to. Where cards are due, it says so.
@@ -356,6 +403,24 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
           a step ahead is drawn and not pressable, since skipping is what the
           button at the foot is for and says so.
         */}
+        {/*
+          WHAT IS NEW AT THIS LEVEL, ON ITS FIRST LESSON AND ITS FIRST STEP
+          (`levelNew.ts`): the step up explained where it happens, once.
+        */}
+        {news && at === 0 && (
+          <section aria-labelledby="level-new" className="rounded-[var(--r-xl)] border px-5 py-4" style={{ background: "var(--accent-soft)", borderColor: "var(--edge)" }} data-level-new={lesson.level}>
+            <h2 id="level-new" className="text-lg font-bold" style={{ color: "var(--ink)" }}>{fill(t("What's new at {level}"), { level: lesson.level })}</h2>
+            <p className="mt-1 max-w-[62ch] text-base" style={{ color: "var(--ink-2)" }}>{t(news.lead)}</p>
+            <ul className="mt-3 flex flex-col gap-2">
+              {news.items.map((item) => (
+                <li key={item.what} className="flex items-start gap-2 text-base">
+                  <Check size={16} aria-hidden className="mt-1 shrink-0" style={{ color: "var(--accent-deep)" }} />
+                  <span><span className="font-semibold" style={{ color: "var(--ink)" }}>{t(item.what)}</span>{" "}<span style={{ color: "var(--ink-2)" }}>{t(item.why)}</span></span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
         <nav aria-label={t("Today's steps")}>
           <ol className="flex flex-wrap gap-2" data-lesson-steps>
             {steps.map((s, i) => {
@@ -402,11 +467,12 @@ export function LessonRunner({ lesson, practice, review, next, scene, conversati
           <h2 id="lesson-step" ref={heading} tabIndex={-1} className="mb-4 text-xl font-bold scroll-mt-24" style={{ color: "var(--ink)" }}>
             {fill(t("Step {n} of {total}: {step}"), { n: String(at + 1), total: String(steps.length), step: t(titleOf(step)) })}
           </h2>
-          {step === "listen" && <Listen lesson={lesson} />}
+          {step === "listen" && <Listen lesson={lesson} heard={heard} onHeard={() => setHeard(true)} />}
           {step === "words" && <Words lesson={lesson} />}
           {step === "how" && <How lesson={lesson} />}
           {step === "practise" && <Quiz key="practise" items={practice} onFinished={(result) => { setScore(result); finish("practise"); }} />}
-          {step === "say" && <SayIt lesson={lesson} scene={scene} sceneHref={scene ? lessonSceneHref(scene, focus) : null} capstone={capstone} name={name} onComplete={() => finish("say")} />}
+          {step === "write" && lesson.write && <WriteStep lesson={lesson} onDone={() => { finish("write"); go(at + 1); }} />}
+          {step === "say" && <SayIt lesson={lesson} timeMultiplier={timeMultiplier} partAt={partAt} scene={scene} sceneHref={scene ? lessonSceneHref(scene, focus) : null} capstone={capstone} name={name} onComplete={() => finish("say")} />}
           {step === "review" && (review.length > 0
             ? <Quiz key="review" items={review} onFinished={() => finish("review")} />
             : (
@@ -460,13 +526,29 @@ function wordsUsed(lesson: LessonSpec): number {
 }
 
 /** Step 1: the conversation, in the cast's voices, with the English under each line. */
-function Listen({ lesson }: { lesson: LessonSpec }) {
+function Listen({ lesson, heard, onHeard }: { lesson: LessonSpec; heard: boolean; onHeard: () => void }) {
   const t = useT();
   const [english, setEnglish] = useState(true);
+  /* Pressing "Read it" replaces the card the button was on, so the caret goes
+     to the line saying what is on screen now rather than to the page. Only on
+     that change: a lesson read from the start has nothing to hand over. */
+  const leadRef = useRef<HTMLParagraphElement>(null);
+  const wasHeard = useRef(heard);
+  useEffect(() => {
+    if (heard && !wasHeard.current) leadRef.current?.focus();
+    wasHeard.current = heard;
+  }, [heard]);
+  // B1 on, the conversation is heard before it is read (`ListenFirst`).
+  if (!heard) return <ListenFirst lesson={lesson} onRead={onHeard} />;
   return (
     <Card>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <p className="text-base" style={{ color: "var(--ink-2)" }}>{t("Read it, and press a line to hear it. Nothing is asked yet.")}</p>
+        <p ref={leadRef} tabIndex={-1} className="text-base outline-none" style={{ color: "var(--ink-2)" }}>
+          {/* At B1 the questions came first, so "nothing is asked" would be false a breath after asking. */}
+          {lesson.listenFor && lesson.listenFor.length > 0
+            ? t("Now read what you heard. Press a line to hear it again.")
+            : t("Read it, and press a line to hear it. Nothing is asked yet.")}
+        </p>
         <Button variant="ghost" size="sm" onClick={() => setEnglish((on) => !on)} aria-pressed={!english}>
           {english ? t("Hide the English") : t("Show the English")}
         </Button>
@@ -544,6 +626,12 @@ function Words({ lesson }: { lesson: LessonSpec }) {
                   <LessonText text={row[0]!.en} locale={locale} />
                   {row[0]!.kind === "verb" && (
                     <span className="mt-0.5 block"><span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{row[0]!.first}</span>: <LessonText text={row[0]!.firstEn} locale={locale} /></span>
+                  )}
+                  {/* B1: a verb is learned with the case it wants, so the Words table says it. */}
+                  {(row[0]!.kind === "verb" || row[0]!.kind === "word") && row[0]!.asks && (
+                    <span className="mt-1 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-sm font-semibold" style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }} data-asks>
+                      <LessonText text={row[0]!.asks} locale={locale} />
+                    </span>
                   )}
                 </td>
               </tr>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { ArrowRight, Check, Flame } from "lucide-react";
 import { Button } from "@/components/Button";
 import { ChoiceGroup } from "@/components/Choice";
@@ -12,7 +12,7 @@ import { LessonText } from "@/components/course/LessonText";
 import { Card, Meter, SectionTitle } from "@/components/ui";
 import { fill } from "@/lib/copy/locale";
 // By its own module, never the barrel, which imports every lesson the course has.
-import { markPhrase, type PracticeItem, type TypedMark } from "@/lib/course/lessons/practice";
+import { isTyped, markPhrase, markRework, type PracticeItem, type TypedMark } from "@/lib/course/lessons/practice";
 import { rng, seedFrom } from "@/lib/random/seeded";
 import { shuffle } from "@/lib/random/shuffle";
 import { isAdvanceKey } from "@/lib/ux/advanceKey";
@@ -62,12 +62,22 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
 
   const item = items[Math.min(at, items.length - 1)];
   const answered = item
-    ? item.kind === "type" ? mark !== null : item.kind === "match" ? matched !== null : picked !== null
+    ? isTyped(item) ? mark !== null : item.kind === "match" ? matched !== null : picked !== null
     : false;
 
   useEffect(() => {
     if (answered) nextRef.current?.focus();
   }, [answered]);
+  /* A typed question after another question takes the caret into its box, so
+     the Enter that pressed Next does not land on Check over an empty box and
+     mark it wrong. Not on the first question: arriving is not moving on. */
+  const boxRef = useRef<HTMLInputElement>(null);
+  const shownAt = useRef(at);
+  useEffect(() => {
+    if (shownAt.current === at) return;
+    shownAt.current = at;
+    boxRef.current?.focus();
+  }, [at]);
 
   if (!item) return null;
 
@@ -127,8 +137,8 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
   };
 
   const check = () => {
-    if (item.kind !== "type" || mark !== null) return;
-    const m = markPhrase(typed, item.accept);
+    if (!isTyped(item) || mark !== null) return;
+    const m = item.kind === "type" ? markPhrase(typed, item.accept) : markRework(typed, item);
     setMark(m);
     onAnswer?.(at, typed);
     scored(m.verdict === "right");
@@ -149,6 +159,8 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
     match: t("Match them up"),
     gap: t("Which word fits?"),
     reply: t("What do they say back?"),
+    rework: t("Change the sentence"),
+    fix: t("Put it right"),
   }[item.kind];
 
   return (
@@ -210,7 +222,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
         )}
 
         {(item.kind === "hear" || item.kind === "pick" || item.kind === "gap" || item.kind === "reply") && (
-          <ChoiceGroup ariaLabel={item.kind === "gap" ? t("Which word fits") : item.kind === "reply" ? t("What they say back") : t("What it means")} select="one" className="choice-grid mt-4">
+          <ChoiceGroup ariaLabel={item.kind === "gap" ? t("Which word fits") : item.kind === "reply" ? t("What they say back") : t("What it means")} select="one" answer className="choice-grid mt-4">
             {item.options.map((option) => {
               const state = picked === null ? null : optionState(option === item.answer, option === picked);
               const estonian = item.kind === "gap" || item.kind === "reply";
@@ -237,31 +249,50 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
           </p>
         )}
 
+        {(item.kind === "rework" || item.kind === "fix") && (
+          <div className="mt-2 flex flex-col gap-3" data-rework={item.kind}>
+            {item.kind === "rework" ? (
+              <>
+                <div className="flex items-start gap-2">
+                  <Speak key={`${at}-${item.from.et}`} text={item.from.et} size={18} label={t("Hear the sentence")} />
+                  <p lang="et" className="text-xl font-bold" style={{ color: "var(--ink)" }}>{item.from.et}</p>
+                </div>
+                <p className="text-base" style={{ color: "var(--ink-2)" }}><LessonText text={item.from.en} locale={locale} /></p>
+                <p className="text-lg font-semibold" style={{ color: "var(--ink)" }}><LessonText text={item.ask} locale={locale} /></p>
+              </>
+            ) : (
+              <>
+                {/* The line with the slip is never played: hearing it said wrong is how a slip sticks. */}
+                <p lang="et" className="text-xl font-bold" style={{ color: "var(--ink)" }}>{item.shown}</p>
+                <p className="text-base" style={{ color: "var(--ink-2)" }}><LessonText text={item.en} locale={locale} /></p>
+                <p className="text-lg font-semibold" style={{ color: "var(--ink)" }}>{t("One word is in the wrong form. Type the line put right.")}</p>
+              </>
+            )}
+            <TypedBox
+              boxRef={boxRef}
+              label={item.kind === "fix" ? t("The line put right, in Estonian") : t("The changed sentence, in Estonian")}
+              answer={item.answer}
+              typed={typed}
+              setTyped={setTyped}
+              mark={mark}
+              onCheck={check}
+            >
+              <p>{mark ? t(mark.note) : null}</p>
+              <p className="mt-1">
+                <span lang="et" className="font-bold">{item.answer}</span>{" "}
+                <LessonText text={item.kind === "rework" ? item.answerEn : item.en} locale={locale} />
+              </p>
+              {item.kind === "fix" && <p className="mt-1"><LessonText text={item.why} locale={locale} /></p>}
+            </TypedBox>
+          </div>
+        )}
+
         {item.kind === "type" && (
           <div className="mt-2 flex flex-col gap-3">
             <p className="text-xl font-bold" style={{ color: "var(--ink)" }}><LessonText text={item.en} locale={locale} /></p>
             {item.note && <p className="text-base" style={{ color: "var(--ink-2)" }}>{t(item.note)}</p>}
-            <input
-              lang="et"
-              className="field-lg w-full"
-              value={typed}
-              disabled={mark !== null}
-              aria-label={t("Your answer, in Estonian")}
-              autoComplete="off"
-              autoCapitalize="off"
-              spellCheck={false}
-              onChange={(e) => setTyped(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && mark === null) {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  check();
-                }
-              }}
-            />
-            {mark === null && <div className="under-field"><DiacriticBar /></div>}
-            {mark !== null && (
-              <div className={`verdict-panel ${VERDICT_CLASS[mark.verdict === "wrong" && mark.close ? "nearly" : mark.verdict]}`}>
+            <TypedBox boxRef={boxRef} label={t("Your answer, in Estonian")} answer={item.answer} typed={typed} setTyped={setTyped} mark={mark} onCheck={check}>
+              {mark && (
                 <p>
                   {t(mark.note)}{" "}
                   {mark.verdict !== "right" && (
@@ -270,20 +301,15 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
                     </>
                   )}
                 </p>
-              </div>
-            )}
-            {mark !== null && (
-              <span className="inline-flex items-center gap-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
-                <Speak text={item.answer} size={15} /> {t("hear it")}
-              </span>
-            )}
+              )}
+            </TypedBox>
           </div>
         )}
 
         <p role="status" aria-live="polite" className="sr-only">{liveLine(item, picked, mark, matched, t)}</p>
 
         <div className="mt-5 flex flex-wrap items-center justify-end gap-3">
-          {item.kind === "type" && mark === null ? (
+          {isTyped(item) && mark === null ? (
             <Button variant="primary" onClick={check}>
               <Check size={15} aria-hidden /> {t("Check")}
             </Button>
@@ -298,17 +324,69 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
   );
 }
 
-/** What the live region says once a question is answered. */
+/**
+ * The box a typed question is answered in, with the letters an English
+ * keyboard lacks, the verdict once marked, and the answer to hear. One block
+ * for every typed kind, so the box a learner types into is the same box
+ * whatever the question; `children` is what the verdict says.
+ */
+function TypedBox({ boxRef, label, answer, typed, setTyped, mark, onCheck, children }: {
+  boxRef: RefObject<HTMLInputElement | null>;
+  label: string; answer: string; typed: string; setTyped: (value: string) => void;
+  mark: TypedMark | null; onCheck: () => void; children: ReactNode;
+}) {
+  const t = useT();
+  return (
+    <>
+      <input
+        ref={boxRef}
+        lang="et"
+        className="field-lg w-full"
+        value={typed}
+        disabled={mark !== null}
+        aria-label={label}
+        autoComplete="off"
+        autoCapitalize="off"
+        spellCheck={false}
+        onChange={(e) => setTyped(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && mark === null) {
+            e.preventDefault();
+            e.stopPropagation();
+            // An empty box is answered with the Check button, on purpose, and never by an Enter that went one press too far.
+            if (typed.trim() !== "") onCheck();
+          }
+        }}
+      />
+      {mark === null && <div className="under-field"><DiacriticBar /></div>}
+      {mark !== null && (
+        <div className={`verdict-panel ${VERDICT_CLASS[mark.verdict === "wrong" && mark.close ? "nearly" : mark.verdict]}`}>{children}</div>
+      )}
+      {mark !== null && (
+        <span className="inline-flex items-center gap-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
+          <Speak text={answer} size={15} /> {t("hear it")}
+        </span>
+      )}
+    </>
+  );
+}
+
+/**
+ * What the live region says once a question is answered, with the Estonian in
+ * it marked `lang="et"` so a screen reader says it as Estonian.
+ */
 function liveLine(
   item: PracticeItem, picked: string | null, mark: TypedMark | null, matched: boolean | null, t: (s: string) => string,
-): string {
-  if (item.kind === "type") return mark ? `${t(mark.note)} ${item.answer}` : "";
+): ReactNode {
+  if (isTyped(item)) return mark ? <>{t(mark.note)} <span lang="et">{item.answer}</span></> : "";
   if (item.kind === "match") return matched === null ? "" : matched ? t("All matched, first time.") : t("All matched.");
   if (picked === null) return "";
   if (picked === item.answer) return t("Right.");
-  return item.kind === "gap" || item.kind === "reply"
-    ? fill(t("Not this one. It's {answer}."), { answer: item.answer })
-    : fill(t("Not this one. It means {answer}."), { answer: t(item.answer) });
+  if (item.kind === "gap" || item.kind === "reply") {
+    const [before, after = ""] = t("Not this one. It's {answer}.").split("{answer}");
+    return <>{before}<span lang="et">{item.answer}</span>{after}</>;
+  }
+  return fill(t("Not this one. It means {answer}."), { answer: t(item.answer) });
 }
 
 /**

@@ -3,7 +3,7 @@ import { PROGRAMMES, programmeAfter, programmeById } from "@/lib/course";
 import { LESSONS, LESSON_LEVELS } from "@/lib/course/lessons";
 import { ledgerThrough, lessonRank } from "@/lib/course/lessons/ledger";
 import { CHECK_PASS, LEVEL_CHECK, PART_CHECK, checkLength, itemEstonian, markCheck } from "@/lib/course/lessons/practice";
-import { uncovered } from "@/lib/course/lessons/ledger";
+import { namesOf, uncovered } from "@/lib/course/lessons/ledger";
 import { blockedBy, checkAfter, checkPaper, courseChecks, passedFrom, whereAPassLeads } from "./checks";
 
 const checks = courseChecks(PROGRAMMES);
@@ -42,16 +42,18 @@ describe("the checks between the parts of the lessons", () => {
       const covered = new Set(check.lessons.map(lessonRank));
       const ledger = ledgerThrough(LESSONS, last.id)!;
       const taught = new Set(ledger.items.filter((d) => covered.has(d.lesson)).map((d) => d.item.et));
+      // A line is quoted with the names its own lesson's cast allows: Kadri is a colleague from B1 on.
+      const names = new Set(check.lessons.flatMap((l) => [...namesOf(l)]));
       for (const item of checkPaper(check, 1)) {
         asked += 1;
         if (item.kind === "gap") {
           // A gap is a line of the part's own conversations, every word of it taught by the part's end.
-          for (const et of itemEstonian(item)) expect(uncovered(et, ledger), `${check.id}: ${et}`).toEqual([]);
+          for (const et of itemEstonian(item)) expect(uncovered(et, ledger, names), `${check.id}: ${et}`).toEqual([]);
           expect(check.lessons.some((l) => l.conversation.some((line) => line.et?.includes(`${item.before}${item.answer}${item.after}`)))).toBe(true);
           continue;
         }
         expect(item.kind).not.toBe("match");
-        if (item.kind === "match" || item.kind === "reply") continue;
+        if (item.kind === "match" || item.kind === "reply" || item.kind === "rework" || item.kind === "fix") continue;
         expect(taught.has(item.kind === "type" ? item.answer : item.et), `${check.id}: ${JSON.stringify(item)}`).toBe(true);
       }
     }
@@ -97,8 +99,9 @@ describe("the checks between the parts of the lessons", () => {
     // Somebody placed past the lessons is not asked to pass their checks.
     const a2 = PROGRAMMES.find((p) => p.level === "A2")!;
     const b1 = PROGRAMMES.find((p) => p.level === "B1")!;
-    const b1next = PROGRAMMES[PROGRAMMES.indexOf(b1) + 1]!;
-    expect(blockedBy(PROGRAMMES, b1, b1next, new Set())).toBeNull();
+    const b2 = PROGRAMMES.find((p) => p.level === "B2")!;
+    const b2next = PROGRAMMES[PROGRAMMES.indexOf(b2) + 1]!;
+    expect(blockedBy(PROGRAMMES, b2, b2next, new Set())).toBeNull();
     // And B1 waits on A2's last check, the whole of A2, as A2 waits on A1's.
     const a2checks = checks.filter((c) => PROGRAMMES.find((p) => p.id === c.programmeId)?.level === "A2");
     expect(blockedBy(PROGRAMMES, a2, b1, new Set(a2checks.filter((c) => !c.final).map((c) => c.id)))?.final).toBe(true);

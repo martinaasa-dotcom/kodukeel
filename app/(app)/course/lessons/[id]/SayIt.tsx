@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Keyboard, Mic } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
@@ -23,6 +23,10 @@ import type { LessonSpec, Prompt } from "@/lib/course/lessons/types";
 import { VERDICT_CLASS } from "@/lib/ux/verdict";
 import { checkLessonSentence } from "@/app/actions";
 import { SentenceFindings } from "@/components/course/SentenceFindings";
+import { SayAlongFade } from "@/components/course/SayAlongFade";
+import { RetellIt } from "@/components/course/RetellIt";
+import { AgainFaster } from "@/components/course/AgainFaster";
+import { saysItLonger } from "@/lib/course/lessons/limits";
 import type { Finding } from "@/lib/course/lessons/sentenceCheck";
 
 /**
@@ -66,6 +70,10 @@ type Mode = "say" | "type";
 
 type SayCard =
   | { readonly kind: "lines" }
+  /* B1 on: the key lines said along and then alone, a story retold, and one answer said faster. */
+  | { readonly kind: "fade" }
+  | { readonly kind: "retell" }
+  | { readonly kind: "faster" }
   | {
     readonly kind: "answer"; readonly prompt: Prompt; readonly label: string; readonly scene?: string; readonly own: boolean; readonly aboutYou: boolean;
     /** Which list the card came from and where, so the server can find its sample (`checkLessonSentence`). */
@@ -84,12 +92,34 @@ interface Taken {
   readonly shown: boolean;
 }
 
-export function SayIt({ lesson, scene, sceneHref, capstone, name, onComplete }: { lesson: LessonSpec; scene: string | null; sceneHref: string | null; capstone: boolean; name: string | null; onComplete: () => void }) {
+export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier, partAt, onComplete }: { lesson: LessonSpec; scene: string | null; sceneHref: string | null; capstone: boolean; name: string | null; timeMultiplier: number; partAt: number; onComplete: () => void }) {
   const t = useT();
   const [mode, setMode] = useState<Mode | null>(null);
   const [at, setAt] = useState(0);
   const [over, setOver] = useState(false);
   const [taken, setTaken] = useState<readonly Taken[]>([]);
+  /*
+    Each card replaces the one whose button was just pressed, and so does the
+    end. A card that put the caret somewhere of its own on arrival keeps it
+    (a child's effect runs before this one); otherwise the card takes it, so
+    a keyboard is never left on the page between the fade, the answers, the
+    story and the race.
+  */
+  const cardRef = useRef<HTMLDivElement>(null);
+  const doneRef = useRef<HTMLDivElement>(null);
+  const shownAt = useRef(at);
+  useEffect(() => {
+    if (shownAt.current === at) return;
+    shownAt.current = at;
+    if (!cardRef.current?.contains(document.activeElement)) cardRef.current?.focus();
+  }, [at]);
+  useEffect(() => {
+    if (over) doneRef.current?.focus();
+  }, [over]);
+  // Choosing to say or type replaces the two buttons, so the caret goes to the first card rather than the page.
+  useEffect(() => {
+    if (mode !== null && !cardRef.current?.contains(document.activeElement)) cardRef.current?.focus();
+  }, [mode]);
   // The other side's voice: whoever opens today's conversation.
   const opener = lesson.conversation[0]?.who ?? "";
   const voice = lesson.cast[opener] ?? undefined;
@@ -111,7 +141,21 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, onComplete }: 
     }));
     // The capstone is the conversation alone: the questions about yourself were the practice.
     if (capstone) return turns;
-    return [...(mode === "say" ? [{ kind: "lines" } as SayCard] : []), ...answers, ...turns];
+    /*
+      FROM B1 THE STEP IS LONGER THAN ONE LINE (docs/43-lessons.md §11.2).
+      Saying the conversation along becomes saying its key lines along and
+      then alone, and after the questions about yourself come the story to
+      retell and the answer said faster, where the lesson has them. Typed,
+      the fading lines are skipped for the reason the read-along is, and the
+      other two run in the box.
+    */
+    const b = saysItLonger(lesson.level);
+    const opening: SayCard[] = mode === "say" ? [{ kind: b ? "fade" : "lines" }] : [];
+    const longer: SayCard[] = [
+      ...(lesson.retell ? [{ kind: "retell" } as SayCard] : []),
+      ...(lesson.faster ? [{ kind: "faster" } as SayCard] : []),
+    ];
+    return [...opening, ...answers, ...longer, ...turns];
   }, [lesson, mode, t, capstone]);
 
   if (mode === null) {
@@ -120,7 +164,14 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, onComplete }: 
         <p className="max-w-[60ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           {capstone
             ? fill(t("This is the whole conversation, with you in it. {who} speaks first and you answer as yourself, out loud or typed, one turn at a time. Each turn is added to the conversation, so by the end you've held all of it."), { who: opener })
-            : t("Say the conversation along with the screen, then answer a few questions about yourself out loud. A word lights up when it's understood, even said with an accent, so play yourself back beside the recording to hear how it sounded.")}
+            : saysItLonger(lesson.level)
+              // Named for what this lesson holds, the story or the race, rather than "one or the other".
+              ? lesson.retell
+                ? t("Say today's key lines along and then alone, answer questions about yourself, then tell a short story back in your own words. A word lights up when it's understood.")
+                : lesson.faster
+                  ? t("Say today's key lines along and then alone, answer questions about yourself, then give one answer three times, faster each time. A word lights up when it's understood.")
+                  : t("Say today's key lines along and then alone, then answer questions about yourself. A word lights up when it's understood.")
+              : t("Say the conversation along with the screen, then answer a few questions about yourself out loud. A word lights up when it's understood, even said with an accent, so play yourself back beside the recording to hear how it sounded.")}
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
           <Button size="lg" onClick={() => setMode("type")}>
@@ -138,7 +189,7 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, onComplete }: 
     return (
       <div data-say-it="done">
         <Card tone="sky">
-          <p role="status" className="text-lg font-semibold" style={{ color: "var(--ink)" }}>
+          <p ref={doneRef} tabIndex={-1} className="text-lg font-semibold outline-none" style={{ color: "var(--ink)" }}>
             {capstone
               ? t("You held the whole conversation.")
               : mode === "say" ? t("You said today's Estonian out loud.") : t("Done. Tomorrow, try it out loud if you're somewhere you can.")}
@@ -178,13 +229,19 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, onComplete }: 
   };
 
   return (
-    <div className="flex flex-col gap-4" data-say-it={at + 1}>
+    <div ref={cardRef} tabIndex={-1} className="flex flex-col gap-4 outline-none" data-say-it={at + 1}>
       {mode === "type" && at === 0 && (
         <Note>{t("Typing works too. Speaking is what brings the words out when you need them, so try it aloud tomorrow if you can.")}</Note>
       )}
       {capstone && taken.length > 0 && <Thread taken={taken} who={opener} voice={voice} title={t("The conversation so far")} />}
       {card.kind === "lines" ? (
         <SayTheLines lesson={lesson} onNext={() => next()} />
+      ) : card.kind === "fade" ? (
+        <SayAlongFade lesson={lesson} partAt={partAt} onDone={() => next()} />
+      ) : card.kind === "retell" ? (
+        <RetellIt retell={lesson.retell!} voice={lesson.cast[lesson.retell!.who]} typed={mode === "type"} onDone={() => next()} />
+      ) : card.kind === "faster" ? (
+        <AgainFaster faster={lesson.faster!} voice={voice} typed={mode === "type"} multiplier={timeMultiplier} onDone={() => next()} />
       ) : (
         <AnswerCard key={at} lessonId={lesson.id} card={card} mode={mode} voice={voice} name={name} onNext={next} last={at >= cards.length - 1} />
       )}

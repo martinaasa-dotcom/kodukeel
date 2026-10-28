@@ -40,6 +40,7 @@ export const B1 = [
       ["tegema", "to make"],
       ["parandama", "to repair"],
       ["müüma", "to sell"],
+      ["ükski", "not a single one, none", "PRONOUN"],
     ],
   }),
 
@@ -203,6 +204,11 @@ export const B1 = [
       ["üürima", "to rent"],
       ["sisustama", "to furnish"],
       ["lekkima", "to leak"],
+      ["remontima", "to renovate, to repair"],
+      ["möbleerima", "to furnish (with furniture)"],
+      ["renoveerima", "to renovate"],
+      ["ummistuma", "to get blocked"],
+      ["kriimustama", "to scratch"],
     ],
   }),
 
@@ -234,6 +240,7 @@ export const B1 = [
       ["kajastama", "to cover, to reflect"],
       ["kommenteerima", "to comment"],
       ["kinnitama", "to confirm"],
+      ["vigastama", "to injure"],
     ],
   }),
 
@@ -265,6 +272,7 @@ export const B1 = [
       ["laadima", "to load, to charge"],
       ["uuendama", "to update"],
       ["seadistama", "to configure"],
+      ["sotsiaalmeedia", "social media"],
     ],
   }),
 
@@ -327,6 +335,8 @@ export const B1 = [
       ["sooritama", "to perform, to sit (an exam)"],
       ["omandama", "to acquire"],
       ["kandideerima", "to apply, to stand for"],
+      ["tööaeg", "working hours"],
+      ["ületund", "hour of overtime"],
     ],
   }),
 
@@ -358,6 +368,9 @@ export const B1 = [
       ["hoolima", "to care"],
       ["mõistma", "to understand"],
       ["solvama", "to offend"],
+      ["julgema", "to dare"],
+      ["hommikune", "morning, of the morning", "ADJECTIVE"],
+      ["kulu", "expense, cost"],
     ],
   }),
 
@@ -461,6 +474,7 @@ export const B1 = [
       // What you actually want at a service desk: it back, or the money back.
       ["tagastama", "to give back, to return"],
       ["puuduma", "to be missing, to be absent"],
+      ["parkimiskoht", "parking space"],
     ],
   }),
 

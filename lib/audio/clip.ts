@@ -1,6 +1,6 @@
 import { cachedBlob, cachedClip, rememberClip } from "./clipCache";
 import { CLEAN, type Condition } from "./conditions";
-import { needsMixer, playThrough } from "./mixer";
+import { needsMixer, playThrough, stopMixed } from "./mixer";
 import { sequence } from "./sequence";
 import { stretch } from "./stretch";
 import { DEFAULT_PACE, SLOWEST, SLOW_OF_NORMAL, type Pace } from "./pace";
@@ -403,13 +403,36 @@ export function untilQuiet(capMs: number): Promise<void> {
   });
 }
 
+/** The clip playing through an element, so a screen's Stop can end it mid-line rather than after it. */
+let playing: HTMLAudioElement | null = null;
+/*
+  How many times Stop has been pressed. A line still being fetched when Stop
+  is pressed has no element yet to pause, so a play notes this count when it
+  starts and, finding it moved once its clip arrives, does not play at all.
+*/
+let stops = 0;
+
+/** Ends the clip in the air, through the element or the mixer, and any line still on its way. */
+export function stopClip(): void {
+  stops += 1;
+  playing?.pause();
+  playing = null;
+  stopMixed();
+}
+
 export async function playClip(
   request: ClipRequest,
   { unasked = false, chosen = false }: { unasked?: boolean; chosen?: boolean } = {},
 ): Promise<PlayOutcome> {
   const end = beginSpeech();
+  const asked = stops;
   try {
     const clip = await stretchedClip(request, rateFor(request));
+    // Stopped while it was on its way: the line is not said after the press that asked for quiet.
+    if (stops !== asked) {
+      end();
+      return "played";
+    }
     // `chosen` is a line the learner asked to hear rather than read (a voice
     // mode in a conversation, `Speak`'s `insist`), which is not unasked sound.
     if (unasked && !chosen && !mayAutoplay(wavSeconds(new Uint8Array(await clip.blob.arrayBuffer())))) {
@@ -421,16 +444,22 @@ export async function playClip(
     // wants to hear the word and not the café.
     const condition = request.slow ? CLEAN : (request.condition ?? CLEAN);
     if (needsMixer(condition)) {
-      const outcome = await playThrough(await clip.blob.arrayBuffer(), condition, { unasked });
+      const outcome = await playThrough(await clip.blob.arrayBuffer(), condition, { unasked, cancelled: () => stops !== asked });
       end();
       return outcome;
     }
     // The element rather than a buffer source for the plain case, on purpose:
     // an element plays through a phone's silent switch and a Web Audio graph
     // does not, and a learner who pressed the speaker asked to hear it.
+    // Stopped while the length was being read: still not said.
+    if (stops !== asked) {
+      end();
+      return "played";
+    }
     const audio = new Audio(clip.url);
+    playing = audio;
     for (const event of ["ended", "pause", "error"] as const) {
-      audio.addEventListener(event, end, { once: true });
+      audio.addEventListener(event, () => { if (playing === audio) playing = null; end(); }, { once: true });
     }
     try {
       await audio.play();

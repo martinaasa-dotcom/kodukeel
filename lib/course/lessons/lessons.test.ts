@@ -7,7 +7,12 @@ import { A1_LESSONS } from "./a1";
 import { NAMES, PLACE_SPELLINGS, estonianOf, familiesOf, ledgersBefore, lessonProblems, lessonRank, namesOf, teach, uncovered, wordsOf } from "./ledger";
 import { everyTypedQuestion, itemEstonian, markPhrase, meaningShows, practiceFor, reviewFor } from "./practice";
 import { estonianIn } from "./ledger";
-import { LESSONS, LESSON_PARTS } from "./index";
+import { LESSONS as COURSE_LESSONS, LESSON_PARTS as COURSE_PARTS } from "./index";
+import { PREVIEW_LESSONS, PREVIEW_PARTS } from "./preview";
+
+/* The course and the lessons in preview after it: a lesson in preview is held to every check a course lesson is. */
+const LESSONS = [...COURSE_LESSONS, ...PREVIEW_LESSONS];
+const LESSON_PARTS = [...COURSE_PARTS, ...PREVIEW_PARTS];
 import { CASES, caseNameWithNumber, casePlainName, shortIllativeName } from "@/lib/estonian/cases";
 import { PERSON_ENDINGS, VERB_FORM_NAMES, verbFormName, type Person, type VerbForm } from "@/lib/estonian/verbNames";
 
@@ -24,6 +29,7 @@ const TAUGHT_NAMES = new Set(LESSONS.flatMap((l) => l.teaches.map((t) => t.et)).
 describe("the lessons, A1 and on", () => {
   it("never show a word before it is taught", () => {
     expect(lessonProblems(A1_LESSONS)).toEqual([]);
+    expect(lessonProblems(LESSONS)).toEqual([]);
   });
 
   it("introduce the four letters of their own together, on the first evening", () => {
@@ -132,21 +138,23 @@ describe("the lessons, A1 and on", () => {
       const ledger = before.get(lesson.id)!;
       const history = LESSONS.slice(0, at);
       const tonight = teach(ledger, lesson.teaches, lessonRank(lesson), lesson.patterns);
-      const names = namesOf(lesson);
+      // A name met in an earlier lesson's cast is one the learner knows, and review and replies draw on earlier lines.
+      const names = new Set([...namesOf(lesson), ...history.flatMap((l) => Object.keys(l.cast))]);
       const items = [...practiceFor(lesson, ledger, history), ...reviewFor(lesson, ledger, history)];
       for (const item of items) {
         for (const et of itemEstonian(item)) {
           expect(uncovered(et, tonight, names), `${lesson.id}: ${et}`).toEqual([]);
         }
-        if (item.kind !== "type" && item.kind !== "match") {
+        if (item.kind !== "type" && item.kind !== "match" && item.kind !== "rework" && item.kind !== "fix") {
           expect(item.options).toContain(item.answer);
           expect(new Set(item.options.map((o) => o.toLowerCase())).size).toBe(item.options.length);
         }
         asked++;
       }
-      // The review step goes over older lessons only.
+      // The review step goes over older lessons only, so it may name only who was met in them.
+      const met = new Set([...NAMES, ...history.flatMap((l) => Object.keys(l.cast))]);
       for (const item of reviewFor(lesson, ledger, history)) {
-        for (const et of itemEstonian(item)) expect(uncovered(et, ledger, NAMES), `${lesson.id} review: ${et}`).toEqual([]);
+        for (const et of itemEstonian(item)) expect(uncovered(et, ledger, met), `${lesson.id} review: ${et}`).toEqual([]);
       }
     });
     expect(asked).toBeGreaterThan(LESSONS.length * 5);
@@ -164,6 +172,8 @@ describe("the lessons, A1 and on", () => {
           : item.kind === "match" ? item.pairs.map((p) => [p.et, [p.en]])
           : item.kind === "gap" ? [[item.answer, [item.en]]]
           : item.kind === "reply" ? [[item.answer, [item.ask.en]]]
+          : item.kind === "rework" ? [[item.answer, [item.from.en]]]
+          : item.kind === "fix" ? [[item.right, [item.en]]]
           : [[item.et, item.options]];
         for (const [et, shown] of pairs) {
           const answer = new Set(wordsOf(et).map((w) => w.low));
@@ -203,7 +213,10 @@ describe("the lessons, A1 and on", () => {
         const lemma = families.of.get(item.answer.toLocaleLowerCase("et"));
         expect(lemma, `${lesson.id}: ${item.answer}`).toBeDefined();
         for (const option of item.options) expect(families.of.get(option.toLocaleLowerCase("et")), `${lesson.id}: ${option}`).toBe(lemma);
-        expect(item.options.some((o) => o.toLocaleLowerCase("et").endsWith("sse") && o !== item.answer), `${lesson.id}`).toBe(false);
+        // A long illative built by rule is never offered, since the short one can be right too;
+        // one a lesson teaches as its own item (B1's `sinusse`, the only illative `sina` has) can be.
+        const ownItem = (o: string) => ledger.items.some(({ item: t }) => t.et.toLocaleLowerCase("et") === o.toLocaleLowerCase("et"));
+        expect(item.options.some((o) => o.toLocaleLowerCase("et").endsWith("sse") && o !== item.answer && !ownItem(o)), `${lesson.id}`).toBe(false);
         const line = lesson.conversation.find((l) => l.et?.includes(`${item.before}${item.answer}${item.after}`));
         expect(line, `${lesson.id}: ${item.before}_${item.after}`).toBeDefined();
       }

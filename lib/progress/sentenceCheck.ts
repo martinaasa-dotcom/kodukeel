@@ -34,12 +34,48 @@ const HEADWORDS_NEAR = 12;
  * learner as a form; every form a finding prints comes off a dictionary row.
  */
 export async function checkTypedSentence(text: string, sample: string): Promise<SentenceCheck> {
-  const said = [...new Set([text, sample].flatMap((t) => (t.match(ESTONIAN_WORD) ?? []).map((w) => w.toLowerCase())))];
-  // A clitic `-gi` or `-ki` is read off the word under it, so that word is asked too.
-  const spellings = [...new Set([...said, ...said.flatMap((w) => (/[gk]i$/.test(w) && w.length > 4 ? [w.slice(0, -2)] : []))])]
-    .slice(0, MAX_WORDS);
-  const budget = coldBudget(COLD_SHARDS_PER_REQUEST);
-  const compoundBudget = coldBudget(COLD_SHARDS_PER_REQUEST);
+  return (await checkTypedSentences([text], sample, MAX_WORDS))[0]!;
+}
+
+/** Distinct words read for a written text and its model; the learner's own are always read, and the model fills what is left. */
+const MAX_TEXT_WORDS = 220;
+
+/**
+ * SEVERAL SENTENCES OF ONE TEXT, READ IN ONE PASS.
+ *
+ * A writing step reads a draft of up to two dozen sentences, and each read on
+ * its own asked the forms list and the dictionary for the model text again
+ * and ran its own queries: two dozen at once on a pooled connection is the
+ * press that stalls everybody else's page. The spellings of every sentence and
+ * of the sample are gathered and read once, and each sentence is judged
+ * against that one read, which is the same judgment (`checkSentence`) with the
+ * same rows in hand.
+ */
+export async function checkTypedSentences(texts: readonly string[], sample: string, cap = MAX_TEXT_WORDS): Promise<SentenceCheck[]> {
+  if (texts.length === 0) return [];
+  /*
+    The sentences' own words first, so the cap never drops a word somebody
+    wrote for one the model holds; and a clitic `-gi` or `-ki` is read off
+    the word under it, so that word is asked straight after its own, where
+    the cap cannot reach it before the model's words.
+  */
+  const spellingsOf = (ts: readonly string[]) => [...new Set(ts
+    .flatMap((t) => (t.match(ESTONIAN_WORD) ?? []).map((w) => w.toLowerCase()))
+    .flatMap((w) => (/[gk]i$/.test(w) && w.length > 4 ? [w, w.slice(0, -2)] : [w])))];
+  // Every word the learner wrote is read, since an unread one comes back as a slip they cannot tick past; the cap is on the model's.
+  const own = spellingsOf(texts);
+  const held = new Set(own);
+  const spellings = [...own, ...spellingsOf([sample]).filter((w) => !held.has(w)).slice(0, Math.max(0, cap - own.length))];
+  /*
+    A cold instance reads a bounded number of shards per request, and that
+    bound was set for one sentence of up to MAX_WORDS words. A whole draft
+    shared one sentence's budget, so most of its words went unread and a
+    correct sentence came back with findings it could not be ticked past.
+    The budget grows with the words asked, at the rate one sentence has.
+  */
+  const shards = COLD_SHARDS_PER_REQUEST * Math.max(1, Math.ceil(spellings.length / MAX_WORDS));
+  const budget = coldBudget(shards);
+  const compoundBudget = coldBudget(shards);
   const read = await Promise.all(spellings.map(async (word) => ({
     word,
     exact: await isExactForm(word, budget),
@@ -117,10 +153,10 @@ export async function checkTypedSentence(text: string, sample: string): Promise<
     };
   });
 
-  return checkSentence(text, entries, (word) => exact.has(word), sample, {
+  return texts.map((text) => checkSentence(text, entries, (word) => exact.has(word), sample, {
     claims: (word) => claims.get(word),
     compound: (word) => compound.has(word),
     near: (word) => nearBy.get(word),
     band: (lemma) => bands.get(lemma),
-  });
+  }));
 }

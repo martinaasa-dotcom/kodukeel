@@ -2223,6 +2223,10 @@
                         },
                         "en": {
                           "type": "string"
+                        },
+                        "asks": {
+                          "description": "What the word asks for after it, B1 on.",
+                          "type": "string"
                         }
                       },
                       "required": [
@@ -2293,6 +2297,10 @@
                         },
                         "firstEn": {
                           "type": "string"
+                        },
+                        "asks": {
+                          "description": "What the verb asks for after it, B1 on.",
+                          "type": "string"
                         }
                       },
                       "required": [
@@ -2323,7 +2331,18 @@
                     "essive",
                     "abessive",
                     "past",
-                    "conditional"
+                    "conditional",
+                    "object",
+                    "government",
+                    "impersonal",
+                    "pluperfect",
+                    "relative",
+                    "particleVerb",
+                    "participle",
+                    "conditionalPast",
+                    "subordinate",
+                    "agreement",
+                    "derivation"
                   ]
                 }
               },
@@ -2527,6 +2546,351 @@
                   ]
                 }
               },
+              "reworks": {
+                "description": "Sentences to change, B1 on; the practice step carries them as `rework` items.",
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "from": {
+                      "type": "object",
+                      "properties": {
+                        "et": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "et",
+                        "en"
+                      ]
+                    },
+                    "ask": {
+                      "type": "string"
+                    },
+                    "to": {
+                      "type": "object",
+                      "properties": {
+                        "et": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "et",
+                        "en"
+                      ]
+                    },
+                    "also": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "pattern": {
+                      "type": "string",
+                      "enum": [
+                        "present",
+                        "negative",
+                        "imperative",
+                        "inside",
+                        "outside",
+                        "comitative",
+                        "translative",
+                        "terminative",
+                        "essive",
+                        "abessive",
+                        "past",
+                        "conditional",
+                        "object",
+                        "government",
+                        "impersonal",
+                        "pluperfect",
+                        "relative",
+                        "particleVerb",
+                        "participle",
+                        "conditionalPast",
+                        "subordinate",
+                        "agreement",
+                        "derivation"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "from",
+                    "ask",
+                    "to",
+                    "pattern"
+                  ]
+                }
+              },
+              "fixes": {
+                "description": "Lines with a slip in them, B1 on; the practice step carries them as `fix` items.",
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "line": {
+                      "type": "object",
+                      "properties": {
+                        "et": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "et",
+                        "en"
+                      ]
+                    },
+                    "right": {
+                      "type": "string"
+                    },
+                    "wrong": {
+                      "type": "string"
+                    },
+                    "pair": {
+                      "readOnly": true,
+                      "type": "array",
+                      "prefixItems": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "string"
+                        }
+                      ],
+                      "items": false,
+                      "minItems": 2,
+                      "maxItems": 2
+                    },
+                    "why": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "line",
+                    "right",
+                    "wrong",
+                    "pair",
+                    "why"
+                  ]
+                }
+              },
+              "listenFor": {
+                "description": "Questions on what was heard, asked before the text is shown, B1 on. Draw the options in the order the web does: shuffled with a seed taken from the question.",
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "q": {
+                      "type": "string"
+                    },
+                    "options": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "answer": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "q",
+                    "options",
+                    "answer"
+                  ]
+                }
+              },
+              "hearing": {
+                "description": "The room the hidden first play of the conversation is heard in (B1 on): a phone line, a café, or sped up. Absent is a quiet room.",
+                "type": "string",
+                "enum": [
+                  "phone",
+                  "cafe",
+                  "quick"
+                ]
+              },
+              "retell": {
+                "description": "A short story heard twice and told back aloud, B1 on; a point lights on any of its spellings.",
+                "type": "object",
+                "properties": {
+                  "who": {
+                    "type": "string"
+                  },
+                  "story": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "et": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "et",
+                        "en"
+                      ]
+                    }
+                  },
+                  "points": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "en": {
+                          "type": "string"
+                        },
+                        "any": {
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "en",
+                        "any"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "who",
+                  "story",
+                  "points"
+                ]
+              },
+              "faster": {
+                "description": "One answer said three times, in 90, 60 and 45 seconds at the standard pace (times `timeMultiplier`), B1 on.",
+                "type": "object",
+                "properties": {
+                  "ask": {
+                    "type": "object",
+                    "properties": {
+                      "et": {
+                        "type": "string"
+                      },
+                      "en": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "et",
+                      "en"
+                    ]
+                  },
+                  "cue": {
+                    "type": "string"
+                  },
+                  "model": {
+                    "type": "object",
+                    "properties": {
+                      "et": {
+                        "type": "string"
+                      },
+                      "en": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "et",
+                      "en"
+                    ]
+                  }
+                },
+                "required": [
+                  "ask",
+                  "cue",
+                  "model"
+                ]
+              },
+              "write": {
+                "description": "The part's one real text, on its writing evening, B1 on.",
+                "type": "object",
+                "properties": {
+                  "genre": {
+                    "type": "string"
+                  },
+                  "purpose": {
+                    "type": "string"
+                  },
+                  "model": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "et": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "et",
+                        "en"
+                      ]
+                    }
+                  },
+                  "uses": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "et": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "et",
+                        "en"
+                      ]
+                    }
+                  },
+                  "task": {
+                    "type": "string"
+                  },
+                  "least": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "genre",
+                  "purpose",
+                  "model",
+                  "uses",
+                  "task",
+                  "least"
+                ]
+              },
               "roleplay": {
                 "type": "object",
                 "properties": {
@@ -2727,6 +3091,101 @@
                   "properties": {
                     "kind": {
                       "type": "string",
+                      "const": "rework"
+                    },
+                    "from": {
+                      "type": "object",
+                      "properties": {
+                        "et": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "et",
+                        "en"
+                      ]
+                    },
+                    "ask": {
+                      "type": "string"
+                    },
+                    "answer": {
+                      "type": "string"
+                    },
+                    "answerEn": {
+                      "type": "string"
+                    },
+                    "accept": {
+                      "readOnly": true,
+                      "description": "Every sentence that counts, the lesson's own first.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "from",
+                    "ask",
+                    "answer",
+                    "answerEn",
+                    "accept"
+                  ],
+                  "description": "A sentence to change the way `ask` says (B1 on), typed and marked against `accept`."
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "fix"
+                    },
+                    "shown": {
+                      "type": "string"
+                    },
+                    "en": {
+                      "type": "string"
+                    },
+                    "answer": {
+                      "type": "string"
+                    },
+                    "accept": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "wrong": {
+                      "type": "string"
+                    },
+                    "right": {
+                      "type": "string"
+                    },
+                    "why": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "shown",
+                    "en",
+                    "answer",
+                    "accept",
+                    "wrong",
+                    "right",
+                    "why"
+                  ],
+                  "description": "A line with one word swapped for another form of it (B1 on); typed back put right."
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
                       "const": "hear"
                     },
                     "et": {
@@ -2811,7 +3270,7 @@
                   ]
                 }
               ],
-              "description": "One question, built on the server; the client never decides what a learner is asked."
+              "description": "One question, built on the server; the client never decides what a learner is asked. A kind is added and never removed within v1 (`rework` and `fix` came with B1), so a client skips an item whose kind it does not know rather than failing the lesson: a lesson with one question fewer is still a lesson."
             }
           },
           "review": {
@@ -2939,6 +3398,101 @@
                   "properties": {
                     "kind": {
                       "type": "string",
+                      "const": "rework"
+                    },
+                    "from": {
+                      "type": "object",
+                      "properties": {
+                        "et": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "et",
+                        "en"
+                      ]
+                    },
+                    "ask": {
+                      "type": "string"
+                    },
+                    "answer": {
+                      "type": "string"
+                    },
+                    "answerEn": {
+                      "type": "string"
+                    },
+                    "accept": {
+                      "readOnly": true,
+                      "description": "Every sentence that counts, the lesson's own first.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "from",
+                    "ask",
+                    "answer",
+                    "answerEn",
+                    "accept"
+                  ],
+                  "description": "A sentence to change the way `ask` says (B1 on), typed and marked against `accept`."
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "fix"
+                    },
+                    "shown": {
+                      "type": "string"
+                    },
+                    "en": {
+                      "type": "string"
+                    },
+                    "answer": {
+                      "type": "string"
+                    },
+                    "accept": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "wrong": {
+                      "type": "string"
+                    },
+                    "right": {
+                      "type": "string"
+                    },
+                    "why": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "shown",
+                    "en",
+                    "answer",
+                    "accept",
+                    "wrong",
+                    "right",
+                    "why"
+                  ],
+                  "description": "A line with one word swapped for another form of it (B1 on); typed back put right."
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
                       "const": "hear"
                     },
                     "et": {
@@ -3023,7 +3577,7 @@
                   ]
                 }
               ],
-              "description": "One question, built on the server; the client never decides what a learner is asked."
+              "description": "One question, built on the server; the client never decides what a learner is asked. A kind is added and never removed within v1 (`rework` and `fix` came with B1), so a client skips an item whose kind it does not know rather than failing the lesson: a lesson with one question fewer is still a lesson."
             }
           },
           "next": {
@@ -3055,6 +3609,29 @@
               "string",
               "null"
             ]
+          },
+          "situation": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "title"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "A conversation from the situations catalog that the lesson rehearses, offered on its finish (B1 on)."
           },
           "place": {
             "type": "object",
@@ -3155,6 +3732,17 @@
             ],
             "description": "The part this lesson is in, lesson by lesson, with the ones the learner has done."
           },
+          "partAt": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991,
+            "description": "Which part of its level the lesson is in, counted from 1; the say-along fade starts with words hidden from the fourth part."
+          },
+          "timeMultiplier": {
+            "type": "number",
+            "minimum": 1,
+            "description": "How many times the standard a timed go runs for this learner (their round pace), for \"Again, faster\"."
+          },
           "locale": {
             "type": "string",
             "enum": [
@@ -3187,11 +3775,14 @@
           "review",
           "next",
           "scene",
+          "situation",
           "place",
           "name",
           "due",
           "check",
           "part",
+          "partAt",
+          "timeMultiplier",
           "locale",
           "nativePart",
           "translations"
@@ -3379,6 +3970,101 @@
                   "properties": {
                     "kind": {
                       "type": "string",
+                      "const": "rework"
+                    },
+                    "from": {
+                      "type": "object",
+                      "properties": {
+                        "et": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "et",
+                        "en"
+                      ]
+                    },
+                    "ask": {
+                      "type": "string"
+                    },
+                    "answer": {
+                      "type": "string"
+                    },
+                    "answerEn": {
+                      "type": "string"
+                    },
+                    "accept": {
+                      "readOnly": true,
+                      "description": "Every sentence that counts, the lesson's own first.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "from",
+                    "ask",
+                    "answer",
+                    "answerEn",
+                    "accept"
+                  ],
+                  "description": "A sentence to change the way `ask` says (B1 on), typed and marked against `accept`."
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "const": "fix"
+                    },
+                    "shown": {
+                      "type": "string"
+                    },
+                    "en": {
+                      "type": "string"
+                    },
+                    "answer": {
+                      "type": "string"
+                    },
+                    "accept": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "wrong": {
+                      "type": "string"
+                    },
+                    "right": {
+                      "type": "string"
+                    },
+                    "why": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "shown",
+                    "en",
+                    "answer",
+                    "accept",
+                    "wrong",
+                    "right",
+                    "why"
+                  ],
+                  "description": "A line with one word swapped for another form of it (B1 on); typed back put right."
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
                       "const": "hear"
                     },
                     "et": {
@@ -3463,7 +4149,7 @@
                   ]
                 }
               ],
-              "description": "One question, built on the server; the client never decides what a learner is asked."
+              "description": "One question, built on the server; the client never decides what a learner is asked. A kind is added and never removed within v1 (`rework` and `fix` came with B1), so a client skips an item whose kind it does not know rather than failing the lesson: a lesson with one question fewer is still a lesson."
             }
           },
           "needed": {

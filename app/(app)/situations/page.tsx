@@ -5,6 +5,7 @@ import { unitById } from "@/lib/collections/syllabus";
 import { courseLevelFor } from "@/lib/progress/level";
 import { moduleReached } from "@/lib/progress/course";
 import { unitsThrough } from "@/lib/course";
+import { situationsOfferedThrough } from "@/lib/course/lessonSituations";
 import { uiText } from "@/lib/copy/uiLanguage";
 import { Empty, Page, Stack } from "@/components/ui";
 import { ButtonLink } from "@/components/Button";
@@ -61,6 +62,10 @@ export default async function SituationsPage() {
     opens on one the course has reached.
   */
   const unitsMet = reached ? new Set(unitsThrough(reached.programme, reached.day.index)) : null;
+  // A conversation a finished lesson has offered is one the course brought in,
+  // whatever the unit rule says: the lessons teach by goal, so no unit of their
+  // own level is ever opened by them (`lib/course/lessonSituations.ts`).
+  const offered = reached ? situationsOfferedThrough(reached.day.lesson ?? null) : null;
 
   const tiles: SituationTile[] = scenes.map((scene) => {
     const unit = unitById(scene.tests);
@@ -84,7 +89,7 @@ export default async function SituationsPage() {
       // somebody comes back to.
       plays: past?.plays ?? 0,
       last: past?.last ?? null,
-      early: unitsMet ? scene.units.some((u) => !unitsMet.has(u)) : false,
+      early: unitsMet && !offered?.has(scene.id) ? scene.units.some((u) => !unitsMet.has(u)) : false,
     };
   });
 

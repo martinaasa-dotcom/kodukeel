@@ -3,13 +3,13 @@
  *
  * The old A1 cut each unit's word list into fives in the order the words were
  * typed, and an evening was those five words met, a reading, two rounds and a
- * review (docs/43-lessons.md §0). A1 and A2 are the lessons now: an evening
+ * review (docs/43-lessons.md §0). A1, A2 and B1 are the lessons now: an evening
  * is one lesson, and a lesson is its own six steps on its own screen, so the
  * evening has one step, the lesson, and finishing the lesson is finishing the
  * evening. Each part of the lessons is a part of the course, so the module
  * screen, Today, the rail and everything that reads what the course has
  * taught (`taughtThrough`, `grammarThrough`) read the lessons through the
- * same `Programme` shape as B1 to C1.
+ * same `Programme` shape as B2 and C1.
  *
  * What an evening has taught is the lesson's own list, as the dictionary heads
  * it (`lessonWords`).
@@ -55,6 +55,18 @@ export const PATTERN_PAGE: Readonly<Partial<Record<PatternId, string>>> = {
   imperative: "imperative",
   past: "imperfect",
   conditional: "conditional",
+  // B1's rules about choosing (`BPatternId`), each read off the grammar page that explains it.
+  object: "object",
+  government: "government",
+  impersonal: "impersonal",
+  pluperfect: "pluperfect",
+  relative: "relative-clause",
+  particleVerb: "particle-verbs",
+  participle: "participles",
+  conditionalPast: "conditional",
+  subordinate: "subordination",
+  agreement: "adjective-agreement",
+  derivation: "derivation",
 };
 
 /**
@@ -94,6 +106,12 @@ export const LESSON_PAGES: Readonly<Record<string, { cases?: readonly string[]; 
   "a2-38-compare": { topics: ["comparative"] },
   "a2-39-best": { topics: ["superlative"] },
   "a2-49-will": { topics: ["future"] },
+  /*
+    B1: finishing a thing against being on it, which is what the object rule
+    turns on (the object page is the pattern's), and -na against -ks in use.
+  */
+  "b1-01-done": { topics: ["aspect"] },
+  "b1-16-as": { cases: ["ESSIVE", "TRANSLATIVE"] },
 };
 
 /**
@@ -103,6 +121,21 @@ export const LESSON_PAGES: Readonly<Record<string, { cases?: readonly string[]; 
  */
 export function lessonWords(lesson: LessonSpec): string[] {
   return lessonHeads(lesson);
+}
+
+/**
+ * HOW LONG THIS LESSON TAKES, WHICH AT B1 IS AS LONG AS ITS GOAL NEEDS
+ * (docs/43-lessons.md B-L2). An A1 or A2 lesson is the six steps, eighteen
+ * minutes. A B1 lesson adds its longer talk (a story retold, an answer said
+ * three times) and its writing evening adds the text, so the evening says so
+ * rather than claiming eighteen minutes for forty.
+ */
+export function lessonMinutes(lesson: LessonSpec): number {
+  return LESSON_MINUTES
+    + (lesson.listenFor ? 2 : 0)
+    + (lesson.retell ? 5 : 0)
+    + (lesson.faster ? 4 : 0)
+    + (lesson.write ? 15 : 0);
 }
 
 /** Braces mark Estonian inside English for a screen; a sentence printed plain drops them. */
@@ -136,10 +169,10 @@ export function lessonDay(lesson: LessonSpec, index: number, partTitle: string):
       title: `Lesson ${lessonLabel(lesson)}: ${lesson.title}`,
       why: "Hear it, meet the words, see how it works, then try it yourself.",
       href: `/course/lessons/${lesson.id}`,
-      minutes: LESSON_MINUTES,
+      minutes: lessonMinutes(lesson),
       derived: false,
     }],
-    minutes: LESSON_MINUTES,
+    minutes: lessonMinutes(lesson),
   };
 }
 

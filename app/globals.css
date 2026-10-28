@@ -6424,3 +6424,76 @@ a:focus-visible .wave-word::after {
   @media (pointer: coarse) { .snd-jump a { min-height: 2.75rem; } }
   [data-sounds-section] { scroll-margin-top: 1.5rem; }
 }
+
+/*
+  B1'S OWN MOVES (docs/43-lessons.md §11.2): a line heard before it is read,
+  a line said with its words fading out, and a clock that runs down.
+
+  VOICE BARS stand in for the words of a line not shown yet: as many bars as
+  the line is long, still while it waits and moving while it is said, so the
+  learner sees who is talking and for how long, and nothing else. In the
+  line's own ink, never a verdict hue, since nothing has been answered.
+
+  A FADED WORD is a ruled gap the width of the word, in the accent; the
+  moment the recognizer hears it, it comes back, popping in where it was.
+
+  THE CLOCK is a ring that empties: a registered angle so the conic gradient
+  can move, and the butter ink when ten seconds are left, which is the
+  "nearly, timed" hue and never a wrong answer's. Every one of these is
+  flattened by the reduced-motion block above.
+*/
+.voice-bars {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-height: 28px;
+  padding-block: 2px;
+}
+.voice-bars > span {
+  display: block;
+  width: 5px;
+  height: 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink) 30%, transparent);
+}
+.voice-bars-live > span {
+  background: var(--accent-deep);
+  animation: voice-bar 0.7s ease-in-out infinite alternate;
+}
+@keyframes voice-bar {
+  from { height: 6px; }
+  to { height: 24px; }
+}
+
+.fade-word {
+  display: inline-block;
+  min-width: 2.2ch;
+  border-bottom: 2px solid var(--accent);
+  color: transparent;
+  user-select: none;
+  line-height: 1.1;
+}
+.fade-word[data-back="true"] {
+  color: var(--ink);
+  border-bottom-color: transparent;
+  animation: pop-in 0.25s ease-out;
+}
+
+@property --clock-left {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 360deg;
+}
+.run-clock {
+  --clock-left: 360deg;
+  width: 88px;
+  height: 88px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(closest-side, var(--surface) 78%, transparent 79%),
+    conic-gradient(var(--clock-ink, var(--accent)) var(--clock-left), color-mix(in srgb, var(--ink) 10%, transparent) 0);
+  transition: --clock-left 0.25s linear;
+}
+.run-clock[data-low="true"] { --clock-ink: var(--butter-ink); }

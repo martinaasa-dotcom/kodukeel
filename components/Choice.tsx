@@ -54,9 +54,15 @@ const GroupContext = createContext<Select>("many");
  * keys move between them, and the reading is "3 of 8" rather than eight
  * unrelated switches. `select="many"` is a set of toggle buttons, which is what
  * `aria-pressed` actually means.
+ *
+ * `answer` is a question with one go at it: the arrow keys move the focus and
+ * only Enter or Space picks. A radio group selects as it moves, which is right
+ * for a setting and wrong for an answer that locks when it is picked, since a
+ * keyboard learner pressing down to read the second option has then answered
+ * with it.
  */
 export function ChoiceGroup({
-  label, ariaLabel, hint, select = "one", className = "flex flex-wrap gap-2", children, id,
+  label, ariaLabel, hint, select = "one", answer = false, className = "flex flex-wrap gap-2", children, id,
 }: {
   /** The question. Rendered as the group's label and read out with it. */
   label?: string;
@@ -64,6 +70,8 @@ export function ChoiceGroup({
   ariaLabel?: string;
   hint?: ReactNode;
   select?: Select;
+  /** A one-shot answer: the arrows move the focus without picking. */
+  answer?: boolean;
   /** Replaces the default wrapping row: some sets are a grid, some a column. */
   className?: string;
   children: ReactNode;
@@ -86,8 +94,10 @@ export function ChoiceGroup({
     if (!host) return;
     const radios = [...host.querySelectorAll<HTMLButtonElement>('[role="radio"]')];
     if (radios.length === 0) return;
+    // The chosen one, then the one the caret is on (an answered group moves it without choosing), then the first.
     const stop =
       radios.find((r) => r.getAttribute("aria-checked") === "true") ??
+      radios.find((r) => r === document.activeElement && !r.disabled) ??
       radios.find((r) => !r.disabled) ??
       radios[0];
     for (const r of radios) r.tabIndex = r === stop ? 0 : -1;
@@ -112,7 +122,9 @@ export function ChoiceGroup({
     // A radio group selects as it moves, which is the behavior every other
     // radio group on the web has and the reason it needs only one tab stop.
     radios[next]?.focus();
-    radios[next]?.click();
+    // Where moving is not choosing, nothing re-renders, so the tab stop moves with the caret here.
+    if (answer) for (const r of host.querySelectorAll<HTMLButtonElement>('[role="radio"]')) r.tabIndex = r === radios[next] ? 0 : -1;
+    else radios[next]?.click();
   };
 
   return (

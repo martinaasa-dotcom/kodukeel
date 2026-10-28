@@ -139,6 +139,7 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
       <ChoiceGroup
         ariaLabel={t("Which form")}
         select="one"
+        answer
         className="choice-grid mt-4"
       >
         {ask.options.map((option, i) => {

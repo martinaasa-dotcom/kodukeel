@@ -66,10 +66,27 @@ export function needsMixer(condition: Condition): boolean {
  * answers `blocked` rather than throwing, and anything else that goes wrong
  * throws, which is the one outcome a caller has to act on.
  */
+/** The sources of the mixed clip in the air, so a screen's Stop can end it mid-line (`stopClip`). */
+let mixing: { voice: AudioBufferSourceNode; room: AudioBufferSourceNode | null } | null = null;
+
+/** Ends the mixed clip in the air; its `onended` settles the play that started it. */
+export function stopMixed(): void {
+  const now = mixing;
+  mixing = null;
+  if (!now) return;
+  for (const source of [now.voice, now.room]) {
+    try { source?.stop(); } catch { /* not started yet, or already ended */ }
+  }
+}
+
 export async function playThrough(
   bytes: ArrayBuffer,
   condition: Condition,
-  { unasked = false }: { unasked?: boolean } = {},
+  { unasked = false, cancelled = () => false }: {
+    unasked?: boolean;
+    /** True once the play was stopped while still being made ready, so it never starts. */
+    cancelled?: () => boolean;
+  } = {},
 ): Promise<PlayOutcome> {
   const ctx = audioContext();
   if (!ctx) throw new Error("no audio context");
@@ -89,6 +106,9 @@ export async function playThrough(
 
   // `decodeAudioData` detaches the buffer it is given, so it gets a copy.
   const buffer = await ctx.decodeAudioData(bytes.slice(0));
+  // A Stop pressed while the context was resuming or the clip decoding is a
+  // Stop: the sources do not exist yet, so `stopMixed` had nothing to end.
+  if (cancelled()) return "played";
   const offset = Math.min(buffer.duration * condition.skip, Math.max(0, buffer.duration - 0.4));
   const remaining = buffer.duration - offset;
   const at = ctx.currentTime + 0.02;
@@ -133,14 +153,21 @@ export async function playThrough(
 
   const voiceAt = condition.noise ? at + 0.35 : at;
   voice.start(voiceAt, offset);
+  const mine = { voice, room };
+  mixing = mine;
 
   await new Promise<void>((resolve) => {
     voice.onended = () => resolve();
   });
   if (room) {
-    await new Promise<void>((resolve) => {
-      room!.onended = () => resolve();
-    });
+    // Stopped already, it has ended and fires nothing more; otherwise it fades out after the voice.
+    const stopped = mixing !== mine;
+    if (!stopped) {
+      await new Promise<void>((resolve) => {
+        room!.onended = () => resolve();
+      });
+    }
   }
+  if (mixing === mine) mixing = null;
   return "played";
 }

@@ -409,6 +409,8 @@ export function reviewable(
 ): boolean {
   if (refusedCardSentence(card) !== null) return false;
   if (!scope) return true;
+  // The learner's own sentence: theirs to read, so no gate on its words (`lib/progress/ownSentences.ts`).
+  if (card.source === "WRITTEN") return true;
   if (isAppsChoice(card.source) && !(card.lexeme && taughtSet(scope).has(card.lexeme.lemma))) return false;
   return cardWithin(scope, card, spellings);
 }

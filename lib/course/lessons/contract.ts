@@ -3,7 +3,7 @@ import type { LessonSpec, PartOfLessons } from "./types";
 /**
  * WHAT A LEVEL OF LESSONS HAS TO BE, WHICHEVER LEVEL IT IS.
  *
- * A1 and A2 are lessons, and B1, B2 and C1 will be. Every rule here was true
+ * A1, A2 and B1 are lessons, and B2 and C1 will be. Every rule here was true
  * of A1 by the time A2 was written and was found broken by a reading of A2,
  * which is the argument for writing them down as a check rather than a
  * habit: four parts ended on an evening labeled "Check-in" where the rest
@@ -37,9 +37,18 @@ export function lessonEnglish(lesson: LessonSpec): string[] {
     ...(how.sounds ?? []).flatMap((row) => [row.like, ...(row.en ? [row.en] : [])]),
     ...(how.listen ?? []).flatMap((set) => set.words.map((w) => w.en)),
     ...lesson.conversation.flatMap((line) => [line.en ?? "", line.stage ?? ""]),
-    ...lesson.teaches.flatMap((t) => (t.kind === "verb" ? [t.en, t.firstEn] : [t.en])),
+    ...lesson.teaches.flatMap((t) => [...(t.kind === "verb" ? [t.en, t.firstEn] : [t.en]), ...("asks" in t && t.asks ? [t.asks] : [])]),
     ...[...lesson.answers, ...(lesson.roleplay?.turns ?? [])].flatMap((p) => [p.cue, p.model.en, p.ask?.en ?? ""]),
     ...(lesson.roleplay ? [lesson.roleplay.scene] : []),
+    // The B1 exercises (types.ts): every English line they draw through `LessonText`.
+    ...(lesson.reworks ?? []).flatMap((r) => [r.from.en, r.ask, r.to.en]),
+    ...(lesson.fixes ?? []).flatMap((f) => [f.line.en, f.why]),
+    ...(lesson.listenFor ?? []).flatMap((g) => [g.q, ...g.options]),
+    ...(lesson.retell ? [...lesson.retell.story.map((l) => l.en), ...lesson.retell.points.map((p) => p.en)] : []),
+    ...(lesson.faster ? [lesson.faster.ask.en, lesson.faster.cue, lesson.faster.model.en] : []),
+    ...(lesson.write
+      ? [lesson.write.genre, lesson.write.purpose, lesson.write.task, ...lesson.write.model.map((l) => l.en), ...lesson.write.uses.map((u) => u.en)]
+      : []),
   ].filter((s) => s.trim() !== "");
 }
 
@@ -79,6 +88,45 @@ export function levelContractProblems(lessons: readonly LessonSpec[], parts: rea
     if (!parts.some((p) => p.id === lesson.part)) problems.push(`${lesson.id}: belongs to no part`);
     // A finale is the conversation the part was for; a scene description is what the learner reads first.
     if (lesson.roleplay && lesson.roleplay.turns.length < 3) problems.push(`${lesson.id}: a role-play of ${lesson.roleplay.turns.length} turns is not a conversation`);
+    /*
+      A part's closing evening is its conversation and nothing else: Say it there
+      runs the role-play's turns alone (`SayIt`), so a story to retell or an
+      answer to say faster on it is never shown and is still counted in the
+      lesson's minutes. Refused rather than silently dropped.
+    */
+    if (lesson.kind !== "lesson" && lesson.roleplay && (lesson.retell || lesson.faster)) {
+      problems.push(`${lesson.id}: a closing conversation carries a ${lesson.retell ? "retell" : "faster"} its Say it never shows`);
+    }
+  }
+  /*
+    A VOICE IS A PERSON. B1 is heard before it is read, so who is speaking is
+    told by the voice alone: two speakers of one conversation in one voice are
+    one person to the ear, and a person who changes voice between lessons of a
+    level is two. Asked of the people who speak, not of the cast list, since a
+    name can be in the cast only to be mentioned.
+  */
+  for (const lesson of lessons) {
+    const speaking = [...new Set(lesson.conversation.filter((l) => l.et).map((l) => l.who))];
+    const byVoice = new Map<string, string>();
+    for (const who of speaking) {
+      const voice = lesson.cast[who];
+      if (!voice) continue;
+      const other = byVoice.get(voice);
+      if (other) problems.push(`${lesson.id}: ${other} and ${who} speak in one voice, ${voice}`);
+      else byVoice.set(voice, who);
+    }
+  }
+  for (const level of levels) {
+    const voiceOf = new Map<string, { voice: string; at: string }>();
+    for (const lesson of lessons.filter((l) => l.level === level)) {
+      for (const who of new Set(lesson.conversation.filter((l) => l.et).map((l) => l.who))) {
+        const voice = lesson.cast[who];
+        if (!voice) continue;
+        const before = voiceOf.get(who);
+        if (before && before.voice !== voice) problems.push(`${lesson.id}: ${who} speaks in ${voice}, and in ${before.voice} in ${before.at}`);
+        else if (!before) voiceOf.set(who, { voice, at: lesson.id });
+      }
+    }
   }
   // A grammar point is explained once in a level and practiced from then on.
   for (const level of levels) {

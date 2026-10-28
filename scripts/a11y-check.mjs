@@ -143,9 +143,9 @@ const ROUTES = [
   "/privacy?lang=et", "/trust?lang=et", "/funding?lang=et", "/partners?lang=et", "/curriculum?lang=et", "/accessibility?lang=et",
   "/teachers?lang=et", "/state-exam?lang=et", "/help?lang=et", "/how-we-know?lang=et", "/pilots?lang=et",
   "/welcome", "/sign-in", "/start", "/suggestions", "/admin/suggestions", "/admin/errors", "/admin/speech", "/dev/asr",
-  "/course", "/course/learn", "/course/forms", "/course/chat", "/course/lessons", "/course/lessons/a1-04-persons", "/course/check/check-a1.1", "/review/letters", "/review/workbook", "/review/numbers", "/review/sayings", "/review/wordplay", "/review/lookups",
+  "/course", "/course/learn", "/course/forms", "/course/chat", "/course/lessons", "/course/lessons/a1-04-persons", "/course/lessons/b1-06-note", "/course/check/check-a1.1", "/review/letters", "/review/workbook", "/review/numbers", "/review/sayings", "/review/wordplay", "/review/lookups",
   "/exam/A1", "/grammar/topic/object", "/learn/checkpoint/A1",
-  "/learn/too-ja-raha/lesson", "/learn/too-ja-raha/worksheet",
+  "/learn/uhiskond/lesson", "/learn/uhiskond/worksheet",
   "/review", "/review/write", "/review/government", "/review/openers", "/review/twenty", "/review/conjugation", "/review/cloze", "/review/clinic",
   "/review/dictation", "/review/listening", "/review/match", "/review/pairs",
   "/review/sentences", "/review/speaking",
@@ -355,8 +355,8 @@ for (const g of groups) {
   entry of any kind: `/course`, `/course/learn`, `/grammar/build-a-word`,
   `/learn/new`, `/review/letters`, `/review/lookups`, `/sign-in` and
   `/start`. Five more needed only a value for their segment: `/exam/A1`,
-  `/grammar/topic/object`, `/learn/checkpoint/A1`, `/learn/too-ja-raha/lesson` and
-  `/learn/too-ja-raha/worksheet`. And three need a row first and are read off the
+  `/grammar/topic/object`, `/learn/checkpoint/A1`, `/learn/uhiskond/lesson` and
+  `/learn/uhiskond/worksheet`. And three need a row first and are read off the
   page that lists them, a shelf off `/words/decks` and both kinds of group
   off `/class`, eleven checks each. The first run over them found four real
   failures on two screens: the English beside a grammar point faded to 0.75

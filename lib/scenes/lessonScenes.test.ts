@@ -9,7 +9,12 @@ import { isSpokenEstonian } from "./line";
 import { caseKeyFor, type Lexicon } from "./lexicon";
 import { leafNeeds, type BeatSpec, type SceneSpec } from "./types";
 import { acceptFromRows, contextFromRows, sceneLemmas, type Row, type StoredDraw } from "@/lib/progress/scene";
-import { LESSONS, ledgerThrough, lessonById, uncovered, NAMES, wordsOf } from "@/lib/course/lessons";
+import { LESSONS as COURSE_LESSONS, ledgerThrough, uncovered, NAMES, wordsOf } from "@/lib/course/lessons";
+import { PREVIEW_LESSONS } from "@/lib/course/lessons/preview";
+
+/* The course and the lessons in preview after it, since a part in preview has its own conversation too. */
+const LESSONS = [...COURSE_LESSONS, ...PREVIEW_LESSONS];
+const lessonById = (id: string) => LESSONS.find((l) => l.id === id) ?? null;
 import type { Level } from "@/lib/collections/syllabus";
 import { shippedDictionary } from "../../scripts/lib/dictionary";
 import { playScripted, type Event, type Floor } from "../../scripts/lib/keylessPlay";

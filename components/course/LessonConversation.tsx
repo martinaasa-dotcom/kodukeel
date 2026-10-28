@@ -8,8 +8,9 @@ import { useAudioPrefs } from "@/components/AudioPrefs";
 import { useLocale, useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
 import { LessonText } from "@/components/course/LessonText";
-import { playClip, untilQuiet } from "@/lib/audio/clip";
+import { playClip, stopClip, untilQuiet } from "@/lib/audio/clip";
 import { nativePart } from "@/lib/audio/native";
+import type { Condition } from "@/lib/audio/conditions";
 import type { Line } from "@/lib/course/lessons/types";
 
 /**
@@ -24,14 +25,27 @@ import type { Line } from "@/lib/course/lessons/types";
  * them one after another in the cast's voices and lights the line being said,
  * which is the closest a screen gets to overhearing it.
  *
- * Stopping takes effect after the line being said, since a clip already in
- * the air finishes: cutting a word in half is the one thing a learner would
- * notice more than the wait.
+ * Stop ends the line being said (`stopClip`), and a line still on its way
+ * is not said: a learner who pressed Stop asked for quiet now, and a line
+ * finishing over the press reads as the button not working.
  */
-export function LessonConversation({ lines, cast, english }: {
+export function LessonConversation({ lines, cast, english, hidden = false, condition, onPlayed }: {
   lines: readonly Line[];
   cast: Readonly<Record<string, string>>;
   english: boolean;
+  /**
+   * B1 on, the first time through: the words are not shown, only who is
+   * speaking and how long they talk for, so the conversation is followed by
+   * ear before it is read (`ListenFirst`). Each line still plays on its own.
+   */
+  hidden?: boolean;
+  /**
+   * The room it is heard in, on that hidden first play (`LessonSpec.hearing`):
+   * a phone line, a café, or sped up. Absent is a quiet room.
+   */
+  condition?: Condition;
+  /** Called when "Play the conversation" reaches the end, which is when a gist question is fair. */
+  onPlayed?: () => void;
 }) {
   const t = useT();
   const locale = useLocale();
@@ -48,10 +62,12 @@ export function LessonConversation({ lines, cast, english }: {
   const playAll = async () => {
     if (playing) {
       stop.current = true;
+      stopClip();
       return;
     }
     stop.current = false;
     setPlaying(true);
+    let heard = 0;
     for (let i = 0; i < lines.length; i++) {
       if (stop.current) break;
       const line = lines[i]!;
@@ -59,23 +75,26 @@ export function LessonConversation({ lines, cast, english }: {
       setActive(i);
       items.current[i]?.scrollIntoView({ block: "nearest", behavior: "smooth" });
       try {
-        await playClip({ text: line.et, voice: cast[line.who], pace: prefs.pace, native: line.who === played });
+        if ((await playClip({ text: line.et, voice: cast[line.who], pace: prefs.pace, native: line.who === played, condition })) === "played") heard += 1;
         await untilQuiet(20_000);
       } catch {
         // A line the speech service would not say is skipped rather than ending the play.
       }
       await new Promise((r) => setTimeout(r, 300));
     }
+    // Heard only where something was said: a play over a speech service that refused every line is not a listen.
+    const whole = !stop.current && heard > 0;
     setActive(null);
     setPlaying(false);
+    if (whole) onPlayed?.();
   };
 
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <Button variant={playing ? "secondary" : "primary"} size="sm" onClick={playAll} aria-pressed={playing}>
+        <Button variant={playing ? "secondary" : "primary"} size="sm" onClick={playAll}>
           {playing ? <Pause size={15} aria-hidden /> : <Play size={15} aria-hidden />}
-          {playing ? t("Stop after this line") : t("Play the conversation")}
+          {playing ? t("Stop") : t("Play the conversation")}
         </Button>
       </div>
       <ol className="flex flex-col gap-3" data-lesson-conversation>
@@ -97,6 +116,10 @@ export function LessonConversation({ lines, cast, english }: {
               data-line-side={left ? "left" : "right"}
               aria-current={lit ? "true" : undefined}
             >
+              {/* The first line's direction is the setting, so it comes before anybody speaks. */}
+              {i === 0 && line.stage && (
+                <p className="mb-1 self-stretch px-1 text-base italic" style={{ color: "var(--ink-3)" }} data-setting><LessonText text={line.stage} locale={locale} /></p>
+              )}
               <span className="label-xs px-1" style={{ color: "var(--ink-3)" }}>{line.who}</span>
               <div
                 className={`max-w-full rounded-[var(--r-lg)] border px-4 py-3 transition-shadow ${lit ? "pop-in" : ""}`}
@@ -109,14 +132,23 @@ export function LessonConversation({ lines, cast, english }: {
                 }}
               >
                 <div className="flex items-start gap-2">
-                  <Speak text={line.et} voice={cast[line.who]} native={line.who === played} size={18} label={fill(t("Hear {who} say it"), { who: line.who })} />
-                  <p lang="et" className="text-lg font-semibold" style={{ color: "var(--ink)" }}>{line.et}</p>
+                  <Speak text={line.et} voice={cast[line.who]} native={line.who === played} condition={condition} size={18} label={fill(t("Hear {who} say it"), { who: line.who })} />
+                  {hidden ? (
+                    // How long the line is, as bars that move while it is said: the shape of speech, not its words.
+                    <span role="img" className={`voice-bars ${lit ? "voice-bars-live" : ""}`} aria-label={t("A line, not shown yet")} data-hidden-line>
+                      {Array.from({ length: Math.min(14, Math.max(3, Math.round(line.et.split(/\s+/).length * 1.4))) }, (_, b) => (
+                        <span key={b} style={{ animationDelay: `${(b % 5) * 90}ms` }} />
+                      ))}
+                    </span>
+                  ) : (
+                    <p lang="et" className="text-lg font-semibold" style={{ color: "var(--ink)" }}>{line.et}</p>
+                  )}
                 </div>
-                {english && line.en && (
+                {english && !hidden && line.en && (
                   <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}><LessonText text={line.en} locale={locale} /></p>
                 )}
               </div>
-              {line.stage && (
+              {i > 0 && line.stage && (
                 <p className="px-1 text-base italic" style={{ color: "var(--ink-3)" }}><LessonText text={line.stage} locale={locale} /></p>
               )}
             </li>

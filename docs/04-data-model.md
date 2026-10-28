@@ -81,7 +81,7 @@ notices until a contributor writes a row the app then refuses.
 
 ```
 CardType    RECOGNITION PRODUCTION CASE_FORM GRADATION GOVERNMENT CLOZE CONJUGATION
-CardSource  COURSE FREQUENCY SCENE LOOKUP MANUAL TUTOR IMPORT SCAN ALMANAC SENTENCE DICTIONARY
+CardSource  COURSE FREQUENCY SCENE LOOKUP MANUAL TUTOR IMPORT SCAN ALMANAC SENTENCE DICTIONARY WRITTEN
             (declared in CARD_SOURCES, lib/srs/sources.ts)
 SceneGap    ASKED STALLED REACHED  (the help button, a beat that could not be met,
             and a word said in English)

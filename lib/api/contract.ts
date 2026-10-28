@@ -319,10 +319,10 @@ const LessonLine = z.object({
 });
 
 const LessonTaught = z.discriminatedUnion("kind", [
-  z.object({ kind: z.literal("word"), et: z.string(), en: z.string() }),
+  z.object({ kind: z.literal("word"), et: z.string(), en: z.string(), asks: z.string().optional().describe("What the word asks for after it, B1 on.") }),
   z.object({ kind: z.literal("form"), et: z.string(), of: z.string(), en: z.string() }),
   z.object({ kind: z.literal("phrase"), et: z.string(), en: z.string() }),
-  z.object({ kind: z.literal("verb"), et: z.string(), first: z.string(), en: z.string(), firstEn: z.string() }),
+  z.object({ kind: z.literal("verb"), et: z.string(), first: z.string(), en: z.string(), firstEn: z.string(), asks: z.string().optional().describe("What the verb asks for after it, B1 on.") }),
 ]);
 
 const LessonCell = z.union([z.object({ et: z.string() }), z.object({ en: z.string() })]);
@@ -332,6 +332,15 @@ const LessonPrompt = z.object({
   cue: z.string(),
   model: EtEn,
 });
+
+const LessonPattern = z.enum([
+  "present", "negative", "imperative",
+  "inside", "outside", "comitative", "translative", "terminative", "essive", "abessive",
+  "past", "conditional",
+  // B1's rules about choosing, added for the B1 lessons (docs/43-lessons.md §11.3). Within v1 an enum only grows.
+  "object", "government", "impersonal", "pluperfect", "relative", "particleVerb",
+  "participle", "conditionalPast", "subordinate", "agreement", "derivation",
+]);
 
 export const LessonSpecSchema = z.object({
   id: z.string(),
@@ -345,11 +354,7 @@ export const LessonSpecSchema = z.object({
   cast: z.record(z.string(), z.string()).describe("Who speaks, by name, and the voice each is read in."),
   conversation: z.array(LessonLine).readonly(),
   teaches: z.array(LessonTaught).readonly(),
-  patterns: z.array(z.enum([
-    "present", "negative", "imperative",
-    "inside", "outside", "comitative", "translative", "terminative", "essive", "abessive",
-    "past", "conditional",
-  ])).readonly().optional(),
+  patterns: z.array(LessonPattern).readonly().optional(),
   how: z.object({
     point: z.string(),
     notes: z.array(z.string()).readonly().optional(),
@@ -373,6 +378,31 @@ export const LessonSpecSchema = z.object({
     examples: z.array(z.number().int()).readonly().optional().describe("Lines of the conversation, by index."),
   }),
   answers: z.array(LessonPrompt).readonly(),
+  reworks: z.array(z.object({
+    from: z.object({ et: z.string(), en: z.string() }), ask: z.string(),
+    to: z.object({ et: z.string(), en: z.string() }), also: z.array(z.string()).readonly().optional(),
+    pattern: LessonPattern,
+  })).readonly().optional().describe("Sentences to change, B1 on; the practice step carries them as `rework` items."),
+  fixes: z.array(z.object({
+    line: z.object({ et: z.string(), en: z.string() }), right: z.string(), wrong: z.string(),
+    pair: z.tuple([z.string(), z.string()]).readonly(), why: z.string(),
+  })).readonly().optional().describe("Lines with a slip in them, B1 on; the practice step carries them as `fix` items."),
+  listenFor: z.array(z.object({
+    q: z.string(), options: z.array(z.string()).readonly(), answer: z.number().int(),
+  })).readonly().optional().describe("Questions on what was heard, asked before the text is shown, B1 on. Draw the options in the order the web does: shuffled with a seed taken from the question."),
+  hearing: z.enum(["phone", "cafe", "quick"]).optional()
+    .describe("The room the hidden first play of the conversation is heard in (B1 on): a phone line, a café, or sped up. Absent is a quiet room."),
+  retell: z.object({
+    who: z.string(),
+    story: z.array(EtEn).readonly(),
+    points: z.array(z.object({ en: z.string(), any: z.array(z.string()).readonly() })).readonly(),
+  }).optional().describe("A short story heard twice and told back aloud, B1 on; a point lights on any of its spellings."),
+  faster: z.object({ ask: EtEn, cue: z.string(), model: EtEn }).optional().describe("One answer said three times, in 90, 60 and 45 seconds at the standard pace (times `timeMultiplier`), B1 on."),
+  write: z.object({
+    genre: z.string(), purpose: z.string(),
+    model: z.array(EtEn).readonly(), uses: z.array(EtEn).readonly(),
+    task: z.string(), least: z.number().int(),
+  }).optional().describe("The part's one real text, on its writing evening, B1 on."),
   roleplay: z.object({ scene: z.string(), turns: z.array(LessonPrompt).readonly() }).optional(),
 }).describe(
   "One lesson as the web's lesson screen receives it. Two conventions run through its English, and a " +
@@ -395,6 +425,15 @@ export const PracticeItemSchema = z.discriminatedUnion("kind", [
     kind: z.literal("reply"), ask: z.object({ et: z.string(), en: z.string() }),
     options: z.array(z.string()).readonly(), answer: z.string(), answerEn: z.string(),
   }).describe("A question from a conversation, and what was said back, among the answers to other questions."),
+  z.object({
+    kind: z.literal("rework"), from: z.object({ et: z.string(), en: z.string() }), ask: z.string(),
+    answer: z.string(), answerEn: z.string(),
+    accept: z.array(z.string()).readonly().describe("Every sentence that counts, the lesson's own first."),
+  }).describe("A sentence to change the way `ask` says (B1 on), typed and marked against `accept`."),
+  z.object({
+    kind: z.literal("fix"), shown: z.string(), en: z.string(), answer: z.string(),
+    accept: z.array(z.string()).readonly(), wrong: z.string(), right: z.string(), why: z.string(),
+  }).describe("A line with one word swapped for another form of it (B1 on); typed back put right."),
   z.object({ kind: z.literal("hear"), et: z.string(), options: z.array(z.string()).readonly(), answer: z.string() }),
   z.object({ kind: z.literal("pick"), et: z.string(), options: z.array(z.string()).readonly(), answer: z.string() }),
   z.object({
@@ -404,7 +443,11 @@ export const PracticeItemSchema = z.discriminatedUnion("kind", [
     accept: z.array(z.string()).readonly().describe("Every spelling that counts, the asked one first."),
     note: z.string().optional(),
   }),
-]).describe("One question, built on the server; the client never decides what a learner is asked.");
+]).describe(
+  "One question, built on the server; the client never decides what a learner is asked. A kind is added " +
+  "and never removed within v1 (`rework` and `fix` came with B1), so a client skips an item whose kind it " +
+  "does not know rather than failing the lesson: a lesson with one question fewer is still a lesson.",
+);
 
 export const LessonResponse = z.object({
   lesson: LessonSpecSchema,
@@ -412,6 +455,8 @@ export const LessonResponse = z.object({
   review: z.array(PracticeItemSchema).readonly(),
   next: z.object({ id: z.string(), title: z.string() }).nullable().describe("The next lesson in the same level, or null at its end and past a part's end until its check is passed."),
   scene: z.string().nullable().describe("The lesson's own conversation, a scene id, where it has one."),
+  situation: z.object({ id: z.string(), title: z.string() }).nullable()
+    .describe("A conversation from the situations catalog that the lesson rehearses, offered on its finish (B1 on)."),
   place: z.object({ at: z.number().int(), of: z.number().int() }),
   name: z.string().nullable().describe("The learner's own first name, for a model answer about them."),
   due: z.number().int().min(0).describe("Cards due in the learner's reviews now."),
@@ -421,6 +466,8 @@ export const LessonResponse = z.object({
     title: z.string(),
     lessons: z.array(z.object({ id: z.string(), label: z.string(), title: z.string(), done: z.boolean() })).readonly(),
   }).describe("The part this lesson is in, lesson by lesson, with the ones the learner has done."),
+  partAt: z.number().int().min(1).describe("Which part of its level the lesson is in, counted from 1; the say-along fade starts with words hidden from the fourth part."),
+  timeMultiplier: z.number().min(1).describe("How many times the standard a timed go runs for this learner (their round pace), for \"Again, faster\"."),
   locale: InterfaceLanguage,
   nativePart: z.string().nullable().describe(
     "The one part of the conversation the native speaker recorded whole, which a phone plays in his voice by " +

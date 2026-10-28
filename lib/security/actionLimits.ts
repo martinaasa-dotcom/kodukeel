@@ -40,6 +40,15 @@ export const ACTION_LIMITS = {
    * never met by anybody answering.
    */
   checkSentence: { perMinute: 30 },
+  /**
+   * Reads a whole text a learner wrote on a writing evening, sentence by
+   * sentence, against the dictionary: up to two dozen sentences a press, read
+   * in one pass (`checkTypedSentences`).
+   * A draft and a redraft an evening, so ten a minute is never met.
+   */
+  checkText: { perMinute: 10 },
+  /** Writes the gap cards a learner's own draft earns, under the deck lock, once a draft. */
+  keepSentences: { perMinute: 10 },
   /** Writes a row and a card per line of a pasted list. */
   importWords: { perMinute: 10 },
   /**

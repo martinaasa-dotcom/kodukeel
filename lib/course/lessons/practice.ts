@@ -34,7 +34,7 @@ import { editDistance, nearMiss } from "@/lib/estonian/answer";
 import { fold } from "@/lib/estonian/fold";
 import { rng, seedFrom } from "@/lib/random/seeded";
 import { shuffle } from "@/lib/random/shuffle";
-import { estonianIn, familiesOf, ledgerThrough, lessonRank, teach, unfold, wordsOf, type Asked, type Ledger } from "./ledger";
+import { estonianIn, familiesOf, ledgerThrough, lessonRank, teach, unfold, withSlip, wordsOf, type Asked, type Ledger } from "./ledger";
 import { STAND_IN, hasStandIn, personal } from "./ownAnswer";
 import type { LessonSpec } from "./types";
 
@@ -74,7 +74,19 @@ export type PracticeItem =
    * word of it, is what is asked about.
    */
   | { readonly kind: "reply"; readonly ask: { readonly et: string; readonly en: string };
-      readonly options: readonly string[]; readonly answer: string; readonly answerEn: string };
+      readonly options: readonly string[]; readonly answer: string; readonly answerEn: string }
+  /**
+   * A sentence to change, typed (`Rework`): the sentence, what to do to it,
+   * and every way of saying the result that counts, the lesson's own first.
+   */
+  | { readonly kind: "rework"; readonly from: { readonly et: string; readonly en: string }; readonly ask: string;
+      readonly answer: string; readonly answerEn: string; readonly accept: readonly string[] }
+  /**
+   * A line with one word swapped for another form of it (`Fix`), typed back
+   * put right. `shown` is the line with the slip, `answer` the line itself.
+   */
+  | { readonly kind: "fix"; readonly shown: string; readonly en: string; readonly answer: string;
+      readonly accept: readonly string[]; readonly wrong: string; readonly right: string; readonly why: string };
 
 /** The Estonian a practice item asks about, which the ledger has to cover. */
 export function itemEstonian(item: PracticeItem): string[] {
@@ -83,6 +95,8 @@ export function itemEstonian(item: PracticeItem): string[] {
     case "match": return item.pairs.map((p) => p.et);
     case "gap": return [`${item.before}${item.answer}${item.after}`, ...item.options];
     case "reply": return [item.ask.et, ...item.options];
+    case "rework": return [item.from.et, ...item.accept];
+    case "fix": return [item.shown, ...item.accept];
     default: return [item.et];
   }
 }
@@ -105,6 +119,32 @@ export const CHECKIN_REACH = 4;
  */
 export const RECOGNISE_AT_MOST = 10;
 export const PRODUCE_AT_MOST = 6;
+
+/** At most this many sentences to change in one evening's practice. */
+export const REWORK_AT_MOST = 4;
+
+/** At most this many slips to put right in one evening's practice. */
+export const FIX_AT_MOST = 3;
+
+/** A pair of slots as one key, whichever way round it was recorded. */
+const pairKey = (pair: readonly [string, string]) => [...pair].sort().join(" ");
+
+/**
+ * The fixes an evening asks, the learner's own mix-ups first: a fix whose
+ * pair the learner has been recorded confusing comes before one they have
+ * not, commoner confusions first, and the lesson's own order stands within
+ * each. Never more than `FIX_AT_MOST`.
+ */
+export function fixesFor(lesson: LessonSpec, confusions: readonly (readonly [string, string])[] = []): PracticeItem[] {
+  const rank = new Map(confusions.map((pair, i) => [pairKey(pair), i] as const));
+  const ordered = (lesson.fixes ?? [])
+    .map((fix, i) => ({ fix, i, mine: rank.get(pairKey(fix.pair)) }))
+    .sort((a, b) => (a.mine ?? Infinity) - (b.mine ?? Infinity) || a.i - b.i);
+  return ordered.slice(0, FIX_AT_MOST).map(({ fix }): PracticeItem => ({
+    kind: "fix", shown: withSlip(fix), en: fix.line.en, answer: fix.line.et, accept: [fix.line.et],
+    wrong: fix.wrong, right: fix.right, why: fix.why,
+  }));
+}
 
 /** Options under a recognize question, the answer included. */
 const OPTIONS = 4;
@@ -452,7 +492,11 @@ function repliesFrom(prompts: readonly Exchange[], pool: readonly Exchange[], ra
  * a seeded selection where it does not. `history` is the lessons before this
  * one, whose conversations the dialogue questions draw on as well.
  */
-export function practiceFor(lesson: LessonSpec, before: Ledger, history: readonly LessonSpec[] = []): PracticeItem[] {
+export function practiceFor(
+  lesson: LessonSpec, before: Ledger, history: readonly LessonSpec[] = [],
+  /** The pairs of forms this learner mixes up, commonest first, which put their own slips first. */
+  confusions: readonly (readonly [string, string])[] = [],
+): PracticeItem[] {
   const random = rng(seedFrom(`practice:${lesson.id}`));
   const subjects = onePerMeaning(practiceSubjects(lesson, before)).filter((item) => !meaningShows(item));
   const tonight = lesson.teaches.flatMap(unfold);
@@ -470,7 +514,10 @@ export function practiceFor(lesson: LessonSpec, before: Ledger, history: readonl
   const asked = shuffle(chosen.filter((item) => wordsOf(item.et).length <= TYPE_UP_TO_WORDS), random)
     .slice(0, PRODUCE_AT_MOST)
     .map((item) => produce(item, pool));
-  return [...(match ? [match] : []), ...recog, ...gaps, ...replies, ...asked];
+  const reworks = (lesson.reworks ?? []).slice(0, REWORK_AT_MOST).map((r): PracticeItem => ({
+    kind: "rework", from: r.from, ask: r.ask, answer: r.to.et, answerEn: r.to.en, accept: [r.to.et, ...(r.also ?? [])],
+  }));
+  return [...(match ? [match] : []), ...recog, ...gaps, ...replies, ...reworks, ...fixesFor(lesson, confusions), ...asked];
 }
 
 /**
@@ -513,6 +560,12 @@ export function normalisePhrase(text: string): string {
 /** The slip floor for a one-letter difference (`lib/estonian/answer.ts`). */
 const SLIP_FLOOR = 8;
 
+/** An item answered by typing, which is marked by spelling rather than by the option picked. One test, so a new typed kind is added in one place. */
+export type TypedItem = Extract<PracticeItem, { kind: "type" | "rework" | "fix" }>;
+export function isTyped(item: PracticeItem): item is TypedItem {
+  return item.kind === "type" || item.kind === "rework" || item.kind === "fix";
+}
+
 export interface TypedMark {
   readonly verdict: Verdict;
   /** What to say, in English, beside the answer. */
@@ -546,6 +599,52 @@ export function markPhrase(typed: string, accept: readonly string[]): TypedMark 
   }
   if (wants.some((w) => w.length >= SLIP_FLOOR && editDistance(said, w, 1) <= 1)) return { verdict: "nearly", note: "Nearly: one letter out.", close: false };
   return { verdict: "wrong", note: "Not quite.", close: wants.some((w) => nearMiss(said, w)) };
+}
+
+/**
+ * HOW A CHANGED SENTENCE COMPARES WITH THE ONES THAT COUNT.
+ *
+ * Not `markPhrase`, for one reason: its slip rule forgives a letter out from
+ * eight letters up, and in a sentence that letter is often the whole point,
+ * since `raamatu` and `raamatut` are one letter and two meanings. So a changed
+ * sentence is right where its words are the words of one that counts, nearly
+ * where only the letters with marks on them differ, and otherwise not, with
+ * one more thing worth saying: the sentence typed back unchanged.
+ */
+export function markRework(typed: string, item: Extract<PracticeItem, { kind: "rework" | "fix" }>): TypedMark {
+  const said = normalisePhrase(typed);
+  const wants = item.accept.map(normalisePhrase);
+  if (said.length === 0) return { verdict: "wrong", note: "Nothing typed.", close: false };
+  if (wants.includes(said)) return { verdict: "right", note: "That's it.", close: false };
+  if (wants.some((w) => fold(w) === fold(said))) return { verdict: "nearly", note: "Nearly: mind the letters with marks on them.", close: false };
+  if (said === normalisePhrase(item.kind === "fix" ? item.shown : item.from.et)) {
+    return item.kind === "fix"
+      ? { verdict: "wrong", note: "That's the line with the slip still in it.", close: false }
+      : { verdict: "wrong", note: "That's the sentence as it was. Change it the way the line above asks.", close: false };
+  }
+  /*
+    A FIX IS ABOUT ONE WORD. The whole line is retyped, so a slip of the hand
+    anywhere else in it used to cost the fix itself: the learner put the slip
+    right and read "Not quite". Where the word in question is now right and the
+    only other difference is one near miss, it is nearly, and says which half
+    they got.
+  */
+  if (item.kind === "fix") {
+    const typedWords = said.split(" ");
+    const wanted = normalisePhrase(item.answer).split(" ");
+    const right = normalisePhrase(item.right);
+    if (typedWords.length === wanted.length && typedWords.includes(right) && !typedWords.includes(normalisePhrase(item.wrong))) {
+      const off = typedWords.map((w, i) => ({ w, want: wanted[i]! })).filter(({ w, want }) => w !== want);
+      // A slip of the hand on the other word is only what `markPhrase` calls one: its marks, or one letter out from eight letters up, so `sina` typed for `mina` is a different word and not a slip.
+      const slip = off.length === 1 && (fold(off[0]!.w) === fold(off[0]!.want)
+        || (off[0]!.want.length >= SLIP_FLOOR && editDistance(off[0]!.w, off[0]!.want, 1) <= 1));
+      if (slip) {
+        return { verdict: "nearly", note: "The slip is put right. Mind the spelling of one other word.", close: false };
+      }
+    }
+  }
+  // Never painted as nearly: a third of a sentence's letters is room for the one ending the exercise is about.
+  return { verdict: "wrong", note: "Not quite.", close: false };
 }
 
 /**
@@ -664,8 +763,8 @@ export function markCheck(items: readonly PracticeItem[], responses: readonly (s
     const said = responses[i] ?? "";
     // A match is never on a check: it is several answers in one, and a check marks one each.
     if (item.kind === "match") return "wrong" as const;
-    if (item.kind !== "type") return said === item.answer ? "right" as const : "wrong" as const;
-    const mark = markPhrase(said, item.accept).verdict;
+    if (!isTyped(item)) return said === item.answer ? "right" as const : "wrong" as const;
+    const mark = (item.kind === "type" ? markPhrase(said, item.accept) : markRework(said, item)).verdict;
     return mark === "right" ? "right" as const : mark === "nearly" ? "nearly" as const : "wrong" as const;
   });
   const score = marks.reduce((sum, m) => sum + (m === "right" ? 1 : m === "nearly" ? 0.5 : 0), 0);

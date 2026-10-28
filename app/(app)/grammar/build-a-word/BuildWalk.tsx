@@ -993,6 +993,7 @@ function YourTurn({ word }: { word: WalkWord }) {
         <ChoiceGroup
           ariaLabel={t("Which ending")}
           select="one"
+          answer
           className="choice-grid mt-4"
         >
           {options.map((option, i) => {

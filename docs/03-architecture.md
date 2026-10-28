@@ -246,6 +246,19 @@ ledger rather than typed, so they cannot ask what was not taught. Whether a line
 Estonian is the person's reading, and anything that reads as unnatural is replaced rather than
 defended.
 
+*Amendment 6, narrowed for B1 and above: a second model flags, and the native speaker reads what
+it flags.* B1 alone is about eight hundred new lines and seven model texts, and the operator's call
+(decision B-L7 in `docs/43-lessons.md` §11.0) is that the native speaker reads the flagged ones
+rather than every one. *Decision:* the two machines above still read every line. Then
+`scripts/flag-lessons.ts` puts every new Estonian line of a level to a second model, separately
+from the one that wrote it, which may only **flag** a line (a case, a word order, a phrase nobody
+says) and never writes or rewrites one; the flags are listed in `docs/44-language-reviews.md`, and
+the native speaker reads those lines and plays each part's role-play once. The report button on
+every lesson line catches what both missed. *Consequences:* a flagged line is rewritten by a person
+or by the author's next pass, never by the flagging model; an unflagged line is still a line a
+machine wrote and a person has not read word by word, which `docs/44-language-reviews.md` says
+rather than hides.
+
 *Amendment 7: the public pages may be read in Estonian, and that Estonian is prose about the app,
 never Estonian that teaches.* A reviewer at the Institute or a ministry reads what the app is,
 what it costs and what it keeps, and reads it more carefully in Estonian (decision D16 in
