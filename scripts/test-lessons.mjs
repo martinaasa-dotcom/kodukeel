@@ -195,11 +195,16 @@ async function sayThrough(lesson, mode) {
     }
     if (await say.locator("[data-faster-go]").count() || await say.locator("[data-faster-goes]").count()) {
       faster = true;
+      let handed = 0;
       for (let go = 0; go < 3; go++) {
         await say.getByRole("button", { name: /^Start, and type/ }).click();
         await say.getByLabel("Your answer, in Estonian").fill(lesson.faster);
         await say.getByRole("button", { name: /^Done$/ }).click();
+        // The go whose Done was pressed is gone; the caret is on the next go's Start, or on Next after the last.
+        const want = go < 2 ? /^Start, and type/ : /^Next/;
+        if (await eventually(() => page.evaluate((w) => new RegExp(w).test(document.activeElement?.textContent?.trim() ?? ""), want.source), { timeoutMs: 3000 }).catch(() => false)) handed += 1;
       }
+      check(`${where}: after each go the caret is on the way on`, handed === 3, `${handed} of 3`);
       const goes = await say.locator("[data-faster-goes] li").count();
       if (SHOTS) await shoot(`${where} faster`);
       check(`${where}: three goes at the answer are drawn side by side`, goes === 3, `${goes}`);
@@ -225,6 +230,9 @@ async function writeThrough(lesson) {
   const where = lesson.id;
   check(`${where}: writing opens on the model text`, (await page.locator('[data-write-step="model"]').count()) === 1);
   await page.getByRole("button", { name: /^Fill in the frame/ }).click();
+  // The pressed button is gone with its stage, so the caret goes to the stage now current rather than the page.
+  const caret = await eventually(() => page.evaluate(() => document.activeElement?.getAttribute("aria-current") === "step"), { timeoutMs: 3000 }).catch(() => false);
+  check(`${where}: moving on hands the caret to the stage now current`, caret === true, await page.evaluate(() => document.activeElement?.tagName ?? "none"));
   const gaps = page.locator("[data-write-frame] input");
   const n = await gaps.count();
   check(`${where}: the frame takes the key words out`, n > 0, `${n} gaps`);
