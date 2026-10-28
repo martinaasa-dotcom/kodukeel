@@ -82,7 +82,11 @@ export function stopMixed(): void {
 export async function playThrough(
   bytes: ArrayBuffer,
   condition: Condition,
-  { unasked = false }: { unasked?: boolean } = {},
+  { unasked = false, cancelled = () => false }: {
+    unasked?: boolean;
+    /** True once the play was stopped while still being made ready, so it never starts. */
+    cancelled?: () => boolean;
+  } = {},
 ): Promise<PlayOutcome> {
   const ctx = audioContext();
   if (!ctx) throw new Error("no audio context");
@@ -102,6 +106,9 @@ export async function playThrough(
 
   // `decodeAudioData` detaches the buffer it is given, so it gets a copy.
   const buffer = await ctx.decodeAudioData(bytes.slice(0));
+  // A Stop pressed while the context was resuming or the clip decoding is a
+  // Stop: the sources do not exist yet, so `stopMixed` had nothing to end.
+  if (cancelled()) return "played";
   const offset = Math.min(buffer.duration * condition.skip, Math.max(0, buffer.duration - 0.4));
   const remaining = buffer.duration - offset;
   const at = ctx.currentTime + 0.02;

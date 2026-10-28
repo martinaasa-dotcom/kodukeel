@@ -39,6 +39,12 @@ export function AgainFaster({ faster, voice, typed, multiplier, onDone }: { fast
   const locale = useLocale();
   const [goes, setGoes] = useState<readonly Go[]>([]);
   const [helped, setHelped] = useState(false);
+  // "Need an idea?" goes once pressed, so the caret goes to the idea it showed.
+  const ideaRef = useRef<HTMLDivElement>(null);
+  const asking = useRef(false);
+  useEffect(() => {
+    if (helped && asking.current) { asking.current = false; ideaRef.current?.focus(); }
+  }, [helped]);
   const round = goes.length;
   const over = round >= FASTER_SECONDS.length;
   // The go that held the caret is gone once it ends; after the last one the caret goes to the way on.
@@ -68,10 +74,10 @@ export function AgainFaster({ faster, voice, typed, multiplier, onDone }: { fast
       {!over && <OneGo key={round} seconds={windows[round]!} typed={typed} focusStart={round > 0} onGo={(go) => setGoes((all) => [...all, go])} />}
 
       {round > 0 && !helped && !over && (
-        <Button variant="ghost" size="sm" onClick={() => setHelped(true)}>{t("Need an idea?")}</Button>
+        <Button variant="ghost" size="sm" onClick={() => { asking.current = true; setHelped(true); }}>{t("Need an idea?")}</Button>
       )}
       {(helped || over) && (
-        <div className="mt-3 flex flex-col gap-1" data-faster-model>
+        <div ref={ideaRef} tabIndex={-1} className="mt-3 flex flex-col gap-1 outline-none" data-faster-model>
           <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("One way to say it. Yours can be different.")}</p>
           <div className="flex items-start gap-2">
             <Speak text={faster.model.et} size={16} />

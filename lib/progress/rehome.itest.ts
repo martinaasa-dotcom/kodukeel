@@ -61,6 +61,28 @@ describe("a learner on a part that has become lessons", () => {
     expect((await programmeFor(MINE))?.id).toBe(b1[2]!.id);
   });
 
+  it("stays on the part they moved to after finishing the one before it in the new lessons", async () => {
+    // Old ticks on the first two parts sent them back to B1.1; they walked it to its last lesson and moved on to B1.2.
+    const last = b1[0]!.days[b1[0]!.days.length - 1]!;
+    await writeSetting(MINE, SETTING_KEYS.programme, b1[1]!.id);
+    await prisma.courseStep.createMany({
+      data: [
+        oldTick(b1[0]!.id), oldTick(b1[1]!.id),
+        { ownerId: MINE, programmeId: b1[0]!.id, dayId: b1[0]!.days[0]!.id, stepId: b1[0]!.days[0]!.steps[0]!.id },
+        { ownerId: MINE, programmeId: b1[0]!.id, dayId: last.id, stepId: last.steps[0]!.id },
+      ],
+    });
+    expect((await programmeFor(MINE))?.id).toBe(b1[1]!.id);
+  });
+
+  it("but not while the part before is still under way", async () => {
+    await writeSetting(MINE, SETTING_KEYS.programme, b1[1]!.id);
+    await prisma.courseStep.createMany({
+      data: [oldTick(b1[1]!.id), { ownerId: MINE, programmeId: b1[0]!.id, dayId: b1[0]!.days[0]!.id, stepId: b1[0]!.days[0]!.steps[0]!.id }],
+    });
+    expect((await programmeFor(MINE))?.id).toBe(b1[0]!.id);
+  });
+
   it("counts the old evenings as above the lessons, so a refresher in A2 is not a trap", async () => {
     await prisma.courseStep.create({ data: oldTick(b1[2]!.id) });
     // Stepping up from the first A2 part to the second would ask for its check; somebody who walked the old B1 is not asked.

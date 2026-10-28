@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Eye } from "lucide-react";
 import { Button } from "@/components/Button";
 import { Speak } from "@/components/Speak";
@@ -100,6 +100,12 @@ function FadeLine({ line, en, hidden, voice, native, who, locale }: {
   // Every try of this line so far, so a word that came back stays back when the learner tries again.
   const [before, setBefore] = useState<readonly boolean[]>(() => words.map(() => false));
   const [shown, setShown] = useState(false);
+  // "Show the line" goes once pressed, so the caret goes to the line it showed.
+  const lineRef = useRef<HTMLParagraphElement>(null);
+  const showing = useRef(false);
+  useEffect(() => {
+    if (shown && showing.current) { showing.current = false; lineRef.current?.focus(); }
+  }, [shown]);
   const speech = useSpeech({
     endpoint: true,
     expect,
@@ -119,7 +125,7 @@ function FadeLine({ line, en, hidden, voice, native, who, locale }: {
         <span className="label-xs" style={{ color: "var(--ink-3)" }}>{who}</span>
         <Speak text={line} voice={voice} native={native} size={16} label={fill(t("Hear {who} say it"), { who })} />
       </div>
-      <p lang="et" className="text-xl font-semibold leading-relaxed" style={{ color: "var(--ink)" }}>
+      <p ref={lineRef} tabIndex={-1} lang="et" className="text-xl font-semibold leading-relaxed outline-none" style={{ color: "var(--ink)" }}>
         {words.map((w, i) => {
           const gone = hidden[i] && !shown && !lit[i];
           return (
@@ -138,7 +144,7 @@ function FadeLine({ line, en, hidden, voice, native, who, locale }: {
           ? <MicButton speech={speech} label={t("Say it")} showPartial={false} />
           : <p className="text-sm" style={{ color: "var(--ink-3)" }}>{t("Say it out loud anyway. Nobody's listening but you.")}</p>}
         {anyHidden && !shown && (
-          <Button variant="ghost" size="sm" onClick={() => setShown(true)}><Eye size={14} aria-hidden /> {t("Show the line")}</Button>
+          <Button variant="ghost" size="sm" onClick={() => { showing.current = true; setShown(true); }}><Eye size={14} aria-hidden /> {t("Show the line")}</Button>
         )}
         {/* Mounted empty and filled, since a status region that arrives holding its words is often not read. */}
         <p className="text-sm" role="status" style={{ color: "var(--ink-2)" }}>

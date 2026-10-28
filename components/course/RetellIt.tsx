@@ -39,6 +39,12 @@ export function RetellIt({ retell, voice, typed, onDone }: { retell: Retell; voi
   const stop = useRef(false);
   const [said, setSaid] = useState("");
   const [shown, setShown] = useState(false);
+  // The button that showed the story is gone, so the caret goes to the story it showed.
+  const storyRef = useRef<HTMLDivElement>(null);
+  const showing = useRef(false);
+  useEffect(() => {
+    if (shown && showing.current) { showing.current = false; storyRef.current?.focus(); }
+  }, [shown]);
   const expect = useMemo(
     () => new Set(retell.story.flatMap((l) => l.et.toLocaleLowerCase("et").split(/[^\p{L}]+/u)).filter(Boolean)),
     [retell],
@@ -136,7 +142,7 @@ export function RetellIt({ retell, voice, typed, onDone }: { retell: Retell; voi
       </p>
 
       {shown && (
-        <div className="mt-5 flex flex-col gap-2 rounded-[var(--r-lg)] border px-4 py-3" style={{ borderColor: "var(--edge)", background: "var(--surface)" }} data-retell-story>
+        <div ref={storyRef} tabIndex={-1} className="mt-5 flex flex-col gap-2 rounded-[var(--r-lg)] border px-4 py-3 outline-none" style={{ borderColor: "var(--edge)", background: "var(--surface)" }} data-retell-story>
           <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("The story")}</p>
           {retell.story.map((line) => (
             <p key={line.et} className="text-base">
@@ -147,7 +153,7 @@ export function RetellIt({ retell, voice, typed, onDone }: { retell: Retell; voi
         </div>
       )}
       <div className="mt-5 flex flex-wrap justify-end gap-3">
-        {!shown && <Button variant="ghost" onClick={() => setShown(true)}>{t("Show the story")}</Button>}
+        {!shown && <Button variant="ghost" onClick={() => { showing.current = true; setShown(true); }}>{t("Show the story")}</Button>}
         <Button variant={hearFirst ? "secondary" : "primary"} onClick={onDone}>{t("Next")} <ArrowRight size={15} aria-hidden /></Button>
       </div>
     </Card>

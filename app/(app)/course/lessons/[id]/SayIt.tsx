@@ -116,6 +116,10 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier
   useEffect(() => {
     if (over) doneRef.current?.focus();
   }, [over]);
+  // Choosing to say or type replaces the two buttons, so the caret goes to the first card rather than the page.
+  useEffect(() => {
+    if (mode !== null && !cardRef.current?.contains(document.activeElement)) cardRef.current?.focus();
+  }, [mode]);
   // The other side's voice: whoever opens today's conversation.
   const opener = lesson.conversation[0]?.who ?? "";
   const voice = lesson.cast[opener] ?? undefined;

@@ -444,13 +444,18 @@ export async function playClip(
     // wants to hear the word and not the café.
     const condition = request.slow ? CLEAN : (request.condition ?? CLEAN);
     if (needsMixer(condition)) {
-      const outcome = await playThrough(await clip.blob.arrayBuffer(), condition, { unasked });
+      const outcome = await playThrough(await clip.blob.arrayBuffer(), condition, { unasked, cancelled: () => stops !== asked });
       end();
       return outcome;
     }
     // The element rather than a buffer source for the plain case, on purpose:
     // an element plays through a phone's silent switch and a Web Audio graph
     // does not, and a learner who pressed the speaker asked to hear it.
+    // Stopped while the length was being read: still not said.
+    if (stops !== asked) {
+      end();
+      return "played";
+    }
     const audio = new Audio(clip.url);
     playing = audio;
     for (const event of ["ended", "pause", "error"] as const) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { ArrowRight, Check, Flame } from "lucide-react";
 import { Button } from "@/components/Button";
 import { ChoiceGroup } from "@/components/Choice";
@@ -68,6 +68,16 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
   useEffect(() => {
     if (answered) nextRef.current?.focus();
   }, [answered]);
+  /* A typed question after another question takes the caret into its box, so
+     the Enter that pressed Next does not land on Check over an empty box and
+     mark it wrong. Not on the first question: arriving is not moving on. */
+  const boxRef = useRef<HTMLInputElement>(null);
+  const shownAt = useRef(at);
+  useEffect(() => {
+    if (shownAt.current === at) return;
+    shownAt.current = at;
+    boxRef.current?.focus();
+  }, [at]);
 
   if (!item) return null;
 
@@ -259,6 +269,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
               </>
             )}
             <TypedBox
+              boxRef={boxRef}
               label={item.kind === "fix" ? t("The line put right, in Estonian") : t("The changed sentence, in Estonian")}
               answer={item.answer}
               typed={typed}
@@ -280,7 +291,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
           <div className="mt-2 flex flex-col gap-3">
             <p className="text-xl font-bold" style={{ color: "var(--ink)" }}><LessonText text={item.en} locale={locale} /></p>
             {item.note && <p className="text-base" style={{ color: "var(--ink-2)" }}>{t(item.note)}</p>}
-            <TypedBox label={t("Your answer, in Estonian")} answer={item.answer} typed={typed} setTyped={setTyped} mark={mark} onCheck={check}>
+            <TypedBox boxRef={boxRef} label={t("Your answer, in Estonian")} answer={item.answer} typed={typed} setTyped={setTyped} mark={mark} onCheck={check}>
               {mark && (
                 <p>
                   {t(mark.note)}{" "}
@@ -319,7 +330,8 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
  * for every typed kind, so the box a learner types into is the same box
  * whatever the question; `children` is what the verdict says.
  */
-function TypedBox({ label, answer, typed, setTyped, mark, onCheck, children }: {
+function TypedBox({ boxRef, label, answer, typed, setTyped, mark, onCheck, children }: {
+  boxRef: RefObject<HTMLInputElement | null>;
   label: string; answer: string; typed: string; setTyped: (value: string) => void;
   mark: TypedMark | null; onCheck: () => void; children: ReactNode;
 }) {
@@ -327,6 +339,7 @@ function TypedBox({ label, answer, typed, setTyped, mark, onCheck, children }: {
   return (
     <>
       <input
+        ref={boxRef}
         lang="et"
         className="field-lg w-full"
         value={typed}
@@ -340,7 +353,8 @@ function TypedBox({ label, answer, typed, setTyped, mark, onCheck, children }: {
           if (e.key === "Enter" && mark === null) {
             e.preventDefault();
             e.stopPropagation();
-            onCheck();
+            // An empty box is answered with the Check button, on purpose, and never by an Enter that went one press too far.
+            if (typed.trim() !== "") onCheck();
           }
         }}
       />

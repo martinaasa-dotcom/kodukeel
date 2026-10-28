@@ -59,8 +59,14 @@ export function WriteStep({ lesson, onDone }: { lesson: LessonSpec; onDone: () =
   const write = lesson.write!;
   const gapCount = useMemo(() => frameOf(write).flatMap((l) => l.parts.filter((p) => p.kind === "gap")).length, [write]);
   const [stage, setStage] = useState<Stage>("model");
-  // The stage last on screen, so the caret moves on a press and not on a draft picked up from the device.
-  const shownStage = useRef<Stage>("model");
+  /* Whether the stage is changing because a button was pressed, so the caret
+     moves on a press and never on a draft picked up from the device, whose
+     stage is set before the first effects have run. */
+  const pressed = useRef(false);
+  const goTo = (next: Stage) => {
+    pressed.current = true;
+    setStage(next);
+  };
   const [frameTyped, setFrameTyped] = useState<readonly string[]>(() => Array.from({ length: gapCount }, () => ""));
   const [frameChecked, setFrameChecked] = useState(false);
   const [draft, setDraft] = useState("");
@@ -75,7 +81,6 @@ export function WriteStep({ lesson, onDone }: { lesson: LessonSpec; onDone: () =
   useLayoutEffect(() => {
     const saved = loadWriting(lesson.id);
     if (saved) {
-      shownStage.current = saved.stage;
       setStage(saved.stage);
       if (saved.frame.length === gapCount) {
         setFrameTyped(saved.frame);
@@ -111,8 +116,8 @@ export function WriteStep({ lesson, onDone }: { lesson: LessonSpec; onDone: () =
      page. Not on arrival: opening the step is not moving through it. */
   const currentRef = useRef<HTMLLIElement>(null);
   useEffect(() => {
-    if (shownStage.current === stage) return;
-    shownStage.current = stage;
+    if (!pressed.current) return;
+    pressed.current = false;
     currentRef.current?.focus();
   }, [stage]);
 
@@ -136,7 +141,7 @@ export function WriteStep({ lesson, onDone }: { lesson: LessonSpec; onDone: () =
         ))}
       </ol>
       <Genre write={write} />
-      {stage === "model" && <Model lesson={lesson} onNext={() => setStage("frame")} />}
+      {stage === "model" && <Model lesson={lesson} onNext={() => goTo("frame")} />}
       {stage === "frame" && (
         <Frame
           write={write}
@@ -144,10 +149,10 @@ export function WriteStep({ lesson, onDone }: { lesson: LessonSpec; onDone: () =
           setTyped={setFrameTyped}
           checked={frameChecked}
           setChecked={setFrameChecked}
-          onNext={() => setStage("own")}
+          onNext={() => goTo("own")}
         />
       )}
-      {stage === "own" && <Own lesson={lesson} draft={draft} setDraft={setDraft} onNext={() => { if (!second) setSecond(draft); setStage("redraft"); }} />}
+      {stage === "own" && <Own lesson={lesson} draft={draft} setDraft={setDraft} onNext={() => { if (!second) setSecond(draft); goTo("redraft"); }} />}
       {stage === "redraft" && <Redraft lesson={lesson} first={draft} second={second} setSecond={setSecond} onDone={done} />}
     </div>
   );
@@ -468,8 +473,11 @@ function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonS
           <p ref={keptRef} tabIndex={-1} className="text-base outline-none" style={{ color: "var(--ink-2)" }}>
             {kept.kept > 0
               ? fill(t(kept.kept === 1 ? "1 of your sentences is in your reviews now, with one word to fill in." : "{n} of your sentences are in your reviews now, each with one word to fill in."), { n: String(kept.kept) })
-              : kept.already > 0 ? t("You kept these already.") : t("None of these sentences has a word from the course in it yet to fill in.")}
-            {kept.refused > 0 && <> {t("Some couldn't be kept, because the dictionary found something to point out in them.")}</>}
+              : kept.already > 0 ? t("You kept these already.")
+                // Every one refused on the server's own reading is that, and not a sentence with no course word in it.
+                : kept.refused > 0 ? t("None could be kept: the dictionary found something to point out in each of them. Read the text again and tick the ones it passes.")
+                  : t("None of these sentences has a word from the course in it yet to fill in.")}
+            {kept.refused > 0 && (kept.kept > 0 || kept.already > 0) && <> {t("Some couldn't be kept, because the dictionary found something to point out in them.")}</>}
           </p>
         ) : read === null || stale ? (
           <p className="text-base" style={{ color: "var(--ink-2)" }}>

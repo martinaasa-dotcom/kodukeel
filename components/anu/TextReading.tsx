@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { CircleAlert, Loader2, MessageCircleQuestion, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/Button";
 import { Note } from "@/components/ui";
@@ -55,8 +55,19 @@ export function AnuTextReading({ text, level, heading, invite, offline }: {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const t = useT();
+  /*
+    The note replaces the button that asked for it, so the caret goes to the
+    note's heading, which a screen reader then reads out. Only after a press:
+    the reading is never there on arrival.
+  */
+  const headRef = useRef<HTMLParagraphElement>(null);
+  const asking = useRef(false);
+  useEffect(() => {
+    if (reading && asking.current) { asking.current = false; headRef.current?.focus(); }
+  }, [reading]);
 
   async function ask() {
+    asking.current = true;
     setBusy(true);
     setError(null);
     const asked = text;
@@ -92,7 +103,7 @@ export function AnuTextReading({ text, level, heading, invite, offline }: {
     <div>
       {body && (
         <div>
-          <p className="label-xs mb-2" style={{ color: "var(--blush-ink)" }}>
+          <p ref={headRef} tabIndex={-1} className="label-xs mb-2 outline-none" style={{ color: "var(--accent-deep)" }}>
             <MessageCircleQuestion size={12} className="mr-1 inline" aria-hidden />
             {heading}
           </p>

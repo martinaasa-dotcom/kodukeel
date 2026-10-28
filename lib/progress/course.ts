@@ -156,6 +156,24 @@ async function rehomed(ownerId: string, programme: Programme | null): Promise<Pr
   }
   // Back to where they have been working since, which is the level's first part until they move on from it.
   const parts = PROGRAMMES.filter((p) => p.level === programme.level && p.days.length > 0 && p.days.every((d) => d.lesson));
+  /*
+    UNLESS THEY FINISHED THE PART BEFORE THIS ONE IN THE NEW LESSONS, which is
+    how somebody moved back to B1.1 comes to be stored on B1.2 again: they
+    walked it and moved on. Their old ticks on this part are still on vanished
+    days and they have no new one here yet, so without this the read sends
+    them back to the part they have just finished, for ever. The last lesson of
+    the part before is the evidence, since the part ends there.
+  */
+  const before = parts[parts.findIndex((p) => p.id === programme.id) - 1];
+  const lastBefore = before?.days[before.days.length - 1];
+  if (before && lastBefore) {
+    const finished = await prisma.courseStep.findFirst({
+      where: { ownerId, programmeId: before.id, dayId: lastBefore.id },
+      select: { id: true },
+      orderBy: { id: "asc" },
+    });
+    if (finished) return programme;
+  }
   const worked = await prisma.courseStep.groupBy({
     by: ["programmeId"],
     where: { ownerId, programmeId: { in: parts.map((p) => p.id) }, dayId: { in: parts.flatMap((p) => p.days.map((d) => d.id)) } },
