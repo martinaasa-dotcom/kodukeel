@@ -313,7 +313,7 @@ async function spokenRace(lesson) {
   const where = `${lesson.id} out loud`;
   const model = await fetch(`${B}/asr/model/7edbacc1d13a4bc8fba21307753569e8334938a0/tokens.txt`).catch(() => null);
   if (!model?.ok) {
-    absent(2, "this server serves no speech model: run npm run asr:fetch before the build");
+    absent(3, "this server serves no speech model: run npm run asr:fetch before the build");
     return;
   }
   const mic = await launchChromium({ args: [
@@ -332,11 +332,6 @@ async function spokenRace(lesson) {
     }
     await p.getByRole("button", { name: /^Say it$/ }).last().click();
     const say = p.locator("[data-say-it]").first();
-    // The first fade line's microphone fetches the model, so the race does not spend its clock downloading.
-    await say.locator("button").first().click();
-    const download = p.getByRole("button", { name: /^Download \d/ }).first();
-    if (await download.isVisible().catch(() => false)) await download.click();
-    await p.waitForTimeout(3000);
     for (let i = 0; i < 60 && !(await say.locator("[data-faster-go]").count()); i++) {
       const next = say.getByRole("button", { name: /^(Next|Done)$/ });
       if (await next.count()) { await next.last().click(); await p.waitForTimeout(150); continue; }
@@ -350,7 +345,12 @@ async function spokenRace(lesson) {
     check(`${where}: the race offers the microphone`, (await start.count()) === 1);
     if (!(await start.count())) return;
     await start.click();
-    await say.locator("[data-faster-goes]").waitFor({ timeout: 150_000 }).catch(() => {});
+    // The clock waits for the microphone: a first press fetches and loads the model, which takes longer than a go.
+    const listening = await say.locator('[data-faster-go] button[aria-pressed="true"]').first().waitFor({ timeout: 300_000 }).then(() => true, () => false);
+    const clock = Number(await say.locator("[data-faster-go] .run-clock").first().innerText().catch(() => "0"));
+    check(`${where}: the clock starts when the microphone opens, not when Start is pressed`, listening && clock >= 87, `${listening ? "listening" : "never listened"}, ${clock} seconds left`);
+    // A go runs ninety seconds and is then decoded twice at up to real time each, so a slow runner needs minutes.
+    await say.locator("[data-faster-goes]").waitFor({ timeout: 330_000 }).catch(() => {});
     const heard = Number((await say.locator("[data-faster-goes]").innerText().catch(() => "")).match(/(\d+) words,/)?.[1] ?? 0);
     check(`${where}: a go run to the clock keeps what the microphone heard`, heard > 0, `${heard} words`);
   } finally {

@@ -90,6 +90,14 @@ export function AgainFaster({ faster, voice, typed, multiplier, onDone }: { fast
 function OneGo({ seconds, typed, onGo }: { seconds: number; typed: boolean; onGo: (go: Go) => void }) {
   const t = useT();
   const [started, setStarted] = useState<number | null>(null);
+  /*
+    PRESSED IS NOT STARTED. The first press on a new device fetches and loads
+    the model, which takes longer than a go: with the clock starting on the
+    press, the go ran out before the microphone had opened and closed on
+    nothing, which reads as "you said no words". The clock starts once the
+    microphone is listening, or at once where the answer is typed.
+  */
+  const [armed, setArmed] = useState(false);
   const [left, setLeft] = useState(seconds);
   const [text, setText] = useState("");
   const done = useRef(false);
@@ -135,19 +143,23 @@ function OneGo({ seconds, typed, onGo }: { seconds: number; typed: boolean; onGo
         const now = live.current;
         if (now.mic) {
           /*
-            The engine closes with what it heard, which on a ninety-second turn
-            takes a while to decode: the go waits while it is listening or
-            thinking, and closes on nothing only once it has been neither for
-            a few seconds, or after half a minute whatever it says.
+            The engine closes with what it heard, and a ninety-second turn is
+            decoded twice, once per decoder, each at no worse than real time
+            (the engine refuses to load on a machine slower than that). So the
+            go waits for as long as the engine is listening or thinking, and
+            closes on nothing once it has been neither for a few seconds. The
+            cap is only for an engine that never answers: half a minute
+            stopped a slow machine mid-decode and threw the whole answer away.
           */
           now.speech.stop();
           let idle = 0;
           let waited = 0;
+          const cap = 2 * seconds + 30;
           const wait = () => {
             const sp = live.current.speech;
             idle = sp.listening || sp.thinking ? 0 : idle + 1;
             waited += 1;
-            if (idle >= 4 || waited >= 30) live.current.finish("", seconds);
+            if (idle >= 4 || waited >= cap) live.current.finish("", seconds);
             else grace = setTimeout(wait, 1000);
           };
           grace = setTimeout(wait, 1000);
@@ -162,13 +174,30 @@ function OneGo({ seconds, typed, onGo }: { seconds: number; typed: boolean; onGo
   // Start is replaced by the microphone or the box; the caret goes to whichever arrived.
   const goRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (started === null || !mic) return;
+    if (!armed || !mic) return;
     goRef.current?.querySelector<HTMLButtonElement>("button")?.focus();
-  }, [started, mic]);
+  }, [armed, mic]);
 
+  useEffect(() => {
+    if (armed && started === null && (speech.listening || !mic)) setStarted(Date.now());
+  }, [armed, started, speech.listening, mic]);
+
+  /* A press here is a press to talk, so it does what the microphone's own
+     press does: where the model has not arrived yet it is fetched first, and
+     then the microphone opens. Calling start alone waited for a download
+     nothing had asked for, and the go never listened. */
   const start = () => {
-    setStarted(Date.now());
-    if (mic) void speech.start();
+    setArmed(true);
+    if (!mic) return;
+    const phase = speech.phase;
+    if (phase === "needs-download" || phase === "cleared" || phase === "downloading") {
+      void (async () => {
+        await live.current.speech.download();
+        if (live.current.speech.phase === "ready") void live.current.speech.start();
+      })();
+      return;
+    }
+    void speech.start();
   };
   const angle = useMemo(() => `${(left / seconds) * 360}deg`, [left, seconds]);
 
@@ -182,7 +211,7 @@ function OneGo({ seconds, typed, onGo }: { seconds: number; typed: boolean; onGo
           <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>
             <Timer size={15} aria-hidden className="mr-1 inline" />{fill(t("{n} seconds"), { n: String(seconds) })}
           </p>
-          {started === null ? (
+          {!armed ? (
             <Button variant="primary" onClick={start}>{mic ? t("Start, and speak") : t("Start, and type")}</Button>
           ) : mic ? (
             <MicButton speech={speech} label={t("Speaking")} />
