@@ -33,6 +33,7 @@ import { requireLocalDatabase } from "./lib/local-db.mjs";
 const B = baseUrl();
 const OWNER = "local-single-user";
 
+const ONLY = process.argv.find((a) => a.startsWith("--only="))?.slice(7) ?? null;
 const { check, absent, done } = suite("The lessons, walked", {
   /*
     Per B1 lesson: the step heading, the hidden conversation and its reveal,
@@ -43,6 +44,7 @@ const { check, absent, done } = suite("The lessons, walked", {
   */
   floor: 110,
 });
+// `--only=<role>` walks one lesson (or `spoken`, the race out loud) for working on it; it reports under the floor by design.
 
 const picks = JSON.parse(execFileSync("npx", ["tsx", "scripts/lib/lessonPicks.ts"], { encoding: "utf8" }));
 const byRole = Object.fromEntries(picks.map((p) => [p.role, p]));
@@ -382,10 +384,20 @@ async function spokenRace(lesson) {
   }
 }
 
-const ONLY = process.argv.find((a) => a.startsWith("--only="))?.slice(7) ?? null;
 try {
-  if (ONLY === "spoken") { await spokenRace(byRole.faster); done(); }
-  if (ONLY) { await walk(byRole[ONLY]); done(); }
+  if (ONLY === "spoken") await spokenRace(byRole.faster);
+  else if (ONLY) await walk(byRole[ONLY]);
+  else await everything();
+} finally {
+  // Put the local learner back as they were found, a part of the suite run alone included.
+  await prisma.courseStep.deleteMany({ where: { ownerId: OWNER, createdAt: { gte: started }, id: { notIn: [...stepsBefore] } } });
+  await prisma.card.deleteMany({ where: { ownerId: OWNER, createdAt: { gte: started }, id: { notIn: [...cardsBefore] } } });
+  await browser.close();
+  await prisma.$disconnect();
+}
+done();
+
+async function everything() {
   const first = await walk(byRole.first, { mode: "say" });
   check("B1's first lesson fades the key lines as they are said", first?.fade === true);
   const retell = await walk(byRole.retell);
@@ -399,11 +411,4 @@ try {
   await spokenRace(byRole.faster);
   if (errors.length) console.log(errors.slice(0, 5).join("\n"));
   check("no console errors", errors.length === 0, `${errors.length}`);
-} finally {
-  // Put the local learner back as they were found.
-  await prisma.courseStep.deleteMany({ where: { ownerId: OWNER, createdAt: { gte: started }, id: { notIn: [...stepsBefore] } } });
-  await prisma.card.deleteMany({ where: { ownerId: OWNER, createdAt: { gte: started }, id: { notIn: [...cardsBefore] } } });
-  await browser.close();
-  await prisma.$disconnect();
 }
-done();

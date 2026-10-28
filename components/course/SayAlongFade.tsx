@@ -140,11 +140,12 @@ function FadeLine({ line, en, hidden, voice, native, who, locale }: {
         {anyHidden && !shown && (
           <Button variant="ghost" size="sm" onClick={() => setShown(true)}><Eye size={14} aria-hidden /> {t("Show the line")}</Button>
         )}
-        {heard && !speech.listening && (
-          <p className="text-sm" role="status" style={{ color: "var(--ink-2)" }}>
-            {share === 1 ? t("Every word came across.") : fill(t("{n} of {total} words came across."), { n: lit.filter(Boolean).length, total: words.length })}
-          </p>
-        )}
+        {/* Mounted empty and filled, since a status region that arrives holding its words is often not read. */}
+        <p className="text-sm" role="status" style={{ color: "var(--ink-2)" }}>
+          {heard && !speech.listening
+            ? share === 1 ? t("Every word came across.") : fill(t("{n} of {total} words came across."), { n: lit.filter(Boolean).length, total: words.length })
+            : null}
+        </p>
       </div>
     </div>
   );

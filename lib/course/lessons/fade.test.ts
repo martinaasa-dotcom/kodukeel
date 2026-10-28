@@ -19,6 +19,14 @@ describe("say along, then alone", () => {
     for (const step of plan.filter((s) => s.pass === 3)) expect(step.hidden.filter(Boolean).length).toBeGreaterThan(0);
   });
 
+  it("hides something on every second pass at every level, even on a line with no long word", () => {
+    let seen = 0;
+    for (const l of LESSONS.filter((x) => x.level === "B1")) {
+      for (const s of fadePlan(l, 1).filter((p) => p.pass === 2)) { seen += 1; expect(s.hidden.some(Boolean), `${l.id}: ${s.et}`).toBe(true); }
+    }
+    expect(seen).toBeGreaterThan(0);
+  });
+
   it("hides something on the second pass, and less than the third does", () => {
     const second = plan.filter((s) => s.pass === 2);
     const third = plan.filter((s) => s.pass === 3);
@@ -63,6 +71,9 @@ describe("the fade starts a step harder from a level's fourth part", () => {
         const [a, b, c] = [plan[i]!, plan[i + per]!, plan[i + 2 * per]!];
         a.hidden.forEach((h, j) => { if (h) expect(b.hidden[j], `${lesson.id}: ${a.et}`).toBe(true); });
         b.hidden.forEach((h, j) => { if (h) expect(c.hidden[j]).toBe(true); });
+        // And strictly more, wherever a word was still showing: a second pass that is the first again says nothing new.
+        const count = (p: typeof a) => p.hidden.filter(Boolean).length;
+        if (count(a) < count(c)) expect(count(b), `${lesson.id} pass 2: ${a.et}`).toBeGreaterThan(count(a));
         compared += 1;
       }
     }

@@ -37,8 +37,9 @@ export default function anAnswerIsNotAnArrowKey({ check, code, APP, COMPONENTS }
           else if (c === "}") depth--;
           else if (c === ">" && depth === 0 && src[i - 1] !== "=") { close = i; break; }
         }
-        const tag = src.slice(at, close);
-        if (!/\banswer\b(?!\s*=\s*\{\s*false)/.test(tag)) missing.push(`${file} (group ${n + 1})`);
+        // The prop, not the word: a label reading "Pick the answer" says nothing about the arrows.
+        const tag = src.slice(at, close).replace(/"[^"]*"|'[^']*'|`[^`]*`/g, '""');
+        if (!/\sanswer(?=[\s>=/]|$)(?!\s*=\s*\{\s*false)/.test(tag)) missing.push(`${file} (group ${n + 1})`);
       });
     }
     assert.ok(marked >= 4, `found only ${marked} marked option groups; the matcher has stopped matching`);

@@ -37,7 +37,7 @@ export async function checkTypedSentence(text: string, sample: string): Promise<
   return (await checkTypedSentences([text], sample, MAX_WORDS))[0]!;
 }
 
-/** Distinct words read for a whole written text and its model, which a hundred-word task stays well under. */
+/** Distinct words read for a written text and its model; the learner's own are always read, and the model fills what is left. */
 const MAX_TEXT_WORDS = 220;
 
 /**
@@ -59,8 +59,13 @@ export async function checkTypedSentences(texts: readonly string[], sample: stri
     the word under it, so that word is asked straight after its own, where
     the cap cannot reach it before the model's words.
   */
-  const words = [...texts, sample].flatMap((t) => (t.match(ESTONIAN_WORD) ?? []).map((w) => w.toLowerCase()));
-  const spellings = [...new Set(words.flatMap((w) => (/[gk]i$/.test(w) && w.length > 4 ? [w, w.slice(0, -2)] : [w])))].slice(0, cap);
+  const spellingsOf = (ts: readonly string[]) => [...new Set(ts
+    .flatMap((t) => (t.match(ESTONIAN_WORD) ?? []).map((w) => w.toLowerCase()))
+    .flatMap((w) => (/[gk]i$/.test(w) && w.length > 4 ? [w, w.slice(0, -2)] : [w])))];
+  // Every word the learner wrote is read, since an unread one comes back as a slip they cannot tick past; the cap is on the model's.
+  const own = spellingsOf(texts);
+  const held = new Set(own);
+  const spellings = [...own, ...spellingsOf([sample]).filter((w) => !held.has(w)).slice(0, Math.max(0, cap - own.length))];
   /*
     A cold instance reads a bounded number of shards per request, and that
     bound was set for one sentence of up to MAX_WORDS words. A whole draft

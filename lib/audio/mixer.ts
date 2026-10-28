@@ -66,6 +66,19 @@ export function needsMixer(condition: Condition): boolean {
  * answers `blocked` rather than throwing, and anything else that goes wrong
  * throws, which is the one outcome a caller has to act on.
  */
+/** The sources of the mixed clip in the air, so a screen's Stop can end it mid-line (`stopClip`). */
+let mixing: { voice: AudioBufferSourceNode; room: AudioBufferSourceNode | null } | null = null;
+
+/** Ends the mixed clip in the air; its `onended` settles the play that started it. */
+export function stopMixed(): void {
+  const now = mixing;
+  mixing = null;
+  if (!now) return;
+  for (const source of [now.voice, now.room]) {
+    try { source?.stop(); } catch { /* not started yet, or already ended */ }
+  }
+}
+
 export async function playThrough(
   bytes: ArrayBuffer,
   condition: Condition,
@@ -133,14 +146,21 @@ export async function playThrough(
 
   const voiceAt = condition.noise ? at + 0.35 : at;
   voice.start(voiceAt, offset);
+  const mine = { voice, room };
+  mixing = mine;
 
   await new Promise<void>((resolve) => {
     voice.onended = () => resolve();
   });
   if (room) {
-    await new Promise<void>((resolve) => {
-      room!.onended = () => resolve();
-    });
+    // Stopped already, it has ended and fires nothing more; otherwise it fades out after the voice.
+    const stopped = mixing !== mine;
+    if (!stopped) {
+      await new Promise<void>((resolve) => {
+        room!.onended = () => resolve();
+      });
+    }
   }
+  if (mixing === mine) mixing = null;
   return "played";
 }

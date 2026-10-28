@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Keyboard, Mic } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
@@ -98,6 +98,24 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier
   const [at, setAt] = useState(0);
   const [over, setOver] = useState(false);
   const [taken, setTaken] = useState<readonly Taken[]>([]);
+  /*
+    Each card replaces the one whose button was just pressed, and so does the
+    end. A card that put the caret somewhere of its own on arrival keeps it
+    (a child's effect runs before this one); otherwise the card takes it, so
+    a keyboard is never left on the page between the fade, the answers, the
+    story and the race.
+  */
+  const cardRef = useRef<HTMLDivElement>(null);
+  const doneRef = useRef<HTMLDivElement>(null);
+  const shownAt = useRef(at);
+  useEffect(() => {
+    if (shownAt.current === at) return;
+    shownAt.current = at;
+    if (!cardRef.current?.contains(document.activeElement)) cardRef.current?.focus();
+  }, [at]);
+  useEffect(() => {
+    if (over) doneRef.current?.focus();
+  }, [over]);
   // The other side's voice: whoever opens today's conversation.
   const opener = lesson.conversation[0]?.who ?? "";
   const voice = lesson.cast[opener] ?? undefined;
@@ -167,7 +185,7 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier
     return (
       <div data-say-it="done">
         <Card tone="sky">
-          <p role="status" className="text-lg font-semibold" style={{ color: "var(--ink)" }}>
+          <p ref={doneRef} tabIndex={-1} className="text-lg font-semibold outline-none" style={{ color: "var(--ink)" }}>
             {capstone
               ? t("You held the whole conversation.")
               : mode === "say" ? t("You said today's Estonian out loud.") : t("Done. Tomorrow, try it out loud if you're somewhere you can.")}
@@ -207,7 +225,7 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier
   };
 
   return (
-    <div className="flex flex-col gap-4" data-say-it={at + 1}>
+    <div ref={cardRef} tabIndex={-1} className="flex flex-col gap-4 outline-none" data-say-it={at + 1}>
       {mode === "type" && at === 0 && (
         <Note>{t("Typing works too. Speaking is what brings the words out when you need them, so try it aloud tomorrow if you can.")}</Note>
       )}

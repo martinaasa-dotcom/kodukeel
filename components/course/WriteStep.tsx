@@ -353,6 +353,8 @@ function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonS
   const [error, setError] = useState<string | null>(null);
   const [ticked, setTicked] = useState<ReadonlySet<number>>(new Set());
   const [kept, setKept] = useState<{ kept: number; already: number; refused: number } | null>(null);
+  const keptRef = useRef<HTMLParagraphElement>(null);
+  useEffect(() => { if (kept) keptRef.current?.focus(); }, [kept]);
   const [keeping, setKeeping] = useState(false);
   const current = second || first;
   const stale = read !== null && read.text !== current;
@@ -462,7 +464,8 @@ function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonS
       <Card tone="sky">
         <p className="text-lg font-semibold" style={{ color: "var(--ink)" }}>{t("Keep your sentences for review")}</p>
         {kept ? (
-          <p className="text-base" role="status" style={{ color: "var(--ink-2)" }}>
+          // The fieldset whose button was pressed is gone: the caret goes to what came of it, which reading it out says.
+          <p ref={keptRef} tabIndex={-1} className="text-base outline-none" style={{ color: "var(--ink-2)" }}>
             {kept.kept > 0
               ? fill(t(kept.kept === 1 ? "1 of your sentences is in your reviews now, with one word to fill in." : "{n} of your sentences are in your reviews now, each with one word to fill in."), { n: String(kept.kept) })
               : kept.already > 0 ? t("You kept these already.") : t("None of these sentences has a word from the course in it yet to fill in.")}

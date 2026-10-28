@@ -94,8 +94,10 @@ export function ChoiceGroup({
     if (!host) return;
     const radios = [...host.querySelectorAll<HTMLButtonElement>('[role="radio"]')];
     if (radios.length === 0) return;
+    // The chosen one, then the one the caret is on (an answered group moves it without choosing), then the first.
     const stop =
       radios.find((r) => r.getAttribute("aria-checked") === "true") ??
+      radios.find((r) => r === document.activeElement && !r.disabled) ??
       radios.find((r) => !r.disabled) ??
       radios[0];
     for (const r of radios) r.tabIndex = r === stop ? 0 : -1;

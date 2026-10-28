@@ -61,7 +61,9 @@ export function ListenFirst({ lesson, onRead }: { lesson: LessonSpec; onRead: ()
   const [moved, setMoved] = useState(-1);
   useEffect(() => {
     if (moved < 0) return;
-    const next = picks.findIndex((p, i) => p === null && i > moved);
+    // The next question still open after this one, then any still open before it, and only then "Read it".
+    const after = picks.findIndex((p, i) => p === null && i > moved);
+    const next = after >= 0 ? after : picks.findIndex((p) => p === null);
     const target = next >= 0
       ? questionsRef.current?.children[next]?.querySelector<HTMLButtonElement>('[role="radio"]:not([disabled])')
       : readRef.current;
@@ -135,11 +137,10 @@ function GistQuestion({ gist, n, of, picked, onPick }: { gist: Gist; n: number; 
           );
         })}
       </ChoiceGroup>
-      {picked !== null && (
-        <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }} role="status">
-          {picked === gist.answer ? t("That's it.") : <>{t("The answer:")} <LessonText text={gist.options[gist.answer]!} locale={locale} /></>}
-        </p>
-      )}
+      {/* Mounted empty and filled, since a status region that arrives holding its words is often not read. */}
+      <p className={picked !== null ? "mt-2 text-base" : "sr-only"} style={{ color: "var(--ink-2)" }} role="status">
+        {picked === null ? null : picked === gist.answer ? t("That's it.") : <>{t("The answer:")} <LessonText text={gist.options[gist.answer]!} locale={locale} /></>}
+      </p>
     </div>
   );
 }

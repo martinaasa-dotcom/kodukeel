@@ -5,12 +5,12 @@
  * or its first three spoken lines where it names none, at most four. Each is
  * said three times. The first pass hides nothing. The second hides tonight's
  * words, which is where the evening's endings are, and where a line holds
- * none of them it hides every other word of four letters or more, so the
- * second pass is never the first again. The third hides everything.
+ * none of them it hides every other word still showing, longer words first,
+ * so the second pass is never the first again. The third hides everything.
  *
  * FROM THE FOURTH PART OF A LEVEL IT STARTS A STEP HARDER (docs/reviews/b1-cast.md,
  * the ramp): the first pass already hides tonight's words, and the second
- * hides every other longer word besides, so a learner who has said lines
+ * hides every other word still showing besides, so a learner who has said lines
  * along for three parts is not given the whole line to read again.
  *
  * Pure: no React, no Prisma, no clock.
@@ -52,12 +52,21 @@ export function fadePlan(lesson: LessonSpec, partAt: number): FadePass[] {
   const lines = (named.length > 0 ? named : spoken.slice(0, 3)).slice(0, FADE_LINES);
   const tonight = tonightSpellings(lesson);
   const harder = partAt >= FADE_HARDER_FROM;
-  /** Tonight's words, or every other longer word where the line holds none of them. */
+  /*
+    Every other word of those still showing, longer words first: where no
+    longer word is left, the short ones take their turn, so a pass that is
+    meant to hide more always does while any word is still on the line.
+  */
+  const andEveryOther = (words: ReturnType<typeof lineWords>, already: readonly boolean[]): boolean[] => {
+    const showing = words.map((w, i) => (!already[i] && core(w.text).length > 0 ? i : -1)).filter((i) => i >= 0);
+    const longer = showing.filter((i) => core(words[i]!.text).length >= 4);
+    const turn = new Set((longer.length > 0 ? longer : showing).filter((_, k) => k % 2 === 0));
+    return words.map((_, i) => already[i]! || turn.has(i));
+  };
+  /** Tonight's words, or every other word where the line holds none of them. */
   const tonights = (words: ReturnType<typeof lineWords>): boolean[] => {
     const hidden = words.map((w) => tonight.has(core(w.text)));
-    if (hidden.some(Boolean)) return hidden;
-    let n = 0;
-    return words.map((w) => core(w.text).length >= 4 && n++ % 2 === 0);
+    return hidden.some(Boolean) ? hidden : andEveryOther(words, hidden);
   };
   const out: FadePass[] = [];
   for (const pass of [1, 2, 3] as const) {
@@ -67,12 +76,8 @@ export function fadePlan(lesson: LessonSpec, partAt: number): FadePass[] {
       if (pass === 3) hidden = words.map((w) => core(w.text).length > 0);
       else if (pass === 1) hidden = harder ? tonights(words) : words.map(() => false);
       else if (!harder) hidden = tonights(words);
-      else {
-        // A step on from the first pass: tonight's words, and every other longer word besides.
-        const first = tonights(words);
-        let n = 0;
-        hidden = words.map((w, i) => first[i]! || (core(w.text).length >= 4 && n++ % 2 === 0));
-      }
+      // A step on from the first pass: what it hid, and every other word still showing besides.
+      else hidden = andEveryOther(words, tonights(words));
       out.push({ pass, who: line.who, et: line.et!, en: line.en!, hidden });
     }
   }

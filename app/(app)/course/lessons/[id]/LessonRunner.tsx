@@ -529,12 +529,21 @@ function wordsUsed(lesson: LessonSpec): number {
 function Listen({ lesson, heard, onHeard }: { lesson: LessonSpec; heard: boolean; onHeard: () => void }) {
   const t = useT();
   const [english, setEnglish] = useState(true);
+  /* Pressing "Read it" replaces the card the button was on, so the caret goes
+     to the line saying what is on screen now rather than to the page. Only on
+     that change: a lesson read from the start has nothing to hand over. */
+  const leadRef = useRef<HTMLParagraphElement>(null);
+  const wasHeard = useRef(heard);
+  useEffect(() => {
+    if (heard && !wasHeard.current) leadRef.current?.focus();
+    wasHeard.current = heard;
+  }, [heard]);
   // B1 on, the conversation is heard before it is read (`ListenFirst`).
   if (!heard) return <ListenFirst lesson={lesson} onRead={onHeard} />;
   return (
     <Card>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <p className="text-base" style={{ color: "var(--ink-2)" }}>
+        <p ref={leadRef} tabIndex={-1} className="text-base outline-none" style={{ color: "var(--ink-2)" }}>
           {/* At B1 the questions came first, so "nothing is asked" would be false a breath after asking. */}
           {lesson.listenFor && lesson.listenFor.length > 0
             ? t("Now read what you heard. Press a line to hear it again.")

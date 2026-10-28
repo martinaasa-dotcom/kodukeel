@@ -244,6 +244,7 @@ function OneGo({ seconds, typed, focusStart, onGo }: { seconds: number; typed: b
 function Goes({ goes }: { goes: readonly Go[] }) {
   const t = useT();
   const most = Math.max(1, ...goes.map((g) => g.perMinute));
+  const quicker = goes.length >= 2 && goes[goes.length - 1]!.perMinute > goes[0]!.perMinute;
   return (
     <div className="mt-5" data-faster-goes>
       <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("Your goes")}</p>
@@ -259,11 +260,10 @@ function Goes({ goes }: { goes: readonly Go[] }) {
           </li>
         ))}
       </ol>
-      {goes.length >= 2 && goes[goes.length - 1]!.perMinute > goes[0]!.perMinute && (
-        <p className="mt-3 text-base font-semibold" style={{ color: "var(--ink)" }} role="status">
-          {fill(t("From {a} to {b} words a minute in one lesson."), { a: String(goes[0]!.perMinute), b: String(goes[goes.length - 1]!.perMinute) })}
-        </p>
-      )}
+      {/* Mounted with the first go and filled once there is a rise to say, since a region that arrives full is often not read. */}
+      <p className={quicker ? "mt-3 text-base font-semibold" : "sr-only"} style={{ color: "var(--ink)" }} role="status">
+        {quicker ? fill(t("From {a} to {b} words a minute in one lesson."), { a: String(goes[0]!.perMinute), b: String(goes[goes.length - 1]!.perMinute) }) : null}
+      </p>
     </div>
   );
 }

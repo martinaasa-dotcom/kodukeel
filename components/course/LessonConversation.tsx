@@ -25,9 +25,9 @@ import type { Line } from "@/lib/course/lessons/types";
  * them one after another in the cast's voices and lights the line being said,
  * which is the closest a screen gets to overhearing it.
  *
- * Stopping takes effect after the line being said, since a clip already in
- * the air finishes: cutting a word in half is the one thing a learner would
- * notice more than the wait.
+ * Stop ends the line being said (`stopClip`), and a line still on its way
+ * is not said: a learner who pressed Stop asked for quiet now, and a line
+ * finishing over the press reads as the button not working.
  */
 export function LessonConversation({ lines, cast, english, hidden = false, condition, onPlayed }: {
   lines: readonly Line[];
