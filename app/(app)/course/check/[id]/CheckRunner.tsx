@@ -120,12 +120,17 @@ export function CheckRunner({ checkId, attempt, items, needed, alreadyPassed, ne
             {items.map((item, i) => result.marks[i] === "right" ? null : (
               <li key={i} className="flex flex-wrap items-baseline gap-x-2 rounded-[var(--r)] border px-4 py-2.5" style={{ borderColor: "var(--edge)", background: "var(--surface)" }}>
                 {item.kind === "match" ? null : item.kind === "fix" ? (
+                  /* The line as it was shown, the line put right and why: the reason is what the next go is about. */
                   <>
+                    <span lang="et" style={{ color: "var(--ink-3)" }}><s>{item.shown}</s></span>
                     <span lang="et" className="font-semibold" style={{ color: "var(--accent-deep)" }}>{item.answer}</span>
                     <span style={{ color: "var(--ink-2)" }}><LessonText text={item.en} locale={locale} /></span>
+                    <span className="basis-full text-sm" style={{ color: "var(--ink-2)" }}><LessonText text={item.why} locale={locale} /></span>
                   </>
                 ) : item.kind === "rework" ? (
+                  /* The sentence it started from, what to do to it, and what it became. */
                   <>
+                    <span lang="et" style={{ color: "var(--ink)" }}>{item.from.et}</span>
                     <span style={{ color: "var(--ink-2)" }}><LessonText text={item.ask} locale={locale} /></span>
                     <span lang="et" className="font-semibold" style={{ color: "var(--accent-deep)" }}>{item.answer}</span>
                   </>

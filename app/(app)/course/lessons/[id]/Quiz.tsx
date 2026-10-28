@@ -371,17 +371,22 @@ function TypedBox({ boxRef, label, answer, typed, setTyped, mark, onCheck, child
   );
 }
 
-/** What the live region says once a question is answered. */
+/**
+ * What the live region says once a question is answered, with the Estonian in
+ * it marked `lang="et"` so a screen reader says it as Estonian.
+ */
 function liveLine(
   item: PracticeItem, picked: string | null, mark: TypedMark | null, matched: boolean | null, t: (s: string) => string,
-): string {
-  if (isTyped(item)) return mark ? `${t(mark.note)} ${item.answer}` : "";
+): ReactNode {
+  if (isTyped(item)) return mark ? <>{t(mark.note)} <span lang="et">{item.answer}</span></> : "";
   if (item.kind === "match") return matched === null ? "" : matched ? t("All matched, first time.") : t("All matched.");
   if (picked === null) return "";
   if (picked === item.answer) return t("Right.");
-  return item.kind === "gap" || item.kind === "reply"
-    ? fill(t("Not this one. It's {answer}."), { answer: item.answer })
-    : fill(t("Not this one. It means {answer}."), { answer: t(item.answer) });
+  if (item.kind === "gap" || item.kind === "reply") {
+    const [before, after = ""] = t("Not this one. It's {answer}.").split("{answer}");
+    return <>{before}<span lang="et">{item.answer}</span>{after}</>;
+  }
+  return fill(t("Not this one. It means {answer}."), { answer: t(item.answer) });
 }
 
 /**
