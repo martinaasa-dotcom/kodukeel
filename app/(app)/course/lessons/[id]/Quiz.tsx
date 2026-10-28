@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ArrowRight, Check, Flame } from "lucide-react";
 import { Button } from "@/components/Button";
 import { ChoiceGroup } from "@/components/Choice";
@@ -258,40 +258,21 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
                 <p className="text-lg font-semibold" style={{ color: "var(--ink)" }}>{t("One word is in the wrong form. Type the line put right.")}</p>
               </>
             )}
-            <input
-              lang="et"
-              className="field-lg w-full"
-              value={typed}
-              disabled={mark !== null}
-              aria-label={item.kind === "fix" ? t("The line put right, in Estonian") : t("The changed sentence, in Estonian")}
-              autoComplete="off"
-              autoCapitalize="off"
-              spellCheck={false}
-              onChange={(e) => setTyped(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && mark === null) {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  check();
-                }
-              }}
-            />
-            {mark === null && <div className="under-field"><DiacriticBar /></div>}
-            {mark !== null && (
-              <div className={`verdict-panel ${VERDICT_CLASS[mark.verdict === "wrong" && mark.close ? "nearly" : mark.verdict]}`}>
-                <p>{t(mark.note)}</p>
-                <p className="mt-1">
-                  <span lang="et" className="font-bold">{item.answer}</span>{" "}
-                  <LessonText text={item.kind === "rework" ? item.answerEn : item.en} locale={locale} />
-                </p>
-                {item.kind === "fix" && <p className="mt-1"><LessonText text={item.why} locale={locale} /></p>}
-              </div>
-            )}
-            {mark !== null && (
-              <span className="inline-flex items-center gap-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
-                <Speak text={item.answer} size={15} /> {t("hear it")}
-              </span>
-            )}
+            <TypedBox
+              label={item.kind === "fix" ? t("The line put right, in Estonian") : t("The changed sentence, in Estonian")}
+              answer={item.answer}
+              typed={typed}
+              setTyped={setTyped}
+              mark={mark}
+              onCheck={check}
+            >
+              <p>{mark ? t(mark.note) : null}</p>
+              <p className="mt-1">
+                <span lang="et" className="font-bold">{item.answer}</span>{" "}
+                <LessonText text={item.kind === "rework" ? item.answerEn : item.en} locale={locale} />
+              </p>
+              {item.kind === "fix" && <p className="mt-1"><LessonText text={item.why} locale={locale} /></p>}
+            </TypedBox>
           </div>
         )}
 
@@ -299,27 +280,8 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
           <div className="mt-2 flex flex-col gap-3">
             <p className="text-xl font-bold" style={{ color: "var(--ink)" }}><LessonText text={item.en} locale={locale} /></p>
             {item.note && <p className="text-base" style={{ color: "var(--ink-2)" }}>{t(item.note)}</p>}
-            <input
-              lang="et"
-              className="field-lg w-full"
-              value={typed}
-              disabled={mark !== null}
-              aria-label={t("Your answer, in Estonian")}
-              autoComplete="off"
-              autoCapitalize="off"
-              spellCheck={false}
-              onChange={(e) => setTyped(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && mark === null) {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  check();
-                }
-              }}
-            />
-            {mark === null && <div className="under-field"><DiacriticBar /></div>}
-            {mark !== null && (
-              <div className={`verdict-panel ${VERDICT_CLASS[mark.verdict === "wrong" && mark.close ? "nearly" : mark.verdict]}`}>
+            <TypedBox label={t("Your answer, in Estonian")} answer={item.answer} typed={typed} setTyped={setTyped} mark={mark} onCheck={check}>
+              {mark && (
                 <p>
                   {t(mark.note)}{" "}
                   {mark.verdict !== "right" && (
@@ -328,13 +290,8 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
                     </>
                   )}
                 </p>
-              </div>
-            )}
-            {mark !== null && (
-              <span className="inline-flex items-center gap-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
-                <Speak text={item.answer} size={15} /> {t("hear it")}
-              </span>
-            )}
+              )}
+            </TypedBox>
           </div>
         )}
 
@@ -353,6 +310,50 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
         </div>
       </Card>
     </div>
+  );
+}
+
+/**
+ * The box a typed question is answered in, with the letters an English
+ * keyboard lacks, the verdict once marked, and the answer to hear. One block
+ * for every typed kind, so the box a learner types into is the same box
+ * whatever the question; `children` is what the verdict says.
+ */
+function TypedBox({ label, answer, typed, setTyped, mark, onCheck, children }: {
+  label: string; answer: string; typed: string; setTyped: (value: string) => void;
+  mark: TypedMark | null; onCheck: () => void; children: ReactNode;
+}) {
+  const t = useT();
+  return (
+    <>
+      <input
+        lang="et"
+        className="field-lg w-full"
+        value={typed}
+        disabled={mark !== null}
+        aria-label={label}
+        autoComplete="off"
+        autoCapitalize="off"
+        spellCheck={false}
+        onChange={(e) => setTyped(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && mark === null) {
+            e.preventDefault();
+            e.stopPropagation();
+            onCheck();
+          }
+        }}
+      />
+      {mark === null && <div className="under-field"><DiacriticBar /></div>}
+      {mark !== null && (
+        <div className={`verdict-panel ${VERDICT_CLASS[mark.verdict === "wrong" && mark.close ? "nearly" : mark.verdict]}`}>{children}</div>
+      )}
+      {mark !== null && (
+        <span className="inline-flex items-center gap-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
+          <Speak text={answer} size={15} /> {t("hear it")}
+        </span>
+      )}
+    </>
   );
 }
 

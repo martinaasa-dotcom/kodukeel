@@ -9,7 +9,7 @@ import { FAREWELLS, HELLOS } from "./shared";
   about themselves and their work. Then a situation: the examiner plays a
   bank clerk, and the learner has lost a wallet, gets the card blocked and
   asks for a new one. Then a topic: driving in Tallinn, and one question that
-  is not in the lesson's own conversation, town or country, so the learner
+  is not in the lesson's own conversation, city or country, so the learner
   meets something new, as at the real exam. Something is at stake: it is the
   exam, and a one-word answer is not enough.
 
@@ -107,8 +107,8 @@ export default inLesson("b1-49-end", {
     },
     {
       id: "compare",
-      goal: "Say which is better, town or the country, with a reason for it and one against.",
-      they: "She asks which is better, living in town or in the country, and why.",
+      goal: "Say which is better, the city or the country, with a reason for it and one against.",
+      they: "She asks which is better, living in the city or in the country, and why.",
       move: "ask",
       topic: ["linn", "maa", "parem"],
       needs: [{ kind: "anyOf", of: [{ kind: "lemma", oneOf: ["linn", "maa", "parem", "sest"] }, { kind: "any" }] }],

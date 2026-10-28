@@ -194,7 +194,7 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
     goal: "Tell the landlord something's broken, and agree on a time for somebody to fix it.",
     cast: { Peeter: "peeter", Tom: "kalev" },
     conversation: [
-      { who: "Tom", et: "Tere, Peeter! Siin on Tom korterist number kolm.", en: "Hello, Peeter! It's Tom from apartment three.", stage: "On the phone to the landlord." },
+      { who: "Tom", et: "Tere, Peeter! Siin on Tom korterist number kaksteist.", en: "Hello, Peeter! It's Tom from apartment twelve.", stage: "On the phone to the landlord." },
       { who: "Peeter", et: "Tere! Mis juhtus?", en: "Hello! What happened?" },
       { who: "Tom", et: "Külmkapp ei tööta ja vannitoas on kraan katki.", en: "The fridge isn't working and the tap's broken in the bathroom." },
       { who: "Peeter", et: "Oi! Ma saadan meistri. Millal sa kodus oled?", en: "Oh! I'll send a repairman. When are you at home?" },

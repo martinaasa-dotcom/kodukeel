@@ -19,8 +19,8 @@ export default inLesson("b1-35-residents", {
   title: "The residents' meeting",
   place: "A meeting of the residents, in the building's hall",
   tests: "eluase",
-  register: "teie",
-  role: "You live in the building and you saw the burst pipe. The chair asks you about it. Answer as yourself.",
+  register: "sina",
+  role: "You live in the building and you saw the burst pipe. The chair is your neighbor, and she asks you about it. Answer as yourself.",
   props: [],
   curveballs: [],
   beats: [

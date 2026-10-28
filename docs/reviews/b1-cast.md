@@ -8,17 +8,17 @@ write a line that names anybody, or a lesson that changes how hard the level is.
 
 | Name | Who they are | Where they appear |
 | --- | --- | --- |
-| Tom | From England. A programmer at a small company in Tallinn for the whole of B1. | Everywhere |
+| Tom | From England. A programmer at a small company in Tallinn for the whole of B1. From lesson 21 he works Monday to Thursday and spends Fridays on an Estonian course, so nothing at work happens on a Friday after that. | Everywhere |
 | Anna | Tom's wife, from Ukraine. They have a son of five and a daughter of two. She is only ever at home or out with the family, never at Tom's office. | At home |
 | Mari | Their neighbor in Peeter's building, and a friend of the family. She works in a café with Liis. After the move (part 4) she is a friend who visits and phones. | Parts 1 to 7 |
-| Liis | Tom's friend. Engaged to Jaan, and they marry in part 2. Works in the café with Mari. | Parts 2 and 3, then as a friend |
-| Jaan | Liis's fiancé, then her husband. A doctor, as in A1. | As Liis's partner |
+| Liis | Tom's friend. Engaged to Jaan: in part 2 (lesson 11) she tells Tom they're getting married, and the wedding is in June. Works in the café with Mari. | Parts 2 and 3, then as a friend |
+| Jaan | Liis's fiancé, and her husband once the June wedding has happened. A doctor, as in A1. | As Liis's partner |
 | Peeter | Tom's old friend from A2, who rents the family his apartment (third floor, number 12, as in A2). Their landlord until the move in part 4, then a friend again. | Parts 1 to 4 as landlord, after that as a friend |
 | Kati | A friend from A2 (she helped Tom move in). Sings in a choir and bakes. Never at Tom's work. | As a friend |
 | Kristi | Tom's manager at work. A woman, the same boss throughout. | Parts 2, 3, 5 and 6 |
 | Kadri | Tom's colleague, new in part 2 (lesson 14) and his colleague from then on. | Work |
 | Siim | The new intern Kristi welcomes in lesson 16. Tom helps him, and he is a developer by lesson 21. | Part 3 |
-| Marko | Another colleague: a developer who worked as a cook before, and has children at home. | Work |
+| Marko | Another colleague: a developer who worked as a cook before, and has children at home. Not the team lead: nobody in the team is. | Work |
 | Rein | The handyman. | Parts 1 and 4 |
 | Urmas | The landlord of the family's new, bigger flat from part 4 (number 9), who promises the handyman "tomorrow". | Part 4 |
 | Triin | A friend of Kati's whom Tom meets at Kati's party, once. | Part 2 |
@@ -33,7 +33,7 @@ stranger. A lesson that needs Tom not to know somebody uses a new person.
 
 1. **Getting the job done.** Home and jobs around the flat: what is done and what isn't.
    Peeter's flat, the handyman Rein.
-2. **Who and what with.** People: interests, Liis and Jaan's wedding, Kadri starting at Tom's work.
+2. **Who and what with.** People: interests, Liis's news that she and Jaan are getting married in June, Kadri starting at Tom's work.
 3. **Money and work.** Pay, shifts at Mari and Liis's café, asking Kristi for things, a raise.
 4. **Home.** The family needs a bigger flat. They leave Peeter's flat (and get the deposit back),
    look at a furnished one, read the contract, move within Tallinn, meet Helgi downstairs, and

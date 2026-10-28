@@ -84,7 +84,8 @@ rewritten because of it, and are the first to read:
 
 - Lesson 7: `Reedel olen ma tööl.` (verb second after a fronted time word, here and in the scene's
   picks), `Kas see on korter number kaksteist?` (Peeter's apartment is 12, as in A2), and a stage
-  line saying Tom left work early to let the handyman in.
+  line saying Tom has taken the morning off to let the handyman in (reworded in the second pass,
+  below).
 - Lessons 8, 9, 12, 27: the rework targets are verb second, `Eile palusin ma ülemust appi.`,
   `Eile laulsin ma vaikselt.`, `Eelmisel suvel kartsin ma vihma.`, `Eelmisel nädalal ei töötanud
   küte.`, with the subject-first orders kept as accepted. Lesson 23's story: `Eelmisel nädalal
@@ -93,7 +94,8 @@ rewritten because of it, and are the first to read:
 - Lesson 11: `Me tutvusime kuus aastat tagasi, aga ta küsis alles kaks kuud tagasi, kas ma
   abiellun temaga.`
 - Lesson 12: `Tom, kas me sõidame suvel kõik koos Saaremaale või mitte? Anna ja lapsed tahavad
-  väga minna.` and `Siis sõidame ilma sinuta: mina, Anna ja lapsed. Liis ja Jaan tulevad ka meiega.`
+  väga minna.` and `Siis sõidame ilma sinuta: mina, Anna ja lapsed. Peeter tuleb ka meiega.`
+  (Peeter since the second pass, below)
 - Lesson 16: `Ta on pärit Inglismaalt.` (was `Ta tuli meile Londonist.`).
 - Lesson 19: `Ma olen sel nädalal kuus päeva tööl, vaba on ainult laupäev.`, `Aga kui mina võtan
   sinu pühapäeva ja esmaspäeva vahetused?`, `Laupäeval? Mis toimub?`
@@ -107,6 +109,43 @@ rewritten because of it, and are the first to read:
 - Lesson 44: `Ma tahaksin elamisloa pikendamist taotleda.` (Tom has lived here for years).
 - Lesson 47: `Praegu on kõik ametnikud hõivatud.`, `Ametnik on praegu hõivatud.`
 - Lesson 49: `Teine osa. Nüüd töötan mina pangas.` (and the scene's `Teine osa. Nüüd oleme pangas.`)
+
+A second pass over the same reading, for the story holding together across lessons:
+
+- Lesson 4: `Tom, sa oled mu parim sõber. Ma armastan sind!` (was `sa oled parim sõber`).
+- Lesson 9: `Olgu! Aga ma laulan väga vaikselt.` (was `Lepime kokku!` as a reply), and the retell's
+  first line `Eile käisin esimest korda kooris, kus laulavad Triin ja Kati.` (the choir is Triin's).
+- Lesson 12: `Siis sõidame ilma sinuta: mina, Anna ja lapsed. Peeter tuleb ka meiega.` (Liis and Jaan
+  only meet Tom's family later).
+- Lesson 16: `Nii et kokk sai arendajaks!` (Marko is no longer elected team lead), and the rework
+  `Ta on meeskonna juht.` / `Ta valiti meeskonna juhiks.`
+- Lesson 21: `Lihtne see ei olnud. Sa lihtsalt töötasid hästi. Ja kuidas eesti keele kursus läheb?`
+  and `Väga hästi! Reedeti õpin ma nüüd ainult eesti keelt.` (closes lesson 20's request: Tom works
+  Monday to Thursday from here on).
+- Lesson 22: `Aga miks see uks kinni on?` (the lesson says {suletud} is sign language).
+- Lesson 24: `Tere! Kas sa oled uus naaber? Mina olen Helgi, ütle mulle sina.`
+- Lesson 25's retell: `Nüüd töötab kõik ja vannitoas põleb jälle lamp.`
+- Lesson 31's retell: `Ja siis sain ma aru, et olin pileti koju unustanud!`
+- Lesson 32: `Oi! Äkki on see see uus restoran meie kontori lähedal?`, `Me tahtsime seal neljapäeval
+  lõunat süüa!`, `Siis sööte neljapäeval jälle sööklas.`
+- Lesson 33: `Sina ja mina. Seda sa veel ei teadnud.` and the meeting moved to Thursday: `Ja lepiti
+  kokku, et igal neljapäeval on lühike koosolek.`, `Lepime kokku, et igal neljapäeval on koosolek.`,
+  `Lepiti kokku, et igal neljapäeval on koosolek.`
+- Lesson 35's role-play and the scene `b1-uhistu` are in `sina` now (Helgi and Tom are on `sina`
+  since lesson 24): `Tere õhtust! Sina nägid seda ise. Mis juhtus?`, `Mida sa soovitad?`, `Hästi.
+  Aitäh, et tulid!`, and the scene's `Sina nägid seda ise. Mis juhtus?`, `Selge. Ja mida sa siis
+  tegid?`, `Mida sa soovitad?`, `Mida sa soovitad teha?`, `Aitäh, et tulid! Head aega!`
+- Lesson 41's model post: `Seal jalutavad inimesed igal õhtul oma koeri.`
+- Lesson 42: `Ma ei ole päris nõus. Kuigi kodus on mugav, on mul seal igav, sest ma ei näe kolleege.`
+- Lesson 43: `Tooge see tagasi, kui uue kaardi kätte saate.` (Tom has the broken card with him), the
+  table's `Tooge vana kaart tagasi.`, and the model answer `Ma toon vana kaardi tagasi, kui uue kätte
+  saan.`
+- Lesson 45's retell: `Ta arvas, et oli selle bussi unustanud.` (the conversation has Tom think he
+  left it on the bus, not that it was stolen).
+- Lesson 48's model application: `Ilma autota ei saaks me hakkama.`, `Kui me õhtul koju jõuame, ei
+  ole maja juures vabu parkimiskohti.`, `Siis otsin ma tihti pool tundi parkimiskohta.`
+- A2 lesson 45 (`a2-too`): `Tere, Peeter! Siin on Tom korterist number kaksteist.` (Peeter's apartment
+  is 12 everywhere else).
 
 ## What a second model flagged
 

@@ -395,7 +395,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Ära karda. Ta ootab kindlasti kedagi.", en: "Don't be scared. It's surely waiting for somebody." },
       { who: "Jaan", et: "Hästi, ma tulen. Kohtume rongijaamas kümne minuti pärast.", en: "All right, I'm coming. See you at the train station in ten minutes." },
       { who: "Tom", et: "Hea küll. Ma võtan vahepeal kohvi.", en: "OK. I'll get a coffee in the meantime." },
-      { who: "Jaan", et: "Tom, sa oled parim sõber. Ma armastan sind!", en: "Tom, you're the best friend. I love you!" },
+      { who: "Jaan", et: "Tom, sa oled mu parim sõber. Ma armastan sind!", en: "Tom, you're my best friend. I love you!" },
       { who: "Tom", et: "Jah, jah. Tule nüüd!", en: "Yes, yes. Just come!" },
     ],
     teaches: [
@@ -764,7 +764,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
     goal: "Tell a handyman what's broken, what you've done yourself and what isn't done, and agree when he'll finish.",
     cast: { Rein: "albert", Tom: "kalev" },
     conversation: [
-      { who: "Rein", et: "Tere! Mina olen Rein, meister. Kas see on korter number kaksteist?", en: "Hello! I'm Rein, the handyman. Is this apartment number twelve?", stage: "The next morning. Tom has left work early to let the handyman in himself." },
+      { who: "Rein", et: "Tere! Mina olen Rein, meister. Kas see on korter number kaksteist?", en: "Hello! I'm Rein, the handyman. Is this apartment number twelve?", stage: "The next morning. Tom has taken the morning off to let the handyman in himself." },
       { who: "Tom", et: "Jah, tulge sisse! Kas te lugesite mu kirja?", en: "Yes, come in! Did you read my note?" },
       { who: "Rein", et: "Lugesin. Kraani te parandasite ise ära?", en: "I did. You fixed the tap yourself?" },
       { who: "Tom", et: "Jah, aga dušš tilgub ikka edasi.", en: "Yes, but the shower keeps on dripping." },
@@ -807,7 +807,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
     listenFor: [
       { q: "What does the handyman fix today?", options: ["The window", "The shower", "The tap", "The door"], answer: 1 },
       { q: "Why can't he fix the window today?", options: ["He has no time", "Tom won't be at home to let him in", "It needs a spare part", "It isn't broken"], answer: 2 },
-      { q: "When will he come back?", options: ["On Monday", "On Friday", "Tomorrow", "Next month"], answer: 0 },
+      { q: "When do they agree he'll come back?", options: ["On Monday", "On Friday", "Tomorrow", "Next month"], answer: 0 },
     ],
     roleplay: {
       scene: "The handyman has come to your apartment. Tell him what's broken and what you fixed yourself, and agree when he'll finish.",

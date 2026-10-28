@@ -41,7 +41,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { who: "Urmas", et: "Jah, ja terve korter on remonditud. Köök on täiesti uus.", en: "Yes, and the whole apartment has been fixed up. The kitchen is completely new." },
       { who: "Tom", et: "Kas korter on möbleeritud?", en: "Is the apartment furnished?" },
       { who: "Urmas", et: "Muidugi. Diivan, voodi ja laud jäävad siia.", en: "Of course. The sofa, the bed and the table stay here." },
-      { who: "Tom", et: "Aga miks on see uks suletud?", en: "But why is this door shut?" },
+      { who: "Tom", et: "Aga miks see uks kinni on?", en: "But why is this door shut?" },
       { who: "Urmas", et: "Seal on üks väike tuba. See ei ole veel remonditud.", en: "There's a small room in there. It hasn't been fixed up yet." },
       { who: "Tom", et: "Kas ma tohin sinna vaadata?", en: "May I have a look in there?" },
       { who: "Urmas", et: "Palun.", en: "Go ahead.", stage: "He opens the door. The little room is full of old chairs, right up to the ceiling." },
@@ -78,7 +78,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         "{Avatud} and {suletud} are what a sign says. Talking, people say {lahti} and {kinni}: {Uks on kinni}.",
       ],
       watchOut: "A -tud word in front of a noun never takes the noun's ending: {suletud uksega}, with -ga on the door alone.",
-      examples: [2, 3, 5, 11],
+      examples: [2, 3, 6, 11],
     },
     listenFor: [
       { q: "What is behind the shut door?", options: ["The landlord's cat", "A brand-new bathroom with a big bath", "A room full of old chairs", "Nothing at all"], answer: 2 },
@@ -250,7 +250,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
     goal: "Read a building's rules, and say what's allowed, what isn't and what's a must.",
     cast: { Helgi: "vesta", Tom: "kalev" },
     conversation: [
-      { who: "Helgi", et: "Tere! Kas sina oled uus naaber? Mina olen Helgi, ütle mulle sina. Vaata, trepi juures on uus teade.", en: "Hello! Are you the new neighbor? I'm Helgi, and you can call me {sina}. Look, there's a new notice by the stairs.", stage: "Tom's first week in the new building. By the stairs he meets Helgi, an older woman who lives in the apartment below his." },
+      { who: "Helgi", et: "Tere! Kas sa oled uus naaber? Mina olen Helgi, ütle mulle sina. Vaata, trepi juures on uus teade.", en: "Hello! Are you the new neighbor? I'm Helgi, and you can call me {sina}. Look, there's a new notice by the stairs.", stage: "Tom's first week in the new building. By the stairs he meets Helgi, an older woman who lives in the apartment below his." },
       { who: "Tom", et: "Tere, Helgi! Mina olen Tom. Maja reeglid? Loeme koos!", en: "Hello, Helgi! I'm Tom. The house rules? Let's read them together!" },
       { who: "Tom", et: "Suitsetamine majas on keelatud.", en: "Smoking in the building is not allowed.", stage: "Reading aloud." },
       { who: "Helgi", et: "Väga hea. Mina ei suitseta üldse.", en: "Good. I don't smoke at all." },
@@ -463,7 +463,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         { et: "Ma proovisin seda ise parandada, aga siis lekkis see kahest kohast.", en: "I tried to fix it myself, but then it leaked in two places." },
         { et: "Valamu oli ka ummistunud.", en: "The sink was blocked too." },
         { et: "Urmas saatis meistri ja meister vahetas toru ära.", en: "Urmas sent a repairman, and the repairman changed the pipe." },
-        { et: "Nüüd töötab kõik, aga lamp vannitoas on ikka katki.", en: "Now everything works, but the bathroom light is still broken." },
+        { et: "Nüüd töötab kõik ja vannitoas põleb jälle lamp.", en: "Now everything works, and the bathroom light is on again." },
       ],
       points: [
         { en: "Tell it as Tom, with {ma}: last week the kitchen tap was leaking.", any: ["lekkis", "kraan"] },

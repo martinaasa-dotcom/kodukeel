@@ -163,7 +163,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       { who: "Kristi", et: "Siim alustab meil praktikandina, aga ta tahab saada heaks arendajaks.", en: "Siim is starting with us as an intern, but he wants to become a good developer." },
       { who: "Kristi", et: "Akna juures istub Marko. Ta töötab meil arendajana.", en: "By the window is Marko. He works here as a developer." },
       { who: "Kristi", et: "Marko on siin töötanud kaks aastat. Enne töötas ta kokana. Tema supp oli kõige parem!", en: "Marko has worked here for two years. Before that he worked as a cook. His soup was the best!" },
-      { who: "Kristi", et: "Jah, kokk sai arendajaks. Ja eelmisel aastal valiti ta meie meeskonna juhiks.", en: "Yes, a cook became a developer. And last year he was chosen to lead our team." },
+      { who: "Kristi", et: "Nii et kokk sai arendajaks!", en: "So a cook became a developer!" },
       { who: "Kristi", et: "Tom töötab meil programmeerijana. Ta on pärit Inglismaalt.", en: "Tom works here as a programmer. He's from England." },
       { who: "Kristi", et: "Kadri tuli meile eelmisel kuul. Ta istub ukse juures.", en: "Kadri joined us last month. She sits by the door." },
       { who: "Kristi", et: "Ja mina? Mina alustasin siin ka praktikandina. Ma tegin rohkem kohvi kui koodi.", en: "And me? I started here as an intern too. I made more coffee than code.", stage: "Everybody laughs." },
@@ -245,15 +245,15 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
         pattern: "essive",
       },
       {
-        from: { et: "Marko on meeskonna juht.", en: "Marko leads the team." },
-        ask: "Say he was chosen to lead it. Start with {Marko valiti}.",
-        to: { et: "Marko valiti meeskonna juhiks.", en: "Marko was chosen to lead the team." },
+        from: { et: "Ta on meeskonna juht.", en: "She leads the team." },
+        ask: "Say she was chosen to lead it. Start with {Ta valiti}.",
+        to: { et: "Ta valiti meeskonna juhiks.", en: "She was chosen to lead the team." },
         pattern: "translative",
       },
     ],
     fixes: [
       { line: { et: "Ta töötab meil arendajana.", en: "He works here as a developer." }, right: "arendajana", wrong: "arendajaks", pair: ["ESSIVE", "TRANSLATIVE"], why: "Working as something is being it, not becoming it: -na." },
-      { line: { et: "Jah, kokk sai arendajaks.", en: "Yes, a cook became a developer." }, right: "arendajaks", wrong: "arendajana", pair: ["TRANSLATIVE", "ESSIVE"], why: "Became takes -ks." },
+      { line: { et: "Nii et kokk sai arendajaks!", en: "So a cook became a developer!" }, right: "arendajaks", wrong: "arendajana", pair: ["TRANSLATIVE", "ESSIVE"], why: "Became takes -ks." },
       { line: { et: "Mina alustasin siin ka praktikandina.", en: "I started here as an intern too." }, right: "praktikandina", wrong: "praktikandiks", pair: ["ESSIVE", "TRANSLATIVE"], why: "Started as is being something at the start: -na." },
     ],
     faster: {
@@ -788,7 +788,8 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Viis ja viis. See sobib mulle.", en: "Five and five. That works for me." },
       { who: "Kristi", et: "Ja järgmine kord ära oota pool aastat. Küsi varem!", en: "And next time don't wait half a year. Ask sooner!" },
       { who: "Tom", et: "Kui ma oleksin teadnud, et see nii lihtne on, oleksin ma ammu küsinud!", en: "If I'd known it was this easy, I'd have asked long ago!" },
-      { who: "Kristi", et: "Lihtne see ei olnud. Sa lihtsalt töötasid hästi.", en: "It wasn't easy. You just did good work." },
+      { who: "Kristi", et: "Lihtne see ei olnud. Sa lihtsalt töötasid hästi. Ja kuidas eesti keele kursus läheb?", en: "It wasn't easy. You just did good work. And how's the Estonian course going?" },
+      { who: "Tom", et: "Väga hästi! Reedeti õpin ma nüüd ainult eesti keelt.", en: "Really well! On Fridays now I just study Estonian." },
     ],
     teaches: [],
     how: {

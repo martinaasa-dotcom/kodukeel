@@ -156,7 +156,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { who: "Triin", et: "Mina olen huvitatud ajaloost. Ja autodest!", en: "I'm interested in history. And cars!" },
       { who: "Tom", et: "Autodest? Minu auto vajab abi. See on umbes kakskümmend aastat vana.", en: "Cars? My car needs help. It's about twenty years old." },
       { who: "Triin", et: "Väga hea! Sa tuled reedel koori ja mina vaatan su autot.", en: "Very good! You come to choir on Friday and I'll look at your car." },
-      { who: "Tom", et: "Lepime kokku! Aga ma laulan väga vaikselt.", en: "It's a deal! But I'll sing very quietly." },
+      { who: "Tom", et: "Olgu! Aga ma laulan väga vaikselt.", en: "All right! But I'll sing very quietly." },
     ],
     teaches: [
       { kind: "verb", et: "huvituma", first: "huvitun", en: "to be into, to be interested", firstEn: "I'm into", asks: "{millest?} something ([seestütlev] (-st, out of))" },
@@ -248,13 +248,13 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
     retell: {
       who: "Tom",
       story: [
-        { et: "Eile käisin esimest korda Kati kooris.", en: "Yesterday I went to Kati's choir for the first time." },
+        { et: "Eile käisin esimest korda kooris, kus laulavad Triin ja Kati.", en: "Yesterday I went for the first time to the choir Triin and Kati sing in." },
         { et: "Ma huvitun muusikast, aga ma ei laula üldse hästi.", en: "I'm into music, but I don't sing well at all." },
         { et: "Mulle tundus, et kõik kuulavad ainult mind.", en: "It seemed to me that everybody was listening only to me." },
         { et: "Pärast ütles Kati, et ma laulsin hästi, kuna ma laulsin väga vaikselt.", en: "Afterwards Kati said I sang well, since I sang very quietly." },
       ],
       points: [
-        { en: "Tom went to Kati's choir for the first time. Tell it about him: {ta}, not {ma}.", any: ["kooris", "käis"] },
+        { en: "Tom went to Triin and Kati's choir for the first time. Tell it about him: {ta}, not {ma}.", any: ["kooris", "käis"] },
         { en: "He's into music, but he doesn't sing well at all.", any: ["muusikast"] },
         { en: "It seemed to him that everybody was listening only to him.", any: ["tundus", "kuulavad"] },
         { en: "Kati said he sang well, since he sang very quietly.", any: ["vaikselt", "ütles"] },
@@ -526,7 +526,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Ei. Tegelikult töötab kõik väga hästi ka ilma minuta.", en: "No. Actually everything works fine without me too." },
       { who: "Mari", et: "Siis räägi temaga homme! Ma usun sinusse.", en: "Then talk to her tomorrow! I believe in you." },
       { who: "Tom", et: "Aga kui ta ütleb, et see pole võimalik?", en: "But what if she says it isn't possible?" },
-      { who: "Mari", et: "Siis sõidame ilma sinuta: mina, Anna ja lapsed. Liis ja Jaan tulevad ka meiega.", en: "Then we'll go without you: me, Anna and the kids. Liis and Jaan are coming with us too." },
+      { who: "Mari", et: "Siis sõidame ilma sinuta: mina, Anna ja lapsed. Peeter tuleb ka meiega.", en: "Then we'll go without you: me, Anna and the kids. Peeter's coming with us too." },
       { who: "Tom", et: "Ilma minuta? Nüüd ma kardan sind.", en: "Without me? Now I'm scared of you." },
       { who: "Mari", et: "Õige! Nüüd sõltub kõik sinust.", en: "Good! Now it all depends on you." },
     ],
@@ -570,7 +570,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
     listenFor: [
       { q: "What are Mari and Tom planning?", options: ["A party at home", "A new job for Tom", "A trip to Saaremaa", "A concert in the old town"], answer: 2 },
       { q: "What was the weather like last summer?", options: ["Hot every day", "Cold and windy", "Snow in June", "A whole week of rain"], answer: 3 },
-      { q: "Who else is coming along?", options: ["Kati and Triin", "Liis and Jaan", "Tom's boss", "Peeter"], answer: 1 },
+      { q: "Who else is coming along?", options: ["Kati and Triin", "Liis and Jaan", "Tom's boss", "Peeter"], answer: 3 },
     ],
     answers: [
       { ask: { et: "Kas sa tuled laupäeval?", en: "Are you coming on Saturday?" }, cue: "Say it depends on the weather.", model: { et: "See sõltub ilmast.", en: "It depends on the weather." } },

@@ -6,7 +6,7 @@
  * with {kuigi}, what for with {et}, and which one with {kes} and {mis} in the
  * case the second sentence needs. Then it puts them to work: arguing about a
  * film, Helgi's first smartphone, the bins in the yard of the new building,
- * a voicemail about the town's plan for the park and the forum post it asks
+ * a voicemail about the city's plan for the park and the forum post it asks
  * for, and a meeting where Tom disagrees with his colleagues
  * (docs/reviews/b1-cast.md).
  *
@@ -95,7 +95,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       { q: "What does Tom decide in the end?", options: ["To keep driving the old one", "To sell it and take the bus", "To buy a newer car next month"], answer: 0 },
     ],
     answers: [
-      { ask: { et: "Kas sul on autot vaja?", en: "Do you need a car?" }, cue: "Say you don't, since you live in the town center.", model: { et: "Mul ei ole autot vaja, kuna ma elan kesklinnas.", en: "I don't need a car, since I live in the town center." } },
+      { ask: { et: "Kas sul on autot vaja?", en: "Do you need a car?" }, cue: "Say you don't, since you live in the city center.", model: { et: "Mul ei ole autot vaja, kuna ma elan kesklinnas.", en: "I don't need a car, since I live in the city center." } },
       { cue: "Say you'd like a car so you can drive to the country.", model: { et: "Ma tahaksin autot, et maale sõita.", en: "I'd like a car so I can drive to the country." } },
       { cue: "Say a car is comfortable, although it's expensive.", model: { et: "Auto on mugav, kuigi see on kallis.", en: "A car is comfortable, although it's expensive." } },
       { cue: "Say if the weather's nice, you walk to work.", model: { et: "Kui ilm on ilus, käin ma jala tööl.", en: "If the weather's nice, I walk to work." } },
@@ -141,9 +141,9 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       { line: { et: "Mari käib bussiga tööl.", en: "Mari goes to work by bus." }, right: "tööl", wrong: "tööle", pair: ["ADESSIVE", "ALLATIVE"], why: "Going to work as a habit is {käima tööl}, where you are: {tööl}." },
     ],
     faster: {
-      ask: { et: "Kas linnas on autot vaja? Miks?", en: "Do you need a car in town? Why?" },
+      ask: { et: "Kas linnas on autot vaja? Miks?", en: "Do you need a car in the city? Why?" },
       cue: "Give your view, and two reasons: one with {kuna} and one with {kuigi}.",
-      model: { et: "Ma ei tahaks linnas autot. Kuna buss on odavam, jääb mul rohkem raha üle. Ja kuigi auto on mugav, käin ma linnas hea meelega jala.", en: "I wouldn't want a car in town. Since the bus is cheaper, I have more money left. And although a car is comfortable, I'm happy to walk in town." },
+      model: { et: "Ma ei tahaks linnas autot. Kuna buss on odavam, jääb mul rohkem raha üle. Ja kuigi auto on mugav, käin ma linnas hea meelega jala.", en: "I wouldn't want a car in the city. Since the bus is cheaper, I have more money left. And although a car is comfortable, I'm happy to walk in the city." },
     },
   },
   {
@@ -204,7 +204,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
     answers: [
       { ask: { et: "Kes see naine on?", en: "Who's that woman?" }, cue: "Say she's the woman who lives next door to you.", model: { et: "See on naine, kes elab meie kõrval.", en: "That's the woman who lives next door to us." } },
       { cue: "Say the book you're reading is very good.", model: { et: "Raamat, mida ma loen, on väga hea.", en: "The book I'm reading is very good." } },
-      { cue: "Say the company where you work is in the town center.", model: { et: "Firma, kus ma töötan, on kesklinnas.", en: "The company where I work is in the town center." } },
+      { cue: "Say the company where you work is in the city center.", model: { et: "Firma, kus ma töötan, on kesklinnas.", en: "The company where I work is in the city center." } },
       { cue: "Say Mari is the friend you often have coffee with.", model: { et: "Mari on sõber, kellega ma tihti kohvi joon.", en: "Mari is the friend I often have coffee with." } },
     ],
     reworks: [
@@ -221,9 +221,9 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
         pattern: "relative",
       },
       {
-        from: { et: "Ma töötan firmas. See on kesklinnas.", en: "I work at a company. It's in the town center." },
+        from: { et: "Ma töötan firmas. See on kesklinnas.", en: "I work at a company. It's in the city center." },
         ask: "Join them with {kus}.",
-        to: { et: "Firma, kus ma töötan, on kesklinnas.", en: "The company where I work is in the town center." },
+        to: { et: "Firma, kus ma töötan, on kesklinnas.", en: "The company where I work is in the city center." },
         pattern: "relative",
       },
       {
@@ -502,7 +502,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
         { et: "Nüüd helistab ta mulle iga päev.", en: "Now she calls me every day." },
       ],
       points: [
-        { en: "Helgi, the neighbor, came round to Tom's.", any: ["Helgi", "naaber"] },
+        { en: "Helgi, the neighbor, came round to Tom's. Tell it about him: {ta}, not {ma}.", any: ["Helgi", "naaber"] },
         { en: "The screen of her new smartphone was black.", any: ["ekraan", "must"] },
         { en: "She was charging it with the old cable, which doesn't fit.", any: ["juhtmega", "juhe", "teadnud"] },
         { en: "There were twenty messages, from her daughter.", any: ["sõnumit", "tütrelt"] },
@@ -633,11 +633,11 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
     hearing: "phone",
     conversation: [
       { who: "Helgi", et: "Tere, Tom! Siin Helgi.", en: "Hi, Tom! It's Helgi.", stage: "A voicemail on Tom's phone." },
-      { who: "Helgi", et: "Kas sa tead? Linn tahab meie pargi asemele parkla ehitada.", en: "Have you heard? The town wants to build a car park where our park is." },
+      { who: "Helgi", et: "Kas sa tead? Linn tahab meie pargi asemele parkla ehitada.", en: "Have you heard? The city wants to build a car park where our park is." },
       { who: "Helgi", et: "Aga park on ju koht, kus lapsed mängivad!", en: "But the park is where the children play!" },
       { who: "Helgi", et: "Ja kus mina igal õhtul koeraga jalutan.", en: "And where I walk the dog every evening." },
       { who: "Helgi", et: "Minu meelest on see väga halb idee.", en: "If you ask me, it's a very bad idea." },
-      { who: "Helgi", et: "Linnal on foorum, kus saab oma arvamust avaldada.", en: "The town has a forum where you can give your opinion." },
+      { who: "Helgi", et: "Linnal on foorum, kus saab oma arvamust avaldada.", en: "The city has a forum where you can give your opinion." },
       { who: "Helgi", et: "Sinu eesti keel on ju hea. Palun kirjuta sinna, mida sa arvad ja miks.", en: "Your Estonian is good, after all. Please write there what you think and why." },
       { who: "Helgi", et: "Ma kirjutan ka. Helista mulle! Head aega!", en: "I'm writing too. Call me! Bye!" },
     ],
@@ -658,7 +658,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "oma arvamust avaldada", en: "to give your opinion, to say what you think" },
       { kind: "form", et: "kirjutada", of: "kirjutama", en: "to write: the [da-tegevusnimi] (-da)" },
       { kind: "form", et: "plaani", of: "plaan", en: "a plan's, of the plan" },
-      { kind: "word", et: "linnavalitsus", en: "city government, the town hall" },
+      { kind: "word", et: "linnavalitsus", en: "city government, city hall" },
       { kind: "word", et: "ainus", en: "the only one" },
       { kind: "form", et: "mõelge", of: "mõtlema", en: "think: to more than one person, or politely" },
     ],
@@ -682,15 +682,15 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       examples: [1, 2, 5],
     },
     listenFor: [
-      { q: "What does the town want to build where the park is?", options: ["A school", "A new road to the station", "A car park"], answer: 2 },
+      { q: "What does the city want to build where the park is?", options: ["A school", "A new road to the station", "A car park"], answer: 2 },
       { q: "True or false: Helgi walks her dog in the park every evening.", options: ["True", "False"], answer: 0 },
-      { q: "Why does Helgi want Tom to be the one who writes?", options: ["He knows people at the town hall", "His Estonian is good", "She has no computer at home"], answer: 1 },
+      { q: "Why does Helgi want Tom to be the one who writes?", options: ["He knows people at city hall", "His Estonian is good", "She has no computer at home"], answer: 1 },
     ],
     answers: [
-      { ask: { et: "Kas linna plaan on sinu meelest hea?", en: "Do you think the town's plan is a good one?" }, cue: "Say you're against the plan.", model: { et: "Ma olen selle plaani vastu.", en: "I'm against the plan." } },
+      { ask: { et: "Kas linna plaan on sinu meelest hea?", en: "Do you think the city's plan is a good one?" }, cue: "Say you're against the plan.", model: { et: "Ma olen selle plaani vastu.", en: "I'm against the plan." } },
       { cue: "Say the park is a place where children play.", model: { et: "Park on koht, kus lapsed mängivad.", en: "The park is a place where children play." } },
       { cue: "Say it's the only green place you have here.", model: { et: "See on ainus roheline koht, mis meil siin on.", en: "It's the only green place we have here." } },
-      { cue: "Ask the town, politely, to think again.", model: { et: "Palun mõelge veel kord!", en: "Please think again!" } },
+      { cue: "Ask the city, politely, to think again.", model: { et: "Palun mõelge veel kord!", en: "Please think again!" } },
     ],
     reworks: [
       {
@@ -701,9 +701,9 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
         pattern: "relative",
       },
       {
-        from: { et: "Linn vajab parklat. See ei pea olema pargis.", en: "The town needs a car park. It doesn't have to be in the park." },
+        from: { et: "Linn vajab parklat. See ei pea olema pargis.", en: "The city needs a car park. It doesn't have to be in the park." },
         ask: "Join them with {kuigi}, the but first.",
-        to: { et: "Kuigi linn vajab parklat, ei pea see olema pargis.", en: "Although the town needs a car park, it doesn't have to be in the park." },
+        to: { et: "Kuigi linn vajab parklat, ei pea see olema pargis.", en: "Although the city needs a car park, it doesn't have to be in the park." },
         pattern: "subordinate",
       },
       {
@@ -734,36 +734,36 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       who: "Tom",
       story: [
         { et: "Eile helistas mulle meie naaber Helgi.", en: "Yesterday our neighbor Helgi called me." },
-        { et: "Ta ütles, et linn tahab pargist parkla teha.", en: "She said the town wants to turn the park into a car park." },
+        { et: "Ta ütles, et linn tahab pargist parkla teha.", en: "She said the city wants to turn the park into a car park." },
         { et: "Ma olen selle plaani vastu, kuna park on koht, kus lapsed mängivad.", en: "I'm against the plan, since the park is where the children play." },
         { et: "Seal jalutab ka Helgi igal õhtul koeraga.", en: "Helgi walks her dog there every evening, too." },
-        { et: "Ma kirjutasin linna foorumisse, mida ma arvan.", en: "I wrote on the town's forum what I think." },
+        { et: "Ma kirjutasin linna foorumisse, mida ma arvan.", en: "I wrote on the city's forum what I think." },
         { et: "Täna olid kõik naabrid minuga nõus.", en: "Today all the neighbors agreed with me." },
       ],
       points: [
         { en: "Helgi called Tom yesterday. Tell it about him: {ta}, not {ma}.", any: ["helistas", "naaber"] },
-        { en: "The town wants to turn the park into a car park.", any: ["parkla", "pargist"] },
+        { en: "The city wants to turn the park into a car park.", any: ["parkla", "pargist"] },
         { en: "Tom is against the plan, since children play in the park.", any: ["vastu", "lapsed"] },
         { en: "Helgi walks her dog there every evening.", any: ["koeraga", "jalutab"] },
-        { en: "He wrote on the town's forum.", any: ["foorumisse", "kirjutas"] },
+        { en: "He wrote on the city's forum.", any: ["foorumisse", "kirjutas"] },
         { en: "Today all the neighbors agreed with him.", any: ["naabrid", "nõus"] },
       ],
     },
     write: {
       genre: "A forum post with your opinion",
-      purpose: "Say what you think of the town's plan, give two reasons, and ask for something.",
+      purpose: "Say what you think of the city's plan, give two reasons, and ask for something.",
       model: [
         { et: "Tere kõigile!", en: "Hi, everybody!" },
         { et: "Linnavalitsus tahab meie pargi asemele parkla ehitada.", en: "The city government wants to build a car park in place of our park." },
         { et: "Me kolisime siia, sest maja lähedal on park.", en: "We moved here because there's a park near the building." },
-        { et: "Ma olen linna plaani vastu.", en: "I'm against the town's plan." },
+        { et: "Ma olen linna plaani vastu.", en: "I'm against the city's plan." },
         { et: "Kuna park on koht, kus lapsed mängivad, ei ole parkla seal hea mõte.", en: "Since the park is a place where children play, a car park there isn't a good idea." },
         { et: "Mu lapsed mängivad seal iga päev.", en: "My children play there every day." },
         { et: "Ma ei taha, et nad parklas mängiksid.", en: "I don't want them playing in a car park." },
         { et: "Park on ka ainus roheline koht, mis meil siin on.", en: "The park is also the only green place we have here." },
         { et: "Suvel on seal ilus ja õhtul on seal vaikne.", en: "In summer it's beautiful there, and in the evening it's quiet." },
-        { et: "Seal jalutavad inimesed igal õhtul koeraga.", en: "People walk their dogs there every evening." },
-        { et: "Kuigi linn vajab parklat, ei pea see olema pargis.", en: "Although the town needs a car park, it doesn't have to be in the park." },
+        { et: "Seal jalutavad inimesed igal õhtul oma koeri.", en: "People walk their dogs there every evening." },
+        { et: "Kuigi linn vajab parklat, ei pea see olema pargis.", en: "Although the city needs a car park, it doesn't have to be in the park." },
         { et: "Minu meelest on parklale parem koht jaama juures.", en: "If you ask me, a better place for a car park is by the station." },
         { et: "Keskkond on meie kõigi kodu.", en: "The environment is home to all of us." },
         { et: "Ma tean, et ka meie naabrid on minuga nõus.", en: "I know our neighbors agree with me too." },
@@ -793,7 +793,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       { who: "Kristi", et: "Meie kontor on liiga väike. Mul on kaks plaani.", en: "Our office is too small. I've got two plans.", stage: "A team meeting. Kristi is Tom's manager." },
       { who: "Kristi", et: "Kas me kolime teise kontorisse või töötame kodus?", en: "Do we move to another office, or work from home?" },
       { who: "Kadri", et: "Minu meelest on mugav kodus töötada. Ei pea bussiga sõitma.", en: "If you ask me, working from home is comfortable. No bus to catch." },
-      { who: "Tom", et: "Ma ei ole päris nõus. Kuigi kodus on mugav, on mul seal igav.", en: "I don't quite agree. Although it's comfortable at home, I get bored there." },
+      { who: "Tom", et: "Ma ei ole päris nõus. Kuigi kodus on mugav, on mul seal igav, sest ma ei näe kolleege.", en: "I don't quite agree. Although it's comfortable at home, I get bored there, because I don't see my colleagues." },
       { who: "Kadri", et: "Igav? Sul on ju arvuti ja kõik rakendused.", en: "Bored? You've got your computer and all your apps." },
       { who: "Tom", et: "Arvuti ei joo minuga kohvi.", en: "The computer doesn't drink coffee with me." },
       { who: "Marko", et: "Ja kodus on mul lapsed. Seal ei saa üldse töötada!", en: "And I've got the kids at home. You can't work there at all!" },
