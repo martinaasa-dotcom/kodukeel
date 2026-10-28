@@ -138,7 +138,8 @@ describe("the lessons, A1 and on", () => {
       const ledger = before.get(lesson.id)!;
       const history = LESSONS.slice(0, at);
       const tonight = teach(ledger, lesson.teaches, lessonRank(lesson), lesson.patterns);
-      const names = namesOf(lesson);
+      // A name met in an earlier lesson's cast is one the learner knows, and review and replies draw on earlier lines.
+      const names = new Set([...namesOf(lesson), ...history.flatMap((l) => Object.keys(l.cast))]);
       const items = [...practiceFor(lesson, ledger, history), ...reviewFor(lesson, ledger, history)];
       for (const item of items) {
         for (const et of itemEstonian(item)) {
@@ -150,9 +151,10 @@ describe("the lessons, A1 and on", () => {
         }
         asked++;
       }
-      // The review step goes over older lessons only.
+      // The review step goes over older lessons only, so it may name only who was met in them.
+      const met = new Set([...NAMES, ...history.flatMap((l) => Object.keys(l.cast))]);
       for (const item of reviewFor(lesson, ledger, history)) {
-        for (const et of itemEstonian(item)) expect(uncovered(et, ledger, NAMES), `${lesson.id} review: ${et}`).toEqual([]);
+        for (const et of itemEstonian(item)) expect(uncovered(et, ledger, met), `${lesson.id} review: ${et}`).toEqual([]);
       }
     });
     expect(asked).toBeGreaterThan(LESSONS.length * 5);

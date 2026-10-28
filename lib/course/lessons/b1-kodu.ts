@@ -228,14 +228,14 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       story: [
         { et: "Eelmisel nädalal me kolisime uude korterisse.", en: "Last week we moved into a new apartment." },
         { et: "Vana korter oli väikeses majas kesklinnas.", en: "The old apartment was in a small building in the center." },
-        { et: "Uus korter on suures uues majas mere ääres.", en: "The new apartment is in a big new building by the sea." },
+        { et: "Uus korter on suures majas mere ääres.", en: "The new apartment is in a big building by the sea." },
         { et: "Ma töötan nüüd suures toas akna juures.", en: "Now I work in the big room, by the window." },
         { et: "Ainult köök on väike, aga külmkapp on suurem kui mina.", en: "Only the kitchen is small, but the fridge is bigger than me." },
       ],
       points: [
         { en: "Tell it as Tom, with {me}: we moved into a new apartment.", any: ["uude", "kolisime"] },
         { en: "The old one was in a small building.", any: ["väikeses", "vana"] },
-        { en: "The new building is big and new, by the sea.", any: ["uues", "mere"] },
+        { en: "The new one is in a big building, by the sea.", any: ["mere", "ääres"] },
         { en: "The kitchen is small, the fridge is huge.", any: ["köök", "külmkapp"] },
       ],
     },
