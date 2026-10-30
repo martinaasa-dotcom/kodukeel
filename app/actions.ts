@@ -1577,7 +1577,7 @@ export async function beginScene(sceneId: unknown, difficulty: unknown, level?: 
   // `lib/security/actionLimits.ts`.
   const busy = await throttleShared(ownerId, "beginScene");
   if (busy) return await sayRefusal(ownerId, busy);
-  const result = await beginSceneFor(ownerId, sceneId, difficulty, level);
+  const result = await beginSceneFor(ownerId, sceneId, difficulty, level, await isAdmin());
   if (!result.ok) return { ok: false as const, error: result.error };
   return result;
 }

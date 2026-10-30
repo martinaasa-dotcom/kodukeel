@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { LESSON_SCENES, sceneForLesson } from "./lessonScenes";
+import { LESSON_SCENES, isPreviewScene, sceneForLesson } from "./lessonScenes";
 import { SCENES, sceneById } from "./catalogue";
 import { BANK } from "./bank";
 import { pickSpecsFor, literalOf } from "./picks";
@@ -219,4 +219,13 @@ describe("the lessons' own conversations", () => {
       }
     }
   }
+});
+
+describe("a scene of a lesson still in preview", () => {
+  it("is told apart from the course's, so beginSceneFor keeps it to a reviewer", () => {
+    for (const scene of LESSON_SCENES) expect(isPreviewScene(scene), scene.id).toBe(false);
+    for (const scene of SCENES) expect(isPreviewScene(scene), scene.id).toBe(false);
+    expect(isPreviewScene({ lesson: "b2-01-not-in-the-course" })).toBe(true);
+    expect(isPreviewScene({ lesson: undefined })).toBe(false);
+  });
 });

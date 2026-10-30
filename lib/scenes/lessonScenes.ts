@@ -4,11 +4,13 @@
  * Kept off the catalog on purpose: `SCENES` is what the situations page
  * lists for anybody to choose, and these belong to the lesson whose role-play
  * they are (`SceneSpec.lesson`). A lesson still in preview keeps its scene in
- * preview with it, open to a reviewer only, as the lesson is (`lessonOrPreview`
- * in `app/actions.ts`). `sceneById` reads this list
- * after the catalog, so a run, the route and the debrief treat one exactly
- * like any other scene.
+ * preview with it, open to a reviewer only, as the lesson is: `beginSceneFor`
+ * refuses one (`isPreviewScene`) unless its caller says a reviewer is asking,
+ * which only the web door can know. `sceneById` reads this list after the
+ * catalog, so a run, the route and the debrief treat one exactly like any
+ * other scene once it has been opened.
  */
+import { LESSONS } from "@/lib/course/lessons";
 import type { SceneSpec } from "./types";
 import A1_TREPIL from "./specs/a1-trepil";
 import A1_KURSUS from "./specs/a1-kursus";
@@ -50,3 +52,14 @@ export const LESSON_SCENES: readonly SceneSpec[] = [
 export function sceneForLesson(lessonId: string): SceneSpec | undefined {
   return LESSON_SCENES.find((scene) => scene.lesson === lessonId);
 }
+
+/**
+ * Whether a scene belongs to a lesson still in preview: one whose lesson is
+ * not in the course (`LESSONS`). Such a scene is opened by a reviewer and by
+ * nobody else, the way the lesson is (`beginSceneFor` asks this).
+ */
+export function isPreviewScene(scene: Pick<SceneSpec, "lesson">): boolean {
+  return Boolean(scene.lesson) && !COURSE_LESSON_IDS.has(scene.lesson!);
+}
+
+const COURSE_LESSON_IDS: ReadonlySet<string> = new Set(LESSONS.map((l) => l.id));

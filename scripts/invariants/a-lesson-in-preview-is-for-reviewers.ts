@@ -26,4 +26,28 @@ export default function aLessonInPreviewIsForReviewers({ check, code, APP }: Inv
       }
     }
   });
+
+  /*
+    THE SCENE DOOR NAMES NO PREVIEW LIST, which is how it went past the check
+    above: `sceneById` reads every lesson scene and `beginSceneFor` opened any
+    of them by id. It refuses a scene of a lesson in preview (`isPreviewScene`)
+    unless the door says a reviewer is asking, and every door says, the web's
+    from `isAdmin()` and any other with a plain `false`.
+  */
+  check("a scene of a lesson in preview is opened by a reviewer only, through every door", () => {
+    const body = code("lib/progress/sceneRuns.ts");
+    const at = body.indexOf("export async function beginSceneFor(");
+    assert.ok(at >= 0, "beginSceneFor is not in lib/progress/sceneRuns.ts");
+    const head = body.slice(at, at + 1200);
+    assert.match(head, /reviewer: boolean/, "beginSceneFor takes whether a reviewer is asking as a required argument");
+    assert.match(head, /isPreviewScene\(scene\)\s*&&\s*!reviewer/, "beginSceneFor opens a scene in preview without asking whether a reviewer is");
+    const doors = [...APP, "scripts/api-examples.ts"].filter((f) => /\bbeginSceneFor\(/.test(code(f)));
+    assert.ok(doors.length >= 2, `only ${doors.length} doors call beginSceneFor, so the haystack stopped matching`);
+    for (const f of doors) {
+      for (const m of code(f).matchAll(/\bbeginSceneFor\(([^;]*?)\);/g)) {
+        const last = m[1]!.split(",").at(-1)!.trim();
+        assert.ok(last === "await isAdmin()" || last === "false", `${f}: beginSceneFor is handed ${last} for whether a reviewer is asking`);
+      }
+    }
+  });
 }
