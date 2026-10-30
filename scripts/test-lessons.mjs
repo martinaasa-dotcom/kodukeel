@@ -42,7 +42,7 @@ const { check, absent, done } = suite("The lessons, walked", {
     the retell, the three goes, the four writing stages, the capstone, and A2
     staying as it was. Counted off a run, so a block that stops is a shortfall.
   */
-  floor: 176,
+  floor: 179,
 });
 // `--only=<role>` walks one lesson (or `spoken`, the race out loud) for working on it; it reports under the floor by design.
 
@@ -282,9 +282,25 @@ async function writeThrough(lesson) {
   const gaps = page.locator("[data-write-frame] input");
   const n = await gaps.count();
   check(`${where}: the frame takes the key words out`, n > 0, `${n} gaps`);
-  for (let i = 0; i < n; i++) await gaps.nth(i).fill("x");
+  /*
+    The frame answered the way a learner would: every gap right but one, and
+    that one with a letter's mark dropped, which is "nearly" rather than wrong.
+    Filling every gap with nonsense walked only the wrong verdict.
+  */
+  const answers = lesson.write.frame;
+  check(`${where}: the frame on the screen is the frame the lesson holds`, answers.length === n, `${n} gaps on screen, ${answers.length} in the lesson`);
+  const MARKED = /[õäöüšž]/i;
+  const slip = answers.findIndex((a) => MARKED.test(a));
+  const unmark = (s) => s.replace(/õ/g, "o").replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u").replace(/š/g, "s").replace(/ž/g, "z")
+    .replace(/Õ/g, "O").replace(/Ä/g, "A").replace(/Ö/g, "O").replace(/Ü/g, "U").replace(/Š/g, "S").replace(/Ž/g, "Z");
+  for (let i = 0; i < n; i++) await gaps.nth(i).fill(i === slip ? unmark(answers[i] ?? "") : answers[i] ?? "");
   await page.getByRole("button", { name: /^Check it/ }).click();
   check(`${where}: checking the frame says how many were written back`, /written back/.test(await text()));
+  const right = await page.locator("[data-write-frame] input.verdict-right").count();
+  check(`${where}: a gap filled with its word is marked right`, right === n - (slip >= 0 ? 1 : 0), `${right} of ${n} right`);
+  // `lessonPicks.ts` picks a writing lesson with a marked letter in its frame, so this is always reached.
+  const nearly = await page.locator("[data-write-frame] input.verdict-nearly").count();
+  check(`${where}: a gap with a letter's mark dropped is nearly, said in words`, slip >= 0 && nearly === 1 && /Nearly/.test(await text()), `${nearly} nearly, gap ${slip}`);
   if (SHOTS) await shoot(`${where} frame`);
   await page.getByRole("button", { name: /^Write your own/ }).click();
   await page.locator("[data-write-draft]").fill(lesson.write.model);
