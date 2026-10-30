@@ -10,7 +10,7 @@ import { governmentParts } from "@/lib/estonian/government";
 import { fold } from "@/lib/estonian/fold";
 import { isNumber, isThing, isTime } from "@/lib/estonian/semantics";
 import { PARTICLES } from "@/lib/estonian/wordOrder";
-import type { CaseKey } from "@/lib/estonian/types";
+import { CEFR_LEVELS, type CaseKey } from "@/lib/estonian/types";
 
 /**
  * IS MY SENTENCE RIGHT, ASKED OF THE DICTIONARY RATHER THAN OF A MODEL.
@@ -509,7 +509,7 @@ function nearest(word: string, pool: ReadonlySet<string>, preferred: ReadonlySet
   return closest.length === 1 ? { form: closest[0]!, diacritics: false } : null;
 }
 
-const BANDS = ["A1", "A2", "B1", "B2", "C1", "C2"];
+const BANDS: readonly string[] = CEFR_LEVELS;
 /** The band at or under which a word counts as one a learner has met: A2. */
 const COMMON_RANK = 2;
 /** How many bands earlier the word meant has to be than any other one slip away. */

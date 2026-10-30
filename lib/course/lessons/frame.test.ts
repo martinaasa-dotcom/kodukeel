@@ -47,6 +47,9 @@ describe("the frame", () => {
 
   it("ticks the uses a draft holds as whole words, and counts its words", () => {
     expect(usesIn("Ma parandasin kraani ära. Ustav.", write.uses)).toEqual([true, false]);
+    // A dropped mark, two spaces or a capital are still the use.
+    expect(usesIn("Ma parandasin kraani ara.", write.uses)[0]).toBe(true);
+    expect(usesIn("Ma parandasin Kraani  ära.", write.uses)[0]).toBe(true);
     expect(wordCount("Ma parandasin kraani ära.")).toBe(4);
   });
 });

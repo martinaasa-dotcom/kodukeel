@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { personForms, type Person } from "@/lib/estonian/conjugate";
 import { tr } from "@/lib/copy/locale";
-import { NOTES, markPhrase, markRework, type PracticeItem } from "./practice";
+import { NOTES, fixItem, markPhrase, markRework, reworkItem, type PracticeItem } from "./practice";
 import { sameSentence, type Persons } from "./sameSentence";
 import { LESSONS } from "./index";
-import { withSlip } from "./ledger";
+import { ledgersBefore, lessonRank, teach } from "./ledger";
 import { lessonOrders, type OrderContext } from "@/lib/estonian/wordOrder";
 
 /*
@@ -17,7 +17,11 @@ import { lessonOrders, type OrderContext } from "@/lib/estonian/wordOrder";
   wrong. Each rule was argued once and is held here rather than reargued.
 */
 
-/** Which person each form of these verbs is, the way `personsFor` reads the ledger. */
+/**
+ * Which person each form of these verbs is, for the table's own sentences,
+ * which no lesson teaches. The lessons' sentences below are read by the real
+ * `personsFor` against the real ledger, and so is `marking.test.ts`.
+ */
 function persons(...verbs: readonly (readonly [lemma: string, first: string, past?: string])[]): Persons {
   const out: Record<string, Person[]> = {};
   for (const [lemma, first, past] of verbs) {
@@ -157,13 +161,15 @@ describe("every note", () => {
 });
 
 describe("the lessons' own sentences, through the marker", () => {
-  const items = LESSONS.flatMap((lesson) => [
-    ...(lesson.reworks ?? []).map((r) => ({ lesson: lesson.id, item: rework([r.to.et, ...(r.also ?? [])], r.from.et, r.ask) })),
-    ...(lesson.fixes ?? []).map((f) => ({
-      lesson: lesson.id,
-      item: { kind: "fix", shown: withSlip(f), en: "", answer: f.line.et, accept: [f.line.et], wrong: f.wrong, right: f.right, why: "", persons: VERBS, orders: [] } as Extract<PracticeItem, { kind: "fix" }>,
-    })),
-  ]);
+  // Read the way a lesson reads them: everything taught by the lesson's end, through the real `personsFor`.
+  const before = ledgersBefore(LESSONS);
+  const items = LESSONS.flatMap((lesson) => {
+    const taught = teach(before.get(lesson.id)!, lesson.teaches, lessonRank(lesson), lesson.patterns);
+    return [
+      ...(lesson.reworks ?? []).map((r) => ({ lesson: lesson.id, item: reworkItem(r, taught) as Extract<PracticeItem, { kind: "rework" | "fix" }> })),
+      ...(lesson.fixes ?? []).map((f) => ({ lesson: lesson.id, item: fixItem(f, taught) as Extract<PracticeItem, { kind: "rework" | "fix" }> })),
+    ];
+  });
 
   it("has sentences to mark", () => {
     expect(items.length).toBeGreaterThan(200);
