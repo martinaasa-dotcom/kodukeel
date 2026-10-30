@@ -5,9 +5,14 @@
  * B1 is for: opening a bank account, the landlord about something broken, a
  * job interview, tech support. They used to open on the evenings of B1's old
  * units, and when B1 became lessons those evenings went, because a lesson is
- * one evening with one step. So each finds a home on the lesson it rehearses:
- * the lesson about payday ends by offering the bank, the one about a leak the
- * landlord. The lesson's own role-play is still the lesson's conversation
+ * one evening with one step. So each is offered on the finish of one lesson.
+ * Where a lesson is about the same errand it is that lesson: payday ends by
+ * offering the bank, the leak the landlord, the speaking exam the B1 exam
+ * conversation. B1 has no lesson about a bus stop, a restaurant, a clothes shop
+ * or a pharmacy, so those four are spread through the level on lessons that are
+ * about something else (an invitation, the news, the trash, a lost wallet), and
+ * they are there for the words the level has taught by then rather than for the
+ * errand. The lesson's own role-play is still the lesson's conversation
  * (`lessonScenes.ts`); this is the same situation one step further out, with
  * somebody who talks the way people do there.
  *
@@ -46,7 +51,7 @@ export const LESSON_SITUATIONS: Readonly<Record<string, string>> = {
   "b1-40-rubbish": "riidepood",
   "b1-44-office": "ametiasutus",
   "b1-45-lost": "apteek",
-  "b1-48-application": "eksam-b1",
+  "b1-49-end": "eksam-b1",
 };
 
 /** The catalog conversation a lesson's finish screen offers, by id, or null. */

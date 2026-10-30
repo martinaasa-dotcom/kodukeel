@@ -818,9 +818,11 @@ your own, have it read by the dictionary and, where a model is configured, by An
 `verify.ts`, and redraft; a sentence written right can be kept as a review card (`WRITTEN`). The
 Words step names what each new verb asks for (`asks`). Each part ends in a role-play played live
 (`lib/scenes/specs/b1-*.ts`), and every scene is played keyless as seven kinds of learner in
-`lessonScenes.test.ts`, at B1's pitch. Twenty-one lessons offer a catalog conversation that
-rehearses the same errand on their finish (`lessonSituations.ts`): the payday lesson the bank, the
-leak the landlord, the speaking exam lesson the B1 exam conversation.
+`lessonScenes.test.ts`, at B1's pitch. Twenty-one lessons offer a catalog conversation on their
+finish (`lessonSituations.ts`). Where a lesson is about the same errand it is that lesson: the payday
+lesson offers the bank, the leak the landlord, the speaking exam the B1 exam conversation. B1 has no
+lesson about a bus stop, a restaurant, a clothes shop or a pharmacy, so those four sit on lessons
+about something else and are there for the words the level has taught by then.
 
 **How a rework is marked, which the operator decided on 2026-10-30.** A typed sentence is held to
 the ones written for it (`answer`, `accept`), and then to the shapes `sameSentence` can vouch for
