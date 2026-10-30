@@ -42,7 +42,7 @@ const { check, absent, done } = suite("The lessons, walked", {
     the retell, the three goes, the four writing stages, the capstone, and A2
     staying as it was. Counted off a run, so a block that stops is a shortfall.
   */
-  floor: 163,
+  floor: 176,
 });
 // `--only=<role>` walks one lesson (or `spoken`, the race out loud) for working on it; it reports under the floor by design.
 
