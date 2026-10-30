@@ -167,7 +167,9 @@ export type Finding =
   /** A word a preposition governs, left in its plain form: `koos sõber` is `koos sõbraga`. */
   | { readonly kind: "governed"; readonly word: string; readonly after: string; readonly right: string; readonly case: CaseKey }
   /** A verb after `ära` in a person rather than the command: `ära tuled` is `ära tule`. */
-  | { readonly kind: "command"; readonly word: string; readonly after: string; readonly right: string }
+  | { readonly kind: "command"; readonly word: string; readonly after: string; readonly right: string;
+      /** Which command it is: `ära tule` to one person you know, `ärge tulge` to more than one or politely. */
+      readonly polite: boolean }
   /** A noun in its plain form before a postposition: `laud peal` is `laua peal`. */
   | { readonly kind: "postposition"; readonly word: string; readonly before: string; readonly right: string };
 
@@ -1316,7 +1318,7 @@ export function checkSentence(
       // What follows `ära` is its verb, so `tuled` there is "you come" and not fires.
       if (hits.length === 0 || new Set((readingsOf.get(next) ?? []).map((r) => r.lemma)).size > 1) continue;
       const right = formIn(hits[0]!.lemma, `ImpPr${command}`);
-      if (right && right !== next) findings.push({ kind: "command", word: tokens[at + 1]!.raw, after: tokens[at]!.raw, right });
+      if (right && right !== next) findings.push({ kind: "command", word: tokens[at + 1]!.raw, after: tokens[at]!.raw, right, polite: command === "Pl2" });
     }
 
     // COUNTED: a number above one, or a word of quantity, takes the partitive singular after it.

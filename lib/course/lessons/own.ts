@@ -53,7 +53,8 @@ const SENTENCE_WORDS = 3;
 /**
  * Every piece of a draft between two stops, as the learner wrote it, however
  * short. The stop that makes a number an ordinal (`2025. aastal`, `Tallinn,
- * 12. märts`) ends nothing, by the rule the marker reads (`isOrdinalStop`).
+ * 12. märts`) ends nothing, by the rule the marker reads (`isOrdinalStop`),
+ * and nor does a stop inside a time or a date (`kell 14.30`, `12.03.2025`).
  */
 export function piecesOf(text: string): string[] {
   const t = text.normalize("NFC");
@@ -65,6 +66,8 @@ export function piecesOf(text: string): string[] {
     const before = /(\S+)$/u.exec(t.slice(0, at))?.[1] ?? "";
     const after = /^\s*(\S+)/u.exec(t.slice(end))?.[1] ?? "";
     if (m[0] === "." && isOrdinalStop(before, after)) continue;
+    // A stop with a digit on both sides is inside a time or a date (`kell 14.30`, `12.03.2025`), never the end of a sentence.
+    if (m[0] === "." && /\p{N}/u.test(t[at - 1] ?? "") && /\p{N}/u.test(t[end] ?? "")) continue;
     out.push(t.slice(start, end));
     start = end;
   }

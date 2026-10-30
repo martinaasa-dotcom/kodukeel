@@ -675,9 +675,17 @@ line the native speaker read, with the other ways of saying it that the native s
 beside it. Anything else is compared with those sentences by `sameSentence.ts`: a pronoun's short or
 long spelling, a first- or second-person subject left out or put in beside a verb that says who
 (next to that verb or at the start of its clause, never in the middle; and put in only beside a form
-of that one person, so `oleks` and `olid` license none), a reason moved to the other end, a count
-from two to ten written in digits, and the other orders the dictionary vouches for (`lessonOrders`)
-are right and say so; the same words in an order nothing can vouch for are nearly; and an instruction
+of that one person, so `oleks` and `olid` license none, and never with punctuation the written
+sentence lacks, so `Ma. Ma lugesin` is not one), a reason moved to the other end, a count from two
+to ten written in digits, a plural partitive's second spelling (`munasid` for `mune`, from the
+reviewed table in `parallelForms.ts`), a reply word in front that agrees with the answer (`Ei, ma
+ei ostnud mune`, never `Jah` before a no), and the other orders the dictionary vouches for
+(`lessonOrders`) are right and say so. Two accepted rows' changes made at once are right where each
+row is one change of one word and an unchanged word stands between them, a word put in or taken out
+directly after a replaced word excepted (`seda ära`); a demonstrative goes in front of the noun a
+row lets it stand for, never in front of a verb, a pronoun or a possessive. What all of that accepts
+on the real lessons is listed in `lib/course/lessons/fixtures/accepted.json` and held there by
+`sweep.test.ts`. The same words in an order nothing can vouch for are nearly; and an instruction
 that fixes the start or where the reason goes holds the answer to it. The marking is mechanical and
 no model grades. Each instruction is a pattern in the ledger, so no lesson asks for a change it has
 not explained.
@@ -687,7 +695,8 @@ know which two forms a learner confuses. From B1 on, two or three Practice items
 with one word swapped for the form this learner keeps reaching for, and the learner corrects it. The
 swapped word is always a real dictionary form of the same word, so nothing on the screen is Estonian
 the app wrote wrongly on purpose: the sentence is a native-read line and the slip is a spelling
-Ekilex records. The fixes the learner's own confusions name come first; where there are none on
+Ekilex records. A fix can list other ways of putting the line right (`also`, `juhi käest` beside
+`juhilt`), and those are right too. The fixes the learner's own confusions name come first; where there are none on
 record, the lesson's own fixes are asked in the order they were written (`fixesFor`).
 
 **Talk: longer than one line.** Three exercises on the on-device recognizer, each marking what was

@@ -205,7 +205,9 @@ describe("checkSentence", () => {
 
   it("finds the case koos asks for, and the command after ära", () => {
     expect(check("Ma lähen koos sõber.")).toEqual([{ kind: "governed", word: "sõber", after: "koos", right: "sõbraga", case: "COMITATIVE" }]);
-    expect(check("Ära tuled homme!")).toEqual([{ kind: "command", word: "tuled", after: "Ära", right: "tule" }]);
+    expect(check("Ära tuled homme!")).toEqual([{ kind: "command", word: "tuled", after: "Ära", right: "tule", polite: false }]);
+    // The plural one is the polite command, and the finding says so, so the screen names it that (round 3, ui-b L7).
+    expect(check("Ärge tulete homme!")).toEqual([{ kind: "command", word: "tulete", after: "Ärge", right: "tulge", polite: true }]);
   });
 
   it("finds a thing as the subject with the verb saying I or you", () => {

@@ -2,6 +2,7 @@ import { fold } from "@/lib/estonian/fold";
 import type { Person } from "@/lib/estonian/conjugate";
 import { SUBJECT_PRONOUN } from "@/lib/scenes/lexicon";
 import { PRONOUN_TWINS } from "./pronounTwins";
+import { PARALLEL_FORMS } from "./parallelForms";
 
 /*
   WHETHER A TYPED SENTENCE SAYS WHAT A WRITTEN ONE SAYS, IN ANOTHER SHAPE.
@@ -13,18 +14,23 @@ import { PRONOUN_TWINS } from "./pronounTwins";
 
   - `same`: word for word, once a pronoun's long and short spellings are read
     as one word (`mina`, `ma`; `minul`, `mul`: the dictionary's own pairs,
-    `pronounTwins.ts`) and `pole`, `poleks`, `polnud` as `ei` and the verb
-    (`spokenWords`, which `markPhrase` reads words by too).
+    `pronounTwins.ts`), `pole`, `poleks`, `polnud` as `ei` and the verb, and
+    a plural partitive's two spellings as one (`mune`, `munasid`: the
+    parallel forms the dictionary files under one headword in one slot,
+    `parallelForms.ts`), which is `spokenWords`, the reading `markPhrase`
+    takes too.
   - `pronoun`: a first- or second-person subject left out or put in beside a
     verb of its person, which is next to that verb or at the start of its
     clause (`Lugesin raamatu läbi`, `Ma lugesin raamatu läbi`, `Lugesin ma
     raamatu läbi`; never `Lugesin raamatu ma läbi`). Never in a negative,
     where `ei lugenud` is every person and the pronoun is what says whose,
-    never in a command opening on `ära`, never twice, and never a second
-    subject; put in only beside a form of that one person, and never beside a
-    have-possessor (`dropAllowed`). A clause ends at a comma, a full stop, a
-    question or an exclamation mark, and at a joining word, so `Ma tean.
-    Kontrollin seda.` drops one pronoun from one clause.
+    never in a command opening on `ära`, never twice, never a second subject,
+    and put in only beside a form of that one person (`dropAllowed`). A clause
+    ends at a comma, a full stop, a question or an exclamation mark, and at a
+    joining word, so `Ma tean. Kontrollin seda.` drops one pronoun from one
+    clause; and the sentence typed may leave out punctuation the written one
+    has but never adds any, so `Ma. Ma lugesin` and `Lugesin ma, raamatu läbi`
+    are not a pronoun put in (`breaksKept`).
   - `order`: the same words in another order inside each clause, or a
     reason or condition moved to the other end with the words of each clause
     the same, which this cannot vouch for and the marker calls nearly. `ei`
@@ -38,7 +44,9 @@ import { PRONOUN_TWINS } from "./pronounTwins";
   with marks on them folded away, and says which (`folded`), so a reordered
   sentence with a dropped õ is nearly rather than wrong. Digits are words:
   `20 sõnumit` and `5 sõnumit` are two sentences, and a count from two to ten
-  is its word (`2 kuud` is `kaks kuud`, never `kolm kuud`; `COUNT_WORD`).
+  is its word (`2 kuud` is `kaks kuud`, never `kolm kuud`; `COUNT_WORD`). A
+  time or a date is one word with its stops inside it (`14.30`,
+  `12.03.2025`), so neither ends a clause.
 
   Pure: no React, no Next, no Prisma. Every Estonian word it reads is either a
   lemma request (`SUBJECT_PRONOUN`), a form the dictionary stored, or one of
@@ -113,18 +121,34 @@ const isJoin = (w: string) => JOINS.has(w) || RELATIVE.test(w);
 
 /**
  * One typed word as the markers read it: lower-cased, a pronoun's short
- * spelling as its long one (D1), and `pole`, `poleks`, `polnud` as `ei` and the
- * verb. `markPhrase` reads words this way too, so it and `markRework` cannot
- * disagree about whether `Mina ei saa aru` is `Ma ei saa aru`.
+ * spelling as its long one (D1), `pole`, `poleks`, `polnud` as `ei` and the
+ * verb, and a parallel form as the spelling the dictionary stores
+ * (`munasid` as `mune`). `markPhrase` reads words this way too, so it and
+ * `markRework` cannot disagree about whether `Mina ei saa aru` is `Ma ei saa aru`.
  */
 export function spokenWords(word: string): string[] {
   const low = word.toLocaleLowerCase("et");
-  return (SHORT_NEGATIVE[low] ?? [low]).map((w) => LONG_OF.get(w) ?? w);
+  return (SHORT_NEGATIVE[low] ?? [low]).map((w) => PARALLEL_FORMS[w] ?? LONG_OF.get(w) ?? w);
 }
 
-/** A phrase as the markers compare it: its words read by `spokenWords`, joined by single spaces. */
+/** Each parallel form folded, mapped to its stored spelling folded, so `ounasid` reads as `ounu` once the marks are gone. */
+const FOLDED_PARALLEL = new Map(Object.entries(PARALLEL_FORMS).map(([long, stored]) => [fold(long), fold(stored)] as const));
+
+/** A word already folded, with a parallel form's folded spelling read as the stored one's. */
+const foldedWord = (w: string): string => { const f = fold(w); return FOLDED_PARALLEL.get(f) ?? f; };
+
+/** A phrase read by `spokenPhrase` with its marks folded away, a parallel form folded to its stored spelling too. */
+export function foldedPhrase(spoken: string): string {
+  return spoken.split(" ").map(foldedWord).join(" ");
+}
+
+/**
+ * A phrase as the markers compare it: its words read by `spokenWords`, a count
+ * from two to ten in digits as its word, joined by single spaces. The words of
+ * `read`, so `markPhrase` and `markRework` read `2 kuud` alike.
+ */
 export function spokenPhrase(text: string): string {
-  return [...text.matchAll(/[\p{L}\p{N}]+/gu)].flatMap((m) => spokenWords(m[0])).join(" ");
+  return read(text, false).words.join(" ");
 }
 
 /** The words of a sentence as the marker compares them, and where the punctuation fell. */
@@ -133,9 +157,11 @@ interface Words { readonly words: readonly string[]; readonly breaks: ReadonlySe
 /**
  * A word or a number, or the punctuation a clause ends at: a comma, a colon,
  * a dash, a full stop, a question mark or an exclamation mark, except the
- * stop that makes a number an ordinal (`1930. aastal`).
+ * stop that makes a number an ordinal (`1930. aastal`). A time, a date or a
+ * decimal is one number with its stops inside it (`14.30`, `12.03.2025`,
+ * `2,5`), never a number, a break and another number.
  */
-const TOKEN = /[\p{L}\p{N}]+|[,;:.!?\u2013\u2014]/gu;
+const TOKEN = /\p{N}+(?:[.:,]\p{N}+)+|[\p{L}\p{N}]+|[,;:.!?\u2013\u2014]/gu;
 const BREAK = /^[,;:.!?\u2013\u2014]$/u;
 
 /**
@@ -155,7 +181,21 @@ const COUNT_WORD: Readonly<Record<string, string>> = {
  */
 export const isOrdinalStop = (before: string, after: string): boolean => /^\p{N}+$/u.test(before) && /^\p{Ll}/u.test(after);
 
+/** `read`'s answers, since the marker reads every accepted sentence again for every answer typed. */
+const READ = new Map<string, Words>();
+const READ_HELD = 4000;
+
 function read(text: string, folded: boolean): Words {
+  const key = `${folded ? 1 : 0}${text}`;
+  const held = READ.get(key);
+  if (held) return held;
+  const made = readUncached(text, folded);
+  if (READ.size >= READ_HELD) READ.clear();
+  READ.set(key, made);
+  return made;
+}
+
+function readUncached(text: string, folded: boolean): Words {
   const words: string[] = [];
   const breaks = new Set<number>();
   const toks = [...text.matchAll(TOKEN)].map((m) => m[0]);
@@ -166,7 +206,7 @@ function read(text: string, folded: boolean): Words {
     }
     // A digit before the stop of an ordinal (`2. mail`) is not a count.
     const count = toks[t + 1] === "." && isOrdinalStop(tok, toks[t + 2] ?? "") ? undefined : COUNT_WORD[tok];
-    for (const w of count ? [count] : spokenWords(tok)) words.push(folded ? fold(w) : w);
+    for (const w of count ? [count] : spokenWords(tok)) words.push(folded ? foldedWord(w) : w);
   });
   // A break after the last word ends the sentence rather than a clause in it.
   breaks.delete(words.length);
@@ -239,9 +279,6 @@ function isSubjectAt(clause: readonly string[], j: number, persons: Persons, fol
   return beside.some((ps) => ps.includes(person)) || beside.every((ps) => ps.length === 0);
 }
 
-/** A pronoun in the adessive, the `mul` of `mul on`: the clause's have-possessor, which leaves no room for a subject. */
-const HAVE_POSSESSOR = withFolded(["mul", "sul", "tal", "meil", "teil", "neil", "minul", "sinul", "temal", "nendel"]);
-
 /** Where a clause's own words begin, past a leading `ja` and a joining word. */
 function clauseStart(clause: readonly string[]): number {
   let k = 0;
@@ -256,14 +293,17 @@ function clauseStart(clause: readonly string[]): number {
  * next to that verb, or at the clause's start (`Ma siis kirjutan`, `et sa seda
  * nägid`), never in the middle (`Lugesin raamatu ma läbi`). Never in a clause
  * with a negative or opening on `ära`, where the verb is every person; never
- * beside the same pronoun again (`Ma ma ootan`); never with another subject.
+ * with another subject in its clause, which is also what refuses the same
+ * pronoun twice (`Ma ma ootan`: the other copy is a subject beside its verb).
  * An `ära` after the verb is the particle of `pesin ära` and says nothing.
  *
  * PUT IN IS STRICTER THAN LEFT OUT. A form shared by several persons (`oleks`
  * is all of them, `olid` you and they) says the person of a pronoun that is
  * there and cannot say which one a learner adds, so only a form of that one
- * person licenses an added pronoun; and a clause holding a have-possessor
- * (`Kui mul oleks auto`) takes none.
+ * person licenses an added pronoun. That is also what keeps one out of a
+ * have-clause (`Kui mul oleks auto`): its verb is the third person or every
+ * person, never a form of one first or second person, so no guard of its own
+ * is needed and none is kept.
  */
 function dropAllowed(s: Words, i: number, person: Person, persons: Persons, folded: boolean, added: boolean): boolean {
   const { words: clause, start } = clauseAt(s, i);
@@ -274,10 +314,8 @@ function dropAllowed(s: Words, i: number, person: Person, persons: Persons, fold
   if (clause.some((w) => NEGATIVE.has(w)) || PROHIBITIVE.has(opener)) return false;
   for (let m = 0; m < clause.length; m++) {
     if (m === k) continue;
-    if (Math.abs(m - k) === 1 && SUBJECTS.get(clause[m]!) === person) return false;
     if (isSubjectAt(clause, m, persons, folded)) return false;
   }
-  if (added && rest.some((w) => HAVE_POSSESSOR.has(w))) return false;
   const licenses = (w: string | undefined) => {
     if (w === undefined) return false;
     const ps = personsOf(persons, w, folded);
@@ -299,9 +337,32 @@ function droppedPronoun(long: Words, short: Words, persons: Persons, folded: boo
     if (!person || !DROPPABLE.has(person)) continue;
     const rest = [...long.words.slice(0, i), ...long.words.slice(i + 1)];
     if (rest.join(" ") !== short.words.join(" ")) continue;
+    if (!breaksKept(long, i, short, added)) continue;
     if (dropAllowed(long, i, person, persons, folded, added)) return i;
   }
   return -1;
+}
+
+/**
+ * Whether the sentence typed, with the pronoun at `i` of `long` taken out where
+ * it was put in, holds only punctuation the written one has. Leaving a comma
+ * out is a learner's ordinary slip and costs nothing; a stop or a comma the
+ * written sentence does not have, beside a pronoun put in, is the pronoun said
+ * a second time across it (`Ma. Ma lugesin`, `Ma, ma lugesin`) or a clause cut
+ * in two (`Lugesin ma, raamatu läbi`), and is never the same sentence. A break
+ * left before the first word or after the last once the pronoun is out (`Ma.`
+ * on its own) counts as added too.
+ */
+function breaksKept(long: Words, i: number, short: Words, added: boolean): boolean {
+  const cut = without(long, i).breaks;
+  const [typed, written] = added ? [cut, short.breaks] : [short.breaks, cut];
+  return [...typed].every((b) => written.has(b));
+}
+
+/** `breaksKept` for a sentence that is reordered too, where the breaks move with the words: no more of them than the written one has. */
+function breaksNoMore(long: Words, i: number, short: Words, added: boolean): boolean {
+  const cut = without(long, i).breaks;
+  return added ? cut.size <= short.breaks.size : short.breaks.size <= cut.size;
 }
 
 /** Two clauses swapped round, the one led by `kuna`, `kui`, `kuigi` or `kuni` on the other side, each clause's words the same. */
@@ -340,7 +401,7 @@ function compare(written: string, typed: string, persons: Persons, folded: boole
   if (long.words.length === short.words.length + 1) {
     for (let i = 0; i < long.words.length; i++) {
       const person = SUBJECTS.get(long.words[i]!);
-      if (!person || !DROPPABLE.has(person) || !dropAllowed(long, i, person, persons, folded, added)) continue;
+      if (!person || !DROPPABLE.has(person) || !breaksNoMore(long, i, short, added) || !dropAllowed(long, i, person, persons, folded, added)) continue;
       const cr = clauses(without(long, i), punct);
       const cs = clauses(short, punct);
       if (sameClauses(cr, cs) || swappedClauses(cr, cs)) return "order";
@@ -356,16 +417,43 @@ function compare(written: string, typed: string, persons: Persons, folded: boole
   adds `ära`, `Ma olin selle koju unustanud` says `selle` for `pileti`. A
   learner who makes both (`Ma olin selle koju ära unustanud`) has said
   something both rows vouch for, so it is right, and no list can hold every
-  pair. A change is a hunk of a word-by-word diff against `to` (`hunksOf`); a
-  combination takes every hunk of up to three accepted rows whose hunks touch
-  different words, so a reordering row (whose hunks are a word taken out in
-  one place and put in at another) is only ever used whole.
+  pair. A change is a hunk of a word-by-word diff against `to` (`hunksOf`).
+
+  NARROW ON PURPOSE, because a combination is marked right with no note and
+  nobody wrote it down. Round 2 combined any hunks that touched different
+  words and three faults came of it: a word put in directly in front of a word
+  another row replaced (`oma selle tagasi`, a modifier left without its
+  noun), two reordering rows mixed into a sentence neither holds (`Telefon see
+  ei tööta`), and a demonstrative put in front of a verb. So a row is combined
+  only where (`combinable`):
+
+  - every hunk changes one word: one word for another, one word put in, or one
+    word taken out, never punctuation;
+  - it reorders nothing, which is a word it takes out in one place and puts in
+    at another (`Kraani parandasin ma ise ära`);
+  - and no hunk puts in or takes out a subject pronoun, since a pronoun left
+    out or put in is `dropAllowed`'s to decide, beside the verb it agrees with,
+    on whatever sentence this hands it.
+
+  And two rows' changes stand apart (`clash`): at least one unchanged word
+  between them, except that a word put in or taken out may directly follow a
+  word another row replaced (`seda ära`, `Ära too seda!`), since what follows
+  a word in Estonian is a particle, an adverb or a postposition and never the
+  modifier the replaced word took with it. A word put in directly in front of
+  a replaced word is refused, because that is exactly where its modifier
+  stands.
 
   And a demonstrative standing for a noun says which one, so where a row says
   `selle` for `raamatu`, `selle raamatu` is right too (`Ma lugesin selle
   raamatu läbi`): the demonstrative the row uses, in the case it uses it, put
-  in front of the words it replaced. A different case (`seda raamatu`) is
-  nothing a row vouches for, and stays wrong.
+  in front of the words it replaced. Only from a row that reorders nothing,
+  and only in front of words that hold no verb, no pronoun, no possessive and
+  no demonstrative of their own (`withDemonstrative`), so never `see parandage
+  dušš` nor `selle minu auto` nor `sellest sellele`. A different case (`seda
+  raamatu`) is nothing a row vouches for, and stays wrong.
+
+  `sweep.ts` lists every sentence this makes on the real lessons and
+  `sweep.test.ts` holds that list, so a rule that starts making more fails.
 */
 
 /** The forms of `see` and `need`, which stand before a noun to say which one. */
@@ -375,8 +463,14 @@ const DEMONSTRATIVE = withFolded([
   "neisse", "neis", "neist", "neile", "neil", "neilt",
 ]);
 
-/** A run of `to` from `start` to `end` (half-open) said as `put` instead. */
-interface Hunk { readonly start: number; readonly end: number; readonly put: readonly string[] }
+/**
+ * The possessives a noun can carry in front of it, as `spokenWords` reads them
+ * (`mu` as `minu`): a demonstrative put in front of one says `selle minu auto`.
+ */
+const POSSESSIVE = withFolded(["minu", "sinu", "tema", "meie", "teie", "oma", "enda"]);
+
+/** A run of `to` from `start` to `end` (half-open) said as `put` instead. `demonstrative` marks one `withDemonstrative` made. */
+interface Hunk { readonly start: number; readonly end: number; readonly put: readonly string[]; readonly demonstrative?: true }
 
 /** A sentence as the diff reads it: each word as the markers read it, and its punctuation as tokens of its own. */
 function tokensOf(text: string): string[] {
@@ -407,11 +501,44 @@ function hunksOf(a: readonly string[], b: readonly string[]): Hunk[] {
 
 const hunkKey = (h: Hunk) => `${h.start}:${h.end}:${h.put.join(" ")}`;
 
-/** Whether two hunks change the same words, or put words in at the same place. A hunk shared word for word is not a clash. */
-function clash(x: Hunk, y: Hunk): boolean {
+/**
+ * Whether a row moves a word: one it takes out somewhere and puts in somewhere
+ * else, or a word taken out in one place beside a word put in at another,
+ * which is a word moved and changed on the way (`oleksin ma tulnud`, `ma
+ * oleks tulnud`).
+ */
+function reorders(a: readonly string[], hunks: readonly Hunk[]): boolean {
+  const out = new Set(hunks.flatMap((h) => a.slice(h.start, h.end)));
+  if (hunks.some((h) => h.put.some((w) => out.has(w)))) return true;
+  return hunks.some((h) => h.start === h.end) && hunks.some((h) => h.end > h.start && h.put.length === 0);
+}
+
+/** Whether a row's hunks may be combined with another row's (see the note above). */
+function combinable(a: readonly string[], hunks: readonly Hunk[]): boolean {
+  if (hunks.length !== 1) return false;
+  const h = hunks[0]!;
+  const words = [...a.slice(h.start, h.end), ...h.put];
+  return h.end - h.start <= 1 && h.put.length <= 1 && words.every((w) => !BREAK.test(w) && !SUBJECTS.has(w));
+}
+
+/** One word for one word, or a demonstrative put in front of what it replaced: what a word put in or taken out may directly follow. */
+const replaces = (h: Hunk) => h.demonstrative === true || (h.end - h.start === 1 && h.put.length === 1);
+
+/** A word put in, or a word taken out. */
+const putOrTaken = (h: Hunk) => (h.start === h.end && h.put.length === 1) || (h.end - h.start === 1 && h.put.length === 0);
+
+/**
+ * Whether two rows' hunks are too close to combine. A hunk shared word for
+ * word is not a clash. Otherwise they need an unchanged word between them,
+ * or the later one is a word put in or taken out directly after a word the
+ * earlier one replaced (see the note above).
+ */
+function clash(a: readonly string[], x: Hunk, y: Hunk): boolean {
   if (hunkKey(x) === hunkKey(y)) return false;
-  if (x.start === x.end && y.start === y.end) return x.start === y.start;
-  return x.start < y.end && y.start < x.end;
+  const [left, right] = x.start < y.start || (x.start === y.start && x.end <= y.end) ? [x, y] : [y, x];
+  if (left.end > right.start) return true;
+  if (a.slice(left.end, right.start).some((w) => !BREAK.test(w))) return false;
+  return !(left.end === right.start && replaces(left) && putOrTaken(right));
 }
 
 function applyHunks(a: readonly string[], hunks: readonly Hunk[]): string[] {
@@ -427,13 +554,19 @@ function applyHunks(a: readonly string[], hunks: readonly Hunk[]): string[] {
   return out;
 }
 
-/** A row's one-word demonstrative for one to three words of `to`, put in front of those words instead (`selle raamatu`). */
+/**
+ * A row's one-word demonstrative for one to three words of `to`, put in front
+ * of those words instead (`selle raamatu`). Never from a row that reorders,
+ * and never in front of a verb, a pronoun, a possessive or another
+ * demonstrative.
+ */
 function withDemonstrative(a: readonly string[], hunks: readonly Hunk[], persons: Persons): Hunk[] {
+  if (reorders(a, hunks)) return [];
   return hunks.flatMap((h) => {
     const replaced = a.slice(h.start, h.end);
     const ok = h.put.length === 1 && DEMONSTRATIVE.has(h.put[0]!) && replaced.length >= 1 && replaced.length <= 3
-      && replaced.every((w) => !BREAK.test(w) && !DEMONSTRATIVE.has(w) && !SUBJECTS.has(w) && (persons[w] ?? []).length === 0);
-    return ok ? [{ start: h.start, end: h.end, put: [h.put[0]!, ...replaced] }] : [];
+      && replaced.every((w) => !BREAK.test(w) && !DEMONSTRATIVE.has(w) && !SUBJECTS.has(w) && !POSSESSIVE.has(w) && (persons[w] ?? []).length === 0);
+    return ok ? [{ start: h.start, end: h.end, put: [h.put[0]!, ...replaced], demonstrative: true as const }] : [];
   });
 }
 
@@ -447,11 +580,11 @@ const MOST_COMBINED = 3;
  */
 export function combinedSentences(to: string, also: readonly string[], persons: Persons): string[] {
   const a = tokensOf(to);
-  const rows = also.map((v) => hunksOf(a, tokensOf(v))).filter((hs) => hs.length > 0);
-  const demonstratives = rows.flatMap((hs) => withDemonstrative(a, hs, persons).map((h) => [h]));
-  const sets = [...rows, ...demonstratives];
+  const all = also.map((v) => hunksOf(a, tokensOf(v))).filter((hs) => hs.length > 0);
+  const demonstratives = all.flatMap((hs) => withDemonstrative(a, hs, persons).map((h) => [h]));
+  const sets = [...all.filter((hs) => combinable(a, hs)), ...demonstratives];
   const out = new Set<string>(demonstratives.map((hs) => applyHunks(a, hs).join(" ")));
-  const fits = (chosen: readonly Hunk[], more: readonly Hunk[]) => more.every((h) => chosen.every((c) => !clash(c, h)));
+  const fits = (chosen: readonly Hunk[], more: readonly Hunk[]) => more.every((h) => chosen.every((c) => !clash(a, c, h)));
   const walk = (from: number, chosen: readonly Hunk[], count: number) => {
     if (count >= 2) out.add(applyHunks(a, chosen).join(" "));
     if (count === MOST_COMBINED) return;

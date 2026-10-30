@@ -11,7 +11,7 @@
  *
  * Pure: no React, no Prisma, no clock.
  */
-import { fold } from "@/lib/estonian/fold";
+import { foldedPhrase, spokenPhrase } from "./sameSentence";
 import type { WriteTask } from "./types";
 
 export type FramePart =
@@ -52,28 +52,32 @@ export function frameOf(write: Pick<WriteTask, "model" | "uses">): FrameLine[] {
 
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-/** How a gap was filled: as written, right but for a letter an English keyboard lacks, or not. */
+/**
+ * How a gap was filled: as written, right but for a letter an English keyboard
+ * lacks, or not. As words, so a stray space, a full stop or a capital is never
+ * what the gap is marked on, and read the way the other markers read them
+ * (`spokenPhrase`), so `pole` is `ei ole` and `Mina` is `Ma` here too.
+ */
 export function markGap(typed: string, answer: string): "right" | "nearly" | "wrong" {
-  // As words, so a stray space, a full stop or a capital is never what the gap is marked on.
-  const words = (t: string) => (t.match(/\p{L}+/gu) ?? []).map((w) => w.toLocaleLowerCase("et")).join(" ");
-  const a = words(typed);
-  const b = words(answer);
+  const a = spokenPhrase(typed);
+  const b = spokenPhrase(answer);
   if (a === b) return "right";
-  if (a.length > 0 && fold(a) === fold(b)) return "nearly";
+  if (a.length > 0 && foldedPhrase(a) === foldedPhrase(b)) return "nearly";
   return "wrong";
 }
 
 /**
- * Which uses a draft has in it, as whole words. Read the way `markGap` reads a
- * gap: a letter with a mark typed without it, a capital or two spaces between
- * the words are still the use, since the tick says it is in the text and the
- * dictionary's reading after it is what names a slip.
+ * Which uses a draft has in it, as whole words inside one sentence. Read the
+ * way `markGap` reads a gap: a letter with a mark typed without it, a capital,
+ * two spaces between the words, `pole` for `ei ole` and `Mina` for `Ma` are
+ * still the use, since the tick says it is in the text and the dictionary's
+ * reading after it is what names a slip.
  */
 export function usesIn(draft: string, uses: WriteTask["uses"]): boolean[] {
-  const text = fold(draft.toLocaleLowerCase("et"));
+  const pieces = draft.split(/[.!?;:]+/u).map((p) => foldedPhrase(spokenPhrase(p)).split(" ").filter(Boolean));
   return uses.map((use) => {
-    const words = (use.et.match(/\p{L}+/gu) ?? []).map((w) => escape(fold(w.toLocaleLowerCase("et"))));
-    return words.length > 0 && new RegExp(`(?<![\\p{L}])${words.join("\\s+")}(?![\\p{L}])`, "u").test(text);
+    const words = foldedPhrase(spokenPhrase(use.et)).split(" ").filter(Boolean);
+    return words.length > 0 && pieces.some((p) => p.some((_, i) => words.every((w, j) => p[i + j] === w)));
   });
 }
 

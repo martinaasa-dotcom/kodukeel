@@ -34,6 +34,7 @@ import { nativeClip } from "@/lib/audio/native";
 import { lessonLabel } from "./label";
 import { fold } from "@/lib/estonian/fold";
 import type { Fix, LessonSpec, PatternId, Taught } from "./types";
+import { PARALLEL_FORMS } from "./parallelForms";
 
 /** A taught item as a learner is asked about it: a verb counts as its two spellings. */
 export type Asked = Exclude<Taught, { kind: "verb" }>;
@@ -326,7 +327,16 @@ export function namesOf(lesson: Pick<LessonSpec, "cast">): ReadonlySet<string> {
  */
 export function uncovered(text: string, ledger: Ledger, names: ReadonlySet<string> = NAMES): string[] {
   const words = wordsOf(text);
-  const covered = words.map((w) => names.has(w.raw) || ledger.spellings.has(w.low));
+  /* A parallel form shown beside the spelling it is parallel to (`{makse}, or
+     {maksusid}`) is that spelling said the other way, in the very text that
+     says so, and is covered where that spelling is. Only beside it: alone, it
+     is a word nobody has been shown. */
+  const here = new Set(words.map((w) => w.low));
+  const besideItsTwin = (low: string) => {
+    const stored = PARALLEL_FORMS[low];
+    return stored !== undefined && here.has(stored) && ledger.spellings.has(stored);
+  };
+  const covered = words.map((w) => names.has(w.raw) || ledger.spellings.has(w.low) || besideItsTwin(w.low));
   for (const phrase of ledger.phrases) {
     for (let i = 0; i + phrase.length <= words.length; i++) {
       if (phrase.every((p, j) => words[i + j]!.low === p)) {
@@ -393,6 +403,7 @@ export function estonianOf(lesson: LessonSpec): { where: string; et: string; hea
     out.push({ where: `fix ${i + 1}, the line`, et: f.line.et });
     english(`fix ${i + 1}, the line's English`, f.line.en);
     out.push({ where: `fix ${i + 1}, with the slip`, et: withSlip(f) });
+    f.also?.forEach((et, j) => out.push({ where: `fix ${i + 1}, also ${j + 1}`, et }));
     english(`fix ${i + 1}, why`, f.why);
   });
   lesson.listenFor?.forEach((g, i) => {
@@ -603,6 +614,10 @@ export function lessonProblems(lessons: readonly LessonSpec[]): string[] {
     };
     lesson.fixes?.forEach((f, i) => {
       if (withSlip(f) === f.line.et) problems.push(`${at}, fix ${i + 1}: "${f.right}" is not in the line once as a word`);
+      // An accepted line that is the slip would mark the line typed back unchanged as right.
+      const lines = [f.line.et, ...(f.also ?? [])].map(normalisePhrase);
+      if (lines.includes(normalisePhrase(withSlip(f)))) problems.push(`${at}, fix ${i + 1}: an accepted line is the line with the slip`);
+      if (new Set(lines).size !== lines.length) problems.push(`${at}, fix ${i + 1}: an accepted line is listed twice`);
       // A pair code nobody recognizes is a slip that never matches the learner's own mix-ups, and says so nowhere.
       for (const code of f.pair) {
         if (!PAIR_CODES.has(code)) problems.push(`${at}, fix ${i + 1}: "${code}" names no case or verb slot`);

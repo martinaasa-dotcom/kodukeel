@@ -38,7 +38,7 @@ import { rng, seedFrom } from "@/lib/random/seeded";
 import { shuffle } from "@/lib/random/shuffle";
 import { estonianIn, familiesOf, ledgerThrough, lessonRank, normalisePhrase, opensOf, teach, unfold, withSlip, wordsOf, type Asked, type Ledger } from "./ledger";
 import { STAND_IN, hasStandIn, personal } from "./ownAnswer";
-import { FRONTABLE, combinedSentences, sameSentence, spokenPhrase, subjectPerson, type Persons } from "./sameSentence";
+import { FRONTABLE, combinedSentences, foldedPhrase, sameSentence, spokenPhrase, subjectPerson, type Persons } from "./sameSentence";
 import { personForms, type Person } from "@/lib/estonian/conjugate";
 import { lessonOrders, type OrderContext } from "@/lib/estonian/wordOrder";
 import type { LessonSpec } from "./types";
@@ -60,7 +60,11 @@ export type PracticeItem =
       /** Taught forms of the same word one letter from the answer, which a letter out is not a slip for (`notSlipsFor`). */
       readonly notSlips?: readonly string[];
       /** Taught spellings of another word one letter from the answer (`notSlipsFor`). */
-      readonly otherWords?: readonly string[] }
+      readonly otherWords?: readonly string[];
+      /** Taught spellings one letter from the answer that the ledger cannot say are the same word or another (`notSlipsFor`). */
+      readonly unplaced?: readonly string[];
+      /** The one person the answer's English names, where it names one: what a pronoun typed beside it has to be. */
+      readonly person?: Person }
   /**
    * Pairs to put together, Estonian with English, tapped one then the other.
    * The quick warm-up a lesson's practice opens on, for words said alone.
@@ -99,7 +103,9 @@ export type PracticeItem =
       /** Taught spellings one letter from a word of the line, which a letter out on the other word is not a slip for. */
       readonly notSlips?: readonly string[];
       /** Taught spellings of another word one letter from a word of the line. */
-      readonly otherWords?: readonly string[] } & Checkable;
+      readonly otherWords?: readonly string[];
+      /** Taught spellings one letter from a word of the line that the ledger cannot place. */
+      readonly unplaced?: readonly string[] } & Checkable;
 
 /**
  * What a typed sentence is checked against beyond the sentences written for it.
@@ -172,11 +178,13 @@ export function fixesFor(lesson: LessonSpec, taught: Ledger, confusions: readonl
 
 /** One fix as the question that asks it, read against everything taught by its lesson's end. */
 export function fixItem(fix: NonNullable<LessonSpec["fixes"]>[number], taught: Ledger): Extract<PracticeItem, { kind: "fix" }> {
+  // The line itself first, then the other ways of putting it right a native speaker accepts (`juhi käest` for `juhilt`).
+  const accept = [fix.line.et, ...(fix.also ?? [])];
   return {
-    kind: "fix", shown: withSlip(fix), en: fix.line.en, answer: fix.line.et, accept: [fix.line.et],
+    kind: "fix", shown: withSlip(fix), en: fix.line.en, answer: fix.line.et, accept,
     wrong: fix.wrong, right: fix.right, why: fix.why,
-    persons: personsFor(taught, [fix.line.et, withSlip(fix)]), orders: [],
-    ...slipFields(notSlipsFor([fix.line.et], taught)),
+    persons: personsFor(taught, [...accept, withSlip(fix)]), orders: [],
+    ...slipFields(notSlipsFor(accept, taught)),
   };
 }
 
@@ -365,7 +373,9 @@ function produce(item: Asked, pool: readonly Asked[], taught: Ledger): PracticeI
   if (accept.length === 1 && wordsOf(item.et).length === 1 && /^with \{on\}:/i.test(item.en)) accept.push(`${item.et} on`);
   const note = noteFor(item);
   if (note.note === NOTE_ONE_WORD) accept.push(...eachWithItsPronoun(item, pool));
-  return { kind: "type", en: item.en, answer: item.et, accept, ...note, ...slipFields(notSlipsFor(accept, taught)) };
+  const named = verbForm && wordsOf(item.et).length === 1 ? personsInEnglish(item.en) : [];
+  const person = named.length === 1 ? { person: named[0]! } : {};
+  return { kind: "type", en: item.en, answer: item.et, accept, ...note, ...person, ...slipFields(notSlipsFor(accept, taught)) };
 }
 
 /*
@@ -629,6 +639,8 @@ export const NOTES = {
   letterOut: "Nearly: one letter out.",
   otherForm: "Not quite: that's another form you've learned, not a typo.",
   otherWord: "Not quite: that's another word you've learned, not a typo.",
+  otherSpelling: "Not quite: that's another spelling you've learned, not a typo.",
+  otherPerson: "Not quite: that pronoun doesn't go with this form of the verb.",
   notQuite: "Not quite.",
   asItWas: "That's the sentence as it was. Change it the way the line above asks.",
   slipStill: "That's the line with the slip still in it.",
@@ -661,11 +673,16 @@ function oneLetterOut(said: string, want: string): boolean {
  * How a typed or spoken answer compares with the phrase it was asked for.
  * `accept` is every spelling that counts, the asked one first.
  */
-export function markPhrase(typed: string, accept: readonly string[], notSlips: readonly string[] = [], otherWords: readonly string[] = []): TypedMark {
-  // Words read as `markRework` reads them: `mina` as `ma`, `pole` as `ei ole` (D1), digits kept.
+export function markPhrase(
+  typed: string, accept: readonly string[], notSlips: readonly string[] = [], otherWords: readonly string[] = [],
+  /** `unplaced` and `person` off the item (`notSlipsFor`, `produce`). */
+  more: { readonly unplaced?: readonly string[]; readonly person?: Person } = {},
+): TypedMark {
+  /* Words read as `markRework` reads them: `mina` as `ma`, `pole` as `ei ole`
+     (D1), `munasid` as `mune`, and a count from two to ten in digits as its word. */
   const said = spokenPhrase(typed);
   const wants = accept.map(spokenPhrase);
-  const want = wants.find((w) => w === said) ?? wants.find((w) => fold(w) === fold(said)) ?? wants[0] ?? "";
+  const want = wants.find((w) => w === said) ?? wants.find((w) => foldedPhrase(w) === foldedPhrase(said)) ?? wants[0] ?? "";
   if (said.length === 0) return { verdict: "wrong", note: NOTES.nothing, close: false };
   /* "sa olid ja nad olid": a joining word between two answers, each a pronoun
      and its verb, is not part of either. Only there: `vabal ja ajal` is not
@@ -680,9 +697,19 @@ export function markPhrase(typed: string, accept: readonly string[], notSlips: r
   /* ONLY THE MARKS DIFFER: the marks note, whatever else it spells. A learner
      with no õ key types `kook` for `köök` and `tool` for `tööl`, and that is
      the cause, even where the folded spelling is another taught word. */
-  if (fold(said) === fold(want)) return { verdict: "nearly", note: NOTES.marks, close: false };
-  // The one word asked for with more around it (`ma pole` for `pole`): half of it is right, which is worth saying.
+  if (foldedPhrase(said) === foldedPhrase(want)) return { verdict: "nearly", note: NOTES.marks, close: false };
   const saidWords = said.split(" ");
+  /* A pronoun beside the one word asked for, of a person that word is not
+     (`sa väljastan` for "I issue"): the fault is the pronoun, not that there
+     is more than one word. Only where the word's English names one person, so
+     `ma pole` for `pole`, which is every person, is still half right. */
+  if (more.person && saidWords.length === 2) {
+    const [x, y] = saidWords as [string, string];
+    const beside = wants.find((w) => w === x || w === y);
+    const pronoun = beside === undefined ? undefined : subjectPerson(beside === y ? x : y);
+    if (pronoun !== undefined && pronoun !== more.person) return { verdict: "wrong", note: NOTES.otherPerson, close: true };
+  }
+  // The one word asked for with more around it (`ma pole` for `pole`): half of it is right, which is worth saying.
   const inside = (w: string) => {
     const ws = w.split(" ");
     return saidWords.length > ws.length && saidWords.some((_, i) => ws.every((x, j) => saidWords[i + j] === x));
@@ -697,11 +724,13 @@ export function markPhrase(typed: string, accept: readonly string[], notSlips: r
   const lower = (ws: readonly string[]) => new Set(ws.map((w) => w.toLocaleLowerCase("et")));
   const forms = lower(notSlips);
   const words = lower(otherWords);
+  const unplaced = lower(more.unplaced ?? []);
   const asked = new Set(want.split(" "));
   const typedOther = (set: ReadonlySet<string>) => saidWords.some((w) => set.has(w) && !asked.has(w));
   if (wants.some((w) => oneLetterOut(said, w))) {
     if (typedOther(forms)) return { verdict: "wrong", note: NOTES.otherForm, close: true };
     if (typedOther(words)) return { verdict: "wrong", note: NOTES.otherWord, close: true };
+    if (typedOther(unplaced)) return { verdict: "wrong", note: NOTES.otherSpelling, close: true };
     return { verdict: "nearly", note: NOTES.letterOut, close: false };
   }
   return { verdict: "wrong", note: NOTES.notQuite, close: wants.some((w) => nearMiss(said, w)) };
@@ -725,16 +754,20 @@ export interface NotSlips {
   readonly forms: string[];
   /** Other words: `kaheksa` beside `kaheksas`. */
   readonly words: string[];
+  /** Spellings the ledger cannot say either of, since it places one of the two in no word: `kirjutate` beside `kirjutage`. */
+  readonly unplaced: string[];
 }
 
 /**
  * The taught spellings a slip of the hand would otherwise forgive for a word
  * of `answers`, which are therefore not slips: on a word long enough for a
- * letter out to count as a slip, one a letter away, said to be another form of
- * the same word where the ledger can tell they are and another word where it
- * cannot. A spelling that differs only in its marks is not here: that is the
- * marks note, whatever it spells. Carried on the item, since the marker reads
- * no ledger.
+ * letter out to count as a slip, one a letter away: another form of the same
+ * word where the ledger places both in one word, another word where it places
+ * them in two, and neither where it cannot place one of them, since naming a
+ * cause the marker does not know is the fault this used to have (`kirjutate`
+ * called another word beside `kirjutage`). A spelling that differs only in its
+ * marks is not here: that is the marks note, whatever it spells. Carried on
+ * the item, since the marker reads no ledger.
  */
 export function notSlipsFor(answers: readonly string[], ledger: Ledger): NotSlips {
   const words = new Set(answers.flatMap((a) => normalisePhrase(a).split(" ")).filter(Boolean));
@@ -742,22 +775,27 @@ export function notSlipsFor(answers: readonly string[], ledger: Ledger): NotSlip
   const wordOf = wordOfIn(ledger);
   const forms = new Set<string>();
   const others = new Set<string>();
+  const unplaced = new Set<string>();
   for (const spelling of ledger.spellings) {
     if (words.has(spelling) || spelling.includes(" ") || words.has(fold(spelling))) continue;
     for (const w of long) {
       if (fold(w) === fold(spelling) || Math.abs(w.length - spelling.length) > 1 || editDistance(spelling, w, 1) > 1) continue;
       const of = wordOf(spelling);
-      if (of !== undefined && of === wordOf(w)) forms.add(spelling);
-      else others.add(spelling);
+      const mine = wordOf(w);
+      if (of !== undefined && of === mine) forms.add(spelling);
+      else if (of !== undefined && mine !== undefined) others.add(spelling);
+      else unplaced.add(spelling);
     }
   }
-  return { forms: [...forms].sort(), words: [...others].filter((s) => !forms.has(s)).sort() };
+  const sorted = (set: ReadonlySet<string>, not: readonly ReadonlySet<string>[]) => [...set].filter((s) => not.every((n) => !n.has(s))).sort();
+  return { forms: [...forms].sort(), words: sorted(others, [forms]), unplaced: sorted(unplaced, [forms, others]) };
 }
 
 /** The item fields for `notSlipsFor`'s answer, the empty ones left off. */
 const slipFields = (n: NotSlips) => ({
   ...(n.forms.length > 0 ? { notSlips: n.forms } : {}),
   ...(n.words.length > 0 ? { otherWords: n.words } : {}),
+  ...(n.unplaced.length > 0 ? { unplaced: n.unplaced } : {}),
 });
 
 /**
@@ -866,6 +904,8 @@ export function markRework(typed: string, item: Extract<PracticeItem, { kind: "r
   const wants = item.accept.map(spokenPhrase);
   if (said.length === 0) return { verdict: "wrong", note: NOTES.nothing, close: false };
   if (wants.includes(said)) return { verdict: "right", note: NOTES.right, close: false };
+  const rest = afterReply(typed, item.accept);
+  if (rest !== null) return markRework(rest, item);
   // The sentence typed back unchanged, however it is reordered or spelled, is not a change.
   const before = item.kind === "fix" ? item.shown : item.from.et;
   const unchanged = sameSentence(before, typed, item.persons);
@@ -923,7 +963,7 @@ export function markRework(typed: string, item: Extract<PracticeItem, { kind: "r
     if (typedWords.length === wanted.length && typedWords.includes(right) && !typedWords.includes(spokenPhrase(item.wrong))) {
       const off = typedWords.map((w, i) => ({ w, want: wanted[i]! })).filter(({ w, want }) => w !== want);
       // `sina` typed for `mina` is a different word and not a slip, so only one letter out from eight letters up.
-      const taught = new Set([...(item.notSlips ?? []), ...(item.otherWords ?? [])]);
+      const taught = new Set([...(item.notSlips ?? []), ...(item.otherWords ?? []), ...(item.unplaced ?? [])]);
       if (off.length === 1 && off[0]!.want.length >= SLIP_FLOOR && editDistance(off[0]!.w, off[0]!.want, 1) <= 1 && !taught.has(off[0]!.w)) {
         return { verdict: "nearly", note: NOTES.fixHalf, close: false };
       }
@@ -934,6 +974,37 @@ export function markRework(typed: string, item: Extract<PracticeItem, { kind: "r
 }
 
 const wordCount = (text: string) => (text.match(/[\p{L}\p{N}]+/gu) ?? []).length;
+
+/*
+  A REPLY WORD IN FRONT IS HOW A PERSON ANSWERS. Asked to say they didn't buy
+  the eggs, a learner writes `Ei, ma ei ostnud mune.`, and the `Ei` is what
+  anybody says first; `Jah, ma täitsin selle ära.`, `Nii. Ma täitsin selle ära.`
+  and `Hea küll, ma tulen.` are the same. So a reply word, then a comma, a stop
+  or an exclamation mark, in front of an answer is read off and the answer is
+  marked on its own, whatever it earns there. Two guards: the answer has to
+  stand on its own, since the rest is marked by everything else here; and a
+  yes may not stand before a negative answer, nor a no before one that is not
+  negative, since `Jah, ma ei ostnud` and `Ei, ma ostsin` say two things at
+  once. A reply word an accepted sentence opens on is that sentence's, and is
+  left where it is.
+*/
+
+const REPLY = /^\s*(jah|ei|nii|hea küll)\s*[,.!]\s*(\S.*)$/iu;
+
+/** The answer after a leading reply word (`Ei, ...`), where it may be read off; otherwise null. */
+function afterReply(typed: string, accept: readonly string[]): string | null {
+  const m = REPLY.exec(typed.normalize("NFC"));
+  if (!m) return null;
+  const word = m[1]!.toLocaleLowerCase("et");
+  // An accepted sentence opening on this reply word, before its punctuation, is that sentence's own.
+  if (accept.some((a) => REPLY.exec(a.normalize("NFC"))?.[1]?.toLocaleLowerCase("et") === word)) return null;
+  // A negative, or a command not to; an `ära` after its verb is the particle of `täitsin ära` and says nothing.
+  const words = spokenPhrase(m[2]!).split(" ");
+  const negative = words.some((w) => w === "ei" || w === "ega") || words[0] === "ära" || words[0] === "ärge";
+  if (word === "jah" && negative) return null;
+  if (word === "ei" && !negative) return null;
+  return m[2]!;
+}
 
 /** A rework's combined sentences, worked out once per item (`combinedSentences`); a fix has one line and none. */
 const COMBINED = new WeakMap<object, readonly string[]>();
@@ -959,7 +1030,9 @@ export function reasonPlace(ask: string): "first" | "second" | null {
 
 /** A typed item marked by the marker its kind takes, the one place that choice is made. */
 export function markTyped(item: TypedItem, typed: string): TypedMark {
-  return item.kind === "type" ? markPhrase(typed, item.accept, item.notSlips, item.otherWords) : markRework(typed, item);
+  return item.kind === "type"
+    ? markPhrase(typed, item.accept, item.notSlips, item.otherWords, { unplaced: item.unplaced, person: item.person })
+    : markRework(typed, item);
 }
 
 /**
