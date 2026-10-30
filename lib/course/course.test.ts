@@ -21,7 +21,8 @@ import { LESSON_PARTS } from "./lessons";
 import { HARVESTED } from "@/prisma/data/harvested";
 import { readFileSync } from "node:fs";
 import { cardWithin, moduleScopeFrom, scopeFor, slotWithin } from "./scope";
-import { lessonPasts } from "./lessonCourse";
+import { lessonPastSlots, lessonPasts } from "./lessonCourse";
+import { pastPersons } from "@/lib/estonian/conjugate";
 import { isLessonLevel } from "./lessons";
 import { evenings } from "./build";
 
@@ -776,7 +777,7 @@ describe("what a day reads and where it goes", () => {
         const scope = moduleScopeFrom({ module: `${programme.id}~${d.id}~do:review~3~5~0` })!;
         for (const lemma of scope.lemmas) {
           // The past is shown by a lesson or a forms step, the polite imperative by a forms step alone.
-          for (const [slot, shownIn] of [["IndIpfSg1", scope.pastsShown], ["IndIpfSg3", scope.pastsShown], ["ImpPrPl2", scope.formsShown]] as const) {
+          for (const [slot, shownIn] of [["IndIpfSg1", scope.pastsShown], ["IndIpfSg3", scope.thirdPastsShown], ["ImpPrPl2", scope.formsShown]] as const) {
             if (!shownIn.includes(lemma)) expect(slotWithin(scope, slot, lemma), `${d.id} ${lemma} ${slot}`).toBe(false);
           }
           checked += 1;
@@ -805,10 +806,81 @@ describe("what a day reads and where it goes", () => {
     expect(slotWithin(scope, "ImpPrSg2")).toBe(true);
     // No verb's past is shown verb by verb at A1: the lessons teach each past form by
     // name, and what they taught by name is what the module counts as shown.
-    const a1Pasts = [...new Set(LESSONS.filter((l) => l.level === "A1").flatMap(lessonPasts))];
-    expect(a1Pasts).toEqual(expect.arrayContaining(["olema", "tegema", "käima"]));
-    expect([...scope.pastsShown].sort()).toEqual(a1Pasts.sort());
+    const a1 = LESSONS.filter((l) => l.level === "A1").map(lessonPastSlots);
+    const a1First = [...new Set(a1.flatMap((s) => s.first))];
+    const a1Third = [...new Set(a1.flatMap((s) => s.third))];
+    expect(a1First).toEqual(expect.arrayContaining(["olema", "tegema", "käima"]));
+    expect([...scope.pastsShown].sort()).toEqual(a1First.sort());
+    expect([...scope.thirdPastsShown].sort()).toEqual(a1Third.sort());
     expect(scope.formsShown).toEqual([]);
+  });
+
+  /*
+    A LESSON SHOWS A SLOT, NOT A TENSE. b1-03 teaches `tahtsin` and never
+    `tahtis`, and the module was asking `tahtma → lihtminevik, ta` from b1-04
+    on, because a verb on the list opened every past slot. The third person is
+    stored per verb, so it opens only where a lesson taught that spelling or a
+    forms step drew the verb's table. Both halves over the whole ladder.
+  */
+  it("asks a lesson verb's third-person past only where that very form was shown", () => {
+    const thirdOf = new Map<string, string[]>();
+    for (const w of HARVESTED) {
+      if (w.pos !== "VERB" || thirdOf.has(w.lemma)) continue;
+      thirdOf.set(w.lemma, w.extraForms.filter((f) => f.code.startsWith("IndIpfSg3")).map((f) => f.value));
+    }
+    let shownAsked = 0, unshownRefused = 0;
+    for (const programme of PROGRAMMES) {
+      for (const d of programme.days) {
+        const scope = scopeFor(programme, d);
+        if (!scope.topics.includes("imperfect")) continue;
+        for (const v of scope.pastsShown) {
+          // The I form, and the persons built off it, are shown with it.
+          expect(slotWithin(scope, "IndIpfSg1", v), `${d.id} ${v} I form`).toBe(true);
+          expect(slotWithin(scope, "IndIpfPl1", v), `${d.id} ${v} we form`).toBe(true);
+          const third = scope.thirdPastsShown.includes(v);
+          expect(slotWithin(scope, "IndIpfSg3", v), `${d.id} ${v} third person`).toBe(third);
+          if (third) shownAsked += 1; else unshownRefused += 1;
+        }
+        for (const v of scope.thirdPastsShown) expect(slotWithin(scope, "IndIpfSg3", v), `${d.id} ${v}`).toBe(true);
+      }
+    }
+    expect(shownAsked).toBeGreaterThan(100);
+    expect(unshownRefused).toBeGreaterThan(100);
+    // And a lesson's own list holds the third person only where it taught that spelling.
+    // And the I form only where it taught the I form or a person built off it, so `oli` alone opens nothing but `oli`.
+    const firstOf = new Map(HARVESTED.filter((w) => w.pos === "VERB" && w.parts.PAST_1SG).map((w) => [w.lemma, w.parts.PAST_1SG!]));
+    let thirdOnly = 0;
+    for (const lesson of LESSONS) {
+      const { first, third } = lessonPastSlots(lesson);
+      for (const v of third) {
+        const taught = lesson.teaches.filter((t) => t.kind === "form" && t.of === v).map((t) => t.et);
+        expect(taught.some((et) => (thirdOf.get(v) ?? []).includes(et)), `${lesson.id} ${v}`).toBe(true);
+        if (!first.includes(v)) thirdOnly += 1;
+      }
+      for (const v of first) {
+        const past1 = firstOf.get(v) ?? "";
+        const family = new Set([past1, ...pastPersons(past1).map((p) => p.value)]);
+        const taught = lesson.teaches.flatMap((t) => (t.kind === "form" && t.of === v ? [t] : []));
+        expect(taught.some((t) => family.has(t.et) || (t.past && !(thirdOf.get(v) ?? []).includes(t.et))), `${lesson.id} ${v}`).toBe(true);
+      }
+    }
+    expect(thirdOnly).toBeGreaterThan(0);
+    // The reported verb: `tahtsin` is taught and `tahtis` is not, until a forms step shows it.
+    const lesson = LESSONS.find((l) => lessonPastSlots(l).first.includes("tahtma"))!;
+    expect(lessonPastSlots(lesson).third).not.toContain("tahtma");
+    const programme = PROGRAMMES.find((p) => p.days.some((d) => d.lesson === lesson.id))!;
+    const day = programme.days.find((d) => d.lesson === lesson.id)!;
+    const next = programme.days.find((d) => d.index === day.index + 1)!;
+    const scope = scopeFor(programme, next);
+    expect(slotWithin(scope, "IndIpfSg1", "tahtma")).toBe(true);
+    expect(slotWithin(scope, "IndIpfSg3", "tahtma")).toBe(false);
+    const card = {
+      cardType: "CONJUGATION", targetCase: null, slot: "IndIpfSg3",
+      front: "tahtma → lihtminevik, ta", back: "tahtis", lexeme: { lemma: "tahtma" },
+    };
+    expect(cardWithin(scope, card, null)).toBe(false);
+    const last = BUILT.at(-1)!;
+    expect(slotWithin(scopeFor(last, last.days.at(-1)!), "IndIpfSg3", "tahtma")).toBe(true);
   });
 
   it("shows every taught verb's past, a handful an evening, after the page about the past", () => {
@@ -858,9 +930,13 @@ describe("what a day reads and where it goes", () => {
     const last = PROGRAMMES.at(-1)!;
     for (const [programme, day] of [[lessonEnd, lessonEnd.days.at(-1)!], [last, last.days.at(-1)!]] as const) {
       const scope = scopeFor(programme, day);
-      for (const v of taughtPasts) {
-        expect(scope.pastsShown.includes(v), `${programme.id} ${v}`).toBe(true);
-        expect(slotWithin(scope, "IndIpfSg1", v), `${programme.id} ${v}`).toBe(true);
+      for (const lesson of LESSONS) {
+        const { first, third } = lessonPastSlots(lesson);
+        for (const v of first) {
+          expect(scope.pastsShown.includes(v), `${programme.id} ${v}`).toBe(true);
+          expect(slotWithin(scope, "IndIpfSg1", v), `${programme.id} ${v}`).toBe(true);
+        }
+        for (const v of third) expect(slotWithin(scope, "IndIpfSg3", v), `${programme.id} ${v} third`).toBe(true);
       }
     }
     // A lesson taught the past and nothing else, so the polite imperative of

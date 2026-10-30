@@ -36,11 +36,13 @@ export default function theModuleAsksWhatItTaught({ check, code }: InvariantKit)
 
   check("a verb form learned verb by verb is asked inside the module only once an evening showed it", () => {
     const scope = code("lib/course/scope.ts");
-    // The past is shown by a lesson or a forms step, the polite imperative by a forms step alone.
+    // The past is shown by a lesson or a forms step, slot by slot: the third person
+    // only where its own spelling was shown, and it is listed first because the
+    // first matching prefix decides. The polite imperative is shown by a forms step alone.
     assert.match(
       scope,
-      /LEARNED_PER_VERB[\s\S]{0,200}?\{ code: "IndIpf", shownIn: "pastsShown" \},\s*\{ code: "ImpPrPl", shownIn: "formsShown" \}/,
-      "the list of per-verb forms changed",
+      /LEARNED_PER_VERB[\s\S]{0,200}?\{ code: "IndIpfSg3", shownIn: "thirdPastsShown" \},\s*\{ code: "IndIpf", shownIn: "pastsShown" \},\s*\{ code: "ImpPrPl", shownIn: "formsShown" \}/,
+      "the list of per-verb forms changed, or the third-person past no longer comes before the rest of the past",
     );
     assert.match(
       scope,

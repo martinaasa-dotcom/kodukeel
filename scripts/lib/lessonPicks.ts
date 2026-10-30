@@ -18,6 +18,8 @@ import { courseChecks } from "@/lib/course/checks";
 import { tr } from "@/lib/copy/locale";
 import type { LessonSpec } from "@/lib/course/lessons/types";
 import { frameOf } from "@/lib/course/lessons/frame";
+import { situationFor } from "@/lib/course/lessonSituations";
+import { FOLD } from "@/lib/estonian/fold";
 
 const b1 = LESSONS.filter((l) => l.level === "B1" && !l.extra);
 const pick = (why: string, test: (l: LessonSpec) => boolean): LessonSpec => {
@@ -38,6 +40,13 @@ const write = pick("a writing lesson with a marked letter in its frame", (l) => 
 const capstone = pick("a part's closing conversation", (l) => !!l.roleplay);
 const a2 = LESSONS.find((l) => l.level === "A2" && l.n === 1 && !l.extra)!;
 
+/** A word with its marks dropped through `FOLD`, a capital kept a capital. */
+const unmark = (word: string): string => [...word].map((ch) => {
+  const bare = FOLD[ch.toLowerCase()];
+  if (!bare) return ch;
+  return ch === ch.toLowerCase() ? bare : bare.toUpperCase();
+}).join("");
+
 const shape = (l: LessonSpec, role: string) => ({
   role,
   id: l.id,
@@ -55,11 +64,20 @@ const shape = (l: LessonSpec, role: string) => ({
     frame: frameOf(l.write).flatMap((line) => line.parts.flatMap((p) => (p.kind === "gap" ? [{ n: p.n, answer: p.answer }] : [])))
       .sort((a, b) => a.n - b.n).map((g) => g.answer),
   } : null,
+  /**
+   * Each frame answer with its letters' marks dropped, case kept, off the one
+   * fold table (`lib/estonian/fold.ts`), so a walk can type a "nearly" without
+   * a fold of its own. Equal to the answer where it has no marked letter.
+   */
+  unmarked: l.write ? frameOf(l.write).flatMap((line) => line.parts.flatMap((p) => (p.kind === "gap" ? [{ n: p.n, answer: p.answer }] : [])))
+    .sort((a, b) => a.n - b.n).map((g) => unmark(g.answer)) : null,
   capstone: !!l.roleplay,
   /** Each rework's line and the line it should become, so a walk can answer one right. */
   reworks: (l.reworks ?? []).map((r) => ({ from: r.from.et, to: r.to.et })),
   /** The lesson's goal in Russian, so a walk in that language can say it is on the screen. */
   goalRu: tr("ru", l.goal),
+  /** The catalog conversation the finish screen offers (`LESSON_SITUATIONS`), or null for a lesson that rehearses none. */
+  situation: situationFor(l.id),
 });
 
 /* The first check at B1, which a walk sits end to end. */

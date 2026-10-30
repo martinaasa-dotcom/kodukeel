@@ -5,7 +5,7 @@ import { deferredWordIds } from "@/lib/progress/deferrals";
 import { LADDER_CARD_TYPE } from "@/lib/learn/ladder";
 import { courseStandingFor } from "@/lib/progress/level";
 import { LEVELS, LEVEL_INFO, type Level } from "@/lib/collections/syllabus";
-import { readSetting, SETTING_KEYS, writeSettings } from "@/lib/settings/store";
+import { readSetting, SETTING_KEYS, updateSettings, type SettingKey } from "@/lib/settings/store";
 import type { DayClock } from "@/lib/time/day";
 import { computeStreak } from "@/lib/stats/streak";
 import { closingLeft } from "@/lib/progress/closing";
@@ -167,19 +167,36 @@ export async function highestPartFor(ownerId: string): Promise<Programme | null>
  * they are going to and never lowered. That last is what lets a learner placed
  * at B1 who steps down to refresh A2 move back up without A2's checks
  * (`moveBlockedFor`), with no tick up there to prove it and whatever a restart
- * of the part deleted. Every door that moves a learner goes through here.
+ * of the part deleted. Every door that moves a learner goes through here,
+ * the admin's course reset included; the one other writer of the part is a
+ * restore, which replaces a learner's settings from a file inside its own
+ * transaction and is named, with why, in `a-part-chosen-is-stamped.ts`.
+ *
+ * READ AND WRITTEN UNDER ONE LOCK. `highestPart` is read, raised and written
+ * back, so two moves at once (two tabs, a scripted double submission) each
+ * read the old value and the slower wrote it back lower, which is the "never
+ * lowered" promise broken. `updateSettings` reads and writes it inside one
+ * transaction holding the learner's own advisory lock, so the second waits for
+ * the first and reads what it wrote. `also` is any further setting that
+ * belongs to the same move (the reset's moved-back note).
  */
-export async function choosePart(ownerId: string, partId: string, now: Date = new Date()): Promise<void> {
-  const [stored, current] = await Promise.all([
-    readSetting(ownerId, SETTING_KEYS.highestPart),
-    programmeFor(ownerId),
-  ]);
-  const highest = furthestPart([stored, current?.id, partId]);
-  await writeSettings(ownerId, [
-    [SETTING_KEYS.programme, partId],
-    [SETTING_KEYS.programmeChosenAt, now.toISOString()],
-    ...(highest ? [[SETTING_KEYS.highestPart, highest.id] as const] : []),
-  ]);
+export async function choosePart(
+  ownerId: string, partId: string, now: Date = new Date(),
+  also: readonly (readonly [SettingKey, string])[] = [],
+): Promise<void> {
+  /* The current part is read before the lock: it is a read of the whole
+     course (ticks, placement), the lock is about `highestPart`, and the
+     current part only ever adds a candidate to the maximum taken under it. */
+  const current = await programmeFor(ownerId);
+  await updateSettings(ownerId, [SETTING_KEYS.highestPart], (held) => {
+    const highest = furthestPart([held[SETTING_KEYS.highestPart], current?.id, partId]);
+    return [
+      [SETTING_KEYS.programme, partId],
+      [SETTING_KEYS.programmeChosenAt, now.toISOString()],
+      ...(highest ? [[SETTING_KEYS.highestPart, highest.id] as const] : []),
+      ...also,
+    ];
+  });
 }
 
 /**

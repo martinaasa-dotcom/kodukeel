@@ -58,6 +58,7 @@
  *   npm run demo && npm run dev
  *   node scripts/test-containment.mjs
  */
+import { execFileSync } from "node:child_process";
 import { eventually, launchChromium } from "./lib/browser.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 import { revealAnswer } from "./lib/review.mjs";
@@ -1470,6 +1471,111 @@ async function workbookStates(width, at) {
 }
 
 /*
+  A B1 LESSON PAST ITS FIRST STEP.
+
+  `/course/lessons/b1-06-note` is in the route list, and a lesson is six steps
+  on one address, so that measured step 1 and nothing after it. The B1 step up
+  is all further in: lines fading as they are said, a story retold with its
+  points lighting, the writing frame with its gaps marked, and the race with
+  its clock and its three goes side by side. Each is opened the way a learner
+  reaches it, on the lessons `scripts/lib/lessonPicks.ts` picks for
+  `test-lessons.mjs`, so the two suites cannot drift onto different lessons.
+  Nothing here finishes a lesson, so nothing is written to the course.
+*/
+let lessonPicks = null;
+async function lessonStepStates(ctx, at) {
+  lessonPicks ??= JSON.parse(execFileSync("npx", ["tsx", "scripts/lib/lessonPicks.ts"], { encoding: "utf8" }));
+  const picks = lessonPicks;
+  const byRole = Object.fromEntries(picks.map((p) => [p.role, p]));
+  const page = await ctx.newPage();
+  const heading = async () => (await page.locator("#lesson-step").innerText().catch(() => "")).trim();
+  /** Opens a lesson and walks the foot until the step's heading matches. */
+  const openAt = async (id, step) => {
+    await page.goto(`${B}/course/lessons/${id}`, { waitUntil: "networkidle", timeout: 60000 });
+    const show = page.getByRole("button", { name: /^Show the words now/ });
+    if (await show.count()) await show.first().click().catch(() => {});
+    for (let n = 0; n < 8 && !step.test(await heading()); n++) {
+      await page.getByRole("button", { name: /^(Skip this step|Continue)/ }).last().click().catch(() => {});
+      await page.waitForTimeout(300);
+    }
+    return step.test(await heading());
+  };
+
+  // The fade and the retell, on the lesson that ends in a retold story.
+  const retell = byRole.retell;
+  if (retell && await openAt(retell.id, /Say it/)) {
+    await page.getByRole("button", { name: /Type it instead/ }).first().click().catch(() => {});
+    const say = page.locator("[data-say-it]").first();
+    await say.locator("[data-fade-line]").first().waitFor({ timeout: 8000 }).catch(() => {});
+    if (await say.locator("[data-fade-line]").count()) await measure(page, `a B1 lesson's lines fading ${at}`);
+    else check(`a B1 lesson's lines fading ${at}`, false, `${retell.id}'s Say it opened on no fading line`);
+    for (let n = 0; n < 20 && !(await say.locator("[data-retell-points]").count()); n++) {
+      const next = say.getByRole("button", { name: /^(Next|Done)/ });
+      if (!(await next.count())) break;
+      await next.last().click().catch(() => {});
+      await page.waitForTimeout(150);
+    }
+    if (await say.locator("[data-retell-points]").count()) {
+      await say.getByLabel("What you told, in Estonian").fill(retell.retell ?? "").catch(() => {});
+      await page.waitForTimeout(200);
+      await measure(page, `a B1 lesson's story being retold ${at}`);
+    } else {
+      check(`a B1 lesson's story being retold ${at}`, false, `${retell.id}'s Say it reached no retell`);
+    }
+  } else {
+    check(`a B1 lesson's Say it ${at}`, false, `${retell?.id ?? "no retell lesson"} never reached its Say it step`);
+  }
+
+  // The writing frame, checked, with one gap right and the rest as the lesson holds them.
+  const write = byRole.write;
+  if (write?.write && await openAt(write.id, /Write/)) {
+    await page.getByRole("button", { name: /^Fill in the frame/ }).click().catch(() => {});
+    const gaps = page.locator("[data-write-frame] input");
+    await gaps.first().waitFor({ timeout: 8000 }).catch(() => {});
+    const n = await gaps.count();
+    for (let i = 0; i < n; i++) await gaps.nth(i).fill(i === 0 ? write.unmarked?.[i] ?? "" : write.write.frame[i] ?? "");
+    await page.getByRole("button", { name: /^Check it/ }).click().catch(() => {});
+    await page.waitForTimeout(300);
+    if (n > 0) await measure(page, `a B1 lesson's writing frame, checked, ${at}`);
+    else check(`a B1 lesson's writing frame ${at}`, false, `${write.id}'s frame drew no gaps`);
+  } else {
+    check(`a B1 lesson's writing frame ${at}`, false, `${write?.id ?? "no writing lesson"} never reached its writing step`);
+  }
+
+  // The race, with the clock running, and then its three goes side by side.
+  const faster = byRole.faster;
+  if (faster && await openAt(faster.id, /Say it/)) {
+    await page.getByRole("button", { name: /Type it instead/ }).first().click().catch(() => {});
+    const say = page.locator("[data-say-it]").first();
+    for (let n = 0; n < 40 && !(await say.locator("[data-faster-go]").count()); n++) {
+      const next = say.getByRole("button", { name: /^(Next|Done)$/ });
+      if (await next.count()) { await next.last().click().catch(() => {}); await page.waitForTimeout(150); continue; }
+      const box = say.getByLabel(/^(Your answer|What you said), in Estonian/);
+      if (!(await box.count())) break;
+      await box.fill("Ma ei tea.");
+      await say.getByRole("button", { name: /^Check it/ }).click().catch(() => {});
+      await say.getByRole("button", { name: /^(Next|Done)/ }).click().catch(() => {});
+    }
+    if (await say.locator("[data-faster-go]").count()) {
+      await say.getByRole("button", { name: /^Start, and type/ }).click().catch(() => {});
+      await measure(page, `a B1 lesson's race against the clock ${at}`);
+      for (let go = 0; go < 3; go++) {
+        if (go > 0) await say.getByRole("button", { name: /^Start, and type/ }).click().catch(() => {});
+        await say.getByLabel("Your answer, in Estonian").fill(faster.faster ?? "").catch(() => {});
+        await say.getByRole("button", { name: /^Done$/ }).click().catch(() => {});
+      }
+      await say.locator("[data-faster-goes]").waitFor({ timeout: 5000 }).catch(() => {});
+      await measure(page, `a B1 lesson's three goes side by side ${at}`);
+    } else {
+      check(`a B1 lesson's race ${at}`, false, `${faster.id}'s Say it reached no race`);
+    }
+  } else {
+    check(`a B1 lesson's race ${at}`, false, `${faster?.id ?? "no race lesson"} never reached its Say it step`);
+  }
+  await page.close();
+}
+
+/*
   THE STATES A ROUTE DOES NOT ARRIVE IN.
 
   Everything above measures a page as it loads, and three of the boxes in this
@@ -1656,6 +1762,7 @@ for (const width of WIDTHS) {
   await creditedToday(ctx, `at ${width}`);
   if (width !== 768) await askedForStates(ctx, `at ${width}`);
   if (width === 360 || width === 1280) await workbookStates(width, `at ${width}`);
+  await lessonStepStates(ctx, `at ${width}`);
 
   await ctx.close();
 }

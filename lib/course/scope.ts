@@ -24,7 +24,7 @@
  * database.
  */
 
-import { programmeById, taughtThrough, grammarThrough, dayById, formsThrough, pastsThrough } from "./index";
+import { programmeById, taughtThrough, grammarThrough, dayById, formsThrough, pastsThrough, thirdPastsThrough } from "./index";
 import { focusFrom } from "./focus";
 import { readableSentence } from "./build";
 import { BLANK, sentenceTiles } from "@/lib/estonian/cloze";
@@ -46,8 +46,10 @@ export interface ModuleScope {
   topics: readonly string[];
   /** The verbs whose past and polite imperative a forms step has shown through this day (`DaySpec.forms`). */
   formsShown: readonly string[];
-  /** The verbs whose past alone has been shown: `formsShown` and every past a lesson taught by name (`DaySpec.pasts`). */
+  /** The verbs whose past I form has been shown: `formsShown` and every I form a lesson taught by name (`DaySpec.pasts`). */
   pastsShown: readonly string[];
+  /** The verbs whose third-person past has been shown: `formsShown` and every third person a lesson taught by name (`DaySpec.pastsThird`). */
+  thirdPastsShown: readonly string[];
 }
 
 type SearchParams = Record<string, string | string[] | undefined> | undefined;
@@ -79,6 +81,7 @@ export function scopeFor(programme: Programme, day: CourseDay): ModuleScope {
   return {
     programme, day, lemmas: taughtThrough(programme, day.index), ...grammar,
     formsShown: formsThrough(programme, day.index), pastsShown: pastsThrough(programme, day.index),
+    thirdPastsShown: thirdPastsThrough(programme, day.index),
   };
 }
 
@@ -127,7 +130,10 @@ export function scopeSoFar(
   const course = [...new Set([...taughtThrough(programme, before), ...tonight, ...met])];
   const courseSet = new Set(course);
   const lemmas = [...new Set(own.filter((w) => !courseSet.has(w))), ...course];
-  const { grammar: _grammar, grammarCase: _case, forms: _forms, pasts: _pasts, cases: _cases, topics: _topics, ...rest } = day;
+  const {
+    grammar: _grammar, grammarCase: _case, forms: _forms, pasts: _pasts, pastsThird: _pastsThird,
+    cases: _cases, topics: _topics, ...rest
+  } = day;
   const trimmed: CourseDay = {
     ...rest,
     words: tonight,
@@ -137,6 +143,7 @@ export function scopeSoFar(
     ...(read && day.topics ? { topics: day.topics } : {}),
     ...(shown && day.forms ? { forms: day.forms } : {}),
     ...(shown && day.pasts ? { pasts: day.pasts } : {}),
+    ...(shown && day.pastsThird ? { pastsThird: day.pastsThird } : {}),
   };
   return {
     programme,
@@ -145,6 +152,7 @@ export function scopeSoFar(
     ...grammarThrough(programme, read ? day.index : before),
     formsShown: formsThrough(programme, shown ? day.index : before),
     pastsShown: pastsThrough(programme, shown ? day.index : before),
+    thirdPastsShown: thirdPastsThrough(programme, shown ? day.index : before),
   };
 }
 
@@ -270,10 +278,17 @@ const VERB_SLOT_PAGE: readonly { opens: string; page: string; also?: string }[] 
  * (`DaySpec.pasts`, read as `scope.pastsShown`), while the forms step shows
  * the past and the polite imperative together (`DaySpec.forms`,
  * `scope.formsShown`), so `tehke` waits for the forms step whatever the lesson
- * taught about `tegin`. A caller that cannot say which verb a slot belongs to
- * gets a no. Outside the module nothing changes.
+ * taught about `tegin`. And a lesson shows a slot, not the tense: the I form
+ * opens itself and the four persons built off it (`scope.pastsShown`), while
+ * the third person is stored per verb (`tahtsin` but `tahtis`) and opens only
+ * where a lesson taught that spelling (`DaySpec.pastsThird`,
+ * `scope.thirdPastsShown`) or a forms step drew it. The first entry that
+ * matches a slot decides, so the third person is listed before the rest of
+ * the past. A caller that cannot say which verb a slot belongs to gets a no.
+ * Outside the module nothing changes.
  */
-const LEARNED_PER_VERB: readonly { code: string; shownIn: "pastsShown" | "formsShown" }[] = [
+const LEARNED_PER_VERB: readonly { code: string; shownIn: "thirdPastsShown" | "pastsShown" | "formsShown" }[] = [
+  { code: "IndIpfSg3", shownIn: "thirdPastsShown" },
   { code: "IndIpf", shownIn: "pastsShown" },
   { code: "ImpPrPl", shownIn: "formsShown" },
 ];

@@ -8,7 +8,10 @@ import type { InvariantKit } from "../lib/invariantKit";
  * (`movedBackFrom`), and the sentence saying why was on the list of lessons
  * alone. Today's module opens `/course`, which is where such a learner lands,
  * and it said nothing about why the evening was lesson 1. Both pages read the
- * move and draw the note on the element the browser suites can find.
+ * move and draw the note as one plain card carrying `data-moved-back`. No
+ * browser suite reads that hook yet, since none of their fixtures holds a
+ * learner moved back; what says the move is read is `rehome.itest.ts` and
+ * `restoreCourse.itest.ts`, and what says it is drawn is this check.
  */
 const PAGES = ["app/(app)/course/page.tsx", "app/(app)/course/lessons/page.tsx"];
 

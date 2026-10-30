@@ -151,7 +151,7 @@ const PASTS_OF: ReadonlyMap<string, { readonly first: string; readonly third: re
 })();
 
 /**
- * THE VERBS WHOSE PAST A LESSON SHOWED BY NAME.
+ * THE PARTS OF A VERB'S PAST A LESSON SHOWED BY NAME.
  *
  * A past is learned verb by verb (`lugesin` but `tahtis`), so it is asked
  * inside the module only once an evening has shown it (`slotWithin`). Only the past:
@@ -159,20 +159,36 @@ const PASTS_OF: ReadonlyMap<string, { readonly first: string; readonly third: re
  * where it teaches a form that is that verb's stored past, whether or not
  * the lesson marked it `past`: A1's yesterday lesson teaches `olin`, `tegin`
  * and `käisin` before the past is a pattern, and those are as shown as any.
- * Read off the harvest's own stored forms (the I form and the third person)
- * and the persons `pastPersons` builds off the I form, so nothing about
- * Estonian is decided here.
+ *
+ * And it shows the slot it taught, never the whole tense. The I form opens
+ * the four persons `pastPersons` builds off it, which are one ending each on
+ * the same stem. The third person is stored per verb (`tahtsin` but `tahtis`,
+ * `jätsin` but `jättis`) and no rule reaches it, so it is shown only by a
+ * lesson that taught that very spelling: a lesson that taught `tahtsin` and
+ * never `tahtis` has shown the first and not the third, and the module may
+ * ask the third only once a forms step has drawn the verb's table. Read off
+ * the harvest's own stored forms, so nothing about Estonian is decided here.
  */
-export function lessonPasts(lesson: LessonSpec): string[] {
-  const out: string[] = [];
+export function lessonPastSlots(lesson: LessonSpec): { first: string[]; third: string[] } {
+  const first: string[] = [];
+  const third: string[] = [];
+  const add = (list: string[], verb: string) => { if (!list.includes(verb)) list.push(verb); };
   for (const t of lesson.teaches) {
-    if (t.kind !== "form" || out.includes(t.of)) continue;
+    if (t.kind !== "form") continue;
     const stored = PASTS_OF.get(t.of);
     if (!stored) continue;
-    const spellings = new Set([stored.first, ...stored.third, ...pastPersons(stored.first).map((p) => p.value)]);
-    if (t.past || spellings.has(t.et)) out.push(t.of);
+    const family = new Set([stored.first, ...pastPersons(stored.first).map((p) => p.value)]);
+    if (family.has(t.et)) add(first, t.of);
+    else if (stored.third.includes(t.et)) add(third, t.of);
+    else if (t.past) add(first, t.of);
   }
-  return out;
+  return { first, third };
+}
+
+/** Every verb whose past a lesson showed in any slot (`lessonPastSlots`), in the order it taught them. */
+export function lessonPasts(lesson: LessonSpec): string[] {
+  const { first, third } = lessonPastSlots(lesson);
+  return [...new Set([...first, ...third])];
 }
 
 /** Braces mark Estonian inside English for a screen; a sentence printed plain drops them. */
@@ -186,8 +202,8 @@ export function lessonDay(lesson: LessonSpec, index: number, partTitle: string):
     ...(pages.topics ?? []),
   ])];
   const cases = [...new Set([...(lesson.patterns ?? []).flatMap(casesOfPattern), ...(pages.cases ?? [])])];
-  // A lesson day draws no forms step (its one step is the lesson); the list is the pasts it has shown, for `pastsThrough`.
-  const pasts = lessonPasts(lesson);
+  // A lesson day draws no forms step (its one step is the lesson); the lists are the past slots it has shown, for `pastsThrough` and `thirdPastsThrough`.
+  const { first: pasts, third: pastsThird } = lessonPastSlots(lesson);
   return {
     id: lesson.id,
     title: plain(partTitle),
@@ -201,6 +217,7 @@ export function lessonDay(lesson: LessonSpec, index: number, partTitle: string):
     ...(cases.length > 0 ? { cases } : {}),
     ...(topics.length > 0 ? { topics } : {}),
     ...(pasts.length > 0 ? { pasts } : {}),
+    ...(pastsThird.length > 0 ? { pastsThird } : {}),
     index,
     part: { n: 1, of: 1 },
     steps: [{

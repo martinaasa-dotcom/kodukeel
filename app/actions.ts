@@ -75,7 +75,7 @@ import { markSayingsShown } from "@/lib/progress/sayings";
 import { bringBack, keepWord, putAside, setStar, wordReaches } from "@/lib/progress/wordActions";
 import { addScanToDeckFor, saveScanFor } from "@/lib/progress/scans";
 import {
-  forgetSettings, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
+  forgetSettings, lockSettings, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
 } from "@/lib/settings/store";
 
 
@@ -4009,6 +4009,8 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         naming C1 is not a way past every check, and a backup from before B1
         became lessons keeps the old part it named, whose ticks are dropped below.
       */
+      // Under the learner's settings lock, which `choosePart` takes too, so a move landing mid-restore is not merged away.
+      await lockSettings(tx, ownerId);
       const held = await tx.setting.findMany({ where: { ownerId, key: SETTING_KEYS.highestPart }, select: { value: true } });
       const highest = furthestPart([
         ...held.map((row) => row.value),

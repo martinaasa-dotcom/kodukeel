@@ -38,11 +38,11 @@ const { check, absent, done } = suite("The lessons, walked", {
   /*
     Per B1 lesson: the step heading, the hidden conversation and its reveal,
     the questions answered, a practice that finishes, Say it reaching its end,
-    the finished screen. Plus the first lesson's "What's new" and its fade,
+    the finished screen and its conversation offer. Plus the first lesson's "What's new" and its fade,
     the retell, the three goes, the four writing stages, the capstone, and A2
     staying as it was. Counted off a run, so a block that stops is a shortfall.
   */
-  floor: 179,
+  floor: 185,
 });
 // `--only=<role>` walks one lesson (or `spoken`, the race out loud) for working on it; it reports under the floor by design.
 
@@ -291,9 +291,9 @@ async function writeThrough(lesson) {
   check(`${where}: the frame on the screen is the frame the lesson holds`, answers.length === n, `${n} gaps on screen, ${answers.length} in the lesson`);
   const MARKED = /[õäöüšž]/i;
   const slip = answers.findIndex((a) => MARKED.test(a));
-  const unmark = (s) => s.replace(/õ/g, "o").replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u").replace(/š/g, "s").replace(/ž/g, "z")
-    .replace(/Õ/g, "O").replace(/Ä/g, "A").replace(/Ö/g, "O").replace(/Ü/g, "U").replace(/Š/g, "S").replace(/Ž/g, "Z");
-  for (let i = 0; i < n; i++) await gaps.nth(i).fill(i === slip ? unmark(answers[i] ?? "") : answers[i] ?? "");
+  // The mark dropped off the one fold table, through the picks (`lessonPicks.ts`), never a table of this suite's own.
+  const unmarked = lesson.unmarked ?? [];
+  for (let i = 0; i < n; i++) await gaps.nth(i).fill(i === slip ? unmarked[i] ?? "" : answers[i] ?? "");
   await page.getByRole("button", { name: /^Check it/ }).click();
   check(`${where}: checking the frame says how many were written back`, /written back/.test(await text()));
   const right = await page.locator("[data-write-frame] input.verdict-right").count();
@@ -383,6 +383,25 @@ async function walk(lesson, { mode = "type" } = {}) {
   }
   await page.locator("[data-lesson-done]").waitFor({ timeout: 15_000 }).catch(() => {});
   check(`${where}: ends on the finished screen`, (await page.locator("[data-lesson-done]").count()) === 1);
+  /*
+    And the finish screen points at the conversation the lesson rehearsed, read
+    off `LESSON_SITUATIONS` through the picks rather than typed here: the card
+    names that scene and its button opens it, and a lesson that rehearses none
+    draws no card. The walk opens a lesson outside a module, where the offer
+    is drawn.
+  */
+  const offers = page.locator("[data-lesson-situation]");
+  if (lesson.situation) {
+    const named = await offers.first().getAttribute("data-lesson-situation").catch(() => null);
+    const href = await offers.first().getByRole("link", { name: /^Open the conversation/ }).getAttribute("href").catch(() => null);
+    check(
+      `${where}: the finish screen offers the conversation it rehearsed`,
+      (await offers.count()) === 1 && named === lesson.situation && href === `/situations/${lesson.situation}`,
+      `${await offers.count()} offers, naming ${named ?? "nothing"} and opening ${href ?? "nothing"}, where the lesson rehearses ${lesson.situation}`,
+    );
+  } else {
+    check(`${where}: the finish screen offers no conversation, since the lesson rehearses none`, (await offers.count()) === 0, `${await offers.count()} offers`);
+  }
   if (SHOTS) await shoot(`${where} finished`);
   return said;
 }

@@ -238,6 +238,8 @@ describe("scopeSoFar", () => {
       expect(so.cases, day.id).toEqual(step.cases);
       expect(so.topics, day.id).toEqual(step.topics);
       expect(so.formsShown, day.id).toEqual(step.formsShown);
+      expect(so.pastsShown, day.id).toEqual(step.pastsShown);
+      expect(so.thirdPastsShown, day.id).toEqual(step.thirdPastsShown);
       expect(tonightsCase(so), day.id).toBe(tonightsCase(step));
     }
   });

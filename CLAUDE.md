@@ -6702,7 +6702,7 @@ questions off its own lessons, the last part's thirty off the whole of A1, each 
 (`checksPassed`), since nothing in the log can say a check was passed. Every door up asks
 `moveBlockedFor` (the next part, the level picker, the module's skip ahead), going back is always
 open, a part as far up as the furthest one a learner was ever placed on or moved to is open too
-(`highestPart`, written by `choosePart`, the one door that moves a learner), so a refresher is never
+(`highestPart`, written by `choosePart`, the one door every move goes through, under the learner's lock; only a restore, replacing settings from a file, writes it beside, as `a-part-chosen-is-stamped.ts` names), so a refresher is never
 a trap, and a name in `ADMIN_EMAILS` on a hosted deployment
 moves freely (`movesFreely`), never a local install, where `isAdmin` is everybody. The retention
 reading at the hand-off still never blocks. Asserted in `scripts/invariants/a1-is-left-by-passing.ts`.
@@ -10751,8 +10751,8 @@ writing a line that names anybody. Each part asks more than the one before (its 
 retell, writing, room and fade rows are checked by `ramp.test.ts` and `fade.test.ts`, the rest
 being the authors' rule), a part's closing conversation carries a turn it never rehearsed and no
 retell or race (`levelContractProblems`), and `scripts/test-lessons.mjs` walks the shapes in a
-browser. A past a lesson taught by name is carried as that evening's `pasts` (`lessonPasts`), so the module
-asks that past from then on, and the polite imperative waits for the forms step that shows it. The conversations B2 and C1 deal declare
+browser. A past a lesson taught by name is carried as that evening's `pasts` and `pastsThird` (`lessonPastSlots`), slot by slot, so the module
+asks the slot it showed from then on (the I form opens its four regular persons, the third person only its own spelling), and the polite imperative waits for the forms step that shows it. The conversations B2 and C1 deal declare
 units the lessons taught only in part, and the words they ask for that no evening has taught are
 named per scene in `course.test.ts` for B2's lessons to take up.
 
