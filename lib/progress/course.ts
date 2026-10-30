@@ -200,9 +200,10 @@ export async function movedBackFrom(ownerId: string): Promise<{ from: Programme;
   const stored = await readSetting(ownerId, SETTING_KEYS.programme);
   const at = stored && stored !== "off" ? programmeById(stored) : undefined;
   if (!at || !REHOMED_LEVELS.has(at.level)) return null;
-  const [ticks, marker, to] = await Promise.all([
+  const [ticks, marker, chosenAt, to] = await Promise.all([
     levelTicks(ownerId, at.level),
     readSetting(ownerId, SETTING_KEYS.movedBackFrom),
+    readSetting(ownerId, SETTING_KEYS.programmeChosenAt),
     programmeFor(ownerId),
   ]);
   if (!to || to.level !== at.level) return null;
@@ -210,6 +211,8 @@ export async function movedBackFrom(ownerId: string): Promise<{ from: Programme;
   const days = new Set(parts.flatMap((p) => p.days.map((d) => d.id)));
   if (ticks.some((t) => days.has(t.dayId))) return null;
   const old = ticks.filter((t) => !days.has(t.dayId));
+  // Somebody who chose this part since their old ticks stayed where they chose, and was moved nowhere.
+  if (!marker && rehomeFrom(at, ticks, chosenAt).settled) return null;
   const fromId = marker || old.sort((a, b) => tickTime(b) - tickTime(a))[0]?.programmeId;
   const from = fromId ? programmeById(fromId) : undefined;
   return from && from.level === at.level ? { from, to } : null;
