@@ -18,7 +18,7 @@ import { Card, Note, Page, SectionTitle, Stack, StatTile } from "@/components/ui
 import { LessonConversation } from "@/components/course/LessonConversation";
 import { Confetti } from "@/components/Confetti";
 import { Mascot } from "@/components/brand";
-import { fill } from "@/lib/copy/locale";
+import { fill, tr } from "@/lib/copy/locale";
 import type { LessonSpec, PracticeItem, Taught } from "@/lib/course/lessons";
 import { lessonLabel } from "@/lib/course/lessons/label";
 import { LEVELS, levelIndex } from "@/lib/collections/syllabus/types";
@@ -323,14 +323,15 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
                     <li
                       key={l.id}
                       className={here ? "pop-in" : undefined}
-                      title={`${l.label}. ${l.title}`}
+                      // In the reader's language, its marks dropped since a tooltip draws none.
+                      title={`${l.label}. ${tr(locale, l.title).replace(/[{}[\]]/g, "")}`}
                       style={{
                         width: 28, height: 10, borderRadius: 999,
                         background: past ? "var(--accent)" : "color-mix(in srgb, var(--ink) 10%, transparent)",
                         boxShadow: here ? "0 0 0 3px var(--accent-soft)" : undefined,
                       }}
                     >
-                      <span className="sr-only">{`${l.label}. ${l.title}: ${past ? t("Done") : t("Ahead")}`}</span>
+                      <span className="sr-only">{l.label}. <LessonText text={l.title} locale={locale} />: {past ? t("Done") : t("Ahead")}</span>
                     </li>
                   );
                 })}
@@ -518,7 +519,6 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
           {/* A step is done where it was finished, not where the foot's "Skip this step" passed it. */}
           <div data-lesson-steps>
             <StepPills
-              label={t("Today's steps")}
               pills={steps.map((s, i) => {
                 const reachedIt = i < at || i <= reached;
                 const finishedIt = s === "listen" ? heard : ASKS.has(s) ? finished.has(s) || (s === "review" && review.length === 0) : reachedIt && i !== at;

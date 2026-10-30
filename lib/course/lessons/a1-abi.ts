@@ -286,6 +286,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
     ],
     roleplay: {
       scene: "A new neighbor stops you on the stairs. She speaks first. Answer her as yourself.",
+      who: "Mari",
       turns: [
         { ask: { et: "Tere! Mina olen Mari. Ma elan ka siin.", en: "Hello! I'm Mari. I live here too." }, cue: "Say hello, you're pleased to meet her, and your name.", model: { et: "Tere! Väga meeldiv! Mina olen Tom.", en: "Hello! Nice to meet you! I'm Tom." } },
         { ask: { et: "Kust sa pärit oled?", en: "Where are you from?" }, cue: "Say where you're from.", model: { et: "Ma olen pärit Inglismaalt.", en: "I'm from England." } },

@@ -56,6 +56,8 @@ const shape = (l: LessonSpec, role: string) => ({
       .sort((a, b) => a.n - b.n).map((g) => g.answer),
   } : null,
   capstone: !!l.roleplay,
+  /** Who a role-play is with, as its thread names them (`roleplay.who`). */
+  partner: l.roleplay?.who ?? null,
   /** Each rework's line and the line it should become, so a walk can answer one right. */
   reworks: (l.reworks ?? []).map((r) => ({ from: r.from.et, to: r.to.et })),
   /** The lesson's goal in Russian, so a walk in that language can say it is on the screen. */

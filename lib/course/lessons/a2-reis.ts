@@ -401,6 +401,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
     ],
     roleplay: {
       scene: "You're at the bus station ticket window, going to Pärnu. The seller speaks first. Answer as yourself.",
+      who: "Kati",
       turns: [
         { ask: { et: "Tere! Kuhu te sõidate?", en: "Hello! Where are you traveling to?" }, cue: "Say where you're going.", model: { et: "Tere! Pärnusse.", en: "Hello! To Pärnu." } },
         { ask: { et: "Buss väljub kell kaheksa ja kell üheksa.", en: "The bus leaves at eight and at nine." }, cue: "Choose a time.", model: { et: "Kell kaheksa, palun.", en: "At eight, please." } },

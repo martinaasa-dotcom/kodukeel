@@ -882,6 +882,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
     ],
     roleplay: {
       scene: "The B1 speaking exam, with an examiner you've never met. Part one is about you. In part two she plays the other candidate and you decide something together, and in part three you make a phone call from a card. She speaks first, and one question in part two is new. Answer as yourself, in two or three sentences.",
+      who: "Merike",
       turns: [
         { ask: { et: "Tere! Palun istuge. Eksamil on kolm osa. Esimene osa: rääkige natuke endast.", en: "Hello! Please sit down. The exam has three parts. Part one: tell me a little about yourself." }, cue: "Part one. Say hello, who you are, where you're from, where you live and what you do.", model: { et: "Tere! Ma olen Tom ja ma olen pärit Inglismaalt. Ma elan perega Tallinnas ja töötan programmeerijana.", en: "Hello! I'm Tom, and I'm from England. I live in Tallinn with my family and I work as a programmer." } },
         { ask: { et: "Mis teile oma töö juures meeldib?", en: "What do you like about your work?" }, cue: "Say what you like about your work and why, and one thing you like less.", model: { et: "Mulle meeldib mu töö, sest kolleegid on sõbralikud ja aitavad mind alati. Aga koosolekuid on natuke liiga palju.", en: "I like my job, because my colleagues are friendly and always help me. But there are a few too many meetings." } },

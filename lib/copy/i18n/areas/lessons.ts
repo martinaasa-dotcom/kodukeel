@@ -261,7 +261,7 @@ export const LESSONS_AREA: Area = {
     "The conversation so far": "Разговор до этого момента",
     "Your conversation": "Твой разговор",
     "You held the whole conversation.": "Ты провёл (провела) весь разговор.",
-    "This is the whole conversation, with you in it. {who} speaks first and you answer as yourself, out loud or typed, one turn at a time. Each turn is added to the conversation, so by the end you've held all of it.": "Это весь разговор, и ты в нём участвуешь. Первым говорит {who}, а ты отвечаешь от себя, вслух или письменно, реплика за репликой. Каждая реплика добавляется к разговору, так что к концу ты проведёшь его целиком.",
+    "This is the whole conversation, with you in it. {who} speaks first and you answer as yourself, out loud or typed, one turn at a time. Each turn is added to the conversation, so by the end you've held all of it.": "Это весь разговор, и ты в нём участвуешь. Разговор начинает {who}, а ты отвечаешь от себя, вслух или письменно, реплика за репликой. Каждая реплика добавляется к разговору, так что к концу ты проведёшь его целиком.",
     "That one followed a script. Now have it for real: {who} answers whatever you say, in words you've been taught.": "Это был разговор по сценарию. Теперь попробуй по-настоящему: {who} отвечает на всё, что ты скажешь, словами из пройденных уроков.",
     "Still want more? Have the conversation for real: they answer whatever you say, in words you've been taught.": "Хочешь ещё? Поговори по-настоящему: тебе отвечают на всё, что ты скажешь, словами из пройденных уроков.",
     // The lesson screens of 2026-10-24: matching, gaps, replies, the part's track and the level's end.
@@ -555,7 +555,7 @@ export const LESSONS_AREA: Area = {
     "The conversation so far": "Розмова до цього моменту",
     "Your conversation": "Твоя розмова",
     "You held the whole conversation.": "Ти провів (провела) всю розмову.",
-    "This is the whole conversation, with you in it. {who} speaks first and you answer as yourself, out loud or typed, one turn at a time. Each turn is added to the conversation, so by the end you've held all of it.": "Це вся розмова, і ти в ній береш участь. Першим говорить {who}, а ти відповідаєш від себе, вголос або письмово, репліка за реплікою. Кожна репліка додається до розмови, тож наприкінці ти проведеш її повністю.",
+    "This is the whole conversation, with you in it. {who} speaks first and you answer as yourself, out loud or typed, one turn at a time. Each turn is added to the conversation, so by the end you've held all of it.": "Це вся розмова, і ти в ній береш участь. Розмову починає {who}, а ти відповідаєш від себе, вголос або письмово, репліка за реплікою. Кожна репліка додається до розмови, тож наприкінці ти проведеш її повністю.",
     "That one followed a script. Now have it for real: {who} answers whatever you say, in words you've been taught.": "Це була розмова за сценарієм. Тепер спробуй по-справжньому: {who} відповідає на все, що ти скажеш, словами з пройдених уроків.",
     "Still want more? Have the conversation for real: they answer whatever you say, in words you've been taught.": "Хочеш ще? Поговори по-справжньому: тобі відповідають на все, що ти скажеш, словами з пройдених уроків.",
     // The lesson screens of 2026-10-24: matching, gaps, replies, the part's track and the level's end.

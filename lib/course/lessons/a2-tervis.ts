@@ -366,6 +366,7 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
     ],
     roleplay: {
       scene: "You're at your family doctor's. The doctor speaks first. Answer as yourself.",
+      who: "Peeter",
       turns: [
         { ask: { et: "Tere! Mis teil viga on?", en: "Hello! What's the matter?" }, cue: "Say what hurts.", model: { et: "Tere! Mul valutab kurk.", en: "Hello! My throat hurts." } },
         { ask: { et: "Kas teil on palavik?", en: "Do you have a temperature?" }, cue: "Answer, and say how you feel.", model: { et: "Jah, natuke. Ma olen väga väsinud.", en: "Yes, a little. I'm very tired." } },

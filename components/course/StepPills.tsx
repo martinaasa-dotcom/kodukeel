@@ -30,7 +30,9 @@ export interface Pill {
  * with it (a hue never says it alone), and the colors are classes
  * (`.step-pill` in globals.css) so the hover can show.
  */
-export function StepPills({ label, pills, currentRef }: { label: string; pills: readonly Pill[]; currentRef?: Ref<HTMLElement> }) {
+/* `label` names the list, unless something around it already does: the lesson's steps sit in a
+   `<nav aria-label="Today's steps">`, and a list named the same inside it was announced twice. */
+export function StepPills({ label, pills, currentRef }: { label?: string; pills: readonly Pill[]; currentRef?: Ref<HTMLElement> }) {
   const t = useT();
   return (
     <ol className="flex flex-wrap gap-2" aria-label={label}>

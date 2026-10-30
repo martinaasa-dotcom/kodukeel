@@ -413,8 +413,15 @@ export interface LessonSpec {
   readonly faster?: Faster;
   /** The part's one real text, on its writing evening (B1 on). */
   readonly write?: WriteTask;
-  /** A role-play, on a check-in and at the end of a part. */
-  readonly roleplay?: { readonly scene: string; readonly turns: readonly Prompt[] };
+  /**
+   * A role-play, on a check-in and at the end of a part. `who` is the person
+   * the learner talks to, a speaker of the cast: named on the intro and the
+   * thread, and every turn voiced in their voice (`otherSideOf`). It is said
+   * rather than guessed from who opens the conversation, which named the
+   * manager in a meeting whose role-play is an argument with a colleague.
+   * Every lesson with a role-play sets it (`otherSide.test.ts`).
+   */
+  readonly roleplay?: { readonly scene: string; readonly who?: Speaker; readonly turns: readonly Prompt[] };
 }
 
 export interface PartOfLessons {

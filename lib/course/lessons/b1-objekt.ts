@@ -827,6 +827,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
     ],
     roleplay: {
       scene: "The handyman has come to your apartment. Tell him what's broken and what you fixed yourself, and agree when he'll finish.",
+      who: "Rein",
       turns: [
         { ask: { et: "Tere! Mina olen meister. Mis on katki?", en: "Hello! I'm the handyman. What's broken?" }, cue: "Say hello, and that the shower drips.", model: { et: "Tere! Dušš tilgub.", en: "Hello! The shower drips." } },
         { ask: { et: "Aga kraan?", en: "And the tap?" }, cue: "Say you fixed the tap yourself.", model: { et: "Kraani parandasin ma ise ära.", en: "I fixed the tap myself." } },

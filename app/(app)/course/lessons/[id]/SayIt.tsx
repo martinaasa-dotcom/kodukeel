@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Keyboard, Mic } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
@@ -24,9 +24,10 @@ import type { LessonSpec, Prompt } from "@/lib/course/lessons/types";
 import { VERDICT_CLASS } from "@/lib/ux/verdict";
 import { checkLessonSentence } from "@/app/actions";
 import { SentenceFindings } from "@/components/course/SentenceFindings";
-import { SayAlongFade } from "@/components/course/SayAlongFade";
-import { RetellIt } from "@/components/course/RetellIt";
-import { AgainFaster } from "@/components/course/AgainFaster";
+import { SayAlongFade, type FadeKept } from "@/components/course/SayAlongFade";
+import { RetellIt, type RetellKept } from "@/components/course/RetellIt";
+import { AgainFaster, type FasterKept } from "@/components/course/AgainFaster";
+import { useKeep } from "@/components/course/useKeep";
 import { saysItLonger } from "@/lib/course/lessons/limits";
 import type { Finding } from "@/lib/course/lessons/sentenceCheck";
 
@@ -97,16 +98,32 @@ interface Taken {
  * WHERE THE STEP WAS, KEPT BY THE RUNNER WHILE THE STEP IS AWAY. Say it is
  * unmounted when the learner steps to another step, because that is what
  * closes its microphone and ends a story or a race still playing; what it
- * had reached (the way it is being done, the card, the turns of a role-play)
- * is handed back when it comes back, so stepping away to reread the table is
- * not starting again.
+ * had reached is handed back when it comes back, so stepping away to reread
+ * the table is not starting again. That is the way it is being done, the
+ * card, the turns of a role-play, and what the learner did inside a card
+ * (`kept`): the retelling in the box and how often the story was heard, the
+ * goes of "Again, faster", the fade's round and line, and the words typed
+ * into a question's box. What is not kept is a microphone still listening or
+ * a go still on the clock, which end with the step.
  */
 export interface SayPlace {
   readonly mode: "say" | "type" | null;
   readonly at: number;
   readonly over: boolean;
   readonly taken: readonly { readonly ask: string; readonly said: string; readonly shown: boolean }[];
+  readonly kept: CardsKept;
 }
+
+/** What each card had done, by card: one of each B1 card, and an answer's text by its place in its list. */
+export interface CardsKept {
+  readonly retell?: RetellKept;
+  readonly faster?: FasterKept;
+  readonly fade?: FadeKept;
+  readonly answers?: Readonly<Record<string, string>>;
+}
+
+/** The key an answer card's text is kept under: which list it came from, and where in it. */
+export const answerKey = (card: { readonly which: "answers" | "turns"; readonly index: number }) => `${card.which}:${card.index}`;
 
 export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier, partAt, onComplete, place, onPlace }: { lesson: LessonSpec; scene: string | null; sceneHref: string | null; capstone: boolean; name: string | null; timeMultiplier: number; partAt: number; onComplete: () => void; place: SayPlace | null; onPlace: (place: SayPlace) => void }) {
   const t = useT();
@@ -114,7 +131,12 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier
   const [at, setAt] = useState(place?.at ?? 0);
   const [over, setOver] = useState(place?.over ?? false);
   const [taken, setTaken] = useState<readonly Taken[]>(place?.taken ?? []);
-  useEffect(() => { onPlace({ mode, at, over, taken }); }, [mode, at, over, taken, onPlace]);
+  const [kept, setKept] = useState<CardsKept>(place?.kept ?? {});
+  useEffect(() => { onPlace({ mode, at, over, taken, kept }); }, [mode, at, over, taken, kept, onPlace]);
+  const keepRetell = useCallback((retell: RetellKept) => setKept((k) => ({ ...k, retell })), []);
+  const keepFaster = useCallback((faster: FasterKept) => setKept((k) => ({ ...k, faster })), []);
+  const keepFade = useCallback((fade: FadeKept) => setKept((k) => ({ ...k, fade })), []);
+  const keepAnswer = useCallback((key: string, text: string) => setKept((k) => ({ ...k, answers: { ...k.answers, [key]: text } })), []);
   /*
     Each card replaces the one whose button was just pressed, and so does the
     end. A card that put the caret somewhere of its own on arrival keeps it
@@ -151,10 +173,16 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier
   useEffect(() => {
     if (mode !== null) focusLead();
   }, [mode]);
-  // The other side: whoever the learner answers, never their own stand-in (`otherSideOf`).
+  /*
+    The other side (`otherSideOf`): the role-play is with the person it names,
+    and every one of its turns is in their voice; a question about yourself is
+    asked by whoever says it in the conversation, never the learner's stand-in.
+  */
   const side = useMemo(() => otherSideOf(lesson), [lesson]);
-  const opener = side.partner;
-  const voice = lesson.cast[opener] ?? undefined;
+  const opener = side.partner ?? "";
+  const voice = side.voiceOf(side.partner);
+  const voiceOfAsk = (card: Extract<SayCard, { kind: "answer" }>) =>
+    card.which === "turns" ? voice : card.prompt.ask ? side.voiceOf(side.askerOf(card.prompt.ask.et)) : undefined;
 
   const speechConfig = useSpeechConfig();
   const cards = useMemo<SayCard[]>(() => {
@@ -273,13 +301,13 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier
       {card.kind === "lines" ? (
         <SayTheLines lesson={lesson} onNext={() => next()} />
       ) : card.kind === "fade" ? (
-        <SayAlongFade lesson={lesson} partAt={partAt} onDone={() => next()} />
+        <SayAlongFade lesson={lesson} partAt={partAt} onDone={() => next()} kept={kept.fade} onKeep={keepFade} />
       ) : card.kind === "retell" ? (
-        <RetellIt retell={lesson.retell!} voice={lesson.cast[lesson.retell!.who]} typed={mode === "type"} onDone={() => next()} />
+        <RetellIt retell={lesson.retell!} voice={lesson.cast[lesson.retell!.who]} typed={mode === "type"} onDone={() => next()} kept={kept.retell} onKeep={keepRetell} />
       ) : card.kind === "faster" ? (
-        <AgainFaster faster={lesson.faster!} voice={voice} typed={mode === "type"} multiplier={timeMultiplier} onDone={() => next()} />
+        <AgainFaster faster={lesson.faster!} voice={side.voiceOf(side.askerOf(lesson.faster!.ask.et))} typed={mode === "type"} multiplier={timeMultiplier} onDone={() => next()} kept={kept.faster} onKeep={keepFaster} />
       ) : (
-        <AnswerCard key={at} lessonId={lesson.id} card={card} mode={mode} voice={card.prompt.ask ? lesson.cast[side.askerOf(card.prompt.ask.et)] : voice} name={name} onNext={next} last={at >= cards.length - 1} />
+        <AnswerCard key={at} lessonId={lesson.id} card={card} mode={mode} voice={voiceOfAsk(card)} name={name} onNext={next} last={at >= cards.length - 1} typed={kept.answers?.[answerKey(card)] ?? ""} onType={keepAnswer} />
       )}
       </div>
     </div>
@@ -339,7 +367,7 @@ function SayTheLines({ lesson, onNext }: { lesson: LessonSpec; onNext: () => voi
  * Nothing is graded either way (ADR-028). A spoken answer that is the model,
  * a slip of it or their line back checks itself the moment it is heard.
  */
-function AnswerCard({ lessonId, card, mode, voice, name, onNext, last }: {
+function AnswerCard({ lessonId, card, mode, voice, name, onNext, last, typed, onType }: {
   lessonId: string;
   card: Extract<SayCard, { kind: "answer" }>;
   mode: Mode;
@@ -347,6 +375,9 @@ function AnswerCard({ lessonId, card, mode, voice, name, onNext, last }: {
   name: string | null;
   onNext: (said: string) => void;
   last: boolean;
+  /** What was in the box when Say it last stepped away, and where to report it (`CardsKept.answers`). */
+  typed: string;
+  onType: (key: string, text: string) => void;
 }) {
   const t = useT();
   const locale = useLocale();
@@ -354,8 +385,10 @@ function AnswerCard({ lessonId, card, mode, voice, name, onNext, last }: {
   const { prompt } = card;
   // The model with the learner's own name in it, where it named Tom.
   const model = { et: personal(prompt.model.et, name) };
-  const [text, setText] = useState("");
+  const [text, setText] = useState(typed);
   const [shown, setShown] = useState(false);
+  const key = answerKey(card);
+  useKeep(text, useCallback((value: string) => onType(key, value), [onType, key]));
   const [mark, setMark] = useState<TypedMark | null>(null);
   // What the dictionary found in an answer that is not the sample, or null until it answers.
   const [found, setFound] = useState<readonly Finding[] | null>(null);

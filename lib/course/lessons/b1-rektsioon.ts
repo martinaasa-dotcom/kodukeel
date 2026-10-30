@@ -840,6 +840,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
     ],
     roleplay: {
       scene: "It's a new colleague's first day, and you're showing her around. She speaks first.",
+      who: "Kadri",
       turns: [
         { ask: { et: "Tere! Ma olen siin uus. Kas sa saaksid mind aidata?", en: "Hi! I'm new here. Could you help me?" }, cue: "Say of course you'll help.", model: { et: "Muidugi aitan. Tere tulemast!", en: "Of course I'll help. Welcome!" } },
         { ask: { et: "Kellelt ma küsin, kui mul on arvutiga probleem?", en: "Who do I ask if I have a problem with my computer?" }, cue: "Say you help with the computer.", model: { et: "Arvutiga aitan sind mina.", en: "I help with computers." } },

@@ -473,6 +473,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
     ],
     roleplay: {
       scene: "A friend calls you on a Saturday. You're in town; she's at the market. Answer as yourself.",
+      who: "Mari",
       turns: [
         { ask: { et: "Halloo! Kus sa praegu oled?", en: "Hello! Where are you now?" }, cue: "Say you're in town, in front of the bank.", model: { et: "Ma olen kesklinnas, panga ees.", en: "I'm in town, in front of the bank." } },
         { ask: { et: "Mina olen turul. Kas sa tuled siia?", en: "I'm at the market. Are you coming here?" }, cue: "Say yes, and ask how you get to the market.", model: { et: "Jah. Kuidas ma turule saan?", en: "Yes. How do I get to the market?" } },

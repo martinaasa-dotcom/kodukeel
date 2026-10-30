@@ -801,6 +801,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
     ],
     roleplay: {
       scene: "You've moved out of an apartment you rented from a landlord you hardly know. He's walking through the empty rooms with you, and he'd like to keep part of your deposit. He finds more than one thing to point at. You call each other {teie}. He speaks first.",
+      who: "Peeter",
       turns: [
         { ask: { et: "Tere! Vaatame korteri koos läbi.", en: "Hello! Let's walk through the apartment together." }, cue: "Say hello, and that everything's in order.", model: { et: "Tere! Kõik on korras.", en: "Hello! Everything's in order." } },
         { ask: { et: "Aga põrand on kriimustatud.", en: "But the floor is scratched." }, cue: "Say it was scratched before you came.", model: { et: "See oli juba enne mind kriimustatud.", en: "It was scratched before I came." } },

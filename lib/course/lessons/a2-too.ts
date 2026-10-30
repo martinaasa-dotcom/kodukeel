@@ -449,6 +449,7 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
     ],
     roleplay: {
       scene: "You're at a job interview. The interviewer speaks first. Answer as yourself.",
+      who: "Liis",
       turns: [
         { ask: { et: "Tere! Palun istuge. Rääkige natuke endast.", en: "Hello! Please sit down. Tell me a little about yourself." }, cue: "Say who you are and what you do.", model: { et: "Tere! Ma olen Tom. Ma olen programmeerija.", en: "Hello! I'm Tom. I'm a programmer." } },
         { ask: { et: "Kus te enne töötasite?", en: "Where did you work before?" }, cue: "Say where you worked, and as what.", model: { et: "Ma töötasin Londonis programmeerijana.", en: "I worked in London as a programmer." } },

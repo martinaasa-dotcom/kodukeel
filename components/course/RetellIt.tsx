@@ -12,6 +12,7 @@ import { LessonText } from "@/components/course/LessonText";
 import { Card, SectionTitle } from "@/components/ui";
 import { fill } from "@/lib/copy/locale";
 import { useLinePlayer } from "@/components/course/useLinePlayer";
+import { useKeep } from "@/components/course/useKeep";
 import { StepPills } from "@/components/course/StepPills";
 import { pointsHeard } from "@/lib/course/lessons/retell";
 import type { Retell } from "@/lib/course/lessons/types";
@@ -30,17 +31,27 @@ import type { Retell } from "@/lib/course/lessons/types";
  * Said in as many goes as it takes: each go is added to what was said before,
  * so a learner who stops to think is not made to start again. On a typed
  * evening the box takes it instead.
+ *
+ * Stepping away to reread the conversation and coming back finds the box, the
+ * plays and the story as they were (`kept`, `useKeep`).
  */
-export function RetellIt({ retell, voice, typed, onDone }: { retell: Retell; voice: string | undefined; typed: boolean; onDone: () => void }) {
+export interface RetellKept {
+  readonly plays: number;
+  readonly said: string;
+  readonly shown: boolean;
+}
+
+export function RetellIt({ retell, voice, typed, onDone, kept, onKeep }: { retell: Retell; voice: string | undefined; typed: boolean; onDone: () => void; kept?: RetellKept; onKeep?: (kept: RetellKept) => void }) {
   const t = useT();
   const locale = useLocale();
   const prefs = useAudioPrefs();
-  const [plays, setPlays] = useState(0);
+  const [plays, setPlays] = useState(kept?.plays ?? 0);
   const player = useLinePlayer();
   const { playing } = player;
   const [unheard, setUnheard] = useState(false);
-  const [said, setSaid] = useState("");
-  const [shown, setShown] = useState(false);
+  const [said, setSaid] = useState(kept?.said ?? "");
+  const [shown, setShown] = useState(kept?.shown ?? false);
+  useKeep(useMemo(() => ({ plays, said, shown }), [plays, said, shown]), onKeep);
   // The button that showed the story is gone, so the caret goes to the story it showed.
   const storyRef = useRef<HTMLDivElement>(null);
   const showing = useRef(false);

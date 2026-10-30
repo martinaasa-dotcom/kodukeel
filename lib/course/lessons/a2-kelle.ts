@@ -434,6 +434,7 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
     ],
     roleplay: {
       scene: "You're at the library desk, getting a card. The librarian speaks first. Answer as yourself.",
+      who: "Liis",
       turns: [
         { ask: { et: "Tere! Kuidas ma saan aidata?", en: "Hello! How can I help?" }, cue: "Say hello, and that you'd like a library card.", model: { et: "Tere! Ma soovin raamatukogukaarti.", en: "Hello! I'd like a library card." } },
         { ask: { et: "Muidugi. Teie eesnimi?", en: "Of course. Your first name?" }, cue: "Give your first name.", model: { et: "Tom.", en: "Tom." } },
