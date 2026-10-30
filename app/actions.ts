@@ -75,7 +75,7 @@ import { markSayingsShown } from "@/lib/progress/sayings";
 import { bringBack, keepWord, putAside, setStar, wordReaches } from "@/lib/progress/wordActions";
 import { addScanToDeckFor, saveScanFor } from "@/lib/progress/scans";
 import {
-  forgetSettings, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
+  forgetSettings, readSetting, SETTING_KEYS, writeSetting, writeSettings, type ReviewMode,
 } from "@/lib/settings/store";
 
 
@@ -2303,9 +2303,9 @@ export async function completeOnboarding(input: {
   */
   if (!await moveBlockedFor(ownerId, partFrom(await readSetting(ownerId, SETTING_KEYS.programme)), opening)) {
     // Stamped as chosen, like every other move: a part picked here is not one the lessons' switch sends back (`lib/progress/course.ts`).
-    await Promise.all([
-      writeSetting(ownerId, SETTING_KEYS.programme, opening.id),
-      writeSetting(ownerId, SETTING_KEYS.programmeChosenAt, new Date().toISOString()),
+    await writeSettings(ownerId, [
+      [SETTING_KEYS.programme, opening.id],
+      [SETTING_KEYS.programmeChosenAt, new Date().toISOString()],
     ]);
   }
 
@@ -4499,8 +4499,10 @@ export async function setProgramme(value: string) {
     ? levelHeldOnHandOff(from.level, to.level, standing?.held ?? null)
     : null;
   await Promise.all([
-    writeSetting(ownerId, SETTING_KEYS.programme, wanted || defaultProgramme().id),
-    writeSetting(ownerId, SETTING_KEYS.programmeChosenAt, new Date().toISOString()),
+    writeSettings(ownerId, [
+      [SETTING_KEYS.programme, wanted || defaultProgramme().id],
+      [SETTING_KEYS.programmeChosenAt, new Date().toISOString()],
+    ]),
     held ? recordCourseLevel(ownerId, held) : Promise.resolve(),
   ]);
   revalidatePath("/course");
@@ -4559,8 +4561,10 @@ export async function acceptCourseMove(kind: string) {
   const levelWrite = move.held === was ? null : (move.held ?? "A0");
 
   await Promise.all([
-    writeSetting(ownerId, SETTING_KEYS.programme, move.to.id),
-    writeSetting(ownerId, SETTING_KEYS.programmeChosenAt, now.toISOString()),
+    writeSettings(ownerId, [
+      [SETTING_KEYS.programme, move.to.id],
+      [SETTING_KEYS.programmeChosenAt, now.toISOString()],
+    ]),
     writeSetting(ownerId, SETTING_KEYS.adaptMovedAt, now.toISOString()),
     writeSetting(ownerId, SETTING_KEYS.adaptSnoozedUntil, ""),
     levelWrite ? recordCourseLevel(ownerId, levelWrite, now) : Promise.resolve(),

@@ -24,7 +24,7 @@ export default function aNamedLevelIsHeld({ check, code, read, APP, COMPONENTS }
     );
     assert.match(
       onboarding,
-      /const opening = openingPart\(heldLevel\(answer\)[\s\S]{0,1600}?writeSetting\(ownerId, SETTING_KEYS\.programme, opening\.id\)/,
+      /const opening = openingPart\(heldLevel\(answer\)[\s\S]{0,1600}?writeSettings\(ownerId, \[\s*\[SETTING_KEYS\.programme, opening\.id\]/,
       "first run no longer writes the part `openingPart` names off the level the learner holds",
     );
     assert.match(onboarding, /currentLevelAnswer\(ownerId\)/, "first run stopped reading the level off the server's own answer");
