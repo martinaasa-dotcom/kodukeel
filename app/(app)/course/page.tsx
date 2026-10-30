@@ -6,7 +6,7 @@ import { requireUserId } from "@/lib/auth/session";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import {
   closingProgress, courseReading, hasChosenProgramme, ladderReading, missingWords, openingPartFor,
-  programmeFor,
+  movedBackFrom, programmeFor,
 } from "@/lib/progress/course";
 import { courseLevelFor } from "@/lib/progress/level";
 import type { Level } from "@/lib/collections/syllabus";
@@ -450,9 +450,10 @@ export default async function CoursePage({
     );
   }
 
-  const [closing, missing] = await Promise.all([
+  const [closing, missing, moved] = await Promise.all([
     closingProgress(ownerId, programme, day.id, now),
     missingWords(ownerId, day),
+    movedBackFrom(ownerId),
   ]);
   const unit = unitOf(day);
   const done = day.steps.filter((s) => standing.done.has(s.id)).map((s) => s.id);
@@ -486,6 +487,15 @@ export default async function CoursePage({
           learner, which is nearly everybody nearly always.
         */}
         <CourseFit offer={fit.offer} tilt={fit.tilt} snoozed={fit.snoozed} effects={fit.effects} locale={locale} />
+
+        {/* Somebody who was part way through the old B1 is told here too, since Today's module opens this page rather than the list of lessons. */}
+        {moved && (
+          <Card tone="butter" data-moved-back={moved.from.id}>
+            <p className="text-base" style={{ color: "var(--ink)" }}>
+              {fill(t("{level} is built as lessons now, so you pick it up from {part}. Your cards are kept, and Review asks each one again once the course has taught its word."), { level: moved.from.level, part: moved.to.id.toUpperCase() })}
+            </p>
+          </Card>
+        )}
 
         {/*
           THE UNIT'S OWN CLAIM, AND WHICH EVENING OF IT THIS IS, WITH TODAY'S
