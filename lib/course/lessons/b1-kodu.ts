@@ -110,7 +110,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         from: { et: "Uks on suletud.", en: "The door is shut." },
         ask: "Say it's open instead, with another -tud word.",
         to: { et: "Uks on avatud.", en: "The door is open." },
-        also: ["Uks on lahti."],
+        also: ["Uks on lahti tehtud."],
         pattern: "participle",
       },
       {
@@ -339,7 +339,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         from: { et: "Helgi kontrollib seda iga päev.", en: "Helgi checks it every day." },
         ask: "Say she checked it yesterday.",
         to: { et: "Helgi kontrollis seda eile.", en: "Helgi checked it yesterday." },
-        also: ["Eile kontrollis Helgi seda.", "Eile Helgi kontrollis seda."],
+        also: ["Eile kontrollis Helgi seda.", "Eile Helgi kontrollis seda.", "Ta kontrollis seda eile.", "Tema kontrollis seda eile.", "Eile kontrollis ta seda.", "Eile ta kontrollis seda."],
         pattern: "past",
       },
       {
@@ -462,7 +462,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
     ],
     fixes: [
       { line: { et: "Aga mul ei ole uut pirni.", en: "But I don't have a new bulb." }, right: "pirni", wrong: "pirn", pair: ["PARTITIVE", "NOMINATIVE"], why: "After {ei ole}, the [osastav] (3rd form): {uut pirni}." },
-      { line: { et: "Võimalik, et toru tuleb vahetada. Ma saadan homme meistri.", en: "The pipe may need changing. I'll send a handyman tomorrow." }, right: "meistri", wrong: "meister", pair: ["GENITIVE", "NOMINATIVE"], why: "Urmas says what he'll do, which isn't a command, so the whole handyman takes the [omastav] (2nd form): {meistri}. The [nimetav] (1st form), {meister}, is for a command." },
+      { line: { et: "Võimalik, et toru tuleb vahetada. Ma saadan homme meistri.", en: "The pipe may need changing. I'll send a handyman tomorrow." }, right: "meistri", wrong: "meister", pair: ["GENITIVE", "NOMINATIVE"], why: "Urmas says what he'll do himself, so the whole handyman takes the [omastav] (2nd form): {meistri}. The [nimetav] (1st form) is for a whole thing in a command, or one that needs doing after {tuleb}, like {toru} just before." },
     ],
     retell: {
       who: "Tom",
