@@ -485,7 +485,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
                 const reachedIt = i < at || i <= reached;
                 const finishedIt = s === "listen" ? heard : ASKS.has(s) ? finished.has(s) || (s === "review" && review.length === 0) : reachedIt && i !== at;
                 const state = i === at ? "here" : finishedIt ? "done" : reachedIt ? "visited" : "ahead";
-                return { key: s, state, label: fill(t("{n}. {step}"), { n: String(i + 1), step: t(titleOf(s)) }), onPress: () => go(i) };
+                return { key: s, state, label: fill("{n}. {step}", { n: String(i + 1), step: t(titleOf(s)) }), onPress: () => go(i) };
               })}
             />
           </div>

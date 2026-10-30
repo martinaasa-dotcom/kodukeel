@@ -16,7 +16,7 @@ import { fill } from "@/lib/copy/locale";
 import { isTyped, markTyped, type PracticeItem, type TypedMark } from "@/lib/course/lessons/practice";
 import { rng, seedFrom } from "@/lib/random/seeded";
 import { shuffle } from "@/lib/random/shuffle";
-import { isAdvanceKey } from "@/lib/ux/advanceKey";
+import { isAdvanceKey, onOwnControl } from "@/lib/ux/advanceKey";
 import { OPTION_CLASS, optionState, VERDICT_CLASS } from "@/lib/ux/verdict";
 
 /**
@@ -163,7 +163,8 @@ export function Quiz({ items, onFinished, onAnswer, summary = true, review = fal
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
-    if (answered && isAdvanceKey(e)) {
+    // A speaker or Next that has the keyboard presses itself (`onOwnControl`).
+    if (answered && isAdvanceKey(e) && !onOwnControl(e.target)) {
       e.preventDefault();
       next();
     }

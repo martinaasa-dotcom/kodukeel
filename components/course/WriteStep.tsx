@@ -128,7 +128,7 @@ export function WriteStep({ lesson, onDone }: { lesson: LessonSpec; onDone: () =
       <StepPills
         label={t("The four stages")}
         currentRef={currentRef}
-        pills={STAGES.map((s, i) => ({ key: s, state: s === stage ? "here" : i < at ? "done" : "ahead", label: fill(t("{n}. {step}"), { n: String(i + 1), step: titles[s] }) }))}
+        pills={STAGES.map((s, i) => ({ key: s, state: s === stage ? "here" : i < at ? "done" : "ahead", label: fill("{n}. {step}", { n: String(i + 1), step: titles[s] }) }))}
       />
       <Genre write={write} />
       {stage === "model" && <Model lesson={lesson} onNext={() => goTo("frame")} />}

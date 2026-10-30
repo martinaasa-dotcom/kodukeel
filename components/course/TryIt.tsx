@@ -15,7 +15,7 @@ import { askText, type TryItAsk } from "@/lib/course/tryIt";
 import { useLocale, useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
 import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
-import { inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { inEditable, isAdvanceKey, onOwnControl } from "@/lib/ux/advanceKey";
 
 /**
  * THE READING ASKS BACK, AND IT IS A GAME RATHER THAN A TEST.
@@ -74,7 +74,7 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
         return;
       }
       /* Not over a focused button, which answers Enter and Space itself. */
-      if (isAdvanceKey(e) && !(e.target instanceof HTMLButtonElement)) { e.preventDefault(); now.next(); }
+      if (isAdvanceKey(e) && !onOwnControl(e.target)) { e.preventDefault(); now.next(); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);

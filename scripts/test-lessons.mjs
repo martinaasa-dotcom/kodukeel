@@ -406,7 +406,7 @@ async function spokenRace(lesson) {
     if (!(await start.count())) return;
     await start.click();
     // The clock waits for the microphone: a first press fetches and loads the model, which takes longer than a go.
-    const listening = await say.locator('[data-faster-go] button[aria-pressed="true"]').first().waitFor({ timeout: 300_000 }).then(() => true, () => false);
+    const listening = await say.locator('[data-faster-go] button[data-state="listening"]').first().waitFor({ timeout: 300_000 }).then(() => true, () => false);
     const clock = Number(await say.locator("[data-faster-go] .run-clock").first().innerText().catch(() => "0"));
     check(`${where}: the clock starts when the microphone opens, not when Start is pressed`, listening && clock >= 87, `${listening ? "listening" : "never listened"}, ${clock} seconds left`);
     // A go runs ninety seconds and is then decoded twice at up to real time each, so a slow runner needs minutes.

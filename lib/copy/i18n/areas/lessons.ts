@@ -300,6 +300,11 @@ export const LESSONS_AREA: Area = {
     "{level} is done": "{level} пройден",
     "{level}: {done} of {total} lessons done": "{level}: уроков пройдено {done} из {total}",
     "{n} of {total} in": "{n} из {total}",
+    "Change the sentence": "Измени предложение",
+    "Put it right": "Исправь",
+    "One word is in the wrong form. Type the line put right.": "Одно слово стоит не в той форме. Напиши строку правильно.",
+    "The changed sentence, in Estonian": "Изменённое предложение по-эстонски",
+    "A line, not shown yet": "Реплика, ещё не показанная",
   },
   uk: {
     /* The A1 lessons' own titles and goals, and their parts' lines, now that they are the course. */
@@ -588,6 +593,11 @@ export const LESSONS_AREA: Area = {
     "{level} is done": "{level} пройдено",
     "{level}: {done} of {total} lessons done": "{level}: уроків пройдено {done} з {total}",
     "{n} of {total} in": "{n} з {total}",
+    "Change the sentence": "Зміни речення",
+    "Put it right": "Виправ",
+    "One word is in the wrong form. Type the line put right.": "Одне слово стоїть не в тій формі. Напиши рядок правильно.",
+    "The changed sentence, in Estonian": "Змінене речення естонською",
+    "A line, not shown yet": "Репліка, ще не показана",
   },
   counted: {
     "lesson": { en: ["lesson", "lessons"], ru: ["урок", "урока", "уроков"], uk: ["урок", "уроки", "уроків"] },

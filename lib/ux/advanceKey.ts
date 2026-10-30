@@ -47,6 +47,25 @@ export function isAdvanceKey(e: KeyLike, spacePlays = false): boolean {
 }
 
 /**
+ * A CONTROL THAT HAS THE KEYBOARD ANSWERS ITS OWN KEY.
+ *
+ * A card that moves on with Enter took that key from every button inside it,
+ * so after a lesson question was answered, Tab to "Play it again" and Enter
+ * skipped the question instead of playing it. An enabled button, a link, a
+ * disclosure or a radio presses itself on Enter and Space, which is the whole
+ * reason a keyboard user went there; the card's own Next is one of them and
+ * presses itself too. A disabled answer option is not, so it still moves on.
+ * Read through `closest`, typed loosely like `inEditable`, so this module
+ * stays free of the DOM's types.
+ */
+const OWN_CONTROL = "button:not(:disabled), a[href], summary, [role=button], [role=radio], [role=link]";
+
+export function onOwnControl(target: object | null): boolean {
+  const el = target as { closest?: (selector: string) => unknown } | null;
+  return typeof el?.closest === "function" && el.closest(OWN_CONTROL) !== null;
+}
+
+/**
  * ONE KEY IS NAMED ON THE BUTTON, AND IT IS THE ONE THAT ALWAYS WORKS.
  *
  * The reading above takes both keys, and the buttons did not agree about

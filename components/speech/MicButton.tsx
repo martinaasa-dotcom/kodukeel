@@ -150,7 +150,6 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
           type="button"
           className={`speech-mic press relative inline-flex shrink-0 items-center justify-center rounded-full ${dim}`}
           data-state={listening ? "listening" : busy ? "busy" : "idle"}
-          aria-pressed={listening}
           aria-label={listening ? t("Stop listening") : label ?? t("Say it out loud")}
           aria-keyshortcuts={shortcut ? "Control+M" : undefined}
           title={shortcut ? `${label ?? t("Say it out loud")} (${MIC_SHORTCUT.label})` : undefined}
