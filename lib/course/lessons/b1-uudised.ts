@@ -832,6 +832,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
     ],
     roleplay: {
       scene: "The residents of your building meet about the burst pipe. Helgi, your neighbor, who chairs the residents' association, asks you, because you saw it. She says {sina} to you.",
+      who: "Helgi",
       turns: [
         { ask: { et: "Tere õhtust! Sina nägid seda ise. Mis juhtus?", en: "Good evening! You saw it yourself. What happened?" }, cue: "Say a pipe burst in the cellar during the night.", model: { et: "Öösel läks keldris toru katki.", en: "A pipe burst in the cellar during the night." }, also: ["Keldris läks öösel toru katki."] },
         { ask: { et: "Mis siis tehti?", en: "What was done then?" }, cue: "Say a plumber was called and the pipe was replaced.", model: { et: "Torumees kutsuti ja toru vahetati välja.", en: "A plumber was called and the pipe was replaced." }, also: ["Torumees kutsuti kohale ja toru vahetati välja.", "Kutsuti torumees ja toru vahetati välja.", "Torumees kutsuti ja toru vahetati ära."] },

@@ -38,11 +38,11 @@ const { check, absent, done } = suite("The lessons, walked", {
   /*
     Per B1 lesson: the step heading, the hidden conversation and its reveal,
     the questions answered, a practice that finishes, Say it reaching its end,
-    the finished screen and its conversation offer. Plus the first lesson's "What's new" and its fade,
+    the finished screen and its conversation offer. Plus the first lesson's "What's new", its fade and its keyboard pass,
     the retell, the three goes, the four writing stages, the capstone, and A2
     staying as it was. Counted off a run, so a block that stops is a shortfall.
   */
-  floor: 185,
+  floor: 195,
 });
 // `--only=<role>` walks one lesson (or `spoken`, the race out loud) for working on it; it reports under the floor by design.
 
@@ -212,6 +212,8 @@ async function sayThrough(lesson, mode) {
   let faster = false;
   // Whether the dictionary read a typed answer at all: null until a box is answered.
   let readTyped = null;
+  // Answer cards answered, which on a part's closing conversation is the turns of the thread.
+  let turns = 0;
   for (let n = 0; n < 30; n++) {
     if (await page.locator('[data-say-it="done"]').count()) break;
     const say = page.locator("[data-say-it]").first();
@@ -225,6 +227,18 @@ async function sayThrough(lesson, mode) {
       retold = true;
       await say.getByLabel("What you told, in Estonian").fill(lesson.retell);
       await page.waitForTimeout(200);
+      /*
+        Stepping away from Say it and back keeps the retelling: the step is
+        unmounted while away, so what the card held is handed back to it
+        (`SayPlace.kept`). Pressed through the step pills, the way a learner
+        goes back to reread the conversation.
+      */
+      await page.locator("[data-lesson-steps]").getByRole("button", { name: /^1\./ }).click();
+      await page.locator("[data-lesson-steps]").getByRole("button", { name: /Say it/ }).click();
+      const box = page.locator("[data-say-it]").first().getByLabel("What you told, in Estonian");
+      await box.waitFor({ timeout: 6000 }).catch(() => {});
+      const kept = await box.inputValue().catch(() => "");
+      check(`${where}: stepping away from the retelling and back keeps what was told`, kept === lesson.retell, `${kept.length} of ${lesson.retell.length} characters`);
       const lit = await say.locator('[data-retell-points] [data-lit="true"]').count();
       if (SHOTS) await shoot(`${where} retell`);
       check(`${where}: retelling the story lights its points as they come across`, lit > 0, `${lit} lit`);
@@ -260,11 +274,24 @@ async function sayThrough(lesson, mode) {
       // The first typed answer of the lesson waits for the dictionary's reading, which every lesson's cards get.
       if (readTyped === null) readTyped = await say.locator('[data-sentence-check="findings"]').first().waitFor({ timeout: 20_000 }).then(() => true, () => false);
       await say.getByRole("button", { name: /^(Next|Done)/ }).click();
+      turns += 1;
+      // A part's closing conversation builds a thread of the turns so far, each named for who the role-play is with.
+      if (lesson.capstone && turns === 1 && !(await page.locator('[data-say-it="done"]').count())) {
+        const thread = page.locator("[data-say-thread]").first();
+        await thread.waitFor({ timeout: 5000 }).catch(() => {});
+        const said = await thread.innerText().catch(() => "");
+        check(`${where}: the conversation so far is drawn as a thread after the first turn`, said.length > 0);
+        check(`${where}: and the other side in it is ${lesson.partner}`, lesson.partner !== null && said.includes(lesson.partner), said.slice(0, 120));
+      }
       continue;
     }
     break;
   }
   check(`${where}: Say it reaches its end`, (await page.locator('[data-say-it="done"]').count()) === 1);
+  if (lesson.capstone) {
+    const thread = page.locator('[data-say-it="done"] [data-say-thread] li');
+    check(`${where}: the finished conversation holds every turn taken`, (await thread.count()) === turns, `${await thread.count()} of ${turns}`);
+  }
   if (readTyped !== null) {
     check(`${where}: the dictionary reads a typed answer and names its slip${lesson.write ? "" : ", on a lesson with no writing task"}`, readTyped);
   }
@@ -313,6 +340,21 @@ async function writeThrough(lesson) {
   check(`${where}: the reading starts without a second press`, (await page.getByRole("button", { name: /^Read my text/ }).count()) === 0);
   await page.locator("[data-write-findings]").waitFor({ timeout: 15_000 }).catch(() => {});
   check(`${where}: the dictionary reads the text, sentence by sentence`, (await page.locator("[data-write-findings]").count()) === 1);
+  /*
+    A reload mid-writing comes back on the second draft with the text in it,
+    and waits to be asked before reading it again (`writeResume.ts`): the
+    reading on arrival is for arriving from "Have it read", not from a reload.
+  */
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await hydrated(page);
+  await page.locator('[data-write-step="redraft"]').waitFor({ timeout: 10_000 }).catch(() => {});
+  check(`${where}: a reload while writing comes back on the second draft`, (await page.locator('[data-write-step="redraft"]').count()) === 1);
+  const drafts = await page.locator('[data-write-step="redraft"] textarea').evaluateAll((els) => els.map((el) => el.value)).catch(() => []);
+  check(`${where}: with the text still in it`, drafts.some((d) => d.includes(lesson.write.model.slice(0, 24))), `${drafts.length} boxes`);
+  const readAgain = page.getByRole("button", { name: /^Read my text/ });
+  check(`${where}: and it waits to be asked before reading it again`, (await readAgain.count()) === 1);
+  if (await readAgain.count()) await readAgain.click();
+  await page.locator("[data-write-findings]").waitFor({ timeout: 15_000 }).catch(() => {});
   if (SHOTS) await shoot(`${where} read`);
   /*
     The model text read back, so every sentence is clean and a word the
@@ -369,6 +411,28 @@ async function walk(lesson, { mode = "type" } = {}) {
       throw new Error(`${where}: no way on at "${heading}" (${page.url()}); the buttons are ${names.map((b) => b.trim()).join(" | ")}; the page says ${(await text()).slice(0, 300)}`);
     }
     const last = /Finish/.test((await footer().innerText().catch(() => "")));
+    /*
+      ONCE A LESSON, FROM THE KEYBOARD ALONE: Tab to the way on, press it with
+      Enter, and the caret lands on the new step's heading, so a keyboard is
+      never left on the page between steps.
+    */
+    if (n === 1 && !last && lesson.role === "first") {
+      const was = await stepHeading();
+      let reached = false;
+      for (let tab = 0; tab < 120 && !reached; tab++) {
+        await page.keyboard.press("Tab");
+        reached = await page.evaluate(() => /^(Continue|Skip this step)/.test(document.activeElement?.textContent?.trim() ?? ""));
+      }
+      check(`${where}: the way on is reached with Tab`, reached);
+      if (reached) await page.keyboard.press("Enter");
+      else await footer().click();
+      await eventually(async () => (await stepHeading()) !== was, { timeoutMs: 6000 }).catch(() => {});
+      check(`${where}: and pressed with Enter it opens the next step`, (await stepHeading()) !== was, `${was} -> ${await stepHeading()}`);
+      const onHeading = await eventually(() => page.evaluate(() => document.activeElement?.id === "lesson-step"), { timeoutMs: 3000 }).catch(() => false);
+      check(`${where}: with the caret on the step's heading`, onHeading === true, await page.evaluate(() => document.activeElement?.tagName ?? "none"));
+      await page.waitForTimeout(150);
+      continue;
+    }
     await footer().click();
     if (last) break;
     await page.waitForTimeout(150);

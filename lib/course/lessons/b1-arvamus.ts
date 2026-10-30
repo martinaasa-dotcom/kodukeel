@@ -797,6 +797,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
     ],
     roleplay: {
       scene: "A team meeting at work. Your colleague thinks everybody should work from home. You don't quite agree. She speaks first.",
+      who: "Kadri",
       turns: [
         { ask: { et: "Minu meelest on mugav kodus töötada. Mida sina arvad?", en: "If you ask me, working from home is comfortable. What do you think?" }, cue: "Say you don't quite agree.", model: { et: "Ma ei ole päris nõus.", en: "I don't quite agree." }, also: ["Ma pole päris nõus.", "Ma ei ole sinuga päris nõus."] },
         { ask: { et: "Miks mitte?", en: "Why not?" }, cue: "Say why not with {kuigi}: it's comfortable at home, but you get bored.", model: { et: "Kuigi kodus on mugav, on mul seal igav.", en: "Although it's comfortable at home, I get bored there." }, also: ["Kuigi kodus on mugav, mul on seal igav."] },

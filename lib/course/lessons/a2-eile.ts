@@ -510,6 +510,7 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
     ],
     roleplay: {
       scene: "An old friend stops you in the street after the summer. She speaks first. Answer as yourself.",
+      who: "Liis",
       turns: [
         { ask: { et: "Tere! Kuidas suvi oli?", en: "Hi! How was your summer?" }, cue: "Say it was good, and where you went.", model: { et: "Väga hea! Ma käisin Saaremaal.", en: "Really good! I went to Saaremaa." } },
         { ask: { et: "Tõesti? Mida sa seal tegid?", en: "Really? What did you do there?" }, cue: "Say what you did there.", model: { et: "Me käisime saunas ja sõime palju kala.", en: "We went to the sauna and ate lots of fish." } },

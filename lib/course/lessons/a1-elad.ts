@@ -660,6 +660,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
     ],
     roleplay: {
       scene: "It's the first evening of an Estonian course. The teacher, Mari, goes around the room. Introduce yourself as you.",
+      who: "Mari",
       turns: [
         { ask: { et: "Tere õhtust! Mis teie nimi on?", en: "Good evening! What's your name?" }, cue: "Say your name.", model: { et: "Minu nimi on Tom.", en: "My name is Tom." } },
         { ask: { et: "Väga meeldiv! Kust te pärit olete?", en: "Nice to meet you! Where are you from?" }, cue: "Say where you're from.", model: { et: "Ma olen pärit Inglismaalt.", en: "I'm from England." } },

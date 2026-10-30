@@ -462,6 +462,7 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
     ],
     roleplay: {
       scene: "You're in town and need the pharmacy. Stop somebody and ask. They answer first in Estonian.",
+      who: "Liis",
       turns: [
         { ask: { et: "Jah?", en: "Yes?" }, cue: "Say excuse me, and ask where the pharmacy is.", model: { et: "Vabandust, kus on apteek?", en: "Excuse me, where's the pharmacy?" } },
         { ask: { et: "Apteek? Otse ja siis vasakule.", en: "The pharmacy? Straight on, then left." }, cue: "Ask whether it's far.", model: { et: "Kas see on kaugel?", en: "Is it far?" } },

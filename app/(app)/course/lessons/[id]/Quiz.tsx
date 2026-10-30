@@ -11,7 +11,7 @@ import { useFeedbackSound } from "@/components/AudioPrefs";
 import { useLocale, useT } from "@/components/Locale";
 import { LessonText } from "@/components/course/LessonText";
 import { Card, Meter, SectionTitle } from "@/components/ui";
-import { fill } from "@/lib/copy/locale";
+import { fill, type Locale } from "@/lib/copy/locale";
 // By its own module, never the barrel, which imports every lesson the course has.
 import { isTyped, markTyped, type PracticeItem, type TypedMark } from "@/lib/course/lessons/practice";
 import { rng, seedFrom } from "@/lib/random/seeded";
@@ -334,7 +334,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true, review = fal
           </div>
         )}
 
-        <p role="status" aria-live="polite" className="sr-only">{liveLine(item, picked, mark, matched, t)}</p>
+        <p role="status" aria-live="polite" className="sr-only">{liveLine(item, picked, mark, matched, t, locale)}</p>
 
         <div className="mt-5 flex flex-wrap items-center justify-end gap-3">
           {isTyped(item) && mark === null ? (
@@ -404,7 +404,7 @@ function TypedBox({ boxRef, label, answer, typed, setTyped, mark, onCheck, child
  * it marked `lang="et"` so a screen reader says it as Estonian.
  */
 function liveLine(
-  item: PracticeItem, picked: string | null, mark: TypedMark | null, matched: boolean | null, t: (s: string) => string,
+  item: PracticeItem, picked: string | null, mark: TypedMark | null, matched: boolean | null, t: (s: string) => string, locale: Locale,
 ): ReactNode {
   if (isTyped(item)) return mark ? <>{t(mark.note)} <span lang="et">{item.answer}</span></> : "";
   if (item.kind === "match") return matched === null ? "" : matched ? t("All matched, first time.") : t("All matched.");
@@ -414,7 +414,8 @@ function liveLine(
     const [before, after = ""] = t("Not this one. It's {answer}.").split("{answer}");
     return <>{before}<span lang="et">{item.answer}</span>{after}</>;
   }
-  return fill(t("Not this one. It means {answer}."), { answer: t(item.answer) });
+  // The meaning drawn as the option drew it, so `cleaned, after {ei}` is read with no braces and `ei` as Estonian.
+  return fillNodes(t("Not this one. It means {answer}."), { answer: <LessonText text={item.answer} locale={locale} /> });
 }
 
 /**

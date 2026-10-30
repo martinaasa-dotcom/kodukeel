@@ -395,6 +395,7 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
     ],
     roleplay: {
       scene: "You're at a café counter with a friend. The waiter, Liis, speaks first.",
+      who: "Liis",
       turns: [
         { ask: { et: "Tere õhtust! Mida soovite?", en: "Good evening! What would you like?" }, cue: "Order two coffees.", model: { et: "Kaks kohvi, palun.", en: "Two coffees, please." } },
         { ask: { et: "Kas veel midagi?", en: "Anything else?" }, cue: "Ask for a glass of water too.", model: { et: "Jah, üks klaas vett ka.", en: "Yes, a glass of water too." } },

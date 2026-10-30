@@ -844,6 +844,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
     ],
     roleplay: {
       scene: "You're asking your manager for a raise. She speaks first, and at the end she asks about your plans. Answer as yourself.",
+      who: "Kristi",
       turns: [
         { ask: { et: "Tere! Millest sa rääkida tahaksid?", en: "Hello! What would you like to talk about?" }, cue: "Say you'd like to talk about your pay.", model: { et: "Ma tahaksin rääkida oma palgast.", en: "I'd like to talk about my pay." } },
         { ask: { et: "Hästi. Mida sa oled sel aastal teinud?", en: "All right. What have you done this year?" }, cue: "Say what you finished and who you helped.", model: { et: "Ma lõpetasin kaks projekti ja aitasin uut kolleegi.", en: "I finished two projects and helped the new colleague." } },

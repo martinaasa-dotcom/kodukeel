@@ -122,7 +122,6 @@ export const LESSONS_B1_AREA: Area = {
     "{n} of {total} words came across.": "Распознано {n} слов из {total}.",
     "{n} of {total} written back.": "Вписано {n} из {total}.",
     "{n} words or more": "{n} слов или больше",
-    "{n} words, {s} seconds": "{n} слов, {s} секунд",
     "Heard once.": "Прослушано один раз.",
     "Heard {n} times.": "Прослушано {n} раза.",
     "1 of your sentences is in your reviews now, with one word to fill in.": "Одно твоё предложение теперь в повторении, с одним словом, которое нужно вставить.",
@@ -148,6 +147,8 @@ export const LESSONS_B1_AREA: Area = {
     "Write whole sentences, three words or more each.": "Пиши целые предложения, в каждом три слова или больше.",
     "Write something first.": "Сначала напиши что-нибудь.",
     "That writing task isn't in this lesson any more.": "Этого письменного задания в уроке больше нет.",
+    "That card isn't in this lesson any more.": "Этой карточки в уроке больше нет.",
+    "Type an answer first.": "Сначала напиши ответ.",
   },
   uk: {
     "What's new at {level}": "Що нового на рівні {level}",
@@ -263,7 +264,6 @@ export const LESSONS_B1_AREA: Area = {
     "{n} of {total} words came across.": "Розпізнано {n} слів із {total}.",
     "{n} of {total} written back.": "Вписано {n} з {total}.",
     "{n} words or more": "{n} слів або більше",
-    "{n} words, {s} seconds": "{n} слів, {s} секунд",
     "Heard once.": "Прослухано один раз.",
     "Heard {n} times.": "Прослухано {n} рази.",
     "1 of your sentences is in your reviews now, with one word to fill in.": "Одне твоє речення тепер у повторенні, з одним словом, яке треба вставити.",
@@ -289,5 +289,7 @@ export const LESSONS_B1_AREA: Area = {
     "Write whole sentences, three words or more each.": "Пиши цілі речення, у кожному три слова або більше.",
     "Write something first.": "Спершу напиши щось.",
     "That writing task isn't in this lesson any more.": "Цього письмового завдання в уроці більше немає.",
+    "That card isn't in this lesson any more.": "Цієї картки в уроці більше немає.",
+    "Type an answer first.": "Спершу напиши відповідь.",
   },
 };

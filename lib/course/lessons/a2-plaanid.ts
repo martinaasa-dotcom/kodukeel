@@ -543,6 +543,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
     ],
     roleplay: {
       scene: "You meet an old friend you haven't seen for a while. She speaks first. Answer as yourself.",
+      who: "Mari",
       turns: [
         { ask: { et: "Tere! Kaua pole näinud! Mis sa vahepeal tegid?", en: "Hi! Long time no see! What have you been doing?" }, cue: "Say where you were, and what you did there.", model: { et: "Ma olin Tartus. Ma töötasin seal.", en: "I was in Tartu. I worked there." } },
         { ask: { et: "Kuidas sulle Tartu meeldis?", en: "How did you like Tartu?" }, cue: "Say what you think of it.", model: { et: "Ma arvan, et see on Eesti kõige ilusam linn.", en: "I think it's the prettiest town in Estonia." } },

@@ -14,6 +14,7 @@ import { lineWords, lightUp } from "@/lib/speech/lightUp";
 import { nativePart } from "@/lib/audio/native";
 import { fadePlan, passLead, type FadePass } from "@/lib/course/lessons/fade";
 import type { LessonSpec } from "@/lib/course/lessons/types";
+import { useKeep } from "@/components/course/useKeep";
 
 /**
  * SAY ALONG, THEN ALONE (B1 on, docs/43-lessons.md §11.2, Talk).
@@ -31,11 +32,17 @@ import type { LessonSpec } from "@/lib/course/lessons/types";
  * conversation along at A1 and A2, since typing a line you were just shown is
  * not practice of anything.
  */
-export function SayAlongFade({ lesson, partAt, onDone }: { lesson: LessonSpec; partAt: number; onDone: () => void }) {
+/** Which line of which round the fade had reached, kept while Say it is away (`useKeep`). */
+export interface FadeKept {
+  readonly at: number;
+}
+
+export function SayAlongFade({ lesson, partAt, onDone, kept, onKeep }: { lesson: LessonSpec; partAt: number; onDone: () => void; kept?: FadeKept; onKeep?: (kept: FadeKept) => void }) {
   const t = useT();
   const locale = useLocale();
   const plan = useMemo(() => fadePlan(lesson, partAt), [lesson, partAt]);
-  const [at, setAt] = useState(0);
+  const [at, setAt] = useState(kept?.at ?? 0);
+  useKeep(useMemo(() => ({ at }), [at]), onKeep);
   const step = plan[Math.min(at, plan.length - 1)]!;
   const native = nativePart(lesson.conversation);
   const last = at >= plan.length - 1;
