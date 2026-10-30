@@ -168,6 +168,28 @@ export function forgetRehoming(ownerId?: string): void {
   for (const key of [...SETTLED]) if (key.startsWith(`${ownerId}:`)) SETTLED.delete(key);
 }
 
+/**
+ * WHERE A RESTORED PART PUTS A LEARNER WHOSE BACKUP PREDATES THE SWITCH.
+ *
+ * The restore keeps only ticks on days a part still holds, so the old ticks
+ * that `rehomed` reads as "this learner was on the old part" never arrive, and
+ * a backup naming B1.3 put somebody on lesson 15 with two parts they never had.
+ * So the restore asks this first, of the backup's own ticks: the same rule, a
+ * tick on the part on a day it no longer holds and none on a day it does, and
+ * the same answer, the level's first part.
+ */
+export function partAfterSwitch(
+  part: Programme, ticks: readonly { readonly programmeId: string; readonly dayId: string }[],
+): Programme {
+  if (!REHOMED_LEVELS.has(part.level) || part.days.length === 0 || !part.days.every((d) => d.lesson)) return part;
+  const days = new Set(part.days.map((d) => d.id));
+  const here = ticks.filter((t) => t.programmeId === part.id);
+  const old = here.some((t) => !days.has(t.dayId));
+  const current = here.some((t) => days.has(t.dayId));
+  if (!old || current) return part;
+  return PROGRAMMES.find((p) => p.level === part.level) ?? part;
+}
+
 async function rehomed(ownerId: string, programme: Programme | null): Promise<Programme | null> {
   if (!programme || !REHOMED_LEVELS.has(programme.level)) return programme;
   if (programme.days.length === 0 || !programme.days.every((d) => d.lesson)) return programme;

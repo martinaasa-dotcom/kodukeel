@@ -115,7 +115,7 @@ import {
   programmeById, stepCard, stepText,
 } from "@/lib/course";
 import { localeFor } from "@/lib/progress/locale";
-import { courseReading, dayIsInPlay, openingPart, programmeFor, forgetRehoming } from "@/lib/progress/course";
+import { courseReading, dayIsInPlay, openingPart, programmeFor, forgetRehoming, partAfterSwitch } from "@/lib/progress/course";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { doneKeyFrom, doneToday, withDone } from "@/lib/ux/workbookDone";
 import { notePlayed } from "@/lib/progress/gamesPlayed";
@@ -3773,9 +3773,13 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
   */
   let reachableParts: Set<string>;
   try {
+    const namedParts = (backup.settings ?? []).flatMap((row) => row.key === SETTING_KEYS.programme ? [String(row.value ?? "")] : []);
+    const ticked = (backup.courseSteps ?? []).map((row) => ({ programmeId: String(row.programmeId ?? ""), dayId: String(row.dayId ?? "") }));
     reachableParts = await restorableParts(ownerId, [
-      ...(backup.settings ?? []).flatMap((row) => row.key === SETTING_KEYS.programme ? [String(row.value ?? "")] : []),
-      ...(backup.courseSteps ?? []).map((row) => String(row.programmeId ?? "")),
+      ...namedParts,
+      // Where a backup from before the switch is moved back to, asked of the checks like the rest.
+      ...namedParts.flatMap((id) => { const p = programmeById(id); return p ? [partAfterSwitch(p, ticked).id] : []; }),
+      ...ticked.map((t) => t.programmeId),
     ]);
   } catch {
     return { ok: false as const, error: tr(await localeFor(ownerId).catch(() => "en" as const), "The restore didn't finish, so nothing was changed.") };
@@ -3966,6 +3970,21 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         MOVE THERE. A file is not a way past `moveBlockedFor`: a learner
         climbing the A1 lessons who restored a backup naming C1.1 was on C1.1.
       */
+      /*
+        A BACKUP FROM BEFORE B1 BECAME LESSONS is moved back the way a learner
+        already here was: its old ticks are dropped below, so they cannot do it
+        on the next read (`partAfterSwitch`).
+      */
+      const named = settings.get(SETTING_KEYS.programme);
+      const namedPart = named ? programmeById(named) : undefined;
+      if (namedPart) {
+        const ticks = (backup.courseSteps ?? []).map((raw) => ({ programmeId: String(raw.programmeId ?? ""), dayId: String(raw.dayId ?? "") }));
+        const back = partAfterSwitch(namedPart, ticks);
+        if (back.id !== namedPart.id) {
+          settings.set(SETTING_KEYS.programme, back.id);
+          settings.delete(SETTING_KEYS.programmeChosenAt);
+        }
+      }
       const restoredPart = settings.get(SETTING_KEYS.programme);
       if (restoredPart !== undefined) {
         const to = programmeById(restoredPart);
