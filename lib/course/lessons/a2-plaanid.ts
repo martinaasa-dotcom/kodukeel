@@ -420,7 +420,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       { who: "Liis", et: "Kas see oli parem kui eelmine?", en: "Was it better than the last one?" },
       { who: "Tom", et: "Jah, kindlasti. Eelmine oli päris rumal.", en: "Yes, definitely. The last one was pretty silly." },
       { who: "Liis", et: "Ma tahan ka minna. Kas täna veel saab?", en: "I want to go too. Can I still go today?" },
-      { who: "Tom", et: "Saab, aga ainult täna. Täna on viimane õhtu!", en: "You can, but only today. It's the last evening!" },
+      { who: "Tom", et: "Saab, aga ainult täna. See on viimane õhtu!", en: "You can, but only today. It's the last evening!" },
     ],
     teaches: [
       { kind: "word", et: "naljakas", en: "funny" },

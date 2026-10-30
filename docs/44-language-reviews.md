@@ -895,7 +895,7 @@ Russian and Ukrainian.
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
 | 337 | Conversation, Tom | Väga naljakas! Natuke imelik ka. | Really funny! And a bit strange. | |
-| 338 | Conversation, Tom | Saab, aga ainult täna. Täna on viimane õhtu! | You can, but only today. It's the last evening! | |
+| 338 | Conversation, Tom | Saab, aga ainult täna. See on viimane õhtu! | You can, but only today. It's the last evening! | |
 
 #### A2 54. Let's agree on a time (`a2-54-arrange`)
 
@@ -5660,7 +5660,7 @@ Peeter to `NATIVE_PARTS` once his lines are in.
 |---|---|---|---|---|
 | R1644 | Conversation, Tom | Väga naljakas! Natuke imelik ka. | Really funny! And a bit strange. | |
 | R1645 | Conversation, Tom | Jah, kindlasti. Eelmine oli päris rumal. | Yes, definitely. The last one was pretty silly. | |
-| R1646 | Conversation, Tom | Saab, aga ainult täna. Täna on viimane õhtu! | You can, but only today. It's the last evening! | |
+| R1646 | Conversation, Tom | Saab, aga ainult täna. See on viimane õhtu! | You can, but only today. It's the last evening! | |
 | R1647 | Model answer | Väga naljakas! | Really funny! | |
 | R1648 | Model answer | See on õige. | That's right. | |
 | R1649 | Model answer | Ma olen kindel. | I'm sure. | |
