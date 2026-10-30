@@ -4042,3 +4042,31 @@ arrow key, and a clock inside a lesson step reads the learner's pace. Every line
 on purpose or newly wrote is listed for the native speaker in `docs/reviews/b1-flags.md`, and every
 new Russian and Ukrainian line is machine-written and waits on a fluent reader.
 
+
+## 75. The sixty-ninth pass: B1 audited to a count, and the gaps filled
+
+The pass before this one ended on reviews that scored B1 between seven and eight and a half, and the
+question the operator asked was the right one: if the audits can say what is missing, fill it. So
+the audits were turned into a plan with a numbered list of gaps per area (engine, screens,
+integration, content), the plan was itself audited before any of it was built, and the list was
+worked to the end rather than reviewed again in rounds.
+
+**How a rework is marked** is the operator's own call, made on four questions and written into
+`docs/43-lessons.md` §12: a pronoun's long and short spellings are one word, a subject left out or put
+in beside a verb that says the same person is right, another word order the dictionary can vouch for
+is right with a note, and a reason or a condition moved to the other end is the same as a reorder.
+`lib/course/lessons/sameSentence.ts` is the comparison and `practice.test.ts` the golden table of
+verdicts, which every lesson's own answers are run against too.
+
+**The screens** say what is true: one voice at a time, a line that takes the caret is never also a
+live region, a button whose own press is out stays focusable (`Button`'s `busy`), the microphone's
+error says "type it" only where there is a box, a hear question whose clip will not load shows the
+words, a lesson's place survives a reload for the tab, and the step pills tick what was finished
+rather than what was skipped. **The handover to B2** carries the lessons' verbs as verbs and marks
+the 58 pasts the A2 lessons taught as shown, so B2's forms step no longer spends weeks re-showing
+them; first run stamps the part it places a learner on; a learner moved back to B1.1 is told why.
+
+**The content** took both content audits: every fix sits on a line its lesson shows, the exam lesson
+follows the exam's three parts, the part-end scenes ask a distinct group of words per beat, and the
+gists have four options. The new Estonian and six questions for the native speaker are in
+`docs/reviews/b1-flags.md`. Nine invariants are new this pass, each made to fail on a planted fault.

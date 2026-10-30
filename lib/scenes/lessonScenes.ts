@@ -1,10 +1,11 @@
 /**
- * THE CONVERSATIONS PLAYED INSIDE A LESSON, IN THE ORDER THE LESSONS REACH THEM.
+ * THE CONVERSATIONS PLAYED INSIDE A LESSON.
  *
  * Kept off the catalog on purpose: `SCENES` is what the situations page
  * lists for anybody to choose, and these belong to the lesson whose role-play
- * they are (`SceneSpec.lesson`), behind the same preview the lessons are until
- * A1 is whole (docs/43-lessons.md, decision L6). `sceneById` reads this list
+ * they are (`SceneSpec.lesson`). A lesson still in preview keeps its scene in
+ * preview with it, open to a reviewer only, as the lesson is (`lessonOrPreview`
+ * in `app/actions.ts`). `sceneById` reads this list
  * after the catalog, so a run, the route and the debrief treat one exactly
  * like any other scene.
  */

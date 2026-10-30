@@ -876,9 +876,9 @@ export function ledgerBefore(spec: PartSpec): Ledger {
 }
 
 /**
- * The whole ladder: the A1 and A2 lessons, then every part from B1 built in
- * order over one ledger that starts with what the lessons taught, so what the
- * lessons handed over is what b1.1's first evening is dealt against.
+ * The whole ladder: the A1, A2 and B1 lessons, then every part from B2 built
+ * in order over one ledger that starts with what the lessons taught, so what
+ * the lessons handed over is what b2.1's first evening is dealt against.
  */
 export function buildProgrammes(): Programme[] {
   return (BUILT ??= assemble());

@@ -575,12 +575,13 @@ voices the app has, form names with their agreed hint) is asked of every level t
 11. **List what waits on a person.** Run `npx tsx scripts/export-language-reviews.ts --since <ref>`
    and `npx tsx scripts/export-translations.ts --since <ref> --out docs/translations/<level>`, so the
    Estonian to read, the voice lines to record and the Russian and Ukrainian to check are one file
-   each (`docs/44-language-reviews.md` is A1 and A2's). The recordings stop at A1's lesson 13, and a
+   each (`docs/44-language-reviews.md` holds A1, A2 and B1). The recordings stop at A1's lesson 13, and a
    man's part plays the native voice only where every line of it is recorded.
 
 ## 11. B1 and B2 as lessons: the measurement, and the plan (for approval)
 
-Written on 2026-10-26. Nothing in this section is built. It is §10's first two steps for B1 and B2:
+Written on 2026-10-26, before any of it was built; B1 has been built since, and §12 is what that
+found. It is §10's first two steps for B1 and B2:
 what the two levels assume, measured against the lessons a learner actually has, and a plan part by
 part for the operator to approve before any code is written, as §4 and §9 were.
 
@@ -820,6 +821,20 @@ Words step names what each new verb asks for (`asks`). Each part ends in a role-
 `lessonScenes.test.ts`, at B1's pitch. Twenty-one lessons offer a catalog conversation that
 rehearses the same errand on their finish (`lessonSituations.ts`): the payday lesson the bank, the
 leak the landlord, the speaking exam lesson the B1 exam conversation.
+
+**How a rework is marked, which the operator decided on 2026-10-30.** A typed sentence is held to
+the ones written for it (`answer`, `accept`), and then to the shapes `sameSentence` can vouch for
+without a list (`lib/course/lessons/sameSentence.ts`). A pronoun's long and short spellings are one
+word (`mina` and `ma`, read off the dictionary's own pairs), so either is right with no note. A
+first- or second-person subject left out or put in is right where a verb beside it says the same
+person, and never in a negative, where the pronoun is what says whose. The same words in another
+order are right with the note "We wrote it in another order; ours is below." where the dictionary's
+reading of word order vouches for that order (`lessonOrders`), and nearly where it cannot; a reason
+or a condition moved to the other end (`kuna`, `kui`, `kuigi`, `kuni`) is the same as a reorder.
+Every one of those is tried with the marks folded away too, which makes it nearly, never right. A
+wrong rework names the sentence as it was, or the slip still standing; a fix is shown, in the order
+`fixesFor` ranks them, the learner's own commonest confusion first. The golden table of verdicts is
+`practice.test.ts`.
 
 **And every B1 lesson ends on a worksheet page.** The old B1 dealt the worksheet (Töövihik,
 `lib/games/workbook.ts`) on its rotation, and an evening of one lesson dealt nothing, so the

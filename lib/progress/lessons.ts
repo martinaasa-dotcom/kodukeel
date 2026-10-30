@@ -35,8 +35,8 @@ export type FinishLessonResult =
 /**
  * A LESSON, FINISHED: ITS EVENING TICKED AND ITS WORDS IN THE DECK.
  *
- * A1 is the lessons (docs/43-lessons.md, phase P3), and an evening of A1 is
- * one lesson with one step. The step is ticked, which is what moves the course
+ * A1, A2 and B1 are the lessons (docs/43-lessons.md), and an evening of
+ * those is one lesson with one step. The step is ticked, which is what moves the course
  * on (`dayReached`), and the lesson's words go into the deck as recognition and
  * production, so Review and Practice repeat what the lesson taught and nothing
  * it did not.
@@ -81,7 +81,7 @@ export type SubmitCheckResult =
 const CHECKS_PER_HOUR = 30;
 
 /**
- * MARKS A CHECK AT THE END OF A PART OF A1, AND RECORDS A PASS.
+ * MARKS A CHECK AT THE END OF A PART OF THE LESSONS, AND RECORDS A PASS.
  *
  * The caller sends which check, which attempt and what was picked or typed for
  * each question, never a mark: the server builds the same paper from the check
