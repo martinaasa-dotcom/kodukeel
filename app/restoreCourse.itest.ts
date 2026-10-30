@@ -1,6 +1,8 @@
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/cache", () => ({ revalidatePath: () => {}, revalidateTag: () => {} }));
+// This file restores more often than a minute's allowance; what it asks is where the course lands, not the throttle.
+vi.mock("@/lib/usage/sharedThrottle", () => ({ throttleShared: async () => null }));
 const OWNER = "itest-restore-course";
 vi.mock("@/lib/auth/session", async (real) => ({
   ...(await real<typeof import("@/lib/auth/session")>()),
@@ -12,6 +14,7 @@ import { restoreBackup } from "@/app/actions";
 import { forgetSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { PROGRAMMES, programmeById } from "@/lib/course";
 import { moveBlockedFor } from "@/lib/progress/checks";
+import { forgetRehoming, movedBackFrom } from "@/lib/progress/course";
 
 /**
  * A backup's place in the course is held to the checks, from where the learner
@@ -81,6 +84,53 @@ describe("a restored place in the course", () => {
     forgetSettings(OWNER);
     const a2 = PROGRAMMES.filter((p) => p.level === "A2");
     expect(await moveBlockedFor(OWNER, a2[0]!, programmeById("b1.1")!)).toBeNull();
+  });
+
+  it("tells the learner a restore moved back why they are on the first lesson", async () => {
+    const old = JSON.stringify({
+      format: "kodukeel-v1",
+      exportedAt: at,
+      lexemes: [], forms: [], cards: [], reviews: [], tasks: [],
+      settings: [{ ownerId: "x", key: SETTING_KEYS.programme, value: "b1.3" }],
+      courseSteps: [{ ownerId: "x", programmeId: "b1.3", dayId: "b1.3-05", stepId: "meet", createdAt: at }],
+    });
+    expect(await restoreBackup(old, "replace")).toEqual(expect.objectContaining({ ok: true }));
+    forgetSettings(OWNER);
+    forgetRehoming();
+    expect(await movedBackFrom(OWNER)).toEqual({ from: programmeById("b1.3"), to: programmeById("b1.1") });
+  });
+
+  it("reads a backup from before the switch by the rule a learner here is read by", async () => {
+    // A part chosen after the old ticks on it stays chosen, in a file as in the app.
+    const later = new Date(Date.now() - 30_000).toISOString();
+    const chosen = JSON.stringify({
+      format: "kodukeel-v1",
+      exportedAt: at,
+      lexemes: [], forms: [], cards: [], reviews: [], tasks: [],
+      settings: [
+        { ownerId: "x", key: SETTING_KEYS.programme, value: "b1.3" },
+        { ownerId: "x", key: SETTING_KEYS.programmeChosenAt, value: later },
+      ],
+      courseSteps: [{ ownerId: "x", programmeId: "b1.3", dayId: "b1.3-05", stepId: "meet", createdAt: at }],
+    });
+    expect(await restoreBackup(chosen, "replace")).toEqual(expect.objectContaining({ ok: true }));
+    expect(await part()).toBe("b1.3");
+    await wipe();
+    // And somebody who finished the part before it in the new lessons stays where they moved on to.
+    const b11 = programmeById("b1.1")!;
+    const lastDay = b11.days.at(-1)!;
+    const finished = JSON.stringify({
+      format: "kodukeel-v1",
+      exportedAt: at,
+      lexemes: [], forms: [], cards: [], reviews: [], tasks: [],
+      settings: [{ ownerId: "x", key: SETTING_KEYS.programme, value: "b1.2" }],
+      courseSteps: [
+        { ownerId: "x", programmeId: "b1.2", dayId: "b1.2-05", stepId: "meet", createdAt: at },
+        { ownerId: "x", programmeId: "b1.1", dayId: lastDay.id, stepId: lastDay.steps[0]!.id, createdAt: at },
+      ],
+    });
+    expect(await restoreBackup(finished, "replace")).toEqual(expect.objectContaining({ ok: true }));
+    expect(await part()).toBe("b1.2");
   });
 
   it("does not take a file's furthest part past the checks", async () => {

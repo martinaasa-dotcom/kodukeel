@@ -183,17 +183,110 @@ export async function choosePart(ownerId: string, partId: string, now: Date = ne
 }
 
 /**
- * The old part a learner was moved back from, where they were: stored on a
- * part of a level that became lessons and read onto an earlier one, so the
- * screen can say why rather than leaving them to think the app lost their
- * place. Null for everybody else, which is nearly everybody.
+ * The old part a learner was moved back from, and where they are now: somebody
+ * who walked a part of a level before it became lessons, and has not yet
+ * started the new lessons of that level, so the screen can say why they are on
+ * its first lesson rather than leaving them to think the app lost their place.
+ *
+ * Read off what they did rather than off a difference of part ids, which said
+ * nothing to a learner stored on the old first part (moved to the part with the
+ * same id) and nothing after a restore, which writes the first part over the
+ * one the backup named. What says it is a tick on a day id the level no longer
+ * holds, or, after a restore that dropped those ticks, the part the restore
+ * moved them from (`SETTING_KEYS.movedBackFrom`). It stops once they tick a
+ * lesson of the level. Null for everybody else, which is nearly everybody.
  */
 export async function movedBackFrom(ownerId: string): Promise<{ from: Programme; to: Programme } | null> {
   const stored = await readSetting(ownerId, SETTING_KEYS.programme);
-  const from = stored && stored !== "off" ? programmeById(stored) : undefined;
-  if (!from || !REHOMED_LEVELS.has(from.level)) return null;
-  const to = await programmeFor(ownerId);
-  return to && to.id !== from.id && to.level === from.level ? { from, to } : null;
+  const at = stored && stored !== "off" ? programmeById(stored) : undefined;
+  if (!at || !REHOMED_LEVELS.has(at.level)) return null;
+  const [ticks, marker, to] = await Promise.all([
+    levelTicks(ownerId, at.level),
+    readSetting(ownerId, SETTING_KEYS.movedBackFrom),
+    programmeFor(ownerId),
+  ]);
+  if (!to || to.level !== at.level) return null;
+  const parts = lessonPartsOf(at.level);
+  const days = new Set(parts.flatMap((p) => p.days.map((d) => d.id)));
+  if (ticks.some((t) => days.has(t.dayId))) return null;
+  const old = ticks.filter((t) => !days.has(t.dayId));
+  const fromId = marker || old.sort((a, b) => tickTime(b) - tickTime(a))[0]?.programmeId;
+  const from = fromId ? programmeById(fromId) : undefined;
+  return from && from.level === at.level ? { from, to } : null;
+}
+
+/** The parts of a level that are lessons, in ladder order. */
+function lessonPartsOf(level: string): Programme[] {
+  return PROGRAMMES.filter((p) => p.level === level && p.days.length > 0 && p.days.every((d) => d.lesson));
+}
+
+/** A tick as the rule below reads it, off the database or out of a backup. */
+export interface RehomeTick {
+  readonly programmeId: string;
+  readonly dayId: string;
+  readonly createdAt?: Date | string | null;
+}
+
+const tickTime = (t: RehomeTick): number =>
+  t.createdAt instanceof Date ? t.createdAt.getTime() : t.createdAt ? Date.parse(t.createdAt) : Number.NaN;
+
+/** Every tick a learner holds on a level's parts, for the rule below. */
+async function levelTicks(ownerId: string, level: string): Promise<RehomeTick[]> {
+  return prisma.courseStep.findMany({
+    where: { ownerId, programmeId: { in: lessonPartsOf(level).map((p) => p.id) } },
+    select: { programmeId: true, dayId: true, createdAt: true },
+    orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+  });
+}
+
+/**
+ * WHERE A LEARNER STORED ON A PART OF A LEVEL THAT BECAME LESSONS IS, read off
+ * their ticks and the stamp saying when they last chose a part: the one rule,
+ * for a learner here (`rehomed`) and for a backup being restored
+ * (`partAfterSwitch`), so a restored file lands where the live learner reads.
+ *
+ * `settled` says the answer cannot change by itself any more, which is what
+ * lets `rehomed` remember it.
+ */
+export function rehomeFrom(
+  part: Programme, ticks: readonly RehomeTick[], chosenAt: string | null | undefined,
+): { part: Programme; settled: boolean } {
+  if (!REHOMED_LEVELS.has(part.level) || part.days.length === 0 || !part.days.every((d) => d.lesson)) {
+    return { part, settled: true };
+  }
+  const days = new Set(part.days.map((d) => d.id));
+  const here = ticks.filter((t) => t.programmeId === part.id);
+  const old = here.filter((t) => !days.has(t.dayId));
+  if (old.length === 0 || here.some((t) => days.has(t.dayId))) return { part, settled: true };
+  /*
+    A PART THE LEARNER CHOSE AFTER THEIR OLD TICKS ON IT STAYS CHOSEN. Moving on
+    from a finished part, taking an offer to skip ahead, and changing level all
+    stamp the choice, so somebody sent back to B1.1 who then moved to B1.2 by
+    any of those is not sent back again.
+  */
+  const chosen = chosenAt ? Date.parse(chosenAt) : Number.NaN;
+  const newestOld = Math.max(...old.map(tickTime).filter(Number.isFinite));
+  if (Number.isFinite(chosen) && Number.isFinite(newestOld) && chosen > newestOld) return { part, settled: true };
+  const parts = lessonPartsOf(part.level);
+  /*
+    UNLESS THEY FINISHED THE PART BEFORE THIS ONE IN THE NEW LESSONS, which is
+    how somebody moved back to B1.1 comes to be stored on B1.2 again: they
+    walked it and moved on. Their old ticks on this part are still on vanished
+    days and they have no new one here yet, so without this the read sends
+    them back to the part they have just finished, for ever. The last lesson of
+    the part before is the evidence, since the part ends there.
+  */
+  const before = parts[parts.findIndex((p) => p.id === part.id) - 1];
+  const lastBefore = before?.days[before.days.length - 1];
+  if (before && lastBefore && ticks.some((t) => t.programmeId === before.id && t.dayId === lastBefore.id)) {
+    return { part, settled: true };
+  }
+  // Back to where they have been working since, which is the level's first part until they move on from it.
+  const since = new Set(ticks.filter((t) => {
+    const p = parts.find((q) => q.id === t.programmeId);
+    return p ? p.days.some((d) => d.id === t.dayId) : false;
+  }).map((t) => t.programmeId));
+  return { part: [...parts].reverse().find((p) => since.has(p.id)) ?? parts[0] ?? part, settled: false };
 }
 
 /**
@@ -213,20 +306,14 @@ export function forgetRehoming(ownerId?: string): void {
  * The restore keeps only ticks on days a part still holds, so the old ticks
  * that `rehomed` reads as "this learner was on the old part" never arrive, and
  * a backup naming B1.3 put somebody on lesson 15 with two parts they never had.
- * So the restore asks this first, of the backup's own ticks: the same rule, a
- * tick on the part on a day it no longer holds and none on a day it does, and
- * the same answer, the level's first part.
+ * So the restore asks this first, of the backup's own ticks and its own stamp:
+ * `rehomeFrom`, the rule a learner here is read by, so the file lands where
+ * the live learner would.
  */
 export function partAfterSwitch(
-  part: Programme, ticks: readonly { readonly programmeId: string; readonly dayId: string }[],
+  part: Programme, ticks: readonly RehomeTick[], chosenAt?: string | null,
 ): Programme {
-  if (!REHOMED_LEVELS.has(part.level) || part.days.length === 0 || !part.days.every((d) => d.lesson)) return part;
-  const days = new Set(part.days.map((d) => d.id));
-  const here = ticks.filter((t) => t.programmeId === part.id);
-  const old = here.some((t) => !days.has(t.dayId));
-  const current = here.some((t) => days.has(t.dayId));
-  if (!old || current) return part;
-  return PROGRAMMES.find((p) => p.level === part.level) ?? part;
+  return rehomeFrom(part, ticks, chosenAt).part;
 }
 
 async function rehomed(ownerId: string, programme: Programme | null): Promise<Programme | null> {
@@ -234,61 +321,16 @@ async function rehomed(ownerId: string, programme: Programme | null): Promise<Pr
   if (programme.days.length === 0 || !programme.days.every((d) => d.lesson)) return programme;
   const key = `${ownerId}:${programme.id}`;
   if (SETTLED.has(key)) return programme;
-  const days = programme.days.map((d) => d.id);
-  const [old, current] = await Promise.all([
-    prisma.courseStep.findFirst({ where: { ownerId, programmeId: programme.id, dayId: { notIn: days } }, select: { id: true }, orderBy: { id: "asc" } }),
-    prisma.courseStep.findFirst({ where: { ownerId, programmeId: programme.id, dayId: { in: days } }, select: { id: true }, orderBy: { id: "asc" } }),
+  const [ticks, chosenAt] = await Promise.all([
+    levelTicks(ownerId, programme.level),
+    readSetting(ownerId, SETTING_KEYS.programmeChosenAt),
   ]);
-  const settle = () => {
+  const read = rehomeFrom(programme, ticks, chosenAt);
+  if (read.settled) {
     if (SETTLED.size >= SETTLED_MAX) SETTLED.clear();
     SETTLED.add(key);
-    return programme;
-  };
-  if (!old || current) return settle();
-  /*
-    A PART THE LEARNER CHOSE AFTER THEIR OLD TICKS ON IT STAYS CHOSEN. Moving on
-    from a finished part, taking an offer to skip ahead, and changing level all
-    stamp the choice, so somebody sent back to B1.1 who then moved to B1.2 by
-    any of those is not sent back again. Settled, since a choice made since the
-    switch does not stop being one.
-  */
-  const [chosenAt, newestOld] = await Promise.all([
-    readSetting(ownerId, SETTING_KEYS.programmeChosenAt),
-    prisma.courseStep.findFirst({
-      where: { ownerId, programmeId: programme.id, dayId: { notIn: days } },
-      select: { createdAt: true },
-      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-    }),
-  ]);
-  const chosen = chosenAt ? Date.parse(chosenAt) : Number.NaN;
-  if (Number.isFinite(chosen) && newestOld && chosen > newestOld.createdAt.getTime()) return settle();
-  // Back to where they have been working since, which is the level's first part until they move on from it.
-  const parts = PROGRAMMES.filter((p) => p.level === programme.level && p.days.length > 0 && p.days.every((d) => d.lesson));
-  /*
-    UNLESS THEY FINISHED THE PART BEFORE THIS ONE IN THE NEW LESSONS, which is
-    how somebody moved back to B1.1 comes to be stored on B1.2 again: they
-    walked it and moved on. Their old ticks on this part are still on vanished
-    days and they have no new one here yet, so without this the read sends
-    them back to the part they have just finished, for ever. The last lesson of
-    the part before is the evidence, since the part ends there.
-  */
-  const before = parts[parts.findIndex((p) => p.id === programme.id) - 1];
-  const lastBefore = before?.days[before.days.length - 1];
-  if (before && lastBefore) {
-    const finished = await prisma.courseStep.findFirst({
-      where: { ownerId, programmeId: before.id, dayId: lastBefore.id },
-      select: { id: true },
-      orderBy: { id: "asc" },
-    });
-    if (finished) return settle();
   }
-  const worked = await prisma.courseStep.groupBy({
-    by: ["programmeId"],
-    where: { ownerId, programmeId: { in: parts.map((p) => p.id) }, dayId: { in: parts.flatMap((p) => p.days.map((d) => d.id)) } },
-    orderBy: { programmeId: "asc" },
-  });
-  const since = new Set(worked.map((w) => w.programmeId));
-  return [...parts].reverse().find((p) => since.has(p.id)) ?? parts[0] ?? programme;
+  return read.part;
 }
 
 /**

@@ -409,6 +409,13 @@ export const SETTING_KEYS = {
    */
   highestPart: "highestPart",
   /**
+   * The old part a restore moved a learner back from, where the backup predates
+   * the switch to lessons and its old ticks were dropped (`movedBackFrom`), so
+   * the screen can still say why they are on the level's first lesson. Written
+   * by the restore alone, never taken from the file.
+   */
+  movedBackFrom: "movedBackFrom",
+  /**
    * When the learner last moved part through an offer on the module screen.
    *
    * The reading of how somebody is doing (`lib/course/adapt.ts`) counts only

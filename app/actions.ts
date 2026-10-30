@@ -115,7 +115,7 @@ import {
   programmeById, stepCard, stepText,
 } from "@/lib/course";
 import { localeFor } from "@/lib/progress/locale";
-import { courseReading, dayIsInPlay, openingPart, programmeFor, forgetRehoming, partAfterSwitch, choosePart, furthestPart } from "@/lib/progress/course";
+import { courseReading, dayIsInPlay, openingPart, programmeFor, forgetRehoming, partAfterSwitch, choosePart, furthestPart, rehomeFrom } from "@/lib/progress/course";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { doneKeyFrom, doneToday, withDone } from "@/lib/ux/workbookDone";
 import { notePlayed } from "@/lib/progress/gamesPlayed";
@@ -3745,10 +3745,19 @@ const NOT_RESTORED = [
   SETTING_KEYS.milestoneToldFor,
   SETTING_KEYS.shieldToldFor,
   SETTING_KEYS.emailUndeliverable,
+  SETTING_KEYS.movedBackFrom,
 ] as const;
 /** The part a stored programme setting names, or null for "off" and nothing. */
 function partFrom(stored: string | null | undefined) {
   return stored && stored !== "off" ? programmeById(stored) ?? null : null;
+}
+/** A backup's ticks as the switch's rule reads them (`rehomeFrom`). */
+function backupTicks(backup: { courseSteps?: readonly Record<string, unknown>[] | null }) {
+  return (backup.courseSteps ?? []).map((raw) => ({
+    programmeId: String(raw.programmeId ?? ""),
+    dayId: String(raw.dayId ?? ""),
+    createdAt: typeof raw.createdAt === "string" ? raw.createdAt : null,
+  }));
 }
 /** The longest setting a backup may write. The longest real one is a list of ids. */
 const MAX_RESTORED_SETTING = 4000;
@@ -3772,11 +3781,12 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
   try {
     const namedParts = (backup.settings ?? []).flatMap((row) =>
       row.key === SETTING_KEYS.programme || row.key === SETTING_KEYS.highestPart ? [String(row.value ?? "")] : []);
-    const ticked = (backup.courseSteps ?? []).map((row) => ({ programmeId: String(row.programmeId ?? ""), dayId: String(row.dayId ?? "") }));
+    const ticked = backupTicks(backup);
+    const chosenAt = (backup.settings ?? []).find((row) => row.key === SETTING_KEYS.programmeChosenAt)?.value;
     reachableParts = await restorableParts(ownerId, [
       ...namedParts,
       // Where a backup from before the switch is moved back to, asked of the checks like the rest.
-      ...namedParts.flatMap((id) => { const p = programmeById(id); return p ? [partAfterSwitch(p, ticked).id] : []; }),
+      ...namedParts.flatMap((id) => { const p = programmeById(id); return p ? [partAfterSwitch(p, ticked, chosenAt == null ? null : String(chosenAt)).id] : []; }),
       ...ticked.map((t) => t.programmeId),
     ]);
   } catch {
@@ -3976,12 +3986,13 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
       const named = settings.get(SETTING_KEYS.programme);
       const namedPart = named ? programmeById(named) : undefined;
       if (namedPart) {
-        const ticks = (backup.courseSteps ?? []).map((raw) => ({ programmeId: String(raw.programmeId ?? ""), dayId: String(raw.dayId ?? "") }));
-        const back = partAfterSwitch(namedPart, ticks);
-        if (back.id !== namedPart.id) {
-          settings.set(SETTING_KEYS.programme, back.id);
+        const read = rehomeFrom(namedPart, backupTicks(backup), settings.get(SETTING_KEYS.programmeChosenAt));
+        if (read.part.id !== namedPart.id) {
+          settings.set(SETTING_KEYS.programme, read.part.id);
           settings.delete(SETTING_KEYS.programmeChosenAt);
         }
+        // Their old ticks are dropped below, so the part they were on is kept to say why (`movedBackFrom`).
+        if (!read.settled) settings.set(SETTING_KEYS.movedBackFrom, namedPart.id);
       }
       const restoredPart = settings.get(SETTING_KEYS.programme);
       if (restoredPart !== undefined) {

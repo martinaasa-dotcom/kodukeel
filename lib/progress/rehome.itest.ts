@@ -188,6 +188,16 @@ describe("a learner on a part that has become lessons", () => {
     expect((await programmeFor(MINE))?.id).toBe(a2[1]!.id);
   });
 
+  it("tells a learner on the old first part, moved to the part with the same id, until they tick a lesson", async () => {
+    await writeSetting(MINE, SETTING_KEYS.programme, b1[0]!.id);
+    await prisma.courseStep.create({ data: oldTick(b1[0]!.id) });
+    expect(await movedBackFrom(MINE)).toEqual({ from: b1[0], to: b1[0] });
+    const day = b1[0]!.days[0]!;
+    await prisma.courseStep.create({ data: { ownerId: MINE, programmeId: b1[0]!.id, dayId: day.id, stepId: day.steps[0]!.id } });
+    forgetRehoming();
+    expect(await movedBackFrom(MINE)).toBeNull();
+  });
+
   it("says who was moved back and from where, and nothing for anybody else", async () => {
     await writeSetting(MINE, SETTING_KEYS.programme, b1[2]!.id);
     await prisma.courseStep.create({ data: oldTick(b1[2]!.id) });
