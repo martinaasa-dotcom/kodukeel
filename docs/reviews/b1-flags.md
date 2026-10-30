@@ -211,6 +211,88 @@ A fourth pass, after an independent content review on 2026-10-30. Every line her
 - Lesson 49: the role-play model `Minu arvates on linnas parem, sest seal on töö ja kool lähedal.
   Aga maal on vaikne ja ilus ning seal on rohkem loodust.`
 
+A fifth pass, after the native speaker's notes on 2026-10-30: where Estonian has more than one natural way to say a thing, a rework now accepts each of them. Every line here is new Estonian.
+
+Answers a rework now accepts, by lesson (a dropped pronoun, the verb second after a fronted word, the verb last in a relative clause, `pole` and `poleks`, both illatives, a particle such as `ära` or `välja`, and a taught synonym):
+
+- Lesson 1: `Lugesin raamatu läbi.`, `Parandasin auto ära.`, `Ei koristanud kööki.`, `Ei koristanud kööki ära.`, `Ei ostnud raamatut.`, `Raamatut ma ei ostnud.`
+- Lesson 2: `Ei leidnud võtit.`, `Võtit ma ei leidnud.`, `Ühtegi sokki ma ei leidnud.`, `Võtmed leidis Mari.`, `Mari leidis võtmed üles.`
+- Lesson 3: `Sõin õunad ära.`, `Ma sõin kõik õunad ära.`, `Sõin kõik õunad ära.`, `Pesin nõud ära.`, `Ma pesin kõik nõud ära.`, `Pesin kõik nõud ära.`, `Ei ostnud mune.`, `Mune ma ei ostnud.`, `Tema sõi õunu.`
+- Lesson 4: `Ootasin teda.`, `Otsin võtmeid.`, `Otsin veel võtmeid.`, `Otsin ikka võtmeid.`, `Armastan teda.`, `Mina armastan teda.`, `Kuulasin muusikat.`
+- Lesson 5: `Too kast siia!`, `Too see kast siia!`, `Palun too kast!`, `Too palun kast!`, `Ära too siia diivanit!`, `Ära too diivanit!`, `Palun pane aken kinni!`, `Pane palun aken kinni!`, `Pane see aken kinni!`, `Palun pane uks kinni!`, `Pane palun uks kinni!`
+- Lesson 6: `Parandasin kraani ise ära.`, `Parandasin ise kraani ära.`, `Parandage palun dušš ära.`, `Ei parandanud akent.`, `Ei parandanud akent ära.`, `Ei ostnud uut pirni.`, `Uut pirni ma ei ostnud.`
+- Lesson 8: `Aitan teda.`, `Mina aitan teda.`, `Kas saaksid mind sellega aidata?`, `Kas sa saaksid mind palun sellega aidata?`, `Küsin ülemuselt.`, `Küsin ülemuselt abi.`, `Ma küsin abi ülemuselt.`, `Ma küsin ülemuse käest.`, `Ma küsin ülemuse käest abi.`, `Eile palusin ülemust appi.`, `Palusin eile ülemust appi.`
+- Lesson 9: `Olen huvitatud muusikast.`, `Ma olen muusikast huvitatud.`, `Olen muusikast huvitatud.`, `Muusika huvitab teda.`, `Eile laulsin vaikselt.`, `Laulsin eile vaikselt.`
+- Lesson 10: `Räägin Mariga ilmast.`, `Ma räägin ilmast Mariga.`, `Rääkisime temast.`, `Mari mõtles sellest.`, `Ei kohtunud temaga.`, `Ei kohtunud temaga pargis.`
+- Lesson 11: `Abiellun temaga.`, `Armusin sellesse linna.`, `Kaks kuud tagasi tutvusime me tööl.`, `Kaks kuud tagasi tutvusime tööl.`, `Tutvusime tööl kaks kuud tagasi.`, `Tutvusime kaks kuud tagasi tööl.`, `Tema parandas mu auto ära.`, `Ta parandas minu auto ära.`
+- Lesson 12: `Sõltub sinust.`, `Loodan ilusat ilma.`, `Usun sinusse.`, `Mina usun sinusse.`, `Eelmisel suvel kartsin vihma.`, `Kartsin eelmisel suvel vihma.`, `Ilma sinuta me ei sõidaks.`, `Ei sõidaks ilma sinuta.`
+- Lesson 13: `Kahjuks ei saa ma tulla.`, `Kahjuks ei saa tulla.`, `Ma kahjuks ei saa tulla.`, `Kas saaksid mind aidata?`, `Kas sa saaksid mind palun aidata?`, `Ta aitas mind aruandega esmaspäeval.`
+- Lesson 15: `Oleksin alustanud varem.`, `Ma oleks varem alustanud.`, `Ma oleks alustanud varem.`, `Nädalavahetusel ma ei oleks töötanud.`, `Ma poleks nädalavahetusel töötanud.`, `Ma poleks töötanud nädalavahetusel.`, `Nädalavahetusel poleks ma töötanud.`, `Nädalavahetusel ma poleks töötanud.`, `Kui ma oleksin teadnud, ma oleksin tulnud.`, `Kui ma oleksin teadnud, siis oleksin ma tulnud.`, `Kui oleksin teadnud, oleksin tulnud.`, `Kui ma oleks teadnud, oleksin ma tulnud.`, `Kui ma oleks teadnud, ma oleks tulnud.`, `Kui ma oleks teadnud, siis ma oleks tulnud.`, `Ma oleksin tulnud, kui ma oleksin teadnud.`, `Oleksin tulnud, kui oleksin teadnud.`, `Oleksin pidanud kalendrit vaatama.`, `Ma oleks pidanud kalendrit vaatama.`
+- Lesson 16: `Tema töötab arendajana.`, `Ta töötab meil arendajana.`, `Tema sai juhiks.`, `Alustasin praktikandina.`, `Ta valiti projektijuhiks.`
+- Lesson 17: `Tahaksin paluda uut arvutit.`, `Ma tahaksin uut arvutit paluda.`, `Kas saaksid mind aidata?`, `Kas saaksid mind palun aidata?`, `Kas võiksin reedel kodus töötada?`, `Kas võiksin reedel kodust töötada?`, `Pakuksin talle lõunat.`
+- Lesson 18: `Räägime sellest pärast lõunat.`, `Pärast lõunat me räägime sellest.`, `Pärast lõunat räägime me sellest.`, `Maksan üüri enne lõunat.`, `Enne lõunat ma maksan üüri.`
+- Lesson 19: `Võtaksin sinu vahetuse.`, `Ma võtaksin su vahetuse.`, `Võtaksin su vahetuse.`, `Eelmisel laupäeval abiellus minu õde.`, `Oleksin pidanud ammu puhkusele minema.`, `Ma oleksin pidanud juba ammu puhkusele minema.`, `Ma oleksin ammu pidanud puhkusele minema.`, `Ma oleks pidanud ammu puhkusele minema.`, `Küsisin juhilt luba.`, `Ma küsisin juhi käest luba.`
+- Lesson 20: `Sooviksin muuta oma tööaega.`, `Sooviksin oma tööaega muuta.`, `Reedeti ma ei saaks töötada.`, `Ei saaks reedeti töötada.`, `Kas saaksime sellest rääkida?`, `Töötaksin esmaspäevast neljapäevani.`
+- Lesson 22: `Elan remonditud korteris.`, `Me elame remonditud korteris.`, `Terve korter ei ole remonditud.`, `Terve korter pole remonditud.`
+- Lesson 23: `Töötan suures heledas toas.`, `Töötan suures ja heledas toas.`, `Kolin uude korterisse.`, `Me kolime uuesse korterisse.`, `See korter on väikese köögiga.`, `Korteris on väike köök.`, `Elan vanas majas.`, `Me elame vanas majas.`
+- Lesson 24: `Majas on koerad keelatud.`, `Siin ei ole suitsetamine lubatud.`, `Siin pole suitsetamine lubatud.`, `Suitsetamine ei ole siin lubatud.`, `Eile Helgi kontrollis seda.`, `Öösel tegi ta palju müra.`
+- Lesson 25: `Meister vahetas toru välja.`, `Vaheta ise pirn ära.`, `Vaheta pirn ise välja.`
+- Lesson 26: `Ei lõpeta lepingut.`, `Lepingut ma ei lõpeta.`, `Peaksin kaks kuud ette teatama.`
+- Lesson 27: `Saatke palun meister homme.`, `Eelmisel nädalal kandsin kodus mütsi.`, `Kandsin eelmisel nädalal kodus mütsi.`, `Kirjutaksin kohe.`
+- Lesson 29: `Lõket tehakse jaaniõhtul.`, `Eesti keelt räägitakse siin.`
+- Lesson 30: `Raha viidi muuseumisse.`
+- Lesson 31: `Kui ma jõudsin, oli buss juba ära läinud.`, `Kui jõudsin, oli buss juba läinud.`, `Kui ma kohale jõudsin, oli buss juba läinud.`, `Buss oli juba läinud, kui ma jõudsin.`, `Olin pileti koju unustanud.`, `Ma olin pileti koju ära unustanud.`
+- Lesson 32: `Restoran avati jälle.`, `Tulekahjust on uudistes teatatud.`, `Keegi ei saanud õnneks vigastada.`
+- Lesson 33: `Uut projekti arutati koosolekul.`, `Lepiti kokku, et koosolek on igal neljapäeval.`, `Kõigile saadeti protokoll.`
+- Lesson 36: `Auto sõidab hästi, kuigi on vana.`, `Ma helistan mehaanikule, et küsida, kui palju remont maksab.`, `Helistan mehaanikule, et küsida, kui palju remont maksab.`, `Kuna remont on odav, ei osta uut autot.`, `Kui mul oleks auto, saaksin metsa sõita.`, `Kui mul oleks auto, siis saaksin ma metsa sõita.`, `Kui mul oleks auto, siis ma saaksin metsa sõita.`
+- Lesson 37: `Naine, kes akna juures seisab, on Leena.`, `Raamat, mida loen, on väga hea.`, `Firma, kus töötan, on kesklinnas.`, `Naine, kellega ma poes eile rääkisin, kirjutab raamatuid.`, `Naine, kellega rääkisin eile poes, kirjutab raamatuid.`, `Ma ei tunne meest, kes kooki sööb.`, `Raamat, mida lugesin, oli väga hea.`
+- Lesson 38: `Ei usu, et sa seda nägid.`, `Ma pole sinuga päris nõus.`, `Ma pole päris nõus.`
+- Lesson 39: `Mul on rakendus, mida kasutan iga päev.`, `Mul on rakendus, mida iga päev kasutan.`, `Tahaksin uut nutitelefoni.`, `Ei teadnud, et vana juhe ei sobi.`
+- Lesson 40: `Sorteerime prügi, et loodust hoida.`, `Kuna kampsun pole prügi, võid selle sõbrale anda.`, `Kuna kampsun pole prügi, võid sa selle sõbrale anda.`, `Kui mul oleks aega, sorteeriksin prügi.`
+- Lesson 41: `Kuigi linn vajab parklat, ei pea see pargis olema.`, `Olen plaani vastu, kuna park on ainus roheline koht.`, `Ma olen selle plaani vastu, kuna park on ainus roheline koht.`, `Kuna park on koht, kus mängivad lapsed, ei ole parkla seal hea mõte.`, `Kuna park on koht, kus lapsed mängivad, pole parkla seal hea mõte.`
+- Lesson 43: `Täitsin blanketi ära.`, `Täidan selle blanketi ära.`, `Ma täidan blanketi ära.`
+- Lesson 44: `Tahaksin elamisluba taotleda.`, `Ma tahaksin taotleda elamisluba.`, `Tulin ilma passita.`, `Palun tule hommikul.`
+- Lesson 45: `Pange palun kaart kinni!`, `Ei leidnud rahakotti bussist.`
+- Lesson 46: `Tema on ehitaja.`, `Mulle meeldis lapsena ujumine.`, `See toit on maitsetu.`, `Eelmisel aastal oli tema töötu.`
+- Lesson 47: `Helista mulle palun tagasi.`, `Kas ta võiks mulle tagasi helistada?`
+- Lesson 48: `Palun väljastage mulle parkimisluba.`, `Kirjutan avaldust.`, `Ma kirjutan veel avaldust.`, `Kas aitaksite?`, `Kas te aitaksite mind?`
+
+Lines that are new or changed:
+
+- Lesson 2's table: `Ma leidsin võtmed.` beside `Ma ei leidnud võtmeid.`
+- Lesson 4's new note: `Ma ootan su ära`, `Otsisin võtmed üles`.
+- Lesson 8's new note: `küsi minu käest`, `Miks sa minu käest abi ei küsinud?`
+- Lesson 14: `Tõesti? Mina ka! Ja sa pead Katiga tutvuma. Tema laulab ka kooris.` (Tom joined a choir in lesson 9).
+- Lesson 15: `poleks` taught, and a note: `Ma oleks varem alustanud`, `Ma poleks jalgpalli vaadanud`.
+- Lesson 16: `meeskonnajuht` is one word, and the forms list does not hold it, so the team lead became a project manager, a word the lesson already teaches: `projektijuhi` taught, the rework `Ta on projektijuht.` to `Ta valiti projektijuhiks.`, the model answers `Ma tahaksin saada projektijuhiks.` (lesson 16, lesson 21's role-play and the scene's picks), and the fast answer's `Kunagi tahaksin saada projektijuhiks, sest mulle meeldib meeskonnaga töötada.`
+- Lesson 30's watch-out: `See on ehitatud 1930. aastal`.
+- Lesson 31's watch-out: `Buss läks ära ja ma võtsin takso`.
+- Lesson 32: `öeldi` taught, Anna's `Õnneks mitte. Uudistes öeldi, et kõik viidi kohe välja.`, and the rework's first answer is `Päästjad kutsuti kohale.`
+- Lesson 36's rework: `Ma helistan mehaanikule. Ma tahan küsida, kui palju remont maksab.` to `Ma helistan mehaanikule, et küsida, kui palju remont maksab.`
+- Lesson 44's fast answer: `Ma taotlen elamisloa pikendamist, sest ma töötan Tallinnas.`
+- Lesson 48: `väljastage` taught, and a note: `Palun väljastage mulle parkimisluba`.
+
+Fixes moved, because the slip was itself correct Estonian in that sentence. Each is the line, then the slip a learner types over:
+
+- Lesson 1: `Kas sa parandasid auto ära?` (slip `autot`).
+- Lesson 3: `Jah, ma ostsin turult terve kilo õunu.` (slip `õunad`).
+- Lesson 11: `Väga! Hea mees armastab oma ema. Aga kuidas sina oma naisega tutvusid?` (slip `naine`).
+- Lesson 12: `Siis räägi temaga homme! Ma usun sinusse.` (slip `sinust`, where it was `sind`).
+- Lesson 13: `Kas ma võiksin oma naise kaasa võtta?` (slip `naine`).
+- Lesson 15: `Iga õhtu jalgpalli? Tegelikult oleksid sa pidanud mind kuulama. Ma ütlesin sulle esmaspäeval!` (slip `oleksin`).
+- Lesson 17: `Võiksid küll. Aga kas sa saaksid mind siis ühes asjas aidata?` (slip `saaksin`).
+- Lesson 24: `Ma tean. Mina kontrollin seda iga päev!` (slip `kontrollib`).
+- Lesson 25: `Võimalik, et toru tuleb vahetada. Ma saadan homme meistri.` (slip `meister`).
+- Lesson 27: `Palun saatke meister hiljemalt reedeks.` (slip `meistri`, where it was `reedel`).
+- Lesson 29: `Sünnipäeval tuuakse tööle kooki.` (slip `toob`, where it was `kook`).
+- Lesson 30: `See ehitati 1930. aastal. Eelmisel aastal renoveeriti see ja avati hotellina.` (slip `avatakse`); the two fixes on `avatakse` and `viidi` are gone, since either tense is right without a time word.
+- Lesson 32: `Õnneks ei saanud keegi vigastada.` (slip `sai`).
+- Lesson 33: the fix on `arutati` is gone, for the same reason as lesson 30's.
+- Lesson 36: `Ei. Sada eurot on vähem kui uus auto. Ma sõidan vana autoga veel natuke.` (slip `auto`), since `käib tööle` is said too.
+- Lesson 43: `Hästi. Aga andke palun mu pastakas tagasi!` (slip `pastaka`, where it was `anna`, which is right said to a friend).
+
+Not done: lesson 24 does not accept `Siin ei tohi suitsetada`, because B1 has not taught `suitsetada`; lessons 30, 33 and 34 do not accept `on leitud`, `on viidud`, `on otsustatud`, `on kokku lepitud`, `on saadetud` or `on välja vahetatud`, for the same reason.
+
 ## What a second model flagged
 
 Read on 2026-10-27 by the scene chain's lead model over all 1,647 distinct B1 lines

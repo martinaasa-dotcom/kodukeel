@@ -20,7 +20,7 @@ export default inLesson("b1-28-deposit", {
   place: "An empty rented apartment, on the old contract's last day",
   tests: "eluase",
   register: "teie",
-  role: "You've moved out. Your old landlord is walking through the empty apartment with you and would like to keep part of your deposit. Answer as yourself.",
+  role: "You've moved out. The landlord, a man you hardly know, is walking through the empty apartment with you and would like to keep part of your deposit. Answer as yourself.",
   props: [],
   curveballs: [],
   beats: [

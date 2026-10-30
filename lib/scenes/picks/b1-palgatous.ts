@@ -31,7 +31,7 @@ export const b1Palgatous: ScenePicks = {
     { et: "See sobib mulle.", en: "That works for me." },
   ],
   plan: [
-    { et: "Ma tahaksin saada meeskonna juhiks.", en: "I'd like to become the team lead." },
+    { et: "Ma tahaksin saada projektijuhiks.", en: "I'd like to become a project manager." },
     { et: "Ma tahaksin saada heaks arendajaks.", en: "I'd like to become a good developer." },
   ],
   close: [

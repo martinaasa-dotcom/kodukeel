@@ -112,12 +112,14 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
         from: { et: "Ma täitsin blanketti.", en: "I was filling in the form." },
         ask: "Say you finished it. Use {ära}.",
         to: { et: "Ma täitsin blanketi ära.", en: "I filled in the form." },
+        also: ["Täitsin blanketi ära."],
         pattern: "object",
       },
       {
         from: { et: "Täitke see blankett ära.", en: "Please fill in this form." },
         ask: "Say you'll do it. Start with {Ma}.",
         to: { et: "Ma täidan selle blanketi ära.", en: "I'll fill in this form." },
+        also: ["Täidan selle blanketi ära.", "Ma täidan blanketi ära."],
         pattern: "particleVerb",
       },
       {
@@ -138,7 +140,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
     fixes: [
       { line: { et: "Nii. Ma täitsin blanketi ära.", en: "There. I've filled in the form." }, right: "blanketi", wrong: "blankett", pair: ["GENITIVE", "NOMINATIVE"], why: "It happened and it's finished, so the whole form in the [omastav] (2nd form): {blanketi}." },
       { line: { et: "Selge. Palun täitke see blankett ära.", en: "Sure. Please fill in this form." }, right: "blankett", wrong: "blanketi", pair: ["NOMINATIVE", "GENITIVE"], why: "A command keeps the whole thing in the [nimetav] (1st form): {see blankett}." },
-      { line: { et: "Hästi. Aga andke palun mu pastakas tagasi!", en: "All right. But please give me my pen back!" }, right: "andke", wrong: "anna", pair: ["ImpPrPl2", "ImpPrSg2"], why: "Tom says {teie} to the clerk, so the polite command: {andke}." },
+      { line: { et: "Hästi. Aga andke palun mu pastakas tagasi!", en: "All right. But please give me my pen back!" }, right: "pastakas", wrong: "pastaka", pair: ["NOMINATIVE", "GENITIVE"], why: "A command keeps the whole thing in the [nimetav] (1st form), even with {palun}: {mu pastakas}." },
     ],
     retell: {
       who: "Tom",
@@ -250,18 +252,21 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
         from: { et: "Ma taotlen elamisluba.", en: "I'm applying for a residence permit." },
         ask: "Say it more gently: you'd like to apply. Use {tahaksin}.",
         to: { et: "Ma tahaksin elamisluba taotleda.", en: "I'd like to apply for a residence permit." },
+        also: ["Tahaksin elamisluba taotleda.", "Ma tahaksin taotleda elamisluba."],
         pattern: "conditional",
       },
       {
         from: { et: "Mul on pass kaasas.", en: "I have my passport with me." },
         ask: "Say you came without it. Use {ilma}.",
         to: { et: "Ma tulin ilma passita.", en: "I came without my passport." },
+        also: ["Tulin ilma passita."],
         pattern: "abessive",
       },
       {
         from: { et: "Tulge hommikul.", en: "Come in the morning." },
         ask: "Say it to a friend, with {sina}.",
         to: { et: "Tule hommikul.", en: "Come in the morning." },
+        also: ["Palun tule hommikul."],
         pattern: "imperative",
       },
     ],
@@ -272,7 +277,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
     faster: {
       ask: { et: "Mis dokumendid teil kaasas on?", en: "What documents do you have with you?" },
       cue: "Say what you've brought and what's missing, why you're applying, and what you'll do next.",
-      model: { et: "Mul on kaasas avaldus ja foto, aga passi mul ei ole. Ma taotlen elamisluba, sest ma töötan Tallinnas. Homme toon passi ja tulen hommikul kell üheksa.", en: "I have the application and a photo with me, but I don't have my passport. I'm applying for a residence permit, because I work in Tallinn. Tomorrow I'll bring the passport and come at nine in the morning." },
+      model: { et: "Mul on kaasas avaldus ja foto, aga passi mul ei ole. Ma taotlen elamisloa pikendamist, sest ma töötan Tallinnas. Homme toon passi ja tulen hommikul kell üheksa.", en: "I have the application and a photo with me, but I don't have my passport. I'm applying to extend my residence permit, because I work in Tallinn. Tomorrow I'll bring the passport and come at nine in the morning." },
     },
   },
   {
@@ -303,7 +308,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "rahakott", en: "a wallet" },
       { kind: "form", et: "rahakoti", of: "rahakott", en: "of the wallet; the whole wallet", stem: true },
       { kind: "form", et: "rahakotti", of: "rahakott", en: "the wallet, after {ei}" },
-      { kind: "form", et: "kaotasin", of: "kaotama", en: "I lost; {kaotasin ära}, I lost it for good", past: true },
+      { kind: "form", et: "kaotasin", of: "kaotama", en: "I lost; {kaotasin ära}, I lost it and it's gone", past: true },
       { kind: "form", et: "kaotas", of: "kaotama", en: "he lost, she lost" },
       { kind: "verb", et: "varastama", first: "varastan", en: "to steal", firstEn: "I steal" },
       { kind: "form", et: "varastati", of: "varastama", en: "was stolen, somebody stole it" },
@@ -317,7 +322,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "lahendasin", of: "lahendama", en: "I solved", past: true },
     ],
     how: {
-      point: "The small words say what a job did to a thing: {ära kaotama} is to lose it for good, {kinni panema} to close or block it, {lahti tegema} to open it, and {tagasi saama} to get it back.",
+      point: "The small words say what a job did to a thing: {ära kaotama} is to lose it, so it's gone, {kinni panema} to close or block it, {lahti tegema} to open it, and {tagasi saama} to get it back.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -360,7 +365,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
         from: { et: "Pane kaart kinni!", en: "Block the card!" },
         ask: "Say it to the bank clerk, with {teie}.",
         to: { et: "Palun pange kaart kinni!", en: "Please block the card!" },
-        also: ["Pange kaart kinni!"],
+        also: ["Pange kaart kinni!", "Pange palun kaart kinni!"],
         pattern: "imperative",
       },
       {
@@ -374,12 +379,12 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
         from: { et: "Ma leidsin rahakoti.", en: "I found the wallet." },
         ask: "Say you didn't find it on the bus. Start with {Ma ei}.",
         to: { et: "Ma ei leidnud rahakotti bussist.", en: "I didn't find the wallet on the bus." },
-        also: ["Ma ei leidnud bussist rahakotti."],
+        also: ["Ma ei leidnud bussist rahakotti.", "Ei leidnud rahakotti bussist."],
         pattern: "object",
       },
     ],
     fixes: [
-      { line: { et: "Anna, mul on suur probleem. Ma kaotasin rahakoti ära!", en: "Anna, I've got a big problem. I've lost my wallet!" }, right: "rahakoti", wrong: "rahakotti", pair: ["GENITIVE", "PARTITIVE"], why: "Lost for good, so the whole wallet: {rahakoti}." },
+      { line: { et: "Anna, mul on suur probleem. Ma kaotasin rahakoti ära!", en: "Anna, I've got a big problem. I've lost my wallet!" }, right: "rahakoti", wrong: "rahakotti", pair: ["GENITIVE", "PARTITIVE"], why: "Lost, and it's gone: the whole wallet, {rahakoti}." },
       { line: { et: "Kõige olulisem: pane kaart kohe kinni!", en: "The most important thing: get your card blocked right away!" }, right: "kaart", wrong: "kaardi", pair: ["NOMINATIVE", "GENITIVE"], why: "A command keeps the whole thing in the [nimetav] (1st form): {kaart}." },
       { line: { et: "Ma ei leidnud rahakotti.", en: "I didn't find the wallet." }, right: "rahakotti", wrong: "rahakoti", pair: ["PARTITIVE", "GENITIVE"], why: "After {ei}, always the [osastav] (3rd form): {rahakotti}." },
     ],
@@ -491,25 +496,28 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
         from: { et: "Ta ehitab maja.", en: "He's building a house." },
         ask: "Say what he is, with a -ja word.",
         to: { et: "Ta on ehitaja.", en: "He's a builder." },
+        also: ["Tema on ehitaja."],
         pattern: "derivation",
       },
       {
         from: { et: "Ma ujun iga päev.", en: "I swim every day." },
         ask: "Say you liked it as a child, with the -mine word. Start with {Lapsena}.",
         to: { et: "Lapsena meeldis mulle ujumine.", en: "As a child I liked swimming." },
+        also: ["Mulle meeldis lapsena ujumine."],
         pattern: "derivation",
       },
       {
         from: { et: "Toidul ei ole maitset.", en: "The food has no taste." },
         ask: "Say it in one word, with -tu.",
         to: { et: "Toit on maitsetu.", en: "The food is tasteless." },
+        also: ["See toit on maitsetu."],
         pattern: "derivation",
       },
       {
         from: { et: "Tal ei ole tööd.", en: "He has no work." },
         ask: "Say he was out of work last year, in one word with -tu. Start with {Eelmisel aastal}.",
         to: { et: "Eelmisel aastal oli ta töötu.", en: "Last year he was out of work." },
-        also: ["Ta oli eelmisel aastal töötu."],
+        also: ["Ta oli eelmisel aastal töötu.", "Eelmisel aastal oli tema töötu."],
         pattern: "derivation",
       },
     ],
@@ -609,7 +617,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
         from: { et: "Palun helistage mulle tagasi.", en: "Please call me back." },
         ask: "Say it to a friend, with {sina}.",
         to: { et: "Palun helista mulle tagasi.", en: "Please call me back." },
-        also: ["Helista mulle tagasi."],
+        also: ["Helista mulle tagasi.", "Helista mulle palun tagasi."],
         pattern: "imperative",
       },
       {
@@ -623,6 +631,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
         from: { et: "Ta helistab mulle tagasi.", en: "He'll call me back." },
         ask: "Ask gently whether he would call you back, with the would form.",
         to: { et: "Kas ta helistaks mulle tagasi?", en: "Would he call me back?" },
+        also: ["Kas ta võiks mulle tagasi helistada?"],
         pattern: "conditional",
       },
       {
@@ -691,6 +700,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "ametlikult", en: "officially" },
       { kind: "verb", et: "väljastama", first: "väljastan", en: "to issue", firstEn: "I issue" },
       { kind: "form", et: "väljastada", of: "väljastama", en: "to issue; {palun väljastada}, please issue" },
+      { kind: "form", et: "väljastage", of: "väljastama", en: "issue, said politely to the office" },
       { kind: "form", et: "ametlikku", of: "ametlik", en: "official, the [osastav] (3rd form)" },
       { kind: "form", et: "armastab", of: "armastama", en: "loves" },
       { kind: "form", et: "vabu", of: "vaba", en: "free, of more than one, after {ei ole}" },
@@ -713,6 +723,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "{Palun väljastada} is the formal request: please and the da-form, with nobody named.",
+        "{Palun väljastage mulle parkimisluba} is right too: it asks the office directly, with the polite command.",
         "Who it's to takes -le: {linnavalitsusele}, to the city government.",
         "Close with {Lugupidamisega}, your name and your signature.",
       ],
@@ -735,12 +746,14 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
         from: { et: "Anna mulle parkimisluba.", en: "Give me a parking permit." },
         ask: "Say it the formal way an application does.",
         to: { et: "Palun väljastada mulle parkimisluba.", en: "Please issue me a parking permit." },
+        also: ["Palun väljastage mulle parkimisluba."],
         pattern: "impersonal",
       },
       {
         from: { et: "Ma kirjutasin avalduse.", en: "I wrote the application." },
         ask: "Say you're still writing it. Use the [osastav] (3rd form).",
         to: { et: "Ma kirjutan avaldust.", en: "I'm writing the application." },
+        also: ["Kirjutan avaldust.", "Ma kirjutan veel avaldust."],
         pattern: "object",
       },
       {
@@ -754,6 +767,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
         from: { et: "Kas sa aitaksid?", en: "Would you help?" },
         ask: "Ask politely, with {teie}.",
         to: { et: "Kas te aitaksite?", en: "Would you help?" },
+        also: ["Kas aitaksite?", "Kas te aitaksite mind?"],
         pattern: "conditional",
       },
     ],
