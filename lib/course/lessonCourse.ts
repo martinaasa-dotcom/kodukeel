@@ -154,8 +154,8 @@ const PASTS_OF: ReadonlyMap<string, { readonly first: string; readonly third: re
  * THE VERBS WHOSE PAST A LESSON SHOWED BY NAME.
  *
  * A past is learned verb by verb (`lugesin` but `tahtis`), so it is asked
- * inside the module only once an evening has shown it (`slotWithin`), and
- * B2's forms step does not show it again (decision D4). A lesson shows one
+ * inside the module only once an evening has shown it (`slotWithin`). Only the past:
+ * a forms step still shows the verb later, for its polite imperative, which no lesson teaches. A lesson shows one
  * where it teaches a form that is that verb's stored past, whether or not
  * the lesson marked it `past`: A1's yesterday lesson teaches `olin`, `tegin`
  * and `käisin` before the past is a pattern, and those are as shown as any.
@@ -186,8 +186,8 @@ export function lessonDay(lesson: LessonSpec, index: number, partTitle: string):
     ...(pages.topics ?? []),
   ])];
   const cases = [...new Set([...(lesson.patterns ?? []).flatMap(casesOfPattern), ...(pages.cases ?? [])])];
-  // A lesson day draws no forms step (its one step is the lesson); the list is what it has shown, for `formsThrough`.
-  const forms = lessonPasts(lesson);
+  // A lesson day draws no forms step (its one step is the lesson); the list is the pasts it has shown, for `pastsThrough`.
+  const pasts = lessonPasts(lesson);
   return {
     id: lesson.id,
     title: plain(partTitle),
@@ -200,7 +200,7 @@ export function lessonDay(lesson: LessonSpec, index: number, partTitle: string):
     lesson: lesson.id,
     ...(cases.length > 0 ? { cases } : {}),
     ...(topics.length > 0 ? { topics } : {}),
-    ...(forms.length > 0 ? { forms } : {}),
+    ...(pasts.length > 0 ? { pasts } : {}),
     index,
     part: { n: 1, of: 1 },
     steps: [{

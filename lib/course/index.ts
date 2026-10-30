@@ -290,6 +290,21 @@ export function formsThrough(programme: Programme, index: number): string[] {
 }
 
 /**
+ * The verbs whose simple past an evening has shown through a day: every verb a
+ * forms step showed (`formsThrough`) and every verb whose past a lesson taught
+ * by name (`DaySpec.pasts`). Wider than `formsThrough`, which also says the
+ * polite imperative was shown.
+ */
+export function pastsThrough(programme: Programme, index: number): string[] {
+  const at = PROGRAMMES.findIndex((p) => p.id === programme.id);
+  const out = formsThrough(programme, index);
+  const take = (d: CourseDay) => { for (const v of d.pasts ?? []) if (!out.includes(v)) out.push(v); };
+  if (at > 0) for (const before of PROGRAMMES.slice(0, at)) before.days.forEach(take);
+  for (const d of programme.days) if (d.index <= index) take(d);
+  return out;
+}
+
+/**
  * The units the ladder has opened through a day, every part before it
  * included, in teaching order. A conversation is dealt only once every unit
  * it declares is on this list (`course.test.ts`), so a screen offering one

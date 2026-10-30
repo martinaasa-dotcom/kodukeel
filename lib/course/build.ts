@@ -483,12 +483,6 @@ export class Ledger {
    * `FORMS_PER_EVENING` a night, earliest taught first, so the verbs a
    * learner has had longest, which are the commonest ones, come first.
    */
-  /** Verbs whose past an earlier evening already showed, so no later one shows it again. */
-  markFormsShown(lemmas: Iterable<string>): void {
-    for (const lemma of lemmas) this.formsShown.add(lemma);
-    this.formsWaiting = this.formsWaiting.filter((lemma) => !this.formsShown.has(lemma));
-  }
-
   showForms(limit: number = FORMS_PER_EVENING): string[] {
     if (!this.topics.has("imperfect")) return [];
     const tonight = this.formsWaiting.slice(0, limit);
@@ -842,11 +836,11 @@ export function withForms(
  * harvest's first part of speech, and a phrase the harvest does not hold
  * teaches its own spelling.
  *
- * And a past a lesson taught by name has been shown: the lesson's evening
- * carries it as `forms` (`lessonPasts`), which `formsThrough` reads too, so
- * the module may ask it from then on and B2's forms step does not show it
- * again (D4). Left in the queue, B2 would spend weeks of evenings showing a
- * learner the pasts of verbs they wrote at A1, A2 and B1.
+ * And a past a lesson taught by name has been shown, but the past alone: the
+ * lesson's evening carries it as `pasts` (`lessonPasts`), which `pastsThrough`
+ * reads, so the module may ask that verb's past from then on (D4). The verb
+ * stays in the forms queue, because no lesson shows its polite imperative
+ * (`tehke`, `lugege`), and B2's forms step is where that is shown.
  */
 export function teachLessons(ledger: Ledger): Ledger {
   for (const programme of lessonProgrammes()) {
@@ -854,7 +848,6 @@ export function teachLessons(ledger: Ledger): Ledger {
       for (const lemma of d.words) ledger.teach(lemma, LESSON_VERBS.has(lemma) ? "VERB" : POS_OF.get(lemma) ?? "PHRASE");
       for (const key of d.cases ?? []) ledger.read({ grammarCase: key });
       for (const topic of d.topics ?? []) ledger.read({ grammar: topic });
-      ledger.markFormsShown(d.forms ?? []);
     }
   }
   return ledger;

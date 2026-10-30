@@ -10748,8 +10748,8 @@ writing a line that names anybody. Each part asks more than the one before (its 
 retell, writing, room and fade rows are checked by `ramp.test.ts` and `fade.test.ts`, the rest
 being the authors' rule), a part's closing conversation carries a turn it never rehearsed and no
 retell or race (`levelContractProblems`), and `scripts/test-lessons.mjs` walks the shapes in a
-browser. A past a lesson taught by name is carried as that evening's `forms` (`lessonPasts`), so B2
-shows it again nowhere and the module asks it from B2 on. The conversations B2 and C1 deal declare
+browser. A past a lesson taught by name is carried as that evening's `pasts` (`lessonPasts`), so the module
+asks that past from then on, and the polite imperative waits for the forms step that shows it. The conversations B2 and C1 deal declare
 units the lessons taught only in part, and the words they ask for that no evening has taught are
 named per scene in `course.test.ts` for B2's lessons to take up.
 
