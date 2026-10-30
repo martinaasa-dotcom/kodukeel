@@ -297,7 +297,6 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "sellele", of: "see", en: "onto it; about it, after {mõtlema}" },
       { kind: "form", et: "sellest", of: "see", en: "about it, out of it" },
       { kind: "form", et: "ilma", of: "ilm", en: "of the weather", stem: true },
-      { kind: "form", et: "lilli", of: "lill", en: "flowers, some flowers" },
       { kind: "form", et: "teistest", of: "teine", en: "about others" },
       { kind: "form", et: "inimestest", of: "inimene", en: "about people" },
       { kind: "phrase", et: "heas mõttes", en: "in a nice way, meaning well" },

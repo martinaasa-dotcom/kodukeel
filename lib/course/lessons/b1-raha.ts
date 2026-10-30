@@ -821,7 +821,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
         { ask: { et: "Ja mis summa sulle sobiks?", en: "And what amount would suit you?" }, cue: "Say what would be fair.", model: { et: "Ma arvan, et kümme protsenti rohkem oleks õiglane.", en: "I think ten percent more would be fair." } },
         { ask: { et: "Ma saan pakkuda viis protsenti kohe.", en: "I can offer five percent now." }, cue: "Ask if you could talk again at the end of the year.", model: { et: "Kas me võiksime aasta lõpus uuesti rääkida?", en: "Could we talk again at the end of the year?" } },
         { ask: { et: "Jah, aasta lõpus räägime uuesti. Ja kelleks sa tahaksid järgmisel aastal saada?", en: "Yes, we'll talk again at the end of the year. And what would you like to become next year?" }, cue: "Say what you'd like to become.", model: { et: "Ma tahaksin saada meeskonna juhiks.", en: "I'd like to become the team lead." } },
-        { ask: { et: "Hea plaan. Lepime kokku.", en: "Good plan. It's a deal." }, cue: "Thank her and agree.", model: { et: "Aitäh! See sobib mulle.", en: "Thank you! That works for me." } },
+        { ask: { et: "Hea plaan. Kokku lepitud.", en: "Good plan. Agreed." }, cue: "Thank her and agree.", model: { et: "Aitäh! See sobib mulle.", en: "Thank you! That works for me." } },
       ],
     },
   },

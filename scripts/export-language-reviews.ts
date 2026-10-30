@@ -193,7 +193,7 @@ parts.push(
   "- `a1-09-live`: Tom has already said `Ma elan Tallinnas`, and after Mari's `Nad elavad siin, Tallinnas.` he",
   "  ends on `Mina elan ka siin!`, giving the same fact again as news. `Mina ka!` is what somebody says there.",
   "- `a1-10a-neighbours`: Jaan's `Anna, kust sa pärit oled?` names Anna, who answers that she is from Finland, while",
-  "  lessons 10, 16 and 17 make Anna Ukrainian and Tom's wife. The Finnish neighbour needs another name.",
+  "  lessons 10, 16 and 17 make Anna Ukrainian and Tom's wife. The Finnish neighbor needs another name.",
   "- `a1-10a-neighbours`: Jaan's `Jah. Aga minu õpetaja on pärit Lätist. Ta on lätlane.` The `Aga` contrasts",
   "  nothing. For instance `Jah, olen. Minu õpetaja on pärit Lätist. Ta on lätlane.`",
   "- `a1-04-persons`: Tom says `Ma olen õpilane.`, and later lessons make him an adult with two children. Whether",

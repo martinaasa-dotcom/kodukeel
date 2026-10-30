@@ -29,8 +29,8 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "a2-vana-sober", beat: "with", text: "Kellega sa lähed?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-vana-sober", beat: "meet", text: "Hea meelega! Millal me kokku saame?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-vana-sober", beat: "meet", text: "Millal me kokku saame?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
-  { scene: "a2-vana-sober", beat: "close", text: "Lepime kokku! Head aega!", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
-  { scene: "a2-vana-sober", beat: "close", text: "Lepime kokku! Nägemist!", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
+  { scene: "a2-vana-sober", beat: "close", text: "Kokku lepitud! Head aega!", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
+  { scene: "a2-vana-sober", beat: "close", text: "Kokku lepitud! Nägemist!", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
 ];
 
 export default LINES;

@@ -593,6 +593,7 @@ export const LESSON_TEXT_B1_OBJEKT: Area = {
     "I won't fix the window today. It needs a spare part.": "Окно я сегодня чинить не буду. Для него нужна запчасть.",
     "It needs a spare part": "Нужна запчасть",
     "The next morning. Tom has taken the morning off to let the handyman in himself.": "На следующее утро. Том отпросился с работы на утро, чтобы самому впустить мастера.",
+    "buses, some buses": "автобусы, какие-то автобусы",
   },
   uk: {
     "Saying whether a job got done: the object's ending, and the small words after a verb that finish it.": "Як сказати, чи справу зроблено: закінчення додатка і маленькі слова після дієслова, що завершують дію.",
@@ -1176,5 +1177,6 @@ export const LESSON_TEXT_B1_OBJEKT: Area = {
     "I won't fix the window today. It needs a spare part.": "Вікна я сьогодні лагодити не буду. Для нього потрібна запчастина.",
     "It needs a spare part": "Потрібна запчастина",
     "The next morning. Tom has taken the morning off to let the handyman in himself.": "Наступного ранку. Том відпросився з роботи на ранок, щоб самому впустити майстра.",
+    "buses, some buses": "автобуси, якісь автобуси",
   },
 };

@@ -210,7 +210,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Ma kuulan muusikat. Jaan vaatab telerit.", en: "I'm listening to music. Jaan's watching TV." },
       { who: "Tom", et: "Ja Liis?", en: "And Liis?" },
       { who: "Mari", et: "Liis õpib. Mida sa teed õhtul?", en: "Liis is studying. What are you doing this evening?" },
-      { who: "Tom", et: "Ma ei tea. Ma loen!", en: "I don't know. Reading!" },
+      { who: "Tom", et: "Õhtul? Ma ei tea veel.", en: "This evening? I don't know yet." },
     ],
     teaches: [
       { kind: "phrase", et: "Mida sa teed?", en: "What are you doing?" },

@@ -31,7 +31,7 @@ export const b1Vaidlus: ScenePicks = {
     { et: "Olen nõus.", en: "Agreed." },
   ],
   close: [
-    { et: "Lepime kokku! Head aega!", en: "It's a deal! Goodbye!" },
+    { et: "Kokku lepitud! Head aega!", en: "It's a deal! Goodbye!" },
     { et: "Head aega!", en: "Goodbye!" },
   ],
 };

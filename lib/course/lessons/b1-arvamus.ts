@@ -801,7 +801,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       { who: "Kadri", et: "Kolm päeva kontoris? Mulle tundub, et see on liiga palju.", en: "Three days at the office? It seems to me that's too many." },
       { who: "Tom", et: "Hea küll. Kaks päeva kontoris ja kolm kodus? Reedeti on mul nagunii kursus.", en: "All right. Two days at the office and three at home? I've got my course on Fridays anyway." },
       { who: "Kadri", et: "Sellega olen ma nõus.", en: "I'll agree to that." },
-      { who: "Kristi", et: "Lepime kokku! Ja kohvi joome kontoris koos.", en: "It's a deal! And we drink coffee together at the office." },
+      { who: "Kristi", et: "Kokku lepitud! Ja kohvi joome kontoris koos.", en: "It's a deal! And we drink coffee together at the office." },
     ],
     teaches: [],
     how: {
@@ -833,7 +833,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
         { ask: { et: "Aga suur kontor on kallis.", en: "But a big office is expensive." }, cue: "Say on the one hand she's right.", model: { et: "Ühest küljest on sul õigus.", en: "On the one hand, you're right." } },
         { ask: { et: "Mis sa siis teeksid?", en: "So what would you do?" }, cue: "Suggest two days at the office and three at home.", model: { et: "Kaks päeva kontoris ja kolm päeva kodus.", en: "Two days at the office and three at home." } },
         { ask: { et: "Kaks päeva kontoris? Mulle tundub, et see on hea mõte.", en: "Two days at the office? It seems to me that's a good idea." }, cue: "Say you agree with that.", model: { et: "Sellega olen ma nõus.", en: "I'll agree to that." } },
-        { ask: { et: "Lepime kokku!", en: "It's a deal!" }, cue: "Say it's a deal, and that you'll have coffee together at the office.", model: { et: "Lepime kokku! Kohvi joome kontoris koos.", en: "It's a deal! We'll have coffee together at the office." } },
+        { ask: { et: "Kokku lepitud!", en: "It's a deal!" }, cue: "Say it's a deal, and that you'll have coffee together at the office.", model: { et: "Kokku lepitud! Kohvi joome kontoris koos.", en: "It's a deal! We'll have coffee together at the office." } },
       ],
     },
   },

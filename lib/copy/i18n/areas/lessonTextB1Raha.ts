@@ -660,6 +660,7 @@ export const LESSON_TEXT_B1_RAHA: Area = {
     "A few weeks": "Несколько недель",
     "Half a year": "Полгода",
     "Really well! On Fridays now I just study Estonian.": "Очень хорошо! По пятницам я теперь только учу эстонский.",
+    "Good plan. Agreed.": "Хороший план. Договорились.",
   },
   uk: {
     "Work and money": "Робота й гроші",
@@ -1310,5 +1311,6 @@ export const LESSON_TEXT_B1_RAHA: Area = {
     "A few weeks": "Кілька тижнів",
     "Half a year": "Пів року",
     "Really well! On Fridays now I just study Estonian.": "Дуже добре! По п'ятницях я тепер тільки вчу естонську.",
+    "Good plan. Agreed.": "Гарний план. Домовилися.",
   },
 };

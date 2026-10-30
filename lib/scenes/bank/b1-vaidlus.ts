@@ -29,8 +29,8 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "b1-vaidlus", beat: "plan", text: "Hea küll. Mis sa siis teeksid?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-vaidlus", beat: "agree", text: "Mulle tundub, et see on hea mõte. Mida sina arvad?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-vaidlus", beat: "agree", text: "Hea idee! Mulle tundub, et see sobib. Mis sa arvad?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
-  { scene: "b1-vaidlus", beat: "close", text: "Lepime kokku! Head aega!", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
-  { scene: "b1-vaidlus", beat: "close", text: "Lepime kokku! Kohvi joome kontoris koos.", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
+  { scene: "b1-vaidlus", beat: "close", text: "Kokku lepitud! Head aega!", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
+  { scene: "b1-vaidlus", beat: "close", text: "Kokku lepitud! Kohvi joome kontoris koos.", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
 ];
 
 export default LINES;

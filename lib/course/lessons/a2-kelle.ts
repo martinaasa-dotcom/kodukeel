@@ -281,7 +281,7 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Siis on homme minu ema sünnipäev!", en: "Then tomorrow's my mom's birthday!" },
       { who: "Mari", et: "Viies mai? Kas sul on juba kingitus?", en: "The fifth of May? Do you have a present already?" },
       { who: "Tom", et: "Ei ole veel. Mida ma ostan?", en: "Not yet. What shall I buy?" },
-      { who: "Mari", et: "Osta lilled! See on alati hea kingitus.", en: "Buy flowers! That's always a good present." },
+      { who: "Mari", et: "Osta lilli! Lilled on alati hea kingitus.", en: "Buy some flowers! Flowers are always a good present." },
     ],
     teaches: [
       { kind: "phrase", et: "Mitmes täna on?", en: "What's the date today?" },
@@ -301,6 +301,7 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "juba", en: "already" },
       { kind: "word", et: "kingitus", en: "present, gift" },
       { kind: "word", et: "lill", en: "flower" },
+      { kind: "form", et: "lilli", of: "lill", en: "some flowers, to buy" },
       { kind: "form", et: "lilled", of: "lill", en: "flowers" },
     ],
     how: {
