@@ -7,6 +7,8 @@ import { Button } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { Card } from "@/components/ui";
 import { SuggestFix } from "@/components/SuggestFix";
+import { SuggestWords } from "@/components/SuggestWords";
+import { NOT_REACHED } from "@/lib/copy/values";
 import { useLocale, useT } from "@/components/Locale";
 import { countOf, fill } from "@/lib/copy/locale";
 
@@ -62,11 +64,18 @@ export function ImportPanel() {
      person cannot fix by editing their own paste. */
   const [refused, setRefused] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  /* The words this paste left as the learner's alone, offered to a reviewer. */
+  const [ownWords, setOwnWords] = useState<string[]>([]);
   const rows = useMemo(() => parse(text), [text]);
 
   const submit = () => {
     start(async () => {
-      const r = await importWords(rows);
+      const r = await importWords(rows).catch(() => null);
+      if (!r) {
+        setResult(t(NOT_REACHED));
+        setRefused(NOT_REACHED);
+        return;
+      }
       // Refused for being too fast. Nothing was written, and the text stays in
       // the box: a paste somebody spent a minute assembling must not be
       // cleared by a message telling them to try again.
@@ -87,6 +96,7 @@ export function ImportPanel() {
         r.truncated ? fill(t("Only the first {n} lines were read, so paste the rest in another go."), { n: r.limit }) : "",
       ];
       setResult(said.filter(Boolean).join(" "));
+      setOwnWords(r.ownWords);
       setText("");
     });
   };
@@ -138,6 +148,10 @@ export function ImportPanel() {
           <p className="text-sm" style={{ color: refused ? "var(--again-ink)" : "var(--good-ink)" }}>{result}</p>
         )}
       </div>
+
+      {!refused && ownWords.length > 0 && (
+        <div className="mt-3"><SuggestWords key={ownWords.join(" ")} lexemeIds={ownWords} /></div>
+      )}
 
       {refused && (
         <div className="mt-3">

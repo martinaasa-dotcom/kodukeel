@@ -32,6 +32,8 @@ import { EkilexCredit } from "./EkilexCredit";
 import type { SearchHit } from "@/lib/dict/search";
 import type { Nearby, NearbyReason } from "@/lib/dict/nearby";
 import { AddWord, type WordDraft } from "./AddWord";
+import { EntryOwnership } from "./EntryOwnership";
+import type { EntryOwnership as EntryOwnershipView } from "@/lib/dict/shared";
 import { Et } from "@/components/Et";
 import { StarWord } from "@/components/StarWord";
 import { SuggestFix } from "@/components/SuggestFix";
@@ -124,7 +126,7 @@ const VERB_PARTS = [
 ] as const;
 
 export function DictionaryClient({
-  initialQuery, hits, known, knownAs, nearby, typedEnglish, openedId, entry, matchedAs, suggestions, headlines, feedHost, starred, tutorReady, justFetched, canScan, glossLanguage,
+  initialQuery, hits, known, knownAs, nearby, typedEnglish, openedId, entry, ownership, reviewer, matchedAs, suggestions, headlines, feedHost, starred, tutorReady, justFetched, canScan, glossLanguage,
 }: {
   initialQuery: string;
   /** Which language the learner asked for their meanings in. */
@@ -156,6 +158,10 @@ export function DictionaryClient({
    */
   openedId: string | null;
   entry: EntryView | null;
+  /** Whose word the open entry is, where somebody typed it (`entryOwnership`). */
+  ownership: EntryOwnershipView | null;
+  /** Whether the learner looking is a reviewer, whose words go in for everybody as written. */
+  reviewer: boolean;
   /** Set when the query was an inflected form — "inessive (seesütlev) of tuba". */
   matchedAs: string | null;
   /**
@@ -348,7 +354,7 @@ export function DictionaryClient({
             take one. The add form still opens in place.
           */}
           <div className="flex flex-wrap items-start gap-2">
-            <AddWord />
+            <AddWord reviewer={reviewer} />
             {canScan && (
               <ButtonLink href="/scan">
                 <Camera size={15} aria-hidden /> {t("Photograph a list")}
@@ -438,6 +444,7 @@ export function DictionaryClient({
             </p>
           )}
           <AddWord
+            reviewer={reviewer}
             initialLemma={typedEnglish ? "" : initialQuery}
             initialTranslation={typedEnglish ? initialQuery : ""}
             startOpen={nearby.length === 0}
@@ -496,7 +503,7 @@ export function DictionaryClient({
               <TrParts template="{word} is the {form}." parts={{ word: <Et className="font-semibold">{initialQuery}</Et>, form: matchedAsIn(locale, matchedAs) }} />
             </p>
           )}
-          <Entry entry={entry} tutorReady={tutorReady} glossLanguage={glossLanguage} />
+          <Entry entry={entry} ownership={ownership} tutorReady={tutorReady} glossLanguage={glossLanguage} />
         </>
       )}
 
@@ -541,8 +548,9 @@ export function DictionaryClient({
   );
 }
 
-function Entry({ entry, tutorReady, glossLanguage }: {
+function Entry({ entry, ownership, tutorReady, glossLanguage }: {
   entry: EntryView;
+  ownership: EntryOwnershipView | null;
   tutorReady: boolean;
   glossLanguage: GlossLanguage;
 }) {
@@ -689,6 +697,12 @@ function Entry({ entry, tutorReady, glossLanguage }: {
         should look at before it changes what everybody reads.
       */}
       <EntryProblem entry={entry} />
+
+      {/* A word somebody typed: still theirs alone, waiting for a reviewer, or
+          one this learner may take back out. Nothing for a seeded entry. */}
+      {ownership && (
+        <EntryOwnership key={`own-${entry.id}`} lexemeId={entry.id} lemma={entry.lemma} ownership={ownership} />
+      )}
 
       {/*
         TWO BLOCKS, EACH SAYING WHAT IT IS AND WHAT LANGUAGE IT IS IN.

@@ -83,6 +83,19 @@ model Lexeme {
   /// be attributable, or a bad one is untraceable.
   editedBy  String?
   editedAt  DateTime?
+
+  /// When a reviewer passed a word somebody typed, so it reaches everybody.
+  ///
+  /// A `USER` or `AI` row is its author's until then (`isShared` in
+  /// lib/dict/search.ts): the search finds it for them alone and the entry page
+  /// opens it for nobody else. That was the whole of the rule, and nothing
+  /// could ever lift it, so a missing word a reviewer accepted from the queue
+  /// was written as `USER` under the reviewer's name and reached the reviewer
+  /// and nobody else, which is "approved" meaning nothing. Set by an accepted
+  /// suggestion and by a word an admin adds, and never by a learner. It opens
+  /// the dictionary and nothing more: the pickers that read `VOUCHED_ROW`, the
+  /// scanner's vouching among them, still take the Institute's words alone.
+  approvedAt DateTime?
   fetchedAt DateTime? // when Ekilex was last consulted *and answered*, for cache freshness
 
   /// When Ekilex was last asked about this word and had nothing to say.

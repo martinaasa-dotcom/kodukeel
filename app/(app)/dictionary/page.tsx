@@ -18,6 +18,8 @@ import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countGrouped, fill, tr } from "@/lib/copy/locale";
 import { searchDictionary } from "@/lib/progress/dictionarySearch";
 import { openEntry } from "@/lib/progress/dictionaryEntry";
+import { entryOwnership } from "@/lib/progress/removeWord";
+import { isAdmin } from "@/lib/auth/admin";
 import { DictionaryClient } from "./DictionaryClient";
 import { firstParams } from "@/lib/ux/queryParam";
 
@@ -171,7 +173,15 @@ export default async function DictionaryPage({
   const entry = opening?.entry ?? null;
   if (opening?.fetched) fetched = true;
 
-  const locale = await localeFor(ownerId);
+  /*
+    Whose word the entry is, which only a word somebody typed has an answer
+    to: whether it is still theirs alone, whether it is waiting for a reviewer,
+    and whether this learner may take it back out (lib/progress/removeWord.ts).
+    After the entry rather than beside it, because it is about the entry that
+    opened, and a seeded entry answers it in one indexed read.
+  */
+  const [reviewer, locale] = await Promise.all([isAdmin(), localeFor(ownerId)]);
+  const ownership = entry ? await entryOwnership(ownerId, reviewer, entry.id) : null;
 
   return (
     <Page route="/dictionary"
@@ -197,6 +207,8 @@ export default async function DictionaryPage({
         glossLanguage={glossLanguage}
         openedId={opened?.id ?? null}
         entry={entry}
+        ownership={ownership}
+        reviewer={reviewer}
         matchedAs={matchedAs}
         suggestions={suggestions}
         headlines={headlines}

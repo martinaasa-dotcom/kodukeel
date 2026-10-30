@@ -32,6 +32,14 @@ export interface LexemeWrite {
   forms: Record<string, string>;
   /** Who to attribute it to. A shared edit that is not attributable is untraceable. */
   editedBy: string;
+  /**
+   * Whether this write passes the entry for everybody (`Lexeme.approvedAt`).
+   * Only a reviewer's: an accepted missing word and a word an admin adds. A
+   * learner's own word stays theirs until then, and a write without this
+   * leaves the stamp as it was, so correcting a passed word does not take it
+   * back out of the dictionary.
+   */
+  approve?: boolean;
 }
 
 export interface LexemeWriteResult {
@@ -167,6 +175,7 @@ async function writeOnce(input: LexemeWrite): Promise<LexemeWriteResult> {
       : { provenance: "USER" }),
     editedBy: input.editedBy,
     editedAt: new Date(),
+    ...(input.approve ? { approvedAt: new Date() } : {}),
   };
 
   const lexeme = existing

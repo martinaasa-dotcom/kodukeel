@@ -5104,6 +5104,34 @@ saying what it did: the reviewer clicked "Accept and apply" and the line vanishe
 whether a word had been added. Rows must not reshuffle under the cursor between clicks either. The
 row reports its own outcome and the list is right again on the next load.
 
+**A word somebody typed is theirs until a reviewer passes it, and now a reviewer can.** The add-a-word
+form, the importer and the scanner write a `USER` row that the search, the entry page and `wordReaches`
+open to its author alone, and nothing could ever lift that: an accepted missing-word report was written
+as `USER` under the reviewer's name and reached the reviewer and nobody else, and so did a word an admin
+added. `Lexeme.approvedAt` is the pass and `isShared` in `lib/dict/shared.ts` is the one rule all of
+them read. An accepted report sets it (`applyPatch`), and where the reporter had already added the word
+for themselves it passes that row rather than refusing or writing a second (`createWordTarget`); an
+admin's own word is passed as written. A learner asks from the form, ticked by default, or from their
+entry (`shareOwnWord`), which files the same missing-word report the dead end does, grouped on the lemma.
+**It opens the dictionary and nothing more**: the pickers on `VOUCHED_ROW` and the scanner's vouching
+still take the seed's and Ekilex's words alone, since a reviewer passing a word says nothing a source
+said about the forms beside it. **A typed word can be removed** (`lib/progress/removeWord.ts`): by a
+reviewer always, by its author while it is unpassed and nobody else holds a card, and a `SEED` or
+`EKILEX` row by nobody. Its forms, cards, stars and deferrals go with it and the review log stays. It
+is a row and never a spelling, so removing `kogunud` typed in as a headword leaves the `kogunud` Ekilex
+records under `koguma`, which is the past participle and is a real word.
+
+**And a word that came off a photo or out of a paste can be put forward the same way, and a reviewer is told.**
+The scanner and the importer write `USER` rows exactly like the add-a-word form, so both offer to ask for
+them in one press after the words are in (`components/SuggestWords.tsx`, `suggestMyWords`), never by default,
+since a paste is often private vocabulary and a photo can hold a misreading. `wordsToSuggest` is what is
+offered, the learner's own unpassed words with no open request, and `shareOwnWords` files at most
+`MAX_SHARED_AT_ONCE`, passing over any word that is not theirs. A reviewer sees what is waiting without
+opening the queue: `reviewWaiting` in `lib/suggestions/waiting.ts` asks `isAdmin` and then counts open groups,
+words to add apart from everything else, held thirty seconds and cleared when a report is filed or decided,
+and the rail, the phone sheet and Today draw it. `scripts/invariants/the-review-queue-is-told-to-its-reviewers.ts`
+holds the order of those two questions.
+
 **A number shaped for a screen is never a divisor, and a headline is never a second opinion on
 the sentence under it.** The plan at `/assess` and on the last screen of first run is arithmetic
 somebody is going to make a decision on, and it was wrong in two ways that both look like rounding
