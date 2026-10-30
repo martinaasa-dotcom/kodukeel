@@ -115,7 +115,7 @@ import {
   programmeById, stepCard, stepText,
 } from "@/lib/course";
 import { localeFor } from "@/lib/progress/locale";
-import { courseReading, dayIsInPlay, openingPart, programmeFor } from "@/lib/progress/course";
+import { courseReading, dayIsInPlay, openingPart, programmeFor, forgetRehoming } from "@/lib/progress/course";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { doneKeyFrom, doneToday, withDone } from "@/lib/ux/workbookDone";
 import { notePlayed } from "@/lib/progress/gamesPlayed";
@@ -2302,7 +2302,11 @@ export async function completeOnboarding(input: {
     moves only where `setProgramme` would let them.
   */
   if (!await moveBlockedFor(ownerId, partFrom(await readSetting(ownerId, SETTING_KEYS.programme)), opening)) {
-    await writeSetting(ownerId, SETTING_KEYS.programme, opening.id);
+    // Stamped as chosen, like every other move: a part picked here is not one the lessons' switch sends back (`lib/progress/course.ts`).
+    await Promise.all([
+      writeSetting(ownerId, SETTING_KEYS.programme, opening.id),
+      writeSetting(ownerId, SETTING_KEYS.programmeChosenAt, new Date().toISOString()),
+    ]);
   }
 
   /*
@@ -4184,6 +4188,8 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
   revalidatePath("/scan");
   revalidatePath("/settings");
   revalidatePath("/progress");
+  // Old ticks may have arrived with the file, so whether this learner needs moving is asked again.
+  forgetRehoming(ownerId);
   return { ok: true as const, summary: check.summary };
 }
 

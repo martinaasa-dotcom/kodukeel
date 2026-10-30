@@ -24,6 +24,7 @@ import { unitById, type SyllabusUnit } from "@/lib/collections/syllabus";
 import { HARVESTED } from "@/prisma/data/harvested";
 import { EARLIER_SCENES_FOR_UNIT, PARTS, ROTATION, SCENE_FOR_UNIT, VERB_HEAVY, type PartSpec } from "./plan";
 import { lessonProgrammes } from "./lessonCourse";
+import { LESSONS } from "./lessons";
 import {
   ACTIVITIES, day, ordinaryWords,
   type ActivityKey, type CourseDay, type DaySpec, type Programme,
@@ -482,6 +483,12 @@ export class Ledger {
    * `FORMS_PER_EVENING` a night, earliest taught first, so the verbs a
    * learner has had longest, which are the commonest ones, come first.
    */
+  /** Verbs whose past an earlier evening already showed, so no later one shows it again. */
+  markFormsShown(lemmas: Iterable<string>): void {
+    for (const lemma of lemmas) this.formsShown.add(lemma);
+    this.formsWaiting = this.formsWaiting.filter((lemma) => !this.formsShown.has(lemma));
+  }
+
   showForms(limit: number = FORMS_PER_EVENING): string[] {
     if (!this.topics.has("imperfect")) return [];
     const tonight = this.formsWaiting.slice(0, limit);
@@ -829,20 +836,30 @@ export function withForms(
  *
  * A1, A2 and B1 are the lessons (`lessonCourse.ts`), and B2's first evening is dealt
  * against what a learner had when it began: every word a lesson taught,
- * as the harvest holds it (its part of speech is whichever the harvest found
- * it under first, and a phrase the harvest does not hold teaches its own
- * spelling), and every page a lesson explained.
+ * as the harvest holds it, and every page a lesson explained. A word a lesson
+ * taught as a verb is a verb whatever the harvest found it under first, so
+ * it counts toward the rounds that want one; any other word takes the
+ * harvest's first part of speech, and a phrase the harvest does not hold
+ * teaches its own spelling.
+ *
+ * And a past the lessons taught by name (`form` with `past`, A2) has been
+ * shown: left in the queue, B2's forms step would spend weeks of evenings
+ * showing a learner the pasts of A1 verbs they wrote at A2.
  */
 export function teachLessons(ledger: Ledger): Ledger {
   for (const programme of lessonProgrammes()) {
     for (const d of programme.days) {
-      for (const lemma of d.words) ledger.teach(lemma, POS_OF.get(lemma) ?? "PHRASE");
+      for (const lemma of d.words) ledger.teach(lemma, LESSON_VERBS.has(lemma) ? "VERB" : POS_OF.get(lemma) ?? "PHRASE");
       for (const key of d.cases ?? []) ledger.read({ grammarCase: key });
       for (const topic of d.topics ?? []) ledger.read({ grammar: topic });
     }
   }
+  ledger.markFormsShown(LESSON_PASTS);
   return ledger;
 }
+
+const LESSON_VERBS: ReadonlySet<string> = new Set(LESSONS.flatMap((l) => l.teaches.flatMap((t) => (t.kind === "verb" ? [t.et] : []))));
+const LESSON_PASTS: ReadonlySet<string> = new Set(LESSONS.flatMap((l) => l.teaches.flatMap((t) => (t.kind === "form" && t.past ? [t.of] : []))));
 
 const POS_OF: ReadonlyMap<string, string> = (() => {
   const out = new Map<string, string>();

@@ -1,3 +1,4 @@
+import { LESSONS } from "@/lib/course/lessons";
 import { LESSON_SITUATIONS } from "./lessonSituations";
 import { describe, expect, it } from "vitest";
 import { CASES } from "@/lib/estonian/cases";
@@ -784,10 +785,14 @@ describe("what a day reads and where it goes", () => {
         expect(day.steps.some((s) => s.id === FORMS_STEP), day.id).toBe(false);
       }
     }
-    // Every verb with a stored past that the ladder teaches is shown somewhere.
+    // Every verb with a stored past that the ladder teaches is shown somewhere:
+    // by a lesson that taught its past by name, or by a forms step, never both.
+    const lessonPasts = new Set(LESSONS.flatMap((l) => l.teaches.flatMap((t) => (t.kind === "form" && t.past ? [t.of] : []))));
+    for (const v of shown) expect(lessonPasts.has(v), `${v}: a lesson taught its past, and a forms step shows it again`).toBe(false);
     const taughtVerbs = new Set(DAYS.flatMap(({ day }) => day.words).filter((w) => withPast.has(w)));
-    const missing = [...taughtVerbs].filter((v) => !shown.has(v));
+    const missing = [...taughtVerbs].filter((v) => !shown.has(v) && !lessonPasts.has(v));
     expect(missing).toEqual([]);
+    expect(lessonPasts.size).toBeGreaterThan(40);
   });
 
   /*

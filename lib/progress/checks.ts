@@ -3,6 +3,7 @@ import { blockedBy, passedFrom, type CourseCheck } from "@/lib/course/checks";
 import { readSetting, writeSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { movesFreely } from "@/lib/auth/admin";
 import { prisma } from "@/lib/db";
+import { programmeFor } from "@/lib/progress/course";
 
 /**
  * The checks between the parts of the lessons, as one learner stands with them: which
@@ -103,8 +104,8 @@ export async function restorableParts(ownerId: string, ids: Iterable<string>): P
   if (wanted.length === 0) return new Set();
   const climbing = await prisma.courseStep.findFirst({ where: { ownerId }, select: { id: true } });
   if (!climbing) return new Set(wanted.map((p) => p.id));
-  const stored = await readSetting(ownerId, SETTING_KEYS.programme);
-  const standing = stored ? PROGRAMMES.find((p) => p.id === stored) ?? null : null;
+  // The part they are actually on, read the way every screen reads it: an old B1 part sent back, an unknown id placed.
+  const standing = await programmeFor(ownerId);
   const open = new Set<string>();
   for (const programme of wanted) {
     if (!await moveBlockedFor(ownerId, standing, programme)) open.add(programme.id);

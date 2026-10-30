@@ -80,10 +80,14 @@ const MAX_RESOLVE = 2;
  * One function so the course screen, Today and Settings cannot end up with
  * three answers to whether anybody is on a program.
  */
-export async function programmeFor(ownerId: string): Promise<Programme | null> {
+export const programmeFor = cache(async (ownerId: string): Promise<Programme | null> => {
   const stored = await readSetting(ownerId, SETTING_KEYS.programme);
   if (stored === "off") return null;
-  if (stored) return rehomed(ownerId, programmeById(stored) ?? null);
+  // A part id no build holds any more (renamed, or written by hand) is placed again rather than read as "off".
+  if (stored) {
+    const known = programmeById(stored);
+    return known ? rehomed(ownerId, known) : openingPartFor(ownerId);
+  }
   /*
     AND A LEARNER ALREADY PART WAY THROUGH ONE STAYS ON IT. Nothing is stored
     for somebody who was led here by this fallback without ever pressing
@@ -99,7 +103,7 @@ export async function programmeFor(ownerId: string): Promise<Programme | null> {
   });
   const inFlight = last ? programmeById(last.programmeId) : undefined;
   return inFlight ? rehomed(ownerId, inFlight) : openingPartFor(ownerId);
-}
+});
 
 /**
  * A LEARNER WHO WAS PART WAY THROUGH A PART THAT HAS SINCE BECOME LESSONS
@@ -133,15 +137,35 @@ const REHOMED_LEVELS: ReadonlySet<string> = new Set(["B1"]);
   they are" from then on, and every page calls `programmeFor`: remembering it
   takes the two reads below off every page for everybody but the few learners
   actually being moved back. A restore is the one way old ticks arrive later,
-  and it reaches a learner here once the instance is replaced. Bounded, for an
+  and it forgets that learner's answer on this instance (`forgetRehoming`). Bounded, for an
   instance that lives through many learners.
 */
 const SETTLED = new Set<string>();
 const SETTLED_MAX = 50_000;
 
-/** Forgets who was settled, for a test that walks one learner through several states; nothing in the app calls it. */
-export function forgetRehoming(): void {
-  SETTLED.clear();
+/**
+ * The old part a learner was moved back from, where they were: stored on a
+ * part of a level that became lessons and read onto an earlier one, so the
+ * screen can say why rather than leaving them to think the app lost their
+ * place. Null for everybody else, which is nearly everybody.
+ */
+export async function movedBackFrom(ownerId: string): Promise<{ from: Programme; to: Programme } | null> {
+  const stored = await readSetting(ownerId, SETTING_KEYS.programme);
+  const from = stored && stored !== "off" ? programmeById(stored) : undefined;
+  if (!from || !REHOMED_LEVELS.has(from.level)) return null;
+  const to = await programmeFor(ownerId);
+  return to && to.id !== from.id && to.level === from.level ? { from, to } : null;
+}
+
+/**
+ * Forgets who was settled: everybody, for a test that walks one learner
+ * through several states, or one learner, which a restore does, since a
+ * backup is the one way old ticks arrive after the answer was settled.
+ * Another instance learns it when it is replaced; the memo is per instance.
+ */
+export function forgetRehoming(ownerId?: string): void {
+  if (!ownerId) { SETTLED.clear(); return; }
+  for (const key of [...SETTLED]) if (key.startsWith(`${ownerId}:`)) SETTLED.delete(key);
 }
 
 async function rehomed(ownerId: string, programme: Programme | null): Promise<Programme | null> {

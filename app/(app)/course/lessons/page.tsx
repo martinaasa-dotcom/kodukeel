@@ -5,7 +5,7 @@ import { LessonText } from "@/components/course/LessonText";
 import { Card, Chip, Meter, Page, Stack } from "@/components/ui";
 import { LEVEL_INFO } from "@/lib/collections/syllabus";
 import { localeFor, titleFor } from "@/lib/progress/locale";
-import { lessonListStates } from "@/lib/progress/course";
+import { lessonListStates, movedBackFrom } from "@/lib/progress/course";
 import { fill, tr } from "@/lib/copy/locale";
 import { CheckCircle2, ChevronDown } from "lucide-react";
 import { PROGRAMMES } from "@/lib/course";
@@ -37,7 +37,7 @@ export const dynamic = "force-dynamic";
  */
 export default async function LessonsPage() {
   const ownerId = await requireUserId();
-  const [locale, states, passed] = await Promise.all([localeFor(ownerId), lessonListStates(ownerId), checksPassedFor(ownerId)]);
+  const [locale, states, passed, moved] = await Promise.all([localeFor(ownerId), lessonListStates(ownerId), checksPassedFor(ownerId), movedBackFrom(ownerId)]);
   const checks = courseChecks(PROGRAMMES);
   const t = (english: string) => tr(locale, english);
   const current = LESSONS.find((l) => states.get(l.id) === "current");
@@ -85,6 +85,14 @@ export default async function LessonsPage() {
       ) : undefined}
     >
       <Stack>
+        {/* Somebody who was part way through the old B1 is told why they are on an earlier part, once it is the case. */}
+        {moved && (
+          <Card tone="butter" data-moved-back={moved.from.id}>
+            <p className="text-base" style={{ color: "var(--ink)" }}>
+              {fill(t("{level} is built as lessons now, so you pick it up from {part}. The evenings you did before still count, and the words you learned are still in your review."), { level: moved.from.level, part: moved.to.id.toUpperCase() })}
+            </p>
+          </Card>
+        )}
         {levels.map((level) => {
           const parts = LESSON_PARTS.filter((p) => p.level === level);
           const ofLevel = LESSONS.filter((l) => l.level === level);

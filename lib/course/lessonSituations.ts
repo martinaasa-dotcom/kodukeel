@@ -72,3 +72,14 @@ export function situationsOfferedThrough(lessonId: string | null): ReadonlySet<s
   }
   return out;
 }
+
+/** The conversations offered by the lessons before this one, which is what a part's first evening has had. */
+export function situationsOfferedBefore(lessonId: string): ReadonlySet<string> {
+  const out = new Set<string>();
+  for (const lesson of LESSONS) {
+    if (lesson.id === lessonId) return out;
+    const scene = LESSON_SITUATIONS[lesson.id];
+    if (scene) out.add(scene);
+  }
+  return new Set();
+}

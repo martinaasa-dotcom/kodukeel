@@ -3,7 +3,7 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
 import { forgetSettings, SETTING_KEYS, writeSetting } from "@/lib/settings/store";
 import { PROGRAMMES } from "@/lib/course";
-import { forgetRehoming, programmeFor } from "./course";
+import { forgetRehoming, movedBackFrom, programmeFor } from "./course";
 import { moveBlockedFor } from "./checks";
 
 /**
@@ -17,13 +17,15 @@ import { moveBlockedFor } from "./checks";
  */
 
 const MINE = "itest-owner-rehome";
+const THEIRS = "itest-owner-rehome-2";
 const b1 = PROGRAMMES.filter((p) => p.level === "B1");
 const a2 = PROGRAMMES.filter((p) => p.level === "A2");
 
 async function wipe() {
-  await prisma.courseStep.deleteMany({ where: { ownerId: MINE } });
-  await prisma.setting.deleteMany({ where: { ownerId: MINE } });
+  await prisma.courseStep.deleteMany({ where: { ownerId: { in: [MINE, THEIRS] } } });
+  await prisma.setting.deleteMany({ where: { ownerId: { in: [MINE, THEIRS] } } });
   forgetSettings(MINE);
+  forgetSettings(THEIRS);
   forgetRehoming();
 }
 
@@ -108,5 +110,39 @@ describe("a learner on a part that has become lessons", () => {
     await prisma.courseStep.create({ data: oldTick(b1[2]!.id) });
     // Stepping up from the first A2 part to the second would ask for its check; somebody who walked the old B1 is not asked.
     expect(await moveBlockedFor(MINE, a2[0]!, a2[1]!)).toBeNull();
+  });
+
+  it("settles a learner once, and asks again after their restore, and only theirs", async () => {
+    for (const who of [MINE, THEIRS]) await writeSetting(who, SETTING_KEYS.programme, b1[2]!.id);
+    // No old ticks: both settled where they are.
+    expect((await programmeFor(MINE))?.id).toBe(b1[2]!.id);
+    expect((await programmeFor(THEIRS))?.id).toBe(b1[2]!.id);
+    // Old ticks arrive, as a restore brings them. Settled, neither is asked again.
+    await prisma.courseStep.createMany({ data: [oldTick(b1[2]!.id), { ...oldTick(b1[2]!.id), ownerId: THEIRS }] });
+    expect((await programmeFor(MINE))?.id).toBe(b1[2]!.id);
+    // The restore forgets its own learner, who is moved; the other stays settled.
+    forgetRehoming(MINE);
+    expect((await programmeFor(MINE))?.id).toBe(b1[0]!.id);
+    expect((await programmeFor(THEIRS))?.id).toBe(b1[2]!.id);
+  });
+
+  it("places a learner whose stored part no build holds, rather than reading it as off", async () => {
+    await writeSetting(MINE, SETTING_KEYS.programme, "b9.9-gone");
+    const part = await programmeFor(MINE);
+    expect(part).not.toBeNull();
+    expect(PROGRAMMES.some((p) => p.id === part!.id)).toBe(true);
+  });
+
+  it("reads a learner who never pressed Start off the part they last ticked", async () => {
+    await prisma.courseStep.create({ data: { ownerId: MINE, programmeId: a2[1]!.id, dayId: a2[1]!.days[0]!.id, stepId: a2[1]!.days[0]!.steps[0]!.id } });
+    expect((await programmeFor(MINE))?.id).toBe(a2[1]!.id);
+  });
+
+  it("says who was moved back and from where, and nothing for anybody else", async () => {
+    await writeSetting(MINE, SETTING_KEYS.programme, b1[2]!.id);
+    await prisma.courseStep.create({ data: oldTick(b1[2]!.id) });
+    expect(await movedBackFrom(MINE)).toEqual({ from: b1[2], to: b1[0] });
+    await writeSetting(THEIRS, SETTING_KEYS.programme, b1[2]!.id);
+    expect(await movedBackFrom(THEIRS)).toBeNull();
   });
 });
