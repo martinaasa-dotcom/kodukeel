@@ -303,8 +303,12 @@ export function unitsThrough(programme: Programme, index: number): string[] {
     than unit by unit, so inside them no unit is opened, and the catalog's
     conversations, which declare A1 and A2 units, wait for A2; the lessons'
     own role-plays are what A1 talks in. Once the lessons are behind a
-    learner, every unit of their level counts as opened, which is the claim
-    the old A1 made by walking them.
+    learner, every unit of their level counts as opened. That is a claim about
+    the setting a conversation declares (the cafe, the doctor), not about every
+    word of the units: the lessons taught by goal, and most of a B1 unit's
+    lemmas are taught by no evening. What a conversation asks a learner to say
+    is checked word by word in `course.test.ts`, which names the words the
+    ladder has not taught yet for B2's lessons to take up.
   */
   const take = (d: CourseDay) => {
     if (d.lesson && d.level === programme.level) return;

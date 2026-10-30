@@ -49,7 +49,7 @@ export default async function LessonsPage() {
     there is one; a part whose lessons are all done and whose check is still
     open, which used to exist only as the last row of a part somebody had
     already scrolled past; and once the last lesson level's check is passed,
-    the course itself, which is where B1 lives.
+    the course itself, which is where the level after the lessons (B2) lives.
   */
   const openCheck = LESSON_PARTS.map((part) => ({ part, check: checkOf(part) }))
     .find(({ part, check }) => check && !passed.has(check.id) && doneIn(part) === sizeOf(part));
@@ -89,7 +89,7 @@ export default async function LessonsPage() {
         {moved && (
           <Card tone="butter" data-moved-back={moved.from.id}>
             <p className="text-base" style={{ color: "var(--ink)" }}>
-              {fill(t("{level} is built as lessons now, so you pick it up from {part}. The evenings you did before still count, and the words you learned are still in your review."), { level: moved.from.level, part: moved.to.id.toUpperCase() })}
+              {fill(t("{level} is built as lessons now, so you pick it up from {part}. Your cards are kept, and Review asks each one again once the course has taught its word."), { level: moved.from.level, part: moved.to.id.toUpperCase() })}
             </p>
           </Card>
         )}

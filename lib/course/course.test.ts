@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { CASES } from "@/lib/estonian/cases";
 import { grammarTopic } from "@/lib/estonian/grammar";
 import { SCENES, sceneById as conversationById } from "@/lib/scenes/catalogue";
+import { askedLemmas } from "@/lib/scenes/types";
 import { minutesFor } from "@/lib/scenes/run";
 import { SYLLABUS, unitById } from "@/lib/collections/syllabus";
 import { BAND_ORDER } from "@/lib/collections/levels";
@@ -547,6 +548,56 @@ describe("what a day reads and where it goes", () => {
     for (const level of ["B2", "C1"]) {
       expect(DAYS.some(({ programme, day }) => programme.level === level && day.practice.includes("workbook")), level).toBe(true);
     }
+  });
+
+  /*
+    A CONVERSATION ABOVE THE LESSONS ASKS FOR WORDS THE LADDER TAUGHT, OR SAYS
+    WHICH IT DOES NOT. The catalog's conversations declare the units of A1, A2
+    and B1, and those levels are lessons now, which taught their words by goal
+    rather than unit by unit: of B1's units, most of the lemmas are taught by
+    no evening. So `unitsThrough` crediting a finished lesson level's units is
+    a claim about the conversation's setting rather than its every word, and
+    what a learner is asked to say is checked here, word by word. The words a
+    conversation dealt above the lessons asks for and the ladder has not
+    taught by that evening are listed per scene: B2's own lessons are where
+    they get taught (docs/43-lessons.md §10), and the list is checked both
+    ways, so a word taught later comes off it and a new gap fails.
+  */
+  it("asks for a word in a conversation above the lessons only where the ladder taught it, or names it", () => {
+    const KNOWN_UNTAUGHT: Readonly<Record<string, readonly string[]>> = {
+      elamisluba: ["pilt", "taotlus"],
+      tootukassa: ["laulja", "näitleja", "registreerima"],
+      perearst: ["nõrk", "tugev"],
+      palk: ["nõustuma", "toode"],
+      "elanike-koosolek": ["koguma", "lind", "nõustuma", "ohutu", "puhas", "puu", "õhk"],
+      hadaabi: ["kukkuma", "valu"],
+      "arsti-aeg": ["haigus", "keha", "süda", "valu"],
+      "sobra-mure": ["toetama"],
+      kaebus: ["hüvitis", "klient", "üleeile"],
+      tagatisraha: ["puhas", "tagastama"],
+      toovestlus: ["ettevõte", "huvi", "nõustuma"],
+      graafik: ["hind", "klient", "reklaam", "toode", "tõusma"],
+      "eksam-b2": ["amet", "eriala", "ettevõte", "nõustuma", "seega", "töötaja"],
+      kuulsin: ["ajaleht", "artikkel", "leht", "raadio", "saade"],
+      keeletund: ["harjutus", "huvi", "kordama", "seletama", "tõlkima", "õpik"],
+      "uuri-remont": ["mööbel", "ruum", "üleeile"],
+      raamatuklubi: ["julge", "nõustuma"],
+    };
+    const bare = (w: string) => w.toLocaleLowerCase("et").replace(/[.!?,]+/g, "").trim();
+    let dealt = 0;
+    const found: Record<string, string[]> = {};
+    for (const programme of PROGRAMMES) {
+      for (const day of programme.days) {
+        if (!day.scene) continue;
+        dealt += 1;
+        const scene = conversationById(day.scene)!;
+        const taught = new Set(taughtThrough(programme, day.index).map(bare));
+        const untaught = [...new Set(scene.beats.flatMap((b) => askedLemmas(scene, b)))].filter((l) => !taught.has(bare(l))).sort();
+        if (untaught.length) found[scene.id] = untaught;
+      }
+    }
+    expect(dealt).toBeGreaterThan(15);
+    expect(found).toEqual(KNOWN_UNTAUGHT);
   });
 
   /*
