@@ -457,6 +457,9 @@ export const LessonResponse = z.object({
   scene: z.string().nullable().describe("The lesson's own conversation, a scene id, where it has one."),
   situation: z.object({ id: z.string(), title: z.string() }).nullable()
     .describe("A conversation from the situations catalog that the lesson rehearses, offered on its finish (B1 on)."),
+  worksheet: z.object({
+    theme: z.string().nullable().describe("The theme the page leads with, a case as `case:` and its key or a tense such as `conditional`, or null for the page to choose."),
+  }).nullable().describe("A worksheet page on what the lessons have taught, offered on the finish (B1 on), or null."),
   place: z.object({ at: z.number().int(), of: z.number().int() }),
   name: z.string().nullable().describe("The learner's own first name, for a model answer about them."),
   due: z.number().int().min(0).describe("Cards due in the learner's reviews now."),

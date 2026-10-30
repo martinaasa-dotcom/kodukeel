@@ -821,6 +821,21 @@ Words step names what each new verb asks for (`asks`). Each part ends in a role-
 rehearses the same errand on their finish (`lessonSituations.ts`): the payday lesson the bank, the
 leak the landlord, the speaking exam lesson the B1 exam conversation.
 
+**And every B1 lesson ends on a worksheet page.** The old B1 dealt the worksheet (Töövihik,
+`lib/games/workbook.ts`) on its rotation, and an evening of one lesson dealt nothing, so the
+operator asked for it back as the grammar practice that helps most. It is a card on the finish
+screen, in the module as well, rather than a second step of the evening: a lesson evening is one
+step everywhere the course is read, the native API and Today included, and a page on top of a
+lesson of twenty-five or forty minutes is an offer. The page is the ordinary one, held to what the
+lessons have taught so far, and it leads with the lesson's own rule where the worksheet has a theme
+for it (`lessonWorksheet.ts`: a case the lesson is about, a tense, the would form, the osastav for
+the object rule); the rest let the page choose, the learner's weakest case first. `npm run
+measure:workbook` sets the page each of the forty-nine would offer: every one is a full ten lines
+written and six from the box. Two lessons whose rule has a theme (the would form and the essive)
+lead with something else, because the dictionary holds recorded sentences of taught words in that
+form for one word each, and the page will not set a short page while another fills. The v1 lesson
+view carries the offer as `worksheet`, so a native app can make it too.
+
 **One year, one cast, and a level that ramps.** B1 is one family's year (`docs/reviews/b1-cast.md`):
 a name is one person from A1 to B1, the move in part 4 is the move every later part lives with, and
 a stranger is a one-off name. Each part asks more than the one before, in a table the lessons are

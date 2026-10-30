@@ -3633,6 +3633,29 @@
             ],
             "description": "A conversation from the situations catalog that the lesson rehearses, offered on its finish (B1 on)."
           },
+          "worksheet": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "theme": {
+                    "description": "The theme the page leads with, a case as `case:` and its key or a tense such as `conditional`, or null for the page to choose.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "theme"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "A worksheet page on what the lessons have taught, offered on the finish (B1 on), or null."
+          },
           "place": {
             "type": "object",
             "properties": {
@@ -3776,6 +3799,7 @@
           "next",
           "scene",
           "situation",
+          "worksheet",
           "place",
           "name",
           "due",
