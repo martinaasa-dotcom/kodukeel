@@ -5,6 +5,7 @@ import { checkAfter, type CourseCheck } from "@/lib/course/checks";
 import { sceneForLesson } from "@/lib/scenes/lessonScenes";
 import { sceneById } from "@/lib/scenes/catalogue";
 import { situationFor } from "@/lib/course/lessonSituations";
+import { worksheetFor } from "@/lib/course/lessonWorksheet";
 import type { LessonView } from "@/lib/progress/lessonView";
 
 /** The course and, after it, the lessons in preview, which the ledger walks in that order. */
@@ -63,6 +64,8 @@ export function lessonPlan(
     after: next ? { id: next.id, title: next.title, crossesPart: next.part !== lesson.part } : null,
     scene: sceneForLesson(lesson.id)?.id ?? null,
     situation: situationOf(lesson.id),
+    // From B1, a worksheet page on the finish; a lesson in preview is on no evening and offers none.
+    worksheet: placed ? worksheetFor(placed.day) : null,
     place: { at: ofLevel.indexOf(lesson) + 1, of: ofLevel.length },
     closes,
   };
