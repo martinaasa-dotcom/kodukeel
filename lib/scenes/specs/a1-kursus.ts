@@ -16,10 +16,10 @@ import { CLOSING_WORDS, HELLOS } from "./shared";
 export default inLesson("a1-17-course", {
   id: "a1-kursus",
   title: "The first evening of the course",
-  place: "A classroom, the teacher going round the room",
+  place: "A classroom, the teacher going around the room",
   tests: "tutvumine",
   register: "teie",
-  role: "It's the first evening of an Estonian course and the teacher is going round the room. Your card says where you're from. Any name will do.",
+  role: "It's the first evening of an Estonian course and the teacher is going around the room. Your card says where you're from. Any name will do.",
   props: [
     {
       kind: "word", slot: "from", oneOf: ["Inglismaa", "Venemaa"],
