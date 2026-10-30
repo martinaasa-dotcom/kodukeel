@@ -822,9 +822,11 @@ your own, have it read by the dictionary and, where a model is configured, by An
 `verify.ts`, and redraft; a sentence written right can be kept as a review card (`WRITTEN`). The
 Words step names what each new verb asks for (`asks`). Each part ends in a role-play played live
 (`lib/scenes/specs/b1-*.ts`), and every scene is played keyless as seven kinds of learner in
-`lessonScenes.test.ts`, at B1's pitch. Twenty-one lessons offer a catalog conversation that
-rehearses the same errand on their finish (`lessonSituations.ts`): the payday lesson the bank, the
-leak the landlord, the speaking exam lesson the B1 exam conversation.
+`lessonScenes.test.ts`, at B1's pitch. Twenty-one lessons offer a catalog conversation on their
+finish (`lessonSituations.ts`). Where a lesson is about the same errand it is that lesson: the payday
+lesson offers the bank, the leak the landlord, the speaking exam the B1 exam conversation. B1 has no
+lesson about a bus stop, a restaurant, a clothes shop or a pharmacy, so those four sit on lessons
+about something else and are there for the words the level has taught by then.
 
 **How a rework is marked, which the operator decided on 2026-10-30.** A typed sentence is held to
 the ones written for it (`answer`, `accept`), and then to the shapes `sameSentence` can vouch for
@@ -839,6 +841,14 @@ Every one of those is tried with the marks folded away too, which makes it nearl
 wrong rework names the sentence as it was, or the slip still standing; a fix is shown, in the order
 `fixesFor` ranks them, the learner's own commonest confusion first. The golden table of verdicts is
 `practice.test.ts`.
+
+**A pronoun for a noun is a different sentence, and the ask says which it wants.** `sameSentence`
+never reads `seda` as `kraani` or `teda` as `Marit`: which thing a pronoun stands for is a reading of
+the conversation, and a marker that guessed it would mark a wrong referent right. So an ask that
+wants a pronoun names it (`Use {teda}.`), an ask that wants the noun names the noun, and where a
+learner could honestly say either (a `selle` or `seda` for the thing the sentence is already about),
+the written variants carry both in `also`. That is a rule for whoever writes a rework or a prompt and
+it is checked by reading, since no test can tell which noun a pronoun was meant for.
 
 **And every B1 lesson ends on a worksheet page.** The old B1 dealt the worksheet (Töövihik,
 `lib/games/workbook.ts`) on its rotation, and an evening of one lesson dealt nothing, so the

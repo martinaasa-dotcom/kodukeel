@@ -203,7 +203,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       notes: [
         "{Ma huvitun muusikast} is right, but it reads like a book. People usually say {Mind huvitab muusika}, and ask {Mis sind huvitab?}",
         "English is interested in; Estonian is interested out of. Ask for it with {millest?}",
-        "{Meeldima} turns the sentence round: the one who likes takes the [alaleütlev] (-le, onto/to), {mulle}, {talle}, and the thing liked comes after the verb.",
+        "{Meeldima} turns the sentence around: the one who likes takes the [alaleütlev] (-le, onto/to), {mulle}, {talle}, and the thing liked comes after the verb.",
         "{Mulle tundub} is it seems to me, which is how Estonian says I think when it's a feeling rather than a fact.",
       ],
       watchOut: "In English you're interested in something, so {spordis} is tempting. It's {spordist}, out of, every time.",
@@ -305,6 +305,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "temaga", of: "tema", en: "with him, with her" },
       { kind: "form", et: "sellele", of: "see", en: "onto it; about it, after {mõtlema}" },
       { kind: "form", et: "sellest", of: "see", en: "about it, out of it" },
+      { kind: "word", et: "peale", en: "onto; about, after {mõtlema} with the [omastav] (2nd form) in front: {selle peale}" },
       { kind: "form", et: "ilma", of: "ilm", en: "of the weather", stem: true },
       { kind: "form", et: "lilli", of: "lill", en: "flowers, some flowers" },
       { kind: "form", et: "teistest", of: "teine", en: "about others" },
@@ -369,7 +370,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
         from: { et: "Ma mõtlen sellele.", en: "I'm thinking about it." },
         ask: "Say Mari was thinking about it.",
         to: { et: "Mari mõtles sellele.", en: "Mari was thinking about it." },
-        also: ["Mari mõtles sellest."],
+        also: ["Mari mõtles sellest.", "Mari mõtles selle peale."],
         pattern: "past",
       },
       {
@@ -485,7 +486,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
         from: { et: "Ma armusin temasse.", en: "I fell for him." },
         ask: "Say you fell for the town: {see linn}.",
         to: { et: "Ma armusin sellesse linna.", en: "I fell for this town." },
-        also: ["Armusin sellesse linna."],
+        also: ["Armusin sellesse linna.", "Ma armusin sellesse linnasse.", "Armusin sellesse linnasse."],
         pattern: "government",
       },
       {
@@ -499,7 +500,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
         from: { et: "Ta parandas mu autot.", en: "He was fixing my car." },
         ask: "Say he got it fixed. Use {ära}.",
         to: { et: "Ta parandas mu auto ära.", en: "He got my car fixed." },
-        also: ["Tema parandas mu auto ära.", "Ta parandas minu auto ära."],
+        also: ["Tema parandas mu auto ära.", "Ta parandas minu auto ära.", "Ta parandas selle ära."],
         pattern: "object",
       },
     ],
@@ -560,7 +561,6 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "ilusale", of: "ilus", en: "nice, good, as what you count on" },
       { kind: "form", et: "ilusat", of: "ilus", en: "nice, good, as what you hope for" },
       { kind: "form", et: "sinule", of: "sina", en: "onto you, on you" },
-      { kind: "word", et: "peale", en: "onto, on: {sinu peale}, on you" },
       { kind: "form", et: "sadas", of: "sadama", en: "it rained, it fell" },
       { kind: "form", et: "vihma", of: "vihm", en: "rain, as what falls or what you fear" },
       { kind: "form", et: "eelmisel", of: "eelmine", en: "last (last summer, last week)" },
@@ -714,7 +714,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
     answers: [
       { ask: { et: "Kas sa tuled mu sünnipäevale?", en: "Are you coming to my birthday?" }, cue: "Say yes, you'd love to.", model: { et: "Jah, ma tulen hea meelega!", en: "Yes, I'd love to come!" } },
       { cue: "Say you're sorry, you can't come.", model: { et: "Kahjuks ma ei saa tulla.", en: "I'm afraid I can't come." } },
-      { cue: "Ask if you could bring your husband or wife along.", model: { et: "Kas ma võiksin oma abikaasa kaasa võtta?", en: "Could I bring my husband along?" } },
+      { cue: "Ask if you could bring your husband or wife along.", model: { et: "Kas ma võiksin oma abikaasa kaasa võtta?", en: "Could I bring my husband or wife along?" } },
       { cue: "Thank them for the invitation.", model: { et: "Aitäh kutse eest!", en: "Thanks for the invitation!" } },
     ],
     reworks: [
@@ -749,7 +749,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
     fixes: [
       { line: { et: "Võta oma naine ka kaasa, sest ma tahan temaga juba ammu tutvuda.", en: "Bring your wife along too, because I've wanted to meet her for ages." }, right: "temaga", wrong: "teda", pair: ["COMITATIVE", "PARTITIVE"], why: "{Tutvuma} is with somebody: {temaga}." },
       { line: { et: "Kas sa saaksid mind aruandega aidata?", en: "Could you help me with the report?" }, right: "aruandega", wrong: "aruannet", pair: ["COMITATIVE", "PARTITIVE"], why: "Help with something takes the [kaasaütlev] (-ga, with): {aruandega}." },
-      { line: { et: "Kas ma võiksin oma naise kaasa võtta?", en: "Could I bring my wife along?" }, right: "naise", wrong: "naine", pair: ["GENITIVE", "NOMINATIVE"], why: "You bring the whole person, not some of her: the [omastav] (2nd form), {oma naise}." },
+      { line: { et: "Kas ma võiksin oma naise kaasa võtta?", en: "Could I bring my wife along?" }, right: "naise", wrong: "naine", pair: ["GENITIVE", "NOMINATIVE"], why: "It's a question, not a command, so the whole person takes the [omastav] (2nd form): {oma naise}. The [nimetav] (1st form) is for a command: {Võta oma naine ka kaasa}." },
     ],
     write: {
       genre: "A reply to an invitation, with a favor asked",
@@ -824,7 +824,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
         "{Tutvuma} keeps its case after {pead}: {Sa pead Katiga tutvuma}.",
         "At the end, a new colleague asks you one thing Kadri didn't: who to ask when you're not there.",
       ],
-      watchOut: "Four verbs, four cases for the same person: {aita mind}, {küsi minult}, {räägi temaga}, {mõtle sellele}. Say each with its own.",
+      watchOut: "Four verbs, four cases: {aita mind}, {küsi minult}, {räägi temaga}, {mõtle sellele}. Say each with its own.",
       examples: [2, 5, 6, 9],
     },
     listenFor: [

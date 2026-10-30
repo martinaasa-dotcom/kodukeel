@@ -17,10 +17,10 @@ in `docs/44-language-reviews.md` section 1.
 
 ### `b1-objekt` (lessons 1 to 7), "Getting the job done"
 
-- Kept: `Õige! Nüüd sõltub kõik sinust.`, `Mul ei ole seda osa.` (7). Lesson 2's keys are `ukse küljes` now, not `ukse peal`.
+- Kept: `Õige! Nüüd sõltub kõik sinust.`, and in lesson 7 `Selle jaoks on vaja varuosa.` Lesson 2's keys are `ukse küljes` now.
 - New: lesson 2 is a new story, Tom locked out after a concert with the keys in the door
   (`Tom, vaata! Su võtmed on ju ukse küljes.`, `Soki? Miks sul on taskus sokk?`).
-- New: lesson 6 opens on a voicemail from Peeter (`Jäta talle lauale väike kiri.`, `Või kardad sa elektrit?`).
+- New: lesson 6 opens on a voicemail from Peeter (`Jäta talle lauale sedel, sest meister ei tunne korterit.`, `Kui sa elektrit kardad, helista mulle!`).
 - New: lesson 7's added turn, `Aga kui te ei ole kodus?` / `Siis on võti naabri juures.`
 
 ### `b1-rektsioon` (lessons 8 to 14)
@@ -33,26 +33,26 @@ in `docs/44-language-reviews.md` section 1.
 
 ### `b1-raha` (lessons 15 to 21)
 
-- Kept: `iga õhtu` (`igal` is not taught yet), `Pole viga`, `Kas sul oleks hetk aega?`,
-  `Ma pakuksin talle ka lõunat`, `palk enne/pärast makse`, `Säästa on raske`, `Kaks tükki.`,
+- Kept: `iga õhtu` (`igal` is not taught yet), `Pole viga`, `Kristi, kas sul oleks hetk aega?`,
+  `Ma pakuksin talle lõunat.`, `palk enne/pärast makse`, `Säästa on raske`, `Kaks tükki.`,
   `Tervitustega, Tom`.
 - New: lesson 16 opens on Kristi introducing the team at the Monday meeting (`Mina alustasin siin ka
   praktikandina. Ma tegin rohkem kohvi kui koodi.`, `Palju õnne? Ei, pigem jõudu!`).
-- New: lesson 21's added turn, `Kelleks sa tahaksid järgmisel aastal saada?`
+- New: lesson 21's closing conversation `b1-palgatous` asks `Kelleks sa tahaksid järgmisel aastal saada?`
 
 ### `b1-kodu` (lessons 22 to 28)
 
 - Kept: `Siin on ju kümme tooli!`, `Kas ma tohin sinna vaadata?`, the quiet-hours notice, `See on lepingus kirjas.`, `Ainult natuke liiga hea meister.`
 - Kept, and read as right by the rewrite: a -tud word stays as it is before its noun (`suletud
   uksega`) and after `on` (`Koerad on lubatud`). Please confirm.
-- New: lesson 23 is Tom's voicemail to Mari a week after the move (`Aga külmkapp on suurem kui mina!`).
+- New: lesson 23 is Tom's voicemail to Mari a week after the move (`Ja külmkapp on suurem kui mina, nii et sa pead seda nägema!`).
 - New: lesson 27's letter to the new landlord Urmas (`Ma kannan juba kodus mütsi.`).
 - New: lesson 28's added turn, `Aga vannitoas ei tööta lamp.` / `See on ainult pirn. Pirn tuleb vahetada.`
 
 ### `b1-uudised` (lessons 29 to 35)
 
 - Kept: `Seal tehakse igal aastal suur lõke`, `telefon oli tühjaks saanud`,
-  `aja kinni pannud`, `Ja minu kartulid? Kes neid nüüd sööb?`
+  `aja juba ammu kinni pannud`, `Ja minu kartulid? Kes neid nüüd sööb?`
 - New: lesson 32 opens on a radio news item (`Öösel oli kesklinnas tulekahju.`, `Uudistes teatati,
   et restoran avatakse kuu aja pärast uuesti.`).
 - New: lesson 34 is Helgi on the phone (`Öösel läks keldris toru katki.`).
@@ -71,11 +71,12 @@ in `docs/44-language-reviews.md` section 1.
 - Kept: `Võib-olla jätsin selle bussi.`, `Ega midagi.`, `Tere, … kuuleb.`, `Palun öelge, et ta helistaks
   mulle tagasi.`, `Ma oleksin pidanud…`, `ootele`, `Palun väljastada mulle elaniku parkimisluba.`,
   `Ametlikult on see nii:`, `Lisan avaldusele auto dokumendid.`, `Väga ametlik, kuigi lühike!`
-- Unsure: `…nad tegid kaardi jälle lahti` (49) and `lahti` for a card unblocked (45).
+- Lesson 45 blocks the card with `kinni panema` (`Palun pange see kinni.`), and no line unblocks one with `lahti` any more.
 - New: lesson 43, the clerk pockets Tom's pen (`Hästi. Aga andke palun mu pastakas tagasi!`).
 - New: lesson 44, `Kas ma võiksin passi homme tuua?` and `Me hoiame passe ühes kotis ja see kott on praegu mu naisel.`
 - New: lesson 47 opens on the city's recorded hold message (`Teie kõne on meile oluline. Palun jääge ootele.`).
-- New: lesson 49's added turn, `Kumb on parem, elada linnas või maal? Miks?`
+- New: lesson 49's part two, `Ma ei ole päris nõus. Maal on igav. Mina tahaksin minna muuseumi.`
+- ASK NATIVE: lesson 49, `Teine osa. Nüüd olen mina teie kolleeg ja me räägime sina.` Is `me räägime sina` how an examiner says the two candidates now use `sina` with each other? If not, write the line a native speaker would say.
 
 ## Changed after the independent review (2026-10-28)
 
@@ -104,7 +105,7 @@ rewritten because of it, and are the first to read:
 - Lesson 29: `Liftis ei räägita. Siin on selline komme.`
 - Lesson 33's story is set at last week's meeting: `Eelmise nädala koosolek kestis kaks tundi.` and
   `Eilne koosolek oli parem: seal arutati kohe uut projekti.`
-- Lesson 34: the notice is signed `Tom, korter 9` (the new flat is not Peeter's number).
+- Lesson 34: the notice is signed `Tom, korter 9` (the new apartment is not Peeter's number).
 - Lesson 41's post: `Tere kõigile!`, `Linnavalitsus tahab meie pargi asemele parkla ehitada.`
 - Lesson 44: `Ma tahaksin elamisloa pikendamist taotleda.` (Tom has lived here for years).
 - Lesson 47: `Praegu on kõik ametnikud hõivatud.`, `Ametnik on praegu hõivatud.`
@@ -412,7 +413,7 @@ Still to read, from the same audit, before anything is changed:
 - Lesson 13's model, `Kas ma võiksin oma abikaasa kaasa võtta?`: does `abikaasa` read naturally
   beside `oma naise` in the table and the fix?
 - Lesson 6's conversation, `Jäta talle lauale sedel, sest meister ei tunne korterit.`: is `tundma`
-  natural for knowing your way round an apartment?
+  natural for knowing your way around an apartment?
 - Lesson 9's conversation, `Mulle tundub, et sa oleksid hea.`: is that how somebody says "you'd be
   good"?
 - Lesson 45's rework, `Ma ei leidnud rahakotti bussist.`: is `bussist` right, or `bussis`, and

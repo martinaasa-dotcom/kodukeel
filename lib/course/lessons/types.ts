@@ -229,7 +229,7 @@ export interface Prompt {
   readonly model: { readonly et: string; readonly en: string };
   /**
    * Every other way of saying the model that counts, as a rework's `also`:
-   * `Mida koosolekul kokku lepiti?` beside `Milles koosolekul kokku lepiti?`.
+   * `Ma tahaksin autot, et sõita maale.` beside `Ma tahaksin autot, et maale sõita.`.
    * Marked right like the model, and held to the same ledger checks.
    */
   readonly also?: readonly string[];

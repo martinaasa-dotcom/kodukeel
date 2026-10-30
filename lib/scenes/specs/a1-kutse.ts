@@ -15,7 +15,7 @@ import { CLOSING_WORDS, FAREWELLS, HELLOS } from "./shared";
 */
 export default inLesson("a1-49-invite", {
   id: "a1-kutse",
-  title: "A new neighbor asks you round",
+  title: "A new neighbor asks you over",
   place: "The stairwell of your building",
   tests: "tutvumine",
   register: "sina",
@@ -80,8 +80,8 @@ export default inLesson("a1-49-invite", {
     },
     {
       id: "invite",
-      goal: "She asks you round on Saturday. Thank her and ask what time.",
-      they: "She asks you round on Saturday, and says she's cooking.",
+      goal: "She asks you over on Saturday. Thank her and ask what time.",
+      they: "She asks you over on Saturday, and says she's cooking.",
       /* "Mis kell?" asked here is answered by the next beat, which says the time. */
       answeredNext: true,
       /* The invitation is an offer: "Tule laupäeval meile!" asks nothing, and "Mis kell?" put to it is answered by the next beat (`answeredNext`). */
@@ -118,8 +118,8 @@ export default inLesson("a1-49-invite", {
     },
   ],
   outcomes: [
-    { id: "invited", when: ["greet", "name", "from", "praise", "invite", "time", "close"], says: "You've met your new neighbor, told her about yourself, and you're going round on Saturday." },
-    { id: "invited-thin", when: ["invite", "time"], says: "You're going round on Saturday. The rest you can say over dinner." },
+    { id: "invited", when: ["greet", "name", "from", "praise", "invite", "time", "close"], says: "You've met your new neighbor, told her about yourself, and you're going over on Saturday." },
+    { id: "invited-thin", when: ["invite", "time"], says: "You're going over on Saturday. The rest you can say over dinner." },
     { id: "left", when: [], says: "You hurried past this time. She'll be on the stairs again." },
   ],
 });

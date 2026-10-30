@@ -47,8 +47,8 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Sinna saab ka bussiga. Ja buss ei lähe katki.", en: "You can get there by bus too. And the bus doesn't break down." },
       { who: "Tom", et: "Aga buss ei sõida metsa. Kui mul on auto, olen ma vaba!", en: "But the bus doesn't go into the forest. If I have a car, I'm free!" },
       { who: "Mari", et: "Kui auto läheb katki, ei ole sa enam vaba. Siis oled sa jälle bussis.", en: "If the car breaks down, you're not free any more. Then you're back on the bus." },
-      { who: "Tom", et: "Hea küll. Ma helistan mehaanikule, et küsida, kui palju remont maksab.", en: "All right. I'll call the mechanic to ask how much the repair costs." },
-      { who: "Tom", stage: "He calls the mechanic, listens, and puts the phone down.", et: "Sada eurot.", en: "A hundred euros." },
+      { who: "Tom", et: "Hea küll. Ma helistan mehaanikule, et küsida, kui palju remont maksab.", en: "All right. I'll call the mechanic to ask how much the repair costs.", stage: "He calls the mechanic, listens, and puts the phone down." },
+      { who: "Tom", et: "Sada eurot.", en: "A hundred euros." },
       { who: "Mari", et: "Kas sa ostad nüüd uuema auto?", en: "So are you buying a newer car now?" },
       { who: "Tom", et: "Ei. Sada eurot on vähem kui uus auto. Ma sõidan vana autoga veel natuke.", en: "No. A hundred euros is less than a new car. I'll drive the old one a while longer." },
       { who: "Mari", et: "Kuigi see läheb jälle katki?", en: "Even though it'll break down again?" },
@@ -126,7 +126,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
         from: { et: "Mul ei ole autot. Ma ei saa metsa sõita.", en: "I haven't got a car. I can't drive into the forest." },
         ask: "Make it an if that isn't true, with {kui} and the [tingiv kõneviis] (-ks, would): if I had a car, I could drive into the forest.",
         to: { et: "Kui mul oleks auto, saaksin ma metsa sõita.", en: "If I had a car, I could drive into the forest." },
-        also: ["Kui mul oleks auto, ma saaksin metsa sõita.", "Ma saaksin metsa sõita, kui mul oleks auto.", "Kui mul oleks auto, saaksin metsa sõita.", "Kui mul oleks auto, siis saaksin ma metsa sõita.", "Kui mul oleks auto, siis ma saaksin metsa sõita.", "Kui mul auto oleks, saaksin ma metsa sõita.", "Kui mul auto oleks, ma saaksin metsa sõita.", "Kui mul auto oleks, saaksin metsa sõita.", "Ma saaksin metsa sõita, kui mul auto oleks."],
+        also: ["Kui mul oleks auto, ma saaksin metsa sõita.", "Ma saaksin metsa sõita, kui mul oleks auto.", "Kui mul oleks auto, saaksin metsa sõita.", "Kui mul oleks auto, siis saaksin ma metsa sõita.", "Kui mul oleks auto, siis ma saaksin metsa sõita.", "Kui mul auto oleks, saaksin ma metsa sõita.", "Kui mul auto oleks, ma saaksin metsa sõita.", "Kui mul auto oleks, saaksin metsa sõita.", "Ma saaksin metsa sõita, kui mul auto oleks.", "Kui mul oleks auto, saaksin ma metsasse sõita.", "Kui mul oleks auto, ma saaksin metsasse sõita.", "Ma saaksin metsasse sõita, kui mul oleks auto.", "Kui mul oleks auto, saaksin metsasse sõita.", "Kui mul oleks auto, siis saaksin ma metsasse sõita.", "Kui mul oleks auto, siis ma saaksin metsasse sõita.", "Kui mul auto oleks, saaksin ma metsasse sõita.", "Kui mul auto oleks, ma saaksin metsasse sõita.", "Kui mul auto oleks, saaksin metsasse sõita.", "Ma saaksin metsasse sõita, kui mul auto oleks."],
         pattern: "subordinate",
       },
     ],
@@ -136,7 +136,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
     ],
     faster: {
       ask: { et: "Kas linnas on autot vaja? Miks?", en: "Do you need a car in the city? Why?" },
-      cue: "Give your view, and two reasons: one with {kuna} and one with {kuigi}.",
+      cue: "Give your view: a reason with {kuna}, and what speaks against it with {kuigi}.",
       model: { et: "Ma ei tahaks linnas autot. Kuna buss on odavam, jääb mul rohkem raha üle. Ja kuigi auto on mugav, käin ma linnas hea meelega jala.", en: "I wouldn't want a car in the city. Since the bus is cheaper, I have more money left. And although a car is comfortable, I'm happy to walk in the city." },
     },
   },
@@ -184,7 +184,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "{Kes} is for people and {mis} for things. They take the ending the second sentence would give: you read a book still in progress, so {mida}; you talk about it, so {millest}.",
-        "Read a book to the end, and the joining word is whole too: {raamat, mille ta kirjutas}, the book she wrote.",
+        "A book somebody wrote is a whole job done, so the joining word is whole too: {raamat, mille ta kirjutas}, the book she wrote.",
         "A comma stands before {kes} and {mis}, and after the joined part if the sentence carries on: {Naine, kes seisab akna juures, on Leena}.",
       ],
       watchOut: "English can drop who and that: the book you read. Estonian never drops the joining word: {raamat, mida sa loed}.",
@@ -351,7 +351,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
     ],
     faster: {
       ask: { et: "Kus on sinu meelest parem filmi vaadata, kinos või kodus?", en: "Where do you think it's better to watch a film, at the cinema or at home?" },
-      cue: "Say which you'd rather, and give two reasons: one with {kuna} and one with {kuigi}.",
+      cue: "Say which you'd rather: a reason with {kuna}, and what speaks against it with {kuigi}.",
       model: { et: "Minu meelest on kodus parem, kuna seal saab diivanil vaadata ja see on tasuta. Kuigi kino on lõbus, jään ma seal magama.", en: "If you ask me, home is better, since you can watch on the sofa and it's free. Although the cinema is fun, I fall asleep there." },
     },
   },
@@ -390,6 +390,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "juhe", en: "a cable, a lead" },
       { kind: "form", et: "juhtmega", of: "juhe", en: "with a cable" },
       { kind: "form", et: "juhet", of: "juhe", en: "a cable, as an object" },
+      { kind: "form", et: "sobinud", of: "sobima", en: "fitted, after {ei}: {ei sobinud}" },
       { kind: "form", et: "karbis", of: "karp", en: "in the box" },
       { kind: "form", et: "sõnumit", of: "sõnum", en: "message, after a number or as some of it" },
       { kind: "word", et: "rakendus", en: "app" },
@@ -456,7 +457,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
         from: { et: "Ma tean, et vana juhe ei sobi.", en: "I know the old cable doesn't fit." },
         ask: "Say you didn't know it: the past, and a no.",
         to: { et: "Ma ei teadnud, et vana juhe ei sobi.", en: "I didn't know the old cable doesn't fit." },
-        also: ["Ei teadnud, et vana juhe ei sobi."],
+        also: ["Ei teadnud, et vana juhe ei sobi.", "Ma ei teadnud, et vana juhe ei sobinud.", "Ei teadnud, et vana juhe ei sobinud."],
         pattern: "past",
       },
     ],
@@ -467,7 +468,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
     retell: {
       who: "Tom",
       story: [
-        { et: "Eile tuli meie naaber Helgi minu juurde.", en: "Yesterday our neighbor Helgi came round to me." },
+        { et: "Eile tuli meie naaber Helgi minu juurde.", en: "Yesterday our neighbor Helgi came over to see me." },
         { et: "Tal on uus nutitelefon, aga ekraan oli must.", en: "She's got a new smartphone, but the screen was black." },
         { et: "Ta laadis seda vana telefoni juhtmega ja ei teadnud, et see juhe ei sobi.", en: "She was charging it with her old phone's cable and didn't know that cable doesn't fit." },
         { et: "Me laadisime telefoni uue juhtmega ja siis oli seal kakskümmend sõnumit.", en: "We charged the phone with the new cable, and then there were twenty messages on it." },
@@ -476,7 +477,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
         { et: "Nüüd helistab ta mulle iga päev.", en: "Now she calls me every day." },
       ],
       points: [
-        { en: "Helgi, the neighbor, came round to Tom's. Tell it about him: {ta}, not {ma}.", any: ["Helgi", "naaber"] },
+        { en: "Helgi, the neighbor, came over to Tom's. Tell it about him: {ta}, not {ma}.", any: ["Helgi", "naaber"] },
         { en: "The screen of her new smartphone was black.", any: ["ekraan", "must"] },
         { en: "She was charging it with the old cable, which doesn't fit.", any: ["juhtmega", "juhe", "teadnud"] },
         { en: "There were twenty messages, from her daughter.", any: ["sõnumit", "tütrelt"] },
@@ -501,8 +502,8 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Ja toit? Ja vana kampsun?", en: "And food? And an old sweater?" },
       { who: "Helgi", et: "Toit läheb pruuni kasti. Kampsun ei ole prügi, selle võid sõbrale anda.", en: "Food goes in the brown bin. A sweater isn't trash, you can give it to a friend." },
       { who: "Tom", et: "See on palju tööd. Miks see nii oluline on?", en: "That's a lot of work. Why does it matter so much?" },
-      { who: "Helgi", et: "Sest nii me hoiame loodust. Keskkond on meie kõigi kodu.", en: "Because that way we look after nature. The environment is home to all of us." },
-      { who: "Tom", stage: "He opens the bag and starts sorting.", et: "Pakend, paber, pakend...", en: "Packaging, paper, packaging..." },
+      { who: "Helgi", et: "Sest nii me hoiame loodust. Keskkond on meie kõigi kodu.", en: "Because that way we look after nature. The environment is home to all of us.", stage: "He opens the bag and starts sorting." },
+      { who: "Tom", et: "Pakend, paber, pakend...", en: "Packaging, paper, packaging..." },
       { who: "Tom", et: "...ja minu võtmed!", en: "...and my keys!" },
       { who: "Helgi", et: "Näed? Sorteerimine on kasulik.", en: "See? Sorting pays." },
       { who: "Tom", et: "Sul on õigus.", en: "You're right." },
@@ -590,7 +591,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
     ],
     faster: {
       ask: { et: "Kas prügi sorteerimine on sinu meelest oluline? Miks?", en: "Do you think sorting trash matters? Why?" },
-      cue: "Give your view, and two reasons: one with {kuna} and one with {kuigi}.",
+      cue: "Give your view: a reason with {kuna}, and what speaks against it with {kuigi}.",
       model: { et: "Jah, minu meelest on see oluline, kuna nii me hoiame loodust. Ja kuigi see on palju tööd, on see kasulik: eile leidsin ma prügi seest oma võtmed!", en: "Yes, I think it matters, since that way we look after nature. And although it's a lot of work, it pays: yesterday I found my keys in the trash!" },
     },
   },
@@ -636,7 +637,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "mõelge", of: "mõtlema", en: "think: to more than one person, or politely" },
     ],
     how: {
-      point: "A post that gets read says where you stand near the top, then gives two reasons, joined with {kuna} and {kuigi}, and ends with what you're asking for.",
+      point: "A post that gets read says where you stand near the top, then gives a reason with {kuna} and what speaks against it with {kuigi}, and ends with what you're asking for.",
       table: {
         head: ["Estonian", "What it does"],
         rows: [
@@ -777,7 +778,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
     how: {
       point: "A meeting, made of this part: a view with {minu meelest}, a but with {kuigi}, both sides with {ühest küljest} and {teisest küljest}, and a way to agree in the end.",
       notes: [
-        "All of this part is here: {kuigi} and {kuna} join the reasons, {mulle tundub, et} softens a no, {sellega olen nõus} closes it.",
+        "All of this part is here: {kuna} gives a reason and {kuigi} what speaks against it, {mulle tundub, et} softens a no, {sellega olen nõus} closes it.",
         "{Ei pea} is don't have to: {Siis ei pea me kolima}, then we don't have to move.",
         "At the end a colleague disagrees with you and asks you to answer her point about the bus, which nobody answered in the meeting. Keep your view, and give way where she's right.",
       ],
@@ -798,7 +799,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       scene: "A team meeting at work. Your colleague thinks everybody should work from home. You don't quite agree. She speaks first.",
       turns: [
         { ask: { et: "Minu meelest on mugav kodus töötada. Mida sina arvad?", en: "If you ask me, working from home is comfortable. What do you think?" }, cue: "Say you don't quite agree.", model: { et: "Ma ei ole päris nõus.", en: "I don't quite agree." }, also: ["Ma pole päris nõus.", "Ma ei ole sinuga päris nõus."] },
-        { ask: { et: "Miks mitte?", en: "Why not?" }, cue: "Give a reason with {kuigi}: it's comfortable at home, but you get bored.", model: { et: "Kuigi kodus on mugav, on mul seal igav.", en: "Although it's comfortable at home, I get bored there." }, also: ["Kuigi kodus on mugav, mul on seal igav."] },
+        { ask: { et: "Miks mitte?", en: "Why not?" }, cue: "Say why not with {kuigi}: it's comfortable at home, but you get bored.", model: { et: "Kuigi kodus on mugav, on mul seal igav.", en: "Although it's comfortable at home, I get bored there." }, also: ["Kuigi kodus on mugav, mul on seal igav."] },
         { ask: { et: "Aga kodus ei pea hommikul bussiga sõitma, eks?", en: "But at home you don't have to catch the bus in the morning, right?" }, cue: "Say that's right, but you like taking the bus.", model: { et: "See on õige, aga mulle meeldib bussiga sõita.", en: "That's right, but I like taking the bus." }, also: ["Sul on õigus, aga mulle meeldib bussiga sõita."] },
         { ask: { et: "Aga suur kontor on kallis.", en: "But a big office is expensive." }, cue: "Say on the one hand she's right.", model: { et: "Ühest küljest on sul õigus.", en: "On the one hand, you're right." } },
         { ask: { et: "Mis sa siis teeksid?", en: "So what would you do?" }, cue: "Suggest two days at the office and three at home.", model: { et: "Kaks päeva kontoris ja kolm päeva kodus.", en: "Two days at the office and three at home." }, also: ["Kaks päeva kontoris ja kolm kodus.", "Kolm päeva kodus ja kaks päeva kontoris."] },
