@@ -562,18 +562,55 @@ function shortNegative(phrase: string): string {
   return phrase.split(" ").map((w) => (w === "pole" ? "ei ole" : w === "poleks" ? "ei oleks" : w)).join(" ");
 }
 
-/** The subject pronouns Estonian drops where the verb's ending already says who. */
-const DROPPABLE = new Set(["ma", "mina", "sa", "sina", "ta", "tema", "me", "meie", "te", "teie", "nad", "nemad"]);
+/**
+ * The subject pronouns Estonian drops where the verb's ending says who:
+ * first and second person, whose endings (`-n`, `-d`, `-me`, `-te`) pin the
+ * person. Not the third, which the language keeps (`Tema sõi õunu`, never
+ * `Sõi õunu`), and not in a negative, where `ei ostnud` is the same for every
+ * person and the pronoun is the only thing saying whose it was.
+ */
+const DROPPABLE = new Set(["ma", "mina", "sa", "sina", "me", "meie", "te", "teie"]);
+const NEGATIVE = new Set(["ei", "pole", "poleks", "ega"]);
+/** Words that open a second clause, across which a reordering changes what is said. */
+const JOINS = new Set(["kuigi", "kuna", "sest", "et", "kui", "aga", "ja", "ning", "või", "kes", "mis", "mida", "kus", "kuhu", "millal", "nii"]);
+
+/** How a typed sentence differs from a written one where it holds the same words. */
+export type SameWords = "pronoun" | "order" | null;
 
 /**
- * Whether two phrases hold the same words, whatever their order, with a
- * dropped subject pronoun allowed on either side. Pure counting: it says
- * nothing about whether the order is Estonian, which is why it marks nearly.
+ * Whether a typed sentence is a written one with only what Estonian lets
+ * move moved. Two things, each narrow on purpose, since what it answers is
+ * shown as "it may well be right":
+ *
+ * - `pronoun`: the same words in the same order, with a first- or
+ *   second-person subject left out or put in, outside a negative.
+ * - `order`: the same words, pronouns included, in another order, inside one
+ *   clause (no comma, no word that opens another clause), with `ei` still in
+ *   front of the word it was in front of. Across a `kuigi` or a `kuna` the
+ *   order is what says which half is which, so a reordering there is a
+ *   different sentence.
+ *
+ * Pure counting and position: it says nothing about whether the order is
+ * Estonian, which is why it marks nearly and never right.
  */
-export function sameWords(a: string, b: string): boolean {
-  const bag = (p: string) => shortNegative(p).split(" ").filter((w) => w && !DROPPABLE.has(w)).sort().join(" ");
-  const x = bag(a);
-  return x.length > 0 && x === bag(b) && shortNegative(a) !== shortNegative(b);
+export function sameWords(written: string, typed: string): SameWords {
+  const a = shortNegative(written).split(" ").filter(Boolean);
+  const b = shortNegative(typed).split(" ").filter(Boolean);
+  if (a.length === 0 || a.join(" ") === b.join(" ")) return null;
+  // A pronoun dropped or added, everything else the same and in the same place.
+  const negative = a.some((w) => NEGATIVE.has(w)) || b.some((w) => NEGATIVE.has(w));
+  if (!negative && Math.abs(a.length - b.length) === 1) {
+    const [long, short] = a.length > b.length ? [a, b] : [b, a];
+    const without = (i: number) => [...long.slice(0, i), ...long.slice(i + 1)].join(" ");
+    if (long.some((w, i) => DROPPABLE.has(w) && without(i) === short.join(" "))) return "pronoun";
+  }
+  // The same words in another order, inside one clause.
+  if (a.length !== b.length || a.length < 2) return null;
+  if (/,/.test(written) || /,/.test(typed) || a.some((w) => JOINS.has(w))) return null;
+  if ([...a].sort().join(" ") !== [...b].sort().join(" ")) return null;
+  const after = (ws: readonly string[]) => ws.flatMap((w, i) => (w === "ei" ? [ws[i + 1] ?? ""] : [])).sort().join(" ");
+  if (after(a) !== after(b)) return null;
+  return "order";
 }
 
 /** The slip floor for a one-letter difference (`lib/estonian/answer.ts`). */
@@ -638,7 +675,7 @@ export function markRework(typed: string, item: Extract<PracticeItem, { kind: "r
   // `pole` is `ei ole` said short, everywhere and always, so either is the sentence as written.
   if (wants.some((w) => shortNegative(w) === shortNegative(said))) return { verdict: "right", note: "That's it.", close: false };
   // Typed back unchanged is not a reordering, even where the change asked for was the order.
-  if (said === normalisePhrase(item.kind === "fix" ? item.shown : item.from.et)) {
+  if (shortNegative(said) === shortNegative(normalisePhrase(item.kind === "fix" ? item.shown : item.from.et))) {
     return item.kind === "fix"
       ? { verdict: "wrong", note: "That's the line with the slip still in it.", close: false }
       : { verdict: "wrong", note: "That's the sentence as it was. Change it the way the line above asks.", close: false };
@@ -652,7 +689,11 @@ export function markRework(typed: string, item: Extract<PracticeItem, { kind: "r
     pronoun left out or put in, are nearly, with a note that says why and that
     it may well be right too, and the written sentence is shown beside it.
   */
-  if (wants.some((w) => sameWords(w, said))) {
+  const how = wants.map((w) => sameWords(w, said)).find((h) => h !== null) ?? null;
+  if (how === "pronoun") {
+    return { verdict: "nearly", note: "Right words. We have it with the pronoun the other way, and yours may well be right too.", close: false };
+  }
+  if (how === "order") {
     return { verdict: "nearly", note: "The words are right. The order isn't one we have written down, and it may well be right too.", close: false };
   }
   if (wants.some((w) => fold(w) === fold(said))) return { verdict: "nearly", note: "Nearly: mind the letters with marks on them.", close: false };
