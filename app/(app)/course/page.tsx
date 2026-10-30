@@ -490,7 +490,7 @@ export default async function CoursePage({
 
         {/* Somebody who was part way through the old B1 is told here too, since Today's module opens this page rather than the list of lessons. */}
         {moved && (
-          <Card tone="butter" data-moved-back={moved.from.id}>
+          <Card data-moved-back={moved.from.id}>
             <p className="text-base" style={{ color: "var(--ink)" }}>
               {fill(t("{level} is built as lessons now, so you pick it up from {part}. Your cards are kept, and Review asks each one again once the course has taught its word."), { level: moved.from.level, part: moved.to.id.toUpperCase() })}
             </p>
