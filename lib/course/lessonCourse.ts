@@ -20,6 +20,7 @@
  */
 
 import { HARVESTED } from "@/prisma/data/harvested";
+import { pastPersons } from "@/lib/estonian/conjugate";
 import { LESSONS, LESSON_PARTS, casesOfPattern, type LessonSpec, type PartOfLessons, type PatternId } from "./lessons";
 import { lessonHeads } from "./lessonHeads";
 import { lessonLabel } from "./lessons/label";
@@ -158,9 +159,9 @@ const PASTS_OF: ReadonlyMap<string, { readonly first: string; readonly third: re
  * where it teaches a form that is that verb's stored past, whether or not
  * the lesson marked it `past`: A1's yesterday lesson teaches `olin`, `tegin`
  * and `käisin` before the past is a pattern, and those are as shown as any.
- * Read off the harvest's own stored forms (the I form, the third person,
- * and the I form's stem with the person endings), so nothing about Estonian
- * is decided here.
+ * Read off the harvest's own stored forms (the I form and the third person)
+ * and the persons `pastPersons` builds off the I form, so nothing about
+ * Estonian is decided here.
  */
 export function lessonPasts(lesson: LessonSpec): string[] {
   const out: string[] = [];
@@ -168,8 +169,7 @@ export function lessonPasts(lesson: LessonSpec): string[] {
     if (t.kind !== "form" || out.includes(t.of)) continue;
     const stored = PASTS_OF.get(t.of);
     if (!stored) continue;
-    const stem = stored.first.replace(/n$/, "");
-    const spellings = new Set([stored.first, ...stored.third, `${stem}d`, `${stem}me`, `${stem}te`]);
+    const spellings = new Set([stored.first, ...stored.third, ...pastPersons(stored.first).map((p) => p.value)]);
     if (t.past || spellings.has(t.et)) out.push(t.of);
   }
   return out;
