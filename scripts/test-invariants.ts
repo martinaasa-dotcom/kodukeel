@@ -15165,7 +15165,8 @@ check("there is one table of which Estonian letters fold", () => {
     it with the sweep green. Both spellings now, which is this repository's own
     rule about a fault found once being found again wearing different clothes.
   */
-  const HAYSTACK = [...LIB, ...APP, ...COMPONENTS, ...sourceFiles("prisma"), ...sourceFiles("scripts")];
+  // The browser suites too, which are `.mjs`: `test-lessons.mjs` once carried a fold of its own as a `.replace` chain.
+  const HAYSTACK = [...LIB, ...APP, ...COMPONENTS, ...sourceFiles("prisma"), ...sourceFiles("scripts", /\.(ts|tsx|mjs)$/)];
   assert.ok(HAYSTACK.length > 400, `only ${HAYSTACK.length} files to sweep, so this check stopped looking`);
 
   const excused = [
@@ -15195,7 +15196,8 @@ check("there is one table of which Estonian letters fold", () => {
     .filter((file) => !excused.includes(file) && !/\.(test|itest)\.tsx?$/.test(file))
     .filter((file) => {
       const source = code(file);
-      return asRecord.test(source) || asString.test(source) || /replaceAll\("õ"/.test(source);
+      // A `replace` or `replaceAll` of õ, as a string or as a regular expression, is the sixth spelling of a table.
+      return asRecord.test(source) || asString.test(source) || /replace(?:All)?\(\s*(?:"õ"|'õ'|\/õ\/)/.test(source);
     });
   assert.deepEqual(
     offenders, [],

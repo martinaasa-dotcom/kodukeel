@@ -290,15 +290,31 @@ export function formsThrough(programme: Programme, index: number): string[] {
 }
 
 /**
- * The verbs whose simple past an evening has shown through a day: every verb a
- * forms step showed (`formsThrough`) and every verb whose past a lesson taught
- * by name (`DaySpec.pasts`). Wider than `formsThrough`, which also says the
- * polite imperative was shown.
+ * The verbs whose simple past I form an evening has shown through a day: every
+ * verb a forms step showed (`formsThrough`) and every verb whose I form a
+ * lesson taught by name (`DaySpec.pasts`). Wider than `formsThrough`, which
+ * also says the polite imperative was shown.
  */
 export function pastsThrough(programme: Programme, index: number): string[] {
+  return shownThrough(programme, index, (d) => d.pasts);
+}
+
+/**
+ * The verbs whose third-person past an evening has shown through a day: a
+ * forms step's table, or a lesson that taught that very spelling
+ * (`DaySpec.pastsThird`). Narrower than `pastsThrough`, since teaching
+ * `tahtsin` shows nothing about `tahtis`.
+ */
+export function thirdPastsThrough(programme: Programme, index: number): string[] {
+  return shownThrough(programme, index, (d) => d.pastsThird);
+}
+
+function shownThrough(
+  programme: Programme, index: number, field: (d: CourseDay) => readonly string[] | undefined,
+): string[] {
   const at = PROGRAMMES.findIndex((p) => p.id === programme.id);
   const out = formsThrough(programme, index);
-  const take = (d: CourseDay) => { for (const v of d.pasts ?? []) if (!out.includes(v)) out.push(v); };
+  const take = (d: CourseDay) => { for (const v of field(d) ?? []) if (!out.includes(v)) out.push(v); };
   if (at > 0) for (const before of PROGRAMMES.slice(0, at)) before.days.forEach(take);
   for (const d of programme.days) if (d.index <= index) take(d);
   return out;

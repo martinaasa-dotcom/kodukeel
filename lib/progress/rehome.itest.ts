@@ -5,6 +5,7 @@ import { forgetSettings, SETTING_KEYS, writeSetting } from "@/lib/settings/store
 import { PROGRAMMES } from "@/lib/course";
 import { choosePart, forgetRehoming, highestPartFor, movedBackFrom, programmeFor } from "./course";
 import { moveBlockedFor } from "./checks";
+import { resetCourseProgress } from "./courseReset";
 
 /**
  * A LEARNER PART WAY THROUGH THE OLD B1 WHEN IT BECAME LESSONS.
@@ -203,6 +204,37 @@ describe("a learner on a part that has become lessons", () => {
     await prisma.courseStep.create({ data: oldTick(b1[2]!.id) });
     expect(await movedBackFrom(MINE)).toEqual({ from: b1[2], to: b1[0] });
     await writeSetting(THEIRS, SETTING_KEYS.programme, b1[2]!.id);
+    expect(await movedBackFrom(THEIRS)).toBeNull();
+  });
+});
+
+/*
+  AN ADMIN RESET PUTS THEM WHERE EVERY SCREEN READS THEM. A learner part way
+  through the old B1, stored on B1.3 and read on B1.1, lost the ticks that said
+  so to a reset and was left on B1.3's first lesson, whose ledger assumes
+  fourteen lessons they never did, with no note saying why.
+*/
+describe("an admin course reset of a learner moved back", () => {
+  it("leaves them at the start of the part they were read on, and tells them they were moved", async () => {
+    await writeSetting(MINE, SETTING_KEYS.programme, b1[2]!.id);
+    await prisma.courseStep.create({ data: oldTick(b1[2]!.id) });
+    expect((await programmeFor(MINE))?.id).toBe(b1[0]!.id);
+    await writeSetting(THEIRS, SETTING_KEYS.programme, b1[2]!.id);
+    const day = b1[2]!.days[0]!;
+    await prisma.courseStep.create({ data: { ownerId: THEIRS, programmeId: b1[2]!.id, dayId: day.id, stepId: day.steps[0]!.id } });
+
+    await resetCourseProgress([MINE, THEIRS]);
+    forgetSettings(MINE);
+    forgetSettings(THEIRS);
+    forgetRehoming();
+
+    expect(await prisma.courseStep.count({ where: { ownerId: { in: [MINE, THEIRS] } } })).toBe(0);
+    const read = await programmeFor(MINE);
+    expect(read?.id).toBe(b1[0]!.id);
+    expect(read?.days[0]?.lesson).toBeTruthy();
+    expect(await movedBackFrom(MINE)).toEqual({ from: b1[2], to: b1[0] });
+    // Somebody really on that part, with a lesson ticked, is reset on it and told nothing.
+    expect((await programmeFor(THEIRS))?.id).toBe(b1[2]!.id);
     expect(await movedBackFrom(THEIRS)).toBeNull();
   });
 });

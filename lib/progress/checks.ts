@@ -1,6 +1,6 @@
 import { PROGRAMMES, type Programme } from "@/lib/course";
 import { blockedBy, passedFrom, type CourseCheck } from "@/lib/course/checks";
-import { readSetting, writeSetting, SETTING_KEYS } from "@/lib/settings/store";
+import { readSetting, updateSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { movesFreely } from "@/lib/auth/admin";
 import { prisma } from "@/lib/db";
 import { highestPartFor, programmeFor } from "@/lib/progress/course";
@@ -15,12 +15,21 @@ export async function checksPassedFor(ownerId: string): Promise<Set<string>> {
   return passedFrom(await readSetting(ownerId, SETTING_KEYS.checksPassed));
 }
 
-/** Adds a pass. Only ever adds: a check passed once stays passed. */
+/**
+ * Adds a pass. Only ever adds: a check passed once stays passed.
+ *
+ * The list is read and written back under the learner's own lock
+ * (`updateSettings`), because read and written as two statements, four checks
+ * passed at once kept one: each read the list without the others' pass and
+ * the last write won. A pass lost is a check sat again.
+ */
 export async function recordCheckPassed(ownerId: string, checkId: string): Promise<void> {
-  const passed = await checksPassedFor(ownerId);
-  if (passed.has(checkId)) return;
-  passed.add(checkId);
-  await writeSetting(ownerId, SETTING_KEYS.checksPassed, [...passed].join(" "));
+  await updateSettings(ownerId, [SETTING_KEYS.checksPassed], (held) => {
+    const passed = passedFrom(held[SETTING_KEYS.checksPassed] ?? null);
+    if (passed.has(checkId)) return [];
+    passed.add(checkId);
+    return [[SETTING_KEYS.checksPassed, [...passed].join(" ")]];
+  });
 }
 
 /**

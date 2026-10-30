@@ -837,8 +837,8 @@ export function withForms(
  * teaches its own spelling.
  *
  * And a past a lesson taught by name has been shown, but the past alone: the
- * lesson's evening carries it as `pasts` (`lessonPasts`), which `pastsThrough`
- * reads, so the module may ask that verb's past from then on (D4). The verb
+ * lesson's evening carries it as `pasts` and `pastsThird` (`lessonPastSlots`), slot by slot, which `pastsThrough`
+ * and `thirdPastsThrough` read, so the module may ask the slot that lesson showed from then on (D4). The verb
  * stays in the forms queue, because no lesson shows its polite imperative
  * (`tehke`, `lugege`), and B2's forms step is where that is shown.
  */

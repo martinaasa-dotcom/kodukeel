@@ -1,17 +1,22 @@
 import { prisma } from "@/lib/db";
 import { programmeById } from "@/lib/course";
 import { forgetSettings, SETTING_KEYS } from "@/lib/settings/store";
+import { choosePart, forgetRehoming, programmeFor } from "@/lib/progress/course";
 
 /**
  * Putting a learner back at the start of the current planned course.
  *
- * What it may touch is two things and nothing else: the learner's
+ * What it may touch is three things and nothing else: the learner's
  * `CourseStep` ticks, which are the whole of course progress (the day
- * somebody is on is derived from them, ADR-014), and a `programme` setting
+ * somebody is on is derived from them, ADR-014); a `programme` setting
  * naming a program this build no longer has, which `programmeFor` would
- * otherwise read as "on no course". A stored `off` is a learner saying no and
- * is kept. Decks, the words in them, the dictionary, the review log, levels
- * and every other setting are never read here, let alone written.
+ * otherwise read as "on no course"; and, for a learner whose stored part is
+ * read as another one (somebody moved back by B1 becoming lessons), the part
+ * they are read on, written through `choosePart` with the part they were
+ * moved from (`movedBackFrom`), because the ticks that said so are what the
+ * reset deletes. A stored `off` is a learner saying no and is kept. Decks,
+ * the words in them, the dictionary, the review log, levels and every other
+ * setting are never written here.
  *
  * NOBODY IS RESET BY DEFAULT. The admin page lists the learners who have any
  * progress and resets one of them on a press, or all of them on a separate
@@ -67,6 +72,31 @@ export async function resetCourseProgress(
     orderBy: { ownerId: "asc" },
   });
   const stale = programmes.filter((p) => p.value !== "off" && !programmeById(p.value)).map((p) => p.ownerId);
+
+  /*
+    THE START OF THE COURSE AS EVERY SCREEN READS IT, NOT AS IT IS STORED.
+    A learner part way through the old B1 is stored on, say, B1.3 and read as
+    being on B1.1 (`programmeFor` and `rehomeFrom`): what says so is their
+    ticks on days B1.3 no longer holds. Deleting the ticks deletes that
+    evidence, so a reset left them on B1.3's first lesson, whose ledger
+    assumes fourteen lessons they never did, and the moved-back note went with
+    the ticks. So where the stored part and the part read differ, the part
+    read is chosen first (`choosePart`, the one door), with the part they were
+    moved from kept beside it for the note (`movedBackFrom`), and only then
+    are the ticks deleted. In that order a reset that dies halfway leaves them
+    on the part read and stamped, which is where they were anyway.
+  */
+  for (const row of programmes) {
+    const storedPart = row.value === "off" ? undefined : programmeById(row.value);
+    if (!storedPart) continue;
+    const read = await programmeFor(row.ownerId);
+    if (!read || read.id === storedPart.id) continue;
+    const also = read.level === storedPart.level
+      ? [[SETTING_KEYS.movedBackFrom, storedPart.id] as const]
+      : [];
+    await choosePart(row.ownerId, read.id, new Date(), also);
+    forgetRehoming(row.ownerId);
+  }
 
   const [steps, settings] = await prisma.$transaction([
     prisma.courseStep.deleteMany({ where: scope }),
