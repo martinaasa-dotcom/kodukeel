@@ -113,6 +113,12 @@ describe("the lessons' own conversations", () => {
     expect(new Set(LESSON_SCENES.map((s) => s.lesson)).size).toBe(LESSON_SCENES.length);
   });
 
+  it("are listed in the order the course teaches their lessons", () => {
+    const at = LESSON_SCENES.map((s) => LESSONS.findIndex((l) => l.id === s.lesson));
+    expect(at.length).toBeGreaterThan(1);
+    expect(at, LESSON_SCENES.map((s) => s.id).join(", ")).toEqual([...at].sort((a, b) => a - b));
+  });
+
   it("name only words their own lesson has taught, in their beats and on their cards", () => {
     for (const scene of LESSON_SCENES) {
       const list = new Set(scene.lemmas);
