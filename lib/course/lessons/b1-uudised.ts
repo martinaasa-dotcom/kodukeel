@@ -166,7 +166,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Ilus! Ja see kollane maja seal üle tee?", en: "Beautiful! And that yellow building across the road?" },
       { who: "Mari", et: "See ehitati 1930. aastal. Eelmisel aastal renoveeriti see ja avati hotellina.", en: "That was built in 1930. Last year it was renovated and opened as a hotel." },
       { who: "Tom", et: "Ja muuseum siin kõrval? Lähme sisse!", en: "And the museum next door? Let's go in!" },
-      { who: "Mari", et: "Kahjuks ei saa. Muuseum suleti eelmisel kuul.", en: "Sadly we can't. The museum was closed last month." },
+      { who: "Mari", et: "Kahjuks mitte, muuseum on kinni. See suleti eelmisel kuul.", en: "Sadly not, the museum's closed. It was closed last month." },
       { who: "Tom", et: "Miks?", en: "Why?" },
       { who: "Mari", et: "Seal on remont. Aga tead mis? Remondi ajal leiti seina seest vana raha!", en: "There's building work. But guess what? During the work they found old money inside a wall!" },
       { who: "Tom", et: "Päriselt? Kas keegi sai rikkaks?", en: "Really? Did anybody get rich?" },

@@ -20,7 +20,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "ootamine", beat: "time", text: "Oleme juba tükk aega oodanud.", model: "authored", draftedAt: "2026-10-30", reviewedAt: "2026-10-30" },
   { scene: "ootamine", beat: "weather", text: "Milline ilm täna jälle!", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "ootamine", beat: "weather", text: "Täna on jälle selline ilm, eks?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "ootamine", beat: "time", text: "Ootame siin juba nii kaua.", model: "authored", draftedAt: "2026-10-30" },
+  { scene: "ootamine", beat: "time", text: "Ootan siin juba pool tundi, aga bussi pole ikka veel.", model: "authored", draftedAt: "2026-10-30" },
   { scene: "ootamine", beat: "when", text: "See buss ei tule kunagi õigel ajal.", model: "authored", draftedAt: "2026-10-30" },
   { scene: "ootamine", beat: "when", text: "Buss hilineb jälle.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "ootamine", beat: "hurdle:contradiction", text: "Ei, tegelikult tuleb buss poole tunni pärast.", model: "authored", draftedAt: "2026-10-15", about: "when", reviewedAt: "2026-10-15" },

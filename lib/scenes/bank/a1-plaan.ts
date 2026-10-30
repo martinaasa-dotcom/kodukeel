@@ -26,7 +26,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "a1-plaan", beat: "time", text: "Kell kuus. Kas sa saad?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
   { scene: "a1-plaan", beat: "time", text: "Kell seitse. Saad?", model: "authored", draftedAt: "2026-10-30" },
   { scene: "a1-plaan", beat: "close", text: "Head aega!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
-  { scene: "a1-plaan", beat: "close", text: "Hästi, nägemist!", model: "authored", draftedAt: "2026-10-30" },
+  { scene: "a1-plaan", beat: "close", text: "Hästi, tsau!", model: "authored", draftedAt: "2026-10-30" },
   { scene: "a1-plaan", beat: "answer:time", text: "Hästi!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
   { scene: "a1-plaan", beat: "answer:time", text: "Hästi, aitäh!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
 ];

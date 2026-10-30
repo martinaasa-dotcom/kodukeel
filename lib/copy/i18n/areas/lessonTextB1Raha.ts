@@ -12,6 +12,7 @@ import type { Area } from "../area";
  */
 export const LESSON_TEXT_B1_RAHA: Area = {
   ru: {
+    "Actually, it wasn't that easy. You just did really good work. But tell me, how's the Estonian course going?": "Вообще-то это было не так просто. Ты просто очень хорошо работал. Слушай, а как твой курс эстонского?",
     "Work and money": "Работа и деньги",
     "Would have and could have, asking and offering at work, your hours, your pay and the bank.": "«Сделал бы» и «мог бы», просьбы и предложения на работе, рабочие часы, зарплата и банк.",
 
@@ -663,6 +664,7 @@ export const LESSON_TEXT_B1_RAHA: Area = {
     "Liis, listen, could you take my shift on Saturday?": "Лийс, слушай, не могла бы ты взять мою смену в субботу?",
   },
   uk: {
+    "Actually, it wasn't that easy. You just did really good work. But tell me, how's the Estonian course going?": "Взагалі-то це було не так просто. Ти просто дуже добре працював. Слухай, а як твій курс естонської?",
     "Work and money": "Робота й гроші",
     "Would have and could have, asking and offering at work, your hours, your pay and the bank.": "«Зробив би» і «міг би», прохання й пропозиції на роботі, робочі години, зарплата й банк.",
 

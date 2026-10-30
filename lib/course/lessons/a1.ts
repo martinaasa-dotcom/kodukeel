@@ -68,11 +68,13 @@ const TERE_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "Palun!", en: "Please. Here you are. You're welcome." },
       { kind: "phrase", et: "Head aega!", en: "Goodbye!" },
       { kind: "phrase", et: "Nägemist!", en: "See you! Bye!" },
+      { kind: "phrase", et: "Tsau!", en: "Hi! Bye! (between friends)" },
     ],
     how: {
       point: "Estonian is said the way it is written: one letter is one sound, and every letter is said.",
       notes: [
         "{Palun} does three jobs: please, here you are, and you're welcome.",
+        "Between friends, {Tsau!} is both hi and bye. The dictionary spells it with a š, tšau, but almost everybody writes tsau.",
       ],
       sounds: [
         { sound: "sound-ou", glyph: "õ", like: "an o said with the lips spread, not rounded", word: "stress-ouhtust", mark: "õ", en: "evening, as in good evening" },

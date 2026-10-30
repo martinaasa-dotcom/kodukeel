@@ -287,7 +287,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Anna, mul on suur probleem. Ma kaotasin rahakoti ära!", en: "Anna, I've got a big problem. I've lost my wallet!" },
       { who: "Anna", et: "Oi ei! Äkki varastati?", en: "Oh no! Maybe it was stolen?" },
       { who: "Tom", et: "Ei tea. Võib-olla jätsin selle bussi.", en: "I don't know. Maybe I left it on the bus." },
-      { who: "Anna", et: "Kõige olulisem: pane kaart kohe kinni!", en: "The most important thing: get your card blocked right away!" },
+      { who: "Anna", et: "Nüüd kõige olulisem: pane kaart kohe kinni!", en: "Most important now: get your card blocked right away!" },
       { who: "Tom", et: "Kuidas?", en: "How?" },
       { who: "Anna", et: "Helista kohe pangale!", en: "Call the bank right now!" },
       { who: "Tom", et: "Tere, ma kaotasin oma kaardi. Palun pange see kinni.", en: "Hello, I've lost my card. Please block it.", stage: "He calls the bank." },
@@ -380,7 +380,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
     ],
     fixes: [
       { line: { et: "Anna, mul on suur probleem. Ma kaotasin rahakoti ära!", en: "Anna, I've got a big problem. I've lost my wallet!" }, right: "rahakoti", wrong: "rahakotti", pair: ["GENITIVE", "PARTITIVE"], why: "Lost for good, so the whole wallet: {rahakoti}." },
-      { line: { et: "Kõige olulisem: pane kaart kohe kinni!", en: "The most important thing: get your card blocked right away!" }, right: "kaart", wrong: "kaardi", pair: ["NOMINATIVE", "GENITIVE"], why: "A command keeps the whole thing in the [nimetav] (1st form): {kaart}." },
+      { line: { et: "Nüüd kõige olulisem: pane kaart kohe kinni!", en: "Most important now: get your card blocked right away!" }, right: "kaart", wrong: "kaardi", pair: ["NOMINATIVE", "GENITIVE"], why: "A command keeps the whole thing in the [nimetav] (1st form): {kaart}." },
       { line: { et: "Ma ei leidnud rahakotti.", en: "I didn't find the wallet." }, right: "rahakotti", wrong: "rahakoti", pair: ["PARTITIVE", "GENITIVE"], why: "After {ei}, always the [osastav] (3rd form): {rahakotti}." },
     ],
     retell: {

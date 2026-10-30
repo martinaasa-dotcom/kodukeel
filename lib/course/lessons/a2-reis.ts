@@ -263,7 +263,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Tallinnast Pärnuni on umbes sada kolmkümmend kilomeetrit.", en: "From Tallinn to Pärnu it's about a hundred and thirty kilometers." },
       { who: "Tom", et: "Kas sinna saab bussiga?", en: "Can you get there by bus?" },
       { who: "Mari", et: "Saab küll, buss käib iga tund. Sõit kestab umbes kaks tundi.", en: "Sure, there's a bus every hour. The ride takes about two hours." },
-      { who: "Tom", et: "Ja milline linn see Pärnu on?", en: "And what kind of town is Pärnu?" },
+      { who: "Tom", et: "Ma pole Pärnus kunagi käinud. Milline linn see on?", en: "I've never been to Pärnu. What kind of town is it?" },
       { who: "Mari", et: "Väike ja ilus, kohe mere ääres.", en: "Small and pretty, right by the sea." },
       { who: "Tom", et: "Suvel lähen kindlasti!", en: "I'll definitely go in the summer!" },
     ],

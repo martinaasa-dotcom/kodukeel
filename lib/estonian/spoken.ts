@@ -137,6 +137,12 @@ export const NOT_SAID: readonly NotSaid[] = [
     say: "Millal te selle ostsite?",
     why: "A question about when takes the simple past; the perfect with millal is a textbook sentence.",
   },
+  {
+    pattern: re("tšau"),
+    example: "Hästi, tšau!",
+    say: "Hästi, tsau!",
+    why: "Everybody writes tsau; tšau is only the dictionary's spelling, which the first lesson mentions once.",
+  },
 ];
 
 /** Every entry the text breaks, empty where it reads as people talk. */

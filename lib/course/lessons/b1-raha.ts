@@ -787,7 +787,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Viis ja viis. Sobib!", en: "Five and five. Works for me!" },
       { who: "Kristi", et: "Ja järgmine kord ära oota pool aastat. Küsi varem!", en: "And next time don't wait half a year. Ask sooner!" },
       { who: "Tom", et: "Kui ma oleksin teadnud, et see nii lihtne on, oleksin ma ammu küsinud!", en: "If I'd known it was this easy, I'd have asked long ago!" },
-      { who: "Kristi", et: "Lihtne see ei olnud. Sa lihtsalt tegid head tööd. Aga kuule, kuidas eesti keele kursus läheb?", en: "It wasn't easy. You just did good work. But tell me, how's the Estonian course going?" },
+      { who: "Kristi", et: "Tegelikult ei olnud see nii lihtne. Sa lihtsalt tegid väga head tööd. Aga kuule, kuidas eesti keele kursus läheb?", en: "Actually, it wasn't that easy. You just did really good work. But tell me, how's the Estonian course going?" },
       { who: "Tom", et: "Hästi! Reedeti on mul nüüd ainult eesti keel.", en: "Good! Fridays are just Estonian now." },
     ],
     teaches: [],

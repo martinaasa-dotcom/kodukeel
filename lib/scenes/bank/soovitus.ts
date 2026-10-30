@@ -20,7 +20,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "soovitus", beat: "seen", text: "Kas sa oled viimasel ajal midagi head näinud või lugenud?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "soovitus", beat: "seen", text: "Mis huvitavat sa viimasel ajal näinud oled?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "soovitus", beat: "like", text: "Ja kuidas oli?", model: "authored", draftedAt: "2026-10-30", reviewedAt: "2026-10-30" },
-  { scene: "soovitus", beat: "like", text: "Kas meeldis ka?", model: "authored", draftedAt: "2026-10-30" },
+  { scene: "soovitus", beat: "like", text: "Ja kas sulle meeldis?", model: "authored", draftedAt: "2026-10-30" },
   { scene: "soovitus", beat: "compare", text: "Kas see oli parem kui eelmine?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "soovitus", beat: "compare", text: "Kas eelmine oli parem?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "soovitus", beat: "recommend", text: "Kas see meeldiks mulle ka?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },

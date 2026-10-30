@@ -12,6 +12,7 @@ import type { Area } from "../area";
  */
 export const LESSON_TEXT_B1_UUDISED: Area = {
   ru: {
+    "Sadly not, the museum's closed. It was closed last month.": "К сожалению, нет, музей закрыт. Его закрыли в прошлом месяце.",
     "What people do here": "Что здесь принято",
     "to the stop, a bus stop": "на остановку, автобусную остановку",
     "Say what people do here and what isn't done, without naming anybody.": "Скажи, что здесь принято делать и чего не делают, никого не называя.",
@@ -595,6 +596,7 @@ export const LESSON_TEXT_B1_UUDISED: Area = {
     "Ants, from the top floor": "Антс с верхнего этажа",
   },
   uk: {
+    "Sadly not, the museum's closed. It was closed last month.": "На жаль, ні, музей зачинений. Його зачинили минулого місяця.",
     "What people do here": "Що тут прийнято",
     "to the stop, a bus stop": "на зупинку, автобусну зупинку",
     "Say what people do here and what isn't done, without naming anybody.": "Скажи, що тут прийнято робити і чого не роблять, нікого не називаючи.",

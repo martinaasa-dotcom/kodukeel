@@ -195,7 +195,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "See esimene on suurem, aga ka kallim.", en: "The first one is bigger, but also more expensive." },
       { who: "Kati", et: "Ja teine?", en: "And the other one?" },
       { who: "Tom", et: "Teine on väiksem, aga odavam ja uuem.", en: "The other one is smaller, but cheaper and newer." },
-      { who: "Kati", et: "Uuem on parem kui suurem!", en: "Newer is better than bigger!" },
+      { who: "Kati", et: "Uuem on parem kui suurem, ma arvan.", en: "Newer is better than bigger, I think." },
       { who: "Tom", et: "Jah, ma arvan ka.", en: "Yes, I think so too." },
     ],
     teaches: [

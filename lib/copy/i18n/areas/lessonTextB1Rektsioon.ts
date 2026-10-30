@@ -12,6 +12,9 @@ import type { Area } from "../area";
  */
 export const LESSON_TEXT_B1_REKTSIOON: Area = {
   ru: {
+    "Cars? My car could really use a bit of help, it's already about twenty years old.": "Машины? Моей машине и правда не помешала бы помощь, ей уже лет двадцать.",
+    "Then talk to her tomorrow! I believe in you, you'll manage.": "Тогда поговори с ней завтра! Я в тебя верю, ты справишься.",
+    "Actually, I've got a problem with my computer too. Please help me with it!": "Вообще-то у меня тоже проблема с компьютером. Помоги мне, пожалуйста, с ним!",
     "Help me with this": "Помоги мне с этим",
     "{millest? kellest?} on something, somebody ([seestütlev] (-st, out of))": "{millest? kellest?} от чего-то, от кого-то ([seestütlev] (-st, из))",
     "{kellesse?} with somebody ([sisseütlev] (-sse, into))": "{kellesse?} в кого-то ([sisseütlev] (-sse, в (куда)))",
@@ -627,6 +630,9 @@ export const LESSON_TEXT_B1_REKTSIOON: Area = {
     "Okay, see you then!": "Ладно, до встречи!",
   },
   uk: {
+    "Cars? My car could really use a bit of help, it's already about twenty years old.": "Машини? Моїй машині справді не завадила б допомога, їй уже років двадцять.",
+    "Then talk to her tomorrow! I believe in you, you'll manage.": "Тоді поговори з нею завтра! Я в тебе вірю, ти впораєшся.",
+    "Actually, I've got a problem with my computer too. Please help me with it!": "Взагалі-то в мене теж проблема з комп'ютером. Допоможи мені, будь ласка, з ним!",
     "Help me with this": "Допоможи мені з цим",
     "{millest? kellest?} on something, somebody ([seestütlev] (-st, out of))": "{millest? kellest?} від чогось, від когось ([seestütlev] (-st, з))",
     "{kellesse?} with somebody ([sisseütlev] (-sse, into))": "{kellesse?} у когось ([sisseütlev] (-sse, у (куди)))",

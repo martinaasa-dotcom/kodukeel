@@ -12,6 +12,7 @@ import type { Area } from "../area";
  */
 export const LESSON_TEXT_B1_ASJAAJAMINE: Area = {
   ru: {
+    "Most important now: get your card blocked right away!": "Сейчас главное: сразу заблокируй карту!",
     "Getting things done": "Дела и бумаги",
     "{mida?} something, in the [osastav] (3rd form): {Ma taotlen elamisluba}": "{mida?} что-то, в [osastav] (3-я форма): {Ma taotlen elamisluba}",
     "a clerk who serves you, at a bank or a shop": "служащий, который тебя обслуживает, в банке или в магазине",
@@ -769,6 +770,7 @@ export const LESSON_TEXT_B1_ASJAAJAMINE: Area = {
     "Bring the old card back.": "Принесите старую карту обратно.",
   },
   uk: {
+    "Most important now: get your card blocked right away!": "Зараз головне: одразу заблокуй картку!",
     "Getting things done": "Справи й папери",
     "{mida?} something, in the [osastav] (3rd form): {Ma taotlen elamisluba}": "{mida?} щось, у [osastav] (3-тя форма): {Ma taotlen elamisluba}",
     "a clerk who serves you, at a bank or a shop": "службовець, який тебе обслуговує, у банку чи в магазині",

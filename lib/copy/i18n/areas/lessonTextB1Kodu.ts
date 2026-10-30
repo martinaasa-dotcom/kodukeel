@@ -12,6 +12,7 @@ import type { Area } from "../area";
  */
 export const LESSON_TEXT_B1_KODU: Area = {
   ru: {
+    "The pipe may need replacing. I'll send a repairman tomorrow.": "Возможно, трубу придётся заменить. Завтра я пришлю мастера.",
     "A furnished apartment": "Меблированная квартира",
     "{kellele?} somebody ([alaleütlev] (-le, onto/to))": "{kellele?} кому-то ([alaleütlev] (-le, на/к))",
     "{mida?} something ([osastav] (3rd form))": "{mida?} что-то ([osastav] (3-я форма))",
@@ -153,7 +154,7 @@ export const LESSON_TEXT_B1_KODU: Area = {
     "To fix is {parandama}; to change for a new one is {vahetama}. A repairman fixes a tap, but you change a bulb.": "Чинить это {parandama}; менять на новое это {vahetama}. Мастер чинит кран, а лампочку меняют.",
     "{Tuleb} with a da-form says what has to be done, and nobody is named: {Toru tuleb vahetada}.": "{Tuleb} с формой на -da говорит, что нужно сделать, и никто не назван: {Toru tuleb vahetada}.",
     "{Ummistunud} is a -nud word: it says what has happened to the sink, so after {on} it works like {katki}.": "{Ummistunud} это слово на -nud: оно говорит, что случилось с раковиной, поэтому после {on} работает как {katki}.",
-    "{Võimalik, et} is maybe: {Võimalik, et toru tuleb vahetada}, the pipe may need changing.": "{Võimalik, et} значит «возможно»: {Võimalik, et toru tuleb vahetada}, возможно, трубу придётся менять.",
+    "{Võimalik, et} is maybe: {Võimalik, et toru tuleb välja vahetada}, the pipe may need replacing.": "{Võimalik, et} значит «возможно»: {Võimalik, et toru tuleb välja vahetada}, возможно, трубу придётся менять.",
     "What's wrong": "Что не так",
     "The tap is leaking.": "Кран течёт.",
     "The sink is blocked.": "Раковина засорилась.",
@@ -625,6 +626,7 @@ export const LESSON_TEXT_B1_KODU: Area = {
     "The broken bathroom light": "Сломанный свет в ванной",
   },
   uk: {
+    "The pipe may need replacing. I'll send a repairman tomorrow.": "Можливо, трубу доведеться замінити. Завтра я пришлю майстра.",
     "A furnished apartment": "Мебльована квартира",
     "{kellele?} somebody ([alaleütlev] (-le, onto/to))": "{kellele?} комусь ([alaleütlev] (-le, на/до))",
     "{mida?} something ([osastav] (3rd form))": "{mida?} щось ([osastav] (3-тя форма))",
@@ -766,7 +768,7 @@ export const LESSON_TEXT_B1_KODU: Area = {
     "To fix is {parandama}; to change for a new one is {vahetama}. A repairman fixes a tap, but you change a bulb.": "Лагодити це {parandama}; міняти на нове це {vahetama}. Майстер лагодить кран, а лампочку міняють.",
     "{Tuleb} with a da-form says what has to be done, and nobody is named: {Toru tuleb vahetada}.": "{Tuleb} з формою на -da каже, що треба зробити, і ніхто не названий: {Toru tuleb vahetada}.",
     "{Ummistunud} is a -nud word: it says what has happened to the sink, so after {on} it works like {katki}.": "{Ummistunud} це слово на -nud: воно каже, що сталося з раковиною, тому після {on} працює як {katki}.",
-    "{Võimalik, et} is maybe: {Võimalik, et toru tuleb vahetada}, the pipe may need changing.": "{Võimalik, et} означає «можливо»: {Võimalik, et toru tuleb vahetada}, можливо, трубу доведеться міняти.",
+    "{Võimalik, et} is maybe: {Võimalik, et toru tuleb välja vahetada}, the pipe may need replacing.": "{Võimalik, et} означає «можливо»: {Võimalik, et toru tuleb välja vahetada}, можливо, трубу доведеться міняти.",
     "What's wrong": "Що не так",
     "The tap is leaking.": "Кран тече.",
     "The sink is blocked.": "Раковина засмітилася.",

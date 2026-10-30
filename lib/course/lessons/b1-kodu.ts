@@ -375,7 +375,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Ja valamu on ka ummistunud. Vesi ei lähe alla.", en: "And the sink is blocked too. The water won't go down." },
       { who: "Urmas", et: "Mis te sinna panite?", en: "What did you put down it?" },
       { who: "Tom", et: "Ainult natuke kartulit ja kohvi.", en: "Only a bit of potato and coffee." },
-      { who: "Urmas", et: "Võimalik, et toru tuleb vahetada. Ma saadan homme meistri.", en: "The pipe may need changing. I'll send a repairman tomorrow." },
+      { who: "Urmas", et: "Võimalik, et toru tuleb välja vahetada. Ma saadan homme meistri.", en: "The pipe may need replacing. I'll send a repairman tomorrow." },
       { who: "Tom", et: "Aitäh! Ja vannitoas ei tööta lamp.", en: "Thank you! And the light in the bathroom isn't working." },
       { who: "Urmas", et: "Siis vahetage pirn ise ära. Seda te ju oskate?", en: "Then change the bulb yourself. You can do that, can't you?" },
       { who: "Tom", et: "Oskan küll! Ma ei karda enam elektrit. Aga mul pole uut pirni.", en: "Sure I can! I'm not scared of electricity any more. But I don't have a new bulb." },
@@ -408,7 +408,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       notes: [
         "{Tuleb} with a da-form says what has to be done, and nobody is named: {Toru tuleb vahetada}.",
         "{Ummistunud} is a -nud word: it says what has happened to the sink, so after {on} it works like {katki}.",
-        "{Võimalik, et} is maybe: {Võimalik, et toru tuleb vahetada}, the pipe may need changing.",
+        "{Võimalik, et} is maybe: {Võimalik, et toru tuleb välja vahetada}, the pipe may need replacing.",
       ],
       watchOut: "To fix is {parandama}; to change for a new one is {vahetama}. A repairman fixes a tap, but you change a bulb.",
       examples: [2, 6, 9],

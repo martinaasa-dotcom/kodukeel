@@ -94,8 +94,8 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Kati, kelleks su tütar tahab saada?", en: "Kati, what does your daughter want to become?" },
       { who: "Kati", et: "Arstiks. Ta õpib juba ülikoolis.", en: "A doctor. She's already studying at university." },
       { who: "Mari", et: "Tubli! Ja mis ta sünnipäevaks tahab?", en: "Good for her! And what does she want for her birthday?" },
-      { who: "Kati", et: "Uut telefoni. Ostan selle talle homseks.", en: "A new phone. I'm getting her one for tomorrow." },
-      { who: "Mari", et: "Homme on ta sünnipäev? Palju õnne talle!", en: "It's her birthday tomorrow? Happy birthday to her!" },
+      { who: "Kati", et: "Uut telefoni. Pean selle homseks ära ostma, homme on tal sünnipäev.", en: "A new phone. I have to buy it by tomorrow, it's her birthday tomorrow." },
+      { who: "Mari", et: "Homme juba? Palju õnne talle!", en: "Tomorrow already? Happy birthday to her!" },
       { who: "Kati", et: "Aitäh! Ja homseks läheb ilm ka soojaks.", en: "Thank you! And by tomorrow the weather's getting warm too." },
     ],
     teaches: [
@@ -367,7 +367,7 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
     cast: { Liis: "liivika", Tom: "kalev" },
     conversation: [
       { who: "Liis", et: "Palun istuge. Rääkige natuke endast.", en: "Please sit down. Tell me a little about yourself." },
-      { who: "Tom", et: "Ma olen programmeerija. Mul on viis aastat kogemust.", en: "I'm a programmer. I have five years of experience." },
+      { who: "Tom", et: "Ma olen programmeerija, mul on viis aastat kogemust.", en: "I'm a programmer, I have five years of experience." },
       { who: "Liis", et: "Miks te tahate meie firmas töötada?", en: "Why do you want to work at our company?" },
       { who: "Tom", et: "Teie firma on tuntud ja töö on huvitav.", en: "Your company is well known and the work is interesting." },
       { who: "Liis", et: "Millal te saaksite alustada?", en: "When could you start?" },
@@ -406,7 +406,7 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
       examples: [1, 4, 5],
     },
     answers: [
-      { ask: { et: "Rääkige natuke endast.", en: "Tell me a little about yourself." }, cue: "Say what you are and how much experience you have.", model: { et: "Ma olen programmeerija. Mul on viis aastat kogemust.", en: "I'm a programmer. I have five years of experience." } },
+      { ask: { et: "Rääkige natuke endast.", en: "Tell me a little about yourself." }, cue: "Say what you are and how much experience you have.", model: { et: "Ma olen programmeerija, mul on viis aastat kogemust.", en: "I'm a programmer, I have five years of experience." } },
       { ask: { et: "Miks te tahate meie firmas töötada?", en: "Why do you want to work at our company?" }, cue: "Say the work is interesting.", model: { et: "Töö on huvitav.", en: "The work is interesting." } },
       { ask: { et: "Millal te saaksite alustada?", en: "When could you start?" }, cue: "Say from next month.", model: { et: "Järgmisest kuust.", en: "From next month." } },
       { cue: "Ask when the work starts.", model: { et: "Millal töö algab?", en: "When does the work start?" } },

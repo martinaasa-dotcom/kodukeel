@@ -385,7 +385,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
       { who: "Liis", et: "Kell kuus. Kas sa saad?", en: "At six. Can you?" },
       { who: "Tom", et: "Kell kuus ma ei saa. Kell seitse?", en: "I can't at six. Seven?" },
       { who: "Liis", et: "Väga hästi, kell seitse!", en: "Great, seven it is!" },
-      { who: "Tom", et: "Nägemist!", en: "See you!" },
+      { who: "Tom", et: "Tsau!", en: "Bye!" },
     ],
     teaches: [],
     how: {
