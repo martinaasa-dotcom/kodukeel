@@ -92,12 +92,28 @@ interface Taken {
   readonly shown: boolean;
 }
 
-export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier, partAt, onComplete }: { lesson: LessonSpec; scene: string | null; sceneHref: string | null; capstone: boolean; name: string | null; timeMultiplier: number; partAt: number; onComplete: () => void }) {
+/**
+ * WHERE THE STEP WAS, KEPT BY THE RUNNER WHILE THE STEP IS AWAY. Say it is
+ * unmounted when the learner steps to another step, because that is what
+ * closes its microphone and ends a story or a race still playing; what it
+ * had reached (the way it is being done, the card, the turns of a role-play)
+ * is handed back when it comes back, so stepping away to reread the table is
+ * not starting again.
+ */
+export interface SayPlace {
+  readonly mode: "say" | "type" | null;
+  readonly at: number;
+  readonly over: boolean;
+  readonly taken: readonly { readonly ask: string; readonly said: string; readonly shown: boolean }[];
+}
+
+export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier, partAt, onComplete, place, onPlace }: { lesson: LessonSpec; scene: string | null; sceneHref: string | null; capstone: boolean; name: string | null; timeMultiplier: number; partAt: number; onComplete: () => void; place: SayPlace | null; onPlace: (place: SayPlace) => void }) {
   const t = useT();
-  const [mode, setMode] = useState<Mode | null>(null);
-  const [at, setAt] = useState(0);
-  const [over, setOver] = useState(false);
-  const [taken, setTaken] = useState<readonly Taken[]>([]);
+  const [mode, setMode] = useState<Mode | null>(place?.mode ?? null);
+  const [at, setAt] = useState(place?.at ?? 0);
+  const [over, setOver] = useState(place?.over ?? false);
+  const [taken, setTaken] = useState<readonly Taken[]>(place?.taken ?? []);
+  useEffect(() => { onPlace({ mode, at, over, taken }); }, [mode, at, over, taken, onPlace]);
   /*
     Each card replaces the one whose button was just pressed, and so does the
     end. A card that put the caret somewhere of its own on arrival keeps it

@@ -4407,7 +4407,7 @@ export async function submitCheck(checkId: string, attempt: number, responses: (
 /**
  * A LESSON, FINISHED: ITS EVENING TICKED AND ITS WORDS IN THE DECK.
  *
- * The lesson runs its six steps on its own screen and ends on "Finish the
+ * The lesson runs its steps on its own screen and ends on "Finish the
  * lesson", which is this. The body, and why a lesson ahead of the learner's
  * evening records nothing, is `finishLessonFor` in lib/progress/lessons.ts,
  * which `POST /api/v1/lessons/{id}/finish` calls too, behind the same throttle.

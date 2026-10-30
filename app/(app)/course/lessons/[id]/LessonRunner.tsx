@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
 import { EnglishToggle } from "@/components/course/EnglishToggle";
@@ -32,7 +32,7 @@ import { ListenFirst } from "@/components/course/ListenFirst";
 import { WriteStep } from "@/components/course/WriteStep";
 import { levelNewsFor } from "@/lib/course/lessons/levelNew";
 import { Quiz } from "./Quiz";
-import { SayIt } from "./SayIt";
+import { SayIt, type SayPlace } from "./SayIt";
 import { lessonSceneHref, type ConversationReturn } from "@/lib/scenes/lessonReturn";
 import { nameOf } from "@/lib/ux/roundNames";
 import { worksheetLink, type LessonWorksheet } from "@/lib/course/lessonWorksheet";
@@ -169,6 +169,13 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
     heading.current?.focus();
     heading.current?.scrollIntoView({ block: "start" });
   }, [at, over]);
+  /* A retry that lands takes its button away, so the caret goes back to the finished screen's heading, which reads it. */
+  const retried = useRef(false);
+  useEffect(() => {
+    if (saved !== true || !retried.current) return;
+    retried.current = false;
+    heading.current?.focus();
+  }, [saved]);
 
   const finish = (s: Step) => setFinished((prev) => new Set(prev).add(s));
   const save = () => startSaving(async () => {
@@ -188,19 +195,26 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
   }, []);
 
   /*
-    PRACTICE, SAY IT AND REVIEW KEEP THEIR PLACE WHEN THE LEARNER STEPS AWAY.
-    The step list is the way back to the table halfway through Practice, and
-    a step drawn only while it is current started again from its first
-    question on the way back, and threw away the typed turns of a role-play.
-    So a step that holds a learner's answers stays mounted, hidden, once it
-    has been on the screen; one never shown is not mounted, so nothing in it
-    plays to an empty room, and stepping away stops what is playing.
+    PRACTICE AND REVIEW KEEP THEIR PLACE WHEN THE LEARNER STEPS AWAY. The step
+    list is the way back to the table halfway through Practice, and a step
+    drawn only while it is current started again from its first question on
+    the way back. A quiz holds no microphone and plays one clip at a time, so
+    it stays mounted, hidden, once it has been on the screen; one never shown
+    is not mounted, so nothing in it plays to an empty room, and stepping
+    away stops the clip in the air.
   */
   const [shown, setShown] = useState<ReadonlySet<Step>>(() => new Set());
   useEffect(() => {
     setShown((prev) => (prev.has(step) ? prev : new Set(prev).add(step)));
   }, [step]);
   const kept = (s: Step) => step === s || shown.has(s);
+  /*
+    SAY IT IS THE EXCEPTION, and goes when the learner steps away: it holds a
+    microphone and lines that play one after another, and only its going
+    closes those. Its place is kept here instead (`SayPlace`).
+  */
+  const sayPlace = useRef<SayPlace | null>(null);
+  const keepSayPlace = useCallback((p: SayPlace) => { sayPlace.current = p; }, []);
 
   const go = (n: number) => {
     moved.current = true;
@@ -448,7 +462,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
             {saved === false && (
               <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
                 <p className="text-base" style={{ color: "var(--again-ink)" }} aria-hidden>{t(saveError)}</p>
-                <Button variant="secondary" size="sm" busy={saving} onClick={save}>{t("Try again")}</Button>
+                <Button variant="secondary" size="sm" busy={saving} onClick={() => { retried.current = true; save(); }}>{t("Try again")}</Button>
               </div>
             )}
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
@@ -523,7 +537,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
           {step === "how" && <How lesson={lesson} />}
           {kept("practise") && <div hidden={step !== "practise"}><Quiz key="practise" level={3} items={practice} onFinished={(result) => { setScore((first) => first ?? result); finish("practise"); }} /></div>}
           {step === "write" && lesson.write && <WriteStep lesson={lesson} onDone={() => { finish("write"); go(at + 1); }} />}
-          {kept("say") && <div hidden={step !== "say"}><SayIt lesson={lesson} timeMultiplier={timeMultiplier} partAt={partAt} scene={scene} sceneHref={scene ? lessonSceneHref(scene, focus) : null} capstone={capstone} name={name} onComplete={() => finish("say")} /></div>}
+          {step === "say" && <SayIt lesson={lesson} timeMultiplier={timeMultiplier} partAt={partAt} scene={scene} sceneHref={scene ? lessonSceneHref(scene, focus) : null} capstone={capstone} name={name} onComplete={() => finish("say")} place={sayPlace.current} onPlace={keepSayPlace} />}
           {kept("review") && (review.length > 0
             ? <div hidden={step !== "review"}><Quiz key="review" level={3} items={review} review onFinished={() => finish("review")} /></div>
             : step === "review" && (

@@ -21,7 +21,7 @@ export interface Pill {
 /**
  * THE STEPS OF A LESSON, OR THE STAGES INSIDE ONE, AS A ROW OF PILLS.
  *
- * One drawing for the lesson's six steps, the write step's four stages and
+ * One drawing for the lesson's steps (six, or seven with writing), the write step's four stages and
  * the retell's three, because three copies had drifted three ways: a step
  * skipped with the button at the foot was ticked as done, one opened ahead
  * was painted done with no tick, and the pill you could press back to was

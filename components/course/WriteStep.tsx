@@ -65,8 +65,17 @@ export function WriteStep({ lesson, onDone }: { lesson: LessonSpec; onDone: () =
      moves on a press and never on a draft picked up from the device, whose
      stage is set before the first effects have run. */
   const pressed = useRef(false);
+  /*
+    The stage a reload, or coming back to this step, put the learner on:
+    arriving there that way is not the press that asked for a reading. Cleared
+    only by a press (`goTo`), never by an effect, since the effect for the
+    first stage runs before the stage the device held is drawn.
+  */
+  const resumed = useRef<string | null>(null);
   const goTo = (next: Stage) => {
     pressed.current = true;
+    // A press moves on: a later arrival at a stage is the learner's own, so a reading there starts by itself.
+    resumed.current = null;
     setStage(next);
   };
   const [frameTyped, setFrameTyped] = useState<readonly string[]>(() => Array.from({ length: gapCount }, () => ""));
@@ -80,10 +89,6 @@ export function WriteStep({ lesson, onDone }: { lesson: LessonSpec; onDone: () =
     was writing is the one drawn, and never during render, since the server
     has no device to read. Once, on arrival.
   */
-  /* The stage a reload put the learner back on: arriving there by a reload is not the press that asked for a reading. */
-  const resumed = useRef<string | null>(null);
-  // Once the learner moves off it, a later arrival there is their own press.
-  useEffect(() => { if (resumed.current !== null && stage !== resumed.current) resumed.current = null; }, [stage]);
   useLayoutEffect(() => {
     const saved = loadWriting(lesson.id);
     if (saved) {
