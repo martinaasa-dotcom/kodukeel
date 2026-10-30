@@ -4,7 +4,7 @@ import { existsSync } from "node:fs";
 import type { InvariantKit } from "../lib/invariantKit";
 
 /**
- * A `data-*` HOOK HANDED TO A COMPONENT REACHES AN ELEMENT.
+ * A `data-*` HOOK HANDED TO A COMPONENT REACHES AN ELEMENT, a bare one included.
  *
  * JSX does not type-check a hyphenated attribute, so `<Card data-check-result>`
  * compiled against a `Card` that took no such prop and drew it nowhere. The
@@ -21,7 +21,7 @@ export default function aHookReachesTheElement({ check, ALL, code }: InvariantKi
     const offenders: string[] = [];
     for (const f of files) {
       const source = code(f);
-      for (const m of source.matchAll(/<([A-Z][A-Za-z]*)\b[^<>]*?\bdata-[a-z-]+=/g)) {
+      for (const m of source.matchAll(/<([A-Z][A-Za-z]*)\b[^<>]*?\bdata-[a-z-]+(?=[=\s/>])/g)) {
         const name = m[1]!;
         // A tag name held in a variable (`as: Tag`) draws the element itself.
         if (new RegExp(`\\bas:\\s*${name}\\b|\\b(?:const|let)\\s+${name}\\b`).test(source)) continue;

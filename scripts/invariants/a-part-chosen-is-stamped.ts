@@ -1,31 +1,36 @@
 import assert from "node:assert/strict";
-
 import type { InvariantKit } from "../lib/invariantKit";
 
 /**
- * EVERY WRITE OF THE PART A LEARNER IS ON STAMPS WHEN IT WAS CHOSEN.
+ * A PART IS WRITTEN WITH THE STAMP SAYING IT WAS CHOSEN, IN ONE TRANSACTION.
  *
- * `courseReading` sends a learner whose old ticks predate the lessons back to
- * the level's first part, unless `programmeChosenAt` says they chose the part
- * they are on since (`lib/progress/course.ts`). First run wrote the part and
- * no stamp, so somebody placed on B1.2 by the wizard could be read as old
- * data and moved. Each `writeSetting(…, SETTING_KEYS.programme, …)` outside a
- * test has the stamp written beside it, inside the same few lines.
+ * `programme` is where the learner is and `programmeChosenAt` says they chose
+ * it, and the lessons' switch reads a part with no stamp as one to send back to
+ * the level's first lesson (`partAfterSwitch`). Written as two upserts side by
+ * side, a dropped connection between them left a chosen part looking unchosen.
+ * So nothing writes the part through `writeSetting` on its own: it goes through
+ * `writeSettings`, which is one transaction, with the stamp beside it.
  */
-export default function aPartChosenIsStamped({ check, ALL, code }: InvariantKit) {
-  check("every write of the learner's part stamps when it was chosen", () => {
-    const files = ALL.filter((f) => /^(app|lib)\//.test(f) && /\.tsx?$/.test(f) && !/\.(test|itest)\.tsx?$/.test(f));
+export default function aPartChosenIsStamped({ check, code, ALL }: InvariantKit) {
+  check("the part a learner is on is written with its chosen stamp, in one writeSettings call", () => {
+    const files = ALL.filter((f) => /^(app|lib)\//.test(f) && /\.tsx?$/.test(f) && !/\.test\./.test(f));
     let writes = 0;
-    const bare: string[] = [];
+    const offenders: string[] = [];
     for (const f of files) {
       const source = code(f);
-      for (const m of source.matchAll(/writeSetting\([^,]+,\s*SETTING_KEYS\.programme\s*,/g)) {
+      if (/writeSetting\(\s*ownerId\s*,\s*SETTING_KEYS\.programme\s*,/.test(source)) {
+        offenders.push(`${f}: writes the part with writeSetting, so its stamp is a separate write`);
+      }
+      for (const m of source.matchAll(/writeSettings\(\s*\w+\s*,\s*\[([\s\S]*?)\]\s*\)/g)) {
+        const list = m[1]!;
+        if (!/\[\s*SETTING_KEYS\.programme\s*,/.test(list)) continue;
         writes += 1;
-        const near = source.slice(Math.max(0, m.index! - 300), m.index! + 300);
-        if (!/SETTING_KEYS\.programmeChosenAt/.test(near)) bare.push(`${f}: ${source.slice(m.index!, m.index! + 80)}`);
+        if (!/\[\s*SETTING_KEYS\.programmeChosenAt\s*,/.test(list)) {
+          offenders.push(`${f}: writes the part without programmeChosenAt beside it`);
+        }
       }
     }
-    assert.ok(writes >= 4, `only ${writes} writes of the learner's part found, so the pattern stopped matching`);
-    assert.deepEqual(bare, [], `${bare.join("\n")}\nwrite SETTING_KEYS.programmeChosenAt beside it`);
+    assert.ok(writes >= 5, `only ${writes} writes of the part found, so the haystack stopped matching`);
+    assert.deepEqual(offenders, [], offenders.join("\n"));
   });
 }

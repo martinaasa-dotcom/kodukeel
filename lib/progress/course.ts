@@ -168,6 +168,28 @@ export function forgetRehoming(ownerId?: string): void {
   for (const key of [...SETTLED]) if (key.startsWith(`${ownerId}:`)) SETTLED.delete(key);
 }
 
+/**
+ * WHERE A RESTORED PART PUTS A LEARNER WHOSE BACKUP PREDATES THE SWITCH.
+ *
+ * The restore keeps only ticks on days a part still holds, so the old ticks
+ * that `rehomed` reads as "this learner was on the old part" never arrive, and
+ * a backup naming B1.3 put somebody on lesson 15 with two parts they never had.
+ * So the restore asks this first, of the backup's own ticks: the same rule, a
+ * tick on the part on a day it no longer holds and none on a day it does, and
+ * the same answer, the level's first part.
+ */
+export function partAfterSwitch(
+  part: Programme, ticks: readonly { readonly programmeId: string; readonly dayId: string }[],
+): Programme {
+  if (!REHOMED_LEVELS.has(part.level) || part.days.length === 0 || !part.days.every((d) => d.lesson)) return part;
+  const days = new Set(part.days.map((d) => d.id));
+  const here = ticks.filter((t) => t.programmeId === part.id);
+  const old = here.some((t) => !days.has(t.dayId));
+  const current = here.some((t) => days.has(t.dayId));
+  if (!old || current) return part;
+  return PROGRAMMES.find((p) => p.level === part.level) ?? part;
+}
+
 async function rehomed(ownerId: string, programme: Programme | null): Promise<Programme | null> {
   if (!programme || !REHOMED_LEVELS.has(programme.level)) return programme;
   if (programme.days.length === 0 || !programme.days.every((d) => d.lesson)) return programme;
@@ -428,21 +450,33 @@ const closingOpensAt = (ticks: Ticks, day: CourseDay): Date | undefined => {
  * makes; with none there is no module to be held to and every round behaves
  * exactly as it did.
  *
+ * BUT A TICK IN ANY PART IS A LEARNER FOLLOWING THE MODULE. Read off the part
+ * in play alone, a learner who had just passed a check and moved on to the
+ * next part, and not yet ticked its first lesson, held nothing: every round
+ * and the daily queue let go of the hold until they did, and asked cases and
+ * words nobody had taught. So where the part has no ticks and the learner has
+ * one somewhere, the standing is the part's first evening, not yet entered
+ * (`entered: false`): everything the parts before taught, and nothing of it.
+ *
  * Memoised for the render, like `ticksFor` underneath it, because Today and
  * the round it links to both ask.
  */
 export const moduleReached = cache(async (
   ownerId: string,
-): Promise<{ programme: Programme; day: CourseDay; ticked: ReadonlySet<string> } | null> => {
+): Promise<{ programme: Programme; day: CourseDay; ticked: ReadonlySet<string>; entered: boolean } | null> => {
   const programme = await programmeFor(ownerId);
   if (!programme) return null;
   const ticks = await ticksFor(ownerId, programme);
-  if (ticks.byDay.size === 0) return null;
+  if (ticks.byDay.size === 0) {
+    const first = programme.days[0];
+    const followed = first && await prisma.courseStep.findFirst({ where: { ownerId }, select: { id: true }, orderBy: { id: "asc" } });
+    return first && followed ? { programme, day: first, ticked: new Set<string>(), entered: false } : null;
+  }
   const day = dayReached(programme, new Set(ticks.byDay.keys()));
   // The steps of that evening that carry a row, which is what tells a screen
   // the module did not open whether today's page has been read yet
   // (`scopeSoFar`). Pressed steps and latched derived ones alike.
-  return { programme, day, ticked: ticks.byDay.get(day.id) ?? new Set<string>() };
+  return { programme, day, ticked: ticks.byDay.get(day.id) ?? new Set<string>(), entered: true };
 });
 
 export async function dayIsInPlay(

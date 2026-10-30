@@ -510,6 +510,27 @@ export async function writeSetting(ownerId: string, key: SettingKey, value: stri
 }
 
 /**
+ * Several settings written together or not at all.
+ *
+ * For a pair whose meaning is the two of them: the part a learner is on and
+ * the stamp saying they chose it (`programme` and `programmeChosenAt`), where a
+ * part written without its stamp is one the lessons' switch would send back
+ * (`partAfterSwitch`). One transaction, so a dropped connection between the two
+ * leaves neither rather than half.
+ */
+export async function writeSettings(
+  ownerId: string,
+  entries: readonly (readonly [SettingKey, string])[],
+): Promise<void> {
+  await prisma.$transaction(entries.map(([key, value]) => prisma.setting.upsert({
+    where: { ownerId_key: { ownerId, key } },
+    create: { ownerId, key, value },
+    update: { value },
+  })));
+  for (const [key, value] of entries) rememberWrite(ownerId, key, value);
+}
+
+/**
  * Drop what this request remembers about a learner's settings.
  *
  * For the paths that write the table without coming through `writeSetting`:

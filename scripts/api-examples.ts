@@ -179,7 +179,7 @@ write("post-scans-id-deck.json", { added: 2, words: read.length });
   const { beginSceneFor, finishSceneFor, sceneHelpFor } = await import("../lib/progress/sceneRuns");
   const { sceneTurnFor } = await import("../lib/progress/sceneRequest");
   const later = (task: () => unknown) => { void Promise.resolve().then(task).catch(() => {}); };
-  const opened = await beginSceneFor(LOCAL_USER_ID, "kohvikus", "textbook", "A1");
+  const opened = await beginSceneFor(LOCAL_USER_ID, "kohvikus", "textbook", "A1", false);
   if (!opened.ok) throw new Error(`the example scene did not open: ${opened.error}`);
   const { ok: _opened, ...briefing } = opened;
   write("post-scenes.json", briefing);

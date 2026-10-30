@@ -12,8 +12,21 @@ import type { InvariantKit } from "../lib/invariantKit";
  * line that prints "Right", "Nearly" or "Not quite" may not name a verdict
  * hue's ink itself.
  */
-const WORD = /\bt\("(?:Right|Nearly|Not quite)"\)/;
+const WORD = /\bt\("(?:Right|Nearly|Not quite)"\)/g;
 const RAW = /var\(--(?:good|hard|again|sky|blush|butter)-ink\)/;
+
+/**
+ * The element a word is drawn in, from its opening tag to the word. Read
+ * whole rather than line by line, since an element's style on one line and
+ * its word on the next is the ordinary way JSX is written and a check that
+ * read one line at a time could not see it.
+ */
+function enclosing(source: string, at: number): string {
+  for (let i = source.lastIndexOf("<", at); i >= 0; i = source.lastIndexOf("<", i - 1)) {
+    if (/^<[A-Za-z]/.test(source.slice(i, i + 2))) return source.slice(i, at);
+  }
+  return source.slice(Math.max(0, at - 200), at);
+}
 
 export default function aVerdictWordTakesVerdictInk({ check, ALL, code }: InvariantKit) {
   check("a verdict word is written in VERDICT_INK, never in a raw ink", () => {
@@ -21,10 +34,11 @@ export default function aVerdictWordTakesVerdictInk({ check, ALL, code }: Invari
     let words = 0;
     const offenders: string[] = [];
     for (const f of files) {
-      for (const line of code(f).split("\n")) {
-        if (!WORD.test(line)) continue;
+      const source = code(f);
+      for (const m of source.matchAll(WORD)) {
         words += 1;
-        if (RAW.test(line)) offenders.push(`${f}: ${line.trim().slice(0, 140)}`);
+        const element = enclosing(source, m.index!);
+        if (RAW.test(element)) offenders.push(`${f}: ${element.replace(/\s+/g, " ").trim().slice(0, 140)}`);
       }
     }
     assert.ok(words >= 3, `only ${words} verdict words found, so the haystack stopped matching`);

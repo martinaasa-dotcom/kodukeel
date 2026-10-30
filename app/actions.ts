@@ -75,7 +75,7 @@ import { markSayingsShown } from "@/lib/progress/sayings";
 import { bringBack, keepWord, putAside, setStar, wordReaches } from "@/lib/progress/wordActions";
 import { addScanToDeckFor, saveScanFor } from "@/lib/progress/scans";
 import {
-  forgetSettings, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
+  forgetSettings, readSetting, SETTING_KEYS, writeSetting, writeSettings, type ReviewMode,
 } from "@/lib/settings/store";
 
 
@@ -115,7 +115,7 @@ import {
   programmeById, stepCard, stepText,
 } from "@/lib/course";
 import { localeFor } from "@/lib/progress/locale";
-import { courseReading, dayIsInPlay, openingPart, programmeFor, forgetRehoming } from "@/lib/progress/course";
+import { courseReading, dayIsInPlay, openingPart, programmeFor, forgetRehoming, partAfterSwitch } from "@/lib/progress/course";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { doneKeyFrom, doneToday, withDone } from "@/lib/ux/workbookDone";
 import { notePlayed } from "@/lib/progress/gamesPlayed";
@@ -1577,7 +1577,7 @@ export async function beginScene(sceneId: unknown, difficulty: unknown, level?: 
   // `lib/security/actionLimits.ts`.
   const busy = await throttleShared(ownerId, "beginScene");
   if (busy) return await sayRefusal(ownerId, busy);
-  const result = await beginSceneFor(ownerId, sceneId, difficulty, level);
+  const result = await beginSceneFor(ownerId, sceneId, difficulty, level, await isAdmin());
   if (!result.ok) return { ok: false as const, error: result.error };
   return result;
 }
@@ -2303,9 +2303,9 @@ export async function completeOnboarding(input: {
   */
   if (!await moveBlockedFor(ownerId, partFrom(await readSetting(ownerId, SETTING_KEYS.programme)), opening)) {
     // Stamped as chosen, like every other move: a part picked here is not one the lessons' switch sends back (`lib/progress/course.ts`).
-    await Promise.all([
-      writeSetting(ownerId, SETTING_KEYS.programme, opening.id),
-      writeSetting(ownerId, SETTING_KEYS.programmeChosenAt, new Date().toISOString()),
+    await writeSettings(ownerId, [
+      [SETTING_KEYS.programme, opening.id],
+      [SETTING_KEYS.programmeChosenAt, new Date().toISOString()],
     ]);
   }
 
@@ -3773,9 +3773,13 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
   */
   let reachableParts: Set<string>;
   try {
+    const namedParts = (backup.settings ?? []).flatMap((row) => row.key === SETTING_KEYS.programme ? [String(row.value ?? "")] : []);
+    const ticked = (backup.courseSteps ?? []).map((row) => ({ programmeId: String(row.programmeId ?? ""), dayId: String(row.dayId ?? "") }));
     reachableParts = await restorableParts(ownerId, [
-      ...(backup.settings ?? []).flatMap((row) => row.key === SETTING_KEYS.programme ? [String(row.value ?? "")] : []),
-      ...(backup.courseSteps ?? []).map((row) => String(row.programmeId ?? "")),
+      ...namedParts,
+      // Where a backup from before the switch is moved back to, asked of the checks like the rest.
+      ...namedParts.flatMap((id) => { const p = programmeById(id); return p ? [partAfterSwitch(p, ticked).id] : []; }),
+      ...ticked.map((t) => t.programmeId),
     ]);
   } catch {
     return { ok: false as const, error: tr(await localeFor(ownerId).catch(() => "en" as const), "The restore didn't finish, so nothing was changed.") };
@@ -3966,6 +3970,21 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         MOVE THERE. A file is not a way past `moveBlockedFor`: a learner
         climbing the A1 lessons who restored a backup naming C1.1 was on C1.1.
       */
+      /*
+        A BACKUP FROM BEFORE B1 BECAME LESSONS is moved back the way a learner
+        already here was: its old ticks are dropped below, so they cannot do it
+        on the next read (`partAfterSwitch`).
+      */
+      const named = settings.get(SETTING_KEYS.programme);
+      const namedPart = named ? programmeById(named) : undefined;
+      if (namedPart) {
+        const ticks = (backup.courseSteps ?? []).map((raw) => ({ programmeId: String(raw.programmeId ?? ""), dayId: String(raw.dayId ?? "") }));
+        const back = partAfterSwitch(namedPart, ticks);
+        if (back.id !== namedPart.id) {
+          settings.set(SETTING_KEYS.programme, back.id);
+          settings.delete(SETTING_KEYS.programmeChosenAt);
+        }
+      }
       const restoredPart = settings.get(SETTING_KEYS.programme);
       if (restoredPart !== undefined) {
         const to = programmeById(restoredPart);
@@ -4480,8 +4499,10 @@ export async function setProgramme(value: string) {
     ? levelHeldOnHandOff(from.level, to.level, standing?.held ?? null)
     : null;
   await Promise.all([
-    writeSetting(ownerId, SETTING_KEYS.programme, wanted || defaultProgramme().id),
-    writeSetting(ownerId, SETTING_KEYS.programmeChosenAt, new Date().toISOString()),
+    writeSettings(ownerId, [
+      [SETTING_KEYS.programme, wanted || defaultProgramme().id],
+      [SETTING_KEYS.programmeChosenAt, new Date().toISOString()],
+    ]),
     held ? recordCourseLevel(ownerId, held) : Promise.resolve(),
   ]);
   revalidatePath("/course");
@@ -4540,8 +4561,10 @@ export async function acceptCourseMove(kind: string) {
   const levelWrite = move.held === was ? null : (move.held ?? "A0");
 
   await Promise.all([
-    writeSetting(ownerId, SETTING_KEYS.programme, move.to.id),
-    writeSetting(ownerId, SETTING_KEYS.programmeChosenAt, now.toISOString()),
+    writeSettings(ownerId, [
+      [SETTING_KEYS.programme, move.to.id],
+      [SETTING_KEYS.programmeChosenAt, now.toISOString()],
+    ]),
     writeSetting(ownerId, SETTING_KEYS.adaptMovedAt, now.toISOString()),
     writeSetting(ownerId, SETTING_KEYS.adaptSnoozedUntil, ""),
     levelWrite ? recordCourseLevel(ownerId, levelWrite, now) : Promise.resolve(),

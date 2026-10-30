@@ -4063,8 +4063,9 @@ live region, a button whose own press is out stays focusable (`Button`'s `busy`)
 error says "type it" only where there is a box, a hear question whose clip will not load shows the
 words, a lesson's place survives a reload for the tab, and the step pills tick what was finished
 rather than what was skipped. **The handover to B2** carries the lessons' verbs as verbs and marks
-the 58 pasts the A2 lessons taught as shown, so B2's forms step no longer spends weeks re-showing
-them; first run stamps the part it places a learner on; a learner moved back to B1.1 is told why.
+the 78 verbs whose past a lesson taught by name as shown (6 at A1, 27 at A2, 45 at B1, read off
+each lesson day's `forms` by `lessonPasts`), so B2's forms step no longer spends weeks re-showing
+them and the module may ask them from B2 on; first run stamps the part it places a learner on; a learner moved back to B1.1 is told why.
 
 **The content** took both content audits: every fix sits on a line its lesson shows, the exam lesson
 follows the exam's three parts, the part-end scenes ask a distinct group of words per beat, and the

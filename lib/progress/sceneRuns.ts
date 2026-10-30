@@ -11,6 +11,7 @@ import {
   type Briefing, type FinishedRun,
 } from "@/lib/progress/scene";
 import { sceneById } from "@/lib/scenes/catalogue";
+import { isPreviewScene } from "@/lib/scenes/lessonScenes";
 import { BUDGETS, type Difficulty } from "@/lib/scenes/curveballs";
 import { cardsForGrades } from "@/lib/scenes/grades";
 import { CHAT_ID } from "@/lib/scenes/specs/chat";
@@ -93,10 +94,17 @@ export interface FinishedScene {
  * persona, their card and their curveballs, which is every axis of §5 at once.
  */
 export async function beginSceneFor(
-  ownerId: string, sceneId: unknown, difficulty: unknown, level?: unknown,
+  ownerId: string, sceneId: unknown, difficulty: unknown, level: unknown, reviewer: boolean,
 ): Promise<OpenedRun | Refused> {
   const scene = sceneById(text(sceneId).slice(0, 64));
-  if (!scene) return { ok: false as const, reason: "not_found", error: "We couldn't find that conversation." };
+  /*
+    A SCENE OF A LESSON STILL IN PREVIEW IS A REVIEWER'S, the way the lesson
+    is (`lessonOrPreview`, `lessonView`'s `allowPreview`): typed into a request,
+    its id opened an unreleased conversation for anybody. Whether a reviewer
+    is asking is the door's to say, since only the web door has the cookie
+    `isAdmin` reads, so it is a required argument rather than a default.
+  */
+  if (!scene || (isPreviewScene(scene) && !reviewer)) return { ok: false as const, reason: "not_found", error: "We couldn't find that conversation." };
   const chosen = text(difficulty);
   // `in` walks the prototype, so `constructor` and `toString` passed it and
   // reached a SceneRun.difficulty Int column as a function. Own keys only.

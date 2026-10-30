@@ -126,8 +126,7 @@ export interface LevelEnd {
   next: { level: string; title: string; summary: string; lessons: boolean } | null;
 }
 
-/** What `checkView` says about where a pass leads, kept pure for its test. */
-/** What a check says about where a pass leads, for the page and the app alike. */
+/** What a check says about where a pass leads, for the page and the app alike, kept pure for its test. */
 export function whereAPassLeads(check: CourseCheck, part: Programme, next: Programme | null): {
   nextLabel: string | null;
   levelDone: LevelEnd | null;

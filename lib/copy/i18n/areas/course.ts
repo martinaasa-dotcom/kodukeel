@@ -1036,6 +1036,9 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["December, and there is a candle in every window whether anyone is religious or not.",
     "Декабрь: свеча в каждом окне, независимо от того, верят ли там в Бога.",
     "Грудень: свічка в кожному вікні, незалежно від того, чи вірять там у Бога."],
+  ["{level} is built as lessons now, so you pick it up from {part}. Your cards are kept, and Review asks each one again once the course has taught its word.",
+    "Уровень {level} теперь построен из уроков, поэтому ты продолжаешь с {part}. Твои карточки сохранены, и повторение снова спросит каждую, когда курс научит её слову.",
+    "Рівень {level} тепер побудовано з уроків, тож ти продовжуєш з {part}. Твої картки збережено, і повторення знову спитає кожну, коли курс навчить її слова."],
 ];
 
 export const COURSE: Area = {

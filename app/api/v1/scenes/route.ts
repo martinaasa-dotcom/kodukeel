@@ -24,7 +24,8 @@ export async function POST(request: Request) {
   if (!body.ok) return body.response;
   const busy = await throttleShared(who.ownerId, "beginScene");
   if (busy) return apiError("rate_limited", { retryAfterSec: busy.retryAfterSec });
-  const result = await beginSceneFor(who.ownerId, body.data.sceneId, body.data.difficulty, body.data.level);
+  // A native door has no reviewer cookie, so a scene in preview is never opened through it.
+  const result = await beginSceneFor(who.ownerId, body.data.sceneId, body.data.difficulty, body.data.level, false);
   if (!result.ok) return apiError(result.reason, { message: result.error });
   const answer: SceneOpenedResponse = {
     runId: result.runId, briefing: result.briefing, plays: result.plays, composed: result.composed,

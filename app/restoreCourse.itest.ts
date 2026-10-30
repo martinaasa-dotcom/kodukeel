@@ -56,6 +56,21 @@ describe("a restored place in the course", () => {
     expect(ticks.map((t) => t.programmeId).sort()).toEqual(["a1.1", "a1.3"]);
   });
 
+  it("moves a backup made on the old B1 back to the first lesson of B1, as a learner already here would be", async () => {
+    // A backup from before B1 became lessons: the part the learner was on, and ticks on day ids it no longer has.
+    const old = JSON.stringify({
+      format: "kodukeel-v1",
+      exportedAt: at,
+      lexemes: [], forms: [], cards: [], reviews: [], tasks: [],
+      settings: [{ ownerId: "x", key: SETTING_KEYS.programme, value: "b1.3" }],
+      courseSteps: [{ ownerId: "x", programmeId: "b1.3", dayId: "b1.3-05", stepId: "meet", createdAt: at }],
+    });
+    const out = await restoreBackup(old, "replace");
+    expect(out).toEqual(expect.objectContaining({ ok: true }));
+    // Not b1.3, whose lessons assume two parts the learner never had.
+    expect(await part()).toBe("b1.1");
+  });
+
   it("is held to the checks for somebody already climbing", async () => {
     await prisma.setting.create({ data: { ownerId: OWNER, key: SETTING_KEYS.programme, value: "a1.1" } });
     await prisma.courseStep.create({ data: { ownerId: OWNER, programmeId: "a1.1", dayId: "a1-01-hello", stepId: "lesson" } });

@@ -868,13 +868,15 @@ view carries the offer as `worksheet`, so a native app can make it too.
 **One year, one cast, and a level that ramps.** B1 is one family's year (`docs/reviews/b1-cast.md`):
 a name is one person from A1 to B1, the move in part 4 is the move every later part lives with, and
 a stranger is a one-off name. Each part asks more than the one before, in a table the lessons are
-held to there: the retell grows from four sentences to eight and from part 5 sometimes changes
+written to there: the retell grows from four sentences to eight and from part 5 sometimes changes
 person, the writing from forty words to a hundred, the questions before the text from what it was
 about to who said it and which came first, the reworks combine two patterns from part 5, and from
 part 4 the fade hides tonight's words on its first pass (`fadePlan`, handed the part's place).
 Every part has a listening that isn't a conversation (a voicemail, a notice, a radio item, a hold
 message), heard where the story is (`hearing`: a phone line, a café, a quick news voice, through
-`lib/audio/conditions.ts`). A part's closing conversation carries a turn its lesson never
+`lib/audio/conditions.ts`). The retell, the writing, the room and the fade are checked per part
+(`ramp.test.ts`, `fade.test.ts`); the questions, the combined patterns and the listening that is
+not a conversation are the authors' rule, since no field records them. A part's closing conversation carries a turn its lesson never
 rehearsed and no retell or race, since its Say it is the conversation (`levelContractProblems`).
 The answer options are shuffled on the screen by a seed of the question, the arrow keys move focus
 rather than answer on every marked question (`ChoiceGroup`'s `answer`), the race is lengthened by

@@ -19,6 +19,8 @@
  * Pure: no React, no Prisma, no clock.
  */
 
+import { HARVESTED } from "@/prisma/data/harvested";
+import { pastPersons } from "@/lib/estonian/conjugate";
 import { LESSONS, LESSON_PARTS, casesOfPattern, type LessonSpec, type PartOfLessons, type PatternId } from "./lessons";
 import { lessonHeads } from "./lessonHeads";
 import { lessonLabel } from "./lessons/label";
@@ -138,6 +140,41 @@ export function lessonMinutes(lesson: LessonSpec): number {
     + (lesson.write ? 15 : 0);
 }
 
+/** Each harvested verb's stored simple past, the I form and the third person, for telling a taught past apart. */
+const PASTS_OF: ReadonlyMap<string, { readonly first: string; readonly third: readonly string[] }> = (() => {
+  const out = new Map<string, { first: string; third: string[] }>();
+  for (const w of HARVESTED) {
+    if (w.pos !== "VERB" || !w.parts.PAST_1SG || out.has(w.lemma)) continue;
+    out.set(w.lemma, { first: w.parts.PAST_1SG, third: w.extraForms.filter((f) => f.code.startsWith("IndIpfSg3")).map((f) => f.value) });
+  }
+  return out;
+})();
+
+/**
+ * THE VERBS WHOSE PAST A LESSON SHOWED BY NAME.
+ *
+ * A past is learned verb by verb (`lugesin` but `tahtis`), so it is asked
+ * inside the module only once an evening has shown it (`slotWithin`), and
+ * B2's forms step does not show it again (decision D4). A lesson shows one
+ * where it teaches a form that is that verb's stored past, whether or not
+ * the lesson marked it `past`: A1's yesterday lesson teaches `olin`, `tegin`
+ * and `käisin` before the past is a pattern, and those are as shown as any.
+ * Read off the harvest's own stored forms (the I form and the third person)
+ * and the persons `pastPersons` builds off the I form, so nothing about
+ * Estonian is decided here.
+ */
+export function lessonPasts(lesson: LessonSpec): string[] {
+  const out: string[] = [];
+  for (const t of lesson.teaches) {
+    if (t.kind !== "form" || out.includes(t.of)) continue;
+    const stored = PASTS_OF.get(t.of);
+    if (!stored) continue;
+    const spellings = new Set([stored.first, ...stored.third, ...pastPersons(stored.first).map((p) => p.value)]);
+    if (t.past || spellings.has(t.et)) out.push(t.of);
+  }
+  return out;
+}
+
 /** Braces mark Estonian inside English for a screen; a sentence printed plain drops them. */
 const plain = (text: string) => text.replace(/[{}]/g, "");
 
@@ -149,6 +186,8 @@ export function lessonDay(lesson: LessonSpec, index: number, partTitle: string):
     ...(pages.topics ?? []),
   ])];
   const cases = [...new Set([...(lesson.patterns ?? []).flatMap(casesOfPattern), ...(pages.cases ?? [])])];
+  // A lesson day draws no forms step (its one step is the lesson); the list is what it has shown, for `formsThrough`.
+  const forms = lessonPasts(lesson);
   return {
     id: lesson.id,
     title: plain(partTitle),
@@ -161,6 +200,7 @@ export function lessonDay(lesson: LessonSpec, index: number, partTitle: string):
     lesson: lesson.id,
     ...(cases.length > 0 ? { cases } : {}),
     ...(topics.length > 0 ? { topics } : {}),
+    ...(forms.length > 0 ? { forms } : {}),
     index,
     part: { n: 1, of: 1 },
     steps: [{
