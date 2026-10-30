@@ -323,7 +323,7 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Trammiga. Aga homme sõidan Tartusse.", en: "By tram. But tomorrow I'm going to Tartu." },
       { who: "Tom", et: "Rongiga või bussiga?", en: "By train or by bus?" },
       { who: "Mari", et: "Rongiga. Pilet maksab ainult üheksa eurot.", en: "By train. The ticket's only nine euros." },
-      { who: "Tom", et: "Tore!", en: "Nice!" },
+      { who: "Tom", et: "Ainult üheksa? Head teed siis!", en: "Only nine? Have a good trip, then!" },
     ],
     teaches: [
       { kind: "word", et: "kuidas", en: "how" },
@@ -339,6 +339,7 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "kui palju", en: "how much" },
       { kind: "word", et: "või", en: "or" },
       { kind: "word", et: "tore", en: "nice, lovely" },
+      { kind: "phrase", et: "Head teed!", en: "Have a good trip!" },
     ],
     how: {
       point: "The [kaasaütlev] (-ga, with) means with. With a bus or a train, it means by: {bussiga}, {rongiga}.",
@@ -440,7 +441,7 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Kas see on kaugel?", en: "Is it far?" },
       { who: "Liis", et: "Ei, see on lähedal. Kuhu te sõidate?", en: "No, it's close. Where are you going?" },
       { who: "Tom", et: "Tartusse.", en: "To Tartu." },
-      { who: "Liis", et: "Tartusse? Tore!", en: "To Tartu? Nice!" },
+      { who: "Liis", et: "Selge. Head teed!", en: "Right. Have a good trip!" },
       { who: "Tom", et: "Aitäh! Head aega!", en: "Thank you! Goodbye!" },
     ],
     teaches: [],

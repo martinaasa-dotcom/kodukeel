@@ -114,7 +114,7 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Jah! Ta tuli ka turule. Me võtsime kohvi ja rääkisime kaua.", en: "Yes! She came to the market too. We got a coffee and talked for ages." },
       { who: "Liis", et: "Ja pärast?", en: "And afterwards?" },
       { who: "Tom", et: "Pärast läksin koju ja magasin.", en: "Afterwards I went home and slept." },
-      { who: "Liis", et: "Tore!", en: "Nice!" },
+      { who: "Liis", et: "Väga hea laupäev!", en: "Sounds like a really good Saturday!" },
     ],
     teaches: [
       { kind: "verb", et: "võtma", first: "võtan", en: "to take", firstEn: "I take" },

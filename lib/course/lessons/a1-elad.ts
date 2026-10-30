@@ -469,8 +469,8 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Tom, kas sul on vend?", en: "Tom, do you have a brother?" },
       { who: "Tom", et: "Jah, on. Tema nimi on Peeter.", en: "Yes, I do. His name's Peeter." },
       { who: "Mari", et: "Ja õde?", en: "And a sister?" },
-      { who: "Tom", et: "Ei, mul ei ole. Aga mul on laps!", en: "No, I don't. But I have a child!" },
-      { who: "Mari", et: "Mul on ka laps. Ta on viis.", en: "I have a child too. She's five." },
+      { who: "Tom", et: "Ei, mul ei ole. Aga mul on kaks last!", en: "No, I don't. But I have two children!" },
+      { who: "Mari", et: "Mul on üks laps. Ta on viis.", en: "I have one child. She's five." },
     ],
     teaches: [
       { kind: "form", et: "mul", of: "mina", en: "with {on}: I have" },
@@ -482,6 +482,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "vend", en: "brother" },
       { kind: "word", et: "õde", en: "sister" },
       { kind: "word", et: "laps", en: "child" },
+      { kind: "phrase", et: "kaks last", en: "two children" },
     ],
     how: {
       point: "Estonian has no verb for \"have\". You say {mul on}, and it always means \"I have\".",
@@ -638,7 +639,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Väga meeldiv! Ja teie?", en: "Nice to meet you! And you?", stage: "She turns to Anna." },
       { who: "Anna", et: "Mina olen Anna, olen pärit Ukrainast. Räägin ukraina ja vene keelt, natuke ka eesti keelt.", en: "I'm Anna. I'm from Ukraine. I speak Ukrainian, Russian and a little Estonian." },
       { who: "Mari", et: "Väga hästi! Kas teil on siin pere?", en: "Very good! Do you have family here?" },
-      { who: "Anna", et: "Jah. Mul on abikaasa, poeg ja tütar.", en: "Yes. I have a husband, a son and a daughter." },
+      { who: "Anna", et: "Jah. Tom on mu abikaasa. Meil on poeg ja tütar.", en: "Yes. Tom is my husband. We have a son and a daughter." },
       { who: "Mari", et: "Aitäh, Anna!", en: "Thank you, Anna!" },
     ],
     teaches: [],

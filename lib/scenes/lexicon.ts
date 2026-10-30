@@ -26,7 +26,7 @@
  * Pure: takes entries, returns sets. No React, no Next, no Prisma.
  */
 import { buildCaseTable, stemsFrom } from "@/lib/estonian/derive";
-import { derivedVerbForms, pres1sgFrom, type DerivedVerbCode } from "@/lib/estonian/conjugate";
+import { derivedVerbForms, pastPersons, pres1sgFrom, type DerivedVerbCode } from "@/lib/estonian/conjugate";
 import { ESTONIAN_WORD } from "@/lib/estonian/cloze";
 import { fold } from "@/lib/estonian/fold";
 import { CASES } from "@/lib/estonian/cases";
@@ -121,6 +121,15 @@ export function formsOf(entry: DictEntry): string[] {
   if (entry.pos === "VERB") {
     for (const form of derivedVerbForms({ lemma: entry.lemma, pres1sg: firstPersonOf(entry) })) {
       for (const w of words(form.value)) out.add(w);
+    }
+    /*
+      And the simple past's other persons off the stored first person, which
+      the lessons' ledger already reads: `ostsite` is what a shop assistant
+      asks a customer, and the scene could only say `ostnud olete`, which is
+      grammatical and is not what anybody says at a counter.
+    */
+    if (entry.parts.PAST_1SG) {
+      for (const form of pastPersons(entry.parts.PAST_1SG)) for (const w of words(form.value)) out.add(w);
     }
   } else if (entry.parts.GEN_SG) {
     /*

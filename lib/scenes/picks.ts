@@ -49,6 +49,14 @@ export interface PickSpec {
    * a friend on the phone is never asked to slow down in the polite plural.
    */
   readonly register?: "teie" | "sina";
+  /**
+   * The values of one slot this line is written for, where the slot deals
+   * things that are not said alike: a language is spoken (`Ma räägin hästi
+   * vene keelt`) and a computer is worked with (`Ma oskan hästi arvutiga
+   * töötada`), and no one line says both. A card dealing another value is
+   * offered the scene's other lines instead.
+   */
+  readonly when?: { readonly slot: string; readonly oneOf: readonly string[] };
 }
 
 export interface PickOption {
@@ -91,6 +99,7 @@ export function literalOf(template: string): string {
  * than printed in the nominative, which would be Estonian nobody says.
  */
 export function buildPick(template: PickSpec, card: RoleCard | null, lexicon: Lexicon): { et: string; en: string } | null {
+  if (!fitsCard(template, card)) return null;
   let missing = false;
   const et = template.et.replace(SLOT, (_, slot: string, grammCase?: string) => {
     const prop = card ? propBySlot(card, slot) : undefined;
@@ -114,6 +123,13 @@ export function buildPick(template: PickSpec, card: RoleCard | null, lexicon: Le
   // A value at the front of a line starts the sentence.
   const lead = et.trimStart();
   return { et: lead.charAt(0).toUpperCase() + lead.slice(1), en };
+}
+
+/** Whether a line is written for the value the card dealt (`PickSpec.when`); a line with no `when` fits every card. */
+export function fitsCard(template: PickSpec, card: RoleCard | null): boolean {
+  if (!template.when) return true;
+  const prop = card ? propBySlot(card, template.when.slot) : undefined;
+  return !!prop?.lemmas.some((lemma) => template.when!.oneOf.includes(lemma));
 }
 
 /** The specs offered on a beat: the scene's own, else the curveball's shared ones, in the scene's register. */

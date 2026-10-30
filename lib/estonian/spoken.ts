@@ -119,6 +119,24 @@ export const NOT_SAID: readonly NotSaid[] = [
     say: "Mul on natuke kiire. / Vabandust, mul on kiire.",
     why: "A hurried person says they are in a hurry; ordering the other side to say it now is a phrasebook line.",
   },
+  {
+    pattern: /^(?:[\p{L}-]+\?\s+)?tore!?$/iu,
+    example: "Tartusse? Tore!",
+    say: "Selge. Head teed! / Tore! Mida sa seal teed?",
+    why: "A bare Tore is not an answer to anything; it takes something after it, or the reply is another word.",
+  },
+  {
+    pattern: re("(suur|suure|suurt) (tuul|tuule|tuult)"),
+    example: "Täna on suur tuul.",
+    say: "Täna on kõva tuul.",
+    why: "A strong wind is kõva tuul; suur tuul is the English big wind in Estonian words.",
+  },
+  {
+    pattern: re("millal[^.!?]*\\p{L}+nud (olete|oled)"),
+    example: "Millal te selle ostnud olete?",
+    say: "Millal te selle ostsite?",
+    why: "A question about when takes the simple past; the perfect with millal is a textbook sentence.",
+  },
 ];
 
 /** Every entry the text breaks, empty where it reads as people talk. */

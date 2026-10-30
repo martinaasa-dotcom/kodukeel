@@ -210,7 +210,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Praegu ma loen raamatut. Ja sina?", en: "Right now I'm reading a book. And you?" },
       { who: "Mari", et: "Kuulan muusikat. Jaan vaatab telekat.", en: "I'm listening to music. Jaan's watching TV." },
       { who: "Tom", et: "Ja Liis?", en: "And Liis?" },
-      { who: "Mari", et: "Liis õpib. Mida sa teed õhtul?", en: "Liis is studying. What are you doing this evening?" },
+      { who: "Mari", et: "Liis õpib. Mis sa õhtul teed?", en: "Liis is studying. What are you doing this evening?" },
       { who: "Tom", et: "Õhtul? Ma ei tea veel.", en: "This evening? I don't know yet." },
     ],
     teaches: [
@@ -237,7 +237,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "Learn {raamatut}, {muusikat} and {telekat} whole for now. The ending is the same one as in {eesti keelt} and {kaks aastat}, and lesson 25 explains it.",
-        "{Mida sa teed?} is the everyday question. Its first word means what, with the ending a verb like {tegema} puts on it, and lesson 25 explains that too.",
+        "{Mida sa teed?} is the everyday question, and {Mis sa teed?} is just as common. In the first, what carries the ending a verb like {tegema} puts on it, and lesson 25 explains that too.",
         "{Tegema} is do and make, and its pair is {tegema, teen}. The persons follow from {teen}: {teed}, {teeb}.",
       ],
       watchOut: "{Ma loen} is both I read and I'm reading. Estonian has one present for both.",
@@ -246,7 +246,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
     answers: [
       { ask: { et: "Mida sa teed?", en: "What are you doing?" }, cue: "Say that right now you're reading a book.", model: { et: "Praegu ma loen raamatut.", en: "Right now I'm reading a book." } },
       { cue: "Ask a friend what they're doing.", model: { et: "Mida sa teed?", en: "What are you doing?" } },
-      { ask: { et: "Mida sa teed õhtul?", en: "What are you doing this evening?" }, cue: "Say you don't know.", model: { et: "Ma ei tea.", en: "I don't know." } },
+      { ask: { et: "Mis sa õhtul teed?", en: "What are you doing this evening?" }, cue: "Say you don't know.", model: { et: "Ma ei tea.", en: "I don't know." } },
     ],
   },
   {

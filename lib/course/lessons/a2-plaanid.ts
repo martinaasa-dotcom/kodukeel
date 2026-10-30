@@ -531,7 +531,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Mis su plaanid on?", en: "What are your plans?" },
       { who: "Tom", et: "Suvel kavatsen Saaremaale minna. Kas tuleksid kaasa?", en: "In the summer I plan to go to Saaremaa. Would you come along?" },
       { who: "Mari", et: "Hea meelega, kui puhkust saan!", en: "I'd love to, if I get time off!" },
-      { who: "Tom", et: "Tore!", en: "Great!" },
+      { who: "Tom", et: "Väga hea! Siis lähme koos.", en: "Great! Then we'll go together." },
     ],
     teaches: [],
     how: {

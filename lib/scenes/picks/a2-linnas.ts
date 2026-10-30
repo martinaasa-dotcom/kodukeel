@@ -24,7 +24,7 @@ export const a2Linnas: ScenePicks = {
   ],
   cafe: [
     { et: "Tore! Ma olen seal kümne minuti pärast.", en: "Great! I'll be there in ten minutes." },
-    { et: "Tore!", en: "Great!" },
+    { et: "Hästi, lähme sinna!", en: "Good, let's go there!" },
   ],
   close: [
     { et: "Head aega!", en: "Goodbye!" },

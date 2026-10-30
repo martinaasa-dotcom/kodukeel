@@ -148,7 +148,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Triin", et: "Mida sa vabal ajal teed?", en: "What do you do in your free time?", stage: "At a party at Kati's. Tom has just met Triin, a friend of hers." },
       { who: "Tom", et: "Mind huvitab muusika. Ja sport ka, aga seda ma ainult vaatan.", en: "I'm into music. And sport too, but only to watch." },
-      { who: "Triin", et: "Muusika? Tore! Kas sa laulad?", en: "Music? Lovely! Do you sing?" },
+      { who: "Triin", et: "Muusika? Kas sa ise ka laulad?", en: "Music? Do you sing yourself?" },
       { who: "Tom", et: "Natuke. Ainult kodus.", en: "A little. Only at home." },
       { who: "Triin", et: "Meil on kooris just mehi vaja! Kati laulab ka seal. Mulle tundub, et sa oleksid hea.", en: "Men are just what our choir needs! Kati sings in it too. I think you'd be good." },
       { who: "Tom", et: "Tegelikult ma ei laula üldse hästi. Mulle meeldib rohkem kuulata.", en: "Actually, I don't sing well at all. I prefer listening." },

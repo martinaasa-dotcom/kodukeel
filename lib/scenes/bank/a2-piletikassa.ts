@@ -27,7 +27,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "a2-piletikassa", beat: "ticket", text: "Kas tulete ka tagasi?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-piletikassa", beat: "back", text: "Millal te tagasi tulete?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-piletikassa", beat: "back", text: "Ja millal te tagasi tulete?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
-  { scene: "a2-piletikassa", beat: "price", text: "Sõit kestab kaks tundi. Buss väljub teiselt platvormilt.", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
+  { scene: "a2-piletikassa", beat: "price", text: "Sõit kestab kaks tundi. Buss väljub teiselt perroonilt.", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-piletikassa", beat: "price", text: "Sõit kestab kaks tundi.", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-piletikassa", beat: "close", text: "Head reisi!", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-piletikassa", beat: "close", text: "Aitäh. Head reisi!", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },

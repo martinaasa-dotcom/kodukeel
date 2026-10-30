@@ -8,7 +8,7 @@ const SCENES = [...LISTED, ...LESSON_SCENES];
 import { planRun, fitsIn, notBeforeIn } from "./run";
 import { hurdleBeat, isOver } from "./state";
 import { words } from "./lexicon";
-import { buildPick, caseFor, literalOf, pickSpecsFor, picksFor, slotsOf } from "./picks";
+import { buildPick, caseFor, fitsCard, literalOf, pickSpecsFor, picksFor, slotsOf } from "./picks";
 import { acceptFromRows, contextFromRows, replay, sceneLemmas, type Row, type SentTurn, type StoredDraw } from "@/lib/progress/scene";
 import { shippedDictionary } from "../../scripts/lib/dictionary";
 import type { SceneSpec } from "./types";
@@ -51,8 +51,16 @@ describe.each(SCENES.map((s) => [s.id, s] as const))("picks in %s", (_id, scene)
   it("has two or three picks on every beat, each with its English", () => {
     for (const beat of scene.beats) {
       const specs = pickSpecsFor(scene, beat.id);
-      expect(specs.length, `${beat.id} has ${specs.length} picks`).toBeGreaterThanOrEqual(MIN_PICKS);
-      expect(specs.length, `${beat.id} has ${specs.length} picks`).toBeLessThanOrEqual(MAX_PICKS);
+      // A line written for some of a slot's values (`when`) is counted against each value it is offered on.
+      const split = specs.find((s) => s.when)?.when?.slot;
+      const prop = split ? scene.props.find((p) => p.slot === split) : undefined;
+      const values = prop && "oneOf" in prop && prop.oneOf ? prop.oneOf : [null];
+      for (const value of values) {
+        const offered = specs.filter((s) => !s.when || (value !== null && s.when.oneOf.includes(value)));
+        const which = value ? `${beat.id} (${value})` : beat.id;
+        expect(offered.length, `${which} has ${offered.length} picks`).toBeGreaterThanOrEqual(MIN_PICKS);
+        expect(offered.length, `${which} has ${offered.length} picks`).toBeLessThanOrEqual(MAX_PICKS);
+      }
       for (const spec of specs) {
         expect(spec.en.trim().length, `${beat.id}: "${spec.et}" has no English`).toBeGreaterThan(0);
         expect(spec.en, `${beat.id}: the English of "${spec.et}" holds an Estonian letter`).not.toMatch(ESTONIAN);
@@ -123,11 +131,12 @@ describe.each(SCENES.map((s) => [s.id, s] as const))("picks in %s", (_id, scene)
     for (let n = 0; n < 40; n++) {
       const run = planRun(scene, `picks-every-${n}`, "A2", "textbook");
       for (const { id, spec } of cased) {
+        if (!fitsCard(spec, run.card)) continue;
         expect(buildPick(spec, run.card, context.lexicon), `${id}: "${spec.et}" builds nothing on picks-every-${n}'s card`).not.toBeNull();
         built++;
       }
     }
-    expect(built).toBe(cased.length * 40);
+    expect(built).toBeGreaterThanOrEqual(cased.length > 0 ? 40 : 0);
   });
 
   it("answers every curveball it admits with picks the reader counts as dealing with it", () => {
