@@ -379,12 +379,12 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
     cast: { Liis: "liivika", Tom: "kalev" },
     conversation: [
       { who: "Liis", et: "Tere, Tom! Mis sa laupäeval teed?", en: "Hi, Tom! What are you doing on Saturday?", stage: "On the phone." },
-      { who: "Tom", et: "Ma ei tea veel. Ma ei tööta.", en: "I don't know yet. I'm not working." },
+      { who: "Tom", et: "Ma ei tea veel.", en: "I don't know yet." },
       { who: "Liis", et: "Tahad tulla? Ma teen süüa.", en: "Do you want to come over? I'm cooking." },
       { who: "Tom", et: "Jah! Mis kell?", en: "Yes! What time?" },
       { who: "Liis", et: "Kell kuus. Kas sa saad?", en: "At six. Can you?" },
       { who: "Tom", et: "Kell kuus ma ei saa. Kell seitse?", en: "I can't at six. Seven?" },
-      { who: "Liis", et: "Hästi, kell seitse. Head aega!", en: "Fine, seven. Bye!" },
+      { who: "Liis", et: "Väga hästi, kell seitse!", en: "Great, seven it is!" },
       { who: "Tom", et: "Nägemist!", en: "See you!" },
     ],
     teaches: [],
@@ -406,7 +406,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
     roleplay: {
       scene: "Your friend Liis calls to invite you over this weekend. Make a plan with her.",
       turns: [
-        { ask: { et: "Tere! Mis sa laupäeval teed?", en: "Hi! What are you doing on Saturday?" }, cue: "Say you're not working.", model: { et: "Ma ei tööta.", en: "I'm not working." } },
+        { ask: { et: "Tere! Mis sa laupäeval teed?", en: "Hi! What are you doing on Saturday?" }, cue: "Say you don't know yet.", model: { et: "Ma ei tea veel.", en: "I don't know yet." } },
         { ask: { et: "Tahad tulla? Ma teen süüa.", en: "Do you want to come over? I'm cooking." }, cue: "Say yes, and ask what time.", model: { et: "Jah! Mis kell?", en: "Yes! What time?" } },
         { ask: { et: "Kell kuus. Kas sa saad?", en: "At six. Can you?" }, cue: "Say you can't at six, and offer seven.", model: { et: "Kell kuus ma ei saa. Kell seitse?", en: "I can't at six. Seven?" } },
         { ask: { et: "Hästi, kell seitse!", en: "Fine, seven!" }, cue: "Say thank you and goodbye.", model: { et: "Aitäh! Head aega!", en: "Thanks! Bye!" } },

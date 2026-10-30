@@ -321,7 +321,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
     cast: { Mari: "mari", Tom: "kalev" },
     conversation: [
       { who: "Mari", et: "Mul on täna sünnipäev!", en: "It's my birthday today!" },
-      { who: "Tom", et: "Oi, palju õnne! Kui vana sa oled?", en: "Oh, happy birthday! How old are you?" },
+      { who: "Tom", et: "Oi, palju õnne! Kui vanaks sa said?", en: "Oh, happy birthday! How old are you now?" },
       { who: "Mari", et: "Kakskümmend üheksa!", en: "Twenty-nine!" },
       { who: "Tom", et: "Ja mis sa nädalavahetusel teed?", en: "And what are you doing this weekend?" },
       { who: "Mari", et: "Laupäeval on pidu! Sööme kooki ja joome veini.", en: "There's a party on Saturday! We'll have cake and wine." },
@@ -334,6 +334,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "pidu", en: "party" },
       { kind: "phrase", et: "Head pidu!", en: "Have a good party!" },
       { kind: "phrase", et: "Palju õnne sünnipäevaks!", en: "Happy birthday! (the full wish)" },
+      { kind: "phrase", et: "Kui vanaks sa said?", en: "How old are you now? (asked on a birthday)" },
       { kind: "word", et: "nädalavahetus", en: "weekend" },
       { kind: "form", et: "nädalavahetusel", of: "nädalavahetus", en: "on the weekend" },
       { kind: "word", et: "puhkepäev", en: "day off" },

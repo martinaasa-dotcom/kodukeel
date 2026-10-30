@@ -15,6 +15,15 @@ import type { Area } from "../area";
  */
 export const LESSON_TEXT_AREA: Area = {
   ru: {
+    "That boy is my brother and the girl is my sister.": "Этот мальчик мой брат, а девочка моя сестра.",
+    "I don't know yet.": "Я ещё не знаю.",
+    "Great, seven it is!": "Отлично, значит в семь!",
+    "Say you don't know yet.": "Скажите, что ещё не знаете.",
+    "Only nine? Then the train, of course!": "Всего девять? Тогда, конечно, поездом!",
+    "Oh, snow! Lovely.": "О, снег! Красота.",
+    "Oh, happy birthday! How old are you now?": "О, с днём рождения! Сколько тебе исполнилось?",
+    "How old are you now? (asked on a birthday)": "Сколько тебе исполнилось? (спрашивают в день рождения)",
+    "I walk, the school is really close.": "Я хожу пешком, школа совсем рядом.",
     "Yes! She came too. We got a coffee and talked for ages.": "Да! Она тоже пришла. Мы взяли кофе и долго болтали.",
     "{Võtsime kohvi} is we got a coffee: {võtma} is take, and also what you have in a café.": "{Võtsime kohvi} значит «мы взяли кофе»: {võtma} значит «брать», и так же говорят о заказе в кафе.",
     "{Kaua} after a verb is for ages: {Rääkisime kaua}.": "{Kaua} после глагола значит «долго»: {Rääkisime kaua}.",
@@ -4098,6 +4107,15 @@ export const LESSON_TEXT_AREA: Area = {
     "Now I'll read a bit every day.": "Теперь буду читать понемногу каждый день.",
   },
   uk: {
+    "That boy is my brother and the girl is my sister.": "Цей хлопчик мій брат, а дівчинка моя сестра.",
+    "I don't know yet.": "Я ще не знаю.",
+    "Great, seven it is!": "Чудово, тоді о сьомій!",
+    "Say you don't know yet.": "Скажіть, що ще не знаєте.",
+    "Only nine? Then the train, of course!": "Лише дев'ять? Тоді, звісно, потягом!",
+    "Oh, snow! Lovely.": "О, сніг! Краса.",
+    "Oh, happy birthday! How old are you now?": "О, з днем народження! Скільки тобі виповнилося?",
+    "How old are you now? (asked on a birthday)": "Скільки тобі виповнилося? (питають у день народження)",
+    "I walk, the school is really close.": "Я ходжу пішки, школа зовсім поруч.",
     "Yes! She came too. We got a coffee and talked for ages.": "Так! Вона теж прийшла. Ми взяли каву й довго балакали.",
     "{Võtsime kohvi} is we got a coffee: {võtma} is take, and also what you have in a café.": "{Võtsime kohvi} означає «ми взяли каву»: {võtma} означає «брати», і так само кажуть про замовлення в кафе.",
     "{Kaua} after a verb is for ages: {Rääkisime kaua}.": "{Kaua} після дієслова означає «довго»: {Rääkisime kaua}.",
