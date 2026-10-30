@@ -118,8 +118,8 @@ export async function submitCheckFor(
   const check = checkById(PROGRAMMES, checkId);
   if (!check) return { ok: false, reason: "not_found", error: "We couldn't find that check." };
   /*
-    A CHECK IS SAT WHERE THE LEARNER STANDS. The checks are the way up out of
-    the A1 lessons, and the paper is rebuilt from its attempt number, so a
+    A CHECK IS SAT WHERE THE LEARNER STANDS. The checks are the way up through
+    the lessons, A1 to B1, and the paper is rebuilt from its attempt number, so a
     script that handed in papers for parts ahead of the learner, as often as it
     liked, could pass every check between them and C1 before sitting a single
     lesson. A check for the part they are on, or one they have left, is open;

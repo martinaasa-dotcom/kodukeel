@@ -189,7 +189,7 @@ export default async function CoursePage({
     const lessonCheck = checkAfter(PROGRAMMES, programme.id);
     const verdict = after && !lessonCheck ? await ladderReading(ownerId, programme) : { kind: "ready" as const };
     /*
-      AND A PART OF THE A1 LESSONS ENDS IN A CHECK, which is the operator's call
+      AND A PART OF THE LESSONS ENDS IN A CHECK, A1 to B1, which is the operator's call
       and amends the paragraph above for those parts alone: a learner who started
       at A1 moves up by passing (`lib/course/checks.ts`). Until it is passed the
       card is the check rather than the way on; an admin moves freely.
