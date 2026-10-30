@@ -11,6 +11,7 @@ import { Braced } from "@/components/Braced";
 import { RuleNote } from "@/components/RuleNote";
 import { Speak } from "@/components/Speak";
 import { nativePart } from "@/lib/audio/native";
+import { stopClip } from "@/lib/audio/clip";
 import { useLocale, useT } from "@/components/Locale";
 import { LessonText, lessonTextLang } from "@/components/course/LessonText";
 import { Card, Note, Page, SectionTitle, Stack, StatTile } from "@/components/ui";
@@ -44,7 +45,7 @@ import { worksheetLink, type LessonWorksheet } from "@/lib/course/lessonWorkshee
  * the change the plan was written for. Practice and Review ask, out of what
  * has been taught and nothing else. Say it sits between them as the headline.
  *
- * A learner always knows where they are, because the six steps are listed at
+ * A learner always knows where they are, because the steps (six, or seven with writing) are listed at
  * the top with the one they are on marked, in words as well as in color. A
  * step can always be left: the button at the foot says "Continue" once the
  * step is done and "Skip this step" before, so nobody is held in a room, and
@@ -149,6 +150,8 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
   const [over, setOver] = useState(() => conversation !== null && isCapstone(lesson));
   /* Whether the finished lesson reached the server: null until it has been tried. */
   const [saved, setSaved] = useState<boolean | null>(null);
+  /* What a failed save said: the server's own refusal where it gave one, and only a press that never arrived reads as the connection. */
+  const [saveError, setSaveError] = useState<string>(NOT_REACHED);
   /* Whether finishing it counted toward the course, or was a lesson read ahead of it. */
   const [recorded, setRecorded] = useState<boolean | null>(null);
   const [saving, startSaving] = useTransition();
@@ -171,6 +174,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
   const save = () => startSaving(async () => {
     const result = await finishLesson(lesson.id).catch(() => null);
     setSaved(Boolean(result?.ok));
+    setSaveError(result && !result.ok ? result.error : NOT_REACHED);
     setRecorded(result?.ok ? result.recorded : null);
   });
   // Back from the conversation, the lesson is over and is saved the way a finished one is.
@@ -183,8 +187,24 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /*
+    PRACTICE, SAY IT AND REVIEW KEEP THEIR PLACE WHEN THE LEARNER STEPS AWAY.
+    The step list is the way back to the table halfway through Practice, and
+    a step drawn only while it is current started again from its first
+    question on the way back, and threw away the typed turns of a role-play.
+    So a step that holds a learner's answers stays mounted, hidden, once it
+    has been on the screen; one never shown is not mounted, so nothing in it
+    plays to an empty room, and stepping away stops what is playing.
+  */
+  const [shown, setShown] = useState<ReadonlySet<Step>>(() => new Set());
+  useEffect(() => {
+    setShown((prev) => (prev.has(step) ? prev : new Set(prev).add(step)));
+  }, [step]);
+  const kept = (s: Step) => step === s || shown.has(s);
+
   const go = (n: number) => {
     moved.current = true;
+    stopClip();
     if (n >= steps.length) {
       setOver(true);
       save();
@@ -201,6 +221,8 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
     so the step's own "Read it" is its one loud button.
   */
   const [heard, setHeard] = useState(() => !(lesson.listenFor && lesson.listenFor.length > 0));
+  /* Heard before a reload rather than on this screen: nothing was pressed, so nothing takes the caret. */
+  const [heardOnReload, setHeardOnReload] = useState(false);
   /*
     A RELOAD PICKS THE LESSON UP WHERE IT WAS (`lessonResume.ts`): read once
     after mount, since the server rendered step 1 and a first render that
@@ -216,15 +238,15 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
     setAt(place.at);
     setReached(place.reached);
     setFinished(new Set(place.finished as Step[]));
-    if (place.heard) setHeard(true);
+    if (place.heard) { setHeard(true); setHeardOnReload(true); }
     // Once, on arrival.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(() => {
     if (!restored.current) return;
     if (over) forgetLessonPlace(lesson.id);
-    else saveLessonPlace(lesson.id, { at, reached, finished: [...finished], heard });
-  }, [lesson.id, at, reached, finished, heard, over]);
+    else saveLessonPlace(lesson.id, steps, { at, reached, finished: [...finished], heard });
+  }, [lesson.id, steps, at, reached, finished, heard, over]);
   const done = step === "listen" ? heard : !ASKS.has(step) || finished.has(step) || (step === "review" && review.length === 0);
 
   const inPart = part.lessons.findIndex((l) => l.id === lesson.id);
@@ -421,11 +443,12 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
               </div>
             )}
             {/* On the screen from the start and empty, so the failure is read when it arrives. */}
-            <p className="sr-only" role="status">{saved === false && !saving ? t(NOT_REACHED) : ""}</p>
-            {saved === false && !saving && (
+            <p className="sr-only" role="status">{saved === false && !saving ? t(saveError) : ""}</p>
+            {/* Mounted through the retry, with its button busy, so the caret a keyboard pressed it with stays on it. */}
+            {saved === false && (
               <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
-                <p className="text-base" style={{ color: "var(--again-ink)" }} aria-hidden>{t(NOT_REACHED)}</p>
-                <Button variant="secondary" size="sm" onClick={save}>{t("Try again")}</Button>
+                <p className="text-base" style={{ color: "var(--again-ink)" }} aria-hidden>{t(saveError)}</p>
+                <Button variant="secondary" size="sm" busy={saving} onClick={save}>{t("Try again")}</Button>
               </div>
             )}
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
@@ -452,7 +475,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
     <Page eyebrow={eyebrow} title={t(lesson.title)} titleLang={lessonTextLang(lesson.title, locale)} lead={t(lesson.goal)} leadLang={lessonTextLang(lesson.goal, locale)}>
       <Stack>
         {/*
-          THE SIX STEPS, AND THE WAY BACK TO ANY OF THEM. A step already
+          THE STEPS (SIX, OR SEVEN ON A WRITING EVENING), AND THE WAY BACK TO ANY OF THEM. A step already
           reached is a button, so somebody halfway through Practice who wants
           the table again presses How it works rather than Back three times;
           a step ahead is drawn and not pressable, since skipping is what the
@@ -495,15 +518,15 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
           <h2 id="lesson-step" ref={heading} tabIndex={-1} className="mb-4 text-xl font-bold scroll-mt-24" style={{ color: "var(--ink)" }}>
             {fill(t("Step {n} of {total}: {step}"), { n: String(at + 1), total: String(steps.length), step: t(titleOf(step)) })}
           </h2>
-          {step === "listen" && <Listen lesson={lesson} heard={heard} onHeard={() => setHeard(true)} />}
+          {step === "listen" && <Listen lesson={lesson} heard={heard} heardOnReload={heardOnReload} onHeard={() => setHeard(true)} />}
           {step === "words" && <Words lesson={lesson} />}
           {step === "how" && <How lesson={lesson} />}
-          {step === "practise" && <Quiz key="practise" level={3} items={practice} onFinished={(result) => { setScore((first) => first ?? result); finish("practise"); }} />}
+          {kept("practise") && <div hidden={step !== "practise"}><Quiz key="practise" level={3} items={practice} onFinished={(result) => { setScore((first) => first ?? result); finish("practise"); }} /></div>}
           {step === "write" && lesson.write && <WriteStep lesson={lesson} onDone={() => { finish("write"); go(at + 1); }} />}
-          {step === "say" && <SayIt lesson={lesson} timeMultiplier={timeMultiplier} partAt={partAt} scene={scene} sceneHref={scene ? lessonSceneHref(scene, focus) : null} capstone={capstone} name={name} onComplete={() => finish("say")} />}
-          {step === "review" && (review.length > 0
-            ? <Quiz key="review" level={3} items={review} review onFinished={() => finish("review")} />
-            : (
+          {kept("say") && <div hidden={step !== "say"}><SayIt lesson={lesson} timeMultiplier={timeMultiplier} partAt={partAt} scene={scene} sceneHref={scene ? lessonSceneHref(scene, focus) : null} capstone={capstone} name={name} onComplete={() => finish("say")} /></div>}
+          {kept("review") && (review.length > 0
+            ? <div hidden={step !== "review"}><Quiz key="review" level={3} items={review} review onFinished={() => finish("review")} /></div>
+            : step === "review" && (
               <Card>
                 <p className="text-base" style={{ color: "var(--ink-2)" }}>
                   {t("This is your first lesson, so there's nothing older to go over yet. From the next one, this is where earlier words come back.")}
@@ -554,7 +577,7 @@ function wordsUsed(lesson: LessonSpec): number {
 }
 
 /** Step 1: the conversation, in the cast's voices, with the English under each line. */
-function Listen({ lesson, heard, onHeard }: { lesson: LessonSpec; heard: boolean; onHeard: () => void }) {
+function Listen({ lesson, heard, heardOnReload, onHeard }: { lesson: LessonSpec; heard: boolean; heardOnReload: boolean; onHeard: () => void }) {
   const t = useT();
   const [english, setEnglish] = useState(true);
   /* Pressing "Read it" replaces the card the button was on, so the caret goes
@@ -563,9 +586,10 @@ function Listen({ lesson, heard, onHeard }: { lesson: LessonSpec; heard: boolean
   const leadRef = useRef<HTMLParagraphElement>(null);
   const wasHeard = useRef(heard);
   useEffect(() => {
-    if (heard && !wasHeard.current) leadRef.current?.focus();
+    // Only a listen heard on this screen hands the caret on; a reload that brings the step back already heard moves nothing.
+    if (heard && !wasHeard.current && !heardOnReload) leadRef.current?.focus();
     wasHeard.current = heard;
-  }, [heard]);
+  }, [heard, heardOnReload]);
   // B1 on, the conversation is heard before it is read (`ListenFirst`).
   if (!heard) return <ListenFirst lesson={lesson} onRead={onHeard} />;
   return (

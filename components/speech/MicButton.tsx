@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { Loader2, Mic, Square } from "lucide-react";
 import { useT } from "@/components/Locale";
 import { Button } from "@/components/Button";
 import { fill } from "@/lib/copy/locale";
+import { fillNodes } from "@/components/TemplateNodes";
 import { megabytes } from "@/lib/speech/model";
 import type { EngineError } from "@/lib/speech/engine";
 import type { Speech } from "./useSpeech";
@@ -62,7 +63,7 @@ const HOLD_MS = 350;
 
 export function MicButton({ speech, label, shortcut = false, showPartial = true, size = "md", speaksForItself = false, fallback }: MicButtonProps) {
   const t = useT();
-  const [announce, setAnnounce] = useState("");
+  const [announce, setAnnounce] = useState<ReactNode>("");
   const pressedAt = useRef(0);
   const held = useRef(false);
   const latest = useRef(speech);
@@ -72,7 +73,10 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
 
   useEffect(() => {
     if ((!hearing && !silent) || speaksForItself) return;
-    const line = hearing?.understood ? fill(t("Heard: {text}"), { text: hearing.understood }) : t("Nothing was heard.");
+    // The heard words are Estonian inside a line in the screen's language, so a screen reader says them as Estonian.
+    const line: ReactNode = hearing?.understood
+      ? fillNodes(t("Heard: {text}"), { text: <span lang="et">{hearing.understood}</span> })
+      : t("Nothing was heard.");
     /* The same words twice is two turns, and a live region whose text did not
        change says nothing the second time: it is emptied and filled again on
        the next frame, so the second "Heard: tere" is read out too (D12). */
@@ -242,9 +246,17 @@ export function MicError({ error, fallback, onRetry }: { readonly error: EngineE
     "download-failed": t("The download stopped. Check your connection and try again."),
     failed: box ? t("Something went wrong with listening. Typing works as before.") : t("Something went wrong with listening. Say it out loud anyway and carry on."),
   };
+  /* Mounted empty and filled a frame later, so the reason is read when it arrives rather than slipping in with the region. */
+  const [said, setSaid] = useState("");
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setSaid(line[error]));
+    return () => cancelAnimationFrame(frame);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [error]);
   return (
-    <div className="flex flex-wrap items-center gap-2" role="status">
-      <p className="text-sm" style={{ color: "var(--ink-2)" }}>{line[error]}</p>
+    <div className="flex flex-wrap items-center gap-2">
+      <p role="status" className="sr-only">{said}</p>
+      <p className="text-sm" style={{ color: "var(--ink-2)" }} aria-hidden>{line[error]}</p>
       {onRetry && <Button variant="secondary" size="sm" onClick={onRetry}>{t("Try again")}</Button>}
     </div>
   );

@@ -97,6 +97,17 @@ describe("submitCheckFor", () => {
     expect(await submitCheckFor(OWNER, ahead.id, 1, [])).toMatchObject({ ok: false, reason: "not_found" });
   });
 
+  it("says a pass would open a part the learner already stands on, so the page offers no start that moves them back", async () => {
+    const first = courseChecks(PROGRAMMES)[0]!;
+    const opens = PROGRAMMES[PROGRAMMES.findIndex((p) => p.id === first.programmeId) + 1]!;
+    await writeSetting(OWNER, SETTING_KEYS.programme, first.programmeId);
+    expect((await checkView(OWNER, first.id, 1))!.pastNext).toBe(false);
+    await writeSetting(OWNER, SETTING_KEYS.programme, opens.id);
+    const again = (await checkView(OWNER, first.id, 1))!;
+    expect(again.open).toBe(true);
+    expect(again.pastNext).toBe(true);
+  });
+
   it("keeps the first check open to a learner who turned the course off", async () => {
     await writeSetting(OFF, SETTING_KEYS.programme, "off");
     const view = (await checkView(OFF, check.id, 1))!;

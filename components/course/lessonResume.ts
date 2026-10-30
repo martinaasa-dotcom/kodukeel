@@ -21,7 +21,8 @@ export interface LessonPlace {
   readonly heard: boolean;
 }
 
-const VERSION = 1;
+/* 2: the step list is kept beside the place, so a deploy that changes a lesson's steps starts it over rather than opening a different step at the same number. */
+const VERSION = 2;
 /** Three hours: an evening interrupted is picked up that evening, and yesterday's starts over. */
 const MAX_AGE_MS = 3 * 60 * 60 * 1000;
 
@@ -32,8 +33,9 @@ export function loadLessonPlace(lessonId: string, steps: readonly string[], now 
   try {
     const raw = window.sessionStorage.getItem(keyFor(lessonId));
     if (!raw) return null;
-    const p = JSON.parse(raw) as { v?: number; at?: unknown; reached?: unknown; finished?: unknown; heard?: unknown; savedAt?: unknown };
-    if (p.v !== VERSION || typeof p.savedAt !== "number" || now - p.savedAt > MAX_AGE_MS) {
+    const p = JSON.parse(raw) as { v?: number; at?: unknown; reached?: unknown; finished?: unknown; heard?: unknown; savedAt?: unknown; steps?: unknown };
+    const sameSteps = Array.isArray(p.steps) && p.steps.length === steps.length && p.steps.every((s, i) => s === steps[i]);
+    if (p.v !== VERSION || typeof p.savedAt !== "number" || now - p.savedAt > MAX_AGE_MS || !sameSteps) {
       window.sessionStorage.removeItem(keyFor(lessonId));
       return null;
     }
@@ -48,9 +50,9 @@ export function loadLessonPlace(lessonId: string, steps: readonly string[], now 
   }
 }
 
-export function saveLessonPlace(lessonId: string, place: LessonPlace, now = Date.now()): void {
+export function saveLessonPlace(lessonId: string, steps: readonly string[], place: LessonPlace, now = Date.now()): void {
   try {
-    window.sessionStorage.setItem(keyFor(lessonId), JSON.stringify({ v: VERSION, ...place, savedAt: now }));
+    window.sessionStorage.setItem(keyFor(lessonId), JSON.stringify({ v: VERSION, ...place, steps, savedAt: now }));
   } catch {
     // Kept nowhere: the lesson still runs, from the start on a reload.
   }

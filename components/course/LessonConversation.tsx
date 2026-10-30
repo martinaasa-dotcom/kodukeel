@@ -63,7 +63,11 @@ export function LessonConversation({ lines, cast, english, hidden = false, condi
   const playAll = async () => {
     const run = await player.toggle(
       lines.map((line) => (line.et ? { text: line.et, voice: cast[line.who], pace: prefs.pace, native: line.who === played, condition } : null)),
-      { gapMs: 300, onLine: (i) => items.current[i]?.scrollIntoView({ block: "nearest", behavior: "smooth" }) },
+      {
+        gapMs: 300,
+        // The line being said comes into view, and slides there only for somebody who has not asked for less movement.
+        onLine: (i) => items.current[i]?.scrollIntoView({ block: "nearest", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }),
+      },
     );
     if (!run || run.stopped) return;
     // Heard only where something was said: a play over a speech service that refused every line is not a listen.

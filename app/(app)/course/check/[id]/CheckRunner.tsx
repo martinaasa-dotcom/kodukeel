@@ -32,13 +32,15 @@ export interface LevelDone {
   readonly next: { readonly level: string; readonly title: string; readonly summary: string; readonly lessons: boolean } | null;
 }
 
-export function CheckRunner({ checkId, attempt, items, needed, alreadyPassed, next, level = null }: {
+export function CheckRunner({ checkId, attempt, items, needed, alreadyPassed, next, pastNext = false, level = null }: {
   checkId: string;
   attempt: number;
   items: readonly PracticeItem[];
   needed: number;
   alreadyPassed: boolean;
   next: { id: string; label: string } | null;
+  /** The learner already stands on `next` or past it, so a pass offers the way back rather than a start that would move them back. */
+  pastNext?: boolean;
   /** Set on the last check of a level: what the level was and what comes next. */
   level?: LevelDone | null;
 }) {
@@ -47,6 +49,8 @@ export function CheckRunner({ checkId, attempt, items, needed, alreadyPassed, ne
   const responses = useRef<(string | null)[]>(items.map(() => null));
   const [result, setResult] = useState<{ score: number; total: number; passed: boolean; marks: readonly string[] } | null>(null);
   const [failed, setFailed] = useState(false);
+  /* The server's own refusal where it gave one (too many papers in an hour, a paper a deploy rebuilt); a press that never arrived reads as the connection. */
+  const [failure, setFailure] = useState<string>(NOT_REACHED);
   const [pending, start] = useTransition();
   /*
     THE QUIZ GOES WHEN ITS DONE IS PRESSED, so the caret goes to what came in
@@ -70,7 +74,7 @@ export function CheckRunner({ checkId, attempt, items, needed, alreadyPassed, ne
     setFailed(false);
     start(async () => {
       const res = await submitCheck(checkId, attempt, responses.current).catch(() => null);
-      if (!res || !res.ok) { setFailed(true); return; }
+      if (!res || !res.ok) { setFailure(res && !res.ok ? res.error : NOT_REACHED); setFailed(true); return; }
       setResult({ score: res.score, total: res.total, passed: res.passed, marks: res.marks });
     });
   };
@@ -91,11 +95,11 @@ export function CheckRunner({ checkId, attempt, items, needed, alreadyPassed, ne
         onFinished={finish}
       />
       {/* Only the failure is announced: the marking and the result take the caret, which reads them, and a region saying the same thing reads them twice. */}
-      <p role="status" className="sr-only">{failed ? t(NOT_REACHED) : ""}</p>
+      <p role="status" className="sr-only">{failed ? t(failure) : ""}</p>
       {pending && <p ref={markingRef} tabIndex={-1} className="text-base outline-none" style={{ color: "var(--ink-2)" }}>{t("Marking it…")}</p>}
       {failed && (
         <div className="flex flex-col items-start gap-2">
-          <Note tone="again">{t(NOT_REACHED)}</Note>
+          <Note tone="again">{t(failure)}</Note>
           <button ref={retryRef} type="button" className="tap-tint underline" onClick={finish}>{t("Try sending it again")}</button>
         </div>
       )}
@@ -116,7 +120,8 @@ export function CheckRunner({ checkId, attempt, items, needed, alreadyPassed, ne
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             {result.passed ? (
-              next ? <NextPart programmeId={next.id} to="/course" label={level?.next ? fill(t("Start {level}"), { level: level.next.level }) : fill(t("Start {part}"), { part: next.label })} /> : null
+              next && pastNext ? <ButtonLink href="/course/lessons" variant="primary">{t("Back to the lessons")}</ButtonLink>
+              : next ? <NextPart programmeId={next.id} to="/course" label={level?.next ? fill(t("Start {level}"), { level: level.next.level }) : fill(t("Start {part}"), { part: next.label })} /> : null
             ) : (
               <>
                 <ButtonLink href="/review">{t("Review your words")}</ButtonLink>

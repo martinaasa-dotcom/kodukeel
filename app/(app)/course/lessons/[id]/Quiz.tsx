@@ -23,10 +23,11 @@ import { OPTION_CLASS, optionState, VERDICT_CLASS } from "@/lib/ux/verdict";
  * PRACTICE AND REVIEW: ONE QUESTION AT A TIME, BUILT BY THE SERVER FROM THE
  * LEDGER (`lib/course/lessons/practice.ts`).
  *
- * Five shapes of question, in the order the server puts them: a match to warm
- * up, a meaning picked out by ear or by eye, a line of the conversation with
- * a form taken out (the evening's pattern, asked), what somebody said back,
- * and a meaning typed back in Estonian. The questions arrive already built, so
+ * Eight shapes of question, in the order the server puts them: a match to
+ * warm up, a meaning picked out by ear or by eye, a line of the conversation
+ * with a form taken out (the evening's pattern, asked), what somebody said
+ * back, a meaning typed back in Estonian, and at B1 a sentence changed into
+ * another and a line put right. The questions arrive already built, so
  * nothing here decides what a learner may be asked.
  *
  * A RUN OF RIGHT ANSWERS IS COUNTED ON THE SCREEN, from three. It is about

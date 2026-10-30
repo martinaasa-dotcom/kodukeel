@@ -116,9 +116,12 @@ async function quizThrough(where, reworks = []) {
   let asked = 0;
   // One rework a round is answered right, off the line the lesson says it should become, so a right verdict is seen too.
   let answeredRight = false;
+  // Once a walk: Enter on a control inside an answered card presses that control rather than moving on.
+  let keyed = false;
   for (let n = 0; n < 60; n++) {
-    if (await page.locator('[data-lesson-quiz="done"]').count()) return asked;
-    const quiz = page.locator("[data-lesson-quiz][data-quiz-kind]").first();
+    // `:visible`, because a step the learner has left stays mounted, hidden, and keeps its own finished quiz.
+    if (await page.locator('[data-lesson-quiz="done"]:visible').count()) return asked;
+    const quiz = page.locator("[data-lesson-quiz][data-quiz-kind]:visible").first();
     if (!(await quiz.count())) return asked;
     const kind = await quiz.getAttribute("data-quiz-kind");
     asked += 1;
@@ -165,6 +168,16 @@ async function quizThrough(where, reworks = []) {
     const next = quiz.getByRole("button", { name: /^(Next|Done)/ });
     await next.waitFor({ timeout: 4000 }).catch(() => {});
     if (!(await next.count())) return asked;
+    const other = quiz.locator("button:not([disabled])").filter({ hasNotText: /^(Next|Done)/ });
+    if (!keyed && (await other.count())) {
+      keyed = true;
+      const before = await quiz.getAttribute("data-lesson-quiz");
+      await other.first().focus();
+      await page.keyboard.press("Enter");
+      await page.waitForTimeout(150);
+      const after = await page.locator("[data-lesson-quiz]:visible").first().getAttribute("data-lesson-quiz");
+      check(`${where}: Enter on a control in an answered card presses it rather than moving on`, after === before, `${before} -> ${after}`);
+    }
     await next.click();
   }
   return asked;
@@ -325,7 +338,7 @@ async function walk(lesson, { mode = "type" } = {}) {
     await axeHere(`${where} ${heading.replace(/^Step \d+ of \d+: /, "")}`);
     if (/Practice/.test(heading)) {
       const asked = await quizThrough(`${where} practice`, lesson.reworks ?? []);
-      check(`${where}: practice runs to its end`, (await page.locator('[data-lesson-quiz="done"]').count()) === 1, `${asked} asked`);
+      check(`${where}: practice runs to its end`, (await page.locator('[data-lesson-quiz="done"]:visible').count()) === 1, `${asked} asked`);
     } else if (/Write/.test(heading) && lesson.write) {
       await writeThrough(lesson);
       continue;

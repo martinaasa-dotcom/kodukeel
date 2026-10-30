@@ -348,7 +348,10 @@ function AnswerCard({ lessonId, card, mode, voice, name, onNext, last }: {
   // Their own line said back, which is the mistake this card used to invite.
   const echo = mark !== null && mark.verdict === "wrong" && isEcho(text);
 
+  /* The microphone, for `reveal` to close: Check takes the button away, so a turn still open would go on listening with nothing on screen to stop it. */
+  const listeningRef = useRef<{ listening: boolean; stop: () => void } | null>(null);
   const reveal = (value: string = text) => {
+    if (listeningRef.current?.listening) listeningRef.current.stop();
     const m = normalisePhrase(value).length > 0 ? markOwnAnswer(value, prompt.model.et, name, prompt.also) : null;
     if (m && m.verdict !== "wrong") sound("right");
     setMark(m);
@@ -383,6 +386,7 @@ function AnswerCard({ lessonId, card, mode, voice, name, onNext, last }: {
       if (m.verdict !== "wrong" || isEcho(hearing.understood)) reveal(hearing.understood);
     },
   });
+  useEffect(() => { listeningRef.current = speech; });
   const mic = mode === "say" && speech.offered && !shown;
 
   return (

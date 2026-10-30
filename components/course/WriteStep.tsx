@@ -80,9 +80,14 @@ export function WriteStep({ lesson, onDone }: { lesson: LessonSpec; onDone: () =
     was writing is the one drawn, and never during render, since the server
     has no device to read. Once, on arrival.
   */
+  /* The stage a reload put the learner back on: arriving there by a reload is not the press that asked for a reading. */
+  const resumed = useRef<string | null>(null);
+  // Once the learner moves off it, a later arrival there is their own press.
+  useEffect(() => { if (resumed.current !== null && stage !== resumed.current) resumed.current = null; }, [stage]);
   useLayoutEffect(() => {
     const saved = loadWriting(lesson.id);
     if (saved) {
+      resumed.current = saved.stage;
       setStage(saved.stage);
       if (saved.frame.length === gapCount) {
         setFrameTyped(saved.frame);
@@ -143,7 +148,7 @@ export function WriteStep({ lesson, onDone }: { lesson: LessonSpec; onDone: () =
         />
       )}
       {stage === "own" && <Own lesson={lesson} draft={draft} setDraft={setDraft} onNext={() => { if (!second) setSecond(draft); goTo("redraft"); }} />}
-      {stage === "redraft" && <Redraft lesson={lesson} first={draft} second={second} setSecond={setSecond} onDone={done} />}
+      {stage === "redraft" && <Redraft lesson={lesson} first={draft} second={second} setSecond={setSecond} onDone={done} readOnArrival={resumed.current !== "redraft"} />}
     </div>
   );
 }
@@ -352,7 +357,7 @@ interface Read {
 }
 
 /** Stages 4 and 5: the reading, the second draft beside the first, and the sentences kept. */
-function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonSpec; first: string; second: string; setSecond: (s: string) => void; onDone: () => void }) {
+function Redraft({ lesson, first, second, setSecond, onDone, readOnArrival }: { lesson: LessonSpec; first: string; second: string; setSecond: (s: string) => void; onDone: () => void; readOnArrival: boolean }) {
   const t = useT();
   const id = useId();
   const [read, setRead] = useState<Read | null>(null);
@@ -360,7 +365,8 @@ function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonS
   const findingsRef = useRef<HTMLParagraphElement>(null);
   useEffect(() => { if (read) findingsRef.current?.focus(); }, [read]);
   const [reading, setReading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  /* Which press failed and why, drawn under that press rather than at the foot of the step. */
+  const [error, setError] = useState<{ on: "read" | "keep"; text: string } | null>(null);
   const [ticked, setTicked] = useState<ReadonlySet<number>>(new Set());
   const [kept, setKept] = useState<{ kept: number; already: number; refused: number } | null>(null);
   const keptRef = useRef<HTMLParagraphElement>(null);
@@ -375,14 +381,14 @@ function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonS
     setError(null);
     checkLessonText(lesson.id, text)
       .then((r) => {
-        if (!r.ok) { setError(t(r.error)); return; }
+        if (!r.ok) { setError({ on: "read", text: t(r.error) }); return; }
         setRead({ text, sentences: r.sentences, short: r.short, beyond: r.beyond, cut: r.cut });
         // Ticked by default: the sentences the dictionary found nothing in that make a card, as many as a draft keeps.
         const clean = r.sentences.flatMap((s, i) => (s.card ? [i] : [])).slice(0, MOST_KEPT);
         setTicked(new Set(clean));
         setKept(null);
       })
-      .catch(() => setError(t(NOT_REACHED)))
+      .catch(() => setError({ on: "read", text: t(NOT_REACHED) }))
       .finally(() => setReading(false));
   };
   const keep = () => {
@@ -390,8 +396,8 @@ function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonS
     setKeeping(true);
     setError(null);
     keepLessonSentences(lesson.id, read.sentences.filter((_, i) => ticked.has(i)).map((s) => s.sentence))
-      .then((r) => { if (r.ok) setKept({ kept: r.kept, already: r.already, refused: r.refused }); else setError(t(r.error)); })
-      .catch(() => setError(t(NOT_REACHED)))
+      .then((r) => { if (r.ok) setKept({ kept: r.kept, already: r.already, refused: r.refused }); else setError({ on: "keep", text: t(r.error) }); })
+      .catch(() => setError({ on: "keep", text: t(NOT_REACHED) }))
       .finally(() => setKeeping(false));
   };
   const toggle = (i: number) => setTicked((all) => {
@@ -405,7 +411,8 @@ function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonS
   useEffect(() => {
     if (asked.current) return;
     asked.current = true;
-    if (current.trim() !== "") readIt(current);
+    // Back on this stage after a reload, nothing was pressed: the button below reads it when asked.
+    if (readOnArrival && current.trim() !== "") readIt(current);
     // Once, on arrival: a later read is the learner's own press.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -420,7 +427,9 @@ function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonS
           <Button onClick={() => readIt(current)} busy={reading} disabled={current.trim() === ""}>
             {reading ? <><Loader2 size={15} className="animate-spin" aria-hidden /> {t("Reading")}</> : t("Read my text")}
           </Button>
-        ) : (
+        ) : null}
+        {error?.on === "read" && <p className="mt-2 text-base" role="alert" style={{ color: "var(--blush-ink)" }}>{error.text}</p>}
+        {read === null ? null : (
           <div className="flex flex-col gap-4" data-write-findings>
             <p ref={findingsRef} tabIndex={-1} className="text-base font-semibold outline-none" style={{ color: "var(--ink)" }}>
               {noted === 0
@@ -541,11 +550,11 @@ function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonS
                 {keeping ? <Loader2 size={15} className="animate-spin" aria-hidden /> : <BookmarkPlus size={15} aria-hidden />} {t("Keep them")}
               </Button>
             </div>
+            {error?.on === "keep" && <p className="text-base" role="alert" style={{ color: "var(--blush-ink)" }}>{error.text}</p>}
           </fieldset>
         )}
       </Card>
 
-      {error && <p className="text-base" role="alert" style={{ color: "var(--blush-ink)" }}>{error}</p>}
       <div className="flex justify-end">
         <Button variant="primary" onClick={onDone}>{t("Done writing")} <ArrowRight size={15} aria-hidden /></Button>
       </div>

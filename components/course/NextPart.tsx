@@ -33,7 +33,8 @@ export function NextPart({ programmeId, label, quiet = false, to }: {
    */
   to?: string;
 }) {
-  const [failed, setFailed] = useState(false);
+  /* What the press came back with: the server's own reason where it gave one. Null while nothing has failed. */
+  const [failed, setFailed] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const router = useRouter();
   const t = useT();
@@ -44,10 +45,10 @@ export function NextPart({ programmeId, label, quiet = false, to }: {
         variant={quiet ? "secondary" : "primary"}
         busy={pending}
         onClick={() => {
-          setFailed(false);
+          setFailed(null);
           start(async () => {
             const result = await setProgramme(programmeId).catch(() => null);
-            if (!result || !result.ok) { setFailed(true); return; }
+            if (!result || !result.ok) { setFailed(result && !result.ok && result.error ? result.error : "That didn't go through, so nothing has changed. Try again in a moment."); return; }
             if (to) router.push(to);
             else router.refresh();
           });
@@ -55,9 +56,11 @@ export function NextPart({ programmeId, label, quiet = false, to }: {
       >
         {label} <ArrowRight size={15} aria-hidden />
       </Button>
+      {/* Mounted empty, so the failure is read when it arrives. */}
+      <p role="status" className="sr-only">{failed ? t(failed) : ""}</p>
       {failed && (
-        <div className="mt-2" role="status">
-          <Note tone="again">{t("That didn't go through, so nothing has changed. Try again in a moment.")}</Note>
+        <div className="mt-2" aria-hidden>
+          <Note tone="again">{t(failed)}</Note>
         </div>
       )}
     </div>

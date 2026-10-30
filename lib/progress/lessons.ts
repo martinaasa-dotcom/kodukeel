@@ -106,10 +106,15 @@ const NOT_YOURS_YET = "That check isn't the one for the part you're on.";
  * stands at the start: turning the course off is not a way to lose the checks.
  */
 export async function checkIsOpen(ownerId: string, check: CourseCheck): Promise<boolean> {
-  const at = (await programmeFor(ownerId)) ?? (await lastTickedPart(ownerId)) ?? PROGRAMMES[0] ?? null;
-  const here = at ? PROGRAMMES.findIndex((p) => p.id === at.id) : -1;
+  const here = await standingIndex(ownerId);
   const closes = PROGRAMMES.findIndex((p) => p.id === check.programmeId);
   return closes >= 0 && here >= 0 && closes <= here;
+}
+
+/** Where the learner stands on the ladder, read the way `checkIsOpen` reads it, or -1. */
+async function standingIndex(ownerId: string): Promise<number> {
+  const at = (await programmeFor(ownerId)) ?? (await lastTickedPart(ownerId)) ?? PROGRAMMES[0] ?? null;
+  return at ? PROGRAMMES.findIndex((p) => p.id === at.id) : -1;
 }
 
 export async function submitCheckFor(
@@ -162,6 +167,12 @@ export interface CheckView {
   nextLabel: string | null;
   /** Set on the last check of a level: what the level was and what is next. */
   levelDone: LevelEnd | null;
+  /**
+   * The learner already stands on the part a pass opens, or past it: a check
+   * taken again for practice. A pass then offers no "Start" of that part,
+   * since pressing it would move their course back to it.
+   */
+  pastNext: boolean;
 }
 
 
@@ -177,10 +188,13 @@ export async function checkView(ownerId: string, checkId: string, attempt: numbe
   const check = checkById(PROGRAMMES, checkId);
   if (!check) return null;
   const at = Math.min(10_000, Math.max(1, Number.isFinite(attempt) ? Math.trunc(attempt) : 1));
-  const [passed, open] = await Promise.all([checksPassedFor(ownerId), checkIsOpen(ownerId, check)]);
+  const [passed, here] = await Promise.all([checksPassedFor(ownerId), standingIndex(ownerId)]);
   const part = programmeById(check.programmeId)!;
+  const closes = PROGRAMMES.findIndex((p) => p.id === check.programmeId);
+  const open = closes >= 0 && here >= 0 && closes <= here;
   const paper = open ? checkPaper(check, at) : [];
   const next = programmeAfter(part) ?? null;
+  const pastNext = next !== null && here >= PROGRAMMES.findIndex((p) => p.id === next.id);
   return {
     check,
     attempt: at,
@@ -191,5 +205,6 @@ export async function checkView(ownerId: string, checkId: string, attempt: numbe
     part,
     next,
     ...whereAPassLeads(check, part, next),
+    pastNext,
   };
 }
