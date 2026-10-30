@@ -21,7 +21,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "toovestlus", beat: "answer:hurdle:not-possible", text: "Me ütleme teile homme.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "toovestlus", beat: "answer:pay", text: "Hea küsimus, sellest räägime kohe.", model: "authored", draftedAt: "2026-10-16", reviewedAt: "2026-10-16" },
   { scene: "toovestlus", beat: "answer:pay", text: "Hea küsimus. Palgast räägime kohe.", model: "authored", draftedAt: "2026-10-16", reviewedAt: "2026-10-16" },
-  { scene: "toovestlus", beat: "before", text: "Mis kogemus teil on?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
+  { scene: "toovestlus", beat: "before", text: "Mis kogemusi teil on?", model: "authored", draftedAt: "2026-10-30" },
   { scene: "toovestlus", beat: "before", text: "Kus te varem töötanud olete?", model: "authored", draftedAt: "2026-10-30", reviewedAt: "2026-10-30" },
   { scene: "toovestlus", beat: "before", text: "Mis töö teil enne oli?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "toovestlus", beat: "close", text: "Suur aitäh! Me anname teada. Head aega!", model: "authored", draftedAt: "2026-10-16", reviewedAt: "2026-10-16" },

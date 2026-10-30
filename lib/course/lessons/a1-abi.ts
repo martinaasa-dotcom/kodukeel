@@ -211,7 +211,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Tere! Siin Tom. Kas Mari on kodus?", en: "Hello! This is Tom. Is Mari in?" },
       { who: "Liis", et: "Üks hetk.", en: "One moment.", stage: "She looks for Mari. Mari isn't there." },
       { who: "Liis", et: "Mari pole praegu kodus, ta on tööl.", en: "Mari isn't in right now, she's at work." },
-      { who: "Tom", et: "Hästi. Ma helistan hiljem. Aitäh!", en: "All right. I'll call later. Thanks!" },
+      { who: "Tom", et: "Selge, siis ma helistan hiljem. Aitäh!", en: "Okay, I'll call later, then. Thanks!" },
       { who: "Liis", et: "Palun! Head aega!", en: "You're welcome! Bye!" },
     ],
     teaches: [
@@ -265,7 +265,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Aitäh! Mis kell?", en: "Thank you! What time?" },
       { who: "Mari", et: "Kell kuus. Kas sa saad?", en: "At six. Can you?" },
       { who: "Tom", et: "Jah, kindlasti! Laupäeval kell kuus.", en: "Yes, definitely! Saturday at six." },
-      { who: "Mari", et: "Tore! Head aega!", en: "Great! Bye!" },
+      { who: "Mari", et: "Tore! Näeme siis!", en: "Great! See you then!" },
     ],
     teaches: [],
     how: {
@@ -292,7 +292,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
         { ask: { et: "Sa räägid hästi eesti keelt!", en: "You speak Estonian well!" }, cue: "Thank her, and say you're still learning.", model: { et: "Aitäh! Ma õpin veel.", en: "Thank you! I'm still learning." } },
         { ask: { et: "Tule laupäeval meile! Ma teen süüa.", en: "Come over to our place on Saturday! I'm cooking." }, cue: "Thank her and ask what time.", model: { et: "Aitäh! Mis kell?", en: "Thank you! What time?" } },
         { ask: { et: "Kell kuus. Kas sa saad?", en: "At six. Can you?" }, cue: "Say yes, definitely.", model: { et: "Jah, kindlasti!", en: "Yes, definitely!" } },
-        { ask: { et: "Tore! Head aega!", en: "Great! Bye!" }, cue: "Say goodbye.", model: { et: "Nägemist!", en: "See you!" } },
+        { ask: { et: "Tore! Näeme siis!", en: "Great! See you then!" }, cue: "Say goodbye.", model: { et: "Nägemist!", en: "See you!" } },
       ],
     },
   },

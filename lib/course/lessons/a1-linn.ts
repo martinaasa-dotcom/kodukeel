@@ -323,7 +323,7 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Trammiga. Aga homme sõidan Tartusse.", en: "By tram. But tomorrow I'm going to Tartu." },
       { who: "Tom", et: "Rongiga või bussiga?", en: "By train or by bus?" },
       { who: "Mari", et: "Rongiga. Pilet maksab ainult üheksa eurot.", en: "By train. The ticket's only nine euros." },
-      { who: "Tom", et: "Ainult üheksa? Head teed siis!", en: "Only nine? Have a good trip, then!" },
+      { who: "Tom", et: "Ainult üheksa? Tore! Head teed siis!", en: "Only nine? Nice! Have a good trip, then!" },
     ],
     teaches: [
       { kind: "word", et: "kuidas", en: "how" },

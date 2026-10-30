@@ -262,11 +262,11 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Mari", et: "Millal sa ärkad?", en: "When do you wake up?" },
       { who: "Tom", et: "Tavaliselt kell seitse.", en: "Usually at seven." },
-      { who: "Mari", et: "Ja õhtul? Mida sa teed?", en: "And in the evening? What do you do?" },
+      { who: "Mari", et: "Ja õhtul? Mis sa teed?", en: "And in the evening? What do you do?" },
       { who: "Tom", et: "Mõnikord ma loen, mõnikord vaatan telekat.", en: "Sometimes I read, sometimes I watch TV." },
       { who: "Mari", et: "Millal sa magama lähed?", en: "When do you go to bed?" },
       { who: "Tom", et: "Tihti kell üksteist. Aga laupäeval kell kaks!", en: "Often at eleven. But on Saturday at two!" },
-      { who: "Mari", et: "Kell kaks? Mida sa teed öösel?", en: "At two? What do you do at night?" },
+      { who: "Mari", et: "Kell kaks? Mis sa öösel teed?", en: "At two? What do you do at night?" },
       { who: "Tom", et: "Ma vaatan alati telekat!", en: "I always watch TV!" },
     ],
     teaches: [
@@ -378,7 +378,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
     goal: "Make a plan with a friend: what you're doing, whether you can, and what time.",
     cast: { Liis: "liivika", Tom: "kalev" },
     conversation: [
-      { who: "Liis", et: "Tere, Tom! Mida sa teed laupäeval?", en: "Hi, Tom! What are you doing on Saturday?", stage: "On the phone." },
+      { who: "Liis", et: "Tere, Tom! Mis sa laupäeval teed?", en: "Hi, Tom! What are you doing on Saturday?", stage: "On the phone." },
       { who: "Tom", et: "Ma ei tea veel. Ma ei tööta.", en: "I don't know yet. I'm not working." },
       { who: "Liis", et: "Tahad tulla? Ma teen süüa.", en: "Do you want to come over? I'm cooking." },
       { who: "Tom", et: "Jah! Mis kell?", en: "Yes! What time?" },
@@ -399,14 +399,14 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
       examples: [2, 5],
     },
     answers: [
-      { ask: { et: "Mida sa teed laupäeval?", en: "What are you doing on Saturday?" }, cue: "Say you don't know.", model: { et: "Ma ei tea.", en: "I don't know." } },
+      { ask: { et: "Mis sa laupäeval teed?", en: "What are you doing on Saturday?" }, cue: "Say you don't know.", model: { et: "Ma ei tea.", en: "I don't know." } },
       { ask: { et: "Kas sa saad homme tulla?", en: "Can you come tomorrow?" }, cue: "Say yes, and ask what time.", model: { et: "Jah! Mis kell?", en: "Yes! What time?" } },
       { ask: { et: "Kell kuus?", en: "At six?" }, cue: "Say you can't at six, and offer seven.", model: { et: "Kell kuus ma ei saa. Kell seitse?", en: "I can't at six. Seven?" } },
     ],
     roleplay: {
       scene: "Your friend Liis calls to invite you over this weekend. Make a plan with her.",
       turns: [
-        { ask: { et: "Tere! Mida sa teed laupäeval?", en: "Hi! What are you doing on Saturday?" }, cue: "Say you're not working.", model: { et: "Ma ei tööta.", en: "I'm not working." } },
+        { ask: { et: "Tere! Mis sa laupäeval teed?", en: "Hi! What are you doing on Saturday?" }, cue: "Say you're not working.", model: { et: "Ma ei tööta.", en: "I'm not working." } },
         { ask: { et: "Tahad tulla? Ma teen süüa.", en: "Do you want to come over? I'm cooking." }, cue: "Say yes, and ask what time.", model: { et: "Jah! Mis kell?", en: "Yes! What time?" } },
         { ask: { et: "Kell kuus. Kas sa saad?", en: "At six. Can you?" }, cue: "Say you can't at six, and offer seven.", model: { et: "Kell kuus ma ei saa. Kell seitse?", en: "I can't at six. Seven?" } },
         { ask: { et: "Hästi, kell seitse!", en: "Fine, seven!" }, cue: "Say thank you and goodbye.", model: { et: "Aitäh! Head aega!", en: "Thanks! Bye!" } },

@@ -22,7 +22,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "a2-suvi", beat: "summer", text: "Kuidas suvi oli?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-suvi", beat: "summer", text: "Kuidas suvi läks?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-suvi", beat: "did", text: "Tore! Mis sa seal tegid?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
-  { scene: "a2-suvi", beat: "did", text: "Mida sa seal tegid?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
+  { scene: "a2-suvi", beat: "did", text: "Ja mis sa seal tegid?", model: "authored", draftedAt: "2026-10-30" },
   { scene: "a2-suvi", beat: "before", text: "Kas sa oled seal enne käinud?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-suvi", beat: "before", text: "Kas sa oled seal enne ka käinud?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-suvi", beat: "her", text: "Mina töötasin. Ei käinud kuskil.", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },

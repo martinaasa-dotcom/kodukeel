@@ -330,7 +330,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Viis, kaks, null, üks, kolm, seitse, kaheksa.", en: "Five, two, zero, one, three, seven, eight." },
       { who: "Mari", et: "Aeglasemalt, palun!", en: "Slower, please!" },
       { who: "Tom", et: "Viis. Kaks. Null. Üks. Kolm. Seitse. Kaheksa.", en: "Five. Two. Zero. One. Three. Seven. Eight." },
-      { who: "Mari", et: "Aitäh! Minu number on viis, neli, üheksa, kuus, null, üks, kaks.", en: "Thanks! Mine is five, four, nine, six, zero, one, two." },
+      { who: "Mari", et: "Aitäh! Ja minu number on viis, neli, üheksa, kuus, null, üks, kaks.", en: "Thanks! And mine is five, four, nine, six, zero, one, two." },
       { who: "Tom", et: "Aitäh!", en: "Thanks!" },
     ],
     teaches: [
@@ -451,7 +451,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       examples: [0, 1],
     },
     answers: [
-      { ask: { et: "Kui vana sa oled?", en: "How old are you?" }, cue: "Say how old you are.", model: { et: "Ma olen kolmkümmend kaks aastat vana.", en: "I'm thirty-two years old." } },
+      { ask: { et: "Kui vana sa oled?", en: "How old are you?" }, cue: "Say how old you are.", model: { et: "Ma olen kolmkümmend kaks.", en: "I'm thirty-two." } },
       { cue: "Ask somebody how old they are.", model: { et: "Kui vana sa oled?", en: "How old are you?" } },
       { cue: "Say these numbers: 12, 25, 99.", model: { et: "Kaksteist, kakskümmend viis, üheksakümmend üheksa.", en: "Twelve, twenty-five, ninety-nine." } },
     ],
@@ -467,7 +467,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
     cast: { Mari: "mari", Tom: "kalev" },
     conversation: [
       { who: "Mari", et: "Tom, kas sul on vend?", en: "Tom, do you have a brother?" },
-      { who: "Tom", et: "Jah, on. Tema nimi on Peeter.", en: "Yes, I do. His name's Peeter." },
+      { who: "Tom", et: "Jah, on. Ta nimi on Peeter.", en: "Yes, I do. His name's Peeter." },
       { who: "Mari", et: "Ja õde?", en: "And a sister?" },
       { who: "Tom", et: "Ei, mul ei ole. Aga mul on kaks last!", en: "No, I don't. But I have two children!" },
       { who: "Mari", et: "Mul on üks laps. Ta on viis.", en: "I have one child. She's five." },

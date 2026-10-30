@@ -23,7 +23,7 @@ export const poodiPiima: ScenePicks = {
     { et: "Tulen poest, lähen koju.", en: "I'm coming from the shop, going home." },
   ],
   close: [
-    { et: "Aitäh, head aega!", en: "Thanks, bye!" },
+    { et: "Hästi, nägemist!", en: "OK, see you!" },
     { et: "Nägemist!", en: "See you!" },
   ],
 };

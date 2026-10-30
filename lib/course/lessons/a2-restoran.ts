@@ -90,7 +90,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Siis ma võtaksin kala. Ja enne seda suppi.", en: "Then I'd have the fish. And soup before that." },
       { who: "Tom", et: "Mina võtaksin praadi ja salatit.", en: "I'd have the roast and a salad." },
       { who: "Peeter", et: "Ja magustoit?", en: "And dessert?" },
-      { who: "Tom", et: "Hiljem, aitäh.", en: "Later, thank you." },
+      { who: "Tom", et: "Vaatame hiljem, aitäh.", en: "We'll see later, thanks." },
     ],
     teaches: [
       { kind: "word", et: "menüü", en: "menu" },
@@ -141,7 +141,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Mari", et: "Vabandage! Kas me saaksime arve?", en: "Excuse me! Could we have the bill?" },
       { who: "Peeter", et: "Kohe. Kas kõik oli hästi?", en: "Right away. Was everything all right?" },
-      { who: "Mari", et: "Jah, kõik oli väga maitsev. Aga supp oli natuke soolane.", en: "Yes, everything was delicious. But the soup was a bit salty." },
+      { who: "Mari", et: "Jah, väga maitsev! Ainult supp oli natuke soolane.", en: "Yes, delicious! Only the soup was a bit salty." },
       { who: "Peeter", et: "Vabandust. Kas maksate koos või eraldi?", en: "Sorry. Are you paying together or separately?" },
       { who: "Tom", et: "Eraldi, palun. Kas saab kaardiga maksta?", en: "Separately, please. Can I pay by card?" },
       { who: "Peeter", et: "Muidugi.", en: "Of course." },
@@ -192,7 +192,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
     cast: { Kati: "vesta", Tom: "kalev" },
     conversation: [
       { who: "Kati", et: "Kumb korter on parem?", en: "Which apartment is better?" },
-      { who: "Tom", et: "See on suurem, aga ka kallim.", en: "This one is bigger, but also more expensive." },
+      { who: "Tom", et: "See esimene on suurem, aga ka kallim.", en: "The first one is bigger, but also more expensive." },
       { who: "Kati", et: "Ja teine?", en: "And the other one?" },
       { who: "Tom", et: "Teine on väiksem, aga odavam ja uuem.", en: "The other one is smaller, but cheaper and newer." },
       { who: "Kati", et: "Uuem on parem kui suurem!", en: "Newer is better than bigger!" },
@@ -303,8 +303,8 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
       { who: "Kati", et: "Tere! Kuidas saan aidata?", en: "Hello! How can I help?" },
       { who: "Tom", et: "Tere! Kas ma võiksin seda jopet proovida?", en: "Hello! Could I try this jacket on?" },
       { who: "Kati", et: "Muidugi. Proovikabiin on seal.", en: "Of course. The fitting room is over there." },
-      { who: "Tom", et: "See on liiga väike. Kas teil on suuremat?", en: "It's too small. Do you have a bigger one?" },
-      { who: "Kati", et: "Jah, see on suurem.", en: "Yes, this one is bigger." },
+      { who: "Tom", et: "See on mulle liiga väike. Kas teil on suuremat?", en: "It's too small for me. Do you have a bigger one?" },
+      { who: "Kati", et: "On küll. Palun, see siin on suurem.", en: "We do. Here, this one is bigger." },
       { who: "Tom", et: "See sobib hästi. Ma võtan selle.", en: "This one fits well. I'll take it." },
     ],
     teaches: [

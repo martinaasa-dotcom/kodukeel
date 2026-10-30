@@ -22,7 +22,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "ametiasutus", beat: "answer:hurdle:place-instruction", text: "See on siin kõrval.", model: "authored", draftedAt: "2026-10-02", reviewedAt: "2026-10-15" },
   { scene: "ametiasutus", beat: "answer:hurdle:place-instruction", text: "Siin kõrval.", model: "authored", draftedAt: "2026-10-02", reviewedAt: "2026-10-15" },
   { scene: "ametiasutus", beat: "answer:wait", text: "Umbes kümme minutit.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
-  { scene: "ametiasutus", beat: "answer:wait", text: "Te peate ootama umbes kümme minutit.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
+  { scene: "ametiasutus", beat: "answer:wait", text: "Umbes kümme minutit peate ootama.", model: "authored", draftedAt: "2026-10-30" },
   { scene: "ametiasutus", beat: "close", text: "Head aega ja aitäh teile!", model: "minimax/minimax-m3:free", draftedAt: "2026-09-04", reviewedAt: "2026-10-15" },
   { scene: "ametiasutus", beat: "close", text: "Head aega ja aitäh!", model: "minimax/minimax-m3:free", draftedAt: "2026-09-04", reviewedAt: "2026-10-15" },
   { scene: "ametiasutus", beat: "close", text: "Head aega!", model: "minimax/minimax-m3:free", draftedAt: "2026-09-04", reviewedAt: "2026-10-15" },

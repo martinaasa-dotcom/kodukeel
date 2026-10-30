@@ -23,7 +23,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "koosolek", beat: "why", text: "Miks sa nii arvad?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "koosolek", beat: "propose", text: "Mis päev sulle siis sobiks?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "koosolek", beat: "propose", text: "Millal see siis valmis saab?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "koosolek", beat: "agree", text: "Hästi, teeme nii. Aga aruanne peab olema hea.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "koosolek", beat: "agree", text: "Hästi, teeme siis nii. Aga aruanne peab ikka hea olema.", model: "authored", draftedAt: "2026-10-30" },
   { scene: "koosolek", beat: "agree", text: "Hea küll, sobib, aga siis peab aruanne hea olema.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "koosolek", beat: "hurdle:interrupted", text: "Üks minut, palun.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "koosolek", beat: "hurdle:interrupted", text: "Vabandust, üks minut.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },

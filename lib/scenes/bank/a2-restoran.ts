@@ -25,7 +25,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "a2-restoran", beat: "drink", text: "Palun. Mida te sooviksite juua?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-restoran", beat: "order", text: "Kas olete valmis tellima?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-restoran", beat: "order", text: "Kas te olete valmis tellima?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
-  { scene: "a2-restoran", beat: "food", text: "Täna soovitan kala.", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
+  { scene: "a2-restoran", beat: "food", text: "Täna soovitan kala, see on väga hea.", model: "authored", draftedAt: "2026-10-30" },
   { scene: "a2-restoran", beat: "food", text: "Täna on väga hea kala.", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-restoran", beat: "bill", text: "Kas kõik oli hästi?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-restoran", beat: "bill", text: "Kas kõik oli maitsev?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },

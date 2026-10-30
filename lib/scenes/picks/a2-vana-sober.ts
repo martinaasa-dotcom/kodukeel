@@ -28,7 +28,7 @@ export const a2VanaSober: ScenePicks = {
   ],
   meet: [
     { et: "Kas sulle sobib laupäeval kell kuus?", en: "Does Saturday at six suit you?" },
-    { et: "Laupäeval.", en: "On Saturday." },
+    { et: "Äkki laupäeval?", en: "Maybe Saturday?" },
   ],
   close: [
     { et: "Head aega!", en: "Goodbye!" },

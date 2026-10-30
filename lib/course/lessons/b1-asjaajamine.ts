@@ -177,7 +177,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       { who: "Tiina", et: "Palun andke oma dokumendid.", en: "Please give me your documents." },
       { who: "Tom", et: "Siin on avaldus ja foto. Kõik blanketid on täidetud!", en: "Here's the application and the photo. All the forms are filled in!" },
       { who: "Tiina", et: "Hästi. Ja teie pass?", en: "Good. And your passport?" },
-      { who: "Tom", et: "Oi. Mu pass on naise kotis, ja ta on kodus.", en: "Oh. My passport's in my wife's bag, and she's at home." },
+      { who: "Tom", et: "Oi. Mu pass on naise kotis ja naine on kodus.", en: "Oh. My passport's in my wife's bag, and she's at home." },
       { who: "Tiina", et: "Ilma teie passita ma ei saa avaldust vastu võtta.", en: "Without your passport I can't accept the application." },
       { who: "Tom", et: "Kas ma võiksin passi homme tuua?", en: "Could I bring the passport tomorrow?" },
       { who: "Tiina", et: "Jah, võib küll. Aga siis võtke uus järjekorranumber.", en: "Yes, you can. But then take a new queue number." },
@@ -667,7 +667,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
     goal: "Write a formal application, with its title, its request, the reason, and a formal close.",
     cast: { Peeter: "peeter", Tom: "kalev" },
     conversation: [
-      { who: "Tom", et: "Peeter, ma pean linnale avalduse kirjutama. Kas sa aitaksid?", en: "Peeter, I have to write an application to the city. Would you help?" },
+      { who: "Tom", et: "Kuule, Peeter, ma pean linnale avalduse kirjutama. Kas sa aitaksid mind?", en: "Listen, Peeter, I have to write an application to the city. Would you help me?" },
       { who: "Peeter", et: "Muidugi. Ma olen elus sada avaldust kirjutanud.", en: "Of course. I've written a hundred applications in my life." },
       { who: "Tom", et: "Kuidas avaldus algab?", en: "How does an application start?" },
       { who: "Peeter", et: "Kõigepealt kirjutad, kellele see on: linnavalitsusele.", en: "First you write who it's to: the city government." },

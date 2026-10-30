@@ -36,7 +36,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
     goal: "Say whether you finished a job or are still on it, and ask somebody else.",
     cast: { Anna: "kylli", Tom: "kalev" },
     conversation: [
-      { who: "Anna", et: "Mida sa täna tegid?", en: "What did you do today?" },
+      { who: "Anna", et: "Mis sa täna tegid?", en: "What did you do today?" },
       { who: "Tom", et: "Hommikul parandasin autot.", en: "In the morning I was working on the car." },
       { who: "Anna", et: "Kas sa parandasid auto ära?", en: "Did you get the car fixed?" },
       { who: "Tom", et: "Ei, veel mitte. See on ju vana auto. Homme parandan edasi.", en: "No, not yet. It's an old car, you know. I'll carry on tomorrow." },
@@ -626,7 +626,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
     cast: { Peeter: "peeter", Tom: "kalev" },
     conversation: [
       { who: "Peeter", et: "Tere, Tom! Peeter siin.", en: "Hello, Tom! It's Peeter.", stage: "A voicemail from Peeter, the landlord." },
-      { who: "Peeter", et: "Meister tuleb homme kell kümme.", en: "The handyman's coming tomorrow at ten." },
+      { who: "Peeter", et: "Kuule, meister tuleb homme kell kümme.", en: "Listen, the handyman's coming tomorrow at ten." },
       { who: "Peeter", et: "Sa oled siis tööl, aga pole viga.", en: "You'll be at work then, but never mind." },
       { who: "Peeter", et: "Jäta talle sedel lauale.", en: "Leave him a note on the table." },
       { who: "Peeter", et: "Kirjuta, mis on tehtud ja mis on veel katki.", en: "Write what's done and what's still broken." },
@@ -776,7 +776,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       { who: "Rein", et: "Ma tellin varuosa ja tulen reedel tagasi.", en: "I'll order the part and come back on Friday." },
       { who: "Tom", et: "Reedel olen ma tööl. Kas esmaspäeval sobib?", en: "On Friday I'm at work. Does Monday suit you?" },
       { who: "Rein", et: "Sobib. Aga miks köögis lamp ei põle?", en: "Fine. But why isn't the kitchen light on?" },
-      { who: "Tom", et: "Pirn on läbi. Ma kardan elektrit.", en: "The bulb's gone. I'm scared of electricity." },
+      { who: "Tom", et: "Pirn on läbi, aga ma kardan elektrit.", en: "The bulb's gone, but I'm scared of electricity." },
       { who: "Rein", et: "Palun. Nüüd põleb.", en: "There you go. Now it's on.", stage: "He changes the bulb in ten seconds." },
       { who: "Tom", et: "Aitäh! Siis näeme esmaspäeval.", en: "Thank you! See you on Monday, then." },
     ],

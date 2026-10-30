@@ -24,7 +24,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "uus-kolleeg", beat: "hurdle:misheard", text: "Vabandust, sa oled politseinik?", model: "authored", draftedAt: "2026-10-15", about: "job", reviewedAt: "2026-10-16" },
   { scene: "uus-kolleeg", beat: "job", text: "Mis tööd sa siin hakkad tegema?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "uus-kolleeg", beat: "job", text: "Mis tööd sa siin teed?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "uus-kolleeg", beat: "back", text: "Kas sa tahad minult midagi küsida?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "uus-kolleeg", beat: "back", text: "Kas sul on ka midagi küsida?", model: "authored", draftedAt: "2026-10-30" },
   { scene: "uus-kolleeg", beat: "back", text: "Kas sa tahad midagi teada?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "uus-kolleeg", beat: "answer:back", text: "Kolm aastat juba, ja siin on tore.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "uus-kolleeg", beat: "hurdle:faster", text: "Kiire on, ma pean kohe minema.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },

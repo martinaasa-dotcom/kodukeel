@@ -52,7 +52,6 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "firma", en: "company, firm" },
       { kind: "form", et: "firma", of: "firma", en: "of the company", stem: true },
       { kind: "form", et: "ühes", of: "üks", en: "in one, in a" },
-      { kind: "word", et: "oi", en: "oh!" },
     ],
     how: {
       point: "As is -na on the stem: {õpetaja} and then {õpetajana}, {koka} and then {kokana}. It's [olev] (-na, as), for the job you do.",
@@ -94,8 +93,8 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Mari", et: "Kati, kelleks su tütar tahab saada?", en: "Kati, what does your daughter want to become?" },
       { who: "Kati", et: "Arstiks. Ta õpib juba ülikoolis.", en: "A doctor. She's already studying at university." },
-      { who: "Mari", et: "Tubli! Ja mida ta sünnipäevaks tahab?", en: "Good for her! And what does she want for her birthday?" },
-      { who: "Kati", et: "Uut telefoni. Ostan selle homseks.", en: "A new phone. I'm buying it for tomorrow." },
+      { who: "Mari", et: "Tubli! Ja mis ta sünnipäevaks tahab?", en: "Good for her! And what does she want for her birthday?" },
+      { who: "Kati", et: "Uut telefoni. Ostan selle talle homseks.", en: "A new phone. I'm getting her one for tomorrow." },
       { who: "Mari", et: "Homme on ta sünnipäev? Palju õnne talle!", en: "It's her birthday tomorrow? Happy birthday to her!" },
       { who: "Kati", et: "Aitäh! Ja homseks läheb ilm ka soojaks.", en: "Thank you! And by tomorrow the weather's getting warm too." },
     ],
@@ -145,9 +144,9 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Mari", et: "Täna tulevad külalised. Kes koristab?", en: "Guests are coming today. Who's cleaning?" },
       { who: "Tom", et: "Mina koristan elutoa ja köögi.", en: "I'll clean the living room and the kitchen." },
-      { who: "Mari", et: "Hästi. Mina pesen nõud.", en: "All right. I'll wash the dishes." },
+      { who: "Mari", et: "Hästi, siis mina pesen nõud.", en: "All right, then I'll wash the dishes." },
       { who: "Tom", et: "Kes viib prügi välja?", en: "Who's taking out the trash?" },
-      { who: "Mari", et: "Sina! Ja pane ka pesu kuivama.", en: "You! And hang the washing out to dry too." },
+      { who: "Mari", et: "Sina muidugi! Ja pane pesu ka kuivama.", en: "You, of course! And hang the washing out to dry too." },
       { who: "Tom", et: "Olgu. Aga siis teed sina süüa.", en: "Fine. But then you're cooking." },
     ],
     teaches: [
@@ -197,11 +196,11 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
     cast: { Peeter: "peeter", Tom: "kalev" },
     conversation: [
       { who: "Tom", et: "Tere, Peeter! Siin Tom korterist number kaksteist.", en: "Hello, Peeter! It's Tom from apartment twelve.", stage: "On the phone to the landlord." },
-      { who: "Peeter", et: "Tere! Mis juhtus?", en: "Hello! What happened?" },
-      { who: "Tom", et: "Külmkapp ei tööta ja vannitoas on kraan katki.", en: "The fridge isn't working and the tap's broken in the bathroom." },
+      { who: "Peeter", et: "Tere, Tom! Mis juhtus?", en: "Hi, Tom! What happened?" },
+      { who: "Tom", et: "Külmkapp ei tööta ja vannitoas on ka kraan katki.", en: "The fridge isn't working, and the tap's broken in the bathroom too." },
       { who: "Peeter", et: "Oi! Ma saadan meistri. Millal sa kodus oled?", en: "Oh! I'll send a repairman. When are you at home?" },
       { who: "Tom", et: "Homme kella kaheni.", en: "Tomorrow until two." },
-      { who: "Peeter", et: "Hästi. Meister tuleb homme hommikul ja parandab need.", en: "All right. The repairman will come tomorrow morning and fix them." },
+      { who: "Peeter", et: "Hästi. Meister tuleb homme hommikul ja parandab need ära.", en: "All right. The repairman will come tomorrow morning and fix them." },
     ],
     teaches: [
       { kind: "form", et: "korterist", of: "korter", en: "from the apartment" },
@@ -314,8 +313,8 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
       { who: "Liis", et: "Tere! Kuidas saan aidata?", en: "Hello! How can I help?" },
       { who: "Tom", et: "Tere! Ma tahaksin konto avada.", en: "Hello! I'd like to open an account." },
       { who: "Liis", et: "Kas teil on Eesti isikukood?", en: "Do you have an Estonian personal code?" },
-      { who: "Tom", et: "Jah, on. Siin on mu ID-kaart.", en: "Yes, I do. Here's my ID card." },
-      { who: "Liis", et: "Aitäh. Pangakaart tuleb nädala pärast.", en: "Thank you. Your bank card will come in a week." },
+      { who: "Tom", et: "On küll. Siin on mu ID-kaart.", en: "Yes, I do. Here's my ID card." },
+      { who: "Liis", et: "Aitäh. Pangakaart tuleb umbes nädala pärast.", en: "Thank you. Your bank card will come in about a week." },
       { who: "Tom", et: "Kas ma saan ka sularaha võtta?", en: "Can I take out cash too?" },
       { who: "Liis", et: "Jah, igast pangaautomaadist.", en: "Yes, from any ATM." },
     ],

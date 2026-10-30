@@ -39,7 +39,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Ülikoolist. Aga sina?", en: "From the university. And you?" },
       { who: "Liis", et: "Mina raamatukogust. Kuhu sa nüüd lähed?", en: "From the library. Where are you off to now?" },
       { who: "Tom", et: "Kesklinna. Pean panka minema.", en: "Into town. I have to go to the bank." },
-      { who: "Liis", et: "Mina ka! Lähme koos.", en: "So am I! Let's go together." },
+      { who: "Liis", et: "Mina ka! Lähme siis koos.", en: "Me too! Let's go together, then." },
       { who: "Tom", et: "Hea mõte! Lähme bussiga.", en: "Good idea! Let's take the bus." },
     ],
     teaches: [
@@ -152,7 +152,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
     goal: "Say who you give something to, who you call, and who you heard it from.",
     cast: { Liis: "liivika", Tom: "kalev" },
     conversation: [
-      { who: "Liis", et: "Homme on Mari sünnipäev. Mida sa talle kingid?", en: "Tomorrow's Mari's birthday. What are you giving her?" },
+      { who: "Liis", et: "Homme on Mari sünnipäev. Mis sa talle kingid?", en: "Tomorrow's Mari's birthday. What are you giving her?" },
       { who: "Tom", et: "Ei tea veel. Mis talle meeldib?", en: "Don't know yet. What does she like?" },
       { who: "Liis", et: "Talle meeldib muusika. Kingi talle kontserdipilet!", en: "She likes music. Give her a concert ticket!" },
       { who: "Tom", et: "Hea mõte! Küsin ta vennalt, mis kontsert hea on.", en: "Good idea! I'll ask her brother which concert's good." },
@@ -210,7 +210,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Kus sa eile õhtul olid?", en: "Where were you yesterday evening?" },
       { who: "Tom", et: "Kinos. Aga sina?", en: "At the cinema. And you?" },
       { who: "Mari", et: "Mina olin sõbra sünnipäeval. Oli tore pidu.", en: "I was at a friend's birthday. It was a great party." },
-      { who: "Tom", et: "Mina lähen täna teatrisse.", en: "I'm going to the theater today." },
+      { who: "Tom", et: "Tore! Mina lähen täna teatrisse.", en: "Nice! I'm going to the theater today." },
       { who: "Mari", et: "Ja mina lähen homme kontserdile. Tule ka!", en: "And I'm going to a concert tomorrow. Come too!" },
       { who: "Tom", et: "Kahjuks ei saa. Mul on homme eesti keele tund.", en: "Sadly, I can't. I've got an Estonian lesson tomorrow." },
       { who: "Mari", et: "Siis järgmine kord!", en: "Next time, then!" },

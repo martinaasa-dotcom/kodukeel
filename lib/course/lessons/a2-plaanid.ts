@@ -35,7 +35,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Järgmisel nädalal hakkan uues firmas töötama.", en: "Next week I'm starting work at a new company." },
       { who: "Mari", et: "Palju õnne! Ja suvel?", en: "Congratulations! And in the summer?" },
       { who: "Tom", et: "Suvel on mul puhkus, kavatsen maale minna. Aga sina?", en: "In the summer I have time off. I plan to go to the country. And you?" },
-      { who: "Mari", et: "Ma hakkan eesti keelt õpetama.", en: "I'm going to start teaching Estonian." },
+      { who: "Mari", et: "Mina hakkan eesti keelt õpetama.", en: "I'm going to start teaching Estonian." },
       { who: "Tom", et: "Tõesti? Siis ma tulen sinu tundi!", en: "Really? Then I'll come to your class!" },
     ],
     teaches: [
@@ -84,7 +84,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
     cast: { Kati: "vesta", Tom: "kalev" },
     conversation: [
       { who: "Kati", et: "Kuidas sulle Tartu meeldis?", en: "How did you like Tartu?" },
-      { who: "Tom", et: "Väga meeldis! Ma arvan, et Tartu on parem kui Tallinn, sest see on väiksem ja rahulikum.", en: "I liked it a lot! I think Tartu is better than Tallinn, because it's smaller and quieter." },
+      { who: "Tom", et: "Väga meeldis! Ma arvan, et Tartu on parem kui Tallinn, sest seal on rahulikum.", en: "I liked it a lot! I think Tartu is better than Tallinn, because it's calmer there." },
       { who: "Kati", et: "Ma pole nõus. Tallinnas on rohkem tööd.", en: "I don't agree. There's more work in Tallinn." },
       { who: "Tom", et: "Sul on õigus. Aga Tartu on ilusam.", en: "You're right. But Tartu is prettier." },
       { who: "Kati", et: "See on tõsi.", en: "That's true." },
@@ -136,11 +136,11 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
     goal: "Say what you're looking for, that you can't find it, and what you remember.",
     cast: { Mari: "mari", Tom: "kalev" },
     conversation: [
-      { who: "Mari", et: "Tom, mida sa otsid?", en: "Tom, what are you looking for?" },
+      { who: "Mari", et: "Tom, mis sa otsid?", en: "Tom, what are you looking for?" },
       { who: "Tom", et: "Telefoni. Ei leia seda üles.", en: "My phone. I can't find it." },
       { who: "Mari", et: "Kas sa mäletad, kus see oli?", en: "Do you remember where it was?" },
       { who: "Tom", et: "Ma arvan, et köögis. Aga seal seda pole.", en: "I think in the kitchen. But it isn't there." },
-      { who: "Mari", et: "Ma usun, et see on su kotis.", en: "I believe it's in your bag." },
+      { who: "Mari", et: "Vaata kotist, ma usun, et see on seal.", en: "Look in your bag, I believe it's there." },
       { who: "Tom", et: "Jah, siin see on! Aitäh, Mari!", en: "Yes, here it is! Thanks, Mari!" },
       { who: "Mari", et: "Pole midagi!", en: "No problem!" },
     ],
@@ -177,7 +177,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       examples: [1, 2, 4],
     },
     answers: [
-      { ask: { et: "Mida sa otsid?", en: "What are you looking for?" }, cue: "Say you're looking for your phone.", model: { et: "Ma otsin oma telefoni.", en: "I'm looking for my phone." } },
+      { ask: { et: "Mis sa otsid?", en: "What are you looking for?" }, cue: "Say you're looking for your phone.", model: { et: "Ma otsin oma telefoni.", en: "I'm looking for my phone." } },
       { cue: "Say you can't find it.", model: { et: "Ma ei leia seda.", en: "I can't find it." } },
       { ask: { et: "Kas sa mäletad?", en: "Do you remember?" }, cue: "Say yes, you remember.", model: { et: "Jah, mäletan.", en: "Yes, I remember." } },
     ],
@@ -192,9 +192,9 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
     goal: "Say what you'll do if: if the weather's nice, if it rains.",
     cast: { Liis: "liivika", Tom: "kalev" },
     conversation: [
-      { who: "Liis", et: "Mida me laupäeval teeme?", en: "What should we do on Saturday?" },
+      { who: "Liis", et: "Mis me laupäeval teeme?", en: "What should we do on Saturday?" },
       { who: "Tom", et: "Kui ilm on ilus, lähme randa.", en: "If the weather's nice, let's go to the beach." },
-      { who: "Liis", et: "Ja kui sajab vihma?", en: "And if it rains?" },
+      { who: "Liis", et: "Aga kui sajab vihma?", en: "But what if it rains?" },
       { who: "Tom", et: "Siis jääme koju ja vaatame filmi.", en: "Then we'll stay at home and watch a film." },
       { who: "Liis", et: "Hea mõte! Kui on soe, võtan ujumisriided kaasa.", en: "Good idea! If it's warm, I'll bring my swimming things." },
     ],
@@ -224,8 +224,8 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       examples: [1, 2, 3],
     },
     answers: [
-      { ask: { et: "Mida me laupäeval teeme?", en: "What should we do on Saturday?" }, cue: "Say if the weather's nice, let's go to the beach.", model: { et: "Kui ilm on ilus, lähme randa.", en: "If the weather's nice, let's go to the beach." } },
-      { ask: { et: "Ja kui sajab vihma?", en: "And if it rains?" }, cue: "Say then you'll stay at home.", model: { et: "Siis jääme koju.", en: "Then we'll stay at home." } },
+      { ask: { et: "Mis me laupäeval teeme?", en: "What should we do on Saturday?" }, cue: "Say if the weather's nice, let's go to the beach.", model: { et: "Kui ilm on ilus, lähme randa.", en: "If the weather's nice, let's go to the beach." } },
+      { ask: { et: "Aga kui sajab vihma?", en: "But what if it rains?" }, cue: "Say then you'll stay at home.", model: { et: "Siis jääme koju.", en: "Then we'll stay at home." } },
       { cue: "Say if it's cold, you'll stay at home.", model: { et: "Kui on külm, jään koju.", en: "If it's cold, I'll stay at home." } },
       { cue: "Say you'll bring your swimming things.", model: { et: "Ma võtan ujumisriided kaasa.", en: "I'll bring my swimming things." } },
     ],
@@ -245,7 +245,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Linnast väljas, järve ääres.", en: "Outside town, by a lake." },
       { who: "Tom", et: "Kas seal on ka marju?", en: "Are there berries there too?" },
       { who: "Mari", et: "Jah, mustikaid. Võta korv kaasa!", en: "Yes, blueberries. Bring a basket!" },
-      { who: "Tom", et: "Ma ei tunne seeni. Pead mind aitama!", en: "I don't know mushrooms. You'll have to help me." },
+      { who: "Tom", et: "Aga ma ei tunne seeni. Sa pead mind aitama!", en: "But I don't know mushrooms. You'll have to help me!" },
     ],
     teaches: [
       { kind: "word", et: "mets", en: "forest, woods" },
@@ -301,10 +301,10 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Mari", et: "Kas sa käid ikka metsas?", en: "Do you still go to the forest?" },
       { who: "Tom", et: "Vahel. Aga mitte nii tihti nagu varem.", en: "Sometimes. But not as often as before." },
-      { who: "Mari", et: "Miks?", en: "Why?" },
+      { who: "Mari", et: "Miks nii?", en: "Why's that?" },
       { who: "Tom", et: "Mul pole enam aega. Ma töötan isegi laupäeval.", en: "I don't have the time anymore. I even work on Saturdays." },
-      { who: "Mari", et: "Siis on sul vist puhkust vaja!", en: "Then you probably need a vacation!" },
-      { who: "Tom", et: "Täpselt! Lähme pühapäeval uuesti koos metsa?", en: "Exactly! Should we go to the forest together again on Sunday?" },
+      { who: "Mari", et: "No siis on sul vist puhkust vaja!", en: "Well, then you probably need a vacation!" },
+      { who: "Tom", et: "Täpselt! Äkki lähme pühapäeval uuesti koos metsa?", en: "Exactly! How about we go to the forest together again on Sunday?" },
     ],
     teaches: [
       { kind: "word", et: "ikka", en: "still; anyway" },
@@ -324,6 +324,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "eriti", en: "especially" },
       { kind: "word", et: "vahepeal", en: "in the meantime, since then" },
       { kind: "word", et: "selline", en: "such, this kind of" },
+      { kind: "word", et: "no", en: "well, so (at the start of what you say)" },
     ],
     how: {
       point: "Most of these small words don't change, and they go right before the word they're about: {Ma töötan isegi laupäeval}, I work even on Saturday.",
@@ -524,14 +525,14 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
     goal: "Catch up with a friend: what you did, how you are, what you think and what you'll do.",
     cast: { Mari: "mari", Tom: "kalev" },
     conversation: [
-      { who: "Mari", et: "Tere, Tom! Kaua pole näinud! Mis sa vahepeal tegid?", en: "Hi, Tom! Long time no see! What have you been doing?" },
+      { who: "Mari", et: "No tere, Tom! Kaua pole näinud! Mis sa vahepeal tegid?", en: "Hey, Tom! Long time no see! What have you been up to?" },
       { who: "Tom", et: "Olin Tartus. Töötasin seal programmeerijana.", en: "I was in Tartu. I worked there as a programmer." },
       { who: "Mari", et: "Kuidas sulle Tartu meeldis?", en: "How did you like Tartu?" },
       { who: "Tom", et: "Väga meeldis! Ma arvan, et see on Eesti kõige ilusam linn.", en: "I liked it a lot! I think it's the prettiest town in Estonia." },
-      { who: "Mari", et: "Mis su plaanid on?", en: "What are your plans?" },
+      { who: "Mari", et: "Ja mis su plaanid nüüd on?", en: "And what are your plans now?" },
       { who: "Tom", et: "Suvel kavatsen Saaremaale minna. Kas tuleksid kaasa?", en: "In the summer I plan to go to Saaremaa. Would you come along?" },
       { who: "Mari", et: "Hea meelega, kui puhkust saan!", en: "I'd love to, if I get time off!" },
-      { who: "Tom", et: "Väga hea! Siis lähme koos.", en: "Great! Then we'll go together." },
+      { who: "Tom", et: "Tore! Siis lähme koos.", en: "Great! Then we'll go together." },
     ],
     teaches: [],
     how: {
@@ -551,7 +552,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
     roleplay: {
       scene: "You meet an old friend you haven't seen for a while. She speaks first. Answer as yourself.",
       turns: [
-        { ask: { et: "Tere! Kaua pole näinud! Mis sa vahepeal tegid?", en: "Hi! Long time no see! What have you been doing?" }, cue: "Say where you were, and what you did there.", model: { et: "Olin Tartus. Töötasin seal.", en: "I was in Tartu. I worked there." } },
+        { ask: { et: "No tere! Kaua pole näinud! Mis sa vahepeal tegid?", en: "Hey! Long time no see! What have you been up to?" }, cue: "Say where you were, and what you did there.", model: { et: "Olin Tartus. Töötasin seal.", en: "I was in Tartu. I worked there." } },
         { ask: { et: "Kuidas sulle Tartu meeldis?", en: "How did you like Tartu?" }, cue: "Say what you think of it.", model: { et: "Ma arvan, et see on Eesti kõige ilusam linn.", en: "I think it's the prettiest town in Estonia." } },
         { ask: { et: "Mis su plaanid on?", en: "What are your plans?" }, cue: "Say what you plan to do in the summer.", model: { et: "Suvel kavatsen Saaremaale minna.", en: "In the summer I plan to go to Saaremaa." } },
         { ask: { et: "Tore! Kellega sa lähed?", en: "Lovely! Who are you going with?" }, cue: "Say who with, and ask if she'd come along too.", model: { et: "Jaaniga. Kas tuleksid ka kaasa?", en: "With Jaan. Would you come along too?" } },

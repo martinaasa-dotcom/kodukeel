@@ -24,9 +24,9 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "a1-plaan", beat: "invite", text: "Ma teen süüa. Tahad tulla?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
   { scene: "a1-plaan", beat: "invite", text: "Kas sa tahad tulla? Ma teen süüa.", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
   { scene: "a1-plaan", beat: "time", text: "Kell kuus. Kas sa saad?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
-  { scene: "a1-plaan", beat: "time", text: "Kell seitse. Kas sa saad?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-plaan", beat: "time", text: "Kell seitse. Saad?", model: "authored", draftedAt: "2026-10-30" },
   { scene: "a1-plaan", beat: "close", text: "Head aega!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
-  { scene: "a1-plaan", beat: "close", text: "Aitäh! Head aega!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-plaan", beat: "close", text: "Hästi, nägemist!", model: "authored", draftedAt: "2026-10-30" },
   { scene: "a1-plaan", beat: "answer:time", text: "Hästi!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
   { scene: "a1-plaan", beat: "answer:time", text: "Hästi, aitäh!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
 ];

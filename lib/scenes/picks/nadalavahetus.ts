@@ -7,7 +7,7 @@ export const nadalavahetus: ScenePicks = {
     { et: "Tere!", en: "Hi!" },
   ],
   how: [
-    { et: "Hea, aitäh!", en: "Good, thanks!" },
+    { et: "Hea oli, aitäh!", en: "It was good, thanks!" },
     { et: "Väga tore oli!", en: "It was really nice!" },
     { et: "Hästi, rahulik.", en: "Fine, nice and quiet." },
   ],

@@ -36,7 +36,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "tee-kusimine", beat: "where", text: "Jah, kuidas saan aidata?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "tee-kusimine", beat: "where", text: "Jah, palun?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "tee-kusimine", beat: "where", text: "Kas saan aidata?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
-  { scene: "tee-kusimine", beat: "close", text: "Te leiate selle kindlasti. Nägemist!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },
+  { scene: "tee-kusimine", beat: "close", text: "Küll te selle leiate. Nägemist!", model: "authored", draftedAt: "2026-10-30" },
   { scene: "tee-kusimine", beat: "close", text: "Head teed! Head aega!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },
 ];
 

@@ -24,7 +24,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "peretoetus", beat: "last", text: "Mis kuus raha viimati tuli?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "peretoetus", beat: "last", text: "Millal raha viimati tuli?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "peretoetus", beat: "check", text: "Ma vaatasin, meil on üks dokument puudu. Saatke see palun meile.", model: "authored", draftedAt: "2026-10-30", reviewedAt: "2026-10-30" },
-  { scene: "peretoetus", beat: "check", text: "Raha ei tulnud, sest meil on üks dokument puudu. Palun saatke see meile.", model: "authored", draftedAt: "2026-10-16", reviewedAt: "2026-10-16" },
+  { scene: "peretoetus", beat: "check", text: "Raha ei tulnud sellepärast, et üks dokument on puudu. Saatke see palun meile.", model: "authored", draftedAt: "2026-10-30" },
   { scene: "peretoetus", beat: "answer:check", text: "Saatke see kirjaga.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "peretoetus", beat: "answer:check", text: "Võite selle kirjaga saata.", model: "authored", draftedAt: "2026-10-30", reviewedAt: "2026-10-30" },
   { scene: "peretoetus", beat: "answer:check", text: "Saatke see kirjaga, siis tuleb ka raha.", model: "authored", draftedAt: "2026-10-16", reviewedAt: "2026-10-16" },

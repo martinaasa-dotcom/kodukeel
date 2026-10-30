@@ -18,15 +18,15 @@ import type { ScriptedLine } from "../scripted";
 /** The prepared lines of `kokkulepe`. */
 const LINES: readonly ScriptedLine[] = [
   { scene: "kokkulepe", beat: "idea", text: "Kas tuled sel nädalal minuga kinno?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "kokkulepe", beat: "idea", text: "Kas tahad sel nädalal kinno minna?", model: "authored", draftedAt: "2026-10-16", reviewedAt: "2026-10-16" },
+  { scene: "kokkulepe", beat: "idea", text: "Kuule, kas tahad sel nädalal kinno minna?", model: "authored", draftedAt: "2026-10-30" },
   { scene: "kokkulepe", beat: "free", text: "Millal sul siis sobib?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "kokkulepe", beat: "free", text: "Mis õhtu sulle sobib?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "kokkulepe", beat: "free", text: "Mis õhtu sul sobiks?", model: "authored", draftedAt: "2026-10-30" },
   { scene: "kokkulepe", beat: "hurdle:small-talk", text: "Ilus ilm täna, eks?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "kokkulepe", beat: "hurdle:small-talk", text: "Kas sul seal on ka nii külm?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "kokkulepe", beat: "hurdle:faster", text: "Mul on natuke kiire, ütle palun.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "kokkulepe", beat: "hurdle:faster", text: "Kiire on, ma pean kohe minema.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "kokkulepe", beat: "close", text: "Hästi, siis näeme! Nägemist!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },
-  { scene: "kokkulepe", beat: "close", text: "Tore, siis näeme! Head aega!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },
+  { scene: "kokkulepe", beat: "close", text: "Tore, siis teeme nii. Nägemist!", model: "authored", draftedAt: "2026-10-30" },
 ];
 
 export default LINES;

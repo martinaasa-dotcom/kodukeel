@@ -20,7 +20,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "palk", beat: "topic", text: "Millest te rääkida tahtsite?", model: "authored", draftedAt: "2026-10-30", reviewedAt: "2026-10-30" },
   { scene: "palk", beat: "topic", text: "Jah, millest räägime?", model: "authored", draftedAt: "2026-10-30", reviewedAt: "2026-10-30" },
   { scene: "palk", beat: "did", text: "Miks te arvate, et peaksite rohkem saama?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "palk", beat: "did", text: "Mida te olete sel aastal teinud?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "palk", beat: "did", text: "Mis te sel aastal teinud olete?", model: "authored", draftedAt: "2026-10-30" },
   { scene: "palk", beat: "amount", text: "Kui palju rohkem te sooviksite?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "palk", beat: "amount", text: "Kui palju rohkem te tahate?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "palk", beat: "hurdle:not-possible", text: "Sel aastal pole eelarves eriti raha.", model: "authored", draftedAt: "2026-10-30", about: "amount", reviewedAt: "2026-10-30" },

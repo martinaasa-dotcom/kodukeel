@@ -18,7 +18,7 @@ export const tagatisraha: ScenePicks = {
   clean: [
     { et: "Ei, korter oli puhas.", en: "No, the flat was clean." },
     { et: "Ma koristasin korteri ise.", en: "I cleaned the flat myself." },
-    { et: "See ei ole õige, ma koristasin kõik.", en: "That's not right, I cleaned everything." },
+    { et: "See pole õige, ma koristasin ju kõik ära.", en: "That's not right, I cleaned everything up." },
   ],
   offer: [
     { et: "Jah, see sobib.", en: "Yes, that works." },

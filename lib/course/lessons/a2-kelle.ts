@@ -42,7 +42,7 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "See pole minu oma. See on Jaani telefon.", en: "It's not mine. It's Jaan's phone." },
       { who: "Mari", et: "Ja kelle kott see on?", en: "And whose bag is this?" },
       { who: "Tom", et: "See on mu sõbra Peetri kott.", en: "That's my friend Peeter's bag." },
-      { who: "Mari", et: "Aga see võti? Kas see on sinu oma?", en: "And this key? Is it yours?" },
+      { who: "Mari", et: "Aga see võti? Sinu oma?", en: "And this key? Yours?" },
       { who: "Tom", et: "Ei, see on mu venna oma. Ta tuleb homme.", en: "No, it's my brother's. He's coming tomorrow." },
       { who: "Mari", et: "Hästi. Ja see raamat on minu oma.", en: "All right. And this book is mine." },
     ],

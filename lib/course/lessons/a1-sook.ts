@@ -91,7 +91,7 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Mari", et: "Tom, mida sa tahad juua?", en: "Tom, what do you want to drink?" },
       { who: "Tom", et: "Ma tahan kohvi. Ja sina?", en: "I want coffee. And you?" },
-      { who: "Mari", et: "Mina joon teed. Ja ma söön saia.", en: "I'm having tea. And I'll have a bun." },
+      { who: "Mari", et: "Mina joon teed ja söön saia.", en: "I'm having tea and a bun." },
       { who: "Tom", et: "Kas meil on piima?", en: "Do we have any milk?" },
       { who: "Mari", et: "Ei, piima pole. Aga vett on!", en: "No, there's no milk. But there's water!" },
     ],
@@ -313,7 +313,7 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Mari", et: "Tom, kas sulle meeldib kohv?", en: "Tom, do you like coffee?" },
       { who: "Tom", et: "Jah, väga! Ja sulle?", en: "Yes, a lot! And you?" },
-      { who: "Mari", et: "Mulle ei meeldi. Mulle meeldib tee.", en: "I don't. I like tea." },
+      { who: "Mari", et: "Mulle ei meeldi. Ma joon ainult teed.", en: "I don't. I only drink tea." },
       { who: "Tom", et: "Ja Jaan? Kas talle meeldib tee?", en: "And Jaan? Does he like tea?" },
       { who: "Mari", et: "Ei. Talle meeldib ainult õlu!", en: "No. He only likes beer!" },
     ],

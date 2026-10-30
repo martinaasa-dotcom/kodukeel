@@ -317,7 +317,7 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Tartus on päike! Ja soe.", en: "In Tartu it's sunny! And warm." },
       { who: "Tom", et: "Tõesti? Siin on väga külm ja kõva tuul.", en: "Really? Here it's very cold, with a strong wind." },
       { who: "Mari", et: "Ja homme sajab lund!", en: "And tomorrow it's going to snow!" },
-      { who: "Tom", et: "Lund? Ei!", en: "Snow? Oh no!" },
+      { who: "Tom", et: "Lund? Oi ei!", en: "Snow? Oh no!" },
     ],
     teaches: [
       { kind: "word", et: "ilm", en: "weather" },
@@ -328,6 +328,7 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "lumi", en: "snow" },
       { kind: "word", et: "tuul", en: "wind" },
       { kind: "phrase", et: "kõva tuul", en: "a strong wind" },
+      { kind: "word", et: "oi", en: "oh! (surprise, dismay or delight)" },
       { kind: "form", et: "sajab", of: "sadama", en: "falls, of rain or snow" },
       { kind: "phrase", et: "Sajab vihma.", en: "It's raining." },
       { kind: "phrase", et: "Sajab lund.", en: "It's snowing." },
@@ -429,7 +430,7 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Liis", et: "Tere! Mida soovite?", en: "Hello! What would you like?" },
       { who: "Tom", et: "Tere! Mul on vaja mütsi. Täna on väga külm!", en: "Hello! I need a hat. It's really cold today!" },
-      { who: "Liis", et: "Jah, väljas on külm. Mis värvi?", en: "Yes, it's cold outside. What color?" },
+      { who: "Liis", et: "Jah, tõesti külm! Mis värvi?", en: "Yes, it really is! What color?" },
       { who: "Tom", et: "Hall või must.", en: "Gray or black." },
       { who: "Liis", et: "See hall müts on soe. Ja odav ka!", en: "This gray hat is warm. And cheap too!" },
       { who: "Tom", et: "Kui palju see maksab?", en: "How much is it?" },
