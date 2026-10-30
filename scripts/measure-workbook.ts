@@ -26,6 +26,7 @@ import type { FlashWord } from "@/lib/games/flash";
 import { PROGRAMMES } from "@/lib/course";
 import { readableSentence } from "@/lib/course/build";
 import { scopeFor, slotWithin, tonightsCase } from "@/lib/course/scope";
+import { worksheetFor } from "@/lib/course/lessonWorksheet";
 import { dictionaryRows } from "./lib/dictionary";
 
 const args = process.argv.slice(2);
@@ -173,3 +174,47 @@ if (show) {
   console.log(`\n${shown.length} lines a ${show.band} page on ${show.theme} can be cut from (first 60):\n`);
   for (const line of shown) console.log(`  ${line}`);
 }
+
+/*
+  THE PAGE A FINISHED B1 LESSON OFFERS (`lib/course/lessonWorksheet.ts`). The
+  worksheet a lesson's finish screen opens is the page walked to from Practice:
+  two exercises, ten lines written and six from a word box, held to what the
+  lessons have taught through that evening and led by the lesson's own theme
+  where it has one. This counts, lesson by lesson, how many lines each
+  exercise gets and which theme leads, since a card offering a page that comes
+  back short is a card offering nothing.
+*/
+console.log("\nB1 lessons: the page each finish screen offers, lines written + lines from the box");
+const FIRST_B1 = 10;
+const SECOND = 6;
+const short: string[] = [];
+let offered = 0;
+for (const programme of PROGRAMMES) {
+  for (const day of programme.days) {
+    if (!day.lesson) continue;
+    const offer = worksheetFor(day);
+    if (!offer) continue;
+    offered += 1;
+    const scope = scopeFor(programme, day);
+    const spellings = new Set<string>();
+    for (const lemma of scope.lemmas) for (const r of byLemma.get(lemma) ?? []) for (const w of readableSpellings(r)) spellings.add(w);
+    const gates: LineGates = {
+      slotOk: (slot, lemma) => slotWithin(scope, slot, lemma),
+      sentenceOk: (s) => readableSentence(s, spellings),
+      themeOk: () => true,
+    };
+    const at = Math.max(0, BANDS.indexOf(programme.level));
+    const items: SheetItem[] = [];
+    for (const lemma of scope.lemmas) for (const r of byLemma.get(lemma) ?? []) items.push(...linesFor(wordOf(r, false), gates, new Set(), { reach, limit: at }));
+    const plans = [{ lines: FIRST_B1, kind: "write" as const }, { lines: SECOND, kind: "box" as const }];
+    const requested = (offer.theme as Theme | null) ?? null;
+    const order = themeOrder({ requested, tonight: tonightsCase(scope), fills: (t) => canFill(items, t, plans[0]!.lines, plans[0]!.kind) });
+    const sheet = composeSheet(items, order.themes, plans, order.urgent);
+    const [first, second] = sheet.exercises;
+    const line = `  ${day.lesson.padEnd(22)} ${(requested ?? "(page chooses)").padEnd(16)} ` +
+      `${String(first?.theme ?? "none").padEnd(16)} ${String(first?.lines.length ?? 0).padStart(2)} + ${String(second?.lines.length ?? 0).padStart(2)}`;
+    console.log(line);
+    if ((first?.lines.length ?? 0) < MIN_LINES) short.push(day.lesson);
+  }
+}
+console.log(`  ${offered} lessons offer a page; ${short.length} would come back with fewer than ${MIN_LINES} lines${short.length ? `: ${short.join(", ")}` : ""}`);

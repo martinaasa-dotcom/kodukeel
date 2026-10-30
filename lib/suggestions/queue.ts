@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db";
 import { parseExamples } from "@/lib/dict/examples";
 import { oneEntryPerLemma } from "@/lib/dict/search";
 import {
-  CATEGORY_KEYS, createWordClash, parsePatch,
+  CATEGORY_KEYS, createWordClash, createWordTarget, parsePatch,
   type Patch, type SuggestionCategory, type SuggestionStatus,
 } from "./model";
 
@@ -266,6 +266,9 @@ async function currentValues(
             // already here" should be shown the entry the app itself leads
             // with, not whichever row the plan returned first.
             provenance: true, forms: { select: { formType: true } },
+            // Whether a reviewer has passed it already. A word only its author
+            // can see is what accepting the report passes, not a clash.
+            approvedAt: true,
           },
         })
       : Promise.resolve([]),
@@ -289,7 +292,9 @@ async function currentValues(
       // The entry it would write over, where there is one, since that is the
       // one the reviewer has to go and correct instead.
       const blocking = createWordClash(patch, byLemma);
-      const shown = blocking ?? clash;
+      // Or the learner's own copy, which accepting passes for everybody and
+      // writes the report's meaning over.
+      const shown = blocking ?? createWordTarget(patch, byLemma) ?? clash;
       out.set(item.id, {
         before: shown ? `${shown.lemma}, ${shown.pos.toLowerCase()}, ${shown.translation}` : null,
         blocked: blocking

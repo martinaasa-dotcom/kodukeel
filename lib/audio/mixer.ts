@@ -17,7 +17,8 @@
  * one door and it calls in here only for a condition that needs the graph;
  * a clean clip still goes through `HTMLAudioElement`, which is what every
  * existing screen measured. The invariant on `new Audio(` covers that door,
- * and the one on `AudioContext` covers this file and the feedback tones.
+ * and the one on `AudioContext` covers this file, the feedback tones and the
+ * shared output in `lib/audio/output.ts`, whose context this one is.
  *
  * A BLOCKED AUTOPLAY IS STILL NOT A FAILURE. A context made before the reader
  * has touched the page comes up suspended and will not resume until a gesture,
@@ -29,16 +30,7 @@
  */
 import type { Condition } from "./conditions";
 import type { PlayOutcome } from "./clip";
-
-let context: AudioContext | null = null;
-
-function audioContext(): AudioContext | null {
-  if (typeof window === "undefined") return null;
-  const Ctor = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-  if (!Ctor) return null;
-  if (!context) context = new Ctor();
-  return context;
-}
+import { outputContext, wakeOutput } from "./output";
 
 /** A second of white noise, made once per context and looped. */
 let noiseBuffer: AudioBuffer | null = null;
@@ -88,20 +80,16 @@ export async function playThrough(
     cancelled?: () => boolean;
   } = {},
 ): Promise<PlayOutcome> {
-  const ctx = audioContext();
+  const ctx = outputContext();
   if (!ctx) throw new Error("no audio context");
-  const running = (): boolean => (ctx.state as string) === "running";
-  if (!running()) {
-    // A gesture resumes it at once; without one it stays suspended, and a
-    // resume that has not settled inside a beat is the no-gesture case.
-    await Promise.race([
-      ctx.resume().catch(() => undefined),
-      new Promise((resolve) => setTimeout(resolve, 250)),
-    ]);
-    if (!running()) {
-      if (unasked) return "blocked";
-      throw new Error("audio context suspended");
-    }
+  // A gesture resumes it at once; without one it stays suspended, and a
+  // resume that has not settled inside a beat is the no-gesture case. A cold
+  // device is woken here too, before the voice is scheduled on it, which is
+  // `lib/audio/output.ts`'s reason for existing.
+  const woken = await wakeOutput();
+  if (!woken.running) {
+    if (unasked) return "blocked";
+    throw new Error("audio context suspended");
   }
 
   // `decodeAudioData` detaches the buffer it is given, so it gets a copy.
@@ -111,7 +99,8 @@ export async function playThrough(
   if (cancelled()) return "played";
   const offset = Math.min(buffer.duration * condition.skip, Math.max(0, buffer.duration - 0.4));
   const remaining = buffer.duration - offset;
-  const at = ctx.currentTime + 0.02;
+  // A cold device is given its head start on the context rather than in the clip.
+  const at = ctx.currentTime + 0.02 + woken.coldMs / 1000;
 
   const voice = ctx.createBufferSource();
   voice.buffer = buffer;

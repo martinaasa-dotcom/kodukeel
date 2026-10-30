@@ -5,6 +5,7 @@ import { PointerLight } from "@/components/motion/PointerLight";
 import { Shortcuts } from "@/components/Shortcuts";
 import { createHash } from "node:crypto";
 import { Sidebar } from "@/components/Sidebar";
+import { reviewWaiting } from "@/lib/suggestions/waiting";
 import { DeviceOwner } from "@/components/DeviceOwner";
 import { Wash } from "@/components/ui";
 import { AnuFab } from "@/components/anu/AnuFab";
@@ -101,7 +102,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     `support` was in the object below and not in this list, so the conversation
     screens have been reading the default however the learner set it.
   */
-  const [settings, level, tilt, classes] = await Promise.all([
+  const [settings, level, tilt, classes, review] = await Promise.all([
     readSettings(
       ownerId,
       [
@@ -128,6 +129,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       read in the same batch.
     */
     railClasses(ownerId),
+    /*
+      AND, FOR A REVIEWER ALONE, WHAT IS WAITING IN THE REVIEW QUEUE, so the
+      rail and the phone sheet can say so (`lib/suggestions/waiting.ts`). Null
+      for everybody else at the cost of the identity this request already read.
+    */
+    reviewWaiting(),
   ]);
   const letters = letterBarFrom(settings[SETTING_KEYS.letterBar]);
   // The language the app's own words are in. See lib/copy/locale.ts.
@@ -192,6 +199,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           order={navOrderFrom(settings[SETTING_KEYS.navOrder])}
           name={visibleLine(settings[SETTING_KEYS.displayName], 40) || null}
           classes={classes.map((c) => ({ id: c.id, name: visibleLine(c.name, 60) }))}
+          review={review}
         />
         {/*
           `dock-pad` is the phone bar's measured height, so the last card in a

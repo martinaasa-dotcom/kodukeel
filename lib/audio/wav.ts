@@ -301,6 +301,20 @@ export function trimSilence(pcm: Pcm): Pcm {
 }
 
 /**
+ * The clip with `ms` more silence in front of it, for an output that is still
+ * waking (`lib/audio/output.ts`). Nothing else changes: the word, the trail
+ * and the level are the clip's own, so a warm output and a cold one hear the
+ * same word, one of them a moment later.
+ */
+export function withLead(pcm: Pcm, ms: number): Pcm {
+  const extra = Math.max(0, Math.round((pcm.rate * ms) / 1000));
+  if (extra === 0) return pcm;
+  const out = new Float32Array(extra + pcm.samples.length);
+  out.set(pcm.samples, extra);
+  return { rate: pcm.rate, samples: out };
+}
+
+/**
  * Every pause inside the clip cut to at most `MAX_PAUSE_MS`, from its middle,
  * so what is kept is the natural fall into the pause and the natural rise out
  * of it. The lead and the trail are not pauses and are `trimSilence`'s.

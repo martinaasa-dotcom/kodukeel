@@ -30,6 +30,8 @@ import { levelNewsFor } from "@/lib/course/lessons/levelNew";
 import { Quiz } from "./Quiz";
 import { SayIt } from "./SayIt";
 import { lessonSceneHref, type ConversationReturn } from "@/lib/scenes/lessonReturn";
+import { nameOf } from "@/lib/ux/roundNames";
+import { worksheetLink, type LessonWorksheet } from "@/lib/course/lessonWorksheet";
 
 /**
  * ONE LESSON, SIX STEPS, ALWAYS IN THIS ORDER (docs/43-lessons.md §1).
@@ -93,10 +95,13 @@ const STEP_TITLE: Record<Step, string> = {
   review: "Review",
 };
 
+/** The worksheet's agreed name, Estonian first (`lib/ux/roundNames.ts`). */
+const WORKBOOK_NAME = nameOf("/review/workbook") ?? { et: "Töövihik", en: "Workbook" };
+
 /** The three teaching steps are finished by being open. */
 const ASKS: ReadonlySet<Step> = new Set(["practise", "write", "say", "review"]);
 
-export function LessonRunner({ lesson, practice, review, next, scene, situation = null, conversation, place, name, due = 0, check = null, part, timeMultiplier, partAt }: {
+export function LessonRunner({ lesson, practice, review, next, scene, situation = null, worksheet = null, conversation, place, name, due = 0, check = null, part, timeMultiplier, partAt }: {
   lesson: LessonSpec;
   /** How much longer than the standard a timed go runs for this learner (`lib/ux/roundClock.ts`). */
   timeMultiplier: number;
@@ -109,6 +114,8 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
   scene: string | null;
   /** A conversation out there the lesson rehearses, from the catalog (`lessonSituations.ts`). */
   situation?: { id: string; title: string } | null;
+  /** From B1, the worksheet page the finished lesson offers (`lib/course/lessonWorksheet.ts`), or null. */
+  worksheet?: LessonWorksheet | null;
   /**
    * Back from the lesson's own conversation: `done` from its debrief, `left`
    * from its way out. The scripted conversation was held before the link was
@@ -318,6 +325,25 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
                     {t("Have the conversation")} <ArrowRight size={15} aria-hidden />
                   </ButtonLink>
                 </div>
+              </div>
+            )}
+            {/*
+              A WORKSHEET PAGE ON WHAT THE LESSONS HAVE TAUGHT, FROM B1 ON.
+              B1 dealt the worksheet while it was built from units, and lost
+              it when every evening became one lesson. It is offered here, in
+              the module as well, since it is grammar practice on tonight's
+              words rather than a way out of the evening; the page is held to
+              what the lessons have taught so far (`lessonWorksheet.ts`).
+            */}
+            {worksheet && (
+              <div className="mt-4 rounded-[var(--r-xl)] border px-5 py-4 text-left" style={{ background: "var(--surface)", borderColor: "var(--edge)" }} data-lesson-worksheet={worksheet.theme ?? "any"}>
+                <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>
+                  <span lang="et">{WORKBOOK_NAME.et}</span> ({t(WORKBOOK_NAME.en)})
+                </p>
+                <p className="mt-1 max-w-[56ch] text-base" style={{ color: "var(--ink-2)" }}>
+                  {t("A page of sentences, each with a word to put in the form it needs. Only words you've learned so far.")}
+                </p>
+                <div className="mt-3"><ButtonLink href={worksheetLink(worksheet)}>{t("Fill in a page")} <ArrowRight size={15} aria-hidden /></ButtonLink></div>
               </div>
             )}
             {/*

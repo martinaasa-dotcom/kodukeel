@@ -12,15 +12,16 @@
  * AudioContext, and this asks for one lazily on the first sound, which by
  * then is after the click or keypress that produced the answer.
  */
-let context: AudioContext | null = null;
+import { outputContext, stayAwake } from "./output";
 
 function audioContext(): AudioContext | null {
-  if (typeof window === "undefined") return null;
-  const Ctor = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-  if (!Ctor) return null;
-  if (!context) context = new Ctor();
-  if (context.state === "suspended") void context.resume().catch(() => undefined);
-  return context;
+  const ctx = outputContext();
+  if (!ctx) return null;
+  // The tone cannot wait for a cold device, so it starts now; what it does is
+  // keep the output awake for the word that follows it (lib/audio/output.ts).
+  if (ctx.state === "suspended") void ctx.resume().then(stayAwake, () => undefined);
+  else stayAwake();
+  return ctx;
 }
 
 function tone(ctx: AudioContext, at: number, hz: number, ms: number, gain: number, type: OscillatorType) {

@@ -10,6 +10,7 @@ import { Button } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
 import { useOffline } from "@/components/OfflineProvider";
 import { SuggestFix } from "@/components/SuggestFix";
+import { SuggestWords } from "@/components/SuggestWords";
 import { Card, Chip, Note } from "@/components/ui";
 import { MAX_EDGE } from "@/lib/scan/image";
 import { MAX_ITEMS } from "@/lib/scan/extract";
@@ -55,7 +56,7 @@ export function ScanCapture() {
   const [error, setError] = useState<string | null>(null);
   const [readBy, setReadBy] = useState<string | null>(null);
   const [editing, setEditing] = useState<number | null>(null);
-  const [saved, setSaved] = useState<{ id: string; words: number; cards: number } | null>(null);
+  const [saved, setSaved] = useState<{ id: string; words: number; cards: number; ownWords: string[] } | null>(null);
   const [pending, start] = useTransition();
 
   const reset = () => {
@@ -147,7 +148,7 @@ export function ScanCapture() {
         setPhase("review");
         return;
       }
-      setSaved({ id: result.id, words: result.words, cards: result.cards });
+      setSaved({ id: result.id, words: result.words, cards: result.cards, ownWords: result.ownWords });
       setPhase("saved");
       router.refresh();
     });
@@ -190,6 +191,11 @@ export function ScanCapture() {
                   words: countOf(locale, saved.words, "word"),
                 })}
             </p>
+            {/* The words that came off the photo and are still only the
+                learner's, with the offer to ask for them to go in for everybody. */}
+            {saved.ownWords.length > 0 && (
+              <div className="mt-4"><SuggestWords lexemeIds={saved.ownWords} /></div>
+            )}
             <div className="mt-4 flex flex-wrap gap-2">
               {/*
                 A DOCUMENT LOAD, NOT `router.push`. `AddWord` records the same

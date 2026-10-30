@@ -164,6 +164,30 @@ describe("accepting a missing word", () => {
     expect(created.translation).toBe("new thing");
     expect(created.editedBy).toBe(REVIEWER);
     expect(created.forms.map((f) => f.formType).sort()).toEqual(["GEN_SG", "NOM_SG"]);
+    // Passed, which is what opens it to everybody rather than to the reviewer
+    // alone: a typed row is its author's until this is set (`isShared`).
+    expect(created.approvedAt).not.toBeNull();
+  });
+
+  /*
+    The learner who reports a missing word has often added it for themselves
+    with the form first, and that row is theirs alone. Accepting the report
+    passes that very row, cards and all, rather than refusing because the
+    lemma is taken or writing a second entry beside it.
+  */
+  it("passes the learner's own copy of the word rather than making a second", async () => {
+    const own = await prisma.lexeme.create({
+      data: { lemma: "itest-suggest-uus", pos: "NOUN", translation: "new thng", provenance: "USER", editedBy: LEARNER },
+    });
+    const outcome = await applyPatch(
+      { kind: "CREATE_WORD", lemma: "itest-suggest-uus", pos: "NOUN", translation: "new thing", forms: {} },
+      REVIEWER,
+    );
+    expect(outcome).toMatchObject({ ok: true, changed: true, lexemeId: own.id });
+    expect(await prisma.lexeme.count({ where: { lemma: "itest-suggest-uus" } })).toBe(1);
+    const after = await prisma.lexeme.findUniqueOrThrow({ where: { id: own.id } });
+    expect(after.translation).toBe("new thing");
+    expect(after.approvedAt).not.toBeNull();
   });
 
   /*
