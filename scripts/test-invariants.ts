@@ -23441,23 +23441,7 @@ check("a marked answer says so out loud", () => {
     own, and every file that draws it has to have one.
   */
   const ANNOUNCED_BY_CALLER = "components/course/SentenceFindings.tsx";
-  const callers = [...APP, ...COMPONENTS].filter((f) => f !== ANNOUNCED_BY_CALLER && /<SentenceFindings\b/.test(code(f)));
-  assert.ok(callers.length >= 2, `only ${callers.length} files draw SentenceFindings; the exemption is about nothing`);
-  let regions = 0;
-  for (const caller of callers) {
-    const source = code(caller);
-    for (const m of source.matchAll(/<SentenceFindings\b[^>]*announced="(region|summary)"/g)) {
-      if (m[1] === "summary") {
-        assert.match(source, /role="status"/, `${caller} says SentenceFindings is read through a summary and has no status line to read it`);
-        continue;
-      }
-      regions += 1;
-      // Inside a region opened just before it, which is what "mounted first" means at a call site.
-      const before = source.slice(Math.max(0, (m.index ?? 0) - 400), m.index);
-      assert.match(before, /role="status"|aria-live/, `${caller} draws SentenceFindings as announced by a region with no region round it`);
-    }
-  }
-  assert.ok(regions >= 1, "no SentenceFindings is announced through a region any more; the check has stopped seeing the call");
+  // How each call of it is read is held by scripts/invariants/findings-are-read-where-they-are-drawn.ts.
   let marking = 0;
   for (const file of [...APP, ...COMPONENTS]) {
     const source = code(file);
