@@ -105,7 +105,7 @@ rewritten because of it, and are the first to read:
 - Lesson 29: `Liftis ei räägita. Siin on selline komme.`
 - Lesson 33's story is set at last week's meeting: `Eelmise nädala koosolek kestis kaks tundi.` and
   `Eilne koosolek oli parem: seal arutati kohe uut projekti.`
-- Lesson 34: the notice is signed `Tom, korter 9` (the new flat is not Peeter's number).
+- Lesson 34: the notice is signed `Tom, korter 9` (the new apartment is not Peeter's number).
 - Lesson 41's post: `Tere kõigile!`, `Linnavalitsus tahab meie pargi asemele parkla ehitada.`
 - Lesson 44: `Ma tahaksin elamisloa pikendamist taotleda.` (Tom has lived here for years).
 - Lesson 47: `Praegu on kõik ametnikud hõivatud.`, `Ametnik on praegu hõivatud.`
@@ -413,7 +413,7 @@ Still to read, from the same audit, before anything is changed:
 - Lesson 13's model, `Kas ma võiksin oma abikaasa kaasa võtta?`: does `abikaasa` read naturally
   beside `oma naise` in the table and the fix?
 - Lesson 6's conversation, `Jäta talle lauale sedel, sest meister ei tunne korterit.`: is `tundma`
-  natural for knowing your way round an apartment?
+  natural for knowing your way around an apartment?
 - Lesson 9's conversation, `Mulle tundub, et sa oleksid hea.`: is that how somebody says "you'd be
   good"?
 - Lesson 45's rework, `Ma ei leidnud rahakotti bussist.`: is `bussist` right, or `bussis`, and

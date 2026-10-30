@@ -21,6 +21,8 @@ function illatives(): { long: Map<string, Set<string>>; alsoAnother: Set<string>
     for (const [k, v] of Object.entries(e.parts)) if (k !== "ILL_SG_SHORT" && v) alsoAnother.add(v.toLocaleLowerCase("et"));
     for (const f of e.extraForms) if (f.code !== "SgAdt") alsoAnother.add(f.value.toLocaleLowerCase("et"));
     const shorts = [e.parts.ILL_SG_SHORT, ...e.extraForms.filter((f) => f.code === "SgAdt").map((f) => f.value)].filter(Boolean) as string[];
+    // Most words have no short illative; only those that do say anything here.
+    if (shorts.length === 0) continue;
     for (const s of shorts) {
       const l = `${gen}sse`;
       if (s === l) continue;

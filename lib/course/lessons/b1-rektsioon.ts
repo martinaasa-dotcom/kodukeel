@@ -203,7 +203,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       notes: [
         "{Ma huvitun muusikast} is right, but it reads like a book. People usually say {Mind huvitab muusika}, and ask {Mis sind huvitab?}",
         "English is interested in; Estonian is interested out of. Ask for it with {millest?}",
-        "{Meeldima} turns the sentence round: the one who likes takes the [alaleütlev] (-le, onto/to), {mulle}, {talle}, and the thing liked comes after the verb.",
+        "{Meeldima} turns the sentence around: the one who likes takes the [alaleütlev] (-le, onto/to), {mulle}, {talle}, and the thing liked comes after the verb.",
         "{Mulle tundub} is it seems to me, which is how Estonian says I think when it's a feeling rather than a fact.",
       ],
       watchOut: "In English you're interested in something, so {spordis} is tempting. It's {spordist}, out of, every time.",
@@ -714,7 +714,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
     answers: [
       { ask: { et: "Kas sa tuled mu sünnipäevale?", en: "Are you coming to my birthday?" }, cue: "Say yes, you'd love to.", model: { et: "Jah, ma tulen hea meelega!", en: "Yes, I'd love to come!" } },
       { cue: "Say you're sorry, you can't come.", model: { et: "Kahjuks ma ei saa tulla.", en: "I'm afraid I can't come." } },
-      { cue: "Ask if you could bring your husband or wife along.", model: { et: "Kas ma võiksin oma abikaasa kaasa võtta?", en: "Could I bring my husband along?" } },
+      { cue: "Ask if you could bring your husband or wife along.", model: { et: "Kas ma võiksin oma abikaasa kaasa võtta?", en: "Could I bring my husband or wife along?" } },
       { cue: "Thank them for the invitation.", model: { et: "Aitäh kutse eest!", en: "Thanks for the invitation!" } },
     ],
     reworks: [
@@ -824,7 +824,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
         "{Tutvuma} keeps its case after {pead}: {Sa pead Katiga tutvuma}.",
         "At the end, a new colleague asks you one thing Kadri didn't: who to ask when you're not there.",
       ],
-      watchOut: "Four verbs, four cases for the same person: {aita mind}, {küsi minult}, {räägi temaga}, {mõtle sellele}. Say each with its own.",
+      watchOut: "Four verbs, four cases: {aita mind}, {küsi minult}, {räägi temaga}, {mõtle sellele}. Say each with its own.",
       examples: [2, 5, 6, 9],
     },
     listenFor: [

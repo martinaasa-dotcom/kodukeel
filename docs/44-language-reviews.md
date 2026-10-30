@@ -492,7 +492,7 @@ Russian and Ukrainian.
 | 403 | How it works | Huvitama, Mind huvitab muusika, Huvituma, huvitatud, Ta on huvitatud ajaloost, Meeldima, tunduma, Mulle meeldib, Mulle tundub | {Huvitama} puts the person in the [osastav] (3rd form): {Mind huvitab muusika}. {Huvituma} and {huvitatud} want the [seestütlev] (-st, out of): {Ta on huvitatud ajaloost}. {Meeldima} and {tunduma} want the person in the [alaleütlev] (-le, onto/to): {Mulle meeldib}, {Mulle tundub}. | |
 | 404 | How it works | Ma huvitun muusikast, Mind huvitab muusika, Mis sind huvitab? | {Ma huvitun muusikast} is right, but it reads like a book. People usually say {Mind huvitab muusika}, and ask {Mis sind huvitab?} | |
 | 405 | How it works | millest? | English is interested in; Estonian is interested out of. Ask for it with {millest?} | |
-| 406 | How it works | Meeldima, mulle, talle | {Meeldima} turns the sentence round: the one who likes takes the [alaleütlev] (-le, onto/to), {mulle}, {talle}, and the thing liked comes after the verb. | |
+| 406 | How it works | Meeldima, mulle, talle | {Meeldima} turns the sentence around: the one who likes takes the [alaleütlev] (-le, onto/to), {mulle}, {talle}, and the thing liked comes after the verb. | |
 | 407 | How it works | Mulle tundub | {Mulle tundub} is it seems to me, which is how Estonian says I think when it's a feeling rather than a fact. | |
 | 408 | How it works | spordis, spordist | In English you're interested in something, so {spordis} is tempting. It's {spordist}, out of, every time. | |
 | 409 | How it works, table | Mind huvitab muusika. | I'm into music. | |

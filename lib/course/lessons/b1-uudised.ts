@@ -166,7 +166,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
     goal: "Say when something was built, opened or closed, and what was found, without saying who did it.",
     cast: { Mari: "mari", Tom: "kalev" },
     conversation: [
-      { who: "Mari", et: "Vaata, Tom! See on Tartu raekoda. See ehitati väga ammu.", en: "Look, Tom! That's Tartu's town hall. It was built a very long time ago.", stage: "A day trip to Tartu. Mari shows Tom round the old town." },
+      { who: "Mari", et: "Vaata, Tom! See on Tartu raekoda. See ehitati väga ammu.", en: "Look, Tom! That's Tartu's town hall. It was built a very long time ago.", stage: "A day trip to Tartu. Mari shows Tom around the old town." },
       { who: "Tom", et: "Ilus! Ja see kollane maja seal üle tee?", en: "Beautiful! And that yellow building across the road?" },
       { who: "Mari", et: "See ehitati 1930. aastal. Eelmisel aastal renoveeriti see ja avati hotellina.", en: "That was built in 1930. Last year it was renovated and opened as a hotel." },
       { who: "Tom", et: "Ja muuseum siin kõrval? Lähme sisse!", en: "And the museum next door? Let's go in!" },
@@ -575,7 +575,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       examples: [3, 5, 9, 11],
     },
     listenFor: [
-      { q: "Why did Tom miss the meeting?", options: ["He forgot all about it", "He was on holiday that week", "He was at the doctor's", "His bus was late"], answer: 2 },
+      { q: "Why did Tom miss the meeting?", options: ["He forgot all about it", "He was on vacation that week", "He was at the doctor's", "His bus was late"], answer: 2 },
       { q: "True or false: Tom and Kadri are doing the new project together.", options: ["True", "False"], answer: 0 },
       { q: "What did the meeting agree on?", options: ["Moving to a bigger office", "A short meeting every Thursday", "A raise for everybody in the team", "Coffee for everybody in the mornings"], answer: 1 },
     ],
@@ -647,7 +647,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
     part: "b1-uudised",
     kind: "lesson",
     title: "What happened: a short report",
-    goal: "Write a short report of what happened, what was done and what still has to be done.",
+    goal: "Read a short report of what happened and what was done, then tell a bad day of your own the same way.",
     cast: { Helgi: "vesta", Tom: "kalev" },
     hearing: "phone",
     conversation: [
@@ -682,6 +682,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "nagunii", en: "anyway" },
       { kind: "form", et: "kartulid", of: "kartul", en: "potatoes" },
       { kind: "form", et: "vanad", of: "vana", en: "old (more than one)" },
+      { kind: "form", et: "naabrid", of: "naaber", en: "the neighbors" },
     ],
     how: {
       point: "A report says what happened and what was done, with nobody named: {Torumees kutsuti}, {toru vahetati välja}. What still has to be done is {tuleb} with the [da-tegevusnimi] (-da): {Vanad torud tuleb välja vahetada}.",

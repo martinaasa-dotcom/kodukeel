@@ -838,6 +838,14 @@ wrong rework names the sentence as it was, or the slip still standing; a fix is 
 `fixesFor` ranks them, the learner's own commonest confusion first. The golden table of verdicts is
 `practice.test.ts`.
 
+**A pronoun for a noun is a different sentence, and the ask says which it wants.** `sameSentence`
+never reads `seda` as `kraani` or `teda` as `Marit`: which thing a pronoun stands for is a reading of
+the conversation, and a marker that guessed it would mark a wrong referent right. So an ask that
+wants a pronoun names it (`Use {teda}.`), an ask that wants the noun names the noun, and where a
+learner could honestly say either (a `selle` or `seda` for the thing the sentence is already about),
+the written variants carry both in `also`. That is a rule for whoever writes a rework or a prompt and
+it is checked by reading, since no test can tell which noun a pronoun was meant for.
+
 **And every B1 lesson ends on a worksheet page.** The old B1 dealt the worksheet (Töövihik,
 `lib/games/workbook.ts`) on its rotation, and an evening of one lesson dealt nothing, so the
 operator asked for it back as the grammar practice that helps most. It is a card on the finish

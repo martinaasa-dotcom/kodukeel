@@ -36,7 +36,7 @@ export default inLesson("b1-42-disagree", {
     },
     {
       id: "why",
-      goal: "Give a reason, with kuigi or kuna.",
+      goal: "Say why not, with \"kuna\" for a reason or \"kuigi\" for although.",
       they: "She asks why not.",
       move: "ask",
       topic: ["miks"],

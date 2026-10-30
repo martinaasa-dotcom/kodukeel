@@ -3,7 +3,7 @@
  *
  * The last part of B1. Tom deals with the paperwork of a life in Tallinn: a
  * form at the bank, a residence permit, a wallet he thinks is stolen, a phone
- * call that goes round in a circle, and an application to the city. Two
+ * call that goes around in a circle, and an application to the city. Two
  * patterns are explained here and nowhere else in the level: a verb with a
  * small word that changes it or finishes it (`particleVerb`, lesson 43, which
  * the level has leaned on since part 1 and which this part takes onto forms),
@@ -238,7 +238,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
     ],
     answers: [
       { ask: { et: "Mida te soovite?", en: "What would you like?" }, cue: "Say you'd like to apply for a residence permit.", model: { et: "Ma tahaksin elamisluba taotleda.", en: "I'd like to apply for a residence permit." }, also: ["Ma tahaksin taotleda elamisluba.", "Ma sooviksin elamisluba taotleda."] },
-      { ask: { et: "Palun andke mulle oma dokumendid.", en: "Please give me your documents." }, cue: "Say here's the application and the passport.", model: { et: "Siin on avaldus ja pass.", en: "Here's the application and the passport." }, also: ["Siin on pass ja avaldus."] },
+      { ask: { et: "Palun andke mulle oma dokumendid.", en: "Please give me your documents." }, cue: "Say here's the application and the photo.", model: { et: "Siin on avaldus ja foto.", en: "Here's the application and the photo." }, also: ["Siin on foto ja avaldus."] },
       { cue: "Ask if you could bring the passport tomorrow.", model: { et: "Kas ma võiksin passi homme tuua?", en: "Could I bring the passport tomorrow?" }, also: ["Kas ma võiksin homme passi tuua?", "Kas ma saaksin passi homme tuua?"] },
       { cue: "Say you waited over an hour.", model: { et: "Ma ootasin üle tunni.", en: "I waited over an hour." } },
     ],
@@ -424,7 +424,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
     goal: "Fill in a form about yourself with new words made from old ones: who does it, the doing, what you're like, and what you're without.",
     cast: { Mari: "mari", Tom: "kalev" },
     conversation: [
-      { who: "Tom", et: "Mari, kas sa aitaksid mind? Ma täidan ujumiskursuse blanketti.", en: "Mari, would you help me? I'm filling in the form for a swimming course.", stage: "Mari has come round. Tom sits at the table with a printed form and a pen." },
+      { who: "Tom", et: "Mari, kas sa aitaksid mind? Ma täidan ujumiskursuse blanketti.", en: "Mari, would you help me? I'm filling in the form for a swimming course.", stage: "Mari has come over. Tom sits at the table with a printed form and a pen." },
       { who: "Mari", et: "Ujumiskursus? Aga sa ei oska ju ujuda!", en: "A swimming course? But you can't swim!" },
       { who: "Tom", et: "Just. Aga siin on nii palju küsimusi. See on nagu eksam!", en: "Exactly. But there are so many questions here. It's like an exam!" },
       { who: "Mari", et: "Näita. Esimene küsimus: mis on teie töö?", en: "Show me. First question: what's your job?" },
@@ -862,7 +862,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       notes: [
         "Part one is you: who you are, your work, and what you like about it and why. Part two is a decision made together: the other candidate says {sina}, and you give your view, answer theirs and agree. Part three is a phone call: you ring somewhere and ask what your card says.",
         "The real exam is about 15 minutes, with two examiners and another candidate. Here the examiner plays the other candidate.",
-        "Part two is part 6: {Minu meelest}, {Ma ei ole päris nõus}, {Sellega olen nõus}. Part three is lesson 47: say what you're calling about with {kohta}, then ask.",
+        "The exam's part two uses what B1's part 6 taught: {Minu meelest}, {Ma ei ole päris nõus}, {Sellega olen nõus}. Its part three uses lesson 47: say what you're calling about with {kohta}, then ask.",
         "The written exam asks for a note and then a story or a personal letter of about a hundred words. B1 wrote notes and letters in parts 1 to 4, and a story in lesson 34.",
         "In the role-play, part two has one question that wasn't asked above.",
       ],

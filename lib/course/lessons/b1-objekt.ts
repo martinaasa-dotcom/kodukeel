@@ -481,8 +481,8 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
         pattern: "object",
       },
       {
-        from: { et: "Ma vaatan inimesi.", en: "I'm watching people." },
-        ask: "Say you were listening to music. Use {kuulasin}.",
+        from: { et: "Ma kuulan muusikat.", en: "I'm listening to music." },
+        ask: "Say it in the past. Use {kuulasin}.",
         to: { et: "Ma kuulasin muusikat.", en: "I was listening to music." },
         also: ["Kuulasin muusikat."],
         pattern: "past",
