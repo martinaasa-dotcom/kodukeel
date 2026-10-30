@@ -28,6 +28,15 @@ describe("your own sentences as cards", () => {
     expect(piecesOf("Ma elan majas number 5. Siin on vaikne.")).toEqual(["Ma elan majas number 5.", "Siin on vaikne."]);
   });
 
+  it("does not cut a sentence at the stop inside a time or a date (round 3, F5)", () => {
+    expect(piecesOf("Koosolek on kell 14.30 kolmandal korrusel.")).toEqual(["Koosolek on kell 14.30 kolmandal korrusel."]);
+    expect(piecesOf("Me kolisime siia 12.03.2025 koos naise ja lastega. Siin on hea.")).toEqual([
+      "Me kolisime siia 12.03.2025 koos naise ja lastega.", "Siin on hea.",
+    ]);
+    // A sentence that ends on a number still ends there, with a space after the stop.
+    expect(piecesOf("Ma tulen kell 14. 30 minutit on palju.")).toHaveLength(2);
+  });
+
   it("takes out one taught word of four letters or more", () => {
     const card = ownCardFor("Suvel ma kavatsen Saaremaale minna.", lesson, taught, heads)!;
     expect(card).not.toBeNull();

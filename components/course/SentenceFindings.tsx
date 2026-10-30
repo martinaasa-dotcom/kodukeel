@@ -95,7 +95,7 @@ export function SentenceFindings({ findings }: {
           after: et(f.after), case: casePlainName({ key: f.case }, locale), right: et(f.right), word: et(f.word),
         });
       case "command":
-        return fillNodes(t("After {after}, use the {form}: {right}, not {word}."), { after: et(f.after), form: verbFormName("COMMAND", locale), right: et(f.right), word: et(f.word) });
+        return fillNodes(t("After {after}, use the {form}: {right}, not {word}."), { after: et(f.after), form: verbFormName(f.polite ? "POLITE_COMMAND" : "COMMAND", locale), right: et(f.right), word: et(f.word) });
       case "postposition":
         return fillNodes(t("Before {before}, the word takes the {case}: {right}, not {word}."), { before: et(f.before), case: gen, right: et(f.right), word: et(f.word) });
       case "object":

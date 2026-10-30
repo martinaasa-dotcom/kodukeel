@@ -269,7 +269,8 @@ describe("a pronoun put in, on the lessons' own sentences", () => {
     expect(markRework("Jaan, kus sa oled? Ma ma ootan sind juba pool tundi.", fix("b1-04", 1)).verdict).toBe("wrong");
   });
 
-  it("is never licensed by a form of several persons, nor beside a have-possessor (H3)", () => {
+  // A have-clause's verb is every person or the third (`oleks`, `on`), so the same rule keeps a pronoun out of it; no guard of its own is kept (round 3, M3).
+  it("is never licensed by a form of several persons, which keeps it out of a have-clause too (H3)", () => {
     const car = itemAccepting("Kui mul oleks auto, saaksin ma metsa sõita.");
     expect(markRework("Kui sa mul oleks auto, saaksin ma metsa sõita.", car).verdict).toBe("wrong");
     expect(markRework("Kui mul me oleks auto, saaksin ma metsa sõita.", car).verdict).toBe("wrong");

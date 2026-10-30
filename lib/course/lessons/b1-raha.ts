@@ -462,7 +462,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Maks} is a tax and {maksma} is to pay, the same root. More than one tax is {maksud}, and after {enne} or {pärast} it's {makse}.",
+        "{Maks} is a tax and {maksma} is to pay, the same root. More than one tax is {maksud}, and after {enne} or {pärast} it's {makse või maksusid}, and both are right.",
         "{Üle jääma} is to be left over: {mis üle jääb}, whatever is left.",
         "{Arve} is a bill at home and an invoice at work. {Arved} is more than one.",
         "{Ma maksan üüri ja arved} has two objects in two forms. Rent takes the [osastav] (3rd form), {üüri maksma}, since it's an amount you keep paying, while {arved} means all of them.",
@@ -633,7 +633,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
     ],
     fixes: [
       { line: { et: "Siis on sul kaks vaba päeva järjest.", en: "Then you'll have two days off in a row." }, right: "päeva", wrong: "päev", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a number, the [osastav] (3rd form): {kaks vaba päeva}." },
-      { line: { et: "Ja ma pean juhilt luba küsima.", en: "And I have to ask the boss for permission." }, right: "juhilt", wrong: "juhile", pair: ["ABLATIVE", "ALLATIVE"], why: "You ask something from somebody, so -lt: {juhilt}." },
+      { line: { et: "Ja ma pean juhilt luba küsima.", en: "And I have to ask the boss for permission." }, right: "juhilt", wrong: "juhile", pair: ["ABLATIVE", "ALLATIVE"], why: "You ask something from somebody, so -lt: {juhilt}.", also: ["Ja ma pean juhi käest luba küsima."] },
       { line: { et: "Liis, kas sa saaksid laupäeval minu vahetuse võtta?", en: "Liis, could you take my shift on Saturday?" }, right: "vahetuse", wrong: "vahetus", pair: ["GENITIVE", "NOMINATIVE"], why: "It's a question, not a command, so the whole shift takes the [omastav] (2nd form): {vahetuse}. The [nimetav] (1st form), {vahetus}, is for a command." },
     ],
     retell: {

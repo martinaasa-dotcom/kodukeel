@@ -130,7 +130,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
     ],
     fixes: [
       { line: { et: "Siis ma kahjuks ei saa sind aidata.", en: "Then I'm afraid I can't help you." }, right: "sind", wrong: "sulle", pair: ["PARTITIVE", "ALLATIVE"], why: "{Aitama} wants the one helped in the [osastav] (3rd form): {sind}." },
-      { line: { et: "Miks sa minult abi ei küsinud?", en: "Why didn't you ask me for help?" }, right: "minult", wrong: "mind", pair: ["ABLATIVE", "PARTITIVE"], why: "You ask from somebody: {minult}, in the [alaltütlev] (-lt, off)." },
+      { line: { et: "Miks sa minult abi ei küsinud?", en: "Why didn't you ask me for help?" }, right: "minult", wrong: "mind", pair: ["ABLATIVE", "PARTITIVE"], why: "You ask from somebody: {minult}, in the [alaltütlev] (-lt, off).", also: ["Miks sa minu käest abi ei küsinud?"] },
       { line: { et: "Aita mind sellega!", en: "Help me with it!" }, right: "sellega", wrong: "seda", pair: ["COMITATIVE", "PARTITIVE"], why: "You help somebody with something: the one helped is {mind}, and the thing takes the [kaasaütlev] (-ga, with), {sellega}." },
     ],
     faster: {

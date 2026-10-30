@@ -279,6 +279,12 @@ export interface Fix {
   readonly wrong: string;
   readonly pair: readonly [string, string];
   readonly why: string;
+  /**
+   * Other ways of saying the line put right that the native speaker accepts,
+   * as a rework's `also` (`juhi käest` beside `juhilt`). Each is the line with
+   * the slip put right some other way, never the slip itself.
+   */
+  readonly also?: readonly string[];
 }
 
 /**
