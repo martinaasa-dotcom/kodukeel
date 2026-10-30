@@ -274,7 +274,7 @@ const TERE_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Ja see?", en: "And this?" },
       { who: "Mari", et: "See on telefon.", en: "It's a phone." },
       { who: "Tom", et: "Kes see on?", en: "Who's this?", stage: "He points at a photo." },
-      { who: "Mari", et: "See on minu sõber Jaan. Ta on arst.", en: "That's my friend Jaan. He's a doctor." },
+      { who: "Mari", et: "See on mu sõber Jaan. Ta on arst.", en: "That's my friend Jaan. He's a doctor." },
     ],
     teaches: [
       { kind: "word", et: "see", en: "this, that, it" },
@@ -449,9 +449,9 @@ const TERE_LESSONS: readonly LessonSpec[] = [
       turns: [
         { ask: { et: "Tere õhtust!", en: "Good evening!" }, cue: "Say hello back.", model: { et: "Tere õhtust!", en: "Good evening!" } },
         { ask: { et: "Mina olen Mari. Mis su nimi on?", en: "I'm Mari. What's your name?" }, cue: "Say your name.", model: { et: "Minu nimi on Tom.", en: "My name is Tom." } },
-        { ask: { et: "Väga meeldiv! Kas sa oled eestlane?", en: "Nice to meet you! Are you Estonian?" }, cue: "Answer for yourself.", model: { et: "Ei, ma ei ole eestlane. Ma olen inglane.", en: "No, I'm not Estonian. I'm English." } },
-        { ask: { et: "Kuidas läheb?", en: "How's it going?" }, cue: "Say how it's going, and ask her back.", model: { et: "Hästi, aitäh! Ja sinul?", en: "Good, thanks! And you?" } },
-        { ask: { et: "Normaalselt. Head aega!", en: "Not bad. Bye!" }, cue: "Say goodbye.", model: { et: "Nägemist!", en: "See you!" } },
+        { ask: { et: "Väga meeldiv! Kas sa oled eestlane?", en: "Nice to meet you! Are you Estonian?" }, cue: "Answer for yourself.", model: { et: "Ei, ma olen inglane.", en: "No, I'm English." } },
+        { cue: "She says something about the building, very fast. Say you don't understand, and ask her to slow down.", model: { et: "Vabandust, ma ei saa aru. Aeglasemalt, palun.", en: "Sorry, I don't understand. Slower, please." } },
+        { ask: { et: "Head aega!", en: "Bye!" }, cue: "Say goodbye.", model: { et: "Nägemist!", en: "See you!" } },
       ],
     },
   },

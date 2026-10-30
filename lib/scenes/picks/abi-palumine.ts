@@ -13,7 +13,7 @@ export const abiPalumine: ScenePicks = {
   ],
   how: [
     { et: "Vabandust, ma ei saa aru.", en: "Sorry, I don't understand." },
-    { et: "Vabandust, kas te saate seda uuesti öelda?", en: "Sorry, could you say that again?" },
+    { et: "Vabandust, kuidas palun?", en: "Sorry, come again?" },
     { et: "Palun öelge uuesti, aeglaselt.", en: "Please say it again, slowly." },
   ],
   again: [

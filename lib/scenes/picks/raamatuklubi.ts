@@ -14,7 +14,7 @@ export const raamatuklubi: ScenePicks = {
   hero: [
     { et: "Jah, ta meeldis mulle.", en: "Yes, I liked them." },
     { et: "Ei, ta ei meeldinud mulle eriti.", en: "No, I didn't really like them." },
-    { et: "Ta oli huvitav, kuigi mitte alati meeldiv.", en: "They were interesting, though not always likeable." },
+    { et: "Huvitav tegelane, aga mitte eriti meeldiv.", en: "An interesting character, but not very likeable." },
   ],
   change: [
     { et: "Ma muudaksin lõppu.", en: "I'd change the ending." },
@@ -23,7 +23,7 @@ export const raamatuklubi: ScenePicks = {
   ],
   agree: [
     { et: "Jah, ma arvan ka.", en: "Yes, I think so too." },
-    { et: "Nõustun, lõpp oli tõesti hea.", en: "I agree, the ending really was good." },
+    { et: "Jah, lõpp oli tõesti hea.", en: "Yes, the ending really was good." },
     { et: "Ei, mulle meeldis rohkem algus.", en: "No, I liked the beginning more." },
   ],
   close: [

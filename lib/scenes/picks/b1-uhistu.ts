@@ -19,7 +19,7 @@ export const b1Uhistu: ScenePicks = {
     { et: "Toru vahetati välja.", en: "The pipe was replaced." },
   ],
   wet: [
-    { et: "Vett ei ole, aga kõik on veel märg.", en: "There's no water, but everything is still wet." },
+    { et: "Vett enam ei ole, aga kõik on veel märg.", en: "There's no water anymore, but everything is still wet." },
     { et: "Kõik on veel märg.", en: "Everything is still wet." },
   ],
   before: [

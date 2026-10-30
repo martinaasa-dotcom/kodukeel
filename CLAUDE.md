@@ -10686,6 +10686,18 @@ scene keyless as seven kinds of beginner, at its own lesson's level, and fails o
 not taught, which is how the engine's own `või`, `aga` and `selge` were caught. A word a card deals must
 be a dictionary entry, or no answer can meet it.
 
+**And every line is what an ordinary Estonian would say, not merely what is correct.** The operator
+read `Kõik? Tubli!` about a book read to the end, where anybody says `Terve raamatu?`, and asked for
+every lesson, scene, pick and written sentence to be how people really talk: the everyday word, the
+spoken form, the reaction people use, a reply that follows from the line before, one register per
+relationship, no calque from English. Two sweeps of all of it followed on 2026-10-30. No check can
+hear naturalness, so the native speaker reads every new line; what a check does is keep a refused
+phrase refused. `lib/estonian/spoken.ts` is the table, each entry with an example that breaks it and
+what to say instead, `lib/course/lessons/spoken.test.ts` sweeps every line against it, and
+`npm run check:lines` and `npm run check:authored` refuse the same while a line is being written. A
+phrase goes in only when it is wrong everywhere; `docs/43-lessons.md` §10 is what to hold a new line
+to. `scripts/invariants/lines-are-everyday-estonian.ts` holds it.
+
 **And B1 is a level up in how it is learned, not A2 with harder words.** The same six steps, so it
 reads as one course, and inside them the learner who has the words is asked for the ear, the speed
 and the accuracy (`docs/43-lessons.md` §11.2 and §12). Every B1 lesson is heard before it is read

@@ -33,11 +33,11 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
     cast: { Liis: "liivika", Tom: "kalev" },
     conversation: [
       { who: "Liis", et: "Tom, kellena sa töötad?", en: "Tom, what do you work as?" },
-      { who: "Tom", et: "Ma töötan programmeerijana. Ja sina?", en: "I work as a programmer. And you?" },
+      { who: "Tom", et: "Ma töötan programmeerijana. Aga sina?", en: "I work as a programmer. What about you?" },
       { who: "Liis", et: "Ma töötan kohvikus, Mariga koos.", en: "I work at a café, with Mari." },
-      { who: "Tom", et: "Ja Jaan? Mis tema teeb?", en: "And Jaan? What does he do?" },
-      { who: "Liis", et: "Jaan töötab arstina.", en: "Jaan works as a doctor." },
-      { who: "Tom", et: "Arstina? See on raske töö.", en: "As a doctor? That's hard work." },
+      { who: "Tom", et: "Aga Jaan? Mis ta teeb?", en: "And Jaan? What does he do?" },
+      { who: "Liis", et: "Ta töötab arstina.", en: "He works as a doctor." },
+      { who: "Tom", et: "Oi, see on raske töö!", en: "Oh, that's hard work!" },
     ],
     teaches: [
       { kind: "word", et: "programmeerija", en: "programmer" },
@@ -52,6 +52,7 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "firma", en: "company, firm" },
       { kind: "form", et: "firma", of: "firma", en: "of the company", stem: true },
       { kind: "form", et: "ühes", of: "üks", en: "in one, in a" },
+      { kind: "word", et: "oi", en: "oh!" },
     ],
     how: {
       point: "As is -na on the stem: {õpetaja} and then {õpetajana}, {koka} and then {kokana}. It's [olev] (-na, as), for the job you do.",
@@ -75,7 +76,7 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
     },
     answers: [
       { ask: { et: "Kellena sa töötad?", en: "What do you work as?" }, cue: "Say you work as a programmer.", model: { et: "Ma töötan programmeerijana.", en: "I work as a programmer." } },
-      { cue: "Say you work at a company as a manager.", model: { et: "Ma töötan firmas juhina.", en: "I work at a company as a manager." } },
+      { cue: "Say you work at a company as a manager.", model: { et: "Ma töötan ühes firmas juhina.", en: "I work at a company as a manager." } },
       { cue: "Ask a friend what they work as.", model: { et: "Kellena sa töötad?", en: "What do you work as?" } },
       { ask: { et: "Mis su mees teeb?", en: "What does your husband do?" }, cue: "Say he works as a cook.", model: { et: "Ta töötab kokana.", en: "He works as a cook." } },
     ],
@@ -92,9 +93,9 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
     cast: { Mari: "mari", Kati: "vesta" },
     conversation: [
       { who: "Mari", et: "Kati, kelleks su tütar tahab saada?", en: "Kati, what does your daughter want to become?" },
-      { who: "Kati", et: "Ta tahab saada arstiks. Ta õpib ülikoolis.", en: "She wants to become a doctor. She's studying at university." },
+      { who: "Kati", et: "Arstiks. Ta õpib juba ülikoolis.", en: "A doctor. She's already studying at university." },
       { who: "Mari", et: "Tubli! Ja mida ta sünnipäevaks tahab?", en: "Good for her! And what does she want for her birthday?" },
-      { who: "Kati", et: "Uut telefoni. Ma ostan selle homseks.", en: "A new phone. I'm buying it for tomorrow." },
+      { who: "Kati", et: "Uut telefoni. Ostan selle homseks.", en: "A new phone. I'm buying it for tomorrow." },
       { who: "Mari", et: "Homme on ta sünnipäev? Palju õnne talle!", en: "It's her birthday tomorrow? Happy birthday to her!" },
       { who: "Kati", et: "Aitäh! Ja homseks läheb ilm ka soojaks.", en: "Thank you! And by tomorrow the weather's getting warm too." },
     ],
@@ -195,7 +196,7 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
     goal: "Tell the landlord something's broken, and agree on a time for somebody to fix it.",
     cast: { Peeter: "peeter", Tom: "kalev" },
     conversation: [
-      { who: "Tom", et: "Tere, Peeter! Siin on Tom korterist number kaksteist.", en: "Hello, Peeter! It's Tom from apartment twelve.", stage: "On the phone to the landlord." },
+      { who: "Tom", et: "Tere, Peeter! Siin Tom korterist number kaksteist.", en: "Hello, Peeter! It's Tom from apartment twelve.", stage: "On the phone to the landlord." },
       { who: "Peeter", et: "Tere! Mis juhtus?", en: "Hello! What happened?" },
       { who: "Tom", et: "Külmkapp ei tööta ja vannitoas on kraan katki.", en: "The fridge isn't working and the tap's broken in the bathroom." },
       { who: "Peeter", et: "Oi! Ma saadan meistri. Millal sa kodus oled?", en: "Oh! I'll send a repairman. When are you at home?" },
@@ -207,7 +208,6 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "tööta", of: "töötama", en: "work, after {ei}, of a machine" },
       { kind: "word", et: "kraan", en: "tap, faucet" },
       { kind: "word", et: "katki", en: "broken" },
-      { kind: "word", et: "oi", en: "oh!" },
       { kind: "verb", et: "saatma", first: "saadan", en: "to send", firstEn: "I send" },
       { kind: "word", et: "meister", en: "repairman, tradesman" },
       { kind: "form", et: "meistri", of: "meister", en: "of the repairman, the repairman as an object", stem: true },
@@ -228,7 +228,7 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
       notes: [
         "{Katki} goes after {on}, like {valmis} in part five: {Uks on katki}, {Aken on katki}.",
         "Until two is part five's -ni: {kella kaheni}, on {kahe}, the stem of {kaks}.",
-        "On the phone, say who you are first: {Siin on Tom}, it's Tom here.",
+        "On the phone, say who you are first: {Siin Tom}, it's Tom here.",
       ],
       watchOut: "A landlord sends a {meister}, a tradesman, not an artist. It's the word for anybody who fixes things.",
       examples: [2, 3, 4],
@@ -253,10 +253,10 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Liis", et: "Tom, mul on üks küsimus.", en: "Tom, I have a question." },
       { who: "Tom", et: "Jah? Mis asi?", en: "Yes? What is it?" },
-      { who: "Liis", et: "Homme on Mari sünnipäev, aga mul ei ole veel ideed, mida osta.", en: "Tomorrow's Mari's birthday, but I have no idea yet what to buy." },
+      { who: "Liis", et: "Homme on Mari sünnipäev, aga mul pole veel ideed, mida osta.", en: "Tomorrow's Mari's birthday, but I have no idea yet what to buy." },
       { who: "Tom", et: "Mul on üks idee: osta talle raamat!", en: "I have an idea: buy her a book!" },
-      { who: "Liis", et: "Hea mõte! Aga mul on üks probleem: mul ei ole palju raha.", en: "Good thinking! But I have a problem: I don't have much money." },
-      { who: "Tom", et: "Pole viga. Ma maksan pool.", en: "No problem. I'll pay half." },
+      { who: "Liis", et: "Hea mõte! Aga mul on üks probleem: mul pole palju raha.", en: "Good thinking! But I have a problem: I don't have much money." },
+      { who: "Tom", et: "Pole viga. Ostame koos!", en: "No problem. Let's buy it together!" },
       { who: "Liis", et: "Aitäh, Tom! Sa oled hea sõber.", en: "Thanks, Tom! You're a good friend." },
     ],
     teaches: [
@@ -277,19 +277,19 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "paar", en: "a pair; a couple of" },
     ],
     how: {
-      point: "Say you have one with {mul on}: {Mul on küsimus}, {Mul on idee}. Say you don't with {mul ei ole} and the [osastav] (3rd form): {Mul ei ole ideed}.",
+      point: "Say you have one with {mul on}: {Mul on küsimus}, {Mul on idee}. Say you don't with {mul pole}, or {mul ei ole}, and the [osastav] (3rd form): {Mul pole ideed}.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
           [{ et: "Mul on küsimus." }, { en: "I have a question." }],
           [{ et: "Mul on probleem." }, { en: "I have a problem." }],
-          [{ et: "Mul ei ole raha." }, { en: "I don't have any money." }],
+          [{ et: "Mul pole raha." }, { en: "I don't have any money." }],
           [{ et: "Pole viga." }, { en: "No problem." }],
         ],
       },
       notes: [
         "{Mis asi?} is what is it?, or what's up? {Asi} is a thing, and also a matter.",
-        "{Raha} is the same in the [osastav] (3rd form), so {Mul ei ole raha} looks just like {Mul on raha}.",
+        "{Raha} is the same in the [osastav] (3rd form), so {Mul pole raha} looks just like {Mul on raha}.",
         "{Paar} is a pair, and before a number word or a noun it's a couple of something.",
       ],
       watchOut: "{Viga} is a mistake, but {Pole viga!} is no problem, the way you'd say never mind.",
@@ -297,7 +297,7 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
     },
     answers: [
       { ask: { et: "Mis asi?", en: "What is it?" }, cue: "Say you have a question.", model: { et: "Mul on üks küsimus.", en: "I have a question." } },
-      { cue: "Say you don't have any money.", model: { et: "Mul ei ole raha.", en: "I don't have any money." } },
+      { cue: "Say you don't have any money.", model: { et: "Mul pole raha.", en: "I don't have any money." } },
       { ask: { et: "Vabandust!", en: "Sorry!" }, cue: "Say it's no problem.", model: { et: "Pole viga.", en: "No problem." } },
     ],
   },
@@ -424,11 +424,11 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
     cast: { Liis: "liivika", Tom: "kalev" },
     conversation: [
       { who: "Liis", et: "Tere! Palun istuge. Rääkige natuke endast.", en: "Hello! Please sit down. Tell me a little about yourself." },
-      { who: "Tom", et: "Tere! Ma olen Tom. Ma olen programmeerija ja elan Tallinnas.", en: "Hello! I'm Tom. I'm a programmer and I live in Tallinn." },
+      { who: "Tom", et: "Tere! Ma olen Tom. Olen programmeerija ja elan Tallinnas.", en: "Hello! I'm Tom. I'm a programmer and I live in Tallinn." },
       { who: "Liis", et: "Kus te enne töötasite?", en: "Where did you work before?" },
       { who: "Tom", et: "Ma töötasin Londonis ühes pangas programmeerijana.", en: "I worked in London at a bank as a programmer." },
-      { who: "Liis", et: "Kas te räägite eesti keelt?", en: "Do you speak Estonian?" },
-      { who: "Tom", et: "Jah, natuke. Ma õpin iga päev.", en: "Yes, a little. I study every day." },
+      { who: "Liis", et: "Kui hästi te eesti keelt räägite?", en: "How well do you speak Estonian?" },
+      { who: "Tom", et: "Natuke. Aga ma õpin iga päev.", en: "A little. But I study every day." },
       { who: "Liis", et: "Millal te saaksite alustada?", en: "When could you start?" },
       { who: "Tom", et: "Järgmisest kuust.", en: "From next month." },
     ],
@@ -443,17 +443,17 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
       examples: [1, 3, 7],
     },
     answers: [
-      { ask: { et: "Rääkige natuke endast.", en: "Tell me a little about yourself." }, cue: "Say who you are, what you do and where you live.", model: { et: "Ma olen Tom. Ma olen programmeerija ja elan Tallinnas.", en: "I'm Tom. I'm a programmer and I live in Tallinn." } },
+      { ask: { et: "Rääkige natuke endast.", en: "Tell me a little about yourself." }, cue: "Say who you are, what you do and where you live.", model: { et: "Ma olen Tom. Olen programmeerija ja elan Tallinnas.", en: "I'm Tom. I'm a programmer and I live in Tallinn." } },
       { ask: { et: "Kus te enne töötasite?", en: "Where did you work before?" }, cue: "Say where you worked, and as what.", model: { et: "Ma töötasin Londonis programmeerijana.", en: "I worked in London as a programmer." } },
       { ask: { et: "Millal te saaksite alustada?", en: "When could you start?" }, cue: "Say from next month.", model: { et: "Järgmisest kuust.", en: "From next month." } },
     ],
     roleplay: {
       scene: "You're at a job interview. The interviewer speaks first. Answer as yourself.",
       turns: [
-        { ask: { et: "Tere! Palun istuge. Rääkige natuke endast.", en: "Hello! Please sit down. Tell me a little about yourself." }, cue: "Say who you are and what you do.", model: { et: "Tere! Ma olen Tom. Ma olen programmeerija.", en: "Hello! I'm Tom. I'm a programmer." } },
+        { ask: { et: "Tere! Palun istuge. Rääkige natuke endast.", en: "Hello! Please sit down. Tell me a little about yourself." }, cue: "Say who you are and what you do.", model: { et: "Tere! Ma olen Tom. Olen programmeerija.", en: "Hello! I'm Tom. I'm a programmer." } },
         { ask: { et: "Kus te enne töötasite?", en: "Where did you work before?" }, cue: "Say where you worked, and as what.", model: { et: "Ma töötasin Londonis programmeerijana.", en: "I worked in London as a programmer." } },
-        { ask: { et: "Kas teil on kogemust?", en: "Do you have experience?" }, cue: "Say how many years.", model: { et: "Jah, mul on viis aastat kogemust.", en: "Yes, I have five years of experience." } },
-        { ask: { et: "Kas te räägite eesti keelt?", en: "Do you speak Estonian?" }, cue: "Say a little, and that you study every day.", model: { et: "Jah, natuke. Ma õpin iga päev.", en: "Yes, a little. I study every day." } },
+        { ask: { et: "Kas teil on kogemust?", en: "Do you have experience?" }, cue: "Say how many years.", model: { et: "Jah, viis aastat.", en: "Yes, five years." } },
+        { ask: { et: "Kui hästi te eesti keelt räägite?", en: "How well do you speak Estonian?" }, cue: "Say a little, but that you study every day.", model: { et: "Natuke. Aga ma õpin iga päev.", en: "A little. But I study every day." } },
         { ask: { et: "Millal te saaksite alustada?", en: "When could you start?" }, cue: "Say when.", model: { et: "Järgmisest kuust.", en: "From next month." } },
       ],
     },

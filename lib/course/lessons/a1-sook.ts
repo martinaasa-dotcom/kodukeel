@@ -91,9 +91,9 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Mari", et: "Tom, mida sa tahad juua?", en: "Tom, what do you want to drink?" },
       { who: "Tom", et: "Ma tahan kohvi. Ja sina?", en: "I want coffee. And you?" },
-      { who: "Mari", et: "Mina joon teed. Ja ma tahan süüa saia.", en: "I'm having tea. And I want to eat a bun." },
+      { who: "Mari", et: "Mina joon teed. Ja ma söön saia.", en: "I'm having tea. And I'll have a bun." },
       { who: "Tom", et: "Kas meil on piima?", en: "Do we have any milk?" },
-      { who: "Mari", et: "Ei, piima ei ole. Aga vett on!", en: "No, there's no milk. But there's water!" },
+      { who: "Mari", et: "Ei, piima pole. Aga vett on!", en: "No, there's no milk. But there's water!" },
     ],
     teaches: [
       { kind: "form", et: "kohvi", of: "kohv", en: "coffee, some coffee" },
@@ -123,7 +123,7 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
         "A noun has three forms you learn by heart: the 1st is the dictionary form, {kohv}, and the 3rd is the \"some of it\" form, {kohvi}. The 2nd, which says whose, you met in lesson 16.",
         "Think of it as \"some of it\": {Ma joon kohvi} means \"I'm drinking coffee\", some coffee, not all the coffee there is.",
         "You've been saying this ending since lesson 11: {eesti keelt}, {raamatut}, {kaks aastat}. And {Mida sa teed?}: {mida} is {mis} with the same ending, because it's the thing you do.",
-        "A no takes it too: {piima ei ole}, there's no milk. So does asking whether there's any: {Kas meil on piima?}",
+        "A no takes it too: {piima pole}, there's no milk. So does asking whether there's any: {Kas meil on piima?}",
       ],
       watchOut: "The [osastav] (3rd form) is learned with each noun, the way a verb's forms are, and some change a lot: {vesi} becomes {vett}.",
       examples: [0, 1, 4],
@@ -131,8 +131,8 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
     answers: [
       { ask: { et: "Mida sa tahad juua?", en: "What do you want to drink?" }, cue: "Say you want tea.", model: { et: "Ma tahan teed.", en: "I want tea." } },
       { cue: "Say you're drinking water.", model: { et: "Ma joon vett.", en: "I'm drinking water." } },
-      { ask: { et: "Kas meil on piima?", en: "Do we have any milk?" }, cue: "Say no, there's no milk.", model: { et: "Ei, piima ei ole.", en: "No, there's no milk." } },
-      { cue: "Say you want to eat cake.", model: { et: "Ma tahan süüa kooki.", en: "I want to eat cake." } },
+      { ask: { et: "Kas meil on piima?", en: "Do we have any milk?" }, cue: "Say no, there's no milk.", model: { et: "Ei, piima pole.", en: "No, there's no milk." } },
+      { cue: "Say you want to eat cake.", model: { et: "Ma tahan kooki süüa.", en: "I want to eat cake." } },
     ],
   },
   {
@@ -196,7 +196,7 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
     cast: { Mari: "mari", Tom: "kalev" },
     conversation: [
       { who: "Mari", et: "Mida sa õhtul sööd?", en: "What do you eat in the evening?" },
-      { who: "Tom", et: "Ma söön kala ja kartulit.", en: "I eat fish and potatoes." },
+      { who: "Tom", et: "Tavaliselt kala ja kartulit.", en: "Usually fish and potatoes." },
       { who: "Mari", et: "Mina söön liha. Kas sa leiba tahad?", en: "I eat meat. Do you want some bread?" },
       { who: "Tom", et: "Jah, natuke leiba ja juustu.", en: "Yes, a little bread and cheese." },
       { who: "Mari", et: "Ja suppi?", en: "And soup?" },
@@ -260,7 +260,7 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Vabandust, kui palju see maksab?", en: "Excuse me, how much is this?" },
       { who: "Liis", et: "Kolm eurot.", en: "Three euros." },
       { who: "Tom", et: "Ja kook?", en: "And the cake?" },
-      { who: "Liis", et: "Kook maksab neli eurot viiskümmend senti.", en: "The cake is four euros fifty." },
+      { who: "Liis", et: "Neli eurot viiskümmend.", en: "Four fifty." },
       { who: "Tom", et: "Hästi. Üks kook ja üks kohv, palun.", en: "Fine. One cake and one coffee, please." },
       { who: "Liis", et: "Kokku seitse eurot viiskümmend. Kaardiga?", en: "Seven fifty altogether. By card?" },
       { who: "Tom", et: "Jah, kaardiga.", en: "Yes, by card." },
@@ -312,8 +312,8 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
     cast: { Mari: "mari", Tom: "kalev" },
     conversation: [
       { who: "Mari", et: "Tom, kas sulle meeldib kohv?", en: "Tom, do you like coffee?" },
-      { who: "Tom", et: "Jah, mulle meeldib kohv väga. Ja sulle?", en: "Yes, I like coffee a lot. And you?" },
-      { who: "Mari", et: "Mulle ei meeldi kohv. Mulle meeldib tee.", en: "I don't like coffee. I like tea." },
+      { who: "Tom", et: "Jah, väga! Ja sulle?", en: "Yes, a lot! And you?" },
+      { who: "Mari", et: "Mulle ei meeldi. Mulle meeldib tee.", en: "I don't. I like tea." },
       { who: "Tom", et: "Ja Jaan? Kas talle meeldib tee?", en: "And Jaan? Does he like tea?" },
       { who: "Mari", et: "Ei. Talle meeldib ainult õlu!", en: "No. He only likes beer!" },
     ],
@@ -349,7 +349,7 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
         "Ask with {kas}: {Kas sulle meeldib kohv?}",
       ],
       watchOut: "Don't start with {ma}. \"I like\" is always {mulle meeldib}, never with {ma}.",
-      examples: [0, 1, 2],
+      examples: [0, 2, 4],
     },
     answers: [
       { ask: { et: "Kas sulle meeldib kohv?", en: "Do you like coffee?" }, cue: "Answer for yourself.", model: { et: "Jah, mulle meeldib kohv.", en: "Yes, I like coffee." } },

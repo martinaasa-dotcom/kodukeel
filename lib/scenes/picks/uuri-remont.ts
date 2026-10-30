@@ -4,7 +4,7 @@ import type { ScenePicks } from "../picks";
 export const uuriRemont: ScenePicks = {
   greet: [
     { et: "Tere!", en: "Hello!" },
-    { et: "Tere, siin on teie üürnik.", en: "Hello, it's your tenant here." },
+    { et: "Tere, siin teie üürnik.", en: "Hello, it's your tenant here." },
   ],
   problem: [
     { et: "{problem} on katki.", en: "The {problem} is broken." },

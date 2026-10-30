@@ -17,17 +17,17 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `b1-vaidlus`. */
 const LINES: readonly ScriptedLine[] = [
-  { scene: "b1-vaidlus", beat: "view", text: "Minu meelest on mugav kodus töötada. Mida sina arvad?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
+  { scene: "b1-vaidlus", beat: "view", text: "Minu meelest on kodus töötada mugav. Mis sina arvad?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-vaidlus", beat: "view", text: "Kodus töötada on mugav. Mis sa arvad?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
-  { scene: "b1-vaidlus", beat: "why", text: "Miks mitte?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
-  { scene: "b1-vaidlus", beat: "why", text: "Tõesti? Miks mitte?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
+  { scene: "b1-vaidlus", beat: "why", text: "Kuidas nii?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
+  { scene: "b1-vaidlus", beat: "why", text: "Päriselt? Miks?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-vaidlus", beat: "bus", text: "Aga kodus ei pea hommikul bussiga sõitma, eks?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-vaidlus", beat: "bus", text: "Hea küll. Aga kodus ei pea bussiga sõitma, eks?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-vaidlus", beat: "cost", text: "Aga kas suur kontor pole kallis?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-vaidlus", beat: "cost", text: "Aga suur kontor on ju kallis, eks?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-vaidlus", beat: "plan", text: "Mis sa siis teeksid?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-vaidlus", beat: "plan", text: "Hea küll. Mis sa siis teeksid?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
-  { scene: "b1-vaidlus", beat: "agree", text: "Mulle tundub, et see on hea mõte. Mida sina arvad?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
+  { scene: "b1-vaidlus", beat: "agree", text: "Mulle tundub, et see on hea mõte. Mis sina arvad?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-vaidlus", beat: "agree", text: "Hea idee! Mulle tundub, et see sobib. Mis sa arvad?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-vaidlus", beat: "close", text: "Kokku lepitud! Head aega!", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-vaidlus", beat: "close", text: "Kokku lepitud! Kohvi joome kontoris koos.", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },

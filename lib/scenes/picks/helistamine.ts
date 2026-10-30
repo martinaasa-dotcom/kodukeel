@@ -8,14 +8,14 @@ export const helistamine: ScenePicks = {
   ],
   why: [
     { et: "Ma tahaksin midagi küsida.", en: "I'd like to ask something." },
-    { et: "Ma soovin midagi osta.", en: "I'd like to buy something." },
+    { et: "Ma tahaksin midagi osta.", en: "I'd like to buy something." },
   ],
   have: [
     { et: "Kas teil on {thing}?", en: "Do you have a {thing}?" },
     { et: "Ma tahaksin osta {thing:GENITIVE}. Kas teil on?", en: "I'd like to buy a {thing}. Do you have one?" },
   ],
   hours: [
-    { et: "Millal te avate?", en: "When do you open?" },
+    { et: "Mis kell te avate?", en: "What time do you open?" },
     { et: "Mis kell te homme avate?", en: "What time do you open tomorrow?" },
   ],
   confirm: [

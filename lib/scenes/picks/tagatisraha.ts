@@ -8,7 +8,7 @@ export const tagatisraha: ScenePicks = {
   ],
   why: [
     { et: "Ma tahan oma raha tagasi.", en: "I want my money back." },
-    { et: "Minu raha ei ole veel tagasi tulnud.", en: "My money hasn't come back yet." },
+    { et: "Ma pole oma raha veel tagasi saanud.", en: "I haven't got my money back yet." },
   ],
   moved: [
     { et: "{moved:INESSIVE}.", en: "In {moved}." },

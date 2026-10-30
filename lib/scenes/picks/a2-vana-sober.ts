@@ -11,16 +11,16 @@ export const a2VanaSober: ScenePicks = {
     { et: "Tere päevast!", en: "Good afternoon!" },
   ],
   did: [
-    { et: "Ma olin Tartus. Ma töötasin seal.", en: "I was in Tartu. I worked there." },
+    { et: "Ma olin Tartus, töötasin seal.", en: "I was in Tartu. I worked there." },
     { et: "Ma töötasin.", en: "I worked." },
   ],
   liked: [
     { et: "Ma arvan, et see on Eesti kõige ilusam linn.", en: "I think it's the prettiest town in Estonia." },
-    { et: "Väga!", en: "A lot!" },
+    { et: "Väga meeldis!", en: "I loved it!" },
   ],
   plans: [
-    { et: "Suvel ma kavatsen Saaremaale minna.", en: "In the summer I plan to go to Saaremaa." },
-    { et: "Suvel ma lähen maale.", en: "In the summer I'm going to the country." },
+    { et: "Suvel kavatsen Saaremaale minna.", en: "In the summer I plan to go to Saaremaa." },
+    { et: "Suvel lähen maale.", en: "In the summer I'm going to the country." },
   ],
   with: [
     { et: "Jaaniga. Kas tuleksid ka kaasa?", en: "With Jaan. Would you come along too?" },

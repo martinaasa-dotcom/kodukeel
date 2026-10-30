@@ -18,11 +18,11 @@ import type { ScriptedLine } from "../scripted";
 /** The prepared lines of `sobra-mure`. */
 const LINES: readonly ScriptedLine[] = [
   { scene: "sobra-mure", beat: "how", text: "Raske nädal on olnud.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "sobra-mure", beat: "how", text: "See nädal on olnud väga raske.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "sobra-mure", beat: "how", text: "Mul on olnud nii raske nädal.", model: "authored", draftedAt: "2026-10-30", reviewedAt: "2026-10-30" },
   { scene: "sobra-mure", beat: "answer:how", text: "Reedel lõppes mu töö.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "sobra-mure", beat: "answer:how", text: "Reedel jäin ma töölt ilma.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "sobra-mure", beat: "sorry", text: "Nüüd ma muretsen raha pärast.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "sobra-mure", beat: "sorry", text: "Ma ei tea, kuidas nüüd raha saada.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "sobra-mure", beat: "answer:how", text: "Jäin reedel töölt ilma.", model: "authored", draftedAt: "2026-10-30", reviewedAt: "2026-10-30" },
+  { scene: "sobra-mure", beat: "sorry", text: "Nüüd on mul raha pärast mure.", model: "authored", draftedAt: "2026-10-30", reviewedAt: "2026-10-30" },
+  { scene: "sobra-mure", beat: "sorry", text: "Ei tea, kust nüüd raha saada.", model: "authored", draftedAt: "2026-10-30", reviewedAt: "2026-10-30" },
   { scene: "sobra-mure", beat: "help", text: "Mida ma nüüd tegema peaksin?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "sobra-mure", beat: "help", text: "Mis sa arvad, mida ma tegema peaksin?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "sobra-mure", beat: "hurdle:interrupted", text: "Üks minut, palun.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },

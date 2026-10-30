@@ -17,7 +17,7 @@ export const nadalavahetus: ScenePicks = {
   ],
   back: [
     { et: "Aga sina?", en: "And you?" },
-    { et: "Kuidas sinu nädalavahetus oli?", en: "How was your weekend?" },
+    { et: "Aga kuidas sul läks?", en: "And how was yours?" },
     { et: "Kas sul oli ka tore?", en: "Did you have a nice time too?" },
   ],
   close: [

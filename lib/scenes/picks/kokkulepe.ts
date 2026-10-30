@@ -25,6 +25,6 @@ export const kokkulepe: ScenePicks = {
   ],
   close: [
     { et: "Nägemist!", en: "See you!" },
-    { et: "Aitäh, näeme siis!", en: "Thanks, see you then!" },
+    { et: "Tore, näeme siis!", en: "Great, see you then!" },
   ],
 };

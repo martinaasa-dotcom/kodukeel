@@ -17,22 +17,22 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `koosolek`. */
 const LINES: readonly ScriptedLine[] = [
-  { scene: "koosolek", beat: "idea", text: "Aruanne peab homme valmis olema. Mida sa sellest mõtled?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
-  { scene: "koosolek", beat: "idea", text: "Aruanne peaks homme valmis olema. Kas see on võimalik?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
+  { scene: "koosolek", beat: "idea", text: "Aruanne peab homme valmis olema. Mis sa arvad?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
+  { scene: "koosolek", beat: "idea", text: "Aruanne peaks homme valmis olema. Kas saad?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "koosolek", beat: "why", text: "Miks mitte?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "koosolek", beat: "why", text: "Miks sa nii arvad?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "koosolek", beat: "propose", text: "Mis päev sulle sobib?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "koosolek", beat: "propose", text: "Mis päev sulle siis sobiks?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "koosolek", beat: "propose", text: "Millal see siis valmis saab?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "koosolek", beat: "agree", text: "Hästi, teeme nii. Aga aruanne peab olema hea.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "koosolek", beat: "agree", text: "See sobib, aga aruanne peab olema hea.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "koosolek", beat: "agree", text: "Hea küll, sobib, aga siis peab aruanne hea olema.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "koosolek", beat: "hurdle:interrupted", text: "Üks minut, palun.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "koosolek", beat: "hurdle:interrupted", text: "Vabandust, üks minut.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "koosolek", beat: "hurdle:contradiction", text: "Ei, aruanne peab ikka varem valmis olema.", model: "authored", draftedAt: "2026-10-15", about: "propose", reviewedAt: "2026-10-16" },
   { scene: "koosolek", beat: "hurdle:contradiction", text: "Ei, see päev ei sobi meile.", model: "authored", draftedAt: "2026-10-15", about: "agree", reviewedAt: "2026-10-16" },
   { scene: "koosolek", beat: "hurdle:other-register", text: "Miks te nii arvate?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15", about: "idea" },
   { scene: "koosolek", beat: "hurdle:other-register", text: "Mis päev teile sobib?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15", about: "why" },
-  { scene: "koosolek", beat: "hurdle:faster", text: "Meil on palju teha, räägi kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "koosolek", beat: "hurdle:faster", text: "Räägi kohe, meil on veel palju teha.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "koosolek", beat: "hurdle:faster", text: "Meil on veel palju teha, räägi palun.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "koosolek", beat: "hurdle:faster", text: "Räägi palun edasi, meil on palju teha.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "koosolek", beat: "close", text: "See oli kõik, aitäh. Head aega!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },
   { scene: "koosolek", beat: "close", text: "Hästi, see on kõik. Nägemist!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },
 ];

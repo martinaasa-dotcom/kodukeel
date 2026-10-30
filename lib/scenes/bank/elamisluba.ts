@@ -18,18 +18,18 @@ import type { ScriptedLine } from "../scripted";
 /** The prepared lines of `elamisluba`. */
 const LINES: readonly ScriptedLine[] = [
   { scene: "elamisluba", beat: "want", text: "Mida te soovite?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "elamisluba", beat: "want", text: "Kuidas ma saan teid aidata?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "elamisluba", beat: "want", text: "Kuidas saan aidata?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "elamisluba", beat: "booking", text: "Mis on teie broneeritud aja number?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "elamisluba", beat: "booking", text: "Teie broneeritud aja number, palun?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "elamisluba", beat: "brought", text: "Mis teil kaasas on?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "elamisluba", beat: "brought", text: "Kas teil on kõik kaasas?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "elamisluba", beat: "brought", text: "Mis dokumendid teil kaasas on?", model: "authored", draftedAt: "2026-10-16", reviewedAt: "2026-10-16" },
   { scene: "elamisluba", beat: "next", text: "Me vaatame taotluse läbi ja saadame teile kirja.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "elamisluba", beat: "next", text: "Taotlus läheb nüüd edasi. Me kirjutame teile.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "elamisluba", beat: "next", text: "Taotlus läheb nüüd edasi, otsuse kohta tuleb teile kiri.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "elamisluba", beat: "hurdle:missing-document", text: "Kas teil on vana kaart kaasas?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "elamisluba", beat: "hurdle:missing-document", text: "Kas teil on ka vana luba kaasas?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "elamisluba", beat: "hurdle:place-instruction", text: "Palun minge enne teise tuppa.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
-  { scene: "elamisluba", beat: "hurdle:place-instruction", text: "Enne minge palun teise tuppa, sealt saate numbri.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
+  { scene: "elamisluba", beat: "hurdle:place-instruction", text: "Minge palun enne teise tuppa, sealt saate numbri.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "elamisluba", beat: "answer:hurdle:place-instruction", text: "See on siin kõrval.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "elamisluba", beat: "answer:hurdle:place-instruction", text: "Siin kõrval.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "elamisluba", beat: "hurdle:contradiction", text: "Ei, vabandust, kaart ei ole veel valmis.", model: "authored", draftedAt: "2026-10-16", about: "collect", reviewedAt: "2026-10-16" },
@@ -37,7 +37,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "elamisluba", beat: "hurdle:other-register", text: "Kas sul on kõik kaasas?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15", about: "booking" },
   { scene: "elamisluba", beat: "hurdle:other-register", text: "Mis su broneeritud aja number on?", model: "authored", draftedAt: "2026-10-16", about: "want", reviewedAt: "2026-10-16" },
   { scene: "elamisluba", beat: "close", text: "Kõik on tehtud, aitäh. Nägemist!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },
-  { scene: "elamisluba", beat: "close", text: "Selge, siis näeme. Head aega!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },
+  { scene: "elamisluba", beat: "close", text: "Siis näeme. Head aega!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },
 ];
 
 export default LINES;

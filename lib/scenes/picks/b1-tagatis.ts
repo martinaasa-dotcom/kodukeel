@@ -27,7 +27,7 @@ export const b1Tagatis: ScenePicks = {
     { et: "Ei, kõik töötab.", en: "No, everything works." },
   ],
   light: [
-    { et: "See on ainult pirn. Pirn tuleb vahetada.", en: "It's only the bulb. The bulb needs changing." },
+    { et: "See on ainult pirn, see tuleb vahetada.", en: "It's only the bulb. It needs changing." },
     { et: "Pirn tuleb vahetada.", en: "The bulb needs changing." },
   ],
   back: [

@@ -8,10 +8,10 @@ import type { ScenePicks } from "../picks";
 export const a1Kutse: ScenePicks = {
   greet: [
     { et: "Tere!", en: "Hello!" },
-    { et: "Tere! Väga meeldiv!", en: "Hello! Nice to meet you!" },
+    { et: "Tere, tere!", en: "Hi there!" },
   ],
   name: [
-    { et: "Mina olen Anna.", en: "I'm Anna." },
+    { et: "Väga meeldiv! Mina olen Anna.", en: "Nice to meet you! I'm Anna." },
     { et: "Minu nimi on Tom.", en: "My name is Tom." },
   ],
   from: [
@@ -28,7 +28,7 @@ export const a1Kutse: ScenePicks = {
   ],
   time: [
     { et: "Jah, kindlasti!", en: "Yes, definitely!" },
-    { et: "Jah, ma saan.", en: "Yes, I can." },
+    { et: "Jah, saan.", en: "Yes, I can." },
   ],
   close: [
     { et: "Nägemist!", en: "See you!" },

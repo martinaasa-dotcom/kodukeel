@@ -7,7 +7,7 @@ import type { ScenePicks } from "../picks";
  */
 export const b1Vaidlus: ScenePicks = {
   view: [
-    { et: "Ma ei ole päris nõus.", en: "I don't quite agree." },
+    { et: "Ma pole päris nõus.", en: "I don't quite agree." },
     { et: "Minu meelest on kontoris parem.", en: "If you ask me, the office is better." },
   ],
   why: [
@@ -27,7 +27,7 @@ export const b1Vaidlus: ScenePicks = {
     { et: "Kolm päeva kodus ja kaks kontoris.", en: "Three days at home and two at the office." },
   ],
   agree: [
-    { et: "Sellega olen ma nõus.", en: "I'll agree to that." },
+    { et: "Sellega olen nõus.", en: "I'll agree to that." },
     { et: "Olen nõus.", en: "Agreed." },
   ],
   close: [

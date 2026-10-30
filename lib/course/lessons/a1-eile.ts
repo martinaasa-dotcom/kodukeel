@@ -83,9 +83,9 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
     cast: { Mari: "mari", Tom: "kalev" },
     conversation: [
       { who: "Mari", et: "Tom, mida sa eile tegid?", en: "Tom, what did you do yesterday?" },
-      { who: "Tom", et: "Eile ma olin kodus. Ma tegin süüa ja lugesin raamatut.", en: "Yesterday I was at home. I cooked and read a book." },
+      { who: "Tom", et: "Olin kodus. Tegin süüa ja lugesin raamatut.", en: "I was at home. I cooked and read a book." },
       { who: "Mari", et: "Ja õhtul?", en: "And in the evening?" },
-      { who: "Tom", et: "Õhtul ma käisin poes. Ja sina?", en: "In the evening I went to the shop. And you?" },
+      { who: "Tom", et: "Käisin poes. Ja sina?", en: "I went to the shop. And you?" },
       { who: "Mari", et: "Mina olin tööl. Õhtul ma sõin ja jõin teed.", en: "I was at work. In the evening I ate and had some tea." },
     ],
     teaches: [
@@ -136,11 +136,11 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
     cast: { Liis: "liivika", Tom: "kalev" },
     conversation: [
       { who: "Liis", et: "Tom, kus sa laupäeval olid?", en: "Tom, where were you on Saturday?" },
-      { who: "Tom", et: "Ma olin Tartus. Ja Mari oli ka seal.", en: "I was in Tartu. And Mari was there too." },
+      { who: "Tom", et: "Ma olin Tartus. Mari oli ka.", en: "I was in Tartu. So was Mari." },
       { who: "Liis", et: "Mida te seal tegite?", en: "What did you do there?" },
       { who: "Tom", et: "Me käisime poes ja kohvikus.", en: "We went to the shop and to a café." },
       { who: "Liis", et: "Ja Jaan? Kas ta käis ka?", en: "And Jaan? Did he come too?" },
-      { who: "Tom", et: "Ei, Jaan oli tööl.", en: "No, Jaan was at work." },
+      { who: "Tom", et: "Ei, ta oli tööl.", en: "No, he was at work." },
     ],
     teaches: [
       { kind: "form", et: "olid", of: "olema", en: "you were, they were" },
@@ -201,7 +201,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Ma näen raamatut.", en: "I see a book." },
       { who: "Mari", et: "Ja mida sa kirjutad?", en: "And what are you writing?" },
       { who: "Tom", et: "Ma kirjutan raamatut!", en: "I'm writing a book!" },
-      { who: "Mari", et: "Tõesti? Väga hea! Ja mida sa poes ostad?", en: "Really? Very good! And what do you buy at the shop?" },
+      { who: "Mari", et: "Tõesti? Tore! Ja mida sa poes ostad?", en: "Really? Great! And what do you buy at the shop?" },
       { who: "Tom", et: "Ma ostan piima ja leiba. Aga mida tähendab \"tõesti\"?", en: "I buy milk and bread. But what does {tõesti} mean?" },
     ],
     teaches: [
@@ -251,11 +251,11 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
     cast: { Mari: "mari", Tom: "kalev" },
     conversation: [
       { who: "Mari", et: "Tom, mis kuu praegu on?", en: "Tom, what month is it now?" },
-      { who: "Tom", et: "Praegu on oktoober. Sügis!", en: "It's October now. Autumn!" },
+      { who: "Tom", et: "Oktoober. Sügis!", en: "October. Autumn!" },
       { who: "Mari", et: "Mulle meeldib sügis. Aga talv ei meeldi.", en: "I like autumn. But I don't like winter." },
       { who: "Tom", et: "Mulle meeldib talv! Talvel sajab lund.", en: "I like winter! In winter it snows." },
-      { who: "Mari", et: "Ja suvel?", en: "And in summer?" },
-      { who: "Tom", et: "Suvel on soe. Juulis ma sõidan Tartusse.", en: "In summer it's warm. In July I'm going to Tartu." },
+      { who: "Mari", et: "Aga suvi?", en: "And summer?" },
+      { who: "Tom", et: "Suvi on ka tore! Juulis sõidan Tartusse.", en: "Summer's nice too! In July I'm going to Tartu." },
     ],
     teaches: [
       { kind: "word", et: "kuu", en: "month" },
@@ -320,7 +320,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
     goal: "Wish somebody a happy birthday, and say what you do on the weekend and at Christmas.",
     cast: { Mari: "mari", Tom: "kalev" },
     conversation: [
-      { who: "Mari", et: "Täna on minu sünnipäev!", en: "It's my birthday today!" },
+      { who: "Mari", et: "Mul on täna sünnipäev!", en: "It's my birthday today!" },
       { who: "Tom", et: "Palju õnne! Kui vana sa oled?", en: "Happy birthday! How old are you?" },
       { who: "Mari", et: "Kakskümmend üheksa!", en: "Twenty-nine!" },
       { who: "Tom", et: "Ja mida sa nädalavahetusel teed?", en: "And what are you doing this weekend?" },
@@ -351,7 +351,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
       examples: [0, 1, 3],
     },
     answers: [
-      { ask: { et: "Täna on minu sünnipäev!", en: "It's my birthday today!" }, cue: "Wish them a happy birthday.", model: { et: "Palju õnne!", en: "Happy birthday!" } },
+      { ask: { et: "Mul on täna sünnipäev!", en: "It's my birthday today!" }, cue: "Wish them a happy birthday.", model: { et: "Palju õnne!", en: "Happy birthday!" } },
       { ask: { et: "Mida sa nädalavahetusel teed?", en: "What are you doing this weekend?" }, cue: "Say on Saturday you're going to the shop.", model: { et: "Laupäeval ma lähen poodi.", en: "On Saturday I'm going to the shop." } },
       { cue: "Say it before somebody eats.", model: { et: "Head isu!", en: "Enjoy your meal!" } },
     ],
@@ -369,9 +369,9 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
       { who: "Liis", et: "Tere, Tom! Kuidas läheb?", en: "Hi, Tom! How's it going?" },
       { who: "Tom", et: "Hästi, aitäh! Ja sinul?", en: "Good, thanks! And you?" },
       { who: "Liis", et: "Normaalselt. Mida sa laupäeval tegid?", en: "Not bad. What did you do on Saturday?" },
-      { who: "Tom", et: "Ma käisin poes ja siis olin kodus. Ma lugesin raamatut.", en: "I went to the shop and then I was at home. I read a book." },
+      { who: "Tom", et: "Käisin poes, siis olin kodus ja lugesin raamatut.", en: "I went to the shop, then I was at home and read a book." },
       { who: "Liis", et: "Ja pühapäeval?", en: "And on Sunday?" },
-      { who: "Tom", et: "Pühapäeval ma olin Tartus.", en: "On Sunday I was in Tartu." },
+      { who: "Tom", et: "Olin Tartus.", en: "I was in Tartu." },
       { who: "Liis", et: "Tartus? Tore! Saame järgmisel nädalal kokku?", en: "In Tartu? How nice! Should we meet up next week?" },
       { who: "Tom", et: "Jah, kindlasti!", en: "Yes, definitely!" },
     ],
@@ -383,7 +383,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
         "{Saame järgmisel nädalal kokku?} puts the when in the middle, and it's still a plan to meet up.",
         "At the end, Liis calls to ask about your weekend and you tell her, one turn at a time, until you've held the whole conversation.",
       ],
-      watchOut: "A chat like this is mostly short answers. {Pühapäeval ma olin Tartus} is plenty.",
+      watchOut: "A chat like this is mostly short answers. {Olin Tartus} is plenty.",
       examples: [3, 5, 6],
     },
     answers: [

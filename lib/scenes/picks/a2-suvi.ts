@@ -19,12 +19,12 @@ export const a2Suvi: ScenePicks = {
     { et: "Ma lugesin ja magasin.", en: "I read and slept." },
   ],
   before: [
-    { et: "Ei, see oli esimene kord. Mida sa suvel tegid?", en: "No, it was the first time. What did you do in the summer?" },
+    { et: "Ei, see oli esimene kord. Aga mis sina suvel tegid?", en: "No, it was the first time. What about you, what did you do in the summer?" },
     { et: "Ei, see oli esimene kord.", en: "No, it was the first time." },
   ],
   her: [
     { et: "Kahju!", en: "What a pity!" },
-    { et: "Kahju! Järgmisel suvel tule ka Saaremaale!", en: "What a pity! Next summer come to Saaremaa too!" },
+    { et: "Kahju! Tule järgmisel suvel ka Saaremaale!", en: "What a pity! Next summer come to Saaremaa too!" },
   ],
   close: [
     { et: "Head aega!", en: "Goodbye!" },

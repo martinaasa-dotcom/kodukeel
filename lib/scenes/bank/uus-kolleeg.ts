@@ -28,7 +28,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "uus-kolleeg", beat: "back", text: "Kas sa tahad midagi teada?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "uus-kolleeg", beat: "answer:back", text: "Kolm aastat juba, ja siin on tore.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "uus-kolleeg", beat: "hurdle:faster", text: "Kiire on, ma pean kohe minema.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "uus-kolleeg", beat: "hurdle:faster", text: "Mul on kiire, ütle kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "uus-kolleeg", beat: "hurdle:faster", text: "Mul on natuke kiire.", model: "authored", draftedAt: "2026-10-30", reviewedAt: "2026-10-30" },
   { scene: "uus-kolleeg", beat: "hurdle:small-talk", text: "Täna on külm, eks?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "uus-kolleeg", beat: "hurdle:small-talk", text: "Täna on ilus ilm, eks?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "uus-kolleeg", beat: "hurdle:other-register", text: "Vabandust, kas te olete siin uus?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },

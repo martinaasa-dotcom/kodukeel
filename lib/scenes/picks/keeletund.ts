@@ -11,8 +11,8 @@ export const keeletund: ScenePicks = {
     { et: "Ma olen Anna.", en: "I'm Anna." },
   ],
   from: [
-    { et: "Minu kodumaa on {from}.", en: "My home country is {from}." },
-    { et: "Minu kodumaa on {from}, aga elan nüüd Eestis.", en: "My home country is {from}, but I live in Estonia now." },
+    { et: "Ma olen pärit {from:ELATIVE}.", en: "I'm from {from}." },
+    { et: "Olen pärit {from:ELATIVE}, aga elan nüüd Eestis.", en: "I'm from {from}, but I live in Estonia now." },
   ],
   why: [
     { et: "{why:GENITIVE} pärast.", en: "Because of my {why}." },
@@ -20,12 +20,12 @@ export const keeletund: ScenePicks = {
   ],
   word: [
     { et: "Mida see sõna tähendab?", en: "What does that word mean?" },
-    { et: "Vabandust, kas te saate seda uuesti öelda?", en: "Sorry, could you say that again?" },
+    { et: "Vabandust, mis sõna see oli?", en: "Sorry, what was that word?" },
     { et: "Kas te saate seda sõna seletada?", en: "Could you explain that word?" },
   ],
   howlong: [
-    { et: "Üks kuu.", en: "One month." },
-    { et: "Ma õpin juba aasta.", en: "I've been learning for a year already." },
+    { et: "Kuu aega.", en: "A month." },
+    { et: "Juba aasta.", en: "A year now." },
     { et: "Ainult kaks nädalat.", en: "Only two weeks." },
   ],
   close: [

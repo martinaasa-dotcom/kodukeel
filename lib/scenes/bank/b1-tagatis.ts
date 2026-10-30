@@ -26,7 +26,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "b1-tagatis", beat: "deposit", text: "Võimalik, aga osa tagatisrahast jääb mulle.", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-tagatis", beat: "deposit", text: "Osa tagatisrahast jääb ikka mulle.", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-tagatis", beat: "else", text: "Kas veel midagi on katki?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
-  { scene: "b1-tagatis", beat: "else", text: "Tõesti? Kas veel midagi on katki?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
+  { scene: "b1-tagatis", beat: "else", text: "Selge. Kas veel midagi on katki?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-tagatis", beat: "light", text: "Aga vannitoas ei tööta lamp.", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-tagatis", beat: "light", text: "Ja vannitoas lamp ei tööta.", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-tagatis", beat: "back", text: "Hästi. Mis veel?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },

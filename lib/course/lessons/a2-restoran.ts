@@ -88,7 +88,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Jah. Mida te soovitate?", en: "Yes. What do you recommend?" },
       { who: "Peeter", et: "Täna on väga hea kala.", en: "The fish is very good today." },
       { who: "Mari", et: "Siis ma võtaksin kala. Ja enne seda suppi.", en: "Then I'd have the fish. And soup before that." },
-      { who: "Tom", et: "Mulle praadi ja salatit, palun.", en: "The roast and a salad for me, please." },
+      { who: "Tom", et: "Mina võtaksin praadi ja salatit.", en: "I'd have the roast and a salad." },
       { who: "Peeter", et: "Ja magustoit?", en: "And dessert?" },
       { who: "Tom", et: "Hiljem, aitäh.", en: "Later, thank you." },
     ],
@@ -104,12 +104,12 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "magustoit", en: "dessert" },
     ],
     how: {
-      point: "Ordering, the dish comes after {võtaksin} or {mulle} in the [osastav] (3rd form): {Ma võtaksin suppi}, {Mulle praadi, palun}.",
+      point: "Ordering, the dish comes after {võtaksin} or {mulle} in the [osastav] (3rd form): {Ma võtaksin suppi}, {Mulle salatit, palun}.",
       table: {
         head: ["On the menu", "Ordering it"],
         rows: [
           [{ et: "supp" }, { et: "Ma võtaksin suppi." }],
-          [{ et: "praad" }, { et: "Mulle praadi, palun." }],
+          [{ et: "praad" }, { et: "Ma võtaksin praadi." }],
           [{ et: "salat" }, { et: "Mulle salatit, palun." }],
           [{ et: "kala" }, { et: "Ma võtaksin kala." }],
         ],
@@ -125,7 +125,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
     answers: [
       { ask: { et: "Kas olete valmis tellima?", en: "Are you ready to order?" }, cue: "Say yes, and ask what they recommend.", model: { et: "Jah. Mida te soovitate?", en: "Yes. What do you recommend?" } },
       { ask: { et: "Täna on väga hea kala.", en: "The fish is very good today." }, cue: "Say then you'd have the fish.", model: { et: "Siis ma võtaksin kala.", en: "Then I'd have the fish." } },
-      { cue: "Order the roast and a salad.", model: { et: "Mulle praadi ja salatit, palun.", en: "The roast and a salad for me, please." } },
+      { cue: "Order the roast and a salad.", model: { et: "Ma võtaksin praadi ja salatit.", en: "I'd have the roast and a salad." } },
       { ask: { et: "Ja magustoit?", en: "And dessert?" }, cue: "Say later, thank you.", model: { et: "Hiljem, aitäh.", en: "Later, thank you." } },
     ],
   },
@@ -192,7 +192,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
     cast: { Kati: "vesta", Tom: "kalev" },
     conversation: [
       { who: "Kati", et: "Kumb korter on parem?", en: "Which apartment is better?" },
-      { who: "Tom", et: "See korter on suurem, aga ka kallim.", en: "This apartment is bigger, but also more expensive." },
+      { who: "Tom", et: "See on suurem, aga ka kallim.", en: "This one is bigger, but also more expensive." },
       { who: "Kati", et: "Ja teine?", en: "And the other one?" },
       { who: "Tom", et: "Teine on väiksem, aga odavam ja uuem.", en: "The other one is smaller, but cheaper and newer." },
       { who: "Kati", et: "Uuem on parem kui suurem!", en: "Newer is better than bigger!" },

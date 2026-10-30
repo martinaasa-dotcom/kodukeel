@@ -33,9 +33,9 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Tom", et: "Tere! Üks pilet Tartusse, palun.", en: "Hello! One ticket to Tartu, please." },
       { who: "Kati", et: "Ühe otsa või edasi-tagasi?", en: "One way or round trip?" },
-      { who: "Tom", et: "Edasi-tagasi, palun. Millal rong väljub?", en: "Round trip, please. When does the train leave?" },
+      { who: "Tom", et: "Edasi-tagasi. Mis kell rong läheb?", en: "Round trip. What time does the train leave?" },
       { who: "Kati", et: "Kell kaheksa. Rong väljub esimeselt platvormilt.", en: "At eight. The train leaves from platform one." },
-      { who: "Tom", et: "Ja millal see Tartusse saabub?", en: "And when does it arrive in Tartu?" },
+      { who: "Tom", et: "Ja mis kell see Tartus on?", en: "And what time does it get to Tartu?" },
       { who: "Kati", et: "Kell kümme.", en: "At ten." },
       { who: "Tom", et: "Kui palju see maksab?", en: "How much is it?" },
       { who: "Kati", et: "Kakskümmend eurot.", en: "Twenty euros." },
@@ -73,7 +73,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
     answers: [
       { cue: "Ask for one ticket to Tartu.", model: { et: "Üks pilet Tartusse, palun.", en: "One ticket to Tartu, please." } },
       { ask: { et: "Ühe otsa või edasi-tagasi?", en: "One way or round trip?" }, cue: "Say round trip, please.", model: { et: "Edasi-tagasi, palun.", en: "Round trip, please." } },
-      { cue: "Ask when the train leaves.", model: { et: "Millal rong väljub?", en: "When does the train leave?" } },
+      { cue: "Ask what time the train leaves.", model: { et: "Mis kell rong läheb?", en: "What time does the train leave?" } },
       { cue: "Ask how much it is.", model: { et: "Kui palju see maksab?", en: "How much is it?" } },
     ],
   },
@@ -89,8 +89,8 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
     cast: { Mari: "mari", Tom: "kalev" },
     conversation: [
       { who: "Mari", et: "Kui kaua sa Tartus oled?", en: "How long are you in Tartu?" },
-      { who: "Tom", et: "Reedeni. Ma töötan seal esmaspäevast reedeni.", en: "Until Friday. I'm working there from Monday to Friday." },
-      { who: "Mari", et: "Kas buss sõidab jaamast kesklinnani?", en: "Does the bus go from the station to the town center?" },
+      { who: "Tom", et: "Reedeni. Töötan seal esmaspäevast reedeni.", en: "Until Friday. I'm working there from Monday to Friday." },
+      { who: "Mari", et: "Kas buss käib jaamast kesklinnani?", en: "Does the bus go from the station to the town center?" },
       { who: "Tom", et: "Jah, aga mina lähen jalgsi.", en: "Yes, but I'm going on foot." },
       { who: "Mari", et: "Millal sa tagasi tuled?", en: "When are you coming back?" },
       { who: "Tom", et: "Laupäeval. Reedel olen kontoris kella viieni.", en: "On Saturday. On Friday I'm at the office until five." },
@@ -144,14 +144,14 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
     goal: "Check in at a hotel, and ask about breakfast and the wifi.",
     cast: { Liis: "liivika", Tom: "kalev" },
     conversation: [
-      { who: "Tom", et: "Tere! Mul on broneering. Minu nimi on Tom Smith.", en: "Hello! I have a booking. My name is Tom Smith." },
+      { who: "Tom", et: "Tere! Mul on broneering, Tom Smith.", en: "Hello! I have a booking, Tom Smith." },
       { who: "Liis", et: "Tere tulemast! Kaks ööd, eks?", en: "Welcome! Two nights, right?" },
       { who: "Tom", et: "Jah, kaks ööd.", en: "Yes, two nights." },
       { who: "Liis", et: "Teie tuba on kolmandal korrusel. Siin on võti.", en: "Your room is on the third floor. Here's the key." },
       { who: "Tom", et: "Aitäh. Mis kell on hommikusöök?", en: "Thank you. What time is breakfast?" },
       { who: "Liis", et: "Seitsmest kümneni.", en: "From seven to ten." },
       { who: "Tom", et: "Kas toas on wifi?", en: "Is there wifi in the room?" },
-      { who: "Liis", et: "Jah, ja see on tasuta.", en: "Yes, and it's free." },
+      { who: "Liis", et: "Jah, ja tasuta.", en: "Yes, and it's free." },
     ],
     teaches: [
       { kind: "word", et: "broneering", en: "booking, reservation" },
@@ -199,12 +199,12 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
     cast: { Kati: "vesta", Tom: "kalev" },
     conversation: [
       { who: "Kati", et: "Kuidas reis oli?", en: "How was the trip?" },
-      { who: "Tom", et: "Väga hea. Me sõitsime rongiga Tartusse. Sõit kestis kaks tundi.", en: "Very good. We went to Tartu by train. The journey took two hours." },
+      { who: "Tom", et: "Väga tore! Sõitsime rongiga Tartusse, sõit kestis kaks tundi.", en: "Really nice! We went to Tartu by train, and the journey took two hours." },
       { who: "Kati", et: "Kus te ööbisite?", en: "Where did you stay the night?" },
       { who: "Tom", et: "Väikeses hotellis kesklinnas.", en: "In a small hotel in the town center." },
       { who: "Kati", et: "Mida te seal tegite?", en: "What did you do there?" },
-      { who: "Tom", et: "Me käisime ülikoolis ja muuseumis. Õhtul sõime restoranis.", en: "We went to the university and a museum. In the evening we ate at a restaurant." },
-      { who: "Kati", et: "Kas te tulite rongiga tagasi?", en: "Did you come back by train?" },
+      { who: "Tom", et: "Käisime ülikoolis ja muuseumis. Õhtul sõime restoranis.", en: "We went to the university and a museum. In the evening we ate at a restaurant." },
+      { who: "Kati", et: "Ja tagasi tulite ka rongiga?", en: "And did you come back by train too?" },
       { who: "Tom", et: "Ei, bussiga. Rong hilines.", en: "No, by bus. The train was late." },
     ],
     teaches: [
@@ -243,9 +243,9 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
       examples: [1, 3, 5],
     },
     answers: [
-      { ask: { et: "Kuidas reis oli?", en: "How was the trip?" }, cue: "Say very good, you went to Tartu by train.", model: { et: "Väga hea. Me sõitsime rongiga Tartusse.", en: "Very good. We went to Tartu by train." } },
+      { ask: { et: "Kuidas reis oli?", en: "How was the trip?" }, cue: "Say it was really nice, and you went to Tartu by train.", model: { et: "Väga tore! Sõitsime rongiga Tartusse.", en: "Really nice! We went to Tartu by train." } },
       { ask: { et: "Kus te ööbisite?", en: "Where did you stay the night?" }, cue: "Say in a small hotel.", model: { et: "Väikeses hotellis.", en: "In a small hotel." } },
-      { ask: { et: "Mida te seal tegite?", en: "What did you do there?" }, cue: "Say you went to a museum.", model: { et: "Me käisime muuseumis.", en: "We went to a museum." } },
+      { ask: { et: "Mida te seal tegite?", en: "What did you do there?" }, cue: "Say you went to a museum.", model: { et: "Käisime muuseumis.", en: "We went to a museum." } },
       { cue: "Say the train was late.", model: { et: "Rong hilines.", en: "The train was late." } },
     ],
   },
@@ -264,7 +264,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Kas sinna saab bussiga?", en: "Can you get there by bus?" },
       { who: "Mari", et: "Jah, buss käib iga tund. Sõit kestab kaks tundi.", en: "Yes, the bus goes every hour. The ride takes two hours." },
       { who: "Tom", et: "Milline linn Pärnu on?", en: "What kind of town is it?" },
-      { who: "Mari", et: "Väike ja ilus. Pärnu on mere ääres.", en: "Small and pretty. Pärnu is by the sea." },
+      { who: "Mari", et: "Väike ja ilus, mere ääres.", en: "Small and pretty, by the sea." },
       { who: "Tom", et: "Suvel lähen kindlasti!", en: "I'll definitely go in the summer!" },
     ],
     teaches: [
@@ -302,7 +302,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
       { cue: "Ask how far Pärnu is.", model: { et: "Kui kaugel Pärnu on?", en: "How far is Pärnu?" } },
       { cue: "Ask if you can get there by bus.", model: { et: "Kas sinna saab bussiga?", en: "Can you get there by bus?" } },
       { ask: { et: "Kui kaua sõit kestab?", en: "How long does the ride take?" }, cue: "Say about two hours.", model: { et: "Umbes kaks tundi.", en: "About two hours." } },
-      { ask: { et: "Kus Pärnu on?", en: "Where is Pärnu?" }, cue: "Say it's by the sea.", model: { et: "Pärnu on mere ääres.", en: "Pärnu is by the sea." } },
+      { ask: { et: "Kus Pärnu on?", en: "Where is Pärnu?" }, cue: "Say it's by the sea.", model: { et: "Mere ääres.", en: "By the sea." } },
     ],
   },
   {
@@ -316,10 +316,10 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
     cast: { Liis: "liivika", Tom: "kalev" },
     conversation: [
       { who: "Liis", et: "Tom, kuidas sa Helsingisse sõidad?", en: "Tom, how are you getting to Helsinki?" },
-      { who: "Tom", et: "Laevaga. Laev väljub sadamast kell üheksa.", en: "By boat. The ferry leaves the port at nine." },
-      { who: "Liis", et: "Ja kuidas sa Londonisse lähed?", en: "And how are you getting to London?" },
-      { who: "Tom", et: "Ma lendan. Lennuk väljub hommikul kell kuus.", en: "I'm flying. The plane leaves at six in the morning." },
-      { who: "Liis", et: "Nii vara! Sa pead lennujaamas olema kell neli.", en: "So early! You have to be at the airport at four." },
+      { who: "Tom", et: "Laevaga. Laev läheb kell üheksa.", en: "By boat. The ferry leaves at nine." },
+      { who: "Liis", et: "Aga Londonisse?", en: "And to London?" },
+      { who: "Tom", et: "Ma lendan. Lennuk läheb hommikul kell kuus.", en: "I'm flying. The plane leaves at six in the morning." },
+      { who: "Liis", et: "Nii vara! Siis pead kell neli lennujaamas olema.", en: "So early! Then you have to be at the airport at four." },
       { who: "Tom", et: "Ma tean. Pass ja kohver on juba valmis.", en: "I know. My passport and suitcase are ready already." },
     ],
     teaches: [
@@ -362,7 +362,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
       { ask: { et: "Kuidas sa Helsingisse sõidad?", en: "How are you getting to Helsinki?" }, cue: "Say by boat.", model: { et: "Laevaga.", en: "By boat." } },
       { cue: "Say the plane leaves at six in the morning.", model: { et: "Lennuk väljub hommikul kell kuus.", en: "The plane leaves at six in the morning." } },
       { ask: { et: "Kas sa oled valmis?", en: "Are you ready?" }, cue: "Say yes, your passport and suitcase are ready.", model: { et: "Jah, pass ja kohver on valmis.", en: "Yes, my passport and suitcase are ready." } },
-      { cue: "Say you have to be at the airport at four.", model: { et: "Ma pean lennujaamas olema kell neli.", en: "I have to be at the airport at four." } },
+      { cue: "Say you have to be at the airport at four.", model: { et: "Ma pean kell neli lennujaamas olema.", en: "I have to be at the airport at four." } },
     ],
   },
   {
@@ -403,7 +403,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
       scene: "You're at the bus station ticket window, going to Pärnu. The seller speaks first. Answer as yourself.",
       turns: [
         { ask: { et: "Tere! Kuhu te sõidate?", en: "Hello! Where are you traveling to?" }, cue: "Say where you're going.", model: { et: "Tere! Pärnusse.", en: "Hello! To Pärnu." } },
-        { ask: { et: "Buss väljub kell kaheksa ja kell üheksa.", en: "The bus leaves at eight and at nine." }, cue: "Choose a time.", model: { et: "Kell kaheksa, palun.", en: "At eight, please." } },
+        { ask: { et: "Buss läheb kell kaheksa ja kell üheksa.", en: "The bus leaves at eight and at nine." }, cue: "Choose a time.", model: { et: "Kell kaheksa, palun.", en: "At eight, please." } },
         { ask: { et: "Ühe otsa või edasi-tagasi?", en: "One way or round trip?" }, cue: "Say which.", model: { et: "Edasi-tagasi, palun.", en: "Round trip, please." } },
         { ask: { et: "Millal te tagasi tulete?", en: "When are you coming back?" }, cue: "Say when, and ask how long the ride takes.", model: { et: "Pühapäeval. Kui kaua sõit kestab?", en: "On Sunday. How long does the ride take?" } },
         { ask: { et: "Kaks tundi. Buss väljub teiselt platvormilt.", en: "Two hours. The bus leaves from platform two." }, cue: "Thank them, and ask how much it is.", model: { et: "Aitäh! Kui palju see maksab?", en: "Thank you! How much is it?" } },

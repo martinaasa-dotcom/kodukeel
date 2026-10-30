@@ -7,7 +7,7 @@ export const peretoetus: ScenePicks = {
     { et: "Tere päevast!", en: "Good afternoon!" },
   ],
   why: [
-    { et: "Raha ei ole tulnud.", en: "The money hasn't come." },
+    { et: "Raha pole tulnud.", en: "The money hasn't come." },
     { et: "Minu lapse raha ei ole sel kuul tulnud.", en: "The money for my child hasn't come this month." },
   ],
   ref: [
