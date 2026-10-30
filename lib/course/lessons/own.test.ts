@@ -22,6 +22,12 @@ describe("your own sentences as cards", () => {
     expect(piecesOf("Tere. Ma elan Tallinnas ja töötan seal. Kas sa tuled ka?")).toHaveLength(3);
   });
 
+  it("does not cut a sentence at the stop of an ordinal", () => {
+    expect(piecesOf("Tallinn, 12. märts. Ma kolisin siia 2025. aastal.")).toEqual(["Tallinn, 12. märts.", "Ma kolisin siia 2025. aastal."]);
+    // A number ending a sentence still ends it.
+    expect(piecesOf("Ma elan majas number 5. Siin on vaikne.")).toEqual(["Ma elan majas number 5.", "Siin on vaikne."]);
+  });
+
   it("takes out one taught word of four letters or more", () => {
     const card = ownCardFor("Suvel ma kavatsen Saaremaale minna.", lesson, taught, heads)!;
     expect(card).not.toBeNull();

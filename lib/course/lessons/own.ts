@@ -35,6 +35,7 @@ import { BLANK, mentions } from "@/lib/estonian/cloze";
 import { lessonHead } from "../lessonHeads";
 import { tonightSpellings } from "./fade";
 import { familiesOf, unfold, wordsOf, type Ledger } from "./ledger";
+import { isOrdinalStop } from "./sameSentence";
 import type { LessonSpec } from "./types";
 import { MOST_KEPT, MOST_READ } from "./limits";
 
@@ -49,11 +50,26 @@ export { MOST_KEPT, MOST_READ };
 /** Shorter than this and a piece of a draft is not read as a sentence. */
 const SENTENCE_WORDS = 3;
 
-/** Every piece of a draft between two stops, as the learner wrote it, however short. */
+/**
+ * Every piece of a draft between two stops, as the learner wrote it, however
+ * short. The stop that makes a number an ordinal (`2025. aastal`, `Tallinn,
+ * 12. märts`) ends nothing, by the rule the marker reads (`isOrdinalStop`).
+ */
 export function piecesOf(text: string): string[] {
-  return (text.normalize("NFC").match(/[^.!?]+[.!?]*/g) ?? [])
-    .map((s) => s.trim())
-    .filter((s) => wordsOf(s).length > 0);
+  const t = text.normalize("NFC");
+  const out: string[] = [];
+  let start = 0;
+  for (const m of t.matchAll(/[.!?]+/g)) {
+    const at = m.index ?? 0;
+    const end = at + m[0].length;
+    const before = /(\S+)$/u.exec(t.slice(0, at))?.[1] ?? "";
+    const after = /^\s*(\S+)/u.exec(t.slice(end))?.[1] ?? "";
+    if (m[0] === "." && isOrdinalStop(before, after)) continue;
+    out.push(t.slice(start, end));
+    start = end;
+  }
+  out.push(t.slice(start));
+  return out.map((s) => s.trim()).filter((s) => wordsOf(s).length > 0);
 }
 
 /** The sentences of a draft, as the learner wrote them, with their punctuation. */

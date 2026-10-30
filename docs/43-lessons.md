@@ -671,9 +671,11 @@ English: "say it without naming who did it" (`Ehitajad parandasid katuse` to `Ka
 it had already happened", "join the two with `mis`", "say it to your boss". The target is a lesson
 line the native speaker read, with the other ways of saying it that the native speaker accepts listed
 beside it. Anything else is compared with those sentences by `sameSentence.ts`: a pronoun's short or
-long spelling, a first- or second-person subject left out or put in beside a verb that says who, a
-reason moved to the other end, and the other orders the dictionary vouches for (`lessonOrders`) are
-right and say so; the same words in an order nothing can vouch for are nearly; and an instruction
+long spelling, a first- or second-person subject left out or put in beside a verb that says who
+(next to that verb or at the start of its clause, never in the middle; and put in only beside a form
+of that one person, so `oleks` and `olid` license none), a reason moved to the other end, a count
+from two to ten written in digits, and the other orders the dictionary vouches for (`lessonOrders`)
+are right and say so; the same words in an order nothing can vouch for are nearly; and an instruction
 that fixes the start or where the reason goes holds the answer to it. The marking is mechanical and
 no model grades. Each instruction is a pattern in the ledger, so no lesson asks for a change it has
 not explained.
@@ -710,10 +712,12 @@ three of its evenings build it:
 2. **Fill in the frame**: the same text with the evening's grammar taken out, written back in.
 3. **Write your own**: the same situation with the learner's details, using two or three of the
    part's patterns.
-4. **The marking.** The dictionary first: was each pattern used, and is each required form a
-   spelling Ekilex vouches for (`checkForm`, `acceptedUses`). Then the grader says whether the text
-   holds together, behind `verify.ts`, which withholds any comment carrying a form it was not given.
-   A deployment with no model key gets the dictionary's half and says so.
+4. **The marking.** The dictionary first, on every deployment: `WriteStep` sends the draft to
+   `checkLessonText`, which cuts it into sentences (`sentencesOf`) and reads each one through
+   `checkTypedSentences` and `checkSentence`, the check a say-it answer gets; the uses the part asks
+   for are ticked as the learner types (`usesIn` in `frame.ts`). Then, on a separate press, Anu says
+   whether the text holds together, behind `verify.ts`, which withholds any comment carrying a form
+   it was not given. A deployment with no model key gets the dictionary's half and says so.
 5. **Redraft**: the learner rewrites with the comments beside them, and both versions stay side by side.
 
 The genres follow the exam (`lib/exam/spec.ts`): at B1 a `teade` (a note that has to get something
@@ -818,7 +822,8 @@ own `Review.reachedSlot`). Say it opens on saying the key lines along with the s
 each line hidden on every pass (`fade.ts`), and then either a story retold, with a checklist that
 lights as its points are heard (`retell`), or one answer given three times in 90, 60 and 45 seconds
 (`faster`). Each part's writing evening is the Write step: read the model, fill in the frame, write
-your own, have it read by the dictionary and, where a model is configured, by Anu behind
+your own, have it read by the dictionary (`checkLessonText`, sentence by sentence through
+`checkSentence`, the uses ticked by `usesIn`) and, where a model is configured, by Anu behind
 `verify.ts`, and redraft; a sentence written right can be kept as a review card (`WRITTEN`). The
 Words step names what each new verb asks for (`asks`). Each part ends in a role-play played live
 (`lib/scenes/specs/b1-*.ts`), and every scene is played keyless as seven kinds of learner in
