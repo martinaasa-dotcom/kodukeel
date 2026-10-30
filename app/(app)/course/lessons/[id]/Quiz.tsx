@@ -72,12 +72,19 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
      the Enter that pressed Next does not land on Check over an empty box and
      mark it wrong. Not on the first question: arriving is not moving on. */
   const boxRef = useRef<HTMLInputElement>(null);
+  // A question with no box takes the caret to its heading instead, or Next's going leaves it on the page.
+  const questionRef = useRef<HTMLDivElement>(null);
   const shownAt = useRef(at);
   useEffect(() => {
     if (shownAt.current === at) return;
     shownAt.current = at;
-    boxRef.current?.focus();
+    (boxRef.current ?? questionRef.current)?.focus();
   }, [at]);
+  // The summary replaces the question whose Done was pressed, so the caret goes to it and it is read.
+  const summaryRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (over) summaryRef.current?.focus();
+  }, [over]);
 
   if (!item) return null;
 
@@ -107,15 +114,15 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
   if (over) {
     const all = firstTime === items.length;
     return (
-      <div data-lesson-quiz="done">
+      <div data-lesson-quiz="done" ref={summaryRef} tabIndex={-1} className="outline-none">
         <Card tone="sky" className="pop-in">
           <p className="text-lg font-semibold" style={{ color: "var(--ink)" }}>
             {fill(t("{n} of {total} right the first time."), { n: String(firstTime), total: String(items.length) })}
           </p>
-          <p role="status" className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>
+          <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>
             {all
               ? t("Every one. Carry on when you're ready.")
-              : t("The ones you missed come back in the review at the end of the next lesson.")}
+              : t("Earlier words come back in the review at the end of each lesson.")}
           </p>
           {best >= 3 && (
             <p className="mt-2 inline-flex items-center gap-1.5 text-base font-semibold" style={{ color: "var(--accent-deep)" }}>
@@ -176,7 +183,10 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
         )}
       </div>
       <Card>
-        <SectionTitle hint={fill(t("{n} of {total}"), { n: String(at + 1), total: String(items.length) })}>{heading}</SectionTitle>
+        {/* Where the caret goes on a new question with no box: its heading, which says what is asked and which question this is. */}
+        <div ref={questionRef} tabIndex={-1} className="outline-none">
+          <SectionTitle hint={fill(t("{n} of {total}"), { n: String(at + 1), total: String(items.length) })}>{heading}</SectionTitle>
+        </div>
 
         {item.kind === "hear" && (
           <div className="flex flex-wrap items-center gap-3">
@@ -411,18 +421,32 @@ function Match({ pairs, onDone }: { pairs: readonly { et: string; en: string }[]
   const [wrong, setWrong] = useState<string | null>(null);
   const [slips, setSlips] = useState(0);
   const finished = done.size === pairs.length;
+  /*
+    WHAT THE LAST PRESS DID, SAID OUT LOUD. A pair that locks in recolors and
+    one that misses shakes, which a screen reader hears as nothing, so one line
+    held in state says it: the last thing that happened rather than a backlog.
+  */
+  const [said, setSaid] = useState<{ et?: string; text: string } | null>(null);
+  // A matched pair disables the meaning that was pressed, so the caret goes to the next word still to match.
+  const etRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const take = (en: string) => {
     if (chosen === null || finished) return;
     if (pairs[chosen]!.en === en) {
       const now = new Set(done).add(chosen);
       setDone(now);
+      setSaid({ et: pairs[chosen]!.et, text: t("matched.") });
       setChosen(null);
       if (now.size === pairs.length) onDone(slips === 0);
-      else sound("right");
+      else {
+        sound("right");
+        const nextOpen = pairs.findIndex((_, i) => !now.has(i));
+        requestAnimationFrame(() => etRefs.current[nextOpen]?.focus());
+      }
     } else {
       setSlips((n) => n + 1);
       setWrong(en);
+      setSaid({ text: t("Not that one. Try another meaning.") });
       sound("wrong");
       window.setTimeout(() => setWrong(null), 450);
     }
@@ -436,6 +460,7 @@ function Match({ pairs, onDone }: { pairs: readonly { et: string; en: string }[]
           return (
             <li key={pair.et}>
               <button
+                ref={(el) => { etRefs.current[i] = el; }}
                 type="button"
                 lang="et"
                 disabled={isDone || finished}
@@ -468,6 +493,9 @@ function Match({ pairs, onDone }: { pairs: readonly { et: string; en: string }[]
           );
         })}
       </ul>
+      <p className="sr-only" role="status" aria-live="polite">
+        {said && !finished ? <>{said.et && <span lang="et">{said.et} </span>}{said.text}</> : null}
+      </p>
       <p className="col-span-2 text-sm" style={{ color: "var(--ink-3)" }}>
         {finished
           ? (slips === 0 ? t("All matched, first time.") : t("All matched."))

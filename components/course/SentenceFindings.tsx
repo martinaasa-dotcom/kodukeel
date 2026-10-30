@@ -27,7 +27,16 @@ import { VERDICT_CLASS } from "@/lib/ux/verdict";
  * was on the screen first (Say it does; the writing step's redraft does not,
  * since its own summary line is what is read there).
  */
-export function SentenceFindings({ findings }: { findings: readonly Finding[] }) {
+export function SentenceFindings({ findings }: {
+  findings: readonly Finding[];
+  /**
+   * How it reaches a screen reader, said at every call: inside a live region
+   * the caller mounted first, or read through a summary the caller focuses
+   * (the writing step's redraft, where one line per sentence would be a
+   * backlog). Required, so a new caller has to decide.
+   */
+  announced: "region" | "summary";
+}) {
   const t = useT();
   const locale = useLocale();
   const et = (word: string) => <b lang="et">{word}</b>;

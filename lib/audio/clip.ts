@@ -469,6 +469,8 @@ export async function playClip(
       if (unasked && error instanceof DOMException && error.name === "NotAllowedError") {
         return "blocked";
       }
+      // A Stop that paused the element before play() settled is that Stop, not a failure to play.
+      if (stops !== asked && error instanceof DOMException && error.name === "AbortError") return "stopped";
       throw error;
     }
     return "played";

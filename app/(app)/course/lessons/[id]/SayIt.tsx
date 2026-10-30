@@ -426,7 +426,7 @@ function AnswerCard({ lessonId, card, mode, voice, name, onNext, last }: {
 
       {/* Mounted empty and filled: the dictionary's reading lands a moment after the verdict, often after the caret has gone to Next. */}
       <div role="status" aria-live="polite" className={shown && found !== null ? "mt-4" : undefined}>
-        {shown && found !== null && <SentenceFindings findings={found} />}
+        {shown && found !== null && <SentenceFindings findings={found} announced="region" />}
       </div>
       <div className="mt-4 flex flex-col gap-3" role="status" aria-live="polite">
         {shown && mark !== null && (mark.verdict !== "wrong" || (mark.close && !card.own)) && (

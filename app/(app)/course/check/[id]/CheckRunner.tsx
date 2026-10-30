@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { Check, RotateCcw } from "lucide-react";
 import { submitCheck } from "@/app/actions";
 import { useLocale, useT } from "@/components/Locale";
@@ -48,6 +48,21 @@ export function CheckRunner({ checkId, attempt, items, needed, alreadyPassed, ne
   const [result, setResult] = useState<{ score: number; total: number; passed: boolean; marks: readonly string[] } | null>(null);
   const [failed, setFailed] = useState(false);
   const [pending, start] = useTransition();
+  /*
+    THE QUIZ GOES WHEN ITS DONE IS PRESSED, so the caret goes to what came in
+    its place: the marking line, then the result or the way to send it again.
+    What is said out loud is one region on the screen from the start, filled
+    as the marking goes, since a region that arrives holding its words is often
+    not read.
+  */
+  const markingRef = useRef<HTMLParagraphElement>(null);
+  const resultRef = useRef<HTMLParagraphElement>(null);
+  const retryRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (pending) markingRef.current?.focus();
+    else if (result) resultRef.current?.focus();
+    else if (failed) retryRef.current?.focus();
+  }, [pending, result, failed]);
 
   const finish = () => {
     setFailed(false);
@@ -73,18 +88,26 @@ export function CheckRunner({ checkId, attempt, items, needed, alreadyPassed, ne
         onAnswer={(at, response) => { responses.current[at] = response; }}
         onFinished={finish}
       />
-      {pending && <p role="status" className="text-base" style={{ color: "var(--ink-2)" }}>{t("Marking it…")}</p>}
+      <p role="status" className="sr-only">
+        {pending ? t("Marking it…")
+          : failed ? t(NOT_REACHED)
+            : result ? (result.passed
+              ? fill(t("Passed: {score} of {total}."), { score: formatScore(result.score), total: result.total })
+              : fill(t("{score} of {total}. You need {needed} to pass."), { score: formatScore(result.score), total: result.total, needed }))
+              : ""}
+      </p>
+      {pending && <p ref={markingRef} tabIndex={-1} className="text-base outline-none" style={{ color: "var(--ink-2)" }}>{t("Marking it…")}</p>}
       {failed && (
-        <div role="status" className="flex flex-col items-start gap-2">
+        <div className="flex flex-col items-start gap-2">
           <Note tone="again">{t(NOT_REACHED)}</Note>
-          <button type="button" className="tap-tint underline" onClick={finish}>{t("Try sending it again")}</button>
+          <button ref={retryRef} type="button" className="tap-tint underline" onClick={finish}>{t("Try sending it again")}</button>
         </div>
       )}
       {result?.passed && level && <LevelFinished level={level} score={`${formatScore(result.score)} / ${result.total}`} />}
       {result && !(result.passed && level) && result.passed && <Confetti count={50} />}
       {result && (
         <Card tone={result.passed ? "sky" : "butter"} data-check-result={result.passed ? "passed" : "not-yet"}>
-          <p role="status" className="flex items-center gap-2 text-lg font-semibold" style={{ color: "var(--ink)" }}>
+          <p ref={resultRef} tabIndex={-1} className="flex items-center gap-2 text-lg font-semibold outline-none" style={{ color: "var(--ink)" }}>
             {result.passed && <Check size={18} aria-hidden />}
             {result.passed
               ? fill(t("Passed: {score} of {total}."), { score: formatScore(result.score), total: result.total })

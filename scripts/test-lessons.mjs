@@ -180,6 +180,8 @@ async function sayThrough(lesson, mode) {
   let fade = false;
   let retold = false;
   let faster = false;
+  // Whether the dictionary read a typed answer at all: null until a box is answered.
+  let readTyped = null;
   for (let n = 0; n < 30; n++) {
     if (await page.locator('[data-say-it="done"]').count()) break;
     const say = page.locator("[data-say-it]").first();
@@ -224,12 +226,17 @@ async function sayThrough(lesson, mode) {
     if (await box.count()) {
       await box.fill("Ma ei tea.");
       await say.getByRole("button", { name: /^Check it/ }).click();
+      // The first typed answer of the lesson waits for the dictionary's reading, which every lesson's cards get.
+      if (readTyped === null) readTyped = await say.locator("[data-sentence-check]").first().waitFor({ timeout: 20_000 }).then(() => true, () => false);
       await say.getByRole("button", { name: /^(Next|Done)/ }).click();
       continue;
     }
     break;
   }
   check(`${where}: Say it reaches its end`, (await page.locator('[data-say-it="done"]').count()) === 1);
+  if (readTyped !== null) {
+    check(`${where}: the dictionary reads a typed answer${lesson.write ? "" : ", on a lesson with no writing task"}`, readTyped);
+  }
   return { fade, retold, faster };
 }
 

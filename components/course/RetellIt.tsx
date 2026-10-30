@@ -63,8 +63,7 @@ export function RetellIt({ retell, voice, typed, onDone }: { retell: Retell; voi
   // One loud button a screen: hearing the story until it has been heard twice or told, then Next.
   const hearFirst = plays < 2 && said.trim() === "";
 
-  // Leaving the card ends the story after the line in the air, rather than playing the rest over the next one.
-  // Leaving the screen mid-play ends the line being said, so it is not heard over the next one.
+  // Leaving the card mid-play ends the line being said and the rest of the story, so neither is heard over the next screen.
   const running = useRef(false);
   useEffect(() => () => {
     stop.current = true;

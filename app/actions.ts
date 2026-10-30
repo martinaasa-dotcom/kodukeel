@@ -3252,8 +3252,8 @@ export async function checkLessonSentence(lessonIdIn: unknown, whichIn: unknown,
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "checkSentence");
   if (busy) return await sayRefusal(ownerId, busy);
-  // Found the way the writing step finds its lesson, so a lesson in preview is read here too.
-  const lesson = writingLesson(lessonIdIn);
+  // Any lesson, the course's or one in preview: every lesson has cards to say, where only some have a writing task.
+  const lesson = lessonOrPreview(lessonIdIn);
   const index = typeof indexIn === "number" && Number.isInteger(indexIn) ? indexIn : -1;
   const prompts = text(whichIn) === "turns" ? lesson?.roleplay?.turns ?? [] : lesson?.answers ?? [];
   const prompt = prompts[index];
@@ -3270,8 +3270,12 @@ const MAX_WRITTEN_CHARS = 2400;
 const MAX_KEPT_SENTENCE_CHARS = 600;
 
 /** A writing lesson by id, the course's and the preview's alike. */
+function lessonOrPreview(lessonId: unknown) {
+  return [...LESSONS, ...PREVIEW_LESSONS].find((l) => l.id === text(lessonId)) ?? null;
+}
+
 function writingLesson(lessonId: unknown) {
-  const lesson = [...LESSONS, ...PREVIEW_LESSONS].find((l) => l.id === text(lessonId));
+  const lesson = lessonOrPreview(lessonId);
   return lesson?.write ? lesson : null;
 }
 

@@ -41,8 +41,10 @@ interface Reading {
  * is withheld whole. She can be asked again once the text has changed, which
  * is what a second draft is for, and after a call that did not come back.
  */
-export function AnuTextReading({ text, level, heading, invite, offline }: {
+export function AnuTextReading({ text, level, heading, invite, offline, where = "EXAM_NOTE" }: {
   text: string;
+  /** Where a report of her note says it was standing, so a reviewer reads it beside the right screen. */
+  where?: "EXAM_NOTE" | "WRITING_NOTE";
   level: string;
   /** Over her note, once she has read it. */
   heading: ReactNode;
@@ -136,7 +138,7 @@ export function AnuTextReading({ text, level, heading, invite, offline }: {
               <SuggestFix
                 category="AI_ANSWER"
                 answers={{
-                  where: "EXAM_NOTE",
+                  where,
                   model: body.model ?? null,
                   texts: [[body.comment, body.rule].filter(Boolean).join(" ")],
                 }}
@@ -152,7 +154,7 @@ export function AnuTextReading({ text, level, heading, invite, offline }: {
 
       {canAsk && (
         <div className={`flex flex-wrap items-center gap-3 ${body ? "mt-3" : ""}`}>
-          <Button onClick={ask} disabled={busy}>
+          <Button onClick={ask} disabled={busy || text.trim() === ""}>
             {busy
               ? <><Loader2 size={15} className="animate-spin" aria-hidden /> {t("Reading")}</>
               : <><MessageCircleQuestion size={15} aria-hidden /> {body ? t("Ask Anu to read it again") : t("Ask Anu to read it")}</>}

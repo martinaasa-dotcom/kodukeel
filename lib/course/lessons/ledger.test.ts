@@ -234,6 +234,23 @@ describe("a sentence to change (Rework)", () => {
     expect(unchanged.verdict).toBe("wrong");
     expect(unchanged.note).toContain("as it was");
     expect(markRework("", item).note).toBe("Nothing typed.");
+    // The right words in another order, or with the pronoun dropped, are nearly and never wrong.
+    expect(markRework("Raamatu lugesin ma läbi.", item).verdict).toBe("nearly");
+    expect(markRework("Lugesin raamatu läbi.", item).verdict).toBe("nearly");
+    expect(markRework("Lugesin raamatu läbi.", item).note).toContain("may well be right");
+    // But another ending in another order is still the wrong word.
+    expect(markRework("Raamatut lugesin ma läbi.", item).verdict).toBe("wrong");
+  });
+});
+
+describe("the same words, another way", () => {
+  it("counts pole as ei ole and allows the subject pronoun to be dropped", async () => {
+    const { sameWords } = await import("./practice");
+    expect(sameWords("ma ei ole nõus", "pole nõus")).toBe(true);
+    expect(sameWords("eile ma palusin ülemust appi", "eile palusin ülemust appi")).toBe(true);
+    expect(sameWords("ma ei ole nõus", "ma ei ole nõus")).toBe(false);
+    expect(sameWords("ma lugesin raamatu", "ma lugesin raamatut")).toBe(false);
+    expect(sameWords("ma", "")).toBe(false);
   });
 });
 

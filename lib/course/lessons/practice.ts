@@ -557,6 +557,25 @@ export function normalisePhrase(text: string): string {
   return wordsOf(text).map((w) => w.low).join(" ");
 }
 
+/** `pole` and `poleks` written out, so a short negative is compared as the long one. */
+function shortNegative(phrase: string): string {
+  return phrase.split(" ").map((w) => (w === "pole" ? "ei ole" : w === "poleks" ? "ei oleks" : w)).join(" ");
+}
+
+/** The subject pronouns Estonian drops where the verb's ending already says who. */
+const DROPPABLE = new Set(["ma", "mina", "sa", "sina", "ta", "tema", "me", "meie", "te", "teie", "nad", "nemad"]);
+
+/**
+ * Whether two phrases hold the same words, whatever their order, with a
+ * dropped subject pronoun allowed on either side. Pure counting: it says
+ * nothing about whether the order is Estonian, which is why it marks nearly.
+ */
+export function sameWords(a: string, b: string): boolean {
+  const bag = (p: string) => shortNegative(p).split(" ").filter((w) => w && !DROPPABLE.has(w)).sort().join(" ");
+  const x = bag(a);
+  return x.length > 0 && x === bag(b) && shortNegative(a) !== shortNegative(b);
+}
+
 /** The slip floor for a one-letter difference (`lib/estonian/answer.ts`). */
 const SLIP_FLOOR = 8;
 
@@ -616,12 +635,27 @@ export function markRework(typed: string, item: Extract<PracticeItem, { kind: "r
   const wants = item.accept.map(normalisePhrase);
   if (said.length === 0) return { verdict: "wrong", note: "Nothing typed.", close: false };
   if (wants.includes(said)) return { verdict: "right", note: "That's it.", close: false };
-  if (wants.some((w) => fold(w) === fold(said))) return { verdict: "nearly", note: "Nearly: mind the letters with marks on them.", close: false };
+  // `pole` is `ei ole` said short, everywhere and always, so either is the sentence as written.
+  if (wants.some((w) => shortNegative(w) === shortNegative(said))) return { verdict: "right", note: "That's it.", close: false };
+  // Typed back unchanged is not a reordering, even where the change asked for was the order.
   if (said === normalisePhrase(item.kind === "fix" ? item.shown : item.from.et)) {
     return item.kind === "fix"
       ? { verdict: "wrong", note: "That's the line with the slip still in it.", close: false }
       : { verdict: "wrong", note: "That's the sentence as it was. Change it the way the line above asks.", close: false };
   }
+  /*
+    THE RIGHT WORDS IN ANOTHER ORDER ARE NEVER CALLED WRONG. Estonian word
+    order is free enough that the sentences written down for a rework cannot
+    hold every right one, and the subject pronoun is dropped where the verb
+    already says who: a learner who wrote one of those had it right, as far as
+    anybody here can tell. So the same words in another order, or with the
+    pronoun left out or put in, are nearly, with a note that says why and that
+    it may well be right too, and the written sentence is shown beside it.
+  */
+  if (wants.some((w) => sameWords(w, said))) {
+    return { verdict: "nearly", note: "The words are right. The order isn't one we have written down, and it may well be right too.", close: false };
+  }
+  if (wants.some((w) => fold(w) === fold(said))) return { verdict: "nearly", note: "Nearly: mind the letters with marks on them.", close: false };
   /*
     A FIX IS ABOUT ONE WORD. The whole line is retyped, so a slip of the hand
     anywhere else in it used to cost the fix itself: the learner put the slip

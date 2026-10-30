@@ -285,7 +285,7 @@ function Frame({ write, typed, setTyped, checked, setChecked, onNext }: {
         {checked ? (
           <Button variant="primary" onClick={onNext}>{t("Write your own")} <ArrowRight size={15} aria-hidden /></Button>
         ) : (
-          <Button variant="primary" onClick={() => { setChecked(true); sound(right === gaps.length ? "right" : "wrong"); }}>{t("Check it")}</Button>
+          <Button variant="primary" onClick={() => { setChecked(true); sound(marks.every((m) => m === "right") ? "right" : "wrong"); }}>{t("Check it")}</Button>
         )}
       </div>
     </Card>
@@ -444,7 +444,7 @@ function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonS
             {read.sentences.map((s, i) => s.findings.length > 0 && (
               <div key={i} className="flex flex-col gap-2">
                 <p lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>{s.sentence}</p>
-                <SentenceFindings findings={s.findings} />
+                <SentenceFindings findings={s.findings} announced="summary" />
               </div>
             ))}
             {stale && <p className="text-base" style={{ color: "var(--ink-2)" }}>{t("You've changed your text since the dictionary read it.")}</p>}
@@ -465,6 +465,7 @@ function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonS
           heading={t("Anu's read it. It's advice, and nothing here is marked.")}
           invite={t("Whether the text holds together, and one thing to do better.")}
           offline={t("Anu needs a connection to read it. Your text is still here.")}
+          where="WRITING_NOTE"
         />
       </Card>
 

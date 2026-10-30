@@ -49,7 +49,7 @@ export function SayAlongFade({ lesson, partAt, onDone }: { lesson: LessonSpec; p
       <p className="mb-4 text-base" style={{ color: "var(--ink-2)" }}>
         {step.pass === 1
           ? step.hidden.some(Boolean)
-            ? t("Hear the line, then say it. Today's words are already gone: each comes back when it's heard.")
+            ? t("Hear the line, then say it. Some of its words are already gone: each comes back when it's heard.")
             : t("Hear the line, then say it with the words in front of you.")
           : step.pass === 2
             ? t("Now more of the line is gone. Say the whole line: a word comes back when it's heard.")
@@ -67,7 +67,8 @@ export function SayAlongFade({ lesson, partAt, onDone }: { lesson: LessonSpec; p
         locale={locale}
       />
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm" style={{ color: "var(--ink-3)" }}>{fill(t("Line {n} of {total}"), { n: String(lineInRound), total: String(inRound) })}</p>
+        {/* Read out as Next brings each line, since the caret stays on Next and nothing else says the line changed. */}
+        <p className="text-sm" role="status" style={{ color: "var(--ink-3)" }}>{fill(t("Line {n} of {total}"), { n: String(lineInRound), total: String(inRound) })}</p>
         <Button variant="primary" onClick={() => (last ? onDone() : setAt((n) => n + 1))}>
           {last ? t("Done") : t("Next")} <ArrowRight size={15} aria-hidden />
         </Button>

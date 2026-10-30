@@ -77,6 +77,24 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [singleKeys]);
 
+  /*
+    A PICK DISABLES THE OPTION THAT WAS PRESSED, and Next takes its button away,
+    so the caret goes on with them: to Next once a form is picked, to the new
+    question after Next, and to the closing line at the end.
+  */
+  const nextRef = useRef<HTMLButtonElement>(null);
+  const promptRef = useRef<HTMLParagraphElement>(null);
+  const doneRef = useRef<HTMLParagraphElement>(null);
+  const moved = useRef(false);
+  useEffect(() => {
+    if (picked !== null) nextRef.current?.focus();
+  }, [picked]);
+  useEffect(() => {
+    if (!moved.current) return;
+    moved.current = false;
+    (over ? doneRef.current : promptRef.current)?.focus();
+  }, [at, over]);
+
   if (asks.length === 0) return null;
   const ask = asks[Math.min(at, asks.length - 1)]!;
   const said = askText(ask, locale);
@@ -91,6 +109,7 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
   };
 
   const next = () => {
+    moved.current = true;
     if (last) { setOver(true); return; }
     setAt((n) => n + 1);
     setPicked(null);
@@ -110,7 +129,7 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
         <div className="flex items-start gap-3">
           <Sparkles size={20} aria-hidden style={{ color: "var(--good-ink)" }} />
           <div className="min-w-0">
-            <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>
+            <p ref={doneRef} tabIndex={-1} className="text-base font-semibold outline-none" style={{ color: "var(--ink)" }}>
               {t("You looked the forms up in the table.")}
             </p>
             <p role="status" className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>
@@ -132,7 +151,7 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
     <div data-try-it={at + 1}>
     <Card>
       <SectionTitle hint={fill(t("{n} of {total}, just practice"), { n: at + 1, total: asks.length })}>{t("Try it")}</SectionTitle>
-      <p className="mt-2 text-lg font-bold" style={{ color: "var(--ink)" }}>
+      <p ref={promptRef} tabIndex={-1} className="mt-2 text-lg font-bold outline-none" style={{ color: "var(--ink)" }}>
         <Estonianised text={said.prompt} words={[ask.about]} />
       </p>
 
@@ -178,7 +197,7 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
               <Speak text={ask.answer} size={15} /> {t("hear it")}
             </span>
           )}
-          <Button variant="primary" onClick={next}>
+          <Button ref={nextRef} variant="primary" onClick={next}>
             {last ? t("Done") : t("Next")} <ArrowRight size={15} aria-hidden />
           </Button>
         </div>
