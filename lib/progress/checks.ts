@@ -57,13 +57,23 @@ export async function moveBlockedFor(
     who walked the old B1 holds ticks under a lesson part's id, on day ids that
     part no longer has. Read as lessons, those would trap a B1 learner who took
     the refresher back down to A2 behind A2's checks.
+
+    And so does an evening of a lesson part as far up as the move or further:
+    B1 is lessons now, so a learner placed at B1 who worked its first lesson
+    and then took the A2 refresher held ticks in a lesson part and on day ids
+    it still has, and every A2 check stood between them and the part they had
+    already been on. Somebody who has worked a part has been past every check
+    below it; a part above any they have worked is still held.
   */
+  const at = PROGRAMMES.findIndex((p) => p.id === to.id);
+  const reachedBefore = at < 0 ? [] : PROGRAMMES.slice(at).filter((p) => lessonParts.includes(p)).map((p) => p.id);
   const beenAbove = await prisma.courseStep.findFirst({
     where: {
       ownerId,
       OR: [
         { programmeId: { notIn: lessonParts.map((p) => p.id) } },
         { programmeId: { in: lessonParts.map((p) => p.id) }, dayId: { notIn: lessonParts.flatMap((p) => p.days.map((d) => d.id)) } },
+        { programmeId: { in: reachedBefore } },
       ],
     },
     select: { id: true },

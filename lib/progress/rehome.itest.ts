@@ -112,6 +112,24 @@ describe("a learner on a part that has become lessons", () => {
     expect(await moveBlockedFor(MINE, a2[0]!, a2[1]!)).toBeNull();
   });
 
+  it("lets a learner placed at B1 who took the A2 refresher go back up the way they came", async () => {
+    // Placed at B1 and worked a lesson there, then stepped down to A2 to refresh it.
+    const day = b1[0]!.days[0]!;
+    await prisma.courseStep.create({ data: { ownerId: MINE, programmeId: b1[0]!.id, dayId: day.id, stepId: day.steps[0]!.id } });
+    // Back up to B1 asks no A2 check: they have been there.
+    expect(await moveBlockedFor(MINE, a2[0]!, b1[0]!)).toBeNull();
+    // And A2's own parts on the way are not a trap either.
+    expect(await moveBlockedFor(MINE, a2[0]!, a2[1]!)).toBeNull();
+    // Further up than they have ever worked is still held.
+    expect(await moveBlockedFor(MINE, a2[0]!, b1[2]!)).not.toBeNull();
+  });
+
+  it("holds a learner who has only ever worked in A2 to its checks", async () => {
+    const day = a2[0]!.days[0]!;
+    await prisma.courseStep.create({ data: { ownerId: MINE, programmeId: a2[0]!.id, dayId: day.id, stepId: day.steps[0]!.id } });
+    expect(await moveBlockedFor(MINE, a2[0]!, a2[1]!)).not.toBeNull();
+  });
+
   it("settles a learner once, and asks again after their restore, and only theirs", async () => {
     for (const who of [MINE, THEIRS]) await writeSetting(who, SETTING_KEYS.programme, b1[2]!.id);
     // No old ticks: both settled where they are.
