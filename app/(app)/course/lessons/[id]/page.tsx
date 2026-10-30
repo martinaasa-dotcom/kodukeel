@@ -7,7 +7,6 @@ import { LessonRunner } from "./LessonRunner";
 import { lessonView } from "@/lib/progress/lessonView";
 import { isAdmin } from "@/lib/auth/admin";
 
-
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const lesson = lessonById((await params).id);
   return titleFor(lesson ? lesson.title : "A lesson");

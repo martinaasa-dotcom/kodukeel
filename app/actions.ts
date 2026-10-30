@@ -3252,7 +3252,8 @@ export async function checkLessonSentence(lessonIdIn: unknown, whichIn: unknown,
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "checkSentence");
   if (busy) return await sayRefusal(ownerId, busy);
-  const lesson = LESSONS.find((l) => l.id === text(lessonIdIn));
+  // Found the way the writing step finds its lesson, so a lesson in preview is read here too.
+  const lesson = writingLesson(lessonIdIn);
   const index = typeof indexIn === "number" && Number.isInteger(indexIn) ? indexIn : -1;
   const prompts = text(whichIn) === "turns" ? lesson?.roleplay?.turns ?? [] : lesson?.answers ?? [];
   const prompt = prompts[index];
@@ -4363,6 +4364,7 @@ export async function setProgramme(value: string) {
     : null;
   await Promise.all([
     writeSetting(ownerId, SETTING_KEYS.programme, wanted || defaultProgramme().id),
+    writeSetting(ownerId, SETTING_KEYS.programmeChosenAt, new Date().toISOString()),
     held ? recordCourseLevel(ownerId, held) : Promise.resolve(),
   ]);
   revalidatePath("/course");
@@ -4422,6 +4424,7 @@ export async function acceptCourseMove(kind: string) {
 
   await Promise.all([
     writeSetting(ownerId, SETTING_KEYS.programme, move.to.id),
+    writeSetting(ownerId, SETTING_KEYS.programmeChosenAt, now.toISOString()),
     writeSetting(ownerId, SETTING_KEYS.adaptMovedAt, now.toISOString()),
     writeSetting(ownerId, SETTING_KEYS.adaptSnoozedUntil, ""),
     levelWrite ? recordCourseLevel(ownerId, levelWrite, now) : Promise.resolve(),

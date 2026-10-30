@@ -122,7 +122,9 @@ export function CheckRunner({ checkId, attempt, items, needed, alreadyPassed, ne
                 {item.kind === "match" ? null : item.kind === "fix" ? (
                   /* The line as it was shown, the line put right and why: the reason is what the next go is about. */
                   <>
-                    <span lang="et" style={{ color: "var(--ink-3)" }}><s>{item.shown}</s></span>
+                    {/* Struck through for the eye and said in words for a screen reader, which reads no strikethrough. */}
+                    <span style={{ color: "var(--ink-3)" }}><span className="sr-only">{t("With the slip:")} </span><s lang="et">{item.shown}</s></span>
+                    <span className="sr-only">{t("Put right:")}</span>
                     <span lang="et" className="font-semibold" style={{ color: "var(--accent-deep)" }}>{item.answer}</span>
                     <span style={{ color: "var(--ink-2)" }}><LessonText text={item.en} locale={locale} /></span>
                     <span className="basis-full text-sm" style={{ color: "var(--ink-2)" }}><LessonText text={item.why} locale={locale} /></span>

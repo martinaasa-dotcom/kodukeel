@@ -23427,11 +23427,22 @@ check("a control says what it does under a pointer", () => {
 */
 check("a marked answer says so out loud", () => {
   const PAGE_NOT_A_ROUND = "app/(app)/exam/result/[id]/page.tsx";
+  /*
+    A piece drawn inside a region its callers mounted first, since a region that
+    arrives holding its words is often not read. It may hold no region of its
+    own, and every file that draws it has to have one.
+  */
+  const ANNOUNCED_BY_CALLER = "components/course/SentenceFindings.tsx";
+  const callers = [...APP, ...COMPONENTS].filter((f) => f !== ANNOUNCED_BY_CALLER && /<SentenceFindings\b/.test(code(f)));
+  assert.ok(callers.length >= 2, `only ${callers.length} files draw SentenceFindings; the exemption is about nothing`);
+  for (const caller of callers) {
+    assert.match(code(caller), /aria-live|role="(status|alert)"/, `${caller} draws SentenceFindings with no live region to announce it in`);
+  }
   let marking = 0;
   for (const file of [...APP, ...COMPONENTS]) {
     const source = code(file);
     if (!/VERDICT_CLASS|OPTION_CLASS/.test(source)) continue;
-    if (file === PAGE_NOT_A_ROUND) continue;
+    if (file === PAGE_NOT_A_ROUND || file === ANNOUNCED_BY_CALLER) continue;
     marking += 1;
     assert.match(
       source,

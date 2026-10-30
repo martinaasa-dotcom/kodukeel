@@ -91,6 +91,7 @@ export async function changeCourseLevel(ownerId: string, level: unknown, now: Da
   if (moved) {
     await Promise.all([
       writeSetting(ownerId, SETTING_KEYS.programme, opening.id),
+      writeSetting(ownerId, SETTING_KEYS.programmeChosenAt, now.toISOString()),
       restartPart(ownerId, opening.id),
       writeSetting(ownerId, SETTING_KEYS.adaptMovedAt, now.toISOString()),
       writeSetting(ownerId, SETTING_KEYS.adaptSnoozedUntil, ""),
@@ -135,6 +136,7 @@ export async function changeCourseStart(ownerId: string, which: unknown, now: Da
   }
   await Promise.all([
     writeSetting(ownerId, SETTING_KEYS.programme, to.id),
+    writeSetting(ownerId, SETTING_KEYS.programmeChosenAt, now.toISOString()),
     restartPart(ownerId, to.id),
     writeSetting(ownerId, SETTING_KEYS.adaptMovedAt, now.toISOString()),
     writeSetting(ownerId, SETTING_KEYS.adaptSnoozedUntil, ""),

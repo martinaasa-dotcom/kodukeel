@@ -298,7 +298,8 @@ export function warmNative(ids: readonly string[]): void {
  * So the distinction lives here, once, and both callers read it. `blocked`
  * means "ask for a press"; anything else throws and is a real absence.
  */
-export type PlayOutcome = "played" | "blocked";
+/** `stopped`: a Stop was pressed while the clip was still on its way, so nothing was said. */
+export type PlayOutcome = "played" | "blocked" | "stopped";
 
 /**
  * THE LONGEST CLIP THAT PLAYS ON ITS OWN (WCAG 2.2, 1.4.2 Audio Control).
@@ -431,7 +432,7 @@ export async function playClip(
     // Stopped while it was on its way: the line is not said after the press that asked for quiet.
     if (stops !== asked) {
       end();
-      return "played";
+      return "stopped";
     }
     // `chosen` is a line the learner asked to hear rather than read (a voice
     // mode in a conversation, `Speak`'s `insist`), which is not unasked sound.
@@ -454,7 +455,7 @@ export async function playClip(
     // Stopped while the length was being read: still not said.
     if (stops !== asked) {
       end();
-      return "played";
+      return "stopped";
     }
     const audio = new Audio(clip.url);
     playing = audio;

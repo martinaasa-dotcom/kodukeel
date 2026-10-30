@@ -20,8 +20,12 @@ import { VERDICT_CLASS } from "@/lib/ux/verdict";
  * Painted nearly rather than wrong: a sentence with a wrong ending is a
  * sentence somebody would understand, and the colors here say what happened to
  * an answer (`lib/ux/verdict.ts`). The clean result is painted right, beside
- * the words that say how far that goes. Its own live region, because it lands
- * a moment after the card's verdict and is drawn outside that one.
+ * the words that say how far that goes.
+ *
+ * NOT A LIVE REGION ITSELF. A region that arrives holding its words is often
+ * not read, so a caller that wants it announced puts it inside a region that
+ * was on the screen first (Say it does; the writing step's redraft does not,
+ * since its own summary line is what is read there).
  */
 export function SentenceFindings({ findings }: { findings: readonly Finding[] }) {
   const t = useT();
@@ -32,7 +36,7 @@ export function SentenceFindings({ findings }: { findings: readonly Finding[] })
 
   if (findings.length === 0) {
     return (
-      <div role="status" className={`verdict-panel ${VERDICT_CLASS.right}`} data-sentence-check="clean">
+      <div className={`verdict-panel ${VERDICT_CLASS.right}`} data-sentence-check="clean">
         <p>{t("No mistakes found in your spelling or your endings.")}</p>
       </div>
     );
@@ -99,7 +103,7 @@ export function SentenceFindings({ findings }: { findings: readonly Finding[] })
   };
 
   return (
-    <div role="status" className={`verdict-panel ${VERDICT_CLASS.nearly}`} data-sentence-check="findings">
+    <div className={`verdict-panel ${VERDICT_CLASS.nearly}`} data-sentence-check="findings">
       <p className="font-semibold">{findings.length === 1 ? t("One thing to fix") : t("A few things to fix")}</p>
       <ul className="mt-1 flex flex-col gap-1">
         {findings.map((f, i) => <li key={i}>{line(f)}</li>)}

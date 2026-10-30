@@ -27,6 +27,14 @@ describe("the frame", () => {
     }
   });
 
+  it("takes the longer of two uses that start in the same place, whichever is listed first", () => {
+    const frame = frameOf({
+      model: [{ et: "Tule kui ka sina tahad.", en: "Come if you want to as well." }],
+      uses: [{ et: "kui", en: "if" }, { et: "kui ka", en: "if, as well" }],
+    });
+    expect(frame[0]!.parts.filter((p) => p.kind === "gap").map((p) => (p.kind === "gap" ? p.answer : ""))).toEqual(["kui ka"]);
+  });
+
   it("marks a gap right, nearly for a missing diacritic, or wrong", () => {
     expect(markGap(" Ust ", "ust")).toBe("right");
     expect(markGap("ara", "ära")).toBe("nearly");

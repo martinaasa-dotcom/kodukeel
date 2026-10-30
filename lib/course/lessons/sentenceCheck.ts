@@ -645,6 +645,8 @@ export function checkSentence(
     the same word: the list files some stems as headwords of their own, so
     `raamat` is claimed by `raamatu` and `kaks` by `kahe`.
   */
+  // Declared before the first function that reads it, so no later call can meet it uninitialized; filled below.
+  const tableOf = new Map<string, readonly DerivedForm[]>();
   const alsoOf = (claim: string, lemmas: readonly string[]) => {
     const low = claim.toLowerCase();
     return lemmas.some((l) => l.toLowerCase() === low || lexicon.byLemma.get(l)?.has(low) || [...(tables.get(l)?.values() ?? [])].includes(low)
@@ -674,7 +676,6 @@ export function checkSentence(
 
   // EVERY NOMINAL, BY CASE AND NUMBER.
   const nounReadings = new Map<string, NounReading[]>();
-  const tableOf = new Map<string, readonly DerivedForm[]>();
   const nominal = new Set<string>();
   for (const entry of entries) {
     if (entry.pos === "VERB") continue;

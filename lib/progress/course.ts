@@ -139,6 +139,11 @@ const REHOMED_LEVELS: ReadonlySet<string> = new Set(["B1"]);
 const SETTLED = new Set<string>();
 const SETTLED_MAX = 50_000;
 
+/** Forgets who was settled, for a test that walks one learner through several states; nothing in the app calls it. */
+export function forgetRehoming(): void {
+  SETTLED.clear();
+}
+
 async function rehomed(ownerId: string, programme: Programme | null): Promise<Programme | null> {
   if (!programme || !REHOMED_LEVELS.has(programme.level)) return programme;
   if (programme.days.length === 0 || !programme.days.every((d) => d.lesson)) return programme;
@@ -149,11 +154,29 @@ async function rehomed(ownerId: string, programme: Programme | null): Promise<Pr
     prisma.courseStep.findFirst({ where: { ownerId, programmeId: programme.id, dayId: { notIn: days } }, select: { id: true }, orderBy: { id: "asc" } }),
     prisma.courseStep.findFirst({ where: { ownerId, programmeId: programme.id, dayId: { in: days } }, select: { id: true }, orderBy: { id: "asc" } }),
   ]);
-  if (!old || current) {
+  const settle = () => {
     if (SETTLED.size >= SETTLED_MAX) SETTLED.clear();
     SETTLED.add(key);
     return programme;
-  }
+  };
+  if (!old || current) return settle();
+  /*
+    A PART THE LEARNER CHOSE AFTER THEIR OLD TICKS ON IT STAYS CHOSEN. Moving on
+    from a finished part, taking an offer to skip ahead, and changing level all
+    stamp the choice, so somebody sent back to B1.1 who then moved to B1.2 by
+    any of those is not sent back again. Settled, since a choice made since the
+    switch does not stop being one.
+  */
+  const [chosenAt, newestOld] = await Promise.all([
+    readSetting(ownerId, SETTING_KEYS.programmeChosenAt),
+    prisma.courseStep.findFirst({
+      where: { ownerId, programmeId: programme.id, dayId: { notIn: days } },
+      select: { createdAt: true },
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    }),
+  ]);
+  const chosen = chosenAt ? Date.parse(chosenAt) : Number.NaN;
+  if (Number.isFinite(chosen) && newestOld && chosen > newestOld.createdAt.getTime()) return settle();
   // Back to where they have been working since, which is the level's first part until they move on from it.
   const parts = PROGRAMMES.filter((p) => p.level === programme.level && p.days.length > 0 && p.days.every((d) => d.lesson));
   /*
@@ -172,7 +195,7 @@ async function rehomed(ownerId: string, programme: Programme | null): Promise<Pr
       select: { id: true },
       orderBy: { id: "asc" },
     });
-    if (finished) return programme;
+    if (finished) return settle();
   }
   const worked = await prisma.courseStep.groupBy({
     by: ["programmeId"],

@@ -36,7 +36,8 @@ export function frameOf(write: Pick<WriteTask, "model" | "uses">): FrameLine[] {
         if (used.has(use.et)) continue;
         const re = new RegExp(`(?<![\\p{L}])${escape(use.et)}(?![\\p{L}])`, "iu");
         const m = re.exec(rest);
-        if (m && (best === null || m.index < best.at)) best = { at: m.index, len: m[0].length, use };
+        // The earliest use, and at the same place the longest, so `kui ka` is one gap rather than `kui` and a stray `ka`.
+        if (m && (best === null || m.index < best.at || (m.index === best.at && m[0].length > best.len))) best = { at: m.index, len: m[0].length, use };
       }
       if (!best) break;
       if (best.at > 0) parts.push({ kind: "text", text: rest.slice(0, best.at) });

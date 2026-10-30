@@ -391,6 +391,15 @@ export const SETTING_KEYS = {
    */
   programme: "programme",
   /**
+   * When the learner last chose a part themselves, as an instant: moving on
+   * from a finished part, an offer on the module screen, a change of level.
+   *
+   * Read by the rehoming of a level that became lessons (`lib/progress/
+   * course.ts`): a part chosen after the old ticks on it is a choice made since
+   * the switch, so the learner stays on it rather than being sent back.
+   */
+  programmeChosenAt: "programmeChosenAt",
+  /**
    * When the learner last moved part through an offer on the module screen.
    *
    * The reading of how somebody is doing (`lib/course/adapt.ts`) counts only

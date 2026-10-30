@@ -40,6 +40,9 @@ export async function checkTypedSentence(text: string, sample: string): Promise<
 /** Distinct words read for a written text and its model; the learner's own are always read, and the model fills what is left. */
 const MAX_TEXT_WORDS = 220;
 
+/** The most headwords one reading asks the dictionary for, each asked twice (as written and with a capital). */
+const MAX_LEMMAS = 1_500;
+
 /**
  * SEVERAL SENTENCES OF ONE TEXT, READ IN ONE PASS.
  *
@@ -127,9 +130,20 @@ export async function checkTypedSentences(texts: readonly string[], sample: stri
     has to be read as that phrase rather than as "I ask".
   */
   // Every headword that owns a spelling exactly is read too, so a homograph the check must not correct is in hand.
-  const lemmas = new Set<string>([
-    ...ALWAYS_READ, ...read.flatMap((r) => [r.word, ...r.headwords, ...r.owners.slice(0, OWNERS_PER_WORD)]), ...near.flat(),
-  ]);
+  /*
+    BOUNDED, IN THE ORDER THE JUDGMENT NEEDS THEM. A long draft is a few
+    hundred distinct words and each brings its headwords, the owners of its
+    spelling and the words a slip away, so the set grew without a ceiling into
+    a query of thousands of parameters, twice a draft. What every word needs
+    goes first (the spelling and its own headwords), then the homographs, then
+    the suggestions, and the cap only ever drops from the end: a short text is
+    read exactly as before.
+  */
+  const lemmas = new Set<string>(ALWAYS_READ);
+  const take = (more: readonly string[]) => { for (const l of more) if (lemmas.size < MAX_LEMMAS) lemmas.add(l); };
+  take(read.flatMap((r) => [r.word, ...r.headwords]));
+  take(read.flatMap((r) => r.owners.slice(0, OWNERS_PER_WORD)));
+  take(near.flat());
   const asked = [...lemmas].flatMap((l) => [l, l.charAt(0).toLocaleUpperCase("et") + l.slice(1)]);
   const rows = await prisma.lexeme.findMany({
     where: { lemma: { in: asked }, ...VOUCHED_ROW },

@@ -64,12 +64,18 @@ export function RetellIt({ retell, voice, typed, onDone }: { retell: Retell; voi
   const hearFirst = plays < 2 && said.trim() === "";
 
   // Leaving the card ends the story after the line in the air, rather than playing the rest over the next one.
-  useEffect(() => () => { stop.current = true; }, []);
+  // Leaving the screen mid-play ends the line being said, so it is not heard over the next one.
+  const running = useRef(false);
+  useEffect(() => () => {
+    stop.current = true;
+    if (running.current) stopClip();
+  }, []);
 
   const play = async () => {
     if (playing) { stop.current = true; stopClip(); return; }
     stop.current = false;
     setPlaying(true);
+    running.current = true;
     let heard = 0;
     for (const line of retell.story) {
       if (stop.current) break;
@@ -84,6 +90,7 @@ export function RetellIt({ retell, voice, typed, onDone }: { retell: Retell; voi
     // A play counts as heard only where something was said: over silence it would read "Heard once" about nothing.
     if (!stop.current && heard > 0) setPlays((n) => n + 1);
     setPlaying(false);
+    running.current = false;
   };
 
   return (

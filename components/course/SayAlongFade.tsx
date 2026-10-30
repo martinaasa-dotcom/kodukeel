@@ -39,6 +39,9 @@ export function SayAlongFade({ lesson, partAt, onDone }: { lesson: LessonSpec; p
   const step = plan[Math.min(at, plan.length - 1)]!;
   const native = nativePart(lesson.conversation);
   const last = at >= plan.length - 1;
+  // Counted inside the round, so round 2 reads "Line 1 of 4" rather than "Line 5 of 12".
+  const inRound = plan.filter((p) => p.pass === step.pass).length;
+  const lineInRound = plan.slice(0, at + 1).filter((p) => p.pass === step.pass).length;
 
   return (
     <Card>
@@ -49,7 +52,7 @@ export function SayAlongFade({ lesson, partAt, onDone }: { lesson: LessonSpec; p
             ? t("Hear the line, then say it. Today's words are already gone: each comes back when it's heard.")
             : t("Hear the line, then say it with the words in front of you.")
           : step.pass === 2
-            ? t("Now today's words are gone. Say the whole line: a word comes back when it's heard.")
+            ? t("Now more of the line is gone. Say the whole line: a word comes back when it's heard.")
             : t("Now say it with nothing on the screen but the English.")}
       </p>
       <PassMeter pass={step.pass} />
@@ -64,7 +67,7 @@ export function SayAlongFade({ lesson, partAt, onDone }: { lesson: LessonSpec; p
         locale={locale}
       />
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm" style={{ color: "var(--ink-3)" }}>{fill(t("Line {n} of {total}"), { n: String(at + 1), total: String(plan.length) })}</p>
+        <p className="text-sm" style={{ color: "var(--ink-3)" }}>{fill(t("Line {n} of {total}"), { n: String(lineInRound), total: String(inRound) })}</p>
         <Button variant="primary" onClick={() => (last ? onDone() : setAt((n) => n + 1))}>
           {last ? t("Done") : t("Next")} <ArrowRight size={15} aria-hidden />
         </Button>

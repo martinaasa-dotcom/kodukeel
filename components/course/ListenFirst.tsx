@@ -45,6 +45,8 @@ export function ListenFirst({ lesson, onRead }: { lesson: LessonSpec; onRead: ()
   const t = useT();
   const gists = lesson.listenFor ?? [];
   const [played, setPlayed] = useState(false);
+  // A play that said nothing is the speech service, not the learner, and the way on is to read it.
+  const [unheard, setUnheard] = useState(false);
   const [picks, setPicks] = useState<readonly (number | null)[]>(() => gists.map(() => null));
   const answered = picks.filter((p) => p !== null).length;
   const right = picks.filter((p, i) => p !== null && p === gists[i]!.answer).length;
@@ -81,7 +83,7 @@ export function ListenFirst({ lesson, onRead }: { lesson: LessonSpec; onRead: ()
           {room && <>{" "}<span className="font-semibold" style={{ color: "var(--ink)" }}>{fill(t("You'll hear it {said}."), { said: t(room.said) })}</span></>}
         </p>
       </div>
-      <LessonConversation lines={lesson.conversation} cast={lesson.cast} english={false} hidden condition={room} onPlayed={() => setPlayed(true)} />
+      <LessonConversation lines={lesson.conversation} cast={lesson.cast} english={false} hidden condition={room} onPlayed={() => { setPlayed(true); setUnheard(false); }} onUnheard={() => setUnheard(true)} />
       <div ref={questionsRef} className="mt-6 flex flex-col gap-5" data-gists>
         {gists.map((g, i) => (
           <GistQuestion
@@ -98,7 +100,9 @@ export function ListenFirst({ lesson, onRead }: { lesson: LessonSpec; onRead: ()
         <p className="text-base" style={{ color: "var(--ink-2)" }} role="status">
           {all
             ? fill(t("{n} of {total} caught by ear. Now read it."), { n: String(right), total: String(gists.length) })
-            : played ? t("Answer what you can. A guess is fine.") : t("Press play, and listen to the end.")}
+            : played ? t("Answer what you can. A guess is fine.")
+              : unheard ? t("The voices didn't come through just now. Show the words and read it instead.")
+                : t("Press play, and listen to the end.")}
         </p>
         <Button ref={readRef} variant={all ? "primary" : "ghost"} onClick={onRead}>
           {all ? t("Read it") : t("Show the words now")} <ArrowRight size={15} aria-hidden />

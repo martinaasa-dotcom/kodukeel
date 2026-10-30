@@ -29,7 +29,7 @@ import type { Line } from "@/lib/course/lessons/types";
  * is not said: a learner who pressed Stop asked for quiet now, and a line
  * finishing over the press reads as the button not working.
  */
-export function LessonConversation({ lines, cast, english, hidden = false, condition, onPlayed }: {
+export function LessonConversation({ lines, cast, english, hidden = false, condition, onPlayed, onUnheard }: {
   lines: readonly Line[];
   cast: Readonly<Record<string, string>>;
   english: boolean;
@@ -46,6 +46,8 @@ export function LessonConversation({ lines, cast, english, hidden = false, condi
   condition?: Condition;
   /** Called when "Play the conversation" reaches the end, which is when a gist question is fair. */
   onPlayed?: () => void;
+  /** Called when a play reached the end having said nothing, because the speech service would not say a line. */
+  onUnheard?: () => void;
 }) {
   const t = useT();
   const locale = useLocale();
@@ -57,7 +59,12 @@ export function LessonConversation({ lines, cast, english, hidden = false, condi
   const stop = useRef(false);
   const items = useRef<(HTMLLIElement | null)[]>([]);
 
-  useEffect(() => () => { stop.current = true; }, []);
+  // Leaving the screen mid-play ends the line being said, so it is not heard over the next one.
+  const running = useRef(false);
+  useEffect(() => () => {
+    stop.current = true;
+    if (running.current) stopClip();
+  }, []);
 
   const playAll = async () => {
     if (playing) {
@@ -67,6 +74,7 @@ export function LessonConversation({ lines, cast, english, hidden = false, condi
     }
     stop.current = false;
     setPlaying(true);
+    running.current = true;
     let heard = 0;
     for (let i = 0; i < lines.length; i++) {
       if (stop.current) break;
@@ -86,7 +94,9 @@ export function LessonConversation({ lines, cast, english, hidden = false, condi
     const whole = !stop.current && heard > 0;
     setActive(null);
     setPlaying(false);
+    running.current = false;
     if (whole) onPlayed?.();
+    else if (!stop.current) onUnheard?.();
   };
 
   return (

@@ -424,7 +424,10 @@ function AnswerCard({ lessonId, card, mode, voice, name, onNext, last }: {
         {!shown && <div className="under-field"><DiacriticBar /></div>}
       </div>
 
-      {shown && found !== null && <div className="mt-4"><SentenceFindings findings={found} /></div>}
+      {/* Mounted empty and filled: the dictionary's reading lands a moment after the verdict, often after the caret has gone to Next. */}
+      <div role="status" aria-live="polite" className={shown && found !== null ? "mt-4" : undefined}>
+        {shown && found !== null && <SentenceFindings findings={found} />}
+      </div>
       <div className="mt-4 flex flex-col gap-3" role="status" aria-live="polite">
         {shown && mark !== null && (mark.verdict !== "wrong" || (mark.close && !card.own)) && (
           <div className={`verdict-panel ${VERDICT_CLASS[mark.verdict === "wrong" ? "nearly" : mark.verdict]}`}>

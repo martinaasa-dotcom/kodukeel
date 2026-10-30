@@ -3,7 +3,7 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
 import { forgetSettings, SETTING_KEYS, writeSetting } from "@/lib/settings/store";
 import { PROGRAMMES } from "@/lib/course";
-import { programmeFor } from "./course";
+import { forgetRehoming, programmeFor } from "./course";
 import { moveBlockedFor } from "./checks";
 
 /**
@@ -24,6 +24,7 @@ async function wipe() {
   await prisma.courseStep.deleteMany({ where: { ownerId: MINE } });
   await prisma.setting.deleteMany({ where: { ownerId: MINE } });
   forgetSettings(MINE);
+  forgetRehoming();
 }
 
 /** A tick on a day id the part held as unit-built evenings and no longer holds. */
@@ -80,6 +81,26 @@ describe("a learner on a part that has become lessons", () => {
     await prisma.courseStep.createMany({
       data: [oldTick(b1[1]!.id), { ownerId: MINE, programmeId: b1[0]!.id, dayId: b1[0]!.days[0]!.id, stepId: b1[0]!.days[0]!.steps[0]!.id }],
     });
+    expect((await programmeFor(MINE))?.id).toBe(b1[0]!.id);
+  });
+
+  it("stays on a part they chose after their old ticks on it, without finishing the one before", async () => {
+    // Sent back to B1.1, a few evenings in, then skipped ahead to B1.2 by hand or through an offer.
+    await prisma.courseStep.createMany({
+      data: [
+        { ...oldTick(b1[1]!.id), createdAt: new Date("2026-09-01T10:00:00Z") },
+        { ownerId: MINE, programmeId: b1[0]!.id, dayId: b1[0]!.days[0]!.id, stepId: b1[0]!.days[0]!.steps[0]!.id },
+      ],
+    });
+    await writeSetting(MINE, SETTING_KEYS.programme, b1[1]!.id);
+    await writeSetting(MINE, SETTING_KEYS.programmeChosenAt, new Date("2026-10-29T10:00:00Z").toISOString());
+    expect((await programmeFor(MINE))?.id).toBe(b1[1]!.id);
+  });
+
+  it("but a choice older than the old ticks is not a choice made since the switch", async () => {
+    await prisma.courseStep.create({ data: { ...oldTick(b1[1]!.id), createdAt: new Date("2026-09-01T10:00:00Z") } });
+    await writeSetting(MINE, SETTING_KEYS.programme, b1[1]!.id);
+    await writeSetting(MINE, SETTING_KEYS.programmeChosenAt, new Date("2026-08-01T10:00:00Z").toISOString());
     expect((await programmeFor(MINE))?.id).toBe(b1[0]!.id);
   });
 

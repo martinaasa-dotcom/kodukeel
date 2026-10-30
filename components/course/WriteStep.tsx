@@ -253,6 +253,7 @@ function Frame({ write, typed, setTyped, checked, setChecked, onNext }: {
                       style={{ width: `${Math.max(6, p.answer.length + 2)}ch` }}
                       value={typed[p.n] ?? ""}
                       readOnly={checked}
+                      aria-invalid={mark === "wrong" ? true : undefined}
                       aria-label={fill(t("Gap {n}: {meaning}"), { n: String(p.n + 1), meaning: tr(locale, p.en) })}
                       autoComplete="off"
                       autoCapitalize="off"
@@ -260,7 +261,15 @@ function Frame({ write, typed, setTyped, checked, setChecked, onNext }: {
                       onChange={(e) => { const value = e.target.value; setTyped((all) => gaps.map((_, k) => (k === p.n ? value : all[k] ?? ""))); }}
                     />
                     <span className="text-sm" style={{ color: "var(--ink-3)" }}><LessonText text={p.en} locale={locale} /></span>
-                    {checked && mark !== "right" && <span lang="et" className="text-sm font-bold" style={{ color: "var(--ink)" }}>{p.answer}</span>}
+                    {/* Said in words as well as in the gap's color, since nearly and wrong are one hue apart. */}
+                    {mark === "right" && (
+                      <span className="text-sm font-semibold" style={{ color: "var(--good-ink)" }}><Check size={13} className="mr-1 inline" aria-hidden />{t("Right")}</span>
+                    )}
+                    {mark !== null && mark !== "right" && (
+                      <span className="text-sm" style={{ color: "var(--ink-2)" }}>
+                        {mark === "nearly" ? t("Nearly") : t("Not quite")}: <b lang="et" style={{ color: "var(--ink)" }}>{p.answer}</b>
+                      </span>
+                    )}
                   </span>
                 );
               })}
@@ -282,6 +291,13 @@ function Frame({ write, typed, setTyped, checked, setChecked, onNext }: {
     </Card>
   );
 }
+
+/**
+ * The fewest words worth having read at all: a reading of three words says
+ * nothing. Below `write.least`, which is what "long enough" means, so a short
+ * text can still be read and is only not the primary way on.
+ */
+const READ_FROM = 5;
 
 /** Stage 3: the learner's own text, with the key words ticking off as they appear. */
 function Own({ lesson, draft, setDraft, onNext }: { lesson: LessonSpec; draft: string; setDraft: (s: string) => void; onNext: () => void }) {
@@ -326,7 +342,7 @@ function Own({ lesson, draft, setDraft, onNext }: { lesson: LessonSpec; draft: s
       </div>
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm" style={{ color: "var(--ink-3)" }}>{t("Write about your own life. It doesn't have to match the model.")}</p>
-        <Button variant={enough ? "primary" : "secondary"} onClick={onNext} disabled={words < 5}>
+        <Button variant={enough ? "primary" : "secondary"} onClick={onNext} disabled={words < READ_FROM}>
           {t("Have it read")} <ArrowRight size={15} aria-hidden />
         </Button>
       </div>
@@ -361,7 +377,8 @@ function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonS
   const keptRef = useRef<HTMLParagraphElement>(null);
   useEffect(() => { if (kept) keptRef.current?.focus(); }, [kept]);
   const [keeping, setKeeping] = useState(false);
-  const current = second || first;
+  // The second draft is what is read, seeded from the first on the way in; emptied, there is nothing to read rather than the first again.
+  const current = second;
   const stale = read !== null && read.text !== current;
 
   const readIt = (text: string) => {
@@ -402,7 +419,7 @@ function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonS
       <Card>
         <SectionTitle hint={t("spelling and common slips")}>{t("The dictionary reads it")}</SectionTitle>
         {read === null ? (
-          <Button onClick={() => readIt(current)} disabled={reading}>
+          <Button onClick={() => readIt(current)} disabled={reading || current.trim() === ""}>
             {reading ? <><Loader2 size={15} className="animate-spin" aria-hidden /> {t("Reading")}</> : t("Read my text")}
           </Button>
         ) : (
@@ -432,7 +449,7 @@ function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonS
             ))}
             {stale && <p className="text-base" style={{ color: "var(--ink-2)" }}>{t("You've changed your text since the dictionary read it.")}</p>}
             <div>
-              <Button variant={stale ? "secondary" : "ghost"} size="sm" onClick={() => readIt(current)} disabled={reading}>
+              <Button variant={stale ? "secondary" : "ghost"} size="sm" onClick={() => readIt(current)} disabled={reading || current.trim() === ""}>
                 {reading ? <><Loader2 size={15} className="animate-spin" aria-hidden /> {t("Reading")}</> : t("Read it again")}
               </Button>
             </div>
@@ -490,6 +507,10 @@ function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonS
             <legend className="text-base" style={{ color: "var(--ink-2)" }}>
               {t("Tick the sentences you're sure of. Each comes back in review with the marked word to fill in.")}
             </legend>
+            {/* A box greyed for being one too many says why, or it reads as broken. */}
+            {ticked.size >= MOST_KEPT && (
+              <p className="text-sm" style={{ color: "var(--ink-3)" }}>{fill(t("That's {n}, the most you can keep from one text."), { n: String(MOST_KEPT) })}</p>
+            )}
             <ul className="flex flex-col gap-1">
               {read.sentences.map((s, i) => {
                 const blocked = s.findings.length > 0 || !s.card;
