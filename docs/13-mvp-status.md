@@ -4077,3 +4077,36 @@ gists have four options. The new Estonian and six questions for the native speak
 of fault the device warm-up exists for; nobody here holds the device. And the six questions in
 `docs/reviews/b1-flags.md` wait on the native speaker, with the Russian and Ukrainian of every new
 line on a fluent reader.
+
+## 76. The seventieth pass: B1 audited in three rounds, and what is parked
+
+Three rounds of the count-based audit ran on B1 (two auditors per area, a frozen rubric, the lower
+score counting), each followed by fixes in all four areas. The third round's scores, before its
+fixes landed, were engine 3.0, screens 7.1, content 5.5 and integration 9.0; every finding it raised
+is fixed and merged, and nothing has scored the code since. The operator's call is that B1 is good
+enough to ship and that the last half point waits for a later push, because the rounds were costing
+more than they were finding.
+
+**What the rounds taught about the marker.** A general acceptance rule is a guess about Estonian, and
+each one added to stop a refusal came back as over-acceptance a round later: the pronoun rules after
+the first round, the combined variations and the demonstrative after the second. So the marker now
+carries `lib/course/lessons/fixtures/accepted.json`, every sentence it accepts beyond the written
+rows, read by a person, and `sweep.test.ts` fails the moment it accepts one more
+(`npx tsx scripts/sweep-acceptance.ts` prints the difference, `--write` after reading it). The
+second plural partitive (`munasid` beside `mune`) is a generated, reviewed table
+(`scripts/build-parallel-forms.ts`), not a rule.
+
+**Parked for the later push to 9.5:**
+
+- **Refusals of correct Estonian.** Marking a free sentence has no end: an auditor generating
+  thousands of variants can nearly always find one more right answer refused. The way to finish is
+  not more rules but a list: collect every disputed sentence the auditors produce with its verdict,
+  have the native speaker mark each right or wrong, make the right ones rows, and audit the marker
+  against that list and the snapshot rather than against every sentence an auditor can invent.
+- **Two correct sentences the narrowed combining rule refuses**, `Tee see aken kinni!` and
+  `oli buss ära läinud`: rows, if they should be right.
+- **The browser additions of the third round** ran once here (`test-lessons.mjs` at 197 checks); the
+  containment states for the retell, frame and race were added but their floor not yet raised.
+- **The questions in `docs/reviews/b1-flags.md`** (now including the examiner's `sina` in part two,
+  `Kuu aega maksab…`, `bussis` beside `bussist`, `ta` for a thing) wait on the native speaker, and the
+  Russian and Ukrainian of every new line on a fluent reader.
