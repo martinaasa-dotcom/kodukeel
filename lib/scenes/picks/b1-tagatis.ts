@@ -23,7 +23,7 @@ export const b1Tagatis: ScenePicks = {
     { et: "Vaatame lepingut.", en: "Let's look at the contract." },
   ],
   else: [
-    { et: "Ei. Ma parandasin ise köögis kraani.", en: "No. I fixed the kitchen tap myself." },
+    { et: "Ei. Köögis kraani parandasin ma ise ära.", en: "No. I fixed the kitchen tap myself." },
     { et: "Ei, kõik töötab.", en: "No, everything works." },
   ],
   light: [

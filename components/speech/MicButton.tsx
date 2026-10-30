@@ -43,7 +43,16 @@ export interface MicButtonProps {
    * a second live region here would read out twice (VB-15).
    */
   readonly speaksForItself?: boolean;
+  /**
+   * Whether the screen has a box to type in instead. An error says "keep
+   * typing" only where there is somewhere to type; on a screen of saying
+   * along there is not, and the way on is to say it anyway.
+   */
+  readonly fallback: MicFallback;
 }
+
+/** What a learner does where the microphone will not: type in the box beside it, or say it anyway. */
+export type MicFallback = "box" | "none";
 
 /** The shortcut: Control and M, which types nothing on any keyboard Estonian is written on. */
 export const MIC_SHORTCUT = { key: "m", label: "Ctrl M" } as const;
@@ -51,7 +60,7 @@ export const MIC_SHORTCUT = { key: "m", label: "Ctrl M" } as const;
 /** Pressed for longer than this under a finger, a press is talking while held. */
 const HOLD_MS = 350;
 
-export function MicButton({ speech, label, shortcut = false, showPartial = true, size = "md", speaksForItself = false }: MicButtonProps) {
+export function MicButton({ speech, label, shortcut = false, showPartial = true, size = "md", speaksForItself = false, fallback }: MicButtonProps) {
   const t = useT();
   const [announce, setAnnounce] = useState("");
   const pressedAt = useRef(0);
@@ -205,7 +214,7 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
         <p className="text-sm" style={{ color: "var(--hard-ink)" }}>{t("That is very loud. Hold the microphone a little further away.")}</p>
       )}
 
-      {error && !speaksForItself && <MicError error={error} onRetry={error === "download-failed" || error === "hash-failed" ? () => void speech.download() : null} />}
+      {error && !speaksForItself && <MicError error={error} fallback={fallback} onRetry={error === "download-failed" || error === "hash-failed" ? () => void speech.download() : null} />}
 
       <p className="sr-only" role="status" aria-live="polite">{announce}</p>
     </div>
@@ -218,18 +227,21 @@ function downloadingLine(t: (english: string) => string, done: number, total: nu
 }
 
 /** Every error in words, with the typed way on (VB-2). */
-export function MicError({ error, onRetry }: { readonly error: EngineError; readonly onRetry: (() => void) | null }) {
+export function MicError({ error, fallback, onRetry }: { readonly error: EngineError; readonly fallback: MicFallback; readonly onRetry: (() => void) | null }) {
   const t = useT();
+  const box = fallback === "box";
   const line: Record<EngineError, string> = {
-    "no-microphone": t("No microphone was found. Typing works as before."),
-    refused: t("The microphone is blocked for this site. You can allow it in your browser's site settings, or keep typing."),
+    "no-microphone": box ? t("No microphone was found. Typing works as before.") : t("No microphone was found. Say it out loud anyway and carry on."),
+    refused: box
+      ? t("The microphone is blocked for this site. You can allow it in your browser's site settings, or keep typing.")
+      : t("The microphone is blocked for this site. You can allow it in your browser's site settings, or say it out loud anyway and carry on."),
     "not-downloaded": t("Speaking needs its download first."),
     cleared: t("Your browser cleared the speaking download. Press the microphone to get it back."),
     "hash-failed": t("The download did not check out, so it was not used. Try it again."),
-    "too-slow": t("This device is too slow to hear speech as you say it, so typing stays as it was."),
+    "too-slow": box ? t("This device is too slow to hear speech as you say it, so typing stays as it was.") : t("This device is too slow to hear speech as you say it. Say it out loud anyway and carry on."),
     "no-room": t("There is not enough room on this device for the download."),
     "download-failed": t("The download stopped. Check your connection and try again."),
-    failed: t("Something went wrong with listening. Typing works as before."),
+    failed: box ? t("Something went wrong with listening. Typing works as before.") : t("Something went wrong with listening. Say it out loud anyway and carry on."),
   };
   return (
     <div className="flex flex-wrap items-center gap-2" role="status">

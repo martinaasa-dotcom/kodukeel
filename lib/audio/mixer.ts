@@ -157,6 +157,8 @@ export async function playThrough(
       });
     }
   }
-  if (mixing === mine) mixing = null;
+  // Ended by a Stop or by the next line before it finished: not a line heard.
+  if (mixing !== mine) return "stopped";
+  mixing = null;
   return "played";
 }

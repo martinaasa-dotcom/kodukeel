@@ -284,7 +284,7 @@ export function DictionaryClient({
           </Button>
         </div>
         {searchAloud && (
-          <MicButton speech={speech} label={t("Say the word to look it up")} shortcut showPartial={false} />
+          <MicButton speech={speech} label={t("Say the word to look it up")} shortcut showPartial={false} fallback="box" />
         )}
         {!initialQuery && suggestions.words.length > 0 && (
           <div className="flex flex-col gap-2">

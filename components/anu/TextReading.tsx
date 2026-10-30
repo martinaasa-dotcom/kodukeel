@@ -154,7 +154,7 @@ export function AnuTextReading({ text, level, heading, invite, offline, where = 
 
       {canAsk && (
         <div className={`flex flex-wrap items-center gap-3 ${body ? "mt-3" : ""}`}>
-          <Button onClick={ask} disabled={busy || text.trim() === ""}>
+          <Button onClick={ask} busy={busy} disabled={text.trim() === ""}>
             {busy
               ? <><Loader2 size={15} className="animate-spin" aria-hidden /> {t("Reading")}</>
               : <><MessageCircleQuestion size={15} aria-hidden /> {body ? t("Ask Anu to read it again") : t("Ask Anu to read it")}</>}

@@ -52,6 +52,10 @@ export const SPEAKING: Area = {
 
     // What went wrong, each with the typed way on.
     "No microphone was found. Typing works as before.": "Микрофон не найден. Печатать можно, как раньше.",
+    "No microphone was found. Say it out loud anyway and carry on.": "Микрофон не найден. Всё равно скажи это вслух и продолжай.",
+    "The microphone is blocked for this site. You can allow it in your browser's site settings, or say it out loud anyway and carry on.": "Микрофон для этого сайта заблокирован. Его можно разрешить в настройках сайта в браузере или всё равно сказать вслух и продолжить.",
+    "This device is too slow to hear speech as you say it. Say it out loud anyway and carry on.": "Это устройство слишком медленное, чтобы слышать речь на ходу. Всё равно скажи это вслух и продолжай.",
+    "Something went wrong with listening. Say it out loud anyway and carry on.": "Что-то пошло не так с распознаванием. Всё равно скажи это вслух и продолжай.",
     "The microphone is blocked for this site. You can allow it in your browser's site settings, or keep typing.":
       "Микрофон для этого сайта заблокирован. Его можно разрешить в настройках сайта в браузере или продолжать печатать.",
     "Speaking needs its download first.": "Сначала нужна загрузка для устной речи.",
@@ -135,6 +139,10 @@ export const SPEAKING: Area = {
 
     // What went wrong, each with the typed way on.
     "No microphone was found. Typing works as before.": "Мікрофон не знайдено. Друкувати можна, як раніше.",
+    "No microphone was found. Say it out loud anyway and carry on.": "Мікрофон не знайдено. Усе одно скажи це вголос і продовжуй.",
+    "The microphone is blocked for this site. You can allow it in your browser's site settings, or say it out loud anyway and carry on.": "Мікрофон для цього сайту заблоковано. Його можна дозволити в налаштуваннях сайту в браузері або все одно сказати вголос і продовжити.",
+    "This device is too slow to hear speech as you say it. Say it out loud anyway and carry on.": "Цей пристрій надто повільний, щоб чути мовлення наживо. Усе одно скажи це вголос і продовжуй.",
+    "Something went wrong with listening. Say it out loud anyway and carry on.": "Щось пішло не так із розпізнаванням. Усе одно скажи це вголос і продовжуй.",
     "The microphone is blocked for this site. You can allow it in your browser's site settings, or keep typing.":
       "Мікрофон для цього сайту заблоковано. Його можна дозволити в налаштуваннях сайту в браузері або далі друкувати.",
     "Speaking needs its download first.": "Спершу потрібне завантаження для усного мовлення.",

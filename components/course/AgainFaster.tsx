@@ -56,7 +56,7 @@ export function AgainFaster({ faster, voice, typed, multiplier, onDone }: { fast
 
   return (
     <Card>
-      <SectionTitle hint={over ? t("three goes") : fill(t("Go {n} of 3"), { n: String(round + 1) })}>{t("Again, faster")}</SectionTitle>
+      <SectionTitle level={3} hint={over ? t("three goes") : fill(t("Go {n} of 3"), { n: String(round + 1) })}>{t("Again, faster")}</SectionTitle>
       <div className="mb-4 flex flex-col gap-1.5">
         <div className="inline-flex max-w-full items-start gap-2 self-start rounded-2xl rounded-tl-sm px-4 py-2.5" style={{ background: "var(--raised)" }}>
           <Speak text={faster.ask.et} voice={voice} size={16} />
@@ -229,18 +229,32 @@ function OneGo({ seconds, typed, focusStart, onGo }: { seconds: number; typed: b
           {!armed ? (
             <Button variant="primary" onClick={start}>{mic ? t("Start, and speak") : t("Start, and type")}</Button>
           ) : mic ? (
-            <MicButton speech={speech} label={t("Speaking")} />
+            <MicButton speech={speech} label={t("Speaking")} fallback="box" />
           ) : (
-            <Button variant="secondary" onClick={() => finish(text, seconds - left)}>{t("Done")}</Button>
+            // The one thing left to press on a typed go, so it is the loud one.
+            <Button variant="primary" onClick={() => finish(text, seconds - left)}>{t("Done")}</Button>
           )}
         </div>
       </div>
       {started !== null && !mic && (
         <>
-          <textarea lang="et" className="field min-h-[80px] w-full" value={text} onChange={(e) => setText(e.target.value)} aria-label={t("Your answer, in Estonian")} autoFocus spellCheck={false} />
+          <textarea
+            lang="et"
+            className="field min-h-[80px] w-full"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            // Enter is a new line in a box this size; with a modifier it is Done, as in every other textarea here.
+            onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); finish(text, seconds - left); } }}
+            aria-label={t("Your answer, in Estonian")}
+            aria-keyshortcuts="Control+Enter Meta+Enter"
+            autoFocus
+            spellCheck={false}
+          />
           <div className="under-field"><DiacriticBar /></div>
         </>
       )}
+      {/* Mounted empty: a microphone that would not start says so rather than turning into a box in silence. */}
+      <p className="text-sm" style={{ color: "var(--ink-2)" }} role="status">{micFailed && !typed ? t("The microphone didn't start, so type this one.") : ""}</p>
       <p className="sr-only" role="timer" aria-live="off">{fill(t("{n} seconds"), { n: String(Math.ceil(left)) })}</p>
     </div>
   );

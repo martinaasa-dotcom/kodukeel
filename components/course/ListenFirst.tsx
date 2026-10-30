@@ -79,11 +79,11 @@ export function ListenFirst({ lesson, onRead }: { lesson: LessonSpec; onRead: ()
           <Ear size={18} aria-hidden />
         </span>
         <p className="text-base" style={{ color: "var(--ink-2)" }}>
-          {t("At B1 you hear it before you read it. Play the conversation, then answer what it was about. The words come after.")}
+          {fill(t("At {level} you hear it before you read it. Play the conversation, then answer what it was about. The words come after."), { level: lesson.level })}
           {room && <>{" "}<span className="font-semibold" style={{ color: "var(--ink)" }}>{fill(t("You'll hear it {said}."), { said: t(room.said) })}</span></>}
         </p>
       </div>
-      <LessonConversation lines={lesson.conversation} cast={lesson.cast} english={false} hidden condition={room} onPlayed={() => { setPlayed(true); setUnheard(false); }} onUnheard={() => setUnheard(true)} />
+      <LessonConversation lines={lesson.conversation} cast={lesson.cast} english={false} hidden condition={room} quiet={all} onPlayed={() => { setPlayed(true); setUnheard(false); }} onUnheard={() => setUnheard(true)} />
       <div ref={questionsRef} className="mt-6 flex flex-col gap-5" data-gists>
         {gists.map((g, i) => (
           <GistQuestion

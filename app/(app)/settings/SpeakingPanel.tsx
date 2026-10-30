@@ -101,7 +101,7 @@ export function SpeakingPanel() {
           </Button>
         )}
       </div>
-      {speech.error && speech.error !== "too-slow" && <MicError error={speech.error} onRetry={null} />}
+      {speech.error && speech.error !== "too-slow" && <MicError error={speech.error} fallback="box" onRetry={null} />}
 
       <div>
         <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("Microphone in answer boxes")}</h3>

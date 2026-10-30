@@ -117,7 +117,7 @@ export function AnswerMic({ box, label, shortcut = true }: { box: SpokenBox; lab
   if (!box.shown) return null;
   return (
     <>
-      <MicButton speech={box.speech} label={label ?? t("Answer out loud")} shortcut={shortcut} />
+      <MicButton speech={box.speech} label={label ?? t("Answer out loud")} shortcut={shortcut} fallback="box" />
       {/* What was heard went into the box and is not marked until Check: said
           once, where the screen is still asking, so nobody reads a filled box
           as an answer the app has already taken. */}

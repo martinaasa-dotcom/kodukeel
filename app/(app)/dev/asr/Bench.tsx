@@ -38,7 +38,7 @@ export function Bench({ availability }: { readonly availability: SpeechAvailabil
       <Card>
         <h2 className="text-lg font-semibold">Say something</h2>
         <div className="mt-3" data-bench-mic>
-          <MicButton speech={speech} label="Say something" shortcut size="lg" />
+          <MicButton speech={speech} label="Say something" shortcut size="lg" fallback="box" />
         </div>
         {live && <HearingTable hearing={live.hearing} raw={live.raw} />}
       </Card>
@@ -56,7 +56,7 @@ export function Bench({ availability }: { readonly availability: SpeechAvailabil
           {GALLERY.map(([name, overrides]) => (
             <div key={name} className="flex flex-col gap-2" data-mic-state={name}>
               <p className="text-sm font-medium" style={{ color: "var(--ink-2)" }}>{name}</p>
-              <MicButton speech={fake(overrides)} label="Say something" />
+              <MicButton speech={fake(overrides)} label="Say something" fallback="box" />
             </div>
           ))}
         </div>

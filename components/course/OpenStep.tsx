@@ -67,7 +67,7 @@ export function OpenStep({
 
   return (
     <>
-      <Button variant="primary" size={size} onClick={open} disabled={disabled || pending} className="whitespace-nowrap">
+      <Button variant="primary" size={size} onClick={open} disabled={disabled} busy={pending} className="whitespace-nowrap">
         {label} {arrow}
       </Button>
       {!onFailed && failed && (

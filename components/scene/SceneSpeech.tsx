@@ -195,12 +195,12 @@ export function SceneMic({ box, expect, onHeard, call, cue, closed, label, size 
   }, [cue, call, armed]);
 
   if (!speech.offered) {
-    return speech.why === "too-slow" ? <MicError error={"too-slow" satisfies EngineError} onRetry={null} /> : null;
+    return speech.why === "too-slow" ? <MicError error={"too-slow" satisfies EngineError} fallback={box === null ? "none" : "box"} onRetry={null} /> : null;
   }
 
   return (
     <div ref={root} className="flex flex-col gap-2" data-scene-mic={speech.listening ? "listening" : speech.thinking ? "thinking" : "idle"}>
-      <MicButton speech={speech} label={label} shortcut size={size} showPartial={box === null} />
+      <MicButton speech={speech} label={label} shortcut size={size} showPartial={box === null} fallback={box === null ? "none" : "box"} />
       {call && armed && !speech.listening && !speech.thinking && (
         <p className="text-xs" style={{ color: "var(--ink-3)" }}>
           {t("On a call the microphone opens by itself after they speak.")}

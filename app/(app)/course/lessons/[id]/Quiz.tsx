@@ -6,6 +6,7 @@ import { Button } from "@/components/Button";
 import { ChoiceGroup } from "@/components/Choice";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { Speak } from "@/components/Speak";
+import { fillNodes } from "@/components/TemplateNodes";
 import { useFeedbackSound } from "@/components/AudioPrefs";
 import { useLocale, useT } from "@/components/Locale";
 import { LessonText } from "@/components/course/LessonText";
@@ -37,7 +38,7 @@ import { OPTION_CLASS, optionState, VERDICT_CLASS } from "@/lib/ux/verdict";
  * how an answer went: the option wears the app's marking class and the live
  * region says it in words.
  */
-export function Quiz({ items, onFinished, onAnswer, summary = true }: {
+export function Quiz({ items, onFinished, onAnswer, summary = true, review = false, level = 2 }: {
   items: readonly PracticeItem[];
   /** Called once the last question is answered, with how many were right the first time. */
   onFinished: (score: { right: number; total: number }) => void;
@@ -45,12 +46,21 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
   onAnswer?: (at: number, response: string) => void;
   /** Whether to draw the count of first-time answers at the end; a check draws its own result. */
   summary?: boolean;
+  /** This is the lesson's review, so the summary does not send the learner to "the review" for what slipped. */
+  review?: boolean;
+  /** 3 inside a lesson's step, whose own heading is the h2. */
+  level?: 2 | 3;
 }) {
   const t = useT();
   const locale = useLocale();
   const sound = useFeedbackSound();
   const [at, setAt] = useState(0);
   const [picked, setPicked] = useState<string | null>(null);
+  // Which question's clip has played, and which one's would not load: keyed on the question, so the next one starts fresh.
+  const [heardAt, setHeardAt] = useState(-1);
+  const [silentAt, setSilentAt] = useState(-1);
+  const heardOnce = heardAt === at;
+  const silent = silentAt === at;
   const [typed, setTyped] = useState("");
   const [mark, setMark] = useState<TypedMark | null>(null);
   const [matched, setMatched] = useState<boolean | null>(null);
@@ -122,7 +132,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
           <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>
             {all
               ? t("Every one. Carry on when you're ready.")
-              : t("Earlier words come back in the review at the end of each lesson.")}
+              : review ? t("The ones that slipped come round again in a later review.") : t("Earlier words come back in the review at the end of each lesson.")}
           </p>
           {best >= 3 && (
             <p className="mt-2 inline-flex items-center gap-1.5 text-base font-semibold" style={{ color: "var(--accent-deep)" }}>
@@ -185,13 +195,23 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
       <Card>
         {/* Where the caret goes on a new question with no box: its heading, which says what is asked and which question this is. */}
         <div ref={questionRef} tabIndex={-1} className="outline-none">
-          <SectionTitle hint={fill(t("{n} of {total}"), { n: String(at + 1), total: String(items.length) })}>{heading}</SectionTitle>
+          <SectionTitle level={level} hint={fill(t("{n} of {total}"), { n: String(at + 1), total: String(items.length) })}>{heading}</SectionTitle>
         </div>
 
         {item.kind === "hear" && (
           <div className="flex flex-wrap items-center gap-3">
-            <Speak key={`${at}-${item.et}`} text={item.et} size={22} autoplay insist label={t("Play it again")} />
-            {picked !== null && <p lang="et" className="text-xl font-bold" style={{ color: "var(--ink)" }}>{item.et}</p>}
+            {/* Played once on arrival where the learner has autoplay on, and a press away where not. A clip that will not load shows the words instead, so the question can still be answered. */}
+            <Speak
+              key={`${at}-${item.et}`}
+              text={item.et}
+              size={22}
+              autoplay
+              label={heardOnce ? t("Play it again") : t("Play it")}
+              onPlay={() => setHeardAt(at)}
+              onUnavailable={() => setSilentAt(at)}
+            />
+            {silent && picked === null && <p className="text-base" style={{ color: "var(--ink-2)" }}>{t("The sound didn't come through, so here it is written.")}</p>}
+            {(picked !== null || silent) && <p lang="et" className="text-xl font-bold" style={{ color: "var(--ink)" }}>{item.et}</p>}
           </div>
         )}
         {item.kind === "pick" && (
@@ -205,7 +225,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
             <p lang="et" className="text-2xl font-bold leading-snug" style={{ color: "var(--ink)" }}>
               {item.before}
               {picked === null
-                ? <span className="mx-0.5 inline-block min-w-[3.5ch] border-b-2 align-baseline" style={{ borderColor: "var(--accent)" }} aria-label={t("a gap")}>&nbsp;</span>
+                ? <><span className="mx-0.5 inline-block min-w-[3.5ch] border-b-2 align-baseline" style={{ borderColor: "var(--accent)" }} aria-hidden>&nbsp;</span><span className="sr-only" lang={locale}>{t("a gap")}</span></>
                 : <span className="pop-in inline-block" style={{ color: "var(--accent-deep)" }}>{item.answer}</span>}
               {item.after}
             </p>
@@ -220,7 +240,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
         {item.kind === "reply" && (
           <div className="flex flex-col gap-2" data-reply>
             <div className="flex items-start gap-2">
-              <Speak key={`${at}-${item.ask.et}`} text={item.ask.et} size={18} autoplay insist label={t("Hear the question")} />
+              <Speak key={`${at}-${item.ask.et}`} text={item.ask.et} size={18} autoplay label={t("Hear the question")} />
               <p lang="et" className="text-xl font-bold" style={{ color: "var(--ink)" }}>{item.ask.et}</p>
             </div>
             <p className="text-base" style={{ color: "var(--ink-2)" }}><LessonText text={item.ask.en} locale={locale} /></p>
@@ -305,11 +325,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
               {mark && (
                 <p>
                   {t(mark.note)}{" "}
-                  {mark.verdict !== "right" && (
-                    <>
-                      {t("It's")} <span lang="et" className="font-bold">{item.answer}</span>
-                    </>
-                  )}
+                  {mark.verdict !== "right" && fillNodes(t("It's {answer}."), { answer: <span lang="et" className="font-bold">{item.answer}</span> })}
                 </p>
               )}
             </TypedBox>

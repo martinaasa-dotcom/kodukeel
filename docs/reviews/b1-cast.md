@@ -24,10 +24,17 @@ write a line that names anybody, or a lesson that changes how hard the level is.
 | Triin | A friend of Kati's whom Tom meets at Kati's party, once. | Part 2 |
 | Ants | A neighbor on the top floor of the new building, at the residents' meeting. | Part 5 |
 | Helgi | An older woman, their downstairs neighbor in the new building from part 4, who tells Tom to say `sina` to her when they meet. She chairs the residents' association, so she runs the meeting in part 5. | Parts 4 to 7 |
+| Leena | A neighbor next door in the new building, met at the neighbors' party. | Part 6 |
+| Kertu | A writer Anna talked to in the shop, at the same party. | Part 6 |
 
 A stranger with a job is a role name (a clerk, an examiner, the switchboard), or a new name used
 in one lesson and never again. Nobody in the list above ever plays a clerk, an examiner or a
 stranger. A lesson that needs Tom not to know somebody uses a new person.
+
+A person keeps one voice across every part they speak in. There are four women's voices, so a
+part with five women has two sharing one; the ones who come back keep theirs, and the one-off
+voices (Merike the examiner in lesson 49, Kaja at the city office in lesson 47, Tiina the clerk in
+lesson 44) are the ones on `kylli`.
 
 ## The year
 
@@ -39,7 +46,7 @@ stranger. A lesson that needs Tom not to know somebody uses a new person.
    look at a furnished one, read the contract, move within Tallinn, meet Helgi downstairs, and
    deal with what breaks in the new flat. Tell the move in an order that makes sense over the
    part's seven lessons.
-5. **What happened.** News, the new town, and a burst pipe in the new building's cellar. Helgi
+5. **What happened.** News, the new neighborhood, and a burst pipe in the new building's cellar. Helgi
    chairs the residents' meeting.
 6. **What you think.** Opinions: a film, an old car, phones, rubbish, the town's plan for the park,
    a disagreement at work.

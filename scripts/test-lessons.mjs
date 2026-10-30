@@ -262,7 +262,8 @@ async function writeThrough(lesson) {
   check(`${where}: the words to use tick off as they appear`, lit > 0, `${lit} ticked`);
   await page.getByRole("button", { name: /^Have it read/ }).click();
   check(`${where}: the second draft sits beside the first`, (await page.locator('[data-write-step="redraft"]').count()) === 1);
-  await page.getByRole("button", { name: /^Read my text/ }).click();
+  // "Have it read" starts the reading itself; there is no second button to press first.
+  check(`${where}: the reading starts without a second press`, (await page.getByRole("button", { name: /^Read my text/ }).count()) === 0);
   await page.locator("[data-write-findings]").waitFor({ timeout: 15_000 }).catch(() => {});
   check(`${where}: the dictionary reads the text, sentence by sentence`, (await page.locator("[data-write-findings]").count()) === 1);
   if (SHOTS) await shoot(`${where} read`);

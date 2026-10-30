@@ -271,7 +271,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
 
           {micOffered && !marked && (
             <div className="mt-5 flex flex-wrap items-center gap-3" data-describe-mic>
-              <MicButton speech={speech} label={t("Say a sentence")} shortcut />
+              <MicButton speech={speech} label={t("Say a sentence")} shortcut fallback="box" />
               <p className="min-w-0 flex-1 text-sm" style={{ color: "var(--ink-2)" }} role="status">
                 {heardInto !== null
                   ? fill(t("That went into sentence {n}. Change anything that isn't what you said."), { n: heardInto + 1 })

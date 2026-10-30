@@ -224,7 +224,7 @@ function ModuleNext({ focus, steps, onShown }: {
   const last = focus.n >= focus.of;
   return (
     <div ref={box} data-module-next="" className="dock-clear flex w-full flex-col items-center gap-2">
-      <Button variant="primary" size="lg" onClick={carryOn} disabled={pending}>
+      <Button variant="primary" size="lg" onClick={carryOn} busy={pending}>
         {last ? (
           <>{t("Finish today’s module")} <ArrowRight size={16} aria-hidden /></>
         ) : (
@@ -462,7 +462,7 @@ function ModuleBar({ focus, atEnd }: { focus: ModuleFocus; atEnd: boolean }) {
             ticked or skipped by hand.
           */}
           {!atEnd && (
-            <Button variant="ghost" onClick={carryOn} disabled={pending} className="shrink-0">
+            <Button variant="ghost" onClick={carryOn} busy={pending} className="shrink-0">
               {focus.n >= focus.of ? t("Finish") : t("Next step")}
             </Button>
           )}

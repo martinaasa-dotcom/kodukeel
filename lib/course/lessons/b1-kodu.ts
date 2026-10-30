@@ -68,7 +68,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         rows: [
           [{ en: "to open" }, { et: "avatud" }, { et: "Pood on avatud ka öösel." }],
           [{ en: "to shut" }, { et: "suletud" }, { et: "See uks on suletud." }],
-          [{ en: "to fix up" }, { et: "remonditud" }, { et: "Terve korter on remonditud." }],
+          [{ en: "to fix up" }, { et: "remonditud" }, { et: "Ma elan remonditud korteris." }],
           [{ en: "to furnish" }, { et: "möbleeritud" }, { et: "Korter on möbleeritud." }],
           [{ en: "to do, to make" }, { et: "tehtud" }, { et: "Töö on tehtud." }],
         ],
@@ -84,6 +84,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { q: "What is behind the shut door?", options: ["The landlord's cat", "A brand-new bathroom with a big bath", "A room full of old chairs", "Nothing at all"], answer: 2 },
       { q: "When was the building renovated?", options: ["Last week", "Two years ago", "Ten years ago", "It hasn't been"], answer: 1 },
       { q: "How does Tom feel about the apartment in the end?", options: ["He likes it", "He thinks it's too small", "He wants a cheaper one", "He wants to think about it"], answer: 0 },
+      { q: "Who says the apartment looks big?", options: ["Urmas", "Tom", "Anna", "Nobody"], answer: 1 },
     ],
     answers: [
       { ask: { et: "Kas korter on möbleeritud?", en: "Is the apartment furnished?" }, cue: "Say yes, it's furnished and the kitchen is new.", model: { et: "Jah, korter on möbleeritud ja köök on uus.", en: "Yes, the apartment is furnished and the kitchen is new." } },
@@ -116,7 +117,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         from: { et: "Terve korter on remonditud.", en: "The whole apartment has been fixed up." },
         ask: "Say it hasn't.",
         to: { et: "Korter ei ole remonditud.", en: "The apartment hasn't been fixed up." },
-        also: ["Korter pole remonditud.", "Terve korter ei ole remonditud.", "Terve korter pole remonditud."],
+        also: ["Korter pole remonditud.", "Terve korter ei ole remonditud.", "Terve korter pole remonditud.", "Korter ei ole veel remonditud."],
         pattern: "participle",
       },
     ],
@@ -183,6 +184,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { q: "What is Tom's message about?", options: ["His new job", "A problem with the kitchen", "A party at the café on Saturday night", "The family's new apartment"], answer: 3 },
       { q: "Where do the children sleep?", options: ["In the big bright room", "In the small room", "In the living room, by the window", "In the kitchen, by the fridge"], answer: 1 },
       { q: "What does Tom ask Mari to bring?", options: ["Flowers", "Coffee", "Cake", "Some wine"], answer: 2 },
+      { q: "What does Tom talk about first?", options: ["The move", "The fridge", "The red door", "The cake"], answer: 0 },
     ],
     answers: [
       { ask: { et: "Kus sa elad?", en: "Where do you live?" }, cue: "Say you live in a big bright apartment.", model: { et: "Ma elan suures heledas korteris.", en: "I live in a big bright apartment." } },
@@ -310,6 +312,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { q: "Who is the noisy upstairs neighbor?", options: ["Helgi's dog", "Tom", "Somebody Helgi doesn't know", "The man on the top floor"], answer: 1 },
       { q: "What does Tom promise?", options: ["To stop smoking", "To walk Helgi's dog every evening", "To be quieter at night", "To read every notice"], answer: 2 },
       { q: "Who checks every day that the trash is sorted?", options: ["Tom", "The landlord", "Nobody", "Helgi"], answer: 3 },
+      { q: "Who doesn't smoke at all?", options: ["Nobody", "Tom", "Anna", "Helgi"], answer: 3 },
     ],
     answers: [
       { ask: { et: "Kas sa suitsetad?", en: "Do you smoke?" }, cue: "Say no, you don't smoke at all.", model: { et: "Ei, ma ei suitseta üldse.", en: "No, I don't smoke at all." } },
@@ -343,7 +346,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         from: { et: "Ta teeb öösel palju müra.", en: "He makes a lot of noise at night." },
         ask: "Say he made a lot of noise last night.",
         to: { et: "Ta tegi öösel palju müra.", en: "He made a lot of noise last night." },
-        also: ["Tema tegi öösel palju müra.", "Öösel tegi ta palju müra."],
+        also: ["Tema tegi öösel palju müra.", "Öösel tegi ta palju müra.", "Ta tegi eile öösel palju müra.", "Eile öösel tegi ta palju müra."],
         pattern: "past",
       },
     ],
@@ -375,7 +378,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Proovisin. Nüüd lekib see kahest kohast.", en: "I did. Now it leaks in two places." },
       { who: "Urmas", et: "Hästi. Ärge enam midagi parandage!", en: "All right. Don't fix anything else!", stage: "A long sigh." },
       { who: "Tom", et: "Ja valamu on ka ummistunud. Vesi ei lähe alla.", en: "And the sink is blocked too. The water won't go down." },
-      { who: "Urmas", et: "Mis te sinna panite?", en: "What did you put down it?" },
+      { who: "Urmas", et: "Mis te sinna panite?", en: "What did you put down there?" },
       { who: "Tom", et: "Ainult natuke kartulit ja kohvi.", en: "Only a bit of potato and coffee." },
       { who: "Urmas", et: "Võimalik, et toru tuleb vahetada. Ma saadan homme meistri.", en: "The pipe may need changing. I'll send a handyman tomorrow." },
       { who: "Tom", et: "Aitäh! Ja vannitoas ei tööta lamp.", en: "Thank you! And the light in the bathroom isn't working." },
@@ -408,7 +411,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Tuleb} with a da-form says what has to be done, and nobody is named: {Toru tuleb vahetada}.",
+        "{Tuleb} with a da-form says what has to be done, and nobody is named: {Toru tuleb vahetada}. What it's done to is in the [nimetav] (1st form), as in a command.",
         "{Ummistunud} is a -nud word: it says what has happened to the sink, so after {on} it works like {katki}.",
         "{Võimalik, et} is maybe: {Võimalik, et toru tuleb vahetada}, the pipe may need changing.",
       ],
@@ -419,6 +422,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { q: "What is wrong in the kitchen?", options: ["The fridge is broken", "The tap is leaking", "The window won't shut", "The light isn't working"], answer: 1 },
       { q: "What did Tom put down the sink?", options: ["Rice and tea", "A light bulb", "Bread, milk and some old tea", "Potato and coffee"], answer: 3 },
       { q: "Who will bring a new bulb?", options: ["Tom", "Helgi from downstairs", "The handyman", "Anna"], answer: 2 },
+      { q: "Who says the handyman will bring a bulb?", options: ["Tom", "Helgi", "Urmas", "Nobody"], answer: 2 },
     ],
     answers: [
       { ask: { et: "Mis juhtus?", en: "What happened?" }, cue: "Say the kitchen tap is leaking.", model: { et: "Köögis lekib kraan.", en: "The kitchen tap is leaking." } },
@@ -445,7 +449,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         from: { et: "Vahetage pirn ise ära.", en: "Change the bulb yourself." },
         ask: "Say it to a friend.",
         to: { et: "Vaheta pirn ise ära.", en: "Change the bulb yourself." },
-        also: ["Vaheta ise pirn ära.", "Vaheta pirn ise välja."],
+        also: ["Vaheta ise pirn ära.", "Vaheta pirn ise välja.", "Vaheta ise pirn välja."],
         pattern: "imperative",
       },
       {
@@ -457,7 +461,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Oskan küll. Aga mul ei ole uut pirni.", en: "Sure I can. But I don't have a new bulb." }, right: "pirni", wrong: "pirn", pair: ["PARTITIVE", "NOMINATIVE"], why: "After {ei ole}, the [osastav] (3rd form): {uut pirni}." },
+      { line: { et: "Aga mul ei ole uut pirni.", en: "But I don't have a new bulb." }, right: "pirni", wrong: "pirn", pair: ["PARTITIVE", "NOMINATIVE"], why: "After {ei ole}, the [osastav] (3rd form): {uut pirni}." },
       { line: { et: "Võimalik, et toru tuleb vahetada. Ma saadan homme meistri.", en: "The pipe may need changing. I'll send a handyman tomorrow." }, right: "meistri", wrong: "meister", pair: ["GENITIVE", "NOMINATIVE"], why: "Sending somebody is a whole job done, so the [omastav] (2nd form): {meistri}." },
     ],
     retell: {
@@ -532,7 +536,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Ette} after a stretch of time is ahead: {kaks kuud ette}. The number takes the [osastav] (3rd form), as always: {kaks kuud}.",
+        "{Ette} after a stretch of time is ahead: {kaks kuud ette}. After {kaks}, {kolm} and up, the noun takes the [osastav] (3rd form): {kaks kuud}. When the number itself takes an ending, the noun takes the same one: {ühe kuu üür}, {kümne minuti pärast}.",
         "{Osa} is a part, and what it's a part of takes -st: {osa tagatisrahast}, part of the deposit.",
         "{Siin on kirjas} is how you point at what a paper says: it says here.",
       ],
@@ -543,9 +547,10 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { q: "Who fixes what breaks, by the new contract?", options: ["Tom and Anna", "The landlord", "Whoever broke it", "Helgi, who chairs the association"], answer: 1 },
       { q: "How much notice does a tenant have to give?", options: ["One month", "Two weeks", "Six months", "Two months"], answer: 3 },
       { q: "What does Tom say about Peeter's floor?", options: ["He scratched it with a chair last winter", "It was new when he moved in", "It was scratched before he came", "He fixed it himself"], answer: 2 },
+      { q: "Who says two months is a long time?", options: ["Mari", "Tom", "Peeter", "Nobody"], answer: 0 },
     ],
     answers: [
-      { ask: { et: "Kui suur on sinu üür?", en: "How much is your rent?" }, cue: "Say what your rent is a month.", model: { et: "Minu üür on 600 eurot kuus.", en: "My rent is 600 euros a month." } },
+      { ask: { et: "Kui suur on sinu üür?", en: "How much is your rent?" }, cue: "Say what your rent is a month.", model: { et: "Minu üür on 900 eurot kuus.", en: "My rent is 900 euros a month." } },
       { cue: "Say you have to give two months' notice.", model: { et: "Ma pean kaks kuud ette teatama.", en: "I have to give two months' notice." } },
       { cue: "Say you get the deposit back if the apartment is in good order.", model: { et: "Kui korter on korras, saan ma tagatisraha tagasi.", en: "If the apartment is in good order, I get the deposit back." } },
       { cue: "Say you don't understand this sentence at all.", model: { et: "Ma ei saa sellest lausest üldse aru.", en: "I don't understand this sentence at all." } },
@@ -576,18 +581,18 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         from: { et: "Sa teatad Peetrile kaks kuud ette.", en: "You give Peeter two months' notice." },
         ask: "Tell a friend to do it.",
         to: { et: "Teata Peetrile kaks kuud ette.", en: "Give Peeter two months' notice." },
-        also: ["Anna Peetrile kaks kuud ette teada."],
+        also: ["Anna Peetrile kaks kuud ette teada.", "Teata kaks kuud ette Peetrile."],
         pattern: "imperative",
       },
     ],
     fixes: [
-      { line: { et: "Ma ei lõpeta lepingut.", en: "I'm not ending the contract." }, right: "lepingut", wrong: "lepingu", pair: ["PARTITIVE", "GENITIVE"], why: "After {ei}, always the [osastav] (3rd form): {lepingut}." },
+      { line: { et: "Ma lõpetan lepingu.", en: "I'm ending the contract." }, right: "lepingu", wrong: "lepingut", pair: ["GENITIVE", "PARTITIVE"], why: "Ending a contract is a whole job done, so the [omastav] (2nd form): {lepingu}." },
       { line: { et: "Üürnik peab kaks kuud ette teatama.", en: "The tenant has to give two months' notice." }, right: "kuud", wrong: "kuu", pair: ["PARTITIVE", "NOMINATIVE"], why: "After {kaks}, the [osastav] (3rd form): {kaks kuud}." },
     ],
     faster: {
       ask: { et: "Mis sinu üürilepingus kirjas on?", en: "What does your rental contract say?" },
       cue: "Say what your contract says about the rent, the deposit and the notice, and whether you think it's fair.",
-      model: { et: "Minu üür on 700 eurot kuus. Tagatisraha on ühe kuu üür. Kui ma välja kolin, pean ma kaks kuud ette teatama. Ma arvan, et kaks kuud on liiga pikk aeg.", en: "My rent is 700 euros a month. The deposit is one month's rent. If I move out, I have to give two months' notice. I think two months is too long." },
+      model: { et: "Minu üür on 900 eurot kuus. Tagatisraha on ühe kuu üür. Kui ma välja kolin, pean ma kaks kuud ette teatama. Ma arvan, et kaks kuud on liiga pikk aeg.", en: "My rent is 900 euros a month. The deposit is one month's rent. If I move out, I have to give two months' notice. I think two months is too long." },
     },
   },
   {
@@ -660,6 +665,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { q: "Why is Tom wearing a hat at work?", options: ["The office is cold today", "The heating at home is broken", "He forgot to take it off when he came in", "It's a new fashion"], answer: 1 },
       { q: "By when should the landlord answer?", options: ["By tomorrow", "Within a week", "By Friday", "By the end of the month"], answer: 2 },
       { q: "How should the letter sound?", options: ["Polite but firm", "Angry and loud", "Funny, so he laughs", "Short and cold"], answer: 0 },
+      { q: "Who tells Tom to write a complaint?", options: ["Urmas", "Anna", "Kadri", "Nobody"], answer: 2 },
     ],
     answers: [
       { ask: { et: "Mis sinu korteris katki on?", en: "What's broken in your apartment?" }, cue: "Say the heating hasn't worked for a week.", model: { et: "Küte ei tööta juba nädal aega.", en: "The heating hasn't worked for a week." } },
@@ -741,9 +747,9 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         { et: "Nüüd on toas jälle soe ja müts on kapis.", en: "Now it's warm indoors again and the hat is back in the cupboard." },
       ],
       points: [
-        { en: "Tell it as Tom, with {ma}: last week the new apartment was cold.", any: ["külm"] },
+        { en: "Last week the new apartment was cold. Tell it about Tom: {ta}, not {ma}.", any: ["külm"] },
         { en: "The heating wasn't working.", any: ["küte", "töötanud"] },
-        { en: "I wrote the landlord a letter.", any: ["kirjutasin", "kirja"] },
+        { en: "He wrote the landlord a letter.", any: ["kirja"] },
         { en: "He answered and sent a handyman.", any: ["vastas", "saatis", "meistri"] },
       ],
     },
@@ -766,7 +772,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Vabandust, aga kui ma sisse kolisin, oli põrand juba kriimustatud. See on lepingus kirjas.", en: "Sorry, but when I moved in, the floor was already scratched. It's written in the contract." },
       { who: "Peeter", et: "Tõesti? Vaatame lepingut.", en: "Really? Let's look at the contract." },
       { who: "Peeter", et: "Jah, siin on see kirjas.", en: "Yes, it says so here.", stage: "He reads the contract for a long time." },
-      { who: "Tom", et: "Ja ma parandasin ise köögis kraani.", en: "And I fixed the kitchen tap myself." },
+      { who: "Tom", et: "Ja köögis kraani parandasin ma ise ära.", en: "And I fixed the kitchen tap myself." },
       { who: "Peeter", et: "Ma mäletan seda kraani väga hästi.", en: "I remember that tap very well.", stage: "He laughs." },
       { who: "Tom", et: "Nii et ma saan terve tagatisraha tagasi?", en: "So I get the whole deposit back?" },
       { who: "Peeter", et: "Jah, saad. Sa olid hea üürnik. Ainult natuke liiga hea meister.", en: "Yes, you do. You were a good tenant. Just a bit too good a handyman." },
@@ -786,6 +792,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { q: "Why does Peeter want to keep part of the deposit?", options: ["The kitchen is dirty", "Tom didn't give notice", "The tap is still leaking", "The floor is scratched"], answer: 3 },
       { q: "How does Tom show the floor was scratched before?", options: ["It's written in the contract", "He has a photo of it on his phone", "Mari saw it happen", "Peeter's notes say so"], answer: 0 },
       { q: "What does Peeter remember very well?", options: ["The day Tom moved in", "The kitchen tap", "Tom's loud music at night", "The broken bathroom light"], answer: 1 },
+      { q: "Who first mentions the contract?", options: ["Peeter", "Tom", "Mari", "Nobody"], answer: 1 },
     ],
     answers: [
       { ask: { et: "Kas korter on korras?", en: "Is the apartment in order?" }, cue: "Say everything's in order, and you cleaned all day yesterday.", model: { et: "Kõik on korras. Ma koristasin eile terve päeva.", en: "Everything's in order. I cleaned all day yesterday." } },
@@ -793,12 +800,12 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { cue: "Ask if you get the whole deposit back.", model: { et: "Kas ma saan terve tagatisraha tagasi?", en: "Do I get the whole deposit back?" } },
     ],
     roleplay: {
-      scene: "You've moved out of a flat you rented from a landlord you hardly know. He's walking through the empty apartment with you, and he'd like to keep part of your deposit. He finds more than one thing to point at. You call each other {teie}. He speaks first.",
+      scene: "You've moved out of an apartment you rented from a landlord you hardly know. He's walking through the empty rooms with you, and he'd like to keep part of your deposit. He finds more than one thing to point at. You call each other {teie}. He speaks first.",
       turns: [
         { ask: { et: "Tere! Vaatame korteri koos läbi.", en: "Hello! Let's walk through the apartment together." }, cue: "Say hello, and that everything's in order.", model: { et: "Tere! Kõik on korras.", en: "Hello! Everything's in order." } },
         { ask: { et: "Aga põrand on kriimustatud.", en: "But the floor is scratched." }, cue: "Say it was scratched before you came.", model: { et: "See oli juba enne mind kriimustatud.", en: "It was scratched before I came." } },
         { ask: { et: "Võimalik, aga osa tagatisrahast jääb mulle.", en: "Maybe, but part of the deposit stays with me." }, cue: "Disagree politely: say it's written in the contract.", model: { et: "Vabandage, aga see on lepingus kirjas.", en: "Excuse me, but it's written in the contract." } },
-        { ask: { et: "Kas veel midagi on katki?", en: "Is anything else broken?" }, cue: "Say no, and that you fixed the tap yourself.", model: { et: "Ei. Ma parandasin ise köögis kraani.", en: "No. I fixed the kitchen tap myself." } },
+        { ask: { et: "Kas veel midagi on katki?", en: "Is anything else broken?" }, cue: "Say no, and that you fixed the tap yourself.", model: { et: "Ei. Köögis kraani parandasin ma ise ära.", en: "No. I fixed the kitchen tap myself." } },
         { ask: { et: "Aga vannitoas ei tööta lamp.", en: "But the light in the bathroom isn't working." }, cue: "Say it's only the bulb, and it needs changing.", model: { et: "See on ainult pirn. Pirn tuleb vahetada.", en: "It's only the bulb. The bulb needs changing." } },
         { ask: { et: "Hästi.", en: "All right." }, cue: "Ask if you get the whole deposit back.", model: { et: "Kas ma saan terve tagatisraha tagasi?", en: "Do I get the whole deposit back?" } },
         { ask: { et: "Jah, saate. Te olite hea üürnik.", en: "Yes, you do. You were a good tenant." }, cue: "Thank him, and say goodbye.", model: { et: "Aitäh! Head aega!", en: "Thank you! Goodbye!" } },

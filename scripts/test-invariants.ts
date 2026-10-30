@@ -9775,6 +9775,12 @@ check("nothing is stored on a device that would need asking first", () => {
     // `sessionStorage` so it goes with the tab, removed when the round
     // finishes, not resumed after three hours, and swept by the sign-out.
     "components/useRoundSnapshot.ts",
+    // Where a learner is in a lesson: the step, how far they had reached, which
+    // steps were finished and whether the conversation was heard, so a reload
+    // does not put them back on step 1. Nothing typed and nothing marked, in
+    // `sessionStorage` under the round prefix the sign-out sweeps, removed when
+    // the lesson is finished and dropped after three hours.
+    "components/course/lessonResume.ts",
     // The speech model, which the learner asked for by pressing Download with
     // its size in front of them (D7), and one line saying it was downloaded
     // once, so a cache the browser cleared can be told from a first visit.

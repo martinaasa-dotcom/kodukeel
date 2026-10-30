@@ -65,7 +65,7 @@ export function YourTurn({ text }: { text: string }) {
           </span>
         ))}
       </p>
-      <MicButton speech={speech} label={t("Say it yourself")} shortcut showPartial={false} />
+      <MicButton speech={speech} label={t("Say it yourself")} shortcut showPartial={false} fallback="none" />
       {outcome && (
         <p className="text-sm" style={{ color: "var(--ink-2)" }} role="status">
           {outcome === "heard"

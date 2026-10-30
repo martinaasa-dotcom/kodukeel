@@ -42,7 +42,7 @@ export function NextPart({ programmeId, label, quiet = false, to }: {
     <div>
       <Button
         variant={quiet ? "secondary" : "primary"}
-        disabled={pending}
+        busy={pending}
         onClick={() => {
           setFailed(false);
           start(async () => {

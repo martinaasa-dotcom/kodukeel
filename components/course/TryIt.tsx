@@ -1,6 +1,7 @@
 "use client";
 
 import { usePublicReader } from "@/components/PublicReader";
+import { useModuleFocus } from "@/components/course/moduleFocus";
 import { useSingleKeys } from "@/components/SingleKeys";
 import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { useEffect, useRef, useState } from "react";
@@ -47,6 +48,8 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
   const sound = useFeedbackSound();
   const t = useT();
   const publicReader = usePublicReader();
+  // Only an evening of the module goes on to questions about today's words; the reference opened by hand does not.
+  const inModule = useModuleFocus() !== null;
   const locale = useLocale();
 
   /*
@@ -84,7 +87,7 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
   */
   const nextRef = useRef<HTMLButtonElement>(null);
   const promptRef = useRef<HTMLParagraphElement>(null);
-  const doneRef = useRef<HTMLParagraphElement>(null);
+  const doneRef = useRef<HTMLDivElement>(null);
   const moved = useRef(false);
   useEffect(() => {
     if (picked !== null) nextRef.current?.focus();
@@ -128,13 +131,14 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
       <Card tone="sky">
         <div className="flex items-start gap-3">
           <Sparkles size={20} aria-hidden style={{ color: "var(--good-ink)" }} />
-          <div className="min-w-0">
-            <p ref={doneRef} tabIndex={-1} className="text-base font-semibold outline-none" style={{ color: "var(--ink)" }}>
+          {/* The caret comes here, which reads both sentences; a live region beside it would read the second twice. */}
+          <div ref={doneRef} tabIndex={-1} className="min-w-0 outline-none">
+            <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>
               {t("You looked the forms up in the table.")}
             </p>
-            <p role="status" className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>
+            <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>
               {rightSoFar === asks.length
-                ? t("You got every one right. Later today you'll get questions like these about today's words.")
+                ? inModule ? t("You got every one right. Later today you'll get questions like these about today's words.") : t("You got every one right.")
                 : t("Glance back at the table whenever a form looks odd.")}
             </p>
           </div>

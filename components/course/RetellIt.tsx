@@ -11,7 +11,8 @@ import { useLocale, useT } from "@/components/Locale";
 import { LessonText } from "@/components/course/LessonText";
 import { Card, SectionTitle } from "@/components/ui";
 import { fill } from "@/lib/copy/locale";
-import { playClip, stopClip, untilQuiet } from "@/lib/audio/clip";
+import { useLinePlayer } from "@/components/course/useLinePlayer";
+import { StepPills } from "@/components/course/StepPills";
 import { pointsHeard } from "@/lib/course/lessons/retell";
 import type { Retell } from "@/lib/course/lessons/types";
 
@@ -35,8 +36,9 @@ export function RetellIt({ retell, voice, typed, onDone }: { retell: Retell; voi
   const locale = useLocale();
   const prefs = useAudioPrefs();
   const [plays, setPlays] = useState(0);
-  const [playing, setPlaying] = useState(false);
-  const stop = useRef(false);
+  const player = useLinePlayer();
+  const { playing } = player;
+  const [unheard, setUnheard] = useState(false);
   const [said, setSaid] = useState("");
   const [shown, setShown] = useState(false);
   // The button that showed the story is gone, so the caret goes to the story it showed.
@@ -63,62 +65,44 @@ export function RetellIt({ retell, voice, typed, onDone }: { retell: Retell; voi
   // One loud button a screen: hearing the story until it has been heard twice or told, then Next.
   const hearFirst = plays < 2 && said.trim() === "";
 
-  // Leaving the card mid-play ends the line being said and the rest of the story, so neither is heard over the next screen.
-  const running = useRef(false);
-  useEffect(() => () => {
-    stop.current = true;
-    if (running.current) stopClip();
-  }, []);
-
   const play = async () => {
-    if (playing) { stop.current = true; stopClip(); return; }
-    stop.current = false;
-    setPlaying(true);
-    running.current = true;
-    let heard = 0;
-    for (const line of retell.story) {
-      if (stop.current) break;
-      try {
-        if ((await playClip({ text: line.et, voice, pace: prefs.pace })) === "played") heard += 1;
-        await untilQuiet(20_000);
-      } catch {
-        // A line the speech service would not say is skipped rather than ending the story.
-      }
-      await new Promise((r) => setTimeout(r, 250));
-    }
+    const run = await player.toggle(retell.story.map((line) => ({ text: line.et, voice, pace: prefs.pace })), { gapMs: 250 });
+    if (!run || run.stopped) return;
     // A play counts as heard only where something was said: over silence it would read "Heard once" about nothing.
-    if (!stop.current && heard > 0) setPlays((n) => n + 1);
-    setPlaying(false);
-    running.current = false;
+    if (run.heard > 0) { setPlays((n) => n + 1); setUnheard(false); } else setUnheard(true);
   };
 
   return (
     <Card>
-      <SectionTitle hint={fill(t("told by {who}"), { who: retell.who })}>{t("Retell it")}</SectionTitle>
-      <ol className="mb-5 flex flex-wrap gap-2 text-sm font-semibold" aria-label={t("The three stages")}>
-        {[t("Hear it"), t("Hear it again"), t("Tell it back")].map((label, i) => {
-          const done = i < 2 ? plays > i : said.trim().length > 0;
-          return (
-            <li key={label} className="inline-flex items-center gap-1 rounded-full px-3 py-1" style={{ background: done ? "var(--sky-soft)" : "var(--raised)", color: done ? "var(--sky-ink)" : "var(--ink-2)" }}>
-              {done ? <Check size={13} aria-hidden /> : <Circle size={11} aria-hidden />} {label}
-            </li>
-          );
-        })}
-      </ol>
+      <SectionTitle level={3} hint={fill(t("told by {who}"), { who: retell.who })}>{t("Retell it")}</SectionTitle>
+      <div className="mb-5">
+        <StepPills
+          label={t("The three stages")}
+          pills={[t("Hear it"), t("Hear it again"), t("Tell it back")].map((label, i) => ({
+            key: label,
+            label,
+            state: (i < 2 ? plays > i : said.trim().length > 0) ? "done" : "ahead",
+          }))}
+        />
+      </div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
-        <Button variant={hearFirst ? "primary" : "secondary"} onClick={play} aria-pressed={playing}>
+        <Button variant={hearFirst ? "primary" : "secondary"} onClick={play}>
           {playing ? <Pause size={15} aria-hidden /> : <Play size={15} aria-hidden />}
           {playing ? t("Stop") : plays === 0 ? t("Hear the story") : t("Hear it again")}
         </Button>
         <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-          {plays === 0 ? t("No words on screen. Just listen.") : fill(t(plays === 1 ? "Heard once." : "Heard {n} times."), { n: String(plays) })}
+          {unheard && plays === 0
+            ? t("The voice didn't come through just now. Show the story and read it instead.")
+            : plays > 0
+              ? fill(t(plays === 1 ? "Heard once." : "Heard {n} times."), { n: String(plays) })
+              : shown ? null : t("No words on screen. Just listen.")}
         </span>
       </div>
 
       <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("Tell it back in your own words")}</p>
       {mic && (
         <div className="mb-3 flex flex-wrap items-center gap-3">
-          <MicButton speech={speech} label={said ? t("Say more") : t("Start telling it")} />
+          <MicButton speech={speech} label={said ? t("Say more") : t("Start telling it")} fallback="box" />
           <span className="text-sm" style={{ color: "var(--ink-3)" }}>{t("Stop and start as often as you like. It all adds up.")}</span>
         </div>
       )}

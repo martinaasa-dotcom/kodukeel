@@ -45,7 +45,7 @@ export function SayAlongFade({ lesson, partAt, onDone }: { lesson: LessonSpec; p
 
   return (
     <Card>
-      <SectionTitle hint={fill(t("Round {n} of 3"), { n: String(step.pass) })}>{t("Say it along, then alone")}</SectionTitle>
+      <SectionTitle level={3} hint={fill(t("Round {n} of 3"), { n: String(step.pass) })}>{t("Say it along, then alone")}</SectionTitle>
       <p className="mb-4 text-base" style={{ color: "var(--ink-2)" }}>
         {{
           first: t("Hear the line, then say it with the words in front of you."),
@@ -146,7 +146,7 @@ function FadeLine({ line, en, hidden, voice, native, who, locale }: {
       <p className="text-base" style={{ color: "var(--ink-2)" }}><LessonText text={en} locale={locale} /></p>
       <div className="flex flex-wrap items-center gap-3">
         {speech.offered
-          ? <MicButton speech={speech} label={t("Say it")} showPartial={false} />
+          ? <MicButton speech={speech} label={t("Say it")} showPartial={false} fallback="none" />
           : <p className="text-sm" style={{ color: "var(--ink-3)" }}>{t("Say it out loud anyway. Nobody's listening but you.")}</p>}
         {anyHidden && !shown && (
           <Button variant="ghost" size="sm" onClick={() => { showing.current = true; setShown(true); }}><Eye size={14} aria-hidden /> {t("Show the line")}</Button>

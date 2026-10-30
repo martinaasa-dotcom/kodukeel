@@ -53,7 +53,48 @@ function disabledExpressions(source: string): string[] {
   return out;
 }
 
+/** Opening `<Button` and `<button` tags, braces balanced so a handler's `>` does not end one early. */
+function buttonTags(source: string): string[] {
+  const out: string[] = [];
+  for (const m of source.matchAll(/<(?:Button|button)\b/g)) {
+    let depth = 0;
+    let i = m.index! + m[0].length;
+    for (; i < source.length; i++) {
+      const c = source[i]!;
+      if (c === "{") depth += 1;
+      else if (c === "}") depth -= 1;
+      else if (c === ">" && depth === 0) break;
+    }
+    out.push(source.slice(m.index!, i + 1));
+  }
+  return out;
+}
+
+/** A wait named after the press itself: what `busy` is for. */
+const OWN_WAIT = /\b(?:pending|loading|busy|reading|keeping|saving|leaving|sending|opening)\b/;
+
 export default function focusSurvivesAPress({ check, code, ALL }: InvariantKit) {
+  check("on the course screens, a button waiting on its own press is busy, never disabled", () => {
+    /*
+      Asked of every button on the lesson, check and module screens rather
+      than a list, since the next one written is the one a list misses. A
+      button tag's \`disabled\` may say "not now" (an empty box, nothing
+      ticked) and may not name the wait for its own round trip, which is
+      \`busy\` on \`Button\` (components/Button.tsx).
+    */
+    const files = ALL.filter((f) => /^(?:app\/\(app\)\/course\/|components\/course\/|components\/anu\/TextReading)/.test(f) && f.endsWith(".tsx"));
+    let buttons = 0;
+    const offenders: string[] = [];
+    for (const f of files) {
+      for (const tag of buttonTags(code(f))) {
+        buttons += 1;
+        for (const expr of disabledExpressions(tag)) if (OWN_WAIT.test(expr)) offenders.push(`${f}: disabled={${expr.trim()}}`);
+      }
+    }
+    assert.ok(buttons >= 40, `only ${buttons} buttons found on the course screens, so the tag reader stopped matching`);
+    assert.deepEqual(offenders, [], `${offenders.join("\n")}\npass the wait as busy={...}, which keeps the caret on the button`);
+  });
+
   check("a button is not disabled by the pending state of its own press", () => {
     /*
       `disabled` is the caller's word for "not now", a pause or a spent

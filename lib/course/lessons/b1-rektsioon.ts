@@ -39,7 +39,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { who: "Anna", et: "Muidugi. Mis juhtus?", en: "Of course. What happened?" },
       { who: "Tom", et: "Ülemus tahab aruannet homseks. Ma tegin seda terve päeva, aga midagi on ikka vale.", en: "My boss wants the report by tomorrow. I've been on it all day, and something's still wrong." },
       { who: "Anna", et: "Terve päeva? Miks sa minult abi ei küsinud?", en: "All day? Why didn't you ask me for help?" },
-      { who: "Tom", et: "Ma ei tahtnud sind segada. Sul on ju palju tööd.", en: "I didn't want to bother you. You've got plenty of work yourself." },
+      { who: "Tom", et: "Ma ei tahtnud sind segada. Sul on ju palju tööd.", en: "I didn't want to bother you. You've got plenty of work." },
       { who: "Anna", et: "Pole hullu. Näita! Siin on viga. See number on vale.", en: "That's all right. Show me! Here's the mistake. This number is wrong." },
       { who: "Tom", et: "Ainult üks viga? Ma otsisin seda kolm tundi!", en: "Just one mistake? I spent three hours looking for it!" },
       { who: "Anna", et: "Tegelikult on mul ka probleem arvutiga. Aita mind sellega!", en: "Actually, I've got a problem with my computer too. Help me with it!" },
@@ -110,7 +110,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
         from: { et: "Aita mind sellega!", en: "Help me with this!" },
         ask: "Make it a polite question, with {Kas sa saaksid}.",
         to: { et: "Kas sa saaksid mind sellega aidata?", en: "Could you help me with this?" },
-        also: ["Kas saaksid mind sellega aidata?", "Kas sa saaksid mind palun sellega aidata?"],
+        also: ["Kas saaksid mind sellega aidata?", "Kas sa saaksid mind palun sellega aidata?", "Kas sa saaksid sellega aidata?"],
         pattern: "conditional",
       },
       {
@@ -163,7 +163,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Olgu! Aga ma laulan väga vaikselt.", en: "All right! But I'll sing very quietly." },
     ],
     teaches: [
-      { kind: "verb", et: "huvitama", first: "huvitan", en: "to interest", firstEn: "I interest", asks: "{keda?} somebody ([osastav] (3rd form))" },
+      { kind: "verb", et: "huvitama", first: "huvitan", en: "to interest somebody; {Mind huvitab}, I'm into it", firstEn: "I interest somebody", asks: "{keda?} somebody ([osastav] (3rd form))" },
       { kind: "verb", et: "huvituma", first: "huvitun", en: "to be into, to be interested", firstEn: "I'm into", asks: "{millest?} something ([seestütlev] (-st, out of))" },
       { kind: "word", et: "huvitatud", en: "interested", asks: "{millest?} in something ([seestütlev] (-st, out of))" },
       { kind: "verb", et: "tunduma", first: "tundun", en: "to seem", firstEn: "I seem", asks: "{kellele?} to somebody ([alaleütlev] (-le, onto/to))" },
@@ -211,7 +211,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
     },
     listenFor: [
       { q: "What are Tom and Triin talking about?", options: ["What they like doing", "Kati's birthday", "Where they both work and live", "A trip to Tartu with friends"], answer: 0 },
-      { q: "What is Triin into?", options: ["Football and music", "Cooking", "Old films", "History and cars"], answer: 3 },
+      { q: "What is Triin into?", options: ["Soccer and music", "Cooking", "Old films", "History and cars"], answer: 3 },
       { q: "What do they agree on?", options: ["Triin buys Tom's car", "Tom goes to choir on Friday", "They watch sport together on TV", "Tom teaches Triin English"], answer: 1 },
     ],
     answers: [
@@ -286,7 +286,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Ühe naisega! Nad rääkisid terve tunni ja naersid palju.", en: "A woman! They talked for a whole hour and laughed a lot." },
       { who: "Tom", et: "Millest nad rääkisid?", en: "What were they talking about?" },
       { who: "Mari", et: "Ma ei kuulnud. Aga Peeter on viimasel ajal väga rõõmus. Ja eile ostis ta lilli!", en: "I didn't hear. But Peeter's been very cheerful lately. And yesterday he bought flowers!" },
-      { who: "Tom", et: "Ehk on see tema tütar?", en: "Maybe it's his daughter?" },
+      { who: "Tom", et: "Ehk oli see tema tütar?", en: "Maybe it was his daughter?" },
       { who: "Mari", et: "Ei, tütar elab kaugel. See on huvitav lugu! Ma mõtlen terve päeva ainult sellele.", en: "No, his daughter lives far away. It's an interesting story! I've thought about nothing else all day." },
       { who: "Tom", et: "Mari, sa räägid ju alati teistest inimestest.", en: "Mari, you're always talking about other people." },
       { who: "Mari", et: "Aga ainult heas mõttes!", en: "But only in a nice way!" },
@@ -334,7 +334,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       notes: [
         "About is the [seestütlev] (-st, out of) in Estonian: {minust}, {temast}, {ilmast}. {Teadma} works the same way: {Ma ei tea sellest midagi}.",
         "You meet with somebody: {Ma kohtusin temaga}, never {teda}.",
-        "{Ehk} is a gentle maybe, good for gossip: {Ehk on see tema tütar?}",
+        "{Ehk} is a gentle maybe, good for gossip: {Ehk oli see tema tütar?}",
       ],
       watchOut: "{Mõtlema} can take either: {Ma mõtlen sellele} and {Ma mõtlen sellest} both say you're thinking about it. The -le one is the usual one, so start with that.",
       examples: [0, 6, 7, 10],
@@ -383,7 +383,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
     fixes: [
       { line: { et: "Me rääkisime ilmast.", en: "We were talking about the weather." }, right: "ilmast", wrong: "ilmale", pair: ["ELATIVE", "ALLATIVE"], why: "Talking about takes the [seestütlev] (-st, out of): {ilmast}." },
       { line: { et: "Ma ei tea temast midagi.", en: "I don't know anything about him." }, right: "temast", wrong: "temaga", pair: ["ELATIVE", "COMITATIVE"], why: "Knowing about somebody is out of, not with: {temast}." },
-      { line: { et: "Ma kohtusin temaga pargis.", en: "I met him in the park." }, right: "temaga", wrong: "teda", pair: ["COMITATIVE", "PARTITIVE"], why: "You meet with somebody: {temaga}." },
+      { line: { et: "Ma kohtusin temaga.", en: "I met him." }, right: "temaga", wrong: "teda", pair: ["COMITATIVE", "PARTITIVE"], why: "You meet with somebody: {temaga}." },
     ],
     faster: {
       ask: { et: "Kellega sa tihti räägid, ja millest?", en: "Who do you often talk with, and what about?" },
@@ -504,8 +504,8 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ma abiellun temaga juunis!", en: "I'm marrying him in June!" }, right: "temaga", wrong: "teda", pair: ["COMITATIVE", "PARTITIVE"], why: "You marry with somebody: {temaga}." },
-      { line: { et: "Aga ma armusin temasse esimesel päeval.", en: "But I fell for him on the very first day." }, right: "temasse", wrong: "temaga", pair: ["ILLATIVE", "COMITATIVE"], why: "Love goes into somebody: {temasse}." },
+      { line: { et: "See mees oli Jaan ja juunis ma abiellun temaga!", en: "That man was Jaan, and in June I'm marrying him!" }, right: "temaga", wrong: "teda", pair: ["COMITATIVE", "PARTITIVE"], why: "You marry with somebody: {temaga}." },
+      { line: { et: "Aga mina armusin temasse juba esimesel päeval.", en: "But I fell for him on the very first day." }, right: "temasse", wrong: "temaga", pair: ["ILLATIVE", "COMITATIVE"], why: "Love goes into somebody: {temasse}." },
       { line: { et: "Väga! Hea mees armastab oma ema. Aga kuidas sina oma naisega tutvusid?", en: "Very! A good man loves his mom. But how did you meet your wife?" }, right: "naisega", wrong: "naine", pair: ["COMITATIVE", "NOMINATIVE"], why: "Getting to know somebody is with them: {oma naisega}." },
     ],
     retell: {
@@ -546,7 +546,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Aga kui ta ütleb, et see pole võimalik?", en: "But what if she says it isn't possible?" },
       { who: "Mari", et: "Siis sõidame ilma sinuta: mina, Anna ja lapsed. Peeter tuleb ka meiega.", en: "Then we'll go without you: me, Anna and the kids. Peeter's coming with us too." },
       { who: "Tom", et: "Ilma minuta? Nüüd ma kardan sind.", en: "Without me? Now I'm scared of you." },
-      { who: "Mari", et: "Õige! Nüüd sõltub kõik sinust.", en: "Good! Now it all depends on you." },
+      { who: "Mari", et: "Õige! Nüüd sõltub kõik sinust.", en: "Right! Now it all depends on you." },
     ],
     teaches: [
       { kind: "verb", et: "sõltuma", first: "sõltun", en: "to depend", firstEn: "I depend", asks: "{millest? kellest?} on something, somebody ([seestütlev] (-st, out of))" },
@@ -557,7 +557,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "sinuta", of: "sina", en: "without you" },
       { kind: "form", et: "meiega", of: "meie", en: "with us" },
       { kind: "form", et: "lapsed", of: "laps", en: "children" },
-      { kind: "form", et: "ilusale", of: "ilus", en: "onto nice, onto good" },
+      { kind: "form", et: "ilusale", of: "ilus", en: "nice, good, as what you count on" },
       { kind: "form", et: "ilusat", of: "ilus", en: "nice, good, as what you hope for" },
       { kind: "form", et: "sinule", of: "sina", en: "onto you, on you" },
       { kind: "word", et: "peale", en: "onto, on: {sinu peale}, on you" },
@@ -567,6 +567,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "sel", of: "see", en: "this (this year)" },
       { kind: "form", et: "aastal", of: "aasta", en: "in the year (this year, last year)" },
       { kind: "word", et: "võimalik", en: "possible" },
+      { kind: "word", et: "oluline", en: "important" },
     ],
     how: {
       point: "Four verbs about what might happen, each with its own case: {sõltuma} wants the [seestütlev] (-st, out of), {lootma} the [alaleütlev] (-le, onto/to) or the [osastav] (3rd form), and {kartma} the [osastav] (3rd form). {Uskuma} takes the [osastav] (3rd form) for believing somebody, and the [sisseütlev] (-sse, into) for believing in them: {Ma usun sinusse}.",
@@ -603,13 +604,6 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
     ],
     reworks: [
       {
-        from: { et: "See sõltub ilmast.", en: "That depends on the weather." },
-        ask: "Say it depends on them: use {sina}.",
-        to: { et: "See sõltub sinust.", en: "That depends on you." },
-        also: ["Sõltub sinust."],
-        pattern: "government",
-      },
-      {
         from: { et: "Ma loodan ilusale ilmale.", en: "I'm hoping for good weather." },
         ask: "Say it the other way, with the [osastav] (3rd form).",
         to: { et: "Ma loodan ilusat ilma.", en: "I'm hoping for good weather." },
@@ -639,7 +633,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Õige! Nüüd sõltub kõik sinust.", en: "Good! Now it all depends on you." }, right: "sinust", wrong: "sulle", pair: ["ELATIVE", "ALLATIVE"], why: "Depending is out of: {sinust}." },
+      { line: { et: "Õige! Nüüd sõltub kõik sinust.", en: "Right! Now it all depends on you." }, right: "sinust", wrong: "sulle", pair: ["ELATIVE", "ALLATIVE"], why: "Depending is out of: {sinust}." },
       { line: { et: "Siis räägi temaga homme! Ma usun sinusse.", en: "Then talk to her tomorrow! I believe in you." }, right: "sinusse", wrong: "sinust", pair: ["ILLATIVE", "ELATIVE"], why: "Believing in somebody goes into them: {sinusse}. {Ma usun sind} is I believe what you say." },
       { line: { et: "Ilma minuta? Nüüd ma kardan sind.", en: "Without me? Now I'm scared of you." }, right: "sind", wrong: "sinust", pair: ["PARTITIVE", "ELATIVE"], why: "Afraid of is the [osastav] (3rd form): {sind}." },
     ],
@@ -693,7 +687,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "ning", en: "and" },
     ],
     how: {
-      point: "A reply to an invitation thanks first, {Aitäh kutse eest!}, then answers, then asks the favor, with each verb in its own case: {Kas ma võiksin oma naise kaasa võtta?}",
+      point: "A reply to an invitation thanks first, {Aitäh kutse eest!}, then answers, then asks the favor softly, in the would form: {Kas me võiksime tulla alles kell kaheksa?}",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -810,7 +804,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Tom", et: "Tere tulemast! Mina olen Tom. Ma aitan sind täna.", en: "Welcome! I'm Tom. I'll be helping you today." },
       { who: "Kadri", et: "Tere! Mina olen Kadri. Aitäh, ma natuke kardan.", en: "Hi! I'm Kadri. Thanks, I'm a bit nervous." },
-      { who: "Tom", et: "Pole hullu. Mina kartsin ka esimesel päeval. Ütle, mis sind huvitab?", en: "That's all right. I was nervous on my first day too. Tell me, what are you into?" },
+      { who: "Tom", et: "Pole hullu. Mina kartsin ka esimesel päeval. Räägi, mis sind huvitab.", en: "That's all right. I was nervous on my first day too. Tell me what you're into." },
       { who: "Kadri", et: "Mind huvitab muusika. Ma laulan kooris.", en: "I'm into music. I sing in a choir." },
       { who: "Tom", et: "Tõesti? Mina ka! Ja sa pead Katiga tutvuma. Ta laulab minuga samas kooris.", en: "Really? Me too! And you have to meet Kati. She sings in the same choir as me." },
       { who: "Kadri", et: "Tore! Aga kellelt ma küsin, kui mul on arvutiga probleem?", en: "Great! But who do I ask if I have a problem with my computer?" },

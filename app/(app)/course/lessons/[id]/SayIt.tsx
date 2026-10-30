@@ -8,7 +8,7 @@ import { Speak } from "@/components/Speak";
 import { nativePart } from "@/lib/audio/native";
 import { MicButton } from "@/components/speech/MicButton";
 import { ReadAloud } from "@/components/speech/ReadAloud";
-import { useSpeech } from "@/components/speech/useSpeech";
+import { useSpeech, useSpeechConfig } from "@/components/speech/useSpeech";
 import { useFeedbackSound } from "@/components/AudioPrefs";
 import { useLocale, useT } from "@/components/Locale";
 import { LessonText } from "@/components/course/LessonText";
@@ -106,24 +106,39 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier
     story and the race.
   */
   const cardRef = useRef<HTMLDivElement>(null);
+  const leadRef = useRef<HTMLDivElement>(null);
   const doneRef = useRef<HTMLDivElement>(null);
   const shownAt = useRef(at);
+  /* The caret goes to the new card's heading, or the line the other side says,
+     rather than to the whole column: focusing that reads the conversation so
+     far over again on every turn. */
+  const focusLead = () => {
+    if (cardRef.current?.contains(document.activeElement)) return;
+    const lead = leadRef.current?.querySelector<HTMLElement>("h2, h3, [data-their-line]") ?? cardRef.current;
+    if (!lead) return;
+    if (lead.tabIndex < 0 && !lead.hasAttribute("tabindex")) {
+      lead.setAttribute("tabindex", "-1");
+      lead.classList.add("outline-none");
+    }
+    lead.focus();
+  };
   useEffect(() => {
     if (shownAt.current === at) return;
     shownAt.current = at;
-    if (!cardRef.current?.contains(document.activeElement)) cardRef.current?.focus();
+    focusLead();
   }, [at]);
   useEffect(() => {
     if (over) doneRef.current?.focus();
   }, [over]);
   // Choosing to say or type replaces the two buttons, so the caret goes to the first card rather than the page.
   useEffect(() => {
-    if (mode !== null && !cardRef.current?.contains(document.activeElement)) cardRef.current?.focus();
+    if (mode !== null) focusLead();
   }, [mode]);
   // The other side's voice: whoever opens today's conversation.
   const opener = lesson.conversation[0]?.who ?? "";
   const voice = lesson.cast[opener] ?? undefined;
 
+  const speechConfig = useSpeechConfig();
   const cards = useMemo<SayCard[]>(() => {
     const answers = lesson.answers.map((prompt, i): SayCard => ({
       kind: "answer", prompt, label: fill(t("About you, {n} of {total}"), { n: String(i + 1), total: String(lesson.answers.length) }), aboutYou: true,
@@ -156,6 +171,8 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier
   }, [lesson, mode, t, capstone]);
 
   if (mode === null) {
+    const config = speechConfig;
+    const hears = config.modelBase !== null && config.unavailable === null;
     return (
       <div className="flex flex-col gap-5" data-say-it="choose">
         <p className="max-w-[60ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
@@ -164,13 +181,16 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier
             : saysItLonger(lesson.level)
               // Named for what this lesson holds, the story or the race, rather than "one or the other".
               ? lesson.retell
-                ? t("Say today's key lines along and then alone, answer questions about yourself, then tell a short story back in your own words. A word lights up when it's understood.")
+                ? t("Say today's key lines along and then alone, answer questions about yourself, then tell a short story back in your own words.")
                 : lesson.faster
-                  ? t("Say today's key lines along and then alone, answer questions about yourself, then give one answer three times, faster each time. A word lights up when it's understood.")
-                  : t("Say today's key lines along and then alone, then answer questions about yourself. A word lights up when it's understood.")
-              : t("Say the conversation along with the screen, then answer a few questions about yourself out loud. A word lights up when it's understood, even said with an accent, so play yourself back beside the recording to hear how it sounded.")}
+                  ? t("Say today's key lines along and then alone, answer questions about yourself, then give one answer three times, faster each time.")
+                  : t("Say today's key lines along and then alone, then answer questions about yourself.")
+              : t("Say the conversation along with the screen, then answer a few questions about yourself out loud.")}
+          {/* The lighting is promised only where this device can hear: elsewhere the lines are said aloud with nothing listening. */}
+          {hears && <>{" "}{saysItLonger(lesson.level) ? t("A word lights up when it's understood.") : t("A word lights up when it's understood, even said with an accent, so play yourself back beside the recording to hear how it sounded.")}</>}
         </p>
-        <div className="grid gap-3 sm:grid-cols-2">
+        {/* Side by side the loud one is last in the row; stacked on a phone it leads the column. */}
+        <div className="flex flex-col-reverse gap-3 sm:grid sm:grid-cols-2">
           <Button size="lg" onClick={() => setMode("type")}>
             <Keyboard size={16} aria-hidden /> {t("Type it instead today")}
           </Button>
@@ -231,6 +251,7 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier
         <Note>{t("Typing works too. Speaking is what brings the words out when you need them, so try it aloud tomorrow if you can.")}</Note>
       )}
       {capstone && taken.length > 0 && <Thread taken={taken} who={opener} voice={voice} title={t("The conversation so far")} />}
+      <div ref={leadRef} className="flex flex-col">
       {card.kind === "lines" ? (
         <SayTheLines lesson={lesson} onNext={() => next()} />
       ) : card.kind === "fade" ? (
@@ -242,6 +263,7 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier
       ) : (
         <AnswerCard key={at} lessonId={lesson.id} card={card} mode={mode} voice={voice} name={name} onNext={next} last={at >= cards.length - 1} />
       )}
+      </div>
     </div>
   );
 }
@@ -254,7 +276,7 @@ function SayTheLines({ lesson, onNext }: { lesson: LessonSpec; onNext: () => voi
   const played = nativePart(lesson.conversation);
   return (
     <Card>
-      <SectionTitle hint={t("listen, then say it along")}>{t("Say the conversation")}</SectionTitle>
+      <SectionTitle level={3} hint={t("listen, then say it along")}>{t("Say the conversation")}</SectionTitle>
       <ol className="flex flex-col gap-5">
         {lines.map((line, i) => (
           <li key={i} className="flex flex-col gap-1">
@@ -365,7 +387,7 @@ function AnswerCard({ lessonId, card, mode, voice, name, onNext, last }: {
 
   return (
     <Card>
-      <SectionTitle hint={card.label}><LessonText text={prompt.cue} locale={locale} /></SectionTitle>
+      <SectionTitle level={3} hint={card.label}><LessonText text={prompt.cue} locale={locale} /></SectionTitle>
       {card.scene && <p className="mb-4 text-base" style={{ color: "var(--ink-2)" }}><LessonText text={card.scene} locale={locale} /></p>}
       {prompt.ask && (
         <div className="mb-5 flex flex-col gap-1.5" data-their-line>
@@ -400,7 +422,7 @@ function AnswerCard({ lessonId, card, mode, voice, name, onNext, last }: {
         <span className="label-xs" style={{ color: "var(--ink-3)" }}>{t("You say")}</span>
         {mic && (
           <div className="flex flex-wrap items-center gap-3">
-            <MicButton speech={speech} label={t("Say it")} />
+            <MicButton speech={speech} label={t("Say it")} fallback="box" />
             <span className="text-sm" style={{ color: "var(--ink-3)" }}>{t("What's heard goes in the box, for you to change.")}</span>
           </div>
         )}

@@ -3,6 +3,9 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
+import { EnglishToggle } from "@/components/course/EnglishToggle";
+import { StepPills } from "@/components/course/StepPills";
+import { forgetLessonPlace, loadLessonPlace, saveLessonPlace } from "@/components/course/lessonResume";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Braced } from "@/components/Braced";
 import { RuleNote } from "@/components/RuleNote";
@@ -198,6 +201,30 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
     so the step's own "Read it" is its one loud button.
   */
   const [heard, setHeard] = useState(() => !(lesson.listenFor && lesson.listenFor.length > 0));
+  /*
+    A RELOAD PICKS THE LESSON UP WHERE IT WAS (`lessonResume.ts`): read once
+    after mount, since the server rendered step 1 and a first render that
+    disagreed with it would not hydrate; written on every move after that.
+  */
+  const restored = useRef(false);
+  useEffect(() => {
+    if (restored.current) return;
+    restored.current = true;
+    if (over) return;
+    const place = loadLessonPlace(lesson.id, steps);
+    if (!place) return;
+    setAt(place.at);
+    setReached(place.reached);
+    setFinished(new Set(place.finished as Step[]));
+    if (place.heard) setHeard(true);
+    // Once, on arrival.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (!restored.current) return;
+    if (over) forgetLessonPlace(lesson.id);
+    else saveLessonPlace(lesson.id, { at, reached, finished: [...finished], heard });
+  }, [lesson.id, at, reached, finished, heard, over]);
   const done = step === "listen" ? heard : !ASKS.has(step) || finished.has(step) || (step === "review" && review.length === 0);
 
   const inPart = part.lessons.findIndex((l) => l.id === lesson.id);
@@ -393,9 +420,11 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
                 <div className="mt-3"><ButtonLink href={`/course/check/${check.id}`} variant="primary">{t("Take the check")} <ArrowRight size={15} aria-hidden /></ButtonLink></div>
               </div>
             )}
+            {/* On the screen from the start and empty, so the failure is read when it arrives. */}
+            <p className="sr-only" role="status">{saved === false && !saving ? t(NOT_REACHED) : ""}</p>
             {saved === false && !saving && (
-              <div className="mt-4 flex flex-wrap items-center justify-center gap-3" role="status">
-                <p className="text-base" style={{ color: "var(--again-ink)" }}>{t(NOT_REACHED)}</p>
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+                <p className="text-base" style={{ color: "var(--again-ink)" }} aria-hidden>{t(NOT_REACHED)}</p>
                 <Button variant="secondary" size="sm" onClick={save}>{t("Try again")}</Button>
               </div>
             )}
@@ -448,45 +477,18 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
           </section>
         )}
         <nav aria-label={t("Today's steps")}>
-          <ol className="flex flex-wrap gap-2" data-lesson-steps>
-            {steps.map((s, i) => {
-              const here = i === at;
-              const been = finished.has(s) || i < at || i <= reached;
-              const tone = here
-                ? { background: "var(--accent-soft)", color: "var(--accent-deep)", borderColor: "var(--accent)" }
-                : been
-                  ? { background: "var(--sky-soft)", color: "var(--sky-ink)", borderColor: "transparent" }
-                  : { background: "var(--raised)", color: "var(--ink-2)", borderColor: "transparent" };
-              const label = (
-                <>
-                  {i < at && !here && <Check size={12} aria-hidden className="mr-1 inline" />}
-                  {fill(t("{n}. {step}"), { n: String(i + 1), step: t(titleOf(s)) })}
-                </>
-              );
-              return (
-                <li key={s}>
-                  {been && !here ? (
-                    <button
-                      type="button"
-                      onClick={() => go(i)}
-                      className="tap-tint inline-flex items-center rounded-full border px-3 py-1 text-sm font-semibold"
-                      style={tone}
-                    >
-                      {label}
-                    </button>
-                  ) : (
-                    <span
-                      aria-current={here ? "step" : undefined}
-                      className="inline-flex items-center rounded-full border px-3 py-1 text-sm font-semibold"
-                      style={tone}
-                    >
-                      {label}
-                    </span>
-                  )}
-                </li>
-              );
-            })}
-          </ol>
+          {/* A step is done where it was finished, not where the foot's "Skip this step" passed it. */}
+          <div data-lesson-steps>
+            <StepPills
+              label={t("Today's steps")}
+              pills={steps.map((s, i) => {
+                const reachedIt = i < at || i <= reached;
+                const finishedIt = s === "listen" ? heard : ASKS.has(s) ? finished.has(s) || (s === "review" && review.length === 0) : reachedIt && i !== at;
+                const state = i === at ? "here" : finishedIt ? "done" : reachedIt ? "visited" : "ahead";
+                return { key: s, state, label: fill(t("{n}. {step}"), { n: String(i + 1), step: t(titleOf(s)) }), onPress: () => go(i) };
+              })}
+            />
+          </div>
         </nav>
 
         <section aria-labelledby="lesson-step">
@@ -496,11 +498,11 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
           {step === "listen" && <Listen lesson={lesson} heard={heard} onHeard={() => setHeard(true)} />}
           {step === "words" && <Words lesson={lesson} />}
           {step === "how" && <How lesson={lesson} />}
-          {step === "practise" && <Quiz key="practise" items={practice} onFinished={(result) => { setScore(result); finish("practise"); }} />}
+          {step === "practise" && <Quiz key="practise" level={3} items={practice} onFinished={(result) => { setScore((first) => first ?? result); finish("practise"); }} />}
           {step === "write" && lesson.write && <WriteStep lesson={lesson} onDone={() => { finish("write"); go(at + 1); }} />}
           {step === "say" && <SayIt lesson={lesson} timeMultiplier={timeMultiplier} partAt={partAt} scene={scene} sceneHref={scene ? lessonSceneHref(scene, focus) : null} capstone={capstone} name={name} onComplete={() => finish("say")} />}
           {step === "review" && (review.length > 0
-            ? <Quiz key="review" items={review} onFinished={() => finish("review")} />
+            ? <Quiz key="review" level={3} items={review} review onFinished={() => finish("review")} />
             : (
               <Card>
                 <p className="text-base" style={{ color: "var(--ink-2)" }}>
@@ -575,11 +577,9 @@ function Listen({ lesson, heard, onHeard }: { lesson: LessonSpec; heard: boolean
             ? t("Now read what you heard. Press a line to hear it again.")
             : t("Read it, and press a line to hear it. Nothing is asked yet.")}
         </p>
-        <Button variant="ghost" size="sm" onClick={() => setEnglish((on) => !on)} aria-pressed={!english}>
-          {english ? t("Hide the English") : t("Show the English")}
-        </Button>
+        <EnglishToggle english={english} onToggle={() => setEnglish((on) => !on)} />
       </div>
-      <LessonConversation lines={lesson.conversation} cast={lesson.cast} english={english} />
+      <LessonConversation lines={lesson.conversation} cast={lesson.cast} english={english} quiet />
     </Card>
   );
 }
@@ -721,7 +721,7 @@ function How({ lesson }: { lesson: LessonSpec }) {
       )}
       {how.listen && how.listen.length > 0 && (
         <section data-lesson-listen>
-          <SectionTitle hint={t("said by a native speaker")}>{t("Hear the difference")}</SectionTitle>
+          <SectionTitle level={3} hint={t("said by a native speaker")}>{t("Hear the difference")}</SectionTitle>
           <div className="flex flex-col gap-3">
             {how.listen.map((set) => (
               <HearSet key={set.words.map((w) => w.clip).join("|")} words={set.words} />
@@ -731,7 +731,7 @@ function How({ lesson }: { lesson: LessonSpec }) {
       )}
       {how.spell && (
         <section className="flex flex-col gap-3" data-lesson-spell>
-          <SectionTitle hint={t("said by a native speaker")}>{t("Spell your name")}</SectionTitle>
+          <SectionTitle level={3} hint={t("said by a native speaker")}>{t("Spell your name")}</SectionTitle>
           <p className="text-base" style={{ color: "var(--ink-2)" }}>
             {t("Letters have Estonian names. Type your name and hear it spelled the way you'll say it.")}{" "}
             <Link href="/grammar/sounds#alphabet" className="font-semibold underline" style={{ color: "var(--accent-deep)" }}>{t("The whole alphabet")}</Link>
@@ -741,7 +741,7 @@ function How({ lesson }: { lesson: LessonSpec }) {
       )}
       {examples.length > 0 && (
         <section>
-          <SectionTitle hint={t("from today's conversation")}>{t("Where you heard it")}</SectionTitle>
+          <SectionTitle level={3} hint={t("from today's conversation")}>{t("Where you heard it")}</SectionTitle>
           <ul className="flex flex-col gap-3">
             {examples.map((line, i) => (
               <li key={i} className="flex flex-col gap-0.5">

@@ -51,16 +51,18 @@ export function CheckRunner({ checkId, attempt, items, needed, alreadyPassed, ne
   /*
     THE QUIZ GOES WHEN ITS DONE IS PRESSED, so the caret goes to what came in
     its place: the marking line, then the result or the way to send it again.
-    What is said out loud is one region on the screen from the start, filled
-    as the marking goes, since a region that arrives holding its words is often
-    not read.
+    The caret moving there is what reads them. The one region on the screen
+    from the start carries only the failure, whose way out is a button that
+    would not say what went wrong, and it is mounted empty because a region
+    that arrives holding its words is often not read.
   */
   const markingRef = useRef<HTMLParagraphElement>(null);
   const resultRef = useRef<HTMLParagraphElement>(null);
   const retryRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     if (pending) markingRef.current?.focus();
-    else if (result) resultRef.current?.focus();
+    // A level finished says so first, in its heading; anything else, in the result line.
+    else if (result) (document.getElementById("level-done") ?? resultRef.current)?.focus();
     else if (failed) retryRef.current?.focus();
   }, [pending, result, failed]);
 
@@ -88,14 +90,8 @@ export function CheckRunner({ checkId, attempt, items, needed, alreadyPassed, ne
         onAnswer={(at, response) => { responses.current[at] = response; }}
         onFinished={finish}
       />
-      <p role="status" className="sr-only">
-        {pending ? t("Marking it…")
-          : failed ? t(NOT_REACHED)
-            : result ? (result.passed
-              ? fill(t("Passed: {score} of {total}."), { score: formatScore(result.score), total: result.total })
-              : fill(t("{score} of {total}. You need {needed} to pass."), { score: formatScore(result.score), total: result.total, needed }))
-              : ""}
-      </p>
+      {/* Only the failure is announced: the marking and the result take the caret, which reads them, and a region saying the same thing reads them twice. */}
+      <p role="status" className="sr-only">{failed ? t(NOT_REACHED) : ""}</p>
       {pending && <p ref={markingRef} tabIndex={-1} className="text-base outline-none" style={{ color: "var(--ink-2)" }}>{t("Marking it…")}</p>}
       {failed && (
         <div className="flex flex-col items-start gap-2">
@@ -201,11 +197,12 @@ function formatScore(score: number): string {
  * more of both, the parts of the level ticked off by name, what somebody can
  * now do in one sentence (`LEVEL_INFO.arrival`), and what the next level is.
  *
- * WHERE THE NEXT LEVEL IS BUILT DIFFERENTLY, IT SAYS SO. A1 and A2 are
- * lessons; from B1 an evening is a topic's words, a short page on one point
- * of grammar, a round or two and a review. A learner who walked a hundred
- * lessons and arrived on a checklist with no word about why would read it as
- * something broken, so the change is named here, once, before it happens.
+ * WHERE THE NEXT LEVEL IS BUILT DIFFERENTLY, IT SAYS SO. A1, A2 and B1 are
+ * lessons; from B2 an evening is a topic's words, a short page on one point
+ * of grammar, a round or two and a review. A learner who walked the lessons
+ * and arrived on a checklist with no word about why would read it as
+ * something broken, so the change is named here, once, before it happens
+ * (`level.next`, which says how the next level is built).
  */
 function LevelFinished({ level, score }: { level: LevelDone; score: string }) {
   const t = useT();
@@ -214,7 +211,7 @@ function LevelFinished({ level, score }: { level: LevelDone; score: string }) {
       <Confetti count={120} />
       <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
         <Mascot size={76} mood="cheer" className="float mx-auto" />
-        <h2 id="level-done" className="font-display mt-5 text-3xl font-bold leading-tight tracking-tight md:text-4xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
+        <h2 id="level-done" tabIndex={-1} className="font-display outline-none mt-5 text-3xl font-bold leading-tight tracking-tight md:text-4xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
           {fill(t("{level} is done"), { level: level.level })}
         </h2>
         <p className="mx-auto mt-3 max-w-[48ch] text-lg" style={{ color: "var(--ink-2)", textWrap: "pretty" }}>{level.arrival}</p>

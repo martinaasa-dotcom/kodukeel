@@ -346,3 +346,78 @@ left for the native speaker.
 | `b1-41-forum` | `Linnal on foorum, kus saab oma arvamust kirjutada.` | The idiom is `oma arvamust avaldada`. | Fixed in the rewrite: the lesson teaches `oma arvamust avaldada` |
 | `b1-43-sign-here` | `Aga kõigepealt kirjutasin alla tema kohas.` | `tema kohas` is a calque; `tema asemel`. | Gone in the rewrite: `Siis kirjutasin alla, aga kõigepealt vales kohas.` |
 | `b1-49-end` | `Kas Tallinnas on lihtne autoga elada?` (twice) | `autoga elada` is a calque; `autot omada` or `autoga liigelda`. | Fixed in the rewrite: `Kas Tallinnas on lihtne autoga sõita?` |
+
+## The seventh pass (2026-10-30)
+
+### Parts 1 to 4
+
+- Lesson 4's note: `Vaatasin filmi ära` shows {ära} finishing a verb of watching.
+- Lesson 6's model note: `Kui te lõpetate, jätke palun võti naabrile.` in place of `Võti on naabri juures.` (the note is read inside the apartment, so it says what to do with the key). `jätke` is taught here.
+- Lesson 7: `Jah, tulge sisse! Ma jäin täna koju. Kas te lugesite mu sedelit?` (the visit is at ten in the morning, so Tom stayed home rather than came home early).
+- Lesson 10: `Ehk oli see tema tütar?`, in the conversation and in the note. The fix on `temaga` moved to the table's `Ma kohtusin temaga.`
+- Lesson 11: the fixes moved to lines the learner has met: `See mees oli Jaan ja juunis ma abiellun temaga!` (slip `teda`) and `Aga mina armusin temasse juba esimesel päeval.` (slip `temaga`).
+- Lesson 12: the rework `See sõltub ilmast.` to `See sõltub sinust.` is gone, so `Me ei sõidaks ilma sinuta.` is shown at last. `oluline` is taught here, where `Ilm pole oluline.` uses it, rather than in lesson 6.
+- Lesson 13's point quotes the model letter's favor, `Kas me võiksime tulla alles kell kaheksa?`
+- Lesson 14: `Pole hullu. Mina kartsin ka esimesel päeval. Räägi, mis sind huvitab.`
+- Lesson 16's notes: `Ta töötab hea arendajana` (no ending on the word in front with -na), and `Temast sai juht` beside `Ta sai juhiks`.
+- Lesson 17's note: `Ma palusin juhilt uut arvutit` ({paluma} with who you ask in -lt).
+- Lesson 18: the fix on `arved` moved to the table's `Ma maksan üüri ja arved.` (slip `arveid`).
+- Lesson 19's note: `kahe päeva pärast` and `üks vaba päev`, beside the rule after a number.
+- Lesson 22's table: `Ma elan remonditud korteris.` in place of `Terve korter on remonditud.`, and the fix on `korteris` is on that line.
+- Lesson 25's note: `Toru tuleb vahetada` keeps the thing in the [nimetav], as in a command. The fix moved to `Aga mul ei ole uut pirni.`
+- Lesson 26's note: `ühe kuu üür` and `kümne minuti pärast`. The model answer and the fast answer both say `Minu üür on 900 eurot kuus.` (they said 600 and 700, against the 900 in the conversation). The fix moved to the table's `Ma lõpetan lepingu.` (slip `lepingut`).
+- Lesson 28: `Ja köögis kraani parandasin ma ise ära.`, and the role-play's and the live scene's pick `Ei. Köögis kraani parandasin ma ise ära.` (the job done, with {ära}).
+- The live scene `b1-meister` (`lib/scenes/bank/b1-meister.ts`): `Täna ma seda ei paranda, selle jaoks on vaja varuosa. Kas reedel sobib?`, since the learner may not have named the window.
+- Lesson 14's entry in the fourth pass is out of date: the live scene's prepared lines (`lib/scenes/bank/b1-kolleeg.ts`) ask `Aitäh! Ja mis sind huvitab?` and `Selge. Aga mis sind vabal ajal huvitab?` now, not `Ja millest sina huvitud?`
+
+Answers a rework now accepts, by lesson:
+
+- Lesson 2: `Mari leidis need.`, `Mari leidis need üles.`
+- Lesson 3: `Ta sõi natuke õunu.`
+- Lesson 4: `Ma otsin ikka veel võtmeid.`, `Ma otsin neid.`, `Ma otsin neid veel.`, `Ma otsin neid ikka.`, `Ma otsin neid ikka veel.`
+- Lesson 5: `Palun too kast siia!`, `Too palun kast siia!`, `Too kast palun siia!`, `Ära too seda diivanit siia!`, `Tee aken kinni!`, `Palun tee aken kinni!`, `Tee palun aken kinni!`
+- Lesson 6: `Parandage dušš palun ära.`, `Palun parandage see ära.`, `Parandage palun see ära.`
+- Lesson 8: `Kas sa saaksid sellega aidata?`
+- Lesson 15: `Kui ma oleksin seda teadnud, oleksin ma tulnud.`, `Kui ma oleksin seda teadnud, siis ma oleksin tulnud.`
+- Lesson 16: `Temast sai juht.`
+- Lesson 17: `Kas sa saaksid aidata?`
+- Lesson 18: `Pärast makse on palk väiksem.`
+- Lesson 20: `Reedeti ei saaks ma töötada.`, `Esmaspäevast neljapäevani töötaksin ma.`
+- Lesson 22: `Korter ei ole veel remonditud.`
+- Lesson 24: `Ta tegi eile öösel palju müra.`, `Eile öösel tegi ta palju müra.`
+- Lesson 25: `Vaheta ise pirn välja.`
+- Lesson 26: `Teata kaks kuud ette Peetrile.`
+
+Not done: lesson 15 does not accept `Ma oleksin pidanud kalendrisse vaatama.`, because B1 has not taught `kalendrisse`.
+
+Still to read, from the same audit, before anything is changed:
+
+- Lesson 6: `Jäta talle lauale sedel, sest meister ei tunne korterit.` (does {tundma} read naturally of knowing your way around an apartment?)
+- Lesson 9: `Meie koor vajab just mehi! Kati laulab ka seal. Mulle tundub, et sa oleksid hea.` (is `sa oleksid hea` how somebody says you'd be good at it?)
+- Lesson 13: the model answer `Kas ma võiksin oma abikaasa kaasa võtta?` (does `abikaasa` read naturally here, beside `oma naise`?)
+
+### Parts 5 to 7
+
+- Lesson 49 and the live scene `b1-eksam` follow the exam's three parts now: about you, a joint
+  decision with the examiner as your colleague (`Metsa? Aga kuidas me sinna sõidame?`, then
+  `Lepime kokku`), and a phone call from a card. Every line of the scene's bank and picks is new,
+  and its rows carry no `reviewedAt` yet.
+- Lesson 48's application opens with name, isikukood, address and phone, says `Minu naine` and ends
+  `Tallinn, 12. märts`.
+- The part-end scenes ask a distinct group of words per beat, so one sentence no longer ticks two
+  beats; `b1-vaidlus` has one new pick, `Kontoris on parem, sest seal saab kohvi koos juua.`
+
+### For the native speaker
+
+- Lesson 13's model, `Kas ma võiksin oma abikaasa kaasa võtta?`: does `abikaasa` read naturally
+  beside `oma naise` in the table and the fix?
+- Lesson 6's conversation, `Jäta talle lauale sedel, sest meister ei tunne korterit.`: is `tundma`
+  natural for knowing your way round an apartment?
+- Lesson 9's conversation, `Mulle tundub, et sa oleksid hea.`: is that how somebody says "you'd be
+  good"?
+- Lesson 45's rework, `Ma ei leidnud rahakotti bussist.`: is `bussist` right, or `bussis`, and
+  should the other be accepted?
+- Lesson 43's answer model, `Vabandust, ma kirjutasin kogemata vales kohas alla.`: should
+  `valesse kohta alla` lead, with `vales kohas` still accepted?
+- Lesson 40, Helgi's `Toit läheb pruuni kasti.`: or `Toidujäätmed lähevad pruuni kasti.`?
+
