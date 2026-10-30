@@ -10744,9 +10744,14 @@ Twenty-one lessons offer the catalog conversation they rehearse on their finish
 (`lessonSituations.ts`), which is where the conversations that opened on old B1 evenings went,
 and the board and Today count one as reached once its lesson is done (`situationsOfferedThrough`).
 **B1 is one family's year and a name is one person** (`docs/reviews/b1-cast.md`): read it before
-writing a line that names anybody. Each part asks more than the one before (its ramp table), a
-part's closing conversation carries a turn it never rehearsed and no retell or race
-(`levelContractProblems`), and `scripts/test-lessons.mjs` walks the shapes in a browser.
+writing a line that names anybody. Each part asks more than the one before (its ramp table, whose
+retell, writing, room and fade rows are checked by `ramp.test.ts` and `fade.test.ts`, the rest
+being the authors' rule), a part's closing conversation carries a turn it never rehearsed and no
+retell or race (`levelContractProblems`), and `scripts/test-lessons.mjs` walks the shapes in a
+browser. A past a lesson taught by name is carried as that evening's `forms` (`lessonPasts`), so B2
+shows it again nowhere and the module asks it from B2 on. The conversations B2 and C1 deal declare
+units the lessons taught only in part, and the words they ask for that no evening has taught are
+named per scene in `course.test.ts` for B2's lessons to take up.
 
 ## Conventions
 

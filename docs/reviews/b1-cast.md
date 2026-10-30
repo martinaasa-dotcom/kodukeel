@@ -1,7 +1,7 @@
 # B1: who is who, and what changes from part to part
 
 B1 is seven parts of seven lessons, told about one family over one year. A name means one person
-for the whole course, A1 to B1. This page is the list the lessons are held to. Read it before you
+for the whole course, A1 to B1. This page is the list the lessons are written to. Read it before you
 write a line that names anybody, or a lesson that changes how hard the level is.
 
 ## The people
@@ -67,7 +67,14 @@ than the one before has not moved the level on.
 | The fade | starts with every word shown | starts with every word shown | from part 4, the first round already hides some words (engine) |
 | How it is heard | a quiet room | a phone line or a café where the story is one | the same, and one lesson a part sped up |
 
-Each part also has:
+Four rows are checked on every run: the story to retell, the writing and how it is heard, because a
+lesson records them (`lib/course/lessons/ramp.test.ts`), and the fade, which the engine plans off
+the part's place (`fadePlan`, `fade.test.ts`). The other two, the hear-first questions and the
+changing sentences, are the rule a lesson is written to and read to, since no field says what a
+question asks or which patterns a sentence combines.
+
+Each part also has (the closing conversation is checked, `levelContractProblems`; the other two are
+the authors' rule):
 
 - **One listening that isn't a conversation:** a voicemail, a notice read aloud, a radio news item
   or a station announcement.
