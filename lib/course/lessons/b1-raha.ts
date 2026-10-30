@@ -168,7 +168,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       { who: "Kristi", et: "Kadri tuli meile eelmisel kuul. Ta istub ukse juures.", en: "Kadri joined us last month. She sits by the door." },
       { who: "Kristi", et: "Ja mina? Mina alustasin siin ka praktikandina. Ma tegin rohkem kohvi kui koodi.", en: "And me? I started here as an intern too. I made more coffee than code.", stage: "Everybody laughs." },
       { who: "Kristi", et: "Nüüd olen ma projektijuht.", en: "Now I'm a project manager." },
-      { who: "Kristi", et: "Ja eelmisel nädalal valiti mind ka korteriühistu esimeheks. Nüüd helistavad mulle kõik naabrid.", en: "And last week I was elected chair of my apartment association too. Now all the neighbors call me." },
+      { who: "Kristi", et: "Ja eelmisel nädalal valiti mind ka meie spordiklubi esimeheks. Nüüd helistab mulle terve klubi.", en: "And last week I was elected chair of our sports club too. Now the whole club calls me." },
       { who: "Kristi", et: "Palju õnne? Ei, pigem jõudu!", en: "Congratulations? No, good luck, more like!", stage: "Somebody at the table says congratulations." },
       { who: "Kristi", et: "Siim, jõudu ka sulle! Siin on kõik võimalik.", en: "Good luck to you too, Siim! Anything is possible here." },
     ],
@@ -186,7 +186,8 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "praktikandi", of: "praktikant", en: "an intern's, of an intern", stem: true },
       { kind: "form", et: "koodi", of: "kood", en: "code, some of it" },
       { kind: "word", et: "projektijuht", en: "project manager" },
-      { kind: "word", et: "korteriühistu", en: "apartment association, the residents who run a block" },
+      { kind: "word", et: "spordiklubi", en: "sports club" },
+      { kind: "word", et: "klubi", en: "club" },
       { kind: "word", et: "esimees", en: "chair, chairperson" },
       { kind: "form", et: "esimehe", of: "esimees", en: "the chair's, of the chair", stem: true },
       { kind: "form", et: "naabrid", of: "naaber", en: "the neighbors" },
@@ -216,7 +217,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
     },
     listenFor: [
       { q: "What did Marko do before he became a developer?", options: ["He was a teacher", "He was an intern", "He sold cars", "He was a cook"], answer: 3 },
-      { q: "What happened to Kristi last week?", options: ["She was elected chair of her apartment association", "She was made the boss of a second team", "She started a new job in another company", "She moved into a bigger apartment on the other side of town"], answer: 0 },
+      { q: "What happened to Kristi last week?", options: ["She was elected chair of her sports club", "She was made the boss of a second team", "She started a new job in another company", "She moved into a bigger apartment on the other side of town"], answer: 0 },
       { q: "What is Siim starting as?", options: ["A developer", "A project manager", "An intern", "A cook"], answer: 2 },
     ],
     answers: [
@@ -273,7 +274,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
     cast: { Tom: "kalev", Kristi: "liivika", Siim: "albert" },
     conversation: [
       { who: "Tom", et: "Kristi, kas sul oleks hetk aega?", en: "Kristi, would you have a moment?", stage: "Tom knocks on his manager's door." },
-      { who: "Kristi", et: "Muidugi. Mis juhtus?", en: "Of course. What's up?" },
+      { who: "Kristi", et: "Muidugi. Mis on?", en: "Of course. What's up?" },
       { who: "Tom", et: "Ma tahaksin paluda uut arvutit. Minu vana arvuti on väga aeglane.", en: "I'd like to ask for a new computer. My old one is very slow." },
       { who: "Kristi", et: "Kui aeglane?", en: "How slow?" },
       { who: "Tom", et: "Nii aeglane, et ma jõuan vahepeal kohvi juua.", en: "So slow that I have time to drink a coffee while I wait." },
@@ -296,7 +297,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "näidata", of: "näitama", en: "to show, after could or can" },
       { kind: "verb", et: "pakkuma", first: "pakun", en: "to offer, to suggest", firstEn: "I offer" },
       { kind: "form", et: "pakkuda", of: "pakkuma", en: "to offer, after can" },
-      { kind: "form", et: "lõunat", of: "lõuna", en: "lunch, some of it" },
+      { kind: "form", et: "lõunat", of: "lõuna", en: "lunch, after {pakkuma}" },
       { kind: "form", et: "lõuna", of: "lõuna", en: "lunch, the whole meal; {lõuna välja tegema}, to buy somebody lunch", stem: true },
       { kind: "word", et: "koosolek", en: "meeting" },
       { kind: "form", et: "koosoleku", of: "koosolek", en: "of the meeting", stem: true },
@@ -516,7 +517,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Mari", et: "Liis, kas sa saaksid laupäeval minu vahetuse võtta?", en: "Liis, could you take my shift on Saturday?", stage: "In the café kitchen, before opening." },
       { who: "Liis", et: "Laupäeval? Mis toimub?", en: "On Saturday? What's going on?" },
-      { who: "Mari", et: "Mu õde abiellub! Ta ütles mulle alles eile.", en: "My sister's getting married! She only told me yesterday." },
+      { who: "Mari", et: "Mu õde abiellub! Ja ma unustasin vaba päeva küsida.", en: "My sister's getting married! And I forgot to ask for the day off." },
       { who: "Liis", et: "Oi! Aga graafik on juba valmis. Ma olen sel nädalal kuus päeva tööl, vaba on ainult laupäev.", en: "Oh! But the rota's already done. I'm at work six days this week, and only Saturday is free." },
       { who: "Mari", et: "Ma tean. Sa oled teinud nii palju ületunde.", en: "I know. You've done so much overtime." },
       { who: "Liis", et: "Kuusteist tundi sel kuul! Ma oleksin pidanud ammu puhkusele minema.", en: "Sixteen hours this month! I should have gone on holiday long ago." },
@@ -533,6 +534,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "vahetuse", of: "vahetus", en: "of the shift", stem: true },
       { kind: "form", et: "toimub", of: "toimuma", en: "is happening, is going on" },
       { kind: "form", et: "abiellus", of: "abielluma", en: "she got married, he got married" },
+      { kind: "form", et: "unustasin", of: "unustama", en: "I forgot", past: true },
       { kind: "word", et: "graafik", en: "rota, work schedule" },
       { kind: "form", et: "ületunde", of: "ületund", en: "overtime hours, some of them" },
       { kind: "form", et: "puhkuse", of: "puhkus", en: "of the holiday", stem: true },
@@ -793,7 +795,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
     ],
     teaches: [],
     how: {
-      point: "A whole talk about pay, made of this part: what you've done, what you would have liked ({oleksin tahtnud}), and asking politely with the [tingiv kõneviis] (-ks, would): {Mis summa sulle sobiks?}",
+      point: "The talk about pay this part has been leading up to: what you've done, what you would have liked ({oleksin tahtnud}), and asking politely with the [tingiv kõneviis] (-ks, would): {Mis summa sulle sobiks?}",
       notes: [
         "Say what you've done in the past: {Ma lõpetasin kaks projekti}. Say what you'd have liked with {oleksin} and the -nud word: {oleksin ma tahtnud}.",
         "Your manager speaks first. Answer as yourself, one turn at a time, and agree something at the end.",

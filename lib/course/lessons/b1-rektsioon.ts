@@ -146,19 +146,20 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
     cast: { Triin: "liivika", Tom: "kalev" },
     conversation: [
       { who: "Triin", et: "Mida sa vabal ajal teed?", en: "What do you do in your free time?", stage: "At a party at Kati's. Tom has just met Triin, a friend of hers." },
-      { who: "Tom", et: "Ma huvitun muusikast. Ja spordist ka, aga seda ma ainult vaatan.", en: "I'm into music. And sport too, but only to watch." },
-      { who: "Triin", et: "Muusikast? Väga tore! Kas sa laulad?", en: "Music? Lovely! Do you sing?" },
+      { who: "Tom", et: "Mind huvitab muusika. Ja sport ka, aga seda ma ainult vaatan.", en: "I'm into music. And sport too, but only to watch." },
+      { who: "Triin", et: "Muusika? Väga tore! Kas sa laulad?", en: "Music? Lovely! Do you sing?" },
       { who: "Tom", et: "Natuke. Ainult kodus.", en: "A little. Only at home." },
       { who: "Triin", et: "Meie koor vajab just mehi! Kati laulab ka seal. Mulle tundub, et sa oleksid hea.", en: "Men are just what our choir needs! Kati sings in it too. I think you'd be good." },
       { who: "Tom", et: "Tegelikult ma ei laula üldse hästi. Mulle meeldib rohkem kuulata.", en: "Actually, I don't sing well at all. I prefer listening." },
       { who: "Triin", et: "Pole hullu! Ka mina laulsin alguses väga halvasti.", en: "That doesn't matter! I sang really badly at first too." },
-      { who: "Tom", et: "Ja millest sina huvitud?", en: "And what are you into?" },
+      { who: "Tom", et: "Ja mis sind huvitab?", en: "And what are you into?" },
       { who: "Triin", et: "Mina olen huvitatud ajaloost. Ja autodest!", en: "I'm interested in history. And cars!" },
       { who: "Tom", et: "Autodest? Minu auto vajab abi. See on umbes kakskümmend aastat vana.", en: "Cars? My car needs help. It's about twenty years old." },
       { who: "Triin", et: "Väga hea! Sa tuled reedel koori ja mina vaatan su autot.", en: "Very good! You come to choir on Friday and I'll look at your car." },
       { who: "Tom", et: "Olgu! Aga ma laulan väga vaikselt.", en: "All right! But I'll sing very quietly." },
     ],
     teaches: [
+      { kind: "verb", et: "huvitama", first: "huvitan", en: "to interest", firstEn: "I interest", asks: "{keda?} somebody ([osastav] (3rd form))" },
       { kind: "verb", et: "huvituma", first: "huvitun", en: "to be into, to be interested", firstEn: "I'm into", asks: "{millest?} something ([seestütlev] (-st, out of))" },
       { kind: "word", et: "huvitatud", en: "interested", asks: "{millest?} in something ([seestütlev] (-st, out of))" },
       { kind: "verb", et: "tunduma", first: "tundun", en: "to seem", firstEn: "I seem", asks: "{kellele?} to somebody ([alaleütlev] (-le, onto/to))" },
@@ -184,17 +185,19 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "kuna", en: "since, because" },
     ],
     how: {
-      point: "{Huvituma} and {huvitatud} want the [seestütlev] (-st, out of): {Ma huvitun muusikast}. {Meeldima} and {tunduma} want the person in the [alaleütlev] (-le, onto/to): {Mulle meeldib}, {Mulle tundub}.",
+      point: "{Huvitama} puts the person in the [osastav] (3rd form): {Mind huvitab muusika}. {Huvituma} and {huvitatud} want the [seestütlev] (-st, out of): {Ta on huvitatud ajaloost}. {Meeldima} and {tunduma} want the person in the [alaleütlev] (-le, onto/to): {Mulle meeldib}, {Mulle tundub}.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
-          [{ et: "Ma huvitun muusikast." }, { en: "I'm into music." }],
+          [{ et: "Mind huvitab muusika." }, { en: "I'm into music." }],
+          [{ et: "Ma huvitun muusikast." }, { en: "I'm interested in music (bookish)." }],
           [{ et: "Ta on huvitatud ajaloost." }, { en: "She's interested in history." }],
           [{ et: "Mulle meeldib kuulata." }, { en: "I like listening." }],
           [{ et: "Mulle tundub, et sa laulad hästi." }, { en: "I think you sing well." }],
         ],
       },
       notes: [
+        "{Ma huvitun muusikast} is right, but it reads like a book. People usually say {Mind huvitab muusika}, and ask {Mis sind huvitab?}",
         "English is interested in; Estonian is interested out of. Ask for it with {millest?}",
         "{Meeldima} turns the sentence round: the one who likes takes the [alaleütlev] (-le, onto/to), {mulle}, {talle}, and the thing liked comes after the verb.",
         "{Mulle tundub} is it seems to me, which is how Estonian says I think when it's a feeling rather than a fact.",
@@ -208,22 +211,22 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { q: "What do they agree on?", options: ["Triin buys Tom's car", "Tom goes to choir on Friday", "They watch sport together on TV", "Tom teaches Triin English"], answer: 1 },
     ],
     answers: [
-      { ask: { et: "Mida sa vabal ajal teed?", en: "What do you do in your free time?" }, cue: "Say what you're into.", model: { et: "Ma huvitun muusikast.", en: "I'm into music." } },
-      { ask: { et: "Millest sa huvitud?", en: "What are you into?" }, cue: "Say you're interested in history. Use {huvitatud}.", model: { et: "Ma olen huvitatud ajaloost.", en: "I'm interested in history." } },
+      { ask: { et: "Mida sa vabal ajal teed?", en: "What do you do in your free time?" }, cue: "Say what you're into.", model: { et: "Mind huvitab muusika.", en: "I'm into music." } },
+      { ask: { et: "Mis sind huvitab?", en: "What are you into?" }, cue: "Say you're interested in history. Use {huvitatud}.", model: { et: "Ma olen huvitatud ajaloost.", en: "I'm interested in history." } },
       { cue: "Say you like listening more than singing.", model: { et: "Mulle meeldib rohkem kuulata kui laulda.", en: "I like listening more than singing." } },
       { ask: { et: "Kas sa laulad?", en: "Do you sing?" }, cue: "Say you don't sing well at all.", model: { et: "Ei, ma ei laula üldse hästi.", en: "No, I don't sing well at all." } },
     ],
     reworks: [
       {
-        from: { et: "Ma huvitun muusikast.", en: "I'm into music." },
+        from: { et: "Ma huvitun muusikast.", en: "I'm interested in music (bookish)." },
         ask: "Say it with {huvitatud}.",
         to: { et: "Ma olen huvitatud muusikast.", en: "I'm interested in music." },
         pattern: "government",
       },
       {
-        from: { et: "Ma huvitun muusikast.", en: "I'm into music." },
-        ask: "Say you're into sport instead.",
-        to: { et: "Ma huvitun spordist.", en: "I'm into sport." },
+        from: { et: "Mind huvitab muusika.", en: "I'm into music." },
+        ask: "Say what she's into: use {tema}.",
+        to: { et: "Teda huvitab muusika.", en: "She's into music." },
         pattern: "government",
       },
       {
@@ -241,7 +244,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ma huvitun muusikast.", en: "I'm into music." }, right: "muusikast", wrong: "muusikas", pair: ["ELATIVE", "INESSIVE"], why: "Interested out of: {muusikast}." },
+      { line: { et: "Mind huvitab muusika.", en: "I'm into music." }, right: "Mind", wrong: "Mina", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Huvitama} wants the person in the [osastav] (3rd form): {mind}." },
       { line: { et: "Mina olen huvitatud ajaloost.", en: "I'm interested in history." }, right: "ajaloost", wrong: "ajalugu", pair: ["ELATIVE", "NOMINATIVE"], why: "{Huvitatud} wants the [seestütlev] (-st, out of): {ajaloost}." },
       { line: { et: "Mulle meeldib rohkem kuulata.", en: "I prefer listening." }, right: "Mulle", wrong: "Mina", pair: ["ALLATIVE", "NOMINATIVE"], why: "{Meeldima} wants the one who likes in the [alaleütlev] (-le, onto/to): {mulle}." },
     ],
@@ -249,13 +252,13 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       who: "Tom",
       story: [
         { et: "Eile käisin esimest korda kooris, kus laulavad Triin ja Kati.", en: "Yesterday I went for the first time to the choir Triin and Kati sing in." },
-        { et: "Ma huvitun muusikast, aga ma ei laula üldse hästi.", en: "I'm into music, but I don't sing well at all." },
+        { et: "Mind huvitab muusika, aga ma ei laula üldse hästi.", en: "I'm into music, but I don't sing well at all." },
         { et: "Mulle tundus, et kõik kuulavad ainult mind.", en: "It seemed to me that everybody was listening only to me." },
         { et: "Pärast ütles Kati, et ma laulsin hästi, kuna ma laulsin väga vaikselt.", en: "Afterwards Kati said I sang well, since I sang very quietly." },
       ],
       points: [
         { en: "Tom went to Triin and Kati's choir for the first time. Tell it about him: {ta}, not {ma}.", any: ["kooris", "käis"] },
-        { en: "He's into music, but he doesn't sing well at all.", any: ["muusikast"] },
+        { en: "He's into music, but he doesn't sing well at all.", any: ["muusika", "muusikast"] },
         { en: "It seemed to him that everybody was listening only to him.", any: ["tundus", "kuulavad"] },
         { en: "Kati said he sang well, since he sang very quietly.", any: ["vaikselt", "ütles"] },
       ],
@@ -540,6 +543,9 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "meiega", of: "meie", en: "with us" },
       { kind: "form", et: "lapsed", of: "laps", en: "children" },
       { kind: "form", et: "ilusale", of: "ilus", en: "onto nice, onto good" },
+      { kind: "form", et: "ilusat", of: "ilus", en: "nice, good, as what you hope for" },
+      { kind: "form", et: "sinule", of: "sina", en: "onto you, on you" },
+      { kind: "word", et: "peale", en: "onto, on: {sinu peale}, on you" },
       { kind: "form", et: "sadas", of: "sadama", en: "it rained, it fell" },
       { kind: "form", et: "vihma", of: "vihm", en: "rain, as what falls or what you fear" },
       { kind: "form", et: "eelmisel", of: "eelmine", en: "last (last summer, last week)" },
@@ -554,6 +560,8 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
         rows: [
           [{ et: "sõltuma" }, { en: "{millest?} on what, in the [seestütlev] (-st, out of)" }, { et: "See sõltub ilmast." }],
           [{ et: "lootma" }, { en: "{millele?} on what, in the [alaleütlev] (-le, onto/to)" }, { et: "Ma loodan ilusale ilmale." }],
+          [{ et: "lootma" }, { en: "{mida?} what you hope for, in the [osastav] (3rd form)" }, { et: "Ma loodan ilusat ilma." }],
+          [{ et: "lootma" }, { en: "{kellele?} on somebody, or {kelle peale?}" }, { et: "Ma loodan sinule. Ma loodan sinu peale." }],
           [{ et: "uskuma" }, { en: "{keda?} somebody, in the [osastav] (3rd form)" }, { et: "Ma usun sind." }],
           [{ et: "uskuma" }, { en: "{kellesse?} in somebody, in the [sisseütlev] (-sse, into)" }, { et: "Ma usun sinusse." }],
           [{ et: "kartma" }, { en: "{keda? mida?} in the [osastav] (3rd form)" }, { et: "Ma kardan sind." }],
@@ -562,7 +570,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       notes: [
         "{Ma usun sind} is I believe you. {Ma usun sinusse} is I believe in you: the [sisseütlev] (-sse, into) puts your faith into somebody.",
         "English depends on; Estonian depends out of: {See sõltub sinust}.",
-        "{Lootma} with the [alaleütlev] (-le, onto/to) is counting on something: {Ma loodan ilusale ilmale}.",
+        "{Lootma} is said more than one way, and every one is right: {Ma loodan ilusale ilmale} and {Ma loodan ilusat ilma} both hope for good weather, and you count on a person with {Ma loodan sinule} or {Ma loodan sinu peale}.",
       ],
       watchOut: "English is afraid of something, so the [seestütlev] (-st, out of) feels right. {Kartma} takes the [osastav] (3rd form): {Ma kardan vihma}.",
       examples: [1, 8, 11, 12],
@@ -583,6 +591,12 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
         from: { et: "See sõltub ilmast.", en: "That depends on the weather." },
         ask: "Say it depends on them: use {sina}.",
         to: { et: "See sõltub sinust.", en: "That depends on you." },
+        pattern: "government",
+      },
+      {
+        from: { et: "Ma loodan ilusale ilmale.", en: "I'm hoping for good weather." },
+        ask: "Say it the other way, with the [osastav] (3rd form).",
+        to: { et: "Ma loodan ilusat ilma.", en: "I'm hoping for good weather." },
         pattern: "government",
       },
       {
@@ -773,8 +787,8 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Tom", et: "Tere tulemast! Mina olen Tom. Ma aitan sind täna.", en: "Welcome! I'm Tom. I'll be helping you today." },
       { who: "Kadri", et: "Tere! Mina olen Kadri. Aitäh, ma natuke kardan.", en: "Hi! I'm Kadri. Thanks, I'm a bit nervous." },
-      { who: "Tom", et: "Pole hullu. Mina kartsin ka esimesel päeval. Ütle, millest sa huvitud?", en: "That's all right. I was nervous on my first day too. Tell me, what are you into?" },
-      { who: "Kadri", et: "Ma olen huvitatud muusikast. Ma laulan kooris.", en: "I'm interested in music. I sing in a choir." },
+      { who: "Tom", et: "Pole hullu. Mina kartsin ka esimesel päeval. Ütle, mis sind huvitab?", en: "That's all right. I was nervous on my first day too. Tell me, what are you into?" },
+      { who: "Kadri", et: "Mind huvitab muusika. Ma laulan kooris.", en: "I'm into music. I sing in a choir." },
       { who: "Tom", et: "Tõesti? Siis sa pead Katiga tutvuma. Ta laulab ka.", en: "Really? Then you have to meet Kati. She sings too." },
       { who: "Kadri", et: "Tore! Aga kellelt ma küsin, kui mul on arvutiga probleem?", en: "Great! But who do I ask if I have a problem with my computer?" },
       { who: "Tom", et: "Arvutiga aitan sind mina. Aga ära joo arvuti juures kohvi.", en: "I help with computers. But don't drink coffee near your computer." },
@@ -787,7 +801,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
     ],
     teaches: [],
     how: {
-      point: "A first day at work, made of the whole part: each verb with the case it asks for, {aitama} with the [osastav] (3rd form) and the [kaasaütlev] (-ga, with), {huvituma} with the [seestütlev] (-st, out of), {küsima} with the [alaltütlev] (-lt, off).",
+      point: "A first day at work, where every verb brings its own case: {aitama} with the [osastav] (3rd form) and the [kaasaütlev] (-ga, with), {huvitama} with the person in the [osastav] (3rd form), {küsima} with the [alaltütlev] (-lt, off).",
       notes: [
         "{Arvutiga aitan sind mina} puts the thing first and the helper last, which is how Estonian says it's me who helps with that.",
         "{Tutvuma} keeps its case after {pead}: {Sa pead Katiga tutvuma}.",
@@ -802,7 +816,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { q: "What does Tom invite Kadri to?", options: ["A meal on Friday", "Choir practice", "A birthday party", "A meeting with the boss"], answer: 0 },
     ],
     answers: [
-      { ask: { et: "Millest sa huvitud?", en: "What are you into?" }, cue: "Say what you're into.", model: { et: "Ma huvitun muusikast.", en: "I'm into music." } },
+      { ask: { et: "Mis sind huvitab?", en: "What are you into?" }, cue: "Say what you're into.", model: { et: "Mind huvitab muusika.", en: "I'm into music." } },
       { ask: { et: "Kellelt ma küsin, kui mul on arvutiga probleem?", en: "Who do I ask if I have a problem with my computer?" }, cue: "Say you help with the computer.", model: { et: "Arvutiga aitan sind mina.", en: "I help with computers." } },
       { cue: "Offer to help a new colleague.", model: { et: "Kas ma saan sind millegagi aidata?", en: "Can I help you with anything?" } },
     ],
@@ -813,7 +827,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
         { ask: { et: "Kellelt ma küsin, kui mul on arvutiga probleem?", en: "Who do I ask if I have a problem with my computer?" }, cue: "Say you help with the computer.", model: { et: "Arvutiga aitan sind mina.", en: "I help with computers." } },
         { ask: { et: "Ja kellega ma räägin aruandest?", en: "And who do I talk to about the report?" }, cue: "Tell her to talk with the boss.", model: { et: "Räägi ülemusega.", en: "Talk to the boss." } },
         { ask: { et: "Aga kui sind siin ei ole, kellelt ma siis küsin?", en: "But if you're not here, who do I ask then?" }, cue: "Tell her to ask the boss then.", model: { et: "Siis küsi ülemuselt.", en: "Then ask the boss." } },
-        { ask: { et: "Aitäh! Ja millest sina huvitud?", en: "Thanks! And what are you into?" }, cue: "Say what you're into.", model: { et: "Ma huvitun muusikast.", en: "I'm into music." } },
+        { ask: { et: "Aitäh! Ja mis sind huvitab?", en: "Thanks! And what are you into?" }, cue: "Say what you're into.", model: { et: "Mind huvitab muusika.", en: "I'm into music." } },
         { ask: { et: "Tore! Kas ma saan sind ka millegagi aidata?", en: "Great! Can I help you with anything too?" }, cue: "Say yes, and invite her to eat with you on Friday.", model: { et: "Jah! Tule reedel meiega sööma.", en: "Yes! Come and eat with us on Friday." } },
         { ask: { et: "Hea meelega! Kohtumiseni reedel!", en: "I'd love to! See you on Friday!" }, cue: "Say goodbye.", model: { et: "Head aega!", en: "Goodbye!" } },
       ],

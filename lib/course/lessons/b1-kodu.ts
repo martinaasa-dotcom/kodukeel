@@ -252,7 +252,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Helgi", et: "Tere! Kas sa oled uus naaber? Mina olen Helgi, ütle mulle sina. Vaata, trepi juures on uus teade.", en: "Hello! Are you the new neighbor? I'm Helgi, and you can call me {sina}. Look, there's a new notice by the stairs.", stage: "Tom's first week in the new building. By the stairs he meets Helgi, an older woman who lives in the apartment below his." },
       { who: "Tom", et: "Tere, Helgi! Mina olen Tom. Maja reeglid? Loeme koos!", en: "Hello, Helgi! I'm Tom. The house rules? Let's read them together!" },
-      { who: "Tom", et: "Suitsetamine majas on keelatud.", en: "Smoking in the building is not allowed.", stage: "Reading aloud." },
+      { who: "Tom", et: "Majas on suitsetamine keelatud.", en: "Smoking in the building is not allowed.", stage: "Reading aloud." },
       { who: "Helgi", et: "Väga hea. Mina ei suitseta üldse.", en: "Good. I don't smoke at all." },
       { who: "Tom", et: "Öörahu kell 23.00 kuni 7.00. Palume öösel mitte müra teha.", en: "Quiet hours from 23:00 to 7:00. Please make no noise at night." },
       { who: "Helgi", et: "Seda peaks lugema minu naaber, kes elab üleval. Ta teeb öösel palju müra.", en: "My neighbor who lives upstairs should read that. He makes a lot of noise at night." },
@@ -290,7 +290,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       table: {
         head: ["The rule", "In English"],
         rows: [
-          [{ et: "Suitsetamine majas on keelatud." }, { en: "No smoking in the building." }],
+          [{ et: "Majas on suitsetamine keelatud." }, { en: "No smoking in the building." }],
           [{ et: "Koerad on majas lubatud." }, { en: "Dogs are allowed in the building." }],
           [{ et: "Prügi sorteerimine on kohustuslik." }, { en: "Sorting the trash is a must." }],
           [{ et: "Palume öösel mitte müra teha." }, { en: "Please make no noise at night." }],
@@ -311,7 +311,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
     ],
     answers: [
       { ask: { et: "Kas sa suitsetad?", en: "Do you smoke?" }, cue: "Say no, you don't smoke at all.", model: { et: "Ei, ma ei suitseta üldse.", en: "No, I don't smoke at all." } },
-      { cue: "Say smoking is not allowed in the building.", model: { et: "Suitsetamine majas on keelatud.", en: "Smoking in the building is not allowed." } },
+      { cue: "Say smoking is not allowed in the building.", model: { et: "Majas on suitsetamine keelatud.", en: "Smoking in the building is not allowed." } },
       { cue: "Say dogs are allowed.", model: { et: "Koerad on lubatud.", en: "Dogs are allowed." } },
       { ask: { et: "Öösel palun vaiksemalt!", en: "A bit quieter at night, please!" }, cue: "Promise.", model: { et: "Ma luban.", en: "I promise." } },
     ],
@@ -325,9 +325,9 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       },
       {
         from: { et: "Ma ei suitseta üldse.", en: "I don't smoke at all." },
-        ask: "Say smoking isn't allowed here. Start with {Suitsetamine}.",
-        to: { et: "Suitsetamine on siin keelatud.", en: "Smoking isn't allowed here." },
-        also: ["Suitsetamine siin on keelatud."],
+        ask: "Say smoking isn't allowed here. Start with {Siin}.",
+        to: { et: "Siin on suitsetamine keelatud.", en: "Smoking isn't allowed here." },
+        also: ["Suitsetamine on siin keelatud."],
         pattern: "participle",
       },
       {
@@ -602,7 +602,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Kaebus? Aga ta on ju tore mees.", en: "A complaint? But he's a nice man." },
       { who: "Kadri", et: "Tore mees, aga külm korter. Kirjuta, et sa ootad vastust reedeks.", en: "A nice man, but a cold apartment. Write that you expect an answer by Friday." },
       { who: "Tom", et: "Ja kuidas ma kirja alustan?", en: "And how do I start the letter?" },
-      { who: "Kadri", et: "Lugupeetud Urmas! Ja lõpus: lugupidamisega, Tom.", en: "Dear Urmas. And at the end: Sincerely, Tom." },
+      { who: "Kadri", et: "Hea Urmas! Ja lõpus: lugupidamisega, Tom.", en: "Dear Urmas. And at the end: Sincerely, Tom." },
       { who: "Tom", et: "See on väga ametlik.", en: "That's very formal." },
       { who: "Kadri", et: "Just. Siis ta saab aru, et asi on tõsine.", en: "Exactly. Then he'll understand it's serious." },
       { who: "Tom", et: "Hästi. Ma kirjutan kohe. Mütsiga.", en: "All right. I'll write it right away. In my hat." },
@@ -632,7 +632,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       table: {
         head: ["Part of the letter", "In Estonian"],
         rows: [
-          [{ en: "Opening" }, { et: "Lugupeetud Urmas!" }],
+          [{ en: "Opening" }, { et: "Hea Urmas!" }],
           [{ en: "What's wrong, since when" }, { et: "Küte ei tööta juba nädal aega." }],
           [{ en: "What you've done" }, { et: "Ma helistasin teile kolm korda." }],
           [{ en: "What you want, by when" }, { et: "Palun saatke meister hiljemalt reedeks." }],
@@ -643,6 +643,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         "{Juba nädal aega} is for a week now, and the verb stays in the present: {Küte ei tööta juba nädal aega}.",
         "In a letter to a landlord you write {teie} all the way through: {Ma ootan teie vastust}.",
         "{Hiljemalt reedeks} is by Friday at the latest: -ks on a day says by then.",
+        "{Hea Urmas!} opens a letter to somebody you call by name. {Lugupeetud} is for an office or somebody you've never met.",
       ],
       watchOut: "English says it has been broken for a week, with has been. Estonian keeps the plain present: {Küte ei tööta juba nädal aega}.",
       examples: [1, 6, 8],
@@ -696,7 +697,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       genre: "A complaint to the landlord",
       purpose: "Get the landlord to fix the heating, politely and firmly.",
       model: [
-        { et: "Lugupeetud Urmas!", en: "Dear Urmas," },
+        { et: "Hea Urmas!", en: "Dear Urmas," },
         { et: "Ma kirjutan teile, sest asi on tõsine.", en: "I'm writing to you because this is serious." },
         { et: "Meile meeldib uus korter väga, aga küte ei tööta juba nädal aega.", en: "We like the new apartment very much, but the heating hasn't worked for a week now." },
         { et: "Ma helistasin teile kolm korda, aga keegi ei ole tulnud.", en: "I've called you three times, but nobody has come." },
@@ -710,7 +711,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         { et: "Lugupidamisega, Tom", en: "Sincerely, Tom" },
       ],
       uses: [
-        { et: "Lugupeetud", en: "dear, to open a formal letter" },
+        { et: "Hea Urmas!", en: "dear Urmas, to open a letter to somebody you call by name" },
         { et: "juba nädal aega", en: "for a week now" },
         { et: "keegi ei ole tulnud", en: "nobody has come" },
         { et: "hiljemalt reedeks", en: "by Friday at the latest" },
@@ -763,7 +764,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
     ],
     teaches: [],
     how: {
-      point: "The whole part at once: what the apartment is like in -tud words ({kriimustatud}), what's in the contract ({lepingus kirjas}), what broke and what you fixed, and the deposit.",
+      point: "Moving out, with everything the move has taught you: what the apartment is like in -tud words ({kriimustatud}), what's in the contract ({lepingus kirjas}), what broke and what you fixed, and the deposit.",
       notes: [
         "Disagree politely: {Vabandust, aga} and then the fact. {Vabandage, aga} says the same to somebody you call {teie}.",
         "Point at the paper: {See on lepingus kirjas}.",
@@ -783,7 +784,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { cue: "Ask if you get the whole deposit back.", model: { et: "Kas ma saan terve tagatisraha tagasi?", en: "Do I get the whole deposit back?" } },
     ],
     roleplay: {
-      scene: "You've moved out. Your old landlord is walking through the empty apartment with you, and he'd like to keep part of your deposit. He finds more than one thing to point at. He speaks first.",
+      scene: "You've moved out. Your old landlord is walking through the empty apartment with you, and he'd like to keep part of your deposit. He finds more than one thing to point at. You call each other {teie}. He speaks first.",
       turns: [
         { ask: { et: "Tere! Vaatame korteri koos läbi.", en: "Hello! Let's walk through the apartment together." }, cue: "Say hello, and that everything's in order.", model: { et: "Tere! Kõik on korras.", en: "Hello! Everything's in order." } },
         { ask: { et: "Aga põrand on kriimustatud.", en: "But the floor is scratched." }, cue: "Say it was scratched before you came.", model: { et: "See oli juba enne mind kriimustatud.", en: "It was scratched before I came." } },

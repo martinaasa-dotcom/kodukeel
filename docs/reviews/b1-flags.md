@@ -17,9 +17,9 @@ in `docs/44-language-reviews.md` section 1.
 
 ### `b1-objekt` (lessons 1 to 7), "Getting the job done"
 
-- Kept: `ukse peal` (2), `Õige! Nüüd sõltub kõik sinust.`, `Mul ei ole seda osa.` (7).
+- Kept: `Õige! Nüüd sõltub kõik sinust.`, `Mul ei ole seda osa.` (7). Lesson 2's keys are `ukse küljes` now, not `ukse peal`.
 - New: lesson 2 is a new story, Tom locked out after a concert with the keys in the door
-  (`Tom, vaata! Su võtmed on ju ukse peal.`, `Soki? Miks sul on taskus sokk?`).
+  (`Tom, vaata! Su võtmed on ju ukse küljes.`, `Soki? Miks sul on taskus sokk?`).
 - New: lesson 6 opens on a voicemail from Peeter (`Jäta talle lauale väike kiri.`, `Või kardad sa elektrit?`).
 - New: lesson 7's added turn, `Aga kui te ei ole kodus?` / `Siis on võti naabri juures.`
 
@@ -178,6 +178,38 @@ A third pass, for the story and for what each line is answering:
   in lesson 44 now).
 - Lesson 46: `Ma kirjutan: programmeerija.` (the -ja note stays in the table), and the fix is on
   `Ma töötan, nii et ma ei ole töötu.`
+
+A fourth pass, after an independent content review on 2026-10-30. Every line here is new Estonian:
+
+- Lesson 9: `Mind huvitab muusika. Ja sport ka, aga seda ma ainult vaatan.`, `Muusika? Väga tore! Kas sa
+  laulad?`, `Ja mis sind huvitab?`, the table's and the model answer's `Mind huvitab muusika.`, the
+  rework `Teda huvitab muusika.`, and the retell's `Mind huvitab muusika, aga ma ei laula üldse
+  hästi.` `Ma huvitun muusikast` stays in the table and the rework, with a note that it reads like
+  a book.
+- Lesson 14: `Pole hullu. Mina kartsin ka esimesel päeval. Ütle, mis sind huvitab?`, `Mind huvitab
+  muusika. Ma laulan kooris.`, and the role-play's `Aitäh! Ja mis sind huvitab?`. The live scene's
+  prepared lines (`lib/scenes/bank/b1-kolleeg.ts`) still ask `Ja millest sina huvitud?` and were
+  not changed in this pass.
+- Lesson 16: `Ja eelmisel nädalal valiti mind ka meie spordiklubi esimeheks. Nüüd helistab mulle
+  terve klubi.` (Kristi chairs a sports club; the residents' association is Helgi's).
+- Lesson 17: `Muidugi. Mis on?` (answering a knock on the door).
+- Lesson 19: `Mu õde abiellub! Ja ma unustasin vaba päeva küsida.`
+- Lesson 24: `Majas on suitsetamine keelatud.` (the notice, the table and the model answer), and the
+  rework `Siin on suitsetamine keelatud.`, with `Suitsetamine on siin keelatud.` accepted.
+- Lesson 27: `Hea Urmas! Ja lõpus: lugupidamisega, Tom.`, and `Hea Urmas!` in the table and the
+  model letter.
+- Lesson 30: the rework `Nad avasid hotelli eelmisel aastal.` to `Hotell avati eelmisel aastal.`
+  (`Eelmisel aastal avati hotell.` accepted).
+- Lesson 32: `Oi! Tulekahju! Äkki on see see uus restoran meie kontori lähedal?`, `Tere! Tulekahju?
+  Kas keegi sai vigastada?` (Jaan comes in late and missed the radio), `Õnneks mitte. Uudistes on
+  teatatud, et kõik viidi kohe välja.`, and Jaan's last line, `Seda ütleb mu naine ka.` (Liis,
+  after the June wedding).
+- Lesson 39: `Tasuta? Siis helistan ma sulle iga päev! Ja ma hakkan ka sotsiaalmeediat kasutama.`
+- Lesson 42: `Hea küll. Kaks päeva kontoris ja kaks kodus? Reedeti on mul nagunii kursus.`
+- Lesson 48: `Jah. Kirjuta, et te kolisite siia eelmisel aastal perega ja sul on autot iga päev vaja.`,
+  and the model application's `Me kolisime siia eelmisel aastal koos naise ja kahe lapsega.`
+- Lesson 49: the role-play model `Minu arvates on linnas parem, sest seal on töö ja kool lähedal.
+  Aga maal on vaikne ja ilus ning seal on rohkem loodust.`
 
 ## What a second model flagged
 
