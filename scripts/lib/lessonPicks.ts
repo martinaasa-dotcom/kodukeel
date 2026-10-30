@@ -13,6 +13,9 @@
  * which has none of it and has to stay that way.
  */
 import { LESSONS } from "@/lib/course/lessons";
+import { PROGRAMMES } from "@/lib/course";
+import { courseChecks } from "@/lib/course/checks";
+import { tr } from "@/lib/copy/locale";
 import type { LessonSpec } from "@/lib/course/lessons/types";
 
 const b1 = LESSONS.filter((l) => l.level === "B1" && !l.extra);
@@ -44,9 +47,17 @@ const shape = (l: LessonSpec, role: string) => ({
   faster: l.faster ? l.faster.model.et : null,
   write: l.write ? { model: l.write.model.map((m) => m.et).join(" "), least: l.write.least } : null,
   capstone: !!l.roleplay,
+  /** Each rework's line and the line it should become, so a walk can answer one right. */
+  reworks: (l.reworks ?? []).map((r) => ({ from: r.from.et, to: r.to.et })),
+  /** The lesson's goal in Russian, so a walk in that language can say it is on the screen. */
+  goalRu: tr("ru", l.goal),
 });
+
+/* The first check at B1, which a walk sits end to end. */
+const b1check = courseChecks(PROGRAMMES).find((c) => c.level === "B1" && !c.final)!;
 
 process.stdout.write(JSON.stringify([
   shape(first, "first"), shape(retell, "retell"), shape(faster, "faster"),
   shape(write, "write"), shape(capstone, "capstone"), shape(a2, "a2"),
+  { role: "check", id: b1check.id },
 ]));

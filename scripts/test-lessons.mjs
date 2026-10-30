@@ -54,6 +54,8 @@ await requireLocalDatabase(prisma);
 const started = new Date();
 const stepsBefore = new Set((await prisma.courseStep.findMany({ where: { ownerId: OWNER }, select: { id: true } })).map((r) => r.id));
 const cardsBefore = new Set((await prisma.card.findMany({ where: { ownerId: OWNER }, select: { id: true } })).map((r) => r.id));
+// A check sat below writes a pass only if it passes, which a walk answering wrongly on purpose should not; put back either way.
+const passedBefore = await prisma.setting.findUnique({ where: { ownerId_key: { ownerId: OWNER, key: "checksPassed" } } });
 
 const browser = await launchChromium();
 const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
@@ -110,8 +112,10 @@ const stepHeading = async () => (await page.locator("#lesson-step").innerText().
 const footer = () => page.getByRole("button", { name: /^(Continue|Skip this step|Finish the lesson|Finish without it)/ }).last();
 
 /** Answers one practice or review round to its end, whatever it asks. Returns how many questions it took. */
-async function quizThrough(where) {
+async function quizThrough(where, reworks = []) {
   let asked = 0;
+  // One rework a round is answered right, off the line the lesson says it should become, so a right verdict is seen too.
+  let answeredRight = false;
   for (let n = 0; n < 60; n++) {
     if (await page.locator('[data-lesson-quiz="done"]').count()) return asked;
     const quiz = page.locator("[data-lesson-quiz][data-quiz-kind]").first();
@@ -131,6 +135,19 @@ async function quizThrough(where) {
           if (await left.nth(i).isDisabled()) break;
           await left.nth(i).click();
         }
+      }
+    } else if (kind === "rework" && !answeredRight && reworks.length > 0) {
+      const shown = (await quiz.innerText()).replace(/\s+/g, " ");
+      const rework = reworks.find((r) => shown.includes(r.from));
+      if (rework) {
+        answeredRight = true;
+        await quiz.locator("input[lang=et]").fill(rework.to);
+        await quiz.getByRole("button", { name: /^Check/ }).click();
+        const right = await quiz.locator(".verdict-panel.verdict-right").first().waitFor({ timeout: 4000 }).then(() => true, () => false);
+        check(`${where}: a rework answered as written is marked right`, right, (await quiz.locator(".verdict-panel").innerText().catch(() => "")).slice(0, 80));
+      } else {
+        await quiz.locator("input[lang=et]").fill("vale");
+        await quiz.getByRole("button", { name: /^Check/ }).click();
       }
     } else if (kind === "type" || kind === "rework" || kind === "fix") {
       // A wrong answer on purpose: the verdict then has to show the right one.
@@ -224,10 +241,11 @@ async function sayThrough(lesson, mode) {
     }
     const box = say.getByLabel(/^(Your answer|What you said), in Estonian/);
     if (await box.count()) {
-      await box.fill("Ma ei tea.");
+      // The first answer carries a slip the dictionary knows (a person's ending after {ei}), so a finding is seen, not only a reading.
+      await box.fill(readTyped === null ? "Ma ei teab." : "Ma ei tea.");
       await say.getByRole("button", { name: /^Check it/ }).click();
       // The first typed answer of the lesson waits for the dictionary's reading, which every lesson's cards get.
-      if (readTyped === null) readTyped = await say.locator("[data-sentence-check]").first().waitFor({ timeout: 20_000 }).then(() => true, () => false);
+      if (readTyped === null) readTyped = await say.locator('[data-sentence-check="findings"]').first().waitFor({ timeout: 20_000 }).then(() => true, () => false);
       await say.getByRole("button", { name: /^(Next|Done)/ }).click();
       continue;
     }
@@ -235,7 +253,7 @@ async function sayThrough(lesson, mode) {
   }
   check(`${where}: Say it reaches its end`, (await page.locator('[data-say-it="done"]').count()) === 1);
   if (readTyped !== null) {
-    check(`${where}: the dictionary reads a typed answer${lesson.write ? "" : ", on a lesson with no writing task"}`, readTyped);
+    check(`${where}: the dictionary reads a typed answer and names its slip${lesson.write ? "" : ", on a lesson with no writing task"}`, readTyped);
   }
   return { fade, retold, faster };
 }
@@ -306,7 +324,7 @@ async function walk(lesson, { mode = "type" } = {}) {
     const heading = await stepHeading();
     await axeHere(`${where} ${heading.replace(/^Step \d+ of \d+: /, "")}`);
     if (/Practice/.test(heading)) {
-      const asked = await quizThrough(`${where} practice`);
+      const asked = await quizThrough(`${where} practice`, lesson.reworks ?? []);
       check(`${where}: practice runs to its end`, (await page.locator('[data-lesson-quiz="done"]').count()) === 1, `${asked} asked`);
     } else if (/Write/.test(heading) && lesson.write) {
       await writeThrough(lesson);
@@ -325,6 +343,14 @@ async function walk(lesson, { mode = "type" } = {}) {
     await footer().click();
     if (last) break;
     await page.waitForTimeout(150);
+    // Once a lesson: a reload picks it up on the step it was on, not on step 1.
+    if (n === 0 && lesson.role === "first") {
+      const was = await stepHeading();
+      await page.reload({ waitUntil: "domcontentloaded" });
+      await hydrated(page);
+      await eventually(async () => (await stepHeading()) === was, { timeoutMs: 6000 }).catch(() => {});
+      check(`${where}: a reload keeps the step it was on`, (await stepHeading()) === was, `${await stepHeading()} after ${was}`);
+    }
   }
   await page.locator("[data-lesson-done]").waitFor({ timeout: 15_000 }).catch(() => {});
   check(`${where}: ends on the finished screen`, (await page.locator("[data-lesson-done]").count()) === 1);
@@ -400,6 +426,8 @@ try {
   // Put the local learner back as they were found, a part of the suite run alone included.
   await prisma.courseStep.deleteMany({ where: { ownerId: OWNER, createdAt: { gte: started }, id: { notIn: [...stepsBefore] } } });
   await prisma.card.deleteMany({ where: { ownerId: OWNER, createdAt: { gte: started }, id: { notIn: [...cardsBefore] } } });
+  if (passedBefore) await prisma.setting.update({ where: { ownerId_key: { ownerId: OWNER, key: "checksPassed" } }, data: { value: passedBefore.value } });
+  else await prisma.setting.deleteMany({ where: { ownerId: OWNER, key: "checksPassed" } });
   await browser.close();
   await prisma.$disconnect();
 }
@@ -416,7 +444,57 @@ async function everything() {
   const capstone = await walk(byRole.capstone);
   check("a part's closing conversation asks no retell and no race", capstone?.retold === false && capstone?.faster === false);
   await walk(byRole.a2);
+  await checkWalk(byRole.check.id);
+  await inRussian(byRole.first);
   await spokenRace(byRole.faster);
   if (errors.length) console.log(errors.slice(0, 5).join("\n"));
   check("no console errors", errors.length === 0, `${errors.length}`);
 }
+
+/*
+  A PART'S CHECK, SAT END TO END, WITH THE NETWORK DROPPED ONCE. The paper is
+  marked on the server, so the first hand-in is made to fail: the screen has
+  to say it did not go through and put the caret on the way to send it again,
+  and the second has to arrive at a result.
+*/
+async function checkWalk(id) {
+  const where = `the ${id} check`;
+  await page.goto(`${B}/course/check/${id}`, { waitUntil: "domcontentloaded" });
+  await page.locator("[data-course-check]").waitFor({ timeout: 30_000 });
+  await page.waitForFunction(() => Object.keys(document.querySelector("[data-course-check]") ?? {}).some((k) => k.startsWith("__react")), null, { timeout: 30_000 });
+  let failedOnce = false;
+  await page.route(`**/course/check/${id}**`, async (route) => {
+    if (!failedOnce && route.request().method() === "POST") { failedOnce = true; await route.abort("internetdisconnected"); return; }
+    await route.continue();
+  });
+  const asked = await quizThrough(where);
+  check(`${where}: asks a whole paper`, asked >= 10, `${asked} asked`);
+  const retry = page.getByRole("button", { name: /^Try sending it again/ });
+  const failed = await retry.waitFor({ timeout: 10_000 }).then(() => true, () => false);
+  check(`${where}: a hand-in that did not arrive says so and offers to send it again`, failed);
+  check(`${where}: and the caret is on that way to send it`, failed && await retry.evaluate((el) => el === document.activeElement));
+  if (failed) await retry.click();
+  const result = await page.locator("[data-check-result]").waitFor({ timeout: 15_000 }).then(() => true, () => false);
+  check(`${where}: sent again, it is marked`, result);
+  check(`${where}: the result line takes the caret`, result && await page.evaluate(() => (document.activeElement?.textContent ?? "").includes(" of ")));
+  await page.unroute(`**/course/check/${id}**`);
+  await axeHere(`${where} result`);
+}
+
+/* A B1 lesson in Russian: its goal in Russian on the screen, and the step headings too. */
+async function inRussian(lesson) {
+  const where = `${lesson.id} in Russian`;
+  const before = await prisma.setting.findUnique({ where: { ownerId_key: { ownerId: OWNER, key: "uiLocale" } } });
+  await prisma.setting.upsert({ where: { ownerId_key: { ownerId: OWNER, key: "uiLocale" } }, create: { ownerId: OWNER, key: "uiLocale", value: "ru" }, update: { value: "ru" } });
+  try {
+    await page.goto(`${B}/course/lessons/${lesson.id}`, { waitUntil: "domcontentloaded" });
+    await hydrated(page);
+    const body = await text();
+    check(`${where}: the goal is in Russian`, body.includes(lesson.goalRu.slice(0, 30)), body.slice(0, 120));
+    check(`${where}: and the step heading is not English`, !/^Step \d/.test(await stepHeading()), await stepHeading());
+  } finally {
+    if (before) await prisma.setting.update({ where: { ownerId_key: { ownerId: OWNER, key: "uiLocale" } }, data: { value: before.value } });
+    else await prisma.setting.delete({ where: { ownerId_key: { ownerId: OWNER, key: "uiLocale" } } }).catch(() => {});
+  }
+}
+
