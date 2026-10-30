@@ -12,7 +12,7 @@ import { LessonText } from "@/components/course/LessonText";
 import { Card, Meter, SectionTitle } from "@/components/ui";
 import { fill } from "@/lib/copy/locale";
 // By its own module, never the barrel, which imports every lesson the course has.
-import { isTyped, markPhrase, markRework, type PracticeItem, type TypedMark } from "@/lib/course/lessons/practice";
+import { isTyped, markTyped, type PracticeItem, type TypedMark } from "@/lib/course/lessons/practice";
 import { rng, seedFrom } from "@/lib/random/seeded";
 import { shuffle } from "@/lib/random/shuffle";
 import { isAdvanceKey } from "@/lib/ux/advanceKey";
@@ -145,7 +145,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
 
   const check = () => {
     if (!isTyped(item) || mark !== null) return;
-    const m = item.kind === "type" ? markPhrase(typed, item.accept) : markRework(typed, item);
+    const m = markTyped(item, typed);
     setMark(m);
     onAnswer?.(at, typed);
     scored(m.verdict === "right");

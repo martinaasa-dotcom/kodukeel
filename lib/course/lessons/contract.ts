@@ -56,6 +56,32 @@ export function lessonEnglish(lesson: LessonSpec): string[] {
  * The shape every level of lessons keeps. Pure, so the test that holds the
  * course to it and anybody writing a new level can ask the same question.
  */
+/**
+ * The English lines a translation is owed for, and the Russian or Ukrainian a
+ * line may not carry: a number, a clock time and a bare ending are the same in
+ * every language, and so is a line that is all Estonian, braced, or a form's
+ * name in brackets. The Russian interface never mentions Ukraine and the
+ * Ukrainian never names Russia (purity-ru.test.ts, purity-uk.test.ts), so
+ * those lines stay English there. One reading, for the test and the per-part
+ * check alike.
+ */
+export function untranslated(lines: readonly string[], tr: (locale: "ru" | "uk", line: string) => string): string[] {
+  const sayable = (line: string) =>
+    !/^[-\d:.,\s]*[a-zõäöü]*$/.test(line) && /[A-Za-z]{2,}/.test(line.replace(/\{[^{}]*\}|\[[^[\]]*\]|\([^()]*\)|€[\d.]+/g, ""));
+  const missing: string[] = [];
+  for (const line of new Set(lines.filter(sayable))) {
+    for (const locale of ["ru", "uk"] as const) {
+      if (locale === "ru" && /ukrain/i.test(line)) continue;
+      if (locale === "uk" && /russia/i.test(line)) continue;
+      if (tr(locale, line) === line) missing.push(`${locale}: ${line}`);
+    }
+  }
+  return missing;
+}
+
+/** A line as words, lower-cased, for asking whether two lines say the same thing. */
+const normalised = (text: string) => (text.match(/\p{L}+/gu) ?? []).map((w) => w.toLocaleLowerCase("et")).join(" ");
+
 export function levelContractProblems(lessons: readonly LessonSpec[], parts: readonly PartOfLessons[]): string[] {
   const problems: string[] = [];
   const levels = [...new Set(parts.map((p) => p.level))];
@@ -125,6 +151,48 @@ export function levelContractProblems(lessons: readonly LessonSpec[], parts: rea
         const before = voiceOf.get(who);
         if (before && before.voice !== voice) problems.push(`${lesson.id}: ${who} speaks in ${voice}, and in ${before.voice} in ${before.at}`);
         else if (!before) voiceOf.set(who, { voice, at: lesson.id });
+      }
+    }
+  }
+  /*
+    EACH PART ASKS MORE THAN THE ONE BEFORE, on the rows of the ramp table a
+    machine can read (docs/reviews/b1-cast.md): the longest story a part has
+    you retell, and the most words a part has you write, never fall from one
+    part to the next. Banded rather than exact, so a content edit that keeps the
+    ramp passes and one that breaks it does not.
+  */
+  for (const level of levels) {
+    let story = 0;
+    let words = 0;
+    for (const part of parts.filter((p) => p.level === level)) {
+      const inPart = lessons.filter((l) => l.part === part.id);
+      const longest = Math.max(0, ...inPart.map((l) => l.retell?.story.length ?? 0));
+      const most = Math.max(0, ...inPart.map((l) => l.write?.least ?? 0));
+      if (longest > 0 && longest < story) problems.push(`${level} ${part.id}: its longest retell is ${longest} sentences, under the ${story} of a part before it`);
+      if (most > 0 && most < words) problems.push(`${level} ${part.id}: its writing asks ${most} words at most, under the ${words} of a part before it`);
+      story = Math.max(story, longest);
+      words = Math.max(words, most);
+    }
+  }
+  for (const lesson of lessons) {
+    /*
+      A question asked of what was heard has four answers to choose among, or
+      it is true or false: two or three options let a guess through, and the
+      later parts are the ones that ask the most of the ear.
+    */
+    lesson.listenFor?.forEach((g, i) => {
+      const trueFalse = g.options.length === 2 && g.options.every((o) => o === "True" || o === "False");
+      if (!trueFalse && g.options.length < 4) problems.push(`${lesson.id}, gist ${i + 1}: ${g.options.length} options, where a question that is not true or false has 4`);
+    });
+    /*
+      A part's closing conversation carries a turn the lesson never rehearsed:
+      a role-play turn whose model is no line of the part's conversations, so the
+      finale asks for something said, not something recited.
+    */
+    if (lesson.kind === "partEnd" && lesson.roleplay && lesson.listenFor) {
+      const said = new Set(lessons.filter((l) => l.part === lesson.part).flatMap((l) => l.conversation.flatMap((c) => (c.et ? [normalised(c.et)] : []))));
+      if (lesson.roleplay.turns.every((t) => said.has(normalised(t.model.et)))) {
+        problems.push(`${lesson.id}: every role-play turn is a line of the part's conversations, so the finale carries no turn the learner never rehearsed`);
       }
     }
   }

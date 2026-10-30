@@ -83,3 +83,22 @@ export function fadePlan(lesson: LessonSpec, partAt: number): FadePass[] {
   }
   return out;
 }
+
+/**
+ * What the step at `at` says about its line, so the screen's sentence is true
+ * of the line in front of it: nothing hidden yet, some already hidden on the
+ * first pass, more hidden than last time, as much hidden as last time (a line
+ * of tonight's words alone is all hidden from the first pass on a harder
+ * part), or only the English left.
+ */
+export type PassLead = "first" | "firstHidden" | "more" | "still" | "last";
+
+export function passLead(plan: readonly FadePass[], at: number): PassLead {
+  const step = plan[at];
+  if (!step) return "last";
+  if (step.pass === 3) return "last";
+  if (step.pass === 1) return step.hidden.some(Boolean) ? "firstHidden" : "first";
+  const before = plan.find((p) => p.pass === 1 && p.et === step.et);
+  const count = (p: FadePass) => p.hidden.filter(Boolean).length;
+  return before && count(step) <= count(before) ? "still" : "more";
+}

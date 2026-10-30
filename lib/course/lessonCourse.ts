@@ -1,5 +1,5 @@
 /**
- * A1 AND A2 AS LESSONS: EACH LESSON ONE EVENING OF THE PLANNED COURSE.
+ * A1, A2 AND B1 AS LESSONS: EACH LESSON ONE EVENING OF THE PLANNED COURSE.
  *
  * The old A1 cut each unit's word list into fives in the order the words were
  * typed, and an evening was those five words met, a reading, two rounds and a

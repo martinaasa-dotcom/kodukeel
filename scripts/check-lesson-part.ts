@@ -28,7 +28,7 @@ import { tr } from "../lib/copy/locale";
 import { LESSONS as COURSE, LESSON_PARTS as COURSE_PARTS } from "../lib/course/lessons";
 import { PREVIEW_LESSONS, PREVIEW_PARTS } from "../lib/course/lessons/preview";
 import { PLACE_SPELLINGS, estonianOf, lessonProblems, namesOf, wordsOf } from "../lib/course/lessons/ledger";
-import { lessonEnglish, levelContractProblems } from "../lib/course/lessons/contract";
+import { lessonEnglish, levelContractProblems, untranslated } from "../lib/course/lessons/contract";
 import { sceneForLesson } from "../lib/scenes/lessonScenes";
 
 const arg = (name: string) => {
@@ -95,16 +95,7 @@ for (const lesson of mine) {
 
 // 6. Translations, as the contract test reads them.
 if (!process.argv.includes("--no-translations")) {
-  const sayable = (line: string) =>
-    !/^[-\d:.,\s]*[a-zõäöü]*$/.test(line) && /[A-Za-z]{2,}/.test(line.replace(/\{[^{}]*\}|\[[^[\]]*\]|\([^()]*\)|€[\d.]+/g, ""));
-  const lines = [...mine.flatMap(lessonEnglish), part.title, part.about];
-  for (const line of new Set(lines.filter(sayable))) {
-    for (const locale of ["ru", "uk"] as const) {
-      if (locale === "ru" && /ukrain/i.test(line)) continue;
-      if (locale === "uk" && /russia/i.test(line)) continue;
-      if (tr(locale, line) === line) problems.push(`translation: ${locale}: ${line}`);
-    }
-  }
+  for (const m of untranslated([...mine.flatMap(lessonEnglish), part.title, part.about], tr)) problems.push(`translation: ${m}`);
 }
 
 // 7. Scenes.

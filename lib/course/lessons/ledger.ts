@@ -32,6 +32,7 @@ import { buildCaseTable } from "@/lib/estonian/derive";
 import { levelIndex } from "@/lib/collections/syllabus/types";
 import { nativeClip } from "@/lib/audio/native";
 import { lessonLabel } from "./label";
+import { fold } from "@/lib/estonian/fold";
 import type { Fix, LessonSpec, PatternId, Taught } from "./types";
 
 /** A taught item as a learner is asked about it: a verb counts as its two spellings. */
@@ -163,6 +164,17 @@ export function wordsOf(text: string): Token[] {
   return [...text.matchAll(/\p{L}+/gu)].map((m) => ({ raw: m[0], low: m[0].toLocaleLowerCase("et") }));
 }
 
+/**
+ * Where a rework's ask names how the sentence must begin, that beginning:
+ * "Start with {Ma ei}." A suggestion ("You can start with {Kui}") is not one.
+ * The marker holds an answer to it and the lesson check holds the accepted
+ * sentences to it, so both read it here.
+ */
+export function opensOf(ask: string): string | null {
+  const m = /(?:^|[.!?]\s+)Start with \{([^{}]+)\}/.exec(ask);
+  return m ? m[1]! : null;
+}
+
 /** The Estonian quoted inside an English sentence, which is written in braces. */
 export function estonianIn(english: string): string[] {
   return [...english.matchAll(/\{([^{}]+)\}/g)].map((m) => m[1]!);
@@ -287,7 +299,10 @@ export function withSlip(fix: Pick<Fix, "line" | "right" | "wrong">): string {
 }
 
 /** Words lower-cased and joined, as two sentences are compared. */
-const normalisePhraseOf = (text: string) => wordsOf(text).map((w) => w.low).join(" ");
+/** A phrase as it is compared: lower case, no punctuation, single spaces. */
+export function normalisePhrase(text: string): string {
+  return wordsOf(text).map((w) => w.low).join(" ");
+}
 
 /** The names a lesson may use: the shared list and its own cast. */
 /*
@@ -563,7 +578,18 @@ export function lessonProblems(lessons: readonly LessonSpec[]): string[] {
     // A change is asked for by its rule, so the rule has to have been explained by tonight.
     lesson.reworks?.forEach((r, i) => {
       if (!tonight.patterns.has(r.pattern)) problems.push(`${at}, rework ${i + 1}: asks for the ${r.pattern} pattern before it is explained`);
-      if (normalisePhraseOf(r.from.et) === normalisePhraseOf(r.to.et)) problems.push(`${at}, rework ${i + 1}: the sentence it asks for is the one it starts from`);
+      if (normalisePhrase(r.from.et) === normalisePhrase(r.to.et)) problems.push(`${at}, rework ${i + 1}: the sentence it asks for is the one it starts from`);
+      // An accepted sentence that is the starting one would mark the sentence typed back unchanged as right.
+      if ((r.also ?? []).some((a) => normalisePhrase(a) === normalisePhrase(r.from.et))) problems.push(`${at}, rework ${i + 1}: an accepted sentence is the one it starts from`);
+      const all = [r.to.et, ...(r.also ?? [])].map(normalisePhrase);
+      if (new Set(all).size !== all.length) problems.push(`${at}, rework ${i + 1}: an accepted sentence is listed twice`);
+      // An ask that names its start is answered only by sentences starting that way.
+      const opens = opensOf(r.ask);
+      if (opens) {
+        const start = normalisePhrase(opens);
+        const off = all.filter((a) => a !== start && !a.startsWith(`${start} `));
+        if (off.length > 0) problems.push(`${at}, rework ${i + 1}: the ask says to start with "${opens}" and an accepted sentence does not`);
+      }
     });
     // A slip is another taught form of the same word, standing once in the line, or it is not a slip.
     const families = familiesOf(tonight);
@@ -580,6 +606,9 @@ export function lessonProblems(lessons: readonly LessonSpec[]): string[] {
         if (!PAIR_CODES.has(code)) problems.push(`${at}, fix ${i + 1}: "${code}" names no case or verb slot`);
       }
       const of = wordOfSpelling(f.right);
+      if (fold(f.wrong.toLocaleLowerCase("et")) === fold(f.right.toLocaleLowerCase("et"))) {
+        problems.push(`${at}, fix ${i + 1}: "${f.wrong}" and "${f.right}" differ only in the letters with marks, which the marker forgives`);
+      }
       if (!of || wordOfSpelling(f.wrong) !== of || f.wrong === f.right) {
         problems.push(`${at}, fix ${i + 1}: "${f.wrong}" is not another taught form of the word "${f.right}" is`);
       }

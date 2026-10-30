@@ -63,7 +63,7 @@ export async function checkTypedSentences(texts: readonly string[], sample: stri
     the cap cannot reach it before the model's words.
   */
   const spellingsOf = (ts: readonly string[]) => [...new Set(ts
-    .flatMap((t) => (t.match(ESTONIAN_WORD) ?? []).map((w) => w.toLowerCase()))
+    .flatMap((t) => (t.match(ESTONIAN_WORD) ?? []).map((w) => w.toLocaleLowerCase("et")))
     .flatMap((w) => (/[gk]i$/.test(w) && w.length > 4 ? [w, w.slice(0, -2)] : [w])))];
   // Every word the learner wrote is read, since an unread one comes back as a slip they cannot tick past; the cap is on the model's.
   const own = spellingsOf(texts);
@@ -149,7 +149,8 @@ export async function checkTypedSentences(texts: readonly string[], sample: stri
     where: { lemma: { in: asked }, ...VOUCHED_ROW },
     select: {
       lemma: true, pos: true, cefr: true, government: true, semanticTypes: true,
-      forms: { select: { formType: true, value: true } },
+      // Ordered, since the first row of a form type is the principal part kept below: Ekilex lists the primary first.
+      forms: { select: { formType: true, value: true }, orderBy: [{ orderIndex: "asc" }, { id: "asc" }] },
     },
     orderBy: [{ lemma: "asc" }, { id: "asc" }],
   });

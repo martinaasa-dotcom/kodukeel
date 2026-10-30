@@ -219,6 +219,14 @@ describe("a sentence to change (Rework)", () => {
     expect(problems.some((p) => p.includes("the one it starts from"))).toBe(true);
   });
 
+  it("fails a rework that accepts its own starting sentence, lists one twice, or strays from the start it names", () => {
+    const at = (r: object) => lessonProblems([lesson({ conversation, answers, teaches: [read, finished], patterns: ["object"], reworks: [{ ...rework, ...r }] })]).join(" ");
+    expect(at({ also: [read.et] })).toMatch(/accepted sentence is the one it starts from/);
+    expect(at({ also: [finished.et] })).toMatch(/listed twice/);
+    expect(at({ ask: "Say you finished it. Start with {Raamatu}." })).toMatch(/start with "Raamatu"/);
+    expect(at({ ask: "Say you finished it. You can start with {Raamatu}." })).not.toMatch(/start with/);
+  });
+
   it("puts the lesson's reworks in its practice, and marks them by comparison", () => {
     const spec = lesson({ conversation, answers, teaches: [read, finished], patterns: ["object"], reworks: [rework] });
     const items = practiceFor(spec, EMPTY_LEDGER);

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FADE_HARDER_FROM, fadePlan } from "./fade";
+import { FADE_HARDER_FROM, fadePlan, passLead } from "./fade";
 import { LESSONS, LESSON_PARTS } from "./index";
 import type { LessonSpec } from "./types";
 
@@ -19,12 +19,31 @@ describe("say along, then alone", () => {
     for (const step of plan.filter((s) => s.pass === 3)) expect(step.hidden.filter(Boolean).length).toBeGreaterThan(0);
   });
 
-  it("hides something on every second pass at every level, even on a line with no long word", () => {
+  it("hides something on every second pass of every B1 lesson, on an easier part and a harder one, even on a line with no long word", () => {
     let seen = 0;
     for (const l of LESSONS.filter((x) => x.level === "B1")) {
-      for (const s of fadePlan(l, 1).filter((p) => p.pass === 2)) { seen += 1; expect(s.hidden.some(Boolean), `${l.id}: ${s.et}`).toBe(true); }
+      for (const partAt of [1, FADE_HARDER_FROM]) {
+        for (const s of fadePlan(l, partAt).filter((p) => p.pass === 2)) { seen += 1; expect(s.hidden.some(Boolean), `${l.id}: ${s.et}`).toBe(true); }
+      }
     }
     expect(seen).toBeGreaterThan(0);
+  });
+
+  it("says what each step does to its line, and never that more is gone when nothing more is", () => {
+    const lesson = LESSONS.find((l) => l.level === "B1")!;
+    const words = lesson.conversation.find((c) => c.et)!.et!;
+    const plan = fadePlan(lesson, FADE_HARDER_FROM);
+    const leads = plan.map((_, i) => passLead(plan, i));
+    expect(leads.filter((l) => l === "last").length).toBe(plan.length / 3);
+    plan.forEach((step, i) => {
+      if (leads[i] !== "more") return;
+      const first = plan.find((p) => p.pass === 1 && p.et === step.et)!;
+      expect(step.hidden.filter(Boolean).length).toBeGreaterThan(first.hidden.filter(Boolean).length);
+    });
+    // A line whose every word is tonight's is all hidden on the first pass of a harder part, and the second says "still".
+    const allTonight = { ...lesson, teaches: words.split(/\s+/).map((w) => ({ kind: "word" as const, et: w.replace(/[^\p{L}]/gu, ""), en: "x" })), how: { ...lesson.how, examples: [lesson.conversation.findIndex((c) => c.et)] } };
+    const tight = fadePlan(allTonight, FADE_HARDER_FROM);
+    expect(passLead(tight, tight.findIndex((p) => p.pass === 2))).toBe("still");
   });
 
   it("hides something on the second pass, and less than the third does", () => {

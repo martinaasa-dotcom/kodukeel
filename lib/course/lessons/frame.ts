@@ -54,8 +54,10 @@ const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 /** How a gap was filled: as written, right but for a letter an English keyboard lacks, or not. */
 export function markGap(typed: string, answer: string): "right" | "nearly" | "wrong" {
-  const a = typed.trim().toLocaleLowerCase("et");
-  const b = answer.toLocaleLowerCase("et");
+  // As words, so a stray space, a full stop or a capital is never what the gap is marked on.
+  const words = (t: string) => (t.match(/\p{L}+/gu) ?? []).map((w) => w.toLocaleLowerCase("et")).join(" ");
+  const a = words(typed);
+  const b = words(answer);
   if (a === b) return "right";
   if (a.length > 0 && fold(a) === fold(b)) return "nearly";
   return "wrong";

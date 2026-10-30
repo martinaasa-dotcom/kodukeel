@@ -38,6 +38,9 @@ describe("the frame", () => {
   it("marks a gap right, nearly for a missing diacritic, or wrong", () => {
     expect(markGap(" Ust ", "ust")).toBe("right");
     expect(markGap("ara", "ära")).toBe("nearly");
+    expect(markGap("kraani  ära", "kraani ära")).toBe("right");
+    expect(markGap("ust.", "ust")).toBe("right");
+    expect(markGap("uks", "ust")).toBe("wrong");
     expect(markGap("uks", "ust")).toBe("wrong");
     expect(markGap("", "ust")).toBe("wrong");
   });

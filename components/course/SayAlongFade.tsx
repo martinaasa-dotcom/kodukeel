@@ -10,9 +10,9 @@ import { useLocale, useT } from "@/components/Locale";
 import { LessonText } from "@/components/course/LessonText";
 import { Card, SectionTitle } from "@/components/ui";
 import { fill } from "@/lib/copy/locale";
-import { lineWords, lightUp, shareLit } from "@/lib/speech/lightUp";
+import { lineWords, lightUp } from "@/lib/speech/lightUp";
 import { nativePart } from "@/lib/audio/native";
-import { fadePlan, type FadePass } from "@/lib/course/lessons/fade";
+import { fadePlan, passLead, type FadePass } from "@/lib/course/lessons/fade";
 import type { LessonSpec } from "@/lib/course/lessons/types";
 
 /**
@@ -47,13 +47,13 @@ export function SayAlongFade({ lesson, partAt, onDone }: { lesson: LessonSpec; p
     <Card>
       <SectionTitle hint={fill(t("Round {n} of 3"), { n: String(step.pass) })}>{t("Say it along, then alone")}</SectionTitle>
       <p className="mb-4 text-base" style={{ color: "var(--ink-2)" }}>
-        {step.pass === 1
-          ? step.hidden.some(Boolean)
-            ? t("Hear the line, then say it. Some of its words are already gone: each comes back when it's heard.")
-            : t("Hear the line, then say it with the words in front of you.")
-          : step.pass === 2
-            ? t("Now more of the line is gone. Say the whole line: a word comes back when it's heard.")
-            : t("Now say it with nothing on the screen but the English.")}
+        {{
+          first: t("Hear the line, then say it with the words in front of you."),
+          firstHidden: t("Hear the line, then say it. Some of its words are already gone: each comes back when it's heard."),
+          more: t("Now more of the line is gone. Say the whole line: a word comes back when it's heard."),
+          still: t("The line is still gone. Say it again from memory: a word comes back when it's heard."),
+          last: t("Now say it with nothing on the screen but the English."),
+        }[passLead(plan, Math.min(at, plan.length - 1))]}
       </p>
       <PassMeter pass={step.pass} />
       <FadeLine
@@ -67,8 +67,8 @@ export function SayAlongFade({ lesson, partAt, onDone }: { lesson: LessonSpec; p
         locale={locale}
       />
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-        {/* Read out as Next brings each line, since the caret stays on Next and nothing else says the line changed. */}
-        <p className="text-sm" role="status" style={{ color: "var(--ink-3)" }}>{fill(t("Line {n} of {total}"), { n: String(lineInRound), total: String(inRound) })}</p>
+        {/* Read out as Next brings each line, since the caret stays on Next and nothing else says the line, or the round, changed. */}
+        <p className="text-sm" role="status" style={{ color: "var(--ink-3)" }}>{fill(t("Round {r}, line {n} of {total}"), { r: String(step.pass), n: String(lineInRound), total: String(inRound) })}</p>
         <Button variant="primary" onClick={() => (last ? onDone() : setAt((n) => n + 1))}>
           {last ? t("Done") : t("Next")} <ArrowRight size={15} aria-hidden />
         </Button>
@@ -120,7 +120,8 @@ function FadeLine({ line, en, hidden, voice, native, who, locale }: {
   });
   const now = lightUp(words, speech.listening ? speech.partial : heard);
   const lit = now.map((l, i) => l || (before[i] ?? false));
-  const share = shareLit(lit);
+  // A dash said between two halves of a line is not a word, so it is not counted as one that came across.
+  const counted = words.map((w, i) => ({ word: /\p{L}/u.test(w.text), lit: lit[i] ?? false })).filter((w) => w.word);
   const anyHidden = hidden.some(Boolean);
 
   return (
@@ -153,7 +154,7 @@ function FadeLine({ line, en, hidden, voice, native, who, locale }: {
         {/* Mounted empty and filled, since a status region that arrives holding its words is often not read. */}
         <p className="text-sm" role="status" style={{ color: "var(--ink-2)" }}>
           {heard && !speech.listening
-            ? share === 1 ? t("Every word came across.") : fill(t("{n} of {total} words came across."), { n: lit.filter(Boolean).length, total: words.length })
+            ? counted.every((w) => w.lit) ? t("Every word came across.") : fill(t("{n} of {total} words came across."), { n: counted.filter((w) => w.lit).length, total: counted.length })
             : null}
         </p>
       </div>
