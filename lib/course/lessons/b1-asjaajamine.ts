@@ -112,7 +112,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
         from: { et: "Ma täitsin blanketti.", en: "I was filling in the form." },
         ask: "Say you finished it. Use {ära}.",
         to: { et: "Ma täitsin blanketi ära.", en: "I filled in the form." },
-        also: ["Täitsin blanketi ära.", "Ma täitsin selle ära.", "Täitsin selle ära."],
+        also: ["Täitsin blanketi ära.", "Ma täitsin selle ära.", "Täitsin selle ära.", "Jah, ma täitsin blanketi ära.", "Jah, ma täitsin selle ära."],
         pattern: "object",
       },
       {
@@ -247,7 +247,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
         from: { et: "Ametnik võtab avalduse vastu.", en: "The clerk accepts the application." },
         ask: "Say she didn't, yesterday. You can start with {Ametnik ei}.",
         to: { et: "Ametnik ei võtnud eile avaldust vastu.", en: "The clerk didn't accept the application yesterday." },
-        also: ["Ametnik ei võtnud avaldust eile vastu.", "Eile ei võtnud ametnik avaldust vastu."],
+        also: ["Ametnik ei võtnud avaldust eile vastu.", "Eile ei võtnud ametnik avaldust vastu.", "Ta ei võtnud eile avaldust vastu.", "Tema ei võtnud eile avaldust vastu.", "Ta ei võtnud avaldust eile vastu.", "Eile ei võtnud ta avaldust vastu."],
         pattern: "object",
       },
       {
@@ -370,7 +370,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
         from: { et: "Pane kaart kinni!", en: "Block the card!" },
         ask: "Say it to the bank clerk, with {teie}.",
         to: { et: "Palun pange kaart kinni!", en: "Please block the card!" },
-        also: ["Pange kaart kinni!", "Pange palun kaart kinni!"],
+        also: ["Pange kaart kinni!", "Pange palun kaart kinni!", "Palun pange see kinni!", "Palun pange mu kaart kinni!", "Pange palun mu kaart kinni!", "Palun pange minu kaart kinni!", "Pange mu kaart kinni!"],
         pattern: "imperative",
       },
       {
@@ -629,7 +629,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
         from: { et: "Ma jätan sõnumi.", en: "I'll leave a message." },
         ask: "Say you left one yesterday, but nobody called back. Use {aga}.",
         to: { et: "Ma jätsin eile sõnumi, aga keegi ei helistanud tagasi.", en: "I left a message yesterday, but nobody called back." },
-        also: ["Eile jätsin sõnumi, aga keegi ei helistanud tagasi.", "Ma jätsin sõnumi eile, aga keegi ei helistanud tagasi.", "Eile jätsin ma sõnumi, aga keegi ei helistanud tagasi."],
+        also: ["Eile jätsin sõnumi, aga keegi ei helistanud tagasi.", "Ma jätsin sõnumi eile, aga keegi ei helistanud tagasi.", "Eile jätsin ma sõnumi, aga keegi ei helistanud tagasi.", "Ma jätsin eile sõnumi, aga keegi ei helistanud mulle tagasi.", "Eile jätsin sõnumi, aga keegi ei helistanud mulle tagasi.", "Ma jätsin sõnumi eile, aga keegi ei helistanud mulle tagasi.", "Eile jätsin ma sõnumi, aga keegi ei helistanud mulle tagasi."],
         pattern: "past",
       },
       {

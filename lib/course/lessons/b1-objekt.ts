@@ -219,7 +219,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
         from: { et: "Laual on võti.", en: "There's a key on the table." },
         ask: "Say there isn't one. Use {ei ole}.",
         to: { et: "Laual ei ole võtit.", en: "There's no key on the table." },
-        also: ["Laual pole võtit."],
+        also: ["Laual pole võtit.", "Laual ei ole ühtegi võtit.", "Laual pole ühtegi võtit."],
         pattern: "negative",
       },
       {
@@ -344,7 +344,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
         from: { et: "Ma ostsin munad.", en: "I bought the eggs." },
         ask: "Say you didn't.",
         to: { et: "Ma ei ostnud mune.", en: "I didn't buy eggs." },
-        also: ["Ei ostnud mune.", "Mune ma ei ostnud."],
+        also: ["Ei ostnud mune.", "Mune ma ei ostnud.", "Ei, ma ei ostnud mune."],
         pattern: "object",
       },
       {
@@ -470,7 +470,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
         from: { et: "Ma leidsin võtmed.", en: "I found the keys." },
         ask: "Say you're still looking for them. Use {otsin}.",
         to: { et: "Ma otsin võtmeid.", en: "I'm looking for the keys." },
-        also: ["Ma otsin veel võtmeid.", "Ma otsin ikka võtmeid.", "Ma otsin ikka veel võtmeid.", "Ma otsin neid.", "Ma otsin neid veel.", "Ma otsin neid ikka.", "Ma otsin neid ikka veel.", "Otsin võtmeid.", "Otsin veel võtmeid.", "Otsin ikka võtmeid."],
+        also: ["Ma otsin veel võtmeid.", "Ma otsin ikka võtmeid.", "Ma otsin ikka veel võtmeid.", "Ma otsin neid.", "Ma otsin neid veel.", "Ma otsin neid ikka.", "Ma otsin neid ikka veel.", "Otsin võtmeid.", "Otsin veel võtmeid.", "Otsin ikka võtmeid.", "Ma otsin oma võtmeid.", "Otsin oma võtmeid."],
         pattern: "object",
       },
       {

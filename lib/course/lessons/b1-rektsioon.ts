@@ -371,7 +371,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
         from: { et: "Ma mõtlen sellele.", en: "I'm thinking about it." },
         ask: "Say Mari was thinking about it.",
         to: { et: "Mari mõtles sellele.", en: "Mari was thinking about it." },
-        also: ["Mari mõtles sellest.", "Mari mõtles selle peale.", "Mari mõtles selle üle."],
+        also: ["Mari mõtles sellest.", "Mari mõtles selle peale.", "Mari mõtles selle üle.", "Mari mõtles just sellele."],
         pattern: "past",
       },
       {

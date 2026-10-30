@@ -939,7 +939,7 @@ export const LESSON_TEXT_B1_REKTSIOON: Area = {
     "But I fell for him on the very first day.": "Але я закохалася в нього в перший же день.",
     "Love goes into somebody: {temasse}.": "Закохуються «в» когось: {temasse}.",
     "Getting to know somebody is with them: {oma naisega}.": "Знайомляться «з» кимось: {oma naisega}.",
-    "What is Liis's news?": "Яка новина в Ліїс?",
+    "What is Liis's news?": "Яка новина в Лійс?",
     "She's moving to Tartu": "Вона переїжджає до Тарту",
     "She has a new job": "У неї нова робота",
     "How did Tom and his wife get together?": "Як Том і його дружина стали парою?",

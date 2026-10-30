@@ -81,7 +81,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       examples: [2, 3, 6, 11],
     },
     listenFor: [
-      { q: "What is behind the shut door?", options: ["The landlord's cat", "A brand-new bathroom with a big bath", "A room full of old chairs", "Nothing at all"], answer: 2 },
+      { q: "What is behind the shut door?", options: ["The landlord's cat", "A brand-new bathroom with a big bath", "A room full of chairs", "Nothing at all"], answer: 2 },
       { q: "When was the building renovated?", options: ["Last week", "Two years ago", "Ten years ago", "It hasn't been"], answer: 1 },
       { q: "How does Tom feel about the apartment in the end?", options: ["He likes it", "He thinks it's too small", "He wants a cheaper one", "He wants to think about it"], answer: 0 },
       { q: "Who says the apartment looks big?", options: ["Urmas", "Tom", "Anna", "Nobody"], answer: 1 },
@@ -442,7 +442,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         from: { et: "Meister vahetab toru.", en: "The handyman is changing the pipe." },
         ask: "Say he changed it, the job done. Use {ära}.",
         to: { et: "Meister vahetas toru ära.", en: "The handyman changed the pipe." },
-        also: ["Meister vahetas toru välja.", "Meister vahetas selle ära."],
+        also: ["Meister vahetas toru välja.", "Meister vahetas selle ära.", "Ta vahetas toru ära.", "Tema vahetas toru ära.", "Ta vahetas toru välja.", "Ta vahetas selle ära."],
         pattern: "object",
       },
       {
