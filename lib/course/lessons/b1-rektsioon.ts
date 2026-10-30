@@ -306,6 +306,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "sellele", of: "see", en: "onto it; about it, after {mõtlema}" },
       { kind: "form", et: "sellest", of: "see", en: "about it, out of it" },
       { kind: "word", et: "peale", en: "onto; about, after {mõtlema} with the [omastav] (2nd form) in front: {selle peale}" },
+      { kind: "word", et: "üle", en: "over; about, after {mõtlema} with the [omastav] (2nd form) in front: {selle üle}" },
       { kind: "form", et: "ilma", of: "ilm", en: "of the weather", stem: true },
       { kind: "form", et: "lilli", of: "lill", en: "flowers, some flowers" },
       { kind: "form", et: "teistest", of: "teine", en: "about others" },
@@ -370,7 +371,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
         from: { et: "Ma mõtlen sellele.", en: "I'm thinking about it." },
         ask: "Say Mari was thinking about it.",
         to: { et: "Mari mõtles sellele.", en: "Mari was thinking about it." },
-        also: ["Mari mõtles sellest.", "Mari mõtles selle peale."],
+        also: ["Mari mõtles sellest.", "Mari mõtles selle peale.", "Mari mõtles selle üle."],
         pattern: "past",
       },
       {
@@ -498,8 +499,8 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       },
       {
         from: { et: "Ta parandas mu autot.", en: "He was fixing my car." },
-        ask: "Say he got it fixed. Use {ära}.",
-        to: { et: "Ta parandas mu auto ära.", en: "He got my car fixed." },
+        ask: "Say he fixed it. Use {ära}.",
+        to: { et: "Ta parandas mu auto ära.", en: "He fixed my car." },
         also: ["Tema parandas mu auto ära.", "Ta parandas minu auto ära.", "Ta parandas selle ära."],
         pattern: "object",
       },

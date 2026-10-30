@@ -91,3 +91,33 @@ describe("the B1 reworks accept every honest answer they can be held to", () => 
     }
   });
 });
+
+/*
+ * An ask that says "he" or "she" about somebody it does not name lets the
+ * learner say "ta" for them, as the ask itself did. So where the sentence names
+ * the person, the list has to carry a "ta" or "tema" line beside the name.
+ */
+describe("a B1 ask about he or she", () => {
+  const cast = new Set(B1_LESSONS.flatMap((l) => Object.keys(l.cast ?? {})));
+  const names = (s: string) => s.split(/[^\p{L}]+/u).filter((w) => cast.has(w));
+
+  it("accepts ta for the person it calls he or she", () => {
+    const missing: string[] = [];
+    let seen = 0;
+    for (const lesson of B1_LESSONS) {
+      const rows = [
+        ...(lesson.reworks ?? []).map((r) => ({ ask: r.ask, lines: [r.to.et, ...(r.also ?? [])] })),
+        ...(lesson.answers ?? []).map((p) => ({ ask: p.cue, lines: [p.model.et, ...(p.also ?? [])] })),
+      ];
+      for (const { ask, lines } of rows) {
+        if (!/\b(he|she)\b/i.test(ask)) continue;
+        const named = names(lines[0]!).filter((n) => !ask.includes(n));
+        if (named.length === 0) continue;
+        seen += 1;
+        if (!lines.some((s) => /(^|[^\p{L}])(ta|tema)([^\p{L}]|$)/iu.test(s))) missing.push(`${lesson.id}: "${ask}" has no ta line for ${named.join(", ")}`);
+      }
+    }
+    expect(seen, "asks about he or she over a named person").toBeGreaterThan(1);
+    expect(missing).toEqual([]);
+  });
+});

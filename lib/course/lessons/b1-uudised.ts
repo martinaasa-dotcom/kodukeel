@@ -457,7 +457,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
         "Hurt is {sai vigastada}, got injured: {Kas keegi sai vigastada?}",
         "{Õnneks} is luckily: {Õnneks ei saanud keegi vigastada}.",
       ],
-      watchOut: "The [umbisikuline] has one form however many there are: {kutsuti päästjad ja politsei}.",
+      watchOut: "The [umbisikuline] (-takse, people do) has one form however many there are: {kutsuti päästjad ja politsei}.",
       examples: [2, 3, 7, 10],
     },
     listenFor: [
@@ -749,8 +749,8 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       { line: { et: "Vesi keerati kinni ja toru vahetati välja.", en: "The water was turned off and the pipe was replaced." }, right: "Vesi", wrong: "Vett", pair: ["NOMINATIVE", "PARTITIVE"], why: "All of it, with nobody named: the [nimetav] (1st form), {vesi}." },
     ],
     write: {
-      genre: "A short report of what happened",
-      purpose: "Tell the residents' association what happened, what was done and what still has to be done.",
+      genre: "What happened, told in order",
+      purpose: "See how Tom tells the neighbors about the burst pipe, then tell a bad day of your own the same way: what happened, when, what was done and how it ended.",
       model: [
         { et: "Lugupeetud naabrid!", en: "Dear neighbors," },
         { et: "Eile öösel läks meie maja keldris toru katki.", en: "Last night a pipe burst in the cellar of our building." },

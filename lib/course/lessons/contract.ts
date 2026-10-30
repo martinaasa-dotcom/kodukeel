@@ -63,8 +63,14 @@ export function lessonEnglish(lesson: LessonSpec): string[] {
  * check alike.
  */
 export function untranslated(lines: readonly string[], tr: (locale: "ru" | "uk", line: string) => string): string[] {
+  // A bare ending ("-sse") and a word only Estonian spells ("õde") need nothing,
+  // and neither does a run of digits or a time. A plain lowercase word is an
+  // English gloss ("report", "oven") and is owed a translation like any line.
   const sayable = (line: string) =>
-    !/^[-\d:.,\s]*[a-zõäöü]*$/.test(line) && /[A-Za-z]{2,}/.test(line.replace(/\{[^{}]*\}|\[[^[\]]*\]|\([^()]*\)|€[\d.]+/g, ""));
+    !/^[-\d:.,\s]*$/.test(line) &&
+    !/^\s*-[a-zõäöüšž]+\s*$/.test(line) &&
+    !/^\s*[a-zõäöüšž]*[õäöüšž][a-zõäöüšž]*\s*$/.test(line) &&
+    /[A-Za-z]{2,}/.test(line.replace(/\{[^{}]*\}|\[[^[\]]*\]|\([^()]*\)|€[\d.]+/g, ""));
   const missing: string[] = [];
   for (const line of new Set(lines.filter(sayable))) {
     for (const locale of ["ru", "uk"] as const) {

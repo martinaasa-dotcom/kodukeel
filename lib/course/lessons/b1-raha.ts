@@ -444,7 +444,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "üüri", of: "üür", en: "the rent, as an object" },
       { kind: "form", et: "arved", of: "arve", en: "the bills" },
       { kind: "form", et: "arveid", of: "arve", en: "bills, some of them" },
-      { kind: "word", et: "üle", en: "over; with {jääma}, left over" },
+      { kind: "phrase", et: "mis üle jääb", en: "whatever is left over" },
       { kind: "form", et: "kulusid", of: "kulu", en: "costs, after many" },
       { kind: "verb", et: "säästma", first: "säästan", en: "to save, money or time", firstEn: "I save" },
       { kind: "form", et: "säästa", of: "säästma", en: "to save, after can or hard" },
