@@ -64,6 +64,15 @@ describe("the check over a level", () => {
     expect(fixed(["IndIpfIps", "PARTITIVE"])).toEqual([]);
   });
 
+  it("fails a fix whose slip and correction differ only in the letters with marks", () => {
+    const marks = (wrong: string) => lessonProblems([lesson({
+      fixes: [{ line: { et: "Head ööd!", en: "Good night!" }, right: "ööd", wrong, pair: ["IndIpfIps", "PARTITIVE"], why: "w" }],
+    })]).filter((p) => p.includes("differ only in the letters with marks"));
+    expect(marks("ood")).toHaveLength(1);
+    expect(marks("ÖÖD")).toHaveLength(1);
+    expect(marks("öö")).toEqual([]);
+  });
+
   it("fails a check-in that teaches, and one with no role-play", () => {
     const problems = lessonProblems([lesson({}), lesson({ id: "t-2", n: 2, kind: "checkin" })]);
     expect(problems.some((p) => p.includes("teaches nothing new"))).toBe(true);

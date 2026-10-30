@@ -237,6 +237,218 @@ describe("an answer about yourself", () => {
   });
 });
 
+/** The rework or fix, anywhere in the course, that accepts `sentence`, read against its own lesson's ledger. */
+function itemAccepting(sentence: string): Item {
+  for (const l of LESSONS) {
+    const r = l.reworks?.find((x) => x.to.et === sentence || (x.also ?? []).includes(sentence));
+    if (r) return reworkItem(r, after(l.id));
+    const f = l.fixes?.find((x) => x.line.et === sentence);
+    if (f) return fixItem(f, after(l.id));
+  }
+  throw new Error(`no row accepts ${sentence}`);
+}
+
+const PUT_IN: Readonly<Record<string, string>> = { ma: "Sg1", mina: "Sg1", sa: "Sg2", sina: "Sg2", me: "Pl1", meie: "Pl1", te: "Pl2", teie: "Pl2" };
+
+describe("a pronoun put in, on the lessons' own sentences", () => {
+  it("is right beside a verb of its person, or at the start of its clause", () => {
+    expect(markRework("Ma lugesin raamatu läbi.", itemAccepting("Lugesin raamatu läbi.")).verdict).toBe("right");
+    expect(markRework("Lugesin ma raamatu läbi.", itemAccepting("Lugesin raamatu läbi."))).toMatchObject({ verdict: "right", note: NOTES.pronoun });
+    expect(markRework("Ma siis kirjutan: ujumise õppimine.", fix("b1-46", 3)).verdict).toBe("right");
+  });
+
+  it("is never right in the middle of a clause, away from its verb (round 2, H1)", () => {
+    const sock = fix("b1-02", 3);
+    expect(markRework("Vaatasin juba. Leidsin ainult ühe vana ma soki.", sock).verdict).toBe("wrong");
+    expect(markRework("Vaatasin juba. Leidsin ainult ühe mina vana soki.", sock).verdict).toBe("wrong");
+    expect(markRework("Lugesin raamatu ma läbi.", itemAccepting("Lugesin raamatu läbi.")).verdict).not.toBe("right");
+    expect(markRework("Kuna kampsun ei ole prügi, võid selle sa sõbrale anda.", itemAccepting("Kuna kampsun ei ole prügi, võid selle sõbrale anda.")).verdict).not.toBe("right");
+  });
+
+  it("is never right twice, whatever stands before the full stop (H2)", () => {
+    expect(markRework("Jaan, kus sa oled? Ma ma ootan sind juba pool tundi.", fix("b1-04", 1)).verdict).toBe("wrong");
+  });
+
+  it("is never licensed by a form of several persons, nor beside a have-possessor (H3)", () => {
+    const car = itemAccepting("Kui mul oleks auto, saaksin ma metsa sõita.");
+    expect(markRework("Kui sa mul oleks auto, saaksin ma metsa sõita.", car).verdict).toBe("wrong");
+    expect(markRework("Kui mul me oleks auto, saaksin ma metsa sõita.", car).verdict).toBe("wrong");
+    expect(markRework("Ei, ma ei ostnud mune. Need sa olid otsas.", fix("b1-03", 3)).verdict).toBe("wrong");
+  });
+
+  it("is never licensed by palun or a command (auditor A, H1)", () => {
+    for (const [typed, row] of [
+      ["Ma tule palun hommikul.", "Tule palun hommikul."],
+      ["Mina pange palun kaart kinni!", null],
+      ["Ma helista mulle palun tagasi.", "Helista mulle palun tagasi."],
+      ["Ma tooge palun pastakas homme tagasi.", "Tooge palun pastakas homme tagasi."],
+      ["Ma palun väljastage mulle parkimisluba.", "Palun väljastage mulle parkimisluba."],
+    ] as const) {
+      const item = row ? itemAccepting(row) : rework("b1-45", 2);
+      expect(markRework(typed, item).verdict, typed).not.toBe("right");
+    }
+    expect(markRework("Ma saatke palun meister homme.", rework("b1-27", 2)).verdict).not.toBe("right");
+  });
+
+  it("every pronoun the marker lets in by its rule, across the course, sits beside a verb of its person or at a clause start", () => {
+    const JOIN = new Set(["kuigi", "kuna", "sest", "et", "kui", "kuni", "aga", "ja", "ning", "või", "ega", "vaid", "nagu", "kuidas", "miks", "kas", "kus", "kuhu", "kust", "millal", "siis"]);
+    const clean = (w: string | undefined) => (w ?? "").toLocaleLowerCase("et").replace(/[^\p{L}\p{N}]/gu, "");
+    const away: string[] = [];
+    let letIn = 0;
+    for (const l of LESSONS) {
+      const taught = teach(BEFORE.get(l.id)!, l.teaches, lessonRank(l), l.patterns);
+      const items: Item[] = [...(l.reworks ?? []).map((r) => reworkItem(r, taught)), ...(l.fixes ?? []).map((f) => fixItem(f, taught))];
+      for (const item of items) {
+        const seen = new Set<string>();
+        for (const a of item.accept) {
+          const toks = a.split(" ");
+          for (let i = 0; i <= toks.length; i++) {
+            for (const [p, person] of Object.entries(PUT_IN)) {
+              const typed = [...toks.slice(0, i), p, ...toks.slice(i)].join(" ");
+              if (seen.has(typed)) continue;
+              seen.add(typed);
+              const m = markRework(typed, item);
+              if (m.verdict !== "right" || m.note === NOTES.right) continue;
+              letIn += 1;
+              const before = toks[i - 1];
+              const beside = [before, toks[i]].some((w) => (item.persons[clean(w)] ?? []).includes(person as never));
+              const start = i === 0 || /[,.!?:;]$/u.test(before ?? "") || JOIN.has(clean(before));
+              if (!beside && !start) away.push(`${l.id}: ${typed}`);
+            }
+          }
+        }
+      }
+    }
+    expect(letIn).toBeGreaterThan(100);
+    expect(away).toEqual([]);
+  }, 120_000);
+});
+
+describe("a typed verb names its pronoun by its own English (auditor A, M1)", () => {
+  /** The typed question for this answer in this lesson. */
+  const typedFor = (prefix: string, answer: string) => {
+    const q = everyTypedQuestion(lesson(prefix), BEFORE.get(lesson(prefix).id)!)
+      .find((x): x is Extract<PracticeItem, { kind: "type" }> => x.kind === "type" && x.answer === answer);
+    if (!q) throw new Error(`${prefix} asks no ${answer}`);
+    return q;
+  };
+
+  it("takes the third person's pronoun after he thought, she thought", () => {
+    for (const [prefix, answer] of [["b1-10", "mõtles"], ["b1-14", "parandas"], ["b1-27", "vastas"], ["b1-45", "kaotas"], ["b1-45", "arvas"]] as const) {
+      const q = typedFor(prefix, answer);
+      expect(markTyped(q, `ta ${answer}`), `${prefix} ta ${answer}`).toMatchObject({ verdict: "right" });
+    }
+  });
+
+  it("takes the right you, and never the other", () => {
+    expect(markTyped(typedFor("b1-15", "oleksite"), "te oleksite").verdict).toBe("right");
+    expect(markTyped(typedFor("b1-47", "jätate"), "te jätate").verdict).toBe("right");
+    expect(markTyped(typedFor("b1-09", "oleksid"), "sa oleksid").verdict).toBe("right");
+    expect(markTyped(typedFor("b1-15", "oleksite"), "sa oleksite").verdict).not.toBe("right");
+  });
+});
+
+describe("a short negative with more around it is half right (round 2, H4)", () => {
+  it("for pole, poleks and polnud", () => {
+    expect(markPhrase("ma pole", ["pole"])).toMatchObject({ verdict: "nearly", note: NOTES.halfRight });
+    expect(markPhrase("ma poleks", ["poleks"])).toMatchObject({ verdict: "nearly", note: NOTES.halfRight });
+    expect(markPhrase("ta polnud", ["polnud"])).toMatchObject({ verdict: "nearly", note: NOTES.halfRight });
+  });
+});
+
+describe("only the marks differ, so it is the marks note (round 2, M1)", () => {
+  /** The typed questions of these lessons whose answer is `answer`. */
+  const asking = (answer: string, ...prefixes: string[]) => prefixes.map(lesson).flatMap((l) => everyTypedQuestion(l, BEFORE.get(l.id)!))
+    .filter((q): q is Extract<PracticeItem, { kind: "type" }> => q.kind === "type" && q.answer === answer);
+
+  it("even where the folded spelling is another taught word", () => {
+    for (const [answer, typed, prefixes] of [
+      ["köök", "kook", ["a1-30"]], ["Üks hetk.", "Uks hetk.", ["a1-48", "a1-49"]], ["tööl", "tool", ["a1-31", "a1-35"]], ["töö", "too", ["b1-10", "b1-14"]],
+    ] as const) {
+      const qs = asking(answer, ...prefixes);
+      expect(qs.length, answer).toBeGreaterThan(0);
+      for (const q of qs) expect(markTyped(q, typed), `${typed} for ${answer}`).toMatchObject({ verdict: "nearly", note: NOTES.marks });
+    }
+  });
+
+  it("and markRework says the same of a sentence (L3)", () => {
+    expect(markRework("Ma ei koristanud kooki.", rework("b1-01", 3))).toMatchObject({ verdict: "nearly", note: NOTES.marks });
+  });
+
+  it("a taught spelling of another word a letter away is another word, and of the same word another form", () => {
+    const eighth = asking("kaheksas", "a2-05", "a2-07");
+    expect(eighth.length).toBeGreaterThan(0);
+    for (const q of eighth) expect(markTyped(q, "kaheksa")).toMatchObject({ verdict: "wrong", note: NOTES.otherWord });
+    expect(markPhrase("kaheksa", ["kaheksas"], [], ["kaheksa"])).toMatchObject({ verdict: "wrong", note: NOTES.otherWord });
+    expect(markPhrase("kaheksa", ["kaheksas"], ["kaheksa"], [])).toMatchObject({ verdict: "wrong", note: NOTES.otherForm });
+  });
+});
+
+describe("a joining word between two answers (auditor A, L1)", () => {
+  it("is let through only between two pronoun-and-verb answers", () => {
+    expect(markPhrase("sa olid ja nad olid", ["olid", "sa olid nad olid"]).verdict).toBe("right");
+    expect(markPhrase("vabal ja ajal", ["vabal ajal"]).verdict).not.toBe("right");
+    expect(markPhrase("pole ja hullu", ["pole hullu"]).verdict).not.toBe("right");
+  });
+});
+
+describe("a count in digits (round 2, L2)", () => {
+  it("is its word from two to ten, and only that word", () => {
+    const met = itemAccepting("Me tutvusime tööl kaks kuud tagasi.");
+    expect(markRework("Me tutvusime tööl 2 kuud tagasi.", met).verdict).toBe("right");
+    expect(markRework("Me tutvusime tööl 3 kuud tagasi.", met).verdict).toBe("wrong");
+  });
+});
+
+describe("two accepted changes made at once", () => {
+  it("is right where each change is a row's (the content audit's cases)", () => {
+    for (const [typed, row] of [
+      ["Ma olin selle koju ära unustanud.", "Ma olin pileti koju unustanud."],
+      ["Ära too seda!", "Ära too diivanit siia!"],
+      ["Palun too see!", "Too kast!"],
+      ["Ma ei parandanud seda ära.", "Ma ei parandanud akent."],
+      ["Ma ei koristanud seda ära.", "Ma ei koristanud kööki."],
+      ["Ma oleks pidanud seda vaatama.", "Ma oleksin pidanud kalendrit vaatama."],
+    ] as const) {
+      expect(markRework(typed, itemAccepting(row)), typed).toMatchObject({ verdict: "right", note: NOTES.right });
+    }
+  });
+
+  it("is wrong where one change is in no row", () => {
+    expect(markRework("Ma olin selle koju ära kaotanud.", itemAccepting("Ma olin pileti koju unustanud.")).verdict).toBe("wrong");
+    expect(markRework("Ära too seda sinna!", itemAccepting("Ära too diivanit siia!")).verdict).not.toBe("right");
+    expect(markRework("Palun too see sinna!", itemAccepting("Too kast!")).verdict).not.toBe("right");
+  });
+
+  it("never says one word twice, where two rows put it in at different places", () => {
+    const sorry = itemAccepting("Kahjuks ei saa ma tulla.");
+    expect(markRework("Ma kahjuks ei saa ma tulla.", sorry).verdict).not.toBe("right");
+    const sweater = itemAccepting("Kuna kampsun ei ole prügi, võid selle sõbrale anda.");
+    expect(markRework("Kuna kampsun ei ole prügi, sa võid sa selle sõbrale anda.", sweater).verdict).not.toBe("right");
+  });
+});
+
+describe("a demonstrative before the noun a row lets it stand for", () => {
+  it("is right in the row's own case", () => {
+    for (const [typed, row] of [
+      ["Ma lugesin selle raamatu läbi.", "Ma lugesin raamatu läbi."],
+      ["Ma parandasin selle auto ära.", "Ma parandasin auto ära."],
+      ["Ma ei ostnud seda raamatut.", "Ma ei ostnud raamatut."],
+      ["Ma ei leidnud seda võtit.", "Ma ei leidnud võtit."],
+      ["Ma sõin need õunad ära.", "Ma sõin õunad ära."],
+    ] as const) {
+      expect(markRework(typed, itemAccepting(row)), typed).toMatchObject({ verdict: "right", note: NOTES.right });
+    }
+    // With the pronoun left out as a row leaves it out.
+    expect(markRework("Lugesin selle raamatu läbi.", itemAccepting("Ma lugesin raamatu läbi.")).verdict).toBe("right");
+  });
+
+  it("is wrong in another case", () => {
+    expect(markRework("Ma lugesin seda raamatu läbi.", itemAccepting("Ma lugesin raamatu läbi.")).verdict).toBe("wrong");
+    expect(markRework("Ma ei ostnud selle raamatut.", itemAccepting("Ma ei ostnud raamatut.")).verdict).toBe("wrong");
+  });
+});
+
 describe("what opens a relative clause", () => {
   it("is a case of kes or mis, never a word that starts the same way", () => {
     for (const w of ["kes", "mis", "keda", "mida", "kellele", "millest", "milline", "missugust"]) expect(RELATIVE.test(w), w).toBe(true);

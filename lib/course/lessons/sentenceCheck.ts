@@ -776,6 +776,16 @@ export function checkSentence(
       if (form) maOnlyFinite.delete(form);
     }
   }
+  /*
+    The conditional with no person ending (`oleks`, `tuleks`) stands with every
+    person in speech (`Ma oleks varem alustanud`), which the lessons teach, so
+    beside `ma` it is not a verb in the wrong person.
+  */
+  const bareConditional = new Set<string>();
+  for (const table of tables.values()) {
+    const form = table.get("KndPrPs");
+    if (form) bareConditional.add(form);
+  }
   // A command takes its object in the plain form (`Pane aken kinni`), so a clause holding one is left alone.
   const imperative = new Set<string>();
   for (const table of tables.values()) {
@@ -1023,7 +1033,7 @@ export function checkSentence(
     if (subjectPerson && !lower.some((w, at) => owners.has(w) && at < (personAt[0] ?? 0))) {
       const s = subjectAt[0]!;
       if (personAt.length > 0) {
-        const agrees = personAt.some((at) => readingsOf.get(lower[at]!)!.some((r) => r.person === subjectPerson));
+        const agrees = personAt.some((at) => bareConditional.has(lower[at]!) || readingsOf.get(lower[at]!)!.some((r) => r.person === subjectPerson));
         // The pronoun before its verb, or straight after it (`Kas tuled sina`); further on it is a word in a list.
         const s0 = subjectAt[0]!;
         const sure = subjects.get(lower[s0]!)!.sure;

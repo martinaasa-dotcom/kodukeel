@@ -66,6 +66,9 @@ describe("checkSentence", () => {
 
   it("finds a verb in the wrong person", () => {
     expect(check("Ma soovib kohvi.")).toEqual([{ kind: "person", word: "soovib", subject: "ma", right: "soovin" }]);
+    // The bare conditional stands with any person, as b1-raha teaches it; `oleksin` is right too.
+    expect(check("Ma oleks varem alustanud.").filter((f) => f.kind === "person")).toEqual([]);
+    expect(check("Ma oleksin varem alustanud.").filter((f) => f.kind === "person")).toEqual([]);
   });
 
   it("finds a person ending after ei", () => {
