@@ -42,11 +42,12 @@ describe("a dropped pronoun, on the lessons' own sentences", () => {
     ["b1-43 R2", () => rework("b1-43", 2), "Täidan blanketi ära."],
     ["b1-43 R3", () => rework("b1-43", 3), "Saatsin blanketi eile ära."],
     ["b1-03 F2", () => fix("b1-03", 2), "Pesin õunad juba ära."],
+    // A verb taught with its first person has persons too.
+    ["b1-09 F2", () => fix("b1-09", 2), "Huvitun muusikast."],
     // `olema`, `elama` and `rääkima` were taught as rows of forms, and have persons.
     ["b1-22 R2", () => rework("b1-22", 2), "Elame remonditud korteris."],
     ["b1-22 F2", () => fix("b1-22", 2), "Elan remonditud korteris."],
     ["b1-41 F1", () => fix("b1-41", 1), "Olen selle plaani vastu."],
-    ["b1-09 F2", () => fix("b1-09", 2), "Olen huvitatud ajaloost."],
     ["b1-19 R3", () => rework("b1-19", 3), "Oleksin pidanud juba ammu puhkusele minema."],
     ["b1-31 R3", () => rework("b1-31", 3), "Olin pileti koju ära unustanud."],
     ["b1-31 F1", () => fix("b1-31", 1), "Olin telefoni koju unustanud."],

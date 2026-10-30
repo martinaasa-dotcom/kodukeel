@@ -18,7 +18,7 @@ import type { ScriptedLine } from "../scripted";
 /** The prepared lines of `tehniline-tugi`. */
 const LINES: readonly ScriptedLine[] = [
   { scene: "tehniline-tugi", beat: "problem", text: "Mis juhtus?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "tehniline-tugi", beat: "problem", text: "Kuidas ma saan teid aidata?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "tehniline-tugi", beat: "problem", text: "Kuidas saan aidata?", model: "authored", draftedAt: "2026-10-30", reviewedAt: "2026-10-30" },
   { scene: "tehniline-tugi", beat: "device", text: "Mis seade teil on?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "tehniline-tugi", beat: "device", text: "Kas see on arvuti või telefon?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "tehniline-tugi", beat: "screen", text: "Mida te ekraanil näete?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
@@ -29,8 +29,8 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "tehniline-tugi", beat: "fix", text: "Siis palun seadistage ühendus uuesti, see võtab paar minutit.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "tehniline-tugi", beat: "answer:fix", text: "Ühendus peaks paari minuti pärast tagasi tulema. Kui ei tule, helistage uuesti.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "tehniline-tugi", beat: "answer:fix", text: "Mõne minuti pärast peaks kõik töötama. Kui ei tööta, helistage meile uuesti.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
-  { scene: "tehniline-tugi", beat: "hurdle:faster", text: "Mul on palju tööd, öelge kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "tehniline-tugi", beat: "hurdle:faster", text: "Kiire on, öelge kohe.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "tehniline-tugi", beat: "hurdle:faster", text: "Mul on täna palju tööd.", model: "authored", draftedAt: "2026-10-30", reviewedAt: "2026-10-30" },
+  { scene: "tehniline-tugi", beat: "hurdle:faster", text: "Mul on natuke kiire.", model: "authored", draftedAt: "2026-10-30", reviewedAt: "2026-10-30" },
   { scene: "tehniline-tugi", beat: "hurdle:not-possible", text: "Täna seda teha ei saa.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15", about: "problem" },
   { scene: "tehniline-tugi", beat: "hurdle:not-possible", text: "Vabandust, täna ei saa. Homme saab.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15", about: "problem" },
   { scene: "tehniline-tugi", beat: "answer:hurdle:not-possible", text: "Homme saab.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },

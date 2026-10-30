@@ -308,6 +308,9 @@ export const LESSONS_AREA: Area = {
     "The changed sentence, in Estonian": "Изменённое предложение по-эстонски",
     "A line, not shown yet": "Реплика, ещё не показанная",
     "That lesson isn't part of the course.": "Этого урока нет в курсе.",
+    "It's": "Правильно:",
+    "The ones you missed come back in the review at the end of the next lesson.": "Те, что не получились, вернутся в повторении в конце следующего урока.",
+    "Say the conversation along with the screen, then answer a few questions about yourself out loud. A word lights up when it's understood, even said with an accent, so play yourself back beside the recording to hear how it sounded.": "Проговори разговор вместе с экраном, а потом ответь вслух на несколько вопросов о себе. Слово подсвечивается, когда его поняли, даже с акцентом, поэтому сравни свою запись с оригиналом, чтобы услышать, как это прозвучало.",
   },
   uk: {
     /* The A1 lessons' own titles and goals, and their parts' lines, now that they are the course. */
@@ -604,6 +607,9 @@ export const LESSONS_AREA: Area = {
     "The changed sentence, in Estonian": "Змінене речення естонською",
     "A line, not shown yet": "Репліка, ще не показана",
     "That lesson isn't part of the course.": "Цього уроку немає в курсі.",
+    "It's": "Правильно:",
+    "The ones you missed come back in the review at the end of the next lesson.": "Ті, що не вдалися, повернуться в повторенні наприкінці наступного уроку.",
+    "Say the conversation along with the screen, then answer a few questions about yourself out loud. A word lights up when it's understood, even said with an accent, so play yourself back beside the recording to hear how it sounded.": "Проговори розмову разом з екраном, а потім відповідай вголос на кілька запитань про себе. Слово підсвічується, коли його зрозуміли, навіть з акцентом, тож порівняй свій запис з оригіналом, щоб почути, як це прозвучало.",
   },
   counted: {
     "lesson": { en: ["lesson", "lessons"], ru: ["урок", "урока", "уроков"], uk: ["урок", "уроки", "уроків"] },

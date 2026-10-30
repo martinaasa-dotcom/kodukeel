@@ -1504,7 +1504,8 @@ async function lessonStepStates(ctx, at) {
   // The fade and the retell, on the lesson that ends in a retold story.
   const retell = byRole.retell;
   if (retell && await openAt(retell.id, /Say it/)) {
-    await page.getByRole("button", { name: /Type it instead/ }).first().click().catch(() => {});
+    // Spoken, not typed: the lines only fade when they are said (the typed evening has no fade).
+    await page.getByRole("button", { name: /^Say it$/ }).first().click().catch(() => {});
     const say = page.locator("[data-say-it]").first();
     await say.locator("[data-fade-line]").first().waitFor({ timeout: 8000 }).catch(() => {});
     if (await say.locator("[data-fade-line]").count()) await measure(page, `a B1 lesson's lines fading ${at}`);

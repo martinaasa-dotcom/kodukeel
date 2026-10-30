@@ -14,12 +14,12 @@ export const elanikeKoosolek: ScenePicks = {
   why: [
     { et: "Lastele.", en: "For the children." },
     { et: "Sest lastel oleks seal ohutu.", en: "Because it would be safe for the children there." },
-    { et: "See on hea meie kogukonnale ja keskkonnale.", en: "It's good for our community and for the environment." },
+    { et: "Siis oleks maja taga ilus ja lastel hea.", en: "Then it would be nice behind the building, and good for the children." },
   ],
   cost: [
     { et: "Me võiksime seda koos teha.", en: "We could do it together." },
     { et: "See ei pea olema kallis, teeme ise.", en: "It doesn't have to be expensive, we'll do it ourselves." },
-    { et: "Kui kõik aitavad, on see odav.", en: "If everyone helps, it's cheap." },
+    { et: "Kui kõik aitavad, ei lähe see kalliks.", en: "If everyone helps, it won't cost much." },
   ],
   vote: [
     { et: "Jah!", en: "Yes!" },

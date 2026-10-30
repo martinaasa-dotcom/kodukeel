@@ -10,6 +10,7 @@
  * has fallen behind the data.
  */
 export const PARALLEL_FORMS: Readonly<Record<string, string>> = {
+  "bussisid": "busse",
   "koerasid": "koeri",
   "kolleegisid": "kolleege",
   "lillesid": "lilli",

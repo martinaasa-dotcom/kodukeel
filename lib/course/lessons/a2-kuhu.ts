@@ -36,10 +36,10 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
     cast: { Liis: "liivika", Tom: "kalev" },
     conversation: [
       { who: "Liis", et: "Tere, Tom! Kust sa tuled?", en: "Hi, Tom! Where are you coming from?" },
-      { who: "Tom", et: "Ma tulen ülikoolist. Ja sina?", en: "I'm coming from the university. And you?" },
-      { who: "Liis", et: "Mina tulen raamatukogust. Kuhu sa nüüd lähed?", en: "I'm coming from the library. Where are you off to now?" },
-      { who: "Tom", et: "Ma lähen kesklinna. Ma pean panka minema.", en: "I'm going into town. I have to go to the bank." },
-      { who: "Liis", et: "Mina lähen ka kesklinna! Lähme koos.", en: "I'm going into town too! Let's go together." },
+      { who: "Tom", et: "Ülikoolist. Aga sina?", en: "From the university. And you?" },
+      { who: "Liis", et: "Mina raamatukogust. Kuhu sa nüüd lähed?", en: "From the library. Where are you off to now?" },
+      { who: "Tom", et: "Kesklinna. Pean panka minema.", en: "Into town. I have to go to the bank." },
+      { who: "Liis", et: "Mina ka! Lähme siis koos.", en: "Me too! Let's go together, then." },
       { who: "Tom", et: "Hea mõte! Lähme bussiga.", en: "Good idea! Let's take the bus." },
     ],
     teaches: [
@@ -100,9 +100,9 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Mari", et: "Halloo, Tom! Kus sa oled?", en: "Hello, Tom! Where are you?", stage: "On the phone." },
       { who: "Tom", et: "Ma olen turul. Ostan kala ja kartulit.", en: "I'm at the market. I'm buying fish and potatoes." },
-      { who: "Mari", et: "Mina olen veel tööl. Kas saame kokku väljakul?", en: "I'm still at work. Should we meet on the square?" },
+      { who: "Mari", et: "Mina olen veel tööl. Kas saame väljakul kokku?", en: "I'm still at work. Should we meet on the square?" },
       { who: "Tom", et: "Jah. Ma lähen turult otse väljakule.", en: "Yes. I'll go straight from the market to the square." },
-      { who: "Mari", et: "Hästi. Ma ootan kohvikus kiriku kõrval.", en: "All right. I'll wait in the café next to the church." },
+      { who: "Mari", et: "Hästi, ootan kohvikus kiriku kõrval.", en: "All right, I'll wait in the café next to the church." },
       { who: "Tom", et: "Selge! Kümne minuti pärast!", en: "Got it! See you in ten minutes!" },
     ],
     teaches: [
@@ -152,12 +152,12 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
     goal: "Say who you give something to, who you call, and who you heard it from.",
     cast: { Liis: "liivika", Tom: "kalev" },
     conversation: [
-      { who: "Liis", et: "Homme on Mari sünnipäev. Mida sa talle kingid?", en: "Tomorrow's Mari's birthday. What are you giving her?" },
-      { who: "Tom", et: "Ma ei tea veel. Mis talle meeldib?", en: "I don't know yet. What does she like?" },
+      { who: "Liis", et: "Homme on Mari sünnipäev. Mis sa talle kingid?", en: "Tomorrow's Mari's birthday. What are you giving her?" },
+      { who: "Tom", et: "Ei tea veel. Mis talle meeldib?", en: "Don't know yet. What does she like?" },
       { who: "Liis", et: "Talle meeldib muusika. Kingi talle kontserdipilet!", en: "She likes music. Give her a concert ticket!" },
-      { who: "Tom", et: "Hea mõte! Ma küsin tema vennalt, mis kontsert on hea.", en: "Good idea! I'll ask her brother which concert's good." },
+      { who: "Tom", et: "Hea mõte! Küsin ta vennalt, mis kontsert hea on.", en: "Good idea! I'll ask her brother which concert's good." },
       { who: "Liis", et: "Ja ära unusta talle helistada!", en: "And don't forget to call her!" },
-      { who: "Tom", et: "Ei unusta! Ma helistan talle hommikul.", en: "I won't! I'll call her in the morning." },
+      { who: "Tom", et: "Ei unusta! Helistan talle hommikul.", en: "I won't! I'll call her in the morning." },
     ],
     teaches: [
       { kind: "verb", et: "kinkima", first: "kingin", en: "to give as a present", firstEn: "I give (a present)" },
@@ -208,11 +208,11 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
     cast: { Mari: "mari", Tom: "kalev" },
     conversation: [
       { who: "Mari", et: "Kus sa eile õhtul olid?", en: "Where were you yesterday evening?" },
-      { who: "Tom", et: "Ma olin kinos. Ja sina?", en: "I was at the cinema. And you?" },
-      { who: "Mari", et: "Mina olin sõbra sünnipäeval. See oli tore pidu.", en: "I was at a friend's birthday. It was a great party." },
-      { who: "Tom", et: "Tore! Ma lähen täna teatrisse.", en: "Great! I'm going to the theater today." },
+      { who: "Tom", et: "Kinos. Aga sina?", en: "At the cinema. And you?" },
+      { who: "Mari", et: "Mina olin sõbra sünnipäeval. Oli tore pidu.", en: "I was at a friend's birthday. It was a great party." },
+      { who: "Tom", et: "Tore! Mina lähen täna teatrisse.", en: "Nice! I'm going to the theater today." },
       { who: "Mari", et: "Ja mina lähen homme kontserdile. Tule ka!", en: "And I'm going to a concert tomorrow. Come too!" },
-      { who: "Tom", et: "Kahjuks ma ei saa. Mul on homme eesti keele tund.", en: "Sadly, I can't. I've got an Estonian lesson tomorrow." },
+      { who: "Tom", et: "Kahjuks ei saa. Mul on homme eesti keele tund.", en: "Sadly, I can't. I've got an Estonian lesson tomorrow." },
       { who: "Mari", et: "Siis järgmine kord!", en: "Next time, then!" },
     ],
     teaches: [
@@ -224,7 +224,6 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "peo", of: "pidu", en: "of the party", stem: true },
       { kind: "form", et: "sünnipäeva", of: "sünnipäev", en: "of the birthday", stem: true },
       { kind: "form", et: "keele", of: "keel", en: "of a language", stem: true },
-      { kind: "word", et: "kahjuks", en: "unfortunately, sadly" },
       { kind: "word", et: "kord", en: "a time, as in next time; a turn" },
     ],
     how: {
@@ -243,7 +242,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
         "Into the cinema is the short form {kinno}: {Ma lähen kinno}.",
         "{Pidu}'s [omastav] (2nd form) is {peo}, so at a party is {peol}.",
         "An Estonian lesson is {eesti keele tund}: {eesti keele} says which lesson, the way {köögi uks} said which door. Before a noun, Estonian is {eesti}, with a small e.",
-        "{Kahjuks} is the polite way into a no: {Kahjuks ma ei saa}.",
+        "{Kahjuks} is the polite way into a no: {Kahjuks ei saa}.",
       ],
       watchOut: "A concert and a party are events, so {kontserdil} and {peol}, even though they happen indoors.",
       examples: [1, 2, 4],
@@ -251,7 +250,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
     answers: [
       { ask: { et: "Kus sa eile olid?", en: "Where were you yesterday?" }, cue: "Say you were at the cinema.", model: { et: "Ma olin kinos.", en: "I was at the cinema." } },
       { ask: { et: "Kuhu sa homme lähed?", en: "Where are you going tomorrow?" }, cue: "Say to a concert.", model: { et: "Kontserdile.", en: "To a concert." } },
-      { ask: { et: "Tule ka!", en: "Come too!" }, cue: "Say sadly you can't.", model: { et: "Kahjuks ma ei saa.", en: "Sadly, I can't." } },
+      { ask: { et: "Tule ka!", en: "Come too!" }, cue: "Say sadly you can't.", model: { et: "Kahjuks ei saa.", en: "Sadly, I can't." } },
     ],
   },
   {
@@ -265,11 +264,11 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
     cast: { Kati: "vesta", Tom: "kalev" },
     conversation: [
       { who: "Kati", et: "Tom, kuhu ma laua panen?", en: "Tom, where shall I put the table?", stage: "Kati is helping Tom move in." },
-      { who: "Tom", et: "Pane see sinna, akna juurde.", en: "Put it there, by the window." },
+      { who: "Tom", et: "Pane sinna, akna juurde.", en: "Put it there, by the window." },
       { who: "Kati", et: "Ja tool?", en: "And the chair?" },
       { who: "Tom", et: "Tool tuleb siia, laua juurde.", en: "The chair goes here, by the table." },
       { who: "Kati", et: "Ja see kast?", en: "And this box?" },
-      { who: "Tom", et: "Vii see välja, palun. Ja too mulle vett!", en: "Take it outside, please. And bring me some water!" },
+      { who: "Tom", et: "Vii see palun välja. Ja too mulle vett!", en: "Take it outside, please. And bring me some water!" },
       { who: "Kati", et: "Kohe!", en: "Coming!" },
     ],
     teaches: [
@@ -324,12 +323,12 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
     goal: "Say which floor and which door, and find your way up a building.",
     cast: { Tom: "kalev", Peeter: "peeter" },
     conversation: [
-      { who: "Tom", et: "Tere, Peeter! Mitmendal korrusel sa elad?", en: "Hi, Peeter! Which floor do you live on?", stage: "On the phone, outside Peeter's building." },
+      { who: "Tom", et: "Tere, Peeter! Ma olen su maja ees. Mitmendal korrusel sa elad?", en: "Hi, Peeter! I'm outside your building. Which floor do you live on?", stage: "On the phone, outside Peeter's building." },
       { who: "Peeter", et: "Kolmandal korrusel. Korter kaksteist.", en: "On the third floor. Apartment twelve." },
-      { who: "Tom", et: "Kas majas on lift?", en: "Is there an elevator in the building?" },
+      { who: "Tom", et: "Kas lift on?", en: "Is there an elevator?" },
       { who: "Peeter", et: "Ei ole. Tule trepist üles.", en: "No. Come up the stairs." },
       { who: "Tom", et: "Hästi. Mis uks? Esimene paremal?", en: "All right. Which door? The first on the right?" },
-      { who: "Peeter", et: "Ei, teine uks vasakul.", en: "No, the second door on the left." },
+      { who: "Peeter", et: "Ei, teine vasakul.", en: "No, the second on the left." },
     ],
     teaches: [
       { kind: "word", et: "korrus", en: "floor (of a building)" },
@@ -387,11 +386,11 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Kati", et: "See on meie maja maal.", en: "This is our house in the country." },
       { who: "Tom", et: "Väga ilus! Kas katus on uus?", en: "Lovely! Is the roof new?" },
-      { who: "Kati", et: "Jah, katus on uus, aga maja on vana.", en: "Yes, the roof's new, but the house is old." },
+      { who: "Kati", et: "Jah, aga maja on vana.", en: "Yes, but the house is old." },
       { who: "Tom", et: "Ja mis maja taga on?", en: "And what's behind the house?" },
-      { who: "Kati", et: "Maja taga on aed. Aias on suur õunapuu.", en: "There's a garden behind the house. There's a big apple tree in the garden." },
+      { who: "Kati", et: "Aed. Aias on suur õunapuu.", en: "The garden. There's a big apple tree in it." },
       { who: "Tom", et: "Ja kus on saun?", en: "And where's the sauna?" },
-      { who: "Kati", et: "Saun on aia nurgas. Õhtul läheme sauna!", en: "The sauna's in the corner of the garden. This evening we'll go to the sauna!" },
+      { who: "Kati", et: "Aia nurgas. Õhtul läheme sauna!", en: "In the corner of the garden. This evening we'll go to the sauna!" },
     ],
     teaches: [
       { kind: "word", et: "katus", en: "roof" },
@@ -447,10 +446,10 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Mari", et: "Halloo, Tom! Kus sa praegu oled?", en: "Hello, Tom! Where are you now?", stage: "On the phone, on a Saturday." },
       { who: "Tom", et: "Tere! Ma olen kesklinnas, panga ees.", en: "Hi! I'm in town, in front of the bank." },
-      { who: "Mari", et: "Väga hea. Mina olen turul. Kas sa tuled siia?", en: "Great. I'm at the market. Are you coming here?" },
+      { who: "Mari", et: "Mina olen turul. Kas sa tuled siia?", en: "I'm at the market. Are you coming here?" },
       { who: "Tom", et: "Jah. Kuidas ma turule saan?", en: "Yes. How do I get to the market?" },
       { who: "Mari", et: "Mine otse ja siis vasakule. Turg on kiriku taga.", en: "Go straight on and then left. The market's behind the church." },
-      { who: "Tom", et: "Selge. Kas me läheme pärast kohvikusse?", en: "Got it. Should we go to a café afterwards?" },
+      { who: "Tom", et: "Selge. Lähme pärast kohvikusse?", en: "Got it. Shall we go to a café afterwards?" },
       { who: "Mari", et: "Jah! Turu kõrval on üks hea kohvik, teisel korrusel.", en: "Yes! There's a good café next to the market, on the second floor." },
       { who: "Tom", et: "Tore! Ma olen seal kümne minuti pärast.", en: "Great! I'll be there in ten minutes." },
       { who: "Mari", et: "Hästi, ootan!", en: "All right, I'll wait!" },
@@ -463,7 +462,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
         "{Kuidas ma turule saan?} is how do I get to the market: {saama} is get, as in get somewhere.",
         "At the end, Mari calls you. Answer as yourself, one turn at a time, until you've met.",
       ],
-      watchOut: "{Pärast} on its own means afterwards: {Kas me läheme pärast kohvikusse?}",
+      watchOut: "{Pärast} on its own means afterwards: {Lähme pärast kohvikusse?}",
       examples: [1, 3, 6],
     },
     answers: [
@@ -477,7 +476,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
       turns: [
         { ask: { et: "Halloo! Kus sa praegu oled?", en: "Hello! Where are you now?" }, cue: "Say you're in town, in front of the bank.", model: { et: "Ma olen kesklinnas, panga ees.", en: "I'm in town, in front of the bank." } },
         { ask: { et: "Mina olen turul. Kas sa tuled siia?", en: "I'm at the market. Are you coming here?" }, cue: "Say yes, and ask how you get to the market.", model: { et: "Jah. Kuidas ma turule saan?", en: "Yes. How do I get to the market?" } },
-        { ask: { et: "Mine otse ja siis vasakule. Turg on kiriku taga.", en: "Go straight on and then left. The market's behind the church." }, cue: "Say got it, and ask whether you'll go to a café afterwards.", model: { et: "Selge. Kas me läheme pärast kohvikusse?", en: "Got it. Should we go to a café afterwards?" } },
+        { ask: { et: "Mine otse ja siis vasakule. Turg on kiriku taga.", en: "Go straight on and then left. The market's behind the church." }, cue: "Say got it, and ask whether you'll go to a café afterwards.", model: { et: "Selge. Lähme pärast kohvikusse?", en: "Got it. Shall we go to a café afterwards?" } },
         { ask: { et: "Jah! Turu kõrval on üks hea kohvik.", en: "Yes! There's a good café next to the market." }, cue: "Say you'll be there in ten minutes.", model: { et: "Tore! Ma olen seal kümne minuti pärast.", en: "Great! I'll be there in ten minutes." } },
         { ask: { et: "Hästi, ootan!", en: "All right, I'll wait!" }, cue: "Say goodbye for now.", model: { et: "Nägemist!", en: "See you!" } },
       ],

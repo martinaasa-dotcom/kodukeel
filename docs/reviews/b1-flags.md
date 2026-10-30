@@ -17,15 +17,15 @@ in `docs/44-language-reviews.md` section 1.
 
 ### `b1-objekt` (lessons 1 to 7), "Getting the job done"
 
-- Kept: `Õige! Nüüd sõltub kõik sinust.`, and in lesson 7 `Selle jaoks on vaja varuosa.` Lesson 2's keys are `ukse küljes` now.
+- Kept: `Täpselt! Nüüd sõltub kõik sinust.`, and in lesson 7 `Selle jaoks on vaja varuosa.` Lesson 2's keys are `ukse küljes` now.
 - New: lesson 2 is a new story, Tom locked out after a concert with the keys in the door
-  (`Tom, vaata! Su võtmed on ju ukse küljes.`, `Soki? Miks sul on taskus sokk?`).
-- New: lesson 6 opens on a voicemail from Peeter (`Jäta talle lauale sedel, sest meister ei tunne korterit.`, `Kui sa elektrit kardad, helista mulle!`).
-- New: lesson 7's added turn, `Aga kui te ei ole kodus?` / `Siis on võti naabri juures.`
+  (`Tom, vaata! Su võtmed on ju ukse küljes.`, `Soki? Miks sul sokk taskus on?`).
+- New: lesson 6 opens on a voicemail from Peeter (`Kirjuta kõik üles. Meister ei tunne ju korterit.`, `Või kardad sa elektrit?`).
+- New: lesson 7's added turn, `Aga kui te kodus pole?` / `Siis on võti naabri juures.`
 
 ### `b1-rektsioon` (lessons 8 to 14)
 
-- Kept: `Aitäh, ma natuke kardan.` (14), `Ma palun ülemust appi.` (now only in a table, a note, and the sentence lesson 8's fourth rework starts from).
+- Kept: `Aitäh, ma natuke kardan küll.` (14), `Ma palun ülemust appi.` (now only in a table, a note, and the sentence lesson 8's fourth rework starts from).
 - New: lesson 11, `Tom, abiellume!`, and the rework source `Me sõbrustame.`
 - New: lesson 12, `Ma loodan, et sel aastal on ilus ilm.` in place of `Ma loodan ilusale ilmale.`
 - New: lesson 13 opens on a voice message from Liis, and its model letter is rewritten.
@@ -34,7 +34,7 @@ in `docs/44-language-reviews.md` section 1.
 ### `b1-raha` (lessons 15 to 21)
 
 - Kept: `iga õhtu` (`igal` is not taught yet), `Pole viga`, `Kristi, kas sul oleks hetk aega?`,
-  `Ma pakuksin talle lõunat.`, `palk enne/pärast makse`, `Säästa on raske`, `Kaks tükki.`,
+  `Ma pakuksin talle lõunat.`, `palk enne/pärast makse`, `Säästa on raske`, `Kaks tükki!`,
   `Tervitustega, Tom`.
 - New: lesson 16 opens on Kristi introducing the team at the Monday meeting (`Mina alustasin siin ka
   praktikandina. Ma tegin rohkem kohvi kui koodi.`, `Palju õnne? Ei, pigem jõudu!`).
@@ -42,19 +42,18 @@ in `docs/44-language-reviews.md` section 1.
 
 ### `b1-kodu` (lessons 22 to 28)
 
-- Kept: `Siin on ju kümme tooli!`, `Kas ma tohin sinna vaadata?`, the quiet-hours notice, `See on lepingus kirjas.`, `Ainult natuke liiga hea meister.`
+- Kept: `Siin on ju kümme tooli!`, `Kas ma võin sisse vaadata?`, the quiet-hours notice, `See on lepingus kirjas.`, `Ainult natuke liiga hea meister.`
 - Kept, and read as right by the rewrite: a -tud word stays as it is before its noun (`suletud
   uksega`) and after `on` (`Koerad on lubatud`). Please confirm.
-- New: lesson 23 is Tom's voicemail to Mari a week after the move (`Ja külmkapp on suurem kui mina, nii et sa pead seda nägema!`).
+- New: lesson 23 is Tom's voicemail to Mari a week after the move (`Ja külmkapp on suurem kui mina!`).
 - New: lesson 27's letter to the new landlord Urmas (`Ma kannan juba kodus mütsi.`).
-- New: lesson 28's added turn, `Aga vannitoas ei tööta lamp.` / `See on ainult pirn. Pirn tuleb vahetada.`
+- New: lesson 28's added turn, `Aga vannitoas ei tööta lamp.` / `Ainult pirn tuleb vahetada.`
 
 ### `b1-uudised` (lessons 29 to 35)
 
 - Kept: `Seal tehakse igal aastal suur lõke`, `telefon oli tühjaks saanud`,
   `aja juba ammu kinni pannud`, `Ja minu kartulid? Kes neid nüüd sööb?`
-- New: lesson 32 opens on a radio news item (`Öösel oli kesklinnas tulekahju.`, `Uudistes teatati,
-  et restoran avatakse kuu aja pärast uuesti.`).
+- New: lesson 32 opens on a radio news item (`Öösel oli kesklinnas tulekahju.`, `Teatati ka, et restoran avatakse uuesti kuu aja pärast.`).
 - New: lesson 34 is Helgi on the phone (`Öösel läks keldris toru katki.`).
 - New: lesson 35's added turn, `Kas keldris on veel vett?` / `Vett ei ole, aga kõik on veel märg.`
 
@@ -64,27 +63,17 @@ in `docs/44-language-reviews.md` section 1.
 - New: lesson 37, a neighbors' party (`Ta kirjutas selle raamatu, mida sa praegu loed!`, `See on Leena mees. Ja see on tema kook.`).
 - New: lesson 40's note on long and short forms: `-ne` words like `kollane` have only the long form, `pruun` and `kast` a short one (`pruuni`, `kasti`). Please check.
 - New: lesson 41 is Helgi's voicemail, and the forum post opens `Tere kõigile!` with no sign-off.
-- New: lesson 42's added turn, `Aga kodus ei pea hommikul bussiga sõitma, eks?` / `See on õige, aga mulle meeldib bussiga sõita.`
+- New: lesson 42's added turn, `Aga kodus ei pea hommikul bussiga sõitma, eks?` / `See on tõsi, aga mulle meeldib bussiga sõita.`
 
 ### `b1-asjaajamine` (lessons 43 to 49)
 
 - Kept: `Võib-olla jätsin selle bussi.`, `Ega midagi.`, `Tere, … kuuleb.`, `Palun öelge, et ta helistaks
   mulle tagasi.`, `Ma oleksin pidanud…`, `ootele`, `Palun väljastada mulle elaniku parkimisluba.`,
-  `Ametlikult on see nii:`, `Lisan avaldusele auto dokumendid.`, `Väga ametlik, kuigi lühike!`
+  `Ametlikult kirjutad nii:`, `Lisan avaldusele auto dokumendid.`, `Lühike, aga väga ametlik!`
 - Lesson 45 blocks the card with `kinni panema` (`Palun pange see kinni.`), and no line unblocks one with `lahti` any more.
 - New: lesson 43, the clerk pockets Tom's pen (`Hästi. Aga andke palun mu pastakas tagasi!`).
-- New: lesson 44, `Kas ma võiksin passi homme tuua?` and `Me hoiame passe ühes kotis ja see kott on praegu mu naisel.`
+- New: lesson 44, `Kas ma võiksin passi homme tuua?` and `Oi. Mu pass on naise kotis ja naine on kodus.`
 - New: lesson 47 opens on the city's recorded hold message (`Teie kõne on meile oluline. Palun jääge ootele.`).
-- New: lesson 49's part two, `Ma ei ole päris nõus. Maal on igav. Mina tahaksin minna muuseumi.`
-- ASK NATIVE: lesson 49, `Teine osa. Nüüd olen mina teie kolleeg ja me räägime sina.` Is `me räägime sina` how an examiner says the two candidates now use `sina` with each other? If not, write the line a native speaker would say.
-- ASK NATIVE: the scene `b1-eksam` now holds part two to `sina` (the lesson says the other candidate
-  says it), so its two part-two openings were rewritten into it: `Teine osa. Nüüd olen mina sinu
-  kolleeg. Me peame koos otsustama, kuhu meie firma suvel kõik koos läheb. Mida sina arvad?` and
-  `Teine osa. Nüüd olen ma su kolleeg. Kuhu meie firma suvel koos läheb? Mida sa arvad?` Would an
-  examiner announce the part in `sina` like this, or announce it in teie and only then switch? If the
-  second, the opening needs splitting from the colleague's question.
-- ASK NATIVE: lesson 49, `Kuu aega maksab viiskümmend eurot.` Would a native say it this way, or
-  Üks kuu maksab or Kuu maksab?
 - ASK NATIVE: lesson 45's rework, `Ma ei leidnud rahakotti bussist.` A learner who writes the
   inessive, rahakotti bussis, is marked wrong. Is `bussis` right here beside `bussist`? If so, it
   goes on the rework's list.

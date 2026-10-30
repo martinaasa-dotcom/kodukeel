@@ -78,6 +78,10 @@ export interface ParallelDecision {
  * that holds the word (`npx tsx scripts/build-parallel-forms.ts` prints them).
  */
 export const PARALLEL_REVIEW: Readonly<Record<string, ParallelDecision>> = {
+  busse: {
+    keep: true, why: "Buses, some of them, in every lesson that says it.",
+    read: ["Busse? Jaan, mina olen rongijaamas!", "Siin pole ühtegi kella. Siin on ainult busse."],
+  },
   kingi: { keep: false, why: "In the lessons it is the command of kinkima, give it as a present (a2-10), never the shoes." },
   koeri: {
     keep: true, why: "The dogs, as the object, in every lesson that says it.",
@@ -89,14 +93,11 @@ export const PARALLEL_REVIEW: Readonly<Record<string, ParallelDecision>> = {
   },
   lilli: {
     keep: true, why: "Flowers, as the object.",
-    read: ["Ma ei kuulnud. Aga Peeter on viimasel ajal väga rõõmus. Ja eile ostis ta lilli!"],
+    read: ["Ma ei kuulnud. Aga Peeter on viimasel ajal väga rõõmus. Ja eile ostis ta lilli!", "Osta lilli! Lilled on alati hea kingitus."],
   },
   makse: {
     keep: true, why: "Taxes after enne and pärast, in every lesson that says it. The payment noun spelled the same is taught nowhere.",
-    read: [
-      "Kontole tuleb palk pärast makse.", "Lepingus on palk enne makse.", "Lepingus on palk enne makse. Kontole tuleb palk pärast makse.",
-      "Palk enne makse on suurem.", "Palk pärast makse on väiksem.", "Pärast makse on palk väiksem.", "enne makse", "makse või maksusid", "palk enne makse", "palk pärast makse",
-    ],
+    read: ["enne makse", "Kontole tuleb palk pärast makse.", "Lepingus on ju palk enne makse.", "Lepingus on ju palk enne makse. Kontole tuleb see, mis pärast makse alles jääb.", "Lepingus on palk enne makse.", "makse või maksusid", "palk enne makse", "Palk enne makse on suurem.", "palk pärast makse", "Palk pärast makse on väiksem.", "Pärast makse on palk väiksem."],
   },
   marju: {
     keep: true, why: "Berries, after on in a question about the forest.",
@@ -104,10 +105,7 @@ export const PARALLEL_REVIEW: Readonly<Record<string, ParallelDecision>> = {
   },
   mune: {
     keep: true, why: "Eggs, as the object, in every lesson that says it.",
-    read: [
-      "Ei ostnud mune.", "Ei, ma ei ostnud mune.", "Ei, ma ei ostnud mune. Need olid otsas.", "Ma ei ostnud mune.", "Mune ma ei ostnud.", "Osta mune!",
-      "Tubli! Kas sa ka mune ostsid?", "mune",
-    ],
+    read: ["Ei ostnud mune.", "Ei, ma ei ostnud mune.", "Ei, mune ma ei ostnud. Need olid otsas.", "Ma ei ostnud mune.", "mune", "Mune ma ei ostnud.", "Osta mune!", "Tubli! Aga mune ostsid ka?"],
   },
   otsi: { keep: false, why: "In the lessons it is otsima after ei (a2-50a), look for, never the ends." },
   teid: { keep: false, why: "In the lessons it is the pronoun, you (b1-47), never the roads." },
@@ -120,12 +118,7 @@ export const PARALLEL_REVIEW: Readonly<Record<string, ParallelDecision>> = {
   },
   õunu: {
     keep: true, why: "Apples, as the object, in every lesson that says it.",
-    read: [
-      "Aga bussis sõi ta õunu.", "Jah, ma ostsin turult terve kilo õunu.", "Ma ostsin õunu", "Ma ostsin õunu.", "Ma pesin õunu juba ära.",
-      "Ma sõin õunu.", "Noh, õunad olid nii head. Ma sõin bussis õunu.", "Olgu, ma lähen. Aga seekord ma ei söö bussis õunu!",
-      "Ta sõi natuke õunu.", "Ta sõi õunu.", "Tema sõi õunu.", "Tom läks tagasi turule ja ostis veel õunu.", "Tom ostis turult terve kilo õunu.",
-      "Tom, kas sa ostsid õunu?", "kilo õunu", "õunu",
-    ],
+    read: ["Aga bussis sõi ta õunu.", "kilo õunu", "Ma ostsin õunu", "Ma ostsin õunu.", "Ma pesin õunu juba ära.", "Ma sõin õunu.", "Noh, need olid nii head. Sõin bussis õunu.", "Ta sõi natuke õunu.", "Ta sõi õunu.", "Tema sõi õunu.", "Tom läks tagasi turule ja ostis veel õunu.", "Tom ostis turult terve kilo õunu.", "Tom, kas sa ostsid õunu?", "õunu"],
   },
 };
 

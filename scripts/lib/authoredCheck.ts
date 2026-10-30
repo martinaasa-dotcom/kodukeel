@@ -12,6 +12,7 @@
  * What it cannot see is whether a sentence is good Estonian. That is the
  * person's reading, in the pull request that adds the row.
  */
+import { notSaidIn } from "../../lib/estonian/spoken";
 import { PROGRAMMES, taughtThrough, type CourseDay, type Programme } from "../../lib/course";
 import { dictionaryRows } from "./dictionary";
 import { authoredRows, type AuthoredRow } from "../../lib/dict/authored";
@@ -73,6 +74,7 @@ export function checkAuthored(rows: readonly AuthoredRow[] = authoredRows()): Au
     if (seen.has(key)) fail("written twice");
     seen.add(key);
     if (et !== et.trim() || /\s{2}/.test(et)) fail("stray whitespace");
+    for (const n of notSaidIn(et)) fail(`not how people say it, say ${n.say}`);
     if (/[-–—]/.test(et) || /[-–—]/.test(en)) fail("a dash");
     if (isRefusedSentence(et)) fail("refused in lib/dict/refused.ts");
 

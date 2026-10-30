@@ -149,7 +149,7 @@ export const AUTHORED_ROWS: readonly AuthoredRow[] = [
   ["ilm", "Mis ilm täna on?", "What's the weather like today?"],
   ["vihm", "Täna tuleb vihma.", "It's going to rain today."],
   ["lumi", "Täna tuleb lund.", "It's going to snow today."],
-  ["tuul", "Täna on suur tuul.", "There's a strong wind today."],
+  ["tuul", "Täna on kõva tuul.", "There's a strong wind today."],
   ["pilv", "Täna on palju pilvi.", "There are a lot of clouds today."],
   ["torm", "Täna on torm.", "There's a storm today."],
   ["kraad", "Täna on kümme kraadi.", "It's ten degrees today."],

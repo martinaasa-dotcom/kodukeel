@@ -15,8 +15,8 @@ export const trepikoda: ScenePicks = {
     { et: "Ma elan {floor}. korrusel.", en: "I live on floor {floor}." },
   ],
   from: [
-    { et: "Minu kodumaa on {from}.", en: "My home country is {from}." },
-    { et: "Kodumaa on {from}, aga nüüd elan Eestis.", en: "Home is {from}, but I live in Estonia now." },
+    { et: "Ma olen pärit {from:FROM}.", en: "I'm from {from}." },
+    { et: "Olen pärit {from:FROM}, aga elan nüüd Eestis.", en: "I'm from {from}, but I live in Estonia now." },
   ],
   with: [
     { et: "Koos {with:COMITATIVE}.", en: "With my {with}." },

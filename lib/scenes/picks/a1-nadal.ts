@@ -19,7 +19,7 @@ export const a1Nadal: ScenePicks = {
     { et: "Ma olin kodus.", en: "I was at home." },
   ],
   sunday: [
-    { et: "Pühapäeval ma olin kodus.", en: "On Sunday I was at home." },
+    { et: "Pühapäeval olin kodus.", en: "On Sunday I was at home." },
     { et: "Ma käisin poes.", en: "I went to the shop." },
   ],
   meet: [

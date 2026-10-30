@@ -16,10 +16,10 @@ export const a1Plaan: ScenePicks = {
   ],
   invite: [
     { et: "Jah! Mis kell?", en: "Yes! What time?" },
-    { et: "Jah, ma tahan tulla.", en: "Yes, I want to come." },
+    { et: "Jah, tulen!", en: "Yes, I'll come!" },
   ],
   time: [
-    { et: "Jah, ma saan.", en: "Yes, I can." },
+    { et: "Jah, saan.", en: "Yes, I can." },
     { et: "Kell kuus ma ei saa. Kell seitse?", en: "I can't at six. Seven?" },
   ],
   close: [

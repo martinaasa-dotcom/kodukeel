@@ -8,7 +8,7 @@ export const ametiasutus: ScenePicks = {
   ],
   purpose: [
     { et: "Ma tahan {paper:GENITIVE} ära anda.", en: "I'd like to hand in my {paper}." },
-    { et: "Ma tulin {paper:COMITATIVE}.", en: "I've come with my {paper}." },
+    { et: "Tõin {paper:GENITIVE}.", en: "I've brought my {paper}." },
     { et: "Mul on siin {paper}.", en: "I've got my {paper} here." },
   ],
   document: [
@@ -23,7 +23,7 @@ export const ametiasutus: ScenePicks = {
   ],
   fill: [
     { et: "Hästi, ma täidan selle ära.", en: "All right, I'll fill it in." },
-    { et: "Selge, ma täidan ja annan allkirja.", en: "Got it, I'll fill it in and sign." },
+    { et: "Selge, täidan ära ja kirjutan alla.", en: "Got it, I'll fill it in and sign." },
   ],
   confirm: [
     { et: "Millal see valmis on?", en: "When will it be ready?" },

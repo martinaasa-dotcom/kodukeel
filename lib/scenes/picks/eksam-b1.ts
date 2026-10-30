@@ -4,7 +4,7 @@ import type { ScenePicks } from "../picks";
 export const eksamB1: ScenePicks = {
   greet: [
     { et: "Tere!", en: "Hello!" },
-    { et: "Tere, tere!", en: "Hello, hello!" },
+    { et: "Tere päevast!", en: "Good afternoon!" },
   ],
   home: [
     { et: "Ma elan linnas.", en: "I live in town." },
@@ -17,13 +17,13 @@ export const eksamB1: ScenePicks = {
     { et: "Praegu töötan ja õpin ka.", en: "At the moment I work and study as well." },
   ],
   plan: [
-    { et: "Mulle meeldiks rohkem {place}.", en: "I'd rather go to the {place}." },
+    { et: "Mina valiksin {place:GENITIVE}.", en: "I'd choose the {place}." },
     { et: "Kino on tore, aga mina eelistaksin {place:PARTITIVE}.", en: "The cinema's nice, but I'd prefer the {place}." },
   ],
   why: [
     { et: "Sest see on huvitav.", en: "Because it's interesting." },
     { et: "Sest seal on alati midagi huvitavat.", en: "Because there's always something interesting there." },
-    { et: "Kuna ma ei ole seal ammu käinud.", en: "Because I haven't been there for ages." },
+    { et: "Sest ma pole seal ammu käinud.", en: "Because I haven't been there for ages." },
   ],
   agree: [
     { et: "Hästi!", en: "Great!" },

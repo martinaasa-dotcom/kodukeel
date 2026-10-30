@@ -19,12 +19,12 @@ export const a2Linnas: ScenePicks = {
     { et: "Jah, ma tulen.", en: "Yes, I'm coming." },
   ],
   way: [
-    { et: "Selge. Kas me läheme pärast kohvikusse?", en: "Got it. Shall we go to a café afterwards?" },
+    { et: "Selge. Läheme pärast kohvikusse?", en: "Got it. Shall we go to a café afterwards?" },
     { et: "Selge, aitäh!", en: "Got it, thanks!" },
   ],
   cafe: [
     { et: "Tore! Ma olen seal kümne minuti pärast.", en: "Great! I'll be there in ten minutes." },
-    { et: "Tore!", en: "Great!" },
+    { et: "Hästi, lähme sinna!", en: "Good, let's go there!" },
   ],
   close: [
     { et: "Head aega!", en: "Goodbye!" },

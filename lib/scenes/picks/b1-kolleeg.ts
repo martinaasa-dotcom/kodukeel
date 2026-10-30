@@ -24,7 +24,7 @@ export const b1Kolleeg: ScenePicks = {
   ],
   into: [
     { et: "Ma huvitun muusikast.", en: "I'm into music." },
-    { et: "Ma olen huvitatud ajaloost.", en: "I'm interested in history." },
+    { et: "Mulle meeldib ajalugu.", en: "I like history." },
   ],
   offer: [
     { et: "Jah! Tule reedel meiega sööma.", en: "Yes! Come and eat with us on Friday." },

@@ -20,7 +20,7 @@ export const bussipeatus: ScenePicks = {
   stops: [
     { et: "Mitu peatust on {to:TERMINATIVE}?", en: "How many stops is it to the {to}?" },
     { et: "Kus ma pean maha minema?", en: "Where do I need to get off?" },
-    { et: "Palun öelge, millal ma pean väljuma?", en: "Could you tell me when to get off?" },
+    { et: "Kas te ütlete, kus ma pean maha minema?", en: "Could you tell me where I need to get off?" },
   ],
   close: [
     { et: "Aitäh!", en: "Thank you!" },

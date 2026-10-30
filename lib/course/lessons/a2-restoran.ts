@@ -88,9 +88,9 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Jah. Mida te soovitate?", en: "Yes. What do you recommend?" },
       { who: "Peeter", et: "Täna on väga hea kala.", en: "The fish is very good today." },
       { who: "Mari", et: "Siis ma võtaksin kala. Ja enne seda suppi.", en: "Then I'd have the fish. And soup before that." },
-      { who: "Tom", et: "Mulle praadi ja salatit, palun.", en: "The roast and a salad for me, please." },
+      { who: "Tom", et: "Mina võtaksin praadi ja salatit.", en: "I'd have the roast and a salad." },
       { who: "Peeter", et: "Ja magustoit?", en: "And dessert?" },
-      { who: "Tom", et: "Hiljem, aitäh.", en: "Later, thank you." },
+      { who: "Tom", et: "Vaatame hiljem, aitäh.", en: "We'll see later, thanks." },
     ],
     teaches: [
       { kind: "word", et: "menüü", en: "menu" },
@@ -104,12 +104,12 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "magustoit", en: "dessert" },
     ],
     how: {
-      point: "Ordering, the dish comes after {võtaksin} or {mulle} in the [osastav] (3rd form): {Ma võtaksin suppi}, {Mulle praadi, palun}.",
+      point: "Ordering, the dish comes after {võtaksin} or {mulle} in the [osastav] (3rd form): {Ma võtaksin suppi}, {Mulle salatit, palun}.",
       table: {
         head: ["On the menu", "Ordering it"],
         rows: [
           [{ et: "supp" }, { et: "Ma võtaksin suppi." }],
-          [{ et: "praad" }, { et: "Mulle praadi, palun." }],
+          [{ et: "praad" }, { et: "Ma võtaksin praadi." }],
           [{ et: "salat" }, { et: "Mulle salatit, palun." }],
           [{ et: "kala" }, { et: "Ma võtaksin kala." }],
         ],
@@ -125,7 +125,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
     answers: [
       { ask: { et: "Kas olete valmis tellima?", en: "Are you ready to order?" }, cue: "Say yes, and ask what they recommend.", model: { et: "Jah. Mida te soovitate?", en: "Yes. What do you recommend?" } },
       { ask: { et: "Täna on väga hea kala.", en: "The fish is very good today." }, cue: "Say then you'd have the fish.", model: { et: "Siis ma võtaksin kala.", en: "Then I'd have the fish." } },
-      { cue: "Order the roast and a salad.", model: { et: "Mulle praadi ja salatit, palun.", en: "The roast and a salad for me, please." } },
+      { cue: "Order the roast and a salad.", model: { et: "Ma võtaksin praadi ja salatit.", en: "I'd have the roast and a salad." } },
       { ask: { et: "Ja magustoit?", en: "And dessert?" }, cue: "Say later, thank you.", model: { et: "Hiljem, aitäh.", en: "Later, thank you." } },
     ],
   },
@@ -141,7 +141,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Mari", et: "Vabandage! Kas me saaksime arve?", en: "Excuse me! Could we have the bill?" },
       { who: "Peeter", et: "Kohe. Kas kõik oli hästi?", en: "Right away. Was everything all right?" },
-      { who: "Mari", et: "Jah, kõik oli väga maitsev. Aga supp oli natuke soolane.", en: "Yes, everything was delicious. But the soup was a bit salty." },
+      { who: "Mari", et: "Jah, väga maitsev! Ainult supp oli natuke soolane.", en: "Yes, delicious! Only the soup was a bit salty." },
       { who: "Peeter", et: "Vabandust. Kas maksate koos või eraldi?", en: "Sorry. Are you paying together or separately?" },
       { who: "Tom", et: "Eraldi, palun. Kas saab kaardiga maksta?", en: "Separately, please. Can I pay by card?" },
       { who: "Peeter", et: "Muidugi.", en: "Of course." },
@@ -192,10 +192,10 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
     cast: { Kati: "vesta", Tom: "kalev" },
     conversation: [
       { who: "Kati", et: "Kumb korter on parem?", en: "Which apartment is better?" },
-      { who: "Tom", et: "See korter on suurem, aga ka kallim.", en: "This apartment is bigger, but also more expensive." },
+      { who: "Tom", et: "See esimene on suurem, aga ka kallim.", en: "The first one is bigger, but also more expensive." },
       { who: "Kati", et: "Ja teine?", en: "And the other one?" },
       { who: "Tom", et: "Teine on väiksem, aga odavam ja uuem.", en: "The other one is smaller, but cheaper and newer." },
-      { who: "Kati", et: "Uuem on parem kui suurem!", en: "Newer is better than bigger!" },
+      { who: "Kati", et: "Uuem on parem kui suurem, ma arvan.", en: "Newer is better than bigger, I think." },
       { who: "Tom", et: "Jah, ma arvan ka.", en: "Yes, I think so too." },
     ],
     teaches: [
@@ -300,11 +300,11 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
     goal: "Ask to try clothes on, and ask for a bigger or a smaller one.",
     cast: { Kati: "vesta", Tom: "kalev" },
     conversation: [
-      { who: "Kati", et: "Tere! Kuidas ma saan aidata?", en: "Hello! How can I help?" },
+      { who: "Kati", et: "Tere! Kuidas saan aidata?", en: "Hello! How can I help?" },
       { who: "Tom", et: "Tere! Kas ma võiksin seda jopet proovida?", en: "Hello! Could I try this jacket on?" },
       { who: "Kati", et: "Muidugi. Proovikabiin on seal.", en: "Of course. The fitting room is over there." },
-      { who: "Tom", et: "See on liiga väike. Kas teil on suuremat?", en: "It's too small. Do you have a bigger one?" },
-      { who: "Kati", et: "Jah, see on suurem.", en: "Yes, this one is bigger." },
+      { who: "Tom", et: "See on mulle liiga väike. Kas teil on suuremat?", en: "It's too small for me. Do you have a bigger one?" },
+      { who: "Kati", et: "On küll. Palun, see siin on suurem.", en: "We do. Here, this one is bigger." },
       { who: "Tom", et: "See sobib hästi. Ma võtan selle.", en: "This one fits well. I'll take it." },
     ],
     teaches: [
@@ -330,7 +330,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
         "Clothes that fit {sobivad}: {See sobib hästi}, the verb of the appointment that suits you in part four.",
         "{Ma võtan selle} is I'll take it, the whole thing: part three's whole object, with {selle}.",
       ],
-      watchOut: "Trying is {seda}, some of it, since you haven't decided. Taking is {selle}, the whole of it.",
+      watchOut: "Trying always takes {seda}, whether or not you've decided. Taking it is {selle}, the whole of it.",
       examples: [1, 3, 5],
     },
     answers: [

@@ -7,8 +7,8 @@ export const riidepood: ScenePicks = {
     { et: "Tere, tere!", en: "Hello, hello!" },
   ],
   want: [
-    { et: "Kas teil on {item:PARTITIVE}?", en: "Do you have a {item}?" },
-    { et: "Kas teil on {item:PARTITIVE} ka minu suuruses?", en: "Do you have a {item} in my size?" },
+    { et: "Kas teil on minu suuruses {item}?", en: "Do you have a {item} in my size?" },
+    { et: "{item} minu suuruses, palun.", en: "A {item} in my size, please." },
   ],
   size: [
     { et: "Suurus {size}.", en: "Size {size}." },
@@ -16,7 +16,7 @@ export const riidepood: ScenePicks = {
   ],
   colour: [
     { et: "{colour}, palun.", en: "In {colour}, please." },
-    { et: "Kas teil on seda {colour:PARTITIVE}?", en: "Do you have it in {colour}?" },
+    { et: "Kas teil on seda {colour:ESSIVE}?", en: "Do you have it in {colour}?" },
   ],
   proov: [
     { et: "Jah, palun.", en: "Yes, please." },

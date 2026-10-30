@@ -188,9 +188,9 @@ describe("the writing frame reads pole and Mina the marker's way (H1, M1)", () =
 
 describe("a fix takes the other ways of putting it right (H2)", () => {
   it("is right with a synonym the lesson taught", () => {
-    expect(markRework("Ja ma pean juhi käest luba küsima.", fix("b1-19", 2))).toMatchObject({ verdict: "right", note: NOTES.right });
+    expect(markRework("Kaks tükki! Aga ma pean ikka juhi käest luba küsima.", fix("b1-19", 2))).toMatchObject({ verdict: "right", note: NOTES.right });
     expect(markRework("Miks sa minu käest abi ei küsinud?", fix("b1-08", 2))).toMatchObject({ verdict: "right", note: NOTES.right });
-    expect(markRework("Ja ma pean juhile luba küsima.", fix("b1-19", 2)).note).toBe(NOTES.slipStill);
+    expect(markRework("Kaks tükki! Aga ma pean ikka juhile luba küsima.", fix("b1-19", 2)).note).toBe(NOTES.slipStill);
   });
 });
 

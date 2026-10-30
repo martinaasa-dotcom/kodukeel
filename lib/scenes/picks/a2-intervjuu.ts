@@ -11,7 +11,7 @@ export const a2Intervjuu: ScenePicks = {
     { et: "Tere päevast!", en: "Good afternoon!" },
   ],
   about: [
-    { et: "Ma olen Tom. Ma olen programmeerija.", en: "I'm Tom. I'm a programmer." },
+    { et: "Mu nimi on Tom ja ma olen programmeerija.", en: "My name's Tom and I'm a programmer." },
     { et: "Ma olen õpetaja ja elan Tallinnas.", en: "I'm a teacher and I live in Tallinn." },
   ],
   before: [

@@ -19,9 +19,9 @@ import type { ScriptedLine } from "../scripted";
 const LINES: readonly ScriptedLine[] = [
   { scene: "b1-kolleeg", beat: "greet", text: "Tere! Ma olen siin uus. Kas sa saaksid mind aidata?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-kolleeg", beat: "greet", text: "Tere! Mina olen siin uus. Kas sa aitaksid mind natuke?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
-  { scene: "b1-kolleeg", beat: "computer", text: "Kellelt ma küsin, kui mul on arvutiga probleem?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
+  { scene: "b1-kolleeg", beat: "computer", text: "Kuule, kellelt ma küsin, kui mul on arvutiga probleem?", model: "authored", draftedAt: "2026-10-30" },
   { scene: "b1-kolleeg", beat: "computer", text: "Aga kui mul on arvutiga probleem, kellelt ma siis küsin?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
-  { scene: "b1-kolleeg", beat: "report", text: "Ja kellega ma räägin aruandest?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
+  { scene: "b1-kolleeg", beat: "report", text: "Ja kellega ma aruandest räägin?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-kolleeg", beat: "report", text: "Aitäh! Ja kellega ma aruandest räägin?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-kolleeg", beat: "away", text: "Aga kui sind siin ei ole, kellelt ma siis küsin?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-kolleeg", beat: "away", text: "Selge. Ja kellelt ma küsin, kui sind ei ole?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
@@ -29,7 +29,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "b1-kolleeg", beat: "into", text: "Selge. Aga mis sind vabal ajal huvitab?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-kolleeg", beat: "offer", text: "Tore! Kas ma saan sind ka millegagi aidata?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-kolleeg", beat: "offer", text: "Kas ma saaksin sind ka millegagi aidata?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
-  { scene: "b1-kolleeg", beat: "close", text: "Hea meelega! Kohtumiseni reedel!", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
+  { scene: "b1-kolleeg", beat: "close", text: "Hea meelega! Näeme reedel!", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-kolleeg", beat: "close", text: "Hea meelega! Head aega!", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
 ];
 

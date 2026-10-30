@@ -21,13 +21,13 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "a1-nadal", beat: "greet", text: "Tere päevast!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
   { scene: "a1-nadal", beat: "how", text: "Kuidas läheb?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
   { scene: "a1-nadal", beat: "how", text: "Ja kuidas läheb?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
-  { scene: "a1-nadal", beat: "saturday", text: "Mida sa laupäeval tegid?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
-  { scene: "a1-nadal", beat: "saturday", text: "Ja mida sa laupäeval tegid?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-nadal", beat: "saturday", text: "Mis sa laupäeval tegid?", model: "authored", draftedAt: "2026-10-30" },
+  { scene: "a1-nadal", beat: "saturday", text: "Ja mis sa laupäeval tegid?", model: "authored", draftedAt: "2026-10-30" },
   { scene: "a1-nadal", beat: "sunday", text: "Ja pühapäeval?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
-  { scene: "a1-nadal", beat: "sunday", text: "Mida sa pühapäeval tegid?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-nadal", beat: "sunday", text: "Aga pühapäeval?", model: "authored", draftedAt: "2026-10-30" },
   { scene: "a1-nadal", beat: "meet", text: "Saame järgmisel nädalal kokku?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
   { scene: "a1-nadal", beat: "meet", text: "Kas saame järgmisel nädalal kokku?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
-  { scene: "a1-nadal", beat: "close", text: "Tore! Head aega!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-nadal", beat: "close", text: "Tore! Nägemist!", model: "authored", draftedAt: "2026-10-30" },
   { scene: "a1-nadal", beat: "close", text: "Head aega!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
 ];
 

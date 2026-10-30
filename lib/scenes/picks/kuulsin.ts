@@ -7,9 +7,9 @@ export const kuulsin: ScenePicks = {
     { et: "Tere! Hästi, aitäh. Kuidas teil läheb?", en: "Hello! Fine, thanks. How are you?" },
   ],
   news: [
-    { et: "Siin lähedal tuleb uus {news}.", en: "There's a new {news} coming nearby." },
-    { et: "Kas te olete kuulnud? Siin lähedal tuleb uus {news}.", en: "Have you heard? A new {news} is coming nearby." },
-    { et: "Lugesin, et siin lähedal avab varsti uus {news}.", en: "I read that a new {news} is opening near here soon." },
+    { et: "Siin lähedal tuleb uus {news}.", en: "A new {news} is opening nearby." },
+    { et: "Kas te olete kuulnud? Siin lähedal tuleb uus {news}.", en: "Have you heard? A new {news} is opening nearby." },
+    { et: "Lugesin, et siin lähedal tuleb varsti uus {news}.", en: "I read that a new {news} is opening near here soon." },
   ],
   when: [
     { et: "{when:ADESSIVE}.", en: "On {when}." },

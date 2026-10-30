@@ -12,7 +12,7 @@ export const palk: ScenePicks = {
   ],
   did: [
     { et: "Ma tegin sel aastal valmis suure {did:GENITIVE}.", en: "This year I finished a big {did}." },
-    { et: "Sel aastal oli minu {did} väga hea.", en: "This year my {did} went really well." },
+    { et: "Sel aastal läks mu {did} väga hästi.", en: "This year my {did} went really well." },
   ],
   amount: [
     { et: "{ask} eurot.", en: "{ask}." },

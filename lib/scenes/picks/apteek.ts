@@ -19,7 +19,7 @@ export const apteek: ScenePicks = {
     { et: "Kas teil on mõni hea ravim?", en: "Do you have something good for it?" },
   ],
   how: [
-    { et: "Kuidas ma seda võtan?", en: "How do I take it?" },
+    { et: "Kuidas seda võtta?", en: "How do I take it?" },
     { et: "Mitu tabletti päevas?", en: "How many tablets a day?" },
     { et: "Kas hommikul ja õhtul?", en: "Morning and evening?" },
   ],

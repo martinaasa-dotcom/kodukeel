@@ -576,7 +576,7 @@ describe("what a day reads and where it goes", () => {
       "sobra-mure": ["toetama"],
       kaebus: ["hüvitis", "klient", "üleeile"],
       tagatisraha: ["puhas", "tagastama"],
-      toovestlus: ["ettevõte", "huvi", "nõustuma"],
+      toovestlus: ["ettevõte", "huvi", "nõustuma", "prantsuse", "vene"],
       graafik: ["hind", "klient", "reklaam", "toode", "tõusma"],
       "eksam-b2": ["amet", "eriala", "ettevõte", "nõustuma", "seega", "töötaja"],
       kuulsin: ["ajaleht", "artikkel", "leht", "raadio", "saade"],

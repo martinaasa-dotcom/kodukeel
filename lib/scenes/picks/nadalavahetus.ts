@@ -7,7 +7,7 @@ export const nadalavahetus: ScenePicks = {
     { et: "Tere!", en: "Hi!" },
   ],
   how: [
-    { et: "Hea, aitäh!", en: "Good, thanks!" },
+    { et: "Hea oli, aitäh!", en: "It was good, thanks!" },
     { et: "Väga tore oli!", en: "It was really nice!" },
     { et: "Hästi, rahulik.", en: "Fine, nice and quiet." },
   ],
@@ -16,9 +16,8 @@ export const nadalavahetus: ScenePicks = {
     { et: "Laupäeval olin {did:INESSIVE}. Väga tore oli!", en: "On Saturday I was at the {did}. It was really nice!" },
   ],
   back: [
-    { et: "Aga sina?", en: "And you?" },
-    { et: "Kuidas sinu nädalavahetus oli?", en: "How was your weekend?" },
-    { et: "Kas sul oli ka tore?", en: "Did you have a nice time too?" },
+    { et: "Tore! Mis huvitavat oli?", en: "Nice! Anything interesting?" },
+    { et: "Ja mis sul toredat oli?", en: "And what made yours nice?" },
   ],
   close: [
     { et: "Nägemist!", en: "See you!" },

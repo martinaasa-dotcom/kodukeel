@@ -19,7 +19,7 @@ import type { ScriptedLine } from "../scripted";
 const LINES: readonly ScriptedLine[] = [
   { scene: "b1-meister", beat: "greet", text: "Tere!", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-meister", beat: "greet", text: "Tere päevast!", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
-  { scene: "b1-meister", beat: "broken", text: "Mina olen meister. Mis on katki?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
+  { scene: "b1-meister", beat: "broken", text: "Mina olen meister. Mis siin katki on?", model: "authored", draftedAt: "2026-10-30" },
   { scene: "b1-meister", beat: "broken", text: "Mis teil katki on?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-meister", beat: "fixed", text: "Selge. Kas te parandasite midagi ise ära?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-meister", beat: "fixed", text: "Kas te midagi ise parandasite?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
@@ -27,9 +27,9 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "b1-meister", beat: "notdone", text: "Mis veel ei tööta?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-meister", beat: "when", text: "Täna ma seda ei paranda, selle jaoks on vaja varuosa. Kas reedel sobib?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-meister", beat: "when", text: "Ma tellin varuosa. Kas reedel sobib?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
-  { scene: "b1-meister", beat: "key", text: "Sobib. Aga kui te ei ole kodus?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
-  { scene: "b1-meister", beat: "key", text: "Hästi. Kus võti on, kui te ei ole kodus?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
-  { scene: "b1-meister", beat: "close", text: "Selge. Siis kohtume! Head aega!", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
+  { scene: "b1-meister", beat: "key", text: "Sobib. Aga kui te kodus pole?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
+  { scene: "b1-meister", beat: "key", text: "Hästi. Kus võti siis on, kui te kodus pole?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
+  { scene: "b1-meister", beat: "close", text: "Kokku lepitud! Head aega!", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-meister", beat: "close", text: "Hästi. Head aega!", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
 ];
 

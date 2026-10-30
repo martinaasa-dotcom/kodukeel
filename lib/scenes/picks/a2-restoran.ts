@@ -11,7 +11,7 @@ export const a2Restoran: ScenePicks = {
     { et: "Tere!", en: "Hello!" },
   ],
   table: [
-    { et: "Ei ole. Me sooviksime lauda kahele.", en: "No. We'd like a table for two." },
+    { et: "Ei. Kas teil on laud kahele?", en: "No. Do you have a table for two?" },
     { et: "Ei ole.", en: "No." },
   ],
   drink: [

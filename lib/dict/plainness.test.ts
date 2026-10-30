@@ -65,9 +65,9 @@ describe("plainnessCost", () => {
   const limit = LEVELS.indexOf(PLAIN_UP_TO);
 
   it("charges a spelling no entry vouches for more than one merely above the band", () => {
-    // `no` is in no entry at any band, so a learner who stops on it cannot look
-    // it up. That is worse than a word they could look up and have not met.
-    const unvouchable = plainnessCost("No tere.", reach, limit);
+    // `nojah` is in no entry at any band, so a learner who stops on it cannot
+    // look it up. That is worse than a word they could look up and have not met.
+    const unvouchable = plainnessCost("Nojah tere.", reach, limit);
     const known = plainnessCost("Ma tere.", reach, limit);
     expect(unvouchable).toBeGreaterThan(known);
   });
@@ -123,9 +123,9 @@ describe("plainReach", () => {
   });
 
   it("vouches for no discourse particle the course never teaches", () => {
-    // The whole reason `No tere, Juhan.` ranks last rather than first.
-    expect(reach.bandOf.has("no")).toBe(false);
-    expect(reach.bandOf.has("noh")).toBe(false);
+    // `no` and `noh` are taught with the greetings now; these two are not.
+    expect(reach.bandOf.has("nojah")).toBe(false);
+    expect(reach.bandOf.has("ahah")).toBe(false);
   });
 
   /*
