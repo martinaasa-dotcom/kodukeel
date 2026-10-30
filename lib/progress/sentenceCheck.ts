@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { coldBudget, couldBeCompound, headwordsOfExactForm, isExactForm, lemmasOfForm, spellingsNear } from "@/lib/dict/forms";
 import { VOUCHED_ROW } from "@/lib/dict/search";
 import { ESTONIAN_WORD } from "@/lib/estonian/cloze";
+import { CEFR_LEVELS } from "@/lib/estonian/types";
 import { COLD_SHARDS_PER_REQUEST } from "@/lib/progress/speechForms";
 import { ALWAYS_READ, checkSentence, type CheckEntry, type SentenceCheck } from "@/lib/course/lessons/sentenceCheck";
 
@@ -109,9 +110,9 @@ export async function checkTypedSentences(texts: readonly string[], sample: stri
   });
   // Every headword asked reads null until a row says otherwise; a row under a capital answers for the lower-case headword.
   const bands = new Map<string, string | null>(nearLemmas.map((l) => [l, null]));
-  const rank = (b: string | null | undefined) => (b ? ["A1", "A2", "B1", "B2", "C1", "C2"].indexOf(b) : 9);
+  const rank = (b: string | null | undefined) => (b ? (CEFR_LEVELS as readonly string[]).indexOf(b) : 9);
   for (const row of banded) {
-    const key = bands.has(row.lemma) ? row.lemma : row.lemma.toLowerCase();
+    const key = bands.has(row.lemma) ? row.lemma : row.lemma.toLocaleLowerCase("et");
     if (bands.has(key) && rank(row.cefr) < rank(bands.get(key))) bands.set(key, row.cefr);
   }
   const near = around.map((spellings) => [...new Set(spellings.flatMap((n) => n.lemmas))]

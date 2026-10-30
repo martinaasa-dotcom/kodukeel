@@ -108,6 +108,25 @@ describe("the contract itself", () => {
     expect(problems).toMatch(/asks 40 words at most, under the 60/);
   });
 
+  it("refuses a partEnd before the part's last lesson, a lesson of another level, and a part with no title or line", () => {
+    const lessons = four();
+    expect(levelContractProblems([lessons[0]!, { ...lessons[1]!, kind: "partEnd" }, ...lessons.slice(2)], [part]).join(" ")).toMatch(/t-2 is a partEnd before the part's last lesson/);
+    expect(levelContractProblems([{ ...lessons[0]!, level: "A2" }, ...lessons.slice(1)], [part]).join(" ")).toMatch(/holds a lesson of another level/);
+    expect(levelContractProblems(lessons, [{ ...part, title: " " }]).join(" ")).toMatch(/needs a title and a line/);
+    expect(levelContractProblems(lessons, [{ ...part, about: "" }]).join(" ")).toMatch(/needs a title and a line/);
+  });
+
+  it("refuses a closing conversation every turn of which was rehearsed in the part", () => {
+    const lessons = four();
+    const said = lessons[0]!.conversation.filter((c) => c.et).slice(0, 3);
+    expect(said.length).toBe(3);
+    const gist = [{ q: "q", options: ["True", "False"], answer: 0 }];
+    const recited = { ...lessons[3]!, listenFor: gist, roleplay: { scene: "s", turns: said.map((c) => ({ cue: "c", model: { et: c.et!, en: "" } })) } };
+    expect(levelContractProblems([...lessons.slice(0, 3), recited], [part]).join(" ")).toMatch(/carries no turn the learner never rehearsed/);
+    const fresh = { ...recited, roleplay: { ...recited.roleplay, turns: [...recited.roleplay.turns.slice(0, 2), { cue: "c", model: { et: "Seda lauset pole keegi enne öelnud.", en: "" } }] } };
+    expect(levelContractProblems([...lessons.slice(0, 3), fresh], [part]).join(" ")).not.toMatch(/never rehearsed/);
+  });
+
   it("refuses a question on what was heard with fewer than four answers, unless it is true or false", () => {
     const lessons = four();
     const gist = (options: string[]) => ({ ...lessons[0]!, listenFor: [{ q: "q", options, answer: 0 }] });

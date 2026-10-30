@@ -64,6 +64,19 @@ describe("your own sentences as cards", () => {
     }
   });
 
+  it("takes out a word the writing task asked to use first, then one tonight taught, then any other", () => {
+    const uses = email.write!.uses.map((u) => u.et);
+    expect(uses.length).toBeGreaterThan(0);
+    for (const use of uses) {
+      // `Tallinnas` comes first and was taught long before, so only the order of preference can put the use ahead of it.
+      expect(cardsOf(`Tallinnas ma elan ja ${use} on hea.`)[0]?.answer).toBe(use);
+    }
+    const tonight = email.teaches.flatMap((t) => (t.kind === "word" || t.kind === "form" ? [t.et] : []))
+      .find((et) => et.length >= 4 && !uses.includes(et) && !et.includes(" ") && emailHeads.get(et.toLocaleLowerCase("et")));
+    expect(tonight).toBeDefined();
+    expect(cardsOf(`Tallinnas ma elan ja ${tonight} on hea.`)[0]?.answer).toBe(tonight);
+  });
+
   it("prefers a form of a word to the word itself, so the cue can name it", () => {
     const card = ownCardFor("Ma tõin kooki ja kook oli hea.", lesson, taught, heads);
     expect(card).not.toBeNull();

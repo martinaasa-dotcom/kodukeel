@@ -298,13 +298,14 @@ export function withSlip(fix: Pick<Fix, "line" | "right" | "wrong">): string {
   return fix.line.et.slice(0, i) + fix.wrong + fix.line.et.slice(i + m[0].length);
 }
 
-/** Words lower-cased and joined, as two sentences are compared. */
-/** A phrase as it is compared: lower case, no punctuation, single spaces. */
+/**
+ * A phrase as it is compared: lower case, no punctuation, single spaces. A
+ * number is a word here, since `20 sõnumit` and `5 sõnumit` are two answers.
+ */
 export function normalisePhrase(text: string): string {
-  return wordsOf(text).map((w) => w.low).join(" ");
+  return [...text.matchAll(/[\p{L}\p{N}]+/gu)].map((m) => m[0].toLocaleLowerCase("et")).join(" ");
 }
 
-/** The names a lesson may use: the shared list and its own cast. */
 /*
   WHAT A FIX'S PAIR MAY NAME. A case, a verb slot the app records, or one of
   the impersonal's codes, which the review log never records (no card asks
@@ -314,6 +315,7 @@ export function normalisePhrase(text: string): string {
 const IMPERSONAL_CODES = ["IndPrIps", "IndIpfIps", "IndPrIpsNeg"] as const;
 const PAIR_CODES: ReadonlySet<string> = new Set([...CASES.map((c) => c.key as string), ...VERB_SLOTS, ...IMPERSONAL_CODES]);
 
+/** The names a lesson may use: the shared list and its own cast. */
 export function namesOf(lesson: Pick<LessonSpec, "cast">): ReadonlySet<string> {
   return new Set([...NAMES, ...Object.keys(lesson.cast)]);
 }

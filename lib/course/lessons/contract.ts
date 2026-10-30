@@ -1,3 +1,4 @@
+import { normalisePhrase } from "./ledger";
 import type { LessonSpec, PartOfLessons } from "./types";
 
 /**
@@ -53,10 +54,6 @@ export function lessonEnglish(lesson: LessonSpec): string[] {
 }
 
 /**
- * The shape every level of lessons keeps. Pure, so the test that holds the
- * course to it and anybody writing a new level can ask the same question.
- */
-/**
  * The English lines a translation is owed for, and the Russian or Ukrainian a
  * line may not carry: a number, a clock time and a bare ending are the same in
  * every language, and so is a line that is all Estonian, braced, or a form's
@@ -79,9 +76,10 @@ export function untranslated(lines: readonly string[], tr: (locale: "ru" | "uk",
   return missing;
 }
 
-/** A line as words, lower-cased, for asking whether two lines say the same thing. */
-const normalised = (text: string) => (text.match(/\p{L}+/gu) ?? []).map((w) => w.toLocaleLowerCase("et")).join(" ");
-
+/**
+ * The shape every level of lessons keeps. Pure, so the test that holds the
+ * course to it and anybody writing a new level can ask the same question.
+ */
 export function levelContractProblems(lessons: readonly LessonSpec[], parts: readonly PartOfLessons[]): string[] {
   const problems: string[] = [];
   const levels = [...new Set(parts.map((p) => p.level))];
@@ -190,8 +188,8 @@ export function levelContractProblems(lessons: readonly LessonSpec[], parts: rea
       finale asks for something said, not something recited.
     */
     if (lesson.kind === "partEnd" && lesson.roleplay && lesson.listenFor) {
-      const said = new Set(lessons.filter((l) => l.part === lesson.part).flatMap((l) => l.conversation.flatMap((c) => (c.et ? [normalised(c.et)] : []))));
-      if (lesson.roleplay.turns.every((t) => said.has(normalised(t.model.et)))) {
+      const said = new Set(lessons.filter((l) => l.part === lesson.part).flatMap((l) => l.conversation.flatMap((c) => (c.et ? [normalisePhrase(c.et)] : []))));
+      if (lesson.roleplay.turns.every((t) => said.has(normalisePhrase(t.model.et)))) {
         problems.push(`${lesson.id}: every role-play turn is a line of the part's conversations, so the finale carries no turn the learner never rehearsed`);
       }
     }

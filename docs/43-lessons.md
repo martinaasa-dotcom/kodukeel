@@ -670,17 +670,21 @@ English: "say it without naming who did it" (`Ehitajad parandasid katuse` to `Ka
 "Mari told you this, pass it on" (`Ta on haige` to `Ta olevat haige`), "say he finished it", "say
 it had already happened", "join the two with `mis`", "say it to your boss". The target is a lesson
 line the native speaker read, with the other ways of saying it that the native speaker accepts listed
-beside it; anything else is compared against forms the dictionary vouches for, so the marking is
-mechanical and no model grades. Each instruction is a pattern in the ledger, so no lesson asks for a
-change it has not explained.
+beside it. Anything else is compared with those sentences by `sameSentence.ts`: a pronoun's short or
+long spelling, a first- or second-person subject left out or put in beside a verb that says who, a
+reason moved to the other end, and the other orders the dictionary vouches for (`lessonOrders`) are
+right and say so; the same words in an order nothing can vouch for are nearly; and an instruction
+that fixes the start or where the reason goes holds the answer to it. The marking is mechanical and
+no model grades. Each instruction is a pattern in the ledger, so no lesson asks for a change it has
+not explained.
 
 **Fix: your own mix-ups, put right.** `Review.reachedSlot` and `lib/stats/confusions.ts` already
 know which two forms a learner confuses. From B1 on, two or three Practice items are a lesson line
 with one word swapped for the form this learner keeps reaching for, and the learner corrects it. The
 swapped word is always a real dictionary form of the same word, so nothing on the screen is Estonian
 the app wrote wrongly on purpose: the sentence is a native-read line and the slip is a spelling
-Ekilex records. Where the learner has no confusion on record, the item draws on the commonest one for
-the evening's pattern.
+Ekilex records. The fixes the learner's own confusions name come first; where there are none on
+record, the lesson's own fixes are asked in the order they were written (`fixesFor`).
 
 **Talk: longer than one line.** Three exercises on the on-device recognizer, each marking what was
 understood and never how it sounded (ADR-018, ADR-028):

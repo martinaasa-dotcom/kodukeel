@@ -63,9 +63,18 @@ export function markGap(typed: string, answer: string): "right" | "nearly" | "wr
   return "wrong";
 }
 
-/** Which uses a draft has in it, as whole words. */
+/**
+ * Which uses a draft has in it, as whole words. Read the way `markGap` reads a
+ * gap: a letter with a mark typed without it, a capital or two spaces between
+ * the words are still the use, since the tick says it is in the text and the
+ * dictionary's reading after it is what names a slip.
+ */
 export function usesIn(draft: string, uses: WriteTask["uses"]): boolean[] {
-  return uses.map((use) => new RegExp(`(?<![\\p{L}])${escape(use.et)}(?![\\p{L}])`, "iu").test(draft));
+  const text = fold(draft.toLocaleLowerCase("et"));
+  return uses.map((use) => {
+    const words = (use.et.match(/\p{L}+/gu) ?? []).map((w) => escape(fold(w.toLocaleLowerCase("et"))));
+    return words.length > 0 && new RegExp(`(?<![\\p{L}])${words.join("\\s+")}(?![\\p{L}])`, "u").test(text);
+  });
 }
 
 /** The words in a draft. */

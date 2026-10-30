@@ -38,7 +38,7 @@ import { rng, seedFrom } from "@/lib/random/seeded";
 import { shuffle } from "@/lib/random/shuffle";
 import { estonianIn, familiesOf, ledgerThrough, lessonRank, normalisePhrase, opensOf, teach, unfold, withSlip, wordsOf, type Asked, type Ledger } from "./ledger";
 import { STAND_IN, hasStandIn, personal } from "./ownAnswer";
-import { sameSentence, type Persons } from "./sameSentence";
+import { FRONTABLE, sameSentence, spokenPhrase, type Persons } from "./sameSentence";
 import { personForms, type Person } from "@/lib/estonian/conjugate";
 import { lessonOrders, type OrderContext } from "@/lib/estonian/wordOrder";
 import type { LessonSpec } from "./types";
@@ -56,7 +56,9 @@ export type PracticeItem =
    */
   | { readonly kind: "type"; readonly en: string; readonly answer: string; readonly accept: readonly string[];
       /** One line of English saying what is wanted, where the meaning alone could be read two ways. */
-      readonly note?: string }
+      readonly note?: string;
+      /** Taught spellings one letter from the answer, which a letter out is not a slip for (`notSlipsFor`). */
+      readonly notSlips?: readonly string[] }
   /**
    * Pairs to put together, Estonian with English, tapped one then the other.
    * The quick warm-up a lesson's practice opens on, for words said alone.
@@ -91,7 +93,9 @@ export type PracticeItem =
    * put right. `shown` is the line with the slip, `answer` the line itself.
    */
   | { readonly kind: "fix"; readonly shown: string; readonly en: string; readonly answer: string;
-      readonly accept: readonly string[]; readonly wrong: string; readonly right: string; readonly why: string } & Checkable;
+      readonly accept: readonly string[]; readonly wrong: string; readonly right: string; readonly why: string;
+      /** Taught spellings one letter from a word of the line, which a letter out on the other word is not a slip for. */
+      readonly notSlips?: readonly string[] } & Checkable;
 
 /**
  * What a typed sentence is checked against beyond the sentences written for it.
@@ -159,11 +163,27 @@ export function fixesFor(lesson: LessonSpec, taught: Ledger, confusions: readonl
   const ordered = (lesson.fixes ?? [])
     .map((fix, i) => ({ fix, i, mine: rank.get(pairKey(fix.pair)) }))
     .sort((a, b) => (a.mine ?? Infinity) - (b.mine ?? Infinity) || a.i - b.i);
-  return ordered.slice(0, FIX_AT_MOST).map(({ fix }): PracticeItem => ({
+  return ordered.slice(0, FIX_AT_MOST).map(({ fix }) => fixItem(fix, taught));
+}
+
+/** One fix as the question that asks it, read against everything taught by its lesson's end. */
+export function fixItem(fix: NonNullable<LessonSpec["fixes"]>[number], taught: Ledger): Extract<PracticeItem, { kind: "fix" }> {
+  const notSlips = notSlipsFor([fix.line.et], taught.spellings);
+  return {
     kind: "fix", shown: withSlip(fix), en: fix.line.en, answer: fix.line.et, accept: [fix.line.et],
     wrong: fix.wrong, right: fix.right, why: fix.why,
     persons: personsFor(taught, [fix.line.et, withSlip(fix)]), orders: [],
-  }));
+    ...(notSlips.length > 0 ? { notSlips } : {}),
+  };
+}
+
+/** One rework as the question that asks it, read against everything taught by its lesson's end. */
+export function reworkItem(r: NonNullable<LessonSpec["reworks"]>[number], taught: Ledger): Extract<PracticeItem, { kind: "rework" }> {
+  const accept = [r.to.et, ...(r.also ?? [])];
+  return {
+    kind: "rework", from: r.from, ask: r.ask, answer: r.to.et, answerEn: r.to.en, accept, opens: opensOf(r.ask),
+    persons: personsFor(taught, [r.from.et, ...accept]), orders: [],
+  };
 }
 
 /** Options under a recognize question, the answer included. */
@@ -308,8 +328,12 @@ function noteFor(item: Asked): { note?: string } {
   return {};
 }
 
-/** A produce question, taking every taught spelling with the same English. */
-function produce(item: Asked, pool: readonly Asked[]): PracticeItem {
+/**
+ * A produce question, taking every taught spelling with the same English.
+ * `taught` is every spelling taught by now, which says which near spellings
+ * are another form rather than a slip (`notSlipsFor`).
+ */
+function produce(item: Asked, pool: readonly Asked[], taught: ReadonlySet<string>): PracticeItem {
   /* "outside/outdoors" is two English words for one meaning, so a taught word
      glossed with either one is right as well. Only a slash says so: a comma
      joins senses ("juice, some juice") and must not. */
@@ -322,26 +346,34 @@ function produce(item: Asked, pool: readonly Asked[]): PracticeItem {
   /* A person ending says who is meant, so Estonian drops the pronoun, and
      `me oleme` is as right as `oleme` for "we are". The pronouns are the taught
      items whose English is the first word of this one's, never a list of ours.
-     Only where the verb has one spelling: "you are" is `oled` and `olete`, and
-     crossing those with every "you" would accept a person the verb does not. */
-  if (accept.length === 1 && wordsOf(item.et).length === 1) {
+     A "you" only where the verb has one spelling: "you are" is `oled` and
+     `olete`, and crossing those with every "you" would accept a person the
+     verb does not. "I", "we", "he, she" and "they" are one person each, so
+     every spelling with the same English takes its pronoun (`ma kartsin`,
+     `ma kardan` for "I was afraid"), and the English after the pronoun may be
+     more than one word. Only a form of a verb: a pronoun is not its own verb. */
+  const verbForm = item.kind === "form" && /(?:ma|da)$/u.test(item.of);
+  if (verbForm && wordsOf(item.et).length === 1) {
     const lead = (text: string) => text.replace(/,/g, "").replace(/\s+/g, " ").trim().toLocaleLowerCase("en");
     const said = lead(item.en);
+    const spellings = accept.filter((a) => wordsOf(a).length === 1);
     for (const o of pool) {
       if (o.et === item.et || wordsOf(o.et).length !== 1) continue;
       const names = [o.en, ...o.en.split(/,\s*/)].map(lead).filter(Boolean);
-      // The pronoun stands for the whole of the English before one last word, the verb.
-      if (names.some((n) => SUBJECTS.has(n) && said.startsWith(`${n} `) && !said.slice(n.length + 1).includes(" "))) {
-        const joined = `${o.et} ${item.et}`;
+      const pronoun = names.find((n) => SUBJECTS.has(n) && said.startsWith(`${n} `));
+      if (!pronoun || (pronoun === "you" && spellings.length > 1)) continue;
+      for (const spelling of spellings) {
+        const joined = `${o.et} ${spelling}`;
         if (!accept.includes(joined)) accept.push(joined);
       }
     }
-    /* "with {on}: we have" is `meil`, said whole as `meil on`. */
-    if (/^with \{on\}:/i.test(item.en)) accept.push(`${item.et} on`);
   }
+  /* "with {on}: we have" is `meil`, said whole as `meil on`. */
+  if (accept.length === 1 && wordsOf(item.et).length === 1 && /^with \{on\}:/i.test(item.en)) accept.push(`${item.et} on`);
   const note = noteFor(item);
   if (note.note === NOTE_ONE_WORD) accept.push(...eachWithItsPronoun(item, pool));
-  return { kind: "type", en: item.en, answer: item.et, accept, ...note };
+  const notSlips = notSlipsFor(accept, taught);
+  return { kind: "type", en: item.en, answer: item.et, accept, ...note, ...(notSlips.length > 0 ? { notSlips } : {}) };
 }
 
 /*
@@ -533,14 +565,8 @@ export function practiceFor(
   const replies = repliesFrom(exchangesOf([lesson]), exchangesOf([...history, lesson]), random, REPLIES_AT_MOST);
   const asked = shuffle(chosen.filter((item) => wordsOf(item.et).length <= TYPE_UP_TO_WORDS), random)
     .slice(0, PRODUCE_AT_MOST)
-    .map((item) => produce(item, pool));
-  const reworks = (lesson.reworks ?? []).slice(0, REWORK_AT_MOST).map((r): PracticeItem => {
-    const accept = [r.to.et, ...(r.also ?? [])];
-    return {
-      kind: "rework", from: r.from, ask: r.ask, answer: r.to.et, answerEn: r.to.en, accept, opens: opensOf(r.ask),
-      persons: personsFor(after, [r.from.et, ...accept]), orders: [],
-    };
-  });
+    .map((item) => produce(item, pool, after.spellings));
+  const reworks = (lesson.reworks ?? []).slice(0, REWORK_AT_MOST).map((r) => reworkItem(r, after));
   return [...(match ? [match] : []), ...recog, ...gaps, ...replies, ...reworks, ...fixesFor(lesson, after, confusions), ...asked];
 }
 
@@ -552,9 +578,10 @@ export function practiceFor(
 export function everyTypedQuestion(lesson: LessonSpec, before: Ledger): PracticeItem[] {
   const tonight = lesson.teaches.flatMap(unfold);
   const pool = poolFor(tonight, before);
+  const taught = teach(before, lesson.teaches, lessonRank(lesson), lesson.patterns).spellings;
   return onePerMeaning(practiceSubjects(lesson, before))
     .filter((item) => !meaningShows(item) && wordsOf(item.et).length <= TYPE_UP_TO_WORDS)
-    .map((item) => produce(item, pool));
+    .map((item) => produce(item, pool, taught));
 }
 
 /**
@@ -608,6 +635,7 @@ export const NOTES = {
   marks: "Nearly: mind the letters with marks on them.",
   halfRight: "Half right: the word is in there, but only that one word was asked for.",
   letterOut: "Nearly: one letter out.",
+  otherForm: "Not quite: that's another form you've learned, not a typo.",
   notQuite: "Not quite.",
   asItWas: "That's the sentence as it was. Change it the way the line above asks.",
   slipStill: "That's the line with the slip still in it.",
@@ -616,6 +644,7 @@ export const NOTES = {
   orderUnchecked: "These are the right words. We have them in another order; ours is below.",
   orderMarks: "Nearly: the right words, in another order. Mind the letters with marks on them.",
   opens: "The words are right, but start it the way the line above asks.",
+  reasonPlace: "The words are right, but put the reason where the line above asks.",
   fixHalf: "The slip is put right. Mind the spelling of one other word.",
 } as const;
 
@@ -639,9 +668,10 @@ function oneLetterOut(said: string, want: string): boolean {
  * How a typed or spoken answer compares with the phrase it was asked for.
  * `accept` is every spelling that counts, the asked one first.
  */
-export function markPhrase(typed: string, accept: readonly string[]): TypedMark {
-  const said = normalisePhrase(typed);
-  const wants = accept.map(normalisePhrase);
+export function markPhrase(typed: string, accept: readonly string[], notSlips: readonly string[] = []): TypedMark {
+  // Words read as `markRework` reads them: `mina` as `ma`, `pole` as `ei ole` (D1), digits kept.
+  const said = spokenPhrase(typed);
+  const wants = accept.map(spokenPhrase);
   const want = wants.find((w) => w === said) ?? wants.find((w) => fold(w) === fold(said)) ?? wants[0] ?? "";
   if (said.length === 0) return { verdict: "wrong", note: NOTES.nothing, close: false };
   // "sa olid ja nad olid": a joining word between two answers is not part of either, but never one on the end.
@@ -651,30 +681,101 @@ export function markPhrase(typed: string, accept: readonly string[]): TypedMark 
     if (without !== said && without.includes(" ") && wants.includes(without)) return { verdict: "right", note: NOTES.right, close: false };
   }
   if (said === want) return { verdict: "right", note: NOTES.right, close: false };
-  if (fold(said) === fold(want)) return { verdict: "nearly", note: NOTES.marks, close: false };
+  /* A spelling the learner has been taught is never a slip for another one:
+     `raamatu` for `raamatut` and `kohtumisel` for `kohtumisele` are one letter
+     and the very contrast the lesson teaches, and `väiksemalt` for
+     `vaiksemalt` is one mark and another word. */
+  const taught = new Set(notSlips.map((w) => w.toLocaleLowerCase("et")));
+  const asked = new Set(want.split(" "));
+  const another = said.split(" ").some((w) => taught.has(w) && !asked.has(w));
+  if (fold(said) === fold(want)) {
+    return another ? { verdict: "wrong", note: NOTES.otherForm, close: true } : { verdict: "nearly", note: NOTES.marks, close: false };
+  }
   // The right word with more around it: half of it is right, which is worth saying.
   if (said.split(" ").length > 1 && wants.some((w) => w.length > 0 && !w.includes(" ") && said.split(" ").includes(w))) {
     return { verdict: "nearly", note: NOTES.halfRight, close: false };
   }
-  if (wants.some((w) => oneLetterOut(said, w))) return { verdict: "nearly", note: NOTES.letterOut, close: false };
+  if (wants.some((w) => oneLetterOut(said, w))) {
+    return another ? { verdict: "wrong", note: NOTES.otherForm, close: true } : { verdict: "nearly", note: NOTES.letterOut, close: false };
+  }
   return { verdict: "wrong", note: NOTES.notQuite, close: wants.some((w) => nearMiss(said, w)) };
+}
+
+/**
+ * The taught spellings a slip of the hand would otherwise forgive for a word
+ * of `answers`, which are therefore not slips: one spelled the same but for
+ * its marks, and, on a word long enough for a letter out to count as a slip,
+ * one a letter away. Carried on the item, since the marker reads no ledger.
+ */
+export function notSlipsFor(answers: readonly string[], taught: ReadonlySet<string>): string[] {
+  const words = new Set(answers.flatMap((a) => normalisePhrase(a).split(" ")).filter(Boolean));
+  const folded = new Set([...words].map(fold));
+  const long = [...words].filter((w) => w.length >= SLIP_FLOOR);
+  const out = new Set<string>();
+  for (const spelling of taught) {
+    if (words.has(spelling) || spelling.includes(" ")) continue;
+    if (folded.has(fold(spelling))) { out.add(spelling); continue; }
+    for (const w of long) if (Math.abs(w.length - spelling.length) <= 1 && editDistance(spelling, w, 1) <= 1) out.add(spelling);
+  }
+  return [...out].sort();
+}
+
+/**
+ * The person a taught form's English names, read off the pronoun it opens
+ * on: "I live", "we were", "you are, to one person you know", "you live,
+ * polite or more than one". A form whose English opens on no pronoun ("would
+ * be", "live, after {ei}") names none, which is right for the form after
+ * `ei`, since that one is every person.
+ */
+export function personsInEnglish(en: string): Person[] {
+  const out = new Set<Person>();
+  for (const part of en.split(/[,;]\s*/)) {
+    const first = part.trim().split(/\s+/)[0]?.toLocaleLowerCase("en") ?? "";
+    if (first === "i") out.add("Sg1");
+    else if (first === "we") out.add("Pl1");
+    else if (first === "he" || first === "she") out.add("Sg3");
+    else if (first === "they") out.add("Pl3");
+    else if (first === "you") out.add(/polite or more than one/i.test(en) ? "Pl2" : "Sg2");
+  }
+  return [...out];
 }
 
 /**
  * Which person each finite form taught by now is, for the words of these
  * sentences only, so an item carries what its own marking reads and no more.
+ *
+ * EVERY VERB TAUGHT, HOWEVER IT WAS TAUGHT. A verb learned as a pair
+ * (`ootama`, `ootan`) is conjugated off its first person; so is a verb learned
+ * as a row of forms (`olen`, `oled`, `oleme`; `elan`, `elad`), off whichever
+ * of its forms is an I-form, since the first and second persons take the same
+ * endings on every stem, present, past or would (`olin`, `olid`, `olime`;
+ * `oleksin`, `oleksid`). The form's own English says its person as well, which
+ * covers a form taught without its I-form beside it. Read this way, `olema`
+ * has persons, and `Olen huvitatud ajaloost` drops its `Mina` as `Ootan` does.
  */
 export function personsFor(ledger: Ledger, sentences: readonly string[]): Persons {
   const wanted = new Set(sentences.flatMap((s) => wordsOf(s).map((w) => w.low)));
   const out: Record<string, Person[]> = {};
   const add = (value: string, persons: readonly Person[]) => {
-    if (!wanted.has(value)) return;
+    if (!wanted.has(value) || persons.length === 0) return;
     out[value] = [...new Set([...(out[value] ?? []), ...persons])];
   };
   for (const verb of ledger.verbs) for (const f of personForms({ lemma: verb.lemma, pres1sg: verb.first })) add(f.value, f.persons);
   for (const past of ledger.pasts) for (const f of personForms({ lemma: "", pres1sg: null, past1sg: past })) add(f.value, f.persons);
+  for (const { item } of ledger.items) {
+    if (item.kind !== "form" || !/(?:ma|da)$/u.test(item.of)) continue;
+    const low = item.et.toLocaleLowerCase("et");
+    const named = personsInEnglish(item.en);
+    add(low, named);
+    if (named.includes("Sg1") && low.endsWith("n")) {
+      for (const f of personForms({ lemma: item.of, pres1sg: low })) add(f.value, f.persons.filter((p) => DROPPABLE_PERSONS.has(p)));
+    }
+  }
   return out;
 }
+
+/** The persons whose pronoun Estonian drops beside a verb that says it; a third person's ending on another stem is not read. */
+const DROPPABLE_PERSONS: ReadonlySet<Person> = new Set(["Sg1", "Sg2", "Pl1", "Pl2"]);
 
 /** Every sentence a rework or a fix counts, which is what the dictionary is asked about to fill `orders`. */
 export function acceptedSentences(items: readonly PracticeItem[]): string[] {
@@ -713,8 +814,8 @@ export function withOrders(items: readonly PracticeItem[], dict: OrderContext): 
  * are right and some are not, and this cannot tell which.
  */
 export function markRework(typed: string, item: Extract<PracticeItem, { kind: "rework" | "fix" }>): TypedMark {
-  const said = normalisePhrase(typed);
-  const wants = item.accept.map(normalisePhrase);
+  const said = spokenPhrase(typed);
+  const wants = item.accept.map(spokenPhrase);
   if (said.length === 0) return { verdict: "wrong", note: NOTES.nothing, close: false };
   if (wants.includes(said)) return { verdict: "right", note: NOTES.right, close: false };
   // The sentence typed back unchanged, however it is reordered or spelled, is not a change.
@@ -723,9 +824,9 @@ export function markRework(typed: string, item: Extract<PracticeItem, { kind: "r
   if (unchanged && (unchanged.how === "same" || unchanged.how === "order")) {
     return { verdict: "wrong", note: item.kind === "fix" ? NOTES.slipStill : NOTES.asItWas, close: false };
   }
-  // An ask naming how it starts is answered only by a sentence that starts that way.
+  // An ask naming how it starts is answered only by a sentence that starts that way, `Mina ei` for `Ma ei` included (D1).
   const opens = item.kind === "rework" ? item.opens : null;
-  const opensRight = !opens || said.startsWith(`${normalisePhrase(opens)} `) || said === normalisePhrase(opens);
+  const opensRight = !opens || said.startsWith(`${spokenPhrase(opens)} `) || said === spokenPhrase(opens);
   // Each sentence that counts, then each order of one the dictionary vouches for, and how the typed one says it.
   const ways = [
     ...item.accept.map((w) => ({ m: sameSentence(w, typed, item.persons), ours: true })),
@@ -734,6 +835,18 @@ export function markRework(typed: string, item: Extract<PracticeItem, { kind: "r
   const find = (how: "same" | "pronoun" | "order", folded: boolean, ours?: boolean) =>
     ways.find((w) => w.how === how && w.folded === folded && (ours === undefined || w.ours === ours));
   if (!opensRight && ways.length > 0) return { verdict: "nearly", note: NOTES.opens, close: false };
+  /*
+    AN ASK THAT PUTS THE REASON IN ITS PLACE IS ANSWERED IN THAT PLACE. A
+    reason moved to the other end is right (D3), and "You can put the reason
+    first" allows it; "the reason second" and "the reason first" ask for one
+    end, so the swapped sentence is the right words where the line did not ask.
+  */
+  const placed = item.kind === "rework" ? reasonPlace(item.ask) : null;
+  if (placed && ways.length > 0) {
+    // Read off the sentence typed, since an order the dictionary vouches for (`orders`) may be the swapped one.
+    const reasonFirst = FRONTABLE.has(said.split(" ")[0] ?? "");
+    if (reasonFirst !== (placed === "first")) return { verdict: "nearly", note: NOTES.reasonPlace, close: false };
+  }
   if (find("same", false, true)) return { verdict: "right", note: NOTES.right, close: false };
   if (find("same", false, false)) return { verdict: "right", note: NOTES.otherOrder, close: false };
   if (find("pronoun", false)) return { verdict: "right", note: NOTES.pronoun, close: false };
@@ -752,12 +865,13 @@ export function markRework(typed: string, item: Extract<PracticeItem, { kind: "r
   */
   if (item.kind === "fix") {
     const typedWords = said.split(" ");
-    const wanted = normalisePhrase(item.answer).split(" ");
-    const right = normalisePhrase(item.right);
-    if (typedWords.length === wanted.length && typedWords.includes(right) && !typedWords.includes(normalisePhrase(item.wrong))) {
+    const wanted = spokenPhrase(item.answer).split(" ");
+    const right = spokenPhrase(item.right);
+    if (typedWords.length === wanted.length && typedWords.includes(right) && !typedWords.includes(spokenPhrase(item.wrong))) {
       const off = typedWords.map((w, i) => ({ w, want: wanted[i]! })).filter(({ w, want }) => w !== want);
       // `sina` typed for `mina` is a different word and not a slip, so only one letter out from eight letters up.
-      if (off.length === 1 && off[0]!.want.length >= SLIP_FLOOR && editDistance(off[0]!.w, off[0]!.want, 1) <= 1) {
+      const taught = new Set(item.notSlips ?? []);
+      if (off.length === 1 && off[0]!.want.length >= SLIP_FLOOR && editDistance(off[0]!.w, off[0]!.want, 1) <= 1 && !taught.has(off[0]!.w)) {
         return { verdict: "nearly", note: NOTES.fixHalf, close: false };
       }
     }
@@ -766,9 +880,20 @@ export function markRework(typed: string, item: Extract<PracticeItem, { kind: "r
   return { verdict: "wrong", note: NOTES.notQuite, close: false };
 }
 
+/**
+ * Where a rework's ask puts the reason: "Join them with {kuna}, the reason
+ * second" asks for one end. "You can put the reason first" offers a choice,
+ * and so fixes nothing.
+ */
+export function reasonPlace(ask: string): "first" | "second" | null {
+  if (/\byou can put\b/i.test(ask)) return null;
+  const m = /\bthe reason (first|second)\b/i.exec(ask);
+  return m ? (m[1]!.toLowerCase() as "first" | "second") : null;
+}
+
 /** A typed item marked by the marker its kind takes, the one place that choice is made. */
 export function markTyped(item: TypedItem, typed: string): TypedMark {
-  return item.kind === "type" ? markPhrase(typed, item.accept) : markRework(typed, item);
+  return item.kind === "type" ? markPhrase(typed, item.accept, item.notSlips) : markRework(typed, item);
 }
 
 /**
@@ -780,15 +905,17 @@ export function markOwnAnswer(typed: string, model: string, name: string | null,
   const accept = [...(name ? [personal(model, name), model] : [model]), ...also];
   const mark = markPhrase(typed, accept);
   if (mark.verdict === "right" || !hasStandIn(model)) return mark;
-  const said = wordsOf(typed).map((w) => w.low);
-  const want = wordsOf(model).map((w) => w.low);
-  if (said.length !== want.length) return mark;
-  const slot = STAND_IN.toLowerCase();
+  const said = spokenPhrase(typed).split(" ").filter(Boolean);
+  const want = spokenPhrase(model).split(" ");
+  const slot = want.indexOf(STAND_IN.toLowerCase());
+  // The name may be one word or up to three (`Mary-Ann`, `Amanda Lucas`); everything around it is held as the model has it.
+  const extra = said.length - want.length;
+  if (slot < 0 || extra < 0 || extra > 2) return mark;
   let folded = false;
-  for (let i = 0; i < want.length; i++) {
-    if (want[i] === slot) continue;
-    if (said[i] === want[i]) continue;
-    if (fold(said[i]!) === fold(want[i]!)) { folded = true; continue; }
+  const around = [...want.slice(0, slot).map((w, i) => [said[i], w] as const), ...want.slice(slot + 1).map((w, i) => [said[slot + 1 + extra + i], w] as const)];
+  for (const [s, w] of around) {
+    if (s === w) continue;
+    if (s !== undefined && fold(s) === fold(w)) { folded = true; continue; }
     return mark;
   }
   return folded
@@ -868,7 +995,7 @@ export function checkFor(
   const gaps = clean.length >= size.gap
     ? clean
     : [...clean, ...gapsFrom(lines.filter(shows), ledger, random, size.gap - clean.length)];
-  const asked = shuffle(typed, random).map((item) => produce(item, pool));
+  const asked = shuffle(typed, random).map((item) => produce(item, pool, ledger.spellings));
   return [...recog, ...gaps, ...asked];
 }
 

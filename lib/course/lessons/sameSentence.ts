@@ -13,11 +13,15 @@ import { PRONOUN_TWINS } from "./pronounTwins";
 
   - `same`: word for word, once a pronoun's long and short spellings are read
     as one word (`mina`, `ma`; `minul`, `mul`: the dictionary's own pairs,
-    `pronounTwins.ts`) and `pole`, `poleks`, `polnud` as `ei` and the verb.
+    `pronounTwins.ts`) and `pole`, `poleks`, `polnud` as `ei` and the verb
+    (`spokenWords`, which `markPhrase` reads words by too).
   - `pronoun`: a first- or second-person subject left out or put in, where a
-    verb beside it says the same person (`Lugesin raamatu läbi`). Never in a
+    verb in its clause says the same person (`Lugesin raamatu läbi`). Never in a
     negative, where `ei lugenud` is every person and the pronoun is what says
-    whose, and never a second subject.
+    whose, never in a command opening on `ära`, and never a second subject. A
+    clause ends at a comma, a full stop, a question or an exclamation mark,
+    and at a joining word, so `Ma tean. Kontrollin seda.` drops one pronoun
+    from one clause.
   - `order`: the same words in another order inside each clause, or a
     reason or condition moved to the other end with the words of each clause
     the same, which this cannot vouch for and the marker calls nearly. `ei`
@@ -29,7 +33,8 @@ import { PRONOUN_TWINS } from "./pronounTwins";
 
   Every comparison is tried on the words as typed and then with the letters
   with marks on them folded away, and says which (`folded`), so a reordered
-  sentence with a dropped õ is nearly rather than wrong.
+  sentence with a dropped õ is nearly rather than wrong. Digits are words:
+  `20 sõnumit` and `5 sõnumit` are two sentences.
 
   Pure: no React, no Next, no Prisma. Every Estonian word it reads is either a
   lemma request (`SUBJECT_PRONOUN`), a form the dictionary stored, or one of
@@ -57,11 +62,14 @@ const withFolded = (words: readonly string[]): ReadonlySet<string> => new Set(wo
 
 /** Words that open a clause of their own. */
 const JOINS = withFolded(["kuigi", "kuna", "sest", "et", "kui", "kuni", "aga", "ja", "ning", "või", "ega", "vaid", "nagu", "kuidas", "miks", "kas", "kus", "kuhu", "kust", "millal"]);
-/** A form of `kes` or `mis` opens a relative clause; one ending `-gi` or `-ki` is an indefinite and does not. */
-const RELATIVE = /^(?:kes|mis|kelle|mille|keda|mida)\p{L}*$/u;
-const INDEFINITE = /(?:gi|ki)$/u;
+/**
+ * A case of `kes` or `mis` opens a relative clause. The cases are written out,
+ * since a prefix rule reads `kesklinnas` as one; a form ending `-gi` or `-ki`
+ * (`keegi`, `midagi`) is an indefinite, matches none of these, and does not.
+ */
+export const RELATIVE = /^(?:kes|mis|keda|mida|(?:kelle|mille)(?:l|le|lt|s|sse|st|ga|ks|ni|na|ta|de)?|milline|millised|millist|milliseid|millise\p{L}*|missugune|missugused|missugust|missuguseid|missuguse\p{L}*|mispärast)$/u;
 /** The subordinate clauses that move to the front or the back without changing what is said. */
-const FRONTABLE = withFolded(["kuna", "kui", "kuigi", "kuni"]);
+export const FRONTABLE = withFolded(["kuna", "kui", "kuigi", "kuni"]);
 /** Words that may stand before a clause's opener without being it. */
 const LEADING = withFolded(["ja", "aga", "ning", "või"]);
 const NEGATIVE = withFolded(["ei", "ega"]);
@@ -94,23 +102,51 @@ for (const [lemma, code] of Object.entries(SUBJECT_PRONOUN)) {
 }
 const DROPPABLE: ReadonlySet<Person> = new Set(["Sg1", "Sg2", "Pl1", "Pl2"]);
 
-const isJoin = (w: string) => JOINS.has(w) || (RELATIVE.test(w) && !INDEFINITE.test(w));
+const isJoin = (w: string) => JOINS.has(w) || RELATIVE.test(w);
+
+/**
+ * One typed word as the markers read it: lower-cased, a pronoun's short
+ * spelling as its long one (D1), and `pole`, `poleks`, `polnud` as `ei` and the
+ * verb. `markPhrase` reads words this way too, so it and `markRework` cannot
+ * disagree about whether `Mina ei saa aru` is `Ma ei saa aru`.
+ */
+export function spokenWords(word: string): string[] {
+  const low = word.toLocaleLowerCase("et");
+  return (SHORT_NEGATIVE[low] ?? [low]).map((w) => LONG_OF.get(w) ?? w);
+}
+
+/** A phrase as the markers compare it: its words read by `spokenWords`, joined by single spaces. */
+export function spokenPhrase(text: string): string {
+  return [...text.matchAll(/[\p{L}\p{N}]+/gu)].flatMap((m) => spokenWords(m[0])).join(" ");
+}
 
 /** The words of a sentence as the marker compares them, and where the punctuation fell. */
 interface Words { readonly words: readonly string[]; readonly breaks: ReadonlySet<number> }
 
+/**
+ * A word or a number, or the punctuation a clause ends at: a comma, a colon,
+ * a dash, a full stop, a question mark or an exclamation mark, except the
+ * stop that makes a number an ordinal (`1930. aastal`).
+ */
+const TOKEN = /[\p{L}\p{N}]+|[,;:.!?\u2013\u2014]/gu;
+const BREAK = /^[,;:.!?\u2013\u2014]$/u;
+
 function read(text: string, folded: boolean): Words {
   const words: string[] = [];
   const breaks = new Set<number>();
-  for (const m of text.matchAll(/\p{L}+|[,;:\u2013\u2014]/gu)) {
+  let last = "";
+  for (const m of text.matchAll(TOKEN)) {
     const tok = m[0];
-    if (/^[,;:\u2013\u2014]$/u.test(tok)) { breaks.add(words.length); continue; }
-    const low = tok.toLocaleLowerCase("et");
-    for (const w of SHORT_NEGATIVE[low] ?? [low]) {
-      const long = LONG_OF.get(w) ?? w;
-      words.push(folded ? fold(long) : long);
+    if (BREAK.test(tok)) {
+      if (!(tok === "." && /^\p{N}+$/u.test(last))) breaks.add(words.length);
+    } else {
+      for (const w of spokenWords(tok)) words.push(folded ? fold(w) : w);
     }
+    last = tok;
   }
+  // A break after the last word ends the sentence rather than a clause in it.
+  breaks.delete(words.length);
+  breaks.delete(0);
   return { words, breaks };
 }
 
@@ -154,32 +190,62 @@ const personsOf = (persons: Persons, w: string, folded: boolean): readonly Perso
   return hit?.[1] ?? [];
 };
 
+/** The clause of `s` that word `i` is in, cut at its punctuation and its joining words. */
+function clauseAt(s: Words, i: number): { readonly words: readonly string[]; readonly start: number } {
+  let start = 0;
+  for (const c of clauses(s, true)) {
+    if (i < start + c.length) return { words: c, start };
+    start += c.length;
+  }
+  return { words: [], start: 0 };
+}
+
+/**
+ * Whether the pronoun at `j` is a subject: a verb beside it says its person,
+ * or nothing beside it is a verb this can read. One beside a verb naming
+ * another person, with no verb of its own, is a possessive, so `teie` in
+ * `Ma ootan teie vastust` is not a second subject.
+ */
+function isSubjectAt(words: readonly string[], j: number, persons: Persons, folded: boolean): boolean {
+  const person = SUBJECTS.get(words[j]!);
+  if (!person) return false;
+  const beside = [words[j - 1], words[j + 1]].filter((w): w is string => w !== undefined).map((w) => personsOf(persons, w, folded));
+  return beside.some((ps) => ps.includes(person)) || beside.every((ps) => ps.length === 0);
+}
+
+/**
+ * Whether the pronoun at `i` may be left out: no negative in its clause and no
+ * clause-opening `ära`, no other subject, and a verb in its clause that agrees
+ * with it. In one clause with one subject that verb is the pronoun's own, so
+ * `et seda nägid` drops the `sa` of `et sa seda nägid` with `seda` between. An
+ * `ära` after the verb is the particle of `pesin ära` and says nothing about
+ * the person.
+ */
+function dropAllowed(s: Words, i: number, person: Person, persons: Persons, folded: boolean): boolean {
+  const { words: clause, start } = clauseAt(s, i);
+  // The clause read without the pronoun, so `Sa ära mine` is still a command opening on `ära`.
+  const rest = clause.filter((_, k) => start + k !== i);
+  const opener = rest[LEADING.has(rest[0] ?? "") && rest.length > 1 ? 1 : 0] ?? "";
+  if (clause.some((w) => NEGATIVE.has(w)) || PROHIBITIVE.has(opener)) return false;
+  if (clause.some((_, k) => start + k !== i && isSubjectAt(s.words, start + k, persons, folded))) return false;
+  return rest.some((w) => personsOf(persons, w, folded).includes(person));
+}
+
 /**
  * The index of a first- or second-person subject in `long` whose removal
- * gives `short`, where a verb directly beside it agrees with it and the clause
+ * gives `short`, where a verb in its clause agrees with it and the clause
  * holds no negative and no other subject, or -1.
  */
-function droppedPronoun(long: readonly string[], short: readonly string[], persons: Persons, folded: boolean): number {
-  if (long.length !== short.length + 1) return -1;
-  for (let i = 0; i < long.length; i++) {
-    const person = SUBJECTS.get(long[i]!);
+function droppedPronoun(long: Words, short: Words, persons: Persons, folded: boolean): number {
+  if (long.words.length !== short.words.length + 1) return -1;
+  for (let i = 0; i < long.words.length; i++) {
+    const person = SUBJECTS.get(long.words[i]!);
     if (!person || !DROPPABLE.has(person)) continue;
-    const rest = [...long.slice(0, i), ...long.slice(i + 1)];
-    if (rest.join(" ") !== short.join(" ")) continue;
+    const rest = [...long.words.slice(0, i), ...long.words.slice(i + 1)];
+    if (rest.join(" ") !== short.words.join(" ")) continue;
     if (dropAllowed(long, i, person, persons, folded)) return i;
   }
   return -1;
-}
-
-function dropAllowed(long: readonly string[], i: number, person: Person, persons: Persons, folded: boolean): boolean {
-  const clause = clauses({ words: long, breaks: new Set() }, false).find((c, _, all) => {
-    const start = all.slice(0, all.indexOf(c)).reduce((n, x) => n + x.length, 0);
-    return i >= start && i < start + c.length;
-  }) ?? [];
-  if (clause.some((w) => NEGATIVE.has(w) || PROHIBITIVE.has(w))) return false;
-  if (clause.filter((w) => SUBJECTS.has(w)).length > 1) return false;
-  const beside = [long[i - 1], long[i + 1]].filter((w): w is string => w !== undefined);
-  return beside.some((w) => personsOf(persons, w, folded).includes(person));
 }
 
 /** Two clauses swapped round, the one led by `kuna`, `kui`, `kuigi` or `kuni` on the other side, each clause's words the same. */
@@ -192,14 +258,22 @@ function swappedClauses(a: readonly (readonly string[])[], b: readonly (readonly
   return sameClauses([a0, a1], [b1, b0]);
 }
 
+/** `s` with word `i` taken out, its punctuation after it moved up one place with it. */
+function without(s: Words, i: number): Words {
+  return {
+    words: [...s.words.slice(0, i), ...s.words.slice(i + 1)],
+    breaks: new Set([...s.breaks].map((b) => (b > i ? b - 1 : b))),
+  };
+}
+
 function compare(written: string, typed: string, persons: Persons, folded: boolean): SameHow | null {
   const a = read(written, folded);
   const b = read(typed, folded);
   if (a.words.length === 0) return null;
   if (a.words.join(" ") === b.words.join(" ")) return "same";
   const drop = a.words.length > b.words.length
-    ? droppedPronoun(a.words, b.words, persons, folded)
-    : droppedPronoun(b.words, a.words, persons, folded);
+    ? droppedPronoun(a, b, persons, folded)
+    : droppedPronoun(b, a, persons, folded);
   if (drop >= 0) return "pronoun";
   // Punctuation is a boundary only where both have the same amount of it, so a missing comma is never stricter.
   const punct = a.breaks.size === b.breaks.size;
@@ -211,9 +285,10 @@ function compare(written: string, typed: string, persons: Persons, folded: boole
   if (long.words.length === short.words.length + 1) {
     for (let i = 0; i < long.words.length; i++) {
       const person = SUBJECTS.get(long.words[i]!);
-      if (!person || !DROPPABLE.has(person) || !dropAllowed(long.words, i, person, persons, folded)) continue;
-      const rest = { words: [...long.words.slice(0, i), ...long.words.slice(i + 1)], breaks: long.breaks };
-      if (sameClauses(clauses(rest, punct), clauses(short, punct))) return "order";
+      if (!person || !DROPPABLE.has(person) || !dropAllowed(long, i, person, persons, folded)) continue;
+      const cr = clauses(without(long, i), punct);
+      const cs = clauses(short, punct);
+      if (sameClauses(cr, cs) || swappedClauses(cr, cs)) return "order";
     }
   }
   return null;
