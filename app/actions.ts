@@ -16,6 +16,8 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { busyMessage, throttleAction, type ActionRefusal } from "@/lib/security/actionLimits";
 import { recordSuggestion } from "@/lib/suggestions/record";
+import { shareOwnWord } from "@/lib/suggestions/shareWord";
+import { removeWord } from "@/lib/progress/removeWord";
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
 import { visibleLine, visibleProse } from "@/lib/security/visibleText";
 import { glossSentences } from "@/lib/dict/glossed";
@@ -787,6 +789,13 @@ export async function createLexemeWithForms(input: {
   cefr?: string;
   government?: string;
   forms: Record<string, string>;
+  /**
+   * Whether a learner adding a new word also asks for it to go into everybody's
+   * dictionary. The word is theirs to study straight away either way; what
+   * this files is a missing-word report a reviewer passes (`approvedAt`).
+   * Ignored for a reviewer, whose own word is passed as it is written.
+   */
+  share?: boolean;
 }) {
   const ownerId = await requireUserId();
 
@@ -896,7 +905,29 @@ export async function createLexemeWithForms(input: {
     government,
     forms,
     editedBy: ownerId,
+    /*
+      A WORD A REVIEWER WRITES IS PASSED AS IT IS WRITTEN, and a learner's is
+      not. Before `approvedAt` existed this was moot and wrong both ways: an
+      admin adding a missing word filed it as `USER` under their own name, so
+      it reached the admin alone, exactly like a learner's.
+    */
+    approve: admin,
   });
+
+  /*
+    A LEARNER'S NEW WORD IS THEIRS, AND EVERYBODY'S ONLY ONCE A REVIEWER SAYS
+    SO. The form used to be the whole of it: the word was written as theirs and
+    nothing anywhere asked whether it belonged in the dictionary, so a word
+    worth having stayed private for ever and the only way to offer it was the
+    report button on a different screen. Asked here, it is the missing-word
+    report that button files, grouped on the lemma so that everybody who adds
+    the same word is one line in the queue, carrying what they typed so that
+    accepting it is one press (`applyPatch`, which passes this very row).
+  */
+  const shared = !admin && !target && input.share === true
+    ? (await shareOwnWord(ownerId, lexeme.id)).ok
+    : false;
+  if (shared) revalidatePath("/suggestions");
 
   // Correcting a word must correct the cards made from it, or she keeps being
   // drilled on the mistake she just fixed. Only the text is rewritten — the FSRS
@@ -918,7 +949,48 @@ export async function createLexemeWithForms(input: {
   revalidatePath("/dictionary");
   revalidatePath("/words");
   revalidatePath("/");
-  return { ok: true as const, id: lexeme.id, lemma, updated: lexeme.previous !== null, queued: false, message: null };
+  return {
+    ok: true as const, id: lexeme.id, lemma, updated: lexeme.previous !== null, queued: false,
+    message: null, shared,
+  };
+}
+
+/**
+ * Asks for a word this learner added to go into everybody's dictionary.
+ *
+ * The button on their own entry, for a word added before the form asked, or
+ * added without ticking it. The body is `shareOwnWord`, which the form's own
+ * save calls too, so both file the same report.
+ */
+export async function suggestMyWord(lexemeId: unknown) {
+  const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "editDictionary");
+  if (busy) return await sayRefusal(ownerId, busy);
+  const result = await shareOwnWord(ownerId, text(lexemeId).slice(0, 64));
+  if (!result.ok) return result;
+  revalidatePath("/dictionary");
+  revalidatePath("/suggestions");
+  return { ok: true as const };
+}
+
+/**
+ * Takes a word somebody typed back out of the dictionary.
+ *
+ * A reviewer may remove any such word, a learner their own while nobody else
+ * holds it; a word the seed or Ekilex supplied may not be removed by anybody.
+ * `lib/progress/removeWord.ts` is the rule and the write, and says what goes
+ * with the row and what stays (the review log does).
+ */
+export async function removeDictionaryWord(lexemeId: unknown) {
+  const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "editDictionary");
+  if (busy) return await sayRefusal(ownerId, busy);
+  const result = await removeWord(ownerId, await isAdmin(), text(lexemeId).slice(0, 64));
+  if (!result.ok) return result;
+  revalidatePath("/dictionary");
+  revalidatePath("/words");
+  revalidatePath("/");
+  return result;
 }
 
 /**

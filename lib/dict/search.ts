@@ -1,3 +1,4 @@
+import { SHARED_ROW } from "./shared";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { CASES, caseNameWithNumber, casePlainName } from "@/lib/estonian/cases";
@@ -265,7 +266,7 @@ export async function searchLexemes(query: string, limit = 40, viewer: string | 
   const candidates: Candidate[] = await prisma.lexeme.findMany({
     where: {
       id: { in: rows.map((r) => r.id) },
-      OR: [VOUCHED_ROW, ...(viewer ? [{ editedBy: viewer }] : [])],
+      OR: [...SHARED_ROW.OR, ...(viewer ? [{ editedBy: viewer }] : [])],
     },
     select: {
       id: true, lemma: true, translation: true, pos: true,
@@ -819,6 +820,7 @@ export function vouchable(candidate: Candidate): boolean {
  * so nothing a reviewer passed is lost here.
  */
 export const VOUCHED_ROW: { provenance: { in: string[] } } = { provenance: { in: ["SEED", "EKILEX"] } };
+
 
 export function matchEstonianForm(candidates: Candidate[], word: string): FormMatch | null {
   const raw = word.trim();

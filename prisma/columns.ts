@@ -150,6 +150,9 @@ export const PRESERVED_COLUMNS = [
   // edit is everybody's — which is exactly why a reseed must not quietly erase
   // the record of who made it.
   "editedBy", "editedAt",
+  // That a reviewer passed a word somebody typed. A reviewer's decision, which
+  // a reseed knows nothing about.
+  "approvedAt",
 ] as const;
 
 /** Written by the database or by the statement itself, not from an entry. */

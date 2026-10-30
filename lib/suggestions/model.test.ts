@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   CATEGORY_GROUPS, CATEGORY_KEYS, SUGGESTION_CATEGORIES, SUGGESTION_LIMITS,
-  acknowledgement, categoriesInGroup, createWordClash, groupKeyFor, isCategory, isStatus,
+  acknowledgement, categoriesInGroup, createWordClash, createWordTarget, groupKeyFor, isCategory, isStatus,
   parsePatch, parsePatchValue, patchFitsCategory, summarisePatch, aiAnswerTrigger, triggerLimit,
 } from "./model";
 
@@ -230,6 +230,34 @@ describe("createWordClash", () => {
 
   it("leaves a different part of speech alone, which is a different entry", () => {
     expect(createWordClash({ lemma: "hall", pos: "NOUN" }, entries)).toBeUndefined();
+  });
+
+  /*
+    A learner's own word is theirs alone until a reviewer passes it, and a
+    report asking for exactly that word is not a clash with it: refusing would
+    make the word impossible to pass, and writing a second row would leave the
+    learner's cards on a copy nobody else can see.
+  */
+  const typed = { lemma: "kogunema", pos: "VERB", provenance: "USER", approvedAt: null };
+  it("does not count a learner's private copy as a clash, and passes that copy instead", () => {
+    expect(createWordClash({ lemma: "kogunema", pos: "VERB" }, [typed])).toBeUndefined();
+    expect(createWordTarget({ lemma: "Kogunema", pos: "VERB" }, [typed])).toEqual(typed);
+  });
+
+  it("counts a passed word, a seeded one and an Ekilex one as a clash, with nothing to pass", () => {
+    for (const row of [
+      { ...typed, approvedAt: new Date("2026-10-30") },
+      { ...typed, provenance: "SEED" },
+      { ...typed, provenance: "EKILEX" },
+    ]) {
+      expect(createWordClash({ lemma: "kogunema", pos: "VERB" }, [row])).toEqual(row);
+      expect(createWordTarget({ lemma: "kogunema", pos: "VERB" }, [row])).toBeUndefined();
+    }
+  });
+
+  it("will not pass a private copy when a shared entry of the word is also there", () => {
+    const seeded = { ...typed, id: "s", provenance: "SEED" };
+    expect(createWordTarget({ lemma: "kogunema", pos: "VERB" }, [typed, seeded])).toBeUndefined();
   });
 });
 

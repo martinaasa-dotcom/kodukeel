@@ -87,7 +87,7 @@ export interface WordDraft {
  * Editing matters as much as adding: the built-in dictionary is hand-written and
  * will contain mistakes, and a wrong form that cannot be fixed gets drilled.
  */
-export function AddWord({ initialLemma = "", initialTranslation = "", startOpen, edit }: {
+export function AddWord({ initialLemma = "", initialTranslation = "", startOpen, edit, reviewer = false }: {
   initialLemma?: string;
   /**
    * The meaning, where what was searched for was English. A learner who typed
@@ -104,6 +104,12 @@ export function AddWord({ initialLemma = "", initialTranslation = "", startOpen,
    */
   startOpen?: boolean;
   edit?: WordDraft;
+  /**
+   * Whether the learner is a reviewer. A reviewer's new word goes into
+   * everybody's dictionary as it is written; anybody else's is theirs until a
+   * reviewer has checked it, so they are asked whether to send it for that.
+   */
+  reviewer?: boolean;
 }) {
   const t = useT();
   const locale = useLocale();
@@ -116,6 +122,12 @@ export function AddWord({ initialLemma = "", initialTranslation = "", startOpen,
   const [forms, setForms] = useState<Record<string, string>>(
     Object.fromEntries((edit?.forms ?? []).map((f) => [f.formType, f.value])),
   );
+  /*
+    On by default, because a word somebody stops to add with its forms is
+    usually a word they think the dictionary is missing. Off is for a name, a
+    word from one class's handout, anything that is only theirs.
+  */
+  const [share, setShare] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState<string | null>(null);
   const [pending, start] = useTransition();
@@ -157,6 +169,7 @@ export function AddWord({ initialLemma = "", initialTranslation = "", startOpen,
 
       const result = await createLexemeWithForms({
         id: edit?.id, lemma, translation, pos, cefr, government, forms: filled,
+        share: !edit && !reviewer && share,
       }).catch(() => null);
       if (!result || !result.ok) { setError(t(result ? result.error : NOT_REACHED)); return; }
       /*
@@ -308,6 +321,24 @@ export function AddWord({ initialLemma = "", initialTranslation = "", startOpen,
             ))}
           </div>
         </div>
+      )}
+
+      {!edit && (
+        reviewer ? (
+          <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+            {t("You're a reviewer, so this goes into everybody's dictionary as soon as you save it.")}
+          </p>
+        ) : (
+          <label className="flex items-start gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
+            <input
+              type="checkbox"
+              checked={share}
+              onChange={(e) => setShare(e.target.checked)}
+              className="mt-1 shrink-0"
+            />
+            <span>{t("Suggest it for everyone. It's yours to study straight away, and it goes into everybody's dictionary once a reviewer has checked it.")}</span>
+          </label>
+        )
       )}
 
       {error && <p role="alert" className="text-xs" style={{ color: "var(--again-ink)" }}>{error}</p>}
