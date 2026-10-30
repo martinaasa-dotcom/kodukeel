@@ -31,6 +31,7 @@
 
 import { isPrincipalFormType } from "@/lib/estonian/types";
 import { clip } from "@/lib/copy/clip";
+import { isShared } from "@/lib/dict/shared";
 
 /** What can go wrong, as a learner would name it. */
 export const SUGGESTION_CATEGORIES = {
@@ -275,12 +276,41 @@ const trimmed = (value: unknown, max: number): string =>
  * rather than the entry the app leads with: `@@unique` is on `(lemma, pos)`, so
  * a lemma can carry an adjective and a noun, and the report names one of them.
  */
-export function createWordClash<T extends { lemma: string; pos: string }>(
+export function createWordClash<T extends ClashEntry>(
   patch: Pick<CreateWordPatch, "lemma" | "pos">,
   entries: readonly T[],
 ): T | undefined {
-  const lemma = patch.lemma.toLowerCase();
-  return entries.find((e) => e.lemma.toLowerCase() === lemma && e.pos === patch.pos);
+  return entries.find((e) => sameWord(patch, e) && (e.provenance === undefined || isShared({ provenance: e.provenance, approvedAt: e.approvedAt })));
+}
+
+/**
+ * The private copy a missing-word report is accepted onto, where there is one.
+ *
+ * A learner who adds a word with the form keeps it for themselves (it is
+ * theirs until a reviewer passes it), and asking for it to go into everybody's
+ * dictionary is the same word, so accepting the report must pass *that* row
+ * rather than refuse because the lemma is taken or make a second one beside
+ * it. Only an entry nobody else may read yet: a shared one is a clash, and a
+ * reviewer corrects its entry instead.
+ */
+export function createWordTarget<T extends ClashEntry>(
+  patch: Pick<CreateWordPatch, "lemma" | "pos">,
+  entries: readonly T[],
+): T | undefined {
+  if (createWordClash(patch, entries)) return undefined;
+  return entries.find((e) => sameWord(patch, e) && e.provenance !== undefined);
+}
+
+/** What the two read off an entry. Without `provenance`, an entry counts as shared. */
+export interface ClashEntry {
+  lemma: string;
+  pos: string;
+  provenance?: string;
+  approvedAt?: Date | null;
+}
+
+function sameWord(patch: Pick<CreateWordPatch, "lemma" | "pos">, entry: ClashEntry): boolean {
+  return entry.lemma.toLowerCase() === patch.lemma.toLowerCase() && entry.pos === patch.pos;
 }
 
 export function parsePatch(json: string | null | undefined): Patch | null {

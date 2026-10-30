@@ -3,6 +3,7 @@ import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
 
 import { prisma } from "@/lib/db";
 import { sentenceReach } from "@/lib/dict/facts";
+import { isShared } from "@/lib/dict/shared";
 import { countStoredAnswer, enrichWithinDeadline } from "@/lib/dict/lookup";
 import { parseExamples, usableExamples, type Example } from "@/lib/dict/examples";
 import { plainerFirst } from "@/lib/dict/plainness";
@@ -150,8 +151,7 @@ async function loadEntry(id: string, ownerId: string, dictionaryOnly: boolean): 
     already in the stranger's own deck. The search no longer finds another
     learner's own word (`searchLexemes`), and an id in a link is the same door.
   */
-  const sourced = lex.provenance === "SEED" || lex.provenance === "EKILEX";
-  if (!sourced && lex.editedBy !== ownerId && lex.cards.length === 0) return null;
+  if (!isShared(lex) && lex.editedBy !== ownerId && lex.cards.length === 0) return null;
   // A sentence a learner typed reaches its author and nobody else (`typedReaches`).
   const examples = usableExamples(parseExamples(lex.examples), plainerFirst(lex.cefr, reach), { viewer: ownerId });
   return {

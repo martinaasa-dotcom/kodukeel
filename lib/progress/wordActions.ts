@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { isShared } from "@/lib/dict/shared";
 import { deferWord, undoDeferral } from "@/lib/progress/deferrals";
 import { courseLevelFor } from "@/lib/progress/level";
 import { setDecksForWord } from "@/lib/progress/decks";
@@ -42,10 +43,10 @@ export async function wordReaches(ownerId: string, id: string): Promise<boolean>
   if (!id) return false;
   const lex = await prisma.lexeme.findUnique({
     where: { id },
-    select: { provenance: true, editedBy: true, cards: { where: { ownerId }, select: { id: true }, take: 1 } },
+    select: { provenance: true, approvedAt: true, editedBy: true, cards: { where: { ownerId }, select: { id: true }, take: 1 } },
   });
   if (!lex) return false;
-  return lex.provenance === "SEED" || lex.provenance === "EKILEX" || lex.editedBy === ownerId || lex.cards.length > 0;
+  return isShared(lex) || lex.editedBy === ownerId || lex.cards.length > 0;
 }
 
 /**

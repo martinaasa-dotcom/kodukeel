@@ -16,6 +16,7 @@ import { forgetThisDevice } from "@/lib/offline/forget";
 import { BAR, CORE, DESTINATIONS, isUnder, litRow, PINNABLE, SECTIONS, type Destination, type NavSection } from "@/lib/ux/nav";
 import { isCoreRow, railRows } from "@/lib/ux/navOrder";
 import { classRows, type RailClass } from "@/lib/ux/classRows";
+import type { ReviewWaiting } from "@/lib/suggestions/waitingCount";
 import dynamic from "next/dynamic";
 /*
   The editor for the rail's own order is drawn only while somebody is
@@ -55,8 +56,10 @@ import { useModuleFocus, useModuleSteps, type ModuleStepRow } from "@/components
  * setup — live in `app/(chromeless)/` and never render this at all, which is
  * why there is no path list here to keep in sync.
  */
-export function Sidebar({ order: stored, name, classes = [] }: {
+export function Sidebar({ order: stored, name, classes = [], review = null }: {
   order: readonly string[]; name: string | null; classes?: readonly RailClass[];
+  /** What is waiting in the review queue, for a reviewer only (`lib/suggestions/waiting.ts`). */
+  review?: ReviewWaiting | null;
 }) {
   const t = useT();
   const pathname = usePathname();
@@ -285,6 +288,7 @@ export function Sidebar({ order: stored, name, classes = [] }: {
           year, and a row each was most of the old column's clutter.
         */}
         <div className="relative mt-3 border-t pt-3" style={{ borderColor: "var(--rule-soft)" }}>
+          {review && <ReviewQueueLink review={review} active={active("/admin/suggestions")} />}
           {menuOpen && (
             <AccountMenu
               onClose={() => setMenuOpen(false)}
@@ -491,7 +495,7 @@ export function Sidebar({ order: stored, name, classes = [] }: {
             data-hop-on="hover"
             data-hop-end="nav-bob"
             data-nav-on={restActive ? "" : undefined}
-            className="nav-cell flex flex-auto flex-col items-center gap-1 whitespace-nowrap rounded-full py-1.5 text-2xs font-semibold"
+            className="nav-cell relative flex flex-auto flex-col items-center gap-1 whitespace-nowrap rounded-full py-1.5 text-2xs font-semibold"
             style={{ color: restActive ? "var(--ink)" : "var(--ink-3)" }}
           >
             <span
@@ -504,6 +508,19 @@ export function Sidebar({ order: stored, name, classes = [] }: {
               <MoreHorizontal size={16} strokeWidth={2.2} aria-hidden />
             </span>
             {t("More")}
+            {review && review.words + review.other > 0 && (
+              <span className="sr-only">{reviewSummary(t, review)}</span>
+            )}
+            {review && review.words + review.other > 0 && (
+              <span
+                aria-hidden
+                data-review-badge
+                className="tnum absolute right-1 top-0.5 min-w-5 rounded-full px-1.5 text-center text-2xs font-bold leading-5"
+                style={{ background: "var(--accent-soft)", color: "var(--accent-deep)", boxShadow: "0 0 0 2px var(--surface)" }}
+              >
+                {review.words + review.other}
+              </span>
+            )}
           </button>
         </div>
       </nav>
@@ -578,6 +595,9 @@ export function Sidebar({ order: stored, name, classes = [] }: {
             </div>
             <section aria-labelledby="sheet-app" className="mt-5">
               <h3 id="sheet-app" className="text-sm font-semibold" style={{ color: "var(--ink-3)" }}>{t("You", "person")}</h3>
+              {review && (
+                <div className="mt-2"><ReviewQueueLink review={review} active={active("/admin/suggestions")} /></div>
+              )}
               <div className="mt-2 grid grid-cols-2 gap-2">
                 {app.map((item) => <SheetLink key={item.href} item={item} active={active(item.href)} />)}
               </div>
@@ -755,6 +775,57 @@ function AccountMenu({ onClose, onEdit, active }: {
       <ThemeChoice />
       <SignOutButton />
     </div>
+  );
+}
+
+/** What is waiting, said in a sentence for a screen reader and a tooltip. */
+function reviewSummary(t: ReturnType<typeof useT>, review: ReviewWaiting): string {
+  if (review.words + review.other === 0) return t("Nothing is waiting for review.");
+  return fill(t("Words to add: {words}. Other reports: {other}."), { words: review.words, other: review.other });
+}
+
+/**
+ * THE QUICK WAY INTO THE REVIEW QUEUE, FOR A REVIEWER AND NOBODY ELSE.
+ *
+ * The queue used to be two presses under "Suggested fixes", which every
+ * learner has, and nothing said a report had come in. This row is drawn only
+ * where the shell found a reviewer (`reviewWaiting`), above the account row in
+ * the rail and at the top of "You" in the phone sheet, and it carries the two
+ * figures so a reviewer can see at a glance whether today's work is words to
+ * add or something else. At nought it stays, quiet, because a reviewer looking
+ * for the queue should find it whether or not anything is in it.
+ */
+function ReviewQueueLink({ review, active }: { review: ReviewWaiting; active: boolean }) {
+  const t = useT();
+  const total = review.words + review.other;
+  return (
+    <Link
+      href={review.words > 0 && review.other === 0 ? "/admin/suggestions?category=MISSING_WORD" : "/admin/suggestions"}
+      aria-current={active ? "page" : undefined}
+      title={reviewSummary(t, review)}
+      data-review-queue
+      className="tap-tint mb-1 flex min-h-12 items-center gap-3 rounded-[var(--r)] px-3.5 py-2 text-sm font-semibold"
+      style={{ color: "var(--ink)" }}
+    >
+      <MessageSquareWarning size={16} strokeWidth={2} aria-hidden style={{ color: "var(--ink-3)" }} />
+      <span className="min-w-0 flex-1">
+        <span className="block">{t("Review queue")}</span>
+        {total > 0 && (
+          <span className="block text-xs font-normal" style={{ color: "var(--ink-2)" }}>
+            {fill(t("{words} to add, {other} other"), { words: review.words, other: review.other })}
+          </span>
+        )}
+      </span>
+      {total > 0 && (
+        <span
+          className="tnum shrink-0 rounded-full px-2 text-xs font-bold leading-6"
+          style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
+        >
+          <span className="sr-only">{reviewSummary(t, review)}</span>
+          <span aria-hidden>{total}</span>
+        </span>
+      )}
+    </Link>
   );
 }
 

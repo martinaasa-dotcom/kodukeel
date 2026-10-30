@@ -4,7 +4,7 @@ import { upsertLexemeWithForms } from "@/lib/dict/upsert";
 import { replaceForms } from "@/lib/dict/replaceForms";
 import { isPrincipalFormType } from "@/lib/estonian/types";
 import { PARTS } from "@/lib/copy/values";
-import { createWordClash, type Patch } from "./model";
+import { createWordClash, createWordTarget, type Patch } from "./model";
 
 /**
  * Pushing an accepted change into the shared dictionary.
@@ -63,7 +63,7 @@ export async function applyPatch(patch: Patch | null, reviewerId: string): Promi
       */
       const existing = await prisma.lexeme.findMany({
         where: { lemma: { equals: patch.lemma, mode: "insensitive" }, pos: patch.pos },
-        select: { lemma: true, pos: true },
+        select: { id: true, lemma: true, pos: true, provenance: true, approvedAt: true },
       });
       if (createWordClash(patch, existing)) {
         return {
@@ -71,20 +71,33 @@ export async function applyPatch(patch: Patch | null, reviewerId: string): Promi
           error: `The dictionary already has ${patch.lemma}, so nothing changed. Fix its entry instead.`,
         };
       }
+      /*
+        PASSED, WHICH IS THE WHOLE OF WHAT ACCEPTING A MISSING WORD MEANS.
+
+        The write used to stop at the upsert, which files a new entry as `USER`
+        under the reviewer's name, and a `USER` row is its author's alone
+        (`isShared`): the word a reviewer had just accepted for everybody was
+        found by the reviewer and by nobody else. `approve` stamps
+        `approvedAt`, which is what opens it to every learner. Where the
+        reporter had already added the word for themselves with the form, it is
+        that row that is passed (`createWordTarget`), so they keep their cards
+        and nobody gets a second entry beside it.
+      */
+      const target = createWordTarget(patch, existing);
       const written = await upsertLexemeWithForms({
+        id: target?.id,
         lemma: patch.lemma,
         translation: patch.translation,
         pos: patch.pos,
         forms: patch.forms,
         editedBy: reviewerId,
+        approve: true,
       });
       return {
         ok: true,
         changed: true,
         lexemeId: written.id,
-        summary: written.previous
-          ? `The dictionary already had ${patch.lemma}, so this updated it.`
-          : `Added ${patch.lemma} to the dictionary.`,
+        summary: `Added ${patch.lemma} to the dictionary, for everybody.`,
       };
     }
 

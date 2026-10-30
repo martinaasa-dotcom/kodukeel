@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { forgetReviewWaiting } from "./waitingCount";
 
 /**
  * One person, one open report per thing, and that has to hold when two sends
@@ -36,6 +37,8 @@ export interface SuggestionFields {
 export async function recordSuggestion(
   ownerId: string, fields: SuggestionFields,
 ): Promise<{ repeat: boolean }> {
+  // A new report is news for whoever reviews, on this instance at once.
+  forgetReviewWaiting();
   return prisma.$transaction(async (tx) => {
     await tx.$executeRaw`SET LOCAL lock_timeout = '3s'`;
     await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`suggestion:${ownerId}:${fields.groupKey}`}, 0))`;
