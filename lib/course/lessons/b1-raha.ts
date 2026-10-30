@@ -254,8 +254,9 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       },
       {
         from: { et: "Ta on projektijuht.", en: "She's a project manager." },
-        ask: "Say she was chosen to be one. Start with {Ta valiti}.",
+        ask: "Say she was chosen to be one. You can start with {Ta valiti}.",
         to: { et: "Ta valiti projektijuhiks.", en: "She was chosen as project manager." },
+        also: ["Tema valiti projektijuhiks."],
         pattern: "translative",
       },
     ],
@@ -460,6 +461,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
         "{Maks} is a tax and {maksma} is to pay, the same root. More than one tax is {maksud}, and after {enne} or {pärast} it's {makse}.",
         "{Üle jääma} is to be left over: {mis üle jääb}, whatever is left.",
         "{Arve} is a bill at home and an invoice at work. {Arved} is more than one.",
+        "{Ma maksan üüri ja arved} has two objects in two forms. Rent takes the [osastav] (3rd form), {üüri maksma}, since it's an amount you keep paying, while {arved} means all of them.",
       ],
       watchOut: "{Palk} is your pay. Money in general is {raha}: {Mul ei ole raha}.",
       examples: [3, 7, 9],
@@ -615,7 +617,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       },
       {
         from: { et: "Liis küsib juhilt luba.", en: "Liis is asking the boss for permission." },
-        ask: "Say you asked. Start with {Ma}.",
+        ask: "Say you asked. You can start with {Ma}.",
         to: { et: "Ma küsisin juhilt luba.", en: "I asked the boss for permission." },
         also: ["Küsisin juhilt luba.", "Ma küsisin juhi käest luba."],
         pattern: "past",
@@ -687,12 +689,13 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "Tervitustega", en: "Best wishes, to close an email" },
     ],
     how: {
-      point: "An email that asks for something goes in four steps: what you'd like ({Ma sooviksin}), why ({sellepärast}), what you'd suggest ({Ma pakuksin}), and a question to close ({Kas me saaksime...?}).",
+      point: "An email that asks for something goes in four steps: what you'd like ({Ma sooviksin}), why, what you'd suggest ({Ma pakuksin}), and a question to close ({Kas me saaksime...?}). After the reason, {sellepärast}, that's why, leads into the next sentence.",
       table: {
         head: ["What it does", "Estonian"],
         rows: [
           [{ en: "Say what you'd like" }, { et: "Ma sooviksin muuta oma tööaega." }],
-          [{ en: "Say why" }, { et: "Sellepärast ma ei saaks reedeti töötada." }],
+          [{ en: "Say why" }, { et: "Reedeti on mul eesti keele kursus." }],
+          [{ en: "Lead on from the reason" }, { et: "Sellepärast ma ei saaks reedeti töötada." }],
           [{ en: "Suggest something" }, { et: "Ma pakuksin, et töötan kümme tundi päevas." }],
           [{ en: "Close with a question" }, { et: "Kas me saaksime sellest rääkida?" }],
         ],
@@ -728,7 +731,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
         from: { et: "Ma ei taha reedeti töötada.", en: "I don't want to work on Fridays." },
         ask: "Say you couldn't. Use {saaks}.",
         to: { et: "Ma ei saaks reedeti töötada.", en: "I couldn't work on Fridays." },
-        also: ["Reedeti ma ei saaks töötada.", "Ei saaks reedeti töötada."],
+        also: ["Reedeti ma ei saaks töötada."],
         pattern: "conditional",
       },
       {

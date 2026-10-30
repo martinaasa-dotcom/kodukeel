@@ -117,7 +117,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       },
       {
         from: { et: "Täitke see blankett ära.", en: "Please fill in this form." },
-        ask: "Say you'll do it. Start with {Ma}.",
+        ask: "Say you'll do it. You can start with {Ma}.",
         to: { et: "Ma täidan selle blanketi ära.", en: "I'll fill in this form." },
         also: ["Täidan selle blanketi ära.", "Ma täidan blanketi ära."],
         pattern: "particleVerb",
@@ -243,7 +243,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
     reworks: [
       {
         from: { et: "Ametnik võtab avalduse vastu.", en: "The clerk accepts the application." },
-        ask: "Say she didn't, yesterday. Start with {Ametnik ei}.",
+        ask: "Say she didn't, yesterday. You can start with {Ametnik ei}.",
         to: { et: "Ametnik ei võtnud eile avaldust vastu.", en: "The clerk didn't accept the application yesterday." },
         also: ["Ametnik ei võtnud avaldust eile vastu.", "Eile ei võtnud ametnik avaldust vastu."],
         pattern: "object",
@@ -356,7 +356,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
     reworks: [
       {
         from: { et: "Ma panen kaardi kinni.", en: "I'll get the card blocked." },
-        ask: "Say Tom did it yesterday. Start with {Tom}.",
+        ask: "Say Tom did it yesterday. You can start with {Tom}.",
         to: { et: "Tom pani eile kaardi kinni.", en: "Tom got the card blocked yesterday." },
         also: ["Tom pani kaardi eile kinni.", "Eile pani Tom kaardi kinni."],
         pattern: "particleVerb",
@@ -379,7 +379,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
         from: { et: "Ma leidsin rahakoti.", en: "I found the wallet." },
         ask: "Say you didn't find it on the bus. Start with {Ma ei}.",
         to: { et: "Ma ei leidnud rahakotti bussist.", en: "I didn't find the wallet on the bus." },
-        also: ["Ma ei leidnud bussist rahakotti.", "Ei leidnud rahakotti bussist."],
+        also: ["Ma ei leidnud bussist rahakotti."],
         pattern: "object",
       },
     ],
@@ -501,7 +501,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       },
       {
         from: { et: "Ma ujun iga päev.", en: "I swim every day." },
-        ask: "Say you liked it as a child, with the -mine word. Start with {Lapsena}.",
+        ask: "Say you liked it as a child, with the -mine word. You can start with {Lapsena}.",
         to: { et: "Lapsena meeldis mulle ujumine.", en: "As a child I liked swimming." },
         also: ["Mulle meeldis lapsena ujumine."],
         pattern: "derivation",
@@ -515,7 +515,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       },
       {
         from: { et: "Tal ei ole tööd.", en: "He has no work." },
-        ask: "Say he was out of work last year, in one word with -tu. Start with {Eelmisel aastal}.",
+        ask: "Say he was out of work last year, in one word with -tu. You can start with {Eelmisel aastal}.",
         to: { et: "Eelmisel aastal oli ta töötu.", en: "Last year he was out of work." },
         also: ["Ta oli eelmisel aastal töötu.", "Eelmisel aastal oli tema töötu."],
         pattern: "derivation",
@@ -631,12 +631,12 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
         from: { et: "Ta helistab mulle tagasi.", en: "He'll call me back." },
         ask: "Ask gently whether he would call you back, with the would form.",
         to: { et: "Kas ta helistaks mulle tagasi?", en: "Would he call me back?" },
-        also: ["Kas ta võiks mulle tagasi helistada?"],
+        also: ["Kas ta võiks mulle tagasi helistada?", "Kas ta saaks mulle tagasi helistada?"],
         pattern: "conditional",
       },
       {
         from: { et: "Ma olen ootel.", en: "I'm on hold." },
-        ask: "Say you were on hold for half an hour yesterday. Start with {Eile}.",
+        ask: "Say you were on hold for half an hour yesterday. You can start with {Eile}.",
         to: { et: "Eile olin ma pool tundi ootel.", en: "Yesterday I was on hold for half an hour." },
         also: ["Eile olin pool tundi ootel.", "Ma olin eile pool tundi ootel."],
         pattern: "past",
@@ -684,7 +684,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Ja siis kirjutan: tere, ma tahaksin parkimisluba?", en: "And then I write: hi, I'd like a parking permit?" },
       { who: "Peeter", et: "Ei, ei! Ametlikult on see nii: palun väljastada mulle parkimisluba.", en: "No, no! Officially it goes like this: please issue me a parking permit." },
       { who: "Tom", et: "Kas ma pean ka ütlema, miks?", en: "Do I have to say why, too?" },
-      { who: "Peeter", et: "Jah. Kirjuta, et te kolisite siia eelmisel aastal perega ja sul on autot iga päev vaja.", en: "Yes. Write that you moved here last year with your family and you need the car every day." },
+      { who: "Peeter", et: "Jah. Kirjuta, et te kolisite siia mõni kuu tagasi perega ja sul on autot iga päev vaja.", en: "Yes. Write that you moved here a few months ago with your family and you need the car every day." },
       { who: "Peeter", et: "Ja lõpus kirjuta viisakalt: lugupidamisega.", en: "And at the end, close politely: sincerely." },
       { who: "Tom", et: "Lugupidamisega, Tom. Väga ametlik, kuigi lühike!", en: "Sincerely, Tom. Very official, although short!" },
       { who: "Peeter", et: "Ametlik on hea. Linnavalitsus armastab ametlikku keelt.", en: "Official is good. The city government loves official language." },
@@ -697,6 +697,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "pealkiri", en: "a title, a heading" },
       { kind: "word", et: "lasteaed", en: "a kindergarten" },
       { kind: "form", et: "perega", of: "pere", en: "with the family" },
+      { kind: "word", et: "mõni", en: "some, a few; {mõni kuu tagasi}, a few months ago" },
       { kind: "word", et: "ametlikult", en: "officially" },
       { kind: "verb", et: "väljastama", first: "väljastan", en: "to issue", firstEn: "I issue" },
       { kind: "form", et: "väljastada", of: "väljastama", en: "to issue; {palun väljastada}, please issue" },
@@ -782,7 +783,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
         { et: "Linnavalitsusele", en: "To the city government" },
         { et: "Avaldus", en: "Application" },
         { et: "Palun väljastada mulle elaniku parkimisluba.", en: "Please issue me a resident's parking permit." },
-        { et: "Me kolisime siia eelmisel aastal koos naise ja kahe lapsega.", en: "We moved here last year, with my wife and our two children." },
+        { et: "Me kolisime siia mõni kuu tagasi koos naise ja kahe lapsega.", en: "We moved here a few months ago, with my wife and our two children." },
         { et: "Mul on autot iga päev vaja, sest ma viin hommikul lapsed lasteaeda.", en: "I need the car every day, because I take the children to kindergarten in the morning." },
         { et: "Lasteaed ei ole meie maja lähedal ja bussiga on see väga pikk sõit.", en: "The kindergarten isn't near our building, and by bus it's a very long trip." },
         { et: "Õhtul käime autoga poes, sest kahe väikese lapsega on bussiga raske.", en: "In the evening we go shopping by car, because with two small children the bus is hard." },
@@ -811,7 +812,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
     faster: {
       ask: { et: "Miks teil on parkimisluba vaja?", en: "Why do you need a parking permit?" },
       cue: "Say where you live and why you need the car, compare the car with the bus, and say why you need the permit.",
-      model: { et: "Me kolisime siia eelmisel aastal koos naise ja kahe lapsega. Mul on autot iga päev vaja, sest ma viin hommikul lapsed lasteaeda ja õhtul käime poes. Tööle sõidan ma bussiga, aga lasteaeda on bussiga väga pikk sõit. Ja õhtul ei ole maja juures vabu parkimiskohti.", en: "We moved here last year, with my wife and our two children. I need the car every day, because I take the children to kindergarten in the morning and we go shopping in the evening. I go to work by bus, but the kindergarten is a very long trip by bus. And in the evening there are no free parking spaces by the building." },
+      model: { et: "Me kolisime siia mõni kuu tagasi koos naise ja kahe lapsega. Mul on autot iga päev vaja, sest ma viin hommikul lapsed lasteaeda ja õhtul käime poes. Tööle sõidan ma bussiga, aga lasteaeda on bussiga väga pikk sõit. Ja õhtul ei ole maja juures vabu parkimiskohti.", en: "We moved here a few months ago, with my wife and our two children. I need the car every day, because I take the children to kindergarten in the morning and we go shopping in the evening. I go to work by bus, but the kindergarten is a very long trip by bus. And in the evening there are no free parking spaces by the building." },
     },
   },
   {
@@ -840,7 +841,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
     ],
     teaches: [],
     how: {
-      point: "A whole speaking exam, made of B1, in the three parts the real one has: you, a situation to act out, and a topic to give your view on.",
+      point: "A practice speaking exam in three parts: you, a situation to act out, and a topic to give your view on.",
       notes: [
         "Part one is you: who you are, your work, and what you like about it and why. Part two is a situation: the examiner plays a clerk, and you get done what you came for. Part three is a topic: your view, with a reason for it and one against.",
         "Small words finish the verbs: {pange kaart kinni}, {täitke see blankett ära}, {eksam on läbi}.",

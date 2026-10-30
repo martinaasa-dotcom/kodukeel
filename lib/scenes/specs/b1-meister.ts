@@ -103,8 +103,8 @@ export default inLesson("b1-07-repair", {
     },
   ],
   outcomes: [
-    { id: "fixed-up", when: ["greet", "broken", "fixed", "notdone", "when", "key", "close"], says: "You told the handyman what's broken and what's done, and agreed on a day, using the whole part." },
-    { id: "fixed-up-thin", when: ["broken", "when"], says: "You said what's broken and when he can come. The rest can wait for his next visit." },
-    { id: "left", when: [], says: "He went before you'd told him anything. He'll be back." },
+    { id: "fixed-up", when: ["greet", "broken", "fixed", "notdone", "when", "key", "close"], says: "You told the handyman what's broken and what's done, and agreed on a day." },
+    { id: "fixed-up-thin", when: ["broken", "when"], says: "You said what's broken and when he can come." },
+    { id: "left", when: [], says: "He went before you'd told him anything." },
   ],
 });

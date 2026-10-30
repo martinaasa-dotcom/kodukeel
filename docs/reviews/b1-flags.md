@@ -293,6 +293,40 @@ Fixes moved, because the slip was itself correct Estonian in that sentence. Each
 
 Not done: lesson 24 does not accept `Siin ei tohi suitsetada`, because B1 has not taught `suitsetada`; lessons 30, 33 and 34 do not accept `on leitud`, `on viidud`, `on otsustatud`, `on kokku lepitud`, `on saadetud` or `on välja vahetatud`, for the same reason.
 
+A sixth pass, after a second independent review on 2026-10-30. Every line here is new Estonian:
+
+- Lesson 6, Peeter's voicemail, now nine sentences, each with a joined clause: `Meister tuleb homme kell kümme, aga sa oled siis tööl.`, `Jäta talle lauale sedel, sest meister ei tunne korterit.`, `Kraani sa parandasid ju ise ära, aga aken ei lähe ikka kinni.`, `Ma tean, et dušš tilgub terve öö.`, `Kui sa elektrit kardad, helista mulle!`, `Võti jäta naabrile, kui sa tööle lähed. Head aega!` (`Kirjuta, mis on tehtud ja mis on veel katki.`, `Kui köögis lamp ei põle, siis on pirn läbi.` and `Vaheta see ise ära, see on lihtne!` are kept).
+- Lesson 7: `Jah, tulge sisse! Ma tulin varem koju. Kas te lugesite mu sedelit?` (Tom said in lesson 6 he'd be at work).
+- Lesson 13, Liis's voice message: `Mul on laupäeval sünnipäev ja pidu toimub minu juures.`, `Tule kell seitse, kui sul on aega.`, `Võta oma naine ka kaasa, sest ma tahan temaga juba ammu tutvuda.`, `Mari tuleb ka, kui ta saab.`, `Kirjuta mulle vastus, sest ma pean teadma, mitu inimest tuleb.`, `Ma loodan väga, et sa saad tulla!`
+- Lesson 14: `Tõesti? Mina ka! Ja sa pead Katiga tutvuma. Ta laulab minuga samas kooris.` (`samas` and `minuga` are taught in lesson 11).
+- Lesson 18's new note: `Ma maksan üüri ja arved` has two objects in two forms.
+- Lesson 20's table: `Reedeti on mul eesti keele kursus.` says why, and `Sellepärast ma ei saaks reedeti töötada.` leads on from it.
+- Lesson 23, Tom's voice message: `Meil on nüüd kolm tuba ja elutuba on suur ja hele.`, `Mu laud on suures heledas toas, akna juures, sest seal on hea töötada.`, `Ja külmkapp on suurem kui mina, nii et sa pead seda nägema!`, `Tule meile laupäeval külla, kui sul on aega!`, `Me elame kolmandal korrusel, punase uksega korteris, nii et sa ei pea kaua otsima.`
+- Lesson 25: `Tere, Urmas! Tom jälle siin.`
+- Lesson 27's note: `Küte pole juba nädal aega töötanud` beside `Küte ei tööta juba nädal aega`.
+- Lesson 30's fix moved to `Ei saa. Muuseum suleti eelmisel kuul.` (slip `suletakse`, now taught), since `avatakse hotellina` is right Estonian.
+- Lesson 33: the watch-out shows `Arutati projekt läbi.`, and the comma note `Ma olin arsti juures, nii et ma ei olnud koosolekul.` with `nii et` and `selleks et` (`selleks` taught).
+- Lesson 34: the rework that ended on `Toru vahetati välja.` twice is now `Torumees parandab toru.` to `Toru parandati.`, and the watch-out says `vahetati ära` is the same as `vahetati välja`.
+- Lesson 36's watch-out: `Kuigi see on vana, see sõidab hästi.` is said too.
+- Lesson 39's fix moved to `Muidugi! Vana telefoni juhtmega, terve öö. Aga ekraan on ikka must.` (slip `juhet`).
+- Lesson 48: `Jah. Kirjuta, et te kolisite siia mõni kuu tagasi perega ja sul on autot iga päev vaja.` and the model's and the fast answer's `Me kolisime siia mõni kuu tagasi koos naise ja kahe lapsega.` (the move was in part 4, the same year; `mõni` taught).
+
+Answers a rework now accepts, by lesson (the subject first after a joined part, and the variants the review asked for):
+
+- Lesson 9: `Temale meeldib kuulata.` (`temale` taught in lesson 8)
+- Lesson 16: `Tema valiti projektijuhiks.`
+- Lesson 26: `Anna Peetrile kaks kuud ette teada.` (`teada` is taught here now rather than in lesson 32)
+- Lesson 31: `Kui ma jõudsin, buss oli juba läinud.`
+- Lesson 34: `Toru vahetati ära.`, `Toru parandati ära.`
+- Lesson 36: `Kuna buss on odavam, sul jääb rohkem raha üle.`, `Kuigi auto on vana, see sõidab hästi.`, `Kuna remont on odav, ma ei osta uut autot.`
+- Lesson 38: `Kuigi film oli igav, lõpp oli hea.`
+- Lesson 39: `Kuigi telefon on uus, see ei tööta.`
+- Lesson 40: `Kuna kampsun ei ole prügi, sa võid selle sõbrale anda.`, `Kuna kampsun pole prügi, sa võid selle sõbrale anda.`
+- Lesson 41: `Kuigi linn vajab parklat, see ei pea olema pargis.`, `Kuigi linn vajab parklat, see ei pea pargis olema.`, `Kuna park on koht, kus lapsed mängivad, parkla ei ole seal hea mõte.`, `Kuna park on koht, kus lapsed mängivad, parkla pole seal hea mõte.`
+- Lesson 47: `Kas ta saaks mulle tagasi helistada?`
+
+No longer accepted, because the answer loses the person or does not do what the ask says: `Ei koristanud kööki.` and `Ei koristanud kööki ära.` (1), `Ei sõidaks ilma sinuta.` (12), `Ei saaks reedeti töötada.` (20), `Päästjad kutsuti.` (32, cut short without `kohale`), `Kuna remont on odav, ei osta uut autot.` (36), `Ei leidnud rahakotti bussist.` (45). An ask that accepts more than one start now says "You can start with".
+
 ## What a second model flagged
 
 Read on 2026-10-27 by the scene chain's lead model over all 1,647 distinct B1 lines
@@ -304,7 +338,7 @@ left for the native speaker.
 | --- | --- | --- | --- |
 | `b1-08-help` | `Sul on ju ise palju tööd.` | With `sul`, the emphatic pronoun is `endal`, not `ise`. | Fixed: `Sul on ju palju tööd.` (`endal` is not taught yet) |
 | `b1-35-residents` | `Tere õhtust! Täna arutame keldrit.` | One discusses a question, not a place. | Fixed: `Täna räägime keldrist.`, in the lesson and the scene's lines |
-| `b1-36-although` | `Kui auto on katki, sa ei ole vaba.` (an accepted answer) | After a fronted clause the verb comes before the subject. | Fixed: `Kui auto on katki, ei ole sa vaba.` |
+| `b1-36-although` | `Kui auto on katki, sa ei ole vaba.` (an accepted answer) | After a fronted clause the verb comes before the subject. | The flag was wrong: both orders are Estonian. The table shows `Kui auto on katki, ei ole sa vaba.`, and since the sixth pass every rework that puts a joined part first also accepts the subject first. |
 | `b1-43-sign-here` | `Kus ma pean alla kirjutama?` | Where to sign is `kuhu`. | Fixed: `Kuhu ma pean alla kirjutama?` |
 | `b1-11-together` | `Me tutvume tööl.` (a rework's source line) | `tutvuma` is a one-time event, so the present reads oddly with no future context. | Fixed in the rewrite: the source is `Me sõbrustame.` |
 | `b1-12-depends` | `Ma loodan ilusale ilmale.` | Hoping for something takes the partitive, `loodan ilusat ilma`. | Left: the lesson teaches `lootma` with the [alaleütlev] (-le, onto/to) as counting on something; please confirm |

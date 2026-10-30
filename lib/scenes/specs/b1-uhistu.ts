@@ -115,7 +115,7 @@ export default inLesson("b1-35-residents", {
   ],
   outcomes: [
     { id: "decided", when: ["greet", "what", "done", "wet", "before", "suggest", "when", "close"], says: "You told the whole meeting what happened, what had happened before and what should be done." },
-    { id: "decided-thin", when: ["what", "suggest"], says: "You said what happened and what should be done. That's what the meeting needed." },
-    { id: "left", when: [], says: "You left before the meeting started. The pipes will wait." },
+    { id: "decided-thin", when: ["what", "suggest"], says: "You said what happened and what should be done." },
+    { id: "left", when: [], says: "You left before the meeting started." },
   ],
 });

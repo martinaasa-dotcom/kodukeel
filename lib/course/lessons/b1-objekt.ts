@@ -104,7 +104,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
         from: { et: "Ma koristasin köögi ära.", en: "I got the kitchen cleaned." },
         ask: "Say you didn't. Start with {Ma ei}.",
         to: { et: "Ma ei koristanud kööki.", en: "I didn't clean the kitchen." },
-        also: ["Ma ei koristanud kööki ära.", "Ei koristanud kööki.", "Ei koristanud kööki ära."],
+        also: ["Ma ei koristanud kööki ära."],
         pattern: "object",
       },
       {
@@ -489,7 +489,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Jaan, kus sa oled? Ma ootan sind juba pool tundi.", en: "Jaan, where are you? I've been waiting for you for half an hour." }, right: "sind", wrong: "sina", pair: ["NOMINATIVE", "PARTITIVE"], why: "Waiting never finishes, so the one you wait for is in the [osastav] (3rd form)." },
+      { line: { et: "Jaan, kus sa oled? Ma ootan sind juba pool tundi.", en: "Jaan, where are you? I've been waiting for you for half an hour." }, right: "sind", wrong: "sina", pair: ["NOMINATIVE", "PARTITIVE"], why: "Waiting on its own doesn't finish, so the one you wait for is in the [osastav] (3rd form)." },
       { line: { et: "Ma kardan koeri.", en: "I'm scared of dogs." }, right: "koeri", wrong: "koer", pair: ["NOMINATIVE", "PARTITIVE"], why: "Being scared never finishes either: the [osastav] (3rd form), {koeri}." },
     ],
     listenFor: [
@@ -560,7 +560,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "A command to you says the thing in its dictionary form: {Too kast!}, {Tee uks lahti!} A let's is different, and takes the [omastav] (2nd form) like {ma toon}: {Teeme ukse lahti}.",
+        "A command to you says the thing in its dictionary form: {Too kast!}, {Tee uks lahti!} A let's-command ({Teeme...}) is different, and takes the [omastav] (2nd form) like {ma toon}: {Teeme ukse lahti}.",
         "{Ära} in front of the verb is a no, so what follows is the [osastav] (3rd form), as after {ei}.",
         "{Lahti} is open and {kinni} is shut: {Tee uks lahti}, {Pane uks kinni}. {Kinni} is stuck too.",
       ],
@@ -576,7 +576,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
     reworks: [
       {
         from: { et: "Ma toon kasti.", en: "I'll bring the box." },
-        ask: "Tell a friend to bring it. Start with {Too}.",
+        ask: "Tell a friend to bring it. You can start with {Too}.",
         to: { et: "Too kast!", en: "Bring the box!" },
         also: ["Too see kast!", "Too kast siia!", "Too see kast siia!", "Palun too kast!", "Too palun kast!"],
         pattern: "object",
@@ -641,17 +641,15 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
     cast: { Peeter: "peeter", Tom: "kalev" },
     conversation: [
       { who: "Peeter", et: "Tere, Tom! Peeter siin.", en: "Hello, Tom! It's Peeter.", stage: "A voicemail from Peeter, the landlord." },
-      { who: "Peeter", et: "Meister tuleb homme kell kümme.", en: "The handyman's coming tomorrow at ten." },
-      { who: "Peeter", et: "Sa oled siis tööl, aga pole viga.", en: "You'll be at work then, but never mind." },
-      { who: "Peeter", et: "Jäta talle lauale sedel.", en: "Leave him a note on the table." },
+      { who: "Peeter", et: "Meister tuleb homme kell kümme, aga sa oled siis tööl.", en: "The handyman's coming tomorrow at ten, but you'll be at work then." },
+      { who: "Peeter", et: "Jäta talle lauale sedel, sest meister ei tunne korterit.", en: "Leave him a note on the table, because the handyman doesn't know the apartment." },
       { who: "Peeter", et: "Kirjuta, mis on tehtud ja mis on veel katki.", en: "Write what's done and what's still broken." },
-      { who: "Peeter", et: "Kraani sa parandasid ju ise ära.", en: "You fixed the tap yourself, after all." },
-      { who: "Peeter", et: "Aga aken ei lähe ikka kinni ja dušš tilgub terve öö.", en: "But the window still won't close, and the shower drips all night." },
-      { who: "Peeter", et: "Kirjuta see kõik üles. Meister ei tunne korterit.", en: "Write it all down. The handyman doesn't know the apartment." },
-      { who: "Peeter", et: "Ja kui köögis lamp ei põle, siis on pirn läbi.", en: "And if the kitchen light won't come on, the bulb's gone." },
+      { who: "Peeter", et: "Kraani sa parandasid ju ise ära, aga aken ei lähe ikka kinni.", en: "You fixed the tap yourself, after all, but the window still won't close." },
+      { who: "Peeter", et: "Ma tean, et dušš tilgub terve öö.", en: "I know the shower drips all night." },
+      { who: "Peeter", et: "Kui köögis lamp ei põle, siis on pirn läbi.", en: "If the kitchen light won't come on, the bulb's gone." },
       { who: "Peeter", et: "Vaheta see ise ära, see on lihtne!", en: "Change it yourself, it's easy!" },
-      { who: "Peeter", et: "Või kardad sa elektrit?", en: "Or are you scared of electricity?", stage: "He laughs." },
-      { who: "Peeter", et: "Võti jäta naabrile. Head aega!", en: "Leave the key with the neighbor. Bye!" },
+      { who: "Peeter", et: "Kui sa elektrit kardad, helista mulle!", en: "If you're scared of electricity, call me!", stage: "He laughs." },
+      { who: "Peeter", et: "Võti jäta naabrile, kui sa tööle lähed. Head aega!", en: "Leave the key with the neighbor when you go to work. Bye!" },
     ],
     teaches: [
       { kind: "word", et: "sedel", en: "a note, a slip of paper you leave somebody" },
@@ -694,7 +692,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
         "{Pirn on läbi} is the bulb's gone: after {on}, {läbi} means worn out or burnt out, not through.",
       ],
       watchOut: "A polite command keeps the whole thing in the [nimetav] (1st form) too: {Palun parandage dušš ära}, not {duši}.",
-      examples: [5, 6, 9],
+      examples: [2, 4, 7],
     },
     answers: [
       { ask: { et: "Mis on tehtud?", en: "What's been done?" }, cue: "Say you fixed the tap yourself.", model: { et: "Ma parandasin kraani ise ära.", en: "I fixed the tap myself." } },
@@ -712,7 +710,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       },
       {
         from: { et: "Meister parandab duši ära.", en: "The handyman will fix the shower." },
-        ask: "Ask him to fix it, politely. Start with {Palun}.",
+        ask: "Ask him to fix it, politely. You can start with {Palun}.",
         to: { et: "Palun parandage dušš ära.", en: "Please fix the shower." },
         also: ["Parandage palun dušš ära."],
         pattern: "object",
@@ -734,7 +732,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
     ],
     fixes: [
       { line: { et: "Palun parandage dušš ära.", en: "Please fix the shower." }, right: "dušš", wrong: "duši", pair: ["NOMINATIVE", "GENITIVE"], why: "A command for the whole job, even with {palun}: the [nimetav] (1st form)." },
-      { line: { et: "Meister ei tunne korterit.", en: "The handyman doesn't know the apartment." }, right: "korterit", wrong: "korteri", pair: ["GENITIVE", "PARTITIVE"], why: "After {ei}, the [osastav] (3rd form)." },
+      { line: { et: "Jäta talle lauale sedel, sest meister ei tunne korterit.", en: "Leave him a note on the table, because the handyman doesn't know the apartment." }, right: "korterit", wrong: "korteri", pair: ["GENITIVE", "PARTITIVE"], why: "After {ei}, the [osastav] (3rd form)." },
     ],
     listenFor: [
       { q: "When is the handyman coming?", options: ["Tomorrow at ten", "Tonight at six", "On Friday morning", "Next week"], answer: 0 },
@@ -782,8 +780,8 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
     goal: "Tell a handyman what's broken, what you've done yourself and what isn't done, and agree when he'll finish.",
     cast: { Rein: "albert", Tom: "kalev" },
     conversation: [
-      { who: "Rein", et: "Tere! Mina olen Rein, meister. Kas see on korter number kaksteist?", en: "Hello! I'm Rein, the handyman. Is this apartment number twelve?", stage: "The next morning. Tom has taken the morning off to let the handyman in himself." },
-      { who: "Tom", et: "Jah, tulge sisse! Kas te lugesite mu sedelit?", en: "Yes, come in! Did you read my note?" },
+      { who: "Rein", et: "Tere! Mina olen Rein, meister. Kas see on korter number kaksteist?", en: "Hello! I'm Rein, the handyman. Is this apartment number twelve?", stage: "The next morning. Tom has come home from work early to let the handyman in himself." },
+      { who: "Tom", et: "Jah, tulge sisse! Ma tulin varem koju. Kas te lugesite mu sedelit?", en: "Yes, come in! I came home early. Did you read my note?" },
       { who: "Rein", et: "Lugesin. Kraani te parandasite ise ära?", en: "I did. You fixed the tap yourself?" },
       { who: "Tom", et: "Jah, aga dušš tilgub ikka edasi.", en: "Yes, but the shower keeps on dripping." },
       { who: "Rein", et: "Duši parandan ma kohe ära.", en: "I'll fix the shower right away.", stage: "He looks at the shower for a minute." },

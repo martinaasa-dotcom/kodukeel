@@ -107,7 +107,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       },
       {
         from: { et: "Uks on suletud.", en: "The door is shut." },
-        ask: "Say the opposite, as a sign would.",
+        ask: "Say the opposite.",
         to: { et: "Uks on avatud.", en: "The door is open." },
         also: ["Uks on lahti."],
         pattern: "participle",
@@ -143,13 +143,13 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Tom", et: "Tere, Mari! Siin Tom.", en: "Hi, Mari! It's Tom.", stage: "A week after the move, Tom leaves Mari a voice message." },
       { who: "Tom", et: "Me kolisime eelmisel nädalal uude korterisse ja kõik on väga hea!", en: "We moved into the new apartment last week, and everything's great!" },
-      { who: "Tom", et: "Meil on nüüd kolm tuba ja köök. Elutuba on suur ja hele.", en: "We've got three rooms and a kitchen now. The living room is big and bright." },
-      { who: "Tom", et: "Mu laud on suures heledas toas, akna juures.", en: "My desk is in the big bright room, by the window." },
+      { who: "Tom", et: "Meil on nüüd kolm tuba ja elutuba on suur ja hele.", en: "We've got three rooms now, and the living room is big and bright." },
+      { who: "Tom", et: "Mu laud on suures heledas toas, akna juures, sest seal on hea töötada.", en: "My desk is in the big bright room, by the window, because it's good to work there." },
       { who: "Tom", et: "Poeg ja tütar magavad väikeses toas, kuna seal on vaikne.", en: "Our son and daughter sleep in the small room, since it's quiet there." },
       { who: "Tom", et: "Ainult köök on väike, aga väikese köögiga saab ka elada.", en: "Only the kitchen is small, but you can live with a small kitchen." },
-      { who: "Tom", et: "Ja külmkapp on suurem kui mina!", en: "And the fridge is bigger than me!" },
-      { who: "Tom", et: "Tule meile laupäeval külla!", en: "Come and visit us on Saturday!" },
-      { who: "Tom", et: "Me elame kolmandal korrusel, punase uksega korteris.", en: "We live on the third floor, in the apartment with the red door." },
+      { who: "Tom", et: "Ja külmkapp on suurem kui mina, nii et sa pead seda nägema!", en: "And the fridge is bigger than me, so you have to see it!" },
+      { who: "Tom", et: "Tule meile laupäeval külla, kui sul on aega!", en: "Come and visit us on Saturday, if you've got time!" },
+      { who: "Tom", et: "Me elame kolmandal korrusel, punase uksega korteris, nii et sa ei pea kaua otsima.", en: "We live on the third floor, in the apartment with the red door, so you won't have to look for long." },
       { who: "Tom", et: "Ja kui sa tahad, too kooki! Head aega!", en: "And bring cake, if you like! Bye!" },
     ],
     teaches: [
@@ -221,9 +221,9 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Mu laud on suures heledas toas, akna juures.", en: "My desk is in the big bright room, by the window." }, right: "heledas", wrong: "hele", pair: ["INESSIVE", "NOMINATIVE"], why: "In the room, so the describing word is in it too: {heledas}." },
+      { line: { et: "Mu laud on suures heledas toas, akna juures, sest seal on hea töötada.", en: "My desk is in the big bright room, by the window, because it's good to work there." }, right: "heledas", wrong: "hele", pair: ["INESSIVE", "NOMINATIVE"], why: "In the room, so the describing word is in it too: {heledas}." },
       { line: { et: "Me kolisime eelmisel nädalal uude korterisse.", en: "We moved into the new apartment last week." }, right: "uude", wrong: "uus", pair: ["ILLATIVE", "NOMINATIVE"], why: "Into the apartment, so into for {uus} as well: {uude}." },
-      { line: { et: "Me elame kolmandal korrusel, punase uksega korteris.", en: "We live on the third floor, in the apartment with the red door." }, right: "punase", wrong: "punasega", pair: ["GENITIVE", "COMITATIVE"], why: "With -ga only the noun takes the ending: {punase uksega}." },
+      { line: { et: "Me elame kolmandal korrusel, punase uksega korteris, nii et sa ei pea kaua otsima.", en: "We live on the third floor, in the apartment with the red door, so you won't have to look for long." }, right: "punase", wrong: "punasega", pair: ["GENITIVE", "COMITATIVE"], why: "With -ga only the noun takes the ending: {punase uksega}." },
     ],
     retell: {
       who: "Tom",
@@ -327,7 +327,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       },
       {
         from: { et: "Ma ei suitseta üldse.", en: "I don't smoke at all." },
-        ask: "Say smoking isn't allowed here. Start with {Siin}.",
+        ask: "Say smoking isn't allowed here. You can start with {Siin}.",
         to: { et: "Siin on suitsetamine keelatud.", en: "Smoking isn't allowed here." },
         also: ["Suitsetamine on siin keelatud.", "Siin ei ole suitsetamine lubatud.", "Siin pole suitsetamine lubatud.", "Suitsetamine ei ole siin lubatud."],
         pattern: "participle",
@@ -368,7 +368,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
     cast: { Tom: "kalev", Urmas: "indrek" },
     hearing: "phone",
     conversation: [
-      { who: "Tom", et: "Tere, Urmas! Siin on jälle Tom.", en: "Hello, Urmas! It's Tom again.", stage: "The new apartment. Tom phones Urmas, the landlord, for the third time this week." },
+      { who: "Tom", et: "Tere, Urmas! Tom jälle siin.", en: "Hello, Urmas! It's Tom again.", stage: "The new apartment. Tom phones Urmas, the landlord, for the third time this week." },
       { who: "Urmas", et: "Tere, Tom. Mis seal jälle toimub?", en: "Hello, Tom. What's going on there this time?" },
       { who: "Tom", et: "Köögis lekib kraan ja vesi on põrandal.", en: "The kitchen tap is leaking and there's water on the floor." },
       { who: "Urmas", et: "Jälle? Kas te proovisite kraani ise parandada?", en: "Again? Did you try to fix the tap yourself?" },
@@ -511,6 +511,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "üürnik", en: "a tenant" },
       { kind: "word", et: "üürileandja", en: "a landlord" },
       { kind: "word", et: "ette", en: "ahead, in advance" },
+      { kind: "form", et: "teada", of: "teadma", en: "to know: the [da-tegevusnimi] (-da); {ette teada andma}, to give notice" },
       { kind: "verb", et: "teatama", first: "teatan", en: "to let know, to notify", firstEn: "I let know", asks: "{kellele?} somebody ([alaleütlev] (-le, onto/to))" },
       { kind: "verb", et: "kaotama", first: "kaotan", en: "to lose", firstEn: "I lose" },
       { kind: "word", et: "tagatisraha", en: "a deposit" },
@@ -559,7 +560,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       },
       {
         from: { et: "Üürnik peab kaks kuud ette teatama.", en: "The tenant has to give two months' notice." },
-        ask: "Say you would have to. Start with {Ma}.",
+        ask: "Say you would have to. You can start with {Ma}.",
         to: { et: "Ma peaksin kaks kuud ette teatama.", en: "I'd have to give two months' notice." },
         also: ["Peaksin kaks kuud ette teatama."],
         pattern: "conditional",
@@ -575,6 +576,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         from: { et: "Sa teatad Peetrile kaks kuud ette.", en: "You give Peeter two months' notice." },
         ask: "Tell a friend to do it.",
         to: { et: "Teata Peetrile kaks kuud ette.", en: "Give Peeter two months' notice." },
+        also: ["Anna Peetrile kaks kuud ette teada."],
         pattern: "imperative",
       },
     ],
@@ -646,12 +648,12 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Juba nädal aega} is for a week now, and the verb stays in the present: {Küte ei tööta juba nädal aega}.",
+        "{Juba nädal aega} is for a week now, and the verb usually stays in the present: {Küte ei tööta juba nädal aega}. {Küte pole juba nädal aega töötanud} says the same with has been, as English does.",
         "In a letter to a landlord you write {teie} all the way through: {Ma ootan teie vastust}.",
         "{Hiljemalt reedeks} is by Friday at the latest: -ks on a day says by then.",
         "{Hea Urmas!} opens a letter to somebody you call by name. {Lugupeetud} is for an office or somebody you've never met.",
       ],
-      watchOut: "English says it has been broken for a week, with has been. Estonian keeps the plain present: {Küte ei tööta juba nädal aega}.",
+      watchOut: "English needs has been: it hasn't worked for a week. Estonian can keep the plain present, {Küte ei tööta juba nädal aega}, and that is what you'll hear most.",
       examples: [1, 6, 8],
     },
     listenFor: [
@@ -675,7 +677,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       },
       {
         from: { et: "Meister tuleb homme.", en: "The handyman is coming tomorrow." },
-        ask: "Ask the landlord, politely, to send the handyman tomorrow. Start with {Palun}.",
+        ask: "Ask the landlord, politely, to send the handyman tomorrow. You can start with {Palun}.",
         to: { et: "Palun saatke meister homme.", en: "Please send the handyman tomorrow." },
         also: ["Palun saatke homme meister.", "Saatke palun meister homme."],
         pattern: "imperative",

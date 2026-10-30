@@ -187,6 +187,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "avasid", of: "avama", en: "they opened", past: true },
       { kind: "form", et: "avatakse", of: "avama", en: "is opened, opens" },
       { kind: "form", et: "suleti", of: "sulgema", en: "was closed" },
+      { kind: "form", et: "suletakse", of: "sulgema", en: "is closed, closes" },
       { kind: "word", et: "remont", en: "building work, repairs" },
       { kind: "form", et: "remondi", of: "remont", en: "of the building work" },
       { kind: "form", et: "ajal", of: "aeg", en: "during, at the time of" },
@@ -251,7 +252,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "See ehitati 1930. aastal. Eelmisel aastal renoveeriti see ja avati hotellina.", en: "That was built in 1930. Last year it was renovated and opened as a hotel." }, right: "avati", wrong: "avatakse", pair: ["IndIpfIps", "IndPrIps"], why: "Last year is over, so the past: {avati}, was opened." },
+      { line: { et: "Ei saa. Muuseum suleti eelmisel kuul.", en: "We can't. The museum was closed last month." }, right: "suleti", wrong: "suletakse", pair: ["IndIpfIps", "IndPrIps"], why: "Last month is over, so the past: {suleti}, was closed." },
     ],
     faster: {
       ask: { et: "Mis on sinu linnas kõige ilusam maja? Miks?", en: "What's the most beautiful building in your town? Why?" },
@@ -336,9 +337,9 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
     reworks: [
       {
         from: { et: "Buss on läinud.", en: "The bus has gone." },
-        ask: "Say it had already gone when you got there. Start with {Kui ma jõudsin}.",
+        ask: "Say it had already gone when you got there. You can start with {Kui ma jõudsin}.",
         to: { et: "Kui ma jõudsin, oli buss juba läinud.", en: "When I got there, the bus had already gone." },
-        also: ["Kui ma jõudsin, oli buss läinud.", "Kui ma jõudsin, oli buss juba ära läinud.", "Kui jõudsin, oli buss juba läinud.", "Kui ma kohale jõudsin, oli buss juba läinud.", "Buss oli juba läinud, kui ma jõudsin."],
+        also: ["Kui ma jõudsin, oli buss läinud.", "Kui ma jõudsin, buss oli juba läinud.", "Kui ma jõudsin, oli buss juba ära läinud.", "Kui jõudsin, oli buss juba läinud.", "Kui ma kohale jõudsin, oli buss juba läinud.", "Buss oli juba läinud, kui ma jõudsin."],
         pattern: "pluperfect",
       },
       {
@@ -404,7 +405,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       { who: "Raadio", et: "Kõik inimesed viidi kohe välja. Õnneks ei saanud keegi vigastada.", en: "Everybody was taken out straight away. Luckily nobody was hurt." },
       { who: "Raadio", et: "Restoran avatakse uuesti kuu aja pärast.", en: "The restaurant will open again in a month." },
       { who: "Tom", et: "Oi! Tulekahju! Äkki on see see uus restoran meie kontori lähedal?", en: "Oh! A fire! Could that be the new restaurant near our office?" },
-      { who: "Jaan", et: "Tere! Tulekahju? Kas keegi sai vigastada?", en: "Hi! A fire? Was anybody hurt?", stage: "Jaan drops in on his way to the hospital. He missed the radio." },
+      { who: "Jaan", et: "Tere! Tulekahju? Kas keegi sai vigastada?", en: "Hi! A fire? Was anybody hurt?", stage: "Jaan, Liis's husband and a doctor, drops in on his way to work at the hospital to give back a book he borrowed. He missed the radio." },
       { who: "Anna", et: "Õnneks mitte. Uudistes öeldi, et kõik viidi kohe välja.", en: "Luckily not. The news said everybody was taken out straight away." },
       { who: "Tom", et: "Me tahtsime seal neljapäeval lõunat süüa!", en: "We wanted to have lunch there on Thursday!" },
       { who: "Jaan", et: "Siis sööte neljapäeval jälle sööklas.", en: "Then it's the canteen again on Thursday." },
@@ -434,7 +435,6 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "aja", of: "aeg", en: "of time; with {kuu} and {pärast}, in a month" },
       { kind: "word", et: "kohutav", en: "terrible, awful" },
       { kind: "word", et: "õnnetus", en: "accident" },
-      { kind: "form", et: "teada", of: "teadma", en: "to know: the [da-tegevusnimi] (-da)" },
     ],
     how: {
       point: "The news is told with nobody named: {Kohale kutsuti päästjad}, the firefighters were called. And what has been done or said is {on} with the [tud-kesksõna] (-tud, done to): {Uudistes on teatatud}, it's been reported in the news.",
@@ -492,7 +492,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
         from: { et: "Keegi kutsub päästjad.", en: "Somebody is calling the firefighters." },
         ask: "Say the firefighters were called, in the past and with nobody named.",
         to: { et: "Päästjad kutsuti kohale.", en: "The firefighters were called." },
-        also: ["Kohale kutsuti päästjad.", "Päästjad kutsuti."],
+        also: ["Kohale kutsuti päästjad."],
         pattern: "impersonal",
       },
       {
@@ -555,6 +555,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "saadeti", of: "saatma", en: "was sent" },
       { kind: "form", et: "kõigile", of: "kõik", en: "to everybody" },
       { kind: "word", et: "igaüks", en: "everybody, each one" },
+      { kind: "form", et: "selleks", of: "see", en: "for that; {selleks et}, so that" },
     ],
     how: {
       point: "A meeting's news is told with nobody named: {arutati}, was discussed, {otsustati}, was decided, {lepiti kokku}, was agreed. What was decided comes after {et}: {Otsustati, et projekt algab järgmisel kuul}.",
@@ -570,9 +571,9 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       notes: [
         "{Lepime kokku} from A2 is let's agree; {lepiti kokku} is it was agreed. The small word stays after the verb.",
         "When the whole thing gets done and nobody is named, it takes the [nimetav] (1st form): {Kadri saatis protokolli}, but {Protokoll saadeti kõigile}.",
-        "A comma always comes before {et}.",
+        "A comma always comes before {et}. In {nii et}, so, and {selleks et}, so that, it comes before the first word: {Ma olin arsti juures, nii et ma ei olnud koosolekul}.",
       ],
-      watchOut: "{Arutama} takes the [osastav] (3rd form): {arutati projekti}, never {projekt}.",
+      watchOut: "{Arutama} on its own takes the [osastav] (3rd form): {arutati projekti}, never {projekt}. With {läbi}, talked through to the end, it takes the whole object: {Arutati projekt läbi}.",
       examples: [3, 5, 9, 11],
     },
     listenFor: [
@@ -699,7 +700,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
         "{Tuleb} with the [da-tegevusnimi] (-da) is has to be done, with nobody named: {Toru tuleb välja vahetada}.",
         "Has been done is {on} with the [tud-kesksõna] (-tud, done to): {Toru on parandatud}.",
       ],
-      watchOut: "A small word after the verb changes it: {vahetati} is was changed, {vahetati välja} is was replaced. Keep the {välja}.",
+      watchOut: "A small word after the verb changes it: {vahetati} is was changed, {vahetati välja} is was replaced, and {vahetati ära} says the same. Keep the small word.",
       examples: [0, 2, 3, 4],
     },
     listenFor: [
@@ -718,6 +719,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
         from: { et: "Torumees vahetas toru välja.", en: "The plumber replaced the pipe." },
         ask: "Say it without naming who did it.",
         to: { et: "Toru vahetati välja.", en: "The pipe was replaced." },
+        also: ["Toru vahetati ära."],
         pattern: "impersonal",
       },
       {
@@ -727,9 +729,10 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
         pattern: "participle",
       },
       {
-        from: { et: "Torumees vahetab toru välja.", en: "The plumber is replacing the pipe." },
-        ask: "Say it was replaced: in the past, and with nobody named.",
-        to: { et: "Toru vahetati välja.", en: "The pipe was replaced." },
+        from: { et: "Torumees parandab toru.", en: "The plumber is fixing the pipe." },
+        ask: "Say it was fixed: in the past, and with nobody named.",
+        to: { et: "Toru parandati.", en: "The pipe was fixed." },
+        also: ["Toru parandati ära."],
         pattern: "impersonal",
       },
       {

@@ -116,8 +116,8 @@ export default inLesson("b1-28-deposit", {
     },
   ],
   outcomes: [
-    { id: "deposit-back", when: ["greet", "order", "floor", "deposit", "else", "light", "back", "close"], says: "You stood up for your deposit and got all of it back, using the whole part." },
-    { id: "deposit-thin", when: ["floor", "deposit"], says: "You said the floor was scratched before and pointed at the contract. That's the heart of it." },
-    { id: "left", when: [], says: "You left the keys and went. The deposit can wait for another day." },
+    { id: "deposit-back", when: ["greet", "order", "floor", "deposit", "else", "light", "back", "close"], says: "You stood up for your deposit and got all of it back." },
+    { id: "deposit-thin", when: ["floor", "deposit"], says: "You said the floor was scratched before and pointed at the contract." },
+    { id: "left", when: [], says: "You left the keys and went, without the deposit." },
   ],
 });

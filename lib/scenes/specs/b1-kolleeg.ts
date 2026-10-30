@@ -105,7 +105,7 @@ export default inLesson("b1-14-colleague", {
   ],
   outcomes: [
     { id: "shown-around", when: ["greet", "computer", "report", "away", "into", "offer", "close"], says: "You showed a new colleague around, said who helps with what, and made her welcome." },
-    { id: "shown-around-thin", when: ["computer", "report"], says: "You told her who to ask. The rest can wait for Friday." },
+    { id: "shown-around-thin", when: ["computer", "report"], says: "You told her who to ask about the computer and the report." },
     { id: "left", when: [], says: "You were busy. She'll find her own way, and ask you on Friday." },
   ],
 });

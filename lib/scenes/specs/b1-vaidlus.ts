@@ -103,8 +103,8 @@ export default inLesson("b1-42-disagree", {
     },
   ],
   outcomes: [
-    { id: "middle-way", when: ["view", "why", "bus", "cost", "plan", "agree", "close"], says: "You disagreed, gave your reasons, and found a middle way, using all of part six." },
-    { id: "middle-way-thin", when: ["view", "plan"], says: "You said where you stood and offered a way out. The reasons can come next time." },
+    { id: "middle-way", when: ["view", "why", "bus", "cost", "plan", "agree", "close"], says: "You disagreed, gave your reasons, and found a middle way." },
+    { id: "middle-way-thin", when: ["view", "plan"], says: "You said where you stood and offered a way out." },
     { id: "left", when: [], says: "The meeting ran out of time. There's another one next week." },
   ],
 });

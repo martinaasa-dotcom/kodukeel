@@ -86,7 +86,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
         "{Et} with a whole sentence after it is that, as in {Ma arvan, et}. With the [da-tegevusnimi] (-da) it says what for: {et küsida}, to ask.",
         "A comma stands before {kuna}, {kuigi}, {et} and {kui} when they start a part of the sentence, and after that part when it comes first.",
       ],
-      watchOut: "When the joined part comes first, the verb of the rest usually comes straight after the comma: {Kuigi see on vana, sõidab see hästi}. Learn that order first.",
+      watchOut: "When the joined part comes first, the verb of the rest usually comes straight after the comma: {Kuigi see on vana, sõidab see hästi}. The subject first is said too, {Kuigi see on vana, see sõidab hästi}, and both are right.",
       examples: [2, 5, 6, 9],
     },
     listenFor: [
@@ -103,16 +103,16 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
     reworks: [
       {
         from: { et: "Buss on odavam. Sul jääb rohkem raha üle.", en: "The bus is cheaper. You'll have more money left." },
-        ask: "Join them with {kuna}, the reason first.",
+        ask: "Join them with {kuna}. You can put the reason first.",
         to: { et: "Kuna buss on odavam, jääb sul rohkem raha üle.", en: "Since the bus is cheaper, you'll have more money left." },
-        also: ["Sul jääb rohkem raha üle, kuna buss on odavam."],
+        also: ["Kuna buss on odavam, sul jääb rohkem raha üle.", "Sul jääb rohkem raha üle, kuna buss on odavam."],
         pattern: "subordinate",
       },
       {
         from: { et: "Auto on vana. See sõidab hästi.", en: "The car is old. It runs well." },
-        ask: "Join them with {kuigi}, the but first.",
+        ask: "Join them with {kuigi}. You can put the but first.",
         to: { et: "Kuigi auto on vana, sõidab see hästi.", en: "Although the car is old, it runs well." },
-        also: ["Auto sõidab hästi, kuigi see on vana.", "Auto sõidab hästi, kuigi on vana."],
+        also: ["Kuigi auto on vana, see sõidab hästi.", "Auto sõidab hästi, kuigi see on vana.", "Auto sõidab hästi, kuigi on vana."],
         pattern: "subordinate",
       },
       {
@@ -124,9 +124,9 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       },
       {
         from: { et: "Remont on odav. Ma ei osta uut autot.", en: "The repair is cheap. I'm not buying a new car." },
-        ask: "Join them with {kuna}, the reason first, and keep the no.",
+        ask: "Join them with {kuna} and keep the no. You can put the reason first.",
         to: { et: "Kuna remont on odav, ei osta ma uut autot.", en: "Since the repair is cheap, I'm not buying a new car." },
-        also: ["Ma ei osta uut autot, kuna remont on odav.", "Kuna remont on odav, ei osta uut autot."],
+        also: ["Kuna remont on odav, ma ei osta uut autot.", "Ma ei osta uut autot, kuna remont on odav."],
         pattern: "subordinate",
       },
       {
@@ -139,7 +139,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
     ],
     fixes: [
       { line: { et: "Ma mõtlen, et ostan uuema auto.", en: "I'm thinking of buying a newer car." }, right: "auto", wrong: "autot", pair: ["GENITIVE", "PARTITIVE"], why: "Buying the whole car: {uuema auto}, as in {Ma ostsin raamatu}." },
-      { line: { et: "Ei. Sada eurot on vähem kui uus auto. Ma sõidan vana autoga veel natuke.", en: "No. A hundred euros is less than a new car. I'll drive the old one a while longer." }, right: "autoga", wrong: "auto", pair: ["COMITATIVE", "NOMINATIVE"], why: "You drive with a car: {vana autoga}, and the word in front takes the -ga too." },
+      { line: { et: "Ei. Sada eurot on vähem kui uus auto. Ma sõidan vana autoga veel natuke.", en: "No. A hundred euros is less than a new car. I'll drive the old one a while longer." }, right: "autoga", wrong: "auto", pair: ["COMITATIVE", "NOMINATIVE"], why: "You drive with a car: {vana autoga}. Only the noun takes -ga, and {vana} stays as it is, as in lesson 23." },
     ],
     faster: {
       ask: { et: "Kas linnas on autot vaja? Miks?", en: "Do you need a car in the city? Why?" },
@@ -304,7 +304,6 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "meelest", of: "meel", en: "in the mind of: {minu meelest}, in my opinion" },
       { kind: "form", et: "küljest", of: "külg", en: "from the side: {ühest küljest}, {teisest küljest}" },
       { kind: "word", et: "õigus", en: "right: {sul on õigus}, you're right" },
-      { kind: "form", et: "minuga", of: "mina", en: "with me" },
     ],
     how: {
       point: "A2 gave you {Ma arvan, et}, {nõus} and {sul on õigus}. One step on: say how sure you are with {minu meelest}, {mulle tundub, et} and {ma ei usu, et}, and weigh it up with {ühest küljest} and {teisest küljest}.",
@@ -361,9 +360,9 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       },
       {
         from: { et: "Film oli igav. Lõpp oli hea.", en: "The film was boring. The ending was good." },
-        ask: "Join them with {kuigi}, the but first.",
+        ask: "Join them with {kuigi}. You can put the but first.",
         to: { et: "Kuigi film oli igav, oli lõpp hea.", en: "Although the film was boring, the ending was good." },
-        also: ["Lõpp oli hea, kuigi film oli igav."],
+        also: ["Kuigi film oli igav, lõpp oli hea.", "Lõpp oli hea, kuigi film oli igav."],
         pattern: "subordinate",
       },
       {
@@ -475,9 +474,9 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       },
       {
         from: { et: "Telefon on uus. See ei tööta.", en: "The phone is new. It doesn't work." },
-        ask: "Join them with {kuigi}, the but first.",
+        ask: "Join them with {kuigi}. You can put the but first.",
         to: { et: "Kuigi telefon on uus, ei tööta see.", en: "Although the phone is new, it doesn't work." },
-        also: ["Telefon ei tööta, kuigi see on uus."],
+        also: ["Kuigi telefon on uus, see ei tööta.", "Telefon ei tööta, kuigi see on uus."],
         pattern: "subordinate",
       },
       {
@@ -497,7 +496,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
     ],
     fixes: [
       { line: { et: "Oi! Siin on kakskümmend sõnumit!", en: "Oh! There are twenty messages here!" }, right: "sõnumit", wrong: "sõnum", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a number, the [osastav] (3rd form): {kakskümmend sõnumit}." },
-      { line: { et: "See on rakendus, millega saab tasuta helistada.", en: "That's an app you can make calls with for free." }, right: "millega", wrong: "mis", pair: ["COMITATIVE", "NOMINATIVE"], why: "You call with it, so {mis} takes -ga: {millega}." },
+      { line: { et: "Muidugi! Vana telefoni juhtmega, terve öö. Aga ekraan on ikka must.", en: "Of course! With the old phone's cable, all night. But the screen's still black." }, right: "juhtmega", wrong: "juhet", pair: ["COMITATIVE", "PARTITIVE"], why: "She charged it with the cable, so -ga: {juhtmega}." },
     ],
     retell: {
       who: "Tom",
@@ -599,9 +598,9 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       },
       {
         from: { et: "Kampsun ei ole prügi. Selle võid sõbrale anda.", en: "A sweater isn't rubbish. You can give it to a friend." },
-        ask: "Join them with {kuna}, the reason first.",
+        ask: "Join them with {kuna}. You can put the reason first.",
         to: { et: "Kuna kampsun ei ole prügi, võid selle sõbrale anda.", en: "Since a sweater isn't rubbish, you can give it to a friend." },
-        also: ["Kuna kampsun ei ole prügi, võid sa selle sõbrale anda.", "Selle võid sõbrale anda, kuna kampsun ei ole prügi.", "Kuna kampsun pole prügi, võid selle sõbrale anda.", "Kuna kampsun pole prügi, võid sa selle sõbrale anda."],
+        also: ["Kuna kampsun ei ole prügi, võid sa selle sõbrale anda.", "Kuna kampsun ei ole prügi, sa võid selle sõbrale anda.", "Kuna kampsun pole prügi, sa võid selle sõbrale anda.", "Selle võid sõbrale anda, kuna kampsun ei ole prügi.", "Kuna kampsun pole prügi, võid selle sõbrale anda.", "Kuna kampsun pole prügi, võid sa selle sõbrale anda."],
         pattern: "subordinate",
       },
       {
@@ -710,9 +709,9 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       },
       {
         from: { et: "Linn vajab parklat. See ei pea olema pargis.", en: "The city needs a car park. It doesn't have to be in the park." },
-        ask: "Join them with {kuigi}, the but first.",
+        ask: "Join them with {kuigi}. You can put the but first.",
         to: { et: "Kuigi linn vajab parklat, ei pea see olema pargis.", en: "Although the city needs a car park, it doesn't have to be in the park." },
-        also: ["Kuigi linn vajab parklat, ei pea see pargis olema."],
+        also: ["Kuigi linn vajab parklat, ei pea see pargis olema.", "Kuigi linn vajab parklat, see ei pea olema pargis.", "Kuigi linn vajab parklat, see ei pea pargis olema."],
         pattern: "subordinate",
       },
       {
@@ -726,7 +725,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
         from: { et: "Park on koht. Seal mängivad lapsed. Parkla ei ole seal hea mõte.", en: "The park is a place. Children play there. A car park there isn't a good idea." },
         ask: "Make it one sentence: the reason first with {kuna}, and the place joined with {kus}.",
         to: { et: "Kuna park on koht, kus lapsed mängivad, ei ole parkla seal hea mõte.", en: "Since the park is a place where children play, a car park there isn't a good idea." },
-        also: ["Kuna park on koht, kus mängivad lapsed, ei ole parkla seal hea mõte.", "Kuna park on koht, kus lapsed mängivad, pole parkla seal hea mõte."],
+        also: ["Kuna park on koht, kus mängivad lapsed, ei ole parkla seal hea mõte.", "Kuna park on koht, kus lapsed mängivad, pole parkla seal hea mõte.", "Kuna park on koht, kus lapsed mängivad, parkla ei ole seal hea mõte.", "Kuna park on koht, kus lapsed mängivad, parkla pole seal hea mõte."],
         pattern: "subordinate",
       },
       {

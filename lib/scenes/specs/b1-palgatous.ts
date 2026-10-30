@@ -116,7 +116,7 @@ export default inLesson("b1-21-pay", {
   ],
   outcomes: [
     { id: "raised", when: ["greet", "topic", "done", "earlier", "amount", "offer", "plan", "close"], says: "You asked for a raise, made your case and agreed on something, all in Estonian." },
-    { id: "raised-thin", when: ["topic", "amount"], says: "You said what you wanted and what would be fair. That's the heart of it." },
-    { id: "left", when: [], says: "You left before you asked. Next time, ask sooner." },
+    { id: "raised-thin", when: ["topic", "amount"], says: "You said what you wanted and what would be fair." },
+    { id: "left", when: [], says: "You left before you asked for the raise." },
   ],
 });

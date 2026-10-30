@@ -50,6 +50,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
     ],
     teaches: [
       { kind: "verb", et: "paluma", first: "palun", en: "to ask (for), to beg", firstEn: "I ask, I beg", asks: "{keda?} somebody ([osastav] (3rd form))" },
+      { kind: "form", et: "temale", of: "tema", en: "to him, to her: the long form of {talle}" },
       { kind: "form", et: "palusin", of: "paluma", en: "I asked, I begged", past: true },
       { kind: "form", et: "millega", of: "mis", en: "with what?" },
       { kind: "form", et: "aidata", of: "aitama", en: "to help (after another verb)" },
@@ -238,6 +239,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
         from: { et: "Mulle meeldib kuulata.", en: "I like listening." },
         ask: "Say she likes listening: use {tema}.",
         to: { et: "Talle meeldib kuulata.", en: "She likes listening." },
+        also: ["Temale meeldib kuulata."],
         pattern: "government",
       },
       {
@@ -437,6 +439,8 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "romantiline", en: "romantic" },
       { kind: "word", et: "sellepärast", en: "that's why, because of that" },
       { kind: "word", et: "lahke", en: "kind" },
+      { kind: "form", et: "samas", of: "sama", en: "in the same; {samas kooris}, in the same choir" },
+      { kind: "form", et: "minuga", of: "mina", en: "with me" },
     ],
     how: {
       point: "Being with somebody is the [kaasaütlev] (-ga, with): you marry, meet and are friends with them, {Ma abiellun sinuga}. Falling in love goes into them, with the [sisseütlev] (-sse, into): {Ma armusin temasse}.",
@@ -565,7 +569,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "võimalik", en: "possible" },
     ],
     how: {
-      point: "Four verbs about what might happen, each with its own case: {sõltuma} wants the [seestütlev] (-st, out of), {lootma} the [alaleütlev] (-le, onto/to) or the [osastav] (3rd form), and {uskuma} and {kartma} the [osastav] (3rd form).",
+      point: "Four verbs about what might happen, each with its own case: {sõltuma} wants the [seestütlev] (-st, out of), {lootma} the [alaleütlev] (-le, onto/to) or the [osastav] (3rd form), and {kartma} the [osastav] (3rd form). {Uskuma} takes the [osastav] (3rd form) for believing somebody, and the [sisseütlev] (-sse, into) for believing in them: {Ma usun sinusse}.",
       table: {
         head: ["The verb", "What it asks", "Example"],
         rows: [
@@ -628,9 +632,9 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       },
       {
         from: { et: "Me sõidame ilma sinuta.", en: "We'll go without you." },
-        ask: "Say you wouldn't go without them. Start with {Me ei}.",
+        ask: "Say you wouldn't go without them. You can start with {Me ei}.",
         to: { et: "Me ei sõidaks ilma sinuta.", en: "We wouldn't go without you." },
-        also: ["Ilma sinuta me ei sõidaks.", "Ei sõidaks ilma sinuta."],
+        also: ["Ilma sinuta me ei sõidaks."],
         pattern: "conditional",
       },
     ],
@@ -657,11 +661,13 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Liis", et: "Tere, Tom! Liis siin.", en: "Hi, Tom! It's Liis.", stage: "A voice message from Liis." },
       { who: "Liis", et: "Ma saatsin sulle eile kirja, aga sa pole veel vastanud.", en: "I sent you an email yesterday, but you haven't replied yet." },
-      { who: "Liis", et: "Mul on laupäeval sünnipäev!", en: "It's my birthday on Saturday!" },
-      { who: "Liis", et: "Pidu toimub minu juures, kell seitse.", en: "The party's at my place, at seven." },
-      { who: "Liis", et: "Võta oma naine ka kaasa. Ma tahan temaga juba ammu tutvuda.", en: "Bring your wife along too. I've wanted to meet her for ages." },
+      { who: "Liis", et: "Mul on laupäeval sünnipäev ja pidu toimub minu juures.", en: "It's my birthday on Saturday, and the party's at my place." },
+      { who: "Liis", et: "Tule kell seitse, kui sul on aega.", en: "Come at seven, if you've got time." },
+      { who: "Liis", et: "Võta oma naine ka kaasa, sest ma tahan temaga juba ammu tutvuda.", en: "Bring your wife along too, because I've wanted to meet her for ages." },
+      { who: "Liis", et: "Mari tuleb ka, kui ta saab.", en: "Mari's coming too, if she can." },
       { who: "Liis", et: "Ja kui sa saad mind millegagi aidata: mu ahi on katki, nii et kook oleks väga hea.", en: "And if you can help me with anything: my oven's broken, so a cake would be great." },
-      { who: "Liis", et: "Kirjuta mulle vastus, palun. Ma pean teadma, mitu inimest tuleb.", en: "Write me a reply, please. I need to know how many people are coming." },
+      { who: "Liis", et: "Kirjuta mulle vastus, sest ma pean teadma, mitu inimest tuleb.", en: "Write me a reply, because I need to know how many people are coming." },
+      { who: "Liis", et: "Ma loodan väga, et sa saad tulla!", en: "I really hope you can come!" },
       { who: "Liis", et: "Kohtumiseni!", en: "See you!" },
     ],
     teaches: [
@@ -704,7 +710,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
         "A verb keeps its case after another verb: {Ta tahab sinuga tutvuda}, {Kas sa saaksid mind aidata?}",
       ],
       watchOut: "Thanks for something is {aitäh} with {eest} after the thing: {Aitäh kutse eest!} The thing takes the [omastav] (2nd form) before {eest}.",
-      examples: [1, 4, 5],
+      examples: [1, 4, 6],
     },
     listenFor: [
       { q: "Who should Tom bring along?", options: ["Mari", "His wife", "A colleague", "Nobody"], answer: 1 },
@@ -720,7 +726,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
     reworks: [
       {
         from: { et: "Ma tulen hea meelega.", en: "I'd love to come." },
-        ask: "Say you can't come. Start with {Kahjuks}.",
+        ask: "Say you can't come. You can start with {Kahjuks}.",
         to: { et: "Kahjuks ma ei saa tulla.", en: "I'm afraid I can't come." },
         also: ["Kahjuks ei saa ma tulla.", "Kahjuks ei saa tulla.", "Ma kahjuks ei saa tulla."],
         pattern: "negative",
@@ -747,7 +753,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ma tahan temaga juba ammu tutvuda.", en: "I've wanted to meet her for ages." }, right: "temaga", wrong: "teda", pair: ["COMITATIVE", "PARTITIVE"], why: "{Tutvuma} is with somebody: {temaga}." },
+      { line: { et: "Võta oma naine ka kaasa, sest ma tahan temaga juba ammu tutvuda.", en: "Bring your wife along too, because I've wanted to meet her for ages." }, right: "temaga", wrong: "teda", pair: ["COMITATIVE", "PARTITIVE"], why: "{Tutvuma} is with somebody: {temaga}." },
       { line: { et: "Kas sa saaksid mind aruandega aidata?", en: "Could you help me with the report?" }, right: "aruandega", wrong: "aruannet", pair: ["COMITATIVE", "PARTITIVE"], why: "Help with something takes the [kaasaütlev] (-ga, with): {aruandega}." },
       { line: { et: "Kas ma võiksin oma naise kaasa võtta?", en: "Could I bring my wife along?" }, right: "naise", wrong: "naine", pair: ["GENITIVE", "NOMINATIVE"], why: "You bring the whole person, not some of her: the [omastav] (2nd form), {oma naise}." },
     ],
@@ -806,7 +812,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { who: "Kadri", et: "Tere! Mina olen Kadri. Aitäh, ma natuke kardan.", en: "Hi! I'm Kadri. Thanks, I'm a bit nervous." },
       { who: "Tom", et: "Pole hullu. Mina kartsin ka esimesel päeval. Ütle, mis sind huvitab?", en: "That's all right. I was nervous on my first day too. Tell me, what are you into?" },
       { who: "Kadri", et: "Mind huvitab muusika. Ma laulan kooris.", en: "I'm into music. I sing in a choir." },
-      { who: "Tom", et: "Tõesti? Mina ka! Ja sa pead Katiga tutvuma. Tema laulab ka kooris.", en: "Really? Me too! And you have to meet Kati. She sings in a choir too." },
+      { who: "Tom", et: "Tõesti? Mina ka! Ja sa pead Katiga tutvuma. Ta laulab minuga samas kooris.", en: "Really? Me too! And you have to meet Kati. She sings in the same choir as me." },
       { who: "Kadri", et: "Tore! Aga kellelt ma küsin, kui mul on arvutiga probleem?", en: "Great! But who do I ask if I have a problem with my computer?" },
       { who: "Tom", et: "Arvutiga aitan sind mina. Aga ära joo arvuti juures kohvi.", en: "I help with computers. But don't drink coffee near your computer." },
       { who: "Kadri", et: "Miks?", en: "Why?" },
