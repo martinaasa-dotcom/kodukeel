@@ -38,18 +38,19 @@ import { nameOf } from "@/lib/ux/roundNames";
 import { worksheetLink, type LessonWorksheet } from "@/lib/course/lessonWorksheet";
 
 /**
- * ONE LESSON, SIX STEPS, ALWAYS IN THIS ORDER (docs/43-lessons.md §1).
+ * ONE LESSON, ITS STEPS ALWAYS IN THIS ORDER (docs/43-lessons.md §1).
  *
  * Listen, Words and How it works ask nothing and grade nothing: a learner
  * meets the whole idea before anybody asks them a thing about it, which is
- * the change the plan was written for. Practice and Review ask, out of what
- * has been taught and nothing else. Say it sits between them as the headline.
+ * the change the plan was written for. Practice, Say it and Review ask, out of
+ * what has been taught and nothing else, and a part's writing evening puts
+ * Write straight after Practice.
  *
- * A learner always knows where they are, because the steps (six, or seven with writing) are listed at
+ * A learner always knows where they are, because the steps are listed at
  * the top with the one they are on marked, in words as well as in color. A
  * step can always be left: the button at the foot says "Continue" once the
  * step is done and "Skip this step" before, so nobody is held in a room, and
- * the three teaching steps are done the moment they are open.
+ * the steps that ask nothing are done the moment they are open.
  *
  * Pressing on moves the caret to the new step's heading, which a screen
  * reader reads out, and brings it to the top of the window, because a step is
@@ -102,7 +103,7 @@ const STEP_TITLE: Record<Step, string> = {
 /** The worksheet's agreed name, Estonian first (`lib/ux/roundNames.ts`). */
 const WORKBOOK_NAME = nameOf("/review/workbook") ?? { et: "Töövihik", en: "Workbook" };
 
-/** The three teaching steps are finished by being open. */
+/** Every step not on this list asks nothing, and is finished by being open. */
 const ASKS: ReadonlySet<Step> = new Set(["practise", "write", "say", "review"]);
 
 export function LessonRunner({ lesson, practice, review, next, scene, situation = null, worksheet = null, conversation, place, name, due = 0, check = null, part, timeMultiplier, partAt }: {

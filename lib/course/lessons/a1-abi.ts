@@ -132,7 +132,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
       notes: [
         "The part that hurts stays in its [nimetav] (1st form), like what you like in {Mulle meeldib kohv}.",
         "{Haige} means sick: {Ma olen haige}. A fever is something you have: {Mul on palavik}.",
-        "The doctor tells you what to do in the polite command form of lesson 46: {olge}, {jooge}.",
+        "The doctor tells you what to do in the [käskiv kõneviis] (-ge, polite command) of lesson 46: {olge}, {jooge}.",
       ],
       watchOut: "Don't start with {ma}. \"My head hurts\" is always {Mul valutab pea}: the head is the one that hurts.",
       examples: [1, 3, 6],

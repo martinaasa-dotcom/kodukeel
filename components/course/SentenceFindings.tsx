@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useLocale, useT } from "@/components/Locale";
 import { fillNodes } from "@/components/TemplateNodes";
 import { casePlainName } from "@/lib/estonian/cases";
+import { verbFormName } from "@/lib/estonian/verbNames";
 import type { Finding } from "@/lib/course/lessons/sentenceCheck";
 import { VERDICT_CLASS } from "@/lib/ux/verdict";
 
@@ -77,8 +78,9 @@ export function SentenceFindings({ findings }: {
       case "dictionaryForm":
         return fillNodes(t("{word} is the dictionary form. With {subject}, say {right}."), { word: et(f.word), subject: et(f.subject), right: et(f.right) });
       case "infinitive":
-        if (f.form === "ma") return fillNodes(t("After {after}, use the ma-form: {right}, not {word}."), { after: et(f.after), right: et(f.right), word: et(f.word) });
-        return fillNodes(t("After {after}, use the da-form: {right}, not {word}."), { after: et(f.after), right: et(f.right), word: et(f.word) });
+        return fillNodes(t("After {after}, use the {form}: {right}, not {word}."), {
+          after: et(f.after), form: verbFormName(f.form === "ma" ? "MA" : "DA", locale), right: et(f.right), word: et(f.word),
+        });
       case "count":
         return fillNodes(t("After {after}, the word takes the {case}: {right}, not {word}."), { after: et(f.after), case: part, right: et(f.right), word: et(f.word) });
       case "experiencer":
@@ -93,7 +95,7 @@ export function SentenceFindings({ findings }: {
           after: et(f.after), case: casePlainName({ key: f.case }, locale), right: et(f.right), word: et(f.word),
         });
       case "command":
-        return fillNodes(t("After {after}, use the command form: {right}, not {word}."), { after: et(f.after), right: et(f.right), word: et(f.word) });
+        return fillNodes(t("After {after}, use the {form}: {right}, not {word}."), { after: et(f.after), form: verbFormName("COMMAND", locale), right: et(f.right), word: et(f.word) });
       case "postposition":
         return fillNodes(t("Before {before}, the word takes the {case}: {right}, not {word}."), { before: et(f.before), case: gen, right: et(f.right), word: et(f.word) });
       case "object":

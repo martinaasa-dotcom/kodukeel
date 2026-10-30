@@ -19,6 +19,7 @@ import { fill } from "@/lib/copy/locale";
 import { NOTES, markOwnAnswer, normalisePhrase, type TypedMark } from "@/lib/course/lessons/practice";
 import { hasStandIn, personal } from "@/lib/course/lessons/ownAnswer";
 import { wordsOf } from "@/lib/course/lessons/ledger";
+import { otherSideOf } from "@/lib/course/lessons/otherSide";
 import type { LessonSpec, Prompt } from "@/lib/course/lessons/types";
 import { VERDICT_CLASS } from "@/lib/ux/verdict";
 import { checkLessonSentence } from "@/app/actions";
@@ -150,8 +151,9 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier
   useEffect(() => {
     if (mode !== null) focusLead();
   }, [mode]);
-  // The other side's voice: whoever opens today's conversation.
-  const opener = lesson.conversation[0]?.who ?? "";
+  // The other side: whoever the learner answers, never their own stand-in (`otherSideOf`).
+  const side = useMemo(() => otherSideOf(lesson), [lesson]);
+  const opener = side.partner;
   const voice = lesson.cast[opener] ?? undefined;
 
   const speechConfig = useSpeechConfig();
@@ -277,7 +279,7 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier
       ) : card.kind === "faster" ? (
         <AgainFaster faster={lesson.faster!} voice={voice} typed={mode === "type"} multiplier={timeMultiplier} onDone={() => next()} />
       ) : (
-        <AnswerCard key={at} lessonId={lesson.id} card={card} mode={mode} voice={voice} name={name} onNext={next} last={at >= cards.length - 1} />
+        <AnswerCard key={at} lessonId={lesson.id} card={card} mode={mode} voice={card.prompt.ask ? lesson.cast[side.askerOf(card.prompt.ask.et)] : voice} name={name} onNext={next} last={at >= cards.length - 1} />
       )}
       </div>
     </div>

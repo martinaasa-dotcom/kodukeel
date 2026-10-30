@@ -333,7 +333,7 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "pangaautomaadist", of: "pangaautomaat", en: "from an ATM" },
     ],
     how: {
-      point: "Wanting to do something takes the da-form after it: {Ma tahaksin konto avada}. Learn the da-form with each new verb, as in A1.",
+      point: "Wanting to do something takes the [da-tegevusnimi] (-da) after it: {Ma tahaksin konto avada}. Learn the [da-tegevusnimi] (-da) with each new verb, as in A1.",
       table: {
         head: ["The verb", "After would like"],
         rows: [

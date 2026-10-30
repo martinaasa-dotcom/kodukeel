@@ -433,7 +433,8 @@ function Redraft({ lesson, first, second, setSecond, onDone, readOnArrival }: { 
             {reading ? <><Loader2 size={15} className="animate-spin" aria-hidden /> {t("Reading")}</> : t("Read my text")}
           </Button>
         ) : null}
-        {error?.on === "read" && <p className="mt-2 text-base" role="alert" style={{ color: "var(--blush-ink)" }}>{error.text}</p>}
+        {/* A failed read is said under the button that was pressed: this one before a reading, "Read it again" after. */}
+        {read === null && error?.on === "read" && <p className="mt-2 text-base" role="alert" style={{ color: "var(--blush-ink)" }}>{error.text}</p>}
         {read === null ? null : (
           <div className="flex flex-col gap-4" data-write-findings>
             <p ref={findingsRef} tabIndex={-1} className="text-base font-semibold outline-none" style={{ color: "var(--ink)" }}>
@@ -464,6 +465,7 @@ function Redraft({ lesson, first, second, setSecond, onDone, readOnArrival }: { 
               <Button variant={stale ? "secondary" : "ghost"} size="sm" onClick={() => readIt(current)} busy={reading} disabled={current.trim() === ""}>
                 {reading ? <><Loader2 size={15} className="animate-spin" aria-hidden /> {t("Reading")}</> : t("Read it again")}
               </Button>
+              {error?.on === "read" && <p className="mt-2 text-base" role="alert" style={{ color: "var(--blush-ink)" }}>{error.text}</p>}
             </div>
           </div>
         )}

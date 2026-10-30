@@ -252,7 +252,7 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "jälle", en: "again" },
     ],
     how: {
-      point: "Don't! is {ära} and then the command form: {Ära muretse!} is stop worrying. It's the {ei} of a command.",
+      point: "Don't! is {ära} and then the [käskiv kõneviis] (command): {Ära muretse!} is stop worrying. It's the {ei} of a command.",
       table: {
         head: ["Do it", "Don't"],
         rows: [
@@ -305,7 +305,7 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "doktor", en: "doctor, said to one" },
     ],
     how: {
-      point: "{Võin} is I can or I may, {tohin} I'm allowed to, and {pean} I have to. {Võin} and {tohin} take the da-form after them: {Kas ma tohin minna?}",
+      point: "{Võin} is I can or I may, {tohin} I'm allowed to, and {pean} I have to. {Võin} and {tohin} take the [da-tegevusnimi] (-da) after them: {Kas ma tohin minna?}",
       table: {
         head: ["Estonian", "In English"],
         rows: [

@@ -411,7 +411,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Tuleb} with a da-form says what has to be done, and nobody is named: {Toru tuleb vahetada}. What it's done to is in the [nimetav] (1st form), as in a command.",
+        "{Tuleb} with a [da-tegevusnimi] (-da) says what has to be done, and nobody is named: {Toru tuleb vahetada}. What it's done to is in the [nimetav] (1st form), as in a command.",
         "{Ummistunud} is a -nud word: it says what has happened to the sink, so after {on} it works like {katki}.",
         "{Võimalik, et} is maybe: {Võimalik, et toru tuleb vahetada}, the pipe may need changing.",
       ],
