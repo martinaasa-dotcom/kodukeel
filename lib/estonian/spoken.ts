@@ -108,6 +108,12 @@ export const NOT_SAID: readonly NotSaid[] = [
     why: "Riie is cloth; a garment you try on is just seda, or selga proovida.",
   },
   {
+    pattern: re("ei, on (väike|suur|vana|uus|hea|halb|ilus|kallis|odav|noor|pikk|lühike|kerge|raske)"),
+    example: "Ei, on väike. Aga ilus.",
+    say: "Ei, see on väike. / Ei, väike.",
+    why: "A no cannot drop the subject and keep on: keep see on, or drop both.",
+  },
+  {
     pattern: re("(kiire on|mul on kiire), (öelge|rääkige|räägi|ütle) kohe"),
     example: "Kiire on, öelge kohe.",
     say: "Mul on natuke kiire. / Vabandust, mul on kiire.",

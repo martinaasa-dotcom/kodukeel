@@ -325,7 +325,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
     cast: { Tom: "kalev", Peeter: "peeter" },
     conversation: [
       { who: "Tom", et: "Tere, Peeter! Ma olen su maja ees. Mitmendal korrusel sa elad?", en: "Hi, Peeter! I'm outside your building. Which floor do you live on?", stage: "On the phone, outside Peeter's building." },
-      { who: "Peeter", et: "Kolmandal. Korter kaksteist.", en: "The third. Apartment twelve." },
+      { who: "Peeter", et: "Kolmandal korrusel. Korter kaksteist.", en: "On the third floor. Apartment twelve." },
       { who: "Tom", et: "Kas lift on?", en: "Is there an elevator?" },
       { who: "Peeter", et: "Ei ole. Tule trepist üles.", en: "No. Come up the stairs." },
       { who: "Tom", et: "Hästi. Mis uks? Esimene paremal?", en: "All right. Which door? The first on the right?" },

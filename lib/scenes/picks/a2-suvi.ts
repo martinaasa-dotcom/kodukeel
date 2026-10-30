@@ -8,7 +8,7 @@ import type { ScenePicks } from "../picks";
 export const a2Suvi: ScenePicks = {
   greet: [
     { et: "Tere!", en: "Hello!" },
-    { et: "Tere päevast!", en: "Good afternoon!" },
+    { et: "Tere, tere!", en: "Hi there!" },
   ],
   summer: [
     { et: "Väga hea! Ma käisin Saaremaal.", en: "Really good! I went to Saaremaa." },

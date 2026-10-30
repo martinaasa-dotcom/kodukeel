@@ -15,8 +15,8 @@ export const a1Kutse: ScenePicks = {
     { et: "Minu nimi on Tom.", en: "My name is Tom." },
   ],
   from: [
-    { et: "Ma olen pärit {from:ABLATIVE}.", en: "I'm from {from}." },
-    { et: "{from:ABLATIVE}.", en: "From {from}." },
+    { et: "Ma olen pärit {from:FROM}.", en: "I'm from {from}." },
+    { et: "{from:FROM}.", en: "From {from}." },
   ],
   praise: [
     { et: "Aitäh! Ma õpin veel.", en: "Thank you! I'm still learning." },

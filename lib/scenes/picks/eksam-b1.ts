@@ -17,7 +17,7 @@ export const eksamB1: ScenePicks = {
     { et: "Praegu töötan ja õpin ka.", en: "At the moment I work and study as well." },
   ],
   plan: [
-    { et: "Mina läheksin {place:ILLATIVE}.", en: "I'd go to the {place}." },
+    { et: "Mina valiksin {place:GENITIVE}.", en: "I'd choose the {place}." },
     { et: "Kino on tore, aga mina eelistaksin {place:PARTITIVE}.", en: "The cinema's nice, but I'd prefer the {place}." },
   ],
   why: [

@@ -1,4 +1,5 @@
 import type { CaseKey } from "@/lib/estonian/types";
+import { localCasesFor } from "@/lib/estonian/caseQuestion";
 import { caseKeyFor, type Lexicon } from "./lexicon";
 import { propBySlot, type RoleCard } from "./props";
 import type { BeatSpec, SceneSpec } from "./types";
@@ -34,7 +35,10 @@ import { PICKS, CURVEBALL_PICKS } from "./picks/index";
 export interface PickSpec {
   /**
    * The line, with `{slot}` for a value off the card and `{slot:CASE}` for
-   * that value in a case read off the dictionary's own table.
+   * that value in a case read off the dictionary's own table. `{slot:FROM}`
+   * is where somebody is from: the ablative for a `-maa` place (`Saksamaalt`)
+   * and the elative for any other (`Soomest`), which is how a native says it
+   * and which no single case gives across a card of countries.
    */
   readonly et: string;
   /** What it says, with `{slot}` for the value's English. */
@@ -59,9 +63,21 @@ export type ScenePicks = Readonly<Record<string, readonly PickSpec[]>>;
 
 const SLOT = /\{([a-zA-Z0-9]+)(?::([A-Z]+))?\}/g;
 
+/** Where a place is from, in the set of local cases the place takes (`lib/estonian/caseQuestion.ts`). */
+const FROM = "FROM";
+
+/** The case a slot's marker asks for, given the value's lemma. */
+export function caseFor(marker: string, lemma: string): CaseKey {
+  if (marker === FROM) {
+    const takes = localCasesFor({ lemma, semanticTypes: null, nomSg: lemma });
+    return takes.includes("ELATIVE") ? "ELATIVE" : "ABLATIVE";
+  }
+  return marker as CaseKey;
+}
+
 /** The slots a template names, for the test. */
-export function slotsOf(template: string): { slot: string; grammCase?: CaseKey }[] {
-  return [...template.matchAll(SLOT)].map((m) => ({ slot: m[1]!, grammCase: m[2] as CaseKey | undefined }));
+export function slotsOf(template: string): { slot: string; marker?: string }[] {
+  return [...template.matchAll(SLOT)].map((m) => ({ slot: m[1]!, marker: m[2] }));
 }
 
 /** The template with its slots taken out, which is every word written here. */
@@ -81,7 +97,7 @@ export function buildPick(template: PickSpec, card: RoleCard | null, lexicon: Le
     if (!prop?.value) { missing = true; return ""; }
     if (!grammCase) return prop.value;
     const lemma = prop.lemmas[0];
-    const form = lemma ? lexicon.caseForm.get(caseKeyFor(lemma, grammCase as CaseKey)) : undefined;
+    const form = lemma ? lexicon.caseForm.get(caseKeyFor(lemma, caseFor(grammCase, lemma))) : undefined;
     if (!form) { missing = true; return ""; }
     return form;
   });

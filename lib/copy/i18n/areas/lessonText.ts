@@ -4011,6 +4011,11 @@ export const LESSON_TEXT_AREA: Area = {
     "A chat like this is mostly short answers. {Olin Tartus} is plenty.": "В таком разговоре почти всё короткие ответы. {Olin Tartus} вполне достаточно.",
     "The fourth of May.": "Четвёртое мая.",
     "Great!": "Здорово!",
+    "Liis asks {Kuhu te sõidate?} with {teie}, the polite you, because Tom is a stranger. He answers with just the place, {Tartusse}.": "Лийс спрашивает {Kuhu te sõidate?} с {teie}, вежливым «вы», потому что Том ей незнаком. Он отвечает просто местом: {Tartusse}.",
+    "It arrives in Tartu at ten.": "В Тарту прибывает в десять.",
+    "And something for a runny nose?": "А что-нибудь от насморка?",
+    "I'm afraid Mari isn't at home right now.": "К сожалению, Мари сейчас нет дома.",
+    "Now I'll read a bit every day.": "Теперь буду читать понемногу каждый день.",
   },
   uk: {
     "Hi there!": "Привіт!",
@@ -8005,5 +8010,10 @@ export const LESSON_TEXT_AREA: Area = {
     "A chat like this is mostly short answers. {Olin Tartus} is plenty.": "У такій розмові майже все короткі відповіді. {Olin Tartus} цілком досить.",
     "The fourth of May.": "Четверте травня.",
     "Great!": "Чудово!",
+    "Liis asks {Kuhu te sõidate?} with {teie}, the polite you, because Tom is a stranger. He answers with just the place, {Tartusse}.": "Лійс питає {Kuhu te sõidate?} з {teie}, ввічливим «ви», бо Том їй незнайомий. Він відповідає просто місцем: {Tartusse}.",
+    "It arrives in Tartu at ten.": "До Тарту прибуває о десятій.",
+    "And something for a runny nose?": "А щось від нежитю?",
+    "I'm afraid Mari isn't at home right now.": "На жаль, Марі зараз немає вдома.",
+    "Now I'll read a bit every day.": "Тепер читатиму потроху щодня.",
   },
 };

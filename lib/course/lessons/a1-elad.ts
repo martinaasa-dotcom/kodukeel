@@ -503,7 +503,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
         "For now, answer a no on its own: {Ei, mul ei ole}. Adding the noun after it changes the noun's ending, and lesson 25 explains how.",
       ],
       watchOut: "{Ma olen vend} means I am a brother. Having is always {mul on}.",
-      examples: [0, 1, 3],
+      examples: [0, 3, 4],
     },
     answers: [
       { ask: { et: "Kas sul on vend?", en: "Do you have a brother?" }, cue: "Answer yes.", model: { et: "Jah, mul on vend.", en: "Yes, I have a brother." } },

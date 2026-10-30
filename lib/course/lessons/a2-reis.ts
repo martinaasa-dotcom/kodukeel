@@ -36,7 +36,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Edasi-tagasi. Mis kell rong läheb?", en: "Round trip. What time does the train leave?" },
       { who: "Kati", et: "Kell kaheksa. Rong väljub esimeselt platvormilt.", en: "At eight. The train leaves from platform one." },
       { who: "Tom", et: "Ja mis kell see Tartus on?", en: "And what time does it get to Tartu?" },
-      { who: "Kati", et: "Kell kümme.", en: "At ten." },
+      { who: "Kati", et: "Tartusse saabub kell kümme.", en: "It arrives in Tartu at ten." },
       { who: "Tom", et: "Kui palju see maksab?", en: "How much is it?" },
       { who: "Kati", et: "Kakskümmend eurot.", en: "Twenty euros." },
     ],
@@ -68,7 +68,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
         "Platform one is the first platform: {esimeselt platvormilt}, from part one's {esimene} with -lt on its stem.",
       ],
       watchOut: "Arrive is into a place: {saabub Tartusse}, with -sse, as English says arrive in.",
-      examples: [1, 3, 4],
+      examples: [1, 3, 5],
     },
     answers: [
       { cue: "Ask for one ticket to Tartu.", model: { et: "Üks pilet Tartusse, palun.", en: "One ticket to Tartu, please." } },
@@ -360,7 +360,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
     },
     answers: [
       { ask: { et: "Kuidas sa Helsingisse sõidad?", en: "How are you getting to Helsinki?" }, cue: "Say by boat.", model: { et: "Laevaga.", en: "By boat." } },
-      { cue: "Say the plane leaves at six in the morning.", model: { et: "Lennuk väljub hommikul kell kuus.", en: "The plane leaves at six in the morning." } },
+      { cue: "Say the plane leaves at six in the morning.", model: { et: "Lennuk läheb hommikul kell kuus.", en: "The plane leaves at six in the morning." } },
       { ask: { et: "Kas sa oled valmis?", en: "Are you ready?" }, cue: "Say yes, your passport and suitcase are ready.", model: { et: "Jah, pass ja kohver on valmis.", en: "Yes, my passport and suitcase are ready." } },
       { cue: "Say you have to be at the airport at four.", model: { et: "Ma pean kell neli lennujaamas olema.", en: "I have to be at the airport at four." } },
     ],

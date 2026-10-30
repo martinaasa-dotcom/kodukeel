@@ -156,7 +156,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Ja jope taskus?", en: "And in your jacket pocket?" },
       { who: "Tom", et: "Vaatasin juba. Leidsin ainult ühe vana soki.", en: "I've looked already. All I found was one old sock." },
       { who: "Mari", et: "Soki? Miks sul sokk taskus on?", en: "A sock? Why have you got a sock in your pocket?" },
-      { who: "Tom", et: "Ei tea.", en: "No idea." },
+      { who: "Tom", et: "Ma tegelikult ei tea.", en: "Actually, I've no idea." },
       { who: "Tom", et: "Ja Anna magab juba.", en: "And Anna's asleep already." },
       { who: "Mari", et: "Tom, vaata! Su võtmed on ju ukse küljes.", en: "Tom, look! Your keys are in the door.", stage: "She points at the lock and laughs." },
       { who: "Tom", et: "Sinna ma üldse ei vaadanud!", en: "I didn't look there at all!" },
@@ -313,7 +313,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
         "{Osa} is a part, some of it: {Ainult osa}. {Terve} is whole: {terve kilo}.",
       ],
       watchOut: "English says I ate the apples whether any are left or not. In Estonian, {Ma sõin õunad ära} means they're gone, every one.",
-      examples: [1, 3, 8, 9],
+      examples: [0, 3, 8, 9],
     },
     answers: [
       { ask: { et: "Mida sa turult ostsid?", en: "What did you buy at the market?" }, cue: "Say you bought some apples.", model: { et: "Ma ostsin õunu.", en: "I bought some apples." } },

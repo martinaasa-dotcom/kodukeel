@@ -8,7 +8,7 @@ const SCENES = [...LISTED, ...LESSON_SCENES];
 import { planRun, fitsIn, notBeforeIn } from "./run";
 import { hurdleBeat, isOver } from "./state";
 import { words } from "./lexicon";
-import { buildPick, literalOf, pickSpecsFor, picksFor, slotsOf } from "./picks";
+import { buildPick, caseFor, literalOf, pickSpecsFor, picksFor, slotsOf } from "./picks";
 import { acceptFromRows, contextFromRows, replay, sceneLemmas, type Row, type SentTurn, type StoredDraw } from "@/lib/progress/scene";
 import { shippedDictionary } from "../../scripts/lib/dictionary";
 import type { SceneSpec } from "./types";
@@ -100,6 +100,36 @@ describe.each(SCENES.map((s) => [s.id, s] as const))("picks in %s", (_id, scene)
     for (const beat of scene.beats.filter((b) => b.required)) expect(state.done).toContain(beat.id);
   });
 
+  it("puts a place in a local case only where every value takes the same set, else through FROM", () => {
+    const LOCAL = new Set(["INESSIVE", "ELATIVE", "ILLATIVE", "ADESSIVE", "ABLATIVE", "ALLATIVE"]);
+    const ids = [...scene.beats.map((b) => b.id), ...scene.curveballs.map((c) => `hurdle:${c}`)];
+    for (const id of ids) {
+      for (const spec of pickSpecsFor(scene, id)) {
+        for (const { slot, marker } of slotsOf(spec.et)) {
+          if (!marker || !LOCAL.has(marker)) continue;
+          const prop = scene.props.find((p) => p.slot === slot);
+          const values = prop && "oneOf" in prop ? prop.oneOf : [];
+          const outside = new Set(values.map((v) => caseFor("FROM", v)));
+          expect(outside.size, `${id}: "${spec.et}" puts {${slot}} in the ${marker}, but ${values.join(", ")} do not all take it`).toBeLessThanOrEqual(1);
+        }
+      }
+    }
+  });
+
+  it("builds every pick that puts a value in a case, on every value the card can deal", () => {
+    const ids = [...scene.beats.map((b) => b.id), ...scene.curveballs.map((c) => `hurdle:${c}`)];
+    const cased = ids.flatMap((id) => pickSpecsFor(scene, id).filter((spec) => slotsOf(spec.et).some((s) => s.marker)).map((spec) => ({ id, spec })));
+    let built = 0;
+    for (let n = 0; n < 40; n++) {
+      const run = planRun(scene, `picks-every-${n}`, "A2", "textbook");
+      for (const { id, spec } of cased) {
+        expect(buildPick(spec, run.card, context.lexicon), `${id}: "${spec.et}" builds nothing on picks-every-${n}'s card`).not.toBeNull();
+        built++;
+      }
+    }
+    expect(built).toBe(cased.length * 40);
+  });
+
   it("answers every curveball it admits with picks the reader counts as dealing with it", () => {
     const run = planRun(scene, "picks-curveballs", "A2", "textbook");
     const fits = fitsIn(scene);
@@ -131,5 +161,14 @@ describe.each(SCENES.map((s) => [s.id, s] as const))("picks in %s", (_id, scene)
         expect(tried.hurdles.find((h) => h.id === id)?.met, `"${built!.et}" does not deal with ${id} in ${scene.id}`).toBe(true);
       }
     }
+  });
+});
+
+describe("where somebody is from", () => {
+  it("takes the ablative for a -maa place and the elative for any other", () => {
+    expect(caseFor("FROM", "Saksamaa")).toBe("ABLATIVE");
+    expect(caseFor("FROM", "Soome")).toBe("ELATIVE");
+    expect(caseFor("FROM", "Ameerika")).toBe("ELATIVE");
+    expect(caseFor("ELATIVE", "Saksamaa")).toBe("ELATIVE");
   });
 });

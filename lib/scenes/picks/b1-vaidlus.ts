@@ -15,7 +15,7 @@ export const b1Vaidlus: ScenePicks = {
     { et: "Kontoris saab kohvi koos juua.", en: "At the office you can have coffee together." },
   ],
   bus: [
-    { et: "See on õige, aga mulle meeldib bussiga sõita.", en: "That's right, but I like taking the bus." },
+    { et: "See on tõsi, aga mulle meeldib bussiga sõita.", en: "That's true, but I like taking the bus." },
     { et: "Mulle meeldib bussiga sõita.", en: "I like taking the bus." },
   ],
   cost: [

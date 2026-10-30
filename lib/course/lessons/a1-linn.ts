@@ -448,11 +448,11 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
       point: "A whole conversation with a stranger, made only of what this part taught.",
       notes: [
         "Notice how Tom asks: {Vabandust} first, then the question.",
-        "Liis asks {Kuhu te sõidate?} with {teie}, the polite you, because Tom is a stranger. He answers with {ma}, as usual.",
+        "Liis asks {Kuhu te sõidate?} with {teie}, the polite you, because Tom is a stranger. He answers with just the place, {Tartusse}.",
         "At the end, you stop somebody in town and ask the way to the pharmacy, one turn at a time, until you've held the whole conversation.",
       ],
       watchOut: "You don't have to understand every word of the directions. Catch {otse}, {vasakule} and {paremale}, and the rest is pointing.",
-      examples: [0, 3, 5],
+      examples: [0, 3, 4],
     },
     answers: [
       { cue: "Stop a stranger and ask where the bus station is.", model: { et: "Vabandust, kus on bussijaam?", en: "Excuse me, where's the bus station?" } },

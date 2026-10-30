@@ -11,8 +11,8 @@ export const keeletund: ScenePicks = {
     { et: "Ma olen Anna.", en: "I'm Anna." },
   ],
   from: [
-    { et: "Ma olen pärit {from:ELATIVE}.", en: "I'm from {from}." },
-    { et: "Olen pärit {from:ELATIVE}, aga elan nüüd Eestis.", en: "I'm from {from}, but I live in Estonia now." },
+    { et: "Ma olen pärit {from:FROM}.", en: "I'm from {from}." },
+    { et: "Olen pärit {from:FROM}, aga elan nüüd Eestis.", en: "I'm from {from}, but I live in Estonia now." },
   ],
   why: [
     { et: "{why:GENITIVE} pärast.", en: "Because of my {why}." },

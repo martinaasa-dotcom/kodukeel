@@ -8,7 +8,7 @@ import type { ScenePicks } from "../picks";
 export const a2VanaSober: ScenePicks = {
   greet: [
     { et: "Tere!", en: "Hello!" },
-    { et: "Tere päevast!", en: "Good afternoon!" },
+    { et: "Tere, tere!", en: "Hi there!" },
   ],
   did: [
     { et: "Ma olin Tartus, töötasin seal.", en: "I was in Tartu. I worked there." },

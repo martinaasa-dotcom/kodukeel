@@ -27,7 +27,7 @@ export const eksamB2: ScenePicks = {
     { et: "Sest tööd on sama palju, aga aega on vähem.", en: "Because there's the same amount of work, but less time." },
   ],
   counter: [
-    { et: "Osaliselt olen nõus, aga mitte päris.", en: "I partly agree, but not completely." },
+    { et: "Osaliselt olen nõus, aga mitte kõiges.", en: "I partly agree, but not with everything." },
     { et: "See pole lihtne, aga ma arvan ikka sama.", en: "It isn't simple, but I still think the same." },
     { et: "Ma saan aru, aga minu põhjus on ikka sama.", en: "I understand, but my reason is still the same." },
   ],

@@ -22,7 +22,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "lastevanemad", beat: "how", text: "Ta õpib hästi ja on sõbralik. Aga ta teeb palju vigu.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "lastevanemad", beat: "how", text: "Ta on tubli ja sõbralik, aga vigu tuleb päris palju.", model: "authored", draftedAt: "2026-10-30", reviewedAt: "2026-10-30" },
   { scene: "lastevanemad", beat: "answer:how", text: "Vead on väikesed. Ta õpib hästi.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "lastevanemad", beat: "answer:how", text: "Ei, need on väikesed vead. Ta õpib väga hästi.", model: "authored", draftedAt: "2026-10-30", reviewedAt: "2026-10-30" },
+  { scene: "lastevanemad", beat: "answer:how", text: "Need on väikesed vead. Ta õpib väga hästi.", model: "authored", draftedAt: "2026-10-30", reviewedAt: "2026-10-30" },
   { scene: "lastevanemad", beat: "home", text: "Kuidas ta kodus on?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "lastevanemad", beat: "home", text: "Kuidas tal kodus läheb?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "lastevanemad", beat: "practise", text: "Palun lugege temaga kodus iga päev.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },

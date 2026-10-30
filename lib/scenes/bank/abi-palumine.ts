@@ -20,7 +20,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "abi-palumine", beat: "ask", text: "Jah? Kas saan aidata?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "abi-palumine", beat: "ask", text: "Jah? Mis teil vaja on?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "abi-palumine", beat: "how", text: "Jah, muidugi! Hoidke ust lahti, ma võtan koti ja kannan sisse.", model: "authored", draftedAt: "2026-10-16", reviewedAt: "2026-10-16" },
-  { scene: "abi-palumine", beat: "how", text: "Muidugi! Te hoidke ust, mina kannan koti sisse.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "abi-palumine", beat: "how", text: "Muidugi! Teie hoidke ust, mina kannan koti sisse.", model: "authored", draftedAt: "2026-10-30", reviewedAt: "2026-10-30" },
   { scene: "abi-palumine", beat: "again", text: "Teie hoiate ust. Mina võtan koti ja kannan sisse.", model: "authored", draftedAt: "2026-10-16", reviewedAt: "2026-10-16" },
   { scene: "abi-palumine", beat: "again", text: "Hoidke ust lahti. Mina kannan koti sisse.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "abi-palumine", beat: "thanks", text: "Nii, kott on sees. Pole midagi!", model: "authored", draftedAt: "2026-10-16", reviewedAt: "2026-10-16" },

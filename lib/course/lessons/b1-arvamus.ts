@@ -637,7 +637,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       { who: "Helgi", et: "Ja kus mina igal õhtul koeraga jalutan.", en: "And where I walk the dog every evening." },
       { who: "Helgi", et: "Minu meelest on see väga halb idee.", en: "If you ask me, it's a very bad idea." },
       { who: "Helgi", et: "Linnal on foorum, kus saab oma arvamust avaldada.", en: "The city has a forum where you can give your opinion." },
-      { who: "Helgi", et: "Sul on ju hea eesti keel. Kirjuta palun sinna, mida sa arvad ja miks.", en: "Your Estonian's good, after all. Do write there what you think and why." },
+      { who: "Helgi", et: "Sul on ju hea eesti keel. Kirjuta palun sinna, mida sa arvad ja miks.", en: "Your Estonian's good, after all. Please write there what you think and why." },
       { who: "Helgi", et: "Ma kirjutan ka. Helista mulle tagasi! Head aega!", en: "I'm writing too. Call me back! Bye!" },
     ],
     teaches: [

@@ -7,13 +7,13 @@ in the script and say what is waiting on a person.
 ## What is waiting, and who does it
 
 1. **Estonian, read by the native speaker** (ADR-005 amendment 6). Every Estonian line the lessons and their
-   scenes added or changed since `e347893`: 2605 lines (A1 127, A2 229, B1 2249). Section 1 below. Mark
+   scenes added or changed since `e347893`: 2611 lines (A1 130, A2 231, B1 2250). Section 1 below. Mark
    each OK or write the fix; a fix goes into the lesson or scene file the lesson id names, and must still pass
    `npm test` (every word taught before it is shown). For B1 the lines to read first, what each part's author
    was unsure of and what a second model flagged, are in `docs/reviews/b1-flags.md`.
 2. **Recordings, by the native speaker.** The lessons are only partly recorded: the catalog in
    `lib/audio/native.ts` reaches lessons 1 to 13 of A1, and a man's part plays the native voice only where every
-   line of it is recorded. Section 2 lists 2903 lines and words no recording says yet (A1 665, A2 1013, B1 1225),
+   line of it is recorded. Section 2 lists 2905 lines and words no recording says yet (A1 665, A2 1015, B1 1225),
    men's parts, model answers and taught words. The known retakes are listed first in that section.
 3. **Russian and Ukrainian, read by fluent readers.** Both languages were machine translated, and every
    line was read and corrected on 2026-10-25. A line written or changed after that is not:
@@ -103,6 +103,8 @@ Russian and Ukrainian.
 | 21 | Conversation, Tom | Minu nimi on Tom. Ma olen pärit Inglismaalt, aga elan Tallinnas. | My name's Tom. I'm from England, but I live in Tallinn. | |
 | 22 | Conversation, Anna | Mina olen Anna, olen pärit Ukrainast. Räägin ukraina ja vene keelt, natuke ka eesti keelt. | I'm Anna. I'm from Ukraine. I speak Ukrainian, Russian and a little Estonian. | |
 | 23 | Role-play, they say | Kas te räägite vene keelt? | Do you speak Russian? | |
+| 24 | Live scene, learner may pick (from) | Ma olen pärit {from:FROM}. | I'm from {from}. | |
+| 25 | Live scene, learner may pick (from) | {from:FROM}. | From {from}. | |
 
 ### A1: Time and day
 
@@ -110,59 +112,59 @@ Russian and Ukrainian.
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 24 | Conversation, Tom | Ah jaa! Eile oli esmaspäev. | Oh, right! Yesterday was Monday. | |
-| 25 | Words (phrase) | Ah jaa! | Oh, right! | |
-| 26 | How it works | kolmapäev, kolm, neljapäev, neli | The first four count the week from the start, first to fourth: {kolmapäev} starts with {kolm}, three, and {neljapäev} with a form of {neli}, four. | |
+| 26 | Conversation, Tom | Ah jaa! Eile oli esmaspäev. | Oh, right! Yesterday was Monday. | |
+| 27 | Words (phrase) | Ah jaa! | Oh, right! | |
+| 28 | How it works | kolmapäev, kolm, neljapäev, neli | The first four count the week from the start, first to fourth: {kolmapäev} starts with {kolm}, three, and {neljapäev} with a form of {neli}, four. | |
 
 #### A1 19. What time is it? (`a1-19-time`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 27 | Conversation, Mari | Jah, neli kolmkümmend. | Yes, four thirty. | |
+| 29 | Conversation, Mari | Jah, neli kolmkümmend. | Yes, four thirty. | |
 
 #### A1 20. My day (`a1-20-my-day`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 28 | Conversation, Tom | Kell seitse. Ja sina? | At seven. And you? | |
+| 30 | Conversation, Tom | Kell seitse. Ja sina? | At seven. And you? | |
 
 #### A1 21. What are you doing? (`a1-21-doing`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 29 | Conversation, Mari | Kuulan muusikat. Jaan vaatab telekat. | I'm listening to music. Jaan's watching TV. | |
-| 30 | Conversation, Tom | Õhtul? Ma ei tea veel. | This evening? I don't know yet. | |
-| 31 | Words (phrase) | telekat | TV, after watch | |
-| 32 | How it works | loen raamatut, kuulan muusikat, vaatan telekat | What you read, hear or watch takes an ending of its own: {loen raamatut}, {kuulan muusikat}, {vaatan telekat}. | |
-| 33 | How it works | raamatut, muusikat, telekat, eesti keelt, kaks aastat | Learn {raamatut}, {muusikat} and {telekat} whole for now. The ending is the same one as in {eesti keelt} and {kaks aastat}, and lesson 25 explains it. | |
-| 34 | How it works, table | telekat |  | |
+| 31 | Conversation, Mari | Kuulan muusikat. Jaan vaatab telekat. | I'm listening to music. Jaan's watching TV. | |
+| 32 | Conversation, Tom | Õhtul? Ma ei tea veel. | This evening? I don't know yet. | |
+| 33 | Words (phrase) | telekat | TV, after watch | |
+| 34 | How it works | loen raamatut, kuulan muusikat, vaatan telekat | What you read, hear or watch takes an ending of its own: {loen raamatut}, {kuulan muusikat}, {vaatan telekat}. | |
+| 35 | How it works | raamatut, muusikat, telekat, eesti keelt, kaks aastat | Learn {raamatut}, {muusikat} and {telekat} whole for now. The ending is the same one as in {eesti keelt} and {kaks aastat}, and lesson 25 explains it. | |
+| 36 | How it works, table | telekat |  | |
 
 #### A1 21a. How often (`a1-21a-how-often`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 35 | Conversation, Tom | Mõnikord ma loen, mõnikord vaatan telekat. | Sometimes I read, sometimes I watch TV. | |
-| 36 | Conversation, Tom | Ma vaatan alati telekat! | I always watch TV! | |
-| 37 | How it works | Mõnikord ma loen, Ma vaatan alati telekat | The how-often word can lead the sentence, {Mõnikord ma loen}, or follow the verb, {Ma vaatan alati telekat}. Both are fine. | |
+| 37 | Conversation, Tom | Mõnikord ma loen, mõnikord vaatan telekat. | Sometimes I read, sometimes I watch TV. | |
+| 38 | Conversation, Tom | Ma vaatan alati telekat! | I always watch TV! | |
+| 39 | How it works | Mõnikord ma loen, Ma vaatan alati telekat | The how-often word can lead the sentence, {Mõnikord ma loen}, or follow the verb, {Ma vaatan alati telekat}. Both are fine. | |
 
 #### A1 22. I want, I can, I have to (`a1-22-want`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 38 | Conversation, Mari | Mina ka. Aga ma pean täna õppima. | So do I. But I have to study today. | |
+| 40 | Conversation, Mari | Mina ka. Aga ma pean täna õppima. | So do I. But I have to study today. | |
 
 #### A1 23. Making a plan (`a1-23-plan`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 39 | Conversation, Tom | Ma ei tea veel. Ma ei tööta. | I don't know yet. I'm not working. | |
-| 40 | Conversation, Liis | Tahad tulla? Ma teen süüa. | Do you want to come over? I'm cooking. | |
-| 41 | Role-play, they say | Tahad tulla? Ma teen süüa. | Do you want to come over? I'm cooking. | |
-| 42 | Live scene, they say (saturday) | Mis sa laupäeval teed? |  | |
-| 43 | Live scene, they say (saturday) | Ja mis sa laupäeval teed? |  | |
-| 44 | Live scene, they say (invite) | Ma teen süüa. Tahad tulla? |  | |
-| 45 | Live scene, they say (invite) | Kas sa tahad tulla? Ma teen süüa. |  | |
-| 46 | Live scene, learner may pick (invite) | Jah, tulen! | Yes, I'll come! | |
+| 41 | Conversation, Tom | Ma ei tea veel. Ma ei tööta. | I don't know yet. I'm not working. | |
+| 42 | Conversation, Liis | Tahad tulla? Ma teen süüa. | Do you want to come over? I'm cooking. | |
+| 43 | Role-play, they say | Tahad tulla? Ma teen süüa. | Do you want to come over? I'm cooking. | |
+| 44 | Live scene, they say (saturday) | Mis sa laupäeval teed? |  | |
+| 45 | Live scene, they say (saturday) | Ja mis sa laupäeval teed? |  | |
+| 46 | Live scene, they say (invite) | Ma teen süüa. Tahad tulla? |  | |
+| 47 | Live scene, they say (invite) | Kas sa tahad tulla? Ma teen süüa. |  | |
+| 48 | Live scene, learner may pick (invite) | Jah, tulen! | Yes, I'll come! | |
 
 ### A1: Food and drink
 
@@ -170,30 +172,30 @@ Russian and Ukrainian.
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 47 | Conversation, Mari | Mina joon teed. Ja ma söön saia. | I'm having tea. And I'll have a bun. | |
-| 48 | Conversation, Mari | Ei, piima pole. Aga vett on! | No, there's no milk. But there's water! | |
-| 49 | How it works | piima pole, Kas meil on piima? | A no takes it too: {piima pole}, there's no milk. So does asking whether there's any: {Kas meil on piima?} | |
-| 50 | Say it, model answer | Ei, piima pole. | No, there's no milk. | |
-| 51 | Say it, model answer | Ma tahan kooki süüa. | I want to eat cake. | |
+| 49 | Conversation, Mari | Mina joon teed. Ja ma söön saia. | I'm having tea. And I'll have a bun. | |
+| 50 | Conversation, Mari | Ei, piima pole. Aga vett on! | No, there's no milk. But there's water! | |
+| 51 | How it works | piima pole, Kas meil on piima? | A no takes it too: {piima pole}, there's no milk. So does asking whether there's any: {Kas meil on piima?} | |
+| 52 | Say it, model answer | Ei, piima pole. | No, there's no milk. | |
+| 53 | Say it, model answer | Ma tahan kooki süüa. | I want to eat cake. | |
 
 #### A1 26a. More food (`a1-26a-food`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 52 | Conversation, Tom | Tavaliselt kala ja kartulit. | Usually fish and potatoes. | |
+| 54 | Conversation, Tom | Tavaliselt kala ja kartulit. | Usually fish and potatoes. | |
 
 #### A1 27. How much is it? (`a1-27-price`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 53 | Conversation, Liis | Neli eurot viiskümmend. | Four fifty. | |
+| 55 | Conversation, Liis | Neli eurot viiskümmend. | Four fifty. | |
 
 #### A1 28. I like it (`a1-28-like`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 54 | Conversation, Tom | Jah, väga! Ja sulle? | Yes, a lot! And you? | |
-| 55 | Conversation, Mari | Mulle ei meeldi. Mulle meeldib tee. | I don't. I like tea. | |
+| 56 | Conversation, Tom | Jah, väga! Ja sulle? | Yes, a lot! And you? | |
+| 57 | Conversation, Mari | Mulle ei meeldi. Mulle meeldib tee. | I don't. I like tea. | |
 
 ### A1: Home and city
 
@@ -201,67 +203,67 @@ Russian and Ukrainian.
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 56 | Conversation, Tom | See on mu korter. | This is my apartment. | |
-| 57 | Conversation, Tom | Köök on siin. Ja seal on mu tuba. | The kitchen's here. And my room's over there. | |
-| 58 | Conversation, Mari | Mis seal on? | What's in there? | |
-| 59 | Conversation, Tom | Voodi, laud ja tool. | A bed, a table and a chair. | |
-| 60 | Say it, model answer | See on mu korter. | This is my apartment. | |
+| 58 | Conversation, Tom | See on mu korter. | This is my apartment. | |
+| 59 | Conversation, Tom | Köök on siin. Ja seal on mu tuba. | The kitchen's here. And my room's over there. | |
+| 60 | Conversation, Mari | Mis seal on? | What's in there? | |
+| 61 | Conversation, Tom | Voodi, laud ja tool. | A bed, a table and a chair. | |
+| 62 | Say it, model answer | See on mu korter. | This is my apartment. | |
 
 #### A1 31. Where, where to, where from (`a1-31-where-to`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 61 | Conversation, Tom | Kodus. Ja sina? | At home. And you? | |
-| 62 | Conversation, Mari | Veel tööl. | Still at work. | |
-| 63 | Conversation, Mari | Töölt lähen poodi ja siis koju. | From work I'm going to the shop, and then home. | |
-| 64 | Conversation, Tom | Mina tulen ka poodi! Siis näeme poes! | I'm coming to the shop too! See you at the shop, then! | |
+| 63 | Conversation, Tom | Kodus. Ja sina? | At home. And you? | |
+| 64 | Conversation, Mari | Veel tööl. | Still at work. | |
+| 65 | Conversation, Mari | Töölt lähen poodi ja siis koju. | From work I'm going to the shop, and then home. | |
+| 66 | Conversation, Tom | Mina tulen ka poodi! Siis näeme poes! | I'm coming to the shop too! See you at the shop, then! | |
 
 #### A1 32. In the room (`a1-32-in`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 65 | Conversation, Tom | Mari, kus mu telefon on? | Mari, where's my phone? | |
-| 66 | Conversation, Tom | Ei, köögis pole. | No, it's not in the kitchen. | |
-| 67 | How it works | köögis ei ole, köögis pole | A no works the usual way: {köögis ei ole}, it isn't in the kitchen, or the short {köögis pole}, which is what people say. | |
+| 67 | Conversation, Tom | Mari, kus mu telefon on? | Mari, where's my phone? | |
+| 68 | Conversation, Tom | Ei, köögis pole. | No, it's not in the kitchen. | |
+| 69 | How it works | köögis ei ole, köögis pole | A no works the usual way: {köögis ei ole}, it isn't in the kitchen, or the short {köögis pole}, which is what people say. | |
 
 #### A1 32a. The rooms of an apartment (`a1-32a-rooms`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 68 | Conversation, Mari | See on mu korter. Siin on elutuba. | This is my apartment. Here's the living room. | |
-| 69 | Conversation, Mari | Magamistoas. See on seal. | In the bedroom. It's over there. | |
-| 70 | Conversation, Mari | Siin. | Here. | |
-| 71 | Conversation, Anna | Kas sul mahla on? | Do you have any juice? | |
-| 72 | Conversation, Mari | Jah, muidugi! Külmkapis. | Yes, of course! In the fridge. | |
-| 73 | Say it, model answer | Mu arvuti on elutoas. | My computer is in the living room. | |
+| 70 | Conversation, Mari | See on mu korter. Siin on elutuba. | This is my apartment. Here's the living room. | |
+| 71 | Conversation, Mari | Magamistoas. See on seal. | In the bedroom. It's over there. | |
+| 72 | Conversation, Mari | Siin. | Here. | |
+| 73 | Conversation, Anna | Kas sul mahla on? | Do you have any juice? | |
+| 74 | Conversation, Mari | Jah, muidugi! Külmkapis. | Yes, of course! In the fridge. | |
+| 75 | Say it, model answer | Mu arvuti on elutoas. | My computer is in the living room. | |
 
 #### A1 33. In town (`a1-33-town`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 74 | Conversation, Liis | See on kaugel. Otse, otse ja siis paremale. | That one's far. Straight on, keep going, then right. | |
+| 76 | Conversation, Liis | See on kaugel. Otse, otse ja siis paremale. | That one's far. Straight on, keep going, then right. | |
 
 #### A1 34. By bus (`a1-34-bus`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 75 | Conversation, Mari | Trammiga. Aga homme sõidan Tartusse. | By tram. But tomorrow I'm going to Tartu. | |
-| 76 | Conversation, Mari | Rongiga. Pilet maksab ainult üheksa eurot. | By train. The ticket's only nine euros. | |
+| 77 | Conversation, Mari | Trammiga. Aga homme sõidan Tartusse. | By tram. But tomorrow I'm going to Tartu. | |
+| 78 | Conversation, Mari | Rongiga. Pilet maksab ainult üheksa eurot. | By train. The ticket's only nine euros. | |
 
 #### A1 34a. Places in town (`a1-34a-town`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 77 | Conversation, Kati | Koolis. Ma olen õpetaja. Ja sina? | At a school. I'm a teacher. And you? | |
-| 78 | Conversation, Jaan | Hotellis, kesklinnas. | At a hotel, in the town center. | |
+| 79 | Conversation, Kati | Koolis. Ma olen õpetaja. Ja sina? | At a school. I'm a teacher. And you? | |
+| 80 | Conversation, Jaan | Hotellis, kesklinnas. | At a hotel, in the town center. | |
 
 #### A1 35. Asking the way (`a1-35-the-way`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 79 | Conversation, Tom | Tartusse. | To Tartu. | |
-| 80 | Conversation, Liis | Tartusse? Tore! | To Tartu? Nice! | |
-| 81 | Live scene, they say (answer:far) | Ei, pole kaugel. |  | |
+| 81 | Conversation, Tom | Tartusse. | To Tartu. | |
+| 82 | Conversation, Liis | Tartusse? Tore! | To Tartu? Nice! | |
+| 83 | Live scene, they say (answer:far) | Ei, pole kaugel. |  | |
 
 ### A1: In the shop
 
@@ -269,59 +271,58 @@ Russian and Ukrainian.
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 82 | Conversation, Tom | Ei, on väike. Aga ilus. | No, it's small. But it's nice. | |
-| 83 | Conversation, Tom | Ei, on vana. Aga hea maja! | No, it's old. But it's a good building! | |
-| 84 | Say it, model answer | Ei, on väike, aga ilus. | No, it's small, but nice. | |
+| 84 | Conversation, Tom | Ei, see on väike. Aga ilus. | No, it's small. But it's nice. | |
+| 85 | Conversation, Tom | Ei, vana. Aga hea maja! | No, it's old. But it's a good building! | |
 
 #### A1 36a. More describing words (`a1-36a-opposites`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 85 | Conversation, Tom | Ei, lühike. Aga õpetaja räägib väga kiiresti! | No, short. But the teacher talks really fast! | |
+| 86 | Conversation, Tom | Ei, lühike. Aga õpetaja räägib väga kiiresti! | No, short. But the teacher talks really fast! | |
 
 #### A1 37. Colors (`a1-37-colours`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 86 | Conversation, Liis | Punane. Mulle väga meeldib punane! | Red. I really like red! | |
-| 87 | Conversation, Tom | Mulle meeldib sinine. Ja roheline ka. | I like blue. And green too. | |
+| 87 | Conversation, Liis | Punane. Mulle väga meeldib punane! | Red. I really like red! | |
+| 88 | Conversation, Tom | Mulle meeldib sinine. Ja roheline ka. | I like blue. And green too. | |
 
 #### A1 38. Clothes (`a1-38-clothes`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 88 | Conversation, Liis | See must jope on väga ilus. Või see sinine. | This black jacket is really nice. Or this blue one. | |
-| 89 | Conversation, Tom | Kui palju see must maksab? | How much is the black one? | |
+| 89 | Conversation, Liis | See must jope on väga ilus. Või see sinine. | This black jacket is really nice. Or this blue one. | |
+| 90 | Conversation, Tom | Kui palju see must maksab? | How much is the black one? | |
 
 #### A1 38a. Warm clothes (`a1-38a-warm-clothes`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 90 | Conversation, Anna | Tere! Mul on vaja mantlit ja salli. | Hello! I need a coat and a scarf. | |
-| 91 | Conversation, Liis | Siin on hall mantel, väike. Ja siin on sall. | Here's a gray coat, a small. And here's a scarf. | |
-| 92 | Conversation, Anna | Ilus! Mul on vaja ka kampsunit. | Nice! I need a sweater too. | |
+| 91 | Conversation, Anna | Tere! Mul on vaja mantlit ja salli. | Hello! I need a coat and a scarf. | |
+| 92 | Conversation, Liis | Siin on hall mantel, väike. Ja siin on sall. | Here's a gray coat, a small. And here's a scarf. | |
+| 93 | Conversation, Anna | Ilus! Mul on vaja ka kampsunit. | Nice! I need a sweater too. | |
 
 #### A1 39. Weather (`a1-39-weather`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 93 | Conversation, Tom | Tõesti? Siin on väga külm ja suur tuul. | Really? Here it's very cold, with a strong wind. | |
+| 94 | Conversation, Tom | Tõesti? Siin on väga külm ja suur tuul. | Really? Here it's very cold, with a strong wind. | |
 
 #### A1 39a. More about the weather (`a1-39a-weather-words`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 94 | Conversation, Mari | Jah. Ja homme tuleb torm. | Yes. And there's a storm coming tomorrow. | |
-| 95 | Conversation, Tom | Torm? Siis olen homme kodus. | A storm? Then I'm staying home tomorrow. | |
+| 95 | Conversation, Mari | Jah. Ja homme tuleb torm. | Yes. And there's a storm coming tomorrow. | |
+| 96 | Conversation, Tom | Torm? Siis olen homme kodus. | A storm? Then I'm staying home tomorrow. | |
 
 #### A1 40. A clothes shop (`a1-40-clothes-shop`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 96 | Conversation, Liis | See hall müts on soe. Ja odav ka! | This gray hat is warm. And cheap too! | |
-| 97 | Conversation, Tom | Hästi. Kaardiga, palun. | Fine. By card, please. | |
-| 98 | Role-play, model answer | Hästi. Kaardiga, palun. | Fine. By card, please. | |
-| 99 | Live scene, learner may pick (pay) | Selge. Kaardiga, palun. | Okay. By card, please. | |
+| 97 | Conversation, Liis | See hall müts on soe. Ja odav ka! | This gray hat is warm. And cheap too! | |
+| 98 | Conversation, Tom | Hästi. Kaardiga, palun. | Fine. By card, please. | |
+| 99 | Role-play, model answer | Hästi. Kaardiga, palun. | Fine. By card, please. | |
+| 100 | Live scene, learner may pick (pay) | Selge. Kaardiga, palun. | Okay. By card, please. | |
 
 ### A1: Yesterday and tomorrow
 
@@ -329,47 +330,47 @@ Russian and Ukrainian.
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 100 | Conversation, Tom | Olin kodus. Tegin süüa ja lugesin raamatut. | I was at home. I cooked and read a book. | |
-| 101 | Conversation, Tom | Käisin poes. Ja sina? | I went to the shop. And you? | |
+| 101 | Conversation, Tom | Olin kodus. Tegin süüa ja lugesin raamatut. | I was at home. I cooked and read a book. | |
+| 102 | Conversation, Tom | Käisin poes. Ja sina? | I went to the shop. And you? | |
 
 #### A1 43. What did you do? (`a1-43-past-persons`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 102 | Conversation, Tom | Ma olin Tartus. Mari oli ka. | I was in Tartu. So was Mari. | |
-| 103 | Conversation, Tom | Ei, ta oli tööl. | No, he was at work. | |
+| 103 | Conversation, Tom | Ma olin Tartus. Mari oli ka. | I was in Tartu. So was Mari. | |
+| 104 | Conversation, Tom | Ei, ta oli tööl. | No, he was at work. | |
 
 #### A1 43a. Everyday verbs (`a1-43a-verbs`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 104 | Conversation, Mari | Tõesti? Tore! Ja mida sa poes ostad? | Really? Great! And what do you buy at the shop? | |
+| 105 | Conversation, Mari | Tõesti? Tore! Ja mida sa poes ostad? | Really? Great! And what do you buy at the shop? | |
 
 #### A1 44. Months and seasons (`a1-44-months`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 105 | Conversation, Tom | Oktoober. Sügis! | October. Autumn! | |
-| 106 | Conversation, Mari | Aga suvi? | And summer? | |
-| 107 | Conversation, Tom | Suvi on ka tore! Juulis sõidan Tartusse. | Summer's nice too! In July I'm going to Tartu. | |
+| 106 | Conversation, Tom | Oktoober. Sügis! | October. Autumn! | |
+| 107 | Conversation, Mari | Aga suvi? | And summer? | |
+| 108 | Conversation, Tom | Suvi on ka tore! Juulis sõidan Tartusse. | Summer's nice too! In July I'm going to Tartu. | |
 
 #### A1 44a. Special days (`a1-44a-special-days`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 108 | Conversation, Mari | Mul on täna sünnipäev! | It's my birthday today! | |
-| 109 | Conversation, Tom | Ja mida sa nädalavahetusel teed? | And what are you doing this weekend? | |
-| 110 | Say it, question | Mul on täna sünnipäev! | It's my birthday today! | |
+| 109 | Conversation, Mari | Mul on täna sünnipäev! | It's my birthday today! | |
+| 110 | Conversation, Tom | Ja mida sa nädalavahetusel teed? | And what are you doing this weekend? | |
+| 111 | Say it, question | Mul on täna sünnipäev! | It's my birthday today! | |
 
 #### A1 45. The weekend (`a1-45-weekend`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 111 | Conversation, Tom | Käisin poes, siis olin kodus ja lugesin raamatut. | I went to the shop, then I was at home and read a book. | |
-| 112 | Conversation, Tom | Olin Tartus. | I was in Tartu. | |
-| 113 | Conversation, Liis | Tartus? Tore! Saame järgmisel nädalal kokku? | In Tartu? How nice! Should we meet up next week? | |
-| 114 | How it works | Olin Tartus | A chat like this is mostly short answers. {Olin Tartus} is plenty. | |
-| 115 | Live scene, learner may pick (sunday) | Pühapäeval olin kodus. | On Sunday I was at home. | |
+| 112 | Conversation, Tom | Käisin poes, siis olin kodus ja lugesin raamatut. | I went to the shop, then I was at home and read a book. | |
+| 113 | Conversation, Tom | Olin Tartus. | I was in Tartu. | |
+| 114 | Conversation, Liis | Tartus? Tore! Saame järgmisel nädalal kokku? | In Tartu? How nice! Should we meet up next week? | |
+| 115 | How it works | Olin Tartus | A chat like this is mostly short answers. {Olin Tartus} is plenty. | |
+| 116 | Live scene, learner may pick (sunday) | Pühapäeval olin kodus. | On Sunday I was at home. | |
 
 ### A1: Help
 
@@ -377,33 +378,35 @@ Russian and Ukrainian.
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 116 | Conversation, Tom | Tere! Mul valutab pea. | Hello! My head hurts. | |
-| 117 | Conversation, Tom | Ei valuta. | No, it doesn't. | |
-| 118 | Conversation, Liis | Selge. Olge kolm päeva kodus ja jooge palju vett. | All right. Stay at home for three days and drink lots of water. | |
+| 117 | Conversation, Tom | Tere! Mul valutab pea. | Hello! My head hurts. | |
+| 118 | Conversation, Tom | Ei valuta. | No, it doesn't. | |
+| 119 | Conversation, Liis | Selge. Olge kolm päeva kodus ja jooge palju vett. | All right. Stay at home for three days and drink lots of water. | |
 
 #### A1 47a. In an emergency (`a1-47a-emergency`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 119 | Conversation, Tom | Mu sõber on haige. Tal valutab pea ja kõht. | My friend is sick. His head and stomach hurt. | |
+| 120 | Conversation, Tom | Mu sõber on haige. Tal valutab pea ja kõht. | My friend is sick. His head and stomach hurt. | |
 
 #### A1 48. On the phone (`a1-48-phone`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 120 | Conversation, Tom | Tere! Siin Tom. Kas Mari on kodus? | Hello! This is Tom. Is Mari in? | |
-| 121 | Conversation, Liis | Mari pole praegu kodus, ta on tööl. | Mari isn't in right now, she's at work. | |
-| 122 | How it works | Siin, Siin Tom | On the phone you say who you are with {Siin} and your name: {Siin Tom}, this is Tom. | |
-| 123 | How it works, table | Siin Tom. | This is Tom. | |
-| 124 | Say it, model answer | Tere! Siin Tom. Kas Mari on kodus? | Hello! This is Tom. Is Mari in? | |
-| 125 | Say it, question | Mari pole kodus. | Mari isn't in. | |
+| 121 | Conversation, Tom | Tere! Siin Tom. Kas Mari on kodus? | Hello! This is Tom. Is Mari in? | |
+| 122 | Conversation, Liis | Mari pole praegu kodus, ta on tööl. | Mari isn't in right now, she's at work. | |
+| 123 | How it works | Siin, Siin Tom | On the phone you say who you are with {Siin} and your name: {Siin Tom}, this is Tom. | |
+| 124 | How it works, table | Siin Tom. | This is Tom. | |
+| 125 | Say it, model answer | Tere! Siin Tom. Kas Mari on kodus? | Hello! This is Tom. Is Mari in? | |
+| 126 | Say it, question | Mari pole kodus. | Mari isn't in. | |
 
 #### A1 49. The end of A1 (`a1-49-invite`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 126 | Live scene, they say (name) | Mina olen Mari, elan ka siin. Mis su nimi on? |  | |
-| 127 | Live scene, learner may pick (name) | Väga meeldiv! Mina olen Anna. | Nice to meet you! I'm Anna. | |
+| 127 | Live scene, they say (name) | Mina olen Mari, elan ka siin. Mis su nimi on? |  | |
+| 128 | Live scene, learner may pick (name) | Väga meeldiv! Mina olen Anna. | Nice to meet you! I'm Anna. | |
+| 129 | Live scene, learner may pick (from) | Ma olen pärit {from:FROM}. | I'm from {from}. | |
+| 130 | Live scene, learner may pick (from) | {from:FROM}. | From {from}. | |
 
 ### A2: Whose and where
 
@@ -411,71 +414,71 @@ Russian and Ukrainian.
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 128 | Conversation, Tom | See pole minu oma. See on Jaani telefon. | It's not mine. It's Jaan's phone. | |
-| 129 | Conversation, Tom | See on mu sõbra Peetri kott. | That's my friend Peeter's bag. | |
-| 130 | Conversation, Mari | Aga see võti? Kas see on sinu oma? | And this key? Is it yours? | |
-| 131 | Conversation, Tom | Ei, see on mu venna oma. Ta tuleb homme. | No, it's my brother's. He's coming tomorrow. | |
-| 132 | Say it, model answer | See on minu oma. | It's mine. | |
-| 133 | Say it, model answer | See on mu venna oma. | It's my brother's. | |
+| 131 | Conversation, Tom | See pole minu oma. See on Jaani telefon. | It's not mine. It's Jaan's phone. | |
+| 132 | Conversation, Tom | See on mu sõbra Peetri kott. | That's my friend Peeter's bag. | |
+| 133 | Conversation, Mari | Aga see võti? Kas see on sinu oma? | And this key? Is it yours? | |
+| 134 | Conversation, Tom | Ei, see on mu venna oma. Ta tuleb homme. | No, it's my brother's. He's coming tomorrow. | |
+| 135 | Say it, model answer | See on minu oma. | It's mine. | |
+| 136 | Say it, model answer | See on mu venna oma. | It's my brother's. | |
 
 #### A2 2. The apartment key (`a2-02-which`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 134 | Conversation, Liis | Tere tulemast! Siin on korteri võti. | Welcome! Here's the key to the apartment. | |
-| 135 | Conversation, Liis | See on postkasti oma. | That's for the mailbox. | |
-| 136 | Conversation, Tom | Selge. Ja see uks? | Got it. And this door? | |
-| 137 | Conversation, Liis | See on vannitoa uks. Ja seal on magamistuba. | That's the bathroom door. And the bedroom's over there. | |
-| 138 | Say it, model answer | Postkasti võti. | The mailbox key. | |
-| 139 | Say it, question | Mis uks see on? | What door is this? | |
-| 140 | Say it, model answer | Vannitoa uks. | The bathroom door. | |
+| 137 | Conversation, Liis | Tere tulemast! Siin on korteri võti. | Welcome! Here's the key to the apartment. | |
+| 138 | Conversation, Liis | See on postkasti oma. | That's for the mailbox. | |
+| 139 | Conversation, Tom | Selge. Ja see uks? | Got it. And this door? | |
+| 140 | Conversation, Liis | See on vannitoa uks. Ja seal on magamistuba. | That's the bathroom door. And the bedroom's over there. | |
+| 141 | Say it, model answer | Postkasti võti. | The mailbox key. | |
+| 142 | Say it, question | Mis uks see on? | What door is this? | |
+| 143 | Say it, model answer | Vannitoa uks. | The bathroom door. | |
 
 #### A2 3. On, under, next to (`a2-03-on-under`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 141 | Conversation, Tom | Ei, seal pole. | No, it's not there. | |
+| 144 | Conversation, Tom | Ei, seal pole. | No, it's not there. | |
 
 #### A2 4. Before and after (`a2-04-before-after`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 142 | Conversation, Tom | Pärast tööd. Lõpetan kümne minuti pärast. | After work. I finish in ten minutes. | |
-| 143 | Conversation, Mari | Selge. Tuled bussiga? | Got it. Coming by bus? | |
-| 144 | Conversation, Tom | Jah. Olen tunni pärast sinu juures. | Yes. I'll be at your place in an hour. | |
-| 145 | Conversation, Mari | Hästi. Pärast sööki vaatame filmi. | All right. After we eat, we'll watch a film. | |
-| 146 | Conversation, Tom | Tore! Siis näeme! | Great! See you then! | |
+| 145 | Conversation, Tom | Pärast tööd. Lõpetan kümne minuti pärast. | After work. I finish in ten minutes. | |
+| 146 | Conversation, Mari | Selge. Tuled bussiga? | Got it. Coming by bus? | |
+| 147 | Conversation, Tom | Jah. Olen tunni pärast sinu juures. | Yes. I'll be at your place in an hour. | |
+| 148 | Conversation, Mari | Hästi. Pärast sööki vaatame filmi. | All right. After we eat, we'll watch a film. | |
+| 149 | Conversation, Tom | Tore! Siis näeme! | Great! See you then! | |
 
 #### A2 5. First, second, third (`a2-05-dates`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 147 | Conversation, Mari | Neljas mai. Miks? | The fourth of May. Why? | |
-| 148 | Conversation, Tom | Siis on homme mu ema sünnipäev! | Then tomorrow's my mom's birthday! | |
-| 149 | Conversation, Tom | Ei ole veel. Mis ma talle ostan? | Not yet. What should I get her? | |
-| 150 | Conversation, Mari | Osta lilli! Lilled on alati hea kingitus. | Buy some flowers! Flowers are always a good present. | |
-| 151 | Say it, model answer | Neljas mai. | The fourth of May. | |
-| 152 | Say it, model answer | Homme on mu ema sünnipäev. | Tomorrow's my mother's birthday. | |
+| 150 | Conversation, Mari | Neljas mai. Miks? | The fourth of May. Why? | |
+| 151 | Conversation, Tom | Siis on homme mu ema sünnipäev! | Then tomorrow's my mom's birthday! | |
+| 152 | Conversation, Tom | Ei ole veel. Mis ma talle ostan? | Not yet. What should I get her? | |
+| 153 | Conversation, Mari | Osta lilli! Lilled on alati hea kingitus. | Buy some flowers! Flowers are always a good present. | |
+| 154 | Say it, model answer | Neljas mai. | The fourth of May. | |
+| 155 | Say it, model answer | Homme on mu ema sünnipäev. | Tomorrow's my mother's birthday. | |
 
 #### A2 6. Your details (`a2-06-details`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 153 | Conversation, Liis | Tere! Kuidas saan aidata? | Hello! How can I help? | |
+| 156 | Conversation, Liis | Tere! Kuidas saan aidata? | Hello! How can I help? | |
 
 #### A2 7. At the library (`a2-07-library`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 154 | Conversation, Liis | Tere, Tom! Kuidas saan aidata? | Hello, Tom! How can I help? | |
-| 155 | Conversation, Liis | Selge. Mis ta nimi on? | I see. What's her name? | |
-| 156 | Conversation, Tom | Anna Smith. | Anna Smith. | |
-| 157 | Conversation, Tom | Jah, minu oma. Aga kelle telefon see on? | Yes, it's mine. But whose phone is this? | |
-| 158 | Conversation, Liis | See on minu oma! Suur aitäh! | That's mine! Thank you so much! | |
-| 159 | Role-play, they say | Tere! Kuidas saan aidata? | Hello! How can I help? | |
-| 160 | Role-play, they say | See on minu oma! Suur aitäh! | That's mine! Thank you so much! | |
-| 161 | Live scene, they say (card) | Jah? Mida soovite? |  | |
-| 162 | Live scene, they say (name) | Teie eesnimi ja perekonnanimi, palun? |  | |
+| 157 | Conversation, Liis | Tere, Tom! Kuidas saan aidata? | Hello, Tom! How can I help? | |
+| 158 | Conversation, Liis | Selge. Mis ta nimi on? | I see. What's her name? | |
+| 159 | Conversation, Tom | Anna Smith. | Anna Smith. | |
+| 160 | Conversation, Tom | Jah, minu oma. Aga kelle telefon see on? | Yes, it's mine. But whose phone is this? | |
+| 161 | Conversation, Liis | See on minu oma! Suur aitäh! | That's mine! Thank you so much! | |
+| 162 | Role-play, they say | Tere! Kuidas saan aidata? | Hello! How can I help? | |
+| 163 | Role-play, they say | See on minu oma! Suur aitäh! | That's mine! Thank you so much! | |
+| 164 | Live scene, they say (card) | Jah? Mida soovite? |  | |
+| 165 | Live scene, they say (name) | Teie eesnimi ja perekonnanimi, palun? |  | |
 
 ### A2: In, on, to and from
 
@@ -483,69 +486,68 @@ Russian and Ukrainian.
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 163 | Conversation, Tom | Ülikoolist. Aga sina? | From the university. And you? | |
-| 164 | Conversation, Liis | Mina raamatukogust. Kuhu sa nüüd lähed? | From the library. Where are you off to now? | |
-| 165 | Conversation, Tom | Kesklinna. Pean panka minema. | Into town. I have to go to the bank. | |
-| 166 | Conversation, Liis | Mina ka! Lähme koos. | So am I! Let's go together. | |
+| 166 | Conversation, Tom | Ülikoolist. Aga sina? | From the university. And you? | |
+| 167 | Conversation, Liis | Mina raamatukogust. Kuhu sa nüüd lähed? | From the library. Where are you off to now? | |
+| 168 | Conversation, Tom | Kesklinna. Pean panka minema. | Into town. I have to go to the bank. | |
+| 169 | Conversation, Liis | Mina ka! Lähme koos. | So am I! Let's go together. | |
 
 #### A2 9. On, onto, off (`a2-09-outside`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 167 | Conversation, Mari | Mina olen veel tööl. Kas saame väljakul kokku? | I'm still at work. Should we meet on the square? | |
-| 168 | Conversation, Mari | Hästi, ootan kohvikus kiriku kõrval. | All right, I'll wait in the café next to the church. | |
+| 170 | Conversation, Mari | Mina olen veel tööl. Kas saame väljakul kokku? | I'm still at work. Should we meet on the square? | |
+| 171 | Conversation, Mari | Hästi, ootan kohvikus kiriku kõrval. | All right, I'll wait in the café next to the church. | |
 
 #### A2 10. To somebody, from somebody (`a2-10-to-whom`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 169 | Conversation, Tom | Ei tea veel. Mis talle meeldib? | Don't know yet. What does she like? | |
-| 170 | Conversation, Tom | Hea mõte! Küsin ta vennalt, mis kontsert hea on. | Good idea! I'll ask her brother which concert's good. | |
-| 171 | Conversation, Tom | Ei unusta! Helistan talle hommikul. | I won't! I'll call her in the morning. | |
+| 172 | Conversation, Tom | Ei tea veel. Mis talle meeldib? | Don't know yet. What does she like? | |
+| 173 | Conversation, Tom | Hea mõte! Küsin ta vennalt, mis kontsert hea on. | Good idea! I'll ask her brother which concert's good. | |
+| 174 | Conversation, Tom | Ei unusta! Helistan talle hommikul. | I won't! I'll call her in the morning. | |
 
 #### A2 11. At the cinema, at a concert (`a2-11-concert`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 172 | Conversation, Tom | Kinos. Aga sina? | At the cinema. And you? | |
-| 173 | Conversation, Mari | Mina olin sõbra sünnipäeval. Oli tore pidu. | I was at a friend's birthday. It was a great party. | |
-| 174 | Conversation, Tom | Mina lähen täna teatrisse. | I'm going to the theater today. | |
-| 175 | Conversation, Tom | Kahjuks ei saa. Mul on homme eesti keele tund. | Sadly, I can't. I've got an Estonian lesson tomorrow. | |
-| 176 | How it works | Kahjuks, Kahjuks ei saa | {Kahjuks} is the polite way into a no: {Kahjuks ei saa}. | |
-| 177 | Say it, model answer | Kahjuks ei saa. | Sadly, I can't. | |
+| 175 | Conversation, Tom | Kinos. Aga sina? | At the cinema. And you? | |
+| 176 | Conversation, Mari | Mina olin sõbra sünnipäeval. Oli tore pidu. | I was at a friend's birthday. It was a great party. | |
+| 177 | Conversation, Tom | Mina lähen täna teatrisse. | I'm going to the theater today. | |
+| 178 | Conversation, Tom | Kahjuks ei saa. Mul on homme eesti keele tund. | Sadly, I can't. I've got an Estonian lesson tomorrow. | |
+| 179 | How it works | Kahjuks, Kahjuks ei saa | {Kahjuks} is the polite way into a no: {Kahjuks ei saa}. | |
+| 180 | Say it, model answer | Kahjuks ei saa. | Sadly, I can't. | |
 
 #### A2 12. Put it there, bring it here (`a2-12-this-way`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 178 | Conversation, Tom | Pane sinna, akna juurde. | Put it there, by the window. | |
-| 179 | Conversation, Tom | Vii see palun välja. Ja too mulle vett! | Take it outside, please. And bring me some water! | |
+| 181 | Conversation, Tom | Pane sinna, akna juurde. | Put it there, by the window. | |
+| 182 | Conversation, Tom | Vii see palun välja. Ja too mulle vett! | Take it outside, please. And bring me some water! | |
 
 #### A2 13. On the third floor (`a2-13-floors`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 180 | Conversation, Tom | Tere, Peeter! Ma olen su maja ees. Mitmendal korrusel sa elad? | Hi, Peeter! I'm outside your building. Which floor do you live on? | |
-| 181 | Conversation, Peeter | Kolmandal. Korter kaksteist. | The third. Apartment twelve. | |
-| 182 | Conversation, Tom | Kas lift on? | Is there an elevator? | |
-| 183 | Conversation, Peeter | Ei, teine vasakul. | No, the second on the left. | |
+| 183 | Conversation, Tom | Tere, Peeter! Ma olen su maja ees. Mitmendal korrusel sa elad? | Hi, Peeter! I'm outside your building. Which floor do you live on? | |
+| 184 | Conversation, Tom | Kas lift on? | Is there an elevator? | |
+| 185 | Conversation, Peeter | Ei, teine vasakul. | No, the second on the left. | |
 
 #### A2 13a. A house in the country (`a2-13a-house`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 184 | Conversation, Kati | Jah, aga maja on vana. | Yes, but the house is old. | |
-| 185 | Conversation, Kati | Aed. Aias on suur õunapuu. | The garden. There's a big apple tree in it. | |
-| 186 | Conversation, Kati | Aia nurgas. Õhtul läheme sauna! | In the corner of the garden. This evening we'll go to the sauna! | |
+| 186 | Conversation, Kati | Jah, aga maja on vana. | Yes, but the house is old. | |
+| 187 | Conversation, Kati | Aed. Aias on suur õunapuu. | The garden. There's a big apple tree in it. | |
+| 188 | Conversation, Kati | Aia nurgas. Õhtul läheme sauna! | In the corner of the garden. This evening we'll go to the sauna! | |
 
 #### A2 14. Meeting in town (`a2-14-meet-in-town`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 187 | Conversation, Tom | Selge. Lähme pärast kohvikusse? | Got it. Shall we go to a café afterwards? | |
-| 188 | How it works | Pärast, Lähme pärast kohvikusse? | {Pärast} on its own means afterwards: {Lähme pärast kohvikusse?} | |
-| 189 | Role-play, model answer | Selge. Lähme pärast kohvikusse? | Got it. Shall we go to a café afterwards? | |
-| 190 | Live scene, learner may pick (way) | Selge. Läheme pärast kohvikusse? | Got it. Shall we go to a café afterwards? | |
+| 189 | Conversation, Tom | Selge. Lähme pärast kohvikusse? | Got it. Shall we go to a café afterwards? | |
+| 190 | How it works | Pärast, Lähme pärast kohvikusse? | {Pärast} on its own means afterwards: {Lähme pärast kohvikusse?} | |
+| 191 | Role-play, model answer | Selge. Lähme pärast kohvikusse? | Got it. Shall we go to a café afterwards? | |
+| 192 | Live scene, learner may pick (way) | Selge. Läheme pärast kohvikusse? | Got it. Shall we go to a café afterwards? | |
 
 ### A2: What happened
 
@@ -553,59 +555,60 @@ Russian and Ukrainian.
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 191 | Conversation, Tom | Londonis. Töötasin seal pangas. | In London. I worked in a bank there. | |
-| 192 | Conversation, Mari | Kas sa õppisid eesti keelt juba seal? | Did you already study Estonian there? | |
-| 193 | Conversation, Tom | Ei, siin. Õppisin kaks aastat keeltekoolis. | No, here. I studied for two years at a language school. | |
+| 193 | Conversation, Tom | Londonis. Töötasin seal pangas. | In London. I worked in a bank there. | |
+| 194 | Conversation, Mari | Kas sa õppisid eesti keelt juba seal? | Did you already study Estonian there? | |
+| 195 | Conversation, Tom | Ei, siin. Õppisin kaks aastat keeltekoolis. | No, here. I studied for two years at a language school. | |
 
 #### A2 17. I didn't (`a2-17-didnt`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 194 | Conversation, Mari | Aga täna? On juba parem? | And today? Feeling better? | |
+| 196 | Conversation, Mari | Aga täna? On juba parem? | And today? Feeling better? | |
 
 #### A2 18. The whole thing, or some of it (`a2-18-whole`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 195 | Conversation, Tom | Ühe eesti raamatu. Ma loen seda bussis. | An Estonian book. I'll read it on the bus. | |
-| 196 | Conversation, Tom | Natuke. Täna lugesin juba kümme lehekülge. | A bit. I've already read ten pages today. | |
+| 197 | Conversation, Tom | Ühe eesti raamatu. Ma loen seda bussis. | An Estonian book. I'll read it on the bus. | |
+| 198 | Conversation, Tom | Natuke. Täna lugesin juba kümme lehekülge. | A bit. I've already read ten pages today. | |
+| 199 | Conversation, Tom | Nüüd loen iga päev natuke. | Now I'll read a bit every day. | |
 
 #### A2 19. Have you ever been? (`a2-19-been-there`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 197 | Conversation, Tom | Ei ole veel. Aga Tartus olen käinud. | Not yet. But I've been to Tartu. | |
-| 198 | Conversation, Tom | Kahju! Siis järgmisel suvel. | What a pity! Next summer, then. | |
+| 200 | Conversation, Tom | Ei ole veel. Aga Tartus olen käinud. | Not yet. But I've been to Tartu. | |
+| 201 | Conversation, Tom | Kahju! Siis järgmisel suvel. | What a pity! Next summer, then. | |
 
 #### A2 20. First, then, in the end (`a2-20-story`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 199 | Conversation, Mari | Ja ülemus? | And your boss? | |
-| 200 | Conversation, Tom | Ei öelnud midagi. Lõpuks oli kõik hästi. | Didn't say a thing. In the end it was all fine. | |
+| 202 | Conversation, Mari | Ja ülemus? | And your boss? | |
+| 203 | Conversation, Tom | Ei öelnud midagi. Lõpuks oli kõik hästi. | Didn't say a thing. In the end it was all fine. | |
 
 #### A2 20a. Born and raised (`a2-20a-life`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 201 | Conversation, Tom | Viis aastat tagasi. Mu naine töötab siin. | Five years ago. My wife works here. | |
+| 204 | Conversation, Tom | Viis aastat tagasi. Mu naine töötab siin. | Five years ago. My wife works here. | |
 
 #### A2 21. How was your summer? (`a2-21-summer`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 202 | Conversation, Liis | Tore! Mida sa seal tegid? | Nice! What did you do there? | |
-| 203 | Conversation, Tom | Olin sõbra juures maal. Käisime saunas ja sõime palju kala. | I stayed at a friend's in the country. We went to the sauna and ate lots of fish. | |
-| 204 | Conversation, Liis | Töötasin. Kuskil ei käinud. | I worked. I didn't go anywhere. | |
-| 205 | Conversation, Tom | Kahju! Tule järgmisel suvel ka! | Shame! Come along next summer! | |
-| 206 | Role-play, they say | Tore! Mida sa seal tegid? | Nice! What did you do there? | |
-| 207 | Role-play, they say | Töötasin. Kuskil ei käinud. | I worked. I didn't go anywhere. | |
-| 208 | Live scene, they say (summer) | Kuidas suvi läks? |  | |
-| 209 | Live scene, they say (did) | Tore! Mis sa seal tegid? |  | |
-| 210 | Live scene, they say (her) | Mina töötasin. Ei käinud kuskil. |  | |
-| 211 | Live scene, they say (her) | Mina ainult töötasin, ei käinud kuskil. |  | |
-| 212 | Live scene, learner may pick (before) | Ei, see oli esimene kord. Aga mis sina suvel tegid? | No, it was the first time. What about you, what did you do in the summer? | |
-| 213 | Live scene, learner may pick (her) | Kahju! Tule järgmisel suvel ka Saaremaale! | What a pity! Next summer come to Saaremaa too! | |
+| 205 | Conversation, Liis | Tore! Mida sa seal tegid? | Nice! What did you do there? | |
+| 206 | Conversation, Tom | Olin sõbra juures maal. Käisime saunas ja sõime palju kala. | I stayed at a friend's in the country. We went to the sauna and ate lots of fish. | |
+| 207 | Conversation, Liis | Töötasin. Kuskil ei käinud. | I worked. I didn't go anywhere. | |
+| 208 | Conversation, Tom | Kahju! Tule järgmisel suvel ka! | Shame! Come along next summer! | |
+| 209 | Role-play, they say | Tore! Mida sa seal tegid? | Nice! What did you do there? | |
+| 210 | Role-play, they say | Töötasin. Kuskil ei käinud. | I worked. I didn't go anywhere. | |
+| 211 | Live scene, they say (summer) | Kuidas suvi läks? |  | |
+| 212 | Live scene, they say (did) | Tore! Mis sa seal tegid? |  | |
+| 213 | Live scene, they say (her) | Mina töötasin. Ei käinud kuskil. |  | |
+| 214 | Live scene, they say (her) | Mina ainult töötasin, ei käinud kuskil. |  | |
+| 215 | Live scene, learner may pick (before) | Ei, see oli esimene kord. Aga mis sina suvel tegid? | No, it was the first time. What about you, what did you do in the summer? | |
+| 216 | Live scene, learner may pick (her) | Kahju! Tule järgmisel suvel ka Saaremaale! | What a pity! Next summer come to Saaremaa too! | |
 
 ### A2: Body and health
 
@@ -613,50 +616,51 @@ Russian and Ukrainian.
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 214 | Conversation, Tom | Ei valuta. Aga selg ja kael valutavad. | No, they don't. But my back and neck do. | |
-| 215 | Say it, model answer | Ei valuta. | No, they don't. | |
+| 217 | Conversation, Tom | Ei valuta. Aga selg ja kael valutavad. | No, they don't. But my back and neck do. | |
+| 218 | Say it, model answer | Ei valuta. | No, they don't. | |
 
 #### A2 23. An appointment (`a2-23-appointment`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 216 | Conversation, Tom | Kahjuks ei sobi, ma olen tööl. Kas pärastlõunal on aega? | Unfortunately not, I'm at work. Is there time in the afternoon? | |
-| 217 | Conversation, Tom | Sobib, aitäh! | That works, thank you! | |
+| 219 | Conversation, Tom | Kahjuks ei sobi, ma olen tööl. Kas pärastlõunal on aega? | Unfortunately not, I'm at work. Is there time in the afternoon? | |
+| 220 | Conversation, Tom | Sobib, aitäh! | That works, thank you! | |
 
 #### A2 24. At the pharmacy (`a2-24-pharmacy`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 218 | Conversation, Liis | Tere! Kuidas saan aidata? | Hello! How can I help? | |
-| 219 | Conversation, Tom | Ma olen külmetunud. Kas teil on midagi köha vastu? | I've caught a cold. Do you have anything for a cough? | |
-| 220 | Conversation, Liis | Jah, saab. | Yes, you can. | |
-| 221 | Conversation, Tom | Aga nohu vastu? | And for a runny nose? | |
-| 222 | Words (word) | külmetunud | having caught a cold | |
-| 223 | Say it, model answer | Ma olen külmetunud. Kas teil on midagi köha vastu? | I've caught a cold. Do you have anything for a cough? | |
+| 221 | Conversation, Liis | Tere! Kuidas saan aidata? | Hello! How can I help? | |
+| 222 | Conversation, Tom | Ma olen külmetunud. Kas teil on midagi köha vastu? | I've caught a cold. Do you have anything for a cough? | |
+| 223 | Conversation, Liis | Jah, saab. | Yes, you can. | |
+| 224 | Conversation, Tom | Aga midagi nohu vastu? | And something for a runny nose? | |
+| 225 | Words (word) | külmetunud | having caught a cold | |
+| 226 | Say it, model answer | Ma olen külmetunud. Kas teil on midagi köha vastu? | I've caught a cold. Do you have anything for a cough? | |
 
 #### A2 25. How do you feel? (`a2-25-feelings`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 224 | Conversation, Kati | Loodan küll. | I really hope so. | |
-| 225 | Say it, model answer | Loodan küll. | I really hope so. | |
+| 227 | Conversation, Kati | Loodan küll. | I really hope so. | |
+| 228 | Say it, model answer | Loodan küll. | I really hope so. | |
 
 #### A2 26. What you may and mustn't do (`a2-26-advice`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 226 | Conversation, Peeter | Ei, ei tohi. Ärge minge tööle. | No, you mustn't. Don't go to work. | |
+| 229 | Conversation, Peeter | Ei, ei tohi. Ärge minge tööle. | No, you mustn't. Don't go to work. | |
+| 230 | Say it, model answer | Ei, ei tohi. | No, you mustn't. | |
 
 #### A2 27. A visit to the doctor (`a2-27-doctor`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 227 | Conversation, Tom | Tere! Mul valutab kurk ja on palavik. | Hello! My throat hurts and I have a temperature. | |
-| 228 | Say it, model answer | Mul valutab kurk ja on palavik. | My throat hurts and I have a temperature. | |
-| 229 | Live scene, they say (wrong) | Nii. Mis teil viga on? |  | |
-| 230 | Live scene, they say (work) | Teil on gripp. Peate kolm päeva voodis olema. |  | |
-| 231 | Live scene, they say (work) | Teil on gripp. Peate kodus puhkama. |  | |
-| 232 | Live scene, they say (advice) | Ei, tööle ei tohi. Ma kirjutan teile retsepti. |  | |
+| 231 | Conversation, Tom | Tere! Mul valutab kurk ja on palavik. | Hello! My throat hurts and I have a temperature. | |
+| 232 | Say it, model answer | Mul valutab kurk ja on palavik. | My throat hurts and I have a temperature. | |
+| 233 | Live scene, they say (wrong) | Nii. Mis teil viga on? |  | |
+| 234 | Live scene, they say (work) | Teil on gripp. Peate kolm päeva voodis olema. |  | |
+| 235 | Live scene, they say (work) | Teil on gripp. Peate kodus puhkama. |  | |
+| 236 | Live scene, they say (advice) | Ei, tööle ei tohi. Ma kirjutan teile retsepti. |  | |
 
 ### A2: Travel
 
@@ -664,61 +668,63 @@ Russian and Ukrainian.
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 233 | Conversation, Tom | Edasi-tagasi. Mis kell rong läheb? | Round trip. What time does the train leave? | |
-| 234 | Conversation, Tom | Ja mis kell see Tartus on? | And what time does it get to Tartu? | |
-| 235 | Say it, model answer | Mis kell rong läheb? | What time does the train leave? | |
+| 237 | Conversation, Tom | Edasi-tagasi. Mis kell rong läheb? | Round trip. What time does the train leave? | |
+| 238 | Conversation, Tom | Ja mis kell see Tartus on? | And what time does it get to Tartu? | |
+| 239 | Conversation, Kati | Tartusse saabub kell kümme. | It arrives in Tartu at ten. | |
+| 240 | Say it, model answer | Mis kell rong läheb? | What time does the train leave? | |
 
 #### A2 29. Until Friday (`a2-29-until`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 236 | Conversation, Tom | Reedeni. Töötan seal esmaspäevast reedeni. | Until Friday. I'm working there from Monday to Friday. | |
-| 237 | Conversation, Mari | Kas buss käib jaamast kesklinnani? | Does the bus go from the station to the town center? | |
-| 238 | Conversation, Tom | Laupäeval. Reedel olen kontoris kella viieni. | On Saturday. On Friday I'm at the office until five. | |
+| 241 | Conversation, Tom | Reedeni. Töötan seal esmaspäevast reedeni. | Until Friday. I'm working there from Monday to Friday. | |
+| 242 | Conversation, Mari | Kas buss käib jaamast kesklinnani? | Does the bus go from the station to the town center? | |
+| 243 | Conversation, Tom | Laupäeval. Reedel olen kontoris kella viieni. | On Saturday. On Friday I'm at the office until five. | |
 
 #### A2 30. At a hotel (`a2-30-hotel`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 239 | Conversation, Tom | Tere! Mul on broneering, Tom Smith. | Hello! I have a booking, Tom Smith. | |
-| 240 | Conversation, Liis | Jah, ja tasuta. | Yes, and it's free. | |
+| 244 | Conversation, Tom | Tere! Mul on broneering, Tom Smith. | Hello! I have a booking, Tom Smith. | |
+| 245 | Conversation, Liis | Jah, ja tasuta. | Yes, and it's free. | |
 
 #### A2 31. A weekend in Tartu (`a2-31-trip`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 241 | Conversation, Tom | Väga tore! Sõitsime rongiga Tartusse, sõit kestis kaks tundi. | Really nice! We went to Tartu by train, and the journey took two hours. | |
-| 242 | Conversation, Tom | Käisime ülikoolis ja muuseumis. Õhtul sõime restoranis. | We went to the university and a museum. In the evening we ate at a restaurant. | |
-| 243 | Conversation, Kati | Ja tagasi tulite ka rongiga? | And did you come back by train too? | |
-| 244 | Say it, model answer | Väga tore! Sõitsime rongiga Tartusse. | Really nice! We went to Tartu by train. | |
-| 245 | Say it, model answer | Käisime muuseumis. | We went to a museum. | |
+| 246 | Conversation, Tom | Väga tore! Sõitsime rongiga Tartusse, sõit kestis kaks tundi. | Really nice! We went to Tartu by train, and the journey took two hours. | |
+| 247 | Conversation, Tom | Käisime ülikoolis ja muuseumis. Õhtul sõime restoranis. | We went to the university and a museum. In the evening we ate at a restaurant. | |
+| 248 | Conversation, Kati | Ja tagasi tulite ka rongiga? | And did you come back by train too? | |
+| 249 | Say it, model answer | Väga tore! Sõitsime rongiga Tartusse. | Really nice! We went to Tartu by train. | |
+| 250 | Say it, model answer | Käisime muuseumis. | We went to a museum. | |
 
 #### A2 32. How far is it? (`a2-32-far`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 246 | Conversation, Mari | Jah, buss käib iga tund. Sõit kestab kaks tundi. | Yes, the bus goes every hour. The ride takes two hours. | |
-| 247 | Conversation, Mari | Väike ja ilus, mere ääres. | Small and pretty, by the sea. | |
-| 248 | Say it, model answer | Mere ääres. | By the sea. | |
+| 251 | Conversation, Mari | Jah, buss käib iga tund. Sõit kestab kaks tundi. | Yes, the bus goes every hour. The ride takes two hours. | |
+| 252 | Conversation, Mari | Väike ja ilus, mere ääres. | Small and pretty, by the sea. | |
+| 253 | Say it, model answer | Mere ääres. | By the sea. | |
 
 #### A2 33. By boat and by plane (`a2-33-boat`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 249 | Conversation, Tom | Laevaga. Laev läheb kell üheksa. | By boat. The ferry leaves at nine. | |
-| 250 | Conversation, Liis | Aga Londonisse? | And to London? | |
-| 251 | Conversation, Tom | Ma lendan. Lennuk läheb hommikul kell kuus. | I'm flying. The plane leaves at six in the morning. | |
-| 252 | Conversation, Liis | Nii vara! Siis pead kell neli lennujaamas olema. | So early! Then you have to be at the airport at four. | |
-| 253 | Say it, model answer | Ma pean kell neli lennujaamas olema. | I have to be at the airport at four. | |
+| 254 | Conversation, Tom | Laevaga. Laev läheb kell üheksa. | By boat. The ferry leaves at nine. | |
+| 255 | Conversation, Liis | Aga Londonisse? | And to London? | |
+| 256 | Conversation, Tom | Ma lendan. Lennuk läheb hommikul kell kuus. | I'm flying. The plane leaves at six in the morning. | |
+| 257 | Conversation, Liis | Nii vara! Siis pead kell neli lennujaamas olema. | So early! Then you have to be at the airport at four. | |
+| 258 | Say it, model answer | Lennuk läheb hommikul kell kuus. | The plane leaves at six in the morning. | |
+| 259 | Say it, model answer | Ma pean kell neli lennujaamas olema. | I have to be at the airport at four. | |
 
 #### A2 34. At the ticket window (`a2-34-ticket`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 254 | Role-play, they say | Buss läheb kell kaheksa ja kell üheksa. | The bus leaves at eight and at nine. | |
-| 255 | Live scene, they say (time) | Buss läheb kell kaheksa ja kell üheksa. |  | |
-| 256 | Live scene, they say (time) | Buss läheb kell kaheksa, järgmine kell üheksa. |  | |
-| 257 | Live scene, they say (price) | Sõit kestab kaks tundi. Buss väljub teiselt platvormilt. |  | |
+| 260 | Role-play, they say | Buss läheb kell kaheksa ja kell üheksa. | The bus leaves at eight and at nine. | |
+| 261 | Live scene, they say (time) | Buss läheb kell kaheksa ja kell üheksa. |  | |
+| 262 | Live scene, they say (time) | Buss läheb kell kaheksa, järgmine kell üheksa. |  | |
+| 263 | Live scene, they say (price) | Sõit kestab kaks tundi. Buss väljub teiselt platvormilt. |  | |
 
 ### A2: Eating out and shopping
 
@@ -726,31 +732,31 @@ Russian and Ukrainian.
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 258 | Conversation, Tom | Mina võtaksin praadi ja salatit. | I'd have the roast and a salad. | |
-| 259 | How it works | võtaksin, mulle, Ma võtaksin suppi, Mulle salatit, palun | Ordering, the dish comes after {võtaksin} or {mulle} in the [osastav] (3rd form): {Ma võtaksin suppi}, {Mulle salatit, palun}. | |
-| 260 | How it works, table | Ma võtaksin praadi. |  | |
-| 261 | Say it, model answer | Ma võtaksin praadi ja salatit. | I'd have the roast and a salad. | |
+| 264 | Conversation, Tom | Mina võtaksin praadi ja salatit. | I'd have the roast and a salad. | |
+| 265 | How it works | võtaksin, mulle, Ma võtaksin suppi, Mulle salatit, palun | Ordering, the dish comes after {võtaksin} or {mulle} in the [osastav] (3rd form): {Ma võtaksin suppi}, {Mulle salatit, palun}. | |
+| 266 | How it works, table | Ma võtaksin praadi. |  | |
+| 267 | Say it, model answer | Ma võtaksin praadi ja salatit. | I'd have the roast and a salad. | |
 
 #### A2 38. Bigger and cheaper (`a2-38-compare`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 262 | Conversation, Tom | See on suurem, aga ka kallim. | This one is bigger, but also more expensive. | |
+| 268 | Conversation, Tom | See on suurem, aga ka kallim. | This one is bigger, but also more expensive. | |
 
 #### A2 40. Can I try it on? (`a2-40-fitting`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 263 | Conversation, Kati | Tere! Kuidas saan aidata? | Hello! How can I help? | |
+| 269 | Conversation, Kati | Tere! Kuidas saan aidata? | Hello! How can I help? | |
 
 #### A2 41. Dinner out (`a2-41-restaurant`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 264 | Live scene, they say (table) | Palun, tulge sisse. Kas teil on broneering? |  | |
-| 265 | Live scene, they say (drink) | Mida soovite juua? |  | |
-| 266 | Live scene, they say (food) | Täna soovitan kala. |  | |
-| 267 | Live scene, learner may pick (table) | Ei. Kas teil on laud kahele? | No. Do you have a table for two? | |
+| 270 | Live scene, they say (table) | Palun, tulge sisse. Kas teil on broneering? |  | |
+| 271 | Live scene, they say (drink) | Mida soovite juua? |  | |
+| 272 | Live scene, they say (food) | Täna soovitan kala. |  | |
+| 273 | Live scene, learner may pick (table) | Ei. Kas teil on laud kahele? | No. Do you have a table for two? | |
 
 ### A2: Work and home
 
@@ -758,61 +764,61 @@ Russian and Ukrainian.
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 268 | Conversation, Tom | Ma töötan programmeerijana. Aga sina? | I work as a programmer. What about you? | |
-| 269 | Conversation, Liis | Ma töötan kohvikus, Mariga koos. | I work at a café, with Mari. | |
-| 270 | Conversation, Tom | Aga Jaan? Mis ta teeb? | And Jaan? What does he do? | |
-| 271 | Conversation, Liis | Ta töötab arstina. | He works as a doctor. | |
-| 272 | Conversation, Tom | Oi, see on raske töö! | Oh, that's hard work! | |
-| 273 | How it works, table | arstina |  | |
-| 274 | Say it, model answer | Ma töötan ühes firmas juhina. | I work at a company as a manager. | |
+| 274 | Conversation, Tom | Ma töötan programmeerijana. Aga sina? | I work as a programmer. What about you? | |
+| 275 | Conversation, Liis | Ma töötan kohvikus, Mariga koos. | I work at a café, with Mari. | |
+| 276 | Conversation, Tom | Aga Jaan? Mis ta teeb? | And Jaan? What does he do? | |
+| 277 | Conversation, Liis | Ta töötab arstina. | He works as a doctor. | |
+| 278 | Conversation, Tom | Oi, see on raske töö! | Oh, that's hard work! | |
+| 279 | How it works, table | arstina |  | |
+| 280 | Say it, model answer | Ma töötan ühes firmas juhina. | I work at a company as a manager. | |
 
 #### A2 43. For a birthday, and becoming (`a2-43-become`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 275 | Conversation, Kati | Arstiks. Ta õpib juba ülikoolis. | A doctor. She's already studying at university. | |
-| 276 | Conversation, Kati | Uut telefoni. Ostan selle homseks. | A new phone. I'm buying it for tomorrow. | |
-| 277 | Conversation, Mari | Homme on ta sünnipäev? Palju õnne talle! | It's her birthday tomorrow? Happy birthday to her! | |
-| 278 | Conversation, Kati | Aitäh! Ja homseks läheb ilm ka soojaks. | Thank you! And by tomorrow the weather's getting warm too. | |
+| 281 | Conversation, Kati | Arstiks. Ta õpib juba ülikoolis. | A doctor. She's already studying at university. | |
+| 282 | Conversation, Kati | Uut telefoni. Ostan selle homseks. | A new phone. I'm buying it for tomorrow. | |
+| 283 | Conversation, Mari | Homme on ta sünnipäev? Palju õnne talle! | It's her birthday tomorrow? Happy birthday to her! | |
+| 284 | Conversation, Kati | Aitäh! Ja homseks läheb ilm ka soojaks. | Thank you! And by tomorrow the weather's getting warm too. | |
 
 #### A2 45. Something's broken (`a2-45-broken`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 279 | Conversation, Tom | Tere, Peeter! Siin Tom korterist number kaksteist. | Hello, Peeter! It's Tom from apartment twelve. | |
-| 280 | How it works | Siin Tom | On the phone, say who you are first: {Siin Tom}, it's Tom here. | |
+| 285 | Conversation, Tom | Tere, Peeter! Siin Tom korterist number kaksteist. | Hello, Peeter! It's Tom from apartment twelve. | |
+| 286 | How it works | Siin Tom | On the phone, say who you are first: {Siin Tom}, it's Tom here. | |
 
 #### A2 45a. A question, a problem, an idea (`a2-45a-problems`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 281 | Conversation, Liis | Homme on Mari sünnipäev, aga mul pole veel ideed, mida osta. | Tomorrow's Mari's birthday, but I have no idea yet what to buy. | |
-| 282 | Conversation, Liis | Hea mõte! Aga mul on üks probleem: mul pole palju raha. | Good thinking! But I have a problem: I don't have much money. | |
-| 283 | Conversation, Tom | Pole viga. Ostame koos! | No problem. Let's buy it together! | |
-| 284 | How it works | mul on, Mul on küsimus, Mul on idee, mul pole, mul ei ole, Mul pole ideed | Say you have one with {mul on}: {Mul on küsimus}, {Mul on idee}. Say you don't with {mul pole}, or {mul ei ole}, and the [osastav] (3rd form): {Mul pole ideed}. | |
-| 285 | How it works | Raha, Mul pole raha, Mul on raha | {Raha} is the same in the [osastav] (3rd form), so {Mul pole raha} looks just like {Mul on raha}. | |
-| 286 | How it works, table | Mul pole raha. | I don't have any money. | |
-| 287 | Say it, model answer | Mul pole raha. | I don't have any money. | |
+| 287 | Conversation, Liis | Homme on Mari sünnipäev, aga mul pole veel ideed, mida osta. | Tomorrow's Mari's birthday, but I have no idea yet what to buy. | |
+| 288 | Conversation, Liis | Hea mõte! Aga mul on üks probleem: mul pole palju raha. | Good thinking! But I have a problem: I don't have much money. | |
+| 289 | Conversation, Tom | Pole viga. Ostame koos! | No problem. Let's buy it together! | |
+| 290 | How it works | mul on, Mul on küsimus, Mul on idee, mul pole, mul ei ole, Mul pole ideed | Say you have one with {mul on}: {Mul on küsimus}, {Mul on idee}. Say you don't with {mul pole}, or {mul ei ole}, and the [osastav] (3rd form): {Mul pole ideed}. | |
+| 291 | How it works | Raha, Mul pole raha, Mul on raha | {Raha} is the same in the [osastav] (3rd form), so {Mul pole raha} looks just like {Mul on raha}. | |
+| 292 | How it works, table | Mul pole raha. | I don't have any money. | |
+| 293 | Say it, model answer | Mul pole raha. | I don't have any money. | |
 
 #### A2 46. At the bank (`a2-46-bank`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 288 | Conversation, Liis | Tere! Kuidas saan aidata? | Hello! How can I help? | |
+| 294 | Conversation, Liis | Tere! Kuidas saan aidata? | Hello! How can I help? | |
 
 #### A2 48. The interview (`a2-48-new-job`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 289 | Conversation, Tom | Tere! Ma olen Tom. Olen programmeerija ja elan Tallinnas. | Hello! I'm Tom. I'm a programmer and I live in Tallinn. | |
-| 290 | Conversation, Liis | Kui hästi te eesti keelt räägite? | How well do you speak Estonian? | |
-| 291 | Conversation, Tom | Natuke. Aga ma õpin iga päev. | A little. But I study every day. | |
-| 292 | Say it, model answer | Ma olen Tom. Olen programmeerija ja elan Tallinnas. | I'm Tom. I'm a programmer and I live in Tallinn. | |
-| 293 | Role-play, model answer | Tere! Ma olen Tom. Olen programmeerija. | Hello! I'm Tom. I'm a programmer. | |
-| 294 | Role-play, model answer | Jah, viis aastat. | Yes, five years. | |
-| 295 | Role-play, they say | Kui hästi te eesti keelt räägite? | How well do you speak Estonian? | |
-| 296 | Role-play, model answer | Natuke. Aga ma õpin iga päev. | A little. But I study every day. | |
-| 297 | Live scene, learner may pick (about) | Mu nimi on Tom ja ma olen programmeerija. | My name's Tom and I'm a programmer. | |
+| 295 | Conversation, Tom | Tere! Ma olen Tom. Olen programmeerija ja elan Tallinnas. | Hello! I'm Tom. I'm a programmer and I live in Tallinn. | |
+| 296 | Conversation, Liis | Kui hästi te eesti keelt räägite? | How well do you speak Estonian? | |
+| 297 | Conversation, Tom | Natuke. Aga ma õpin iga päev. | A little. But I study every day. | |
+| 298 | Say it, model answer | Ma olen Tom. Olen programmeerija ja elan Tallinnas. | I'm Tom. I'm a programmer and I live in Tallinn. | |
+| 299 | Role-play, model answer | Tere! Ma olen Tom. Olen programmeerija. | Hello! I'm Tom. I'm a programmer. | |
+| 300 | Role-play, model answer | Jah, viis aastat. | Yes, five years. | |
+| 301 | Role-play, they say | Kui hästi te eesti keelt räägite? | How well do you speak Estonian? | |
+| 302 | Role-play, model answer | Natuke. Aga ma õpin iga päev. | A little. But I study every day. | |
+| 303 | Live scene, learner may pick (about) | Mu nimi on Tom ja ma olen programmeerija. | My name's Tom and I'm a programmer. | |
 
 ### A2: Plans and opinions
 
@@ -820,110 +826,109 @@ Russian and Ukrainian.
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 298 | Conversation, Tom | Suvel on mul puhkus, kavatsen maale minna. Aga sul? | In the summer I have time off. I plan to go to the country. And you? | |
-| 299 | Say it, model answer | Suvel kavatsen maale minna. | In the summer I plan to go to the country. | |
+| 304 | Conversation, Tom | Suvel on mul puhkus, kavatsen maale minna. Aga sina? | In the summer I have time off. I plan to go to the country. And you? | |
+| 305 | Say it, model answer | Suvel kavatsen maale minna. | In the summer I plan to go to the country. | |
 
 #### A2 50. I think that, because (`a2-50-think`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 300 | Conversation, Tom | Väga meeldis! Ma arvan, et Tartu on parem kui Tallinn, sest see on väiksem ja rahulikum. | I liked it a lot! I think Tartu is better than Tallinn, because it's smaller and quieter. | |
-| 301 | Conversation, Kati | Ma pole nõus. Tallinnas on rohkem tööd. | I don't agree. There's more work in Tallinn. | |
-| 302 | How it works | olema nõus, Ma olen nõus, ei ole, pole, Ma pole nõus | Agree is {olema nõus}, to be in agreement: {Ma olen nõus}. Disagreeing is {ei ole}, and in speech nearly always {pole}: {Ma pole nõus}. | |
-| 303 | How it works, table | Ma pole nõus. | I don't agree. | |
-| 304 | Say it, model answer | Ma pole nõus. | I don't agree. | |
+| 306 | Conversation, Tom | Väga meeldis! Ma arvan, et Tartu on parem kui Tallinn, sest see on väiksem ja rahulikum. | I liked it a lot! I think Tartu is better than Tallinn, because it's smaller and quieter. | |
+| 307 | Conversation, Kati | Ma pole nõus. Tallinnas on rohkem tööd. | I don't agree. There's more work in Tallinn. | |
+| 308 | How it works | olema nõus, Ma olen nõus, ei ole, pole, Ma pole nõus | Agree is {olema nõus}, to be in agreement: {Ma olen nõus}. Disagreeing is {ei ole}, and in speech nearly always {pole}: {Ma pole nõus}. | |
+| 309 | How it works, table | Ma pole nõus. | I don't agree. | |
+| 310 | Say it, model answer | Ma pole nõus. | I don't agree. | |
 
 #### A2 50a. Looking for it, finding it (`a2-50a-find`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 305 | Conversation, Tom | Telefoni. Ei leia seda üles. | My phone. I can't find it. | |
-| 306 | Conversation, Tom | Ma arvan, et köögis. Aga seal seda pole. | I think in the kitchen. But it isn't there. | |
-| 307 | Conversation, Mari | Ma usun, et see on su kotis. | I believe it's in your bag. | |
-| 308 | Say it, model answer | Jah, mäletan. | Yes, I remember. | |
+| 311 | Conversation, Tom | Telefoni. Ei leia seda üles. | My phone. I can't find it. | |
+| 312 | Conversation, Tom | Ma arvan, et köögis. Aga seal seda pole. | I think in the kitchen. But it isn't there. | |
+| 313 | Conversation, Mari | Ma usun, et see on su kotis. | I believe it's in your bag. | |
+| 314 | Say it, model answer | Jah, mäletan. | Yes, I remember. | |
 
 #### A2 51. If it rains (`a2-51-if`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 309 | Conversation, Liis | Hea mõte! Kui on soe, võtan ujumisriided kaasa. | Good idea! If it's warm, I'll bring my swimming things. | |
+| 315 | Conversation, Liis | Hea mõte! Kui on soe, võtan ujumisriided kaasa. | Good idea! If it's warm, I'll bring my swimming things. | |
 
 #### A2 52. A day in the forest (`a2-52-forest`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 310 | Conversation, Tom | Hea meelega! Kus see mets on? | I'd love to! Where's the forest? | |
-| 311 | Conversation, Tom | Ma ei tunne seeni. Pead mind aitama! | I don't know mushrooms. You'll have to help me. | |
-| 312 | Say it, model answer | Hea meelega! Kus see mets on? | I'd love to! Where's the forest? | |
+| 316 | Conversation, Tom | Hea meelega! Kus see mets on? | I'd love to! Where's the forest? | |
+| 317 | Conversation, Tom | Ma ei tunne seeni. Pead mind aitama! | I don't know mushrooms. You'll have to help me. | |
+| 318 | Say it, model answer | Hea meelega! Kus see mets on? | I'd love to! Where's the forest? | |
 
 #### A2 52a. Small words that do a lot (`a2-52a-small-words`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 313 | Conversation, Tom | Mul pole enam aega. Ma töötan isegi laupäeval. | I don't have the time anymore. I even work on Saturdays. | |
-| 314 | Conversation, Mari | Siis on sul vist puhkust vaja! | Then you probably need a vacation! | |
-| 315 | Conversation, Tom | Täpselt! Lähme pühapäeval jälle koos metsa? | Exactly! Should we go to the forest together again on Sunday? | |
-| 316 | How it works | Enam, ei, pole, Ma ei ela enam Tallinnas, Mul pole enam aega | {Enam} after {ei} or {pole} is not anymore: {Ma ei ela enam Tallinnas}, {Mul pole enam aega}. | |
-| 317 | How it works, table | Mul pole enam aega. | I don't have the time anymore. | |
-| 318 | How it works, table | Sul on vist puhkust vaja. | You probably need a vacation. | |
-| 319 | Say it, model answer | Mul pole enam aega. | I don't have the time anymore. | |
+| 319 | Conversation, Tom | Mul pole enam aega. Ma töötan isegi laupäeval. | I don't have the time anymore. I even work on Saturdays. | |
+| 320 | Conversation, Mari | Siis on sul vist puhkust vaja! | Then you probably need a vacation! | |
+| 321 | How it works | Enam, ei, pole, Ma ei ela enam Tallinnas, Mul pole enam aega | {Enam} after {ei} or {pole} is not anymore: {Ma ei ela enam Tallinnas}, {Mul pole enam aega}. | |
+| 322 | How it works, table | Mul pole enam aega. | I don't have the time anymore. | |
+| 323 | How it works, table | Sul on vist puhkust vaja. | You probably need a vacation. | |
+| 324 | Say it, model answer | Mul pole enam aega. | I don't have the time anymore. | |
 
 #### A2 53. Can I leave a message? (`a2-53-message`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 320 | Conversation, Ene | Tere, Ene kuuleb. | Hello, Ene speaking. | |
-| 321 | Conversation, Tom | Tere! Siin Tom. Kas ma saaksin Mariga rääkida? | Hello! It's Tom. Could I speak to Mari? | |
-| 322 | Conversation, Ene | Kahjuks Marit pole praegu kodus. Kas ütlen talle midagi? | I'm afraid Mari isn't at home right now. Shall I give her a message? | |
-| 323 | Conversation, Tom | Jah, öelge palun, et ma helistan õhtul tagasi. | Yes, please tell her I'll call back this evening. | |
-| 324 | Conversation, Ene | Hästi, ütlen. | All right, I'll tell her. | |
-| 325 | How it works | Sõnum, Ma saadan talle sõnumi, sõnumi | {Sõnum} is also the everyday word for a text: {Ma saadan talle sõnumi}, I'll text her. A message you leave is the whole of it, {sõnumi}, never some of one. | |
-| 326 | How it works, table | Kas ma saaksin Mariga rääkida? | Could I speak to Mari? | |
-| 327 | How it works, table | Öelge palun, et ma helistan õhtul tagasi. | Please tell her I'll call back this evening. | |
-| 328 | Say it, model answer | Siin Tom. Kas ma saaksin Mariga rääkida? | It's Tom. Could I speak to Mari? | |
-| 329 | Say it, question | Kahjuks Marit pole praegu kodus. Kas ütlen talle midagi? | I'm afraid Mari isn't at home right now. Shall I give her a message? | |
-| 330 | Say it, model answer | Jah, öelge palun, et ma helistan õhtul tagasi. | Yes, please tell her I'll call back this evening. | |
-| 331 | Say it, model answer | Ma saadan talle sõnumi. | I'll text her. | |
+| 325 | Conversation, Ene | Tere, Ene kuuleb. | Hello, Ene speaking. | |
+| 326 | Conversation, Tom | Tere! Siin Tom. Kas ma saaksin Mariga rääkida? | Hello! It's Tom. Could I speak to Mari? | |
+| 327 | Conversation, Ene | Kahjuks Marit pole praegu kodus. | I'm afraid Mari isn't at home right now. | |
+| 328 | Conversation, Tom | Öelge palun, et ma helistan õhtul tagasi. | Please tell her I'll call back this evening. | |
+| 329 | Conversation, Ene | Hästi, ütlen. | All right, I'll tell her. | |
+| 330 | How it works | Sõnum, Ma saadan talle sõnumi, sõnumi | {Sõnum} is also the everyday word for a text: {Ma saadan talle sõnumi}, I'll text her. A message you leave is the whole of it, {sõnumi}, never some of one. | |
+| 331 | How it works, table | Kas ma saaksin Mariga rääkida? | Could I speak to Mari? | |
+| 332 | How it works, table | Öelge palun, et ma helistan õhtul tagasi. | Please tell her I'll call back this evening. | |
+| 333 | Say it, model answer | Siin Tom. Kas ma saaksin Mariga rääkida? | It's Tom. Could I speak to Mari? | |
+| 334 | Say it, question | Kahjuks Marit pole praegu kodus. | I'm afraid Mari isn't at home right now. | |
+| 335 | Say it, model answer | Öelge palun, et ma helistan õhtul tagasi. | Please tell her I'll call back this evening. | |
+| 336 | Say it, model answer | Ma saadan talle sõnumi. | I'll text her. | |
 
 #### A2 53a. Funny, strange and important (`a2-53a-describe`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 332 | Conversation, Tom | Väga naljakas! Natuke imelik ka. | Really funny! And a bit strange. | |
-| 333 | Conversation, Tom | Saab, aga ainult täna. Täna on viimane õhtu! | You can, but only today. It's the last evening! | |
+| 337 | Conversation, Tom | Väga naljakas! Natuke imelik ka. | Really funny! And a bit strange. | |
+| 338 | Conversation, Tom | Saab, aga ainult täna. Täna on viimane õhtu! | You can, but only today. It's the last evening! | |
 
 #### A2 54. Let's agree on a time (`a2-54-arrange`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 334 | Conversation, Tom | Selge. Lepime kokku: laupäeval kell kuus, kohvikus. | Right. Let's settle it: Saturday at six, at the café. | |
-| 335 | Conversation, Mari | Kokku lepitud! | Agreed! | |
-| 336 | Words (phrase) | Lepime kokku | let's settle it, let's agree | |
-| 337 | Words (phrase) | Kokku lepitud! | Agreed! It's a deal! | |
-| 338 | How it works | sobib, Kas sulle sobib?, Lepime kokku, Kokku lepitud! | A time that works {sobib}, for somebody in -le: {Kas sulle sobib?}, does it suit you? To settle it you say {Lepime kokku}, and the answer is {Kokku lepitud!} | |
-| 339 | How it works | Lepime kokku, Kokku lepitud! | {Lepime kokku} puts the plan on the table. The one who agrees answers {Kokku lepitud!}, it's agreed. | |
-| 340 | How it works, table | Lepime kokku: laupäeval kell kuus. | Let's settle it: Saturday at six. | |
-| 341 | How it works, table | Kokku lepitud! | Agreed! | |
-| 342 | Say it, model answer | Kokku lepitud! | Agreed! | |
+| 339 | Conversation, Tom | Selge. Lepime kokku: laupäeval kell kuus, kohvikus. | Right. Let's settle it: Saturday at six, at the café. | |
+| 340 | Conversation, Mari | Kokku lepitud! | Agreed! | |
+| 341 | Words (phrase) | Lepime kokku | let's settle it, let's agree | |
+| 342 | Words (phrase) | Kokku lepitud! | Agreed! It's a deal! | |
+| 343 | How it works | sobib, Kas sulle sobib?, Lepime kokku, Kokku lepitud! | A time that works {sobib}, for somebody in -le: {Kas sulle sobib?}, does it suit you? To settle it you say {Lepime kokku}, and the answer is {Kokku lepitud!} | |
+| 344 | How it works | Lepime kokku, Kokku lepitud! | {Lepime kokku} puts the plan on the table. The one who agrees answers {Kokku lepitud!}, it's agreed. | |
+| 345 | How it works, table | Lepime kokku: laupäeval kell kuus. | Let's settle it: Saturday at six. | |
+| 346 | How it works, table | Kokku lepitud! | Agreed! | |
+| 347 | Say it, model answer | Kokku lepitud! | Agreed! | |
 
 #### A2 55. The end of A2 (`a2-55-end`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 343 | Conversation, Tom | Olin Tartus. Töötasin seal programmeerijana. | I was in Tartu. I worked there as a programmer. | |
-| 344 | Conversation, Tom | Väga meeldis! Ma arvan, et see on Eesti kõige ilusam linn. | I liked it a lot! I think it's the prettiest town in Estonia. | |
-| 345 | Conversation, Tom | Suvel kavatsen Saaremaale minna. Kas tuleksid kaasa? | In the summer I plan to go to Saaremaa. Would you come along? | |
-| 346 | Conversation, Mari | Hea meelega, kui puhkust saan! | I'd love to, if I get time off! | |
-| 347 | Say it, model answer | Olin Tartus. Töötasin seal. | I was in Tartu. I worked there. | |
-| 348 | Say it, model answer | Suvel kavatsen Saaremaale minna. | In the summer I plan to go to Saaremaa. | |
-| 349 | Role-play, model answer | Olin Tartus. Töötasin seal. | I was in Tartu. I worked there. | |
-| 350 | Role-play, model answer | Suvel kavatsen Saaremaale minna. | In the summer I plan to go to Saaremaa. | |
-| 351 | Live scene, they say (close) | Kokku lepitud! Head aega! |  | |
-| 352 | Live scene, they say (close) | Kokku lepitud! Nägemist! |  | |
-| 353 | Live scene, learner may pick (did) | Ma olin Tartus, töötasin seal. | I was in Tartu. I worked there. | |
-| 354 | Live scene, learner may pick (liked) | Väga meeldis! | I loved it! | |
-| 355 | Live scene, learner may pick (plans) | Suvel kavatsen Saaremaale minna. | In the summer I plan to go to Saaremaa. | |
-| 356 | Live scene, learner may pick (plans) | Suvel lähen maale. | In the summer I'm going to the country. | |
+| 348 | Conversation, Tom | Olin Tartus. Töötasin seal programmeerijana. | I was in Tartu. I worked there as a programmer. | |
+| 349 | Conversation, Tom | Väga meeldis! Ma arvan, et see on Eesti kõige ilusam linn. | I liked it a lot! I think it's the prettiest town in Estonia. | |
+| 350 | Conversation, Tom | Suvel kavatsen Saaremaale minna. Kas tuleksid kaasa? | In the summer I plan to go to Saaremaa. Would you come along? | |
+| 351 | Conversation, Mari | Hea meelega, kui puhkust saan! | I'd love to, if I get time off! | |
+| 352 | Say it, model answer | Olin Tartus. Töötasin seal. | I was in Tartu. I worked there. | |
+| 353 | Say it, model answer | Suvel kavatsen Saaremaale minna. | In the summer I plan to go to Saaremaa. | |
+| 354 | Role-play, model answer | Olin Tartus. Töötasin seal. | I was in Tartu. I worked there. | |
+| 355 | Role-play, model answer | Suvel kavatsen Saaremaale minna. | In the summer I plan to go to Saaremaa. | |
+| 356 | Live scene, they say (close) | Kokku lepitud! Head aega! |  | |
+| 357 | Live scene, they say (close) | Kokku lepitud! Nägemist! |  | |
+| 358 | Live scene, learner may pick (did) | Ma olin Tartus, töötasin seal. | I was in Tartu. I worked there. | |
+| 359 | Live scene, learner may pick (liked) | Väga meeldis! | I loved it! | |
+| 360 | Live scene, learner may pick (plans) | Suvel kavatsen Saaremaale minna. | In the summer I plan to go to Saaremaa. | |
+| 361 | Live scene, learner may pick (plans) | Suvel lähen maale. | In the summer I'm going to the country. | |
 
 ### B1: Getting the job done
 
@@ -931,357 +936,358 @@ Russian and Ukrainian.
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 357 | Conversation, Anna | Mida sa täna tegid? | What did you do today? | |
-| 358 | Conversation, Tom | Hommikul parandasin autot. | In the morning I was working on the car. | |
-| 359 | Conversation, Anna | Kas sa parandasid auto ära? | Did you get the car fixed? | |
-| 360 | Conversation, Tom | Ei, veel mitte. See on ju vana auto. Homme parandan edasi. | No, not yet. It's an old car, you know. I'll carry on tomorrow. | |
-| 361 | Conversation, Tom | Aga ma lugesin raamatu läbi! | But I read the book to the end! | |
-| 362 | Conversation, Anna | Terve raamatu? Tubli! | The whole book? Well done! | |
-| 363 | Conversation, Tom | Jah! Aga mis sina tegid? | Yes! And what did you do? | |
-| 364 | Conversation, Anna | Koristasin kööki, aga lõpuni ei jõudnud. | I was cleaning the kitchen, but I didn't get it finished. | |
-| 365 | Conversation, Tom | Homme aitan. Teeme koos lõpuni. | I'll help tomorrow. We'll finish it together. | |
-| 366 | Words (form) | autot | the car, while you're working on it | |
-| 367 | Words (form) | parandasin | I fixed, I worked on | |
-| 368 | Words (form) | koristasin | I cleaned, I was cleaning | |
-| 369 | Words (form) | kööki | the kitchen, while you're working on it | |
-| 370 | Words (form) | koristanud | cleaned, after {ei} | |
-| 371 | Words (word) | lõpuni | to the end, all the way | |
-| 372 | Words (form) | jõudnud | got round to, managed, after {ei} | |
-| 373 | How it works | Ma lugesin raamatu läbi, Ma parandasin autot | Did the job get done? Then the thing takes the [omastav] (2nd form), and a small word after the verb often says so: {Ma lugesin raamatu läbi}. Still on it, or not done? Then the [osastav] (3rd form): {Ma parandasin autot}. | |
-| 374 | How it works | Läbi, ära, Lõpuni | {Läbi} and {ära} after the verb mean the job is finished. {Lõpuni} says the same thing in a word of its own. | |
-| 375 | How it works, table | Ma parandasin autot. | I was working on the car., still on it | |
-| 376 | How it works, table | Ma parandasin auto ära. | I got the car fixed., done | |
-| 377 | How it works, table | Ma lugesin raamatu läbi. | I read the book to the end., done | |
-| 378 | How it works, table | Ma ei koristanud kööki. | I didn't clean the kitchen., after {ei} | |
-| 379 | Say it, question | Mida sa täna tegid? | What did you do today? | |
-| 380 | Say it, model answer | Ma koristasin kööki. | I was cleaning the kitchen. | |
-| 381 | Say it, model answer | Ma lugesin raamatu läbi. | I read the book to the end. | |
-| 382 | Say it, model answer | Ma parandasin auto ära. | I got the car fixed. | |
-| 383 | Say it, model answer | Ma ei koristanud kööki. | I didn't clean the kitchen. | |
+| 362 | Conversation, Anna | Mida sa täna tegid? | What did you do today? | |
+| 363 | Conversation, Tom | Hommikul parandasin autot. | In the morning I was working on the car. | |
+| 364 | Conversation, Anna | Kas sa parandasid auto ära? | Did you get the car fixed? | |
+| 365 | Conversation, Tom | Ei, veel mitte. See on ju vana auto. Homme parandan edasi. | No, not yet. It's an old car, you know. I'll carry on tomorrow. | |
+| 366 | Conversation, Tom | Aga ma lugesin raamatu läbi! | But I read the book to the end! | |
+| 367 | Conversation, Anna | Terve raamatu? Tubli! | The whole book? Well done! | |
+| 368 | Conversation, Tom | Jah! Aga mis sina tegid? | Yes! And what did you do? | |
+| 369 | Conversation, Anna | Koristasin kööki, aga lõpuni ei jõudnud. | I was cleaning the kitchen, but I didn't get it finished. | |
+| 370 | Conversation, Tom | Homme aitan. Teeme koos lõpuni. | I'll help tomorrow. We'll finish it together. | |
+| 371 | Words (form) | autot | the car, while you're working on it | |
+| 372 | Words (form) | parandasin | I fixed, I worked on | |
+| 373 | Words (form) | koristasin | I cleaned, I was cleaning | |
+| 374 | Words (form) | kööki | the kitchen, while you're working on it | |
+| 375 | Words (form) | koristanud | cleaned, after {ei} | |
+| 376 | Words (word) | lõpuni | to the end, all the way | |
+| 377 | Words (form) | jõudnud | got round to, managed, after {ei} | |
+| 378 | How it works | Ma lugesin raamatu läbi, Ma parandasin autot | Did the job get done? Then the thing takes the [omastav] (2nd form), and a small word after the verb often says so: {Ma lugesin raamatu läbi}. Still on it, or not done? Then the [osastav] (3rd form): {Ma parandasin autot}. | |
+| 379 | How it works | Läbi, ära, Lõpuni | {Läbi} and {ära} after the verb mean the job is finished. {Lõpuni} says the same thing in a word of its own. | |
+| 380 | How it works, table | Ma parandasin autot. | I was working on the car., still on it | |
+| 381 | How it works, table | Ma parandasin auto ära. | I got the car fixed., done | |
+| 382 | How it works, table | Ma lugesin raamatu läbi. | I read the book to the end., done | |
+| 383 | How it works, table | Ma ei koristanud kööki. | I didn't clean the kitchen., after {ei} | |
+| 384 | Say it, question | Mida sa täna tegid? | What did you do today? | |
+| 385 | Say it, model answer | Ma koristasin kööki. | I was cleaning the kitchen. | |
+| 386 | Say it, model answer | Ma lugesin raamatu läbi. | I read the book to the end. | |
+| 387 | Say it, model answer | Ma parandasin auto ära. | I got the car fixed. | |
+| 388 | Say it, model answer | Ma ei koristanud kööki. | I didn't clean the kitchen. | |
 
 #### B1 2. Not a single one (`b1-02-not-one`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 384 | Conversation, Tom | Oota, Mari. Ma ei leia võtmeid. | Hang on, Mari. I can't find my keys. | |
-| 385 | Conversation, Mari | Jälle? Kus sa neid viimati nägid? | Again? Where did you last see them? | |
-| 386 | Conversation, Tom | Ma ei mäleta. Kotis pole ühtegi võtit. | I don't remember. There isn't a single key in my bag. | |
-| 387 | Conversation, Mari | Ja jope taskus? | And in your jacket pocket? | |
-| 388 | Conversation, Tom | Vaatasin juba. Leidsin ainult ühe vana soki. | I've looked already. All I found was one old sock. | |
-| 389 | Conversation, Mari | Soki? Miks sul sokk taskus on? | A sock? Why have you got a sock in your pocket? | |
-| 390 | Conversation, Tom | Ja Anna magab juba. | And Anna's asleep already. | |
-| 391 | Conversation, Mari | Tom, vaata! Su võtmed on ju ukse küljes. | Tom, look! Your keys are in the door. | |
-| 392 | Conversation, Tom | Sinna ma üldse ei vaadanud! | I didn't look there at all! | |
-| 393 | Words (form) | võtmed | the keys | |
-| 394 | Words (form) | võtmeid | keys, after a no | |
-| 395 | Words (form) | võtit | a key, after a no | |
-| 396 | Words (form) | võtme | of the key; the key, found | |
-| 397 | Words (form) | leidsin | I found | |
-| 398 | Words (form) | leidis | he found, she found | |
-| 399 | Words (form) | leidnud | found, after {ei} | |
-| 400 | Words (form) | vaatasin | I looked, I watched | |
-| 401 | Words (form) | vaadanud | looked, watched, after {ei} | |
-| 402 | Words (form) | tasku | of the pocket | |
-| 403 | Words (word) | sokk | a sock | |
-| 404 | Words (form) | soki | a sock, found | |
-| 405 | Words (form) | sokki | a sock, after a no | |
-| 406 | Words (form) | ühtegi | not a single one, after a no | |
-| 407 | Words (word) | viimati | last time, most recently | |
-| 408 | Words (word) | tegelikult | actually, in fact | |
-| 409 | Words (word) | üldse | at all | |
-| 410 | Words (word) | küljes | on, hanging on (a door, a wall) | |
-| 411 | How it works | ei, Ma leidsin võtme, Ma ei leidnud võtit | After {ei}, the thing is always in the [osastav] (3rd form), whether you meant the whole of it or not: {Ma leidsin võtme}, but {Ma ei leidnud võtit}. | |
-| 412 | How it works | Ei ole, Laual on võti, Laual ei ole võtit, Mul ei ole raha | {Ei ole} works the same way: {Laual on võti}, but {Laual ei ole võtit}. You met this in A2 with {Mul ei ole raha}. | |
-| 413 | How it works | Ühtegi, Ma ei leidnud ühtegi sokki | {Ühtegi} makes the no stronger: {Ma ei leidnud ühtegi sokki}, not a single sock. | |
-| 414 | How it works | ei, võtit, võtme | In English the no doesn't touch the thing: I found the key, I didn't find the key. In Estonian it does. After {ei}, it's {võtit}, never {võtme}. | |
-| 415 | How it works, table | Ma leidsin võtme. |  | |
-| 416 | How it works, table | Ma ei leidnud võtit. |  | |
-| 417 | How it works, table | Ma leian võtmed. |  | |
-| 418 | How it works, table | Ma ei leia võtmeid. |  | |
-| 419 | How it works, table | Leidsin ühe vana soki. |  | |
-| 420 | How it works, table | Ma ei leidnud ühtegi sokki. |  | |
-| 421 | How it works, table | Laual on võti. |  | |
-| 422 | How it works, table | Laual ei ole võtit. |  | |
-| 423 | Say it, question | Kas sa leidsid võtmed? | Did you find the keys? | |
-| 424 | Say it, model answer | Ei, ma ei leidnud võtmeid. | No, I didn't find the keys. | |
-| 425 | Say it, model answer | Laual pole ühtegi võtit. | There isn't a single key on the table. | |
-| 426 | Say it, question | Kus sa neid viimati nägid? | Where did you last see them? | |
-| 427 | Say it, model answer | Ma ei mäleta. | I don't remember. | |
-| 428 | Say it, model answer | Ma ei ostnud autot. | I didn't buy a car. | |
+| 389 | Conversation, Tom | Oota, Mari. Ma ei leia võtmeid. | Hang on, Mari. I can't find my keys. | |
+| 390 | Conversation, Mari | Jälle? Kus sa neid viimati nägid? | Again? Where did you last see them? | |
+| 391 | Conversation, Tom | Ma ei mäleta. Kotis pole ühtegi võtit. | I don't remember. There isn't a single key in my bag. | |
+| 392 | Conversation, Mari | Ja jope taskus? | And in your jacket pocket? | |
+| 393 | Conversation, Tom | Vaatasin juba. Leidsin ainult ühe vana soki. | I've looked already. All I found was one old sock. | |
+| 394 | Conversation, Mari | Soki? Miks sul sokk taskus on? | A sock? Why have you got a sock in your pocket? | |
+| 395 | Conversation, Tom | Ma tegelikult ei tea. | Actually, I've no idea. | |
+| 396 | Conversation, Tom | Ja Anna magab juba. | And Anna's asleep already. | |
+| 397 | Conversation, Mari | Tom, vaata! Su võtmed on ju ukse küljes. | Tom, look! Your keys are in the door. | |
+| 398 | Conversation, Tom | Sinna ma üldse ei vaadanud! | I didn't look there at all! | |
+| 399 | Words (form) | võtmed | the keys | |
+| 400 | Words (form) | võtmeid | keys, after a no | |
+| 401 | Words (form) | võtit | a key, after a no | |
+| 402 | Words (form) | võtme | of the key; the key, found | |
+| 403 | Words (form) | leidsin | I found | |
+| 404 | Words (form) | leidis | he found, she found | |
+| 405 | Words (form) | leidnud | found, after {ei} | |
+| 406 | Words (form) | vaatasin | I looked, I watched | |
+| 407 | Words (form) | vaadanud | looked, watched, after {ei} | |
+| 408 | Words (form) | tasku | of the pocket | |
+| 409 | Words (word) | sokk | a sock | |
+| 410 | Words (form) | soki | a sock, found | |
+| 411 | Words (form) | sokki | a sock, after a no | |
+| 412 | Words (form) | ühtegi | not a single one, after a no | |
+| 413 | Words (word) | viimati | last time, most recently | |
+| 414 | Words (word) | tegelikult | actually, in fact | |
+| 415 | Words (word) | üldse | at all | |
+| 416 | Words (word) | küljes | on, hanging on (a door, a wall) | |
+| 417 | How it works | ei, Ma leidsin võtme, Ma ei leidnud võtit | After {ei}, the thing is always in the [osastav] (3rd form), whether you meant the whole of it or not: {Ma leidsin võtme}, but {Ma ei leidnud võtit}. | |
+| 418 | How it works | Ei ole, Laual on võti, Laual ei ole võtit, Mul ei ole raha | {Ei ole} works the same way: {Laual on võti}, but {Laual ei ole võtit}. You met this in A2 with {Mul ei ole raha}. | |
+| 419 | How it works | Ühtegi, Ma ei leidnud ühtegi sokki | {Ühtegi} makes the no stronger: {Ma ei leidnud ühtegi sokki}, not a single sock. | |
+| 420 | How it works | ei, võtit, võtme | In English the no doesn't touch the thing: I found the key, I didn't find the key. In Estonian it does. After {ei}, it's {võtit}, never {võtme}. | |
+| 421 | How it works, table | Ma leidsin võtme. |  | |
+| 422 | How it works, table | Ma ei leidnud võtit. |  | |
+| 423 | How it works, table | Ma leian võtmed. |  | |
+| 424 | How it works, table | Ma ei leia võtmeid. |  | |
+| 425 | How it works, table | Leidsin ühe vana soki. |  | |
+| 426 | How it works, table | Ma ei leidnud ühtegi sokki. |  | |
+| 427 | How it works, table | Laual on võti. |  | |
+| 428 | How it works, table | Laual ei ole võtit. |  | |
+| 429 | Say it, question | Kas sa leidsid võtmed? | Did you find the keys? | |
+| 430 | Say it, model answer | Ei, ma ei leidnud võtmeid. | No, I didn't find the keys. | |
+| 431 | Say it, model answer | Laual pole ühtegi võtit. | There isn't a single key on the table. | |
+| 432 | Say it, question | Kus sa neid viimati nägid? | Where did you last see them? | |
+| 433 | Say it, model answer | Ma ei mäleta. | I don't remember. | |
+| 434 | Say it, model answer | Ma ei ostnud autot. | I didn't buy a car. | |
 
 #### B1 3. Some apples, or all of them (`b1-03-some-or-all`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 429 | Conversation, Kati | Tom, kas sa ostsid õunu? | Tom, did you buy some apples? | |
-| 430 | Conversation, Tom | Jah, ostsin turult terve kilo. | Yes, I got a whole kilo at the market. | |
-| 431 | Conversation, Kati | Tore! Tahan õunakooki teha. | Great! I want to make an apple cake. | |
-| 432 | Conversation, Tom | Ma pesin õunad juba ära. | I've already washed the apples. | |
-| 433 | Conversation, Kati | Tubli! Aga mune ostsid ka? | Good for you! Did you buy eggs too? | |
-| 434 | Conversation, Tom | Ei, mune ma ei ostnud. Need olid otsas. | No, I didn't buy eggs. They'd run out. | |
-| 435 | Conversation, Kati | Pole viga, mul on külmkapis kuus muna. | Never mind, I have six eggs in the fridge. | |
-| 436 | Conversation, Kati | Tom, siin on ainult kolm õuna! | Tom, there are only three apples here! | |
-| 437 | Conversation, Tom | Noh, need olid nii head. Sõin bussis õunu. | Well, the apples were so good. I was eating apples on the bus. | |
-| 438 | Conversation, Kati | Sa sõid õunad ära? | You ate up the apples? | |
-| 439 | Conversation, Tom | Mitte kõik! Ainult osa. Kolm on ju alles. | Not all of them! Only some. There are still three left. | |
-| 440 | Conversation, Kati | Kolm on koogi jaoks liiga vähe. Mine tagasi turule! | Three's too few for a cake. Go back to the market! | |
-| 441 | Conversation, Tom | Olgu, lähen. Aga seekord ma bussis ei söö! | Fine, I'm going. But this time I won't eat on the bus! | |
-| 442 | Words (form) | õunad | the apples, all of them | |
-| 443 | Words (form) | õuna | apples, after a number | |
-| 444 | Words (word) | õunakook | an apple cake | |
-| 445 | Words (form) | õunakooki | an apple cake, as the thing to make | |
-| 446 | Words (form) | koogi | of the cake | |
-| 447 | Words (form) | pesin | I washed | |
-| 448 | Words (form) | mune | eggs, some of them | |
-| 449 | Words (form) | munad | the eggs, all of them | |
-| 450 | Words (form) | nõusid | dishes, some of them | |
-| 451 | Words (word) | otsas | run out, all gone | |
-| 452 | Words (word) | alles | still there, left | |
-| 453 | Words (word) | jaoks | for (after the [omastav] (2nd form)) | |
-| 454 | Words (word) | seekord | this time | |
-| 455 | How it works | Ma ostsin õunu, Ma pesin õunad ära | With more than one thing, some of them is the plural [osastav] (3rd form): {Ma ostsin õunu}. All of them, the whole lot, is the plural [nimetav] (1st form): {Ma pesin õunad ära}. | |
-| 456 | How it works | õunu, mune, nõusid | The plural [osastav] (3rd form) says some, or a lot, without counting: {õunu}, {mune}, {nõusid}. | |
-| 457 | How it works | Ma pesin õunad ära, Õunad olid head | The plural [nimetav] (1st form) as the thing done to means all of them, these ones: {Ma pesin õunad ära}. It's spelled just like {Õunad olid head}. | |
-| 458 | How it works | Osa, Ainult osa, Terve, terve kilo | {Osa} is a part, some of it: {Ainult osa}. {Terve} is whole: {terve kilo}. | |
-| 459 | How it works | Ma sõin õunad ära | English says I ate the apples whether any are left or not. In Estonian, {Ma sõin õunad ära} means they're gone, every one. | |
-| 460 | How it works, table | Ma ostsin õunu. |  | |
-| 461 | How it works, table | Ma ostsin õunad. |  | |
-| 462 | How it works, table | Ma sõin õunu. |  | |
-| 463 | How it works, table | Ma sõin õunad ära. |  | |
-| 464 | How it works, table | Ma pesin nõusid. |  | |
-| 465 | How it works, table | Ma pesin nõud ära. |  | |
-| 466 | How it works, table | Osta mune! |  | |
-| 467 | How it works, table | Osta munad! |  | |
-| 468 | Say it, question | Mida sa turult ostsid? | What did you buy at the market? | |
-| 469 | Say it, model answer | Ma ostsin õunu. | I bought some apples. | |
-| 470 | Say it, model answer | Ma pesin õunad ära. | I've washed the apples. | |
-| 471 | Say it, question | Kas sa sõid kõik ära? | Did you eat them all up? | |
-| 472 | Say it, model answer | Mitte kõik, ainult osa. | Not all of them, only some. | |
-| 473 | Say it, model answer | Ma ei ostnud mune. | I didn't buy eggs. | |
+| 435 | Conversation, Kati | Tom, kas sa ostsid õunu? | Tom, did you buy some apples? | |
+| 436 | Conversation, Tom | Jah, ostsin turult terve kilo. | Yes, I got a whole kilo at the market. | |
+| 437 | Conversation, Kati | Tore! Tahan õunakooki teha. | Great! I want to make an apple cake. | |
+| 438 | Conversation, Tom | Ma pesin õunad juba ära. | I've already washed the apples. | |
+| 439 | Conversation, Kati | Tubli! Aga mune ostsid ka? | Good for you! Did you buy eggs too? | |
+| 440 | Conversation, Tom | Ei, mune ma ei ostnud. Need olid otsas. | No, I didn't buy eggs. They'd run out. | |
+| 441 | Conversation, Kati | Pole viga, mul on külmkapis kuus muna. | Never mind, I have six eggs in the fridge. | |
+| 442 | Conversation, Kati | Tom, siin on ainult kolm õuna! | Tom, there are only three apples here! | |
+| 443 | Conversation, Tom | Noh, need olid nii head. Sõin bussis õunu. | Well, the apples were so good. I was eating apples on the bus. | |
+| 444 | Conversation, Kati | Sa sõid õunad ära? | You ate up the apples? | |
+| 445 | Conversation, Tom | Mitte kõik! Ainult osa. Kolm on ju alles. | Not all of them! Only some. There are still three left. | |
+| 446 | Conversation, Kati | Kolm on koogi jaoks liiga vähe. Mine tagasi turule! | Three's too few for a cake. Go back to the market! | |
+| 447 | Conversation, Tom | Olgu, lähen. Aga seekord ma bussis ei söö! | Fine, I'm going. But this time I won't eat on the bus! | |
+| 448 | Words (form) | õunad | the apples, all of them | |
+| 449 | Words (form) | õuna | apples, after a number | |
+| 450 | Words (word) | õunakook | an apple cake | |
+| 451 | Words (form) | õunakooki | an apple cake, as the thing to make | |
+| 452 | Words (form) | koogi | of the cake | |
+| 453 | Words (form) | pesin | I washed | |
+| 454 | Words (form) | mune | eggs, some of them | |
+| 455 | Words (form) | munad | the eggs, all of them | |
+| 456 | Words (form) | nõusid | dishes, some of them | |
+| 457 | Words (word) | otsas | run out, all gone | |
+| 458 | Words (word) | alles | still there, left | |
+| 459 | Words (word) | jaoks | for (after the [omastav] (2nd form)) | |
+| 460 | Words (word) | seekord | this time | |
+| 461 | How it works | Ma ostsin õunu, Ma pesin õunad ära | With more than one thing, some of them is the plural [osastav] (3rd form): {Ma ostsin õunu}. All of them, the whole lot, is the plural [nimetav] (1st form): {Ma pesin õunad ära}. | |
+| 462 | How it works | õunu, mune, nõusid | The plural [osastav] (3rd form) says some, or a lot, without counting: {õunu}, {mune}, {nõusid}. | |
+| 463 | How it works | Ma pesin õunad ära, Õunad olid head | The plural [nimetav] (1st form) as the thing done to means all of them, these ones: {Ma pesin õunad ära}. It's spelled just like {Õunad olid head}. | |
+| 464 | How it works | Osa, Ainult osa, Terve, terve kilo | {Osa} is a part, some of it: {Ainult osa}. {Terve} is whole: {terve kilo}. | |
+| 465 | How it works | Ma sõin õunad ära | English says I ate the apples whether any are left or not. In Estonian, {Ma sõin õunad ära} means they're gone, every one. | |
+| 466 | How it works, table | Ma ostsin õunu. |  | |
+| 467 | How it works, table | Ma ostsin õunad. |  | |
+| 468 | How it works, table | Ma sõin õunu. |  | |
+| 469 | How it works, table | Ma sõin õunad ära. |  | |
+| 470 | How it works, table | Ma pesin nõusid. |  | |
+| 471 | How it works, table | Ma pesin nõud ära. |  | |
+| 472 | How it works, table | Osta mune! |  | |
+| 473 | How it works, table | Osta munad! |  | |
+| 474 | Say it, question | Mida sa turult ostsid? | What did you buy at the market? | |
+| 475 | Say it, model answer | Ma ostsin õunu. | I bought some apples. | |
+| 476 | Say it, model answer | Ma pesin õunad ära. | I've washed the apples. | |
+| 477 | Say it, question | Kas sa sõid kõik ära? | Did you eat them all up? | |
+| 478 | Say it, model answer | Mitte kõik, ainult osa. | Not all of them, only some. | |
+| 479 | Say it, model answer | Ma ei ostnud mune. | I didn't buy eggs. | |
 
 #### B1 4. Waiting, loving, looking for (`b1-04-waiting`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 474 | Conversation, Tom | Jaan, kus sa oled? Ma ootan sind juba pool tundi. | Jaan, where are you? I've been waiting for you for half an hour. | |
-| 475 | Conversation, Jaan | Ma olen ka jaamas! Otsin sind. | I'm at the station too! I'm looking for you. | |
-| 476 | Conversation, Tom | Ma seisan kella all. Vaatan inimesi ja kuulan muusikat. | I'm standing under the clock. I'm watching people and listening to music. | |
-| 477 | Conversation, Jaan | Siin pole ühtegi kella. Siin on ainult busse. | There isn't a single clock here. There are only buses. | |
-| 478 | Conversation, Tom | Busse? Jaan, mina olen rongijaamas! | Buses? Jaan, I'm at the train station! | |
-| 479 | Conversation, Jaan | Oi. Seda ma kartsin. Olen vales kohas. | Oh. That's what I was afraid of. I'm in the wrong place. | |
-| 480 | Conversation, Tom | Pole viga. Tule siia, ma ootan. | No problem. Come over here, I'll wait. | |
-| 481 | Conversation, Jaan | Aga siin on suur koer. Ta vaatab mind! | But there's a big dog here. It's looking at me! | |
-| 482 | Conversation, Tom | Ära karda. Ta ootab vist kedagi. | Don't be scared. It's probably waiting for somebody. | |
-| 483 | Conversation, Jaan | Olgu, tulen. Kohtume kümne minuti pärast. | OK, I'm coming. See you in ten minutes. | |
-| 484 | Conversation, Tom | Hea küll. Võtan vahepeal kohvi. | OK. I'll get a coffee in the meantime. | |
-| 485 | Conversation, Jaan | Tom, sa oled mu parim sõber. Ma armastan sind! | Tom, you're my best friend. I love you! | |
-| 486 | Conversation, Tom | Jah, jah. Tule nüüd! | Yes, yes. Just come! | |
-| 487 | Words (form) | teda | him, her, as the one waited for, looked for, loved | |
-| 488 | Words (verb) | armastama | to love | |
-| 489 | Words (verb, I form) | armastan | I love | |
-| 490 | Words (verb, I form) | kohtun | I meet | |
-| 491 | Words (verb, I form) | seisan | I stand | |
-| 492 | Words (form) | ootasin | I waited, I was waiting | |
-| 493 | Words (form) | otsisin | I looked for, I was looking for | |
-| 494 | Words (form) | kuulasin | I listened | |
-| 495 | Words (form) | kartsin | I was afraid | |
-| 496 | Words (form) | inimesi | people, some of them | |
-| 497 | Words (form) | busse | buses, some buses | |
-| 498 | Words (word) | rongijaam | a train station | |
-| 499 | Words (form) | rongijaama | of the train station | |
-| 500 | Words (form) | koha | of the place | |
-| 501 | Words (form) | koeri | dogs, as what you're scared of | |
-| 502 | How it works | Ma ootan sind, Ma otsin sind, Ma kardan koeri | Some verbs never finish anything, so what comes after them is always in the [osastav] (3rd form): {Ma ootan sind}, {Ma otsin sind}, {Ma kardan koeri}. | |
-| 503 | How it works | Ma ootasin sind | Waiting, looking for, fearing and loving have no end point, so the [osastav] (3rd form) stays in the past too: {Ma ootasin sind}. | |
-| 504 | How it works | läbi | Watching and listening usually take the [osastav] (3rd form) as well. Lesson 1's {läbi} can still finish them: heard all the way through, the thing takes the [omastav] (2nd form). | |
-| 505 | How it works | Sind, sina, teda, tema, mind, mina | {Sind} is the [osastav] (3rd form) of {sina}, {teda} of {tema} and {mind} of {mina}. You'll hear them after all of these verbs. | |
-| 506 | How it works | leidma, Ma leidsin võtmed, Ma otsin võtmeid | Found it? That's {leidma}, and it takes the whole thing: {Ma leidsin võtmed}. While you're still looking, it's {Ma otsin võtmeid}. | |
-| 507 | How it works, table | Ma ootan sind. | I'm waiting for you. | |
-| 508 | How it works, table | Ma otsin võtmeid. | I'm looking for my keys. | |
-| 509 | How it works, table | Ma vaatan inimesi. | I'm watching people. | |
-| 510 | How it works, table | Ma kuulan muusikat. | I'm listening to music. | |
-| 511 | How it works, table | Ma kardan koeri. | I'm scared of dogs. | |
-| 512 | How it works, table | armastama | I love you. | |
-| 513 | How it works, table | Ma armastan sind. | I love you. | |
-| 514 | Say it, question | Keda sa ootad? | Who are you waiting for? | |
-| 515 | Say it, model answer | Ma ootan Marit. | I'm waiting for Mari. | |
-| 516 | Say it, model answer | Ma otsin oma võtmeid. | I'm looking for my keys. | |
-| 517 | Say it, question | Kas sa kardad koeri? | Are you scared of dogs? | |
-| 518 | Say it, model answer | Ei, ma armastan koeri. | No, I love dogs. | |
-| 519 | Say it, model answer | Ma kuulan muusikat. | I'm listening to music. | |
+| 480 | Conversation, Tom | Jaan, kus sa oled? Ma ootan sind juba pool tundi. | Jaan, where are you? I've been waiting for you for half an hour. | |
+| 481 | Conversation, Jaan | Ma olen ka jaamas! Otsin sind. | I'm at the station too! I'm looking for you. | |
+| 482 | Conversation, Tom | Ma seisan kella all. Vaatan inimesi ja kuulan muusikat. | I'm standing under the clock. I'm watching people and listening to music. | |
+| 483 | Conversation, Jaan | Siin pole ühtegi kella. Siin on ainult busse. | There isn't a single clock here. There are only buses. | |
+| 484 | Conversation, Tom | Busse? Jaan, mina olen rongijaamas! | Buses? Jaan, I'm at the train station! | |
+| 485 | Conversation, Jaan | Oi. Seda ma kartsin. Olen vales kohas. | Oh. That's what I was afraid of. I'm in the wrong place. | |
+| 486 | Conversation, Tom | Pole viga. Tule siia, ma ootan. | No problem. Come over here, I'll wait. | |
+| 487 | Conversation, Jaan | Aga siin on suur koer. Ta vaatab mind! | But there's a big dog here. It's looking at me! | |
+| 488 | Conversation, Tom | Ära karda. Ta ootab vist kedagi. | Don't be scared. It's probably waiting for somebody. | |
+| 489 | Conversation, Jaan | Olgu, tulen. Kohtume kümne minuti pärast. | OK, I'm coming. See you in ten minutes. | |
+| 490 | Conversation, Tom | Hea küll. Võtan vahepeal kohvi. | OK. I'll get a coffee in the meantime. | |
+| 491 | Conversation, Jaan | Tom, sa oled mu parim sõber. Ma armastan sind! | Tom, you're my best friend. I love you! | |
+| 492 | Conversation, Tom | Jah, jah. Tule nüüd! | Yes, yes. Just come! | |
+| 493 | Words (form) | teda | him, her, as the one waited for, looked for, loved | |
+| 494 | Words (verb) | armastama | to love | |
+| 495 | Words (verb, I form) | armastan | I love | |
+| 496 | Words (verb, I form) | kohtun | I meet | |
+| 497 | Words (verb, I form) | seisan | I stand | |
+| 498 | Words (form) | ootasin | I waited, I was waiting | |
+| 499 | Words (form) | otsisin | I looked for, I was looking for | |
+| 500 | Words (form) | kuulasin | I listened | |
+| 501 | Words (form) | kartsin | I was afraid | |
+| 502 | Words (form) | inimesi | people, some of them | |
+| 503 | Words (form) | busse | buses, some buses | |
+| 504 | Words (word) | rongijaam | a train station | |
+| 505 | Words (form) | rongijaama | of the train station | |
+| 506 | Words (form) | koha | of the place | |
+| 507 | Words (form) | koeri | dogs, as what you're scared of | |
+| 508 | How it works | Ma ootan sind, Ma otsin sind, Ma kardan koeri | Some verbs never finish anything, so what comes after them is always in the [osastav] (3rd form): {Ma ootan sind}, {Ma otsin sind}, {Ma kardan koeri}. | |
+| 509 | How it works | Ma ootasin sind | Waiting, looking for, fearing and loving have no end point, so the [osastav] (3rd form) stays in the past too: {Ma ootasin sind}. | |
+| 510 | How it works | läbi | Watching and listening usually take the [osastav] (3rd form) as well. Lesson 1's {läbi} can still finish them: heard all the way through, the thing takes the [omastav] (2nd form). | |
+| 511 | How it works | Sind, sina, teda, tema, mind, mina | {Sind} is the [osastav] (3rd form) of {sina}, {teda} of {tema} and {mind} of {mina}. You'll hear them after all of these verbs. | |
+| 512 | How it works | leidma, Ma leidsin võtmed, Ma otsin võtmeid | Found it? That's {leidma}, and it takes the whole thing: {Ma leidsin võtmed}. While you're still looking, it's {Ma otsin võtmeid}. | |
+| 513 | How it works, table | Ma ootan sind. | I'm waiting for you. | |
+| 514 | How it works, table | Ma otsin võtmeid. | I'm looking for my keys. | |
+| 515 | How it works, table | Ma vaatan inimesi. | I'm watching people. | |
+| 516 | How it works, table | Ma kuulan muusikat. | I'm listening to music. | |
+| 517 | How it works, table | Ma kardan koeri. | I'm scared of dogs. | |
+| 518 | How it works, table | armastama | I love you. | |
+| 519 | How it works, table | Ma armastan sind. | I love you. | |
+| 520 | Say it, question | Keda sa ootad? | Who are you waiting for? | |
+| 521 | Say it, model answer | Ma ootan Marit. | I'm waiting for Mari. | |
+| 522 | Say it, model answer | Ma otsin oma võtmeid. | I'm looking for my keys. | |
+| 523 | Say it, question | Kas sa kardad koeri? | Are you scared of dogs? | |
+| 524 | Say it, model answer | Ei, ma armastan koeri. | No, I love dogs. | |
+| 525 | Say it, model answer | Ma kuulan muusikat. | I'm listening to music. | |
 
 #### B1 5. Do it! Don't! (`b1-05-do-it`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 520 | Conversation, Kati | Tom, too see kast siia! | Tom, bring that box here! | |
-| 521 | Conversation, Tom | Oi, kui raske! Mis seal sees on? | Wow, it's heavy! What's in it? | |
-| 522 | Conversation, Kati | Raamatud. Pane kast lauale. | Books. Put the box on the table. | |
-| 523 | Conversation, Tom | Ja nüüd? Toon diivani ka? | And now? Shall I bring the sofa too? | |
-| 524 | Conversation, Kati | Ei, ära too diivanit veel! Kõigepealt tee uks lahti. | No, don't bring the sofa yet! First open the door. | |
-| 525 | Conversation, Tom | Uks on lahti. | The door's open. | |
-| 526 | Conversation, Kati | Hästi. Nüüd too diivan, aga ära lõhu ust! | Good. Now bring the sofa, but don't break the door! | |
-| 527 | Conversation, Tom | Oih. | Oops. | |
-| 528 | Conversation, Tom | Diivan ei mahu uksest läbi! | The sofa won't fit through the door! | |
-| 529 | Conversation, Kati | Ära tee midagi! Ma tulen ise. | Don't do anything! I'll come myself. | |
-| 530 | Conversation, Kati | Tom, see pole ju minu diivan. See on naabri oma! | Tom, that isn't my sofa. It's the neighbor's! | |
-| 531 | Conversation, Tom | Aga see oli ukse ees! | But it was in front of the door! | |
-| 532 | Conversation, Kati | Jah, naabri ukse ees. Vii diivan kohe tagasi! | Yes, in front of the neighbor's door. Take the sofa back right now! | |
-| 533 | Words (form) | kasti | a box, after don't; the box, when you'll bring it | |
-| 534 | Words (form) | kastid | the boxes | |
-| 535 | Words (form) | raamatud | books, the books | |
-| 536 | Words (form) | diivani | of the sofa; the sofa, when you'll bring it | |
-| 537 | Words (form) | diivanit | a sofa, after don't | |
-| 538 | Words (form) | ust | a door, after don't | |
-| 539 | Words (verb) | lõhkuma | to break, to smash | |
-| 540 | Words (verb, I form) | lõhun | I break | |
-| 541 | Words (form) | mahu | fit, after {ei} | |
-| 542 | Words (form) | mahtunud | fitted, after {ei} | |
-| 543 | Words (word) | oih | oops | |
-| 544 | Words (form) | naabri | of the neighbor | |
-| 545 | Words (form) | uude | into a new one | |
-| 546 | How it works | Too kast siia!, Tee uks lahti!, ära, Ära too diivanit! | A command to do the whole job takes the [nimetav] (1st form): {Too kast siia!}, {Tee uks lahti!}. After {ära}, don't, it's the [osastav] (3rd form): {Ära too diivanit!} | |
-| 547 | How it works | Too kast!, Tee uks lahti!, ma toon, Teeme ukse lahti | A command to you says the thing in its dictionary form: {Too kast!}, {Tee uks lahti!} A let's is different, and takes the [omastav] (2nd form) like {ma toon}: {Teeme ukse lahti}. | |
-| 548 | How it works | Lahti, kinni, Tee uks lahti, Pane uks kinni, Kinni | {Lahti} is open and {kinni} is shut: {Tee uks lahti}, {Pane uks kinni}. {Kinni} is stuck too. | |
-| 549 | How it works | ma toon, Ma toon diivani, Too diivan! | After {ma toon} it's the [omastav] (2nd form), {Ma toon diivani}. In a command it's the [nimetav] (1st form): {Too diivan!} | |
-| 550 | How it works, table | Too kast! |  | |
-| 551 | How it works, table | Ära too kasti! |  | |
-| 552 | How it works, table | Pane uks kinni! |  | |
-| 553 | How it works, table | Ära pane ust kinni! |  | |
-| 554 | How it works, table | Too diivan! |  | |
-| 555 | How it works, table | Ära too diivanit! |  | |
-| 556 | How it works, table | Võta võtmed! |  | |
-| 557 | How it works, table | Ära võta võtmeid! |  | |
-| 558 | Say it, model answer | Too kast siia! | Bring the box here! | |
-| 559 | Say it, model answer | Ära too diivanit veel! | Don't bring the sofa yet! | |
-| 560 | Say it, model answer | Pane uks kinni! | Close the door! | |
-| 561 | Say it, question | Kas ma võtan võtmed? | Shall I take the keys? | |
-| 562 | Say it, model answer | Jah, võta võtmed. | Yes, take the keys. | |
+| 526 | Conversation, Kati | Tom, too see kast siia! | Tom, bring that box here! | |
+| 527 | Conversation, Tom | Oi, kui raske! Mis seal sees on? | Wow, it's heavy! What's in it? | |
+| 528 | Conversation, Kati | Raamatud. Pane kast lauale. | Books. Put the box on the table. | |
+| 529 | Conversation, Tom | Ja nüüd? Toon diivani ka? | And now? Shall I bring the sofa too? | |
+| 530 | Conversation, Kati | Ei, ära too diivanit veel! Kõigepealt tee uks lahti. | No, don't bring the sofa yet! First open the door. | |
+| 531 | Conversation, Tom | Uks on lahti. | The door's open. | |
+| 532 | Conversation, Kati | Hästi. Nüüd too diivan, aga ära lõhu ust! | Good. Now bring the sofa, but don't break the door! | |
+| 533 | Conversation, Tom | Oih. | Oops. | |
+| 534 | Conversation, Tom | Diivan ei mahu uksest läbi! | The sofa won't fit through the door! | |
+| 535 | Conversation, Kati | Ära tee midagi! Ma tulen ise. | Don't do anything! I'll come myself. | |
+| 536 | Conversation, Kati | Tom, see pole ju minu diivan. See on naabri oma! | Tom, that isn't my sofa. It's the neighbor's! | |
+| 537 | Conversation, Tom | Aga see oli ukse ees! | But it was in front of the door! | |
+| 538 | Conversation, Kati | Jah, naabri ukse ees. Vii diivan kohe tagasi! | Yes, in front of the neighbor's door. Take the sofa back right now! | |
+| 539 | Words (form) | kasti | a box, after don't; the box, when you'll bring it | |
+| 540 | Words (form) | kastid | the boxes | |
+| 541 | Words (form) | raamatud | books, the books | |
+| 542 | Words (form) | diivani | of the sofa; the sofa, when you'll bring it | |
+| 543 | Words (form) | diivanit | a sofa, after don't | |
+| 544 | Words (form) | ust | a door, after don't | |
+| 545 | Words (verb) | lõhkuma | to break, to smash | |
+| 546 | Words (verb, I form) | lõhun | I break | |
+| 547 | Words (form) | mahu | fit, after {ei} | |
+| 548 | Words (form) | mahtunud | fitted, after {ei} | |
+| 549 | Words (word) | oih | oops | |
+| 550 | Words (form) | naabri | of the neighbor | |
+| 551 | Words (form) | uude | into a new one | |
+| 552 | How it works | Too kast siia!, Tee uks lahti!, ära, Ära too diivanit! | A command to do the whole job takes the [nimetav] (1st form): {Too kast siia!}, {Tee uks lahti!}. After {ära}, don't, it's the [osastav] (3rd form): {Ära too diivanit!} | |
+| 553 | How it works | Too kast!, Tee uks lahti!, ma toon, Teeme ukse lahti | A command to you says the thing in its dictionary form: {Too kast!}, {Tee uks lahti!} A let's is different, and takes the [omastav] (2nd form) like {ma toon}: {Teeme ukse lahti}. | |
+| 554 | How it works | Lahti, kinni, Tee uks lahti, Pane uks kinni, Kinni | {Lahti} is open and {kinni} is shut: {Tee uks lahti}, {Pane uks kinni}. {Kinni} is stuck too. | |
+| 555 | How it works | ma toon, Ma toon diivani, Too diivan! | After {ma toon} it's the [omastav] (2nd form), {Ma toon diivani}. In a command it's the [nimetav] (1st form): {Too diivan!} | |
+| 556 | How it works, table | Too kast! |  | |
+| 557 | How it works, table | Ära too kasti! |  | |
+| 558 | How it works, table | Pane uks kinni! |  | |
+| 559 | How it works, table | Ära pane ust kinni! |  | |
+| 560 | How it works, table | Too diivan! |  | |
+| 561 | How it works, table | Ära too diivanit! |  | |
+| 562 | How it works, table | Võta võtmed! |  | |
+| 563 | How it works, table | Ära võta võtmeid! |  | |
+| 564 | Say it, model answer | Too kast siia! | Bring the box here! | |
+| 565 | Say it, model answer | Ära too diivanit veel! | Don't bring the sofa yet! | |
+| 566 | Say it, model answer | Pane uks kinni! | Close the door! | |
+| 567 | Say it, question | Kas ma võtan võtmed? | Shall I take the keys? | |
+| 568 | Say it, model answer | Jah, võta võtmed. | Yes, take the keys. | |
 
 #### B1 6. A note to the handyman (`b1-06-note`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 563 | Conversation, Peeter | Tere, Tom! Peeter siin. | Hello, Tom! It's Peeter. | |
-| 564 | Conversation, Peeter | Meister tuleb homme kell kümme. | The handyman's coming tomorrow at ten. | |
-| 565 | Conversation, Peeter | Sa oled siis tööl, aga pole viga. | You'll be at work then, but never mind. | |
-| 566 | Conversation, Peeter | Jäta talle sedel lauale. | Leave him a note on the table. | |
-| 567 | Conversation, Peeter | Kirjuta, mis on tehtud ja mis on veel katki. | Write what's done and what's still broken. | |
-| 568 | Conversation, Peeter | Kraani sa parandasid ju ise ära. | You fixed the tap yourself, after all. | |
-| 569 | Conversation, Peeter | Aga aken ei lähe ikka kinni ja dušš tilgub terve öö. | But the window still won't close, and the shower drips all night. | |
-| 570 | Conversation, Peeter | Kirjuta kõik üles. Meister ei tunne ju korterit. | Write it all down. The handyman doesn't know the apartment. | |
-| 571 | Conversation, Peeter | Ja kui köögis lamp ei põle, siis on pirn läbi. | And if the kitchen light won't come on, the bulb's gone. | |
-| 572 | Conversation, Peeter | Vaheta ise ära, see on lihtne! | Change it yourself, it's easy! | |
-| 573 | Conversation, Peeter | Või kardad sa elektrit? | Or are you scared of electricity? | |
-| 574 | Conversation, Peeter | Võti jäta naabrile. Head aega! | Leave the key with the neighbor. Bye! | |
-| 575 | Words (word) | sedel | a note, a slip of paper you leave somebody | |
-| 576 | Words (form) | sedelit | the note, as the thing you read | |
-| 577 | Words (form) | tehtud | done, finished | |
-| 578 | Words (form) | kraani | the tap, as the job done | |
-| 579 | Words (word) | dušš | a shower | |
-| 580 | Words (form) | duši | the shower, as the job done | |
-| 581 | Words (form) | tilgub | drips | |
-| 582 | Words (word) | oluline | important | |
-| 583 | Words (form) | korterit | the apartment, after a no | |
-| 584 | Words (verb) | põlema | to burn; of a light, to be on | |
-| 585 | Words (verb, I form) | põlen | I burn | |
-| 586 | Words (word) | pirn | a light bulb; a pear | |
-| 587 | Words (form) | pirni | a bulb, as the thing bought | |
-| 588 | Words (verb) | vahetama | to change, to swap | |
-| 589 | Words (verb, I form) | vahetan | I change | |
-| 590 | Words (form) | elektrit | electricity, as what you're scared of | |
-| 591 | Words (form) | selles | in this | |
-| 592 | Words (form) | parandage | please fix, to somebody you call {teie} | |
-| 593 | Words (form) | helistage | please call, to somebody you call {teie} | |
-| 594 | Words (form) | küsimusi | questions, any | |
-| 595 | Words (form) | akent | the window, after a no | |
-| 596 | Words (form) | parandanud | fixed, after {ei} | |
-| 597 | Words (word) | varuosa | a spare part | |
-| 598 | How it works | Kraani parandasin ma ise ära, Aken ei lähe ikka kinni | A note that gets something done says what's done, with the whole thing, {Kraani parandasin ma ise ära}, and what isn't, with a no: {Aken ei lähe ikka kinni}. | |
-| 599 | How it works | Kraani parandasin ma ise ära | Put the thing first when it's what the note is about: {Kraani parandasin ma ise ära}. Its ending stays the same wherever it stands. | |
-| 600 | How it works | teie, palun parandage, helistage mulle | To a tradesman you don't know, use {teie}: {palun parandage}, {helistage mulle}. | |
-| 601 | How it works | Ikka, ei lähe ikka kinni | {Ikka} with a no means still not: {ei lähe ikka kinni}, still won't close. | |
-| 602 | How it works | Pirn on läbi, on, läbi | {Pirn on läbi} is the bulb's gone: after {on}, {läbi} means worn out or burnt out, not through. | |
-| 603 | How it works | Palun parandage dušš ära, duši | A polite command keeps the whole thing in the [nimetav] (1st form) too: {Palun parandage dušš ära}, not {duši}. | |
-| 604 | How it works, table | Kraani parandasin ma ise ära. | I fixed the tap myself. | |
-| 605 | How it works, table | Aken ei lähe ikka kinni. | The window still won't close. | |
-| 606 | How it works, table | Palun parandage dušš ära. | Please fix the shower. | |
-| 607 | How it works, table | Uue pirni ostsin ma juba. | I've already bought a new bulb. | |
-| 608 | Say it, question | Mis on tehtud? | What's been done? | |
-| 609 | Say it, model answer | Ma parandasin kraani ise ära. | I fixed the tap myself. | |
-| 610 | Say it, model answer | Aken ei lähe ikka kinni. | The window still won't close. | |
-| 611 | Say it, model answer | Palun parandage dušš ära. | Please fix the shower. | |
-| 612 | Say it, question | Kus võti on? | Where's the key? | |
-| 613 | Say it, model answer | Võti on naabri juures. | The key is at the neighbor's. | |
+| 569 | Conversation, Peeter | Tere, Tom! Peeter siin. | Hello, Tom! It's Peeter. | |
+| 570 | Conversation, Peeter | Meister tuleb homme kell kümme. | The handyman's coming tomorrow at ten. | |
+| 571 | Conversation, Peeter | Sa oled siis tööl, aga pole viga. | You'll be at work then, but never mind. | |
+| 572 | Conversation, Peeter | Jäta talle sedel lauale. | Leave him a note on the table. | |
+| 573 | Conversation, Peeter | Kirjuta, mis on tehtud ja mis on veel katki. | Write what's done and what's still broken. | |
+| 574 | Conversation, Peeter | Kraani sa parandasid ju ise ära. | You fixed the tap yourself, after all. | |
+| 575 | Conversation, Peeter | Aga aken ei lähe ikka kinni ja dušš tilgub terve öö. | But the window still won't close, and the shower drips all night. | |
+| 576 | Conversation, Peeter | Kirjuta kõik üles. Meister ei tunne ju korterit. | Write it all down. The handyman doesn't know the apartment. | |
+| 577 | Conversation, Peeter | Ja kui köögis lamp ei põle, siis on pirn läbi. | And if the kitchen light won't come on, the bulb's gone. | |
+| 578 | Conversation, Peeter | Vaheta ise ära, see on lihtne! | Change it yourself, it's easy! | |
+| 579 | Conversation, Peeter | Või kardad sa elektrit? | Or are you scared of electricity? | |
+| 580 | Conversation, Peeter | Võti jäta naabrile. Head aega! | Leave the key with the neighbor. Bye! | |
+| 581 | Words (word) | sedel | a note, a slip of paper you leave somebody | |
+| 582 | Words (form) | sedelit | the note, as the thing you read | |
+| 583 | Words (form) | tehtud | done, finished | |
+| 584 | Words (form) | kraani | the tap, as the job done | |
+| 585 | Words (word) | dušš | a shower | |
+| 586 | Words (form) | duši | the shower, as the job done | |
+| 587 | Words (form) | tilgub | drips | |
+| 588 | Words (word) | oluline | important | |
+| 589 | Words (form) | korterit | the apartment, after a no | |
+| 590 | Words (verb) | põlema | to burn; of a light, to be on | |
+| 591 | Words (verb, I form) | põlen | I burn | |
+| 592 | Words (word) | pirn | a light bulb; a pear | |
+| 593 | Words (form) | pirni | a bulb, as the thing bought | |
+| 594 | Words (verb) | vahetama | to change, to swap | |
+| 595 | Words (verb, I form) | vahetan | I change | |
+| 596 | Words (form) | elektrit | electricity, as what you're scared of | |
+| 597 | Words (form) | selles | in this | |
+| 598 | Words (form) | parandage | please fix, to somebody you call {teie} | |
+| 599 | Words (form) | helistage | please call, to somebody you call {teie} | |
+| 600 | Words (form) | küsimusi | questions, any | |
+| 601 | Words (form) | akent | the window, after a no | |
+| 602 | Words (form) | parandanud | fixed, after {ei} | |
+| 603 | Words (word) | varuosa | a spare part | |
+| 604 | How it works | Kraani parandasin ma ise ära, Aken ei lähe ikka kinni | A note that gets something done says what's done, with the whole thing, {Kraani parandasin ma ise ära}, and what isn't, with a no: {Aken ei lähe ikka kinni}. | |
+| 605 | How it works | Kraani parandasin ma ise ära | Put the thing first when it's what the note is about: {Kraani parandasin ma ise ära}. Its ending stays the same wherever it stands. | |
+| 606 | How it works | teie, palun parandage, helistage mulle | To a tradesman you don't know, use {teie}: {palun parandage}, {helistage mulle}. | |
+| 607 | How it works | Ikka, ei lähe ikka kinni | {Ikka} with a no means still not: {ei lähe ikka kinni}, still won't close. | |
+| 608 | How it works | Pirn on läbi, on, läbi | {Pirn on läbi} is the bulb's gone: after {on}, {läbi} means worn out or burnt out, not through. | |
+| 609 | How it works | Palun parandage dušš ära, duši | A polite command keeps the whole thing in the [nimetav] (1st form) too: {Palun parandage dušš ära}, not {duši}. | |
+| 610 | How it works, table | Kraani parandasin ma ise ära. | I fixed the tap myself. | |
+| 611 | How it works, table | Aken ei lähe ikka kinni. | The window still won't close. | |
+| 612 | How it works, table | Palun parandage dušš ära. | Please fix the shower. | |
+| 613 | How it works, table | Uue pirni ostsin ma juba. | I've already bought a new bulb. | |
+| 614 | Say it, question | Mis on tehtud? | What's been done? | |
+| 615 | Say it, model answer | Ma parandasin kraani ise ära. | I fixed the tap myself. | |
+| 616 | Say it, model answer | Aken ei lähe ikka kinni. | The window still won't close. | |
+| 617 | Say it, model answer | Palun parandage dušš ära. | Please fix the shower. | |
+| 618 | Say it, question | Kus võti on? | Where's the key? | |
+| 619 | Say it, model answer | Võti on naabri juures. | The key is at the neighbor's. | |
 
 #### B1 7. The repair visit (`b1-07-repair`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 614 | Conversation, Rein | Tere! Olen Rein, meister. Kas see on korter kaksteist? | Hello! I'm Rein, the handyman. Is this apartment twelve? | |
-| 615 | Conversation, Tom | Jah, tulge sisse! Sedel on laual. | Yes, come in! The note's on the table. | |
-| 616 | Conversation, Rein | Selge. Kraani te parandasite ise ära? | Right. You fixed the tap yourself? | |
-| 617 | Conversation, Tom | Jah, aga dušš tilgub ikka edasi. | Yes, but the shower keeps on dripping. | |
-| 618 | Conversation, Rein | Duši parandan ma kohe ära. | I'll fix the shower right away. | |
-| 619 | Conversation, Tom | Ja aken? See ei lähe üldse kinni. | And the window? It doesn't close at all. | |
-| 620 | Conversation, Rein | Akent ma täna ei paranda. Selle jaoks on vaja varuosa. | I won't fix the window today. It needs a spare part. | |
-| 621 | Conversation, Tom | Millal te akna ära parandate? | When will you get the window fixed? | |
-| 622 | Conversation, Rein | Ma tellin varuosa ja tulen reedel tagasi. | I'll order the part and come back on Friday. | |
-| 623 | Conversation, Tom | Reedel olen ma tööl. Kas esmaspäeval sobib? | On Friday I'm at work. Does Monday suit you? | |
-| 624 | Conversation, Rein | Sobib. Aga miks köögis lamp ei põle? | Fine. But why isn't the kitchen light on? | |
-| 625 | Conversation, Tom | Pirn on läbi. Ma kardan elektrit. | The bulb's gone. I'm scared of electricity. | |
-| 626 | Conversation, Rein | Palun. Nüüd põleb. | There you go. Now it's on. | |
-| 627 | Conversation, Tom | Aitäh! Siis näeme esmaspäeval. | Thank you! See you on Monday, then. | |
-| 628 | How it works | Duši parandan ma kohe ära, Akent ma täna ei paranda, Ma kardan elektrit | The whole part in one visit: a job that gets done takes the whole thing, {Duši parandan ma kohe ära}; a no takes the [osastav] (3rd form), {Akent ma täna ei paranda}; and so does a verb that never finishes, {Ma kardan elektrit}. | |
-| 629 | How it works | Akent ma täna ei paranda | The thing often comes first when it's what you're talking about: {Akent ma täna ei paranda}. The ending decides, wherever the word stands. | |
-| 630 | How it works | teie, tulge sisse, Kraani te parandasite ise ära? | With a stranger, use {teie} the whole way: {tulge sisse}, {Kraani te parandasite ise ära?} | |
-| 631 | How it works | Millal te akna ära parandate?, akent | A job that will get done takes the whole thing in a question too: {Millal te akna ära parandate?}, not {akent}. | |
-| 632 | How it works, table | Duši parandan ma kohe ära. | I'll fix the shower right away., done | |
-| 633 | How it works, table | Akent ma täna ei paranda. | I won't fix the window today., after {ei} | |
-| 634 | How it works, table | Ma kardan elektrit. | I'm scared of electricity., it never finishes | |
-| 635 | How it works, table | Palun parandage dušš ära. | Please fix the shower., a command | |
-| 636 | Say it, question | Mis on katki? | What's broken? | |
-| 637 | Say it, model answer | Dušš tilgub ikka. | The shower still drips. | |
-| 638 | Say it, question | Kas te parandasite kraani ise? | Did you fix the tap yourself? | |
-| 639 | Say it, model answer | Jah, parandasin ise ära. | Yes, I fixed it myself. | |
-| 640 | Say it, model answer | Millal te akna ära parandate? | When will you get the window fixed? | |
-| 641 | Say it, question | Kas reedel sobib? | Does Friday suit you? | |
-| 642 | Say it, model answer | Reedel olen ma tööl. Kas esmaspäeval sobib? | On Friday I'm at work. Does Monday suit you? | |
-| 643 | Role-play, they say | Tere! Olen meister. Mis teil katki on? | Hello! I'm the handyman. What's broken? | |
-| 644 | Role-play, model answer | Tere! Dušš tilgub. | Hello! The shower drips. | |
-| 645 | Role-play, they say | Aga kraan? | And the tap? | |
-| 646 | Role-play, model answer | Kraani parandasin ma ise ära. | I fixed the tap myself. | |
-| 647 | Role-play, they say | Ja aken? | And the window? | |
-| 648 | Role-play, model answer | Aken ei lähe ikka kinni. | The window still won't close. | |
-| 649 | Role-play, they say | Akent ma täna ei paranda. Selle jaoks on vaja varuosa. | I won't fix the window today. It needs a spare part. | |
-| 650 | Role-play, model answer | Millal te akna ära parandate? | When will you get the window fixed? | |
-| 651 | Role-play, they say | Reedel. Kas sobib? | On Friday. Does that suit you? | |
-| 652 | Role-play, model answer | Reedel olen ma tööl. Kas esmaspäeval sobib? | On Friday I'm at work. Does Monday suit you? | |
-| 653 | Role-play, they say | Sobib, esmaspäeval kell kümme. Aga kui te kodus pole? | That works. Monday at ten. But what if you're not at home? | |
-| 654 | Role-play, model answer | Siis on võti naabri juures. | Then the key will be at the neighbor's. | |
-| 655 | Role-play, they say | Hästi. Siis näeme esmaspäeval! | Good. See you on Monday, then! | |
-| 656 | Live scene, they say (broken) | Mina olen meister. Mis on katki? |  | |
-| 657 | Live scene, they say (broken) | Mis teil katki on? |  | |
-| 658 | Live scene, they say (fixed) | Selge. Kas te parandasite midagi ise ära? |  | |
-| 659 | Live scene, they say (fixed) | Kas te midagi ise parandasite? |  | |
-| 660 | Live scene, they say (notdone) | Hästi. Mis ikka veel ei tööta? |  | |
-| 661 | Live scene, they say (notdone) | Mis veel ei tööta? |  | |
-| 662 | Live scene, they say (when) | Täna ma akent ei paranda, mul on vaja varuosa. Kas reedel sobib? |  | |
-| 663 | Live scene, they say (when) | Ma tellin varuosa. Kas reedel sobib? |  | |
-| 664 | Live scene, they say (key) | Sobib. Aga kui te kodus pole? |  | |
-| 665 | Live scene, they say (key) | Hästi. Kus võti siis on, kui te kodus pole? |  | |
-| 666 | Live scene, they say (close) | Kokku lepitud! Head aega! |  | |
-| 667 | Live scene, they say (close) | Hästi. Head aega! |  | |
-| 668 | Live scene, learner may pick (broken) | Dušš tilgub ja aken ei lähe kinni. | The shower drips and the window won't close. | |
-| 669 | Live scene, learner may pick (broken) | Dušš tilgub. | The shower drips. | |
-| 670 | Live scene, learner may pick (fixed) | Kraani parandasin ma ise ära. | I fixed the tap myself. | |
-| 671 | Live scene, learner may pick (fixed) | Jah, kraani. | Yes, the tap. | |
-| 672 | Live scene, learner may pick (notdone) | Köögis ei põle lamp. | The kitchen light isn't working. | |
-| 673 | Live scene, learner may pick (notdone) | Aken ei lähe ikka kinni. | The window still won't close. | |
-| 674 | Live scene, learner may pick (when) | Reedel olen ma tööl. Kas esmaspäeval sobib? | On Friday I'm at work. Does Monday suit you? | |
-| 675 | Live scene, learner may pick (when) | Reedel sobib. | Friday suits me. | |
-| 676 | Live scene, learner may pick (key) | Siis on võti naabri juures. | Then the key will be at the neighbor's. | |
-| 677 | Live scene, learner may pick (key) | Naabri juures. | At the neighbor's. | |
+| 620 | Conversation, Rein | Tere! Olen Rein, meister. Kas see on korter kaksteist? | Hello! I'm Rein, the handyman. Is this apartment twelve? | |
+| 621 | Conversation, Tom | Jah, tulge sisse! Sedel on laual. | Yes, come in! The note's on the table. | |
+| 622 | Conversation, Rein | Selge. Kraani te parandasite ise ära? | Right. You fixed the tap yourself? | |
+| 623 | Conversation, Tom | Jah, aga dušš tilgub ikka edasi. | Yes, but the shower keeps on dripping. | |
+| 624 | Conversation, Rein | Duši parandan ma kohe ära. | I'll fix the shower right away. | |
+| 625 | Conversation, Tom | Ja aken? See ei lähe üldse kinni. | And the window? It doesn't close at all. | |
+| 626 | Conversation, Rein | Akent ma täna ei paranda. Selle jaoks on vaja varuosa. | I won't fix the window today. It needs a spare part. | |
+| 627 | Conversation, Tom | Millal te akna ära parandate? | When will you get the window fixed? | |
+| 628 | Conversation, Rein | Ma tellin varuosa ja tulen reedel tagasi. | I'll order the part and come back on Friday. | |
+| 629 | Conversation, Tom | Reedel olen ma tööl. Kas esmaspäeval sobib? | On Friday I'm at work. Does Monday suit you? | |
+| 630 | Conversation, Rein | Sobib. Aga miks köögis lamp ei põle? | Fine. But why isn't the kitchen light on? | |
+| 631 | Conversation, Tom | Pirn on läbi. Ma kardan elektrit. | The bulb's gone. I'm scared of electricity. | |
+| 632 | Conversation, Rein | Palun. Nüüd põleb. | There you go. Now it's on. | |
+| 633 | Conversation, Tom | Aitäh! Siis näeme esmaspäeval. | Thank you! See you on Monday, then. | |
+| 634 | How it works | Duši parandan ma kohe ära, Akent ma täna ei paranda, Ma kardan elektrit | The whole part in one visit: a job that gets done takes the whole thing, {Duši parandan ma kohe ära}; a no takes the [osastav] (3rd form), {Akent ma täna ei paranda}; and so does a verb that never finishes, {Ma kardan elektrit}. | |
+| 635 | How it works | Akent ma täna ei paranda | The thing often comes first when it's what you're talking about: {Akent ma täna ei paranda}. The ending decides, wherever the word stands. | |
+| 636 | How it works | teie, tulge sisse, Kraani te parandasite ise ära? | With a stranger, use {teie} the whole way: {tulge sisse}, {Kraani te parandasite ise ära?} | |
+| 637 | How it works | Millal te akna ära parandate?, akent | A job that will get done takes the whole thing in a question too: {Millal te akna ära parandate?}, not {akent}. | |
+| 638 | How it works, table | Duši parandan ma kohe ära. | I'll fix the shower right away., done | |
+| 639 | How it works, table | Akent ma täna ei paranda. | I won't fix the window today., after {ei} | |
+| 640 | How it works, table | Ma kardan elektrit. | I'm scared of electricity., it never finishes | |
+| 641 | How it works, table | Palun parandage dušš ära. | Please fix the shower., a command | |
+| 642 | Say it, question | Mis on katki? | What's broken? | |
+| 643 | Say it, model answer | Dušš tilgub ikka. | The shower still drips. | |
+| 644 | Say it, question | Kas te parandasite kraani ise? | Did you fix the tap yourself? | |
+| 645 | Say it, model answer | Jah, parandasin ise ära. | Yes, I fixed it myself. | |
+| 646 | Say it, model answer | Millal te akna ära parandate? | When will you get the window fixed? | |
+| 647 | Say it, question | Kas reedel sobib? | Does Friday suit you? | |
+| 648 | Say it, model answer | Reedel olen ma tööl. Kas esmaspäeval sobib? | On Friday I'm at work. Does Monday suit you? | |
+| 649 | Role-play, they say | Tere! Olen meister. Mis teil katki on? | Hello! I'm the handyman. What's broken? | |
+| 650 | Role-play, model answer | Tere! Dušš tilgub. | Hello! The shower drips. | |
+| 651 | Role-play, they say | Aga kraan? | And the tap? | |
+| 652 | Role-play, model answer | Kraani parandasin ma ise ära. | I fixed the tap myself. | |
+| 653 | Role-play, they say | Ja aken? | And the window? | |
+| 654 | Role-play, model answer | Aken ei lähe ikka kinni. | The window still won't close. | |
+| 655 | Role-play, they say | Akent ma täna ei paranda. Selle jaoks on vaja varuosa. | I won't fix the window today. It needs a spare part. | |
+| 656 | Role-play, model answer | Millal te akna ära parandate? | When will you get the window fixed? | |
+| 657 | Role-play, they say | Reedel. Kas sobib? | On Friday. Does that suit you? | |
+| 658 | Role-play, model answer | Reedel olen ma tööl. Kas esmaspäeval sobib? | On Friday I'm at work. Does Monday suit you? | |
+| 659 | Role-play, they say | Sobib, esmaspäeval kell kümme. Aga kui te kodus pole? | That works. Monday at ten. But what if you're not at home? | |
+| 660 | Role-play, model answer | Siis on võti naabri juures. | Then the key will be at the neighbor's. | |
+| 661 | Role-play, they say | Hästi. Siis näeme esmaspäeval! | Good. See you on Monday, then! | |
+| 662 | Live scene, they say (broken) | Mina olen meister. Mis on katki? |  | |
+| 663 | Live scene, they say (broken) | Mis teil katki on? |  | |
+| 664 | Live scene, they say (fixed) | Selge. Kas te parandasite midagi ise ära? |  | |
+| 665 | Live scene, they say (fixed) | Kas te midagi ise parandasite? |  | |
+| 666 | Live scene, they say (notdone) | Hästi. Mis ikka veel ei tööta? |  | |
+| 667 | Live scene, they say (notdone) | Mis veel ei tööta? |  | |
+| 668 | Live scene, they say (when) | Täna ma akent ei paranda, mul on vaja varuosa. Kas reedel sobib? |  | |
+| 669 | Live scene, they say (when) | Ma tellin varuosa. Kas reedel sobib? |  | |
+| 670 | Live scene, they say (key) | Sobib. Aga kui te kodus pole? |  | |
+| 671 | Live scene, they say (key) | Hästi. Kus võti siis on, kui te kodus pole? |  | |
+| 672 | Live scene, they say (close) | Kokku lepitud! Head aega! |  | |
+| 673 | Live scene, they say (close) | Hästi. Head aega! |  | |
+| 674 | Live scene, learner may pick (broken) | Dušš tilgub ja aken ei lähe kinni. | The shower drips and the window won't close. | |
+| 675 | Live scene, learner may pick (broken) | Dušš tilgub. | The shower drips. | |
+| 676 | Live scene, learner may pick (fixed) | Kraani parandasin ma ise ära. | I fixed the tap myself. | |
+| 677 | Live scene, learner may pick (fixed) | Jah, kraani. | Yes, the tap. | |
+| 678 | Live scene, learner may pick (notdone) | Köögis ei põle lamp. | The kitchen light isn't working. | |
+| 679 | Live scene, learner may pick (notdone) | Aken ei lähe ikka kinni. | The window still won't close. | |
+| 680 | Live scene, learner may pick (when) | Reedel olen ma tööl. Kas esmaspäeval sobib? | On Friday I'm at work. Does Monday suit you? | |
+| 681 | Live scene, learner may pick (when) | Reedel sobib. | Friday suits me. | |
+| 682 | Live scene, learner may pick (key) | Siis on võti naabri juures. | Then the key will be at the neighbor's. | |
+| 683 | Live scene, learner may pick (key) | Naabri juures. | At the neighbor's. | |
 
 ### B1: What each verb asks for
 
@@ -1289,379 +1295,379 @@ Russian and Ukrainian.
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 678 | Conversation, Tom | Anna, kas sul on natuke aega? Mul on üks probleem. | Anna, have you got a minute? I've got a problem. | |
-| 679 | Conversation, Anna | Muidugi. Mis juhtus? | Of course. What happened? | |
-| 680 | Conversation, Tom | Ülemus tahab aruannet homseks. Ma tegin seda terve päeva, aga midagi on ikka valesti. | My boss wants the report by tomorrow. I've been on it all day, and something's still wrong. | |
-| 681 | Conversation, Anna | Terve päeva? Miks sa minult abi ei küsinud? | All day? Why didn't you ask me for help? | |
-| 682 | Conversation, Tom | Ma ei tahtnud sind segada. Sul on ju palju tööd. | I didn't want to bother you. You've got plenty of work yourself. | |
-| 683 | Conversation, Anna | Pole hullu. Näita! Siin on viga. See number on vale. | That's all right. Show me! Here's the mistake. This number is wrong. | |
-| 684 | Conversation, Tom | Ainult üks viga? Ma otsisin seda kolm tundi! | Just one mistake? I spent three hours looking for it! | |
-| 685 | Conversation, Anna | Tegelikult on mul ka probleem arvutiga. Aita mind sellega! | Actually, I've got a problem with my computer too. Help me with it! | |
-| 686 | Conversation, Tom | Hea meelega. Mis sellega juhtus? | Happy to. What happened to it? | |
-| 687 | Conversation, Anna | Ma jõin kohvi. Ja nüüd on kohv arvuti sees. | I was drinking coffee. And now the coffee is inside the computer. | |
-| 688 | Conversation, Tom | Siis ma kahjuks ei saa sind aidata. Siin aitab ainult uus arvuti. | Then I'm afraid I can't help you. Only a new computer will help here. | |
-| 689 | Conversation, Anna | Selge. Siis ma palun Marit appi. Tal on ju uus arvuti! | Right. Then I'll ask Mari to help. She's got a new computer, after all! | |
-| 690 | Words (verb) | paluma | to ask (for), to beg | |
-| 691 | Words (form) | palusin | I asked, I begged | |
-| 692 | Words (form) | sellega | with this, with it | |
-| 693 | Words (form) | minult | from me, off me | |
-| 694 | Words (form) | küsinud | asked, after {ei} | |
-| 695 | Words (form) | arvutiga | with the computer | |
-| 696 | Words (form) | ülemuse | of the boss | |
-| 697 | Words (form) | ülemust | the boss, as the one asked | |
-| 698 | Words (form) | aruande | of the report | |
-| 699 | Words (form) | aruannet | the report, while you're on it | |
-| 700 | Words (form) | segada | to bother, to disturb (after another verb) | |
-| 701 | Words (phrase) | pole hullu | that's all right, it doesn't matter | |
-| 702 | Words (word) | valesti | wrong, the wrong way | |
-| 703 | How it works | aitama, Aita mind sellega! | A verb decides the case of the word after it, and you learn the two together: {aitama} wants somebody in the [osastav] (3rd form) and the thing in the [kaasaütlev] (-ga, with), {Aita mind sellega!} | |
-| 704 | How it works | Keda? Mida?, millega? kellega? | {Keda? Mida?} are the [osastav] (3rd form) questions, {millega? kellega?} the [kaasaütlev] (-ga, with) ones. From now on the Words step prints the question a verb asks right under it. | |
-| 705 | How it works | Mind, sind, teda, mina, sina, tema, aitama, paluma | {Mind}, {sind}, {teda} are the [osastav] (3rd form) of {mina}, {sina}, {tema}. After {aitama} and {paluma} you'll hear them all day. | |
-| 706 | How it works | Palun, Ma palun ülemust appi | {Palun} is please, and it's also I ask: {Ma palun ülemust appi} is I'll ask the boss to help. | |
-| 707 | How it works | aita mind, küsi minult | English helps me and asks me with the same me. Estonian doesn't: {aita mind}, but {küsi minult}. Learn each verb with its question. | |
-| 708 | How it works, table | Aita mind sellega! | {millega?} with what, in the [kaasaütlev] (-ga, with) | |
-| 709 | How it works, table | paluma | {keda?} somebody, in the [osastav] (3rd form) | |
-| 710 | How it works, table | Ma palun ülemust appi. | {keda?} somebody, in the [osastav] (3rd form) | |
-| 711 | How it works, table | Miks sa minult ei küsinud? | {kellelt?} from somebody, in the [alaltütlev] (-lt, off) | |
-| 712 | Say it, model answer | Hea meelega. Millega? | Happy to. With what? | |
-| 713 | Say it, model answer | Kas sa saaksid mind sellega aidata? | Could you help me with this? | |
-| 714 | Say it, model answer | Ma ei tahtnud sind segada. | I didn't want to bother you. | |
-| 715 | Say it, question | Kellelt sa abi küsid? | Who do you ask for help? | |
-| 716 | Say it, model answer | Ma küsin ülemuselt. | I ask the boss. | |
+| 684 | Conversation, Tom | Anna, kas sul on natuke aega? Mul on üks probleem. | Anna, have you got a minute? I've got a problem. | |
+| 685 | Conversation, Anna | Muidugi. Mis juhtus? | Of course. What happened? | |
+| 686 | Conversation, Tom | Ülemus tahab aruannet homseks. Ma tegin seda terve päeva, aga midagi on ikka valesti. | My boss wants the report by tomorrow. I've been on it all day, and something's still wrong. | |
+| 687 | Conversation, Anna | Terve päeva? Miks sa minult abi ei küsinud? | All day? Why didn't you ask me for help? | |
+| 688 | Conversation, Tom | Ma ei tahtnud sind segada. Sul on ju palju tööd. | I didn't want to bother you. You've got plenty of work yourself. | |
+| 689 | Conversation, Anna | Pole hullu. Näita! Siin on viga. See number on vale. | That's all right. Show me! Here's the mistake. This number is wrong. | |
+| 690 | Conversation, Tom | Ainult üks viga? Ma otsisin seda kolm tundi! | Just one mistake? I spent three hours looking for it! | |
+| 691 | Conversation, Anna | Tegelikult on mul ka probleem arvutiga. Aita mind sellega! | Actually, I've got a problem with my computer too. Help me with it! | |
+| 692 | Conversation, Tom | Hea meelega. Mis sellega juhtus? | Happy to. What happened to it? | |
+| 693 | Conversation, Anna | Ma jõin kohvi. Ja nüüd on kohv arvuti sees. | I was drinking coffee. And now the coffee is inside the computer. | |
+| 694 | Conversation, Tom | Siis ma kahjuks ei saa sind aidata. Siin aitab ainult uus arvuti. | Then I'm afraid I can't help you. Only a new computer will help here. | |
+| 695 | Conversation, Anna | Selge. Siis ma palun Marit appi. Tal on ju uus arvuti! | Right. Then I'll ask Mari to help. She's got a new computer, after all! | |
+| 696 | Words (verb) | paluma | to ask (for), to beg | |
+| 697 | Words (form) | palusin | I asked, I begged | |
+| 698 | Words (form) | sellega | with this, with it | |
+| 699 | Words (form) | minult | from me, off me | |
+| 700 | Words (form) | küsinud | asked, after {ei} | |
+| 701 | Words (form) | arvutiga | with the computer | |
+| 702 | Words (form) | ülemuse | of the boss | |
+| 703 | Words (form) | ülemust | the boss, as the one asked | |
+| 704 | Words (form) | aruande | of the report | |
+| 705 | Words (form) | aruannet | the report, while you're on it | |
+| 706 | Words (form) | segada | to bother, to disturb (after another verb) | |
+| 707 | Words (phrase) | pole hullu | that's all right, it doesn't matter | |
+| 708 | Words (word) | valesti | wrong, the wrong way | |
+| 709 | How it works | aitama, Aita mind sellega! | A verb decides the case of the word after it, and you learn the two together: {aitama} wants somebody in the [osastav] (3rd form) and the thing in the [kaasaütlev] (-ga, with), {Aita mind sellega!} | |
+| 710 | How it works | Keda? Mida?, millega? kellega? | {Keda? Mida?} are the [osastav] (3rd form) questions, {millega? kellega?} the [kaasaütlev] (-ga, with) ones. From now on the Words step prints the question a verb asks right under it. | |
+| 711 | How it works | Mind, sind, teda, mina, sina, tema, aitama, paluma | {Mind}, {sind}, {teda} are the [osastav] (3rd form) of {mina}, {sina}, {tema}. After {aitama} and {paluma} you'll hear them all day. | |
+| 712 | How it works | Palun, Ma palun ülemust appi | {Palun} is please, and it's also I ask: {Ma palun ülemust appi} is I'll ask the boss to help. | |
+| 713 | How it works | aita mind, küsi minult | English helps me and asks me with the same me. Estonian doesn't: {aita mind}, but {küsi minult}. Learn each verb with its question. | |
+| 714 | How it works, table | Aita mind sellega! | {millega?} with what, in the [kaasaütlev] (-ga, with) | |
+| 715 | How it works, table | paluma | {keda?} somebody, in the [osastav] (3rd form) | |
+| 716 | How it works, table | Ma palun ülemust appi. | {keda?} somebody, in the [osastav] (3rd form) | |
+| 717 | How it works, table | Miks sa minult ei küsinud? | {kellelt?} from somebody, in the [alaltütlev] (-lt, off) | |
+| 718 | Say it, model answer | Hea meelega. Millega? | Happy to. With what? | |
+| 719 | Say it, model answer | Kas sa saaksid mind sellega aidata? | Could you help me with this? | |
+| 720 | Say it, model answer | Ma ei tahtnud sind segada. | I didn't want to bother you. | |
+| 721 | Say it, question | Kellelt sa abi küsid? | Who do you ask for help? | |
+| 722 | Say it, model answer | Ma küsin ülemuselt. | I ask the boss. | |
 
 #### B1 9. What are you into? (`b1-09-into`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 717 | Conversation, Triin | Mida sa vabal ajal teed? | What do you do in your free time? | |
-| 718 | Conversation, Tom | Mind huvitab muusika. Ja sport ka, aga seda ma ainult vaatan. | I'm into music. And sport too, but only to watch. | |
-| 719 | Conversation, Triin | Muusika? Tore! Kas sa laulad? | Music? Lovely! Do you sing? | |
-| 720 | Conversation, Tom | Natuke. Ainult kodus. | A little. Only at home. | |
-| 721 | Conversation, Triin | Meil on kooris just mehi vaja! Kati laulab ka seal. Mulle tundub, et sa oleksid hea. | Men are just what our choir needs! Kati sings in it too. I think you'd be good. | |
-| 722 | Conversation, Tom | Tegelikult ma ei laula üldse hästi. Mulle meeldib rohkem kuulata. | Actually, I don't sing well at all. I prefer listening. | |
-| 723 | Conversation, Triin | Pole hullu! Mina laulsin ka alguses väga halvasti. | That doesn't matter! I sang really badly at first too. | |
-| 724 | Conversation, Tom | Aga mis sind huvitab? | And what are you into? | |
-| 725 | Conversation, Triin | Mind huvitab ajalugu. Ja autod! | I'm interested in history. And cars! | |
-| 726 | Conversation, Tom | Autod? Mu auto vajab küll abi. See on umbes kakskümmend aastat vana. | Cars? My car needs help. It's about twenty years old. | |
-| 727 | Conversation, Triin | Siis teeme nii: sa tuled reedel koori ja mina vaatan su autot. | Then let's do this: you come to choir on Friday and I'll look at your car. | |
-| 728 | Conversation, Tom | Olgu! Aga ma laulan väga vaikselt. | All right! But I'll sing very quietly. | |
-| 729 | Words (verb) | huvituma | to be into, to be interested | |
-| 730 | Words (verb, I form) | huvitun | I'm into | |
-| 731 | Words (form) | huvitab | interests, as in {mind huvitab}: I'm into | |
-| 732 | Words (word) | huvitatud | interested | |
-| 733 | Words (verb, I form) | tundun | I seem | |
-| 734 | Words (form) | tundus | it seemed | |
-| 735 | Words (phrase) | vabal ajal | in your free time | |
-| 736 | Words (form) | spordi | of sport | |
-| 737 | Words (word) | ajalugu | history | |
-| 738 | Words (form) | ajaloo | of history | |
-| 739 | Words (form) | autod | cars | |
-| 740 | Words (word) | koor | choir | |
-| 741 | Words (form) | koori | of the choir; and to the choir | |
-| 742 | Words (verb) | laulma | to sing | |
-| 743 | Words (verb, I form) | laulan | I sing | |
-| 744 | Words (form) | laulsin | I sang | |
-| 745 | Words (form) | laulda | to sing (after another verb) | |
-| 746 | Words (form) | kuulata | to listen (after another verb) | |
-| 747 | Words (form) | mehi | men, some of them | |
-| 748 | Words (form) | oleksid | you would be | |
-| 749 | Words (word) | vaikselt | quietly | |
-| 750 | Words (phrase) | esimest korda | for the first time | |
-| 751 | Words (form) | ütles | he said, she said | |
-| 752 | How it works | Mind huvitab muusika, Huvituma, huvitatud, Meeldima, tunduma, Mulle meeldib, Mulle tundub | {Mind huvitab muusika} puts the one who's into something in the [osastav] (3rd form). {Huvituma} and {huvitatud} want the thing in the [seestütlev] (-st, out of). {Meeldima} and {tunduma} want the person in the [alaleütlev] (-le, onto/to): {Mulle meeldib}, {Mulle tundub}. | |
-| 753 | How it works | Mind huvitab muusika, mind, sind, teda, Mis sind huvitab? | {Mind huvitab muusika} is how you'll hear it said: the music is what interests, and the one who's into it takes the [osastav] (3rd form), {mind}, {sind}, {teda}. Ask with {Mis sind huvitab?} | |
-| 754 | How it works | Huvituma, huvitatud, Ma huvitun muusikast, millest? | {Huvituma} and {huvitatud} are the more formal way, for a letter or an interview, and they are interested out of: {Ma huvitun muusikast}. Ask for it with {millest?} | |
-| 755 | How it works | Meeldima, mulle, talle | {Meeldima} turns the sentence round: the one who likes takes the [alaleütlev] (-le, onto/to), {mulle}, {talle}, and the thing liked comes after the verb. | |
-| 756 | How it works | Mulle tundub | {Mulle tundub} is it seems to me, which is how Estonian says I think when it's a feeling rather than a fact. | |
-| 757 | How it works | spordis, spordist | In English you're interested in something, so {spordis} is tempting. It's {spordist}, out of, every time. | |
-| 758 | How it works, table | Mind huvitab muusika. | I'm into music. | |
-| 759 | How it works, table | Ma huvitun muusikast. | I'm interested in music. | |
-| 760 | How it works, table | Ta on huvitatud ajaloost. | She's interested in history. | |
-| 761 | How it works, table | Mulle meeldib kuulata. | I like listening. | |
-| 762 | How it works, table | Mulle tundub, et sa laulad hästi. | I think you sing well. | |
-| 763 | Say it, question | Mida sa vabal ajal teed? | What do you do in your free time? | |
-| 764 | Say it, model answer | Mind huvitab muusika. | I'm into music. | |
-| 765 | Say it, question | Mis sind huvitab? | What are you into? | |
-| 766 | Say it, model answer | Mind huvitab ajalugu. | I'm interested in history. | |
-| 767 | Say it, model answer | Mulle meeldib rohkem kuulata kui laulda. | I like listening more than singing. | |
-| 768 | Say it, question | Kas sa laulad? | Do you sing? | |
-| 769 | Say it, model answer | Ei, ma ei laula üldse hästi. | No, I don't sing well at all. | |
+| 723 | Conversation, Triin | Mida sa vabal ajal teed? | What do you do in your free time? | |
+| 724 | Conversation, Tom | Mind huvitab muusika. Ja sport ka, aga seda ma ainult vaatan. | I'm into music. And sport too, but only to watch. | |
+| 725 | Conversation, Triin | Muusika? Tore! Kas sa laulad? | Music? Lovely! Do you sing? | |
+| 726 | Conversation, Tom | Natuke. Ainult kodus. | A little. Only at home. | |
+| 727 | Conversation, Triin | Meil on kooris just mehi vaja! Kati laulab ka seal. Mulle tundub, et sa oleksid hea. | Men are just what our choir needs! Kati sings in it too. I think you'd be good. | |
+| 728 | Conversation, Tom | Tegelikult ma ei laula üldse hästi. Mulle meeldib rohkem kuulata. | Actually, I don't sing well at all. I prefer listening. | |
+| 729 | Conversation, Triin | Pole hullu! Mina laulsin ka alguses väga halvasti. | That doesn't matter! I sang really badly at first too. | |
+| 730 | Conversation, Tom | Aga mis sind huvitab? | And what are you into? | |
+| 731 | Conversation, Triin | Mind huvitab ajalugu. Ja autod! | I'm interested in history. And cars! | |
+| 732 | Conversation, Tom | Autod? Mu auto vajab küll abi. See on umbes kakskümmend aastat vana. | Cars? My car needs help. It's about twenty years old. | |
+| 733 | Conversation, Triin | Siis teeme nii: sa tuled reedel koori ja mina vaatan su autot. | Then let's do this: you come to choir on Friday and I'll look at your car. | |
+| 734 | Conversation, Tom | Olgu! Aga ma laulan väga vaikselt. | All right! But I'll sing very quietly. | |
+| 735 | Words (verb) | huvituma | to be into, to be interested | |
+| 736 | Words (verb, I form) | huvitun | I'm into | |
+| 737 | Words (form) | huvitab | interests, as in {mind huvitab}: I'm into | |
+| 738 | Words (word) | huvitatud | interested | |
+| 739 | Words (verb, I form) | tundun | I seem | |
+| 740 | Words (form) | tundus | it seemed | |
+| 741 | Words (phrase) | vabal ajal | in your free time | |
+| 742 | Words (form) | spordi | of sport | |
+| 743 | Words (word) | ajalugu | history | |
+| 744 | Words (form) | ajaloo | of history | |
+| 745 | Words (form) | autod | cars | |
+| 746 | Words (word) | koor | choir | |
+| 747 | Words (form) | koori | of the choir; and to the choir | |
+| 748 | Words (verb) | laulma | to sing | |
+| 749 | Words (verb, I form) | laulan | I sing | |
+| 750 | Words (form) | laulsin | I sang | |
+| 751 | Words (form) | laulda | to sing (after another verb) | |
+| 752 | Words (form) | kuulata | to listen (after another verb) | |
+| 753 | Words (form) | mehi | men, some of them | |
+| 754 | Words (form) | oleksid | you would be | |
+| 755 | Words (word) | vaikselt | quietly | |
+| 756 | Words (phrase) | esimest korda | for the first time | |
+| 757 | Words (form) | ütles | he said, she said | |
+| 758 | How it works | Mind huvitab muusika, Huvituma, huvitatud, Meeldima, tunduma, Mulle meeldib, Mulle tundub | {Mind huvitab muusika} puts the one who's into something in the [osastav] (3rd form). {Huvituma} and {huvitatud} want the thing in the [seestütlev] (-st, out of). {Meeldima} and {tunduma} want the person in the [alaleütlev] (-le, onto/to): {Mulle meeldib}, {Mulle tundub}. | |
+| 759 | How it works | Mind huvitab muusika, mind, sind, teda, Mis sind huvitab? | {Mind huvitab muusika} is how you'll hear it said: the music is what interests, and the one who's into it takes the [osastav] (3rd form), {mind}, {sind}, {teda}. Ask with {Mis sind huvitab?} | |
+| 760 | How it works | Huvituma, huvitatud, Ma huvitun muusikast, millest? | {Huvituma} and {huvitatud} are the more formal way, for a letter or an interview, and they are interested out of: {Ma huvitun muusikast}. Ask for it with {millest?} | |
+| 761 | How it works | Meeldima, mulle, talle | {Meeldima} turns the sentence round: the one who likes takes the [alaleütlev] (-le, onto/to), {mulle}, {talle}, and the thing liked comes after the verb. | |
+| 762 | How it works | Mulle tundub | {Mulle tundub} is it seems to me, which is how Estonian says I think when it's a feeling rather than a fact. | |
+| 763 | How it works | spordis, spordist | In English you're interested in something, so {spordis} is tempting. It's {spordist}, out of, every time. | |
+| 764 | How it works, table | Mind huvitab muusika. | I'm into music. | |
+| 765 | How it works, table | Ma huvitun muusikast. | I'm interested in music. | |
+| 766 | How it works, table | Ta on huvitatud ajaloost. | She's interested in history. | |
+| 767 | How it works, table | Mulle meeldib kuulata. | I like listening. | |
+| 768 | How it works, table | Mulle tundub, et sa laulad hästi. | I think you sing well. | |
+| 769 | Say it, question | Mida sa vabal ajal teed? | What do you do in your free time? | |
+| 770 | Say it, model answer | Mind huvitab muusika. | I'm into music. | |
+| 771 | Say it, question | Mis sind huvitab? | What are you into? | |
+| 772 | Say it, model answer | Mind huvitab ajalugu. | I'm interested in history. | |
+| 773 | Say it, model answer | Mulle meeldib rohkem kuulata kui laulda. | I like listening more than singing. | |
+| 774 | Say it, question | Kas sa laulad? | Do you sing? | |
+| 775 | Say it, model answer | Ei, ma ei laula üldse hästi. | No, I don't sing well at all. | |
 
 #### B1 10. Talking about people (`b1-10-about`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 770 | Conversation, Mari | Tom, kas sa tead, kellega Peeter eile pargis rääkis? | Tom, do you know who Peeter was talking to in the park yesterday? | |
-| 771 | Conversation, Tom | Ei tea. Kellega? | No idea. Who? | |
-| 772 | Conversation, Mari | Ühe naisega! Nad rääkisid terve tunni ja naersid palju. | A woman! They talked for a whole hour and laughed a lot. | |
-| 773 | Conversation, Tom | Millest nad rääkisid? | What were they talking about? | |
-| 774 | Conversation, Mari | Ma ei kuulnud. Aga Peeter on viimasel ajal väga rõõmus. Ja eile ostis ta lilli! | I didn't hear. But Peeter's been very cheerful lately. And yesterday he bought flowers! | |
-| 775 | Conversation, Tom | Äkki oli see ta tütar? | Maybe it was his daughter? | |
-| 776 | Conversation, Mari | Ei, tütar elab kaugel. See on huvitav lugu! Ma mõtlen terve päeva ainult sellele. | No, his daughter lives far away. It's an interesting story! I've thought about nothing else all day. | |
-| 777 | Conversation, Tom | Mari, sa räägid ju alati teistest inimestest. | Mari, you're always talking about other people. | |
-| 778 | Conversation, Mari | Aga ainult heas mõttes! | But only in a nice way! | |
-| 779 | Conversation, Peeter | Tere! Kas te räägite minust? | Hello! Are you talking about me? | |
-| 780 | Conversation, Mari | Ei, ei! Me rääkisime ilmast. | No, no! We were talking about the weather. | |
-| 781 | Conversation, Peeter | Selge. Mul on uudis: mu tütar tuli eile külla! Me kohtusime pargis. | Right. I've got news: my daughter came to visit yesterday! We met in the park. | |
-| 782 | Conversation, Tom | Kui tore! Mari mõtles just sellele. | How lovely! Mari was just thinking about that. | |
-| 783 | Words (form) | kohtusin | I met | |
-| 784 | Words (form) | kohtunud | met, after {ei} | |
-| 785 | Words (form) | mõtles | he thought, she thought | |
-| 786 | Words (form) | naersin | I laughed | |
-| 787 | Words (form) | minust | about me | |
-| 788 | Words (form) | temast | about him, about her | |
-| 789 | Words (form) | temaga | with him, with her | |
-| 790 | Words (form) | sellele | onto it; about it, after {mõtlema} | |
-| 791 | Words (form) | sellest | about it, out of it | |
-| 792 | Words (form) | teistest | about others | |
-| 793 | Words (form) | inimestest | about people | |
-| 794 | Words (phrase) | heas mõttes | in a nice way, meaning well | |
-| 795 | Words (phrase) | viimasel ajal | lately | |
-| 796 | Words (word) | lugu | story | |
-| 797 | Words (form) | pargis | in the park | |
-| 798 | Words (form) | kuulnud | heard, after {ei} | |
-| 799 | Words (word) | külla | to visit (with {tulema}: to come and see somebody) | |
-| 800 | How it works | Rääkima, Mõtlema, Ma mõtlen sellele | {Rääkima} takes the person in the [kaasaütlev] (-ga, with) and what it's about in the [seestütlev] (-st, out of). {Mõtlema} usually takes what's on your mind in the [alaleütlev] (-le, onto/to): {Ma mõtlen sellele}. | |
-| 801 | How it works | minust, temast, ilmast, Teadma, Ma ei tea sellest midagi | About is the [seestütlev] (-st, out of) in Estonian: {minust}, {temast}, {ilmast}. {Teadma} works the same way: {Ma ei tea sellest midagi}. | |
-| 802 | How it works | Ma kohtusin temaga, teda | You meet with somebody: {Ma kohtusin temaga}, never {teda}. | |
-| 803 | How it works | Äkki, Äkki oli see ta tütar?, Ehk | {Äkki} is the everyday maybe, good for gossip: {Äkki oli see ta tütar?} {Ehk} means the same and sounds a little gentler. | |
-| 804 | How it works | Mõtlema, Ma mõtlen sellele, Ma mõtlen sellest | {Mõtlema} can take either: {Ma mõtlen sellele} and {Ma mõtlen sellest} both say you're thinking about it. The -le one is the usual one, so start with that. | |
-| 805 | How it works, table | Ma räägin Mariga. | I'm talking with Mari. | |
-| 806 | How it works, table | Me räägime ilmast. | We're talking about the weather. | |
-| 807 | How it works, table | Ma mõtlen sellele. | I'm thinking about it. | |
-| 808 | How it works, table | Kas sa tead sellest midagi? | Do you know anything about it? | |
-| 809 | How it works, table | Ma kohtusin temaga. | I met him. | |
-| 810 | Say it, question | Millest te rääkisite? | What were you talking about? | |
-| 811 | Say it, model answer | Me rääkisime ilmast. | We were talking about the weather. | |
-| 812 | Say it, question | Kellega sa eile rääkisid? | Who did you talk to yesterday? | |
-| 813 | Say it, model answer | Ma rääkisin naabriga. | I talked with a neighbor. | |
-| 814 | Say it, model answer | Ma mõtlen terve päeva sellele. | I've been thinking about it all day. | |
-| 815 | Say it, question | Kas sa tead temast midagi? | Do you know anything about him? | |
-| 816 | Say it, model answer | Ei, ma ei tea temast midagi. | No, I don't know anything about him. | |
+| 776 | Conversation, Mari | Tom, kas sa tead, kellega Peeter eile pargis rääkis? | Tom, do you know who Peeter was talking to in the park yesterday? | |
+| 777 | Conversation, Tom | Ei tea. Kellega? | No idea. Who? | |
+| 778 | Conversation, Mari | Ühe naisega! Nad rääkisid terve tunni ja naersid palju. | A woman! They talked for a whole hour and laughed a lot. | |
+| 779 | Conversation, Tom | Millest nad rääkisid? | What were they talking about? | |
+| 780 | Conversation, Mari | Ma ei kuulnud. Aga Peeter on viimasel ajal väga rõõmus. Ja eile ostis ta lilli! | I didn't hear. But Peeter's been very cheerful lately. And yesterday he bought flowers! | |
+| 781 | Conversation, Tom | Äkki oli see ta tütar? | Maybe it was his daughter? | |
+| 782 | Conversation, Mari | Ei, tütar elab kaugel. See on huvitav lugu! Ma mõtlen terve päeva ainult sellele. | No, his daughter lives far away. It's an interesting story! I've thought about nothing else all day. | |
+| 783 | Conversation, Tom | Mari, sa räägid ju alati teistest inimestest. | Mari, you're always talking about other people. | |
+| 784 | Conversation, Mari | Aga ainult heas mõttes! | But only in a nice way! | |
+| 785 | Conversation, Peeter | Tere! Kas te räägite minust? | Hello! Are you talking about me? | |
+| 786 | Conversation, Mari | Ei, ei! Me rääkisime ilmast. | No, no! We were talking about the weather. | |
+| 787 | Conversation, Peeter | Selge. Mul on uudis: mu tütar tuli eile külla! Me kohtusime pargis. | Right. I've got news: my daughter came to visit yesterday! We met in the park. | |
+| 788 | Conversation, Tom | Kui tore! Mari mõtles just sellele. | How lovely! Mari was just thinking about that. | |
+| 789 | Words (form) | kohtusin | I met | |
+| 790 | Words (form) | kohtunud | met, after {ei} | |
+| 791 | Words (form) | mõtles | he thought, she thought | |
+| 792 | Words (form) | naersin | I laughed | |
+| 793 | Words (form) | minust | about me | |
+| 794 | Words (form) | temast | about him, about her | |
+| 795 | Words (form) | temaga | with him, with her | |
+| 796 | Words (form) | sellele | onto it; about it, after {mõtlema} | |
+| 797 | Words (form) | sellest | about it, out of it | |
+| 798 | Words (form) | teistest | about others | |
+| 799 | Words (form) | inimestest | about people | |
+| 800 | Words (phrase) | heas mõttes | in a nice way, meaning well | |
+| 801 | Words (phrase) | viimasel ajal | lately | |
+| 802 | Words (word) | lugu | story | |
+| 803 | Words (form) | pargis | in the park | |
+| 804 | Words (form) | kuulnud | heard, after {ei} | |
+| 805 | Words (word) | külla | to visit (with {tulema}: to come and see somebody) | |
+| 806 | How it works | Rääkima, Mõtlema, Ma mõtlen sellele | {Rääkima} takes the person in the [kaasaütlev] (-ga, with) and what it's about in the [seestütlev] (-st, out of). {Mõtlema} usually takes what's on your mind in the [alaleütlev] (-le, onto/to): {Ma mõtlen sellele}. | |
+| 807 | How it works | minust, temast, ilmast, Teadma, Ma ei tea sellest midagi | About is the [seestütlev] (-st, out of) in Estonian: {minust}, {temast}, {ilmast}. {Teadma} works the same way: {Ma ei tea sellest midagi}. | |
+| 808 | How it works | Ma kohtusin temaga, teda | You meet with somebody: {Ma kohtusin temaga}, never {teda}. | |
+| 809 | How it works | Äkki, Äkki oli see ta tütar?, Ehk | {Äkki} is the everyday maybe, good for gossip: {Äkki oli see ta tütar?} {Ehk} means the same and sounds a little gentler. | |
+| 810 | How it works | Mõtlema, Ma mõtlen sellele, Ma mõtlen sellest | {Mõtlema} can take either: {Ma mõtlen sellele} and {Ma mõtlen sellest} both say you're thinking about it. The -le one is the usual one, so start with that. | |
+| 811 | How it works, table | Ma räägin Mariga. | I'm talking with Mari. | |
+| 812 | How it works, table | Me räägime ilmast. | We're talking about the weather. | |
+| 813 | How it works, table | Ma mõtlen sellele. | I'm thinking about it. | |
+| 814 | How it works, table | Kas sa tead sellest midagi? | Do you know anything about it? | |
+| 815 | How it works, table | Ma kohtusin temaga. | I met him. | |
+| 816 | Say it, question | Millest te rääkisite? | What were you talking about? | |
+| 817 | Say it, model answer | Me rääkisime ilmast. | We were talking about the weather. | |
+| 818 | Say it, question | Kellega sa eile rääkisid? | Who did you talk to yesterday? | |
+| 819 | Say it, model answer | Ma rääkisin naabriga. | I talked with a neighbor. | |
+| 820 | Say it, model answer | Ma mõtlen terve päeva sellele. | I've been thinking about it all day. | |
+| 821 | Say it, question | Kas sa tead temast midagi? | Do you know anything about him? | |
+| 822 | Say it, model answer | Ei, ma ei tea temast midagi. | No, I don't know anything about him. | |
 
 #### B1 11. Who you're with (`b1-11-together`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 817 | Conversation, Liis | Tom, mul on suur uudis. Ma abiellun! | Tom, I've got big news. I'm getting married! | |
-| 818 | Conversation, Tom | Palju õnne! Kellega? | Congratulations! Who to? | |
-| 819 | Conversation, Liis | Jaaniga muidugi! Kellega veel? | Jaan, of course! Who else? | |
-| 820 | Conversation, Tom | Lõpuks! Te olete ju juba kuus aastat koos. | At last! You've been together for six years now. | |
-| 821 | Conversation, Liis | Jah. Me tutvusime kuus aastat tagasi, aga ta küsis alles kaks kuud tagasi, kas ma abiellun temaga. | Yes. We met six years ago, but he only asked me to marry him two months ago. | |
-| 822 | Conversation, Tom | Kuus aastat? Mida ta nii kaua tegi? | Six years? What was he doing all that time? | |
-| 823 | Conversation, Liis | Mõtles. Aga mina armusin temasse juba esimesel päeval. | Thinking about it. But I fell for him on the very first day. | |
-| 824 | Conversation, Tom | Esimesel päeval? Mis juhtus? | On the first day? What happened? | |
-| 825 | Conversation, Liis | Ta parandas mu autot ja rääkis ainult oma emast. | He was fixing my car and only talked about his mom. | |
-| 826 | Conversation, Tom | Ja see oli romantiline? | And that was romantic? | |
-| 827 | Conversation, Liis | Väga! Hea mees armastab oma ema. Aga kuidas sina oma naisega tutvusid? | Very! A good man loves his mom. But how did you meet your wife? | |
-| 828 | Conversation, Tom | Me sõbrustasime kaua. Ta oli mu parim sõber ülikoolis. | We were friends for a long time. She was my best friend at university. | |
-| 829 | Conversation, Tom | Ühel päeval ta ütles: Tom, abiellume! Ma ütlesin kohe jah. | One day she said: Tom, let's get married! I said yes right away. | |
-| 830 | Conversation, Liis | Romantiline! Pulmad on juunis. Sa tuled ju? | Romantic! The wedding's in June. You're coming, right? | |
-| 831 | Conversation, Tom | Muidugi. Kui Jaan just terve õhtu oma emast ei räägi. | Of course. As long as Jaan doesn't talk about his mom all evening. | |
-| 832 | Words (verb) | abielluma | to get married | |
-| 833 | Words (verb, I form) | abiellun | I'm getting married | |
-| 834 | Words (verb) | tutvuma | to get to know, to meet for the first time | |
-| 835 | Words (verb, I form) | tutvun | I get to know | |
-| 836 | Words (form) | tutvusin | I met, I got to know | |
-| 837 | Words (verb) | armuma | to fall in love | |
-| 838 | Words (verb, I form) | armun | I fall in love | |
-| 839 | Words (form) | armusin | I fell in love | |
-| 840 | Words (verb) | sõbrustama | to be friends | |
-| 841 | Words (verb, I form) | sõbrustan | I'm friends | |
-| 842 | Words (form) | sõbrustasin | I was friends | |
-| 843 | Words (form) | temasse | into him, into her | |
-| 844 | Words (form) | sellesse | into this, into it | |
-| 845 | Words (form) | sinuga | with you | |
-| 846 | Words (form) | parandas | he fixed, she fixed | |
-| 847 | Words (form) | aitas | he helped, she helped | |
-| 848 | Words (form) | ütlesin | I said | |
-| 849 | Words (form) | küsis | he asked, she asked | |
-| 850 | Words (form) | juunis | in June | |
-| 851 | Words (word) | pulmad | a wedding | |
-| 852 | Words (word) | romantiline | romantic | |
-| 853 | Words (word) | sellepärast | that's why, because of that | |
-| 854 | Words (word) | lahke | kind | |
-| 855 | How it works | Ma abiellun sinuga, Ma armusin temasse | Being with somebody is the [kaasaütlev] (-ga, with): you marry, meet and are friends with them, {Ma abiellun sinuga}. Falling in love goes into them, with the [sisseütlev] (-sse, into): {Ma armusin temasse}. | |
-| 856 | How it works | Ma abiellun sinuga | English marries somebody. Estonian marries with them: {Ma abiellun sinuga}. The same goes for meeting and being friends. | |
-| 857 | How it works | Ma armusin sellesse linna | You can fall for a place as well: {Ma armusin sellesse linna}. | |
-| 858 | How it works | Armastama, Ta armastab oma ema | {Armastama} is the plain one: you love somebody straight, in the [osastav] (3rd form), {Ta armastab oma ema}. | |
-| 859 | How it works | Tutvuma, Me tutvusime Jaaniga | {Tutvuma} is getting to know somebody for the first time, and it still takes the [kaasaütlev] (-ga, with): {Me tutvusime Jaaniga}, not the [osastav] (3rd form). | |
-| 860 | How it works, table | abielluma | to marry, {kellega?} | |
-| 861 | How it works, table | Ma abiellun Jaaniga. | to marry, {kellega?} | |
-| 862 | How it works, table | tutvuma | to get to know, {kellega?} | |
-| 863 | How it works, table | Me tutvusime kuus aastat tagasi. | to get to know, {kellega?} | |
-| 864 | How it works, table | sõbrustama | to be friends, {kellega?} | |
-| 865 | How it works, table | Me sõbrustasime kaua. | to be friends, {kellega?} | |
-| 866 | How it works, table | armuma | to fall in love, {kellesse?} | |
-| 867 | How it works, table | Ma armusin temasse. | to fall in love, {kellesse?} | |
-| 868 | How it works, table | armastama | to love, {keda?} | |
-| 869 | How it works, table | Ta armastab oma ema. | to love, {keda?} | |
-| 870 | Say it, question | Kuidas sa oma sõbraga tutvusid? | How did you meet your friend? | |
-| 871 | Say it, model answer | Me tutvusime tööl. | We met at work. | |
-| 872 | Say it, question | Kellega sa sõbrustad? | Who are you friends with? | |
-| 873 | Say it, model answer | Ma sõbrustan naabriga. | I'm friends with a neighbor. | |
-| 874 | Say it, model answer | Ma armusin sellesse linna esimesel päeval. | I fell for this town on the very first day. | |
-| 875 | Say it, model answer | Ma abiellun juunis oma sõbraga. | I'm marrying my friend in June. | |
+| 823 | Conversation, Liis | Tom, mul on suur uudis. Ma abiellun! | Tom, I've got big news. I'm getting married! | |
+| 824 | Conversation, Tom | Palju õnne! Kellega? | Congratulations! Who to? | |
+| 825 | Conversation, Liis | Jaaniga muidugi! Kellega veel? | Jaan, of course! Who else? | |
+| 826 | Conversation, Tom | Lõpuks! Te olete ju juba kuus aastat koos. | At last! You've been together for six years now. | |
+| 827 | Conversation, Liis | Jah. Me tutvusime kuus aastat tagasi, aga ta küsis alles kaks kuud tagasi, kas ma abiellun temaga. | Yes. We met six years ago, but he only asked me to marry him two months ago. | |
+| 828 | Conversation, Tom | Kuus aastat? Mida ta nii kaua tegi? | Six years? What was he doing all that time? | |
+| 829 | Conversation, Liis | Mõtles. Aga mina armusin temasse juba esimesel päeval. | Thinking about it. But I fell for him on the very first day. | |
+| 830 | Conversation, Tom | Esimesel päeval? Mis juhtus? | On the first day? What happened? | |
+| 831 | Conversation, Liis | Ta parandas mu autot ja rääkis ainult oma emast. | He was fixing my car and only talked about his mom. | |
+| 832 | Conversation, Tom | Ja see oli romantiline? | And that was romantic? | |
+| 833 | Conversation, Liis | Väga! Hea mees armastab oma ema. Aga kuidas sina oma naisega tutvusid? | Very! A good man loves his mom. But how did you meet your wife? | |
+| 834 | Conversation, Tom | Me sõbrustasime kaua. Ta oli mu parim sõber ülikoolis. | We were friends for a long time. She was my best friend at university. | |
+| 835 | Conversation, Tom | Ühel päeval ta ütles: Tom, abiellume! Ma ütlesin kohe jah. | One day she said: Tom, let's get married! I said yes right away. | |
+| 836 | Conversation, Liis | Romantiline! Pulmad on juunis. Sa tuled ju? | Romantic! The wedding's in June. You're coming, right? | |
+| 837 | Conversation, Tom | Muidugi. Kui Jaan just terve õhtu oma emast ei räägi. | Of course. As long as Jaan doesn't talk about his mom all evening. | |
+| 838 | Words (verb) | abielluma | to get married | |
+| 839 | Words (verb, I form) | abiellun | I'm getting married | |
+| 840 | Words (verb) | tutvuma | to get to know, to meet for the first time | |
+| 841 | Words (verb, I form) | tutvun | I get to know | |
+| 842 | Words (form) | tutvusin | I met, I got to know | |
+| 843 | Words (verb) | armuma | to fall in love | |
+| 844 | Words (verb, I form) | armun | I fall in love | |
+| 845 | Words (form) | armusin | I fell in love | |
+| 846 | Words (verb) | sõbrustama | to be friends | |
+| 847 | Words (verb, I form) | sõbrustan | I'm friends | |
+| 848 | Words (form) | sõbrustasin | I was friends | |
+| 849 | Words (form) | temasse | into him, into her | |
+| 850 | Words (form) | sellesse | into this, into it | |
+| 851 | Words (form) | sinuga | with you | |
+| 852 | Words (form) | parandas | he fixed, she fixed | |
+| 853 | Words (form) | aitas | he helped, she helped | |
+| 854 | Words (form) | ütlesin | I said | |
+| 855 | Words (form) | küsis | he asked, she asked | |
+| 856 | Words (form) | juunis | in June | |
+| 857 | Words (word) | pulmad | a wedding | |
+| 858 | Words (word) | romantiline | romantic | |
+| 859 | Words (word) | sellepärast | that's why, because of that | |
+| 860 | Words (word) | lahke | kind | |
+| 861 | How it works | Ma abiellun sinuga, Ma armusin temasse | Being with somebody is the [kaasaütlev] (-ga, with): you marry, meet and are friends with them, {Ma abiellun sinuga}. Falling in love goes into them, with the [sisseütlev] (-sse, into): {Ma armusin temasse}. | |
+| 862 | How it works | Ma abiellun sinuga | English marries somebody. Estonian marries with them: {Ma abiellun sinuga}. The same goes for meeting and being friends. | |
+| 863 | How it works | Ma armusin sellesse linna | You can fall for a place as well: {Ma armusin sellesse linna}. | |
+| 864 | How it works | Armastama, Ta armastab oma ema | {Armastama} is the plain one: you love somebody straight, in the [osastav] (3rd form), {Ta armastab oma ema}. | |
+| 865 | How it works | Tutvuma, Me tutvusime Jaaniga | {Tutvuma} is getting to know somebody for the first time, and it still takes the [kaasaütlev] (-ga, with): {Me tutvusime Jaaniga}, not the [osastav] (3rd form). | |
+| 866 | How it works, table | abielluma | to marry, {kellega?} | |
+| 867 | How it works, table | Ma abiellun Jaaniga. | to marry, {kellega?} | |
+| 868 | How it works, table | tutvuma | to get to know, {kellega?} | |
+| 869 | How it works, table | Me tutvusime kuus aastat tagasi. | to get to know, {kellega?} | |
+| 870 | How it works, table | sõbrustama | to be friends, {kellega?} | |
+| 871 | How it works, table | Me sõbrustasime kaua. | to be friends, {kellega?} | |
+| 872 | How it works, table | armuma | to fall in love, {kellesse?} | |
+| 873 | How it works, table | Ma armusin temasse. | to fall in love, {kellesse?} | |
+| 874 | How it works, table | armastama | to love, {keda?} | |
+| 875 | How it works, table | Ta armastab oma ema. | to love, {keda?} | |
+| 876 | Say it, question | Kuidas sa oma sõbraga tutvusid? | How did you meet your friend? | |
+| 877 | Say it, model answer | Me tutvusime tööl. | We met at work. | |
+| 878 | Say it, question | Kellega sa sõbrustad? | Who are you friends with? | |
+| 879 | Say it, model answer | Ma sõbrustan naabriga. | I'm friends with a neighbor. | |
+| 880 | Say it, model answer | Ma armusin sellesse linna esimesel päeval. | I fell for this town on the very first day. | |
+| 881 | Say it, model answer | Ma abiellun juunis oma sõbraga. | I'm marrying my friend in June. | |
 
 #### B1 12. It depends (`b1-12-depends`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 876 | Conversation, Mari | Tom, kas me sõidame suvel kõik koos Saaremaale või mitte? Anna ja lapsed tahavad väga minna. | Tom, are we all driving to Saaremaa together this summer or not? Anna and the kids really want to go. | |
-| 877 | Conversation, Tom | See sõltub ilmast. Ja minu ülemusest. | That depends on the weather. And on my boss. | |
-| 878 | Conversation, Mari | Ilm pole oluline. Saaremaa on ilus ka siis, kui sajab vihma. | The weather doesn't matter. Saaremaa's lovely even when it rains. | |
-| 879 | Conversation, Tom | Eelmisel suvel sadas terve nädala vihma. Ma loodan, et sel aastal on ilus ilm. | Last summer it rained for a whole week. I hope the weather's good this year. | |
-| 880 | Conversation, Mari | Aga ülemus? | And your boss? | |
-| 881 | Conversation, Tom | Ta on hea ülemus, aga ta kardab, et ilma minuta ei tööta midagi. | She's a good boss, but she's afraid nothing works without me. | |
-| 882 | Conversation, Mari | Kas see on tõsi? | Is that true? | |
-| 883 | Conversation, Tom | Ei. Tegelikult töötab kõik väga hästi ka ilma minuta. | No. Actually everything works fine without me too. | |
-| 884 | Conversation, Mari | Siis räägi temaga homme! Ma usun sinusse. | Then talk to her tomorrow! I believe in you. | |
-| 885 | Conversation, Tom | Aga kui ta ütleb, et see pole võimalik? | But what if she says it isn't possible? | |
-| 886 | Conversation, Mari | Siis sõidame ilma sinuta: mina, Anna ja lapsed. Peeter tuleb ka meiega. | Then we'll go without you: me, Anna and the kids. Peeter's coming with us too. | |
-| 887 | Conversation, Tom | Ilma minuta? Nüüd ma kardan sind. | Without me? Now I'm scared of you. | |
-| 888 | Conversation, Mari | Täpselt! Nüüd sõltub kõik sinust. | Exactly! Now it all depends on you. | |
-| 889 | Words (verb) | sõltuma | to depend | |
-| 890 | Words (verb, I form) | sõltun | I depend | |
-| 891 | Words (form) | sinusse | into you, in you | |
-| 892 | Words (form) | sinust | about you, on you | |
-| 893 | Words (form) | minuta | without me | |
-| 894 | Words (form) | sinuta | without you | |
-| 895 | Words (form) | meiega | with us | |
-| 896 | Words (form) | lapsed | children | |
-| 897 | Words (form) | ilusale | onto nice, onto good | |
-| 898 | Words (form) | sadas | it rained, it fell | |
-| 899 | Words (form) | vihma | rain, as what falls or what you fear | |
-| 900 | Words (form) | eelmisel | last (last summer, last week) | |
-| 901 | Words (form) | sel | this (this year) | |
-| 902 | Words (form) | aastal | in the year (this year, last year) | |
-| 903 | Words (word) | võimalik | possible | |
-| 904 | How it works | sõltuma, lootma, uskuma, kartma | Four verbs about what might happen, each with its own case: {sõltuma} wants the [seestütlev] (-st, out of), {lootma} the [alaleütlev] (-le, onto/to), and {uskuma} and {kartma} the [osastav] (3rd form). | |
-| 905 | How it works | Ma usun sind, Ma usun sinusse | {Ma usun sind} is I believe you. {Ma usun sinusse} is I believe in you: the [sisseütlev] (-sse, into) puts your faith into somebody. | |
-| 906 | How it works | See sõltub sinust | English depends on; Estonian depends out of: {See sõltub sinust}. | |
-| 907 | How it works | Lootma, Ma loodan ilusale ilmale | {Lootma} with the [alaleütlev] (-le, onto/to) is counting on something: {Ma loodan ilusale ilmale}. | |
-| 908 | How it works | Kartma, Ma kardan vihma | English is afraid of something, so the [seestütlev] (-st, out of) feels right. {Kartma} takes the [osastav] (3rd form): {Ma kardan vihma}. | |
-| 909 | How it works, table | sõltuma | {millest?} on what, in the [seestütlev] (-st, out of) | |
-| 910 | How it works, table | See sõltub ilmast. | {millest?} on what, in the [seestütlev] (-st, out of) | |
-| 911 | How it works, table | Ma loodan ilusale ilmale. | {millele?} on what, in the [alaleütlev] (-le, onto/to) | |
-| 912 | How it works, table | Ma usun sind. | {keda?} somebody, in the [osastav] (3rd form) | |
-| 913 | How it works, table | Ma usun sinusse. | {kellesse?} in somebody, in the [sisseütlev] (-sse, into) | |
-| 914 | How it works, table | Ma kardan sind. | {keda? mida?} in the [osastav] (3rd form) | |
-| 915 | Say it, question | Kas sa tuled laupäeval? | Are you coming on Saturday? | |
-| 916 | Say it, model answer | See sõltub ilmast. | It depends on the weather. | |
-| 917 | Say it, model answer | Ma usun sinusse. | I believe in you. | |
-| 918 | Say it, question | Mida sa kardad? | What are you afraid of? | |
-| 919 | Say it, model answer | Ma kardan vihma. | I'm afraid of the rain. | |
-| 920 | Say it, model answer | Ma ei lähe ilma sinuta. | I'm not going without you. | |
+| 882 | Conversation, Mari | Tom, kas me sõidame suvel kõik koos Saaremaale või mitte? Anna ja lapsed tahavad väga minna. | Tom, are we all driving to Saaremaa together this summer or not? Anna and the kids really want to go. | |
+| 883 | Conversation, Tom | See sõltub ilmast. Ja minu ülemusest. | That depends on the weather. And on my boss. | |
+| 884 | Conversation, Mari | Ilm pole oluline. Saaremaa on ilus ka siis, kui sajab vihma. | The weather doesn't matter. Saaremaa's lovely even when it rains. | |
+| 885 | Conversation, Tom | Eelmisel suvel sadas terve nädala vihma. Ma loodan, et sel aastal on ilus ilm. | Last summer it rained for a whole week. I hope the weather's good this year. | |
+| 886 | Conversation, Mari | Aga ülemus? | And your boss? | |
+| 887 | Conversation, Tom | Ta on hea ülemus, aga ta kardab, et ilma minuta ei tööta midagi. | She's a good boss, but she's afraid nothing works without me. | |
+| 888 | Conversation, Mari | Kas see on tõsi? | Is that true? | |
+| 889 | Conversation, Tom | Ei. Tegelikult töötab kõik väga hästi ka ilma minuta. | No. Actually everything works fine without me too. | |
+| 890 | Conversation, Mari | Siis räägi temaga homme! Ma usun sinusse. | Then talk to her tomorrow! I believe in you. | |
+| 891 | Conversation, Tom | Aga kui ta ütleb, et see pole võimalik? | But what if she says it isn't possible? | |
+| 892 | Conversation, Mari | Siis sõidame ilma sinuta: mina, Anna ja lapsed. Peeter tuleb ka meiega. | Then we'll go without you: me, Anna and the kids. Peeter's coming with us too. | |
+| 893 | Conversation, Tom | Ilma minuta? Nüüd ma kardan sind. | Without me? Now I'm scared of you. | |
+| 894 | Conversation, Mari | Täpselt! Nüüd sõltub kõik sinust. | Exactly! Now it all depends on you. | |
+| 895 | Words (verb) | sõltuma | to depend | |
+| 896 | Words (verb, I form) | sõltun | I depend | |
+| 897 | Words (form) | sinusse | into you, in you | |
+| 898 | Words (form) | sinust | about you, on you | |
+| 899 | Words (form) | minuta | without me | |
+| 900 | Words (form) | sinuta | without you | |
+| 901 | Words (form) | meiega | with us | |
+| 902 | Words (form) | lapsed | children | |
+| 903 | Words (form) | ilusale | onto nice, onto good | |
+| 904 | Words (form) | sadas | it rained, it fell | |
+| 905 | Words (form) | vihma | rain, as what falls or what you fear | |
+| 906 | Words (form) | eelmisel | last (last summer, last week) | |
+| 907 | Words (form) | sel | this (this year) | |
+| 908 | Words (form) | aastal | in the year (this year, last year) | |
+| 909 | Words (word) | võimalik | possible | |
+| 910 | How it works | sõltuma, lootma, uskuma, kartma | Four verbs about what might happen, each with its own case: {sõltuma} wants the [seestütlev] (-st, out of), {lootma} the [alaleütlev] (-le, onto/to), and {uskuma} and {kartma} the [osastav] (3rd form). | |
+| 911 | How it works | Ma usun sind, Ma usun sinusse | {Ma usun sind} is I believe you. {Ma usun sinusse} is I believe in you: the [sisseütlev] (-sse, into) puts your faith into somebody. | |
+| 912 | How it works | See sõltub sinust | English depends on; Estonian depends out of: {See sõltub sinust}. | |
+| 913 | How it works | Lootma, Ma loodan ilusale ilmale | {Lootma} with the [alaleütlev] (-le, onto/to) is counting on something: {Ma loodan ilusale ilmale}. | |
+| 914 | How it works | Kartma, Ma kardan vihma | English is afraid of something, so the [seestütlev] (-st, out of) feels right. {Kartma} takes the [osastav] (3rd form): {Ma kardan vihma}. | |
+| 915 | How it works, table | sõltuma | {millest?} on what, in the [seestütlev] (-st, out of) | |
+| 916 | How it works, table | See sõltub ilmast. | {millest?} on what, in the [seestütlev] (-st, out of) | |
+| 917 | How it works, table | Ma loodan ilusale ilmale. | {millele?} on what, in the [alaleütlev] (-le, onto/to) | |
+| 918 | How it works, table | Ma usun sind. | {keda?} somebody, in the [osastav] (3rd form) | |
+| 919 | How it works, table | Ma usun sinusse. | {kellesse?} in somebody, in the [sisseütlev] (-sse, into) | |
+| 920 | How it works, table | Ma kardan sind. | {keda? mida?} in the [osastav] (3rd form) | |
+| 921 | Say it, question | Kas sa tuled laupäeval? | Are you coming on Saturday? | |
+| 922 | Say it, model answer | See sõltub ilmast. | It depends on the weather. | |
+| 923 | Say it, model answer | Ma usun sinusse. | I believe in you. | |
+| 924 | Say it, question | Mida sa kardad? | What are you afraid of? | |
+| 925 | Say it, model answer | Ma kardan vihma. | I'm afraid of the rain. | |
+| 926 | Say it, model answer | Ma ei lähe ilma sinuta. | I'm not going without you. | |
 
 #### B1 13. Replying to an invitation (`b1-13-reply`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 921 | Conversation, Liis | Tere, Tom! Liis siin. | Hi, Tom! It's Liis. | |
-| 922 | Conversation, Liis | Ma saatsin sulle eile kirja, aga sa pole veel vastanud. | I sent you an email yesterday, but you haven't replied yet. | |
-| 923 | Conversation, Liis | Mul on laupäeval sünnipäev! | It's my birthday on Saturday! | |
-| 924 | Conversation, Liis | Pidu on minu juures, kell seitse. | The party's at my place, at seven. | |
-| 925 | Conversation, Liis | Võta oma naine ka kaasa. Ma tahan temaga juba ammu tutvuda. | Bring your wife along too. I've wanted to meet her for ages. | |
-| 926 | Conversation, Liis | Ja mul on ka üks palve: mu ahi on katki, nii et kook oleks väga hea. | And I've got a favor to ask too: my oven's broken, so a cake would be great. | |
-| 927 | Conversation, Liis | Kirjuta mulle, palun! Ma pean teadma, mitu inimest tuleb. | Write back, please! I need to know how many people are coming. | |
-| 928 | Conversation, Liis | Kohtumiseni! | See you! | |
-| 929 | Words (verb) | toimuma | to take place, to happen | |
-| 930 | Words (verb, I form) | toimun | I take place | |
-| 931 | Words (form) | tutvuda | to get to know (after another verb) | |
-| 932 | Words (form) | kirja | the letter, the whole one | |
-| 933 | Words (form) | saatsin | I sent | |
-| 934 | Words (form) | saatis | he sent, she sent | |
-| 935 | Words (form) | vastanud | replied, after {pole} or {ei} | |
-| 936 | Words (word) | kutse | invitation | |
-| 937 | Words (word) | kätte | into your hands (with {saama}: to receive) | |
-| 938 | Words (form) | inimest | people (after a number) | |
-| 939 | Words (word) | palve | a favor to ask, a request | |
-| 940 | Words (word) | vastus | reply, answer | |
-| 941 | Words (form) | millegagi | with anything, with something | |
-| 942 | Words (word) | ahi | oven | |
-| 943 | Words (form) | küpsetada | to bake (after another verb) | |
-| 944 | Words (form) | küpsetas | he baked, she baked | |
-| 945 | Words (word) | eest | for (after what you thank for) | |
-| 946 | How it works | Aitäh kutse eest!, Kas ma võiksin oma naise kaasa võtta? | A reply to an invitation thanks first, {Aitäh kutse eest!}, then answers, then asks the favor, with each verb in its own case: {Kas ma võiksin oma naise kaasa võtta?} | |
-| 947 | How it works | Hea meelega, Kahjuks ma ei saa tulla | {Hea meelega} says yes warmly. To say no kindly: {Kahjuks ma ei saa tulla}. | |
-| 948 | How it works | Kas sa saaksid...?, Kas ma võiksin...? | A favor is softest in the would form: {Kas sa saaksid...?}, {Kas ma võiksin...?} | |
-| 949 | How it works | Ta tahab sinuga tutvuda, Kas sa saaksid mind aidata? | A verb keeps its case after another verb: {Ta tahab sinuga tutvuda}, {Kas sa saaksid mind aidata?} | |
-| 950 | How it works | aitäh, eest, Aitäh kutse eest!, eest | Thanks for something is {aitäh} with {eest} after the thing: {Aitäh kutse eest!} The thing takes the [omastav] (2nd form) before {eest}. | |
-| 951 | How it works, table | Aitäh kutse eest! | Thanks for the invitation! | |
-| 952 | How it works, table | Ma tulen hea meelega. | I'd love to come. | |
-| 953 | How it works, table | Kahjuks ma ei saa tulla. | I'm afraid I can't come. | |
-| 954 | How it works, table | Kas ma võiksin oma naise kaasa võtta? | Could I bring my wife along? | |
-| 955 | How it works, table | Kas sa saaksid mind aruandega aidata? | Could you help me with the report? | |
-| 956 | Say it, question | Kas sa tuled mu sünnipäevale? | Are you coming to my birthday? | |
-| 957 | Say it, model answer | Jah, ma tulen hea meelega! | Yes, I'd love to come! | |
-| 958 | Say it, model answer | Kahjuks ma ei saa tulla. | I'm afraid I can't come. | |
-| 959 | Say it, model answer | Kas ma võiksin oma abikaasa kaasa võtta? | Could I bring my husband along? | |
-| 960 | Say it, model answer | Aitäh kutse eest! | Thanks for the invitation! | |
+| 927 | Conversation, Liis | Tere, Tom! Liis siin. | Hi, Tom! It's Liis. | |
+| 928 | Conversation, Liis | Ma saatsin sulle eile kirja, aga sa pole veel vastanud. | I sent you an email yesterday, but you haven't replied yet. | |
+| 929 | Conversation, Liis | Mul on laupäeval sünnipäev! | It's my birthday on Saturday! | |
+| 930 | Conversation, Liis | Pidu on minu juures, kell seitse. | The party's at my place, at seven. | |
+| 931 | Conversation, Liis | Võta oma naine ka kaasa. Ma tahan temaga juba ammu tutvuda. | Bring your wife along too. I've wanted to meet her for ages. | |
+| 932 | Conversation, Liis | Ja kui sa tahad millegagi aidata, siis mu ahi on katki, nii et kook oleks väga hea. | And if you'd like to help with something: my oven's broken, so a cake would be great. | |
+| 933 | Conversation, Liis | Kirjuta mulle, palun! Ma pean teadma, mitu inimest tuleb. | Write back, please! I need to know how many people are coming. | |
+| 934 | Conversation, Liis | Kohtumiseni! | See you! | |
+| 935 | Words (verb) | toimuma | to take place, to happen | |
+| 936 | Words (verb, I form) | toimun | I take place | |
+| 937 | Words (form) | tutvuda | to get to know (after another verb) | |
+| 938 | Words (form) | kirja | the letter, the whole one | |
+| 939 | Words (form) | saatsin | I sent | |
+| 940 | Words (form) | saatis | he sent, she sent | |
+| 941 | Words (form) | vastanud | replied, after {pole} or {ei} | |
+| 942 | Words (word) | kutse | invitation | |
+| 943 | Words (word) | kätte | into your hands (with {saama}: to receive) | |
+| 944 | Words (form) | inimest | people (after a number) | |
+| 945 | Words (word) | palve | a favor to ask, a request | |
+| 946 | Words (word) | vastus | reply, answer | |
+| 947 | Words (form) | millegagi | with anything, with something | |
+| 948 | Words (word) | ahi | oven | |
+| 949 | Words (form) | küpsetada | to bake (after another verb) | |
+| 950 | Words (form) | küpsetas | he baked, she baked | |
+| 951 | Words (word) | eest | for (after what you thank for) | |
+| 952 | How it works | Aitäh kutse eest!, Kas ma võiksin oma naise kaasa võtta? | A reply to an invitation thanks first, {Aitäh kutse eest!}, then answers, then asks the favor, with each verb in its own case: {Kas ma võiksin oma naise kaasa võtta?} | |
+| 953 | How it works | Hea meelega, Kahjuks ma ei saa tulla | {Hea meelega} says yes warmly. To say no kindly: {Kahjuks ma ei saa tulla}. | |
+| 954 | How it works | Kas sa saaksid...?, Kas ma võiksin...? | A favor is softest in the would form: {Kas sa saaksid...?}, {Kas ma võiksin...?} | |
+| 955 | How it works | Ta tahab sinuga tutvuda, Kas sa saaksid mind aidata? | A verb keeps its case after another verb: {Ta tahab sinuga tutvuda}, {Kas sa saaksid mind aidata?} | |
+| 956 | How it works | aitäh, eest, Aitäh kutse eest!, eest | Thanks for something is {aitäh} with {eest} after the thing: {Aitäh kutse eest!} The thing takes the [omastav] (2nd form) before {eest}. | |
+| 957 | How it works, table | Aitäh kutse eest! | Thanks for the invitation! | |
+| 958 | How it works, table | Ma tulen hea meelega. | I'd love to come. | |
+| 959 | How it works, table | Kahjuks ma ei saa tulla. | I'm afraid I can't come. | |
+| 960 | How it works, table | Kas ma võiksin oma naise kaasa võtta? | Could I bring my wife along? | |
+| 961 | How it works, table | Kas sa saaksid mind aruandega aidata? | Could you help me with the report? | |
+| 962 | Say it, question | Kas sa tuled mu sünnipäevale? | Are you coming to my birthday? | |
+| 963 | Say it, model answer | Jah, ma tulen hea meelega! | Yes, I'd love to come! | |
+| 964 | Say it, model answer | Kahjuks ma ei saa tulla. | I'm afraid I can't come. | |
+| 965 | Say it, model answer | Kas ma võiksin oma abikaasa kaasa võtta? | Could I bring my husband along? | |
+| 966 | Say it, model answer | Aitäh kutse eest! | Thanks for the invitation! | |
 
 #### B1 14. A new colleague (`b1-14-colleague`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 961 | Conversation, Tom | Tere tulemast! Mina olen Tom. Ma aitan sind täna. | Welcome! I'm Tom. I'll be helping you today. | |
-| 962 | Conversation, Kadri | Tere! Mina olen Kadri. Aitäh, ma natuke kardan küll. | Hi! I'm Kadri. Thanks, I'm a bit nervous. | |
-| 963 | Conversation, Tom | Pole hullu. Mina kartsin ka esimesel päeval. Mida sa vabal ajal teed? | That's all right. I was nervous on my first day too. What do you do in your free time? | |
-| 964 | Conversation, Kadri | Ma laulan kooris. Mind huvitab väga muusika. | I sing in a choir. I'm really into music. | |
-| 965 | Conversation, Tom | Oi! Siis sa pead Katiga tutvuma. Ta laulab ka. | Oh! Then you have to meet Kati. She sings too. | |
-| 966 | Conversation, Kadri | Tore! Aga kellelt ma küsin, kui mul on arvutiga probleem? | Great! But who do I ask if I have a problem with my computer? | |
-| 967 | Conversation, Tom | Arvutiga aitan sind mina. Aga ära joo arvuti juures kohvi. | I help with computers. But don't drink coffee near your computer. | |
-| 968 | Conversation, Tom | See on pikk lugu. Ja aruandega aitab sind ülemus. Ta on tegelikult väga lahke. | It's a long story. And our boss helps with the report. She's actually very kind. | |
-| 969 | Conversation, Kadri | Aitäh! Kas ma saan sind ka millegagi aidata? | Thanks! Can I help you with anything too? | |
-| 970 | Conversation, Tom | Jah! Tule reedel meiega sööma. | Yes! Come and eat with us on Friday. | |
-| 971 | Conversation, Kadri | Hea meelega! Ma loodan, et me ei räägi ainult tööst. | I'd love to! I hope we won't only talk about work. | |
-| 972 | Conversation, Tom | Ei. Reedel me räägime ainult ilmast. | No. On Friday we only talk about the weather. | |
-| 973 | How it works | aitama, tutvuma, küsima | A first day at work, made of the whole part: each verb with the case it asks for, {aitama} with the [osastav] (3rd form) and the [kaasaütlev] (-ga, with), {tutvuma} with the [kaasaütlev] (-ga, with), {küsima} with the [alaltütlev] (-lt, off). | |
-| 974 | How it works | Arvutiga aitan sind mina | {Arvutiga aitan sind mina} puts the thing first and the helper last, which is how Estonian says it's me who helps with that. | |
-| 975 | How it works | Tutvuma, pead, Sa pead Katiga tutvuma | {Tutvuma} keeps its case after {pead}: {Sa pead Katiga tutvuma}. | |
-| 976 | How it works | aita mind, küsi minult, räägi temaga, mõtle sellele | Four verbs, four cases for the same person: {aita mind}, {küsi minult}, {räägi temaga}, {mõtle sellele}. Say each with its own. | |
-| 977 | Say it, question | Mida sa vabal ajal teed? | What do you do in your free time? | |
-| 978 | Say it, model answer | Mind huvitab muusika. | I'm into music. | |
-| 979 | Say it, question | Kellelt ma küsin, kui mul on arvutiga probleem? | Who do I ask if I have a problem with my computer? | |
-| 980 | Say it, model answer | Arvutiga aitan sind mina. | I help with computers. | |
-| 981 | Say it, model answer | Kas ma saan sind millegagi aidata? | Can I help you with anything? | |
-| 982 | Role-play, they say | Tere! Ma olen siin uus. Kas sa saaksid mind aidata? | Hi! I'm new here. Could you help me? | |
-| 983 | Role-play, model answer | Muidugi aitan. Tere tulemast! | Of course I'll help. Welcome! | |
-| 984 | Role-play, they say | Kellelt ma küsin, kui mul on arvutiga probleem? | Who do I ask if I have a problem with my computer? | |
-| 985 | Role-play, model answer | Arvutiga aitan sind mina. | I help with computers. | |
-| 986 | Role-play, they say | Ja kellega ma räägin aruandest? | And who do I talk to about the report? | |
-| 987 | Role-play, model answer | Räägi ülemusega. | Talk to the boss. | |
-| 988 | Role-play, they say | Aga kui sind siin pole, kellelt ma siis küsin? | But if you're not here, who do I ask then? | |
-| 989 | Role-play, model answer | Siis küsi ülemuselt. | Then ask the boss. | |
-| 990 | Role-play, they say | Aitäh! Aga mis sind huvitab? | Thanks! And what are you into? | |
-| 991 | Role-play, model answer | Mind huvitab muusika. | I'm into music. | |
-| 992 | Role-play, they say | Tore! Kas ma saan sind ka millegagi aidata? | Great! Can I help you with anything too? | |
-| 993 | Role-play, model answer | Jah! Tule reedel meiega sööma. | Yes! Come and eat with us on Friday. | |
-| 994 | Role-play, they say | Hea meelega! Kohtumiseni reedel! | I'd love to! See you on Friday! | |
-| 995 | Live scene, they say (greet) | Tere! Ma olen siin uus. Kas sa saaksid mind aidata? |  | |
-| 996 | Live scene, they say (greet) | Tere! Mina olen siin uus. Kas sa aitaksid mind natuke? |  | |
-| 997 | Live scene, they say (computer) | Kellelt ma küsin, kui mul on arvutiga probleem? |  | |
-| 998 | Live scene, they say (computer) | Aga kui mul on arvutiga probleem, kellelt ma siis küsin? |  | |
-| 999 | Live scene, they say (report) | Ja kellega ma aruandest räägin? |  | |
-| 1000 | Live scene, they say (report) | Aitäh! Ja kellega ma aruandest räägin? |  | |
-| 1001 | Live scene, they say (away) | Aga kui sind siin ei ole, kellelt ma siis küsin? |  | |
-| 1002 | Live scene, they say (away) | Selge. Ja kellelt ma küsin, kui sind ei ole? |  | |
-| 1003 | Live scene, they say (into) | Aitäh! Ja millest sina huvitud? |  | |
-| 1004 | Live scene, they say (into) | Selge. Aga millest sina vabal ajal huvitud? |  | |
-| 1005 | Live scene, they say (offer) | Tore! Kas ma saan sind ka millegagi aidata? |  | |
-| 1006 | Live scene, they say (offer) | Kas ma saaksin sind ka millegagi aidata? |  | |
-| 1007 | Live scene, they say (close) | Hea meelega! Näeme reedel! |  | |
-| 1008 | Live scene, they say (close) | Hea meelega! Head aega! |  | |
-| 1009 | Live scene, learner may pick (greet) | Muidugi aitan. Tere tulemast! | Of course I'll help. Welcome! | |
-| 1010 | Live scene, learner may pick (greet) | Tere! Muidugi. | Hi! Of course. | |
-| 1011 | Live scene, learner may pick (computer) | Arvutiga aitan sind mina. | I help with computers. | |
-| 1012 | Live scene, learner may pick (computer) | Mina aitan sind. | I'll help you. | |
-| 1013 | Live scene, learner may pick (report) | Räägi ülemusega. | Talk to the boss. | |
-| 1014 | Live scene, learner may pick (report) | Ülemusega. | With the boss. | |
-| 1015 | Live scene, learner may pick (away) | Siis küsi ülemuselt. | Then ask the boss. | |
-| 1016 | Live scene, learner may pick (away) | Ülemuselt. | The boss. | |
-| 1017 | Live scene, learner may pick (into) | Ma huvitun muusikast. | I'm into music. | |
-| 1018 | Live scene, learner may pick (into) | Mulle meeldib ajalugu. | I like history. | |
-| 1019 | Live scene, learner may pick (offer) | Jah! Tule reedel meiega sööma. | Yes! Come and eat with us on Friday. | |
-| 1020 | Live scene, learner may pick (offer) | Jah, aitäh! | Yes, thanks! | |
+| 967 | Conversation, Tom | Tere tulemast! Mina olen Tom. Ma aitan sind täna. | Welcome! I'm Tom. I'll be helping you today. | |
+| 968 | Conversation, Kadri | Tere! Mina olen Kadri. Aitäh, ma natuke kardan küll. | Hi! I'm Kadri. Thanks, I'm a bit nervous. | |
+| 969 | Conversation, Tom | Pole hullu. Mina kartsin ka esimesel päeval. Mida sa vabal ajal teed? | That's all right. I was nervous on my first day too. What do you do in your free time? | |
+| 970 | Conversation, Kadri | Ma laulan kooris. Mind huvitab väga muusika. | I sing in a choir. I'm really into music. | |
+| 971 | Conversation, Tom | Oi! Siis sa pead Katiga tutvuma. Ta laulab ka. | Oh! Then you have to meet Kati. She sings too. | |
+| 972 | Conversation, Kadri | Tore! Aga kellelt ma küsin, kui mul on arvutiga probleem? | Great! But who do I ask if I have a problem with my computer? | |
+| 973 | Conversation, Tom | Arvutiga aitan sind mina. Aga ära joo arvuti juures kohvi. | I help with computers. But don't drink coffee near your computer. | |
+| 974 | Conversation, Tom | See on pikk lugu. Ja aruandega aitab sind ülemus. Ta on tegelikult väga lahke. | It's a long story. And our boss helps with the report. She's actually very kind. | |
+| 975 | Conversation, Kadri | Aitäh! Kas ma saan sind ka millegagi aidata? | Thanks! Can I help you with anything too? | |
+| 976 | Conversation, Tom | Jah! Tule reedel meiega sööma. | Yes! Come and eat with us on Friday. | |
+| 977 | Conversation, Kadri | Hea meelega! Ma loodan, et me ei räägi ainult tööst. | I'd love to! I hope we won't only talk about work. | |
+| 978 | Conversation, Tom | Ei. Reedel me räägime ainult ilmast. | No. On Friday we only talk about the weather. | |
+| 979 | How it works | aitama, tutvuma, küsima | A first day at work, made of the whole part: each verb with the case it asks for, {aitama} with the [osastav] (3rd form) and the [kaasaütlev] (-ga, with), {tutvuma} with the [kaasaütlev] (-ga, with), {küsima} with the [alaltütlev] (-lt, off). | |
+| 980 | How it works | Arvutiga aitan sind mina | {Arvutiga aitan sind mina} puts the thing first and the helper last, which is how Estonian says it's me who helps with that. | |
+| 981 | How it works | Tutvuma, pead, Sa pead Katiga tutvuma | {Tutvuma} keeps its case after {pead}: {Sa pead Katiga tutvuma}. | |
+| 982 | How it works | aita mind, küsi minult, räägi temaga, mõtle sellele | Four verbs, four cases for the same person: {aita mind}, {küsi minult}, {räägi temaga}, {mõtle sellele}. Say each with its own. | |
+| 983 | Say it, question | Mida sa vabal ajal teed? | What do you do in your free time? | |
+| 984 | Say it, model answer | Mind huvitab muusika. | I'm into music. | |
+| 985 | Say it, question | Kellelt ma küsin, kui mul on arvutiga probleem? | Who do I ask if I have a problem with my computer? | |
+| 986 | Say it, model answer | Arvutiga aitan sind mina. | I help with computers. | |
+| 987 | Say it, model answer | Kas ma saan sind millegagi aidata? | Can I help you with anything? | |
+| 988 | Role-play, they say | Tere! Ma olen siin uus. Kas sa saaksid mind aidata? | Hi! I'm new here. Could you help me? | |
+| 989 | Role-play, model answer | Muidugi aitan. Tere tulemast! | Of course I'll help. Welcome! | |
+| 990 | Role-play, they say | Kellelt ma küsin, kui mul on arvutiga probleem? | Who do I ask if I have a problem with my computer? | |
+| 991 | Role-play, model answer | Arvutiga aitan sind mina. | I help with computers. | |
+| 992 | Role-play, they say | Ja kellega ma räägin aruandest? | And who do I talk to about the report? | |
+| 993 | Role-play, model answer | Räägi ülemusega. | Talk to the boss. | |
+| 994 | Role-play, they say | Aga kui sind siin pole, kellelt ma siis küsin? | But if you're not here, who do I ask then? | |
+| 995 | Role-play, model answer | Siis küsi ülemuselt. | Then ask the boss. | |
+| 996 | Role-play, they say | Aitäh! Aga mis sind huvitab? | Thanks! And what are you into? | |
+| 997 | Role-play, model answer | Mind huvitab muusika. | I'm into music. | |
+| 998 | Role-play, they say | Tore! Kas ma saan sind ka millegagi aidata? | Great! Can I help you with anything too? | |
+| 999 | Role-play, model answer | Jah! Tule reedel meiega sööma. | Yes! Come and eat with us on Friday. | |
+| 1000 | Role-play, they say | Hea meelega! Kohtumiseni reedel! | I'd love to! See you on Friday! | |
+| 1001 | Live scene, they say (greet) | Tere! Ma olen siin uus. Kas sa saaksid mind aidata? |  | |
+| 1002 | Live scene, they say (greet) | Tere! Mina olen siin uus. Kas sa aitaksid mind natuke? |  | |
+| 1003 | Live scene, they say (computer) | Kellelt ma küsin, kui mul on arvutiga probleem? |  | |
+| 1004 | Live scene, they say (computer) | Aga kui mul on arvutiga probleem, kellelt ma siis küsin? |  | |
+| 1005 | Live scene, they say (report) | Ja kellega ma aruandest räägin? |  | |
+| 1006 | Live scene, they say (report) | Aitäh! Ja kellega ma aruandest räägin? |  | |
+| 1007 | Live scene, they say (away) | Aga kui sind siin ei ole, kellelt ma siis küsin? |  | |
+| 1008 | Live scene, they say (away) | Selge. Ja kellelt ma küsin, kui sind ei ole? |  | |
+| 1009 | Live scene, they say (into) | Aitäh! Ja millest sina huvitud? |  | |
+| 1010 | Live scene, they say (into) | Selge. Aga millest sina vabal ajal huvitud? |  | |
+| 1011 | Live scene, they say (offer) | Tore! Kas ma saan sind ka millegagi aidata? |  | |
+| 1012 | Live scene, they say (offer) | Kas ma saaksin sind ka millegagi aidata? |  | |
+| 1013 | Live scene, they say (close) | Hea meelega! Näeme reedel! |  | |
+| 1014 | Live scene, they say (close) | Hea meelega! Head aega! |  | |
+| 1015 | Live scene, learner may pick (greet) | Muidugi aitan. Tere tulemast! | Of course I'll help. Welcome! | |
+| 1016 | Live scene, learner may pick (greet) | Tere! Muidugi. | Hi! Of course. | |
+| 1017 | Live scene, learner may pick (computer) | Arvutiga aitan sind mina. | I help with computers. | |
+| 1018 | Live scene, learner may pick (computer) | Mina aitan sind. | I'll help you. | |
+| 1019 | Live scene, learner may pick (report) | Räägi ülemusega. | Talk to the boss. | |
+| 1020 | Live scene, learner may pick (report) | Ülemusega. | With the boss. | |
+| 1021 | Live scene, learner may pick (away) | Siis küsi ülemuselt. | Then ask the boss. | |
+| 1022 | Live scene, learner may pick (away) | Ülemuselt. | The boss. | |
+| 1023 | Live scene, learner may pick (into) | Ma huvitun muusikast. | I'm into music. | |
+| 1024 | Live scene, learner may pick (into) | Mulle meeldib ajalugu. | I like history. | |
+| 1025 | Live scene, learner may pick (offer) | Jah! Tule reedel meiega sööma. | Yes! Come and eat with us on Friday. | |
+| 1026 | Live scene, learner may pick (offer) | Jah, aitäh! | Yes, thanks! | |
 
 ### B1: Work and money
 
@@ -1669,360 +1675,360 @@ Russian and Ukrainian.
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 1021 | Conversation, Kadri | Tom, juht otsib sind. Ta küsib, kuidas su projektiga läheb. | Tom, the boss is looking for you. She's asking how your project is going. | |
-| 1022 | Conversation, Tom | Projekt? Aga tähtaeg on alles järgmisel reedel. | The project? But the deadline isn't until next Friday. | |
-| 1023 | Conversation, Kadri | Ei ole. Tähtaeg oli eile. | No, it isn't. The deadline was yesterday. | |
-| 1024 | Conversation, Tom | Eile? Kui ma oleksin seda teadnud, oleksin ma varem alustanud! | Yesterday? If I'd known that, I'd have started earlier! | |
-| 1025 | Conversation, Kadri | Mida sa siis teisiti oleksid teinud? | So what would you have done differently? | |
-| 1026 | Conversation, Tom | Ma oleksin nädalavahetusel töötanud. Ja ma ei oleks iga õhtu jalgpalli vaadanud. | I'd have worked at the weekend. And I wouldn't have watched football every evening. | |
-| 1027 | Conversation, Kadri | Iga õhtu jalgpalli? Sa oleksid pidanud mind kuulama. Ma ju ütlesin sulle esmaspäeval! | Football every evening? You should have listened to me. I told you on Monday! | |
-| 1028 | Conversation, Tom | Tõesti? Ma arvasin, et sa räägid järgmisest nädalast. | Really? I thought you meant next week. | |
-| 1029 | Conversation, Kadri | Mis teha. Mine räägi juhiga ausalt. | Oh well. Go and talk to the boss, and be honest. | |
-| 1030 | Conversation, Tom | Mida ma talle ütlen? Vabandust, oleksin pidanud kalendrit vaatama? | What do I tell her? Sorry, I should have looked at the calendar? | |
-| 1031 | Conversation, Kadri | Just. Ja küsi, kas sa võiksid selle homseks valmis teha. | Exactly. And ask if you could get it done by tomorrow. | |
-| 1032 | Conversation, Tom | Homseks? Siis ma täna üldse ei maga. | By tomorrow? Then I won't sleep at all tonight. | |
-| 1033 | Conversation, Kadri | Ma toon sulle kohvi. Palju kohvi. | I'll bring you coffee. Lots of coffee. | |
-| 1034 | Words (form) | projekti | of the project | |
-| 1035 | Words (form) | oleksin | I would be; with a -nud form, I would have | |
-| 1036 | Words (form) | oleksime | we would be | |
-| 1037 | Words (form) | oleksite | you would be, to more than one or politely | |
-| 1038 | Words (form) | teadnud | known | |
-| 1039 | Words (form) | alustanud | started | |
-| 1040 | Words (form) | töötanud | worked | |
-| 1041 | Words (form) | pidanud | had to; after would, should have | |
-| 1042 | Words (word) | teisiti | differently, another way | |
-| 1043 | Words (form) | jalgpalli | football, watching it | |
-| 1044 | Words (form) | arvasin | I thought, I was thinking | |
-| 1045 | Words (word) | ausalt | honestly | |
-| 1046 | Words (form) | kalendrit | the calendar, looking at it | |
-| 1047 | Words (form) | lõpetasin | I finished | |
-| 1048 | How it works | olema, Ma oleksin varem alustanud | Would have done is two words: a form of {olema} that says would, and the [nud-kesksõna] (-nud, done) of the verb: {Ma oleksin varem alustanud}. | |
-| 1049 | How it works | olema, ma oleksin teinud, nad oleksid teinud | The -nud word never changes. Only the {olema} part says who: {ma oleksin teinud}, {nad oleksid teinud}. | |
-| 1050 | How it works | ei oleks, Ma ei oleks jalgpalli vaadanud | The no is {ei oleks} for everybody: {Ma ei oleks jalgpalli vaadanud}. | |
-| 1051 | How it works | oleksin pidanud, Ma oleksin pidanud kalendrit vaatama | Should have is {oleksin pidanud} and the [ma-tegevusnimi] (-ma): {Ma oleksin pidanud kalendrit vaatama}. | |
-| 1052 | How it works | oleksin, Kui ma oleksin teadnud, oleksin ma tulnud | English says if I had known. Estonian says if I would have known, so both halves of the sentence take {oleksin}: {Kui ma oleksin teadnud, oleksin ma tulnud}. | |
-| 1053 | How it works, table | oleksin teinud | I would have done | |
-| 1054 | How it works, table | oleksid teinud | you would have done | |
-| 1055 | How it works, table | oleks teinud | he or she would have done | |
-| 1056 | How it works, table | oleksime teinud | we would have done | |
-| 1057 | How it works, table | oleksite teinud | you would have done, to more than one | |
-| 1058 | Say it, question | Mida sa oleksid teisiti teinud? | What would you have done differently? | |
-| 1059 | Say it, model answer | Ma oleksin varem alustanud. | I'd have started earlier. | |
-| 1060 | Say it, model answer | Kui ma oleksin teadnud, oleksin ma tulnud. | If I'd known, I'd have come. | |
-| 1061 | Say it, model answer | Ma oleksin pidanud kalendrit vaatama. | I should have looked at the calendar. | |
-| 1062 | Say it, question | Kas sa töötasid nädalavahetusel? | Did you work at the weekend? | |
-| 1063 | Say it, model answer | Ei, aga ma oleksin töötanud, kui ma oleksin teadnud. | No, but I would have if I'd known. | |
+| 1027 | Conversation, Kadri | Tom, juht otsib sind. Ta küsib, kuidas su projektiga läheb. | Tom, the boss is looking for you. She's asking how your project is going. | |
+| 1028 | Conversation, Tom | Projekt? Aga tähtaeg on alles järgmisel reedel. | The project? But the deadline isn't until next Friday. | |
+| 1029 | Conversation, Kadri | Ei ole. Tähtaeg oli eile. | No, it isn't. The deadline was yesterday. | |
+| 1030 | Conversation, Tom | Eile? Kui ma oleksin seda teadnud, oleksin ma varem alustanud! | Yesterday? If I'd known that, I'd have started earlier! | |
+| 1031 | Conversation, Kadri | Mida sa siis teisiti oleksid teinud? | So what would you have done differently? | |
+| 1032 | Conversation, Tom | Ma oleksin nädalavahetusel töötanud. Ja ma ei oleks iga õhtu jalgpalli vaadanud. | I'd have worked at the weekend. And I wouldn't have watched football every evening. | |
+| 1033 | Conversation, Kadri | Iga õhtu jalgpalli? Sa oleksid pidanud mind kuulama. Ma ju ütlesin sulle esmaspäeval! | Football every evening? You should have listened to me. I told you on Monday! | |
+| 1034 | Conversation, Tom | Tõesti? Ma arvasin, et sa räägid järgmisest nädalast. | Really? I thought you meant next week. | |
+| 1035 | Conversation, Kadri | Mis teha. Mine räägi juhiga ausalt. | Oh well. Go and talk to the boss, and be honest. | |
+| 1036 | Conversation, Tom | Mida ma talle ütlen? Vabandust, oleksin pidanud kalendrit vaatama? | What do I tell her? Sorry, I should have looked at the calendar? | |
+| 1037 | Conversation, Kadri | Just. Ja küsi, kas sa võiksid selle homseks valmis teha. | Exactly. And ask if you could get it done by tomorrow. | |
+| 1038 | Conversation, Tom | Homseks? Siis ma täna üldse ei maga. | By tomorrow? Then I won't sleep at all tonight. | |
+| 1039 | Conversation, Kadri | Ma toon sulle kohvi. Palju kohvi. | I'll bring you coffee. Lots of coffee. | |
+| 1040 | Words (form) | projekti | of the project | |
+| 1041 | Words (form) | oleksin | I would be; with a -nud form, I would have | |
+| 1042 | Words (form) | oleksime | we would be | |
+| 1043 | Words (form) | oleksite | you would be, to more than one or politely | |
+| 1044 | Words (form) | teadnud | known | |
+| 1045 | Words (form) | alustanud | started | |
+| 1046 | Words (form) | töötanud | worked | |
+| 1047 | Words (form) | pidanud | had to; after would, should have | |
+| 1048 | Words (word) | teisiti | differently, another way | |
+| 1049 | Words (form) | jalgpalli | football, watching it | |
+| 1050 | Words (form) | arvasin | I thought, I was thinking | |
+| 1051 | Words (word) | ausalt | honestly | |
+| 1052 | Words (form) | kalendrit | the calendar, looking at it | |
+| 1053 | Words (form) | lõpetasin | I finished | |
+| 1054 | How it works | olema, Ma oleksin varem alustanud | Would have done is two words: a form of {olema} that says would, and the [nud-kesksõna] (-nud, done) of the verb: {Ma oleksin varem alustanud}. | |
+| 1055 | How it works | olema, ma oleksin teinud, nad oleksid teinud | The -nud word never changes. Only the {olema} part says who: {ma oleksin teinud}, {nad oleksid teinud}. | |
+| 1056 | How it works | ei oleks, Ma ei oleks jalgpalli vaadanud | The no is {ei oleks} for everybody: {Ma ei oleks jalgpalli vaadanud}. | |
+| 1057 | How it works | oleksin pidanud, Ma oleksin pidanud kalendrit vaatama | Should have is {oleksin pidanud} and the [ma-tegevusnimi] (-ma): {Ma oleksin pidanud kalendrit vaatama}. | |
+| 1058 | How it works | oleksin, Kui ma oleksin teadnud, oleksin ma tulnud | English says if I had known. Estonian says if I would have known, so both halves of the sentence take {oleksin}: {Kui ma oleksin teadnud, oleksin ma tulnud}. | |
+| 1059 | How it works, table | oleksin teinud | I would have done | |
+| 1060 | How it works, table | oleksid teinud | you would have done | |
+| 1061 | How it works, table | oleks teinud | he or she would have done | |
+| 1062 | How it works, table | oleksime teinud | we would have done | |
+| 1063 | How it works, table | oleksite teinud | you would have done, to more than one | |
+| 1064 | Say it, question | Mida sa oleksid teisiti teinud? | What would you have done differently? | |
+| 1065 | Say it, model answer | Ma oleksin varem alustanud. | I'd have started earlier. | |
+| 1066 | Say it, model answer | Kui ma oleksin teadnud, oleksin ma tulnud. | If I'd known, I'd have come. | |
+| 1067 | Say it, model answer | Ma oleksin pidanud kalendrit vaatama. | I should have looked at the calendar. | |
+| 1068 | Say it, question | Kas sa töötasid nädalavahetusel? | Did you work at the weekend? | |
+| 1069 | Say it, model answer | Ei, aga ma oleksin töötanud, kui ma oleksin teadnud. | No, but I would have if I'd known. | |
 
 #### B1 16. Working as, becoming (`b1-16-as`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 1064 | Conversation, Kristi | Tere hommikust! Meil on täna meeskonnas uus inimene: Siim. | Good morning! We have somebody new in the team today: Siim. | |
-| 1065 | Conversation, Kristi | Siim alustab meil praktikandina, aga ta tahab saada heaks arendajaks. | Siim is starting with us as an intern, but he wants to become a good developer. | |
-| 1066 | Conversation, Kristi | Akna juures istub Marko. Ta töötab meil arendajana. | By the window is Marko. He works here as a developer. | |
-| 1067 | Conversation, Kristi | Marko on siin töötanud kaks aastat. Enne töötas ta kokana. Tema supp oli kõige parem! | Marko has worked here for two years. Before that he worked as a cook. His soup was the best! | |
-| 1068 | Conversation, Kristi | Nii et kokk sai arendajaks! | So a cook became a developer! | |
-| 1069 | Conversation, Kristi | Tom töötab meil programmeerijana. Ta on pärit Inglismaalt. | Tom works here as a programmer. He's from England. | |
-| 1070 | Conversation, Kristi | Kadri tuli meile eelmisel kuul. Ta istub ukse juures. | Kadri joined us last month. She sits by the door. | |
-| 1071 | Conversation, Kristi | Ja mina? Mina alustasin siin ka praktikandina. Ma tegin rohkem kohvi kui koodi. | And me? I started here as an intern too. I made more coffee than code. | |
-| 1072 | Conversation, Kristi | Nüüd olen ma projektijuht. | Now I'm a project manager. | |
-| 1073 | Conversation, Kristi | Ja eelmisel nädalal valiti mind ka korteriühistu esimeheks. Nüüd helistavad mulle kõik naabrid. | And last week I was elected chair of my apartment association too. Now all the neighbors call me. | |
-| 1074 | Conversation, Kristi | Palju õnne? Ei, pigem jõudu! | Congratulations? No, good luck, more like! | |
-| 1075 | Conversation, Kristi | Siim, jõudu ka sulle! Siin on kõik võimalik. | Good luck to you too, Siim! Anything is possible here. | |
-| 1076 | Words (word) | arendaja | developer | |
-| 1077 | Words (form) | arendaja | a developer's, of a developer | |
-| 1078 | Words (form) | eelmise | of the last one, of the previous one | |
-| 1079 | Words (form) | valiti | was chosen, was elected; learn it as one word for now | |
-| 1080 | Words (form) | meeskonna | the team's, of the team | |
-| 1081 | Words (form) | alustasin | I started | |
-| 1082 | Words (form) | alustas | she started, he started | |
-| 1083 | Words (word) | praktikant | intern, trainee | |
-| 1084 | Words (form) | praktikandi | an intern's, of an intern | |
-| 1085 | Words (form) | koodi | code, some of it | |
-| 1086 | Words (word) | projektijuht | project manager | |
-| 1087 | Words (word) | korteriühistu | apartment association, the residents who run a block | |
-| 1088 | Words (word) | esimees | chair, chairperson | |
-| 1089 | Words (form) | esimehe | the chair's, of the chair | |
-| 1090 | Words (form) | naabrid | the neighbors | |
-| 1091 | Words (word) | pigem | rather, more like | |
-| 1092 | Words (phrase) | Jõudu! | Good luck! Strength to you! | |
-| 1093 | Words (word) | lihtsalt | just, simply | |
-| 1094 | How it works | Ta töötab arendajana, Kokk sai arendajaks | You met -na and -ks in A2, and work is where you'll use them most. What you are for now takes -na, [olev] (-na, as): {Ta töötab arendajana}. What you turn into takes -ks, [saav] (-ks, becoming): {Kokk sai arendajaks}. | |
-| 1095 | How it works | Saama, sai juhiks, Valiti, valiti juhiks, valiti | {Saama} with -ks is to become: {sai juhiks}. {Valiti} means was chosen, and it takes -ks too: {valiti juhiks}. Learn {valiti} as one word for now; lesson 30 shows how it's made. | |
-| 1096 | How it works | heaks arendajaks | A word in front takes the ending too: {heaks arendajaks}, a good developer. | |
-| 1097 | How it works | kellena?, kelleks? | The questions are {kellena?}, as what, and {kelleks?}, into what. | |
-| 1098 | How it works, table | Ta töötab arendajana. | He works as a developer., -na, as | |
-| 1099 | How it works, table | Ma alustasin praktikandina. | I started as an intern., -na, as | |
-| 1100 | How it works, table | Kokk sai arendajaks. | The cook became a developer., -ks, becoming | |
-| 1101 | How it works, table | Mind valiti esimeheks. | I was elected chair., -ks, becoming | |
-| 1102 | Say it, model answer | Ma töötan arendajana. | I work as a developer. | |
-| 1103 | Say it, question | Kellena sa alustasid? | What did you start as? | |
-| 1104 | Say it, model answer | Ma alustasin praktikandina. | I started as an intern. | |
-| 1105 | Say it, question | Kelleks sa tahaksid saada? | What would you like to become? | |
-| 1106 | Say it, model answer | Ma tahaksin saada meeskonna juhiks. | I'd like to become the team lead. | |
-| 1107 | Say it, model answer | Kristi valiti esimeheks. | Kristi was elected chair. | |
+| 1070 | Conversation, Kristi | Tere hommikust! Meil on täna meeskonnas uus inimene: Siim. | Good morning! We have somebody new in the team today: Siim. | |
+| 1071 | Conversation, Kristi | Siim alustab meil praktikandina, aga ta tahab saada heaks arendajaks. | Siim is starting with us as an intern, but he wants to become a good developer. | |
+| 1072 | Conversation, Kristi | Akna juures istub Marko. Ta töötab meil arendajana. | By the window is Marko. He works here as a developer. | |
+| 1073 | Conversation, Kristi | Marko on siin töötanud kaks aastat. Enne töötas ta kokana. Tema supp oli kõige parem! | Marko has worked here for two years. Before that he worked as a cook. His soup was the best! | |
+| 1074 | Conversation, Kristi | Nii et kokk sai arendajaks! | So a cook became a developer! | |
+| 1075 | Conversation, Kristi | Tom töötab meil programmeerijana. Ta on pärit Inglismaalt. | Tom works here as a programmer. He's from England. | |
+| 1076 | Conversation, Kristi | Kadri tuli meile eelmisel kuul. Ta istub ukse juures. | Kadri joined us last month. She sits by the door. | |
+| 1077 | Conversation, Kristi | Ja mina? Mina alustasin siin ka praktikandina. Ma tegin rohkem kohvi kui koodi. | And me? I started here as an intern too. I made more coffee than code. | |
+| 1078 | Conversation, Kristi | Nüüd olen ma projektijuht. | Now I'm a project manager. | |
+| 1079 | Conversation, Kristi | Ja eelmisel nädalal valiti mind ka korteriühistu esimeheks. Nüüd helistavad mulle kõik naabrid. | And last week I was elected chair of my apartment association too. Now all the neighbors call me. | |
+| 1080 | Conversation, Kristi | Palju õnne? Ei, pigem jõudu! | Congratulations? No, good luck, more like! | |
+| 1081 | Conversation, Kristi | Siim, jõudu ka sulle! Siin on kõik võimalik. | Good luck to you too, Siim! Anything is possible here. | |
+| 1082 | Words (word) | arendaja | developer | |
+| 1083 | Words (form) | arendaja | a developer's, of a developer | |
+| 1084 | Words (form) | eelmise | of the last one, of the previous one | |
+| 1085 | Words (form) | valiti | was chosen, was elected; learn it as one word for now | |
+| 1086 | Words (form) | meeskonna | the team's, of the team | |
+| 1087 | Words (form) | alustasin | I started | |
+| 1088 | Words (form) | alustas | she started, he started | |
+| 1089 | Words (word) | praktikant | intern, trainee | |
+| 1090 | Words (form) | praktikandi | an intern's, of an intern | |
+| 1091 | Words (form) | koodi | code, some of it | |
+| 1092 | Words (word) | projektijuht | project manager | |
+| 1093 | Words (word) | korteriühistu | apartment association, the residents who run a block | |
+| 1094 | Words (word) | esimees | chair, chairperson | |
+| 1095 | Words (form) | esimehe | the chair's, of the chair | |
+| 1096 | Words (form) | naabrid | the neighbors | |
+| 1097 | Words (word) | pigem | rather, more like | |
+| 1098 | Words (phrase) | Jõudu! | Good luck! Strength to you! | |
+| 1099 | Words (word) | lihtsalt | just, simply | |
+| 1100 | How it works | Ta töötab arendajana, Kokk sai arendajaks | You met -na and -ks in A2, and work is where you'll use them most. What you are for now takes -na, [olev] (-na, as): {Ta töötab arendajana}. What you turn into takes -ks, [saav] (-ks, becoming): {Kokk sai arendajaks}. | |
+| 1101 | How it works | Saama, sai juhiks, Valiti, valiti juhiks, valiti | {Saama} with -ks is to become: {sai juhiks}. {Valiti} means was chosen, and it takes -ks too: {valiti juhiks}. Learn {valiti} as one word for now; lesson 30 shows how it's made. | |
+| 1102 | How it works | heaks arendajaks | A word in front takes the ending too: {heaks arendajaks}, a good developer. | |
+| 1103 | How it works | kellena?, kelleks? | The questions are {kellena?}, as what, and {kelleks?}, into what. | |
+| 1104 | How it works, table | Ta töötab arendajana. | He works as a developer., -na, as | |
+| 1105 | How it works, table | Ma alustasin praktikandina. | I started as an intern., -na, as | |
+| 1106 | How it works, table | Kokk sai arendajaks. | The cook became a developer., -ks, becoming | |
+| 1107 | How it works, table | Mind valiti esimeheks. | I was elected chair., -ks, becoming | |
+| 1108 | Say it, model answer | Ma töötan arendajana. | I work as a developer. | |
+| 1109 | Say it, question | Kellena sa alustasid? | What did you start as? | |
+| 1110 | Say it, model answer | Ma alustasin praktikandina. | I started as an intern. | |
+| 1111 | Say it, question | Kelleks sa tahaksid saada? | What would you like to become? | |
+| 1112 | Say it, model answer | Ma tahaksin saada meeskonna juhiks. | I'd like to become the team lead. | |
+| 1113 | Say it, model answer | Kristi valiti esimeheks. | Kristi was elected chair. | |
 
 #### B1 17. Could I possibly... (`b1-17-could-i`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 1108 | Conversation, Tom | Kristi, kas sul oleks hetk aega? | Kristi, would you have a moment? | |
-| 1109 | Conversation, Kristi | Muidugi. Mis on? | Of course. What is it? | |
-| 1110 | Conversation, Tom | Ma tahaksin paluda uut arvutit. Mu vana arvuti on väga aeglane. | I'd like to ask for a new computer. My old one is very slow. | |
-| 1111 | Conversation, Kristi | Kui aeglane? | How slow? | |
-| 1112 | Conversation, Tom | Nii aeglane, et ma jõuan vahepeal kohvi juua. | So slow that I have time to drink a coffee while I wait. | |
-| 1113 | Conversation, Kristi | Hästi, ma tellin sulle uue. | All right, I'll order you a new one. | |
-| 1114 | Conversation, Tom | Aitäh! Ja kas ma võiksin reedel kodus töötada? Mu naisel on sünnipäev. | Thank you! And could I work from home on Friday? It's my wife's birthday. | |
-| 1115 | Conversation, Kristi | Võid küll. Aga kas sa saaksid mind siis ühes asjas aidata? | Sure you can. But could you help me with something, then? | |
-| 1116 | Conversation, Tom | Muidugi. Millega? | Of course. With what? | |
-| 1117 | Conversation, Kristi | Siim alles alustas. Kas sa võiksid talle meie süsteemi näidata? | Siim has only just started. Could you show him our system? | |
-| 1118 | Conversation, Tom | Hea meelega. Ma võiksin talle ka lõuna välja teha. Esimene nädal on ju alati raske. | Gladly. I could buy him lunch too. The first week is always hard. | |
-| 1119 | Conversation, Kristi | Tore. Ja veel üks palve: kas sa saaksid esmaspäeval koosolekul natuke rääkida? | Great. And one more favor: could you say a few words at the meeting on Monday? | |
-| 1120 | Conversation, Tom | Eesti keeles? | In Estonian? | |
-| 1121 | Conversation, Kristi | Muidugi eesti keeles. Sa ju õpid! | In Estonian, of course. You're learning it, after all! | |
-| 1122 | Words (form) | paluda | to ask for, after would like | |
-| 1123 | Words (form) | palus | she asked for, he asked for | |
-| 1124 | Words (form) | arvutit | a computer, as an object | |
-| 1125 | Words (form) | asja | of the thing | |
-| 1126 | Words (form) | süsteemi | of the system | |
-| 1127 | Words (form) | näidata | to show, after could or can | |
-| 1128 | Words (verb, I form) | pakun | I offer | |
-| 1129 | Words (form) | pakkuda | to offer, after can | |
-| 1130 | Words (form) | lõunat | lunch, some of it | |
-| 1131 | Words (form) | lõuna | lunch, the whole meal; {lõuna välja tegema}, to buy somebody lunch | |
-| 1132 | Words (form) | koosoleku | of the meeting | |
-| 1133 | Words (form) | küsisin | I asked | |
-| 1134 | Words (verb) | lubama | to allow, to promise | |
-| 1135 | Words (verb, I form) | luban | I allow | |
-| 1136 | Words (form) | lubas | she allowed, he promised | |
-| 1137 | Words (form) | julgenud | dared, after {ei} | |
-| 1138 | How it works | Kas ma võiksin...?, Kas sa saaksid...?, Ma tahaksin paluda... | The [tingiv kõneviis] (-ks, would) makes a request soft: {Kas ma võiksin...?} is could I...?, {Kas sa saaksid...?} is could you...?, and {Ma tahaksin paluda...} is I'd like to ask for... | |
-| 1139 | How it works | Võiksin, saaksid | {Võiksin} is may I, could I, and {saaksid} is could you. Both are fine with the boss and with anybody else. | |
-| 1140 | How it works | paluda uut arvutit, Ma tellin sulle uue | Asking for something takes the [osastav] (3rd form): {paluda uut arvutit}. The boss ordering the whole thing is the [omastav] (2nd form): {Ma tellin sulle uue}. | |
-| 1141 | How it works | Küll, Võid küll | {Küll} after a yes makes it warm and sure: {Võid küll}, sure you can. | |
-| 1142 | How it works | Ma tahan, Ma tahaksin | To your boss, {Ma tahan} sounds blunt. {Ma tahaksin} is the polite way to ask. | |
-| 1143 | How it works, table | Kas ma võiksin reedel kodus töötada? | Could I work from home on Friday?, asking to do something | |
-| 1144 | How it works, table | Ma tahaksin paluda uut arvutit. | I'd like to ask for a new computer., asking for a thing | |
-| 1145 | How it works, table | Ma pakuksin talle lõunat. | I'd offer him lunch., offering | |
-| 1146 | Say it, model answer | Kas ma võiksin reedel kodus töötada? | Could I work from home on Friday? | |
-| 1147 | Say it, model answer | Ma tahaksin paluda uut arvutit. | I'd like to ask for a new computer. | |
-| 1148 | Say it, model answer | Hea meelega. Millega? | Gladly. With what? | |
+| 1114 | Conversation, Tom | Kristi, kas sul oleks hetk aega? | Kristi, would you have a moment? | |
+| 1115 | Conversation, Kristi | Muidugi. Mis on? | Of course. What is it? | |
+| 1116 | Conversation, Tom | Ma tahaksin paluda uut arvutit. Mu vana arvuti on väga aeglane. | I'd like to ask for a new computer. My old one is very slow. | |
+| 1117 | Conversation, Kristi | Kui aeglane? | How slow? | |
+| 1118 | Conversation, Tom | Nii aeglane, et ma jõuan vahepeal kohvi juua. | So slow that I have time to drink a coffee while I wait. | |
+| 1119 | Conversation, Kristi | Hästi, ma tellin sulle uue. | All right, I'll order you a new one. | |
+| 1120 | Conversation, Tom | Aitäh! Ja kas ma võiksin reedel kodus töötada? Mu naisel on sünnipäev. | Thank you! And could I work from home on Friday? It's my wife's birthday. | |
+| 1121 | Conversation, Kristi | Võid küll. Aga kas sa saaksid mind siis ühes asjas aidata? | Sure you can. But could you help me with something, then? | |
+| 1122 | Conversation, Tom | Muidugi. Millega? | Of course. With what? | |
+| 1123 | Conversation, Kristi | Siim alles alustas. Kas sa võiksid talle meie süsteemi näidata? | Siim has only just started. Could you show him our system? | |
+| 1124 | Conversation, Tom | Hea meelega. Ma võiksin talle ka lõuna välja teha. Esimene nädal on ju alati raske. | Gladly. I could buy him lunch too. The first week is always hard. | |
+| 1125 | Conversation, Kristi | Tore. Ja veel üks palve: kas sa saaksid esmaspäeval koosolekul natuke rääkida? | Great. And one more favor: could you say a few words at the meeting on Monday? | |
+| 1126 | Conversation, Tom | Eesti keeles? | In Estonian? | |
+| 1127 | Conversation, Kristi | Muidugi eesti keeles. Sa ju õpid! | In Estonian, of course. You're learning it, after all! | |
+| 1128 | Words (form) | paluda | to ask for, after would like | |
+| 1129 | Words (form) | palus | she asked for, he asked for | |
+| 1130 | Words (form) | arvutit | a computer, as an object | |
+| 1131 | Words (form) | asja | of the thing | |
+| 1132 | Words (form) | süsteemi | of the system | |
+| 1133 | Words (form) | näidata | to show, after could or can | |
+| 1134 | Words (verb, I form) | pakun | I offer | |
+| 1135 | Words (form) | pakkuda | to offer, after can | |
+| 1136 | Words (form) | lõunat | lunch, some of it | |
+| 1137 | Words (form) | lõuna | lunch, the whole meal; {lõuna välja tegema}, to buy somebody lunch | |
+| 1138 | Words (form) | koosoleku | of the meeting | |
+| 1139 | Words (form) | küsisin | I asked | |
+| 1140 | Words (verb) | lubama | to allow, to promise | |
+| 1141 | Words (verb, I form) | luban | I allow | |
+| 1142 | Words (form) | lubas | she allowed, he promised | |
+| 1143 | Words (form) | julgenud | dared, after {ei} | |
+| 1144 | How it works | Kas ma võiksin...?, Kas sa saaksid...?, Ma tahaksin paluda... | The [tingiv kõneviis] (-ks, would) makes a request soft: {Kas ma võiksin...?} is could I...?, {Kas sa saaksid...?} is could you...?, and {Ma tahaksin paluda...} is I'd like to ask for... | |
+| 1145 | How it works | Võiksin, saaksid | {Võiksin} is may I, could I, and {saaksid} is could you. Both are fine with the boss and with anybody else. | |
+| 1146 | How it works | paluda uut arvutit, Ma tellin sulle uue | Asking for something takes the [osastav] (3rd form): {paluda uut arvutit}. The boss ordering the whole thing is the [omastav] (2nd form): {Ma tellin sulle uue}. | |
+| 1147 | How it works | Küll, Võid küll | {Küll} after a yes makes it warm and sure: {Võid küll}, sure you can. | |
+| 1148 | How it works | Ma tahan, Ma tahaksin | To your boss, {Ma tahan} sounds blunt. {Ma tahaksin} is the polite way to ask. | |
+| 1149 | How it works, table | Kas ma võiksin reedel kodus töötada? | Could I work from home on Friday?, asking to do something | |
+| 1150 | How it works, table | Ma tahaksin paluda uut arvutit. | I'd like to ask for a new computer., asking for a thing | |
+| 1151 | How it works, table | Ma pakuksin talle lõunat. | I'd offer him lunch., offering | |
+| 1152 | Say it, model answer | Kas ma võiksin reedel kodus töötada? | Could I work from home on Friday? | |
+| 1153 | Say it, model answer | Ma tahaksin paluda uut arvutit. | I'd like to ask for a new computer. | |
+| 1154 | Say it, model answer | Hea meelega. Millega? | Gladly. With what? | |
 
 #### B1 18. Payday (`b1-18-payday`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 1149 | Conversation, Tom | Anna, vaata! Palk tuli kontole! | Anna, look! My pay has come in! | |
-| 1150 | Conversation, Anna | Tore! Mida sa ostad? | Nice! What are you going to buy? | |
-| 1151 | Conversation, Tom | Oota. Miks see nii väike on? Lepingus on ju suurem summa. | Wait. Why is it so small? The contract says a bigger amount. | |
-| 1152 | Conversation, Anna | Lepingus on palk enne makse. Kontole tuleb palk pärast makse. | The contract has your pay before tax. What comes into your account is the pay after tax. | |
-| 1153 | Conversation, Tom | Ausalt öeldes ma ei tea, mis maksud need on. | Honestly, I don't know what taxes they are. | |
-| 1154 | Conversation, Anna | Tulumaks ja pensionifond. Kokku umbes veerand. | Income tax and the pension fund. About a quarter altogether. | |
-| 1155 | Conversation, Tom | Veerand? See on kakskümmend viis protsenti! See pole õiglane. Ma tahtsin uue jalgratta osta. | A quarter? That's twenty-five percent! That's not fair. I wanted to buy a new bike. | |
-| 1156 | Conversation, Anna | Kõigepealt maksad üüri ja arved. Siis vaatad, mis üle jääb. | First you pay the rent and the bills. Then you see what's left over. | |
-| 1157 | Conversation, Tom | Üür, telefon, toit. Kulusid on ikka palju. | Rent, phone, food. There are a lot of costs. | |
-| 1158 | Conversation, Anna | Ja kui sa iga kuu natuke säästad, saad suvel Saaremaale minna. | And if you save a little every month, you can go to Saaremaa in the summer. | |
-| 1159 | Conversation, Tom | Säästa on raske. Ma ostsin eile jälle kolm raamatut. | Saving is hard. I bought three books again yesterday. | |
-| 1160 | Conversation, Anna | Tee teine konto ja pane sinna iga kuu sada eurot. Siis sa seda raha ei näe. | Open a second account and put a hundred euros in it every month. Then you won't see that money. | |
-| 1161 | Conversation, Tom | Hea plaan. Kui ma raha ei näe, siis ma seda ka ei kuluta! | Good plan. If I don't see the money, I won't spend it either! | |
-| 1162 | Words (form) | lepingu | of the contract | |
-| 1163 | Words (word) | summa | amount, sum | |
-| 1164 | Words (form) | maksud | taxes | |
-| 1165 | Words (form) | makse | taxes, after before or after | |
-| 1166 | Words (phrase) | Ausalt öeldes | honestly speaking, frankly | |
-| 1167 | Words (word) | tulumaks | income tax | |
-| 1168 | Words (word) | pensionifond | pension fund | |
-| 1169 | Words (form) | protsenti | percent, after a number | |
-| 1170 | Words (word) | õiglane | fair, just | |
-| 1171 | Words (form) | jalgratta | a bike, the whole of it | |
-| 1172 | Words (form) | üüri | the rent, as an object | |
-| 1173 | Words (form) | arved | the bills | |
-| 1174 | Words (form) | arveid | bills, some of them | |
-| 1175 | Words (word) | üle | over; with {jääma}, left over | |
-| 1176 | Words (form) | kulusid | costs, after many | |
-| 1177 | Words (verb) | säästma | to save, money or time | |
-| 1178 | Words (verb, I form) | säästan | I save | |
-| 1179 | Words (form) | säästa | to save, after can or hard | |
-| 1180 | Words (verb) | kulutama | to spend | |
-| 1181 | Words (verb, I form) | kulutan | I spend | |
-| 1182 | How it works | enne, pärast, palk enne makse, palk pärast makse | Before and after a thing are {enne} and {pärast} with the [osastav] (3rd form) behind them: {palk enne makse}, {palk pärast makse}. | |
-| 1183 | How it works | Maks, maksma, maksud, enne, pärast, makse | {Maks} is a tax and {maksma} is to pay, the same root. More than one tax is {maksud}, and after {enne} or {pärast} it's {makse}. | |
-| 1184 | How it works | Üle jääma, mis üle jääb | {Üle jääma} is to be left over: {mis üle jääb}, whatever is left. | |
-| 1185 | How it works | Arve, Arved | {Arve} is a bill at home and an invoice at work. {Arved} is more than one. | |
-| 1186 | How it works | Palk, raha, Mul ei ole raha | {Palk} is your pay. Money in general is {raha}: {Mul ei ole raha}. | |
-| 1187 | How it works, table | palk enne makse | pay before tax | |
-| 1188 | How it works, table | palk pärast makse | pay after tax | |
-| 1189 | How it works, table | Ma maksan üüri ja arved. | I pay the rent and the bills. | |
-| 1190 | How it works, table | Ma säästan iga kuu natuke. | I save a little every month. | |
-| 1191 | Say it, model answer | Palk tuli kontole. | My pay has come into my account. | |
-| 1192 | Say it, model answer | Kõigepealt maksan üüri ja arved. | First I pay the rent and the bills. | |
-| 1193 | Say it, question | Kas sa säästad? | Do you save? | |
-| 1194 | Say it, model answer | Jah, iga kuu natuke. | Yes, a little every month. | |
-| 1195 | Say it, model answer | Palk enne makse on suurem. | The pay before tax is bigger. | |
+| 1155 | Conversation, Tom | Anna, vaata! Palk tuli kontole! | Anna, look! My pay has come in! | |
+| 1156 | Conversation, Anna | Tore! Mida sa ostad? | Nice! What are you going to buy? | |
+| 1157 | Conversation, Tom | Oota. Miks see nii väike on? Lepingus on ju suurem summa. | Wait. Why is it so small? The contract says a bigger amount. | |
+| 1158 | Conversation, Anna | Lepingus on palk enne makse. Kontole tuleb palk pärast makse. | The contract has your pay before tax. What comes into your account is the pay after tax. | |
+| 1159 | Conversation, Tom | Ausalt öeldes ma ei tea, mis maksud need on. | Honestly, I don't know what taxes they are. | |
+| 1160 | Conversation, Anna | Tulumaks ja pensionifond. Kokku umbes veerand. | Income tax and the pension fund. About a quarter altogether. | |
+| 1161 | Conversation, Tom | Veerand? See on kakskümmend viis protsenti! See pole õiglane. Ma tahtsin uue jalgratta osta. | A quarter? That's twenty-five percent! That's not fair. I wanted to buy a new bike. | |
+| 1162 | Conversation, Anna | Kõigepealt maksad üüri ja arved. Siis vaatad, mis üle jääb. | First you pay the rent and the bills. Then you see what's left over. | |
+| 1163 | Conversation, Tom | Üür, telefon, toit. Kulusid on ikka palju. | Rent, phone, food. There are a lot of costs. | |
+| 1164 | Conversation, Anna | Ja kui sa iga kuu natuke säästad, saad suvel Saaremaale minna. | And if you save a little every month, you can go to Saaremaa in the summer. | |
+| 1165 | Conversation, Tom | Säästa on raske. Ma ostsin eile jälle kolm raamatut. | Saving is hard. I bought three books again yesterday. | |
+| 1166 | Conversation, Anna | Tee teine konto ja pane sinna iga kuu sada eurot. Siis sa seda raha ei näe. | Open a second account and put a hundred euros in it every month. Then you won't see that money. | |
+| 1167 | Conversation, Tom | Hea plaan. Kui ma raha ei näe, siis ma seda ka ei kuluta! | Good plan. If I don't see the money, I won't spend it either! | |
+| 1168 | Words (form) | lepingu | of the contract | |
+| 1169 | Words (word) | summa | amount, sum | |
+| 1170 | Words (form) | maksud | taxes | |
+| 1171 | Words (form) | makse | taxes, after before or after | |
+| 1172 | Words (phrase) | Ausalt öeldes | honestly speaking, frankly | |
+| 1173 | Words (word) | tulumaks | income tax | |
+| 1174 | Words (word) | pensionifond | pension fund | |
+| 1175 | Words (form) | protsenti | percent, after a number | |
+| 1176 | Words (word) | õiglane | fair, just | |
+| 1177 | Words (form) | jalgratta | a bike, the whole of it | |
+| 1178 | Words (form) | üüri | the rent, as an object | |
+| 1179 | Words (form) | arved | the bills | |
+| 1180 | Words (form) | arveid | bills, some of them | |
+| 1181 | Words (word) | üle | over; with {jääma}, left over | |
+| 1182 | Words (form) | kulusid | costs, after many | |
+| 1183 | Words (verb) | säästma | to save, money or time | |
+| 1184 | Words (verb, I form) | säästan | I save | |
+| 1185 | Words (form) | säästa | to save, after can or hard | |
+| 1186 | Words (verb) | kulutama | to spend | |
+| 1187 | Words (verb, I form) | kulutan | I spend | |
+| 1188 | How it works | enne, pärast, palk enne makse, palk pärast makse | Before and after a thing are {enne} and {pärast} with the [osastav] (3rd form) behind them: {palk enne makse}, {palk pärast makse}. | |
+| 1189 | How it works | Maks, maksma, maksud, enne, pärast, makse | {Maks} is a tax and {maksma} is to pay, the same root. More than one tax is {maksud}, and after {enne} or {pärast} it's {makse}. | |
+| 1190 | How it works | Üle jääma, mis üle jääb | {Üle jääma} is to be left over: {mis üle jääb}, whatever is left. | |
+| 1191 | How it works | Arve, Arved | {Arve} is a bill at home and an invoice at work. {Arved} is more than one. | |
+| 1192 | How it works | Palk, raha, Mul ei ole raha | {Palk} is your pay. Money in general is {raha}: {Mul ei ole raha}. | |
+| 1193 | How it works, table | palk enne makse | pay before tax | |
+| 1194 | How it works, table | palk pärast makse | pay after tax | |
+| 1195 | How it works, table | Ma maksan üüri ja arved. | I pay the rent and the bills. | |
+| 1196 | How it works, table | Ma säästan iga kuu natuke. | I save a little every month. | |
+| 1197 | Say it, model answer | Palk tuli kontole. | My pay has come into my account. | |
+| 1198 | Say it, model answer | Kõigepealt maksan üüri ja arved. | First I pay the rent and the bills. | |
+| 1199 | Say it, question | Kas sa säästad? | Do you save? | |
+| 1200 | Say it, model answer | Jah, iga kuu natuke. | Yes, a little every month. | |
+| 1201 | Say it, model answer | Palk enne makse on suurem. | The pay before tax is bigger. | |
 
 #### B1 19. Swapping a shift (`b1-19-shift`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 1196 | Conversation, Mari | Liis, kas sa saaksid laupäeval mu vahetuse üle võtta? | Liis, could you take my shift on Saturday? | |
-| 1197 | Conversation, Liis | Laupäeval? Mis toimub? | On Saturday? What's going on? | |
-| 1198 | Conversation, Mari | Mu õde abiellub! Ta ütles mulle alles eile. | My sister's getting married! She only told me yesterday. | |
-| 1199 | Conversation, Liis | Oi! Aga graafik on juba valmis. Ma olen sel nädalal kuus päeva tööl, vaba on ainult laupäev. | Oh! But the rota's already done. I'm at work six days this week, and only Saturday is free. | |
-| 1200 | Conversation, Mari | Ma tean. Sa oled nii palju ületunde teinud. | I know. You've done so much overtime. | |
-| 1201 | Conversation, Liis | Kuusteist tundi sel kuul! Ma oleksin pidanud ammu puhkusele minema. | Sixteen hours this month! I should have gone on holiday long ago. | |
-| 1202 | Conversation, Mari | Aga kui mina võtan sinu pühapäeva ja esmaspäeva vahetused? Siis on sul kaks vaba päeva järjest. | But what if I take your Sunday and Monday shifts? Then you'll have two days off in a row. | |
-| 1203 | Conversation, Liis | Kaks vaba päeva? See kõlab hästi, aga ma ei tea. | Two days off? That sounds good, but I'm not sure. | |
-| 1204 | Conversation, Mari | Ma aitasin sind ju eelmisel kuul ka! Ja ma toon sulle pulmast torti. | I helped you last month too! And I'll bring you some cake from the wedding. | |
-| 1205 | Conversation, Liis | Kaks tükki. Ja ma pean juhilt luba küsima. | Two pieces. And I have to ask the boss for permission. | |
-| 1206 | Conversation, Mari | Juht on nõus. Ma juba küsisin. | The boss says yes. I already asked. | |
-| 1207 | Conversation, Liis | Sa küsisid juhilt enne kui minult? Sa oled ikka uskumatu! | You asked the boss before you asked me? You really are unbelievable! | |
-| 1208 | Conversation, Mari | Ma tean. Aitäh, kallis! | I know. Thanks, dear! | |
-| 1209 | Words (word) | vahetus | shift, at work | |
-| 1210 | Words (form) | vahetuse | of the shift | |
-| 1211 | Words (form) | toimub | is happening, is going on | |
-| 1212 | Words (form) | abiellus | she got married, he got married | |
-| 1213 | Words (form) | ületunde | overtime hours, some of them | |
-| 1214 | Words (form) | puhkuse | of the holiday | |
-| 1215 | Words (form) | pühapäeva | of Sunday | |
-| 1216 | Words (form) | vahetused | shifts, the whole of them | |
-| 1217 | Words (word) | järjest | in a row | |
-| 1218 | Words (form) | kõlab | sounds | |
-| 1219 | Words (form) | pulma | of the wedding | |
-| 1220 | Words (form) | torti | cake, some of it | |
-| 1221 | Words (form) | tükki | pieces, after a number | |
-| 1222 | Words (word) | uskumatu | unbelievable | |
-| 1223 | Words (form) | kolleegi | of the colleague | |
-| 1224 | Words (form) | kolleege | colleagues, some of them | |
-| 1225 | How it works | kuus päeva, kuusteist tundi, kaks tükki, kaks vaba päeva | You met this in A2, and a rota is full of it: after a number, the thing you count is in the [osastav] (3rd form), and only one of it: {kuus päeva}, {kuusteist tundi}, {kaks tükki}. A word in front agrees: {kaks vaba päeva}. | |
-| 1226 | How it works | Vahetus, graafik | {Vahetus} is a shift, and the {graafik} is the rota that says who works when. | |
-| 1227 | How it works | Ületunde, vaba päev, puhkus, puhkusele minema | {Ületunde} is overtime, hours past your normal time. A day off is a {vaba päev}, and a longer break is {puhkus}: {puhkusele minema}, to go on holiday. | |
-| 1228 | How it works | Järjest, kaks vaba päeva järjest | {Järjest} is in a row: {kaks vaba päeva järjest}. | |
-| 1229 | How it works | kuus päeva | English counts in the plural: six days. Estonian counts in the singular, in the [osastav] (3rd form): {kuus päeva}, never the plural. | |
-| 1230 | How it works, table | kuus päeva | six days | |
-| 1231 | How it works, table | kuusteist tundi | sixteen hours | |
-| 1232 | How it works, table | kaks vaba päeva | two days off | |
-| 1233 | How it works, table | kaks tükki torti | two pieces of cake | |
-| 1234 | Say it, question | Kas sa saaksid mu vahetuse üle võtta? | Could you take my shift? | |
-| 1235 | Say it, model answer | Jah. Millal? | Yes. When? | |
-| 1236 | Say it, model answer | Ma olen sel kuul palju ületunde teinud. | I've done a lot of overtime this month. | |
-| 1237 | Say it, model answer | Mul on kaks vaba päeva järjest. | I have two days off in a row. | |
-| 1238 | Say it, model answer | Ma oleksin pidanud ammu puhkusele minema. | I should have gone on holiday long ago. | |
+| 1202 | Conversation, Mari | Liis, kas sa saaksid laupäeval mu vahetuse üle võtta? | Liis, could you take my shift on Saturday? | |
+| 1203 | Conversation, Liis | Laupäeval? Mis toimub? | On Saturday? What's going on? | |
+| 1204 | Conversation, Mari | Mu õde abiellub! Ta ütles mulle alles eile. | My sister's getting married! She only told me yesterday. | |
+| 1205 | Conversation, Liis | Oi! Aga graafik on juba valmis. Ma olen sel nädalal kuus päeva tööl, vaba on ainult laupäev. | Oh! But the rota's already done. I'm at work six days this week, and only Saturday is free. | |
+| 1206 | Conversation, Mari | Ma tean. Sa oled nii palju ületunde teinud. | I know. You've done so much overtime. | |
+| 1207 | Conversation, Liis | Kuusteist tundi sel kuul! Ma oleksin pidanud ammu puhkusele minema. | Sixteen hours this month! I should have gone on holiday long ago. | |
+| 1208 | Conversation, Mari | Aga kui mina võtan sinu pühapäeva ja esmaspäeva vahetused? Siis on sul kaks vaba päeva järjest. | But what if I take your Sunday and Monday shifts? Then you'll have two days off in a row. | |
+| 1209 | Conversation, Liis | Kaks vaba päeva? See kõlab hästi, aga ma ei tea. | Two days off? That sounds good, but I'm not sure. | |
+| 1210 | Conversation, Mari | Ma aitasin sind ju eelmisel kuul ka! Ja ma toon sulle pulmast torti. | I helped you last month too! And I'll bring you some cake from the wedding. | |
+| 1211 | Conversation, Liis | Kaks tükki. Ja ma pean juhilt luba küsima. | Two pieces. And I have to ask the boss for permission. | |
+| 1212 | Conversation, Mari | Juht on nõus. Ma juba küsisin. | The boss says yes. I already asked. | |
+| 1213 | Conversation, Liis | Sa küsisid juhilt enne kui minult? Sa oled ikka uskumatu! | You asked the boss before you asked me? You really are unbelievable! | |
+| 1214 | Conversation, Mari | Ma tean. Aitäh, kallis! | I know. Thanks, dear! | |
+| 1215 | Words (word) | vahetus | shift, at work | |
+| 1216 | Words (form) | vahetuse | of the shift | |
+| 1217 | Words (form) | toimub | is happening, is going on | |
+| 1218 | Words (form) | abiellus | she got married, he got married | |
+| 1219 | Words (form) | ületunde | overtime hours, some of them | |
+| 1220 | Words (form) | puhkuse | of the holiday | |
+| 1221 | Words (form) | pühapäeva | of Sunday | |
+| 1222 | Words (form) | vahetused | shifts, the whole of them | |
+| 1223 | Words (word) | järjest | in a row | |
+| 1224 | Words (form) | kõlab | sounds | |
+| 1225 | Words (form) | pulma | of the wedding | |
+| 1226 | Words (form) | torti | cake, some of it | |
+| 1227 | Words (form) | tükki | pieces, after a number | |
+| 1228 | Words (word) | uskumatu | unbelievable | |
+| 1229 | Words (form) | kolleegi | of the colleague | |
+| 1230 | Words (form) | kolleege | colleagues, some of them | |
+| 1231 | How it works | kuus päeva, kuusteist tundi, kaks tükki, kaks vaba päeva | You met this in A2, and a rota is full of it: after a number, the thing you count is in the [osastav] (3rd form), and only one of it: {kuus päeva}, {kuusteist tundi}, {kaks tükki}. A word in front agrees: {kaks vaba päeva}. | |
+| 1232 | How it works | Vahetus, graafik | {Vahetus} is a shift, and the {graafik} is the rota that says who works when. | |
+| 1233 | How it works | Ületunde, vaba päev, puhkus, puhkusele minema | {Ületunde} is overtime, hours past your normal time. A day off is a {vaba päev}, and a longer break is {puhkus}: {puhkusele minema}, to go on holiday. | |
+| 1234 | How it works | Järjest, kaks vaba päeva järjest | {Järjest} is in a row: {kaks vaba päeva järjest}. | |
+| 1235 | How it works | kuus päeva | English counts in the plural: six days. Estonian counts in the singular, in the [osastav] (3rd form): {kuus päeva}, never the plural. | |
+| 1236 | How it works, table | kuus päeva | six days | |
+| 1237 | How it works, table | kuusteist tundi | sixteen hours | |
+| 1238 | How it works, table | kaks vaba päeva | two days off | |
+| 1239 | How it works, table | kaks tükki torti | two pieces of cake | |
+| 1240 | Say it, question | Kas sa saaksid mu vahetuse üle võtta? | Could you take my shift? | |
+| 1241 | Say it, model answer | Jah. Millal? | Yes. When? | |
+| 1242 | Say it, model answer | Ma olen sel kuul palju ületunde teinud. | I've done a lot of overtime this month. | |
+| 1243 | Say it, model answer | Mul on kaks vaba päeva järjest. | I have two days off in a row. | |
+| 1244 | Say it, model answer | Ma oleksin pidanud ammu puhkusele minema. | I should have gone on holiday long ago. | |
 
 #### B1 20. Asking to change your hours (`b1-20-email`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 1239 | Conversation, Tom | Anna, kuidas ma juhile kirjutan, et tahan neli päeva nädalas töötada? | Anna, how do I write to the boss that I want to work four days a week? | |
-| 1240 | Conversation, Anna | Neli päeva? Miks? | Four days? Why? | |
-| 1241 | Conversation, Tom | Reedeti on ülikoolis eesti keele kursus. | There's an Estonian course at the university on Fridays. | |
-| 1242 | Conversation, Anna | Tore! Kirjuta talle. Näita, mis sul juba on. | Nice! Write to her. Show me what you've got so far. | |
-| 1243 | Conversation, Tom | Tere, Kristi! Ma ei taha enam reedeti töötada. | Hello Kristi! I don't want to work on Fridays any more. | |
-| 1244 | Conversation, Anna | Appi! Nii ei saa. Kirjuta pigem: ma sooviksin muuta oma tööaega. | Help! You can't say that. Write this instead: I'd like to change my working hours. | |
-| 1245 | Conversation, Anna | Siis selgita, miks. Ja paku välja lahendus: esmaspäevast neljapäevani töötaksid kümme tundi päevas. | Then explain why. And offer a solution: Monday to Thursday you'd work ten hours a day. | |
-| 1246 | Conversation, Tom | Kümme tundi? See on pikk päev. | Ten hours? That's a long day. | |
-| 1247 | Conversation, Anna | Või siis neli päeva ja natuke väiksem palk. Mõlemad sobivad. | Or four days and a slightly smaller salary. Either would work. | |
-| 1248 | Conversation, Tom | Ma valin kümme tundi. Mul on raha vaja. | I'll take the ten hours. I need the money. | |
-| 1249 | Conversation, Anna | Ja lõpus kirjuta: kas me saaksime sellest rääkida? Kristi armastab koosolekuid. | And at the end write: could we talk about it? Kristi loves meetings. | |
-| 1250 | Conversation, Tom | Hästi, kirjutan kohe. Ja esimese lause kustutan ära. | OK. I'll write it now. And I'm deleting my first sentence. | |
-| 1251 | Words (word) | reedeti | on Fridays, every Friday | |
-| 1252 | Words (word) | kursus | course, class | |
-| 1253 | Words (form) | muuta | to change, after would like | |
-| 1254 | Words (form) | tööaega | working hours, as an object | |
-| 1255 | Words (verb) | selgitama | to explain | |
-| 1256 | Words (verb, I form) | selgitan | I explain | |
-| 1257 | Words (form) | neljapäeva | of Thursday | |
-| 1258 | Words (word) | mõlemad | both | |
-| 1259 | Words (verb) | valima | to choose | |
-| 1260 | Words (verb, I form) | valin | I choose | |
-| 1261 | Words (form) | lõpus | at the end | |
-| 1262 | Words (form) | koosolekuid | meetings, as an object | |
-| 1263 | Words (form) | väiksema | of the smaller | |
-| 1264 | Words (form) | lause | of the sentence | |
-| 1265 | Words (verb) | kustutama | to delete, to put out | |
-| 1266 | Words (verb, I form) | kustutan | I delete | |
-| 1267 | Words (phrase) | Tervitustega | Best wishes, to close an email | |
-| 1268 | How it works | Ma sooviksin, sellepärast, Ma pakuksin, Kas me saaksime...? | An email that asks for something goes in four steps: what you'd like ({Ma sooviksin}), why ({sellepärast}), what you'd suggest ({Ma pakuksin}), and a question to close ({Kas me saaksime...?}). | |
-| 1269 | How it works | Pakkuma, Ma pakuksin, et... | {Pakkuma} is to offer and also to suggest: {Ma pakuksin, et...} is I'd suggest that... | |
-| 1270 | How it works | esmaspäevast neljapäevani | Monday to Thursday is {esmaspäevast neljapäevani}: -st for from, -ni for until. | |
-| 1271 | How it works | Reedeti, Alates, alates järgmisest kuust | {Reedeti} is on Fridays, every Friday. {Alates} is starting from: {alates järgmisest kuust}. | |
-| 1272 | How it works | Ma ei taha, Ma sooviksin | {Ma ei taha} in an email to your boss sounds like a refusal. Say what you'd like instead: {Ma sooviksin}. | |
-| 1273 | How it works, table | Ma sooviksin muuta oma tööaega. | Say what you'd like | |
-| 1274 | How it works, table | Sellepärast ei saaks ma reedeti töötada. | Say why | |
-| 1275 | How it works, table | Ma pakuksin, et töötan kümme tundi päevas. | Suggest something | |
-| 1276 | How it works, table | Kas me saaksime sellest rääkida? | Close with a question | |
-| 1277 | Say it, model answer | Ma sooviksin muuta oma tööaega. | I'd like to change my working hours. | |
-| 1278 | Say it, model answer | Reedeti on mul kursus. | I have a course on Fridays. | |
-| 1279 | Say it, model answer | Ma pakuksin, et töötan kümme tundi päevas. | I'd suggest I work ten hours a day. | |
-| 1280 | Say it, model answer | Kas me saaksime sellest rääkida? | Could we talk about it? | |
+| 1245 | Conversation, Tom | Anna, kuidas ma juhile kirjutan, et tahan neli päeva nädalas töötada? | Anna, how do I write to the boss that I want to work four days a week? | |
+| 1246 | Conversation, Anna | Neli päeva? Miks? | Four days? Why? | |
+| 1247 | Conversation, Tom | Reedeti on ülikoolis eesti keele kursus. | There's an Estonian course at the university on Fridays. | |
+| 1248 | Conversation, Anna | Tore! Kirjuta talle. Näita, mis sul juba on. | Nice! Write to her. Show me what you've got so far. | |
+| 1249 | Conversation, Tom | Tere, Kristi! Ma ei taha enam reedeti töötada. | Hello Kristi! I don't want to work on Fridays any more. | |
+| 1250 | Conversation, Anna | Appi! Nii ei saa. Kirjuta pigem: ma sooviksin muuta oma tööaega. | Help! You can't say that. Write this instead: I'd like to change my working hours. | |
+| 1251 | Conversation, Anna | Siis selgita, miks. Ja paku välja lahendus: esmaspäevast neljapäevani töötaksid kümme tundi päevas. | Then explain why. And offer a solution: Monday to Thursday you'd work ten hours a day. | |
+| 1252 | Conversation, Tom | Kümme tundi? See on pikk päev. | Ten hours? That's a long day. | |
+| 1253 | Conversation, Anna | Või siis neli päeva ja natuke väiksem palk. Mõlemad sobivad. | Or four days and a slightly smaller salary. Either would work. | |
+| 1254 | Conversation, Tom | Ma valin kümme tundi. Mul on raha vaja. | I'll take the ten hours. I need the money. | |
+| 1255 | Conversation, Anna | Ja lõpus kirjuta: kas me saaksime sellest rääkida? Kristi armastab koosolekuid. | And at the end write: could we talk about it? Kristi loves meetings. | |
+| 1256 | Conversation, Tom | Hästi, kirjutan kohe. Ja esimese lause kustutan ära. | OK. I'll write it now. And I'm deleting my first sentence. | |
+| 1257 | Words (word) | reedeti | on Fridays, every Friday | |
+| 1258 | Words (word) | kursus | course, class | |
+| 1259 | Words (form) | muuta | to change, after would like | |
+| 1260 | Words (form) | tööaega | working hours, as an object | |
+| 1261 | Words (verb) | selgitama | to explain | |
+| 1262 | Words (verb, I form) | selgitan | I explain | |
+| 1263 | Words (form) | neljapäeva | of Thursday | |
+| 1264 | Words (word) | mõlemad | both | |
+| 1265 | Words (verb) | valima | to choose | |
+| 1266 | Words (verb, I form) | valin | I choose | |
+| 1267 | Words (form) | lõpus | at the end | |
+| 1268 | Words (form) | koosolekuid | meetings, as an object | |
+| 1269 | Words (form) | väiksema | of the smaller | |
+| 1270 | Words (form) | lause | of the sentence | |
+| 1271 | Words (verb) | kustutama | to delete, to put out | |
+| 1272 | Words (verb, I form) | kustutan | I delete | |
+| 1273 | Words (phrase) | Tervitustega | Best wishes, to close an email | |
+| 1274 | How it works | Ma sooviksin, sellepärast, Ma pakuksin, Kas me saaksime...? | An email that asks for something goes in four steps: what you'd like ({Ma sooviksin}), why ({sellepärast}), what you'd suggest ({Ma pakuksin}), and a question to close ({Kas me saaksime...?}). | |
+| 1275 | How it works | Pakkuma, Ma pakuksin, et... | {Pakkuma} is to offer and also to suggest: {Ma pakuksin, et...} is I'd suggest that... | |
+| 1276 | How it works | esmaspäevast neljapäevani | Monday to Thursday is {esmaspäevast neljapäevani}: -st for from, -ni for until. | |
+| 1277 | How it works | Reedeti, Alates, alates järgmisest kuust | {Reedeti} is on Fridays, every Friday. {Alates} is starting from: {alates järgmisest kuust}. | |
+| 1278 | How it works | Ma ei taha, Ma sooviksin | {Ma ei taha} in an email to your boss sounds like a refusal. Say what you'd like instead: {Ma sooviksin}. | |
+| 1279 | How it works, table | Ma sooviksin muuta oma tööaega. | Say what you'd like | |
+| 1280 | How it works, table | Sellepärast ei saaks ma reedeti töötada. | Say why | |
+| 1281 | How it works, table | Ma pakuksin, et töötan kümme tundi päevas. | Suggest something | |
+| 1282 | How it works, table | Kas me saaksime sellest rääkida? | Close with a question | |
+| 1283 | Say it, model answer | Ma sooviksin muuta oma tööaega. | I'd like to change my working hours. | |
+| 1284 | Say it, model answer | Reedeti on mul kursus. | I have a course on Fridays. | |
+| 1285 | Say it, model answer | Ma pakuksin, et töötan kümme tundi päevas. | I'd suggest I work ten hours a day. | |
+| 1286 | Say it, model answer | Kas me saaksime sellest rääkida? | Could we talk about it? | |
 
 #### B1 21. Talking about your pay (`b1-21-pay`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 1281 | Conversation, Tom | Kristi, kas sul oleks täna pool tundi aega? | Kristi, would you have half an hour today? | |
-| 1282 | Conversation, Kristi | Muidugi. Istu. Millest sa rääkida tahaksid? | Of course. Sit down. What would you like to talk about? | |
-| 1283 | Conversation, Tom | Ma olen siin töötanud pool aastat. Ma tahaksin rääkida oma palgast. | I've been working here for half a year. I'd like to talk about my pay. | |
-| 1284 | Conversation, Kristi | Hästi. Räägi, mida sa oled teinud. | All right. Tell me what you've done. | |
-| 1285 | Conversation, Tom | Ma lõpetasin kaks projekti ja aitasin uut kolleegi. Nüüd töötab ta arendajana. | I finished two projects and helped the new colleague. Now he works as a developer. | |
-| 1286 | Conversation, Kristi | See on tõsi. Sa oled olnud väga tubli. | That's true. You've done really well. | |
-| 1287 | Conversation, Tom | Aitäh. Ausalt öeldes oleksin ma tahtnud juba varem palgast rääkida, aga ma ei julgenud. | Thank you. Honestly, I'd have liked to talk about pay earlier, but I didn't dare. | |
-| 1288 | Conversation, Kristi | Ja mis summa sulle sobiks? | And what amount would suit you? | |
-| 1289 | Conversation, Tom | Ma arvan, et kümme protsenti rohkem oleks õiglane. | I think ten percent more would be fair. | |
-| 1290 | Conversation, Kristi | Kümme on palju. Ma saan pakkuda viis protsenti kohe ja veel viis aasta lõpus, kui uus projekt on valmis. | Ten is a lot. I can offer five percent now, and another five at the end of the year, when the new project is done. | |
-| 1291 | Conversation, Tom | Viis ja viis. Sobib! | Five and five. Works for me! | |
-| 1292 | Conversation, Kristi | Ja järgmine kord ära oota pool aastat. Küsi varem! | And next time don't wait half a year. Ask sooner! | |
-| 1293 | Conversation, Tom | Kui ma oleksin teadnud, et see nii lihtne on, oleksin ma ammu küsinud! | If I'd known it was this easy, I'd have asked long ago! | |
-| 1294 | Conversation, Kristi | Lihtne see ei olnud. Sa lihtsalt tegid head tööd. Ja kuidas eesti keele kursus läheb? | It wasn't easy. You just did good work. And how's the Estonian course going? | |
-| 1295 | Conversation, Tom | Hästi! Reedeti on mul nüüd ainult eesti keel. | Good! Fridays are just Estonian now. | |
-| 1296 | How it works | oleksin tahtnud, Mis summa sulle sobiks? | A whole talk about pay, made of this part: what you've done, what you would have liked ({oleksin tahtnud}), and asking politely with the [tingiv kõneviis] (-ks, would): {Mis summa sulle sobiks?} | |
-| 1297 | How it works | Ma lõpetasin kaks projekti, oleksin, oleksin ma tahtnud | Say what you've done in the past: {Ma lõpetasin kaks projekti}. Say what you'd have liked with {oleksin} and the -nud word: {oleksin ma tahtnud}. | |
-| 1298 | How it works | Ma tahan kümme protsenti, Kümme protsenti oleks õiglane | {Ma tahan kümme protsenti} sounds like a demand. {Kümme protsenti oleks õiglane} gives her a reason to agree. | |
-| 1299 | Say it, question | Millest sa rääkida tahaksid? | What would you like to talk about? | |
-| 1300 | Say it, model answer | Ma tahaksin rääkida oma palgast. | I'd like to talk about my pay. | |
-| 1301 | Say it, question | Mida sa oled teinud? | What have you done? | |
-| 1302 | Say it, model answer | Ma lõpetasin kaks projekti. | I finished two projects. | |
-| 1303 | Say it, model answer | Ma arvan, et kümme protsenti rohkem oleks õiglane. | I think ten percent more would be fair. | |
-| 1304 | Say it, model answer | Ma oleksin tahtnud varem küsida, aga ma ei julgenud. | I'd have liked to ask earlier, but I didn't dare. | |
-| 1305 | Role-play, they say | Tere! Millest sa rääkida tahaksid? | Hello! What would you like to talk about? | |
-| 1306 | Role-play, model answer | Ma tahaksin rääkida oma palgast. | I'd like to talk about my pay. | |
-| 1307 | Role-play, they say | Hästi. Mida sa oled sel aastal teinud? | All right. What have you done this year? | |
-| 1308 | Role-play, model answer | Ma lõpetasin kaks projekti ja aitasin uut kolleegi. | I finished two projects and helped the new colleague. | |
-| 1309 | Role-play, they say | Miks sa varem ei küsinud? | Why didn't you ask earlier? | |
-| 1310 | Role-play, model answer | Ma oleksin tahtnud varem küsida, aga ma ei julgenud. | I'd have liked to ask earlier, but I didn't dare. | |
-| 1311 | Role-play, they say | Ja mis summa sulle sobiks? | And what amount would suit you? | |
-| 1312 | Role-play, model answer | Ma arvan, et kümme protsenti rohkem oleks õiglane. | I think ten percent more would be fair. | |
-| 1313 | Role-play, they say | Ma saan pakkuda viis protsenti kohe. | I can offer five percent now. | |
-| 1314 | Role-play, model answer | Kas me võiksime aasta lõpus uuesti rääkida? | Could we talk again at the end of the year? | |
-| 1315 | Role-play, they say | Jah, aasta lõpus räägime uuesti. Ja kelleks sa tahaksid järgmisel aastal saada? | Yes, we'll talk again at the end of the year. And what would you like to become next year? | |
-| 1316 | Role-play, model answer | Ma tahaksin saada meeskonna juhiks. | I'd like to become the team lead. | |
-| 1317 | Role-play, they say | Hea plaan. Kas lepime kokku? | Good plan. Shall we agree on that? | |
-| 1318 | Role-play, model answer | Aitäh! Kokku lepitud. | Thank you! Agreed. | |
-| 1319 | Live scene, they say (topic) | Muidugi. Istu. Millest sa rääkida tahaksid? |  | |
-| 1320 | Live scene, they say (topic) | Millest sa rääkida tahaksid? |  | |
-| 1321 | Live scene, they say (done) | Hästi. Mida sa oled sel aastal teinud? |  | |
-| 1322 | Live scene, they say (done) | Mida sa oled teinud? |  | |
-| 1323 | Live scene, they say (earlier) | See on tõsi. Aga miks sa varem ei küsinud? |  | |
-| 1324 | Live scene, they say (earlier) | Aga miks sa ei ole varem küsinud? |  | |
-| 1325 | Live scene, they say (amount) | Ja kui palju sa tahaksid? |  | |
-| 1326 | Live scene, they say (amount) | Mis summa sulle sobiks? |  | |
-| 1327 | Live scene, they say (offer) | Kümme on palju. Ma saan pakkuda viis protsenti kohe. |  | |
-| 1328 | Live scene, they say (offer) | Ma saan pakkuda viis protsenti kohe ja veel viis aasta lõpus. |  | |
-| 1329 | Live scene, they say (plan) | Jah, aasta lõpus räägime uuesti. Ja kelleks sa tahaksid järgmisel aastal saada? |  | |
-| 1330 | Live scene, they say (plan) | Kelleks sa tahaksid järgmisel aastal saada? |  | |
-| 1331 | Live scene, they say (close) | Kokku lepitud! Head aega! |  | |
-| 1332 | Live scene, they say (close) | Kokku lepitud! Nägemist! |  | |
-| 1333 | Live scene, learner may pick (topic) | Ma tahaksin rääkida oma palgast. | I'd like to talk about my pay. | |
-| 1334 | Live scene, learner may pick (topic) | Oma palgast. | About my pay. | |
-| 1335 | Live scene, learner may pick (done) | Ma lõpetasin kaks projekti ja aitasin uut kolleegi. | I finished two projects and helped the new colleague. | |
-| 1336 | Live scene, learner may pick (done) | Ma lõpetasin kaks projekti. | I finished two projects. | |
-| 1337 | Live scene, learner may pick (earlier) | Ma oleksin tahtnud varem küsida, aga ma ei julgenud. | I'd have liked to ask earlier, but I didn't dare. | |
-| 1338 | Live scene, learner may pick (earlier) | Ma ei julgenud. | I didn't dare. | |
-| 1339 | Live scene, learner may pick (amount) | Ma arvan, et kümme protsenti rohkem oleks õiglane. | I think ten percent more would be fair. | |
-| 1340 | Live scene, learner may pick (amount) | Kümme protsenti. | Ten percent. | |
-| 1341 | Live scene, learner may pick (offer) | Kas me võiksime aasta lõpus uuesti rääkida? | Could we talk again at the end of the year? | |
-| 1342 | Live scene, learner may pick (offer) | Mulle sobib. | That works for me. | |
-| 1343 | Live scene, learner may pick (plan) | Ma tahaksin saada meeskonna juhiks. | I'd like to become the team lead. | |
-| 1344 | Live scene, learner may pick (plan) | Ma tahaksin saada heaks arendajaks. | I'd like to become a good developer. | |
+| 1287 | Conversation, Tom | Kristi, kas sul oleks täna pool tundi aega? | Kristi, would you have half an hour today? | |
+| 1288 | Conversation, Kristi | Muidugi. Istu. Millest sa rääkida tahaksid? | Of course. Sit down. What would you like to talk about? | |
+| 1289 | Conversation, Tom | Ma olen siin töötanud pool aastat. Ma tahaksin rääkida oma palgast. | I've been working here for half a year. I'd like to talk about my pay. | |
+| 1290 | Conversation, Kristi | Hästi. Räägi, mida sa oled teinud. | All right. Tell me what you've done. | |
+| 1291 | Conversation, Tom | Ma lõpetasin kaks projekti ja aitasin uut kolleegi. Nüüd töötab ta arendajana. | I finished two projects and helped the new colleague. Now he works as a developer. | |
+| 1292 | Conversation, Kristi | See on tõsi. Sa oled olnud väga tubli. | That's true. You've done really well. | |
+| 1293 | Conversation, Tom | Aitäh. Ausalt öeldes oleksin ma tahtnud juba varem palgast rääkida, aga ma ei julgenud. | Thank you. Honestly, I'd have liked to talk about pay earlier, but I didn't dare. | |
+| 1294 | Conversation, Kristi | Ja mis summa sulle sobiks? | And what amount would suit you? | |
+| 1295 | Conversation, Tom | Ma arvan, et kümme protsenti rohkem oleks õiglane. | I think ten percent more would be fair. | |
+| 1296 | Conversation, Kristi | Kümme on palju. Ma saan pakkuda viis protsenti kohe ja veel viis aasta lõpus, kui uus projekt on valmis. | Ten is a lot. I can offer five percent now, and another five at the end of the year, when the new project is done. | |
+| 1297 | Conversation, Tom | Viis ja viis. Sobib! | Five and five. Works for me! | |
+| 1298 | Conversation, Kristi | Ja järgmine kord ära oota pool aastat. Küsi varem! | And next time don't wait half a year. Ask sooner! | |
+| 1299 | Conversation, Tom | Kui ma oleksin teadnud, et see nii lihtne on, oleksin ma ammu küsinud! | If I'd known it was this easy, I'd have asked long ago! | |
+| 1300 | Conversation, Kristi | Lihtne see ei olnud. Sa lihtsalt tegid head tööd. Ja kuidas eesti keele kursus läheb? | It wasn't easy. You just did good work. And how's the Estonian course going? | |
+| 1301 | Conversation, Tom | Hästi! Reedeti on mul nüüd ainult eesti keel. | Good! Fridays are just Estonian now. | |
+| 1302 | How it works | oleksin tahtnud, Mis summa sulle sobiks? | A whole talk about pay, made of this part: what you've done, what you would have liked ({oleksin tahtnud}), and asking politely with the [tingiv kõneviis] (-ks, would): {Mis summa sulle sobiks?} | |
+| 1303 | How it works | Ma lõpetasin kaks projekti, oleksin, oleksin ma tahtnud | Say what you've done in the past: {Ma lõpetasin kaks projekti}. Say what you'd have liked with {oleksin} and the -nud word: {oleksin ma tahtnud}. | |
+| 1304 | How it works | Ma tahan kümme protsenti, Kümme protsenti oleks õiglane | {Ma tahan kümme protsenti} sounds like a demand. {Kümme protsenti oleks õiglane} gives her a reason to agree. | |
+| 1305 | Say it, question | Millest sa rääkida tahaksid? | What would you like to talk about? | |
+| 1306 | Say it, model answer | Ma tahaksin rääkida oma palgast. | I'd like to talk about my pay. | |
+| 1307 | Say it, question | Mida sa oled teinud? | What have you done? | |
+| 1308 | Say it, model answer | Ma lõpetasin kaks projekti. | I finished two projects. | |
+| 1309 | Say it, model answer | Ma arvan, et kümme protsenti rohkem oleks õiglane. | I think ten percent more would be fair. | |
+| 1310 | Say it, model answer | Ma oleksin tahtnud varem küsida, aga ma ei julgenud. | I'd have liked to ask earlier, but I didn't dare. | |
+| 1311 | Role-play, they say | Tere! Millest sa rääkida tahaksid? | Hello! What would you like to talk about? | |
+| 1312 | Role-play, model answer | Ma tahaksin rääkida oma palgast. | I'd like to talk about my pay. | |
+| 1313 | Role-play, they say | Hästi. Mida sa oled sel aastal teinud? | All right. What have you done this year? | |
+| 1314 | Role-play, model answer | Ma lõpetasin kaks projekti ja aitasin uut kolleegi. | I finished two projects and helped the new colleague. | |
+| 1315 | Role-play, they say | Miks sa varem ei küsinud? | Why didn't you ask earlier? | |
+| 1316 | Role-play, model answer | Ma oleksin tahtnud varem küsida, aga ma ei julgenud. | I'd have liked to ask earlier, but I didn't dare. | |
+| 1317 | Role-play, they say | Ja mis summa sulle sobiks? | And what amount would suit you? | |
+| 1318 | Role-play, model answer | Ma arvan, et kümme protsenti rohkem oleks õiglane. | I think ten percent more would be fair. | |
+| 1319 | Role-play, they say | Ma saan pakkuda viis protsenti kohe. | I can offer five percent now. | |
+| 1320 | Role-play, model answer | Kas me võiksime aasta lõpus uuesti rääkida? | Could we talk again at the end of the year? | |
+| 1321 | Role-play, they say | Jah, aasta lõpus räägime uuesti. Ja kelleks sa tahaksid järgmisel aastal saada? | Yes, we'll talk again at the end of the year. And what would you like to become next year? | |
+| 1322 | Role-play, model answer | Ma tahaksin saada meeskonna juhiks. | I'd like to become the team lead. | |
+| 1323 | Role-play, they say | Hea plaan. Kas lepime kokku? | Good plan. Shall we agree on that? | |
+| 1324 | Role-play, model answer | Aitäh! Kokku lepitud. | Thank you! Agreed. | |
+| 1325 | Live scene, they say (topic) | Muidugi. Istu. Millest sa rääkida tahaksid? |  | |
+| 1326 | Live scene, they say (topic) | Millest sa rääkida tahaksid? |  | |
+| 1327 | Live scene, they say (done) | Hästi. Mida sa oled sel aastal teinud? |  | |
+| 1328 | Live scene, they say (done) | Mida sa oled teinud? |  | |
+| 1329 | Live scene, they say (earlier) | See on tõsi. Aga miks sa varem ei küsinud? |  | |
+| 1330 | Live scene, they say (earlier) | Aga miks sa ei ole varem küsinud? |  | |
+| 1331 | Live scene, they say (amount) | Ja kui palju sa tahaksid? |  | |
+| 1332 | Live scene, they say (amount) | Mis summa sulle sobiks? |  | |
+| 1333 | Live scene, they say (offer) | Kümme on palju. Ma saan pakkuda viis protsenti kohe. |  | |
+| 1334 | Live scene, they say (offer) | Ma saan pakkuda viis protsenti kohe ja veel viis aasta lõpus. |  | |
+| 1335 | Live scene, they say (plan) | Jah, aasta lõpus räägime uuesti. Ja kelleks sa tahaksid järgmisel aastal saada? |  | |
+| 1336 | Live scene, they say (plan) | Kelleks sa tahaksid järgmisel aastal saada? |  | |
+| 1337 | Live scene, they say (close) | Kokku lepitud! Head aega! |  | |
+| 1338 | Live scene, they say (close) | Kokku lepitud! Nägemist! |  | |
+| 1339 | Live scene, learner may pick (topic) | Ma tahaksin rääkida oma palgast. | I'd like to talk about my pay. | |
+| 1340 | Live scene, learner may pick (topic) | Oma palgast. | About my pay. | |
+| 1341 | Live scene, learner may pick (done) | Ma lõpetasin kaks projekti ja aitasin uut kolleegi. | I finished two projects and helped the new colleague. | |
+| 1342 | Live scene, learner may pick (done) | Ma lõpetasin kaks projekti. | I finished two projects. | |
+| 1343 | Live scene, learner may pick (earlier) | Ma oleksin tahtnud varem küsida, aga ma ei julgenud. | I'd have liked to ask earlier, but I didn't dare. | |
+| 1344 | Live scene, learner may pick (earlier) | Ma ei julgenud. | I didn't dare. | |
+| 1345 | Live scene, learner may pick (amount) | Ma arvan, et kümme protsenti rohkem oleks õiglane. | I think ten percent more would be fair. | |
+| 1346 | Live scene, learner may pick (amount) | Kümme protsenti. | Ten percent. | |
+| 1347 | Live scene, learner may pick (offer) | Kas me võiksime aasta lõpus uuesti rääkida? | Could we talk again at the end of the year? | |
+| 1348 | Live scene, learner may pick (offer) | Mulle sobib. | That works for me. | |
+| 1349 | Live scene, learner may pick (plan) | Ma tahaksin saada meeskonna juhiks. | I'd like to become the team lead. | |
+| 1350 | Live scene, learner may pick (plan) | Ma tahaksin saada heaks arendajaks. | I'd like to become a good developer. | |
 
 ### B1: Renting a place
 
@@ -2030,340 +2036,340 @@ Russian and Ukrainian.
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 1345 | Conversation, Urmas | Tere! Tulge sisse, palun. | Hello! Come in, please. | |
-| 1346 | Conversation, Tom | Tere! Oi, see on ju päris suur! | Hello! Oh, it's pretty big! | |
-| 1347 | Conversation, Urmas | Jah, ja terve korter on remonditud. Köök on täiesti uus. | Yes, and the whole apartment has been fixed up. The kitchen is completely new. | |
-| 1348 | Conversation, Tom | Kas korter on möbleeritud? | Is the apartment furnished? | |
-| 1349 | Conversation, Urmas | Muidugi. Diivan, voodi ja laud jäävad siia. | Of course. The sofa, the bed and the table stay here. | |
-| 1350 | Conversation, Tom | Aga miks see uks kinni on? | But why is this door shut? | |
-| 1351 | Conversation, Urmas | Seal on üks väike tuba. See pole veel remonditud. | There's a small room in there. It hasn't been fixed up yet. | |
-| 1352 | Conversation, Tom | Kas ma võin sisse vaadata? | Can I have a look inside? | |
-| 1353 | Conversation, Tom | Siin on ju kümme tooli! | There are ten chairs in here! | |
-| 1354 | Conversation, Urmas | Jah. See tuba on eriti hästi möbleeritud. | Yes. This room is especially well furnished. | |
-| 1355 | Conversation, Tom | Ja maja? Kas see on ka renoveeritud? | And the building? Has that been renovated too? | |
-| 1356 | Conversation, Urmas | Jah, kaks aastat tagasi. All on pood ja see on lahti ka öösel. | Yes, two years ago. There's a shop downstairs, and it's open at night too. | |
-| 1357 | Conversation, Tom | Tore! Mulle see korter meeldib! | Great! I like this apartment! | |
-| 1358 | Words (form) | remonditud | fixed up, refurbished (of an apartment or a room) | |
-| 1359 | Words (form) | möbleeritud | furnished | |
-| 1360 | Words (form) | renoveeritud | renovated (of a whole building) | |
-| 1361 | Words (form) | avatud | open, as a sign says it | |
-| 1362 | Words (form) | suletud | shut, closed, as a sign says it | |
-| 1363 | Words (form) | vaadata | to look, after may or want | |
-| 1364 | Words (word) | täiesti | completely | |
-| 1365 | How it works | remonditud korter, suletud uks, suletud uksega | The [tud-kesksõna] (-tud, done to) of a verb says what was done to a thing: {remonditud korter} is an apartment somebody fixed up. In front of a noun it never changes: {suletud uks}, {suletud uksega}. | |
-| 1366 | How it works | on, Korter on remonditud, remonditud korter | It works like any describing word: after {on}, {Korter on remonditud}, or in front of the noun, {remonditud korter}. | |
-| 1367 | How it works | Avatud, suletud, lahti, kinni, Uks on kinni | {Avatud} and {suletud} are what a sign says. Talking, people say {lahti} and {kinni}: {Uks on kinni}. | |
-| 1368 | How it works | suletud uksega | A -tud word in front of a noun never takes the noun's ending: {suletud uksega}, with -ga on the door alone. | |
-| 1369 | How it works, table | avatud | to open | |
-| 1370 | How it works, table | Pood on avatud ka öösel. | to open | |
-| 1371 | How it works, table | suletud | to shut | |
-| 1372 | How it works, table | See uks on suletud. | to shut | |
-| 1373 | How it works, table | remonditud | to fix up | |
-| 1374 | How it works, table | Terve korter on remonditud. | to fix up | |
-| 1375 | How it works, table | möbleeritud | to furnish | |
-| 1376 | How it works, table | Korter on möbleeritud. | to furnish | |
-| 1377 | How it works, table | tehtud | to do, to make | |
-| 1378 | How it works, table | Töö on tehtud. | to do, to make | |
-| 1379 | Say it, question | Kas korter on möbleeritud? | Is the apartment furnished? | |
-| 1380 | Say it, model answer | Jah, on möbleeritud ja köök on ka uus. | Yes, it's furnished, and the kitchen is new too. | |
-| 1381 | Say it, model answer | Kas terve korter on remonditud? | Has the whole apartment been fixed up? | |
-| 1382 | Say it, model answer | Uks on kinni. | The door's shut. | |
-| 1383 | Say it, question | Kas pood on öösel lahti? | Is the shop open at night? | |
-| 1384 | Say it, model answer | Jah, see on lahti ka öösel. | Yes, it's open at night too. | |
+| 1351 | Conversation, Urmas | Tere! Tulge sisse, palun. | Hello! Come in, please. | |
+| 1352 | Conversation, Tom | Tere! Oi, see on ju päris suur! | Hello! Oh, it's pretty big! | |
+| 1353 | Conversation, Urmas | Jah, ja terve korter on remonditud. Köök on täiesti uus. | Yes, and the whole apartment has been fixed up. The kitchen is completely new. | |
+| 1354 | Conversation, Tom | Kas korter on möbleeritud? | Is the apartment furnished? | |
+| 1355 | Conversation, Urmas | Muidugi. Diivan, voodi ja laud jäävad siia. | Of course. The sofa, the bed and the table stay here. | |
+| 1356 | Conversation, Tom | Aga miks see uks kinni on? | But why is this door shut? | |
+| 1357 | Conversation, Urmas | Seal on üks väike tuba. See pole veel remonditud. | There's a small room in there. It hasn't been fixed up yet. | |
+| 1358 | Conversation, Tom | Kas ma võin sisse vaadata? | Can I have a look inside? | |
+| 1359 | Conversation, Tom | Siin on ju kümme tooli! | There are ten chairs in here! | |
+| 1360 | Conversation, Urmas | Jah. See tuba on eriti hästi möbleeritud. | Yes. This room is especially well furnished. | |
+| 1361 | Conversation, Tom | Ja maja? Kas see on ka renoveeritud? | And the building? Has that been renovated too? | |
+| 1362 | Conversation, Urmas | Jah, kaks aastat tagasi. All on pood ja see on lahti ka öösel. | Yes, two years ago. There's a shop downstairs, and it's open at night too. | |
+| 1363 | Conversation, Tom | Tore! Mulle see korter meeldib! | Great! I like this apartment! | |
+| 1364 | Words (form) | remonditud | fixed up, refurbished (of an apartment or a room) | |
+| 1365 | Words (form) | möbleeritud | furnished | |
+| 1366 | Words (form) | renoveeritud | renovated (of a whole building) | |
+| 1367 | Words (form) | avatud | open, as a sign says it | |
+| 1368 | Words (form) | suletud | shut, closed, as a sign says it | |
+| 1369 | Words (form) | vaadata | to look, after may or want | |
+| 1370 | Words (word) | täiesti | completely | |
+| 1371 | How it works | remonditud korter, suletud uks, suletud uksega | The [tud-kesksõna] (-tud, done to) of a verb says what was done to a thing: {remonditud korter} is an apartment somebody fixed up. In front of a noun it never changes: {suletud uks}, {suletud uksega}. | |
+| 1372 | How it works | on, Korter on remonditud, remonditud korter | It works like any describing word: after {on}, {Korter on remonditud}, or in front of the noun, {remonditud korter}. | |
+| 1373 | How it works | Avatud, suletud, lahti, kinni, Uks on kinni | {Avatud} and {suletud} are what a sign says. Talking, people say {lahti} and {kinni}: {Uks on kinni}. | |
+| 1374 | How it works | suletud uksega | A -tud word in front of a noun never takes the noun's ending: {suletud uksega}, with -ga on the door alone. | |
+| 1375 | How it works, table | avatud | to open | |
+| 1376 | How it works, table | Pood on avatud ka öösel. | to open | |
+| 1377 | How it works, table | suletud | to shut | |
+| 1378 | How it works, table | See uks on suletud. | to shut | |
+| 1379 | How it works, table | remonditud | to fix up | |
+| 1380 | How it works, table | Terve korter on remonditud. | to fix up | |
+| 1381 | How it works, table | möbleeritud | to furnish | |
+| 1382 | How it works, table | Korter on möbleeritud. | to furnish | |
+| 1383 | How it works, table | tehtud | to do, to make | |
+| 1384 | How it works, table | Töö on tehtud. | to do, to make | |
+| 1385 | Say it, question | Kas korter on möbleeritud? | Is the apartment furnished? | |
+| 1386 | Say it, model answer | Jah, on möbleeritud ja köök on ka uus. | Yes, it's furnished, and the kitchen is new too. | |
+| 1387 | Say it, model answer | Kas terve korter on remonditud? | Has the whole apartment been fixed up? | |
+| 1388 | Say it, model answer | Uks on kinni. | The door's shut. | |
+| 1389 | Say it, question | Kas pood on öösel lahti? | Is the shop open at night? | |
+| 1390 | Say it, model answer | Jah, see on lahti ka öösel. | Yes, it's open at night too. | |
 
 #### B1 23. In the big bright room (`b1-23-bright-room`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 1385 | Conversation, Tom | Tere, Mari! Siin Tom. | Hi, Mari! It's Tom. | |
-| 1386 | Conversation, Tom | Kolisime eelmisel nädalal uude korterisse ja siin on väga tore! | We moved into the new apartment last week, and it's really nice here! | |
-| 1387 | Conversation, Tom | Meil on nüüd kolm tuba ja köök. Elutuba on suur ja hele. | We've got three rooms and a kitchen now. The living room is big and bright. | |
-| 1388 | Conversation, Tom | Mu laud on suures heledas toas, akna juures. | My desk is in the big bright room, by the window. | |
-| 1389 | Conversation, Tom | Lapsed magavad väikeses toas, seal on vaikne. | The kids sleep in the small room, it's quiet there. | |
-| 1390 | Conversation, Tom | Ainult köök on väike, aga väikese köögiga saab ka elada. | Only the kitchen is small, but you can live with a small kitchen. | |
-| 1391 | Conversation, Tom | Ja külmkapp on suurem kui mina! | And the fridge is bigger than me! | |
-| 1392 | Conversation, Tom | Tule meile laupäeval külla! | Come and visit us on Saturday! | |
-| 1393 | Conversation, Tom | Me elame kolmandal korrusel, punase uksega korteris. | We live on the third floor, in the apartment with the red door. | |
-| 1394 | Conversation, Tom | Ja kui tahad, too kooki ka! Nägemist! | And bring some cake, if you like! Bye! | |
-| 1395 | Words (word) | hele | bright, light | |
-| 1396 | Words (form) | heleda | of the bright one | |
-| 1397 | Words (form) | punase | of the red one | |
-| 1398 | How it works | suures heledas toas, uude korterisse, väikese köögiga | A describing word takes its noun's ending: {suures heledas toas}, {uude korterisse}. With -ga, -na, -ni and -ta only the noun takes it, and the describing word stays in the [omastav] (2nd form): {väikese köögiga}. | |
-| 1399 | How it works | suure, heleda, väikese, suures heledas toas | The describing word has a stem, as a noun does: {suure}, {heleda}, {väikese}. The noun's ending goes on that: {suures heledas toas}. | |
-| 1400 | How it works | Uus, uude, uude korterisse | {Uus} has a short into, {uude}, and it's the one people say: {uude korterisse}. It's the [lühike sisseütlev] (short into). | |
-| 1401 | How it works | väikese köögiga, punase uksega | With -ga, -na, -ni and -ta the ending goes on the noun alone: {väikese köögiga}, {punase uksega}. | |
-| 1402 | How it works | suur, toas, suures toas | English describing words never change, so it's easy to say {suur} with {toas}. Give it the ending too: {suures toas}. | |
-| 1403 | How it works, table | suur hele tuba | in the big bright room | |
-| 1404 | How it works, table | suures heledas toas | in the big bright room | |
-| 1405 | How it works, table | uus korter | into the new apartment | |
-| 1406 | How it works, table | uude korterisse | into the new apartment | |
-| 1407 | How it works, table | väike köök | with a small kitchen | |
-| 1408 | How it works, table | väikese köögiga | with a small kitchen | |
-| 1409 | How it works, table | punane uks | with the red door | |
-| 1410 | How it works, table | punase uksega | with the red door | |
-| 1411 | Say it, model answer | Ma elan suures heledas korteris. | I live in a big bright apartment. | |
-| 1412 | Say it, model answer | Ma kolisin eelmisel nädalal uude korterisse. | I moved into a new apartment last week. | |
-| 1413 | Say it, model answer | Mul on väikese köögiga korter. | I have an apartment with a small kitchen. | |
-| 1414 | Say it, model answer | Ma töötan suures toas akna juures. | I work in the big room, by the window. | |
+| 1391 | Conversation, Tom | Tere, Mari! Siin Tom. | Hi, Mari! It's Tom. | |
+| 1392 | Conversation, Tom | Kolisime eelmisel nädalal uude korterisse ja siin on väga tore! | We moved into the new apartment last week, and it's really nice here! | |
+| 1393 | Conversation, Tom | Meil on nüüd kolm tuba ja köök. Elutuba on suur ja hele. | We've got three rooms and a kitchen now. The living room is big and bright. | |
+| 1394 | Conversation, Tom | Mu laud on suures heledas toas, akna juures. | My desk is in the big bright room, by the window. | |
+| 1395 | Conversation, Tom | Lapsed magavad väikeses toas, seal on vaikne. | The kids sleep in the small room, it's quiet there. | |
+| 1396 | Conversation, Tom | Ainult köök on väike, aga väikese köögiga saab ka elada. | Only the kitchen is small, but you can live with a small kitchen. | |
+| 1397 | Conversation, Tom | Ja külmkapp on suurem kui mina! | And the fridge is bigger than me! | |
+| 1398 | Conversation, Tom | Tule meile laupäeval külla! | Come and visit us on Saturday! | |
+| 1399 | Conversation, Tom | Me elame kolmandal korrusel, punase uksega korteris. | We live on the third floor, in the apartment with the red door. | |
+| 1400 | Conversation, Tom | Ja kui tahad, too kooki ka! Nägemist! | And bring some cake, if you like! Bye! | |
+| 1401 | Words (word) | hele | bright, light | |
+| 1402 | Words (form) | heleda | of the bright one | |
+| 1403 | Words (form) | punase | of the red one | |
+| 1404 | How it works | suures heledas toas, uude korterisse, väikese köögiga | A describing word takes its noun's ending: {suures heledas toas}, {uude korterisse}. With -ga, -na, -ni and -ta only the noun takes it, and the describing word stays in the [omastav] (2nd form): {väikese köögiga}. | |
+| 1405 | How it works | suure, heleda, väikese, suures heledas toas | The describing word has a stem, as a noun does: {suure}, {heleda}, {väikese}. The noun's ending goes on that: {suures heledas toas}. | |
+| 1406 | How it works | Uus, uude, uude korterisse | {Uus} has a short into, {uude}, and it's the one people say: {uude korterisse}. It's the [lühike sisseütlev] (short into). | |
+| 1407 | How it works | väikese köögiga, punase uksega | With -ga, -na, -ni and -ta the ending goes on the noun alone: {väikese köögiga}, {punase uksega}. | |
+| 1408 | How it works | suur, toas, suures toas | English describing words never change, so it's easy to say {suur} with {toas}. Give it the ending too: {suures toas}. | |
+| 1409 | How it works, table | suur hele tuba | in the big bright room | |
+| 1410 | How it works, table | suures heledas toas | in the big bright room | |
+| 1411 | How it works, table | uus korter | into the new apartment | |
+| 1412 | How it works, table | uude korterisse | into the new apartment | |
+| 1413 | How it works, table | väike köök | with a small kitchen | |
+| 1414 | How it works, table | väikese köögiga | with a small kitchen | |
+| 1415 | How it works, table | punane uks | with the red door | |
+| 1416 | How it works, table | punase uksega | with the red door | |
+| 1417 | Say it, model answer | Ma elan suures heledas korteris. | I live in a big bright apartment. | |
+| 1418 | Say it, model answer | Ma kolisin eelmisel nädalal uude korterisse. | I moved into a new apartment last week. | |
+| 1419 | Say it, model answer | Mul on väikese köögiga korter. | I have an apartment with a small kitchen. | |
+| 1420 | Say it, model answer | Ma töötan suures toas akna juures. | I work in the big room, by the window. | |
 
 #### B1 24. House rules (`b1-24-rules`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 1415 | Conversation, Helgi | Tere! Sa oled vist uus naaber? Mina olen Helgi, ütle mulle sina. Vaata, trepi juures on uus teade. | Hello! You must be the new neighbor? I'm Helgi, and you can call me {sina}. Look, there's a new notice by the stairs. | |
-| 1416 | Conversation, Tom | Tere, Helgi! Mina olen Tom. Maja reeglid? Loeme koos! | Hello, Helgi! I'm Tom. The house rules? Let's read them together! | |
-| 1417 | Conversation, Tom | Suitsetamine majas on keelatud. | Smoking in the building is not allowed. | |
-| 1418 | Conversation, Helgi | Väga õige. Mina ei suitseta üldse. | Quite right. I don't smoke at all. | |
-| 1419 | Conversation, Tom | Öörahu kell 23.00 kuni 7.00. Palume öösel mitte müra teha. | Quiet hours from 23:00 to 7:00. Please make no noise at night. | |
-| 1420 | Conversation, Helgi | Seda peaks lugema mu naaber seal üleval. Ta teeb öösel nii palju müra. | My neighbor up there should read that. He makes so much noise at night. | |
-| 1421 | Conversation, Tom | Üleval? Helgi, see olen ju mina! | Upstairs? Helgi, that's me! | |
-| 1422 | Conversation, Helgi | Oi! Vabandust! | Oh! Sorry! | |
-| 1423 | Conversation, Tom | Ei, mina pean vabandust paluma. Ma töötan õhtul hilja ja kuulan muusikat. | No, I'm the one who should apologize. I work late in the evening and listen to music. | |
-| 1424 | Conversation, Helgi | Pole viga. Aga öösel palun vaiksemalt! | Never mind. But a bit quieter at night, please! | |
-| 1425 | Conversation, Tom | Ma luban! Ja vaata: koerad on majas lubatud. | I promise! And look: dogs are allowed in the building. | |
-| 1426 | Conversation, Helgi | Tore! Mu koer on väga vaikne. | Good! My dog is very quiet. | |
-| 1427 | Conversation, Tom | Jah, palju vaiksem kui mina. Ja viimane reegel: prügi sorteerimine on kohustuslik. | Yes, much quieter than me. And the last rule: sorting the trash is a must. | |
-| 1428 | Conversation, Helgi | Ma tean. Mina kontrollin seda iga päev! | I know. I check it every day! | |
-| 1429 | Words (word) | reegel | a rule | |
-| 1430 | Words (form) | reeglid | the rules | |
-| 1431 | Words (word) | suitsetamine | smoking | |
-| 1432 | Words (verb) | suitsetama | to smoke | |
-| 1433 | Words (verb, I form) | suitsetan | I smoke | |
-| 1434 | Words (verb) | keelama | to forbid, to not allow | |
-| 1435 | Words (verb, I form) | keelan | I forbid | |
-| 1436 | Words (form) | keelatud | not allowed, forbidden | |
-| 1437 | Words (form) | lubatud | allowed | |
-| 1438 | Words (word) | kohustuslik | a must, compulsory | |
-| 1439 | Words (word) | öörahu | quiet hours, the quiet of the night | |
-| 1440 | Words (word) | müra | noise | |
-| 1441 | Words (word) | üleval | upstairs, up there | |
-| 1442 | Words (word) | vaiksemalt | more quietly | |
-| 1443 | Words (word) | vaiksem | quieter | |
-| 1444 | Words (form) | koerad | dogs | |
-| 1445 | Words (word) | sorteerimine | sorting | |
-| 1446 | Words (verb) | kontrollima | to check | |
-| 1447 | Words (verb, I form) | kontrollin | I check | |
-| 1448 | Words (form) | kontrollis | he checked, she checked | |
-| 1449 | How it works | lubatud, keelatud, kohustuslik, lubama, keelama | A rule says what's {lubatud}, allowed, what's {keelatud}, not allowed, and what's {kohustuslik}, a must. The first two are -tud words, from {lubama} and {keelama}. | |
-| 1450 | How it works | suitsetamine, sorteerimine | A notice names the thing in -mine: {suitsetamine}, smoking, {sorteerimine}, sorting. It's the verb made into a noun. | |
-| 1451 | How it works | Palume, Vabandust paluma | {Palume} is we ask, a notice's polite please. {Vabandust paluma} is to apologize. | |
-| 1452 | How it works | Lubama, Ma luban | {Lubama} is to allow, and also to promise: {Ma luban} is I promise. | |
-| 1453 | How it works | lubatud, on, Koerad on lubatud | After lesson 23 it's tempting to give {lubatud} the noun's ending. After {on} a -tud word stays as it is: {Koerad on lubatud}. | |
-| 1454 | How it works, table | Suitsetamine majas on keelatud. | No smoking in the building. | |
-| 1455 | How it works, table | Koerad on majas lubatud. | Dogs are allowed in the building. | |
-| 1456 | How it works, table | Prügi sorteerimine on kohustuslik. | Sorting the trash is a must. | |
-| 1457 | How it works, table | Palume öösel mitte müra teha. | Please make no noise at night. | |
-| 1458 | Say it, question | Kas sa suitsetad? | Do you smoke? | |
-| 1459 | Say it, model answer | Ei, ma ei suitseta üldse. | No, I don't smoke at all. | |
-| 1460 | Say it, model answer | Suitsetamine majas on keelatud. | Smoking in the building is not allowed. | |
-| 1461 | Say it, model answer | Koerad on lubatud. | Dogs are allowed. | |
-| 1462 | Say it, question | Öösel palun vaiksemalt! | A bit quieter at night, please! | |
-| 1463 | Say it, model answer | Ma luban. | I promise. | |
+| 1421 | Conversation, Helgi | Tere! Sa oled vist uus naaber? Mina olen Helgi, ütle mulle sina. Vaata, trepi juures on uus teade. | Hello! You must be the new neighbor? I'm Helgi, and you can call me {sina}. Look, there's a new notice by the stairs. | |
+| 1422 | Conversation, Tom | Tere, Helgi! Mina olen Tom. Maja reeglid? Loeme koos! | Hello, Helgi! I'm Tom. The house rules? Let's read them together! | |
+| 1423 | Conversation, Tom | Suitsetamine majas on keelatud. | Smoking in the building is not allowed. | |
+| 1424 | Conversation, Helgi | Väga õige. Mina ei suitseta üldse. | Quite right. I don't smoke at all. | |
+| 1425 | Conversation, Tom | Öörahu kell 23.00 kuni 7.00. Palume öösel mitte müra teha. | Quiet hours from 23:00 to 7:00. Please make no noise at night. | |
+| 1426 | Conversation, Helgi | Seda peaks lugema mu naaber seal üleval. Ta teeb öösel nii palju müra. | My neighbor up there should read that. He makes so much noise at night. | |
+| 1427 | Conversation, Tom | Üleval? Helgi, see olen ju mina! | Upstairs? Helgi, that's me! | |
+| 1428 | Conversation, Helgi | Oi! Vabandust! | Oh! Sorry! | |
+| 1429 | Conversation, Tom | Ei, mina pean vabandust paluma. Ma töötan õhtul hilja ja kuulan muusikat. | No, I'm the one who should apologize. I work late in the evening and listen to music. | |
+| 1430 | Conversation, Helgi | Pole viga. Aga öösel palun vaiksemalt! | Never mind. But a bit quieter at night, please! | |
+| 1431 | Conversation, Tom | Ma luban! Ja vaata: koerad on majas lubatud. | I promise! And look: dogs are allowed in the building. | |
+| 1432 | Conversation, Helgi | Tore! Mu koer on väga vaikne. | Good! My dog is very quiet. | |
+| 1433 | Conversation, Tom | Jah, palju vaiksem kui mina. Ja viimane reegel: prügi sorteerimine on kohustuslik. | Yes, much quieter than me. And the last rule: sorting the trash is a must. | |
+| 1434 | Conversation, Helgi | Ma tean. Mina kontrollin seda iga päev! | I know. I check it every day! | |
+| 1435 | Words (word) | reegel | a rule | |
+| 1436 | Words (form) | reeglid | the rules | |
+| 1437 | Words (word) | suitsetamine | smoking | |
+| 1438 | Words (verb) | suitsetama | to smoke | |
+| 1439 | Words (verb, I form) | suitsetan | I smoke | |
+| 1440 | Words (verb) | keelama | to forbid, to not allow | |
+| 1441 | Words (verb, I form) | keelan | I forbid | |
+| 1442 | Words (form) | keelatud | not allowed, forbidden | |
+| 1443 | Words (form) | lubatud | allowed | |
+| 1444 | Words (word) | kohustuslik | a must, compulsory | |
+| 1445 | Words (word) | öörahu | quiet hours, the quiet of the night | |
+| 1446 | Words (word) | müra | noise | |
+| 1447 | Words (word) | üleval | upstairs, up there | |
+| 1448 | Words (word) | vaiksemalt | more quietly | |
+| 1449 | Words (word) | vaiksem | quieter | |
+| 1450 | Words (form) | koerad | dogs | |
+| 1451 | Words (word) | sorteerimine | sorting | |
+| 1452 | Words (verb) | kontrollima | to check | |
+| 1453 | Words (verb, I form) | kontrollin | I check | |
+| 1454 | Words (form) | kontrollis | he checked, she checked | |
+| 1455 | How it works | lubatud, keelatud, kohustuslik, lubama, keelama | A rule says what's {lubatud}, allowed, what's {keelatud}, not allowed, and what's {kohustuslik}, a must. The first two are -tud words, from {lubama} and {keelama}. | |
+| 1456 | How it works | suitsetamine, sorteerimine | A notice names the thing in -mine: {suitsetamine}, smoking, {sorteerimine}, sorting. It's the verb made into a noun. | |
+| 1457 | How it works | Palume, Vabandust paluma | {Palume} is we ask, a notice's polite please. {Vabandust paluma} is to apologize. | |
+| 1458 | How it works | Lubama, Ma luban | {Lubama} is to allow, and also to promise: {Ma luban} is I promise. | |
+| 1459 | How it works | lubatud, on, Koerad on lubatud | After lesson 23 it's tempting to give {lubatud} the noun's ending. After {on} a -tud word stays as it is: {Koerad on lubatud}. | |
+| 1460 | How it works, table | Suitsetamine majas on keelatud. | No smoking in the building. | |
+| 1461 | How it works, table | Koerad on majas lubatud. | Dogs are allowed in the building. | |
+| 1462 | How it works, table | Prügi sorteerimine on kohustuslik. | Sorting the trash is a must. | |
+| 1463 | How it works, table | Palume öösel mitte müra teha. | Please make no noise at night. | |
+| 1464 | Say it, question | Kas sa suitsetad? | Do you smoke? | |
+| 1465 | Say it, model answer | Ei, ma ei suitseta üldse. | No, I don't smoke at all. | |
+| 1466 | Say it, model answer | Suitsetamine majas on keelatud. | Smoking in the building is not allowed. | |
+| 1467 | Say it, model answer | Koerad on lubatud. | Dogs are allowed. | |
+| 1468 | Say it, question | Öösel palun vaiksemalt! | A bit quieter at night, please! | |
+| 1469 | Say it, model answer | Ma luban. | I promise. | |
 
 #### B1 25. It's broken again (`b1-25-broken`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 1464 | Conversation, Tom | Tere, Urmas! Siin jälle Tom. | Hello, Urmas! It's Tom again. | |
-| 1465 | Conversation, Urmas | Tere, Tom. Mis nüüd jälle juhtus? | Hello, Tom. What's happened this time? | |
-| 1466 | Conversation, Tom | Köögis lekib kraan ja vesi on põrandal. | The kitchen tap is leaking and there's water on the floor. | |
-| 1467 | Conversation, Urmas | Jälle? Kas te proovisite kraani ise parandada? | Again? Did you try to fix the tap yourself? | |
-| 1468 | Conversation, Tom | Proovisin. Nüüd lekib see kahest kohast. | I did. Now it leaks in two places. | |
-| 1469 | Conversation, Urmas | Selge. Ärge enam midagi parandage! | Right. Don't fix anything else! | |
-| 1470 | Conversation, Tom | Ja valamu on ka ummistunud. Vesi ei lähe alla. | And the sink is blocked too. The water won't go down. | |
-| 1471 | Conversation, Urmas | Mis te sinna panite? | What did you put down it? | |
-| 1472 | Conversation, Tom | Ainult natuke kartulit ja kohvi. | Only a bit of potato and coffee. | |
-| 1473 | Conversation, Urmas | Võimalik, et toru tuleb vahetada. Ma saadan homme meistri. | The pipe may need changing. I'll send a repairman tomorrow. | |
-| 1474 | Conversation, Tom | Aitäh! Ja vannitoas ei tööta lamp. | Thank you! And the light in the bathroom isn't working. | |
-| 1475 | Conversation, Urmas | Siis vahetage pirn ise ära. Seda te ju oskate? | Then change the bulb yourself. You can do that, can't you? | |
-| 1476 | Conversation, Tom | Oskan küll! Ma ei karda enam elektrit. Aga mul pole uut pirni. | Sure I can! I'm not scared of electricity any more. But I don't have a new bulb. | |
-| 1477 | Conversation, Urmas | Olgu, meister toob ka pirni. | Fine, the repairman will bring a bulb too. | |
-| 1478 | Words (form) | lekib | is leaking | |
-| 1479 | Words (form) | lekkis | was leaking, leaked | |
-| 1480 | Words (form) | põranda | of the floor | |
-| 1481 | Words (form) | proovisin | I tried | |
-| 1482 | Words (form) | parandada | to fix, after try or can | |
-| 1483 | Words (word) | valamu | a sink | |
-| 1484 | Words (form) | ummistunud | blocked, clogged | |
-| 1485 | Words (word) | toru | a pipe | |
-| 1486 | Words (form) | vahetada | to change, after must or can | |
-| 1487 | Words (form) | vahetage | change!, polite | |
-| 1488 | Words (form) | vahetas | he changed, she changed | |
-| 1489 | How it works | Kraan lekib, Valamu on ummistunud, Lamp ei tööta, Toru tuleb vahetada | Say what's wrong in one short sentence: {Kraan lekib}, {Valamu on ummistunud}, {Lamp ei tööta}. Then say what has to happen: {Toru tuleb vahetada}. | |
-| 1490 | How it works | Tuleb, Toru tuleb vahetada | {Tuleb} with a da-form says what has to be done, and nobody is named: {Toru tuleb vahetada}. | |
-| 1491 | How it works | Ummistunud, on, katki | {Ummistunud} is a -nud word: it says what has happened to the sink, so after {on} it works like {katki}. | |
-| 1492 | How it works | Võimalik, et, Võimalik, et toru tuleb vahetada | {Võimalik, et} is maybe: {Võimalik, et toru tuleb vahetada}, the pipe may need changing. | |
-| 1493 | How it works | parandama, vahetama | To fix is {parandama}; to change for a new one is {vahetama}. A repairman fixes a tap, but you change a bulb. | |
-| 1494 | How it works, table | Kraan lekib. | The tap is leaking. | |
-| 1495 | How it works, table | Valamu on ummistunud. | The sink is blocked. | |
-| 1496 | How it works, table | Lamp ei tööta. | The light isn't working. | |
-| 1497 | How it works, table | Toru tuleb vahetada. | The pipe needs changing. | |
-| 1498 | Say it, model answer | Köögis lekib kraan. | The kitchen tap is leaking. | |
-| 1499 | Say it, model answer | Valamu on ummistunud. | The sink is blocked. | |
-| 1500 | Say it, model answer | Toru tuleb vahetada. | The pipe needs changing. | |
-| 1501 | Say it, question | Kas te proovisite kraani ise parandada? | Did you try to fix the tap yourself? | |
-| 1502 | Say it, model answer | Jah, proovisin. | Yes, I did. | |
+| 1470 | Conversation, Tom | Tere, Urmas! Siin jälle Tom. | Hello, Urmas! It's Tom again. | |
+| 1471 | Conversation, Urmas | Tere, Tom. Mis nüüd jälle juhtus? | Hello, Tom. What's happened this time? | |
+| 1472 | Conversation, Tom | Köögis lekib kraan ja vesi on põrandal. | The kitchen tap is leaking and there's water on the floor. | |
+| 1473 | Conversation, Urmas | Jälle? Kas te proovisite kraani ise parandada? | Again? Did you try to fix the tap yourself? | |
+| 1474 | Conversation, Tom | Proovisin. Nüüd lekib see kahest kohast. | I did. Now it leaks in two places. | |
+| 1475 | Conversation, Urmas | Selge. Ärge enam midagi parandage! | Right. Don't fix anything else! | |
+| 1476 | Conversation, Tom | Ja valamu on ka ummistunud. Vesi ei lähe alla. | And the sink is blocked too. The water won't go down. | |
+| 1477 | Conversation, Urmas | Mis te sinna panite? | What did you put down it? | |
+| 1478 | Conversation, Tom | Ainult natuke kartulit ja kohvi. | Only a bit of potato and coffee. | |
+| 1479 | Conversation, Urmas | Võimalik, et toru tuleb vahetada. Ma saadan homme meistri. | The pipe may need changing. I'll send a repairman tomorrow. | |
+| 1480 | Conversation, Tom | Aitäh! Ja vannitoas ei tööta lamp. | Thank you! And the light in the bathroom isn't working. | |
+| 1481 | Conversation, Urmas | Siis vahetage pirn ise ära. Seda te ju oskate? | Then change the bulb yourself. You can do that, can't you? | |
+| 1482 | Conversation, Tom | Oskan küll! Ma ei karda enam elektrit. Aga mul pole uut pirni. | Sure I can! I'm not scared of electricity any more. But I don't have a new bulb. | |
+| 1483 | Conversation, Urmas | Olgu, meister toob ka pirni. | Fine, the repairman will bring a bulb too. | |
+| 1484 | Words (form) | lekib | is leaking | |
+| 1485 | Words (form) | lekkis | was leaking, leaked | |
+| 1486 | Words (form) | põranda | of the floor | |
+| 1487 | Words (form) | proovisin | I tried | |
+| 1488 | Words (form) | parandada | to fix, after try or can | |
+| 1489 | Words (word) | valamu | a sink | |
+| 1490 | Words (form) | ummistunud | blocked, clogged | |
+| 1491 | Words (word) | toru | a pipe | |
+| 1492 | Words (form) | vahetada | to change, after must or can | |
+| 1493 | Words (form) | vahetage | change!, polite | |
+| 1494 | Words (form) | vahetas | he changed, she changed | |
+| 1495 | How it works | Kraan lekib, Valamu on ummistunud, Lamp ei tööta, Toru tuleb vahetada | Say what's wrong in one short sentence: {Kraan lekib}, {Valamu on ummistunud}, {Lamp ei tööta}. Then say what has to happen: {Toru tuleb vahetada}. | |
+| 1496 | How it works | Tuleb, Toru tuleb vahetada | {Tuleb} with a da-form says what has to be done, and nobody is named: {Toru tuleb vahetada}. | |
+| 1497 | How it works | Ummistunud, on, katki | {Ummistunud} is a -nud word: it says what has happened to the sink, so after {on} it works like {katki}. | |
+| 1498 | How it works | Võimalik, et, Võimalik, et toru tuleb vahetada | {Võimalik, et} is maybe: {Võimalik, et toru tuleb vahetada}, the pipe may need changing. | |
+| 1499 | How it works | parandama, vahetama | To fix is {parandama}; to change for a new one is {vahetama}. A repairman fixes a tap, but you change a bulb. | |
+| 1500 | How it works, table | Kraan lekib. | The tap is leaking. | |
+| 1501 | How it works, table | Valamu on ummistunud. | The sink is blocked. | |
+| 1502 | How it works, table | Lamp ei tööta. | The light isn't working. | |
+| 1503 | How it works, table | Toru tuleb vahetada. | The pipe needs changing. | |
+| 1504 | Say it, model answer | Köögis lekib kraan. | The kitchen tap is leaking. | |
+| 1505 | Say it, model answer | Valamu on ummistunud. | The sink is blocked. | |
+| 1506 | Say it, model answer | Toru tuleb vahetada. | The pipe needs changing. | |
+| 1507 | Say it, question | Kas te proovisite kraani ise parandada? | Did you try to fix the tap yourself? | |
+| 1508 | Say it, model answer | Jah, proovisin. | Yes, I did. | |
 
 #### B1 26. The contract (`b1-26-contract`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 1503 | Conversation, Tom | Mari, vaata! See on meie uus üürileping. | Mari, look! This is our new rental contract. | |
-| 1504 | Conversation, Mari | Loeme läbi. Kes maksab, kui midagi katki läheb? | Let's read it through. Who pays when something breaks? | |
-| 1505 | Conversation, Tom | Siin on kirjas: kui midagi läheb katki, parandab selle üürileandja. | It says here: if something breaks, the landlord fixes it. | |
-| 1506 | Conversation, Mari | Tore. Siis ei pea sina maksma. | Great. Then you don't have to pay. | |
-| 1507 | Conversation, Tom | Ja siin on veel: üürnik peab kaks kuud ette teatama. | And there's more here: the tenant has to give two months' notice. | |
-| 1508 | Conversation, Mari | Kaks kuud? See on ju pikk aeg. | Two months? That's a long time. | |
-| 1509 | Conversation, Tom | Ja kui ma lepingu varem lõpetan, kaotan osa tagatisrahast. | And if I end the contract early, I lose part of the deposit. | |
-| 1510 | Conversation, Mari | Kui suur on teie tagatisraha? | How big is your deposit? | |
-| 1511 | Conversation, Tom | Ühe kuu üür. 900 eurot. | One month's rent. 900 euros. | |
-| 1512 | Conversation, Mari | Ja mis see lause tähendab? | And what does this sentence mean? | |
-| 1513 | Conversation, Tom | Ma ei saa sellest lausest üldse aru. Ja ma olen programmeerija! | I don't understand that sentence at all. And I'm a programmer! | |
-| 1514 | Conversation, Mari | See on ju lihtne. Kui korter on korras, saad tagatisraha tagasi. | But it's simple. If the apartment is in good order, you get the deposit back. | |
-| 1515 | Conversation, Tom | Nagu Peetri korteris. Seal oli põrand juba enne mind kriimustatud ja see on lepingus kirjas. | Like at Peeter's place. The floor there was scratched before I came, and that's written in the contract. | |
-| 1516 | Conversation, Mari | Hea, et see on kirjas! | Good thing it's written down! | |
-| 1517 | Words (word) | üürileping | a rental contract, a lease | |
-| 1518 | Words (form) | üürilepingu | of the rental contract | |
-| 1519 | Words (form) | lepingut | the contract, after {ei} | |
-| 1520 | Words (word) | kirjas | written down; {on kirjas}, it says | |
-| 1521 | Words (word) | üürnik | a tenant | |
-| 1522 | Words (word) | üürileandja | a landlord | |
-| 1523 | Words (word) | ette | ahead, in advance | |
-| 1524 | Words (verb) | teatama | to let know, to notify | |
-| 1525 | Words (verb, I form) | teatan | I let know | |
-| 1526 | Words (verb) | kaotama | to lose | |
-| 1527 | Words (verb, I form) | kaotan | I lose | |
-| 1528 | Words (word) | korras | in good order, all right | |
-| 1529 | Words (form) | kriimustatud | scratched | |
-| 1530 | How it works | üür, tagatisraha, ette teatama, kaks kuud ette | A contract's words: {üür} is the rent, {tagatisraha} the deposit, and to give notice is {ette teatama}: {kaks kuud ette}, two months ahead. | |
-| 1531 | How it works | Ette, kaks kuud ette, kaks kuud | {Ette} after a stretch of time is ahead: {kaks kuud ette}. The number takes the [osastav] (3rd form), as always: {kaks kuud}. | |
-| 1532 | How it works | Osa, osa tagatisrahast | {Osa} is a part, and what it's a part of takes -st: {osa tagatisrahast}, part of the deposit. | |
-| 1533 | How it works | Siin on kirjas | {Siin on kirjas} is how you point at what a paper says: it says here. | |
-| 1534 | How it works | välja kolima, välja, Ma kolin välja, Ma kolin | Moving out is {välja kolima}, with {välja}: {Ma kolin välja}. {Ma kolin} alone could be moving anywhere. | |
-| 1535 | How it works, table | Üürnik peab kaks kuud ette teatama. | The tenant has to give two months' notice. | |
-| 1536 | How it works, table | Tagatisraha on ühe kuu üür. | The deposit is one month's rent. | |
-| 1537 | How it works, table | Kui korter on korras, saab üürnik tagatisraha tagasi. | If the apartment is in good order, the tenant gets the deposit back. | |
-| 1538 | How it works, table | Ma lõpetan lepingu. | I'm ending the contract. | |
-| 1539 | Say it, question | Kui suur on sinu üür? | How much is your rent? | |
-| 1540 | Say it, model answer | Minu üür on 600 eurot kuus. | My rent is 600 euros a month. | |
-| 1541 | Say it, model answer | Ma pean kaks kuud ette teatama. | I have to give two months' notice. | |
-| 1542 | Say it, model answer | Kui korter on korras, saan ma tagatisraha tagasi. | If the apartment is in good order, I get the deposit back. | |
-| 1543 | Say it, model answer | Ma ei saa sellest lausest üldse aru. | I don't understand this sentence at all. | |
+| 1509 | Conversation, Tom | Mari, vaata! See on meie uus üürileping. | Mari, look! This is our new rental contract. | |
+| 1510 | Conversation, Mari | Loeme läbi. Kes maksab, kui midagi katki läheb? | Let's read it through. Who pays when something breaks? | |
+| 1511 | Conversation, Tom | Siin on kirjas: kui midagi läheb katki, parandab selle üürileandja. | It says here: if something breaks, the landlord fixes it. | |
+| 1512 | Conversation, Mari | Tore. Siis ei pea sina maksma. | Great. Then you don't have to pay. | |
+| 1513 | Conversation, Tom | Ja siin on veel: üürnik peab kaks kuud ette teatama. | And there's more here: the tenant has to give two months' notice. | |
+| 1514 | Conversation, Mari | Kaks kuud? See on ju pikk aeg. | Two months? That's a long time. | |
+| 1515 | Conversation, Tom | Ja kui ma lepingu varem lõpetan, kaotan osa tagatisrahast. | And if I end the contract early, I lose part of the deposit. | |
+| 1516 | Conversation, Mari | Kui suur on teie tagatisraha? | How big is your deposit? | |
+| 1517 | Conversation, Tom | Ühe kuu üür. 900 eurot. | One month's rent. 900 euros. | |
+| 1518 | Conversation, Mari | Ja mis see lause tähendab? | And what does this sentence mean? | |
+| 1519 | Conversation, Tom | Ma ei saa sellest lausest üldse aru. Ja ma olen programmeerija! | I don't understand that sentence at all. And I'm a programmer! | |
+| 1520 | Conversation, Mari | See on ju lihtne. Kui korter on korras, saad tagatisraha tagasi. | But it's simple. If the apartment is in good order, you get the deposit back. | |
+| 1521 | Conversation, Tom | Nagu Peetri korteris. Seal oli põrand juba enne mind kriimustatud ja see on lepingus kirjas. | Like at Peeter's place. The floor there was scratched before I came, and that's written in the contract. | |
+| 1522 | Conversation, Mari | Hea, et see on kirjas! | Good thing it's written down! | |
+| 1523 | Words (word) | üürileping | a rental contract, a lease | |
+| 1524 | Words (form) | üürilepingu | of the rental contract | |
+| 1525 | Words (form) | lepingut | the contract, after {ei} | |
+| 1526 | Words (word) | kirjas | written down; {on kirjas}, it says | |
+| 1527 | Words (word) | üürnik | a tenant | |
+| 1528 | Words (word) | üürileandja | a landlord | |
+| 1529 | Words (word) | ette | ahead, in advance | |
+| 1530 | Words (verb) | teatama | to let know, to notify | |
+| 1531 | Words (verb, I form) | teatan | I let know | |
+| 1532 | Words (verb) | kaotama | to lose | |
+| 1533 | Words (verb, I form) | kaotan | I lose | |
+| 1534 | Words (word) | korras | in good order, all right | |
+| 1535 | Words (form) | kriimustatud | scratched | |
+| 1536 | How it works | üür, tagatisraha, ette teatama, kaks kuud ette | A contract's words: {üür} is the rent, {tagatisraha} the deposit, and to give notice is {ette teatama}: {kaks kuud ette}, two months ahead. | |
+| 1537 | How it works | Ette, kaks kuud ette, kaks kuud | {Ette} after a stretch of time is ahead: {kaks kuud ette}. The number takes the [osastav] (3rd form), as always: {kaks kuud}. | |
+| 1538 | How it works | Osa, osa tagatisrahast | {Osa} is a part, and what it's a part of takes -st: {osa tagatisrahast}, part of the deposit. | |
+| 1539 | How it works | Siin on kirjas | {Siin on kirjas} is how you point at what a paper says: it says here. | |
+| 1540 | How it works | välja kolima, välja, Ma kolin välja, Ma kolin | Moving out is {välja kolima}, with {välja}: {Ma kolin välja}. {Ma kolin} alone could be moving anywhere. | |
+| 1541 | How it works, table | Üürnik peab kaks kuud ette teatama. | The tenant has to give two months' notice. | |
+| 1542 | How it works, table | Tagatisraha on ühe kuu üür. | The deposit is one month's rent. | |
+| 1543 | How it works, table | Kui korter on korras, saab üürnik tagatisraha tagasi. | If the apartment is in good order, the tenant gets the deposit back. | |
+| 1544 | How it works, table | Ma lõpetan lepingu. | I'm ending the contract. | |
+| 1545 | Say it, question | Kui suur on sinu üür? | How much is your rent? | |
+| 1546 | Say it, model answer | Minu üür on 600 eurot kuus. | My rent is 600 euros a month. | |
+| 1547 | Say it, model answer | Ma pean kaks kuud ette teatama. | I have to give two months' notice. | |
+| 1548 | Say it, model answer | Kui korter on korras, saan ma tagatisraha tagasi. | If the apartment is in good order, I get the deposit back. | |
+| 1549 | Say it, model answer | Ma ei saa sellest lausest üldse aru. | I don't understand this sentence at all. | |
 
 #### B1 27. A complaint to the landlord (`b1-27-complaint`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 1544 | Conversation, Kadri | Tom, miks sa tööl mütsi kannad? | Tom, why are you wearing a hat at work? | |
-| 1545 | Conversation, Tom | Meil uues korteris ei tööta küte juba nädal aega. Ma kannan mütsi ka kodus. | The heating in our new apartment hasn't worked for a week now. I wear a hat at home too. | |
-| 1546 | Conversation, Kadri | Nädal aega? Kas sa juba helistasid? | A week? Have you called already? | |
-| 1547 | Conversation, Tom | Helistasin kolm korda. Urmas ütleb alati, et meister tuleb homme. | Three times. Urmas, the landlord, always says the repairman is coming tomorrow. | |
-| 1548 | Conversation, Kadri | Ja meister ei tule? | And the repairman doesn't come? | |
-| 1549 | Conversation, Tom | Ei tule. Toas on ainult 15 kraadi. | He doesn't. It's only 15 degrees indoors. | |
-| 1550 | Conversation, Kadri | Siis kirjuta talle kaebus. Kirjalikult, viisakalt, aga kindlalt. | Then write him a complaint. In writing, politely, but firmly. | |
-| 1551 | Conversation, Tom | Kaebus? Aga ta on ju tore mees. | A complaint? But he's a nice man. | |
-| 1552 | Conversation, Kadri | Tore mees, aga külm korter. Kirjuta, et sa ootad vastust reedeks. | A nice man, but a cold apartment. Write that you expect an answer by Friday. | |
-| 1553 | Conversation, Tom | Ja kuidas ma kirja alustan? | And how do I start the letter? | |
-| 1554 | Conversation, Kadri | Lugupeetud Urmas! Ja lõpus: lugupidamisega, Tom. | Dear Urmas. And at the end: Sincerely, Tom. | |
-| 1555 | Conversation, Tom | See on väga ametlik. | That's very formal. | |
-| 1556 | Conversation, Kadri | Just. Siis ta saab aru, et asi on tõsine. | Exactly. Then he'll understand it's serious. | |
-| 1557 | Conversation, Tom | Olgu. Kirjutan kohe. Mütsiga. | OK. I'll write it right away. In my hat. | |
-| 1558 | Words (verb, I form) | kannan | I wear | |
-| 1559 | Words (form) | kandsin | I wore | |
-| 1560 | Words (form) | helistasin | I called, I phoned | |
-| 1561 | Words (word) | kirjalikult | in writing | |
-| 1562 | Words (word) | viisakalt | politely | |
-| 1563 | Words (word) | kindlalt | firmly | |
-| 1564 | Words (form) | vastust | an answer, while you wait for it | |
-| 1565 | Words (form) | vastas | he answered, she answered | |
-| 1566 | Words (form) | kirjutasin | I wrote | |
-| 1567 | Words (word) | lugupeetud | dear (opening a formal letter) | |
-| 1568 | Words (word) | lugupidamisega | sincerely, with respect (closing a formal letter) | |
-| 1569 | Words (word) | ametlik | formal, official | |
-| 1570 | Words (word) | tõsine | serious | |
-| 1571 | Words (form) | mütsiga | with a hat, in a hat | |
-| 1572 | Words (form) | saatke | send!, polite | |
-| 1573 | Words (word) | hiljemalt | at the latest | |
-| 1574 | How it works | Palun saatke meister hiljemalt reedeks | A complaint opens politely, says what's wrong and since when, says what you've done, and asks for one thing by a date: {Palun saatke meister hiljemalt reedeks}. | |
-| 1575 | How it works | Juba nädal aega, Küte ei tööta juba nädal aega | {Juba nädal aega} is for a week now, and the verb stays in the present: {Küte ei tööta juba nädal aega}. | |
-| 1576 | How it works | teie, Ma ootan teie vastust | In a letter to a landlord you write {teie} all the way through: {Ma ootan teie vastust}. | |
-| 1577 | How it works | Hiljemalt reedeks | {Hiljemalt reedeks} is by Friday at the latest: -ks on a day says by then. | |
-| 1578 | How it works | Küte ei tööta juba nädal aega | English says it has been broken for a week, with has been. Estonian keeps the plain present: {Küte ei tööta juba nädal aega}. | |
-| 1579 | How it works, table | Lugupeetud Urmas! | Opening | |
-| 1580 | How it works, table | Küte ei tööta juba nädal aega. | What's wrong, since when | |
-| 1581 | How it works, table | Ma helistasin teile kolm korda. | What you've done | |
-| 1582 | How it works, table | Palun saatke meister hiljemalt reedeks. | What you want, by when | |
-| 1583 | How it works, table | Lugupidamisega, Tom | Closing | |
-| 1584 | Say it, question | Mis sinu korteris katki on? | What's broken in your apartment? | |
-| 1585 | Say it, model answer | Küte ei tööta juba nädal aega. | The heating hasn't worked for a week. | |
-| 1586 | Say it, model answer | Ma helistasin talle kolm korda. | I called him three times. | |
-| 1587 | Say it, model answer | Palun saatke meister hiljemalt reedeks. | Please send a repairman by Friday at the latest. | |
-| 1588 | Say it, model answer | Lugupidamisega, Tom. | Sincerely, Tom. | |
+| 1550 | Conversation, Kadri | Tom, miks sa tööl mütsi kannad? | Tom, why are you wearing a hat at work? | |
+| 1551 | Conversation, Tom | Meil uues korteris ei tööta küte juba nädal aega. Ma kannan mütsi ka kodus. | The heating in our new apartment hasn't worked for a week now. I wear a hat at home too. | |
+| 1552 | Conversation, Kadri | Nädal aega? Kas sa juba helistasid? | A week? Have you called already? | |
+| 1553 | Conversation, Tom | Helistasin kolm korda. Urmas ütleb alati, et meister tuleb homme. | Three times. Urmas, the landlord, always says the repairman is coming tomorrow. | |
+| 1554 | Conversation, Kadri | Ja meister ei tule? | And the repairman doesn't come? | |
+| 1555 | Conversation, Tom | Ei tule. Toas on ainult 15 kraadi. | He doesn't. It's only 15 degrees indoors. | |
+| 1556 | Conversation, Kadri | Siis kirjuta talle kaebus. Kirjalikult, viisakalt, aga kindlalt. | Then write him a complaint. In writing, politely, but firmly. | |
+| 1557 | Conversation, Tom | Kaebus? Aga ta on ju tore mees. | A complaint? But he's a nice man. | |
+| 1558 | Conversation, Kadri | Tore mees, aga külm korter. Kirjuta, et sa ootad vastust reedeks. | A nice man, but a cold apartment. Write that you expect an answer by Friday. | |
+| 1559 | Conversation, Tom | Ja kuidas ma kirja alustan? | And how do I start the letter? | |
+| 1560 | Conversation, Kadri | Lugupeetud Urmas! Ja lõpus: lugupidamisega, Tom. | Dear Urmas. And at the end: Sincerely, Tom. | |
+| 1561 | Conversation, Tom | See on väga ametlik. | That's very formal. | |
+| 1562 | Conversation, Kadri | Just. Siis ta saab aru, et asi on tõsine. | Exactly. Then he'll understand it's serious. | |
+| 1563 | Conversation, Tom | Olgu. Kirjutan kohe. Mütsiga. | OK. I'll write it right away. In my hat. | |
+| 1564 | Words (verb, I form) | kannan | I wear | |
+| 1565 | Words (form) | kandsin | I wore | |
+| 1566 | Words (form) | helistasin | I called, I phoned | |
+| 1567 | Words (word) | kirjalikult | in writing | |
+| 1568 | Words (word) | viisakalt | politely | |
+| 1569 | Words (word) | kindlalt | firmly | |
+| 1570 | Words (form) | vastust | an answer, while you wait for it | |
+| 1571 | Words (form) | vastas | he answered, she answered | |
+| 1572 | Words (form) | kirjutasin | I wrote | |
+| 1573 | Words (word) | lugupeetud | dear (opening a formal letter) | |
+| 1574 | Words (word) | lugupidamisega | sincerely, with respect (closing a formal letter) | |
+| 1575 | Words (word) | ametlik | formal, official | |
+| 1576 | Words (word) | tõsine | serious | |
+| 1577 | Words (form) | mütsiga | with a hat, in a hat | |
+| 1578 | Words (form) | saatke | send!, polite | |
+| 1579 | Words (word) | hiljemalt | at the latest | |
+| 1580 | How it works | Palun saatke meister hiljemalt reedeks | A complaint opens politely, says what's wrong and since when, says what you've done, and asks for one thing by a date: {Palun saatke meister hiljemalt reedeks}. | |
+| 1581 | How it works | Juba nädal aega, Küte ei tööta juba nädal aega | {Juba nädal aega} is for a week now, and the verb stays in the present: {Küte ei tööta juba nädal aega}. | |
+| 1582 | How it works | teie, Ma ootan teie vastust | In a letter to a landlord you write {teie} all the way through: {Ma ootan teie vastust}. | |
+| 1583 | How it works | Hiljemalt reedeks | {Hiljemalt reedeks} is by Friday at the latest: -ks on a day says by then. | |
+| 1584 | How it works | Küte ei tööta juba nädal aega | English says it has been broken for a week, with has been. Estonian keeps the plain present: {Küte ei tööta juba nädal aega}. | |
+| 1585 | How it works, table | Lugupeetud Urmas! | Opening | |
+| 1586 | How it works, table | Küte ei tööta juba nädal aega. | What's wrong, since when | |
+| 1587 | How it works, table | Ma helistasin teile kolm korda. | What you've done | |
+| 1588 | How it works, table | Palun saatke meister hiljemalt reedeks. | What you want, by when | |
+| 1589 | How it works, table | Lugupidamisega, Tom | Closing | |
+| 1590 | Say it, question | Mis sinu korteris katki on? | What's broken in your apartment? | |
+| 1591 | Say it, model answer | Küte ei tööta juba nädal aega. | The heating hasn't worked for a week. | |
+| 1592 | Say it, model answer | Ma helistasin talle kolm korda. | I called him three times. | |
+| 1593 | Say it, model answer | Palun saatke meister hiljemalt reedeks. | Please send a repairman by Friday at the latest. | |
+| 1594 | Say it, model answer | Lugupidamisega, Tom. | Sincerely, Tom. | |
 
 #### B1 28. Getting your deposit back (`b1-28-deposit`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 1589 | Conversation, Peeter | Tere, Tom. Vaatame korteri koos läbi. | Hello, Tom. Let's walk through the apartment together. | |
-| 1590 | Conversation, Tom | Tere! Kõik on korras. Ma koristasin eile terve päeva. | Hello! Everything's in order. I cleaned all day yesterday. | |
-| 1591 | Conversation, Peeter | Köök on küll ilus, aga põrand on kriimustatud. | The kitchen looks nice, but the floor is scratched. | |
-| 1592 | Conversation, Tom | See oli juba enne mind kriimustatud. | It was scratched before I came. | |
-| 1593 | Conversation, Peeter | Võimalik, aga osa tagatisrahast jääb mulle. | Maybe, but part of the deposit stays with me. | |
-| 1594 | Conversation, Tom | Vabandust, aga see on lepingus kirjas. Vaata ise! | Sorry, but it's written in the contract. See for yourself! | |
-| 1595 | Conversation, Peeter | Tõesti? Vaatame lepingut. | Really? Let's look at the contract. | |
-| 1596 | Conversation, Peeter | Jah, siin on see kirjas. | Yes, it says so here. | |
-| 1597 | Conversation, Tom | Ja ma parandasin ise köögis kraani. | And I fixed the kitchen tap myself. | |
-| 1598 | Conversation, Peeter | Ma mäletan seda kraani väga hästi. | I remember that tap very well. | |
-| 1599 | Conversation, Tom | Nii et ma saan terve tagatisraha tagasi? | So I get the whole deposit back? | |
-| 1600 | Conversation, Peeter | Jah, saad. Sa olid hea üürnik. Ainult natuke liiga hea meister. | Yes, you do. You were a good tenant. Just a bit too good a handyman. | |
-| 1601 | How it works | kriimustatud, lepingus kirjas | The whole part at once: what the apartment is like in -tud words ({kriimustatud}), what's in the contract ({lepingus kirjas}), what broke and what you fixed, and the deposit. | |
-| 1602 | How it works | Vabandust, aga, Vabandage, aga, teie | Disagree politely: {Vabandust, aga} and then the fact. {Vabandage, aga} says the same to somebody you call {teie}. | |
-| 1603 | How it works | See on lepingus kirjas | Point at the paper: {See on lepingus kirjas}. | |
-| 1604 | How it works | Kas ma saan terve tagatisraha tagasi? | Then ask for the one thing you want: {Kas ma saan terve tagatisraha tagasi?} | |
-| 1605 | How it works | oli, Põrand oli juba kriimustatud | After {oli} a -tud word still takes no ending: {Põrand oli juba kriimustatud}. | |
-| 1606 | Say it, question | Kas korter on korras? | Is the apartment in order? | |
-| 1607 | Say it, model answer | Kõik on korras. Ma koristasin eile terve päeva. | Everything's in order. I cleaned all day yesterday. | |
-| 1608 | Say it, question | Põrand on kriimustatud. | The floor is scratched. | |
-| 1609 | Say it, model answer | See oli juba enne mind kriimustatud. | It was scratched before I came. | |
-| 1610 | Say it, model answer | Kas ma saan terve tagatisraha tagasi? | Do I get the whole deposit back? | |
-| 1611 | Role-play, they say | Tere! Vaatame korteri koos läbi. | Hello! Let's walk through the apartment together. | |
-| 1612 | Role-play, model answer | Tere! Kõik on korras. | Hello! Everything's in order. | |
-| 1613 | Role-play, they say | Aga põrand on kriimustatud. | But the floor is scratched. | |
-| 1614 | Role-play, model answer | See oli juba enne mind kriimustatud. | It was scratched before I came. | |
-| 1615 | Role-play, they say | Võimalik, aga osa tagatisrahast jääb mulle. | Maybe, but part of the deposit stays with me. | |
-| 1616 | Role-play, model answer | Vabandage, aga see on lepingus kirjas. | Excuse me, but it's written in the contract. | |
-| 1617 | Role-play, they say | Kas veel midagi on katki? | Is anything else broken? | |
-| 1618 | Role-play, model answer | Ei. Ma parandasin ise köögis kraani. | No. I fixed the kitchen tap myself. | |
-| 1619 | Role-play, they say | Aga vannitoas ei tööta lamp. | But the light in the bathroom isn't working. | |
-| 1620 | Role-play, model answer | Ainult pirn tuleb vahetada. | Only the bulb needs changing. | |
-| 1621 | Role-play, model answer | Kas ma saan terve tagatisraha tagasi? | Do I get the whole deposit back? | |
-| 1622 | Role-play, they say | Jah, saate. Te olite hea üürnik. | Yes, you do. You were a good tenant. | |
-| 1623 | Live scene, they say (order) | Vaatame korteri koos läbi. Kas kõik on korras? |  | |
-| 1624 | Live scene, they say (order) | Kas kõik on korras? |  | |
-| 1625 | Live scene, they say (floor) | Aga põrand on kriimustatud. |  | |
-| 1626 | Live scene, they say (floor) | Vaadake, põrand on kriimustatud. |  | |
-| 1627 | Live scene, they say (deposit) | Võimalik, aga osa tagatisrahast jääb mulle. |  | |
-| 1628 | Live scene, they say (deposit) | Osa tagatisrahast jääb ikka mulle. |  | |
-| 1629 | Live scene, they say (else) | Kas veel midagi on katki? |  | |
-| 1630 | Live scene, they say (else) | Selge. Kas veel midagi on katki? |  | |
-| 1631 | Live scene, they say (light) | Aga vannitoas ei tööta lamp. |  | |
-| 1632 | Live scene, they say (light) | Ja vannitoas lamp ei tööta. |  | |
-| 1633 | Live scene, they say (back) | Hästi. Mis veel? |  | |
-| 1634 | Live scene, they say (back) | Olgu. Mis veel? |  | |
-| 1635 | Live scene, they say (close) | Jah, saate. Te olite hea üürnik. Head aega! |  | |
-| 1636 | Live scene, they say (close) | Saate küll. Aitäh ja head aega! |  | |
-| 1637 | Live scene, learner may pick (order) | Jah, kõik on korras. Ma koristasin eile terve päeva. | Yes, everything's in order. I cleaned all day yesterday. | |
-| 1638 | Live scene, learner may pick (order) | Kõik on korras. | Everything's in order. | |
-| 1639 | Live scene, learner may pick (floor) | See oli juba enne mind kriimustatud. | It was scratched before I came. | |
-| 1640 | Live scene, learner may pick (floor) | Kui ma sisse kolisin, oli põrand juba kriimustatud. | When I moved in, the floor was already scratched. | |
-| 1641 | Live scene, learner may pick (deposit) | Vabandage, aga see on lepingus kirjas. | Excuse me, but it's written in the contract. | |
-| 1642 | Live scene, learner may pick (deposit) | Vaatame lepingut. | Let's look at the contract. | |
-| 1643 | Live scene, learner may pick (else) | Ei. Ma parandasin ise köögis kraani. | No. I fixed the kitchen tap myself. | |
-| 1644 | Live scene, learner may pick (else) | Ei, kõik töötab. | No, everything works. | |
-| 1645 | Live scene, learner may pick (light) | See on ainult pirn, see tuleb vahetada. | It's only the bulb. It needs changing. | |
-| 1646 | Live scene, learner may pick (light) | Pirn tuleb vahetada. | The bulb needs changing. | |
-| 1647 | Live scene, learner may pick (back) | Kas ma saan terve tagatisraha tagasi? | Do I get the whole deposit back? | |
-| 1648 | Live scene, learner may pick (back) | Nii et ma saan tagatisraha tagasi? | So I get the deposit back? | |
+| 1595 | Conversation, Peeter | Tere, Tom. Vaatame korteri koos läbi. | Hello, Tom. Let's walk through the apartment together. | |
+| 1596 | Conversation, Tom | Tere! Kõik on korras. Ma koristasin eile terve päeva. | Hello! Everything's in order. I cleaned all day yesterday. | |
+| 1597 | Conversation, Peeter | Köök on küll ilus, aga põrand on kriimustatud. | The kitchen looks nice, but the floor is scratched. | |
+| 1598 | Conversation, Tom | See oli juba enne mind kriimustatud. | It was scratched before I came. | |
+| 1599 | Conversation, Peeter | Võimalik, aga osa tagatisrahast jääb mulle. | Maybe, but part of the deposit stays with me. | |
+| 1600 | Conversation, Tom | Vabandust, aga see on lepingus kirjas. Vaata ise! | Sorry, but it's written in the contract. See for yourself! | |
+| 1601 | Conversation, Peeter | Tõesti? Vaatame lepingut. | Really? Let's look at the contract. | |
+| 1602 | Conversation, Peeter | Jah, siin on see kirjas. | Yes, it says so here. | |
+| 1603 | Conversation, Tom | Ja ma parandasin ise köögis kraani. | And I fixed the kitchen tap myself. | |
+| 1604 | Conversation, Peeter | Ma mäletan seda kraani väga hästi. | I remember that tap very well. | |
+| 1605 | Conversation, Tom | Nii et ma saan terve tagatisraha tagasi? | So I get the whole deposit back? | |
+| 1606 | Conversation, Peeter | Jah, saad. Sa olid hea üürnik. Ainult natuke liiga hea meister. | Yes, you do. You were a good tenant. Just a bit too good a handyman. | |
+| 1607 | How it works | kriimustatud, lepingus kirjas | The whole part at once: what the apartment is like in -tud words ({kriimustatud}), what's in the contract ({lepingus kirjas}), what broke and what you fixed, and the deposit. | |
+| 1608 | How it works | Vabandust, aga, Vabandage, aga, teie | Disagree politely: {Vabandust, aga} and then the fact. {Vabandage, aga} says the same to somebody you call {teie}. | |
+| 1609 | How it works | See on lepingus kirjas | Point at the paper: {See on lepingus kirjas}. | |
+| 1610 | How it works | Kas ma saan terve tagatisraha tagasi? | Then ask for the one thing you want: {Kas ma saan terve tagatisraha tagasi?} | |
+| 1611 | How it works | oli, Põrand oli juba kriimustatud | After {oli} a -tud word still takes no ending: {Põrand oli juba kriimustatud}. | |
+| 1612 | Say it, question | Kas korter on korras? | Is the apartment in order? | |
+| 1613 | Say it, model answer | Kõik on korras. Ma koristasin eile terve päeva. | Everything's in order. I cleaned all day yesterday. | |
+| 1614 | Say it, question | Põrand on kriimustatud. | The floor is scratched. | |
+| 1615 | Say it, model answer | See oli juba enne mind kriimustatud. | It was scratched before I came. | |
+| 1616 | Say it, model answer | Kas ma saan terve tagatisraha tagasi? | Do I get the whole deposit back? | |
+| 1617 | Role-play, they say | Tere! Vaatame korteri koos läbi. | Hello! Let's walk through the apartment together. | |
+| 1618 | Role-play, model answer | Tere! Kõik on korras. | Hello! Everything's in order. | |
+| 1619 | Role-play, they say | Aga põrand on kriimustatud. | But the floor is scratched. | |
+| 1620 | Role-play, model answer | See oli juba enne mind kriimustatud. | It was scratched before I came. | |
+| 1621 | Role-play, they say | Võimalik, aga osa tagatisrahast jääb mulle. | Maybe, but part of the deposit stays with me. | |
+| 1622 | Role-play, model answer | Vabandage, aga see on lepingus kirjas. | Excuse me, but it's written in the contract. | |
+| 1623 | Role-play, they say | Kas veel midagi on katki? | Is anything else broken? | |
+| 1624 | Role-play, model answer | Ei. Ma parandasin ise köögis kraani. | No. I fixed the kitchen tap myself. | |
+| 1625 | Role-play, they say | Aga vannitoas ei tööta lamp. | But the light in the bathroom isn't working. | |
+| 1626 | Role-play, model answer | Ainult pirn tuleb vahetada. | Only the bulb needs changing. | |
+| 1627 | Role-play, model answer | Kas ma saan terve tagatisraha tagasi? | Do I get the whole deposit back? | |
+| 1628 | Role-play, they say | Jah, saate. Te olite hea üürnik. | Yes, you do. You were a good tenant. | |
+| 1629 | Live scene, they say (order) | Vaatame korteri koos läbi. Kas kõik on korras? |  | |
+| 1630 | Live scene, they say (order) | Kas kõik on korras? |  | |
+| 1631 | Live scene, they say (floor) | Aga põrand on kriimustatud. |  | |
+| 1632 | Live scene, they say (floor) | Vaadake, põrand on kriimustatud. |  | |
+| 1633 | Live scene, they say (deposit) | Võimalik, aga osa tagatisrahast jääb mulle. |  | |
+| 1634 | Live scene, they say (deposit) | Osa tagatisrahast jääb ikka mulle. |  | |
+| 1635 | Live scene, they say (else) | Kas veel midagi on katki? |  | |
+| 1636 | Live scene, they say (else) | Selge. Kas veel midagi on katki? |  | |
+| 1637 | Live scene, they say (light) | Aga vannitoas ei tööta lamp. |  | |
+| 1638 | Live scene, they say (light) | Ja vannitoas lamp ei tööta. |  | |
+| 1639 | Live scene, they say (back) | Hästi. Mis veel? |  | |
+| 1640 | Live scene, they say (back) | Olgu. Mis veel? |  | |
+| 1641 | Live scene, they say (close) | Jah, saate. Te olite hea üürnik. Head aega! |  | |
+| 1642 | Live scene, they say (close) | Saate küll. Aitäh ja head aega! |  | |
+| 1643 | Live scene, learner may pick (order) | Jah, kõik on korras. Ma koristasin eile terve päeva. | Yes, everything's in order. I cleaned all day yesterday. | |
+| 1644 | Live scene, learner may pick (order) | Kõik on korras. | Everything's in order. | |
+| 1645 | Live scene, learner may pick (floor) | See oli juba enne mind kriimustatud. | It was scratched before I came. | |
+| 1646 | Live scene, learner may pick (floor) | Kui ma sisse kolisin, oli põrand juba kriimustatud. | When I moved in, the floor was already scratched. | |
+| 1647 | Live scene, learner may pick (deposit) | Vabandage, aga see on lepingus kirjas. | Excuse me, but it's written in the contract. | |
+| 1648 | Live scene, learner may pick (deposit) | Vaatame lepingut. | Let's look at the contract. | |
+| 1649 | Live scene, learner may pick (else) | Ei. Ma parandasin ise köögis kraani. | No. I fixed the kitchen tap myself. | |
+| 1650 | Live scene, learner may pick (else) | Ei, kõik töötab. | No, everything works. | |
+| 1651 | Live scene, learner may pick (light) | Ainult pirn tuleb vahetada. | Only the bulb needs changing. | |
+| 1652 | Live scene, learner may pick (light) | Pirn tuleb vahetada. | The bulb needs changing. | |
+| 1653 | Live scene, learner may pick (back) | Kas ma saan terve tagatisraha tagasi? | Do I get the whole deposit back? | |
+| 1654 | Live scene, learner may pick (back) | Nii et ma saan tagatisraha tagasi? | So I get the deposit back? | |
 
 ### B1: What happened, not who did it
 
@@ -2371,367 +2377,367 @@ Russian and Ukrainian.
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 1649 | Conversation, Anna | Tom, homme on su sünnipäev, eks? | Tom, it's your birthday tomorrow, right? | |
-| 1650 | Conversation, Tom | Jah! Kas te toote mulle kooki? | Yes! Are you bringing me cake? | |
-| 1651 | Conversation, Anna | Tegelikult tehakse seda Eestis teisiti. | Actually, in Estonia it's done the other way round. | |
-| 1652 | Conversation, Anna | Sünnipäeval tuuakse tööle kooki. | On your birthday, cake gets brought to work. | |
-| 1653 | Conversation, Tom | Kes selle toob? | Who brings it? | |
-| 1654 | Conversation, Anna | Sina ise! Ja siis juuakse koos kohvi. | You do, yourself! And then everybody has coffee together. | |
-| 1655 | Conversation, Tom | Huvitav. Mida Eestis veel tehakse? | Interesting. What else do people do in Estonia? | |
-| 1656 | Conversation, Anna | Jaaniõhtul tehakse lõket ja käiakse saunas. | On Midsummer Eve people light a bonfire and go to the sauna. | |
-| 1657 | Conversation, Tom | Seda ma tean. Aga miks liftis keegi ei räägi? | That I know. But why does nobody talk in the lift? | |
-| 1658 | Conversation, Anna | Liftis ei räägita. Siin on selline komme. | People don't talk in the lift. That's the custom here. | |
-| 1659 | Conversation, Tom | Üldse mitte? | Not at all? | |
-| 1660 | Conversation, Anna | Natuke ikka räägitakse. Ainult ilmast. | A little, yes. Only about the weather. | |
-| 1661 | Conversation, Tom | Hästi. Homme toon kooki. Kui palju seda süüakse? | All right. I'll bring cake tomorrow. How much of it gets eaten? | |
-| 1662 | Conversation, Anna | Kõik süüakse ära. Alati! | All of it. Always! | |
-| 1663 | Words (form) | räägitakse | people speak, it's spoken | |
-| 1664 | Words (form) | räägita | people speak, after {ei} | |
-| 1665 | Words (form) | tehakse | people do, people make, it's done | |
-| 1666 | Words (form) | tuuakse | people bring, it's brought | |
-| 1667 | Words (form) | juuakse | people drink, it's drunk | |
-| 1668 | Words (form) | käiakse | people go, people visit | |
-| 1669 | Words (form) | süüakse | people eat, it's eaten | |
-| 1670 | Words (form) | suitsetata | people smoke, after {ei} | |
-| 1671 | Words (word) | jaaniõhtul | on Midsummer Eve, June 23 | |
-| 1672 | Words (word) | lõke | bonfire | |
-| 1673 | Words (form) | lõket | a bonfire, as an object | |
-| 1674 | Words (form) | liftis | in the lift | |
-| 1675 | Words (word) | komme | custom, habit | |
-| 1676 | Words (form) | ilmast | about the weather | |
-| 1677 | Words (form) | igal | every (on, at) | |
-| 1678 | Words (form) | põles | burned, was burning | |
-| 1679 | How it works | Eestis räägitakse eesti keelt, Jaaniõhtul tehakse lõket, ei, Siin ei suitsetata | To say what people do without naming anybody, Estonian has one form of the verb, the [umbisikuline] (-takse, people do): {Eestis räägitakse eesti keelt}, {Jaaniõhtul tehakse lõket}. After {ei} it ends in -ta: {Siin ei suitsetata}. | |
-| 1680 | How it works | tehakse, tuuakse, süüakse | Learn each verb's form as it stands: {tehakse}, {tuuakse}, {süüakse}. They're in the Words step, one by one. | |
-| 1681 | How it works | Siin ei suitsetata | It's how signs talk too: {Siin ei suitsetata}, no smoking here. | |
-| 1682 | How it works | räägitakse, nad, me | No person in front of it: {räägitakse} already says people speak. Never {nad} or {me} with it. | |
-| 1683 | How it works, table | Me teeme lõket. | On Midsummer Eve people light a bonfire. | |
-| 1684 | How it works, table | Jaaniõhtul tehakse lõket. | On Midsummer Eve people light a bonfire. | |
-| 1685 | How it works, table | Me räägime eesti keelt. | Estonian is spoken in Estonia. | |
-| 1686 | How it works, table | Eestis räägitakse eesti keelt. | Estonian is spoken in Estonia. | |
-| 1687 | How it works, table | Sa tood kooki. | Cake gets brought on your birthday. | |
-| 1688 | How it works, table | Sünnipäeval tuuakse kooki. | Cake gets brought on your birthday. | |
-| 1689 | How it works, table | Me ei räägi liftis. | People don't talk in the lift. | |
-| 1690 | How it works, table | Liftis ei räägita. | People don't talk in the lift. | |
-| 1691 | Say it, question | Mis keelt Eestis räägitakse? | What language is spoken in Estonia? | |
-| 1692 | Say it, model answer | Eestis räägitakse eesti keelt. | Estonian is spoken in Estonia. | |
-| 1693 | Say it, question | Mida jaaniõhtul tehakse? | What do people do on Midsummer Eve? | |
-| 1694 | Say it, model answer | Jaaniõhtul tehakse lõket ja käiakse saunas. | On Midsummer Eve people light a bonfire and go to the sauna. | |
-| 1695 | Say it, model answer | Siin ei suitsetata. | No smoking here. | |
-| 1696 | Say it, question | Mida sünnipäeval tööle tuuakse? | What gets brought to work on a birthday? | |
-| 1697 | Say it, model answer | Sünnipäeval tuuakse kooki. | Cake gets brought on a birthday. | |
+| 1655 | Conversation, Anna | Tom, homme on su sünnipäev, eks? | Tom, it's your birthday tomorrow, right? | |
+| 1656 | Conversation, Tom | Jah! Kas te toote mulle kooki? | Yes! Are you bringing me cake? | |
+| 1657 | Conversation, Anna | Tegelikult tehakse seda Eestis teisiti. | Actually, in Estonia it's done the other way round. | |
+| 1658 | Conversation, Anna | Sünnipäeval tuuakse tööle kooki. | On your birthday, cake gets brought to work. | |
+| 1659 | Conversation, Tom | Kes selle toob? | Who brings it? | |
+| 1660 | Conversation, Anna | Sina ise! Ja siis juuakse koos kohvi. | You do, yourself! And then everybody has coffee together. | |
+| 1661 | Conversation, Tom | Huvitav. Mida Eestis veel tehakse? | Interesting. What else do people do in Estonia? | |
+| 1662 | Conversation, Anna | Jaaniõhtul tehakse lõket ja käiakse saunas. | On Midsummer Eve people light a bonfire and go to the sauna. | |
+| 1663 | Conversation, Tom | Seda ma tean. Aga miks liftis keegi ei räägi? | That I know. But why does nobody talk in the lift? | |
+| 1664 | Conversation, Anna | Liftis ei räägita. Siin on selline komme. | People don't talk in the lift. That's the custom here. | |
+| 1665 | Conversation, Tom | Üldse mitte? | Not at all? | |
+| 1666 | Conversation, Anna | Natuke ikka räägitakse. Ainult ilmast. | A little, yes. Only about the weather. | |
+| 1667 | Conversation, Tom | Hästi. Homme toon kooki. Kui palju seda süüakse? | All right. I'll bring cake tomorrow. How much of it gets eaten? | |
+| 1668 | Conversation, Anna | Kõik süüakse ära. Alati! | All of it. Always! | |
+| 1669 | Words (form) | räägitakse | people speak, it's spoken | |
+| 1670 | Words (form) | räägita | people speak, after {ei} | |
+| 1671 | Words (form) | tehakse | people do, people make, it's done | |
+| 1672 | Words (form) | tuuakse | people bring, it's brought | |
+| 1673 | Words (form) | juuakse | people drink, it's drunk | |
+| 1674 | Words (form) | käiakse | people go, people visit | |
+| 1675 | Words (form) | süüakse | people eat, it's eaten | |
+| 1676 | Words (form) | suitsetata | people smoke, after {ei} | |
+| 1677 | Words (word) | jaaniõhtul | on Midsummer Eve, June 23 | |
+| 1678 | Words (word) | lõke | bonfire | |
+| 1679 | Words (form) | lõket | a bonfire, as an object | |
+| 1680 | Words (form) | liftis | in the lift | |
+| 1681 | Words (word) | komme | custom, habit | |
+| 1682 | Words (form) | ilmast | about the weather | |
+| 1683 | Words (form) | igal | every (on, at) | |
+| 1684 | Words (form) | põles | burned, was burning | |
+| 1685 | How it works | Eestis räägitakse eesti keelt, Jaaniõhtul tehakse lõket, ei, Siin ei suitsetata | To say what people do without naming anybody, Estonian has one form of the verb, the [umbisikuline] (-takse, people do): {Eestis räägitakse eesti keelt}, {Jaaniõhtul tehakse lõket}. After {ei} it ends in -ta: {Siin ei suitsetata}. | |
+| 1686 | How it works | tehakse, tuuakse, süüakse | Learn each verb's form as it stands: {tehakse}, {tuuakse}, {süüakse}. They're in the Words step, one by one. | |
+| 1687 | How it works | Siin ei suitsetata | It's how signs talk too: {Siin ei suitsetata}, no smoking here. | |
+| 1688 | How it works | räägitakse, nad, me | No person in front of it: {räägitakse} already says people speak. Never {nad} or {me} with it. | |
+| 1689 | How it works, table | Me teeme lõket. | On Midsummer Eve people light a bonfire. | |
+| 1690 | How it works, table | Jaaniõhtul tehakse lõket. | On Midsummer Eve people light a bonfire. | |
+| 1691 | How it works, table | Me räägime eesti keelt. | Estonian is spoken in Estonia. | |
+| 1692 | How it works, table | Eestis räägitakse eesti keelt. | Estonian is spoken in Estonia. | |
+| 1693 | How it works, table | Sa tood kooki. | Cake gets brought on your birthday. | |
+| 1694 | How it works, table | Sünnipäeval tuuakse kooki. | Cake gets brought on your birthday. | |
+| 1695 | How it works, table | Me ei räägi liftis. | People don't talk in the lift. | |
+| 1696 | How it works, table | Liftis ei räägita. | People don't talk in the lift. | |
+| 1697 | Say it, question | Mis keelt Eestis räägitakse? | What language is spoken in Estonia? | |
+| 1698 | Say it, model answer | Eestis räägitakse eesti keelt. | Estonian is spoken in Estonia. | |
+| 1699 | Say it, question | Mida jaaniõhtul tehakse? | What do people do on Midsummer Eve? | |
+| 1700 | Say it, model answer | Jaaniõhtul tehakse lõket ja käiakse saunas. | On Midsummer Eve people light a bonfire and go to the sauna. | |
+| 1701 | Say it, model answer | Siin ei suitsetata. | No smoking here. | |
+| 1702 | Say it, question | Mida sünnipäeval tööle tuuakse? | What gets brought to work on a birthday? | |
+| 1703 | Say it, model answer | Sünnipäeval tuuakse kooki. | Cake gets brought on a birthday. | |
 
 #### B1 30. It was built in 1930 (`b1-30-was-built`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 1698 | Conversation, Mari | Vaata, Tom! See on raekoda. See ehitati väga ammu. | Look, Tom! That's the town hall. It was built a very long time ago. | |
-| 1699 | Conversation, Tom | Ilus! Ja see kollane maja seal üle tee? | Beautiful! And that yellow building across the road? | |
-| 1700 | Conversation, Mari | See ehitati 1930. aastal. Eelmisel aastal renoveeriti see ja avati hotellina. | That was built in 1930. Last year it was renovated and opened as a hotel. | |
-| 1701 | Conversation, Tom | Ja muuseum siin kõrval? Lähme sisse! | And the museum next door? Let's go in! | |
-| 1702 | Conversation, Mari | Ei saa. Muuseum suleti eelmisel kuul. | We can't. The museum was closed last month. | |
-| 1703 | Conversation, Mari | Seal on remont. Ja remondi ajal leiti seina seest vana raha! | There's building work. And during the work they found old money inside a wall! | |
-| 1704 | Conversation, Tom | Päriselt? Kas keegi sai rikkaks? | Really? Did anybody get rich? | |
-| 1705 | Conversation, Mari | Ei. Raha jäi muuseumile. | No. The museum kept the money. | |
-| 1706 | Conversation, Tom | Aga muuseum on ju kinni! | But the museum's closed! | |
-| 1707 | Conversation, Mari | Just. Raha ootab, nagu meie. | Exactly. The money's waiting, like us. | |
-| 1708 | Conversation, Tom | Millal muuseum jälle avatakse? | When does the museum open again? | |
-| 1709 | Conversation, Mari | Kevadel. Siis tuleme tagasi ja vaatame seda raha. | In the spring. Then we'll come back and look at that money. | |
-| 1710 | Words (word) | raekoda | town hall | |
-| 1711 | Words (form) | ehitati | was built | |
-| 1712 | Words (form) | ehitatud | built; {oli ehitatud}, had been built | |
-| 1713 | Words (form) | renoveeriti | was renovated | |
-| 1714 | Words (form) | avati | was opened | |
-| 1715 | Words (form) | avatakse | is opened, opens | |
-| 1716 | Words (form) | suleti | was closed | |
-| 1717 | Words (form) | remondi | of the building work | |
-| 1718 | Words (form) | ajal | during, at the time of | |
-| 1719 | Words (form) | seina | of the wall | |
-| 1720 | Words (form) | leiti | was found | |
-| 1721 | Words (word) | päriselt | really, for real | |
-| 1722 | Words (form) | rikkaks | rich, becoming | |
-| 1723 | Words (form) | viidi | was taken | |
-| 1724 | Words (form) | viiakse | is taken | |
-| 1725 | How it works | ehitati, viidi | Was done, with nobody named, ends in -ti or -di: {ehitati}, was built, {viidi}, was taken. It's the past of the [umbisikuline] (-takse, people do). | |
-| 1726 | How it works | avatakse, avati, viiakse, viidi | Now and then side by side: {avatakse}, it opens, and {avati}, it was opened; {viiakse}, it's taken, and {viidi}, it was taken. | |
-| 1727 | How it works | aastal, 1930. aastal | A year goes with {aastal}, and the number is read as which year: {1930. aastal}, in 1930. | |
-| 1728 | How it works | Ju, Muuseum on ju kinni! | {Ju} says you both know it: {Muuseum on ju kinni!}, but the museum's closed, as we know. | |
-| 1729 | How it works | ehitati, Oli ehitatud | Was built is the one word {ehitati}. {Oli ehitatud} is something else: had been built, before another thing happened. | |
-| 1730 | How it works, table | See maja ehitati 1930. aastal. | This building was built in 1930. | |
-| 1731 | How it works, table | Muuseum suleti eelmisel kuul. | The museum was closed last month. | |
-| 1732 | How it works, table | Seina seest leiti vana raha. | Old money was found inside a wall. | |
-| 1733 | How it works, table | Raha viidi muuseumi. | The money was taken to the museum. | |
-| 1734 | Say it, question | Millal see maja ehitati? | When was this building built? | |
-| 1735 | Say it, model answer | See ehitati 1930. aastal. | It was built in 1930. | |
-| 1736 | Say it, question | Miks muuseum kinni on? | Why is the museum closed? | |
-| 1737 | Say it, model answer | Seal on remont. | There's building work there. | |
-| 1738 | Say it, model answer | Eelmisel aastal avati uus kohvik. | A new café was opened last year. | |
-| 1739 | Say it, model answer | Millal muuseum jälle avatakse? | When does the museum open again? | |
+| 1704 | Conversation, Mari | Vaata, Tom! See on raekoda. See ehitati väga ammu. | Look, Tom! That's the town hall. It was built a very long time ago. | |
+| 1705 | Conversation, Tom | Ilus! Ja see kollane maja seal üle tee? | Beautiful! And that yellow building across the road? | |
+| 1706 | Conversation, Mari | See ehitati 1930. aastal. Eelmisel aastal renoveeriti see ja avati hotellina. | That was built in 1930. Last year it was renovated and opened as a hotel. | |
+| 1707 | Conversation, Tom | Ja muuseum siin kõrval? Lähme sisse! | And the museum next door? Let's go in! | |
+| 1708 | Conversation, Mari | Ei saa. Muuseum suleti eelmisel kuul. | We can't. The museum was closed last month. | |
+| 1709 | Conversation, Mari | Seal on remont. Ja remondi ajal leiti seina seest vana raha! | There's building work. And during the work they found old money inside a wall! | |
+| 1710 | Conversation, Tom | Päriselt? Kas keegi sai rikkaks? | Really? Did anybody get rich? | |
+| 1711 | Conversation, Mari | Ei. Raha jäi muuseumile. | No. The museum kept the money. | |
+| 1712 | Conversation, Tom | Aga muuseum on ju kinni! | But the museum's closed! | |
+| 1713 | Conversation, Mari | Just. Raha ootab, nagu meie. | Exactly. The money's waiting, like us. | |
+| 1714 | Conversation, Tom | Millal muuseum jälle avatakse? | When does the museum open again? | |
+| 1715 | Conversation, Mari | Kevadel. Siis tuleme tagasi ja vaatame seda raha. | In the spring. Then we'll come back and look at that money. | |
+| 1716 | Words (word) | raekoda | town hall | |
+| 1717 | Words (form) | ehitati | was built | |
+| 1718 | Words (form) | ehitatud | built; {oli ehitatud}, had been built | |
+| 1719 | Words (form) | renoveeriti | was renovated | |
+| 1720 | Words (form) | avati | was opened | |
+| 1721 | Words (form) | avatakse | is opened, opens | |
+| 1722 | Words (form) | suleti | was closed | |
+| 1723 | Words (form) | remondi | of the building work | |
+| 1724 | Words (form) | ajal | during, at the time of | |
+| 1725 | Words (form) | seina | of the wall | |
+| 1726 | Words (form) | leiti | was found | |
+| 1727 | Words (word) | päriselt | really, for real | |
+| 1728 | Words (form) | rikkaks | rich, becoming | |
+| 1729 | Words (form) | viidi | was taken | |
+| 1730 | Words (form) | viiakse | is taken | |
+| 1731 | How it works | ehitati, viidi | Was done, with nobody named, ends in -ti or -di: {ehitati}, was built, {viidi}, was taken. It's the past of the [umbisikuline] (-takse, people do). | |
+| 1732 | How it works | avatakse, avati, viiakse, viidi | Now and then side by side: {avatakse}, it opens, and {avati}, it was opened; {viiakse}, it's taken, and {viidi}, it was taken. | |
+| 1733 | How it works | aastal, 1930. aastal | A year goes with {aastal}, and the number is read as which year: {1930. aastal}, in 1930. | |
+| 1734 | How it works | Ju, Muuseum on ju kinni! | {Ju} says you both know it: {Muuseum on ju kinni!}, but the museum's closed, as we know. | |
+| 1735 | How it works | ehitati, Oli ehitatud | Was built is the one word {ehitati}. {Oli ehitatud} is something else: had been built, before another thing happened. | |
+| 1736 | How it works, table | See maja ehitati 1930. aastal. | This building was built in 1930. | |
+| 1737 | How it works, table | Muuseum suleti eelmisel kuul. | The museum was closed last month. | |
+| 1738 | How it works, table | Seina seest leiti vana raha. | Old money was found inside a wall. | |
+| 1739 | How it works, table | Raha viidi muuseumi. | The money was taken to the museum. | |
+| 1740 | Say it, question | Millal see maja ehitati? | When was this building built? | |
+| 1741 | Say it, model answer | See ehitati 1930. aastal. | It was built in 1930. | |
+| 1742 | Say it, question | Miks muuseum kinni on? | Why is the museum closed? | |
+| 1743 | Say it, model answer | Seal on remont. | There's building work there. | |
+| 1744 | Say it, model answer | Eelmisel aastal avati uus kohvik. | A new café was opened last year. | |
+| 1745 | Say it, model answer | Millal muuseum jälle avatakse? | When does the museum open again? | |
 
 #### B1 31. She had already gone (`b1-31-had-gone`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 1740 | Conversation, Mari | Tere, Tom! Kuidas su päev läks? | Hi, Tom! How did your day go? | |
-| 1741 | Conversation, Tom | Halvasti. Kui ma hommikul peatusse jõudsin, oli buss juba läinud. | Badly. When I got to the stop this morning, the bus had already gone. | |
-| 1742 | Conversation, Mari | Oi! Mis sa siis tegid? | Oh! What did you do then? | |
-| 1743 | Conversation, Tom | Ma võtsin takso. Aga kui ma tööle jõudsin, oli koosolek juba alanud. | I took a taxi. But when I got to work, the meeting had already started. | |
-| 1744 | Conversation, Mari | Kas su ülemus oli vihane? | Was your boss angry? | |
-| 1745 | Conversation, Tom | Ei, ta oli ise ka hilinenud! | No, she'd been late too! | |
-| 1746 | Conversation, Mari | Tundub, et täna polnud sinu päev. | Looks like today wasn't your day. | |
-| 1747 | Conversation, Tom | Oota, see pole veel kõik. Lõunal oli supp juba otsa saanud. | Wait, that's not all. At lunch the soup had already run out. | |
-| 1748 | Conversation, Mari | Vaene Tom! | Poor Tom! | |
-| 1749 | Conversation, Tom | Ja õhtul tahtsin sulle helistada, aga telefon oli tühjaks saanud. | And in the evening I wanted to call you, but my phone had died. | |
-| 1750 | Conversation, Mari | Aga nüüd oled sa siin. Ja kohv pole veel otsa saanud. | But now you're here. And the coffee hasn't run out yet. | |
-| 1751 | Conversation, Tom | Lõpuks üks hea uudis! | Some good news at last! | |
-| 1752 | Words (form) | alanud | begun, started | |
-| 1753 | Words (form) | hilinenud | been late | |
-| 1754 | Words (phrase) | otsa saanud | run out, all gone | |
-| 1755 | Words (form) | tühjaks | empty, becoming; of a phone, dead | |
-| 1756 | Words (form) | tundub | it seems, it looks like | |
-| 1757 | Words (form) | lõunal | at lunch | |
-| 1758 | Words (form) | lugenud | read (-nud form) | |
-| 1759 | Words (form) | unustanud | forgotten | |
-| 1760 | Words (form) | kohale | there, to the place; with {jõudma}, to arrive | |
-| 1761 | Words (form) | peatusse | to the stop, a bus stop | |
-| 1762 | Words (form) | pileti | the ticket, the whole of it | |
-| 1763 | Words (form) | diivanil | on the sofa | |
-| 1764 | Words (form) | polnud | wasn't, hadn't been | |
-| 1765 | Words (word) | söökla | canteen | |
-| 1766 | Words (form) | söökla | of the canteen | |
-| 1767 | How it works | olin, oli, Kui ma jõudsin, oli buss juba läinud | Had done is {olin}, {oli} and the rest with the -nud form: {Kui ma jõudsin, oli buss juba läinud}. It's the [enneminevik] (had done), for what happened before something else in the past. | |
-| 1768 | How it works | on läinud, oli, on | It's the -nud form you know from {on läinud}, has gone. Put {oli} in place of {on} and it's had gone. | |
-| 1769 | How it works | Juba, oli juba alanud | {Juba} often goes with it: {oli juba alanud}, had already started. | |
-| 1770 | How it works | ei olnud, Kohv ei olnud veel otsa saanud | Not by then is {ei olnud} with the -nud form: {Kohv ei olnud veel otsa saanud}, the coffee hadn't run out yet. | |
-| 1771 | How it works | oli läinud | English sometimes skips had ('the bus left before I came'). Estonian keeps it: {oli läinud}. | |
-| 1772 | How it works, table | ma olin unustanud | I had forgotten | |
-| 1773 | How it works, table | sa olid unustanud | you had forgotten | |
-| 1774 | How it works, table | ta oli läinud | he, she had gone | |
-| 1775 | How it works, table | me olime unustanud | we had forgotten | |
-| 1776 | How it works, table | nad olid läinud | they had gone | |
-| 1777 | Say it, question | Kuidas su päev läks? | How did your day go? | |
-| 1778 | Say it, model answer | Kui ma tööle jõudsin, oli koosolek juba alanud. | When I got to work, the meeting had already started. | |
-| 1779 | Say it, model answer | Ma olin telefoni koju unustanud. | I'd left my phone at home. | |
-| 1780 | Say it, model answer | Supp oli juba otsa saanud. | The soup had already run out. | |
-| 1781 | Say it, question | Kas buss oli juba läinud? | Had the bus already gone? | |
-| 1782 | Say it, model answer | Ei, see polnud veel läinud. | No, it hadn't gone yet. | |
+| 1746 | Conversation, Mari | Tere, Tom! Kuidas su päev läks? | Hi, Tom! How did your day go? | |
+| 1747 | Conversation, Tom | Halvasti. Kui ma hommikul peatusse jõudsin, oli buss juba läinud. | Badly. When I got to the stop this morning, the bus had already gone. | |
+| 1748 | Conversation, Mari | Oi! Mis sa siis tegid? | Oh! What did you do then? | |
+| 1749 | Conversation, Tom | Ma võtsin takso. Aga kui ma tööle jõudsin, oli koosolek juba alanud. | I took a taxi. But when I got to work, the meeting had already started. | |
+| 1750 | Conversation, Mari | Kas su ülemus oli vihane? | Was your boss angry? | |
+| 1751 | Conversation, Tom | Ei, ta oli ise ka hilinenud! | No, she'd been late too! | |
+| 1752 | Conversation, Mari | Tundub, et täna polnud sinu päev. | Looks like today wasn't your day. | |
+| 1753 | Conversation, Tom | Oota, see pole veel kõik. Lõunal oli supp juba otsa saanud. | Wait, that's not all. At lunch the soup had already run out. | |
+| 1754 | Conversation, Mari | Vaene Tom! | Poor Tom! | |
+| 1755 | Conversation, Tom | Ja õhtul tahtsin sulle helistada, aga telefon oli tühjaks saanud. | And in the evening I wanted to call you, but my phone had died. | |
+| 1756 | Conversation, Mari | Aga nüüd oled sa siin. Ja kohv pole veel otsa saanud. | But now you're here. And the coffee hasn't run out yet. | |
+| 1757 | Conversation, Tom | Lõpuks üks hea uudis! | Some good news at last! | |
+| 1758 | Words (form) | alanud | begun, started | |
+| 1759 | Words (form) | hilinenud | been late | |
+| 1760 | Words (phrase) | otsa saanud | run out, all gone | |
+| 1761 | Words (form) | tühjaks | empty, becoming; of a phone, dead | |
+| 1762 | Words (form) | tundub | it seems, it looks like | |
+| 1763 | Words (form) | lõunal | at lunch | |
+| 1764 | Words (form) | lugenud | read (-nud form) | |
+| 1765 | Words (form) | unustanud | forgotten | |
+| 1766 | Words (form) | kohale | there, to the place; with {jõudma}, to arrive | |
+| 1767 | Words (form) | peatusse | to the stop, a bus stop | |
+| 1768 | Words (form) | pileti | the ticket, the whole of it | |
+| 1769 | Words (form) | diivanil | on the sofa | |
+| 1770 | Words (form) | polnud | wasn't, hadn't been | |
+| 1771 | Words (word) | söökla | canteen | |
+| 1772 | Words (form) | söökla | of the canteen | |
+| 1773 | How it works | olin, oli, Kui ma jõudsin, oli buss juba läinud | Had done is {olin}, {oli} and the rest with the -nud form: {Kui ma jõudsin, oli buss juba läinud}. It's the [enneminevik] (had done), for what happened before something else in the past. | |
+| 1774 | How it works | on läinud, oli, on | It's the -nud form you know from {on läinud}, has gone. Put {oli} in place of {on} and it's had gone. | |
+| 1775 | How it works | Juba, oli juba alanud | {Juba} often goes with it: {oli juba alanud}, had already started. | |
+| 1776 | How it works | ei olnud, Kohv ei olnud veel otsa saanud | Not by then is {ei olnud} with the -nud form: {Kohv ei olnud veel otsa saanud}, the coffee hadn't run out yet. | |
+| 1777 | How it works | oli läinud | English sometimes skips had ('the bus left before I came'). Estonian keeps it: {oli läinud}. | |
+| 1778 | How it works, table | ma olin unustanud | I had forgotten | |
+| 1779 | How it works, table | sa olid unustanud | you had forgotten | |
+| 1780 | How it works, table | ta oli läinud | he, she had gone | |
+| 1781 | How it works, table | me olime unustanud | we had forgotten | |
+| 1782 | How it works, table | nad olid läinud | they had gone | |
+| 1783 | Say it, question | Kuidas su päev läks? | How did your day go? | |
+| 1784 | Say it, model answer | Kui ma tööle jõudsin, oli koosolek juba alanud. | When I got to work, the meeting had already started. | |
+| 1785 | Say it, model answer | Ma olin telefoni koju unustanud. | I'd left my phone at home. | |
+| 1786 | Say it, model answer | Supp oli juba otsa saanud. | The soup had already run out. | |
+| 1787 | Say it, question | Kas buss oli juba läinud? | Had the bus already gone? | |
+| 1788 | Say it, model answer | Ei, see polnud veel läinud. | No, it hadn't gone yet. | |
 
 #### B1 32. In the news (`b1-32-news`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 1783 | Conversation, Raadio | Tere hommikust! Kell on kaheksa. | Good morning! It's eight o'clock. | |
-| 1784 | Conversation, Raadio | Öösel oli kesklinnas tulekahju. | There was a fire in the city center last night. | |
-| 1785 | Conversation, Raadio | Ühes restoranis läks köök põlema. Kohale kutsuti päästjad ja politsei. | A kitchen caught fire in a restaurant. The firefighters and the police were called. | |
-| 1786 | Conversation, Raadio | Kõik inimesed viidi kohe välja. Õnneks ei saanud keegi vigastada. | Everybody was taken out straight away. Luckily nobody was hurt. | |
-| 1787 | Conversation, Raadio | Restoran avatakse uuesti kuu aja pärast. | The restaurant will open again in a month. | |
-| 1788 | Conversation, Tom | Oi! Äkki on see see uus restoran meie kontori lähedal? | Oh! Could that be the new restaurant near our office? | |
-| 1789 | Conversation, Jaan | Ma ei kuulnud. Kas keegi sai haiget? | I didn't catch that. Was anybody hurt? | |
-| 1790 | Conversation, Anna | Õnneks mitte. Kõik viidi kohe välja. | Luckily not. Everybody was taken out straight away. | |
-| 1791 | Conversation, Tom | Me tahtsime seal neljapäeval lõunat süüa! | We wanted to have lunch there on Thursday! | |
-| 1792 | Conversation, Jaan | Siis sööte neljapäeval jälle sööklas. | Then it's the canteen again on Thursday. | |
-| 1793 | Conversation, Anna | Aga see avatakse ju kuu aja pärast uuesti. | But it's opening again in a month, remember. | |
-| 1794 | Conversation, Tom | Siis lähme sinna kuu aja pärast. | Then we'll go there in a month. | |
-| 1795 | Conversation, Jaan | Kui köök vahepeal jälle põlema ei lähe. | If the kitchen doesn't catch fire again in the meantime. | |
-| 1796 | Conversation, Anna | Jaan! Sa oled ikka kohutav. | Jaan! You're terrible. | |
-| 1797 | Words (form) | uudiseid | the news, some of it, as an object | |
-| 1798 | Words (form) | uudistes | in the news | |
-| 1799 | Words (form) | uudised | the news | |
-| 1800 | Words (word) | tulekahju | fire, a building on fire | |
-| 1801 | Words (form) | tulekahju | of the fire | |
-| 1802 | Words (form) | toimus | happened, took place | |
-| 1803 | Words (verb) | kutsuma | to call, to invite | |
-| 1804 | Words (verb, I form) | kutsun | I call, I invite | |
-| 1805 | Words (form) | kutsuti | was called, were called | |
-| 1806 | Words (form) | kutsus | called, he or she called | |
-| 1807 | Words (word) | päästjad | firefighters, the rescue service | |
-| 1808 | Words (form) | vigastada | hurt; with {sai}, got hurt | |
-| 1809 | Words (form) | haiget | hurt; with {sai}, got hurt, as people say it | |
-| 1810 | Words (word) | õnneks | luckily | |
-| 1811 | Words (form) | teatati | was announced, it was reported | |
-| 1812 | Words (form) | teatatud | reported, announced | |
-| 1813 | Words (word) | kohutav | terrible, awful | |
-| 1814 | Words (word) | õnnetus | accident | |
-| 1815 | How it works | Kohale kutsuti päästjad, on, Uudistes on teatatud | The news is told with nobody named: {Kohale kutsuti päästjad}, the firefighters were called. And what has been done or said is {on} with the [tud-kesksõna] (-tud, done to): {Uudistes on teatatud}, it's been reported in the news. | |
-| 1816 | How it works | Läks põlema | {Läks põlema} is caught fire: the thing goes into burning. | |
-| 1817 | How it works | sai vigastada, sai haiget, Kas keegi sai haiget? | The news says {sai vigastada}, was injured. Talking it over, people say {sai haiget}: {Kas keegi sai haiget?} | |
-| 1818 | How it works | Õnneks, Õnneks ei saanud keegi vigastada | {Õnneks} is luckily: {Õnneks ei saanud keegi vigastada}. | |
-| 1819 | How it works | kutsuti, kutsuti päästjad ja politsei | In the news nobody is named, so it's {kutsuti}, were called, even with more than one: {kutsuti päästjad ja politsei}. | |
-| 1820 | How it works, table | Kesklinnas oli tulekahju. | There was a fire in the city center. | |
-| 1821 | How it works, table | Kohale kutsuti politsei. | The police were called. | |
-| 1822 | How it works, table | Keegi ei saanud vigastada. | Nobody was hurt. | |
-| 1823 | How it works, table | Uudistes on teatatud tulekahjust. | The fire has been reported in the news. | |
-| 1824 | Say it, question | Mis uudistes on? | What's in the news? | |
-| 1825 | Say it, model answer | Kesklinnas oli tulekahju. | There was a fire in the city center. | |
-| 1826 | Say it, question | Kas keegi sai vigastada? | Was anybody hurt? | |
-| 1827 | Say it, model answer | Õnneks ei saanud keegi vigastada. | Luckily nobody was hurt. | |
-| 1828 | Say it, model answer | Hommikul oli linnas õnnetus. | There was an accident in town this morning. | |
-| 1829 | Say it, model answer | Kas sa lugesid uudiseid? | Did you read the news? | |
+| 1789 | Conversation, Raadio | Tere hommikust! Kell on kaheksa. | Good morning! It's eight o'clock. | |
+| 1790 | Conversation, Raadio | Öösel oli kesklinnas tulekahju. | There was a fire in the city center last night. | |
+| 1791 | Conversation, Raadio | Ühes restoranis läks köök põlema. Kohale kutsuti päästjad ja politsei. | A kitchen caught fire in a restaurant. The firefighters and the police were called. | |
+| 1792 | Conversation, Raadio | Kõik inimesed viidi kohe välja. Õnneks ei saanud keegi vigastada. | Everybody was taken out straight away. Luckily nobody was hurt. | |
+| 1793 | Conversation, Raadio | Teatati ka, et restoran avatakse uuesti kuu aja pärast. | It was also reported that the restaurant will open again in a month. | |
+| 1794 | Conversation, Tom | Oi! Äkki on see see uus restoran meie kontori lähedal? | Oh! Could that be the new restaurant near our office? | |
+| 1795 | Conversation, Jaan | Ma ei kuulnud. Kas keegi sai haiget? | I didn't catch that. Was anybody hurt? | |
+| 1796 | Conversation, Anna | Õnneks mitte. Kõik viidi kohe välja. | Luckily not. Everybody was taken out straight away. | |
+| 1797 | Conversation, Tom | Me tahtsime seal neljapäeval lõunat süüa! | We wanted to have lunch there on Thursday! | |
+| 1798 | Conversation, Jaan | Siis sööte neljapäeval jälle sööklas. | Then it's the canteen again on Thursday. | |
+| 1799 | Conversation, Anna | Aga see avatakse ju kuu aja pärast uuesti. | But it's opening again in a month, remember. | |
+| 1800 | Conversation, Tom | Siis lähme sinna kuu aja pärast. | Then we'll go there in a month. | |
+| 1801 | Conversation, Jaan | Kui köök vahepeal jälle põlema ei lähe. | If the kitchen doesn't catch fire again in the meantime. | |
+| 1802 | Conversation, Anna | Jaan! Sa oled ikka kohutav. | Jaan! You're terrible. | |
+| 1803 | Words (form) | uudiseid | the news, some of it, as an object | |
+| 1804 | Words (form) | uudistes | in the news | |
+| 1805 | Words (form) | uudised | the news | |
+| 1806 | Words (word) | tulekahju | fire, a building on fire | |
+| 1807 | Words (form) | tulekahju | of the fire | |
+| 1808 | Words (form) | toimus | happened, took place | |
+| 1809 | Words (verb) | kutsuma | to call, to invite | |
+| 1810 | Words (verb, I form) | kutsun | I call, I invite | |
+| 1811 | Words (form) | kutsuti | was called, were called | |
+| 1812 | Words (form) | kutsus | called, he or she called | |
+| 1813 | Words (word) | päästjad | firefighters, the rescue service | |
+| 1814 | Words (form) | vigastada | hurt; with {sai}, got hurt | |
+| 1815 | Words (form) | haiget | hurt; with {sai}, got hurt, as people say it | |
+| 1816 | Words (word) | õnneks | luckily | |
+| 1817 | Words (form) | teatati | was announced, it was reported | |
+| 1818 | Words (form) | teatatud | reported, announced | |
+| 1819 | Words (word) | kohutav | terrible, awful | |
+| 1820 | Words (word) | õnnetus | accident | |
+| 1821 | How it works | Kohale kutsuti päästjad, on, Uudistes on teatatud | The news is told with nobody named: {Kohale kutsuti päästjad}, the firefighters were called. And what has been done or said is {on} with the [tud-kesksõna] (-tud, done to): {Uudistes on teatatud}, it's been reported in the news. | |
+| 1822 | How it works | Läks põlema | {Läks põlema} is caught fire: the thing goes into burning. | |
+| 1823 | How it works | sai vigastada, sai haiget, Kas keegi sai haiget? | The news says {sai vigastada}, was injured. Talking it over, people say {sai haiget}: {Kas keegi sai haiget?} | |
+| 1824 | How it works | Õnneks, Õnneks ei saanud keegi vigastada | {Õnneks} is luckily: {Õnneks ei saanud keegi vigastada}. | |
+| 1825 | How it works | kutsuti, kutsuti päästjad ja politsei | In the news nobody is named, so it's {kutsuti}, were called, even with more than one: {kutsuti päästjad ja politsei}. | |
+| 1826 | How it works, table | Kesklinnas oli tulekahju. | There was a fire in the city center. | |
+| 1827 | How it works, table | Kohale kutsuti politsei. | The police were called. | |
+| 1828 | How it works, table | Keegi ei saanud vigastada. | Nobody was hurt. | |
+| 1829 | How it works, table | Uudistes on teatatud tulekahjust. | The fire has been reported in the news. | |
+| 1830 | Say it, question | Mis uudistes on? | What's in the news? | |
+| 1831 | Say it, model answer | Kesklinnas oli tulekahju. | There was a fire in the city center. | |
+| 1832 | Say it, question | Kas keegi sai vigastada? | Was anybody hurt? | |
+| 1833 | Say it, model answer | Õnneks ei saanud keegi vigastada. | Luckily nobody was hurt. | |
+| 1834 | Say it, model answer | Hommikul oli linnas õnnetus. | There was an accident in town this morning. | |
+| 1835 | Say it, model answer | Kas sa lugesid uudiseid? | Did you read the news? | |
 
 #### B1 33. What the meeting decided (`b1-33-decided`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 1830 | Conversation, Tom | Kadri, mida eilsel koosolekul otsustati? | Kadri, what was decided at yesterday's meeting? | |
-| 1831 | Conversation, Kadri | Sind polnud seal? Miks? | You weren't there? Why? | |
-| 1832 | Conversation, Tom | Olin arsti juures. Aja olin juba ammu kinni pannud. | I was at the doctor's. I'd booked the appointment ages ago. | |
-| 1833 | Conversation, Kadri | Selge. Kõigepealt arutati uut projekti. | I see. First they talked about the new project. | |
-| 1834 | Conversation, Tom | Kas midagi olulist ka otsustati? | Was anything important decided? | |
-| 1835 | Conversation, Kadri | Jah. Otsustati, et projekt algab järgmisel kuul. | Yes. It was decided that the project starts next month. | |
-| 1836 | Conversation, Tom | Juba? Kes seda teeb? | Already? Who's doing it? | |
-| 1837 | Conversation, Kadri | Sina ja mina. Seda sa vist veel ei teadnud. | You and me. You probably didn't know that yet. | |
-| 1838 | Conversation, Tom | Mis?! Miks mulle keegi midagi ei öelnud? | What?! Why didn't anybody tell me? | |
-| 1839 | Conversation, Kadri | Ma ütlen sulle nüüd. Ja veel lepiti kokku, et igal neljapäeval on lühike koosolek. | I'm telling you now. And it was also agreed there'll be a short meeting every Thursday. | |
-| 1840 | Conversation, Tom | Kas see kõik on protokollis kirjas? | Is all of that in the minutes? | |
-| 1841 | Conversation, Kadri | Jah, protokoll saadeti eile õhtul kõigile. | Yes, the minutes were sent to everybody last night. | |
-| 1842 | Conversation, Tom | Ma pole seda veel lugenud. | I haven't read them yet. | |
-| 1843 | Conversation, Kadri | Siis loe! Sinu nimi on seal kaks korda. | Then read them! Your name's in there twice. | |
-| 1844 | Words (form) | eilsel | yesterday's (at, on) | |
-| 1845 | Words (word) | eilne | yesterday's | |
-| 1846 | Words (verb) | arutama | to discuss, to talk over | |
-| 1847 | Words (verb, I form) | arutan | I discuss | |
-| 1848 | Words (form) | arutati | was discussed | |
-| 1849 | Words (form) | arutatakse | is discussed | |
-| 1850 | Words (verb, I form) | otsustan | I decide | |
-| 1851 | Words (form) | otsustati | it was decided | |
-| 1852 | Words (form) | otsustas | decided, he or she decided | |
-| 1853 | Words (form) | pannud | put; with {kinni}, booked | |
-| 1854 | Words (form) | olulist | important, after {midagi} | |
-| 1855 | Words (form) | lepiti | with {kokku}, it was agreed | |
-| 1856 | Words (word) | protokoll | the minutes, a written record | |
-| 1857 | Words (form) | protokolli | of the minutes | |
-| 1858 | Words (form) | saadeti | was sent | |
-| 1859 | Words (form) | kõigile | to everybody | |
-| 1860 | Words (word) | igaüks | everybody, each one | |
-| 1861 | How it works | arutati, otsustati, lepiti kokku, et, Otsustati, et projekt algab järgmisel kuul | A meeting's news is told with nobody named: {arutati}, was discussed, {otsustati}, was decided, {lepiti kokku}, was agreed. What was decided comes after {et}: {Otsustati, et projekt algab järgmisel kuul}. | |
-| 1862 | How it works | Lepime kokku, lepiti kokku | {Lepime kokku} from A2 is let's agree; {lepiti kokku} is it was agreed. The small word stays after the verb. | |
-| 1863 | How it works | Kadri saatis protokolli, Protokoll saadeti kõigile | When the whole thing gets done and nobody is named, it takes the [nimetav] (1st form): {Kadri saatis protokolli}, but {Protokoll saadeti kõigile}. | |
-| 1864 | How it works | Arutama, arutati projekti, projekt | {Arutama} takes the [osastav] (3rd form): {arutati projekti}, never {projekt}. | |
-| 1865 | How it works, table | Arutati uut projekti. | The new project was discussed. | |
-| 1866 | How it works, table | Otsustati, et projekt algab järgmisel kuul. | It was decided the project starts next month. | |
-| 1867 | How it works, table | Lepiti kokku, et igal neljapäeval on koosolek. | It was agreed there's a meeting every Thursday. | |
-| 1868 | How it works, table | Protokoll saadeti kõigile. | The minutes were sent to everybody. | |
-| 1869 | Say it, question | Mida koosolekul otsustati? | What was decided at the meeting? | |
-| 1870 | Say it, model answer | Otsustati, et projekt algab järgmisel kuul. | It was decided the project starts next month. | |
-| 1871 | Say it, question | Mida koosolekul arutati? | What was discussed at the meeting? | |
-| 1872 | Say it, model answer | Arutati uut projekti. | The new project was discussed. | |
-| 1873 | Say it, model answer | Mida koosolekul kokku lepiti? | What was agreed at the meeting? | |
-| 1874 | Say it, model answer | Ma pole protokolli veel lugenud. | I haven't read the minutes yet. | |
+| 1836 | Conversation, Tom | Kadri, mida eilsel koosolekul otsustati? | Kadri, what was decided at yesterday's meeting? | |
+| 1837 | Conversation, Kadri | Sind polnud seal? Miks? | You weren't there? Why? | |
+| 1838 | Conversation, Tom | Olin arsti juures. Ma olin aja juba ammu kinni pannud. | I was at the doctor's. I'd booked the appointment ages ago. | |
+| 1839 | Conversation, Kadri | Selge. Kõigepealt arutati uut projekti. | I see. First they talked about the new project. | |
+| 1840 | Conversation, Tom | Kas midagi olulist ka otsustati? | Was anything important decided? | |
+| 1841 | Conversation, Kadri | Jah. Otsustati, et projekt algab järgmisel kuul. | Yes. It was decided that the project starts next month. | |
+| 1842 | Conversation, Tom | Juba? Kes seda teeb? | Already? Who's doing it? | |
+| 1843 | Conversation, Kadri | Sina ja mina. Seda sa vist veel ei teadnud. | You and me. You probably didn't know that yet. | |
+| 1844 | Conversation, Tom | Mis?! Miks mulle keegi midagi ei öelnud? | What?! Why didn't anybody tell me? | |
+| 1845 | Conversation, Kadri | Ma ütlen sulle nüüd. Ja veel lepiti kokku, et igal neljapäeval on lühike koosolek. | I'm telling you now. And it was also agreed there'll be a short meeting every Thursday. | |
+| 1846 | Conversation, Tom | Kas see kõik on protokollis kirjas? | Is all of that in the minutes? | |
+| 1847 | Conversation, Kadri | Jah, protokoll saadeti eile õhtul kõigile. | Yes, the minutes were sent to everybody last night. | |
+| 1848 | Conversation, Tom | Ma pole seda veel lugenud. | I haven't read them yet. | |
+| 1849 | Conversation, Kadri | Siis loe! Sinu nimi on seal kaks korda. | Then read them! Your name's in there twice. | |
+| 1850 | Words (form) | eilsel | yesterday's (at, on) | |
+| 1851 | Words (word) | eilne | yesterday's | |
+| 1852 | Words (verb) | arutama | to discuss, to talk over | |
+| 1853 | Words (verb, I form) | arutan | I discuss | |
+| 1854 | Words (form) | arutati | was discussed | |
+| 1855 | Words (form) | arutatakse | is discussed | |
+| 1856 | Words (verb, I form) | otsustan | I decide | |
+| 1857 | Words (form) | otsustati | it was decided | |
+| 1858 | Words (form) | otsustas | decided, he or she decided | |
+| 1859 | Words (form) | pannud | put; with {kinni}, booked | |
+| 1860 | Words (form) | olulist | important, after {midagi} | |
+| 1861 | Words (form) | lepiti | with {kokku}, it was agreed | |
+| 1862 | Words (word) | protokoll | the minutes, a written record | |
+| 1863 | Words (form) | protokolli | of the minutes | |
+| 1864 | Words (form) | saadeti | was sent | |
+| 1865 | Words (form) | kõigile | to everybody | |
+| 1866 | Words (word) | igaüks | everybody, each one | |
+| 1867 | How it works | arutati, otsustati, lepiti kokku, et, Otsustati, et projekt algab järgmisel kuul | A meeting's news is told with nobody named: {arutati}, was discussed, {otsustati}, was decided, {lepiti kokku}, was agreed. What was decided comes after {et}: {Otsustati, et projekt algab järgmisel kuul}. | |
+| 1868 | How it works | Lepime kokku, lepiti kokku | {Lepime kokku} from A2 is let's agree; {lepiti kokku} is it was agreed. The small word stays after the verb. | |
+| 1869 | How it works | Kadri saatis protokolli, Protokoll saadeti kõigile | When the whole thing gets done and nobody is named, it takes the [nimetav] (1st form): {Kadri saatis protokolli}, but {Protokoll saadeti kõigile}. | |
+| 1870 | How it works | Arutama, arutati projekti, projekt | {Arutama} takes the [osastav] (3rd form): {arutati projekti}, never {projekt}. | |
+| 1871 | How it works, table | Arutati uut projekti. | The new project was discussed. | |
+| 1872 | How it works, table | Otsustati, et projekt algab järgmisel kuul. | It was decided the project starts next month. | |
+| 1873 | How it works, table | Lepiti kokku, et igal neljapäeval on koosolek. | It was agreed there's a meeting every Thursday. | |
+| 1874 | How it works, table | Protokoll saadeti kõigile. | The minutes were sent to everybody. | |
+| 1875 | Say it, question | Mida koosolekul otsustati? | What was decided at the meeting? | |
+| 1876 | Say it, model answer | Otsustati, et projekt algab järgmisel kuul. | It was decided the project starts next month. | |
+| 1877 | Say it, question | Mida koosolekul arutati? | What was discussed at the meeting? | |
+| 1878 | Say it, model answer | Arutati uut projekti. | The new project was discussed. | |
+| 1879 | Say it, model answer | Mida koosolekul kokku lepiti? | What was agreed at the meeting? | |
+| 1880 | Say it, model answer | Ma pole protokolli veel lugenud. | I haven't read the minutes yet. | |
 
 #### B1 34. What happened: a short report (`b1-34-report`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 1875 | Conversation, Helgi | Tere, Tom! Siin Helgi. Kas sa juba tead? Öösel läks keldris toru katki. | Hi, Tom! It's Helgi. Have you heard? A pipe burst in the cellar last night. | |
-| 1876 | Conversation, Tom | Tean! Nägin hommikul. Keldris oli vett põlvini. | I know! I saw it this morning. The water in the cellar was up to your knees. | |
-| 1877 | Conversation, Helgi | Jah. Torumees kutsuti kohe ja vesi keerati kinni. | Yes. A plumber was called straight away and the water was turned off. | |
-| 1878 | Conversation, Tom | Kas toru on juba parandatud? | Has the pipe been fixed yet? | |
-| 1879 | Conversation, Helgi | Toru vahetati välja, aga kelder on veel märg. Ja minu kartulid ka! | The pipe was replaced, but the cellar's still wet. And so are my potatoes! | |
-| 1880 | Conversation, Helgi | Kuule, sa nägid seda ise. Kas sa kirjutaksid sellest ühistule? | Listen, you saw it yourself. Would you write to the house association about it? | |
-| 1881 | Conversation, Tom | Eesti keeles? Ma pole seda kunagi teinud. | In Estonian? I've never done that. | |
-| 1882 | Conversation, Helgi | See on lihtne. Kirjuta, mis juhtus, mis tehti ja mis on veel vaja teha. | It's easy. Write what happened, what was done and what still needs doing. | |
-| 1883 | Conversation, Tom | Aga kui ma vigu teen? | But what if I make mistakes? | |
-| 1884 | Conversation, Helgi | Pole viga. Vigu teevad kõik. | No problem. Everybody makes mistakes. | |
-| 1885 | Conversation, Tom | Hästi, kirjutan täna õhtul ära. | All right. I'll write it tonight. | |
-| 1886 | Words (word) | kelder | cellar, basement | |
-| 1887 | Words (form) | keldri | of the cellar | |
-| 1888 | Words (form) | keldrit | the cellar, as an object | |
-| 1889 | Words (form) | torud | pipes | |
-| 1890 | Words (form) | põlvini | up to the knees | |
-| 1891 | Words (word) | torumees | plumber | |
-| 1892 | Words (form) | keerati | was turned; with {kinni}, was turned off | |
-| 1893 | Words (form) | parandatud | fixed, repaired | |
-| 1894 | Words (form) | parandati | was fixed | |
-| 1895 | Words (form) | vahetati | was changed; with {välja}, was replaced | |
-| 1896 | Words (form) | vahetatakse | is changed, will be changed | |
-| 1897 | Words (word) | ühistu | the house association, the building's owners | |
-| 1898 | Words (form) | ühistu | of the house association | |
-| 1899 | Words (form) | tehti | was done | |
-| 1900 | Words (form) | vigu | mistakes, as an object | |
-| 1901 | Words (word) | nagunii | anyway | |
-| 1902 | Words (form) | kartulid | potatoes | |
-| 1903 | Words (form) | vanad | old (more than one) | |
-| 1904 | How it works | Torumees kutsuti, toru vahetati välja, tuleb, Vanad torud tuleb välja vahetada | A report says what happened and what was done, with nobody named: {Torumees kutsuti}, {toru vahetati välja}. What still has to be done is {tuleb} with the [da-tegevusnimi] (-da): {Vanad torud tuleb välja vahetada}. | |
-| 1905 | How it works | Tuleb, Toru tuleb välja vahetada | {Tuleb} with the [da-tegevusnimi] (-da) is has to be done, with nobody named: {Toru tuleb välja vahetada}. | |
-| 1906 | How it works | on, Toru on parandatud | Has been done is {on} with the [tud-kesksõna] (-tud, done to): {Toru on parandatud}. | |
-| 1907 | How it works | vahetati, vahetati välja, välja | A small word after the verb changes it: {vahetati} is was changed, {vahetati välja} is was replaced. Keep the {välja}. | |
-| 1908 | How it works, table | Öösel läks keldris toru katki. | A pipe burst in the cellar during the night. | |
-| 1909 | How it works, table | Torumees kutsuti kohale. | A plumber was called. | |
-| 1910 | How it works, table | Toru vahetati välja. | The pipe was replaced. | |
-| 1911 | How it works, table | Vanad torud tuleb välja vahetada. | The old pipes have to be replaced. | |
-| 1912 | Say it, question | Mis keldris juhtus? | What happened in the cellar? | |
-| 1913 | Say it, model answer | Öösel läks keldris toru katki. | A pipe burst in the cellar last night. | |
-| 1914 | Say it, question | Mis siis tehti? | What was done then? | |
-| 1915 | Say it, model answer | Torumees kutsuti ja toru vahetati välja. | A plumber was called and the pipe was replaced. | |
-| 1916 | Say it, model answer | Vanad torud tuleb välja vahetada. | The old pipes have to be replaced. | |
-| 1917 | Say it, model answer | Ma pole seda kunagi teinud. | I've never done that. | |
+| 1881 | Conversation, Helgi | Tere, Tom! Siin Helgi. Kas sa juba tead? Öösel läks keldris toru katki. | Hi, Tom! It's Helgi. Have you heard? A pipe burst in the cellar last night. | |
+| 1882 | Conversation, Tom | Tean! Nägin hommikul. Keldris oli vett põlvini. | I know! I saw it this morning. The water in the cellar was up to your knees. | |
+| 1883 | Conversation, Helgi | Jah. Torumees kutsuti kohe ja vesi keerati kinni. | Yes. A plumber was called straight away and the water was turned off. | |
+| 1884 | Conversation, Tom | Kas toru on juba parandatud? | Has the pipe been fixed yet? | |
+| 1885 | Conversation, Helgi | Toru vahetati välja, aga kelder on veel märg. Ja minu kartulid ka! | The pipe was replaced, but the cellar's still wet. And so are my potatoes! | |
+| 1886 | Conversation, Helgi | Kuule, sa nägid seda ise. Kas sa kirjutaksid sellest ühistule? | Listen, you saw it yourself. Would you write to the house association about it? | |
+| 1887 | Conversation, Tom | Eesti keeles? Ma pole seda kunagi teinud. | In Estonian? I've never done that. | |
+| 1888 | Conversation, Helgi | See on lihtne. Kirjuta, mis juhtus, mis tehti ja mis on veel vaja teha. | It's easy. Write what happened, what was done and what still needs doing. | |
+| 1889 | Conversation, Tom | Aga kui ma vigu teen? | But what if I make mistakes? | |
+| 1890 | Conversation, Helgi | Pole viga. Seda ei loe nagunii keegi. | No problem. Nobody reads it anyway. | |
+| 1891 | Conversation, Tom | Hästi, kirjutan täna õhtul ära. | All right. I'll write it tonight. | |
+| 1892 | Words (word) | kelder | cellar, basement | |
+| 1893 | Words (form) | keldri | of the cellar | |
+| 1894 | Words (form) | keldrit | the cellar, as an object | |
+| 1895 | Words (form) | torud | pipes | |
+| 1896 | Words (form) | põlvini | up to the knees | |
+| 1897 | Words (word) | torumees | plumber | |
+| 1898 | Words (form) | keerati | was turned; with {kinni}, was turned off | |
+| 1899 | Words (form) | parandatud | fixed, repaired | |
+| 1900 | Words (form) | parandati | was fixed | |
+| 1901 | Words (form) | vahetati | was changed; with {välja}, was replaced | |
+| 1902 | Words (form) | vahetatakse | is changed, will be changed | |
+| 1903 | Words (word) | ühistu | the house association, the building's owners | |
+| 1904 | Words (form) | ühistu | of the house association | |
+| 1905 | Words (form) | tehti | was done | |
+| 1906 | Words (form) | vigu | mistakes, as an object | |
+| 1907 | Words (word) | nagunii | anyway | |
+| 1908 | Words (form) | kartulid | potatoes | |
+| 1909 | Words (form) | vanad | old (more than one) | |
+| 1910 | How it works | Torumees kutsuti, toru vahetati välja, tuleb, Vanad torud tuleb välja vahetada | A report says what happened and what was done, with nobody named: {Torumees kutsuti}, {toru vahetati välja}. What still has to be done is {tuleb} with the [da-tegevusnimi] (-da): {Vanad torud tuleb välja vahetada}. | |
+| 1911 | How it works | Tuleb, Toru tuleb välja vahetada | {Tuleb} with the [da-tegevusnimi] (-da) is has to be done, with nobody named: {Toru tuleb välja vahetada}. | |
+| 1912 | How it works | on, Toru on parandatud | Has been done is {on} with the [tud-kesksõna] (-tud, done to): {Toru on parandatud}. | |
+| 1913 | How it works | vahetati, vahetati välja, välja | A small word after the verb changes it: {vahetati} is was changed, {vahetati välja} is was replaced. Keep the {välja}. | |
+| 1914 | How it works, table | Öösel läks keldris toru katki. | A pipe burst in the cellar during the night. | |
+| 1915 | How it works, table | Torumees kutsuti kohale. | A plumber was called. | |
+| 1916 | How it works, table | Toru vahetati välja. | The pipe was replaced. | |
+| 1917 | How it works, table | Vanad torud tuleb välja vahetada. | The old pipes have to be replaced. | |
+| 1918 | Say it, question | Mis keldris juhtus? | What happened in the cellar? | |
+| 1919 | Say it, model answer | Öösel läks keldris toru katki. | A pipe burst in the cellar last night. | |
+| 1920 | Say it, question | Mis siis tehti? | What was done then? | |
+| 1921 | Say it, model answer | Torumees kutsuti ja toru vahetati välja. | A plumber was called and the pipe was replaced. | |
+| 1922 | Say it, model answer | Vanad torud tuleb välja vahetada. | The old pipes have to be replaced. | |
+| 1923 | Say it, model answer | Ma pole seda kunagi teinud. | I've never done that. | |
 
 #### B1 35. The residents' meeting (`b1-35-residents`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 1918 | Conversation, Helgi | Tere õhtust! Täna räägime keldrist. | Good evening, everybody! Tonight we're talking about the cellar. | |
-| 1919 | Conversation, Helgi | Tom, sina nägid seda ise. Mis juhtus? | Tom, you saw it yourself. What happened? | |
-| 1920 | Conversation, Tom | Eelmisel nädalal läks öösel keldris toru katki. Hommikul oli vett põlvini. | Last week a pipe burst in the cellar during the night. By the morning the water was up to your knees. | |
-| 1921 | Conversation, Helgi | Ja minu kartulid olid seal all! | And my potatoes were down there! | |
-| 1922 | Conversation, Helgi | Torumees kutsuti kohe ja toru vahetati välja. | A plumber was called straight away and the pipe was replaced. | |
-| 1923 | Conversation, Tom | Aga see polnud esimene kord. Toru oli juba eelmisel talvel katki läinud. | But it wasn't the first time. The pipe had already burst last winter. | |
-| 1924 | Conversation, Ants | Tõesti? Miks seda siis ei parandatud? | Really? Then why wasn't it fixed? | |
-| 1925 | Conversation, Helgi | Siis parandati ainult väike osa. | Back then only a small part was fixed. | |
-| 1926 | Conversation, Tom | Minu arvates tuleb kõik vanad torud välja vahetada. | In my opinion all the old pipes have to be replaced. | |
-| 1927 | Conversation, Ants | See on ju väga kallis! | But that's very expensive! | |
-| 1928 | Conversation, Tom | Jah, aga uus õnnetus on veel kallim. | Yes, but another accident costs even more. | |
-| 1929 | Conversation, Helgi | Õige. Otsustame siis nii: torud vahetatakse kevadel välja. | Right. Let's decide: the pipes will be replaced in the spring. | |
-| 1930 | Conversation, Helgi | Ja minu kartulid? Kes neid nüüd sööb? | And my potatoes? Who's going to eat them now? | |
-| 1931 | Conversation, Ants | Seda arutame järgmisel koosolekul. | We'll discuss that at the next meeting. | |
-| 1932 | How it works | kutsuti, vahetati välja, ei parandatud, oli juba katki läinud, tuleb välja vahetada | Nobody named: {kutsuti}, {vahetati välja}, {ei parandatud}. Had happened before: {oli juba katki läinud}. Has to be done: {tuleb välja vahetada}. | |
-| 1933 | How it works | Minu arvates, Otsustame siis nii | {Minu arvates} from A2 starts a suggestion politely, and {Otsustame siis nii} is how the chair closes a point. | |
-| 1934 | How it works | oli katki läinud | It happened before last week's burst, so {oli katki läinud}. | |
-| 1935 | Say it, question | Mis keldris juhtus? | What happened in the cellar? | |
-| 1936 | Say it, model answer | Eelmisel nädalal läks toru katki. | A pipe burst last week. | |
-| 1937 | Say it, question | Kas see oli esimene kord? | Was it the first time? | |
-| 1938 | Say it, model answer | Ei, toru oli juba eelmisel talvel katki läinud. | No, the pipe had already burst last winter. | |
-| 1939 | Say it, question | Kes kutsuti? | Who was called? | |
-| 1940 | Say it, model answer | Kohe kutsuti torumees. | A plumber was called straight away. | |
-| 1941 | Role-play, they say | Tere õhtust! Sina nägid seda ise. Mis juhtus? | Good evening! You saw it yourself. What happened? | |
-| 1942 | Role-play, model answer | Öösel läks keldris toru katki. | A pipe burst in the cellar during the night. | |
-| 1943 | Role-play, they say | Mis siis tehti? | What was done then? | |
-| 1944 | Role-play, model answer | Torumees kutsuti ja toru vahetati välja. | A plumber was called and the pipe was replaced. | |
-| 1945 | Role-play, they say | Kas keldris on veel vett? | Is there still water in the cellar? | |
-| 1946 | Role-play, model answer | Vett ei ole, aga kõik on veel märg. | There's no water, but everything is still wet. | |
-| 1947 | Role-play, they say | Kas see oli esimene kord? | Was it the first time? | |
-| 1948 | Role-play, model answer | Ei, toru oli juba eelmisel talvel katki läinud. | No, the pipe had already burst last winter. | |
-| 1949 | Role-play, they say | Mida sa soovitad? | What do you suggest? | |
-| 1950 | Role-play, model answer | Minu arvates tuleb vanad torud välja vahetada. | In my opinion the old pipes have to be replaced. | |
-| 1951 | Role-play, they say | See on kallis. Millal me seda teeme? | That's expensive. When do we do it? | |
-| 1952 | Role-play, model answer | Kevadel. Siis ei ole külm. | In the spring. It isn't cold then. | |
-| 1953 | Role-play, they say | Hästi. Aitäh, et tulid! | Good. Thank you for coming! | |
-| 1954 | Live scene, they say (greet) | Tere! Täna räägime keldrist. |  | |
-| 1955 | Live scene, they say (what) | Sa nägid seda ju ise. Mis juhtus? |  | |
-| 1956 | Live scene, they say (what) | Mis keldris juhtus? |  | |
-| 1957 | Live scene, they say (done) | Mis siis tehti? |  | |
-| 1958 | Live scene, they say (done) | Selge. Ja mida sa siis tegid? |  | |
-| 1959 | Live scene, they say (wet) | Kas keldris on veel vett? |  | |
-| 1960 | Live scene, they say (wet) | Selge. Aga kas keldris on veel vett? |  | |
-| 1961 | Live scene, they say (before) | Kas see oli esimene kord? |  | |
-| 1962 | Live scene, they say (before) | Kas toru on varem ka katki läinud? |  | |
-| 1963 | Live scene, they say (suggest) | Mida sa soovitad? |  | |
-| 1964 | Live scene, they say (suggest) | Mida sa soovitad teha? |  | |
-| 1965 | Live scene, they say (when) | See on kallis. Millal me seda teeme? |  | |
-| 1966 | Live scene, they say (when) | Millal me seda teeme? |  | |
-| 1967 | Live scene, they say (close) | Aitäh, et tulid! Head aega! |  | |
-| 1968 | Live scene, learner may pick (what) | Öösel läks keldris toru katki. | A pipe burst in the cellar during the night. | |
-| 1969 | Live scene, learner may pick (what) | Toru läks katki. | A pipe burst. | |
-| 1970 | Live scene, learner may pick (done) | Torumees kutsuti ja toru vahetati välja. | A plumber was called and the pipe was replaced. | |
-| 1971 | Live scene, learner may pick (done) | Toru vahetati välja. | The pipe was replaced. | |
-| 1972 | Live scene, learner may pick (wet) | Vett enam ei ole, aga kõik on veel märg. | There's no water anymore, but everything is still wet. | |
-| 1973 | Live scene, learner may pick (wet) | Kõik on veel märg. | Everything is still wet. | |
-| 1974 | Live scene, learner may pick (before) | Ei, toru oli juba eelmisel talvel katki läinud. | No, the pipe had already burst last winter. | |
-| 1975 | Live scene, learner may pick (before) | Ei, see oli juba katki läinud. | No, it had burst before. | |
-| 1976 | Live scene, learner may pick (suggest) | Minu arvates tuleb vanad torud välja vahetada. | In my opinion the old pipes have to be replaced. | |
-| 1977 | Live scene, learner may pick (suggest) | Vanad torud tuleb välja vahetada. | The old pipes have to be replaced. | |
-| 1978 | Live scene, learner may pick (when) | Kevadel. Siis ei ole külm. | In the spring. It isn't cold then. | |
-| 1979 | Live scene, learner may pick (when) | Kevadel. | In the spring. | |
+| 1924 | Conversation, Helgi | Tere õhtust! Täna räägime keldrist. | Good evening, everybody! Tonight we're talking about the cellar. | |
+| 1925 | Conversation, Helgi | Tom, sina nägid seda ise. Mis juhtus? | Tom, you saw it yourself. What happened? | |
+| 1926 | Conversation, Tom | Eelmisel nädalal läks öösel keldris toru katki. Hommikul oli vett põlvini. | Last week a pipe burst in the cellar during the night. By the morning the water was up to your knees. | |
+| 1927 | Conversation, Helgi | Ja minu kartulid olid seal all! | And my potatoes were down there! | |
+| 1928 | Conversation, Helgi | Torumees kutsuti kohe ja toru vahetati välja. | A plumber was called straight away and the pipe was replaced. | |
+| 1929 | Conversation, Tom | Aga see polnud esimene kord. Toru oli juba eelmisel talvel katki läinud. | But it wasn't the first time. The pipe had already burst last winter. | |
+| 1930 | Conversation, Ants | Tõesti? Miks seda siis ei parandatud? | Really? Then why wasn't it fixed? | |
+| 1931 | Conversation, Helgi | Siis parandati ainult väike osa. | Back then only a small part was fixed. | |
+| 1932 | Conversation, Tom | Minu arvates tuleb kõik vanad torud välja vahetada. | In my opinion all the old pipes have to be replaced. | |
+| 1933 | Conversation, Ants | See on ju väga kallis! | But that's very expensive! | |
+| 1934 | Conversation, Tom | Jah, aga uus õnnetus on veel kallim. | Yes, but another accident costs even more. | |
+| 1935 | Conversation, Helgi | Õige. Otsustame siis nii: torud vahetatakse kevadel välja. | Right. Let's decide: the pipes will be replaced in the spring. | |
+| 1936 | Conversation, Helgi | Ja minu kartulid? Kes neid nüüd sööb? | And my potatoes? Who's going to eat them now? | |
+| 1937 | Conversation, Ants | Seda arutame järgmisel koosolekul. | We'll discuss that at the next meeting. | |
+| 1938 | How it works | kutsuti, vahetati välja, ei parandatud, oli juba katki läinud, tuleb välja vahetada | Nobody named: {kutsuti}, {vahetati välja}, {ei parandatud}. Had happened before: {oli juba katki läinud}. Has to be done: {tuleb välja vahetada}. | |
+| 1939 | How it works | Minu arvates, Otsustame siis nii | {Minu arvates} from A2 starts a suggestion politely, and {Otsustame siis nii} is how the chair closes a point. | |
+| 1940 | How it works | oli katki läinud | It happened before last week's burst, so {oli katki läinud}. | |
+| 1941 | Say it, question | Mis keldris juhtus? | What happened in the cellar? | |
+| 1942 | Say it, model answer | Eelmisel nädalal läks toru katki. | A pipe burst last week. | |
+| 1943 | Say it, question | Kas see oli esimene kord? | Was it the first time? | |
+| 1944 | Say it, model answer | Ei, toru oli juba eelmisel talvel katki läinud. | No, the pipe had already burst last winter. | |
+| 1945 | Say it, question | Kes kutsuti? | Who was called? | |
+| 1946 | Say it, model answer | Kohe kutsuti torumees. | A plumber was called straight away. | |
+| 1947 | Role-play, they say | Tere õhtust! Sina nägid seda ise. Mis juhtus? | Good evening! You saw it yourself. What happened? | |
+| 1948 | Role-play, model answer | Öösel läks keldris toru katki. | A pipe burst in the cellar during the night. | |
+| 1949 | Role-play, they say | Mis siis tehti? | What was done then? | |
+| 1950 | Role-play, model answer | Torumees kutsuti ja toru vahetati välja. | A plumber was called and the pipe was replaced. | |
+| 1951 | Role-play, they say | Kas keldris on veel vett? | Is there still water in the cellar? | |
+| 1952 | Role-play, model answer | Vett ei ole, aga kõik on veel märg. | There's no water, but everything is still wet. | |
+| 1953 | Role-play, they say | Kas see oli esimene kord? | Was it the first time? | |
+| 1954 | Role-play, model answer | Ei, toru oli juba eelmisel talvel katki läinud. | No, the pipe had already burst last winter. | |
+| 1955 | Role-play, they say | Mida sa soovitad? | What do you suggest? | |
+| 1956 | Role-play, model answer | Minu arvates tuleb vanad torud välja vahetada. | In my opinion the old pipes have to be replaced. | |
+| 1957 | Role-play, they say | See on kallis. Millal me seda teeme? | That's expensive. When do we do it? | |
+| 1958 | Role-play, model answer | Kevadel. Siis ei ole külm. | In the spring. It isn't cold then. | |
+| 1959 | Role-play, they say | Hästi. Aitäh, et tulid! | Good. Thank you for coming! | |
+| 1960 | Live scene, they say (greet) | Tere! Täna räägime keldrist. |  | |
+| 1961 | Live scene, they say (what) | Sa nägid seda ju ise. Mis juhtus? |  | |
+| 1962 | Live scene, they say (what) | Mis keldris juhtus? |  | |
+| 1963 | Live scene, they say (done) | Mis siis tehti? |  | |
+| 1964 | Live scene, they say (done) | Selge. Ja mida sa siis tegid? |  | |
+| 1965 | Live scene, they say (wet) | Kas keldris on veel vett? |  | |
+| 1966 | Live scene, they say (wet) | Selge. Aga kas keldris on veel vett? |  | |
+| 1967 | Live scene, they say (before) | Kas see oli esimene kord? |  | |
+| 1968 | Live scene, they say (before) | Kas toru on varem ka katki läinud? |  | |
+| 1969 | Live scene, they say (suggest) | Mida sa soovitad? |  | |
+| 1970 | Live scene, they say (suggest) | Mida sa soovitad teha? |  | |
+| 1971 | Live scene, they say (when) | See on kallis. Millal me seda teeme? |  | |
+| 1972 | Live scene, they say (when) | Millal me seda teeme? |  | |
+| 1973 | Live scene, they say (close) | Aitäh, et tulid! Head aega! |  | |
+| 1974 | Live scene, learner may pick (what) | Öösel läks keldris toru katki. | A pipe burst in the cellar during the night. | |
+| 1975 | Live scene, learner may pick (what) | Toru läks katki. | A pipe burst. | |
+| 1976 | Live scene, learner may pick (done) | Torumees kutsuti ja toru vahetati välja. | A plumber was called and the pipe was replaced. | |
+| 1977 | Live scene, learner may pick (done) | Toru vahetati välja. | The pipe was replaced. | |
+| 1978 | Live scene, learner may pick (wet) | Vett enam ei ole, aga kõik on veel märg. | There's no water anymore, but everything is still wet. | |
+| 1979 | Live scene, learner may pick (wet) | Kõik on veel märg. | Everything is still wet. | |
+| 1980 | Live scene, learner may pick (before) | Ei, toru oli juba eelmisel talvel katki läinud. | No, the pipe had already burst last winter. | |
+| 1981 | Live scene, learner may pick (before) | Ei, see oli juba katki läinud. | No, it had burst before. | |
+| 1982 | Live scene, learner may pick (suggest) | Minu arvates tuleb vanad torud välja vahetada. | In my opinion the old pipes have to be replaced. | |
+| 1983 | Live scene, learner may pick (suggest) | Vanad torud tuleb välja vahetada. | The old pipes have to be replaced. | |
+| 1984 | Live scene, learner may pick (when) | Kevadel. Siis ei ole külm. | In the spring. It isn't cold then. | |
+| 1985 | Live scene, learner may pick (when) | Kevadel. | In the spring. | |
 
 ### B1: What you think and why
 
@@ -2739,318 +2745,318 @@ Russian and Ukrainian.
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 1980 | Conversation, Tom | Mari, mu auto on jälle katki. | Mari, my car's broken again. | |
-| 1981 | Conversation, Mari | Jälle? See on ju väga vana. | Again? But it's really old. | |
-| 1982 | Conversation, Tom | Kakskümmend aastat. Kuigi see on vana, sõidab see tavaliselt hästi. | Twenty years. Although it's old, it usually runs well. | |
-| 1983 | Conversation, Mari | Tavaliselt? Sa parandasid seda eelmisel nädalal! | Usually? You were fixing it last week! | |
-| 1984 | Conversation, Tom | Ma mõtlen, et ostan uuema auto. | I'm thinking of buying a newer car. | |
-| 1985 | Conversation, Mari | Miks? Müü see maha ja sõida bussiga. Kuna buss on odavam, jääb sul rohkem raha üle. | Why? Sell it and take the bus. Since the bus is cheaper, you'll have more money left. | |
-| 1986 | Conversation, Tom | Aga mul on autot vaja, et lapsi lasteaeda viia. | But I need a car to take the kids to kindergarten. | |
-| 1987 | Conversation, Mari | Sinna saab ka bussiga. Ja buss ei lähe katki. | You can get there by bus too. And the bus doesn't break down. | |
-| 1988 | Conversation, Tom | Aga buss ei sõida metsa. Kui mul on auto, olen ma vaba! | But the bus doesn't go into the forest. If I have a car, I'm free! | |
-| 1989 | Conversation, Mari | Kui auto katki läheb, pole sa enam vaba. Siis oled jälle bussis. | If the car breaks down, you're not free any more. Then you're back on the bus. | |
-| 1990 | Conversation, Tom | Hea küll. Ma helistan mehaanikule, et küsida, kui palju remont maksab. | All right. I'll call the mechanic to ask how much the repair costs. | |
-| 1991 | Conversation, Tom | Sada eurot. | A hundred euros. | |
-| 1992 | Conversation, Mari | Noh? Ostad siis uuema auto? | Well? Are you buying a newer car, then? | |
-| 1993 | Conversation, Tom | Ei. Remont maksab ikka vähem kui uus auto. Sõidan vana autoga veel natuke. | No. The repair costs less than a new car, after all. I'll drive the old one a while longer. | |
-| 1994 | Conversation, Mari | Kuigi see jälle katki läheb? | Even though it'll break down again? | |
-| 1995 | Conversation, Tom | Kuigi see jälle katki läheb. | Even though it'll break down again. | |
-| 1996 | Words (word) | mugav | comfortable, convenient | |
-| 1997 | Words (form) | uuema | a newer one's; {uuema auto}, a newer car, the whole of it | |
-| 1998 | Words (form) | müü | sell!, to one person | |
-| 1999 | Words (form) | lapsi | children, as an object | |
-| 2000 | Words (form) | lasteaeda | to kindergarten | |
-| 2001 | Words (form) | viia | to take: the [da-tegevusnimi] (-da) | |
-| 2002 | Words (word) | mehaanik | a mechanic | |
-| 2003 | Words (form) | mehaanikule | to the mechanic | |
-| 2004 | Words (phrase) | Hea küll. | All right. Fine. | |
-| 2005 | How it works | sest, et, kui, kuna, kuigi, Kuigi see on vana, sõidab see hästi | A2 joined two sentences with {sest}, {et} and {kui}. Add {kuna} for since and {kuigi} for although, and let the joined part come first: then the rest usually starts with its verb, {Kuigi see on vana, sõidab see hästi}. | |
-| 2006 | How it works | Sest, Kuna, Kuna buss on odavam, ... | {Sest} from A2 gives the reason after the rest of the sentence. {Kuna} says the same and is happy to go first: {Kuna buss on odavam, ...}. | |
-| 2007 | How it works | Et, Ma arvan, et, et küsida | {Et} with a whole sentence after it is that, as in {Ma arvan, et}. With the [da-tegevusnimi] (-da) it says what for: {et küsida}, to ask. | |
-| 2008 | How it works | kuna, kuigi, et, kui | A comma stands before {kuna}, {kuigi}, {et} and {kui} when they start a part of the sentence, and after that part when it comes first. | |
-| 2009 | How it works | Kuigi see on vana, sõidab see hästi | When the joined part comes first, the verb of the rest usually comes straight after the comma: {Kuigi see on vana, sõidab see hästi}. Learn that order first. | |
-| 2010 | How it works, table | Kuna buss on odavam, jääb sul rohkem raha üle. | Since the bus is cheaper, you'll have more money left., {kuna}: the reason | |
-| 2011 | How it works, table | Kuigi see on vana, sõidab see hästi. | Although it's old, it runs well., {kuigi}: in spite of it | |
-| 2012 | How it works, table | Mul on autot vaja, et lapsi lasteaeda viia. | I need a car to take the kids to kindergarten., {et}: what for | |
-| 2013 | How it works, table | Kui auto on katki, ei ole sa vaba. | If the car's broken, you're not free., {kui}: if | |
-| 2014 | Say it, question | Kas sul on autot vaja? | Do you need a car? | |
-| 2015 | Say it, model answer | Ei ole, kuna ma elan kesklinnas. | No, since I live in the city center. | |
-| 2016 | Say it, model answer | Ma tahaksin autot, et maale sõita. | I'd like a car so I can drive to the country. | |
-| 2017 | Say it, model answer | Auto on mugav, kuigi see on kallis. | A car is comfortable, although it's expensive. | |
-| 2018 | Say it, model answer | Kui ilm on ilus, käin ma jala tööl. | If the weather's nice, I walk to work. | |
+| 1986 | Conversation, Tom | Mari, mu auto on jälle katki. | Mari, my car's broken again. | |
+| 1987 | Conversation, Mari | Jälle? See on ju väga vana. | Again? But it's really old. | |
+| 1988 | Conversation, Tom | Kakskümmend aastat. Kuigi see on vana, sõidab see tavaliselt hästi. | Twenty years. Although it's old, it usually runs well. | |
+| 1989 | Conversation, Mari | Tavaliselt? Sa parandasid seda eelmisel nädalal! | Usually? You were fixing it last week! | |
+| 1990 | Conversation, Tom | Ma mõtlen, et ostan uuema auto. | I'm thinking of buying a newer car. | |
+| 1991 | Conversation, Mari | Miks? Müü see maha ja sõida bussiga. Kuna buss on odavam, jääb sul rohkem raha üle. | Why? Sell it and take the bus. Since the bus is cheaper, you'll have more money left. | |
+| 1992 | Conversation, Tom | Aga mul on autot vaja, et lapsi lasteaeda viia. | But I need a car to take the kids to kindergarten. | |
+| 1993 | Conversation, Mari | Sinna saab ka bussiga. Ja buss ei lähe katki. | You can get there by bus too. And the bus doesn't break down. | |
+| 1994 | Conversation, Tom | Aga buss ei sõida metsa. Kui mul on auto, olen ma vaba! | But the bus doesn't go into the forest. If I have a car, I'm free! | |
+| 1995 | Conversation, Mari | Kui auto katki läheb, pole sa enam vaba. Siis oled jälle bussis. | If the car breaks down, you're not free any more. Then you're back on the bus. | |
+| 1996 | Conversation, Tom | Hea küll. Ma helistan mehaanikule, et küsida, kui palju remont maksab. | All right. I'll call the mechanic to ask how much the repair costs. | |
+| 1997 | Conversation, Tom | Sada eurot. | A hundred euros. | |
+| 1998 | Conversation, Mari | Noh? Ostad siis uuema auto? | Well? Are you buying a newer car, then? | |
+| 1999 | Conversation, Tom | Ei. Remont maksab ikka vähem kui uus auto. Sõidan vana autoga veel natuke. | No. The repair costs less than a new car, after all. I'll drive the old one a while longer. | |
+| 2000 | Conversation, Mari | Kuigi see jälle katki läheb? | Even though it'll break down again? | |
+| 2001 | Conversation, Tom | Kuigi see jälle katki läheb. | Even though it'll break down again. | |
+| 2002 | Words (word) | mugav | comfortable, convenient | |
+| 2003 | Words (form) | uuema | a newer one's; {uuema auto}, a newer car, the whole of it | |
+| 2004 | Words (form) | müü | sell!, to one person | |
+| 2005 | Words (form) | lapsi | children, as an object | |
+| 2006 | Words (form) | lasteaeda | to kindergarten | |
+| 2007 | Words (form) | viia | to take: the [da-tegevusnimi] (-da) | |
+| 2008 | Words (word) | mehaanik | a mechanic | |
+| 2009 | Words (form) | mehaanikule | to the mechanic | |
+| 2010 | Words (phrase) | Hea küll. | All right. Fine. | |
+| 2011 | How it works | sest, et, kui, kuna, kuigi, Kuigi see on vana, sõidab see hästi | A2 joined two sentences with {sest}, {et} and {kui}. Add {kuna} for since and {kuigi} for although, and let the joined part come first: then the rest usually starts with its verb, {Kuigi see on vana, sõidab see hästi}. | |
+| 2012 | How it works | Sest, Kuna, Kuna buss on odavam, ... | {Sest} from A2 gives the reason after the rest of the sentence. {Kuna} says the same and is happy to go first: {Kuna buss on odavam, ...}. | |
+| 2013 | How it works | Et, Ma arvan, et, et küsida | {Et} with a whole sentence after it is that, as in {Ma arvan, et}. With the [da-tegevusnimi] (-da) it says what for: {et küsida}, to ask. | |
+| 2014 | How it works | kuna, kuigi, et, kui | A comma stands before {kuna}, {kuigi}, {et} and {kui} when they start a part of the sentence, and after that part when it comes first. | |
+| 2015 | How it works | Kuigi see on vana, sõidab see hästi | When the joined part comes first, the verb of the rest usually comes straight after the comma: {Kuigi see on vana, sõidab see hästi}. Learn that order first. | |
+| 2016 | How it works, table | Kuna buss on odavam, jääb sul rohkem raha üle. | Since the bus is cheaper, you'll have more money left., {kuna}: the reason | |
+| 2017 | How it works, table | Kuigi see on vana, sõidab see hästi. | Although it's old, it runs well., {kuigi}: in spite of it | |
+| 2018 | How it works, table | Mul on autot vaja, et lapsi lasteaeda viia. | I need a car to take the kids to kindergarten., {et}: what for | |
+| 2019 | How it works, table | Kui auto on katki, ei ole sa vaba. | If the car's broken, you're not free., {kui}: if | |
+| 2020 | Say it, question | Kas sul on autot vaja? | Do you need a car? | |
+| 2021 | Say it, model answer | Ei ole, kuna ma elan kesklinnas. | No, since I live in the city center. | |
+| 2022 | Say it, model answer | Ma tahaksin autot, et maale sõita. | I'd like a car so I can drive to the country. | |
+| 2023 | Say it, model answer | Auto on mugav, kuigi see on kallis. | A car is comfortable, although it's expensive. | |
+| 2024 | Say it, model answer | Kui ilm on ilus, käin ma jala tööl. | If the weather's nice, I walk to work. | |
 
 #### B1 37. The one who, the one that (`b1-37-the-one-who`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 2019 | Conversation, Tom | Anna, ma ei tunne siin kedagi. Kes need inimesed on? | Anna, I don't know anybody here. Who are these people? | |
-| 2020 | Conversation, Anna | Naine, kes seisab akna juures, on Leena. Ta elab meie kõrval. | The woman who's standing by the window is Leena. She lives next door to us. | |
-| 2021 | Conversation, Tom | Ja see naine, kellega ta räägib? | And the woman she's talking to? | |
-| 2022 | Conversation, Anna | See on Kertu, kellega ma eile poes rääkisin. Ta kirjutab raamatuid. | That's Kertu, who I was talking to in the shop yesterday. She writes books. | |
-| 2023 | Conversation, Tom | Päriselt? Mis raamatuid? | Really? What books? | |
-| 2024 | Conversation, Anna | Ta kirjutas selle raamatu, mida sa praegu loed! | She wrote the book you're reading right now! | |
-| 2025 | Conversation, Tom | Ei usu! Ma pean temaga rääkima. | No way! I have to talk to her. | |
-| 2026 | Conversation, Tom | Aga kes on see mees, kes juba kolmandat tükki kooki sööb? | But who's that man who's already on his third piece of cake? | |
-| 2027 | Conversation, Anna | See on Leena mees. Ja see on tema kook. | That's Leena's husband. And it's her cake. | |
-| 2028 | Conversation, Tom | Oi. Aga kook on tõesti hea. | Oh. But the cake really is good. | |
-| 2029 | Words (form) | raamatuid | books, some of them | |
-| 2030 | Words (form) | kirjutas | he, she wrote | |
-| 2031 | Words (form) | tundnud | known, after {ei}: {ma ei tundnud} | |
-| 2032 | Words (form) | meest | the man, as the one you know: {Ma tunnen seda meest} | |
-| 2033 | How it works | Kes, mis, naine, kellega ta räägib, kus, firma, kus ma töötan | {Kes} and {mis} join a second sentence to a person or a thing, in the case that second sentence needs: {naine, kellega ta räägib}, you talk with her. A place takes {kus}: {firma, kus ma töötan}. | |
-| 2034 | How it works | Kes, mis, mida, millest | {Kes} is for people and {mis} for things. They take the ending the second sentence would give: you read a book still in progress, so {mida}; you talk about it, so {millest}. | |
-| 2035 | How it works | raamat, mille ta kirjutas | Read a book to the end, and the joining word is whole too: {raamat, mille ta kirjutas}, the book she wrote. | |
-| 2036 | How it works | kes, mis, Naine, kes seisab akna juures, on Leena | A comma stands before {kes} and {mis}, and after the joined part if the sentence carries on: {Naine, kes seisab akna juures, on Leena}. | |
-| 2037 | How it works | raamat, mida sa loed | English can drop who and that: the book you read. Estonian never drops the joining word: {raamat, mida sa loed}. | |
-| 2038 | How it works, table | Naine, kes seisab akna juures. | The woman who's standing by the window., {kes}: she's the one standing | |
-| 2039 | How it works, table | Naine, kellega ta räägib. | The woman she's talking to., {kellega}: talking with her | |
-| 2040 | How it works, table | Raamat, mida sa loed. | The book you're reading., {mida}: still reading it | |
-| 2041 | How it works, table | Raamat, millest ma rääkisin. | The book I was talking about., {millest}: talking about it | |
-| 2042 | How it works, table | Firma, kus ma töötan. | The company where I work., {kus}: in it | |
-| 2043 | Say it, question | Kes see naine on? | Who's that woman? | |
-| 2044 | Say it, model answer | See on naine, kes elab meie kõrval. | That's the woman who lives next door to us. | |
-| 2045 | Say it, model answer | Raamat, mida ma loen, on väga hea. | The book I'm reading is very good. | |
-| 2046 | Say it, model answer | Firma, kus ma töötan, on kesklinnas. | The company where I work is in the city center. | |
-| 2047 | Say it, model answer | Mari on sõber, kellega ma tihti kohvi joon. | Mari is the friend I often have coffee with. | |
+| 2025 | Conversation, Tom | Anna, ma ei tunne siin kedagi. Kes need inimesed on? | Anna, I don't know anybody here. Who are these people? | |
+| 2026 | Conversation, Anna | Naine, kes seisab akna juures, on Leena. Ta elab meie kõrval. | The woman who's standing by the window is Leena. She lives next door to us. | |
+| 2027 | Conversation, Tom | Ja see naine, kellega ta räägib? | And the woman she's talking to? | |
+| 2028 | Conversation, Anna | See on Kertu, kellega ma eile poes rääkisin. Ta kirjutab raamatuid. | That's Kertu, who I was talking to in the shop yesterday. She writes books. | |
+| 2029 | Conversation, Tom | Päriselt? Mis raamatuid? | Really? What books? | |
+| 2030 | Conversation, Anna | Ta kirjutas selle raamatu, mida sa praegu loed! | She wrote the book you're reading right now! | |
+| 2031 | Conversation, Tom | Ei usu! Ma pean temaga rääkima. | No way! I have to talk to her. | |
+| 2032 | Conversation, Tom | Aga kes on see mees, kes juba kolmandat tükki kooki sööb? | But who's that man who's already on his third piece of cake? | |
+| 2033 | Conversation, Anna | See on Leena mees. Ja see on tema kook. | That's Leena's husband. And it's her cake. | |
+| 2034 | Conversation, Tom | Oi. Aga kook on tõesti hea. | Oh. But the cake really is good. | |
+| 2035 | Words (form) | raamatuid | books, some of them | |
+| 2036 | Words (form) | kirjutas | he, she wrote | |
+| 2037 | Words (form) | tundnud | known, after {ei}: {ma ei tundnud} | |
+| 2038 | Words (form) | meest | the man, as the one you know: {Ma tunnen seda meest} | |
+| 2039 | How it works | Kes, mis, naine, kellega ta räägib, kus, firma, kus ma töötan | {Kes} and {mis} join a second sentence to a person or a thing, in the case that second sentence needs: {naine, kellega ta räägib}, you talk with her. A place takes {kus}: {firma, kus ma töötan}. | |
+| 2040 | How it works | Kes, mis, mida, millest | {Kes} is for people and {mis} for things. They take the ending the second sentence would give: you read a book still in progress, so {mida}; you talk about it, so {millest}. | |
+| 2041 | How it works | raamat, mille ta kirjutas | Read a book to the end, and the joining word is whole too: {raamat, mille ta kirjutas}, the book she wrote. | |
+| 2042 | How it works | kes, mis, Naine, kes seisab akna juures, on Leena | A comma stands before {kes} and {mis}, and after the joined part if the sentence carries on: {Naine, kes seisab akna juures, on Leena}. | |
+| 2043 | How it works | raamat, mida sa loed | English can drop who and that: the book you read. Estonian never drops the joining word: {raamat, mida sa loed}. | |
+| 2044 | How it works, table | Naine, kes seisab akna juures. | The woman who's standing by the window., {kes}: she's the one standing | |
+| 2045 | How it works, table | Naine, kellega ta räägib. | The woman she's talking to., {kellega}: talking with her | |
+| 2046 | How it works, table | Raamat, mida sa loed. | The book you're reading., {mida}: still reading it | |
+| 2047 | How it works, table | Raamat, millest ma rääkisin. | The book I was talking about., {millest}: talking about it | |
+| 2048 | How it works, table | Firma, kus ma töötan. | The company where I work., {kus}: in it | |
+| 2049 | Say it, question | Kes see naine on? | Who's that woman? | |
+| 2050 | Say it, model answer | See on naine, kes elab meie kõrval. | That's the woman who lives next door to us. | |
+| 2051 | Say it, model answer | Raamat, mida ma loen, on väga hea. | The book I'm reading is very good. | |
+| 2052 | Say it, model answer | Firma, kus ma töötan, on kesklinnas. | The company where I work is in the city center. | |
+| 2053 | Say it, model answer | Mari on sõber, kellega ma tihti kohvi joon. | Mari is the friend I often have coffee with. | |
 
 #### B1 38. I see it differently (`b1-38-differently`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 2048 | Conversation, Mari | Noh, kuidas sulle film meeldis? | So, how did you like the film? | |
-| 2049 | Conversation, Tom | Minu meelest oli see liiga pikk. Kolm tundi! | If you ask me, it was too long. Three hours! | |
-| 2050 | Conversation, Mari | Mulle tundub, et sa magasid pool filmi maha. | It seems to me you slept through half the film. | |
-| 2051 | Conversation, Tom | Ainult natuke! Võib-olla pool tundi. | Only a bit! Maybe half an hour. | |
-| 2052 | Conversation, Mari | Lõpp oli kõige parem. Ma ei usu, et sa seda nägid! | The ending was the best part. I don't believe you saw it! | |
-| 2053 | Conversation, Tom | Ühest küljest on sul õigus. Teisest küljest oli film väga igav. | On the one hand, you're right. On the other hand, the film was really boring. | |
-| 2054 | Conversation, Mari | Igav? Ma ei ole sinuga üldse nõus! | Boring? I don't agree with you at all! | |
-| 2055 | Conversation, Tom | Ma saan sinust aru, aga minu meelest oli see ikka igav. | I see where you're coming from, but I still think it was boring. | |
-| 2056 | Conversation, Mari | Hea küll. Aga järgmine kord valin mina filmi. Oled nõus? | All right. But next time I choose the film. Deal? | |
-| 2057 | Conversation, Tom | Nõus. Ja mina magan jälle. | Agreed. And I'll sleep again. | |
-| 2058 | Words (form) | meelest | in the mind of: {minu meelest}, in my opinion | |
-| 2059 | Words (form) | küljest | from the side: {ühest küljest}, {teisest küljest} | |
-| 2060 | Words (word) | õigus | right: {sul on õigus}, you're right | |
-| 2061 | Words (form) | minuga | with me | |
-| 2062 | How it works | Ma arvan, et, nõus, sul on õigus, minu meelest, mulle tundub, et, ma ei usu, et, ühest küljest, teisest küljest | A2 gave you {Ma arvan, et}, {nõus} and {sul on õigus}. One step on: say how sure you are with {minu meelest}, {mulle tundub, et} and {ma ei usu, et}, and weigh it up with {ühest küljest} and {teisest küljest}. | |
-| 2063 | How it works | Minu meelest, Minu meelest oli see pikk | {Minu meelest} counts as the first thing in the sentence, so the verb comes next: {Minu meelest oli see pikk}. | |
-| 2064 | How it works | sinuga, sellega, Sellega olen nõus | You agree with somebody or something: {sinuga}, {sellega}. {Sellega olen nõus} is I agree with that. | |
-| 2065 | How it works | Aru saama, ma saan sinust aru | {Aru saama} takes the [seestütlev] (-st, out of): {ma saan sinust aru}, I understand you. | |
-| 2066 | How it works | Ma ei ole nõus, päris, Ma ei ole päris nõus | {Ma ei ole nõus} is a flat no. To disagree gently, add {päris}: {Ma ei ole päris nõus}, I don't quite agree. | |
-| 2067 | How it works, table | Minu meelest oli see liiga pikk. | If you ask me, it was too long. | |
-| 2068 | How it works, table | Mulle tundub, et sa magasid. | It seems to me you were asleep. | |
-| 2069 | How it works, table | Ma ei usu, et sa seda nägid. | I don't believe you saw it. | |
-| 2070 | How it works, table | Ühest küljest on sul õigus. | On the one hand, you're right. | |
-| 2071 | How it works, table | Ma olen sinuga nõus. | I agree with you. | |
-| 2072 | How it works, table | Ma ei ole päris nõus. | I don't quite agree. | |
-| 2073 | Say it, question | Kuidas sulle film meeldis? | How did you like the film? | |
-| 2074 | Say it, model answer | Minu meelest oli see liiga pikk. | If you ask me, it was too long. | |
-| 2075 | Say it, question | Film oli igav. | The film was boring. | |
-| 2076 | Say it, model answer | Ma ei ole sinuga üldse nõus. | I don't agree with you at all. | |
-| 2077 | Say it, model answer | Mulle tundub, et lõpp oli kõige parem. | It seems to me the ending was the best part. | |
-| 2078 | Say it, question | Järgmine kord valin mina filmi. | Next time I choose the film. | |
-| 2079 | Say it, model answer | Sellega olen nõus. | I agree with that. | |
+| 2054 | Conversation, Mari | Noh, kuidas sulle film meeldis? | So, how did you like the film? | |
+| 2055 | Conversation, Tom | Minu meelest oli see liiga pikk. Kolm tundi! | If you ask me, it was too long. Three hours! | |
+| 2056 | Conversation, Mari | Mulle tundub, et sa magasid pool filmi maha. | It seems to me you slept through half the film. | |
+| 2057 | Conversation, Tom | Ainult natuke! Võib-olla pool tundi. | Only a bit! Maybe half an hour. | |
+| 2058 | Conversation, Mari | Lõpp oli kõige parem. Ma ei usu, et sa seda nägid! | The ending was the best part. I don't believe you saw it! | |
+| 2059 | Conversation, Tom | Ühest küljest on sul õigus. Teisest küljest oli film väga igav. | On the one hand, you're right. On the other hand, the film was really boring. | |
+| 2060 | Conversation, Mari | Igav? Ma ei ole sinuga üldse nõus! | Boring? I don't agree with you at all! | |
+| 2061 | Conversation, Tom | Ma saan sinust aru, aga minu meelest oli see ikka igav. | I see where you're coming from, but I still think it was boring. | |
+| 2062 | Conversation, Mari | Hea küll. Aga järgmine kord valin mina filmi. Oled nõus? | All right. But next time I choose the film. Deal? | |
+| 2063 | Conversation, Tom | Nõus. Ja mina magan jälle. | Agreed. And I'll sleep again. | |
+| 2064 | Words (form) | meelest | in the mind of: {minu meelest}, in my opinion | |
+| 2065 | Words (form) | küljest | from the side: {ühest küljest}, {teisest küljest} | |
+| 2066 | Words (word) | õigus | right: {sul on õigus}, you're right | |
+| 2067 | Words (form) | minuga | with me | |
+| 2068 | How it works | Ma arvan, et, nõus, sul on õigus, minu meelest, mulle tundub, et, ma ei usu, et, ühest küljest, teisest küljest | A2 gave you {Ma arvan, et}, {nõus} and {sul on õigus}. One step on: say how sure you are with {minu meelest}, {mulle tundub, et} and {ma ei usu, et}, and weigh it up with {ühest küljest} and {teisest küljest}. | |
+| 2069 | How it works | Minu meelest, Minu meelest oli see pikk | {Minu meelest} counts as the first thing in the sentence, so the verb comes next: {Minu meelest oli see pikk}. | |
+| 2070 | How it works | sinuga, sellega, Sellega olen nõus | You agree with somebody or something: {sinuga}, {sellega}. {Sellega olen nõus} is I agree with that. | |
+| 2071 | How it works | Aru saama, ma saan sinust aru | {Aru saama} takes the [seestütlev] (-st, out of): {ma saan sinust aru}, I understand you. | |
+| 2072 | How it works | Ma ei ole nõus, päris, Ma ei ole päris nõus | {Ma ei ole nõus} is a flat no. To disagree gently, add {päris}: {Ma ei ole päris nõus}, I don't quite agree. | |
+| 2073 | How it works, table | Minu meelest oli see liiga pikk. | If you ask me, it was too long. | |
+| 2074 | How it works, table | Mulle tundub, et sa magasid. | It seems to me you were asleep. | |
+| 2075 | How it works, table | Ma ei usu, et sa seda nägid. | I don't believe you saw it. | |
+| 2076 | How it works, table | Ühest küljest on sul õigus. | On the one hand, you're right. | |
+| 2077 | How it works, table | Ma olen sinuga nõus. | I agree with you. | |
+| 2078 | How it works, table | Ma ei ole päris nõus. | I don't quite agree. | |
+| 2079 | Say it, question | Kuidas sulle film meeldis? | How did you like the film? | |
+| 2080 | Say it, model answer | Minu meelest oli see liiga pikk. | If you ask me, it was too long. | |
+| 2081 | Say it, question | Film oli igav. | The film was boring. | |
+| 2082 | Say it, model answer | Ma ei ole sinuga üldse nõus. | I don't agree with you at all. | |
+| 2083 | Say it, model answer | Mulle tundub, et lõpp oli kõige parem. | It seems to me the ending was the best part. | |
+| 2084 | Say it, question | Järgmine kord valin mina filmi. | Next time I choose the film. | |
+| 2085 | Say it, model answer | Sellega olen nõus. | I agree with that. | |
 
 #### B1 39. Always online (`b1-39-online`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 2080 | Conversation, Helgi | Tom, kas sul on hetk aega? Mul on uus nutitelefon ja see ei tööta. | Tom, have you got a moment? I've got a new smartphone and it isn't working. | |
-| 2081 | Conversation, Helgi | Ekraan on must ja telefon ei tee midagi. | The screen is black and the phone does nothing. | |
-| 2082 | Conversation, Tom | Kas sa laadisid seda? | Did you charge it? | |
-| 2083 | Conversation, Helgi | Muidugi! Vana telefoni juhtmega, terve öö. Aga ekraan on ikka must. | Of course! With the old phone's cable, all night. But the screen's still black. | |
-| 2084 | Conversation, Tom | See juhe ei sobi. Uue telefoni juhe on siin karbis. | That cable doesn't fit. The new phone's cable is here in the box. | |
-| 2085 | Conversation, Helgi | Ma ei teadnud, et uus telefon tahab uut juhet! | I didn't know a new phone wants a new cable! | |
-| 2086 | Conversation, Helgi | Oi! Siin on kakskümmend sõnumit! | Oh! There are twenty messages here! | |
-| 2087 | Conversation, Tom | Need on su tütrelt. Ta muretseb, sest sa ei vasta. | They're from your daughter. She's worried because you don't answer. | |
-| 2088 | Conversation, Helgi | Ja mis see väike roheline asi on? | And what's this little green thing? | |
-| 2089 | Conversation, Tom | See on rakendus, millega saab tasuta helistada. | That's an app you can make calls with for free. | |
-| 2090 | Conversation, Helgi | Tasuta? Siis helistan ma sulle iga päev! Ja ma hakkan ka sotsiaalmeedias käima. | For free? Then I'll call you every day! And I'm going to start using social media too. | |
-| 2091 | Conversation, Tom | Väga tore. | Lovely. | |
-| 2092 | Words (word) | nutitelefon | smartphone | |
-| 2093 | Words (form) | nutitelefoni | a smartphone's, of a smartphone | |
-| 2094 | Words (verb, I form) | laadin | I charge | |
-| 2095 | Words (form) | laadisin | I charged | |
-| 2096 | Words (form) | laadis | he, she charged | |
-| 2097 | Words (word) | juhe | a cable, a lead | |
-| 2098 | Words (form) | juhtmega | with a cable | |
-| 2099 | Words (form) | juhet | a cable, as an object | |
-| 2100 | Words (form) | karbis | in the box | |
-| 2101 | Words (form) | sõnumit | message, after a number or as some of it | |
-| 2102 | Words (word) | rakendus | app | |
-| 2103 | Words (form) | rakenduse | an app's, of an app | |
-| 2104 | Words (form) | rakendused | apps | |
-| 2105 | Words (form) | sotsiaalmeedia | of social media | |
-| 2106 | Words (form) | helistas | he, she called | |
-| 2107 | Words (form) | tütrelt | from a daughter | |
-| 2108 | How it works | laadima, sõnum, ekraan, rakendus, mis, rakendus, millega saab helistada | A phone in Estonian: you {laadima} it, read a {sõnum} on its {ekraan}, and open a {rakendus}. And {mis} in its case says what a thing is for: {rakendus, millega saab helistada}, an app you call with. | |
-| 2109 | How it works | Saab, saab tasuta helistada | {Saab} with the [da-tegevusnimi] (-da) is you can, anybody can: {saab tasuta helistada}. | |
-| 2110 | How it works | kakskümmend sõnumit | After a number, the thing is in the [osastav] (3rd form) and stays one: {kakskümmend sõnumit}. | |
-| 2111 | How it works | Sotsiaalmeedia, sotsiaalmeedias | {Sotsiaalmeedia} takes the endings any noun does: {sotsiaalmeedias}, on social media. | |
-| 2112 | How it works | Ma ei teadnud, et..., ei, et | {Ma ei teadnud, et...} is I didn't know that: after {ei} the past is the -nud form, and {et} with its comma brings in what you didn't know. | |
-| 2113 | How it works, table | Ma laadin telefoni. | I'm charging the phone. | |
-| 2114 | How it works, table | Siin on kakskümmend sõnumit. | There are twenty messages here. | |
-| 2115 | How it works, table | Rakendus, millega saab tasuta helistada. | An app you can make calls with for free. | |
-| 2116 | Say it, question | Kas sul on nutitelefon? | Have you got a smartphone? | |
-| 2117 | Say it, model answer | Jah, ja ma laadin seda iga päev. | Yes, and I charge it every day. | |
-| 2118 | Say it, model answer | Mul on kakskümmend sõnumit. | I've got twenty messages. | |
-| 2119 | Say it, model answer | Seda ma ei teadnud. | I didn't know that. | |
-| 2120 | Say it, model answer | See on rakendus, millega saab tasuta helistada. | It's an app you can make calls with for free. | |
+| 2086 | Conversation, Helgi | Tom, kas sul on hetk aega? Mul on uus nutitelefon ja see ei tööta. | Tom, have you got a moment? I've got a new smartphone and it isn't working. | |
+| 2087 | Conversation, Helgi | Ekraan on must ja telefon ei tee midagi. | The screen is black and the phone does nothing. | |
+| 2088 | Conversation, Tom | Kas sa laadisid seda? | Did you charge it? | |
+| 2089 | Conversation, Helgi | Muidugi! Vana telefoni juhtmega, terve öö. Aga ekraan on ikka must. | Of course! With the old phone's cable, all night. But the screen's still black. | |
+| 2090 | Conversation, Tom | See juhe ei sobi. Uue telefoni juhe on siin karbis. | That cable doesn't fit. The new phone's cable is here in the box. | |
+| 2091 | Conversation, Helgi | Ma ei teadnud, et uus telefon tahab uut juhet! | I didn't know a new phone wants a new cable! | |
+| 2092 | Conversation, Helgi | Oi! Siin on kakskümmend sõnumit! | Oh! There are twenty messages here! | |
+| 2093 | Conversation, Tom | Need on su tütrelt. Ta muretseb, sest sa ei vasta. | They're from your daughter. She's worried because you don't answer. | |
+| 2094 | Conversation, Helgi | Ja mis see väike roheline asi on? | And what's this little green thing? | |
+| 2095 | Conversation, Tom | See on rakendus, millega saab tasuta helistada. | That's an app you can make calls with for free. | |
+| 2096 | Conversation, Helgi | Tasuta? Siis helistan ma sulle iga päev! Ja ma hakkan ka sotsiaalmeedias käima. | For free? Then I'll call you every day! And I'm going to start using social media too. | |
+| 2097 | Conversation, Tom | Väga tore. | Lovely. | |
+| 2098 | Words (word) | nutitelefon | smartphone | |
+| 2099 | Words (form) | nutitelefoni | a smartphone's, of a smartphone | |
+| 2100 | Words (verb, I form) | laadin | I charge | |
+| 2101 | Words (form) | laadisin | I charged | |
+| 2102 | Words (form) | laadis | he, she charged | |
+| 2103 | Words (word) | juhe | a cable, a lead | |
+| 2104 | Words (form) | juhtmega | with a cable | |
+| 2105 | Words (form) | juhet | a cable, as an object | |
+| 2106 | Words (form) | karbis | in the box | |
+| 2107 | Words (form) | sõnumit | message, after a number or as some of it | |
+| 2108 | Words (word) | rakendus | app | |
+| 2109 | Words (form) | rakenduse | an app's, of an app | |
+| 2110 | Words (form) | rakendused | apps | |
+| 2111 | Words (form) | sotsiaalmeedia | of social media | |
+| 2112 | Words (form) | helistas | he, she called | |
+| 2113 | Words (form) | tütrelt | from a daughter | |
+| 2114 | How it works | laadima, sõnum, ekraan, rakendus, mis, rakendus, millega saab helistada | A phone in Estonian: you {laadima} it, read a {sõnum} on its {ekraan}, and open a {rakendus}. And {mis} in its case says what a thing is for: {rakendus, millega saab helistada}, an app you call with. | |
+| 2115 | How it works | Saab, saab tasuta helistada | {Saab} with the [da-tegevusnimi] (-da) is you can, anybody can: {saab tasuta helistada}. | |
+| 2116 | How it works | kakskümmend sõnumit | After a number, the thing is in the [osastav] (3rd form) and stays one: {kakskümmend sõnumit}. | |
+| 2117 | How it works | Sotsiaalmeedia, sotsiaalmeedias | {Sotsiaalmeedia} takes the endings any noun does: {sotsiaalmeedias}, on social media. | |
+| 2118 | How it works | Ma ei teadnud, et..., ei, et | {Ma ei teadnud, et...} is I didn't know that: after {ei} the past is the -nud form, and {et} with its comma brings in what you didn't know. | |
+| 2119 | How it works, table | Ma laadin telefoni. | I'm charging the phone. | |
+| 2120 | How it works, table | Siin on kakskümmend sõnumit. | There are twenty messages here. | |
+| 2121 | How it works, table | Rakendus, millega saab tasuta helistada. | An app you can make calls with for free. | |
+| 2122 | Say it, question | Kas sul on nutitelefon? | Have you got a smartphone? | |
+| 2123 | Say it, model answer | Jah, ja ma laadin seda iga päev. | Yes, and I charge it every day. | |
+| 2124 | Say it, model answer | Mul on kakskümmend sõnumit. | I've got twenty messages. | |
+| 2125 | Say it, model answer | Seda ma ei teadnud. | I didn't know that. | |
+| 2126 | Say it, model answer | See on rakendus, millega saab tasuta helistada. | It's an app you can make calls with for free. | |
 
 #### B1 40. Sorting the rubbish (`b1-40-rubbish`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 2121 | Conversation, Helgi | Tere, Tom! Oota, see kott ei käi siia. | Hi, Tom! Wait, that bag doesn't go in there. | |
-| 2122 | Conversation, Tom | Oi, vabandust! Kuhu see siis käib? | Oh, sorry! So where does it go? | |
-| 2123 | Conversation, Helgi | Pakendid lähevad kollasesse kasti ja paber sinisesse. | Packaging goes in the yellow bin, and paper in the blue one. | |
-| 2124 | Conversation, Tom | Ja toit? Ja vana kampsun? | And food? And an old sweater? | |
-| 2125 | Conversation, Helgi | Toit läheb pruuni kasti. Kampsun pole prügi, selle võid sõbrale anda. | Food goes in the brown bin. A sweater isn't rubbish, you can give it to a friend. | |
-| 2126 | Conversation, Tom | See on palju tööd. Miks see nii oluline on? | That's a lot of work. Why does it matter so much? | |
-| 2127 | Conversation, Helgi | Sest nii me hoiame loodust. Keskkond on meie kõigi kodu. | Because that way we look after nature. The environment is home to all of us. | |
-| 2128 | Conversation, Tom | Pakend, paber, pakend... | Packaging, paper, packaging... | |
-| 2129 | Conversation, Tom | ...ja mu võtmed! | ...and my keys! | |
-| 2130 | Conversation, Helgi | Näed nüüd? Sorteerimine on ikka kasulik! | See? Sorting does pay! | |
-| 2131 | Words (verb) | sorteerima | to sort | |
-| 2132 | Words (verb, I form) | sorteerin | I sort | |
-| 2133 | Words (word) | pakend | packaging, a wrapper | |
-| 2134 | Words (form) | pakendid | packaging, wrappers | |
-| 2135 | Words (word) | paber | paper | |
-| 2136 | Words (form) | kollasesse | into the yellow one | |
-| 2137 | Words (form) | sinisesse | into the blue one | |
-| 2138 | Words (form) | pruuni | into the brown one | |
-| 2139 | Words (form) | anda | to give: the [da-tegevusnimi] (-da) | |
-| 2140 | Words (form) | loodust | nature, as some of it | |
-| 2141 | Words (verb, I form) | hoian | I keep | |
-| 2142 | Words (form) | hoida | to keep, to look after: the [da-tegevusnimi] (-da) | |
-| 2143 | Words (form) | kõigi | of everybody, of all of us | |
-| 2144 | Words (word) | kasulik | useful, worth it | |
-| 2145 | How it works | läheb, kollasesse kasti, sest, kuna | What goes where takes {läheb} and the [sisseütlev] (-sse, into), and a color in front takes the ending too: {kollasesse kasti}, into the yellow bin. Why it matters is {sest} or {kuna}. | |
-| 2146 | How it works | kollane, sinine, kollasesse, sinisesse, Pruun, pruuni, Toit läheb pruuni kasti | Words in -ne, like {kollane} and {sinine}, have only the long form for into: {kollasesse}, {sinisesse}. {Pruun} has a short one, {pruuni}, and so has the bin itself: {Toit läheb pruuni kasti}. | |
-| 2147 | How it works | hoidma, Me hoiame loodust | Looking after something is {hoidma}, and it takes the [osastav] (3rd form): {Me hoiame loodust}. | |
-| 2148 | How it works | Meie kõigi kodu, kõigi | {Meie kõigi kodu} is home to all of us: {kõigi} is everybody's. | |
-| 2149 | How it works | Ei käi siia, See kott ei käi siia | {Ei käi siia} is about where a thing belongs, not about walking: {See kott ei käi siia}, that bag doesn't go in here. | |
-| 2150 | How it works, table | Pakendid lähevad kollasesse kasti. | Packaging goes in the yellow bin. | |
-| 2151 | How it works, table | Paber läheb sinisesse kasti. | Paper goes in the blue bin. | |
-| 2152 | How it works, table | Toit läheb pruuni kasti. | Food goes in the brown bin. | |
-| 2153 | How it works, table | Me hoiame loodust. | We look after nature. | |
-| 2154 | Say it, question | Kas sa sorteerid prügi? | Do you sort your rubbish? | |
-| 2155 | Say it, model answer | Jah, sest see on oluline. | Yes, because it's important. | |
-| 2156 | Say it, model answer | Pakendid lähevad kollasesse kasti. | Packaging goes in the yellow bin. | |
-| 2157 | Say it, model answer | Paber läheb sinisesse kasti. | Paper goes in the blue bin. | |
-| 2158 | Say it, question | Miks see oluline on? | Why does it matter? | |
-| 2159 | Say it, model answer | Keskkond on meie kõigi kodu. | The environment is home to all of us. | |
+| 2127 | Conversation, Helgi | Tere, Tom! Oota, see kott ei käi siia. | Hi, Tom! Wait, that bag doesn't go in there. | |
+| 2128 | Conversation, Tom | Oi, vabandust! Kuhu see siis käib? | Oh, sorry! So where does it go? | |
+| 2129 | Conversation, Helgi | Pakendid lähevad kollasesse kasti ja paber sinisesse. | Packaging goes in the yellow bin, and paper in the blue one. | |
+| 2130 | Conversation, Tom | Ja toit? Ja vana kampsun? | And food? And an old sweater? | |
+| 2131 | Conversation, Helgi | Toit läheb pruuni kasti. Kampsun pole prügi, selle võid sõbrale anda. | Food goes in the brown bin. A sweater isn't rubbish, you can give it to a friend. | |
+| 2132 | Conversation, Tom | See on palju tööd. Miks see nii oluline on? | That's a lot of work. Why does it matter so much? | |
+| 2133 | Conversation, Helgi | Sest nii me hoiame loodust. Keskkond on meie kõigi kodu. | Because that way we look after nature. The environment is home to all of us. | |
+| 2134 | Conversation, Tom | Pakend, paber, pakend... | Packaging, paper, packaging... | |
+| 2135 | Conversation, Tom | ...ja mu võtmed! | ...and my keys! | |
+| 2136 | Conversation, Helgi | Näed nüüd? Sorteerimine on ikka kasulik! | See? Sorting does pay! | |
+| 2137 | Words (verb) | sorteerima | to sort | |
+| 2138 | Words (verb, I form) | sorteerin | I sort | |
+| 2139 | Words (word) | pakend | packaging, a wrapper | |
+| 2140 | Words (form) | pakendid | packaging, wrappers | |
+| 2141 | Words (word) | paber | paper | |
+| 2142 | Words (form) | kollasesse | into the yellow one | |
+| 2143 | Words (form) | sinisesse | into the blue one | |
+| 2144 | Words (form) | pruuni | into the brown one | |
+| 2145 | Words (form) | anda | to give: the [da-tegevusnimi] (-da) | |
+| 2146 | Words (form) | loodust | nature, as some of it | |
+| 2147 | Words (verb, I form) | hoian | I keep | |
+| 2148 | Words (form) | hoida | to keep, to look after: the [da-tegevusnimi] (-da) | |
+| 2149 | Words (form) | kõigi | of everybody, of all of us | |
+| 2150 | Words (word) | kasulik | useful, worth it | |
+| 2151 | How it works | läheb, kollasesse kasti, sest, kuna | What goes where takes {läheb} and the [sisseütlev] (-sse, into), and a color in front takes the ending too: {kollasesse kasti}, into the yellow bin. Why it matters is {sest} or {kuna}. | |
+| 2152 | How it works | kollane, sinine, kollasesse, sinisesse, Pruun, pruuni, Toit läheb pruuni kasti | Words in -ne, like {kollane} and {sinine}, have only the long form for into: {kollasesse}, {sinisesse}. {Pruun} has a short one, {pruuni}, and so has the bin itself: {Toit läheb pruuni kasti}. | |
+| 2153 | How it works | hoidma, Me hoiame loodust | Looking after something is {hoidma}, and it takes the [osastav] (3rd form): {Me hoiame loodust}. | |
+| 2154 | How it works | Meie kõigi kodu, kõigi | {Meie kõigi kodu} is home to all of us: {kõigi} is everybody's. | |
+| 2155 | How it works | Ei käi siia, See kott ei käi siia | {Ei käi siia} is about where a thing belongs, not about walking: {See kott ei käi siia}, that bag doesn't go in here. | |
+| 2156 | How it works, table | Pakendid lähevad kollasesse kasti. | Packaging goes in the yellow bin. | |
+| 2157 | How it works, table | Paber läheb sinisesse kasti. | Paper goes in the blue bin. | |
+| 2158 | How it works, table | Toit läheb pruuni kasti. | Food goes in the brown bin. | |
+| 2159 | How it works, table | Me hoiame loodust. | We look after nature. | |
+| 2160 | Say it, question | Kas sa sorteerid prügi? | Do you sort your rubbish? | |
+| 2161 | Say it, model answer | Jah, sest see on oluline. | Yes, because it's important. | |
+| 2162 | Say it, model answer | Pakendid lähevad kollasesse kasti. | Packaging goes in the yellow bin. | |
+| 2163 | Say it, model answer | Paber läheb sinisesse kasti. | Paper goes in the blue bin. | |
+| 2164 | Say it, question | Miks see oluline on? | Why does it matter? | |
+| 2165 | Say it, model answer | Keskkond on meie kõigi kodu. | The environment is home to all of us. | |
 
 #### B1 41. Your opinion on a forum (`b1-41-forum`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 2160 | Conversation, Helgi | Tere, Tom! Siin Helgi. | Hi, Tom! It's Helgi. | |
-| 2161 | Conversation, Helgi | Tead mis? Linn tahab meie pargi asemele parkla ehitada. | Guess what? The city wants to build a car park where our park is. | |
-| 2162 | Conversation, Helgi | Aga park on ju koht, kus lapsed mängivad! | But the park is where the children play! | |
-| 2163 | Conversation, Helgi | Ja kus mina igal õhtul koeraga jalutan. | And where I walk the dog every evening. | |
-| 2164 | Conversation, Helgi | Minu meelest on see väga halb idee. | If you ask me, it's a very bad idea. | |
-| 2165 | Conversation, Helgi | Linnal on foorum, kus saab oma arvamust avaldada. | The city has a forum where you can give your opinion. | |
-| 2166 | Conversation, Helgi | Sul on ju hea eesti keel. Kirjuta palun sinna, mida sa arvad ja miks. | Your Estonian's good, after all. Do write there what you think and why. | |
-| 2167 | Conversation, Helgi | Ma kirjutan ka. Helista mulle tagasi! Head aega! | I'm writing too. Call me back! Bye! | |
-| 2168 | Words (form) | pargi | a park's, of a park | |
-| 2169 | Words (word) | asemele | in place of, instead of | |
-| 2170 | Words (word) | parkla | car park | |
-| 2171 | Words (form) | parkla | of a car park | |
-| 2172 | Words (form) | parklat | a car park, as some of it | |
-| 2173 | Words (form) | ehitada | to build: the [da-tegevusnimi] (-da) | |
-| 2174 | Words (form) | koeraga | with the dog | |
-| 2175 | Words (verb) | jalutama | to go for a walk | |
-| 2176 | Words (verb, I form) | jalutan | I go for a walk | |
-| 2177 | Words (word) | foorum | forum | |
-| 2178 | Words (form) | foorumi | of a forum | |
-| 2179 | Words (form) | arvamust | an opinion, as some of it | |
-| 2180 | Words (phrase) | oma arvamust avaldada | to give your opinion, to say what you think | |
-| 2181 | Words (form) | kirjutada | to write: the [da-tegevusnimi] (-da) | |
-| 2182 | Words (form) | plaani | a plan's, of the plan | |
-| 2183 | Words (word) | linnavalitsus | city government, city hall | |
-| 2184 | Words (word) | ainus | the only one | |
-| 2185 | Words (form) | mõelge | think: to more than one person, or politely | |
-| 2186 | How it works | kuna, kuigi | A post that gets read says where you stand in its first line, then gives two reasons, joined with {kuna} and {kuigi}, and ends with what you're asking for. | |
-| 2187 | How it works | Olema vastu, plaani vastu | {Olema vastu} is to be against, with the thing in the [omastav] (2nd form) in front: {plaani vastu}. | |
-| 2188 | How it works | Kus, mis, koht, kus lapsed mängivad | {Kus} and {mis} let one sentence carry two facts: {koht, kus lapsed mängivad}. | |
-| 2189 | How it works | Asemele, pargi asemele, oma arvamust avaldada | {Asemele} wants the [omastav] (2nd form) too: {pargi asemele}, in place of the park. And to say what you think in public is {oma arvamust avaldada}. | |
-| 2190 | How it works | Palun mõelge, Palun mõtle | On a forum you write to people you don't know, so ask with the -ge command: {Palun mõelge}, not {Palun mõtle}. | |
-| 2191 | How it works, table | Ma olen linna plaani vastu. | Says where you stand. | |
-| 2192 | How it works, table | Kuna park on koht, kus lapsed mängivad, ei ole parkla seal hea mõte. | Gives the first reason. | |
-| 2193 | How it works, table | Kuigi linn vajab parklat, ei pea see olema pargis. | Grants a point and keeps your own. | |
-| 2194 | How it works, table | Palun mõelge veel kord! | Asks for something. | |
-| 2195 | Say it, question | Kas linna plaan on sinu meelest hea? | Do you think the city's plan is a good one? | |
-| 2196 | Say it, model answer | Ma olen selle plaani vastu. | I'm against the plan. | |
-| 2197 | Say it, model answer | Park on koht, kus lapsed mängivad. | The park is a place where children play. | |
-| 2198 | Say it, model answer | See on ainus roheline koht, mis meil siin on. | It's the only green place we have here. | |
-| 2199 | Say it, model answer | Palun mõelge veel kord! | Please think again! | |
+| 2166 | Conversation, Helgi | Tere, Tom! Siin Helgi. | Hi, Tom! It's Helgi. | |
+| 2167 | Conversation, Helgi | Tead mis? Linn tahab meie pargi asemele parkla ehitada. | Guess what? The city wants to build a car park where our park is. | |
+| 2168 | Conversation, Helgi | Aga park on ju koht, kus lapsed mängivad! | But the park is where the children play! | |
+| 2169 | Conversation, Helgi | Ja kus mina igal õhtul koeraga jalutan. | And where I walk the dog every evening. | |
+| 2170 | Conversation, Helgi | Minu meelest on see väga halb idee. | If you ask me, it's a very bad idea. | |
+| 2171 | Conversation, Helgi | Linnal on foorum, kus saab oma arvamust avaldada. | The city has a forum where you can give your opinion. | |
+| 2172 | Conversation, Helgi | Sul on ju hea eesti keel. Kirjuta palun sinna, mida sa arvad ja miks. | Your Estonian's good, after all. Please write there what you think and why. | |
+| 2173 | Conversation, Helgi | Ma kirjutan ka. Helista mulle tagasi! Head aega! | I'm writing too. Call me back! Bye! | |
+| 2174 | Words (form) | pargi | a park's, of a park | |
+| 2175 | Words (word) | asemele | in place of, instead of | |
+| 2176 | Words (word) | parkla | car park | |
+| 2177 | Words (form) | parkla | of a car park | |
+| 2178 | Words (form) | parklat | a car park, as some of it | |
+| 2179 | Words (form) | ehitada | to build: the [da-tegevusnimi] (-da) | |
+| 2180 | Words (form) | koeraga | with the dog | |
+| 2181 | Words (verb) | jalutama | to go for a walk | |
+| 2182 | Words (verb, I form) | jalutan | I go for a walk | |
+| 2183 | Words (word) | foorum | forum | |
+| 2184 | Words (form) | foorumi | of a forum | |
+| 2185 | Words (form) | arvamust | an opinion, as some of it | |
+| 2186 | Words (phrase) | oma arvamust avaldada | to give your opinion, to say what you think | |
+| 2187 | Words (form) | kirjutada | to write: the [da-tegevusnimi] (-da) | |
+| 2188 | Words (form) | plaani | a plan's, of the plan | |
+| 2189 | Words (word) | linnavalitsus | city government, city hall | |
+| 2190 | Words (word) | ainus | the only one | |
+| 2191 | Words (form) | mõelge | think: to more than one person, or politely | |
+| 2192 | How it works | kuna, kuigi | A post that gets read says where you stand in its first line, then gives two reasons, joined with {kuna} and {kuigi}, and ends with what you're asking for. | |
+| 2193 | How it works | Olema vastu, plaani vastu | {Olema vastu} is to be against, with the thing in the [omastav] (2nd form) in front: {plaani vastu}. | |
+| 2194 | How it works | Kus, mis, koht, kus lapsed mängivad | {Kus} and {mis} let one sentence carry two facts: {koht, kus lapsed mängivad}. | |
+| 2195 | How it works | Asemele, pargi asemele, oma arvamust avaldada | {Asemele} wants the [omastav] (2nd form) too: {pargi asemele}, in place of the park. And to say what you think in public is {oma arvamust avaldada}. | |
+| 2196 | How it works | Palun mõelge, Palun mõtle | On a forum you write to people you don't know, so ask with the -ge command: {Palun mõelge}, not {Palun mõtle}. | |
+| 2197 | How it works, table | Ma olen linna plaani vastu. | Says where you stand. | |
+| 2198 | How it works, table | Kuna park on koht, kus lapsed mängivad, ei ole parkla seal hea mõte. | Gives the first reason. | |
+| 2199 | How it works, table | Kuigi linn vajab parklat, ei pea see olema pargis. | Grants a point and keeps your own. | |
+| 2200 | How it works, table | Palun mõelge veel kord! | Asks for something. | |
+| 2201 | Say it, question | Kas linna plaan on sinu meelest hea? | Do you think the city's plan is a good one? | |
+| 2202 | Say it, model answer | Ma olen selle plaani vastu. | I'm against the plan. | |
+| 2203 | Say it, model answer | Park on koht, kus lapsed mängivad. | The park is a place where children play. | |
+| 2204 | Say it, model answer | See on ainus roheline koht, mis meil siin on. | It's the only green place we have here. | |
+| 2205 | Say it, model answer | Palun mõelge veel kord! | Please think again! | |
 
 #### B1 42. A meeting where you disagree (`b1-42-disagree`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 2200 | Conversation, Kristi | Meie kontor on liiga väike. Mul on kaks plaani. | Our office is too small. I've got two plans. | |
-| 2201 | Conversation, Kristi | Kas me kolime teise kontorisse või töötame kodus? | Do we move to another office, or work from home? | |
-| 2202 | Conversation, Kadri | Minu meelest on mugav kodus töötada. Ei pea bussiga sõitma. | If you ask me, working from home is comfortable. No bus to catch. | |
-| 2203 | Conversation, Tom | Ma ei ole päris nõus. Kuigi kodus on mugav, on mul seal igav, sest ma ei näe kolleege. | I don't quite agree. Although it's comfortable at home, I get bored there, because I don't see my colleagues. | |
-| 2204 | Conversation, Kadri | Igav? Sul on ju arvuti ja kõik rakendused. | Bored? You've got your computer and all your apps. | |
-| 2205 | Conversation, Tom | Arvuti ei joo minuga kohvi. | The computer doesn't drink coffee with me. | |
-| 2206 | Conversation, Marko | Aga mul on kodus lapsed. Seal ei saa üldse töötada! | But I've got the kids at home. You can't work there at all! | |
-| 2207 | Conversation, Kristi | Ühest küljest on teil õigus. Teisest küljest on suur kontor kallis. | On the one hand, you're right. On the other hand, a big office is expensive. | |
-| 2208 | Conversation, Tom | Mul on idee. Kaks päeva nädalas töötame kodus ja kolm päeva kontoris. Siis ei pea me kolima. | I've got an idea. Two days a week we work from home and three at the office. Then we don't have to move. | |
-| 2209 | Conversation, Kadri | Kolm päeva kontoris? Mulle tundub, et see on liiga palju. | Three days at the office? It seems to me that's too many. | |
-| 2210 | Conversation, Tom | Hea küll. Kaks päeva kontoris ja kolm kodus? Reedeti on mul nagunii kursus. | All right. Two days at the office and three at home? I've got my course on Fridays anyway. | |
-| 2211 | Conversation, Kadri | Sellega olen nõus. | I'll agree to that. | |
-| 2212 | Conversation, Kristi | Kokku lepitud! Ja kohvi joome kontoris koos. | It's a deal! And we drink coffee together at the office. | |
-| 2213 | How it works | minu meelest, kuigi, ühest küljest, teisest küljest | A meeting, made of this part: a view with {minu meelest}, a but with {kuigi}, both sides with {ühest küljest} and {teisest küljest}, and a way to agree in the end. | |
-| 2214 | How it works | kuigi, kuna, mulle tundub, et, sellega olen nõus | Part six is in it: {kuigi} and {kuna} join the reasons, {mulle tundub, et} softens a no, {sellega olen nõus} closes it. | |
-| 2215 | How it works | Ei pea, Siis ei pea me kolima | {Ei pea} is don't have to: {Siis ei pea me kolima}, then we don't have to move. | |
-| 2216 | How it works | Sellega olen nõus, sinuga | {Sellega olen nõus} is I agree with that: what you agree with takes -ga, like {sinuga}. | |
-| 2217 | Say it, question | Kas me kolime teise kontorisse? | Do we move to another office? | |
-| 2218 | Say it, model answer | Ma ei ole nõus, kuna suur kontor on kallis. | I don't agree, since a big office is expensive. | |
-| 2219 | Say it, model answer | Kodus on mugav töötada, kuigi seal on igav. | Working from home is comfortable, although it's boring there. | |
-| 2220 | Say it, question | Kaks päeva kontoris? | Two days at the office? | |
-| 2221 | Say it, model answer | Sellega olen nõus. | I'll agree to that. | |
-| 2222 | Role-play, they say | Minu meelest on mugav kodus töötada. Mis sina arvad? | If you ask me, working from home is comfortable. What do you think? | |
-| 2223 | Role-play, model answer | Ma ei ole päris nõus. | I don't quite agree. | |
-| 2224 | Role-play, model answer | Kuigi kodus on mugav, on mul seal igav. | Although it's comfortable at home, I get bored there. | |
-| 2225 | Role-play, they say | Aga kodus ei pea hommikul bussiga sõitma, eks? | But at home you don't have to catch the bus in the morning, right? | |
-| 2226 | Role-play, model answer | See on tõsi, aga mulle meeldib bussiga sõita. | That's true, but I like taking the bus. | |
-| 2227 | Role-play, they say | Aga suur kontor on kallis. | But a big office is expensive. | |
-| 2228 | Role-play, model answer | Ühest küljest on sul õigus. | On the one hand, you're right. | |
-| 2229 | Role-play, they say | Mis sa siis teeksid? | So what would you do? | |
-| 2230 | Role-play, model answer | Kaks päeva kontoris ja kolm päeva kodus. | Two days at the office and three at home. | |
-| 2231 | Role-play, they say | Kaks päeva kontoris? Mulle tundub, et see on hea mõte. | Two days at the office? It seems to me that's a good idea. | |
-| 2232 | Role-play, model answer | Sellega olen nõus. | I'll agree to that. | |
-| 2233 | Role-play, they say | Kokku lepitud! | It's a deal! | |
-| 2234 | Role-play, model answer | Tore! Ja kohvi joome kontoris koos. | Great! And we'll have coffee together at the office. | |
-| 2235 | Live scene, they say (view) | Minu meelest on kodus töötada mugav. Mis sina arvad? |  | |
-| 2236 | Live scene, they say (view) | Kodus töötada on mugav. Mis sa arvad? |  | |
-| 2237 | Live scene, they say (why) | Kuidas nii? |  | |
-| 2238 | Live scene, they say (why) | Päriselt? Miks? |  | |
-| 2239 | Live scene, they say (bus) | Aga kodus ei pea hommikul bussiga sõitma, eks? |  | |
-| 2240 | Live scene, they say (bus) | Hea küll. Aga kodus ei pea bussiga sõitma, eks? |  | |
-| 2241 | Live scene, they say (cost) | Aga kas suur kontor pole kallis? |  | |
-| 2242 | Live scene, they say (cost) | Aga suur kontor on ju kallis, eks? |  | |
-| 2243 | Live scene, they say (plan) | Mis sa siis teeksid? |  | |
-| 2244 | Live scene, they say (plan) | Hea küll. Mis sa siis teeksid? |  | |
-| 2245 | Live scene, they say (agree) | Mulle tundub, et see on hea mõte. Mis sina arvad? |  | |
-| 2246 | Live scene, they say (agree) | Hea idee! Mulle tundub, et see sobib. Mis sa arvad? |  | |
-| 2247 | Live scene, they say (close) | Kokku lepitud! Head aega! |  | |
-| 2248 | Live scene, they say (close) | Kokku lepitud! Kohvi joome kontoris koos. |  | |
-| 2249 | Live scene, learner may pick (view) | Ma pole päris nõus. | I don't quite agree. | |
-| 2250 | Live scene, learner may pick (view) | Minu meelest on kontoris parem. | If you ask me, the office is better. | |
-| 2251 | Live scene, learner may pick (why) | Kuigi kodus on mugav, on mul seal igav. | Although it's comfortable at home, I get bored there. | |
-| 2252 | Live scene, learner may pick (why) | Kontoris saab kohvi koos juua. | At the office you can have coffee together. | |
-| 2253 | Live scene, learner may pick (bus) | See on õige, aga mulle meeldib bussiga sõita. | That's right, but I like taking the bus. | |
-| 2254 | Live scene, learner may pick (bus) | Mulle meeldib bussiga sõita. | I like taking the bus. | |
-| 2255 | Live scene, learner may pick (cost) | Ühest küljest on sul õigus. | On the one hand, you're right. | |
-| 2256 | Live scene, learner may pick (cost) | Teisest küljest on kodus igav. | On the other hand, it's boring at home. | |
-| 2257 | Live scene, learner may pick (plan) | Kaks päeva kontoris ja kolm päeva kodus. | Two days at the office and three at home. | |
-| 2258 | Live scene, learner may pick (plan) | Kolm päeva kodus ja kaks kontoris. | Three days at home and two at the office. | |
-| 2259 | Live scene, learner may pick (agree) | Sellega olen nõus. | I'll agree to that. | |
-| 2260 | Live scene, learner may pick (agree) | Olen nõus. | Agreed. | |
-| 2261 | Live scene, learner may pick (close) | Kokku lepitud! Head aega! | It's a deal! Goodbye! | |
+| 2206 | Conversation, Kristi | Meie kontor on liiga väike. Mul on kaks plaani. | Our office is too small. I've got two plans. | |
+| 2207 | Conversation, Kristi | Kas me kolime teise kontorisse või töötame kodus? | Do we move to another office, or work from home? | |
+| 2208 | Conversation, Kadri | Minu meelest on mugav kodus töötada. Ei pea bussiga sõitma. | If you ask me, working from home is comfortable. No bus to catch. | |
+| 2209 | Conversation, Tom | Ma ei ole päris nõus. Kuigi kodus on mugav, on mul seal igav, sest ma ei näe kolleege. | I don't quite agree. Although it's comfortable at home, I get bored there, because I don't see my colleagues. | |
+| 2210 | Conversation, Kadri | Igav? Sul on ju arvuti ja kõik rakendused. | Bored? You've got your computer and all your apps. | |
+| 2211 | Conversation, Tom | Arvuti ei joo minuga kohvi. | The computer doesn't drink coffee with me. | |
+| 2212 | Conversation, Marko | Aga mul on kodus lapsed. Seal ei saa üldse töötada! | But I've got the kids at home. You can't work there at all! | |
+| 2213 | Conversation, Kristi | Ühest küljest on teil õigus. Teisest küljest on suur kontor kallis. | On the one hand, you're right. On the other hand, a big office is expensive. | |
+| 2214 | Conversation, Tom | Mul on idee. Kaks päeva nädalas töötame kodus ja kolm päeva kontoris. Siis ei pea me kolima. | I've got an idea. Two days a week we work from home and three at the office. Then we don't have to move. | |
+| 2215 | Conversation, Kadri | Kolm päeva kontoris? Mulle tundub, et see on liiga palju. | Three days at the office? It seems to me that's too many. | |
+| 2216 | Conversation, Tom | Hea küll. Kaks päeva kontoris ja kolm kodus? Reedeti on mul nagunii kursus. | All right. Two days at the office and three at home? I've got my course on Fridays anyway. | |
+| 2217 | Conversation, Kadri | Sellega olen nõus. | I'll agree to that. | |
+| 2218 | Conversation, Kristi | Kokku lepitud! Ja kohvi joome kontoris koos. | It's a deal! And we drink coffee together at the office. | |
+| 2219 | How it works | minu meelest, kuigi, ühest küljest, teisest küljest | A meeting, made of this part: a view with {minu meelest}, a but with {kuigi}, both sides with {ühest küljest} and {teisest küljest}, and a way to agree in the end. | |
+| 2220 | How it works | kuigi, kuna, mulle tundub, et, sellega olen nõus | Part six is in it: {kuigi} and {kuna} join the reasons, {mulle tundub, et} softens a no, {sellega olen nõus} closes it. | |
+| 2221 | How it works | Ei pea, Siis ei pea me kolima | {Ei pea} is don't have to: {Siis ei pea me kolima}, then we don't have to move. | |
+| 2222 | How it works | Sellega olen nõus, sinuga | {Sellega olen nõus} is I agree with that: what you agree with takes -ga, like {sinuga}. | |
+| 2223 | Say it, question | Kas me kolime teise kontorisse? | Do we move to another office? | |
+| 2224 | Say it, model answer | Ma ei ole nõus, kuna suur kontor on kallis. | I don't agree, since a big office is expensive. | |
+| 2225 | Say it, model answer | Kodus on mugav töötada, kuigi seal on igav. | Working from home is comfortable, although it's boring there. | |
+| 2226 | Say it, question | Kaks päeva kontoris? | Two days at the office? | |
+| 2227 | Say it, model answer | Sellega olen nõus. | I'll agree to that. | |
+| 2228 | Role-play, they say | Minu meelest on mugav kodus töötada. Mis sina arvad? | If you ask me, working from home is comfortable. What do you think? | |
+| 2229 | Role-play, model answer | Ma ei ole päris nõus. | I don't quite agree. | |
+| 2230 | Role-play, model answer | Kuigi kodus on mugav, on mul seal igav. | Although it's comfortable at home, I get bored there. | |
+| 2231 | Role-play, they say | Aga kodus ei pea hommikul bussiga sõitma, eks? | But at home you don't have to catch the bus in the morning, right? | |
+| 2232 | Role-play, model answer | See on tõsi, aga mulle meeldib bussiga sõita. | That's true, but I like taking the bus. | |
+| 2233 | Role-play, they say | Aga suur kontor on kallis. | But a big office is expensive. | |
+| 2234 | Role-play, model answer | Ühest küljest on sul õigus. | On the one hand, you're right. | |
+| 2235 | Role-play, they say | Mis sa siis teeksid? | So what would you do? | |
+| 2236 | Role-play, model answer | Kaks päeva kontoris ja kolm päeva kodus. | Two days at the office and three at home. | |
+| 2237 | Role-play, they say | Kaks päeva kontoris? Mulle tundub, et see on hea mõte. | Two days at the office? It seems to me that's a good idea. | |
+| 2238 | Role-play, model answer | Sellega olen nõus. | I'll agree to that. | |
+| 2239 | Role-play, they say | Kokku lepitud! | It's a deal! | |
+| 2240 | Role-play, model answer | Tore! Ja kohvi joome kontoris koos. | Great! And we'll have coffee together at the office. | |
+| 2241 | Live scene, they say (view) | Minu meelest on kodus töötada mugav. Mis sina arvad? |  | |
+| 2242 | Live scene, they say (view) | Kodus töötada on mugav. Mis sa arvad? |  | |
+| 2243 | Live scene, they say (why) | Kuidas nii? |  | |
+| 2244 | Live scene, they say (why) | Päriselt? Miks? |  | |
+| 2245 | Live scene, they say (bus) | Aga kodus ei pea hommikul bussiga sõitma, eks? |  | |
+| 2246 | Live scene, they say (bus) | Hea küll. Aga kodus ei pea bussiga sõitma, eks? |  | |
+| 2247 | Live scene, they say (cost) | Aga kas suur kontor pole kallis? |  | |
+| 2248 | Live scene, they say (cost) | Aga suur kontor on ju kallis, eks? |  | |
+| 2249 | Live scene, they say (plan) | Mis sa siis teeksid? |  | |
+| 2250 | Live scene, they say (plan) | Hea küll. Mis sa siis teeksid? |  | |
+| 2251 | Live scene, they say (agree) | Mulle tundub, et see on hea mõte. Mis sina arvad? |  | |
+| 2252 | Live scene, they say (agree) | Hea idee! Mulle tundub, et see sobib. Mis sa arvad? |  | |
+| 2253 | Live scene, they say (close) | Kokku lepitud! Head aega! |  | |
+| 2254 | Live scene, they say (close) | Kokku lepitud! Kohvi joome kontoris koos. |  | |
+| 2255 | Live scene, learner may pick (view) | Ma pole päris nõus. | I don't quite agree. | |
+| 2256 | Live scene, learner may pick (view) | Minu meelest on kontoris parem. | If you ask me, the office is better. | |
+| 2257 | Live scene, learner may pick (why) | Kuigi kodus on mugav, on mul seal igav. | Although it's comfortable at home, I get bored there. | |
+| 2258 | Live scene, learner may pick (why) | Kontoris saab kohvi koos juua. | At the office you can have coffee together. | |
+| 2259 | Live scene, learner may pick (bus) | See on tõsi, aga mulle meeldib bussiga sõita. | That's true, but I like taking the bus. | |
+| 2260 | Live scene, learner may pick (bus) | Mulle meeldib bussiga sõita. | I like taking the bus. | |
+| 2261 | Live scene, learner may pick (cost) | Ühest küljest on sul õigus. | On the one hand, you're right. | |
+| 2262 | Live scene, learner may pick (cost) | Teisest küljest on kodus igav. | On the other hand, it's boring at home. | |
+| 2263 | Live scene, learner may pick (plan) | Kaks päeva kontoris ja kolm päeva kodus. | Two days at the office and three at home. | |
+| 2264 | Live scene, learner may pick (plan) | Kolm päeva kodus ja kaks kontoris. | Three days at home and two at the office. | |
+| 2265 | Live scene, learner may pick (agree) | Sellega olen nõus. | I'll agree to that. | |
+| 2266 | Live scene, learner may pick (agree) | Olen nõus. | Agreed. | |
+| 2267 | Live scene, learner may pick (close) | Kokku lepitud! Head aega! | It's a deal! Goodbye! | |
 
 ### B1: Getting things done
 
@@ -3058,380 +3064,380 @@ Russian and Ukrainian.
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 2262 | Conversation, Tom | Tere! Mu pangakaart läks katki. Mul oleks uut kaarti vaja. | Hello! My bank card broke. I need a new card. | |
-| 2263 | Conversation, Margus | Selge. Palun täitke see blankett ära. | Sure. Please fill in this form. | |
-| 2264 | Conversation, Tom | Kõik read? Neid on ju nii palju! | Every line? There are so many of them! | |
-| 2265 | Conversation, Margus | Jah, kõik. Pange kirja ka oma isikukood ja aadress. | Yes, all of them. Write down your personal code and your address too. | |
-| 2266 | Conversation, Tom | Nii. Ma täitsin blanketi ära. | There. I've filled in the form. | |
-| 2267 | Conversation, Margus | Aitäh. Nüüd kirjutage palun alla. | Thank you. Now please sign it. | |
-| 2268 | Conversation, Tom | Siia? | Here? | |
-| 2269 | Conversation, Margus | Ei, see on minu jaoks! Teie koht on siin all. | No, that one's for me! Yours is down here. | |
-| 2270 | Conversation, Tom | Vabandust. Nii, kirjutasin alla. | Sorry. There, I've signed. | |
-| 2271 | Conversation, Margus | Hästi. Saadan blanketi kohe ära. Uus kaart tuleb nädala pärast. | Good. I'll send the form off right away. The new card comes in a week. | |
-| 2272 | Conversation, Tom | Ja mis ma vana kaardiga teen? | And what do I do with the old card? | |
-| 2273 | Conversation, Margus | Tooge see tagasi, kui uue kaardi kätte saate. | Bring it back when you get the new card. | |
-| 2274 | Conversation, Tom | Hästi. Aga andke palun mu pastakas tagasi! | All right. But please give me my pen back! | |
-| 2275 | Conversation, Margus | Oi, vabandust! Panin selle kogemata oma taskusse. | Oops, sorry! I put it in my pocket by accident. | |
-| 2276 | Words (verb, I form) | täidan | I fill in | |
-| 2277 | Words (form) | täitke | fill in!, polite | |
-| 2278 | Words (form) | täitsin | I filled in | |
-| 2279 | Words (form) | täitis | he, she filled in | |
-| 2280 | Words (word) | blankett | a form, on paper | |
-| 2281 | Words (form) | blanketi | of the form; the whole form, done | |
-| 2282 | Words (form) | blanketti | the form, while you're still on it, or after {ei} | |
-| 2283 | Words (form) | read | lines, rows | |
-| 2284 | Words (form) | pange | put!, polite | |
-| 2285 | Words (form) | kirjutage | write!, polite; {kirjutage alla}, sign! | |
-| 2286 | Words (form) | andke | give!, polite | |
-| 2287 | Words (form) | tooge | bring!, polite | |
-| 2288 | Words (word) | pastakas | a pen | |
-| 2289 | Words (form) | pastaka | of the pen; the whole pen | |
-| 2290 | Words (word) | teenindaja | a clerk who serves you, at a bank or a shop | |
-| 2291 | Words (word) | kogemata | by accident | |
-| 2292 | Words (form) | täidetud | filled in, done: {blankett on täidetud} | |
-| 2293 | How it works | alla kirjutama, ära täitma, ära saatma | You've met small words after a verb all through B1. Forms are full of them, and there the small word is half the verb: {alla kirjutama} is to sign, {ära täitma} to fill a form in, and {ära saatma} to send it off. | |
-| 2294 | How it works | Ma kirjutasin alla, Ma saadan blanketi kohe ära | In a plain sentence the small word goes to the end: {Ma kirjutasin alla}, {Ma saadan blanketi kohe ära}. | |
-| 2295 | How it works | Ära, Alla, tagasi, kirja | {Ära} finishes the job, as at the start of B1. {Alla} is down, {tagasi} is back, and {kirja} is into writing. | |
-| 2296 | How it works | Täitke see blankett ära, Ma täitsin blanketi ära | A polite command keeps the whole thing in the [nimetav] (1st form): {Täitke see blankett ära}. Say it happened and it's the [omastav] (2nd form): {Ma täitsin blanketi ära}. | |
-| 2297 | How it works | alla kirjutama, kirjutama | Learn the small word with its verb, like one word: {alla kirjutama} is to sign, and {kirjutama} on its own never means it. | |
-| 2298 | How it works, table | Kirjutage palun alla. | Please sign it. | |
-| 2299 | How it works, table | Täitke see blankett ära. | Fill in this form. | |
-| 2300 | How it works, table | Ma saadan blanketi ära. | I'll send the form off. | |
-| 2301 | How it works, table | Pange see kirja. | Write it down. | |
-| 2302 | How it works, table | Tooge vana kaart tagasi. | Bring the old card back. | |
-| 2303 | Say it, question | Kas blankett on täidetud? | Is the form filled in? | |
-| 2304 | Say it, model answer | Jah, ma täitsin blanketi ära. | Yes, I've filled in the form. | |
-| 2305 | Say it, model answer | Kuhu ma pean alla kirjutama? | Where should I sign? | |
-| 2306 | Say it, model answer | Ma toon vana kaardi tagasi, kui uue kätte saan. | I'll bring the old card back when I get the new one. | |
-| 2307 | Say it, model answer | Vabandust, ma kirjutasin kogemata vales kohas alla. | Sorry, I signed in the wrong place by accident. | |
+| 2268 | Conversation, Tom | Tere! Mu pangakaart läks katki. Mul oleks uut kaarti vaja. | Hello! My bank card broke. I need a new card. | |
+| 2269 | Conversation, Margus | Selge. Palun täitke see blankett ära. | Sure. Please fill in this form. | |
+| 2270 | Conversation, Tom | Kõik read? Neid on ju nii palju! | Every line? There are so many of them! | |
+| 2271 | Conversation, Margus | Jah, kõik. Pange kirja ka oma isikukood ja aadress. | Yes, all of them. Write down your personal code and your address too. | |
+| 2272 | Conversation, Tom | Nii. Ma täitsin blanketi ära. | There. I've filled in the form. | |
+| 2273 | Conversation, Margus | Aitäh. Nüüd kirjutage palun alla. | Thank you. Now please sign it. | |
+| 2274 | Conversation, Tom | Siia? | Here? | |
+| 2275 | Conversation, Margus | Ei, see on minu jaoks! Teie koht on siin all. | No, that one's for me! Yours is down here. | |
+| 2276 | Conversation, Tom | Vabandust. Nii, kirjutasin alla. | Sorry. There, I've signed. | |
+| 2277 | Conversation, Margus | Hästi. Saadan blanketi kohe ära. Uus kaart tuleb nädala pärast. | Good. I'll send the form off right away. The new card comes in a week. | |
+| 2278 | Conversation, Tom | Ja mis ma vana kaardiga teen? | And what do I do with the old card? | |
+| 2279 | Conversation, Margus | Tooge see tagasi, kui uue kaardi kätte saate. | Bring it back when you get the new card. | |
+| 2280 | Conversation, Tom | Hästi. Aga andke palun mu pastakas tagasi! | All right. But please give me my pen back! | |
+| 2281 | Conversation, Margus | Oi, vabandust! Panin selle kogemata oma taskusse. | Oops, sorry! I put it in my pocket by accident. | |
+| 2282 | Words (verb, I form) | täidan | I fill in | |
+| 2283 | Words (form) | täitke | fill in!, polite | |
+| 2284 | Words (form) | täitsin | I filled in | |
+| 2285 | Words (form) | täitis | he, she filled in | |
+| 2286 | Words (word) | blankett | a form, on paper | |
+| 2287 | Words (form) | blanketi | of the form; the whole form, done | |
+| 2288 | Words (form) | blanketti | the form, while you're still on it, or after {ei} | |
+| 2289 | Words (form) | read | lines, rows | |
+| 2290 | Words (form) | pange | put!, polite | |
+| 2291 | Words (form) | kirjutage | write!, polite; {kirjutage alla}, sign! | |
+| 2292 | Words (form) | andke | give!, polite | |
+| 2293 | Words (form) | tooge | bring!, polite | |
+| 2294 | Words (word) | pastakas | a pen | |
+| 2295 | Words (form) | pastaka | of the pen; the whole pen | |
+| 2296 | Words (word) | teenindaja | a clerk who serves you, at a bank or a shop | |
+| 2297 | Words (word) | kogemata | by accident | |
+| 2298 | Words (form) | täidetud | filled in, done: {blankett on täidetud} | |
+| 2299 | How it works | alla kirjutama, ära täitma, ära saatma | You've met small words after a verb all through B1. Forms are full of them, and there the small word is half the verb: {alla kirjutama} is to sign, {ära täitma} to fill a form in, and {ära saatma} to send it off. | |
+| 2300 | How it works | Ma kirjutasin alla, Ma saadan blanketi kohe ära | In a plain sentence the small word goes to the end: {Ma kirjutasin alla}, {Ma saadan blanketi kohe ära}. | |
+| 2301 | How it works | Ära, Alla, tagasi, kirja | {Ära} finishes the job, as at the start of B1. {Alla} is down, {tagasi} is back, and {kirja} is into writing. | |
+| 2302 | How it works | Täitke see blankett ära, Ma täitsin blanketi ära | A polite command keeps the whole thing in the [nimetav] (1st form): {Täitke see blankett ära}. Say it happened and it's the [omastav] (2nd form): {Ma täitsin blanketi ära}. | |
+| 2303 | How it works | alla kirjutama, kirjutama | Learn the small word with its verb, like one word: {alla kirjutama} is to sign, and {kirjutama} on its own never means it. | |
+| 2304 | How it works, table | Kirjutage palun alla. | Please sign it. | |
+| 2305 | How it works, table | Täitke see blankett ära. | Fill in this form. | |
+| 2306 | How it works, table | Ma saadan blanketi ära. | I'll send the form off. | |
+| 2307 | How it works, table | Pange see kirja. | Write it down. | |
+| 2308 | How it works, table | Tooge vana kaart tagasi. | Bring the old card back. | |
+| 2309 | Say it, question | Kas blankett on täidetud? | Is the form filled in? | |
+| 2310 | Say it, model answer | Jah, ma täitsin blanketi ära. | Yes, I've filled in the form. | |
+| 2311 | Say it, model answer | Kuhu ma pean alla kirjutama? | Where should I sign? | |
+| 2312 | Say it, model answer | Ma toon vana kaardi tagasi, kui uue kätte saan. | I'll bring the old card back when I get the new one. | |
+| 2313 | Say it, model answer | Vabandust, ma kirjutasin kogemata vales kohas alla. | Sorry, I signed in the wrong place by accident. | |
 
 #### B1 44. At the office (`b1-44-office`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 2308 | Conversation, Tiina | Järgmine! Number sada nelikümmend seitse! | Next! Number one hundred forty-seven! | |
-| 2309 | Conversation, Tom | Lõpuks! Ootasin üle tunni. | At last! I waited over an hour. | |
-| 2310 | Conversation, Tiina | Vabandust, täna on palju inimesi ja ainult kaks ametnikku. Kuidas saan aidata? | Sorry, there are a lot of people today and only two clerks. How can I help? | |
-| 2311 | Conversation, Tom | Ma tahaksin elamisluba pikendada. | I'd like to extend my residence permit. | |
-| 2312 | Conversation, Tiina | Palun andke oma dokumendid. | Please give me your documents. | |
-| 2313 | Conversation, Tom | Siin on avaldus ja foto. Kõik blanketid on täidetud! | Here's the application and the photo. All the forms are filled in! | |
-| 2314 | Conversation, Tiina | Hästi. Ja teie pass? | Good. And your passport? | |
-| 2315 | Conversation, Tom | Oi. Mu pass on naise kotis ja naine on kodus. | Oh. My passport's in my wife's bag, and she's at home. | |
-| 2316 | Conversation, Tiina | Ilma teie passita ma ei saa avaldust vastu võtta. | Without your passport I can't accept the application. | |
-| 2317 | Conversation, Tom | Kas ma võiksin passi homme tuua? | Could I bring the passport tomorrow? | |
-| 2318 | Conversation, Tiina | Jah, võib küll. Aga siis võtke uus järjekorranumber. | Yes, you can. But then take a new queue number. | |
-| 2319 | Conversation, Tom | Jälle sada nelikümmend seitse? | One hundred forty-seven again? | |
-| 2320 | Conversation, Tiina | Loodetavasti väiksem number. Tulge hommikul kell üheksa, siis on järjekord lühike. | Hopefully a lower number. Come at nine in the morning, then the queue is short. | |
-| 2321 | Words (word) | ametnik | an official, a clerk | |
-| 2322 | Words (form) | ametnikku | clerks, after a number | |
-| 2323 | Words (verb) | pikendama | to extend, to renew | |
-| 2324 | Words (verb, I form) | pikendan | I extend | |
-| 2325 | Words (form) | pikendada | to extend, after would like or can | |
-| 2326 | Words (verb) | taotlema | to apply for | |
-| 2327 | Words (verb, I form) | taotlen | I apply for | |
-| 2328 | Words (form) | taotleda | to apply for, after would like or can | |
-| 2329 | Words (form) | dokumendid | documents | |
-| 2330 | Words (form) | avalduse | of the application; the whole application | |
-| 2331 | Words (form) | avaldust | the application, after {ei} or a number | |
-| 2332 | Words (word) | foto | a photo | |
-| 2333 | Words (form) | passi | of the passport; the whole passport | |
-| 2334 | Words (form) | tuua | to bring, after could or can | |
-| 2335 | Words (form) | võtnud | taken; after {ei}, didn't take | |
-| 2336 | Words (word) | järjekorranumber | a queue number, a ticket in line | |
-| 2337 | Words (word) | loodetavasti | hopefully | |
-| 2338 | Words (form) | blanketid | forms | |
-| 2339 | How it works | taotlema, Ma taotlen elamisluba, vastu võtma | Applying is {taotlema}, and what you apply for goes in the [osastav] (3rd form): {Ma taotlen elamisluba}. To accept is {vastu võtma}, a verb with its small word. | |
-| 2340 | How it works | teie, te, andke, võtke, tulge | An office says {teie} and {te}, and a polite command ends in -ge or -ke: {andke}, {võtke}, {tulge}. | |
-| 2341 | How it works | Kas ma võiksin, tuua, tulla | {Kas ma võiksin} is the polite way to ask an office for something it may not do: could I. The verb after it is in the da-form: {tuua}, {tulla}. | |
-| 2342 | How it works | Üle, üle tunni, üle aasta | {Üle} takes the [omastav] (2nd form): {üle tunni} is over an hour, {üle aasta} over a year. | |
-| 2343 | How it works | Vastu võtma, ma ei saa avaldust vastu võtta | {Vastu võtma} is to accept. When the verb comes last, its small word goes just before it: {ma ei saa avaldust vastu võtta}. | |
-| 2344 | How it works, table | Ma tahaksin elamisluba taotleda. | I'd like to apply for a residence permit. | |
-| 2345 | How it works, table | Ilma teie passita ma ei saa avaldust vastu võtta. | Without your passport I can't accept the application. | |
-| 2346 | How it works, table | Kas ma võiksin passi homme tuua? | Could I bring the passport tomorrow? | |
-| 2347 | How it works, table | Ma ootasin üle tunni. | I waited over an hour. | |
-| 2348 | Say it, model answer | Ma tahaksin elamisluba taotleda. | I'd like to apply for a residence permit. | |
-| 2349 | Say it, question | Palun andke oma dokumendid. | Please give me your documents. | |
-| 2350 | Say it, model answer | Siin on avaldus ja pass. | Here's the application and the passport. | |
-| 2351 | Say it, model answer | Kas ma võiksin passi homme tuua? | Could I bring the passport tomorrow? | |
-| 2352 | Say it, model answer | Ma ootasin üle tunni. | I waited over an hour. | |
+| 2314 | Conversation, Tiina | Järgmine! Number sada nelikümmend seitse! | Next! Number one hundred forty-seven! | |
+| 2315 | Conversation, Tom | Lõpuks! Ootasin üle tunni. | At last! I waited over an hour. | |
+| 2316 | Conversation, Tiina | Vabandust, täna on palju inimesi ja ainult kaks ametnikku. Kuidas saan aidata? | Sorry, there are a lot of people today and only two clerks. How can I help? | |
+| 2317 | Conversation, Tom | Ma tahaksin elamisluba pikendada. | I'd like to extend my residence permit. | |
+| 2318 | Conversation, Tiina | Palun andke oma dokumendid. | Please give me your documents. | |
+| 2319 | Conversation, Tom | Siin on avaldus ja foto. Kõik blanketid on täidetud! | Here's the application and the photo. All the forms are filled in! | |
+| 2320 | Conversation, Tiina | Hästi. Ja teie pass? | Good. And your passport? | |
+| 2321 | Conversation, Tom | Oi. Mu pass on naise kotis, ja ta on kodus. | Oh. My passport's in my wife's bag, and she's at home. | |
+| 2322 | Conversation, Tiina | Ilma teie passita ma ei saa avaldust vastu võtta. | Without your passport I can't accept the application. | |
+| 2323 | Conversation, Tom | Kas ma võiksin passi homme tuua? | Could I bring the passport tomorrow? | |
+| 2324 | Conversation, Tiina | Jah, võib küll. Aga siis võtke uus järjekorranumber. | Yes, you can. But then take a new queue number. | |
+| 2325 | Conversation, Tom | Jälle sada nelikümmend seitse? | One hundred forty-seven again? | |
+| 2326 | Conversation, Tiina | Loodetavasti väiksem number. Tulge hommikul kell üheksa, siis on järjekord lühike. | Hopefully a lower number. Come at nine in the morning, then the queue is short. | |
+| 2327 | Words (word) | ametnik | an official, a clerk | |
+| 2328 | Words (form) | ametnikku | clerks, after a number | |
+| 2329 | Words (verb) | pikendama | to extend, to renew | |
+| 2330 | Words (verb, I form) | pikendan | I extend | |
+| 2331 | Words (form) | pikendada | to extend, after would like or can | |
+| 2332 | Words (verb) | taotlema | to apply for | |
+| 2333 | Words (verb, I form) | taotlen | I apply for | |
+| 2334 | Words (form) | taotleda | to apply for, after would like or can | |
+| 2335 | Words (form) | dokumendid | documents | |
+| 2336 | Words (form) | avalduse | of the application; the whole application | |
+| 2337 | Words (form) | avaldust | the application, after {ei} or a number | |
+| 2338 | Words (word) | foto | a photo | |
+| 2339 | Words (form) | passi | of the passport; the whole passport | |
+| 2340 | Words (form) | tuua | to bring, after could or can | |
+| 2341 | Words (form) | võtnud | taken; after {ei}, didn't take | |
+| 2342 | Words (word) | järjekorranumber | a queue number, a ticket in line | |
+| 2343 | Words (word) | loodetavasti | hopefully | |
+| 2344 | Words (form) | blanketid | forms | |
+| 2345 | How it works | taotlema, Ma taotlen elamisluba, vastu võtma | Applying is {taotlema}, and what you apply for goes in the [osastav] (3rd form): {Ma taotlen elamisluba}. To accept is {vastu võtma}, a verb with its small word. | |
+| 2346 | How it works | teie, te, andke, võtke, tulge | An office says {teie} and {te}, and a polite command ends in -ge or -ke: {andke}, {võtke}, {tulge}. | |
+| 2347 | How it works | Kas ma võiksin, tuua, tulla | {Kas ma võiksin} is the polite way to ask an office for something it may not do: could I. The verb after it is in the da-form: {tuua}, {tulla}. | |
+| 2348 | How it works | Üle, üle tunni, üle aasta | {Üle} takes the [omastav] (2nd form): {üle tunni} is over an hour, {üle aasta} over a year. | |
+| 2349 | How it works | Vastu võtma, ma ei saa avaldust vastu võtta | {Vastu võtma} is to accept. When the verb comes last, its small word goes just before it: {ma ei saa avaldust vastu võtta}. | |
+| 2350 | How it works, table | Ma tahaksin elamisluba taotleda. | I'd like to apply for a residence permit. | |
+| 2351 | How it works, table | Ilma teie passita ma ei saa avaldust vastu võtta. | Without your passport I can't accept the application. | |
+| 2352 | How it works, table | Kas ma võiksin passi homme tuua? | Could I bring the passport tomorrow? | |
+| 2353 | How it works, table | Ma ootasin üle tunni. | I waited over an hour. | |
+| 2354 | Say it, model answer | Ma tahaksin elamisluba taotleda. | I'd like to apply for a residence permit. | |
+| 2355 | Say it, question | Palun andke oma dokumendid. | Please give me your documents. | |
+| 2356 | Say it, model answer | Siin on avaldus ja pass. | Here's the application and the passport. | |
+| 2357 | Say it, model answer | Kas ma võiksin passi homme tuua? | Could I bring the passport tomorrow? | |
+| 2358 | Say it, model answer | Ma ootasin üle tunni. | I waited over an hour. | |
 
 #### B1 45. I've lost my wallet (`b1-45-lost`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 2353 | Conversation, Tom | Anna, mul on suur probleem. Ma kaotasin rahakoti ära! | Anna, I've got a big problem. I've lost my wallet! | |
-| 2354 | Conversation, Anna | Oi ei! Äkki varastati? | Oh no! Maybe it was stolen? | |
-| 2355 | Conversation, Tom | Ei tea. Võib-olla jätsin bussi. | I don't know. Maybe I left it on the bus. | |
-| 2356 | Conversation, Anna | Kõige olulisem: pane kaart kohe kinni! | The most important thing: get your card blocked right away! | |
-| 2357 | Conversation, Tom | Kuidas? | How? | |
-| 2358 | Conversation, Anna | Helista kohe pangale! | Call the bank right now! | |
-| 2359 | Conversation, Tom | Tere, ma kaotasin oma kaardi. Palun pange see kinni. | Hello, I've lost my card. Please block it. | |
-| 2360 | Conversation, Tom | Nii. Kaart on kinni. | There. The card is blocked. | |
-| 2361 | Conversation, Anna | Tom... mis see seal arvuti all on? | Tom... what's that there, under the computer? | |
-| 2362 | Conversation, Tom | Mu rahakott! Panin selle ju hommikul ise sinna. | My wallet! I put it there myself this morning. | |
-| 2363 | Conversation, Anna | Tore! Nüüd on sul raha, aga kaart on kinni. | Lovely! Now you've got money, but your card is blocked. | |
-| 2364 | Conversation, Tom | Ega midagi. Helistan pangale tagasi. | Oh well. I'll call the bank back. | |
-| 2365 | Conversation, Anna | Ja järgmine kord vaata enne arvuti alla! | And next time, look under your computer first! | |
-| 2366 | Words (word) | rahakott | a wallet | |
-| 2367 | Words (form) | rahakoti | of the wallet; the whole wallet | |
-| 2368 | Words (form) | rahakotti | the wallet, after {ei} | |
-| 2369 | Words (form) | kaotasin | I lost; {kaotasin ära}, I lost it for good | |
-| 2370 | Words (form) | kaotas | he lost, she lost | |
-| 2371 | Words (verb) | varastama | to steal | |
-| 2372 | Words (verb, I form) | varastan | I steal | |
-| 2373 | Words (form) | varastati | was stolen, somebody stole it | |
-| 2374 | Words (form) | jätsin | I left something somewhere | |
-| 2375 | Words (form) | olulisem | more important; {kõige olulisem}, the most important thing | |
-| 2376 | Words (word) | alt | from under: {arvuti alt} | |
-| 2377 | Words (form) | arvas | he thought, she thought | |
-| 2378 | Words (phrase) | tagasi saama | to get back | |
-| 2379 | Words (word) | peale | onto, on top of: {laua peale} | |
-| 2380 | Words (form) | probleemi | of the problem; the whole problem | |
-| 2381 | Words (form) | lahendasin | I solved | |
-| 2382 | How it works | ära kaotama, kinni panema, lahti tegema, tagasi saama | The small words say what a job did to a thing: {ära kaotama} is to lose it for good, {kinni panema} to close or block it, {lahti tegema} to open it, and {tagasi saama} to get it back. | |
-| 2383 | How it works | Kinni, lahti, on, Kaart on kinni, Pood on lahti | {Kinni} and {lahti} can also stand alone after {on}: {Kaart on kinni}, {Pood on lahti}. | |
-| 2384 | How it works | Varastati | {Varastati} is was stolen: it says what happened and names nobody who did it. | |
-| 2385 | How it works | Ise, Ma panin selle ise sinna | {Ise} is yourself: {Ma panin selle ise sinna}, I put it there myself. | |
-| 2386 | How it works | Kinni panema, kinni, panema | {Kinni panema} is to block a card, not to put it somewhere: the small word {kinni} carries the meaning, and {panema} only does the doing. | |
-| 2387 | How it works, table | Ma kaotasin rahakoti ära. | I've lost my wallet. | |
-| 2388 | How it works, table | Pane kaart kinni! | Get the card blocked! | |
-| 2389 | How it works, table | Kaart on kinni. | The card is blocked. | |
-| 2390 | How it works, table | Ma tegin koti lahti. | I opened the bag. | |
-| 2391 | How it works, table | Tom sai rahakoti tagasi. | Tom got his wallet back. | |
-| 2392 | Say it, model answer | Ma kaotasin rahakoti ära. | I've lost my wallet. | |
-| 2393 | Say it, model answer | Palun pange mu kaart kinni. | Please block my card. | |
-| 2394 | Say it, model answer | Ma panin selle ise sinna. | I put it there myself. | |
-| 2395 | Say it, model answer | Ma lahendasin probleemi ise. | I solved the problem myself. | |
+| 2359 | Conversation, Tom | Anna, mul on suur probleem. Ma kaotasin rahakoti ära! | Anna, I've got a big problem. I've lost my wallet! | |
+| 2360 | Conversation, Anna | Oi ei! Äkki varastati? | Oh no! Maybe it was stolen? | |
+| 2361 | Conversation, Tom | Ei tea. Võib-olla jätsin selle bussi. | I don't know. Maybe I left it on the bus. | |
+| 2362 | Conversation, Anna | Kõige olulisem: pane kaart kohe kinni! | The most important thing: get your card blocked right away! | |
+| 2363 | Conversation, Tom | Kuidas? | How? | |
+| 2364 | Conversation, Anna | Helista kohe pangale! | Call the bank right now! | |
+| 2365 | Conversation, Tom | Tere, ma kaotasin oma kaardi. Palun pange see kinni. | Hello, I've lost my card. Please block it. | |
+| 2366 | Conversation, Tom | Nii. Kaart on kinni. | There. The card is blocked. | |
+| 2367 | Conversation, Anna | Tom... mis see seal arvuti all on? | Tom... what's that there, under the computer? | |
+| 2368 | Conversation, Tom | Mu rahakott! Panin selle ju hommikul ise sinna. | My wallet! I put it there myself this morning. | |
+| 2369 | Conversation, Anna | Tore! Nüüd on sul raha, aga kaart on kinni. | Lovely! Now you've got money, but your card is blocked. | |
+| 2370 | Conversation, Tom | Ega midagi. Helistan pangale tagasi. | Oh well. I'll call the bank back. | |
+| 2371 | Conversation, Anna | Ja järgmine kord vaata enne arvuti alla! | And next time, look under your computer first! | |
+| 2372 | Words (word) | rahakott | a wallet | |
+| 2373 | Words (form) | rahakoti | of the wallet; the whole wallet | |
+| 2374 | Words (form) | rahakotti | the wallet, after {ei} | |
+| 2375 | Words (form) | kaotasin | I lost; {kaotasin ära}, I lost it for good | |
+| 2376 | Words (form) | kaotas | he lost, she lost | |
+| 2377 | Words (verb) | varastama | to steal | |
+| 2378 | Words (verb, I form) | varastan | I steal | |
+| 2379 | Words (form) | varastati | was stolen, somebody stole it | |
+| 2380 | Words (form) | jätsin | I left something somewhere | |
+| 2381 | Words (form) | olulisem | more important; {kõige olulisem}, the most important thing | |
+| 2382 | Words (word) | alt | from under: {arvuti alt} | |
+| 2383 | Words (form) | arvas | he thought, she thought | |
+| 2384 | Words (phrase) | tagasi saama | to get back | |
+| 2385 | Words (word) | peale | onto, on top of: {laua peale} | |
+| 2386 | Words (form) | probleemi | of the problem; the whole problem | |
+| 2387 | Words (form) | lahendasin | I solved | |
+| 2388 | How it works | ära kaotama, kinni panema, lahti tegema, tagasi saama | The small words say what a job did to a thing: {ära kaotama} is to lose it for good, {kinni panema} to close or block it, {lahti tegema} to open it, and {tagasi saama} to get it back. | |
+| 2389 | How it works | Kinni, lahti, on, Kaart on kinni, Pood on lahti | {Kinni} and {lahti} can also stand alone after {on}: {Kaart on kinni}, {Pood on lahti}. | |
+| 2390 | How it works | Varastati | {Varastati} is was stolen: it says what happened and names nobody who did it. | |
+| 2391 | How it works | Ise, Ma panin selle ise sinna | {Ise} is yourself: {Ma panin selle ise sinna}, I put it there myself. | |
+| 2392 | How it works | Kinni panema, kinni, panema | {Kinni panema} is to block a card, not to put it somewhere: the small word {kinni} carries the meaning, and {panema} only does the doing. | |
+| 2393 | How it works, table | Ma kaotasin rahakoti ära. | I've lost my wallet. | |
+| 2394 | How it works, table | Pane kaart kinni! | Get the card blocked! | |
+| 2395 | How it works, table | Kaart on kinni. | The card is blocked. | |
+| 2396 | How it works, table | Ma tegin koti lahti. | I opened the bag. | |
+| 2397 | How it works, table | Tom sai rahakoti tagasi. | Tom got his wallet back. | |
+| 2398 | Say it, model answer | Ma kaotasin rahakoti ära. | I've lost my wallet. | |
+| 2399 | Say it, model answer | Palun pange mu kaart kinni. | Please block my card. | |
+| 2400 | Say it, model answer | Ma panin selle ise sinna. | I put it there myself. | |
+| 2401 | Say it, model answer | Ma lahendasin probleemi ise. | I solved the problem myself. | |
 
 #### B1 46. A form about you (`b1-46-words`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 2396 | Conversation, Tom | Mari, kas aitaksid mind? Täidan ujumiskursuse blanketti. | Mari, would you help me? I'm filling in the form for a swimming course. | |
-| 2397 | Conversation, Mari | Ujumiskursus? Aga sa ei oska ju ujuda! | A swimming course? But you can't swim! | |
-| 2398 | Conversation, Tom | Sellepärast ju! Aga siin on nii palju küsimusi. See on nagu eksam! | That's exactly why! But there are so many questions here. It's like an exam! | |
-| 2399 | Conversation, Mari | Näita. Esimene küsimus: mis on teie töö? | Show me. First question: what's your job? | |
-| 2400 | Conversation, Tom | Kirjutan: programmeerija. | I'll write: programmer. | |
-| 2401 | Conversation, Mari | Õige. Järgmine: kas te töötate või olete töötu? | Right. Next: are you working, or out of work? | |
-| 2402 | Conversation, Tom | Muidugi töötan! | Of course I work! | |
-| 2403 | Conversation, Mari | Siis: mis teile vabal ajal meeldib? | Then: what do you like doing in your free time? | |
-| 2404 | Conversation, Tom | Lugemine ja jalutamine. Ja ujumine. | Reading and walking. And swimming. | |
-| 2405 | Conversation, Mari | Ujumine? Sa ei oska veel ujuda! | Swimming? You can't swim yet! | |
-| 2406 | Conversation, Tom | Siis kirjutan: ujumise õppimine. | Then I'll write: learning to swim. | |
-| 2407 | Conversation, Mari | Viimane küsimus: milline inimene te olete? Üks sõna. | Last question: what sort of person are you? One word. | |
-| 2408 | Conversation, Mari | Kirjuta: sõbralik. Sa oled ju sõbralik. | Write: friendly. You are, after all. | |
-| 2409 | Conversation, Tom | Sõbralik. Valmis! Ma saadan blanketi kohe ära. | Friendly. Done! I'll send the form off right away. | |
-| 2410 | Conversation, Mari | Ja järgmisel kuul oled juba ujuja! | And next month you'll be a swimmer! | |
-| 2411 | Words (word) | ujumiskursus | a swimming course | |
-| 2412 | Words (form) | ujumiskursuse | of the swimming course | |
-| 2413 | Words (form) | eksamil | at an exam, an exam has | |
-| 2414 | Words (verb) | ehitama | to build | |
-| 2415 | Words (verb, I form) | ehitan | I build | |
-| 2416 | Words (word) | ehitaja | a builder | |
-| 2417 | Words (word) | lugemine | reading | |
-| 2418 | Words (word) | jalutamine | walking, going for walks | |
-| 2419 | Words (verb) | ujuma | to swim | |
-| 2420 | Words (verb, I form) | ujun | I swim | |
-| 2421 | Words (form) | ujuda | to swim: the [da-tegevusnimi] (-da) | |
-| 2422 | Words (word) | ujumine | swimming | |
-| 2423 | Words (form) | ujumise | of swimming | |
-| 2424 | Words (word) | õppimine | studying, learning | |
-| 2425 | Words (form) | sõbralikud | friendly, of more than one | |
-| 2426 | Words (word) | ujuja | a swimmer | |
-| 2427 | Words (form) | maitset | taste, after {ei ole} | |
-| 2428 | Words (form) | toidul | food has; on the food | |
-| 2429 | Words (word) | maitsetu | tasteless | |
-| 2430 | Words (form) | kolleegidega | with colleagues | |
-| 2431 | Words (form) | kolleegid | colleagues | |
-| 2432 | How it works | ehitaja, ujumine, sõbralik, töötu | Estonian builds new words from old ones with a few endings, and a form about you is full of them: -ja is who does it ({ehitaja}), -mine is the doing ({ujumine}), -lik is what you're like ({sõbralik}), and -tu is without it ({töötu}). | |
-| 2433 | How it works | ujuma, ujumine, ujuja, õpetama, õpetaja | -ja and -mine go on a verb: take -ma off and put the ending on, {ujuma} to {ujumine} and {ujuja}, {õpetama} to {õpetaja}. | |
-| 2434 | How it works | ohtlik, maitsetu | -lik and -tu go on a noun and make a describing word: {ohtlik} is dangerous, {maitsetu} is tasteless. | |
-| 2435 | How it works | Mu kolleegid on sõbralikud, ujumise õppimine | A new word is a word like any other: it takes every ending, {Mu kolleegid on sõbralikud}, {ujumise õppimine}. | |
-| 2436 | How it works | sõber, sõbra, sõbralik | -lik often goes on the [omastav] (2nd form), not on the word as you say it: {sõber}, {sõbra}, {sõbralik}. | |
-| 2437 | How it works, table | ehitama | a builder, -ja: who does it | |
-| 2438 | How it works, table | ehitaja | a builder, -ja: who does it | |
-| 2439 | How it works, table | ujuma | swimming, -mine: the doing | |
-| 2440 | How it works, table | ujumine | swimming, -mine: the doing | |
-| 2441 | Say it, question | Mis on teie töö? | What's your job? | |
-| 2442 | Say it, model answer | Ma olen programmeerija. | I'm a programmer. | |
-| 2443 | Say it, question | Mis teile vabal ajal meeldib? | What do you like doing in your free time? | |
-| 2444 | Say it, model answer | Mulle meeldib lugemine ja ujumine. | I like reading and swimming. | |
-| 2445 | Say it, question | Kas te olete töötu? | Are you out of work? | |
-| 2446 | Say it, model answer | Ei, ma töötan. | No, I work. | |
-| 2447 | Say it, model answer | Mu kolleegid on sõbralikud. | My colleagues are friendly. | |
+| 2402 | Conversation, Tom | Mari, kas aitaksid mind? Täidan ujumiskursuse blanketti. | Mari, would you help me? I'm filling in the form for a swimming course. | |
+| 2403 | Conversation, Mari | Ujumiskursus? Aga sa ei oska ju ujuda! | A swimming course? But you can't swim! | |
+| 2404 | Conversation, Tom | Sellepärast ju! Aga siin on nii palju küsimusi. See on nagu eksam! | That's exactly why! But there are so many questions here. It's like an exam! | |
+| 2405 | Conversation, Mari | Näita. Esimene küsimus: mis on teie töö? | Show me. First question: what's your job? | |
+| 2406 | Conversation, Tom | Kirjutan: programmeerija. | I'll write: programmer. | |
+| 2407 | Conversation, Mari | Õige. Järgmine: kas te töötate või olete töötu? | Right. Next: are you working, or out of work? | |
+| 2408 | Conversation, Tom | Muidugi töötan! | Of course I work! | |
+| 2409 | Conversation, Mari | Siis: mis teile vabal ajal meeldib? | Then: what do you like doing in your free time? | |
+| 2410 | Conversation, Tom | Lugemine ja jalutamine. Ja ujumine. | Reading and walking. And swimming. | |
+| 2411 | Conversation, Mari | Ujumine? Sa ei oska veel ujuda! | Swimming? You can't swim yet! | |
+| 2412 | Conversation, Tom | Siis kirjutan: ujumise õppimine. | Then I'll write: learning to swim. | |
+| 2413 | Conversation, Mari | Viimane küsimus: milline inimene te olete? Üks sõna. | Last question: what sort of person are you? One word. | |
+| 2414 | Conversation, Mari | Kirjuta: sõbralik. Sa oled ju sõbralik. | Write: friendly. You are, after all. | |
+| 2415 | Conversation, Tom | Sõbralik. Valmis! Ma saadan blanketi kohe ära. | Friendly. Done! I'll send the form off right away. | |
+| 2416 | Conversation, Mari | Ja järgmisel kuul oled juba ujuja! | And next month you'll be a swimmer! | |
+| 2417 | Words (word) | ujumiskursus | a swimming course | |
+| 2418 | Words (form) | ujumiskursuse | of the swimming course | |
+| 2419 | Words (form) | eksamil | at an exam, an exam has | |
+| 2420 | Words (verb) | ehitama | to build | |
+| 2421 | Words (verb, I form) | ehitan | I build | |
+| 2422 | Words (word) | ehitaja | a builder | |
+| 2423 | Words (word) | lugemine | reading | |
+| 2424 | Words (word) | jalutamine | walking, going for walks | |
+| 2425 | Words (verb) | ujuma | to swim | |
+| 2426 | Words (verb, I form) | ujun | I swim | |
+| 2427 | Words (form) | ujuda | to swim: the [da-tegevusnimi] (-da) | |
+| 2428 | Words (word) | ujumine | swimming | |
+| 2429 | Words (form) | ujumise | of swimming | |
+| 2430 | Words (word) | õppimine | studying, learning | |
+| 2431 | Words (form) | sõbralikud | friendly, of more than one | |
+| 2432 | Words (word) | ujuja | a swimmer | |
+| 2433 | Words (form) | maitset | taste, after {ei ole} | |
+| 2434 | Words (form) | toidul | food has; on the food | |
+| 2435 | Words (word) | maitsetu | tasteless | |
+| 2436 | Words (form) | kolleegidega | with colleagues | |
+| 2437 | Words (form) | kolleegid | colleagues | |
+| 2438 | How it works | ehitaja, ujumine, sõbralik, töötu | Estonian builds new words from old ones with a few endings, and a form about you is full of them: -ja is who does it ({ehitaja}), -mine is the doing ({ujumine}), -lik is what you're like ({sõbralik}), and -tu is without it ({töötu}). | |
+| 2439 | How it works | ujuma, ujumine, ujuja, õpetama, õpetaja | -ja and -mine go on a verb: take -ma off and put the ending on, {ujuma} to {ujumine} and {ujuja}, {õpetama} to {õpetaja}. | |
+| 2440 | How it works | ohtlik, maitsetu | -lik and -tu go on a noun and make a describing word: {ohtlik} is dangerous, {maitsetu} is tasteless. | |
+| 2441 | How it works | Mu kolleegid on sõbralikud, ujumise õppimine | A new word is a word like any other: it takes every ending, {Mu kolleegid on sõbralikud}, {ujumise õppimine}. | |
+| 2442 | How it works | sõber, sõbra, sõbralik | -lik often goes on the [omastav] (2nd form), not on the word as you say it: {sõber}, {sõbra}, {sõbralik}. | |
+| 2443 | How it works, table | ehitama | a builder, -ja: who does it | |
+| 2444 | How it works, table | ehitaja | a builder, -ja: who does it | |
+| 2445 | How it works, table | ujuma | swimming, -mine: the doing | |
+| 2446 | How it works, table | ujumine | swimming, -mine: the doing | |
+| 2447 | Say it, question | Mis on teie töö? | What's your job? | |
+| 2448 | Say it, model answer | Ma olen programmeerija. | I'm a programmer. | |
+| 2449 | Say it, question | Mis teile vabal ajal meeldib? | What do you like doing in your free time? | |
+| 2450 | Say it, model answer | Mulle meeldib lugemine ja ujumine. | I like reading and swimming. | |
+| 2451 | Say it, question | Kas te olete töötu? | Are you out of work? | |
+| 2452 | Say it, model answer | Ei, ma töötan. | No, I work. | |
+| 2453 | Say it, model answer | Mu kolleegid on sõbralikud. | My colleagues are friendly. | |
 
 #### B1 47. On the phone (`b1-47-phone`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 2448 | Conversation, Salvestus | Tere! Olete helistanud linnavalitsusse. | Hello! You've called the city government. | |
-| 2449 | Conversation, Salvestus | Meie ametnikud vastavad esmaspäevast reedeni, kella üheksast viieni. | Our officials answer from Monday to Friday, from nine to five. | |
-| 2450 | Conversation, Salvestus | Praegu on kõik ametnikud hõivatud. Teie kõne on meile oluline. Palun jääge ootele. | All our officials are busy right now. Your call is important to us. Please hold. | |
-| 2451 | Conversation, Kaja | Linnavalitsus, tere! | City government, hello! | |
-| 2452 | Conversation, Tom | Tere! Mul on küsimus parkimisloa kohta. | Hello! I have a question about a parking permit. | |
-| 2453 | Conversation, Kaja | Üks hetk, palun jääge ootele. Ma ühendan teid edasi. | One moment, please hold. I'll put you through. | |
-| 2454 | Conversation, Andres | Tere, Andres kuuleb. | Hello, Andres speaking. | |
-| 2455 | Conversation, Tom | Tere! Ma tahaksin parkimisluba taotleda. | Hello! I'd like to apply for a parking permit. | |
-| 2456 | Conversation, Andres | Vabandust, parkimisload ei ole minu töö. Ma ühendan teid edasi. | Sorry, parking permits aren't my job. I'll put you through. | |
-| 2457 | Conversation, Tom | Halloo? Ma olen juba kümme minutit ootel! | Hello? I've been on hold for ten minutes already! | |
-| 2458 | Conversation, Tom | Jälle teie! Ma helistasin teile juba pool tundi tagasi! | You again! I called you half an hour ago! | |
-| 2459 | Conversation, Kaja | Oi, vabandust. Ametnik on praegu hõivatud. Kas jätate sõnumi? | Oh, sorry. The official is busy right now. Would you like to leave a message? | |
-| 2460 | Conversation, Tom | Jah. Palun öelge, et ta helistaks mulle tagasi. | Yes. Please ask them to call me back. | |
-| 2461 | Conversation, Kaja | Muidugi. Aga kõige kiirem on avaldus kirjutada. | Of course. But the quickest thing is to write an application. | |
-| 2462 | Conversation, Tom | Siis kirjutan avalduse ise. Ma oleksin pidanud seda kohe tegema! | Then I'll write the application myself. I should have done that right away! | |
-| 2463 | Words (form) | linnavalitsusse | to the city government | |
-| 2464 | Words (word) | parkimisluba | a parking permit | |
-| 2465 | Words (form) | parkimisloa | of a parking permit | |
-| 2466 | Words (form) | parkimisload | parking permits | |
-| 2467 | Words (form) | ametnikud | officials, clerks | |
-| 2468 | Words (word) | kohta | about, after the [omastav] (2nd form): {parkimisloa kohta} | |
-| 2469 | Words (form) | jääge | stay!, polite | |
-| 2470 | Words (word) | ootel | on hold, waiting | |
-| 2471 | Words (form) | ootele | onto hold: {jääge ootele}, please hold | |
-| 2472 | Words (verb) | ühendama | to connect; {edasi ühendama}, to put through | |
-| 2473 | Words (verb, I form) | ühendan | I connect | |
-| 2474 | Words (form) | ühendati | was put through, somebody put you through | |
-| 2475 | Words (form) | helistanud | called, after {ei} | |
-| 2476 | Words (form) | kõne | a call | |
-| 2477 | Words (word) | hõivatud | busy, engaged (a person or a line) | |
-| 2478 | Words (form) | jätate | you leave, polite | |
-| 2479 | Words (form) | kiirem | quicker | |
-| 2480 | Words (form) | minutit | minutes, after a number | |
-| 2481 | Words (form) | üheksast | from nine: {kella üheksast} | |
-| 2482 | How it works | helistama, tagasi helistama, edasi ühendama | On the phone the small words do the work: {helistama} is to call, {tagasi helistama} to call back, and {edasi ühendama} to put through. | |
-| 2483 | How it works | Helistama, helistan pangale, helista mulle | {Helistama} wants somebody in -le: {helistan pangale}, {helista mulle}. | |
-| 2484 | How it works | Jääge ootele, Ma olen ootel | {Jääge ootele} is going on hold, and {Ma olen ootel} is being on hold: -le for where you go, -l for where you are. | |
-| 2485 | How it works | Öelge, et ta helistaks, et | {Öelge, et ta helistaks} is ask them to call: the would form after {et} makes it a request. | |
-| 2486 | How it works | tagasi, pool tundi tagasi, helista tagasi | After a stretch of time, {tagasi} is ago: {pool tundi tagasi}. After a verb it's back: {helista tagasi}. | |
-| 2487 | How it works, table | Ma ühendan teid edasi. | I'll put you through. | |
-| 2488 | How it works, table | Palun jääge ootele. | Please hold. | |
-| 2489 | How it works, table | Ma olen kümme minutit ootel. | I've been on hold for ten minutes. | |
-| 2490 | How it works, table | Kas jätate sõnumi? | Would you like to leave a message? | |
-| 2491 | How it works, table | Palun helistage mulle tagasi. | Please call me back. | |
-| 2492 | Say it, question | Linnavalitsus, tere! | City government, hello! | |
-| 2493 | Say it, model answer | Tere! Mul on küsimus parkimisloa kohta. | Hello! I have a question about a parking permit. | |
-| 2494 | Say it, model answer | Ma olen juba kümme minutit ootel. | I've been on hold for ten minutes already. | |
-| 2495 | Say it, question | Kas jätate sõnumi? | Would you like to leave a message? | |
-| 2496 | Say it, model answer | Jah. Palun helistage mulle tagasi. | Yes. Please call me back. | |
-| 2497 | Say it, model answer | Ma helistasin pool tundi tagasi. | I called half an hour ago. | |
+| 2454 | Conversation, Salvestus | Tere! Olete helistanud linnavalitsusse. | Hello! You've called the city government. | |
+| 2455 | Conversation, Salvestus | Meie ametnikud vastavad esmaspäevast reedeni, kella üheksast viieni. | Our officials answer from Monday to Friday, from nine to five. | |
+| 2456 | Conversation, Salvestus | Praegu on kõik ametnikud hõivatud. Teie kõne on meile oluline. Palun jääge ootele. | All our officials are busy right now. Your call is important to us. Please hold. | |
+| 2457 | Conversation, Kaja | Linnavalitsus, tere! | City government, hello! | |
+| 2458 | Conversation, Tom | Tere! Mul on küsimus parkimisloa kohta. | Hello! I have a question about a parking permit. | |
+| 2459 | Conversation, Kaja | Üks hetk, palun jääge ootele. Ma ühendan teid edasi. | One moment, please hold. I'll put you through. | |
+| 2460 | Conversation, Andres | Tere, Andres kuuleb. | Hello, Andres speaking. | |
+| 2461 | Conversation, Tom | Tere! Ma tahaksin parkimisluba taotleda. | Hello! I'd like to apply for a parking permit. | |
+| 2462 | Conversation, Andres | Vabandust, parkimisload ei ole minu töö. Ma ühendan teid edasi. | Sorry, parking permits aren't my job. I'll put you through. | |
+| 2463 | Conversation, Tom | Halloo? Ma olen juba kümme minutit ootel! | Hello? I've been on hold for ten minutes already! | |
+| 2464 | Conversation, Tom | Jälle teie! Ma helistasin teile juba pool tundi tagasi! | You again! I called you half an hour ago! | |
+| 2465 | Conversation, Kaja | Oi, vabandust. Ametnik on praegu hõivatud. Kas jätate sõnumi? | Oh, sorry. The official is busy right now. Would you like to leave a message? | |
+| 2466 | Conversation, Tom | Jah. Palun öelge, et ta helistaks mulle tagasi. | Yes. Please ask them to call me back. | |
+| 2467 | Conversation, Kaja | Muidugi. Aga kõige kiirem on avaldus kirjutada. | Of course. But the quickest thing is to write an application. | |
+| 2468 | Conversation, Tom | Siis kirjutan avalduse ise. Ma oleksin pidanud seda kohe tegema! | Then I'll write the application myself. I should have done that right away! | |
+| 2469 | Words (form) | linnavalitsusse | to the city government | |
+| 2470 | Words (word) | parkimisluba | a parking permit | |
+| 2471 | Words (form) | parkimisloa | of a parking permit | |
+| 2472 | Words (form) | parkimisload | parking permits | |
+| 2473 | Words (form) | ametnikud | officials, clerks | |
+| 2474 | Words (word) | kohta | about, after the [omastav] (2nd form): {parkimisloa kohta} | |
+| 2475 | Words (form) | jääge | stay!, polite | |
+| 2476 | Words (word) | ootel | on hold, waiting | |
+| 2477 | Words (form) | ootele | onto hold: {jääge ootele}, please hold | |
+| 2478 | Words (verb) | ühendama | to connect; {edasi ühendama}, to put through | |
+| 2479 | Words (verb, I form) | ühendan | I connect | |
+| 2480 | Words (form) | ühendati | was put through, somebody put you through | |
+| 2481 | Words (form) | helistanud | called, after {ei} | |
+| 2482 | Words (form) | kõne | a call | |
+| 2483 | Words (word) | hõivatud | busy, engaged (a person or a line) | |
+| 2484 | Words (form) | jätate | you leave, polite | |
+| 2485 | Words (form) | kiirem | quicker | |
+| 2486 | Words (form) | minutit | minutes, after a number | |
+| 2487 | Words (form) | üheksast | from nine: {kella üheksast} | |
+| 2488 | How it works | helistama, tagasi helistama, edasi ühendama | On the phone the small words do the work: {helistama} is to call, {tagasi helistama} to call back, and {edasi ühendama} to put through. | |
+| 2489 | How it works | Helistama, helistan pangale, helista mulle | {Helistama} wants somebody in -le: {helistan pangale}, {helista mulle}. | |
+| 2490 | How it works | Jääge ootele, Ma olen ootel | {Jääge ootele} is going on hold, and {Ma olen ootel} is being on hold: -le for where you go, -l for where you are. | |
+| 2491 | How it works | Öelge, et ta helistaks, et | {Öelge, et ta helistaks} is ask them to call: the would form after {et} makes it a request. | |
+| 2492 | How it works | tagasi, pool tundi tagasi, helista tagasi | After a stretch of time, {tagasi} is ago: {pool tundi tagasi}. After a verb it's back: {helista tagasi}. | |
+| 2493 | How it works, table | Ma ühendan teid edasi. | I'll put you through. | |
+| 2494 | How it works, table | Palun jääge ootele. | Please hold. | |
+| 2495 | How it works, table | Ma olen kümme minutit ootel. | I've been on hold for ten minutes. | |
+| 2496 | How it works, table | Kas jätate sõnumi? | Would you like to leave a message? | |
+| 2497 | How it works, table | Palun helistage mulle tagasi. | Please call me back. | |
+| 2498 | Say it, question | Linnavalitsus, tere! | City government, hello! | |
+| 2499 | Say it, model answer | Tere! Mul on küsimus parkimisloa kohta. | Hello! I have a question about a parking permit. | |
+| 2500 | Say it, model answer | Ma olen juba kümme minutit ootel. | I've been on hold for ten minutes already. | |
+| 2501 | Say it, question | Kas jätate sõnumi? | Would you like to leave a message? | |
+| 2502 | Say it, model answer | Jah. Palun helistage mulle tagasi. | Yes. Please call me back. | |
+| 2503 | Say it, model answer | Ma helistasin pool tundi tagasi. | I called half an hour ago. | |
 
 #### B1 48. A formal application (`b1-48-application`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 2498 | Conversation, Tom | Peeter, ma pean linnale avalduse kirjutama. Kas sa aitaksid? | Peeter, I have to write an application to the city. Would you help? | |
-| 2499 | Conversation, Peeter | Muidugi. Ma olen elus sada avaldust kirjutanud. | Of course. I've written a hundred applications in my life. | |
-| 2500 | Conversation, Tom | Kuidas avaldus algab? | How does an application start? | |
-| 2501 | Conversation, Peeter | Kõigepealt kirjutad, kellele see on: linnavalitsusele. | First you write who it's to: the city government. | |
-| 2502 | Conversation, Peeter | Siis tuleb pealkiri: avaldus. | Then comes the title: Application. | |
-| 2503 | Conversation, Tom | Ja siis kirjutan: tere, ma tahaksin parkimisluba? | And then I write: hi, I'd like a parking permit? | |
-| 2504 | Conversation, Peeter | Ei, ei! Ametlikult kirjutad nii: palun väljastada mulle parkimisluba. | No, no! Officially you write it like this: please issue me a parking permit. | |
-| 2505 | Conversation, Tom | Kas ma pean ka ütlema, miks? | Do I have to say why, too? | |
-| 2506 | Conversation, Peeter | Jah. Kirjuta, et sa kolisid siia sel aastal koos perega ja sul on autot iga päev vaja. | Yes. Write that you moved here this year with your family and you need the car every day. | |
-| 2507 | Conversation, Peeter | Ja lõpus kirjuta viisakalt: lugupidamisega. | And at the end, close politely: sincerely. | |
-| 2508 | Conversation, Tom | Lugupidamisega, Tom. Lühike, aga väga ametlik! | Sincerely, Tom. Short, but very official! | |
-| 2509 | Conversation, Peeter | Ametlik on hea. Linnavalitsus armastab ametlikku keelt. | Official is good. The city government loves official language. | |
-| 2510 | Words (form) | linnale | to the city | |
-| 2511 | Words (word) | elus | in your life, ever | |
-| 2512 | Words (form) | kirjutanud | written: {olen kirjutanud}, I have written | |
-| 2513 | Words (form) | linnavalitsusele | to the city government | |
-| 2514 | Words (word) | pealkiri | a title, a heading | |
-| 2515 | Words (word) | lasteaed | a kindergarten | |
-| 2516 | Words (form) | perega | with the family | |
-| 2517 | Words (word) | ametlikult | officially | |
-| 2518 | Words (verb) | väljastama | to issue | |
-| 2519 | Words (verb, I form) | väljastan | I issue | |
-| 2520 | Words (form) | väljastada | to issue; {palun väljastada}, please issue | |
-| 2521 | Words (form) | ametlikku | official, the [osastav] (3rd form) | |
-| 2522 | Words (form) | armastab | loves | |
-| 2523 | Words (form) | vabu | free, of more than one, after {ei ole} | |
-| 2524 | Words (form) | parkimiskohti | parking spaces, after {ei ole} | |
-| 2525 | Words (form) | parkimiskohta | a parking space, while you're looking for one | |
-| 2526 | Words (verb) | lisama | to add, to attach | |
-| 2527 | Words (verb, I form) | lisan | I add | |
-| 2528 | Words (word) | elaniku | a resident's | |
-| 2529 | How it works | avaldus | An {avaldus} has a fixed shape: who it's to, the title, the request, the reason, and a formal close. | |
-| 2530 | How it works | Palun väljastada | {Palun väljastada} is the formal request: please and the da-form, with nobody named. | |
-| 2531 | How it works | linnavalitsusele | Who it's to takes -le: {linnavalitsusele}, to the city government. | |
-| 2532 | How it works | Lugupidamisega | Close with {Lugupidamisega}, your name and your signature. | |
-| 2533 | How it works | sina, tere, Palun väljastada mulle, Anna mulle | An application never says {sina} or {tere}: write {Palun väljastada mulle}, not {Anna mulle}. | |
-| 2534 | How it works, table | Linnavalitsusele | Who it's to | |
-| 2535 | How it works, table | Avaldus | The title | |
-| 2536 | How it works, table | Palun väljastada mulle parkimisluba. | The request | |
-| 2537 | How it works, table | Mul on autot iga päev vaja. | The reason | |
-| 2538 | How it works, table | Lugupidamisega | The close | |
-| 2539 | Say it, question | Kellele avaldus on? | Who's the application to? | |
-| 2540 | Say it, model answer | Linnavalitsusele. | To the city government. | |
-| 2541 | Say it, model answer | Palun väljastada mulle parkimisluba. | Please issue me a parking permit. | |
-| 2542 | Say it, model answer | Mul on autot iga päev vaja. | I need the car every day. | |
-| 2543 | Say it, model answer | Siin on raske elada, kui sul ei ole autot. | It's hard to live here if you don't have a car. | |
+| 2504 | Conversation, Tom | Peeter, ma pean linnale avalduse kirjutama. Kas sa aitaksid? | Peeter, I have to write an application to the city. Would you help? | |
+| 2505 | Conversation, Peeter | Muidugi. Ma olen elus sada avaldust kirjutanud. | Of course. I've written a hundred applications in my life. | |
+| 2506 | Conversation, Tom | Kuidas avaldus algab? | How does an application start? | |
+| 2507 | Conversation, Peeter | Kõigepealt kirjutad, kellele see on: linnavalitsusele. | First you write who it's to: the city government. | |
+| 2508 | Conversation, Peeter | Siis tuleb pealkiri: avaldus. | Then comes the title: Application. | |
+| 2509 | Conversation, Tom | Ja siis kirjutan: tere, ma tahaksin parkimisluba? | And then I write: hi, I'd like a parking permit? | |
+| 2510 | Conversation, Peeter | Ei, ei! Ametlikult kirjutad nii: palun väljastada mulle parkimisluba. | No, no! Officially you write it like this: please issue me a parking permit. | |
+| 2511 | Conversation, Tom | Kas ma pean ka ütlema, miks? | Do I have to say why, too? | |
+| 2512 | Conversation, Peeter | Jah. Kirjuta, et sa kolisid siia sel aastal koos perega ja sul on autot iga päev vaja. | Yes. Write that you moved here this year with your family and you need the car every day. | |
+| 2513 | Conversation, Peeter | Ja lõpus kirjuta viisakalt: lugupidamisega. | And at the end, close politely: sincerely. | |
+| 2514 | Conversation, Tom | Lugupidamisega, Tom. Lühike, aga väga ametlik! | Sincerely, Tom. Short, but very official! | |
+| 2515 | Conversation, Peeter | Ametlik on hea. Linnavalitsus armastab ametlikku keelt. | Official is good. The city government loves official language. | |
+| 2516 | Words (form) | linnale | to the city | |
+| 2517 | Words (word) | elus | in your life, ever | |
+| 2518 | Words (form) | kirjutanud | written: {olen kirjutanud}, I have written | |
+| 2519 | Words (form) | linnavalitsusele | to the city government | |
+| 2520 | Words (word) | pealkiri | a title, a heading | |
+| 2521 | Words (word) | lasteaed | a kindergarten | |
+| 2522 | Words (form) | perega | with the family | |
+| 2523 | Words (word) | ametlikult | officially | |
+| 2524 | Words (verb) | väljastama | to issue | |
+| 2525 | Words (verb, I form) | väljastan | I issue | |
+| 2526 | Words (form) | väljastada | to issue; {palun väljastada}, please issue | |
+| 2527 | Words (form) | ametlikku | official, the [osastav] (3rd form) | |
+| 2528 | Words (form) | armastab | loves | |
+| 2529 | Words (form) | vabu | free, of more than one, after {ei ole} | |
+| 2530 | Words (form) | parkimiskohti | parking spaces, after {ei ole} | |
+| 2531 | Words (form) | parkimiskohta | a parking space, while you're looking for one | |
+| 2532 | Words (verb) | lisama | to add, to attach | |
+| 2533 | Words (verb, I form) | lisan | I add | |
+| 2534 | Words (word) | elaniku | a resident's | |
+| 2535 | How it works | avaldus | An {avaldus} has a fixed shape: who it's to, the title, the request, the reason, and a formal close. | |
+| 2536 | How it works | Palun väljastada | {Palun väljastada} is the formal request: please and the da-form, with nobody named. | |
+| 2537 | How it works | linnavalitsusele | Who it's to takes -le: {linnavalitsusele}, to the city government. | |
+| 2538 | How it works | Lugupidamisega | Close with {Lugupidamisega}, your name and your signature. | |
+| 2539 | How it works | sina, tere, Palun väljastada mulle, Anna mulle | An application never says {sina} or {tere}: write {Palun väljastada mulle}, not {Anna mulle}. | |
+| 2540 | How it works, table | Linnavalitsusele | Who it's to | |
+| 2541 | How it works, table | Avaldus | The title | |
+| 2542 | How it works, table | Palun väljastada mulle parkimisluba. | The request | |
+| 2543 | How it works, table | Mul on autot iga päev vaja. | The reason | |
+| 2544 | How it works, table | Lugupidamisega | The close | |
+| 2545 | Say it, question | Kellele avaldus on? | Who's the application to? | |
+| 2546 | Say it, model answer | Linnavalitsusele. | To the city government. | |
+| 2547 | Say it, model answer | Palun väljastada mulle parkimisluba. | Please issue me a parking permit. | |
+| 2548 | Say it, model answer | Mul on autot iga päev vaja. | I need the car every day. | |
+| 2549 | Say it, model answer | Siin on raske elada, kui sul ei ole autot. | It's hard to live here if you don't have a car. | |
 
 #### B1 49. The B1 speaking exam (`b1-49-end`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
-| 2544 | Conversation, Merike | Tere! Palun istuge. Eksamil on kolm osa. | Hello! Please sit down. The exam has three parts. | |
-| 2545 | Conversation, Merike | Esimene osa: rääkige natuke endast. | Part one: tell me a little about yourself. | |
-| 2546 | Conversation, Tom | Ma olen Tom ja ma olen pärit Inglismaalt. Ma elan perega Tallinnas ja töötan programmeerijana ühes väikeses firmas. | I'm Tom, and I'm from England. I live in Tallinn with my family and work as a programmer at a small company. | |
-| 2547 | Conversation, Merike | Mis teile oma töö juures meeldib? | What do you like about your work? | |
-| 2548 | Conversation, Tom | Mulle meeldib mu töö, sest kolleegid on sõbralikud ja aitavad mind alati. Aga koosolekuid on natuke liiga palju. | I like my job, because my colleagues are friendly and always help me. But there are a few too many meetings. | |
-| 2549 | Conversation, Merike | Teine osa. Nüüd töötan mina pangas. Tere! Kuidas saan aidata? | Part two. Now I work at a bank. Hello! How can I help? | |
-| 2550 | Conversation, Tom | Tere! Ma kaotasin eile oma rahakoti ära. Palun pange mu kaart kohe kinni. | Hello! I lost my wallet yesterday. Please block my card right away. | |
-| 2551 | Conversation, Merike | Selge, kaart on nüüd kinni. Kas soovite uut kaarti? | Fine, the card is blocked now. Would you like a new card? | |
-| 2552 | Conversation, Tom | Jah, palun. Mida ma pean tegema? Ja millal uus kaart tuleb? | Yes, please. What do I have to do? And when does the new card come? | |
-| 2553 | Conversation, Merike | Täitke see blankett ära. Uus kaart tuleb nädala pärast. | Fill in this form. The new card comes in a week. | |
-| 2554 | Conversation, Merike | Ja kolmas osa: teie arvamus. Kas Tallinnas on lihtne autoga sõita? | And part three: your opinion. Is it easy to drive in Tallinn? | |
-| 2555 | Conversation, Tom | Minu arvates ei ole. Kuigi mul on nüüd parkimisluba, on kesklinnas vähe parkimiskohti. Nii et tööle sõidan ma bussiga. | In my opinion it isn't. Although I've got a parking permit now, there are few parking spaces in the center. So I take the bus to work. | |
-| 2556 | Conversation, Merike | Väga hea. Aitäh, eksam on läbi. | Very good. Thank you, the exam is over. | |
-| 2557 | How it works | pange kaart kinni, täitke see blankett ära, eksam on läbi | Small words finish the verbs: {pange kaart kinni}, {täitke see blankett ära}, {eksam on läbi}. | |
-| 2558 | Say it, model answer | Ma olen Tom ja ma olen pärit Inglismaalt. Ma elan Tallinnas ja töötan programmeerijana. | I'm Tom, and I'm from England. I live in Tallinn and I work as a programmer. | |
-| 2559 | Say it, question | Mis teile oma töö juures meeldib? | What do you like about your work? | |
-| 2560 | Say it, model answer | Mulle meeldib mu töö, sest kolleegid on sõbralikud. | I like my job, because my colleagues are friendly. | |
-| 2561 | Say it, question | Kas Tallinnas on lihtne autoga sõita? | Is it easy to drive in Tallinn? | |
-| 2562 | Say it, model answer | Minu arvates ei ole see lihtne, kuigi mul on parkimisluba. | In my opinion it isn't easy, although I have a parking permit. | |
-| 2563 | Role-play, they say | Tere! Palun istuge. Eksamil on kolm osa. Esimene osa: rääkige natuke endast. | Hello! Please sit down. The exam has three parts. Part one: tell me a little about yourself. | |
-| 2564 | Role-play, model answer | Tere! Ma olen Tom ja ma olen pärit Inglismaalt. Ma elan perega Tallinnas ja töötan programmeerijana. | Hello! I'm Tom, and I'm from England. I live in Tallinn with my family and I work as a programmer. | |
-| 2565 | Role-play, they say | Mis teile oma töö juures meeldib? | What do you like about your work? | |
-| 2566 | Role-play, model answer | Mulle meeldib mu töö, sest kolleegid on sõbralikud ja aitavad mind alati. Aga koosolekuid on natuke liiga palju. | I like my job, because my colleagues are friendly and always help me. But there are a few too many meetings. | |
-| 2567 | Role-play, they say | Teine osa. Nüüd töötan mina pangas. Tere! Kuidas saan aidata? | Part two. Now I work at a bank. Hello! How can I help? | |
-| 2568 | Role-play, model answer | Tere! Ma kaotasin eile bussis oma rahakoti ära. Palun pange mu kaart kohe kinni. | Hello! I lost my wallet on the bus yesterday. Please block my card right away. | |
-| 2569 | Role-play, they say | Selge, kaart on nüüd kinni. Kas soovite uut kaarti? | Fine, the card is blocked now. Would you like a new card? | |
-| 2570 | Role-play, model answer | Jah, palun. Mida ma pean tegema? Ja millal uus kaart tuleb? | Yes, please. What do I have to do? And when does the new card come? | |
-| 2571 | Role-play, they say | Täitke see blankett ära. Uus kaart tuleb nädala pärast. | Fill in this form. The new card comes in a week. | |
-| 2572 | Role-play, model answer | Hästi, ma täidan blanketi kohe ära. Aitäh! | All right, I'll fill in the form right away. Thank you! | |
-| 2573 | Role-play, they say | Kolmas osa: teie arvamus. Kas Tallinnas on lihtne autoga sõita? | Part three: your opinion. Is it easy to drive in Tallinn? | |
-| 2574 | Role-play, model answer | Minu arvates ei ole. Kuigi mul on nüüd parkimisluba, on kesklinnas vähe parkimiskohti. Nii et tööle sõidan ma bussiga. | In my opinion it isn't. Although I've got a parking permit now, there are few parking spaces in the center. So I take the bus to work. | |
-| 2575 | Role-play, they say | Ja kumb on parem, elada linnas või maal? Miks? | And which is better, living in the city or in the country? Why? | |
-| 2576 | Role-play, model answer | Minu arvates on linnas parem, sest seal on töö ja kool lähedal. Aga maal on vaikne ja ilus, ja seal on rohkem loodust. | In my opinion the city is better, because work and school are close by there. But the country is quiet and beautiful, and there's more nature. | |
-| 2577 | Role-play, they say | Väga hea. Aitäh, eksam on läbi. | Very good. Thank you, the exam is over. | |
-| 2578 | Live scene, they say (about) | Palun istuge. Eksamil on kolm osa. Kõigepealt rääkige natuke endast. |  | |
-| 2579 | Live scene, they say (about) | Rääkige kõigepealt natuke endast. |  | |
-| 2580 | Live scene, they say (work) | Mis teile oma töö juures meeldib? |  | |
-| 2581 | Live scene, they say (work) | Ja mis teile töö juures meeldib? |  | |
-| 2582 | Live scene, they say (lost) | Teine osa. Nüüd töötan mina pangas. Tere! Kuidas saan teid aidata? |  | |
-| 2583 | Live scene, they say (lost) | Teine osa. Nüüd oleme pangas. Tere! Kuidas saan aidata? |  | |
-| 2584 | Live scene, they say (card) | Selge, kaart on nüüd kinni. Kas te soovite uut kaarti? |  | |
-| 2585 | Live scene, they say (card) | Kaart on kinni. Kas te tahate uut kaarti? |  | |
-| 2586 | Live scene, they say (form) | Siis täitke palun see blankett. Uus kaart tuleb nädala pärast. |  | |
-| 2587 | Live scene, they say (form) | Palun täitke see blankett ära. Kaart tuleb nädala pärast. |  | |
-| 2588 | Live scene, they say (opinion) | Kolmas osa on teie arvamus. Kas Tallinnas on lihtne autoga sõita? |  | |
-| 2589 | Live scene, they say (opinion) | Kas Tallinnas on lihtne autoga sõita? |  | |
-| 2590 | Live scene, they say (compare) | Kus on parem elada, kas linnas või maal? Miks? |  | |
-| 2591 | Live scene, they say (compare) | Ja kumb on parem, linn või maa? |  | |
-| 2592 | Live scene, they say (close) | Väga hea. Aitäh, eksam on läbi. Head aega! |  | |
-| 2593 | Live scene, they say (close) | Aitäh! Eksam on läbi. Nägemist! |  | |
-| 2594 | Live scene, learner may pick (about) | Tere! Ma olen Tom ja ma olen pärit Inglismaalt. Ma elan perega Tallinnas ja töötan programmeerijana. | Hello! I'm Tom, and I'm from England. I live in Tallinn with my family and I work as a programmer. | |
-| 2595 | Live scene, learner may pick (about) | Ma elan Tallinnas ja töötan ühes väikeses firmas. | I live in Tallinn and I work at a small company. | |
-| 2596 | Live scene, learner may pick (work) | Mulle meeldib mu töö, sest kolleegid on sõbralikud ja aitavad mind alati. Aga koosolekuid on natuke liiga palju. | I like my job, because my colleagues are friendly and always help me. But there are a few too many meetings. | |
-| 2597 | Live scene, learner may pick (work) | Mu kolleegid on sõbralikud. | My colleagues are friendly. | |
-| 2598 | Live scene, learner may pick (lost) | Tere! Ma kaotasin eile bussis oma rahakoti ära. Palun pange mu kaart kohe kinni. | Hello! I lost my wallet on the bus yesterday. Please block my card right away. | |
-| 2599 | Live scene, learner may pick (lost) | Ma kaotasin rahakoti ära. | I've lost my wallet. | |
-| 2600 | Live scene, learner may pick (card) | Jah, palun. Mida ma pean tegema? Ja millal uus kaart tuleb? | Yes, please. What do I have to do? And when does the new card come? | |
-| 2601 | Live scene, learner may pick (form) | Hästi, ma täidan blanketi kohe ära. Aitäh! | All right, I'll fill in the form right away. Thank you! | |
-| 2602 | Live scene, learner may pick (opinion) | Minu arvates ei ole. Kuigi mul on nüüd parkimisluba, on kesklinnas vähe parkimiskohti. Nii et tööle sõidan ma bussiga. | In my opinion it isn't. Although I've got a parking permit now, there are few parking spaces in the center. So I take the bus to work. | |
-| 2603 | Live scene, learner may pick (opinion) | Minu arvates ei ole see lihtne, kuigi mul on parkimisluba. | In my opinion it isn't easy, although I have a parking permit. | |
-| 2604 | Live scene, learner may pick (compare) | Minu arvates on linnas parem, sest seal on töö ja kool lähedal. Aga maal on vaikne ja ilus, ja seal on rohkem loodust. | In my opinion the city is better, because work and school are close by there. But the country is quiet and beautiful, and there's more nature. | |
-| 2605 | Live scene, learner may pick (compare) | Maal on vaikne ja ilus. | The country is quiet and beautiful. | |
+| 2550 | Conversation, Merike | Tere! Palun istuge. Eksamil on kolm osa. | Hello! Please sit down. The exam has three parts. | |
+| 2551 | Conversation, Merike | Esimene osa: rääkige natuke endast. | Part one: tell me a little about yourself. | |
+| 2552 | Conversation, Tom | Ma olen Tom ja ma olen pärit Inglismaalt. Ma elan perega Tallinnas ja töötan programmeerijana ühes väikeses firmas. | I'm Tom, and I'm from England. I live in Tallinn with my family and work as a programmer at a small company. | |
+| 2553 | Conversation, Merike | Mis teile oma töö juures meeldib? | What do you like about your work? | |
+| 2554 | Conversation, Tom | Mulle meeldib mu töö, sest kolleegid on sõbralikud ja aitavad mind alati. Aga koosolekuid on natuke liiga palju. | I like my job, because my colleagues are friendly and always help me. But there are a few too many meetings. | |
+| 2555 | Conversation, Merike | Teine osa. Nüüd töötan mina pangas. Tere! Kuidas saan aidata? | Part two. Now I work at a bank. Hello! How can I help? | |
+| 2556 | Conversation, Tom | Tere! Ma kaotasin eile oma rahakoti ära. Palun pange mu kaart kohe kinni. | Hello! I lost my wallet yesterday. Please block my card right away. | |
+| 2557 | Conversation, Merike | Selge, kaart on nüüd kinni. Kas soovite uut kaarti? | Fine, the card is blocked now. Would you like a new card? | |
+| 2558 | Conversation, Tom | Jah, palun. Mida ma pean tegema? Ja millal uus kaart tuleb? | Yes, please. What do I have to do? And when does the new card come? | |
+| 2559 | Conversation, Merike | Täitke see blankett ära. Uus kaart tuleb nädala pärast. | Fill in this form. The new card comes in a week. | |
+| 2560 | Conversation, Merike | Ja kolmas osa: teie arvamus. Kas Tallinnas on lihtne autoga sõita? | And part three: your opinion. Is it easy to drive in Tallinn? | |
+| 2561 | Conversation, Tom | Minu arvates ei ole. Kuigi mul on nüüd parkimisluba, on kesklinnas vähe parkimiskohti. Nii et tööle sõidan ma bussiga. | In my opinion it isn't. Although I've got a parking permit now, there are few parking spaces in the center. So I take the bus to work. | |
+| 2562 | Conversation, Merike | Väga hea. Aitäh, eksam on läbi. | Very good. Thank you, the exam is over. | |
+| 2563 | How it works | pange kaart kinni, täitke see blankett ära, eksam on läbi | Small words finish the verbs: {pange kaart kinni}, {täitke see blankett ära}, {eksam on läbi}. | |
+| 2564 | Say it, model answer | Ma olen Tom ja ma olen pärit Inglismaalt. Ma elan Tallinnas ja töötan programmeerijana. | I'm Tom, and I'm from England. I live in Tallinn and I work as a programmer. | |
+| 2565 | Say it, question | Mis teile oma töö juures meeldib? | What do you like about your work? | |
+| 2566 | Say it, model answer | Mulle meeldib mu töö, sest kolleegid on sõbralikud. | I like my job, because my colleagues are friendly. | |
+| 2567 | Say it, question | Kas Tallinnas on lihtne autoga sõita? | Is it easy to drive in Tallinn? | |
+| 2568 | Say it, model answer | Minu arvates ei ole see lihtne, kuigi mul on parkimisluba. | In my opinion it isn't easy, although I have a parking permit. | |
+| 2569 | Role-play, they say | Tere! Palun istuge. Eksamil on kolm osa. Esimene osa: rääkige natuke endast. | Hello! Please sit down. The exam has three parts. Part one: tell me a little about yourself. | |
+| 2570 | Role-play, model answer | Tere! Ma olen Tom ja ma olen pärit Inglismaalt. Ma elan perega Tallinnas ja töötan programmeerijana. | Hello! I'm Tom, and I'm from England. I live in Tallinn with my family and I work as a programmer. | |
+| 2571 | Role-play, they say | Mis teile oma töö juures meeldib? | What do you like about your work? | |
+| 2572 | Role-play, model answer | Mulle meeldib mu töö, sest kolleegid on sõbralikud ja aitavad mind alati. Aga koosolekuid on natuke liiga palju. | I like my job, because my colleagues are friendly and always help me. But there are a few too many meetings. | |
+| 2573 | Role-play, they say | Teine osa. Nüüd töötan mina pangas. Tere! Kuidas saan aidata? | Part two. Now I work at a bank. Hello! How can I help? | |
+| 2574 | Role-play, model answer | Tere! Ma kaotasin eile bussis oma rahakoti ära. Palun pange mu kaart kohe kinni. | Hello! I lost my wallet on the bus yesterday. Please block my card right away. | |
+| 2575 | Role-play, they say | Selge, kaart on nüüd kinni. Kas soovite uut kaarti? | Fine, the card is blocked now. Would you like a new card? | |
+| 2576 | Role-play, model answer | Jah, palun. Mida ma pean tegema? Ja millal uus kaart tuleb? | Yes, please. What do I have to do? And when does the new card come? | |
+| 2577 | Role-play, they say | Täitke see blankett ära. Uus kaart tuleb nädala pärast. | Fill in this form. The new card comes in a week. | |
+| 2578 | Role-play, model answer | Hästi, ma täidan blanketi kohe ära. Aitäh! | All right, I'll fill in the form right away. Thank you! | |
+| 2579 | Role-play, they say | Kolmas osa: teie arvamus. Kas Tallinnas on lihtne autoga sõita? | Part three: your opinion. Is it easy to drive in Tallinn? | |
+| 2580 | Role-play, model answer | Minu arvates ei ole. Kuigi mul on nüüd parkimisluba, on kesklinnas vähe parkimiskohti. Nii et tööle sõidan ma bussiga. | In my opinion it isn't. Although I've got a parking permit now, there are few parking spaces in the center. So I take the bus to work. | |
+| 2581 | Role-play, they say | Ja kumb on parem, elada linnas või maal? Miks? | And which is better, living in the city or in the country? Why? | |
+| 2582 | Role-play, model answer | Minu arvates on linnas parem, sest seal on töö ja kool lähedal. Aga maal on vaikne ja ilus, ja seal on rohkem loodust. | In my opinion the city is better, because work and school are close by there. But the country is quiet and beautiful, and there's more nature. | |
+| 2583 | Role-play, they say | Väga hea. Aitäh, eksam on läbi. | Very good. Thank you, the exam is over. | |
+| 2584 | Live scene, they say (about) | Palun istuge. Eksamil on kolm osa. Kõigepealt rääkige natuke endast. |  | |
+| 2585 | Live scene, they say (about) | Rääkige kõigepealt natuke endast. |  | |
+| 2586 | Live scene, they say (work) | Mis teile oma töö juures meeldib? |  | |
+| 2587 | Live scene, they say (work) | Ja mis teile töö juures meeldib? |  | |
+| 2588 | Live scene, they say (lost) | Teine osa. Nüüd töötan mina pangas. Tere! Kuidas saan teid aidata? |  | |
+| 2589 | Live scene, they say (lost) | Teine osa. Nüüd oleme pangas. Tere! Kuidas saan aidata? |  | |
+| 2590 | Live scene, they say (card) | Selge, kaart on nüüd kinni. Kas te soovite uut kaarti? |  | |
+| 2591 | Live scene, they say (card) | Kaart on kinni. Kas te tahate uut kaarti? |  | |
+| 2592 | Live scene, they say (form) | Siis täitke palun see blankett. Uus kaart tuleb nädala pärast. |  | |
+| 2593 | Live scene, they say (form) | Palun täitke see blankett ära. Kaart tuleb nädala pärast. |  | |
+| 2594 | Live scene, they say (opinion) | Kolmas osa on teie arvamus. Kas Tallinnas on lihtne autoga sõita? |  | |
+| 2595 | Live scene, they say (opinion) | Kas Tallinnas on lihtne autoga sõita? |  | |
+| 2596 | Live scene, they say (compare) | Kus on parem elada, kas linnas või maal? Miks? |  | |
+| 2597 | Live scene, they say (compare) | Ja kumb on parem, linn või maa? |  | |
+| 2598 | Live scene, they say (close) | Väga hea. Aitäh, eksam on läbi. Head aega! |  | |
+| 2599 | Live scene, they say (close) | Aitäh! Eksam on läbi. Nägemist! |  | |
+| 2600 | Live scene, learner may pick (about) | Ma olen Tom ja ma olen pärit Inglismaalt. Ma elan perega Tallinnas ja töötan programmeerijana. | I'm Tom, and I'm from England. I live in Tallinn with my family and I work as a programmer. | |
+| 2601 | Live scene, learner may pick (about) | Ma elan Tallinnas ja töötan ühes väikeses firmas. | I live in Tallinn and I work at a small company. | |
+| 2602 | Live scene, learner may pick (work) | Mulle meeldib mu töö, sest kolleegid on sõbralikud ja aitavad mind alati. Aga koosolekuid on natuke liiga palju. | I like my job, because my colleagues are friendly and always help me. But there are a few too many meetings. | |
+| 2603 | Live scene, learner may pick (work) | Mu kolleegid on sõbralikud. | My colleagues are friendly. | |
+| 2604 | Live scene, learner may pick (lost) | Tere! Ma kaotasin eile bussis oma rahakoti ära. Palun pange mu kaart kohe kinni. | Hello! I lost my wallet on the bus yesterday. Please block my card right away. | |
+| 2605 | Live scene, learner may pick (lost) | Ma kaotasin rahakoti ära. | I've lost my wallet. | |
+| 2606 | Live scene, learner may pick (card) | Jah, palun. Mida ma pean tegema? Ja millal uus kaart tuleb? | Yes, please. What do I have to do? And when does the new card come? | |
+| 2607 | Live scene, learner may pick (form) | Hästi, ma täidan blanketi kohe ära. Aitäh! | All right, I'll fill in the form right away. Thank you! | |
+| 2608 | Live scene, learner may pick (opinion) | Minu arvates ei ole. Kuigi mul on nüüd parkimisluba, on kesklinnas vähe parkimiskohti. Nii et tööle sõidan ma bussiga. | In my opinion it isn't. Although I've got a parking permit now, there are few parking spaces in the center. So I take the bus to work. | |
+| 2609 | Live scene, learner may pick (opinion) | Minu arvates ei ole see lihtne, kuigi mul on parkimisluba. | In my opinion it isn't easy, although I have a parking permit. | |
+| 2610 | Live scene, learner may pick (compare) | Minu arvates on linnas parem, sest seal on töö ja kool lähedal. Aga maal on vaikne ja ilus, ja seal on rohkem loodust. | In my opinion the city is better, because work and school are close by there. But the country is quiet and beautiful, and there's more nature. | |
+| 2611 | Live scene, learner may pick (compare) | Maal on vaikne ja ilus. | The country is quiet and beautiful. | |
 
 ## 2. Recordings to make
 
@@ -3455,6 +3461,9 @@ give the new take a new id in `lib/audio/native.ts`.
   `õpilane` is right for an adult on a language course, or `õppija` or a job fits better, is the native
   speaker's call. Lesson 15's `Aga mul on laps!` (not recorded) also gives Tom one child where lesson 16 gives
   him two.
+- The `a1-trepil` scene's pick `Ei, ma ei ole eestlane. Ma olen inglane.` reads as a textbook answer; in speech
+  `Ei, ma pole eestlane, olen inglane.`
+- `a1-09`: the sweep removed Tom's line `Mina elan ka siin!`, so its recording is no longer played anywhere.
 
 ### Not recorded yet
 
@@ -4009,10 +4018,10 @@ Peeter to `NATIVE_PARTS` once his lines are in.
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R394 | Conversation, Tom | Ei, on väike. Aga ilus. | No, it's small. But it's nice. | |
+| R394 | Conversation, Tom | Ei, see on väike. Aga ilus. | No, it's small. But it's nice. | |
 | R395 | Conversation, Tom | Köök on väga väike! Aga aken on suur. | The kitchen's really small! But the window's big. | |
-| R396 | Conversation, Tom | Ei, on vana. Aga hea maja! | No, it's old. But it's a good building! | |
-| R397 | Model answer | Ei, on väike, aga ilus. | No, it's small, but nice. | |
+| R396 | Conversation, Tom | Ei, vana. Aga hea maja! | No, it's old. But it's a good building! | |
+| R397 | Model answer | Ei, see on väike, aga ilus. | No, it's small, but nice. | |
 | R398 | Model answer | Kohv on siin kallis. | The coffee here is expensive. | |
 | R399 | Model answer | Ei, see on vana. | No, it's old. | |
 | R400 | Word (word) | väike | small | |
@@ -4657,7 +4666,7 @@ Peeter to `NATIVE_PARTS` once his lines are in.
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
 | R881 | Conversation, Tom | Tere, Peeter! Ma olen su maja ees. Mitmendal korrusel sa elad? | Hi, Peeter! I'm outside your building. Which floor do you live on? | |
-| R882 | Conversation, Peeter | Kolmandal. Korter kaksteist. | The third. Apartment twelve. | |
+| R882 | Conversation, Peeter | Kolmandal korrusel. Korter kaksteist. | On the third floor. Apartment twelve. | |
 | R883 | Conversation, Tom | Kas lift on? | Is there an elevator? | |
 | R884 | Conversation, Peeter | Ei ole. Tule trepist üles. | No. Come up the stairs. | |
 | R885 | Conversation, Tom | Hästi. Mis uks? Esimene paremal? | All right. Which door? The first on the right? | |
@@ -4817,2350 +4826,2352 @@ Peeter to `NATIVE_PARTS` once his lines are in.
 | R1009 | Conversation, Tom | Ma ostsin raamatu ja piima. | I bought a book and some milk. | |
 | R1010 | Conversation, Tom | Ühe eesti raamatu. Ma loen seda bussis. | An Estonian book. I'll read it on the bus. | |
 | R1011 | Conversation, Tom | Natuke. Täna lugesin juba kümme lehekülge. | A bit. I've already read ten pages today. | |
-| R1012 | Model answer | Ma ostsin raamatu. | I bought a book. | |
-| R1013 | Model answer | Ma loen raamatut. | I'm reading a book. | |
-| R1014 | Model answer | Ma ostsin piima. | I bought some milk. | |
-| R1015 | Model answer | Ma ei ostnud raamatut. | I didn't buy a book. | |
-| R1016 | Word (form) | raamatu | a book, the whole of it; of a book | |
-| R1017 | Word (form) | ühe | one, a; of one | |
-| R1018 | Word (form) | seda | it, this, as the thing you're doing | |
-| R1019 | Word (form) | ostnud | bought, after {ei} | |
-| R1020 | Word (word) | iga | every | |
-| R1021 | Word (word) | lehekülg | page | |
-| R1022 | Word (form) | lehekülge | pages, after a number | |
-| R1023 | Word (word) | tubli | good, well done (said to a person) | |
+| R1012 | Conversation, Tom | Nüüd loen iga päev natuke. | Now I'll read a bit every day. | |
+| R1013 | Model answer | Ma ostsin raamatu. | I bought a book. | |
+| R1014 | Model answer | Ma loen raamatut. | I'm reading a book. | |
+| R1015 | Model answer | Ma ostsin piima. | I bought some milk. | |
+| R1016 | Model answer | Ma ei ostnud raamatut. | I didn't buy a book. | |
+| R1017 | Word (form) | raamatu | a book, the whole of it; of a book | |
+| R1018 | Word (form) | ühe | one, a; of one | |
+| R1019 | Word (form) | seda | it, this, as the thing you're doing | |
+| R1020 | Word (form) | ostnud | bought, after {ei} | |
+| R1021 | Word (word) | iga | every | |
+| R1022 | Word (word) | lehekülg | page | |
+| R1023 | Word (form) | lehekülge | pages, after a number | |
+| R1024 | Word (word) | tubli | good, well done (said to a person) | |
 
 #### A2 19. Have you ever been? (`a2-19-been-there`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1024 | Conversation, Tom | Ei ole veel. Aga Tartus olen käinud. | Not yet. But I've been to Tartu. | |
-| R1025 | Conversation, Tom | Jah, mitu korda! See on väga mõnus. | Yes, several times! It's really nice. | |
-| R1026 | Conversation, Tom | Hea meelega! Kas Liis tuleb ka? | I'd love to! Is Liis coming too? | |
-| R1027 | Conversation, Tom | Kahju! Siis järgmisel suvel. | What a pity! Next summer, then. | |
-| R1028 | Model answer | Ei ole veel. | Not yet. | |
-| R1029 | Model answer | Ma olen Tartus käinud. | I've been to Tartu. | |
-| R1030 | Model answer | Jah, mitu korda. | Yes, several times. | |
-| R1031 | Model answer | Hea meelega! | I'd love to! | |
-| R1032 | Word (form) | järgmisel | next, as in next summer | |
-| R1033 | Word (word) | Saaremaa | Saaremaa, Estonia's biggest island | |
-| R1034 | Word (word) | kunagi | ever; after {ei}, never | |
-| R1035 | Word (verb) | proovima | to try | |
-| R1036 | Word (form) | proovinud | tried | |
-| R1037 | Word (form) | näinud | seen | |
-| R1038 | Word (form) | korda | times, after a number | |
-| R1039 | Word (word) | mõnus | nice, pleasant, cozy | |
-| R1040 | Word (phrase) | Kahju! | What a pity! Shame! | |
-| R1041 | Word (word) | kuskil | somewhere; after {ei}, anywhere | |
+| R1025 | Conversation, Tom | Ei ole veel. Aga Tartus olen käinud. | Not yet. But I've been to Tartu. | |
+| R1026 | Conversation, Tom | Jah, mitu korda! See on väga mõnus. | Yes, several times! It's really nice. | |
+| R1027 | Conversation, Tom | Hea meelega! Kas Liis tuleb ka? | I'd love to! Is Liis coming too? | |
+| R1028 | Conversation, Tom | Kahju! Siis järgmisel suvel. | What a pity! Next summer, then. | |
+| R1029 | Model answer | Ei ole veel. | Not yet. | |
+| R1030 | Model answer | Ma olen Tartus käinud. | I've been to Tartu. | |
+| R1031 | Model answer | Jah, mitu korda. | Yes, several times. | |
+| R1032 | Model answer | Hea meelega! | I'd love to! | |
+| R1033 | Word (form) | järgmisel | next, as in next summer | |
+| R1034 | Word (word) | Saaremaa | Saaremaa, Estonia's biggest island | |
+| R1035 | Word (word) | kunagi | ever; after {ei}, never | |
+| R1036 | Word (verb) | proovima | to try | |
+| R1037 | Word (form) | proovinud | tried | |
+| R1038 | Word (form) | näinud | seen | |
+| R1039 | Word (form) | korda | times, after a number | |
+| R1040 | Word (word) | mõnus | nice, pleasant, cozy | |
+| R1041 | Word (phrase) | Kahju! | What a pity! Shame! | |
+| R1042 | Word (word) | kuskil | somewhere; after {ei}, anywhere | |
 
 #### A2 20. First, then, in the end (`a2-20-story`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1042 | Conversation, Tom | Eile oli halb päev. | Yesterday was a bad day. | |
-| R1043 | Conversation, Tom | Kõigepealt ärkasin liiga hilja. | First, I woke up too late. | |
-| R1044 | Conversation, Tom | Siis jooksin bussile, aga buss läks just ära. | Then I ran for the bus, but it had just left. | |
-| R1045 | Conversation, Tom | Pärast seda läksin jalgsi. Jõudsin tööle tund aega hiljem. | After that I walked. I got to work an hour later. | |
-| R1046 | Conversation, Tom | Ei öelnud midagi. Lõpuks oli kõik hästi. | Didn't say a thing. In the end it was all fine. | |
-| R1047 | Model answer | Buss läks just ära. | The bus had just left. | |
-| R1048 | Model answer | Lõpuks oli kõik hästi. | In the end it was all fine. | |
-| R1049 | Word (word) | juhtuma | to happen | |
-| R1050 | Word (form) | juhtus | happened | |
-| R1051 | Word (word) | kõigepealt | first, first of all | |
-| R1052 | Word (word) | lõpuks | in the end, finally | |
-| R1053 | Word (word) | liiga | too (much) | |
-| R1054 | Word (word) | hilja | late | |
-| R1055 | Word (word) | just | just, a moment ago; exactly | |
-| R1056 | Word (form) | ärkasin | I woke up | |
-| R1057 | Word (form) | ärkas | he, she woke up | |
-| R1058 | Word (verb) | jooksma | to run | |
-| R1059 | Word (form) | jooksin | I ran | |
-| R1060 | Word (form) | jooksis | he, she ran | |
-| R1061 | Word (verb) | jõudma | to get there, to arrive | |
-| R1062 | Word (form) | jõudsin | I got there | |
-| R1063 | Word (form) | jõudis | he, she got there | |
-| R1064 | Word (word) | aeg | time | |
-| R1065 | Word (form) | aega | time, as how much of it | |
-| R1066 | Word (word) | kõik | everything; everybody | |
-| R1067 | Word (word) | ülemus | boss | |
-| R1068 | Word (verb) | ütlema | to say | |
-| R1069 | Word (form) | öelnud | said | |
+| R1043 | Conversation, Tom | Eile oli halb päev. | Yesterday was a bad day. | |
+| R1044 | Conversation, Tom | Kõigepealt ärkasin liiga hilja. | First, I woke up too late. | |
+| R1045 | Conversation, Tom | Siis jooksin bussile, aga buss läks just ära. | Then I ran for the bus, but it had just left. | |
+| R1046 | Conversation, Tom | Pärast seda läksin jalgsi. Jõudsin tööle tund aega hiljem. | After that I walked. I got to work an hour later. | |
+| R1047 | Conversation, Tom | Ei öelnud midagi. Lõpuks oli kõik hästi. | Didn't say a thing. In the end it was all fine. | |
+| R1048 | Model answer | Buss läks just ära. | The bus had just left. | |
+| R1049 | Model answer | Lõpuks oli kõik hästi. | In the end it was all fine. | |
+| R1050 | Word (word) | juhtuma | to happen | |
+| R1051 | Word (form) | juhtus | happened | |
+| R1052 | Word (word) | kõigepealt | first, first of all | |
+| R1053 | Word (word) | lõpuks | in the end, finally | |
+| R1054 | Word (word) | liiga | too (much) | |
+| R1055 | Word (word) | hilja | late | |
+| R1056 | Word (word) | just | just, a moment ago; exactly | |
+| R1057 | Word (form) | ärkasin | I woke up | |
+| R1058 | Word (form) | ärkas | he, she woke up | |
+| R1059 | Word (verb) | jooksma | to run | |
+| R1060 | Word (form) | jooksin | I ran | |
+| R1061 | Word (form) | jooksis | he, she ran | |
+| R1062 | Word (verb) | jõudma | to get there, to arrive | |
+| R1063 | Word (form) | jõudsin | I got there | |
+| R1064 | Word (form) | jõudis | he, she got there | |
+| R1065 | Word (word) | aeg | time | |
+| R1066 | Word (form) | aega | time, as how much of it | |
+| R1067 | Word (word) | kõik | everything; everybody | |
+| R1068 | Word (word) | ülemus | boss | |
+| R1069 | Word (verb) | ütlema | to say | |
+| R1070 | Word (form) | öelnud | said | |
 
 #### A2 20a. Born and raised (`a2-20a-life`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1070 | Conversation, Tom | Ma sündisin Inglismaal, ühes väikeses linnas. | I was born in England, in a small town. | |
-| R1071 | Conversation, Tom | Ei. Kui ma olin kümme, kolisime Londonisse. | No. When I was ten, we moved to London. | |
-| R1072 | Conversation, Tom | Viis aastat tagasi. Mu naine töötab siin. | Five years ago. My wife works here. | |
-| R1073 | Model answer | Ma sündisin Inglismaal. | I was born in England. | |
-| R1074 | Model answer | Viis aastat tagasi. | Five years ago. | |
-| R1075 | Model answer | Kui ma olin kümme, kolisime Londonisse. | When I was ten, we moved to London. | |
-| R1076 | Word (verb) | sündima | to be born | |
-| R1077 | Word (form) | sündisin | I was born | |
-| R1078 | Word (form) | sündis | he, she was born | |
-| R1079 | Word (verb) | kasvama | to grow | |
-| R1080 | Word (form) | kasvasin | I grew | |
-| R1081 | Word (form) | kasvas | he, she grew | |
-| R1082 | Word (word) | kui | when; if; than | |
-| R1083 | Word (word) | tagasi | ago; back | |
-| R1084 | Word (form) | väikese | of a small one | |
-| R1085 | Word (word) | elu | life | |
+| R1071 | Conversation, Tom | Ma sündisin Inglismaal, ühes väikeses linnas. | I was born in England, in a small town. | |
+| R1072 | Conversation, Tom | Ei. Kui ma olin kümme, kolisime Londonisse. | No. When I was ten, we moved to London. | |
+| R1073 | Conversation, Tom | Viis aastat tagasi. Mu naine töötab siin. | Five years ago. My wife works here. | |
+| R1074 | Model answer | Ma sündisin Inglismaal. | I was born in England. | |
+| R1075 | Model answer | Viis aastat tagasi. | Five years ago. | |
+| R1076 | Model answer | Kui ma olin kümme, kolisime Londonisse. | When I was ten, we moved to London. | |
+| R1077 | Word (verb) | sündima | to be born | |
+| R1078 | Word (form) | sündisin | I was born | |
+| R1079 | Word (form) | sündis | he, she was born | |
+| R1080 | Word (verb) | kasvama | to grow | |
+| R1081 | Word (form) | kasvasin | I grew | |
+| R1082 | Word (form) | kasvas | he, she grew | |
+| R1083 | Word (word) | kui | when; if; than | |
+| R1084 | Word (word) | tagasi | ago; back | |
+| R1085 | Word (form) | väikese | of a small one | |
+| R1086 | Word (word) | elu | life | |
 
 #### A2 21. How was your summer? (`a2-21-summer`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1086 | Conversation, Tom | Väga hea! Ma käisin Saaremaal. | Really good! I went to Saaremaa. | |
-| R1087 | Conversation, Tom | Olin sõbra juures maal. Käisime saunas ja sõime palju kala. | I stayed at a friend's in the country. We went to the sauna and ate lots of fish. | |
-| R1088 | Conversation, Tom | Ei, see oli esimene kord. Ja sina? Mida sa suvel tegid? | No, it was the first time. And you? What did you do in the summer? | |
-| R1089 | Conversation, Tom | Kahju! Tule järgmisel suvel ka! | Shame! Come along next summer! | |
-| R1090 | Model answer | Me käisime saunas ja sõime palju kala. | We went to the sauna and ate lots of fish. | |
-| R1091 | Model answer | Ei, see oli esimene kord. | No, it was the first time. | |
-| R1092 | Model answer | Ei, see oli esimene kord. Mida sa suvel tegid? | No, it was the first time. What did you do in the summer? | |
-| R1093 | Model answer | Kahju! | Shame! | |
+| R1087 | Conversation, Tom | Väga hea! Ma käisin Saaremaal. | Really good! I went to Saaremaa. | |
+| R1088 | Conversation, Tom | Olin sõbra juures maal. Käisime saunas ja sõime palju kala. | I stayed at a friend's in the country. We went to the sauna and ate lots of fish. | |
+| R1089 | Conversation, Tom | Ei, see oli esimene kord. Ja sina? Mida sa suvel tegid? | No, it was the first time. And you? What did you do in the summer? | |
+| R1090 | Conversation, Tom | Kahju! Tule järgmisel suvel ka! | Shame! Come along next summer! | |
+| R1091 | Model answer | Me käisime saunas ja sõime palju kala. | We went to the sauna and ate lots of fish. | |
+| R1092 | Model answer | Ei, see oli esimene kord. | No, it was the first time. | |
+| R1093 | Model answer | Ei, see oli esimene kord. Mida sa suvel tegid? | No, it was the first time. What did you do in the summer? | |
+| R1094 | Model answer | Kahju! | Shame! | |
 
 #### A2 22. Hands, feet and eyes (`a2-22-body`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1094 | Conversation, Tom | Halvasti. Mul valutavad jalad. | Badly. My legs hurt. | |
-| R1095 | Conversation, Tom | Ma jooksin eile palju. | I ran a lot yesterday. | |
-| R1096 | Conversation, Tom | Ei valuta. Aga selg ja kael valutavad. | No, they don't. But my back and neck do. | |
-| R1097 | Conversation, Tom | Jah. Täna ma ei jookse. | Yes. I'm not running today. | |
-| R1098 | Model answer | Ei valuta. | No, they don't. | |
-| R1099 | Model answer | Mul valutavad silmad. | My eyes hurt. | |
-| R1100 | Model answer | Sa pead puhkama! | You need to rest! | |
-| R1101 | Word (word) | käsi | hand, arm | |
-| R1102 | Word (form) | käe | of the hand | |
-| R1103 | Word (form) | käed | hands, arms | |
-| R1104 | Word (word) | jalg | foot, leg | |
-| R1105 | Word (form) | jala | of the foot | |
-| R1106 | Word (form) | jalad | feet, legs | |
-| R1107 | Word (word) | silm | eye | |
-| R1108 | Word (form) | silma | of the eye | |
-| R1109 | Word (form) | silmad | eyes | |
-| R1110 | Word (word) | kõrv | ear | |
-| R1111 | Word (form) | kõrvad | ears | |
-| R1112 | Word (word) | hammas | tooth | |
-| R1113 | Word (form) | hamba | of the tooth | |
-| R1114 | Word (form) | hambad | teeth | |
-| R1115 | Word (word) | kael | neck | |
-| R1116 | Word (word) | nina | nose | |
-| R1117 | Word (form) | valutavad | hurt, when it's more than one | |
-| R1118 | Word (verb) | puhkama | to rest | |
+| R1095 | Conversation, Tom | Halvasti. Mul valutavad jalad. | Badly. My legs hurt. | |
+| R1096 | Conversation, Tom | Ma jooksin eile palju. | I ran a lot yesterday. | |
+| R1097 | Conversation, Tom | Ei valuta. Aga selg ja kael valutavad. | No, they don't. But my back and neck do. | |
+| R1098 | Conversation, Tom | Jah. Täna ma ei jookse. | Yes. I'm not running today. | |
+| R1099 | Model answer | Ei valuta. | No, they don't. | |
+| R1100 | Model answer | Mul valutavad silmad. | My eyes hurt. | |
+| R1101 | Model answer | Sa pead puhkama! | You need to rest! | |
+| R1102 | Word (word) | käsi | hand, arm | |
+| R1103 | Word (form) | käe | of the hand | |
+| R1104 | Word (form) | käed | hands, arms | |
+| R1105 | Word (word) | jalg | foot, leg | |
+| R1106 | Word (form) | jala | of the foot | |
+| R1107 | Word (form) | jalad | feet, legs | |
+| R1108 | Word (word) | silm | eye | |
+| R1109 | Word (form) | silma | of the eye | |
+| R1110 | Word (form) | silmad | eyes | |
+| R1111 | Word (word) | kõrv | ear | |
+| R1112 | Word (form) | kõrvad | ears | |
+| R1113 | Word (word) | hammas | tooth | |
+| R1114 | Word (form) | hamba | of the tooth | |
+| R1115 | Word (form) | hambad | teeth | |
+| R1116 | Word (word) | kael | neck | |
+| R1117 | Word (word) | nina | nose | |
+| R1118 | Word (form) | valutavad | hurt, when it's more than one | |
+| R1119 | Word (verb) | puhkama | to rest | |
 
 #### A2 23. An appointment (`a2-23-appointment`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1119 | Conversation, Tom | Tere! Ma tahaksin aega perearsti juurde. | Hello! I'd like an appointment with my family doctor. | |
-| R1120 | Conversation, Tom | Mul on köha ja nohu. Ja kurk valutab. | I have a cough and a runny nose. And my throat hurts. | |
-| R1121 | Conversation, Tom | Eile õhtul. | Yesterday evening. | |
-| R1122 | Conversation, Tom | Kahjuks ei sobi, ma olen tööl. Kas pärastlõunal on aega? | Unfortunately not, I'm at work. Is there time in the afternoon? | |
-| R1123 | Conversation, Tom | Sobib, aitäh! | That works, thank you! | |
-| R1124 | Model answer | Mul on köha ja kurk valutab. | I have a cough and my throat hurts. | |
-| R1125 | Model answer | Jah, sobib. | Yes, that suits me. | |
-| R1126 | Model answer | Kas pärastlõunal on aega? | Is there time in the afternoon? | |
-| R1127 | Word (word) | tervisekeskus | health center | |
-| R1128 | Word (form) | tahaksin | I would like | |
-| R1129 | Word (word) | perearst | family doctor, GP | |
-| R1130 | Word (form) | perearsti | of the family doctor | |
-| R1131 | Word (word) | köha | a cough | |
-| R1132 | Word (word) | nohu | a runny nose, a cold in the head | |
-| R1133 | Word (word) | kurk | throat | |
-| R1134 | Word (verb) | algama | to start, to begin | |
-| R1135 | Word (form) | algas | it started | |
-| R1136 | Word (verb) | sobima | to suit, to be all right | |
-| R1137 | Word (word) | pärastlõunal | in the afternoon | |
-| R1138 | Word (word) | vaba | free | |
+| R1120 | Conversation, Tom | Tere! Ma tahaksin aega perearsti juurde. | Hello! I'd like an appointment with my family doctor. | |
+| R1121 | Conversation, Tom | Mul on köha ja nohu. Ja kurk valutab. | I have a cough and a runny nose. And my throat hurts. | |
+| R1122 | Conversation, Tom | Eile õhtul. | Yesterday evening. | |
+| R1123 | Conversation, Tom | Kahjuks ei sobi, ma olen tööl. Kas pärastlõunal on aega? | Unfortunately not, I'm at work. Is there time in the afternoon? | |
+| R1124 | Conversation, Tom | Sobib, aitäh! | That works, thank you! | |
+| R1125 | Model answer | Mul on köha ja kurk valutab. | I have a cough and my throat hurts. | |
+| R1126 | Model answer | Jah, sobib. | Yes, that suits me. | |
+| R1127 | Model answer | Kas pärastlõunal on aega? | Is there time in the afternoon? | |
+| R1128 | Word (word) | tervisekeskus | health center | |
+| R1129 | Word (form) | tahaksin | I would like | |
+| R1130 | Word (word) | perearst | family doctor, GP | |
+| R1131 | Word (form) | perearsti | of the family doctor | |
+| R1132 | Word (word) | köha | a cough | |
+| R1133 | Word (word) | nohu | a runny nose, a cold in the head | |
+| R1134 | Word (word) | kurk | throat | |
+| R1135 | Word (verb) | algama | to start, to begin | |
+| R1136 | Word (form) | algas | it started | |
+| R1137 | Word (verb) | sobima | to suit, to be all right | |
+| R1138 | Word (word) | pärastlõunal | in the afternoon | |
+| R1139 | Word (word) | vaba | free | |
 
 #### A2 24. At the pharmacy (`a2-24-pharmacy`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1139 | Conversation, Tom | Ma olen külmetunud. Kas teil on midagi köha vastu? | I've caught a cold. Do you have anything for a cough? | |
-| R1140 | Conversation, Tom | Kas neid saab ilma retseptita? | Can I get them without a prescription? | |
-| R1141 | Conversation, Tom | Aga nohu vastu? | And for a runny nose? | |
-| R1142 | Conversation, Tom | Aitäh, ma võtan need. | Thank you, I'll take them. | |
-| R1143 | Model answer | Ei, piimata. | No, without milk. | |
-| R1144 | Word (word) | külmetunud | having caught a cold | |
-| R1145 | Word (word) | vastu | against; for an illness, after its name | |
-| R1146 | Word (word) | tablett | tablet, pill | |
-| R1147 | Word (form) | tabletid | tablets | |
-| R1148 | Word (form) | võtke | take!, polite | |
-| R1149 | Word (form) | päevas | a day, as in three times a day | |
-| R1150 | Word (form) | need | these, they, more than one | |
-| R1151 | Word (form) | neid | them, these, as an object | |
-| R1152 | Word (word) | ilma | without | |
-| R1153 | Word (word) | retsept | prescription | |
-| R1154 | Word (form) | retsepti | of the prescription | |
-| R1155 | Word (word) | ninatilgad | nose drops | |
-| R1156 | Word (form) | piima | of the milk | |
-| R1157 | Word (form) | kohvi | of the coffee | |
-| R1158 | Word (form) | kaardi | of the card | |
+| R1140 | Conversation, Tom | Ma olen külmetunud. Kas teil on midagi köha vastu? | I've caught a cold. Do you have anything for a cough? | |
+| R1141 | Conversation, Tom | Kas neid saab ilma retseptita? | Can I get them without a prescription? | |
+| R1142 | Conversation, Tom | Aga midagi nohu vastu? | And something for a runny nose? | |
+| R1143 | Conversation, Tom | Aitäh, ma võtan need. | Thank you, I'll take them. | |
+| R1144 | Model answer | Ei, piimata. | No, without milk. | |
+| R1145 | Word (word) | külmetunud | having caught a cold | |
+| R1146 | Word (word) | vastu | against; for an illness, after its name | |
+| R1147 | Word (word) | tablett | tablet, pill | |
+| R1148 | Word (form) | tabletid | tablets | |
+| R1149 | Word (form) | võtke | take!, polite | |
+| R1150 | Word (form) | päevas | a day, as in three times a day | |
+| R1151 | Word (form) | need | these, they, more than one | |
+| R1152 | Word (form) | neid | them, these, as an object | |
+| R1153 | Word (word) | ilma | without | |
+| R1154 | Word (word) | retsept | prescription | |
+| R1155 | Word (form) | retsepti | of the prescription | |
+| R1156 | Word (word) | ninatilgad | nose drops | |
+| R1157 | Word (form) | piima | of the milk | |
+| R1158 | Word (form) | kohvi | of the coffee | |
+| R1159 | Word (form) | kaardi | of the card | |
 
 #### A2 25. How do you feel? (`a2-25-feelings`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1159 | Model answer | Ma olen väsinud ja natuke kurb. | I'm tired and a bit sad. | |
-| R1160 | Model answer | Ära muretse! Kõik läheb hästi. | Stop worrying! Everything will be fine. | |
-| R1161 | Model answer | Jah, olen küll. | Yes, I really am. | |
-| R1162 | Model answer | Loodan küll. | I really hope so. | |
-| R1163 | Word (phrase) | Mis sul on? | What's wrong? What's up with you? | |
-| R1164 | Word (word) | nii | so | |
-| R1165 | Word (word) | vaikne | quiet | |
-| R1166 | Word (word) | väsinud | tired | |
-| R1167 | Word (word) | kurb | sad | |
-| R1168 | Word (word) | rõõmus | glad, happy, cheerful | |
-| R1169 | Word (word) | õnnelik | happy, the deep kind | |
-| R1170 | Word (word) | vihane | angry | |
-| R1171 | Word (word) | mure | a worry, a trouble | |
-| R1172 | Word (form) | muret | worries, after {palju} | |
-| R1173 | Word (verb) | muretsema | to worry | |
-| R1174 | Word (form) | ära | don't!, to one person | |
-| R1175 | Word (verb) | lootma | to hope | |
-| R1176 | Word (word) | küll | indeed, really; it makes a yes warmer | |
-| R1177 | Word (word) | jälle | again | |
+| R1160 | Model answer | Ma olen väsinud ja natuke kurb. | I'm tired and a bit sad. | |
+| R1161 | Model answer | Ära muretse! Kõik läheb hästi. | Stop worrying! Everything will be fine. | |
+| R1162 | Model answer | Jah, olen küll. | Yes, I really am. | |
+| R1163 | Model answer | Loodan küll. | I really hope so. | |
+| R1164 | Word (phrase) | Mis sul on? | What's wrong? What's up with you? | |
+| R1165 | Word (word) | nii | so | |
+| R1166 | Word (word) | vaikne | quiet | |
+| R1167 | Word (word) | väsinud | tired | |
+| R1168 | Word (word) | kurb | sad | |
+| R1169 | Word (word) | rõõmus | glad, happy, cheerful | |
+| R1170 | Word (word) | õnnelik | happy, the deep kind | |
+| R1171 | Word (word) | vihane | angry | |
+| R1172 | Word (word) | mure | a worry, a trouble | |
+| R1173 | Word (form) | muret | worries, after {palju} | |
+| R1174 | Word (verb) | muretsema | to worry | |
+| R1175 | Word (form) | ära | don't!, to one person | |
+| R1176 | Word (verb) | lootma | to hope | |
+| R1177 | Word (word) | küll | indeed, really; it makes a yes warmer | |
+| R1178 | Word (word) | jälle | again | |
 
 #### A2 26. What you may and mustn't do (`a2-26-advice`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1178 | Conversation, Peeter | Teil on gripp. | You have the flu. | |
-| R1179 | Conversation, Tom | Mida ma pean tegema? | What do I have to do? | |
-| R1180 | Conversation, Peeter | Te peate kolm päeva voodis olema. Jooge palju teed. | You have to stay in bed for three days. Drink lots of tea. | |
-| R1181 | Conversation, Tom | Kas ma tohin tööle minna? | Am I allowed to go to work? | |
-| R1182 | Conversation, Peeter | Ei, ei tohi. Ärge minge tööle. | No, you mustn't. Don't go to work. | |
-| R1183 | Conversation, Tom | Kas ma võin sporti teha? | Can I play sports? | |
-| R1184 | Conversation, Peeter | Nädala pärast võite. | In a week you can. | |
-| R1185 | Conversation, Tom | Aitäh, doktor! | Thank you, doctor! | |
-| R1186 | Model answer | Ei, te ei tohi. | No, you mustn't. | |
-| R1187 | Model answer | Ärge minge tööle. | Don't go to work. | |
-| R1188 | Word (word) | gripp | the flu | |
-| R1189 | Word (verb) | tohtima | to be allowed to | |
-| R1190 | Word (verb) | võima | can, may | |
-| R1191 | Word (form) | ärge | don't!, polite or to two or more | |
-| R1192 | Word (word) | sport | sport, exercise | |
-| R1193 | Word (form) | sporti | sport, as an object | |
-| R1194 | Word (word) | doktor | doctor, said to one | |
+| R1179 | Conversation, Peeter | Teil on gripp. | You have the flu. | |
+| R1180 | Conversation, Tom | Mida ma pean tegema? | What do I have to do? | |
+| R1181 | Conversation, Peeter | Te peate kolm päeva voodis olema. Jooge palju teed. | You have to stay in bed for three days. Drink lots of tea. | |
+| R1182 | Conversation, Tom | Kas ma tohin tööle minna? | Am I allowed to go to work? | |
+| R1183 | Conversation, Peeter | Ei, ei tohi. Ärge minge tööle. | No, you mustn't. Don't go to work. | |
+| R1184 | Conversation, Tom | Kas ma võin sporti teha? | Can I play sports? | |
+| R1185 | Conversation, Peeter | Nädala pärast võite. | In a week you can. | |
+| R1186 | Conversation, Tom | Aitäh, doktor! | Thank you, doctor! | |
+| R1187 | Model answer | Ei, ei tohi. | No, you mustn't. | |
+| R1188 | Model answer | Ärge minge tööle. | Don't go to work. | |
+| R1189 | Word (word) | gripp | the flu | |
+| R1190 | Word (verb) | tohtima | to be allowed to | |
+| R1191 | Word (verb) | võima | can, may | |
+| R1192 | Word (form) | ärge | don't!, polite or to two or more | |
+| R1193 | Word (word) | sport | sport, exercise | |
+| R1194 | Word (form) | sporti | sport, as an object | |
+| R1195 | Word (word) | doktor | doctor, said to one | |
 
 #### A2 27. A visit to the doctor (`a2-27-doctor`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1195 | Conversation, Peeter | Tere! Mis teil viga on? | Hello! What's the matter? | |
-| R1196 | Conversation, Tom | Tere! Mul valutab kurk ja on palavik. | Hello! My throat hurts and I have a temperature. | |
-| R1197 | Conversation, Peeter | Millal see algas? | When did it start? | |
-| R1198 | Conversation, Tom | Eile hommikul. Ma olen väga väsinud. | Yesterday morning. I'm very tired. | |
-| R1199 | Conversation, Peeter | Kas teil on köha ka? | Do you have a cough too? | |
-| R1200 | Conversation, Tom | Natuke. Kas ma tohin homme tööle minna? | A little. Am I allowed to go to work tomorrow? | |
-| R1201 | Conversation, Peeter | Ei, te peate puhkama. Ma kirjutan teile retsepti. | No, you have to rest. I'll write you a prescription. | |
-| R1202 | Conversation, Tom | Aitäh, doktor! | Thank you, doctor! | |
-| R1203 | Model answer | Mul valutab kurk ja on palavik. | My throat hurts and I have a temperature. | |
-| R1204 | Model answer | Eile hommikul. | Yesterday morning. | |
-| R1205 | Model answer | Kas ma tohin homme tööle minna? | Am I allowed to go to work tomorrow? | |
-| R1206 | Model answer | Tere! Mul valutab kurk. | Hello! My throat hurts. | |
-| R1207 | Model answer | Jah, natuke. Ma olen väga väsinud. | Yes, a little. I'm very tired. | |
-| R1208 | Model answer | Kas ma tohin tööle minna? | Am I allowed to go to work? | |
+| R1196 | Conversation, Peeter | Tere! Mis teil viga on? | Hello! What's the matter? | |
+| R1197 | Conversation, Tom | Tere! Mul valutab kurk ja on palavik. | Hello! My throat hurts and I have a temperature. | |
+| R1198 | Conversation, Peeter | Millal see algas? | When did it start? | |
+| R1199 | Conversation, Tom | Eile hommikul. Ma olen väga väsinud. | Yesterday morning. I'm very tired. | |
+| R1200 | Conversation, Peeter | Kas teil on köha ka? | Do you have a cough too? | |
+| R1201 | Conversation, Tom | Natuke. Kas ma tohin homme tööle minna? | A little. Am I allowed to go to work tomorrow? | |
+| R1202 | Conversation, Peeter | Ei, te peate puhkama. Ma kirjutan teile retsepti. | No, you have to rest. I'll write you a prescription. | |
+| R1203 | Conversation, Tom | Aitäh, doktor! | Thank you, doctor! | |
+| R1204 | Model answer | Mul valutab kurk ja on palavik. | My throat hurts and I have a temperature. | |
+| R1205 | Model answer | Eile hommikul. | Yesterday morning. | |
+| R1206 | Model answer | Kas ma tohin homme tööle minna? | Am I allowed to go to work tomorrow? | |
+| R1207 | Model answer | Tere! Mul valutab kurk. | Hello! My throat hurts. | |
+| R1208 | Model answer | Jah, natuke. Ma olen väga väsinud. | Yes, a little. I'm very tired. | |
+| R1209 | Model answer | Kas ma tohin tööle minna? | Am I allowed to go to work? | |
 
 #### A2 28. At the station (`a2-28-station`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1209 | Conversation, Tom | Tere! Üks pilet Tartusse, palun. | Hello! One ticket to Tartu, please. | |
-| R1210 | Conversation, Tom | Edasi-tagasi. Mis kell rong läheb? | Round trip. What time does the train leave? | |
-| R1211 | Conversation, Tom | Ja mis kell see Tartus on? | And what time does it get to Tartu? | |
-| R1212 | Conversation, Tom | Kui palju see maksab? | How much is it? | |
-| R1213 | Model answer | Üks pilet Tartusse, palun. | One ticket to Tartu, please. | |
-| R1214 | Model answer | Edasi-tagasi, palun. | Round trip, please. | |
-| R1215 | Model answer | Mis kell rong läheb? | What time does the train leave? | |
-| R1216 | Word (phrase) | ühe otsa | one way | |
-| R1217 | Word (phrase) | edasi-tagasi | there and back, return | |
-| R1218 | Word (verb) | väljuma | to leave, to depart | |
-| R1219 | Word (verb) | saabuma | to arrive | |
-| R1220 | Word (word) | platvorm | platform | |
-| R1221 | Word (form) | platvormilt | from the platform | |
-| R1222 | Word (word) | jaam | station | |
-| R1223 | Word (form) | jaama | of the station | |
-| R1224 | Word (form) | rongi | of the train | |
+| R1210 | Conversation, Tom | Tere! Üks pilet Tartusse, palun. | Hello! One ticket to Tartu, please. | |
+| R1211 | Conversation, Tom | Edasi-tagasi. Mis kell rong läheb? | Round trip. What time does the train leave? | |
+| R1212 | Conversation, Tom | Ja mis kell see Tartus on? | And what time does it get to Tartu? | |
+| R1213 | Conversation, Tom | Kui palju see maksab? | How much is it? | |
+| R1214 | Model answer | Üks pilet Tartusse, palun. | One ticket to Tartu, please. | |
+| R1215 | Model answer | Edasi-tagasi, palun. | Round trip, please. | |
+| R1216 | Model answer | Mis kell rong läheb? | What time does the train leave? | |
+| R1217 | Word (phrase) | ühe otsa | one way | |
+| R1218 | Word (phrase) | edasi-tagasi | there and back, return | |
+| R1219 | Word (verb) | väljuma | to leave, to depart | |
+| R1220 | Word (verb) | saabuma | to arrive | |
+| R1221 | Word (word) | platvorm | platform | |
+| R1222 | Word (form) | platvormilt | from the platform | |
+| R1223 | Word (word) | jaam | station | |
+| R1224 | Word (form) | jaama | of the station | |
+| R1225 | Word (form) | rongi | of the train | |
 
 #### A2 29. Until Friday (`a2-29-until`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1225 | Conversation, Tom | Reedeni. Töötan seal esmaspäevast reedeni. | Until Friday. I'm working there from Monday to Friday. | |
-| R1226 | Conversation, Tom | Jah, aga mina lähen jalgsi. | Yes, but I'm going on foot. | |
-| R1227 | Conversation, Tom | Laupäeval. Reedel olen kontoris kella viieni. | On Saturday. On Friday I'm at the office until five. | |
-| R1228 | Model answer | Reedeni. | Until Friday. | |
-| R1229 | Model answer | Ma töötan esmaspäevast reedeni. | I work from Monday to Friday. | |
-| R1230 | Model answer | Ma olen kontoris kella viieni. | I'm at the office until five. | |
-| R1231 | Model answer | Head reisi! | Have a good trip! | |
-| R1232 | Word (form) | reede | of Friday | |
-| R1233 | Word (form) | esmaspäeva | of Monday | |
-| R1234 | Word (form) | kella | of the clock | |
-| R1235 | Word (form) | viie | of five | |
-| R1236 | Word (word) | kuni | until, up to | |
-| R1237 | Word (word) | Tartu | Tartu, the university town | |
-| R1238 | Word (word) | kontor | office | |
-| R1239 | Word (form) | kontori | of the office | |
+| R1226 | Conversation, Tom | Reedeni. Töötan seal esmaspäevast reedeni. | Until Friday. I'm working there from Monday to Friday. | |
+| R1227 | Conversation, Tom | Jah, aga mina lähen jalgsi. | Yes, but I'm going on foot. | |
+| R1228 | Conversation, Tom | Laupäeval. Reedel olen kontoris kella viieni. | On Saturday. On Friday I'm at the office until five. | |
+| R1229 | Model answer | Reedeni. | Until Friday. | |
+| R1230 | Model answer | Ma töötan esmaspäevast reedeni. | I work from Monday to Friday. | |
+| R1231 | Model answer | Ma olen kontoris kella viieni. | I'm at the office until five. | |
+| R1232 | Model answer | Head reisi! | Have a good trip! | |
+| R1233 | Word (form) | reede | of Friday | |
+| R1234 | Word (form) | esmaspäeva | of Monday | |
+| R1235 | Word (form) | kella | of the clock | |
+| R1236 | Word (form) | viie | of five | |
+| R1237 | Word (word) | kuni | until, up to | |
+| R1238 | Word (word) | Tartu | Tartu, the university town | |
+| R1239 | Word (word) | kontor | office | |
+| R1240 | Word (form) | kontori | of the office | |
 
 #### A2 30. At a hotel (`a2-30-hotel`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1240 | Conversation, Tom | Tere! Mul on broneering, Tom Smith. | Hello! I have a booking, Tom Smith. | |
-| R1241 | Conversation, Tom | Jah, kaks ööd. | Yes, two nights. | |
-| R1242 | Conversation, Tom | Aitäh. Mis kell on hommikusöök? | Thank you. What time is breakfast? | |
-| R1243 | Conversation, Tom | Kas toas on wifi? | Is there wifi in the room? | |
-| R1244 | Model answer | Tere! Mul on broneering. | Hello! I have a booking. | |
-| R1245 | Model answer | Mis kell on hommikusöök? | What time is breakfast? | |
-| R1246 | Word (word) | broneering | booking, reservation | |
-| R1247 | Word (form) | ööd | nights, after a number | |
-| R1248 | Word (word) | eks | right?, isn't it? at the end of a sentence | |
-| R1249 | Word (word) | hommikusöök | breakfast | |
-| R1250 | Word (form) | seitsme | of seven | |
-| R1251 | Word (word) | wifi | wifi | |
-| R1252 | Word (word) | tasuta | free, costing nothing | |
+| R1241 | Conversation, Tom | Tere! Mul on broneering, Tom Smith. | Hello! I have a booking, Tom Smith. | |
+| R1242 | Conversation, Tom | Jah, kaks ööd. | Yes, two nights. | |
+| R1243 | Conversation, Tom | Aitäh. Mis kell on hommikusöök? | Thank you. What time is breakfast? | |
+| R1244 | Conversation, Tom | Kas toas on wifi? | Is there wifi in the room? | |
+| R1245 | Model answer | Tere! Mul on broneering. | Hello! I have a booking. | |
+| R1246 | Model answer | Mis kell on hommikusöök? | What time is breakfast? | |
+| R1247 | Word (word) | broneering | booking, reservation | |
+| R1248 | Word (form) | ööd | nights, after a number | |
+| R1249 | Word (word) | eks | right?, isn't it? at the end of a sentence | |
+| R1250 | Word (word) | hommikusöök | breakfast | |
+| R1251 | Word (form) | seitsme | of seven | |
+| R1252 | Word (word) | wifi | wifi | |
+| R1253 | Word (word) | tasuta | free, costing nothing | |
 
 #### A2 31. A weekend in Tartu (`a2-31-trip`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1253 | Conversation, Tom | Väga tore! Sõitsime rongiga Tartusse, sõit kestis kaks tundi. | Really nice! We went to Tartu by train, and the journey took two hours. | |
-| R1254 | Conversation, Tom | Väikeses hotellis kesklinnas. | In a small hotel in the town center. | |
-| R1255 | Conversation, Tom | Käisime ülikoolis ja muuseumis. Õhtul sõime restoranis. | We went to the university and a museum. In the evening we ate at a restaurant. | |
-| R1256 | Conversation, Tom | Ei, bussiga. Rong hilines. | No, by bus. The train was late. | |
-| R1257 | Model answer | Väga tore! Sõitsime rongiga Tartusse. | Really nice! We went to Tartu by train. | |
-| R1258 | Model answer | Väikeses hotellis. | In a small hotel. | |
-| R1259 | Model answer | Käisime muuseumis. | We went to a museum. | |
-| R1260 | Model answer | Rong hilines. | The train was late. | |
-| R1261 | Word (word) | reis | trip, journey | |
-| R1262 | Word (word) | sõit | a ride, the journey itself | |
-| R1263 | Word (form) | tundi | hours, after a number | |
-| R1264 | Word (form) | sõitsin | I traveled, I drove | |
-| R1265 | Word (form) | sõitis | he, she traveled | |
-| R1266 | Word (verb) | kestma | to last, to take (time) | |
-| R1267 | Word (form) | kestis | it lasted | |
-| R1268 | Word (verb) | ööbima | to stay the night | |
-| R1269 | Word (form) | ööbisin | I stayed the night | |
-| R1270 | Word (form) | ööbis | he, she stayed the night | |
-| R1271 | Word (word) | muuseum | museum | |
-| R1272 | Word (form) | muuseumi | of the museum | |
-| R1273 | Word (verb) | hilinema | to be late | |
-| R1274 | Word (form) | hilines | he, she, it was late | |
-| R1275 | Word (form) | hotelli | of the hotel | |
+| R1254 | Conversation, Tom | Väga tore! Sõitsime rongiga Tartusse, sõit kestis kaks tundi. | Really nice! We went to Tartu by train, and the journey took two hours. | |
+| R1255 | Conversation, Tom | Väikeses hotellis kesklinnas. | In a small hotel in the town center. | |
+| R1256 | Conversation, Tom | Käisime ülikoolis ja muuseumis. Õhtul sõime restoranis. | We went to the university and a museum. In the evening we ate at a restaurant. | |
+| R1257 | Conversation, Tom | Ei, bussiga. Rong hilines. | No, by bus. The train was late. | |
+| R1258 | Model answer | Väga tore! Sõitsime rongiga Tartusse. | Really nice! We went to Tartu by train. | |
+| R1259 | Model answer | Väikeses hotellis. | In a small hotel. | |
+| R1260 | Model answer | Käisime muuseumis. | We went to a museum. | |
+| R1261 | Model answer | Rong hilines. | The train was late. | |
+| R1262 | Word (word) | reis | trip, journey | |
+| R1263 | Word (word) | sõit | a ride, the journey itself | |
+| R1264 | Word (form) | tundi | hours, after a number | |
+| R1265 | Word (form) | sõitsin | I traveled, I drove | |
+| R1266 | Word (form) | sõitis | he, she traveled | |
+| R1267 | Word (verb) | kestma | to last, to take (time) | |
+| R1268 | Word (form) | kestis | it lasted | |
+| R1269 | Word (verb) | ööbima | to stay the night | |
+| R1270 | Word (form) | ööbisin | I stayed the night | |
+| R1271 | Word (form) | ööbis | he, she stayed the night | |
+| R1272 | Word (word) | muuseum | museum | |
+| R1273 | Word (form) | muuseumi | of the museum | |
+| R1274 | Word (verb) | hilinema | to be late | |
+| R1275 | Word (form) | hilines | he, she, it was late | |
+| R1276 | Word (form) | hotelli | of the hotel | |
 
 #### A2 32. How far is it? (`a2-32-far`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1276 | Conversation, Tom | Kui kaugel Pärnu on? | How far is Pärnu? | |
-| R1277 | Conversation, Tom | Kas sinna saab bussiga? | Can you get there by bus? | |
-| R1278 | Conversation, Tom | Milline linn Pärnu on? | What kind of town is it? | |
-| R1279 | Conversation, Tom | Suvel lähen kindlasti! | I'll definitely go in the summer! | |
-| R1280 | Model answer | Umbes kaks tundi. | About two hours. | |
-| R1281 | Model answer | Mere ääres. | By the sea. | |
-| R1282 | Word (word) | Pärnu | Pärnu, a town by the sea | |
-| R1283 | Word (form) | Tallinnast | from Tallinn | |
-| R1284 | Word (word) | umbes | about, roughly | |
-| R1285 | Word (word) | milline | which, what kind of | |
-| R1286 | Word (word) | kilomeeter | kilometer | |
-| R1287 | Word (form) | kilomeetrit | kilometers, after a number | |
-| R1288 | Word (word) | meri | sea | |
-| R1289 | Word (form) | mere | of the sea | |
-| R1290 | Word (word) | ääres | by, at the edge of | |
+| R1277 | Conversation, Tom | Kui kaugel Pärnu on? | How far is Pärnu? | |
+| R1278 | Conversation, Tom | Kas sinna saab bussiga? | Can you get there by bus? | |
+| R1279 | Conversation, Tom | Milline linn Pärnu on? | What kind of town is it? | |
+| R1280 | Conversation, Tom | Suvel lähen kindlasti! | I'll definitely go in the summer! | |
+| R1281 | Model answer | Umbes kaks tundi. | About two hours. | |
+| R1282 | Model answer | Mere ääres. | By the sea. | |
+| R1283 | Word (word) | Pärnu | Pärnu, a town by the sea | |
+| R1284 | Word (form) | Tallinnast | from Tallinn | |
+| R1285 | Word (word) | umbes | about, roughly | |
+| R1286 | Word (word) | milline | which, what kind of | |
+| R1287 | Word (word) | kilomeeter | kilometer | |
+| R1288 | Word (form) | kilomeetrit | kilometers, after a number | |
+| R1289 | Word (word) | meri | sea | |
+| R1290 | Word (form) | mere | of the sea | |
+| R1291 | Word (word) | ääres | by, at the edge of | |
 
 #### A2 33. By boat and by plane (`a2-33-boat`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1291 | Conversation, Tom | Laevaga. Laev läheb kell üheksa. | By boat. The ferry leaves at nine. | |
-| R1292 | Conversation, Tom | Ma lendan. Lennuk läheb hommikul kell kuus. | I'm flying. The plane leaves at six in the morning. | |
-| R1293 | Conversation, Tom | Ma tean. Pass ja kohver on juba valmis. | I know. My passport and suitcase are ready already. | |
-| R1294 | Model answer | Laevaga. | By boat. | |
-| R1295 | Model answer | Lennuk väljub hommikul kell kuus. | The plane leaves at six in the morning. | |
-| R1296 | Model answer | Jah, pass ja kohver on valmis. | Yes, my passport and suitcase are ready. | |
-| R1297 | Model answer | Ma pean kell neli lennujaamas olema. | I have to be at the airport at four. | |
-| R1298 | Word (word) | Helsingi | Helsinki | |
-| R1299 | Word (word) | laev | ship, ferry | |
-| R1300 | Word (form) | laeva | of the ship | |
-| R1301 | Word (word) | sadam | port, harbor | |
-| R1302 | Word (form) | sadama | of the port | |
-| R1303 | Word (verb) | lendama | to fly | |
-| R1304 | Word (word) | lennuk | plane | |
-| R1305 | Word (form) | lennu | of a flight | |
-| R1306 | Word (form) | lennuki | of the plane | |
-| R1307 | Word (word) | lennujaam | airport | |
-| R1308 | Word (form) | lennujaama | of the airport | |
-| R1309 | Word (word) | vara | early | |
-| R1310 | Word (word) | pass | passport | |
-| R1311 | Word (word) | kohver | suitcase | |
-| R1312 | Word (word) | valmis | ready | |
+| R1292 | Conversation, Tom | Laevaga. Laev läheb kell üheksa. | By boat. The ferry leaves at nine. | |
+| R1293 | Conversation, Tom | Ma lendan. Lennuk läheb hommikul kell kuus. | I'm flying. The plane leaves at six in the morning. | |
+| R1294 | Conversation, Tom | Ma tean. Pass ja kohver on juba valmis. | I know. My passport and suitcase are ready already. | |
+| R1295 | Model answer | Laevaga. | By boat. | |
+| R1296 | Model answer | Lennuk läheb hommikul kell kuus. | The plane leaves at six in the morning. | |
+| R1297 | Model answer | Jah, pass ja kohver on valmis. | Yes, my passport and suitcase are ready. | |
+| R1298 | Model answer | Ma pean kell neli lennujaamas olema. | I have to be at the airport at four. | |
+| R1299 | Word (word) | Helsingi | Helsinki | |
+| R1300 | Word (word) | laev | ship, ferry | |
+| R1301 | Word (form) | laeva | of the ship | |
+| R1302 | Word (word) | sadam | port, harbor | |
+| R1303 | Word (form) | sadama | of the port | |
+| R1304 | Word (verb) | lendama | to fly | |
+| R1305 | Word (word) | lennuk | plane | |
+| R1306 | Word (form) | lennu | of a flight | |
+| R1307 | Word (form) | lennuki | of the plane | |
+| R1308 | Word (word) | lennujaam | airport | |
+| R1309 | Word (form) | lennujaama | of the airport | |
+| R1310 | Word (word) | vara | early | |
+| R1311 | Word (word) | pass | passport | |
+| R1312 | Word (word) | kohver | suitcase | |
+| R1313 | Word (word) | valmis | ready | |
 
 #### A2 34. At the ticket window (`a2-34-ticket`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1313 | Conversation, Tom | Tere! Pärnusse. Kas homme hommikul on bussi? | Hello! To Pärnu. Is there a bus tomorrow morning? | |
-| R1314 | Conversation, Tom | Kell kaheksa, palun. Edasi-tagasi. | At eight, please. Return. | |
-| R1315 | Conversation, Tom | Pühapäeval. Kui kaua sõit kestab? | On Sunday. How long does the ride take? | |
-| R1316 | Conversation, Tom | Aitäh! Kui palju see maksab? | Thank you! How much is it? | |
-| R1317 | Model answer | Pärnusse. Kas homme hommikul on bussi? | To Pärnu. Is there a bus tomorrow morning? | |
-| R1318 | Model answer | Pühapäeval. | On Sunday. | |
-| R1319 | Model answer | Kui kaua sõit kestab? | How long does the ride take? | |
-| R1320 | Model answer | Tere! Pärnusse. | Hello! To Pärnu. | |
-| R1321 | Model answer | Kell kaheksa, palun. | At eight, please. | |
-| R1322 | Model answer | Edasi-tagasi, palun. | Round trip, please. | |
+| R1314 | Conversation, Tom | Tere! Pärnusse. Kas homme hommikul on bussi? | Hello! To Pärnu. Is there a bus tomorrow morning? | |
+| R1315 | Conversation, Tom | Kell kaheksa, palun. Edasi-tagasi. | At eight, please. Return. | |
+| R1316 | Conversation, Tom | Pühapäeval. Kui kaua sõit kestab? | On Sunday. How long does the ride take? | |
+| R1317 | Conversation, Tom | Aitäh! Kui palju see maksab? | Thank you! How much is it? | |
+| R1318 | Model answer | Pärnusse. Kas homme hommikul on bussi? | To Pärnu. Is there a bus tomorrow morning? | |
+| R1319 | Model answer | Pühapäeval. | On Sunday. | |
+| R1320 | Model answer | Kui kaua sõit kestab? | How long does the ride take? | |
+| R1321 | Model answer | Tere! Pärnusse. | Hello! To Pärnu. | |
+| R1322 | Model answer | Kell kaheksa, palun. | At eight, please. | |
+| R1323 | Model answer | Edasi-tagasi, palun. | Round trip, please. | |
 
 #### A2 35. We would like a table (`a2-35-would`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1323 | Conversation, Peeter | Tere õhtust! Kas teil on broneering? | Good evening! Do you have a booking? | |
-| R1324 | Conversation, Tom | Ei ole. Me sooviksime lauda kahele. | No. We'd like a table for two. | |
-| R1325 | Conversation, Peeter | Palun, siin on vaba laud. | Here you are, here's a free table. | |
-| R1326 | Conversation, Tom | Kas me võiksime akna all istuda? | Could we sit by the window? | |
-| R1327 | Conversation, Peeter | Muidugi. Kas te sooviksite midagi juua? | Of course. Would you like something to drink? | |
-| R1328 | Conversation, Tom | Mina võtaksin õlut ja Mari tahaks mahla. | I'd have a beer and Mari would like juice. | |
-| R1329 | Conversation, Peeter | Kohe toon. | I'll bring it right away. | |
-| R1330 | Model answer | Ma võtaksin õlut. | I'd have a beer. | |
-| R1331 | Model answer | See oleks tore. | That would be nice. | |
-| R1332 | Word (form) | lauda | a table, as what you ask for | |
-| R1333 | Word (form) | kahele | for two | |
-| R1334 | Word (form) | õlut | beer, as what you have | |
-| R1335 | Word (form) | istuda | to sit, after could or want | |
-| R1336 | Word (form) | oleks | would be | |
+| R1324 | Conversation, Peeter | Tere õhtust! Kas teil on broneering? | Good evening! Do you have a booking? | |
+| R1325 | Conversation, Tom | Ei ole. Me sooviksime lauda kahele. | No. We'd like a table for two. | |
+| R1326 | Conversation, Peeter | Palun, siin on vaba laud. | Here you are, here's a free table. | |
+| R1327 | Conversation, Tom | Kas me võiksime akna all istuda? | Could we sit by the window? | |
+| R1328 | Conversation, Peeter | Muidugi. Kas te sooviksite midagi juua? | Of course. Would you like something to drink? | |
+| R1329 | Conversation, Tom | Mina võtaksin õlut ja Mari tahaks mahla. | I'd have a beer and Mari would like juice. | |
+| R1330 | Conversation, Peeter | Kohe toon. | I'll bring it right away. | |
+| R1331 | Model answer | Ma võtaksin õlut. | I'd have a beer. | |
+| R1332 | Model answer | See oleks tore. | That would be nice. | |
+| R1333 | Word (form) | lauda | a table, as what you ask for | |
+| R1334 | Word (form) | kahele | for two | |
+| R1335 | Word (form) | õlut | beer, as what you have | |
+| R1336 | Word (form) | istuda | to sit, after could or want | |
+| R1337 | Word (form) | oleks | would be | |
 
 #### A2 36. Ordering a meal (`a2-36-order`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1337 | Conversation, Peeter | Kas olete valmis tellima? | Are you ready to order? | |
-| R1338 | Conversation, Peeter | Täna on väga hea kala. | The fish is very good today. | |
-| R1339 | Conversation, Tom | Mina võtaksin praadi ja salatit. | I'd have the roast and a salad. | |
-| R1340 | Conversation, Peeter | Ja magustoit? | And dessert? | |
-| R1341 | Conversation, Tom | Hiljem, aitäh. | Later, thank you. | |
-| R1342 | Model answer | Jah. Mida te soovitate? | Yes. What do you recommend? | |
-| R1343 | Model answer | Siis ma võtaksin kala. | Then I'd have the fish. | |
-| R1344 | Model answer | Ma võtaksin praadi ja salatit. | I'd have the roast and a salad. | |
-| R1345 | Word (word) | menüü | menu | |
-| R1346 | Word (verb) | tellima | to order | |
-| R1347 | Word (verb) | soovitama | to recommend | |
-| R1348 | Word (word) | eelroog | starter | |
-| R1349 | Word (word) | praad | main course, a roast | |
-| R1350 | Word (form) | praadi | a roast, as what you order | |
-| R1351 | Word (word) | salat | salad | |
-| R1352 | Word (form) | salatit | salad, as what you order | |
-| R1353 | Word (word) | magustoit | dessert | |
+| R1338 | Conversation, Peeter | Kas olete valmis tellima? | Are you ready to order? | |
+| R1339 | Conversation, Peeter | Täna on väga hea kala. | The fish is very good today. | |
+| R1340 | Conversation, Tom | Mina võtaksin praadi ja salatit. | I'd have the roast and a salad. | |
+| R1341 | Conversation, Peeter | Ja magustoit? | And dessert? | |
+| R1342 | Conversation, Tom | Hiljem, aitäh. | Later, thank you. | |
+| R1343 | Model answer | Jah. Mida te soovitate? | Yes. What do you recommend? | |
+| R1344 | Model answer | Siis ma võtaksin kala. | Then I'd have the fish. | |
+| R1345 | Model answer | Ma võtaksin praadi ja salatit. | I'd have the roast and a salad. | |
+| R1346 | Word (word) | menüü | menu | |
+| R1347 | Word (verb) | tellima | to order | |
+| R1348 | Word (verb) | soovitama | to recommend | |
+| R1349 | Word (word) | eelroog | starter | |
+| R1350 | Word (word) | praad | main course, a roast | |
+| R1351 | Word (form) | praadi | a roast, as what you order | |
+| R1352 | Word (word) | salat | salad | |
+| R1353 | Word (form) | salatit | salad, as what you order | |
+| R1354 | Word (word) | magustoit | dessert | |
 
 #### A2 37. The bill, please (`a2-37-bill`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1354 | Conversation, Peeter | Kohe. Kas kõik oli hästi? | Right away. Was everything all right? | |
-| R1355 | Conversation, Peeter | Vabandust. Kas maksate koos või eraldi? | Sorry. Are you paying together or separately? | |
-| R1356 | Conversation, Tom | Eraldi, palun. Kas saab kaardiga maksta? | Separately, please. Can I pay by card? | |
-| R1357 | Model answer | Vabandage! Kas me saaksime arve? | Excuse me! Could we have the bill? | |
-| R1358 | Model answer | Jah, kõik oli väga maitsev. | Yes, everything was delicious. | |
-| R1359 | Model answer | Eraldi, palun. | Separately, please. | |
-| R1360 | Model answer | Kas saab kaardiga maksta? | Can I pay by card? | |
-| R1361 | Word (phrase) | Vabandage! | Excuse me!, to get somebody's attention politely | |
-| R1362 | Word (word) | arve | the bill, an invoice | |
-| R1363 | Word (word) | maitsev | delicious, tasty | |
-| R1364 | Word (word) | soolane | salty | |
-| R1365 | Word (word) | eraldi | separately | |
-| R1366 | Word (form) | maksta | to pay, after can or want | |
-| R1367 | Word (word) | jootraha | a tip | |
+| R1355 | Conversation, Peeter | Kohe. Kas kõik oli hästi? | Right away. Was everything all right? | |
+| R1356 | Conversation, Peeter | Vabandust. Kas maksate koos või eraldi? | Sorry. Are you paying together or separately? | |
+| R1357 | Conversation, Tom | Eraldi, palun. Kas saab kaardiga maksta? | Separately, please. Can I pay by card? | |
+| R1358 | Model answer | Vabandage! Kas me saaksime arve? | Excuse me! Could we have the bill? | |
+| R1359 | Model answer | Jah, kõik oli väga maitsev. | Yes, everything was delicious. | |
+| R1360 | Model answer | Eraldi, palun. | Separately, please. | |
+| R1361 | Model answer | Kas saab kaardiga maksta? | Can I pay by card? | |
+| R1362 | Word (phrase) | Vabandage! | Excuse me!, to get somebody's attention politely | |
+| R1363 | Word (word) | arve | the bill, an invoice | |
+| R1364 | Word (word) | maitsev | delicious, tasty | |
+| R1365 | Word (word) | soolane | salty | |
+| R1366 | Word (word) | eraldi | separately | |
+| R1367 | Word (form) | maksta | to pay, after can or want | |
+| R1368 | Word (word) | jootraha | a tip | |
 
 #### A2 38. Bigger and cheaper (`a2-38-compare`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1368 | Conversation, Tom | See on suurem, aga ka kallim. | This one is bigger, but also more expensive. | |
-| R1369 | Conversation, Tom | Teine on väiksem, aga odavam ja uuem. | The other one is smaller, but cheaper and newer. | |
-| R1370 | Conversation, Tom | Jah, ma arvan ka. | Yes, I think so too. | |
-| R1371 | Model answer | See on suurem, aga kallim. | This one is bigger, but more expensive. | |
-| R1372 | Model answer | Teine on väiksem, aga odavam. | The other one is smaller, but cheaper. | |
-| R1373 | Model answer | Uuem on parem kui suurem. | Newer is better than bigger. | |
-| R1374 | Model answer | Jah, ma arvan küll. | Yes, I think so. | |
-| R1375 | Word (word) | kumb | which, of two | |
-| R1376 | Word (form) | suure | of the big one | |
-| R1377 | Word (form) | odava | of the cheap one | |
-| R1378 | Word (form) | uue | of the new one | |
-| R1379 | Word (form) | kalli | of the expensive one | |
-| R1380 | Word (form) | suurem | bigger | |
-| R1381 | Word (form) | väiksem | smaller | |
-| R1382 | Word (form) | kallim | more expensive | |
-| R1383 | Word (form) | odavam | cheaper | |
-| R1384 | Word (form) | uuem | newer | |
-| R1385 | Word (form) | halva | of the bad one | |
-| R1386 | Word (form) | halvem | worse | |
-| R1387 | Word (form) | vanem | older | |
-| R1388 | Word (verb) | arvama | to think, to reckon | |
+| R1369 | Conversation, Tom | See on suurem, aga ka kallim. | This one is bigger, but also more expensive. | |
+| R1370 | Conversation, Tom | Teine on väiksem, aga odavam ja uuem. | The other one is smaller, but cheaper and newer. | |
+| R1371 | Conversation, Tom | Jah, ma arvan ka. | Yes, I think so too. | |
+| R1372 | Model answer | See on suurem, aga kallim. | This one is bigger, but more expensive. | |
+| R1373 | Model answer | Teine on väiksem, aga odavam. | The other one is smaller, but cheaper. | |
+| R1374 | Model answer | Uuem on parem kui suurem. | Newer is better than bigger. | |
+| R1375 | Model answer | Jah, ma arvan küll. | Yes, I think so. | |
+| R1376 | Word (word) | kumb | which, of two | |
+| R1377 | Word (form) | suure | of the big one | |
+| R1378 | Word (form) | odava | of the cheap one | |
+| R1379 | Word (form) | uue | of the new one | |
+| R1380 | Word (form) | kalli | of the expensive one | |
+| R1381 | Word (form) | suurem | bigger | |
+| R1382 | Word (form) | väiksem | smaller | |
+| R1383 | Word (form) | kallim | more expensive | |
+| R1384 | Word (form) | odavam | cheaper | |
+| R1385 | Word (form) | uuem | newer | |
+| R1386 | Word (form) | halva | of the bad one | |
+| R1387 | Word (form) | halvem | worse | |
+| R1388 | Word (form) | vanem | older | |
+| R1389 | Word (verb) | arvama | to think, to reckon | |
 
 #### A2 39. The biggest and the best (`a2-39-best`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1389 | Conversation, Tom | Mis on Eesti kõige suurem linn? | What's the biggest town in Estonia? | |
-| R1390 | Conversation, Tom | Ja kõige ilusam? | And the most beautiful? | |
-| R1391 | Conversation, Tom | Mis on kõige parem Eesti toit? | What's the best Estonian food? | |
-| R1392 | Model answer | Minu arvates Pärnu. | Pärnu, in my opinion. | |
-| R1393 | Model answer | Must leib on parim. | Black bread is the best. | |
-| R1394 | Model answer | See on kõige odavam. | This one is the cheapest. | |
-| R1395 | Word (word) | kõige | most, the -est, before a word ending in -m | |
-| R1396 | Word (form) | ilusam | more beautiful | |
-| R1397 | Word (form) | suuruselt | by size | |
-| R1398 | Word (phrase) | minu arvates | in my opinion | |
-| R1399 | Word (form) | parim | the best | |
+| R1390 | Conversation, Tom | Mis on Eesti kõige suurem linn? | What's the biggest town in Estonia? | |
+| R1391 | Conversation, Tom | Ja kõige ilusam? | And the most beautiful? | |
+| R1392 | Conversation, Tom | Mis on kõige parem Eesti toit? | What's the best Estonian food? | |
+| R1393 | Model answer | Minu arvates Pärnu. | Pärnu, in my opinion. | |
+| R1394 | Model answer | Must leib on parim. | Black bread is the best. | |
+| R1395 | Model answer | See on kõige odavam. | This one is the cheapest. | |
+| R1396 | Word (word) | kõige | most, the -est, before a word ending in -m | |
+| R1397 | Word (form) | ilusam | more beautiful | |
+| R1398 | Word (form) | suuruselt | by size | |
+| R1399 | Word (phrase) | minu arvates | in my opinion | |
+| R1400 | Word (form) | parim | the best | |
 
 #### A2 40. Can I try it on? (`a2-40-fitting`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1400 | Conversation, Tom | Tere! Kas ma võiksin seda jopet proovida? | Hello! Could I try this jacket on? | |
-| R1401 | Conversation, Tom | See on liiga väike. Kas teil on suuremat? | It's too small. Do you have a bigger one? | |
-| R1402 | Conversation, Tom | See sobib hästi. Ma võtan selle. | This one fits well. I'll take it. | |
-| R1403 | Model answer | Kas ma võiksin seda jopet proovida? | Could I try this jacket on? | |
-| R1404 | Model answer | Kas teil on väiksemat? | Do you have a smaller one? | |
-| R1405 | Word (form) | proovida | to try, after could or want | |
-| R1406 | Word (word) | proovikabiin | fitting room | |
-| R1407 | Word (form) | suuremat | a bigger one, after do you have | |
-| R1408 | Word (form) | väiksemat | a smaller one, after do you have | |
-| R1409 | Word (form) | selle | this one, the whole of it, as an object | |
+| R1401 | Conversation, Tom | Tere! Kas ma võiksin seda jopet proovida? | Hello! Could I try this jacket on? | |
+| R1402 | Conversation, Tom | See on liiga väike. Kas teil on suuremat? | It's too small. Do you have a bigger one? | |
+| R1403 | Conversation, Tom | See sobib hästi. Ma võtan selle. | This one fits well. I'll take it. | |
+| R1404 | Model answer | Kas ma võiksin seda jopet proovida? | Could I try this jacket on? | |
+| R1405 | Model answer | Kas teil on väiksemat? | Do you have a smaller one? | |
+| R1406 | Word (form) | proovida | to try, after could or want | |
+| R1407 | Word (word) | proovikabiin | fitting room | |
+| R1408 | Word (form) | suuremat | a bigger one, after do you have | |
+| R1409 | Word (form) | väiksemat | a smaller one, after do you have | |
+| R1410 | Word (form) | selle | this one, the whole of it, as an object | |
 
 #### A2 41. Dinner out (`a2-41-restaurant`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1410 | Conversation, Peeter | Tere õhtust! Kas teil on broneering? | Good evening! Do you have a booking? | |
-| R1411 | Conversation, Tom | Ei ole. Me sooviksime lauda kahele, akna all. | No. We'd like a table for two, by the window. | |
-| R1412 | Conversation, Peeter | Palun. Siin on menüü. Mida te sooviksite? | Here you are. Here's the menu. What would you like? | |
-| R1413 | Conversation, Tom | Mida te soovitate? | What do you recommend? | |
-| R1414 | Conversation, Peeter | Kala on täna kõige parem. | The fish is the best today. | |
-| R1415 | Conversation, Tom | Siis ma võtaksin kala. | Then I'd have the fish. | |
-| R1416 | Conversation, Peeter | Kas kõik oli hästi? | Was everything all right? | |
-| R1417 | Conversation, Tom | Väga maitsev, aitäh. Kas me saaksime arve? | Delicious, thank you. Could we have the bill? | |
-| R1418 | Model answer | Ei ole. Me sooviksime lauda kahele. | No. We'd like a table for two. | |
-| R1419 | Model answer | Ma võtaksin mahla. | I'd have a juice. | |
+| R1411 | Conversation, Peeter | Tere õhtust! Kas teil on broneering? | Good evening! Do you have a booking? | |
+| R1412 | Conversation, Tom | Ei ole. Me sooviksime lauda kahele, akna all. | No. We'd like a table for two, by the window. | |
+| R1413 | Conversation, Peeter | Palun. Siin on menüü. Mida te sooviksite? | Here you are. Here's the menu. What would you like? | |
+| R1414 | Conversation, Tom | Mida te soovitate? | What do you recommend? | |
+| R1415 | Conversation, Peeter | Kala on täna kõige parem. | The fish is the best today. | |
+| R1416 | Conversation, Tom | Siis ma võtaksin kala. | Then I'd have the fish. | |
+| R1417 | Conversation, Peeter | Kas kõik oli hästi? | Was everything all right? | |
+| R1418 | Conversation, Tom | Väga maitsev, aitäh. Kas me saaksime arve? | Delicious, thank you. Could we have the bill? | |
+| R1419 | Model answer | Ei ole. Me sooviksime lauda kahele. | No. We'd like a table for two. | |
+| R1420 | Model answer | Ma võtaksin mahla. | I'd have a juice. | |
 
 #### A2 42. What do you work as? (`a2-42-job`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1420 | Conversation, Tom | Ma töötan programmeerijana. Aga sina? | I work as a programmer. What about you? | |
-| R1421 | Conversation, Tom | Aga Jaan? Mis ta teeb? | And Jaan? What does he do? | |
-| R1422 | Conversation, Tom | Oi, see on raske töö! | Oh, that's hard work! | |
-| R1423 | Model answer | Ma töötan programmeerijana. | I work as a programmer. | |
-| R1424 | Model answer | Ma töötan ühes firmas juhina. | I work at a company as a manager. | |
-| R1425 | Model answer | Kellena sa töötad? | What do you work as? | |
-| R1426 | Model answer | Ta töötab kokana. | He works as a cook. | |
-| R1427 | Word (word) | programmeerija | programmer | |
-| R1428 | Word (word) | kokk | cook, chef | |
-| R1429 | Word (form) | koka | of the cook | |
-| R1430 | Word (word) | müüja | salesperson, seller | |
-| R1431 | Word (word) | juht | manager, boss, leader | |
-| R1432 | Word (form) | juhi | of the manager | |
-| R1433 | Word (word) | firma | company, firm | |
-| R1434 | Word (form) | ühes | in one, in a | |
-| R1435 | Word (word) | oi | oh! | |
+| R1421 | Conversation, Tom | Ma töötan programmeerijana. Aga sina? | I work as a programmer. What about you? | |
+| R1422 | Conversation, Tom | Aga Jaan? Mis ta teeb? | And Jaan? What does he do? | |
+| R1423 | Conversation, Tom | Oi, see on raske töö! | Oh, that's hard work! | |
+| R1424 | Model answer | Ma töötan programmeerijana. | I work as a programmer. | |
+| R1425 | Model answer | Ma töötan ühes firmas juhina. | I work at a company as a manager. | |
+| R1426 | Model answer | Kellena sa töötad? | What do you work as? | |
+| R1427 | Model answer | Ta töötab kokana. | He works as a cook. | |
+| R1428 | Word (word) | programmeerija | programmer | |
+| R1429 | Word (word) | kokk | cook, chef | |
+| R1430 | Word (form) | koka | of the cook | |
+| R1431 | Word (word) | müüja | salesperson, seller | |
+| R1432 | Word (word) | juht | manager, boss, leader | |
+| R1433 | Word (form) | juhi | of the manager | |
+| R1434 | Word (word) | firma | company, firm | |
+| R1435 | Word (form) | ühes | in one, in a | |
+| R1436 | Word (word) | oi | oh! | |
 
 #### A2 43. For a birthday, and becoming (`a2-43-become`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1436 | Model answer | Ma tahan saada arstiks. | I want to become a doctor. | |
-| R1437 | Model answer | Mida sa sünnipäevaks tahad? | What do you want for your birthday? | |
-| R1438 | Model answer | Ilm läheb soojaks. | The weather's getting warm. | |
-| R1439 | Model answer | Ilm läheb külmaks. | The weather's getting cold. | |
-| R1440 | Word (form) | saada | to become, to get, after want | |
-| R1441 | Word (form) | homse | of tomorrow | |
-| R1442 | Word (form) | sooja | of the warm | |
-| R1443 | Word (form) | külma | of the cold | |
-| R1444 | Word (form) | uut | a new one, as an object | |
-| R1445 | Word (form) | telefoni | a phone, as an object | |
+| R1437 | Model answer | Ma tahan saada arstiks. | I want to become a doctor. | |
+| R1438 | Model answer | Mida sa sünnipäevaks tahad? | What do you want for your birthday? | |
+| R1439 | Model answer | Ilm läheb soojaks. | The weather's getting warm. | |
+| R1440 | Model answer | Ilm läheb külmaks. | The weather's getting cold. | |
+| R1441 | Word (form) | saada | to become, to get, after want | |
+| R1442 | Word (form) | homse | of tomorrow | |
+| R1443 | Word (form) | sooja | of the warm | |
+| R1444 | Word (form) | külma | of the cold | |
+| R1445 | Word (form) | uut | a new one, as an object | |
+| R1446 | Word (form) | telefoni | a phone, as an object | |
 
 #### A2 44. The housework (`a2-44-chores`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1446 | Conversation, Tom | Mina koristan elutoa ja köögi. | I'll clean the living room and the kitchen. | |
-| R1447 | Conversation, Tom | Kes viib prügi välja? | Who's taking out the trash? | |
-| R1448 | Conversation, Tom | Olgu. Aga siis teed sina süüa. | Fine. But then you're cooking. | |
-| R1449 | Model answer | Mina koristan köögi. | I'll clean the kitchen. | |
-| R1450 | Model answer | Mina pesen nõud. | I'll wash the dishes. | |
-| R1451 | Model answer | Olgu. | Fine. | |
-| R1452 | Word (word) | külalised | guests | |
-| R1453 | Word (verb) | koristama | to clean, to tidy | |
-| R1454 | Word (verb) | pesema | to wash | |
-| R1455 | Word (word) | nõud | the dishes | |
-| R1456 | Word (word) | prügi | trash, garbage | |
-| R1457 | Word (word) | pesu | laundry, the washing | |
-| R1458 | Word (word) | kuivama | to dry, to be drying | |
+| R1447 | Conversation, Tom | Mina koristan elutoa ja köögi. | I'll clean the living room and the kitchen. | |
+| R1448 | Conversation, Tom | Kes viib prügi välja? | Who's taking out the trash? | |
+| R1449 | Conversation, Tom | Olgu. Aga siis teed sina süüa. | Fine. But then you're cooking. | |
+| R1450 | Model answer | Mina koristan köögi. | I'll clean the kitchen. | |
+| R1451 | Model answer | Mina pesen nõud. | I'll wash the dishes. | |
+| R1452 | Model answer | Olgu. | Fine. | |
+| R1453 | Word (word) | külalised | guests | |
+| R1454 | Word (verb) | koristama | to clean, to tidy | |
+| R1455 | Word (verb) | pesema | to wash | |
+| R1456 | Word (word) | nõud | the dishes | |
+| R1457 | Word (word) | prügi | trash, garbage | |
+| R1458 | Word (word) | pesu | laundry, the washing | |
+| R1459 | Word (word) | kuivama | to dry, to be drying | |
 
 #### A2 45. Something's broken (`a2-45-broken`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1459 | Conversation, Tom | Tere, Peeter! Siin Tom korterist number kaksteist. | Hello, Peeter! It's Tom from apartment twelve. | |
-| R1460 | Conversation, Peeter | Tere! Mis juhtus? | Hello! What happened? | |
-| R1461 | Conversation, Tom | Külmkapp ei tööta ja vannitoas on kraan katki. | The fridge isn't working and the tap's broken in the bathroom. | |
-| R1462 | Conversation, Peeter | Oi! Ma saadan meistri. Millal sa kodus oled? | Oh! I'll send a repairman. When are you at home? | |
-| R1463 | Conversation, Tom | Homme kella kaheni. | Tomorrow until two. | |
-| R1464 | Conversation, Peeter | Hästi. Meister tuleb homme hommikul ja parandab need. | All right. The repairman will come tomorrow morning and fix them. | |
-| R1465 | Model answer | Külmkapp ei tööta. | The fridge isn't working. | |
-| R1466 | Model answer | Kraan on katki. | The tap's broken. | |
-| R1467 | Model answer | Millal meister tuleb? | When is the repairman coming? | |
-| R1468 | Word (form) | korterist | from the apartment | |
-| R1469 | Word (form) | tööta | work, after {ei}, of a machine | |
-| R1470 | Word (word) | kraan | tap, faucet | |
-| R1471 | Word (word) | katki | broken | |
-| R1472 | Word (verb) | saatma | to send | |
-| R1473 | Word (word) | meister | repairman, tradesman | |
-| R1474 | Word (form) | meistri | of the repairman, the repairman as an object | |
-| R1475 | Word (verb) | parandama | to fix, to repair | |
-| R1476 | Word (form) | kahe | of two | |
+| R1460 | Conversation, Tom | Tere, Peeter! Siin Tom korterist number kaksteist. | Hello, Peeter! It's Tom from apartment twelve. | |
+| R1461 | Conversation, Peeter | Tere! Mis juhtus? | Hello! What happened? | |
+| R1462 | Conversation, Tom | Külmkapp ei tööta ja vannitoas on kraan katki. | The fridge isn't working and the tap's broken in the bathroom. | |
+| R1463 | Conversation, Peeter | Oi! Ma saadan meistri. Millal sa kodus oled? | Oh! I'll send a repairman. When are you at home? | |
+| R1464 | Conversation, Tom | Homme kella kaheni. | Tomorrow until two. | |
+| R1465 | Conversation, Peeter | Hästi. Meister tuleb homme hommikul ja parandab need. | All right. The repairman will come tomorrow morning and fix them. | |
+| R1466 | Model answer | Külmkapp ei tööta. | The fridge isn't working. | |
+| R1467 | Model answer | Kraan on katki. | The tap's broken. | |
+| R1468 | Model answer | Millal meister tuleb? | When is the repairman coming? | |
+| R1469 | Word (form) | korterist | from the apartment | |
+| R1470 | Word (form) | tööta | work, after {ei}, of a machine | |
+| R1471 | Word (word) | kraan | tap, faucet | |
+| R1472 | Word (word) | katki | broken | |
+| R1473 | Word (verb) | saatma | to send | |
+| R1474 | Word (word) | meister | repairman, tradesman | |
+| R1475 | Word (form) | meistri | of the repairman, the repairman as an object | |
+| R1476 | Word (verb) | parandama | to fix, to repair | |
+| R1477 | Word (form) | kahe | of two | |
 
 #### A2 45a. A question, a problem, an idea (`a2-45a-problems`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1477 | Conversation, Tom | Jah? Mis asi? | Yes? What is it? | |
-| R1478 | Conversation, Tom | Mul on üks idee: osta talle raamat! | I have an idea: buy her a book! | |
-| R1479 | Conversation, Tom | Pole viga. Ostame koos! | No problem. Let's buy it together! | |
-| R1480 | Model answer | Mul on üks küsimus. | I have a question. | |
-| R1481 | Model answer | Mul pole raha. | I don't have any money. | |
-| R1482 | Model answer | Pole viga. | No problem. | |
-| R1483 | Word (word) | küsimus | a question | |
-| R1484 | Word (word) | asi | a thing; a matter | |
-| R1485 | Word (phrase) | Mis asi? | What is it? | |
-| R1486 | Word (word) | idee | an idea | |
-| R1487 | Word (form) | ideed | an idea, after {ei ole} | |
-| R1488 | Word (word) | probleem | a problem | |
-| R1489 | Word (word) | raha | money | |
-| R1490 | Word (word) | viga | a mistake, a fault | |
-| R1491 | Word (word) | põhjus | a reason | |
-| R1492 | Word (word) | võimalus | a chance, a possibility | |
-| R1493 | Word (word) | sõna | a word | |
-| R1494 | Word (word) | hetk | a moment | |
-| R1495 | Word (word) | lõpp | an end | |
-| R1496 | Word (word) | paar | a pair; a couple of | |
+| R1478 | Conversation, Tom | Jah? Mis asi? | Yes? What is it? | |
+| R1479 | Conversation, Tom | Mul on üks idee: osta talle raamat! | I have an idea: buy her a book! | |
+| R1480 | Conversation, Tom | Pole viga. Ostame koos! | No problem. Let's buy it together! | |
+| R1481 | Model answer | Mul on üks küsimus. | I have a question. | |
+| R1482 | Model answer | Mul pole raha. | I don't have any money. | |
+| R1483 | Model answer | Pole viga. | No problem. | |
+| R1484 | Word (word) | küsimus | a question | |
+| R1485 | Word (word) | asi | a thing; a matter | |
+| R1486 | Word (phrase) | Mis asi? | What is it? | |
+| R1487 | Word (word) | idee | an idea | |
+| R1488 | Word (form) | ideed | an idea, after {ei ole} | |
+| R1489 | Word (word) | probleem | a problem | |
+| R1490 | Word (word) | raha | money | |
+| R1491 | Word (word) | viga | a mistake, a fault | |
+| R1492 | Word (word) | põhjus | a reason | |
+| R1493 | Word (word) | võimalus | a chance, a possibility | |
+| R1494 | Word (word) | sõna | a word | |
+| R1495 | Word (word) | hetk | a moment | |
+| R1496 | Word (word) | lõpp | an end | |
+| R1497 | Word (word) | paar | a pair; a couple of | |
 
 #### A2 46. At the bank (`a2-46-bank`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1497 | Conversation, Tom | Tere! Ma tahaksin konto avada. | Hello! I'd like to open an account. | |
-| R1498 | Conversation, Tom | Jah, on. Siin on mu ID-kaart. | Yes, I do. Here's my ID card. | |
-| R1499 | Conversation, Tom | Kas ma saan ka sularaha võtta? | Can I take out cash too? | |
-| R1500 | Model answer | Ma tahaksin konto avada. | I'd like to open an account. | |
-| R1501 | Model answer | Ma tahaksin kaardiga maksta. | I'd like to pay by card. | |
-| R1502 | Word (word) | konto | bank account | |
-| R1503 | Word (verb) | avama | to open | |
-| R1504 | Word (form) | avada | to open, after would like | |
-| R1505 | Word (word) | isikukood | personal identification code | |
-| R1506 | Word (phrase) | ID-kaart | ID card | |
-| R1507 | Word (word) | pangakaart | bank card | |
-| R1508 | Word (word) | sularaha | cash | |
-| R1509 | Word (form) | võtta | to take, after can or want | |
-| R1510 | Word (form) | igast | from every, from any | |
-| R1511 | Word (word) | pangaautomaat | ATM, cash machine | |
-| R1512 | Word (form) | pangaautomaadist | from an ATM | |
+| R1498 | Conversation, Tom | Tere! Ma tahaksin konto avada. | Hello! I'd like to open an account. | |
+| R1499 | Conversation, Tom | Jah, on. Siin on mu ID-kaart. | Yes, I do. Here's my ID card. | |
+| R1500 | Conversation, Tom | Kas ma saan ka sularaha võtta? | Can I take out cash too? | |
+| R1501 | Model answer | Ma tahaksin konto avada. | I'd like to open an account. | |
+| R1502 | Model answer | Ma tahaksin kaardiga maksta. | I'd like to pay by card. | |
+| R1503 | Word (word) | konto | bank account | |
+| R1504 | Word (verb) | avama | to open | |
+| R1505 | Word (form) | avada | to open, after would like | |
+| R1506 | Word (word) | isikukood | personal identification code | |
+| R1507 | Word (phrase) | ID-kaart | ID card | |
+| R1508 | Word (word) | pangakaart | bank card | |
+| R1509 | Word (word) | sularaha | cash | |
+| R1510 | Word (form) | võtta | to take, after can or want | |
+| R1511 | Word (form) | igast | from every, from any | |
+| R1512 | Word (word) | pangaautomaat | ATM, cash machine | |
+| R1513 | Word (form) | pangaautomaadist | from an ATM | |
 
 #### A2 47. Your experience (`a2-47-interview`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1513 | Conversation, Tom | Ma olen programmeerija. Mul on viis aastat kogemust. | I'm a programmer. I have five years of experience. | |
-| R1514 | Conversation, Tom | Teie firma on tuntud ja töö on huvitav. | Your company is well known and the work is interesting. | |
-| R1515 | Conversation, Tom | Järgmisest kuust. | From next month. | |
-| R1516 | Model answer | Töö on huvitav. | The work is interesting. | |
-| R1517 | Model answer | Millal töö algab? | When does the work start? | |
-| R1518 | Word (form) | rääkige | tell!, speak!, polite | |
-| R1519 | Word (form) | istuge | sit down!, polite | |
-| R1520 | Word (word) | endast | about yourself, about themselves | |
-| R1521 | Word (word) | kogemus | experience | |
-| R1522 | Word (form) | kogemust | experience, after a number | |
-| R1523 | Word (form) | töötada | to work, after want or can | |
-| R1524 | Word (word) | tuntud | well known | |
-| R1525 | Word (verb) | alustama | to start, to begin something | |
-| R1526 | Word (form) | alustada | to start, after could | |
-| R1527 | Word (form) | järgmise | of the next | |
+| R1514 | Conversation, Tom | Ma olen programmeerija. Mul on viis aastat kogemust. | I'm a programmer. I have five years of experience. | |
+| R1515 | Conversation, Tom | Teie firma on tuntud ja töö on huvitav. | Your company is well known and the work is interesting. | |
+| R1516 | Conversation, Tom | Järgmisest kuust. | From next month. | |
+| R1517 | Model answer | Töö on huvitav. | The work is interesting. | |
+| R1518 | Model answer | Millal töö algab? | When does the work start? | |
+| R1519 | Word (form) | rääkige | tell!, speak!, polite | |
+| R1520 | Word (form) | istuge | sit down!, polite | |
+| R1521 | Word (word) | endast | about yourself, about themselves | |
+| R1522 | Word (word) | kogemus | experience | |
+| R1523 | Word (form) | kogemust | experience, after a number | |
+| R1524 | Word (form) | töötada | to work, after want or can | |
+| R1525 | Word (word) | tuntud | well known | |
+| R1526 | Word (verb) | alustama | to start, to begin something | |
+| R1527 | Word (form) | alustada | to start, after could | |
+| R1528 | Word (form) | järgmise | of the next | |
 
 #### A2 48. The interview (`a2-48-new-job`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1528 | Conversation, Tom | Tere! Ma olen Tom. Olen programmeerija ja elan Tallinnas. | Hello! I'm Tom. I'm a programmer and I live in Tallinn. | |
-| R1529 | Conversation, Tom | Ma töötasin Londonis ühes pangas programmeerijana. | I worked in London at a bank as a programmer. | |
-| R1530 | Conversation, Tom | Natuke. Aga ma õpin iga päev. | A little. But I study every day. | |
-| R1531 | Conversation, Tom | Järgmisest kuust. | From next month. | |
-| R1532 | Model answer | Ma olen Tom. Olen programmeerija ja elan Tallinnas. | I'm Tom. I'm a programmer and I live in Tallinn. | |
-| R1533 | Model answer | Ma töötasin Londonis programmeerijana. | I worked in London as a programmer. | |
-| R1534 | Model answer | Tere! Ma olen Tom. Olen programmeerija. | Hello! I'm Tom. I'm a programmer. | |
-| R1535 | Model answer | Jah, viis aastat. | Yes, five years. | |
+| R1529 | Conversation, Tom | Tere! Ma olen Tom. Olen programmeerija ja elan Tallinnas. | Hello! I'm Tom. I'm a programmer and I live in Tallinn. | |
+| R1530 | Conversation, Tom | Ma töötasin Londonis ühes pangas programmeerijana. | I worked in London at a bank as a programmer. | |
+| R1531 | Conversation, Tom | Natuke. Aga ma õpin iga päev. | A little. But I study every day. | |
+| R1532 | Conversation, Tom | Järgmisest kuust. | From next month. | |
+| R1533 | Model answer | Ma olen Tom. Olen programmeerija ja elan Tallinnas. | I'm Tom. I'm a programmer and I live in Tallinn. | |
+| R1534 | Model answer | Ma töötasin Londonis programmeerijana. | I worked in London as a programmer. | |
+| R1535 | Model answer | Tere! Ma olen Tom. Olen programmeerija. | Hello! I'm Tom. I'm a programmer. | |
+| R1536 | Model answer | Jah, viis aastat. | Yes, five years. | |
 
 #### A2 49. What will you do? (`a2-49-will`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1536 | Conversation, Tom | Järgmisel nädalal hakkan uues firmas töötama. | Next week I'm starting work at a new company. | |
-| R1537 | Conversation, Tom | Suvel on mul puhkus, kavatsen maale minna. Aga sul? | In the summer I have time off. I plan to go to the country. And you? | |
-| R1538 | Conversation, Tom | Tõesti? Siis ma tulen sinu tundi! | Really? Then I'll come to your class! | |
-| R1539 | Model answer | Suvel kavatsen maale minna. | In the summer I plan to go to the country. | |
-| R1540 | Model answer | Ma hakkan eesti keelt õppima. | I'm going to start learning Estonian. | |
-| R1541 | Model answer | Ma hakkan minema. | I'm about to leave. | |
-| R1542 | Word (word) | plaan | plan | |
-| R1543 | Word (form) | plaanid | plans | |
-| R1544 | Word (verb) | hakkama | to start to, to be going to | |
-| R1545 | Word (form) | uues | in a new one | |
-| R1546 | Word (verb) | kavatsema | to plan to, to intend to | |
-| R1547 | Word (verb) | õpetama | to teach | |
-| R1548 | Word (word) | puhkus | vacation, time off work | |
-| R1549 | Word (form) | puhkust | time off, as some of it | |
+| R1537 | Conversation, Tom | Järgmisel nädalal hakkan uues firmas töötama. | Next week I'm starting work at a new company. | |
+| R1538 | Conversation, Tom | Suvel on mul puhkus, kavatsen maale minna. Aga sina? | In the summer I have time off. I plan to go to the country. And you? | |
+| R1539 | Conversation, Tom | Tõesti? Siis ma tulen sinu tundi! | Really? Then I'll come to your class! | |
+| R1540 | Model answer | Suvel kavatsen maale minna. | In the summer I plan to go to the country. | |
+| R1541 | Model answer | Ma hakkan eesti keelt õppima. | I'm going to start learning Estonian. | |
+| R1542 | Model answer | Ma hakkan minema. | I'm about to leave. | |
+| R1543 | Word (word) | plaan | plan | |
+| R1544 | Word (form) | plaanid | plans | |
+| R1545 | Word (verb) | hakkama | to start to, to be going to | |
+| R1546 | Word (form) | uues | in a new one | |
+| R1547 | Word (verb) | kavatsema | to plan to, to intend to | |
+| R1548 | Word (verb) | õpetama | to teach | |
+| R1549 | Word (word) | puhkus | vacation, time off work | |
+| R1550 | Word (form) | puhkust | time off, as some of it | |
 
 #### A2 50. I think that, because (`a2-50-think`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1550 | Conversation, Tom | Väga meeldis! Ma arvan, et Tartu on parem kui Tallinn, sest see on väiksem ja rahulikum. | I liked it a lot! I think Tartu is better than Tallinn, because it's smaller and quieter. | |
-| R1551 | Conversation, Tom | Sul on õigus. Aga Tartu on ilusam. | You're right. But Tartu is prettier. | |
-| R1552 | Model answer | Ma arvan, et Tartu on parem kui Tallinn. | I think Tartu is better than Tallinn. | |
-| R1553 | Model answer | See on parem, sest see on väiksem. | It's better because it's smaller. | |
-| R1554 | Model answer | Sul on õigus. | You're right. | |
-| R1555 | Model answer | Ma pole nõus. | I don't agree. | |
-| R1556 | Word (form) | meeldis | liked, in the past | |
-| R1557 | Word (word) | et | that, joining what you think to the rest | |
-| R1558 | Word (word) | sest | because | |
-| R1559 | Word (form) | rahulikum | quieter, calmer | |
-| R1560 | Word (word) | nõus | agreed, in agreement | |
-| R1561 | Word (word) | rohkem | more | |
-| R1562 | Word (phrase) | See on tõsi. | That's true. | |
+| R1551 | Conversation, Tom | Väga meeldis! Ma arvan, et Tartu on parem kui Tallinn, sest see on väiksem ja rahulikum. | I liked it a lot! I think Tartu is better than Tallinn, because it's smaller and quieter. | |
+| R1552 | Conversation, Tom | Sul on õigus. Aga Tartu on ilusam. | You're right. But Tartu is prettier. | |
+| R1553 | Model answer | Ma arvan, et Tartu on parem kui Tallinn. | I think Tartu is better than Tallinn. | |
+| R1554 | Model answer | See on parem, sest see on väiksem. | It's better because it's smaller. | |
+| R1555 | Model answer | Sul on õigus. | You're right. | |
+| R1556 | Model answer | Ma pole nõus. | I don't agree. | |
+| R1557 | Word (form) | meeldis | liked, in the past | |
+| R1558 | Word (word) | et | that, joining what you think to the rest | |
+| R1559 | Word (word) | sest | because | |
+| R1560 | Word (form) | rahulikum | quieter, calmer | |
+| R1561 | Word (word) | nõus | agreed, in agreement | |
+| R1562 | Word (word) | rohkem | more | |
+| R1563 | Word (phrase) | See on tõsi. | That's true. | |
 
 #### A2 50a. Looking for it, finding it (`a2-50a-find`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1563 | Conversation, Tom | Telefoni. Ei leia seda üles. | My phone. I can't find it. | |
-| R1564 | Conversation, Tom | Ma arvan, et köögis. Aga seal seda pole. | I think in the kitchen. But it isn't there. | |
-| R1565 | Conversation, Tom | Jah, siin see on! Aitäh, Mari! | Yes, here it is! Thanks, Mari! | |
-| R1566 | Model answer | Ma otsin oma telefoni. | I'm looking for my phone. | |
-| R1567 | Model answer | Ma ei leia seda. | I can't find it. | |
-| R1568 | Model answer | Jah, mäletan. | Yes, I remember. | |
-| R1569 | Word (verb) | otsima | to look for | |
-| R1570 | Word (verb) | leidma | to find | |
-| R1571 | Word (verb) | mäletama | to remember | |
-| R1572 | Word (verb) | uskuma | to believe | |
-| R1573 | Word (verb) | vajama | to need | |
-| R1574 | Word (verb) | kasutama | to use | |
-| R1575 | Word (verb) | mõtlema | to think about, to think over | |
-| R1576 | Word (verb) | kartma | to be afraid | |
-| R1577 | Word (verb) | mängima | to play | |
-| R1578 | Word (verb) | näitama | to show | |
-| R1579 | Word (verb) | muutma | to change | |
+| R1564 | Conversation, Tom | Telefoni. Ei leia seda üles. | My phone. I can't find it. | |
+| R1565 | Conversation, Tom | Ma arvan, et köögis. Aga seal seda pole. | I think in the kitchen. But it isn't there. | |
+| R1566 | Conversation, Tom | Jah, siin see on! Aitäh, Mari! | Yes, here it is! Thanks, Mari! | |
+| R1567 | Model answer | Ma otsin oma telefoni. | I'm looking for my phone. | |
+| R1568 | Model answer | Ma ei leia seda. | I can't find it. | |
+| R1569 | Model answer | Jah, mäletan. | Yes, I remember. | |
+| R1570 | Word (verb) | otsima | to look for | |
+| R1571 | Word (verb) | leidma | to find | |
+| R1572 | Word (verb) | mäletama | to remember | |
+| R1573 | Word (verb) | uskuma | to believe | |
+| R1574 | Word (verb) | vajama | to need | |
+| R1575 | Word (verb) | kasutama | to use | |
+| R1576 | Word (verb) | mõtlema | to think about, to think over | |
+| R1577 | Word (verb) | kartma | to be afraid | |
+| R1578 | Word (verb) | mängima | to play | |
+| R1579 | Word (verb) | näitama | to show | |
+| R1580 | Word (verb) | muutma | to change | |
 
 #### A2 51. If it rains (`a2-51-if`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1580 | Conversation, Tom | Kui ilm on ilus, lähme randa. | If the weather's nice, let's go to the beach. | |
-| R1581 | Conversation, Tom | Siis jääme koju ja vaatame filmi. | Then we'll stay at home and watch a film. | |
-| R1582 | Model answer | Siis jääme koju. | Then we'll stay at home. | |
-| R1583 | Model answer | Kui on külm, jään koju. | If it's cold, I'll stay at home. | |
-| R1584 | Model answer | Ma võtan ujumisriided kaasa. | I'll bring my swimming things. | |
-| R1585 | Word (word) | rand | beach | |
-| R1586 | Word (form) | randa | to the beach | |
-| R1587 | Word (form) | jääme | we stay | |
-| R1588 | Word (word) | ujumisriided | swimming things, swimwear | |
-| R1589 | Word (word) | kaasa | along, with you | |
+| R1581 | Conversation, Tom | Kui ilm on ilus, lähme randa. | If the weather's nice, let's go to the beach. | |
+| R1582 | Conversation, Tom | Siis jääme koju ja vaatame filmi. | Then we'll stay at home and watch a film. | |
+| R1583 | Model answer | Siis jääme koju. | Then we'll stay at home. | |
+| R1584 | Model answer | Kui on külm, jään koju. | If it's cold, I'll stay at home. | |
+| R1585 | Model answer | Ma võtan ujumisriided kaasa. | I'll bring my swimming things. | |
+| R1586 | Word (word) | rand | beach | |
+| R1587 | Word (form) | randa | to the beach | |
+| R1588 | Word (form) | jääme | we stay | |
+| R1589 | Word (word) | ujumisriided | swimming things, swimwear | |
+| R1590 | Word (word) | kaasa | along, with you | |
 
 #### A2 52. A day in the forest (`a2-52-forest`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1590 | Conversation, Tom | Hea meelega! Kus see mets on? | I'd love to! Where's the forest? | |
-| R1591 | Conversation, Tom | Kas seal on ka marju? | Are there berries there too? | |
-| R1592 | Conversation, Tom | Ma ei tunne seeni. Pead mind aitama! | I don't know mushrooms. You'll have to help me. | |
-| R1593 | Model answer | Ma lähen metsa seeni korjama. | I'm going to the forest to pick mushrooms. | |
-| R1594 | Model answer | Ma ei tunne seeni. | I don't know mushrooms. | |
-| R1595 | Word (form) | metsa | of the forest, into the forest | |
-| R1596 | Word (word) | seen | mushroom | |
-| R1597 | Word (form) | seeni | mushrooms, as an object | |
-| R1598 | Word (verb) | korjama | to pick, to gather | |
-| R1599 | Word (form) | linnast | from the town, out of town | |
-| R1600 | Word (word) | järv | lake | |
-| R1601 | Word (form) | järve | of the lake | |
-| R1602 | Word (form) | marju | berries, as some | |
-| R1603 | Word (form) | mustikaid | blueberries, as some | |
-| R1604 | Word (word) | korv | basket | |
-| R1605 | Word (form) | mind | me, as an object | |
-| R1606 | Word (verb) | tundma | to know, to recognize, to feel | |
+| R1591 | Conversation, Tom | Hea meelega! Kus see mets on? | I'd love to! Where's the forest? | |
+| R1592 | Conversation, Tom | Kas seal on ka marju? | Are there berries there too? | |
+| R1593 | Conversation, Tom | Ma ei tunne seeni. Pead mind aitama! | I don't know mushrooms. You'll have to help me. | |
+| R1594 | Model answer | Ma lähen metsa seeni korjama. | I'm going to the forest to pick mushrooms. | |
+| R1595 | Model answer | Ma ei tunne seeni. | I don't know mushrooms. | |
+| R1596 | Word (form) | metsa | of the forest, into the forest | |
+| R1597 | Word (word) | seen | mushroom | |
+| R1598 | Word (form) | seeni | mushrooms, as an object | |
+| R1599 | Word (verb) | korjama | to pick, to gather | |
+| R1600 | Word (form) | linnast | from the town, out of town | |
+| R1601 | Word (word) | järv | lake | |
+| R1602 | Word (form) | järve | of the lake | |
+| R1603 | Word (form) | marju | berries, as some | |
+| R1604 | Word (form) | mustikaid | blueberries, as some | |
+| R1605 | Word (word) | korv | basket | |
+| R1606 | Word (form) | mind | me, as an object | |
+| R1607 | Word (verb) | tundma | to know, to recognize, to feel | |
 
 #### A2 52a. Small words that do a lot (`a2-52a-small-words`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1607 | Conversation, Tom | Vahel. Aga mitte nii tihti nagu varem. | Sometimes. But not as often as before. | |
-| R1608 | Conversation, Tom | Mul pole enam aega. Ma töötan isegi laupäeval. | I don't have the time anymore. I even work on Saturdays. | |
-| R1609 | Conversation, Tom | Täpselt! Lähme pühapäeval jälle koos metsa? | Exactly! Should we go to the forest together again on Sunday? | |
-| R1610 | Model answer | Vahel. | Sometimes. | |
-| R1611 | Model answer | Mul pole enam aega. | I don't have the time anymore. | |
-| R1612 | Model answer | Täpselt! | Exactly! | |
-| R1613 | Word (word) | ikka | still; anyway | |
-| R1614 | Word (word) | vahel | sometimes | |
-| R1615 | Word (word) | mitte | not, before a word rather than a verb | |
-| R1616 | Word (word) | nagu | like, as | |
-| R1617 | Word (word) | varem | before, earlier | |
-| R1618 | Word (word) | enam | anymore, after {ei} | |
-| R1619 | Word (word) | isegi | even | |
-| R1620 | Word (word) | vist | probably, I think | |
-| R1621 | Word (word) | täpselt | exactly | |
-| R1622 | Word (word) | uuesti | again, once more | |
-| R1623 | Word (word) | keegi | somebody; nobody, after {ei} | |
-| R1624 | Word (word) | vaid | only | |
-| R1625 | Word (word) | päris | quite; real | |
-| R1626 | Word (word) | äkki | maybe; suddenly | |
-| R1627 | Word (word) | eriti | especially | |
-| R1628 | Word (word) | vahepeal | in the meantime, since then | |
-| R1629 | Word (word) | selline | such, this kind of | |
+| R1608 | Conversation, Tom | Vahel. Aga mitte nii tihti nagu varem. | Sometimes. But not as often as before. | |
+| R1609 | Conversation, Tom | Mul pole enam aega. Ma töötan isegi laupäeval. | I don't have the time anymore. I even work on Saturdays. | |
+| R1610 | Conversation, Tom | Täpselt! Lähme pühapäeval uuesti koos metsa? | Exactly! Should we go to the forest together again on Sunday? | |
+| R1611 | Model answer | Vahel. | Sometimes. | |
+| R1612 | Model answer | Mul pole enam aega. | I don't have the time anymore. | |
+| R1613 | Model answer | Täpselt! | Exactly! | |
+| R1614 | Word (word) | ikka | still; anyway | |
+| R1615 | Word (word) | vahel | sometimes | |
+| R1616 | Word (word) | mitte | not, before a word rather than a verb | |
+| R1617 | Word (word) | nagu | like, as | |
+| R1618 | Word (word) | varem | before, earlier | |
+| R1619 | Word (word) | enam | anymore, after {ei} | |
+| R1620 | Word (word) | isegi | even | |
+| R1621 | Word (word) | vist | probably, I think | |
+| R1622 | Word (word) | täpselt | exactly | |
+| R1623 | Word (word) | uuesti | again, once more | |
+| R1624 | Word (word) | keegi | somebody; nobody, after {ei} | |
+| R1625 | Word (word) | vaid | only | |
+| R1626 | Word (word) | päris | quite; real | |
+| R1627 | Word (word) | äkki | maybe; suddenly | |
+| R1628 | Word (word) | eriti | especially | |
+| R1629 | Word (word) | vahepeal | in the meantime, since then | |
+| R1630 | Word (word) | selline | such, this kind of | |
 
 #### A2 53. Can I leave a message? (`a2-53-message`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1630 | Conversation, Tom | Tere! Siin Tom. Kas ma saaksin Mariga rääkida? | Hello! It's Tom. Could I speak to Mari? | |
-| R1631 | Conversation, Tom | Jah, öelge palun, et ma helistan õhtul tagasi. | Yes, please tell her I'll call back this evening. | |
-| R1632 | Conversation, Tom | Aitäh! Head aega! | Thank you! Goodbye! | |
-| R1633 | Model answer | Siin Tom. Kas ma saaksin Mariga rääkida? | It's Tom. Could I speak to Mari? | |
-| R1634 | Model answer | Ma saadan talle sõnumi. | I'll text her. | |
-| R1635 | Model answer | Tere, Tom kuuleb. | Hello, Tom speaking. | |
-| R1636 | Word (form) | kuuleb | hears; on the phone, speaking | |
-| R1637 | Word (word) | sõnum | message | |
-| R1638 | Word (form) | sõnumi | a message, the whole of it | |
-| R1639 | Word (verb) | jätma | to leave | |
-| R1640 | Word (form) | jätta | to leave, after could | |
-| R1641 | Word (form) | öelge | tell!, say!, polite | |
+| R1631 | Conversation, Tom | Tere! Siin Tom. Kas ma saaksin Mariga rääkida? | Hello! It's Tom. Could I speak to Mari? | |
+| R1632 | Conversation, Tom | Kas ma saaksin talle sõnumi jätta? | Could I leave her a message? | |
+| R1633 | Conversation, Tom | Öelge palun, et ma helistan õhtul tagasi. | Please tell her I'll call back this evening. | |
+| R1634 | Conversation, Tom | Aitäh! Head aega! | Thank you! Goodbye! | |
+| R1635 | Model answer | Siin Tom. Kas ma saaksin Mariga rääkida? | It's Tom. Could I speak to Mari? | |
+| R1636 | Model answer | Ma saadan talle sõnumi. | I'll text her. | |
+| R1637 | Model answer | Tere, Tom kuuleb. | Hello, Tom speaking. | |
+| R1638 | Word (form) | kuuleb | hears; on the phone, speaking | |
+| R1639 | Word (word) | sõnum | message | |
+| R1640 | Word (form) | sõnumi | a message, the whole of it | |
+| R1641 | Word (verb) | jätma | to leave | |
+| R1642 | Word (form) | jätta | to leave, after could | |
+| R1643 | Word (form) | öelge | tell!, say!, polite | |
 
 #### A2 53a. Funny, strange and important (`a2-53a-describe`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1642 | Conversation, Tom | Väga naljakas! Natuke imelik ka. | Really funny! And a bit strange. | |
-| R1643 | Conversation, Tom | Jah, kindlasti. Eelmine oli päris rumal. | Yes, definitely. The last one was pretty silly. | |
-| R1644 | Conversation, Tom | Saab, aga ainult täna. Täna on viimane õhtu! | You can, but only today. It's the last evening! | |
-| R1645 | Model answer | Väga naljakas! | Really funny! | |
-| R1646 | Model answer | See on õige. | That's right. | |
-| R1647 | Model answer | Ma olen kindel. | I'm sure. | |
-| R1648 | Word (word) | naljakas | funny | |
-| R1649 | Word (word) | imelik | strange, odd | |
-| R1650 | Word (word) | lõbus | fun | |
-| R1651 | Word (word) | rumal | silly, stupid | |
-| R1652 | Word (word) | tark | clever, wise | |
-| R1653 | Word (word) | armas | sweet, lovely | |
-| R1654 | Word (word) | kena | nice, pretty | |
-| R1655 | Word (word) | tähtis | important | |
-| R1656 | Word (word) | kindel | sure, certain | |
-| R1657 | Word (word) | õige | right, correct | |
-| R1658 | Word (word) | vale | wrong | |
-| R1659 | Word (word) | eelmine | previous, the one before | |
-| R1660 | Word (word) | viimane | last, final | |
-| R1661 | Word (word) | õhtu | evening | |
+| R1644 | Conversation, Tom | Väga naljakas! Natuke imelik ka. | Really funny! And a bit strange. | |
+| R1645 | Conversation, Tom | Jah, kindlasti. Eelmine oli päris rumal. | Yes, definitely. The last one was pretty silly. | |
+| R1646 | Conversation, Tom | Saab, aga ainult täna. Täna on viimane õhtu! | You can, but only today. It's the last evening! | |
+| R1647 | Model answer | Väga naljakas! | Really funny! | |
+| R1648 | Model answer | See on õige. | That's right. | |
+| R1649 | Model answer | Ma olen kindel. | I'm sure. | |
+| R1650 | Word (word) | naljakas | funny | |
+| R1651 | Word (word) | imelik | strange, odd | |
+| R1652 | Word (word) | lõbus | fun | |
+| R1653 | Word (word) | rumal | silly, stupid | |
+| R1654 | Word (word) | tark | clever, wise | |
+| R1655 | Word (word) | armas | sweet, lovely | |
+| R1656 | Word (word) | kena | nice, pretty | |
+| R1657 | Word (word) | tähtis | important | |
+| R1658 | Word (word) | kindel | sure, certain | |
+| R1659 | Word (word) | õige | right, correct | |
+| R1660 | Word (word) | vale | wrong | |
+| R1661 | Word (word) | eelmine | previous, the one before | |
+| R1662 | Word (word) | viimane | last, final | |
+| R1663 | Word (word) | õhtu | evening | |
 
 #### A2 54. Let's agree on a time (`a2-54-arrange`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1662 | Conversation, Tom | Kas sulle sobib reedel kell kuus? | Does Friday at six suit you? | |
-| R1663 | Conversation, Tom | Hästi, laupäeval kell kuus. Kus? | All right, Saturday at six. Where? | |
-| R1664 | Conversation, Tom | Selge. Lepime kokku: laupäeval kell kuus, kohvikus. | Right. Let's settle it: Saturday at six, at the café. | |
-| R1665 | Model answer | Millal me kokku saame? | When should we meet? | |
-| R1666 | Model answer | Reedel ei sobi. Aga laupäeval sobib. | Friday doesn't suit. But Saturday's fine. | |
-| R1667 | Model answer | Kokku lepitud! | Agreed! | |
-| R1668 | Word (word) | trenn | training, a workout | |
-| R1669 | Word (phrase) | Lepime kokku | let's settle it, let's agree | |
+| R1664 | Conversation, Tom | Kas sulle sobib reedel kell kuus? | Does Friday at six suit you? | |
+| R1665 | Conversation, Tom | Hästi, laupäeval kell kuus. Kus? | All right, Saturday at six. Where? | |
+| R1666 | Conversation, Tom | Selge. Lepime kokku: laupäeval kell kuus, kohvikus. | Right. Let's settle it: Saturday at six, at the café. | |
+| R1667 | Model answer | Millal me kokku saame? | When should we meet? | |
+| R1668 | Model answer | Reedel ei sobi. Aga laupäeval sobib. | Friday doesn't suit. But Saturday's fine. | |
+| R1669 | Model answer | Kokku lepitud! | Agreed! | |
+| R1670 | Word (word) | trenn | training, a workout | |
+| R1671 | Word (phrase) | Lepime kokku | let's settle it, let's agree | |
 
 #### A2 55. The end of A2 (`a2-55-end`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1670 | Conversation, Tom | Olin Tartus. Töötasin seal programmeerijana. | I was in Tartu. I worked there as a programmer. | |
-| R1671 | Conversation, Tom | Väga meeldis! Ma arvan, et see on Eesti kõige ilusam linn. | I liked it a lot! I think it's the prettiest town in Estonia. | |
-| R1672 | Conversation, Tom | Suvel kavatsen Saaremaale minna. Kas tuleksid kaasa? | In the summer I plan to go to Saaremaa. Would you come along? | |
-| R1673 | Conversation, Tom | Tore! | Great! | |
-| R1674 | Model answer | Olin Tartus. Töötasin seal. | I was in Tartu. I worked there. | |
-| R1675 | Model answer | Ma arvan, et see on Eesti kõige ilusam linn. | I think it's the prettiest town in Estonia. | |
-| R1676 | Model answer | Suvel kavatsen Saaremaale minna. | In the summer I plan to go to Saaremaa. | |
-| R1677 | Model answer | Jaaniga. Kas tuleksid ka kaasa? | With Jaan. Would you come along too? | |
-| R1678 | Model answer | Kas sulle sobib laupäeval kell kuus? | Does Saturday at six suit you? | |
+| R1672 | Conversation, Tom | Olin Tartus. Töötasin seal programmeerijana. | I was in Tartu. I worked there as a programmer. | |
+| R1673 | Conversation, Tom | Väga meeldis! Ma arvan, et see on Eesti kõige ilusam linn. | I liked it a lot! I think it's the prettiest town in Estonia. | |
+| R1674 | Conversation, Tom | Suvel kavatsen Saaremaale minna. Kas tuleksid kaasa? | In the summer I plan to go to Saaremaa. Would you come along? | |
+| R1675 | Conversation, Tom | Tore! | Great! | |
+| R1676 | Model answer | Olin Tartus. Töötasin seal. | I was in Tartu. I worked there. | |
+| R1677 | Model answer | Ma arvan, et see on Eesti kõige ilusam linn. | I think it's the prettiest town in Estonia. | |
+| R1678 | Model answer | Suvel kavatsen Saaremaale minna. | In the summer I plan to go to Saaremaa. | |
+| R1679 | Model answer | Jaaniga. Kas tuleksid ka kaasa? | With Jaan. Would you come along too? | |
+| R1680 | Model answer | Kas sulle sobib laupäeval kell kuus? | Does Saturday at six suit you? | |
 
 #### B1 1. Done, or still on it (`b1-01-done`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1679 | Conversation, Tom | Hommikul parandasin autot. | In the morning I was working on the car. | |
-| R1680 | Conversation, Tom | Ei, veel mitte. See on ju vana auto. Homme parandan edasi. | No, not yet. It's an old car, you know. I'll carry on tomorrow. | |
-| R1681 | Conversation, Tom | Aga ma lugesin raamatu läbi! | But I read the book to the end! | |
-| R1682 | Conversation, Tom | Jah! Aga mis sina tegid? | Yes! And what did you do? | |
-| R1683 | Conversation, Tom | Homme aitan. Teeme koos lõpuni. | I'll help tomorrow. We'll finish it together. | |
-| R1684 | Model answer | Ma koristasin kööki. | I was cleaning the kitchen. | |
-| R1685 | Model answer | Ma lugesin raamatu läbi. | I read the book to the end. | |
-| R1686 | Model answer | Ma parandasin auto ära. | I got the car fixed. | |
-| R1687 | Model answer | Ma ei koristanud kööki. | I didn't clean the kitchen. | |
-| R1688 | Word (form) | raamatut | the book, while you're reading it | |
-| R1689 | Word (form) | autot | the car, while you're working on it | |
-| R1690 | Word (form) | parandasin | I fixed, I worked on | |
-| R1691 | Word (word) | läbi | through, to the end (after a verb) | |
-| R1692 | Word (word) | terve | whole, a whole | |
-| R1693 | Word (word) | edasi | on, further | |
-| R1694 | Word (word) | ju | after all, you know (for something plain to see) | |
-| R1695 | Word (form) | koristasin | I cleaned, I was cleaning | |
-| R1696 | Word (form) | kööki | the kitchen, while you're working on it | |
-| R1697 | Word (form) | koristanud | cleaned, after {ei} | |
-| R1698 | Word (word) | lõpuni | to the end, all the way | |
-| R1699 | Word (form) | jõudnud | got round to, managed, after {ei} | |
+| R1681 | Conversation, Tom | Hommikul parandasin autot. | In the morning I was working on the car. | |
+| R1682 | Conversation, Tom | Ei, veel mitte. See on ju vana auto. Homme parandan edasi. | No, not yet. It's an old car, you know. I'll carry on tomorrow. | |
+| R1683 | Conversation, Tom | Aga ma lugesin raamatu läbi! | But I read the book to the end! | |
+| R1684 | Conversation, Tom | Jah! Aga mis sina tegid? | Yes! And what did you do? | |
+| R1685 | Conversation, Tom | Homme aitan. Teeme koos lõpuni. | I'll help tomorrow. We'll finish it together. | |
+| R1686 | Model answer | Ma koristasin kööki. | I was cleaning the kitchen. | |
+| R1687 | Model answer | Ma lugesin raamatu läbi. | I read the book to the end. | |
+| R1688 | Model answer | Ma parandasin auto ära. | I got the car fixed. | |
+| R1689 | Model answer | Ma ei koristanud kööki. | I didn't clean the kitchen. | |
+| R1690 | Word (form) | raamatut | the book, while you're reading it | |
+| R1691 | Word (form) | autot | the car, while you're working on it | |
+| R1692 | Word (form) | parandasin | I fixed, I worked on | |
+| R1693 | Word (word) | läbi | through, to the end (after a verb) | |
+| R1694 | Word (word) | terve | whole, a whole | |
+| R1695 | Word (word) | edasi | on, further | |
+| R1696 | Word (word) | ju | after all, you know (for something plain to see) | |
+| R1697 | Word (form) | koristasin | I cleaned, I was cleaning | |
+| R1698 | Word (form) | kööki | the kitchen, while you're working on it | |
+| R1699 | Word (form) | koristanud | cleaned, after {ei} | |
+| R1700 | Word (word) | lõpuni | to the end, all the way | |
+| R1701 | Word (form) | jõudnud | got round to, managed, after {ei} | |
 
 #### B1 2. Not a single one (`b1-02-not-one`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1700 | Conversation, Tom | Oota, Mari. Ma ei leia võtmeid. | Hang on, Mari. I can't find my keys. | |
-| R1701 | Conversation, Tom | Ma ei mäleta. Kotis pole ühtegi võtit. | I don't remember. There isn't a single key in my bag. | |
-| R1702 | Conversation, Tom | Vaatasin juba. Leidsin ainult ühe vana soki. | I've looked already. All I found was one old sock. | |
-| R1703 | Conversation, Tom | Ei tea. | No idea. | |
-| R1704 | Conversation, Tom | Ja Anna magab juba. | And Anna's asleep already. | |
-| R1705 | Conversation, Tom | Sinna ma üldse ei vaadanud! | I didn't look there at all! | |
-| R1706 | Model answer | Ei, ma ei leidnud võtmeid. | No, I didn't find the keys. | |
-| R1707 | Model answer | Laual pole ühtegi võtit. | There isn't a single key on the table. | |
-| R1708 | Model answer | Ma ei mäleta. | I don't remember. | |
-| R1709 | Model answer | Ma ei ostnud autot. | I didn't buy a car. | |
-| R1710 | Word (form) | võtmed | the keys | |
-| R1711 | Word (form) | võtmeid | keys, after a no | |
-| R1712 | Word (form) | võtit | a key, after a no | |
-| R1713 | Word (form) | võtme | of the key; the key, found | |
-| R1714 | Word (form) | leidsin | I found | |
-| R1715 | Word (form) | leidis | he found, she found | |
-| R1716 | Word (form) | leidnud | found, after {ei} | |
-| R1717 | Word (form) | vaatasin | I looked, I watched | |
-| R1718 | Word (form) | vaadanud | looked, watched, after {ei} | |
-| R1719 | Word (form) | tasku | of the pocket | |
-| R1720 | Word (word) | sokk | a sock | |
-| R1721 | Word (form) | soki | a sock, found | |
-| R1722 | Word (form) | sokki | a sock, after a no | |
-| R1723 | Word (form) | ühtegi | not a single one, after a no | |
-| R1724 | Word (word) | viimati | last time, most recently | |
-| R1725 | Word (word) | tegelikult | actually, in fact | |
-| R1726 | Word (word) | üldse | at all | |
-| R1727 | Word (word) | küljes | on, hanging on (a door, a wall) | |
+| R1702 | Conversation, Tom | Oota, Mari. Ma ei leia võtmeid. | Hang on, Mari. I can't find my keys. | |
+| R1703 | Conversation, Tom | Ma ei mäleta. Kotis pole ühtegi võtit. | I don't remember. There isn't a single key in my bag. | |
+| R1704 | Conversation, Tom | Vaatasin juba. Leidsin ainult ühe vana soki. | I've looked already. All I found was one old sock. | |
+| R1705 | Conversation, Tom | Ma tegelikult ei tea. | Actually, I've no idea. | |
+| R1706 | Conversation, Tom | Ja Anna magab juba. | And Anna's asleep already. | |
+| R1707 | Conversation, Tom | Sinna ma üldse ei vaadanud! | I didn't look there at all! | |
+| R1708 | Model answer | Ei, ma ei leidnud võtmeid. | No, I didn't find the keys. | |
+| R1709 | Model answer | Laual pole ühtegi võtit. | There isn't a single key on the table. | |
+| R1710 | Model answer | Ma ei mäleta. | I don't remember. | |
+| R1711 | Model answer | Ma ei ostnud autot. | I didn't buy a car. | |
+| R1712 | Word (form) | võtmed | the keys | |
+| R1713 | Word (form) | võtmeid | keys, after a no | |
+| R1714 | Word (form) | võtit | a key, after a no | |
+| R1715 | Word (form) | võtme | of the key; the key, found | |
+| R1716 | Word (form) | leidsin | I found | |
+| R1717 | Word (form) | leidis | he found, she found | |
+| R1718 | Word (form) | leidnud | found, after {ei} | |
+| R1719 | Word (form) | vaatasin | I looked, I watched | |
+| R1720 | Word (form) | vaadanud | looked, watched, after {ei} | |
+| R1721 | Word (form) | tasku | of the pocket | |
+| R1722 | Word (word) | sokk | a sock | |
+| R1723 | Word (form) | soki | a sock, found | |
+| R1724 | Word (form) | sokki | a sock, after a no | |
+| R1725 | Word (form) | ühtegi | not a single one, after a no | |
+| R1726 | Word (word) | viimati | last time, most recently | |
+| R1727 | Word (word) | tegelikult | actually, in fact | |
+| R1728 | Word (word) | üldse | at all | |
+| R1729 | Word (word) | küljes | on, hanging on (a door, a wall) | |
 
 #### B1 3. Some apples, or all of them (`b1-03-some-or-all`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1728 | Conversation, Tom | Jah, ostsin turult terve kilo. | Yes, I got a whole kilo at the market. | |
-| R1729 | Conversation, Tom | Ma pesin õunad juba ära. | I've already washed the apples. | |
-| R1730 | Conversation, Tom | Ei, mune ma ei ostnud. Need olid otsas. | No, I didn't buy eggs. They'd run out. | |
-| R1731 | Conversation, Tom | Noh, need olid nii head. Sõin bussis õunu. | Well, the apples were so good. I was eating apples on the bus. | |
-| R1732 | Conversation, Tom | Mitte kõik! Ainult osa. Kolm on ju alles. | Not all of them! Only some. There are still three left. | |
-| R1733 | Conversation, Tom | Olgu, lähen. Aga seekord ma bussis ei söö! | Fine, I'm going. But this time I won't eat on the bus! | |
-| R1734 | Model answer | Ma ostsin õunu. | I bought some apples. | |
-| R1735 | Model answer | Ma pesin õunad ära. | I've washed the apples. | |
-| R1736 | Model answer | Mitte kõik, ainult osa. | Not all of them, only some. | |
-| R1737 | Model answer | Ma ei ostnud mune. | I didn't buy eggs. | |
-| R1738 | Word (form) | õunu | apples, some of them | |
-| R1739 | Word (form) | õunad | the apples, all of them | |
-| R1740 | Word (form) | õuna | apples, after a number | |
-| R1741 | Word (word) | kilo | a kilo | |
-| R1742 | Word (word) | õunakook | an apple cake | |
-| R1743 | Word (form) | õunakooki | an apple cake, as the thing to make | |
-| R1744 | Word (form) | koogi | of the cake | |
-| R1745 | Word (form) | pesin | I washed | |
-| R1746 | Word (form) | tahtsin | I wanted | |
-| R1747 | Word (form) | mune | eggs, some of them | |
-| R1748 | Word (form) | munad | the eggs, all of them | |
-| R1749 | Word (form) | nõusid | dishes, some of them | |
-| R1750 | Word (form) | head | good, of more than one | |
-| R1751 | Word (word) | otsas | run out, all gone | |
-| R1752 | Word (word) | noh | well... | |
-| R1753 | Word (word) | osa | a part; some of it | |
-| R1754 | Word (word) | alles | still there, left | |
-| R1755 | Word (word) | jaoks | for (after the [omastav] (2nd form)) | |
-| R1756 | Word (word) | vähe | little, few | |
-| R1757 | Word (word) | seekord | this time | |
+| R1730 | Conversation, Tom | Jah, ostsin turult terve kilo. | Yes, I got a whole kilo at the market. | |
+| R1731 | Conversation, Tom | Ma pesin õunad juba ära. | I've already washed the apples. | |
+| R1732 | Conversation, Tom | Ei, mune ma ei ostnud. Need olid otsas. | No, I didn't buy eggs. They'd run out. | |
+| R1733 | Conversation, Tom | Noh, need olid nii head. Sõin bussis õunu. | Well, the apples were so good. I was eating apples on the bus. | |
+| R1734 | Conversation, Tom | Mitte kõik! Ainult osa. Kolm on ju alles. | Not all of them! Only some. There are still three left. | |
+| R1735 | Conversation, Tom | Olgu, lähen. Aga seekord ma bussis ei söö! | Fine, I'm going. But this time I won't eat on the bus! | |
+| R1736 | Model answer | Ma ostsin õunu. | I bought some apples. | |
+| R1737 | Model answer | Ma pesin õunad ära. | I've washed the apples. | |
+| R1738 | Model answer | Mitte kõik, ainult osa. | Not all of them, only some. | |
+| R1739 | Model answer | Ma ei ostnud mune. | I didn't buy eggs. | |
+| R1740 | Word (form) | õunu | apples, some of them | |
+| R1741 | Word (form) | õunad | the apples, all of them | |
+| R1742 | Word (form) | õuna | apples, after a number | |
+| R1743 | Word (word) | kilo | a kilo | |
+| R1744 | Word (word) | õunakook | an apple cake | |
+| R1745 | Word (form) | õunakooki | an apple cake, as the thing to make | |
+| R1746 | Word (form) | koogi | of the cake | |
+| R1747 | Word (form) | pesin | I washed | |
+| R1748 | Word (form) | tahtsin | I wanted | |
+| R1749 | Word (form) | mune | eggs, some of them | |
+| R1750 | Word (form) | munad | the eggs, all of them | |
+| R1751 | Word (form) | nõusid | dishes, some of them | |
+| R1752 | Word (form) | head | good, of more than one | |
+| R1753 | Word (word) | otsas | run out, all gone | |
+| R1754 | Word (word) | noh | well... | |
+| R1755 | Word (word) | osa | a part; some of it | |
+| R1756 | Word (word) | alles | still there, left | |
+| R1757 | Word (word) | jaoks | for (after the [omastav] (2nd form)) | |
+| R1758 | Word (word) | vähe | little, few | |
+| R1759 | Word (word) | seekord | this time | |
 
 #### B1 4. Waiting, loving, looking for (`b1-04-waiting`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1758 | Conversation, Tom | Jaan, kus sa oled? Ma ootan sind juba pool tundi. | Jaan, where are you? I've been waiting for you for half an hour. | |
-| R1759 | Conversation, Jaan | Ma olen ka jaamas! Otsin sind. | I'm at the station too! I'm looking for you. | |
-| R1760 | Conversation, Tom | Ma seisan kella all. Vaatan inimesi ja kuulan muusikat. | I'm standing under the clock. I'm watching people and listening to music. | |
-| R1761 | Conversation, Jaan | Siin pole ühtegi kella. Siin on ainult busse. | There isn't a single clock here. There are only buses. | |
-| R1762 | Conversation, Tom | Busse? Jaan, mina olen rongijaamas! | Buses? Jaan, I'm at the train station! | |
-| R1763 | Conversation, Jaan | Oi. Seda ma kartsin. Olen vales kohas. | Oh. That's what I was afraid of. I'm in the wrong place. | |
-| R1764 | Conversation, Tom | Pole viga. Tule siia, ma ootan. | No problem. Come over here, I'll wait. | |
-| R1765 | Conversation, Jaan | Aga siin on suur koer. Ta vaatab mind! | But there's a big dog here. It's looking at me! | |
-| R1766 | Conversation, Tom | Ära karda. Ta ootab vist kedagi. | Don't be scared. It's probably waiting for somebody. | |
-| R1767 | Conversation, Jaan | Olgu, tulen. Kohtume kümne minuti pärast. | OK, I'm coming. See you in ten minutes. | |
-| R1768 | Conversation, Tom | Hea küll. Võtan vahepeal kohvi. | OK. I'll get a coffee in the meantime. | |
-| R1769 | Conversation, Jaan | Tom, sa oled mu parim sõber. Ma armastan sind! | Tom, you're my best friend. I love you! | |
-| R1770 | Conversation, Tom | Jah, jah. Tule nüüd! | Yes, yes. Just come! | |
-| R1771 | Model answer | Ma ootan Marit. | I'm waiting for Mari. | |
-| R1772 | Model answer | Ma otsin oma võtmeid. | I'm looking for my keys. | |
-| R1773 | Model answer | Ei, ma armastan koeri. | No, I love dogs. | |
-| R1774 | Model answer | Ma kuulan muusikat. | I'm listening to music. | |
-| R1775 | Word (form) | sind | you, as the one waited for, looked for, loved | |
-| R1776 | Word (form) | teda | him, her, as the one waited for, looked for, loved | |
-| R1777 | Word (form) | keda | whom, who (as the one waited for) | |
-| R1778 | Word (form) | kedagi | somebody, as the one waited for | |
-| R1779 | Word (verb) | armastama | to love | |
-| R1780 | Word (verb) | kohtuma | to meet | |
-| R1781 | Word (verb) | seisma | to stand | |
-| R1782 | Word (form) | ootasin | I waited, I was waiting | |
-| R1783 | Word (form) | otsisin | I looked for, I was looking for | |
-| R1784 | Word (form) | kuulasin | I listened | |
-| R1785 | Word (form) | kartsin | I was afraid | |
-| R1786 | Word (form) | inimesi | people, some of them | |
-| R1787 | Word (form) | busse | buses, some buses | |
-| R1788 | Word (word) | rongijaam | a train station | |
-| R1789 | Word (form) | rongijaama | of the train station | |
-| R1790 | Word (form) | vale | of the wrong one | |
-| R1791 | Word (form) | koha | of the place | |
-| R1792 | Word (word) | koer | a dog | |
-| R1793 | Word (form) | koeri | dogs, as what you're scared of | |
+| R1760 | Conversation, Tom | Jaan, kus sa oled? Ma ootan sind juba pool tundi. | Jaan, where are you? I've been waiting for you for half an hour. | |
+| R1761 | Conversation, Jaan | Ma olen ka jaamas! Otsin sind. | I'm at the station too! I'm looking for you. | |
+| R1762 | Conversation, Tom | Ma seisan kella all. Vaatan inimesi ja kuulan muusikat. | I'm standing under the clock. I'm watching people and listening to music. | |
+| R1763 | Conversation, Jaan | Siin pole ühtegi kella. Siin on ainult busse. | There isn't a single clock here. There are only buses. | |
+| R1764 | Conversation, Tom | Busse? Jaan, mina olen rongijaamas! | Buses? Jaan, I'm at the train station! | |
+| R1765 | Conversation, Jaan | Oi. Seda ma kartsin. Olen vales kohas. | Oh. That's what I was afraid of. I'm in the wrong place. | |
+| R1766 | Conversation, Tom | Pole viga. Tule siia, ma ootan. | No problem. Come over here, I'll wait. | |
+| R1767 | Conversation, Jaan | Aga siin on suur koer. Ta vaatab mind! | But there's a big dog here. It's looking at me! | |
+| R1768 | Conversation, Tom | Ära karda. Ta ootab vist kedagi. | Don't be scared. It's probably waiting for somebody. | |
+| R1769 | Conversation, Jaan | Olgu, tulen. Kohtume kümne minuti pärast. | OK, I'm coming. See you in ten minutes. | |
+| R1770 | Conversation, Tom | Hea küll. Võtan vahepeal kohvi. | OK. I'll get a coffee in the meantime. | |
+| R1771 | Conversation, Jaan | Tom, sa oled mu parim sõber. Ma armastan sind! | Tom, you're my best friend. I love you! | |
+| R1772 | Conversation, Tom | Jah, jah. Tule nüüd! | Yes, yes. Just come! | |
+| R1773 | Model answer | Ma ootan Marit. | I'm waiting for Mari. | |
+| R1774 | Model answer | Ma otsin oma võtmeid. | I'm looking for my keys. | |
+| R1775 | Model answer | Ei, ma armastan koeri. | No, I love dogs. | |
+| R1776 | Model answer | Ma kuulan muusikat. | I'm listening to music. | |
+| R1777 | Word (form) | sind | you, as the one waited for, looked for, loved | |
+| R1778 | Word (form) | teda | him, her, as the one waited for, looked for, loved | |
+| R1779 | Word (form) | keda | whom, who (as the one waited for) | |
+| R1780 | Word (form) | kedagi | somebody, as the one waited for | |
+| R1781 | Word (verb) | armastama | to love | |
+| R1782 | Word (verb) | kohtuma | to meet | |
+| R1783 | Word (verb) | seisma | to stand | |
+| R1784 | Word (form) | ootasin | I waited, I was waiting | |
+| R1785 | Word (form) | otsisin | I looked for, I was looking for | |
+| R1786 | Word (form) | kuulasin | I listened | |
+| R1787 | Word (form) | kartsin | I was afraid | |
+| R1788 | Word (form) | inimesi | people, some of them | |
+| R1789 | Word (form) | busse | buses, some buses | |
+| R1790 | Word (word) | rongijaam | a train station | |
+| R1791 | Word (form) | rongijaama | of the train station | |
+| R1792 | Word (form) | vale | of the wrong one | |
+| R1793 | Word (form) | koha | of the place | |
+| R1794 | Word (word) | koer | a dog | |
+| R1795 | Word (form) | koeri | dogs, as what you're scared of | |
 
 #### B1 5. Do it! Don't! (`b1-05-do-it`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1794 | Conversation, Tom | Oi, kui raske! Mis seal sees on? | Wow, it's heavy! What's in it? | |
-| R1795 | Conversation, Tom | Ja nüüd? Toon diivani ka? | And now? Shall I bring the sofa too? | |
-| R1796 | Conversation, Tom | Uks on lahti. | The door's open. | |
-| R1797 | Conversation, Tom | Oih. | Oops. | |
-| R1798 | Conversation, Tom | Diivan ei mahu uksest läbi! | The sofa won't fit through the door! | |
-| R1799 | Conversation, Tom | Aga see oli ukse ees! | But it was in front of the door! | |
-| R1800 | Model answer | Too kast siia! | Bring the box here! | |
-| R1801 | Model answer | Ära too diivanit veel! | Don't bring the sofa yet! | |
-| R1802 | Model answer | Pane uks kinni! | Close the door! | |
-| R1803 | Model answer | Jah, võta võtmed. | Yes, take the keys. | |
-| R1804 | Word (form) | kasti | a box, after don't; the box, when you'll bring it | |
-| R1805 | Word (form) | kastid | the boxes | |
-| R1806 | Word (form) | raamatud | books, the books | |
-| R1807 | Word (form) | diivani | of the sofa; the sofa, when you'll bring it | |
-| R1808 | Word (form) | diivanit | a sofa, after don't | |
-| R1809 | Word (form) | ust | a door, after don't | |
-| R1810 | Word (word) | lahti | open (after a verb) | |
-| R1811 | Word (word) | kinni | shut, closed; stuck (after a verb) | |
-| R1812 | Word (verb) | lõhkuma | to break, to smash | |
-| R1813 | Word (form) | mahu | fit, after {ei} | |
-| R1814 | Word (form) | mahtunud | fitted, after {ei} | |
-| R1815 | Word (word) | oih | oops | |
-| R1816 | Word (word) | ise | yourself, myself, on your own | |
-| R1817 | Word (word) | naaber | a neighbor | |
-| R1818 | Word (form) | naabri | of the neighbor | |
-| R1819 | Word (form) | auto | of the car | |
-| R1820 | Word (form) | uude | into a new one | |
-| R1821 | Word (form) | tuppa | into the room, inside | |
+| R1796 | Conversation, Tom | Oi, kui raske! Mis seal sees on? | Wow, it's heavy! What's in it? | |
+| R1797 | Conversation, Tom | Ja nüüd? Toon diivani ka? | And now? Shall I bring the sofa too? | |
+| R1798 | Conversation, Tom | Uks on lahti. | The door's open. | |
+| R1799 | Conversation, Tom | Oih. | Oops. | |
+| R1800 | Conversation, Tom | Diivan ei mahu uksest läbi! | The sofa won't fit through the door! | |
+| R1801 | Conversation, Tom | Aga see oli ukse ees! | But it was in front of the door! | |
+| R1802 | Model answer | Too kast siia! | Bring the box here! | |
+| R1803 | Model answer | Ära too diivanit veel! | Don't bring the sofa yet! | |
+| R1804 | Model answer | Pane uks kinni! | Close the door! | |
+| R1805 | Model answer | Jah, võta võtmed. | Yes, take the keys. | |
+| R1806 | Word (form) | kasti | a box, after don't; the box, when you'll bring it | |
+| R1807 | Word (form) | kastid | the boxes | |
+| R1808 | Word (form) | raamatud | books, the books | |
+| R1809 | Word (form) | diivani | of the sofa; the sofa, when you'll bring it | |
+| R1810 | Word (form) | diivanit | a sofa, after don't | |
+| R1811 | Word (form) | ust | a door, after don't | |
+| R1812 | Word (word) | lahti | open (after a verb) | |
+| R1813 | Word (word) | kinni | shut, closed; stuck (after a verb) | |
+| R1814 | Word (verb) | lõhkuma | to break, to smash | |
+| R1815 | Word (form) | mahu | fit, after {ei} | |
+| R1816 | Word (form) | mahtunud | fitted, after {ei} | |
+| R1817 | Word (word) | oih | oops | |
+| R1818 | Word (word) | ise | yourself, myself, on your own | |
+| R1819 | Word (word) | naaber | a neighbor | |
+| R1820 | Word (form) | naabri | of the neighbor | |
+| R1821 | Word (form) | auto | of the car | |
+| R1822 | Word (form) | uude | into a new one | |
+| R1823 | Word (form) | tuppa | into the room, inside | |
 
 #### B1 6. A note to the handyman (`b1-06-note`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1822 | Conversation, Peeter | Tere, Tom! Peeter siin. | Hello, Tom! It's Peeter. | |
-| R1823 | Conversation, Peeter | Meister tuleb homme kell kümme. | The handyman's coming tomorrow at ten. | |
-| R1824 | Conversation, Peeter | Sa oled siis tööl, aga pole viga. | You'll be at work then, but never mind. | |
-| R1825 | Conversation, Peeter | Jäta talle sedel lauale. | Leave him a note on the table. | |
-| R1826 | Conversation, Peeter | Kirjuta, mis on tehtud ja mis on veel katki. | Write what's done and what's still broken. | |
-| R1827 | Conversation, Peeter | Kraani sa parandasid ju ise ära. | You fixed the tap yourself, after all. | |
-| R1828 | Conversation, Peeter | Aga aken ei lähe ikka kinni ja dušš tilgub terve öö. | But the window still won't close, and the shower drips all night. | |
-| R1829 | Conversation, Peeter | Kirjuta kõik üles. Meister ei tunne ju korterit. | Write it all down. The handyman doesn't know the apartment. | |
-| R1830 | Conversation, Peeter | Ja kui köögis lamp ei põle, siis on pirn läbi. | And if the kitchen light won't come on, the bulb's gone. | |
-| R1831 | Conversation, Peeter | Vaheta ise ära, see on lihtne! | Change it yourself, it's easy! | |
-| R1832 | Conversation, Peeter | Või kardad sa elektrit? | Or are you scared of electricity? | |
-| R1833 | Conversation, Peeter | Võti jäta naabrile. Head aega! | Leave the key with the neighbor. Bye! | |
-| R1834 | Model answer | Ma parandasin kraani ise ära. | I fixed the tap myself. | |
-| R1835 | Model answer | Aken ei lähe ikka kinni. | The window still won't close. | |
-| R1836 | Model answer | Palun parandage dušš ära. | Please fix the shower. | |
-| R1837 | Model answer | Võti on naabri juures. | The key is at the neighbor's. | |
-| R1838 | Word (word) | sedel | a note, a slip of paper you leave somebody | |
-| R1839 | Word (form) | sedelit | the note, as the thing you read | |
-| R1840 | Word (form) | tehtud | done, finished | |
-| R1841 | Word (form) | kraani | the tap, as the job done | |
-| R1842 | Word (word) | dušš | a shower | |
-| R1843 | Word (form) | duši | the shower, as the job done | |
-| R1844 | Word (form) | tilgub | drips | |
-| R1845 | Word (word) | oluline | important | |
-| R1846 | Word (form) | korterit | the apartment, after a no | |
-| R1847 | Word (verb) | põlema | to burn; of a light, to be on | |
-| R1848 | Word (word) | pirn | a light bulb; a pear | |
-| R1849 | Word (form) | pirni | a bulb, as the thing bought | |
-| R1850 | Word (verb) | vahetama | to change, to swap | |
-| R1851 | Word (form) | elektrit | electricity, as what you're scared of | |
-| R1852 | Word (form) | selles | in this | |
-| R1853 | Word (form) | parandage | please fix, to somebody you call {teie} | |
-| R1854 | Word (form) | helistage | please call, to somebody you call {teie} | |
-| R1855 | Word (form) | küsimusi | questions, any | |
-| R1856 | Word (form) | akent | the window, after a no | |
-| R1857 | Word (form) | parandanud | fixed, after {ei} | |
-| R1858 | Word (word) | varuosa | a spare part | |
+| R1824 | Conversation, Peeter | Tere, Tom! Peeter siin. | Hello, Tom! It's Peeter. | |
+| R1825 | Conversation, Peeter | Meister tuleb homme kell kümme. | The handyman's coming tomorrow at ten. | |
+| R1826 | Conversation, Peeter | Sa oled siis tööl, aga pole viga. | You'll be at work then, but never mind. | |
+| R1827 | Conversation, Peeter | Jäta talle sedel lauale. | Leave him a note on the table. | |
+| R1828 | Conversation, Peeter | Kirjuta, mis on tehtud ja mis on veel katki. | Write what's done and what's still broken. | |
+| R1829 | Conversation, Peeter | Kraani sa parandasid ju ise ära. | You fixed the tap yourself, after all. | |
+| R1830 | Conversation, Peeter | Aga aken ei lähe ikka kinni ja dušš tilgub terve öö. | But the window still won't close, and the shower drips all night. | |
+| R1831 | Conversation, Peeter | Kirjuta kõik üles. Meister ei tunne ju korterit. | Write it all down. The handyman doesn't know the apartment. | |
+| R1832 | Conversation, Peeter | Ja kui köögis lamp ei põle, siis on pirn läbi. | And if the kitchen light won't come on, the bulb's gone. | |
+| R1833 | Conversation, Peeter | Vaheta ise ära, see on lihtne! | Change it yourself, it's easy! | |
+| R1834 | Conversation, Peeter | Või kardad sa elektrit? | Or are you scared of electricity? | |
+| R1835 | Conversation, Peeter | Võti jäta naabrile. Head aega! | Leave the key with the neighbor. Bye! | |
+| R1836 | Model answer | Ma parandasin kraani ise ära. | I fixed the tap myself. | |
+| R1837 | Model answer | Aken ei lähe ikka kinni. | The window still won't close. | |
+| R1838 | Model answer | Palun parandage dušš ära. | Please fix the shower. | |
+| R1839 | Model answer | Võti on naabri juures. | The key is at the neighbor's. | |
+| R1840 | Word (word) | sedel | a note, a slip of paper you leave somebody | |
+| R1841 | Word (form) | sedelit | the note, as the thing you read | |
+| R1842 | Word (form) | tehtud | done, finished | |
+| R1843 | Word (form) | kraani | the tap, as the job done | |
+| R1844 | Word (word) | dušš | a shower | |
+| R1845 | Word (form) | duši | the shower, as the job done | |
+| R1846 | Word (form) | tilgub | drips | |
+| R1847 | Word (word) | oluline | important | |
+| R1848 | Word (form) | korterit | the apartment, after a no | |
+| R1849 | Word (verb) | põlema | to burn; of a light, to be on | |
+| R1850 | Word (word) | pirn | a light bulb; a pear | |
+| R1851 | Word (form) | pirni | a bulb, as the thing bought | |
+| R1852 | Word (verb) | vahetama | to change, to swap | |
+| R1853 | Word (form) | elektrit | electricity, as what you're scared of | |
+| R1854 | Word (form) | selles | in this | |
+| R1855 | Word (form) | parandage | please fix, to somebody you call {teie} | |
+| R1856 | Word (form) | helistage | please call, to somebody you call {teie} | |
+| R1857 | Word (form) | küsimusi | questions, any | |
+| R1858 | Word (form) | akent | the window, after a no | |
+| R1859 | Word (form) | parandanud | fixed, after {ei} | |
+| R1860 | Word (word) | varuosa | a spare part | |
 
 #### B1 7. The repair visit (`b1-07-repair`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1859 | Conversation, Tom | Jah, tulge sisse! Sedel on laual. | Yes, come in! The note's on the table. | |
-| R1860 | Conversation, Tom | Jah, aga dušš tilgub ikka edasi. | Yes, but the shower keeps on dripping. | |
-| R1861 | Conversation, Tom | Ja aken? See ei lähe üldse kinni. | And the window? It doesn't close at all. | |
-| R1862 | Conversation, Tom | Millal te akna ära parandate? | When will you get the window fixed? | |
-| R1863 | Conversation, Tom | Reedel olen ma tööl. Kas esmaspäeval sobib? | On Friday I'm at work. Does Monday suit you? | |
-| R1864 | Conversation, Tom | Pirn on läbi. Ma kardan elektrit. | The bulb's gone. I'm scared of electricity. | |
-| R1865 | Conversation, Tom | Aitäh! Siis näeme esmaspäeval. | Thank you! See you on Monday, then. | |
-| R1866 | Model answer | Dušš tilgub ikka. | The shower still drips. | |
-| R1867 | Model answer | Jah, parandasin ise ära. | Yes, I fixed it myself. | |
-| R1868 | Model answer | Tere! Dušš tilgub. | Hello! The shower drips. | |
-| R1869 | Model answer | Kraani parandasin ma ise ära. | I fixed the tap myself. | |
-| R1870 | Model answer | Aken ei lähe ikka kinni. | The window still won't close. | |
-| R1871 | Model answer | Siis on võti naabri juures. | Then the key will be at the neighbor's. | |
-| R1872 | Model answer | Aitäh! Head aega! | Thank you! Goodbye! | |
+| R1861 | Conversation, Tom | Jah, tulge sisse! Sedel on laual. | Yes, come in! The note's on the table. | |
+| R1862 | Conversation, Tom | Jah, aga dušš tilgub ikka edasi. | Yes, but the shower keeps on dripping. | |
+| R1863 | Conversation, Tom | Ja aken? See ei lähe üldse kinni. | And the window? It doesn't close at all. | |
+| R1864 | Conversation, Tom | Millal te akna ära parandate? | When will you get the window fixed? | |
+| R1865 | Conversation, Tom | Reedel olen ma tööl. Kas esmaspäeval sobib? | On Friday I'm at work. Does Monday suit you? | |
+| R1866 | Conversation, Tom | Pirn on läbi. Ma kardan elektrit. | The bulb's gone. I'm scared of electricity. | |
+| R1867 | Conversation, Tom | Aitäh! Siis näeme esmaspäeval. | Thank you! See you on Monday, then. | |
+| R1868 | Model answer | Dušš tilgub ikka. | The shower still drips. | |
+| R1869 | Model answer | Jah, parandasin ise ära. | Yes, I fixed it myself. | |
+| R1870 | Model answer | Tere! Dušš tilgub. | Hello! The shower drips. | |
+| R1871 | Model answer | Kraani parandasin ma ise ära. | I fixed the tap myself. | |
+| R1872 | Model answer | Aken ei lähe ikka kinni. | The window still won't close. | |
+| R1873 | Model answer | Siis on võti naabri juures. | Then the key will be at the neighbor's. | |
+| R1874 | Model answer | Aitäh! Head aega! | Thank you! Goodbye! | |
 
 #### B1 8. Help me with this (`b1-08-help`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1873 | Conversation, Tom | Anna, kas sul on natuke aega? Mul on üks probleem. | Anna, have you got a minute? I've got a problem. | |
-| R1874 | Conversation, Tom | Ülemus tahab aruannet homseks. Ma tegin seda terve päeva, aga midagi on ikka valesti. | My boss wants the report by tomorrow. I've been on it all day, and something's still wrong. | |
-| R1875 | Conversation, Tom | Ma ei tahtnud sind segada. Sul on ju palju tööd. | I didn't want to bother you. You've got plenty of work yourself. | |
-| R1876 | Conversation, Tom | Ainult üks viga? Ma otsisin seda kolm tundi! | Just one mistake? I spent three hours looking for it! | |
-| R1877 | Conversation, Tom | Hea meelega. Mis sellega juhtus? | Happy to. What happened to it? | |
-| R1878 | Conversation, Tom | Siis ma kahjuks ei saa sind aidata. Siin aitab ainult uus arvuti. | Then I'm afraid I can't help you. Only a new computer will help here. | |
-| R1879 | Model answer | Hea meelega. Millega? | Happy to. With what? | |
-| R1880 | Model answer | Kas sa saaksid mind sellega aidata? | Could you help me with this? | |
-| R1881 | Model answer | Ma ei tahtnud sind segada. | I didn't want to bother you. | |
-| R1882 | Model answer | Ma küsin ülemuselt. | I ask the boss. | |
-| R1883 | Word (verb) | paluma | to ask (for), to beg | |
-| R1884 | Word (form) | palusin | I asked, I begged | |
-| R1885 | Word (form) | millega | with what? | |
-| R1886 | Word (form) | aidata | to help (after another verb) | |
-| R1887 | Word (form) | sellega | with this, with it | |
-| R1888 | Word (form) | minult | from me, off me | |
-| R1889 | Word (form) | küsinud | asked, after {ei} | |
-| R1890 | Word (form) | arvutiga | with the computer | |
-| R1891 | Word (form) | ülemuse | of the boss | |
-| R1892 | Word (form) | ülemust | the boss, as the one asked | |
-| R1893 | Word (word) | aruanne | report | |
-| R1894 | Word (form) | aruande | of the report | |
-| R1895 | Word (form) | aruannet | the report, while you're on it | |
-| R1896 | Word (form) | segada | to bother, to disturb (after another verb) | |
-| R1897 | Word (phrase) | pole hullu | that's all right, it doesn't matter | |
-| R1898 | Word (word) | valesti | wrong, the wrong way | |
+| R1875 | Conversation, Tom | Anna, kas sul on natuke aega? Mul on üks probleem. | Anna, have you got a minute? I've got a problem. | |
+| R1876 | Conversation, Tom | Ülemus tahab aruannet homseks. Ma tegin seda terve päeva, aga midagi on ikka valesti. | My boss wants the report by tomorrow. I've been on it all day, and something's still wrong. | |
+| R1877 | Conversation, Tom | Ma ei tahtnud sind segada. Sul on ju palju tööd. | I didn't want to bother you. You've got plenty of work yourself. | |
+| R1878 | Conversation, Tom | Ainult üks viga? Ma otsisin seda kolm tundi! | Just one mistake? I spent three hours looking for it! | |
+| R1879 | Conversation, Tom | Hea meelega. Mis sellega juhtus? | Happy to. What happened to it? | |
+| R1880 | Conversation, Tom | Siis ma kahjuks ei saa sind aidata. Siin aitab ainult uus arvuti. | Then I'm afraid I can't help you. Only a new computer will help here. | |
+| R1881 | Model answer | Hea meelega. Millega? | Happy to. With what? | |
+| R1882 | Model answer | Kas sa saaksid mind sellega aidata? | Could you help me with this? | |
+| R1883 | Model answer | Ma ei tahtnud sind segada. | I didn't want to bother you. | |
+| R1884 | Model answer | Ma küsin ülemuselt. | I ask the boss. | |
+| R1885 | Word (verb) | paluma | to ask (for), to beg | |
+| R1886 | Word (form) | palusin | I asked, I begged | |
+| R1887 | Word (form) | millega | with what? | |
+| R1888 | Word (form) | aidata | to help (after another verb) | |
+| R1889 | Word (form) | sellega | with this, with it | |
+| R1890 | Word (form) | minult | from me, off me | |
+| R1891 | Word (form) | küsinud | asked, after {ei} | |
+| R1892 | Word (form) | arvutiga | with the computer | |
+| R1893 | Word (form) | ülemuse | of the boss | |
+| R1894 | Word (form) | ülemust | the boss, as the one asked | |
+| R1895 | Word (word) | aruanne | report | |
+| R1896 | Word (form) | aruande | of the report | |
+| R1897 | Word (form) | aruannet | the report, while you're on it | |
+| R1898 | Word (form) | segada | to bother, to disturb (after another verb) | |
+| R1899 | Word (phrase) | pole hullu | that's all right, it doesn't matter | |
+| R1900 | Word (word) | valesti | wrong, the wrong way | |
 
 #### B1 9. What are you into? (`b1-09-into`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1899 | Conversation, Tom | Mind huvitab muusika. Ja sport ka, aga seda ma ainult vaatan. | I'm into music. And sport too, but only to watch. | |
-| R1900 | Conversation, Tom | Natuke. Ainult kodus. | A little. Only at home. | |
-| R1901 | Conversation, Tom | Tegelikult ma ei laula üldse hästi. Mulle meeldib rohkem kuulata. | Actually, I don't sing well at all. I prefer listening. | |
-| R1902 | Conversation, Tom | Aga mis sind huvitab? | And what are you into? | |
-| R1903 | Conversation, Tom | Autod? Mu auto vajab küll abi. See on umbes kakskümmend aastat vana. | Cars? My car needs help. It's about twenty years old. | |
-| R1904 | Conversation, Tom | Olgu! Aga ma laulan väga vaikselt. | All right! But I'll sing very quietly. | |
-| R1905 | Model answer | Mind huvitab muusika. | I'm into music. | |
-| R1906 | Model answer | Mind huvitab ajalugu. | I'm interested in history. | |
-| R1907 | Model answer | Mulle meeldib rohkem kuulata kui laulda. | I like listening more than singing. | |
-| R1908 | Model answer | Ei, ma ei laula üldse hästi. | No, I don't sing well at all. | |
-| R1909 | Word (verb) | huvituma | to be into, to be interested | |
-| R1910 | Word (form) | huvitab | interests, as in {mind huvitab}: I'm into | |
-| R1911 | Word (word) | huvitatud | interested | |
-| R1912 | Word (verb) | tunduma | to seem | |
-| R1913 | Word (form) | tundus | it seemed | |
-| R1914 | Word (form) | millest | out of what? about what? | |
-| R1915 | Word (phrase) | vabal ajal | in your free time | |
-| R1916 | Word (form) | muusika | of music | |
-| R1917 | Word (form) | spordi | of sport | |
-| R1918 | Word (word) | ajalugu | history | |
-| R1919 | Word (form) | ajaloo | of history | |
-| R1920 | Word (form) | autod | cars | |
-| R1921 | Word (word) | koor | choir | |
-| R1922 | Word (form) | koori | of the choir; and to the choir | |
-| R1923 | Word (verb) | laulma | to sing | |
-| R1924 | Word (form) | laulsin | I sang | |
-| R1925 | Word (form) | laulda | to sing (after another verb) | |
-| R1926 | Word (form) | kuulata | to listen (after another verb) | |
-| R1927 | Word (form) | mehi | men, some of them | |
-| R1928 | Word (form) | oleksid | you would be | |
-| R1929 | Word (word) | vaikselt | quietly | |
-| R1930 | Word (phrase) | esimest korda | for the first time | |
-| R1931 | Word (form) | ütles | he said, she said | |
-| R1932 | Word (word) | kuna | since, because | |
+| R1901 | Conversation, Tom | Mind huvitab muusika. Ja sport ka, aga seda ma ainult vaatan. | I'm into music. And sport too, but only to watch. | |
+| R1902 | Conversation, Tom | Natuke. Ainult kodus. | A little. Only at home. | |
+| R1903 | Conversation, Tom | Tegelikult ma ei laula üldse hästi. Mulle meeldib rohkem kuulata. | Actually, I don't sing well at all. I prefer listening. | |
+| R1904 | Conversation, Tom | Aga mis sind huvitab? | And what are you into? | |
+| R1905 | Conversation, Tom | Autod? Mu auto vajab küll abi. See on umbes kakskümmend aastat vana. | Cars? My car needs help. It's about twenty years old. | |
+| R1906 | Conversation, Tom | Olgu! Aga ma laulan väga vaikselt. | All right! But I'll sing very quietly. | |
+| R1907 | Model answer | Mind huvitab muusika. | I'm into music. | |
+| R1908 | Model answer | Mind huvitab ajalugu. | I'm interested in history. | |
+| R1909 | Model answer | Mulle meeldib rohkem kuulata kui laulda. | I like listening more than singing. | |
+| R1910 | Model answer | Ei, ma ei laula üldse hästi. | No, I don't sing well at all. | |
+| R1911 | Word (verb) | huvituma | to be into, to be interested | |
+| R1912 | Word (form) | huvitab | interests, as in {mind huvitab}: I'm into | |
+| R1913 | Word (word) | huvitatud | interested | |
+| R1914 | Word (verb) | tunduma | to seem | |
+| R1915 | Word (form) | tundus | it seemed | |
+| R1916 | Word (form) | millest | out of what? about what? | |
+| R1917 | Word (phrase) | vabal ajal | in your free time | |
+| R1918 | Word (form) | muusika | of music | |
+| R1919 | Word (form) | spordi | of sport | |
+| R1920 | Word (word) | ajalugu | history | |
+| R1921 | Word (form) | ajaloo | of history | |
+| R1922 | Word (form) | autod | cars | |
+| R1923 | Word (word) | koor | choir | |
+| R1924 | Word (form) | koori | of the choir; and to the choir | |
+| R1925 | Word (verb) | laulma | to sing | |
+| R1926 | Word (form) | laulsin | I sang | |
+| R1927 | Word (form) | laulda | to sing (after another verb) | |
+| R1928 | Word (form) | kuulata | to listen (after another verb) | |
+| R1929 | Word (form) | mehi | men, some of them | |
+| R1930 | Word (form) | oleksid | you would be | |
+| R1931 | Word (word) | vaikselt | quietly | |
+| R1932 | Word (phrase) | esimest korda | for the first time | |
+| R1933 | Word (form) | ütles | he said, she said | |
+| R1934 | Word (word) | kuna | since, because | |
 
 #### B1 10. Talking about people (`b1-10-about`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1933 | Conversation, Tom | Ei tea. Kellega? | No idea. Who? | |
-| R1934 | Conversation, Tom | Millest nad rääkisid? | What were they talking about? | |
-| R1935 | Conversation, Tom | Äkki oli see ta tütar? | Maybe it was his daughter? | |
-| R1936 | Conversation, Tom | Mari, sa räägid ju alati teistest inimestest. | Mari, you're always talking about other people. | |
-| R1937 | Conversation, Peeter | Tere! Kas te räägite minust? | Hello! Are you talking about me? | |
-| R1938 | Conversation, Peeter | Selge. Mul on uudis: mu tütar tuli eile külla! Me kohtusime pargis. | Right. I've got news: my daughter came to visit yesterday! We met in the park. | |
-| R1939 | Conversation, Tom | Kui tore! Mari mõtles just sellele. | How lovely! Mari was just thinking about that. | |
-| R1940 | Model answer | Me rääkisime ilmast. | We were talking about the weather. | |
-| R1941 | Model answer | Ma rääkisin naabriga. | I talked with a neighbor. | |
-| R1942 | Model answer | Ma mõtlen terve päeva sellele. | I've been thinking about it all day. | |
-| R1943 | Model answer | Ei, ma ei tea temast midagi. | No, I don't know anything about him. | |
-| R1944 | Word (form) | kohtusin | I met | |
-| R1945 | Word (form) | kohtunud | met, after {ei} | |
-| R1946 | Word (form) | mõtles | he thought, she thought | |
-| R1947 | Word (form) | naersin | I laughed | |
-| R1948 | Word (form) | minust | about me | |
-| R1949 | Word (form) | temast | about him, about her | |
-| R1950 | Word (form) | temaga | with him, with her | |
-| R1951 | Word (form) | sellele | onto it; about it, after {mõtlema} | |
-| R1952 | Word (form) | sellest | about it, out of it | |
-| R1953 | Word (form) | ilma | of the weather | |
-| R1954 | Word (form) | teistest | about others | |
-| R1955 | Word (form) | inimestest | about people | |
-| R1956 | Word (phrase) | heas mõttes | in a nice way, meaning well | |
-| R1957 | Word (phrase) | viimasel ajal | lately | |
-| R1958 | Word (word) | ehk | maybe, perhaps | |
-| R1959 | Word (word) | lugu | story | |
-| R1960 | Word (word) | uudis | a piece of news | |
-| R1961 | Word (form) | pargis | in the park | |
-| R1962 | Word (form) | kuulnud | heard, after {ei} | |
-| R1963 | Word (word) | külla | to visit (with {tulema}: to come and see somebody) | |
+| R1935 | Conversation, Tom | Ei tea. Kellega? | No idea. Who? | |
+| R1936 | Conversation, Tom | Millest nad rääkisid? | What were they talking about? | |
+| R1937 | Conversation, Tom | Äkki oli see ta tütar? | Maybe it was his daughter? | |
+| R1938 | Conversation, Tom | Mari, sa räägid ju alati teistest inimestest. | Mari, you're always talking about other people. | |
+| R1939 | Conversation, Peeter | Tere! Kas te räägite minust? | Hello! Are you talking about me? | |
+| R1940 | Conversation, Peeter | Selge. Mul on uudis: mu tütar tuli eile külla! Me kohtusime pargis. | Right. I've got news: my daughter came to visit yesterday! We met in the park. | |
+| R1941 | Conversation, Tom | Kui tore! Mari mõtles just sellele. | How lovely! Mari was just thinking about that. | |
+| R1942 | Model answer | Me rääkisime ilmast. | We were talking about the weather. | |
+| R1943 | Model answer | Ma rääkisin naabriga. | I talked with a neighbor. | |
+| R1944 | Model answer | Ma mõtlen terve päeva sellele. | I've been thinking about it all day. | |
+| R1945 | Model answer | Ei, ma ei tea temast midagi. | No, I don't know anything about him. | |
+| R1946 | Word (form) | kohtusin | I met | |
+| R1947 | Word (form) | kohtunud | met, after {ei} | |
+| R1948 | Word (form) | mõtles | he thought, she thought | |
+| R1949 | Word (form) | naersin | I laughed | |
+| R1950 | Word (form) | minust | about me | |
+| R1951 | Word (form) | temast | about him, about her | |
+| R1952 | Word (form) | temaga | with him, with her | |
+| R1953 | Word (form) | sellele | onto it; about it, after {mõtlema} | |
+| R1954 | Word (form) | sellest | about it, out of it | |
+| R1955 | Word (form) | ilma | of the weather | |
+| R1956 | Word (form) | teistest | about others | |
+| R1957 | Word (form) | inimestest | about people | |
+| R1958 | Word (phrase) | heas mõttes | in a nice way, meaning well | |
+| R1959 | Word (phrase) | viimasel ajal | lately | |
+| R1960 | Word (word) | ehk | maybe, perhaps | |
+| R1961 | Word (word) | lugu | story | |
+| R1962 | Word (word) | uudis | a piece of news | |
+| R1963 | Word (form) | pargis | in the park | |
+| R1964 | Word (form) | kuulnud | heard, after {ei} | |
+| R1965 | Word (word) | külla | to visit (with {tulema}: to come and see somebody) | |
 
 #### B1 11. Who you're with (`b1-11-together`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1964 | Conversation, Tom | Palju õnne! Kellega? | Congratulations! Who to? | |
-| R1965 | Conversation, Tom | Lõpuks! Te olete ju juba kuus aastat koos. | At last! You've been together for six years now. | |
-| R1966 | Conversation, Tom | Kuus aastat? Mida ta nii kaua tegi? | Six years? What was he doing all that time? | |
-| R1967 | Conversation, Tom | Esimesel päeval? Mis juhtus? | On the first day? What happened? | |
-| R1968 | Conversation, Tom | Ja see oli romantiline? | And that was romantic? | |
-| R1969 | Conversation, Tom | Me sõbrustasime kaua. Ta oli mu parim sõber ülikoolis. | We were friends for a long time. She was my best friend at university. | |
-| R1970 | Conversation, Tom | Ühel päeval ta ütles: Tom, abiellume! Ma ütlesin kohe jah. | One day she said: Tom, let's get married! I said yes right away. | |
-| R1971 | Conversation, Tom | Muidugi. Kui Jaan just terve õhtu oma emast ei räägi. | Of course. As long as Jaan doesn't talk about his mom all evening. | |
-| R1972 | Model answer | Me tutvusime tööl. | We met at work. | |
-| R1973 | Model answer | Ma sõbrustan naabriga. | I'm friends with a neighbor. | |
-| R1974 | Model answer | Ma armusin sellesse linna esimesel päeval. | I fell for this town on the very first day. | |
-| R1975 | Model answer | Ma abiellun juunis oma sõbraga. | I'm marrying my friend in June. | |
-| R1976 | Word (verb) | abielluma | to get married | |
-| R1977 | Word (verb) | tutvuma | to get to know, to meet for the first time | |
-| R1978 | Word (form) | tutvusin | I met, I got to know | |
-| R1979 | Word (verb) | armuma | to fall in love | |
-| R1980 | Word (form) | armusin | I fell in love | |
-| R1981 | Word (verb) | sõbrustama | to be friends | |
-| R1982 | Word (form) | sõbrustasin | I was friends | |
-| R1983 | Word (form) | kellesse | into whom? | |
-| R1984 | Word (form) | temasse | into him, into her | |
-| R1985 | Word (form) | sellesse | into this, into it | |
-| R1986 | Word (form) | sinuga | with you | |
-| R1987 | Word (form) | parandas | he fixed, she fixed | |
-| R1988 | Word (form) | aitas | he helped, she helped | |
-| R1989 | Word (form) | ütlesin | I said | |
-| R1990 | Word (form) | küsis | he asked, she asked | |
-| R1991 | Word (form) | kuud | months (after a number) | |
-| R1992 | Word (form) | juunis | in June | |
-| R1993 | Word (word) | pulmad | a wedding | |
-| R1994 | Word (word) | romantiline | romantic | |
-| R1995 | Word (word) | sellepärast | that's why, because of that | |
-| R1996 | Word (word) | lahke | kind | |
+| R1966 | Conversation, Tom | Palju õnne! Kellega? | Congratulations! Who to? | |
+| R1967 | Conversation, Tom | Lõpuks! Te olete ju juba kuus aastat koos. | At last! You've been together for six years now. | |
+| R1968 | Conversation, Tom | Kuus aastat? Mida ta nii kaua tegi? | Six years? What was he doing all that time? | |
+| R1969 | Conversation, Tom | Esimesel päeval? Mis juhtus? | On the first day? What happened? | |
+| R1970 | Conversation, Tom | Ja see oli romantiline? | And that was romantic? | |
+| R1971 | Conversation, Tom | Me sõbrustasime kaua. Ta oli mu parim sõber ülikoolis. | We were friends for a long time. She was my best friend at university. | |
+| R1972 | Conversation, Tom | Ühel päeval ta ütles: Tom, abiellume! Ma ütlesin kohe jah. | One day she said: Tom, let's get married! I said yes right away. | |
+| R1973 | Conversation, Tom | Muidugi. Kui Jaan just terve õhtu oma emast ei räägi. | Of course. As long as Jaan doesn't talk about his mom all evening. | |
+| R1974 | Model answer | Me tutvusime tööl. | We met at work. | |
+| R1975 | Model answer | Ma sõbrustan naabriga. | I'm friends with a neighbor. | |
+| R1976 | Model answer | Ma armusin sellesse linna esimesel päeval. | I fell for this town on the very first day. | |
+| R1977 | Model answer | Ma abiellun juunis oma sõbraga. | I'm marrying my friend in June. | |
+| R1978 | Word (verb) | abielluma | to get married | |
+| R1979 | Word (verb) | tutvuma | to get to know, to meet for the first time | |
+| R1980 | Word (form) | tutvusin | I met, I got to know | |
+| R1981 | Word (verb) | armuma | to fall in love | |
+| R1982 | Word (form) | armusin | I fell in love | |
+| R1983 | Word (verb) | sõbrustama | to be friends | |
+| R1984 | Word (form) | sõbrustasin | I was friends | |
+| R1985 | Word (form) | kellesse | into whom? | |
+| R1986 | Word (form) | temasse | into him, into her | |
+| R1987 | Word (form) | sellesse | into this, into it | |
+| R1988 | Word (form) | sinuga | with you | |
+| R1989 | Word (form) | parandas | he fixed, she fixed | |
+| R1990 | Word (form) | aitas | he helped, she helped | |
+| R1991 | Word (form) | ütlesin | I said | |
+| R1992 | Word (form) | küsis | he asked, she asked | |
+| R1993 | Word (form) | kuud | months (after a number) | |
+| R1994 | Word (form) | juunis | in June | |
+| R1995 | Word (word) | pulmad | a wedding | |
+| R1996 | Word (word) | romantiline | romantic | |
+| R1997 | Word (word) | sellepärast | that's why, because of that | |
+| R1998 | Word (word) | lahke | kind | |
 
 #### B1 12. It depends (`b1-12-depends`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R1997 | Conversation, Tom | See sõltub ilmast. Ja minu ülemusest. | That depends on the weather. And on my boss. | |
-| R1998 | Conversation, Tom | Eelmisel suvel sadas terve nädala vihma. Ma loodan, et sel aastal on ilus ilm. | Last summer it rained for a whole week. I hope the weather's good this year. | |
-| R1999 | Conversation, Tom | Ta on hea ülemus, aga ta kardab, et ilma minuta ei tööta midagi. | She's a good boss, but she's afraid nothing works without me. | |
-| R2000 | Conversation, Tom | Ei. Tegelikult töötab kõik väga hästi ka ilma minuta. | No. Actually everything works fine without me too. | |
-| R2001 | Conversation, Tom | Aga kui ta ütleb, et see pole võimalik? | But what if she says it isn't possible? | |
-| R2002 | Conversation, Tom | Ilma minuta? Nüüd ma kardan sind. | Without me? Now I'm scared of you. | |
-| R2003 | Model answer | See sõltub ilmast. | It depends on the weather. | |
-| R2004 | Model answer | Ma usun sinusse. | I believe in you. | |
-| R2005 | Model answer | Ma kardan vihma. | I'm afraid of the rain. | |
-| R2006 | Model answer | Ma ei lähe ilma sinuta. | I'm not going without you. | |
-| R2007 | Word (verb) | sõltuma | to depend | |
-| R2008 | Word (form) | millele | onto what? on what? | |
-| R2009 | Word (form) | sinusse | into you, in you | |
-| R2010 | Word (form) | sinust | about you, on you | |
-| R2011 | Word (form) | minuta | without me | |
-| R2012 | Word (form) | sinuta | without you | |
-| R2013 | Word (form) | meiega | with us | |
-| R2014 | Word (form) | lapsed | children | |
-| R2015 | Word (form) | ilusale | onto nice, onto good | |
-| R2016 | Word (form) | sadas | it rained, it fell | |
-| R2017 | Word (form) | vihma | rain, as what falls or what you fear | |
-| R2018 | Word (form) | eelmisel | last (last summer, last week) | |
-| R2019 | Word (form) | sel | this (this year) | |
-| R2020 | Word (form) | aastal | in the year (this year, last year) | |
-| R2021 | Word (word) | võimalik | possible | |
+| R1999 | Conversation, Tom | See sõltub ilmast. Ja minu ülemusest. | That depends on the weather. And on my boss. | |
+| R2000 | Conversation, Tom | Eelmisel suvel sadas terve nädala vihma. Ma loodan, et sel aastal on ilus ilm. | Last summer it rained for a whole week. I hope the weather's good this year. | |
+| R2001 | Conversation, Tom | Ta on hea ülemus, aga ta kardab, et ilma minuta ei tööta midagi. | She's a good boss, but she's afraid nothing works without me. | |
+| R2002 | Conversation, Tom | Ei. Tegelikult töötab kõik väga hästi ka ilma minuta. | No. Actually everything works fine without me too. | |
+| R2003 | Conversation, Tom | Aga kui ta ütleb, et see pole võimalik? | But what if she says it isn't possible? | |
+| R2004 | Conversation, Tom | Ilma minuta? Nüüd ma kardan sind. | Without me? Now I'm scared of you. | |
+| R2005 | Model answer | See sõltub ilmast. | It depends on the weather. | |
+| R2006 | Model answer | Ma usun sinusse. | I believe in you. | |
+| R2007 | Model answer | Ma kardan vihma. | I'm afraid of the rain. | |
+| R2008 | Model answer | Ma ei lähe ilma sinuta. | I'm not going without you. | |
+| R2009 | Word (verb) | sõltuma | to depend | |
+| R2010 | Word (form) | millele | onto what? on what? | |
+| R2011 | Word (form) | sinusse | into you, in you | |
+| R2012 | Word (form) | sinust | about you, on you | |
+| R2013 | Word (form) | minuta | without me | |
+| R2014 | Word (form) | sinuta | without you | |
+| R2015 | Word (form) | meiega | with us | |
+| R2016 | Word (form) | lapsed | children | |
+| R2017 | Word (form) | ilusale | onto nice, onto good | |
+| R2018 | Word (form) | sadas | it rained, it fell | |
+| R2019 | Word (form) | vihma | rain, as what falls or what you fear | |
+| R2020 | Word (form) | eelmisel | last (last summer, last week) | |
+| R2021 | Word (form) | sel | this (this year) | |
+| R2022 | Word (form) | aastal | in the year (this year, last year) | |
+| R2023 | Word (word) | võimalik | possible | |
 
 #### B1 13. Replying to an invitation (`b1-13-reply`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2022 | Model answer | Jah, ma tulen hea meelega! | Yes, I'd love to come! | |
-| R2023 | Model answer | Kahjuks ma ei saa tulla. | I'm afraid I can't come. | |
-| R2024 | Model answer | Kas ma võiksin oma abikaasa kaasa võtta? | Could I bring my husband along? | |
-| R2025 | Model answer | Aitäh kutse eest! | Thanks for the invitation! | |
-| R2026 | Word (verb) | toimuma | to take place, to happen | |
-| R2027 | Word (form) | tutvuda | to get to know (after another verb) | |
-| R2028 | Word (word) | kiri | a letter, an email | |
-| R2029 | Word (form) | kirja | the letter, the whole one | |
-| R2030 | Word (form) | saatsin | I sent | |
-| R2031 | Word (form) | saatis | he sent, she sent | |
-| R2032 | Word (form) | vastanud | replied, after {pole} or {ei} | |
-| R2033 | Word (word) | kätte | into your hands (with {saama}: to receive) | |
-| R2034 | Word (form) | inimest | people (after a number) | |
-| R2035 | Word (word) | palve | a favor to ask, a request | |
-| R2036 | Word (word) | vastus | reply, answer | |
-| R2037 | Word (form) | millegagi | with anything, with something | |
-| R2038 | Word (word) | ahi | oven | |
-| R2039 | Word (form) | küpsetada | to bake (after another verb) | |
-| R2040 | Word (form) | küpsetas | he baked, she baked | |
-| R2041 | Word (word) | ammu | for ages, long ago | |
-| R2042 | Word (word) | eest | for (after what you thank for) | |
-| R2043 | Word (word) | kohtumiseni | see you then | |
-| R2044 | Word (word) | ning | and | |
+| R2024 | Model answer | Jah, ma tulen hea meelega! | Yes, I'd love to come! | |
+| R2025 | Model answer | Kahjuks ma ei saa tulla. | I'm afraid I can't come. | |
+| R2026 | Model answer | Kas ma võiksin oma abikaasa kaasa võtta? | Could I bring my husband along? | |
+| R2027 | Model answer | Aitäh kutse eest! | Thanks for the invitation! | |
+| R2028 | Word (verb) | toimuma | to take place, to happen | |
+| R2029 | Word (form) | tutvuda | to get to know (after another verb) | |
+| R2030 | Word (word) | kiri | a letter, an email | |
+| R2031 | Word (form) | kirja | the letter, the whole one | |
+| R2032 | Word (form) | saatsin | I sent | |
+| R2033 | Word (form) | saatis | he sent, she sent | |
+| R2034 | Word (form) | vastanud | replied, after {pole} or {ei} | |
+| R2035 | Word (word) | kätte | into your hands (with {saama}: to receive) | |
+| R2036 | Word (form) | inimest | people (after a number) | |
+| R2037 | Word (word) | palve | a favor to ask, a request | |
+| R2038 | Word (word) | vastus | reply, answer | |
+| R2039 | Word (form) | millegagi | with anything, with something | |
+| R2040 | Word (word) | ahi | oven | |
+| R2041 | Word (form) | küpsetada | to bake (after another verb) | |
+| R2042 | Word (form) | küpsetas | he baked, she baked | |
+| R2043 | Word (word) | ammu | for ages, long ago | |
+| R2044 | Word (word) | eest | for (after what you thank for) | |
+| R2045 | Word (word) | kohtumiseni | see you then | |
+| R2046 | Word (word) | ning | and | |
 
 #### B1 14. A new colleague (`b1-14-colleague`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2045 | Conversation, Tom | Tere tulemast! Mina olen Tom. Ma aitan sind täna. | Welcome! I'm Tom. I'll be helping you today. | |
-| R2046 | Conversation, Tom | Pole hullu. Mina kartsin ka esimesel päeval. Mida sa vabal ajal teed? | That's all right. I was nervous on my first day too. What do you do in your free time? | |
-| R2047 | Conversation, Tom | Oi! Siis sa pead Katiga tutvuma. Ta laulab ka. | Oh! Then you have to meet Kati. She sings too. | |
-| R2048 | Conversation, Tom | Arvutiga aitan sind mina. Aga ära joo arvuti juures kohvi. | I help with computers. But don't drink coffee near your computer. | |
-| R2049 | Conversation, Tom | See on pikk lugu. Ja aruandega aitab sind ülemus. Ta on tegelikult väga lahke. | It's a long story. And our boss helps with the report. She's actually very kind. | |
-| R2050 | Conversation, Tom | Jah! Tule reedel meiega sööma. | Yes! Come and eat with us on Friday. | |
-| R2051 | Conversation, Tom | Ei. Reedel me räägime ainult ilmast. | No. On Friday we only talk about the weather. | |
-| R2052 | Model answer | Mind huvitab muusika. | I'm into music. | |
-| R2053 | Model answer | Arvutiga aitan sind mina. | I help with computers. | |
-| R2054 | Model answer | Kas ma saan sind millegagi aidata? | Can I help you with anything? | |
-| R2055 | Model answer | Muidugi aitan. Tere tulemast! | Of course I'll help. Welcome! | |
-| R2056 | Model answer | Räägi ülemusega. | Talk to the boss. | |
-| R2057 | Model answer | Siis küsi ülemuselt. | Then ask the boss. | |
+| R2047 | Conversation, Tom | Tere tulemast! Mina olen Tom. Ma aitan sind täna. | Welcome! I'm Tom. I'll be helping you today. | |
+| R2048 | Conversation, Tom | Pole hullu. Mina kartsin ka esimesel päeval. Mida sa vabal ajal teed? | That's all right. I was nervous on my first day too. What do you do in your free time? | |
+| R2049 | Conversation, Tom | Oi! Siis sa pead Katiga tutvuma. Ta laulab ka. | Oh! Then you have to meet Kati. She sings too. | |
+| R2050 | Conversation, Tom | Arvutiga aitan sind mina. Aga ära joo arvuti juures kohvi. | I help with computers. But don't drink coffee near your computer. | |
+| R2051 | Conversation, Tom | See on pikk lugu. Ja aruandega aitab sind ülemus. Ta on tegelikult väga lahke. | It's a long story. And our boss helps with the report. She's actually very kind. | |
+| R2052 | Conversation, Tom | Jah! Tule reedel meiega sööma. | Yes! Come and eat with us on Friday. | |
+| R2053 | Conversation, Tom | Ei. Reedel me räägime ainult ilmast. | No. On Friday we only talk about the weather. | |
+| R2054 | Model answer | Mind huvitab muusika. | I'm into music. | |
+| R2055 | Model answer | Arvutiga aitan sind mina. | I help with computers. | |
+| R2056 | Model answer | Kas ma saan sind millegagi aidata? | Can I help you with anything? | |
+| R2057 | Model answer | Muidugi aitan. Tere tulemast! | Of course I'll help. Welcome! | |
+| R2058 | Model answer | Räägi ülemusega. | Talk to the boss. | |
+| R2059 | Model answer | Siis küsi ülemuselt. | Then ask the boss. | |
 
 #### B1 15. If only I'd known (`b1-15-if-only`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2058 | Conversation, Tom | Projekt? Aga tähtaeg on alles järgmisel reedel. | The project? But the deadline isn't until next Friday. | |
-| R2059 | Conversation, Tom | Eile? Kui ma oleksin seda teadnud, oleksin ma varem alustanud! | Yesterday? If I'd known that, I'd have started earlier! | |
-| R2060 | Conversation, Tom | Ma oleksin nädalavahetusel töötanud. Ja ma ei oleks iga õhtu jalgpalli vaadanud. | I'd have worked at the weekend. And I wouldn't have watched football every evening. | |
-| R2061 | Conversation, Tom | Tõesti? Ma arvasin, et sa räägid järgmisest nädalast. | Really? I thought you meant next week. | |
-| R2062 | Conversation, Tom | Mida ma talle ütlen? Vabandust, oleksin pidanud kalendrit vaatama? | What do I tell her? Sorry, I should have looked at the calendar? | |
-| R2063 | Conversation, Tom | Homseks? Siis ma täna üldse ei maga. | By tomorrow? Then I won't sleep at all tonight. | |
-| R2064 | Model answer | Ma oleksin varem alustanud. | I'd have started earlier. | |
-| R2065 | Model answer | Kui ma oleksin teadnud, oleksin ma tulnud. | If I'd known, I'd have come. | |
-| R2066 | Model answer | Ma oleksin pidanud kalendrit vaatama. | I should have looked at the calendar. | |
-| R2067 | Model answer | Ei, aga ma oleksin töötanud, kui ma oleksin teadnud. | No, but I would have if I'd known. | |
-| R2068 | Word (word) | projekt | project | |
-| R2069 | Word (form) | projekti | of the project | |
-| R2070 | Word (word) | tähtaeg | deadline | |
-| R2071 | Word (form) | oleksin | I would be; with a -nud form, I would have | |
-| R2072 | Word (form) | oleksime | we would be | |
-| R2073 | Word (form) | oleksite | you would be, to more than one or politely | |
-| R2074 | Word (form) | teadnud | known | |
-| R2075 | Word (form) | alustanud | started | |
-| R2076 | Word (form) | töötanud | worked | |
-| R2077 | Word (form) | pidanud | had to; after would, should have | |
-| R2078 | Word (word) | teisiti | differently, another way | |
-| R2079 | Word (form) | jalgpalli | football, watching it | |
-| R2080 | Word (form) | arvasin | I thought, I was thinking | |
-| R2081 | Word (word) | ausalt | honestly | |
-| R2082 | Word (form) | kalendrit | the calendar, looking at it | |
-| R2083 | Word (form) | lõpetasin | I finished | |
+| R2060 | Conversation, Tom | Projekt? Aga tähtaeg on alles järgmisel reedel. | The project? But the deadline isn't until next Friday. | |
+| R2061 | Conversation, Tom | Eile? Kui ma oleksin seda teadnud, oleksin ma varem alustanud! | Yesterday? If I'd known that, I'd have started earlier! | |
+| R2062 | Conversation, Tom | Ma oleksin nädalavahetusel töötanud. Ja ma ei oleks iga õhtu jalgpalli vaadanud. | I'd have worked at the weekend. And I wouldn't have watched football every evening. | |
+| R2063 | Conversation, Tom | Tõesti? Ma arvasin, et sa räägid järgmisest nädalast. | Really? I thought you meant next week. | |
+| R2064 | Conversation, Tom | Mida ma talle ütlen? Vabandust, oleksin pidanud kalendrit vaatama? | What do I tell her? Sorry, I should have looked at the calendar? | |
+| R2065 | Conversation, Tom | Homseks? Siis ma täna üldse ei maga. | By tomorrow? Then I won't sleep at all tonight. | |
+| R2066 | Model answer | Ma oleksin varem alustanud. | I'd have started earlier. | |
+| R2067 | Model answer | Kui ma oleksin teadnud, oleksin ma tulnud. | If I'd known, I'd have come. | |
+| R2068 | Model answer | Ma oleksin pidanud kalendrit vaatama. | I should have looked at the calendar. | |
+| R2069 | Model answer | Ei, aga ma oleksin töötanud, kui ma oleksin teadnud. | No, but I would have if I'd known. | |
+| R2070 | Word (word) | projekt | project | |
+| R2071 | Word (form) | projekti | of the project | |
+| R2072 | Word (word) | tähtaeg | deadline | |
+| R2073 | Word (form) | oleksin | I would be; with a -nud form, I would have | |
+| R2074 | Word (form) | oleksime | we would be | |
+| R2075 | Word (form) | oleksite | you would be, to more than one or politely | |
+| R2076 | Word (form) | teadnud | known | |
+| R2077 | Word (form) | alustanud | started | |
+| R2078 | Word (form) | töötanud | worked | |
+| R2079 | Word (form) | pidanud | had to; after would, should have | |
+| R2080 | Word (word) | teisiti | differently, another way | |
+| R2081 | Word (form) | jalgpalli | football, watching it | |
+| R2082 | Word (form) | arvasin | I thought, I was thinking | |
+| R2083 | Word (word) | ausalt | honestly | |
+| R2084 | Word (form) | kalendrit | the calendar, looking at it | |
+| R2085 | Word (form) | lõpetasin | I finished | |
 
 #### B1 16. Working as, becoming (`b1-16-as`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2084 | Model answer | Ma töötan arendajana. | I work as a developer. | |
-| R2085 | Model answer | Ma alustasin praktikandina. | I started as an intern. | |
-| R2086 | Model answer | Ma tahaksin saada meeskonna juhiks. | I'd like to become the team lead. | |
-| R2087 | Model answer | Kristi valiti esimeheks. | Kristi was elected chair. | |
-| R2088 | Word (word) | arendaja | developer | |
-| R2089 | Word (form) | aasta | a year's, of the year | |
-| R2090 | Word (form) | eelmise | of the last one, of the previous one | |
-| R2091 | Word (form) | valiti | was chosen, was elected; learn it as one word for now | |
-| R2092 | Word (word) | meeskond | team | |
-| R2093 | Word (form) | meeskonna | the team's, of the team | |
-| R2094 | Word (form) | alustasin | I started | |
-| R2095 | Word (form) | alustas | she started, he started | |
-| R2096 | Word (word) | praktikant | intern, trainee | |
-| R2097 | Word (form) | praktikandi | an intern's, of an intern | |
-| R2098 | Word (form) | koodi | code, some of it | |
-| R2099 | Word (word) | projektijuht | project manager | |
-| R2100 | Word (word) | korteriühistu | apartment association, the residents who run a block | |
-| R2101 | Word (word) | esimees | chair, chairperson | |
-| R2102 | Word (form) | esimehe | the chair's, of the chair | |
-| R2103 | Word (form) | naabrid | the neighbors | |
-| R2104 | Word (word) | pigem | rather, more like | |
-| R2105 | Word (phrase) | Jõudu! | Good luck! Strength to you! | |
-| R2106 | Word (word) | lihtsalt | just, simply | |
+| R2086 | Model answer | Ma töötan arendajana. | I work as a developer. | |
+| R2087 | Model answer | Ma alustasin praktikandina. | I started as an intern. | |
+| R2088 | Model answer | Ma tahaksin saada meeskonna juhiks. | I'd like to become the team lead. | |
+| R2089 | Model answer | Kristi valiti esimeheks. | Kristi was elected chair. | |
+| R2090 | Word (word) | arendaja | developer | |
+| R2091 | Word (form) | aasta | a year's, of the year | |
+| R2092 | Word (form) | eelmise | of the last one, of the previous one | |
+| R2093 | Word (form) | valiti | was chosen, was elected; learn it as one word for now | |
+| R2094 | Word (word) | meeskond | team | |
+| R2095 | Word (form) | meeskonna | the team's, of the team | |
+| R2096 | Word (form) | alustasin | I started | |
+| R2097 | Word (form) | alustas | she started, he started | |
+| R2098 | Word (word) | praktikant | intern, trainee | |
+| R2099 | Word (form) | praktikandi | an intern's, of an intern | |
+| R2100 | Word (form) | koodi | code, some of it | |
+| R2101 | Word (word) | projektijuht | project manager | |
+| R2102 | Word (word) | korteriühistu | apartment association, the residents who run a block | |
+| R2103 | Word (word) | esimees | chair, chairperson | |
+| R2104 | Word (form) | esimehe | the chair's, of the chair | |
+| R2105 | Word (form) | naabrid | the neighbors | |
+| R2106 | Word (word) | pigem | rather, more like | |
+| R2107 | Word (phrase) | Jõudu! | Good luck! Strength to you! | |
+| R2108 | Word (word) | lihtsalt | just, simply | |
 
 #### B1 17. Could I possibly... (`b1-17-could-i`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2107 | Conversation, Tom | Kristi, kas sul oleks hetk aega? | Kristi, would you have a moment? | |
-| R2108 | Conversation, Tom | Ma tahaksin paluda uut arvutit. Mu vana arvuti on väga aeglane. | I'd like to ask for a new computer. My old one is very slow. | |
-| R2109 | Conversation, Tom | Nii aeglane, et ma jõuan vahepeal kohvi juua. | So slow that I have time to drink a coffee while I wait. | |
-| R2110 | Conversation, Tom | Aitäh! Ja kas ma võiksin reedel kodus töötada? Mu naisel on sünnipäev. | Thank you! And could I work from home on Friday? It's my wife's birthday. | |
-| R2111 | Conversation, Tom | Muidugi. Millega? | Of course. With what? | |
-| R2112 | Conversation, Tom | Hea meelega. Ma võiksin talle ka lõuna välja teha. Esimene nädal on ju alati raske. | Gladly. I could buy him lunch too. The first week is always hard. | |
-| R2113 | Conversation, Tom | Eesti keeles? | In Estonian? | |
-| R2114 | Model answer | Kas ma võiksin reedel kodus töötada? | Could I work from home on Friday? | |
-| R2115 | Model answer | Ma tahaksin paluda uut arvutit. | I'd like to ask for a new computer. | |
-| R2116 | Model answer | Kas sa saaksid mind aidata? | Could you help me? | |
-| R2117 | Model answer | Hea meelega. Millega? | Gladly. With what? | |
-| R2118 | Word (form) | paluda | to ask for, after would like | |
-| R2119 | Word (form) | palus | she asked for, he asked for | |
-| R2120 | Word (form) | arvutit | a computer, as an object | |
-| R2121 | Word (form) | asja | of the thing | |
-| R2122 | Word (form) | süsteemi | of the system | |
-| R2123 | Word (form) | näidata | to show, after could or can | |
-| R2124 | Word (verb) | pakkuma | to offer, to suggest | |
-| R2125 | Word (form) | pakkuda | to offer, after can | |
-| R2126 | Word (form) | lõunat | lunch, some of it | |
-| R2127 | Word (form) | lõuna | lunch, the whole meal; {lõuna välja tegema}, to buy somebody lunch | |
-| R2128 | Word (word) | koosolek | meeting | |
-| R2129 | Word (form) | koosoleku | of the meeting | |
-| R2130 | Word (form) | küsisin | I asked | |
-| R2131 | Word (verb) | lubama | to allow, to promise | |
-| R2132 | Word (form) | lubas | she allowed, he promised | |
-| R2133 | Word (form) | küsida | to ask, after want or dare | |
-| R2134 | Word (form) | julgenud | dared, after {ei} | |
+| R2109 | Conversation, Tom | Kristi, kas sul oleks hetk aega? | Kristi, would you have a moment? | |
+| R2110 | Conversation, Tom | Ma tahaksin paluda uut arvutit. Mu vana arvuti on väga aeglane. | I'd like to ask for a new computer. My old one is very slow. | |
+| R2111 | Conversation, Tom | Nii aeglane, et ma jõuan vahepeal kohvi juua. | So slow that I have time to drink a coffee while I wait. | |
+| R2112 | Conversation, Tom | Aitäh! Ja kas ma võiksin reedel kodus töötada? Mu naisel on sünnipäev. | Thank you! And could I work from home on Friday? It's my wife's birthday. | |
+| R2113 | Conversation, Tom | Muidugi. Millega? | Of course. With what? | |
+| R2114 | Conversation, Tom | Hea meelega. Ma võiksin talle ka lõuna välja teha. Esimene nädal on ju alati raske. | Gladly. I could buy him lunch too. The first week is always hard. | |
+| R2115 | Conversation, Tom | Eesti keeles? | In Estonian? | |
+| R2116 | Model answer | Kas ma võiksin reedel kodus töötada? | Could I work from home on Friday? | |
+| R2117 | Model answer | Ma tahaksin paluda uut arvutit. | I'd like to ask for a new computer. | |
+| R2118 | Model answer | Kas sa saaksid mind aidata? | Could you help me? | |
+| R2119 | Model answer | Hea meelega. Millega? | Gladly. With what? | |
+| R2120 | Word (form) | paluda | to ask for, after would like | |
+| R2121 | Word (form) | palus | she asked for, he asked for | |
+| R2122 | Word (form) | arvutit | a computer, as an object | |
+| R2123 | Word (form) | asja | of the thing | |
+| R2124 | Word (form) | süsteemi | of the system | |
+| R2125 | Word (form) | näidata | to show, after could or can | |
+| R2126 | Word (verb) | pakkuma | to offer, to suggest | |
+| R2127 | Word (form) | pakkuda | to offer, after can | |
+| R2128 | Word (form) | lõunat | lunch, some of it | |
+| R2129 | Word (form) | lõuna | lunch, the whole meal; {lõuna välja tegema}, to buy somebody lunch | |
+| R2130 | Word (word) | koosolek | meeting | |
+| R2131 | Word (form) | koosoleku | of the meeting | |
+| R2132 | Word (form) | küsisin | I asked | |
+| R2133 | Word (verb) | lubama | to allow, to promise | |
+| R2134 | Word (form) | lubas | she allowed, he promised | |
+| R2135 | Word (form) | küsida | to ask, after want or dare | |
+| R2136 | Word (form) | julgenud | dared, after {ei} | |
 
 #### B1 18. Payday (`b1-18-payday`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2135 | Conversation, Tom | Anna, vaata! Palk tuli kontole! | Anna, look! My pay has come in! | |
-| R2136 | Conversation, Tom | Oota. Miks see nii väike on? Lepingus on ju suurem summa. | Wait. Why is it so small? The contract says a bigger amount. | |
-| R2137 | Conversation, Tom | Ausalt öeldes ma ei tea, mis maksud need on. | Honestly, I don't know what taxes they are. | |
-| R2138 | Conversation, Tom | Veerand? See on kakskümmend viis protsenti! See pole õiglane. Ma tahtsin uue jalgratta osta. | A quarter? That's twenty-five percent! That's not fair. I wanted to buy a new bike. | |
-| R2139 | Conversation, Tom | Üür, telefon, toit. Kulusid on ikka palju. | Rent, phone, food. There are a lot of costs. | |
-| R2140 | Conversation, Tom | Säästa on raske. Ma ostsin eile jälle kolm raamatut. | Saving is hard. I bought three books again yesterday. | |
-| R2141 | Conversation, Tom | Hea plaan. Kui ma raha ei näe, siis ma seda ka ei kuluta! | Good plan. If I don't see the money, I won't spend it either! | |
-| R2142 | Model answer | Palk tuli kontole. | My pay has come into my account. | |
-| R2143 | Model answer | Kõigepealt maksan üüri ja arved. | First I pay the rent and the bills. | |
-| R2144 | Model answer | Jah, iga kuu natuke. | Yes, a little every month. | |
-| R2145 | Model answer | Palk enne makse on suurem. | The pay before tax is bigger. | |
-| R2146 | Word (word) | palk | pay, salary | |
-| R2147 | Word (form) | palga | of the pay | |
-| R2148 | Word (form) | palka | pay, some of it | |
-| R2149 | Word (form) | konto | of the account | |
-| R2150 | Word (form) | lepingu | of the contract | |
-| R2151 | Word (word) | summa | amount, sum | |
-| R2152 | Word (word) | maks | tax | |
-| R2153 | Word (form) | maksud | taxes | |
-| R2154 | Word (form) | makse | taxes, after before or after | |
-| R2155 | Word (phrase) | Ausalt öeldes | honestly speaking, frankly | |
-| R2156 | Word (word) | tulumaks | income tax | |
-| R2157 | Word (word) | pensionifond | pension fund | |
-| R2158 | Word (form) | protsenti | percent, after a number | |
-| R2159 | Word (word) | õiglane | fair, just | |
-| R2160 | Word (form) | jalgratta | a bike, the whole of it | |
-| R2161 | Word (word) | üür | rent | |
-| R2162 | Word (form) | üüri | the rent, as an object | |
-| R2163 | Word (form) | arved | the bills | |
-| R2164 | Word (form) | arveid | bills, some of them | |
-| R2165 | Word (word) | üle | over; with {jääma}, left over | |
-| R2166 | Word (form) | kulusid | costs, after many | |
-| R2167 | Word (verb) | säästma | to save, money or time | |
-| R2168 | Word (form) | säästa | to save, after can or hard | |
-| R2169 | Word (verb) | kulutama | to spend | |
+| R2137 | Conversation, Tom | Anna, vaata! Palk tuli kontole! | Anna, look! My pay has come in! | |
+| R2138 | Conversation, Tom | Oota. Miks see nii väike on? Lepingus on ju suurem summa. | Wait. Why is it so small? The contract says a bigger amount. | |
+| R2139 | Conversation, Tom | Ausalt öeldes ma ei tea, mis maksud need on. | Honestly, I don't know what taxes they are. | |
+| R2140 | Conversation, Tom | Veerand? See on kakskümmend viis protsenti! See pole õiglane. Ma tahtsin uue jalgratta osta. | A quarter? That's twenty-five percent! That's not fair. I wanted to buy a new bike. | |
+| R2141 | Conversation, Tom | Üür, telefon, toit. Kulusid on ikka palju. | Rent, phone, food. There are a lot of costs. | |
+| R2142 | Conversation, Tom | Säästa on raske. Ma ostsin eile jälle kolm raamatut. | Saving is hard. I bought three books again yesterday. | |
+| R2143 | Conversation, Tom | Hea plaan. Kui ma raha ei näe, siis ma seda ka ei kuluta! | Good plan. If I don't see the money, I won't spend it either! | |
+| R2144 | Model answer | Palk tuli kontole. | My pay has come into my account. | |
+| R2145 | Model answer | Kõigepealt maksan üüri ja arved. | First I pay the rent and the bills. | |
+| R2146 | Model answer | Jah, iga kuu natuke. | Yes, a little every month. | |
+| R2147 | Model answer | Palk enne makse on suurem. | The pay before tax is bigger. | |
+| R2148 | Word (word) | palk | pay, salary | |
+| R2149 | Word (form) | palga | of the pay | |
+| R2150 | Word (form) | palka | pay, some of it | |
+| R2151 | Word (form) | konto | of the account | |
+| R2152 | Word (form) | lepingu | of the contract | |
+| R2153 | Word (word) | summa | amount, sum | |
+| R2154 | Word (word) | maks | tax | |
+| R2155 | Word (form) | maksud | taxes | |
+| R2156 | Word (form) | makse | taxes, after before or after | |
+| R2157 | Word (phrase) | Ausalt öeldes | honestly speaking, frankly | |
+| R2158 | Word (word) | tulumaks | income tax | |
+| R2159 | Word (word) | pensionifond | pension fund | |
+| R2160 | Word (form) | protsenti | percent, after a number | |
+| R2161 | Word (word) | õiglane | fair, just | |
+| R2162 | Word (form) | jalgratta | a bike, the whole of it | |
+| R2163 | Word (word) | üür | rent | |
+| R2164 | Word (form) | üüri | the rent, as an object | |
+| R2165 | Word (form) | arved | the bills | |
+| R2166 | Word (form) | arveid | bills, some of them | |
+| R2167 | Word (word) | üle | over; with {jääma}, left over | |
+| R2168 | Word (form) | kulusid | costs, after many | |
+| R2169 | Word (verb) | säästma | to save, money or time | |
+| R2170 | Word (form) | säästa | to save, after can or hard | |
+| R2171 | Word (verb) | kulutama | to spend | |
 
 #### B1 19. Swapping a shift (`b1-19-shift`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2170 | Model answer | Jah. Millal? | Yes. When? | |
-| R2171 | Model answer | Ma olen sel kuul palju ületunde teinud. | I've done a lot of overtime this month. | |
-| R2172 | Model answer | Mul on kaks vaba päeva järjest. | I have two days off in a row. | |
-| R2173 | Model answer | Ma oleksin pidanud ammu puhkusele minema. | I should have gone on holiday long ago. | |
-| R2174 | Word (word) | vahetus | shift, at work | |
-| R2175 | Word (form) | vahetuse | of the shift | |
-| R2176 | Word (form) | toimub | is happening, is going on | |
-| R2177 | Word (form) | abiellus | she got married, he got married | |
-| R2178 | Word (word) | graafik | rota, work schedule | |
-| R2179 | Word (form) | ületunde | overtime hours, some of them | |
-| R2180 | Word (form) | puhkuse | of the holiday | |
-| R2181 | Word (form) | pühapäeva | of Sunday | |
-| R2182 | Word (form) | vahetused | shifts, the whole of them | |
-| R2183 | Word (word) | järjest | in a row | |
-| R2184 | Word (form) | kõlab | sounds | |
-| R2185 | Word (form) | aitasin | I helped | |
-| R2186 | Word (form) | pulma | of the wedding | |
-| R2187 | Word (form) | torti | cake, some of it | |
-| R2188 | Word (form) | tükki | pieces, after a number | |
-| R2189 | Word (word) | luba | permission | |
-| R2190 | Word (word) | uskumatu | unbelievable | |
-| R2191 | Word (word) | kolleeg | colleague | |
-| R2192 | Word (form) | kolleegi | of the colleague | |
-| R2193 | Word (form) | kolleege | colleagues, some of them | |
+| R2172 | Model answer | Jah. Millal? | Yes. When? | |
+| R2173 | Model answer | Ma olen sel kuul palju ületunde teinud. | I've done a lot of overtime this month. | |
+| R2174 | Model answer | Mul on kaks vaba päeva järjest. | I have two days off in a row. | |
+| R2175 | Model answer | Ma oleksin pidanud ammu puhkusele minema. | I should have gone on holiday long ago. | |
+| R2176 | Word (word) | vahetus | shift, at work | |
+| R2177 | Word (form) | vahetuse | of the shift | |
+| R2178 | Word (form) | toimub | is happening, is going on | |
+| R2179 | Word (form) | abiellus | she got married, he got married | |
+| R2180 | Word (word) | graafik | rota, work schedule | |
+| R2181 | Word (form) | ületunde | overtime hours, some of them | |
+| R2182 | Word (form) | puhkuse | of the holiday | |
+| R2183 | Word (form) | pühapäeva | of Sunday | |
+| R2184 | Word (form) | vahetused | shifts, the whole of them | |
+| R2185 | Word (word) | järjest | in a row | |
+| R2186 | Word (form) | kõlab | sounds | |
+| R2187 | Word (form) | aitasin | I helped | |
+| R2188 | Word (form) | pulma | of the wedding | |
+| R2189 | Word (form) | torti | cake, some of it | |
+| R2190 | Word (form) | tükki | pieces, after a number | |
+| R2191 | Word (word) | luba | permission | |
+| R2192 | Word (word) | uskumatu | unbelievable | |
+| R2193 | Word (word) | kolleeg | colleague | |
+| R2194 | Word (form) | kolleegi | of the colleague | |
+| R2195 | Word (form) | kolleege | colleagues, some of them | |
 
 #### B1 20. Asking to change your hours (`b1-20-email`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2194 | Conversation, Tom | Anna, kuidas ma juhile kirjutan, et tahan neli päeva nädalas töötada? | Anna, how do I write to the boss that I want to work four days a week? | |
-| R2195 | Conversation, Tom | Reedeti on ülikoolis eesti keele kursus. | There's an Estonian course at the university on Fridays. | |
-| R2196 | Conversation, Tom | Tere, Kristi! Ma ei taha enam reedeti töötada. | Hello Kristi! I don't want to work on Fridays any more. | |
-| R2197 | Conversation, Tom | Ja siis? | And then? | |
-| R2198 | Conversation, Tom | Kümme tundi? See on pikk päev. | Ten hours? That's a long day. | |
-| R2199 | Conversation, Tom | Ma valin kümme tundi. Mul on raha vaja. | I'll take the ten hours. I need the money. | |
-| R2200 | Conversation, Tom | Hästi, kirjutan kohe. Ja esimese lause kustutan ära. | OK. I'll write it now. And I'm deleting my first sentence. | |
-| R2201 | Model answer | Ma sooviksin muuta oma tööaega. | I'd like to change my working hours. | |
-| R2202 | Model answer | Reedeti on mul kursus. | I have a course on Fridays. | |
-| R2203 | Model answer | Ma pakuksin, et töötan kümme tundi päevas. | I'd suggest I work ten hours a day. | |
-| R2204 | Model answer | Kas me saaksime sellest rääkida? | Could we talk about it? | |
-| R2205 | Word (word) | reedeti | on Fridays, every Friday | |
-| R2206 | Word (word) | kursus | course, class | |
-| R2207 | Word (form) | muuta | to change, after would like | |
-| R2208 | Word (form) | tööaega | working hours, as an object | |
-| R2209 | Word (verb) | selgitama | to explain | |
-| R2210 | Word (word) | lahendus | solution | |
-| R2211 | Word (form) | neljapäeva | of Thursday | |
-| R2212 | Word (word) | mõlemad | both | |
-| R2213 | Word (verb) | valima | to choose | |
-| R2214 | Word (form) | lõpus | at the end | |
-| R2215 | Word (form) | koosolekuid | meetings, as an object | |
-| R2216 | Word (form) | väiksema | of the smaller | |
-| R2217 | Word (form) | lause | of the sentence | |
-| R2218 | Word (verb) | kustutama | to delete, to put out | |
-| R2219 | Word (word) | alates | from, starting from | |
-| R2220 | Word (phrase) | Tervitustega | Best wishes, to close an email | |
+| R2196 | Conversation, Tom | Anna, kuidas ma juhile kirjutan, et tahan neli päeva nädalas töötada? | Anna, how do I write to the boss that I want to work four days a week? | |
+| R2197 | Conversation, Tom | Reedeti on ülikoolis eesti keele kursus. | There's an Estonian course at the university on Fridays. | |
+| R2198 | Conversation, Tom | Tere, Kristi! Ma ei taha enam reedeti töötada. | Hello Kristi! I don't want to work on Fridays any more. | |
+| R2199 | Conversation, Tom | Ja siis? | And then? | |
+| R2200 | Conversation, Tom | Kümme tundi? See on pikk päev. | Ten hours? That's a long day. | |
+| R2201 | Conversation, Tom | Ma valin kümme tundi. Mul on raha vaja. | I'll take the ten hours. I need the money. | |
+| R2202 | Conversation, Tom | Hästi, kirjutan kohe. Ja esimese lause kustutan ära. | OK. I'll write it now. And I'm deleting my first sentence. | |
+| R2203 | Model answer | Ma sooviksin muuta oma tööaega. | I'd like to change my working hours. | |
+| R2204 | Model answer | Reedeti on mul kursus. | I have a course on Fridays. | |
+| R2205 | Model answer | Ma pakuksin, et töötan kümme tundi päevas. | I'd suggest I work ten hours a day. | |
+| R2206 | Model answer | Kas me saaksime sellest rääkida? | Could we talk about it? | |
+| R2207 | Word (word) | reedeti | on Fridays, every Friday | |
+| R2208 | Word (word) | kursus | course, class | |
+| R2209 | Word (form) | muuta | to change, after would like | |
+| R2210 | Word (form) | tööaega | working hours, as an object | |
+| R2211 | Word (verb) | selgitama | to explain | |
+| R2212 | Word (word) | lahendus | solution | |
+| R2213 | Word (form) | neljapäeva | of Thursday | |
+| R2214 | Word (word) | mõlemad | both | |
+| R2215 | Word (verb) | valima | to choose | |
+| R2216 | Word (form) | lõpus | at the end | |
+| R2217 | Word (form) | koosolekuid | meetings, as an object | |
+| R2218 | Word (form) | väiksema | of the smaller | |
+| R2219 | Word (form) | lause | of the sentence | |
+| R2220 | Word (verb) | kustutama | to delete, to put out | |
+| R2221 | Word (word) | alates | from, starting from | |
+| R2222 | Word (phrase) | Tervitustega | Best wishes, to close an email | |
 
 #### B1 21. Talking about your pay (`b1-21-pay`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2221 | Conversation, Tom | Kristi, kas sul oleks täna pool tundi aega? | Kristi, would you have half an hour today? | |
-| R2222 | Conversation, Tom | Ma olen siin töötanud pool aastat. Ma tahaksin rääkida oma palgast. | I've been working here for half a year. I'd like to talk about my pay. | |
-| R2223 | Conversation, Tom | Ma lõpetasin kaks projekti ja aitasin uut kolleegi. Nüüd töötab ta arendajana. | I finished two projects and helped the new colleague. Now he works as a developer. | |
-| R2224 | Conversation, Tom | Aitäh. Ausalt öeldes oleksin ma tahtnud juba varem palgast rääkida, aga ma ei julgenud. | Thank you. Honestly, I'd have liked to talk about pay earlier, but I didn't dare. | |
-| R2225 | Conversation, Tom | Ma arvan, et kümme protsenti rohkem oleks õiglane. | I think ten percent more would be fair. | |
-| R2226 | Conversation, Tom | Viis ja viis. Sobib! | Five and five. Works for me! | |
-| R2227 | Conversation, Tom | Kui ma oleksin teadnud, et see nii lihtne on, oleksin ma ammu küsinud! | If I'd known it was this easy, I'd have asked long ago! | |
-| R2228 | Conversation, Tom | Hästi! Reedeti on mul nüüd ainult eesti keel. | Good! Fridays are just Estonian now. | |
-| R2229 | Model answer | Ma tahaksin rääkida oma palgast. | I'd like to talk about my pay. | |
-| R2230 | Model answer | Ma lõpetasin kaks projekti. | I finished two projects. | |
-| R2231 | Model answer | Ma oleksin tahtnud varem küsida, aga ma ei julgenud. | I'd have liked to ask earlier, but I didn't dare. | |
-| R2232 | Model answer | Ma lõpetasin kaks projekti ja aitasin uut kolleegi. | I finished two projects and helped the new colleague. | |
-| R2233 | Model answer | Kas me võiksime aasta lõpus uuesti rääkida? | Could we talk again at the end of the year? | |
-| R2234 | Model answer | Ma tahaksin saada meeskonna juhiks. | I'd like to become the team lead. | |
-| R2235 | Model answer | Aitäh! Kokku lepitud. | Thank you! Agreed. | |
+| R2223 | Conversation, Tom | Kristi, kas sul oleks täna pool tundi aega? | Kristi, would you have half an hour today? | |
+| R2224 | Conversation, Tom | Ma olen siin töötanud pool aastat. Ma tahaksin rääkida oma palgast. | I've been working here for half a year. I'd like to talk about my pay. | |
+| R2225 | Conversation, Tom | Ma lõpetasin kaks projekti ja aitasin uut kolleegi. Nüüd töötab ta arendajana. | I finished two projects and helped the new colleague. Now he works as a developer. | |
+| R2226 | Conversation, Tom | Aitäh. Ausalt öeldes oleksin ma tahtnud juba varem palgast rääkida, aga ma ei julgenud. | Thank you. Honestly, I'd have liked to talk about pay earlier, but I didn't dare. | |
+| R2227 | Conversation, Tom | Ma arvan, et kümme protsenti rohkem oleks õiglane. | I think ten percent more would be fair. | |
+| R2228 | Conversation, Tom | Viis ja viis. Sobib! | Five and five. Works for me! | |
+| R2229 | Conversation, Tom | Kui ma oleksin teadnud, et see nii lihtne on, oleksin ma ammu küsinud! | If I'd known it was this easy, I'd have asked long ago! | |
+| R2230 | Conversation, Tom | Hästi! Reedeti on mul nüüd ainult eesti keel. | Good! Fridays are just Estonian now. | |
+| R2231 | Model answer | Ma tahaksin rääkida oma palgast. | I'd like to talk about my pay. | |
+| R2232 | Model answer | Ma lõpetasin kaks projekti. | I finished two projects. | |
+| R2233 | Model answer | Ma oleksin tahtnud varem küsida, aga ma ei julgenud. | I'd have liked to ask earlier, but I didn't dare. | |
+| R2234 | Model answer | Ma lõpetasin kaks projekti ja aitasin uut kolleegi. | I finished two projects and helped the new colleague. | |
+| R2235 | Model answer | Kas me võiksime aasta lõpus uuesti rääkida? | Could we talk again at the end of the year? | |
+| R2236 | Model answer | Ma tahaksin saada meeskonna juhiks. | I'd like to become the team lead. | |
+| R2237 | Model answer | Aitäh! Kokku lepitud. | Thank you! Agreed. | |
 
 #### B1 22. A furnished apartment (`b1-22-furnished`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2236 | Conversation, Tom | Tere! Oi, see on ju päris suur! | Hello! Oh, it's pretty big! | |
-| R2237 | Conversation, Tom | Kas korter on möbleeritud? | Is the apartment furnished? | |
-| R2238 | Conversation, Tom | Aga miks see uks kinni on? | But why is this door shut? | |
-| R2239 | Conversation, Tom | Kas ma võin sisse vaadata? | Can I have a look inside? | |
-| R2240 | Conversation, Tom | Siin on ju kümme tooli! | There are ten chairs in here! | |
-| R2241 | Conversation, Tom | Ja maja? Kas see on ka renoveeritud? | And the building? Has that been renovated too? | |
-| R2242 | Conversation, Tom | Tore! Mulle see korter meeldib! | Great! I like this apartment! | |
-| R2243 | Model answer | Jah, on möbleeritud ja köök on ka uus. | Yes, it's furnished, and the kitchen is new too. | |
-| R2244 | Model answer | Kas terve korter on remonditud? | Has the whole apartment been fixed up? | |
-| R2245 | Model answer | Uks on kinni. | The door's shut. | |
-| R2246 | Model answer | Jah, see on lahti ka öösel. | Yes, it's open at night too. | |
-| R2247 | Word (form) | remonditud | fixed up, refurbished (of an apartment or a room) | |
-| R2248 | Word (form) | möbleeritud | furnished | |
-| R2249 | Word (form) | renoveeritud | renovated (of a whole building) | |
-| R2250 | Word (form) | avatud | open, as a sign says it | |
-| R2251 | Word (form) | suletud | shut, closed, as a sign says it | |
-| R2252 | Word (form) | vaadata | to look, after may or want | |
-| R2253 | Word (word) | täiesti | completely | |
+| R2238 | Conversation, Tom | Tere! Oi, see on ju päris suur! | Hello! Oh, it's pretty big! | |
+| R2239 | Conversation, Tom | Kas korter on möbleeritud? | Is the apartment furnished? | |
+| R2240 | Conversation, Tom | Aga miks see uks kinni on? | But why is this door shut? | |
+| R2241 | Conversation, Tom | Kas ma võin sisse vaadata? | Can I have a look inside? | |
+| R2242 | Conversation, Tom | Siin on ju kümme tooli! | There are ten chairs in here! | |
+| R2243 | Conversation, Tom | Ja maja? Kas see on ka renoveeritud? | And the building? Has that been renovated too? | |
+| R2244 | Conversation, Tom | Tore! Mulle see korter meeldib! | Great! I like this apartment! | |
+| R2245 | Model answer | Jah, on möbleeritud ja köök on ka uus. | Yes, it's furnished, and the kitchen is new too. | |
+| R2246 | Model answer | Kas terve korter on remonditud? | Has the whole apartment been fixed up? | |
+| R2247 | Model answer | Uks on kinni. | The door's shut. | |
+| R2248 | Model answer | Jah, see on lahti ka öösel. | Yes, it's open at night too. | |
+| R2249 | Word (form) | remonditud | fixed up, refurbished (of an apartment or a room) | |
+| R2250 | Word (form) | möbleeritud | furnished | |
+| R2251 | Word (form) | renoveeritud | renovated (of a whole building) | |
+| R2252 | Word (form) | avatud | open, as a sign says it | |
+| R2253 | Word (form) | suletud | shut, closed, as a sign says it | |
+| R2254 | Word (form) | vaadata | to look, after may or want | |
+| R2255 | Word (word) | täiesti | completely | |
 
 #### B1 23. In the big bright room (`b1-23-bright-room`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2254 | Conversation, Tom | Tere, Mari! Siin Tom. | Hi, Mari! It's Tom. | |
-| R2255 | Conversation, Tom | Kolisime eelmisel nädalal uude korterisse ja siin on väga tore! | We moved into the new apartment last week, and it's really nice here! | |
-| R2256 | Conversation, Tom | Meil on nüüd kolm tuba ja köök. Elutuba on suur ja hele. | We've got three rooms and a kitchen now. The living room is big and bright. | |
-| R2257 | Conversation, Tom | Mu laud on suures heledas toas, akna juures. | My desk is in the big bright room, by the window. | |
-| R2258 | Conversation, Tom | Lapsed magavad väikeses toas, seal on vaikne. | The kids sleep in the small room, it's quiet there. | |
-| R2259 | Conversation, Tom | Ainult köök on väike, aga väikese köögiga saab ka elada. | Only the kitchen is small, but you can live with a small kitchen. | |
-| R2260 | Conversation, Tom | Ja külmkapp on suurem kui mina! | And the fridge is bigger than me! | |
-| R2261 | Conversation, Tom | Tule meile laupäeval külla! | Come and visit us on Saturday! | |
-| R2262 | Conversation, Tom | Me elame kolmandal korrusel, punase uksega korteris. | We live on the third floor, in the apartment with the red door. | |
-| R2263 | Conversation, Tom | Ja kui tahad, too kooki ka! Nägemist! | And bring some cake, if you like! Bye! | |
-| R2264 | Model answer | Ma elan suures heledas korteris. | I live in a big bright apartment. | |
-| R2265 | Model answer | Ma kolisin eelmisel nädalal uude korterisse. | I moved into a new apartment last week. | |
-| R2266 | Model answer | Mul on väikese köögiga korter. | I have an apartment with a small kitchen. | |
-| R2267 | Model answer | Ma töötan suures toas akna juures. | I work in the big room, by the window. | |
-| R2268 | Word (word) | hele | bright, light | |
-| R2269 | Word (form) | heleda | of the bright one | |
-| R2270 | Word (form) | punase | of the red one | |
-| R2271 | Word (form) | vana | of the old one | |
-| R2272 | Word (form) | elada | to live, after can or want | |
+| R2256 | Conversation, Tom | Tere, Mari! Siin Tom. | Hi, Mari! It's Tom. | |
+| R2257 | Conversation, Tom | Kolisime eelmisel nädalal uude korterisse ja siin on väga tore! | We moved into the new apartment last week, and it's really nice here! | |
+| R2258 | Conversation, Tom | Meil on nüüd kolm tuba ja köök. Elutuba on suur ja hele. | We've got three rooms and a kitchen now. The living room is big and bright. | |
+| R2259 | Conversation, Tom | Mu laud on suures heledas toas, akna juures. | My desk is in the big bright room, by the window. | |
+| R2260 | Conversation, Tom | Lapsed magavad väikeses toas, seal on vaikne. | The kids sleep in the small room, it's quiet there. | |
+| R2261 | Conversation, Tom | Ainult köök on väike, aga väikese köögiga saab ka elada. | Only the kitchen is small, but you can live with a small kitchen. | |
+| R2262 | Conversation, Tom | Ja külmkapp on suurem kui mina! | And the fridge is bigger than me! | |
+| R2263 | Conversation, Tom | Tule meile laupäeval külla! | Come and visit us on Saturday! | |
+| R2264 | Conversation, Tom | Me elame kolmandal korrusel, punase uksega korteris. | We live on the third floor, in the apartment with the red door. | |
+| R2265 | Conversation, Tom | Ja kui tahad, too kooki ka! Nägemist! | And bring some cake, if you like! Bye! | |
+| R2266 | Model answer | Ma elan suures heledas korteris. | I live in a big bright apartment. | |
+| R2267 | Model answer | Ma kolisin eelmisel nädalal uude korterisse. | I moved into a new apartment last week. | |
+| R2268 | Model answer | Mul on väikese köögiga korter. | I have an apartment with a small kitchen. | |
+| R2269 | Model answer | Ma töötan suures toas akna juures. | I work in the big room, by the window. | |
+| R2270 | Word (word) | hele | bright, light | |
+| R2271 | Word (form) | heleda | of the bright one | |
+| R2272 | Word (form) | punase | of the red one | |
+| R2273 | Word (form) | vana | of the old one | |
+| R2274 | Word (form) | elada | to live, after can or want | |
 
 #### B1 24. House rules (`b1-24-rules`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2273 | Conversation, Tom | Tere, Helgi! Mina olen Tom. Maja reeglid? Loeme koos! | Hello, Helgi! I'm Tom. The house rules? Let's read them together! | |
-| R2274 | Conversation, Tom | Suitsetamine majas on keelatud. | Smoking in the building is not allowed. | |
-| R2275 | Conversation, Tom | Öörahu kell 23.00 kuni 7.00. Palume öösel mitte müra teha. | Quiet hours from 23:00 to 7:00. Please make no noise at night. | |
-| R2276 | Conversation, Tom | Üleval? Helgi, see olen ju mina! | Upstairs? Helgi, that's me! | |
-| R2277 | Conversation, Tom | Ei, mina pean vabandust paluma. Ma töötan õhtul hilja ja kuulan muusikat. | No, I'm the one who should apologize. I work late in the evening and listen to music. | |
-| R2278 | Conversation, Tom | Ma luban! Ja vaata: koerad on majas lubatud. | I promise! And look: dogs are allowed in the building. | |
-| R2279 | Conversation, Tom | Jah, palju vaiksem kui mina. Ja viimane reegel: prügi sorteerimine on kohustuslik. | Yes, much quieter than me. And the last rule: sorting the trash is a must. | |
-| R2280 | Model answer | Ei, ma ei suitseta üldse. | No, I don't smoke at all. | |
-| R2281 | Model answer | Koerad on lubatud. | Dogs are allowed. | |
-| R2282 | Model answer | Ma luban. | I promise. | |
-| R2283 | Word (word) | teade | a notice, a message | |
-| R2284 | Word (word) | reegel | a rule | |
-| R2285 | Word (form) | reeglid | the rules | |
-| R2286 | Word (word) | suitsetamine | smoking | |
-| R2287 | Word (verb) | suitsetama | to smoke | |
-| R2288 | Word (verb) | keelama | to forbid, to not allow | |
-| R2289 | Word (form) | keelatud | not allowed, forbidden | |
-| R2290 | Word (form) | lubatud | allowed | |
-| R2291 | Word (word) | kohustuslik | a must, compulsory | |
-| R2292 | Word (word) | öörahu | quiet hours, the quiet of the night | |
-| R2293 | Word (word) | müra | noise | |
-| R2294 | Word (word) | üleval | upstairs, up there | |
-| R2295 | Word (word) | vaiksemalt | more quietly | |
-| R2296 | Word (word) | vaiksem | quieter | |
-| R2297 | Word (form) | koerad | dogs | |
-| R2298 | Word (word) | sorteerimine | sorting | |
-| R2299 | Word (verb) | kontrollima | to check | |
-| R2300 | Word (form) | kontrollis | he checked, she checked | |
+| R2275 | Conversation, Tom | Tere, Helgi! Mina olen Tom. Maja reeglid? Loeme koos! | Hello, Helgi! I'm Tom. The house rules? Let's read them together! | |
+| R2276 | Conversation, Tom | Suitsetamine majas on keelatud. | Smoking in the building is not allowed. | |
+| R2277 | Conversation, Tom | Öörahu kell 23.00 kuni 7.00. Palume öösel mitte müra teha. | Quiet hours from 23:00 to 7:00. Please make no noise at night. | |
+| R2278 | Conversation, Tom | Üleval? Helgi, see olen ju mina! | Upstairs? Helgi, that's me! | |
+| R2279 | Conversation, Tom | Ei, mina pean vabandust paluma. Ma töötan õhtul hilja ja kuulan muusikat. | No, I'm the one who should apologize. I work late in the evening and listen to music. | |
+| R2280 | Conversation, Tom | Ma luban! Ja vaata: koerad on majas lubatud. | I promise! And look: dogs are allowed in the building. | |
+| R2281 | Conversation, Tom | Jah, palju vaiksem kui mina. Ja viimane reegel: prügi sorteerimine on kohustuslik. | Yes, much quieter than me. And the last rule: sorting the trash is a must. | |
+| R2282 | Model answer | Ei, ma ei suitseta üldse. | No, I don't smoke at all. | |
+| R2283 | Model answer | Koerad on lubatud. | Dogs are allowed. | |
+| R2284 | Model answer | Ma luban. | I promise. | |
+| R2285 | Word (word) | teade | a notice, a message | |
+| R2286 | Word (word) | reegel | a rule | |
+| R2287 | Word (form) | reeglid | the rules | |
+| R2288 | Word (word) | suitsetamine | smoking | |
+| R2289 | Word (verb) | suitsetama | to smoke | |
+| R2290 | Word (verb) | keelama | to forbid, to not allow | |
+| R2291 | Word (form) | keelatud | not allowed, forbidden | |
+| R2292 | Word (form) | lubatud | allowed | |
+| R2293 | Word (word) | kohustuslik | a must, compulsory | |
+| R2294 | Word (word) | öörahu | quiet hours, the quiet of the night | |
+| R2295 | Word (word) | müra | noise | |
+| R2296 | Word (word) | üleval | upstairs, up there | |
+| R2297 | Word (word) | vaiksemalt | more quietly | |
+| R2298 | Word (word) | vaiksem | quieter | |
+| R2299 | Word (form) | koerad | dogs | |
+| R2300 | Word (word) | sorteerimine | sorting | |
+| R2301 | Word (verb) | kontrollima | to check | |
+| R2302 | Word (form) | kontrollis | he checked, she checked | |
 
 #### B1 25. It's broken again (`b1-25-broken`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2301 | Conversation, Tom | Tere, Urmas! Siin jälle Tom. | Hello, Urmas! It's Tom again. | |
-| R2302 | Conversation, Tom | Köögis lekib kraan ja vesi on põrandal. | The kitchen tap is leaking and there's water on the floor. | |
-| R2303 | Conversation, Tom | Proovisin. Nüüd lekib see kahest kohast. | I did. Now it leaks in two places. | |
-| R2304 | Conversation, Tom | Ja valamu on ka ummistunud. Vesi ei lähe alla. | And the sink is blocked too. The water won't go down. | |
-| R2305 | Conversation, Tom | Ainult natuke kartulit ja kohvi. | Only a bit of potato and coffee. | |
-| R2306 | Conversation, Tom | Aitäh! Ja vannitoas ei tööta lamp. | Thank you! And the light in the bathroom isn't working. | |
-| R2307 | Conversation, Tom | Oskan küll! Ma ei karda enam elektrit. Aga mul pole uut pirni. | Sure I can! I'm not scared of electricity any more. But I don't have a new bulb. | |
-| R2308 | Model answer | Köögis lekib kraan. | The kitchen tap is leaking. | |
-| R2309 | Model answer | Valamu on ummistunud. | The sink is blocked. | |
-| R2310 | Model answer | Toru tuleb vahetada. | The pipe needs changing. | |
-| R2311 | Model answer | Jah, proovisin. | Yes, I did. | |
-| R2312 | Word (form) | lekib | is leaking | |
-| R2313 | Word (form) | lekkis | was leaking, leaked | |
-| R2314 | Word (form) | põranda | of the floor | |
-| R2315 | Word (form) | proovisin | I tried | |
-| R2316 | Word (form) | parandada | to fix, after try or can | |
-| R2317 | Word (word) | valamu | a sink | |
-| R2318 | Word (form) | ummistunud | blocked, clogged | |
-| R2319 | Word (word) | toru | a pipe | |
-| R2320 | Word (form) | vahetada | to change, after must or can | |
-| R2321 | Word (form) | vahetage | change!, polite | |
-| R2322 | Word (form) | vahetas | he changed, she changed | |
+| R2303 | Conversation, Tom | Tere, Urmas! Siin jälle Tom. | Hello, Urmas! It's Tom again. | |
+| R2304 | Conversation, Tom | Köögis lekib kraan ja vesi on põrandal. | The kitchen tap is leaking and there's water on the floor. | |
+| R2305 | Conversation, Tom | Proovisin. Nüüd lekib see kahest kohast. | I did. Now it leaks in two places. | |
+| R2306 | Conversation, Tom | Ja valamu on ka ummistunud. Vesi ei lähe alla. | And the sink is blocked too. The water won't go down. | |
+| R2307 | Conversation, Tom | Ainult natuke kartulit ja kohvi. | Only a bit of potato and coffee. | |
+| R2308 | Conversation, Tom | Aitäh! Ja vannitoas ei tööta lamp. | Thank you! And the light in the bathroom isn't working. | |
+| R2309 | Conversation, Tom | Oskan küll! Ma ei karda enam elektrit. Aga mul pole uut pirni. | Sure I can! I'm not scared of electricity any more. But I don't have a new bulb. | |
+| R2310 | Model answer | Köögis lekib kraan. | The kitchen tap is leaking. | |
+| R2311 | Model answer | Valamu on ummistunud. | The sink is blocked. | |
+| R2312 | Model answer | Toru tuleb vahetada. | The pipe needs changing. | |
+| R2313 | Model answer | Jah, proovisin. | Yes, I did. | |
+| R2314 | Word (form) | lekib | is leaking | |
+| R2315 | Word (form) | lekkis | was leaking, leaked | |
+| R2316 | Word (form) | põranda | of the floor | |
+| R2317 | Word (form) | proovisin | I tried | |
+| R2318 | Word (form) | parandada | to fix, after try or can | |
+| R2319 | Word (word) | valamu | a sink | |
+| R2320 | Word (form) | ummistunud | blocked, clogged | |
+| R2321 | Word (word) | toru | a pipe | |
+| R2322 | Word (form) | vahetada | to change, after must or can | |
+| R2323 | Word (form) | vahetage | change!, polite | |
+| R2324 | Word (form) | vahetas | he changed, she changed | |
 
 #### B1 26. The contract (`b1-26-contract`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2323 | Conversation, Tom | Mari, vaata! See on meie uus üürileping. | Mari, look! This is our new rental contract. | |
-| R2324 | Conversation, Tom | Siin on kirjas: kui midagi läheb katki, parandab selle üürileandja. | It says here: if something breaks, the landlord fixes it. | |
-| R2325 | Conversation, Tom | Ja siin on veel: üürnik peab kaks kuud ette teatama. | And there's more here: the tenant has to give two months' notice. | |
-| R2326 | Conversation, Tom | Ja kui ma lepingu varem lõpetan, kaotan osa tagatisrahast. | And if I end the contract early, I lose part of the deposit. | |
-| R2327 | Conversation, Tom | Ühe kuu üür. 900 eurot. | One month's rent. 900 euros. | |
-| R2328 | Conversation, Tom | Ma ei saa sellest lausest üldse aru. Ja ma olen programmeerija! | I don't understand that sentence at all. And I'm a programmer! | |
-| R2329 | Conversation, Tom | Nagu Peetri korteris. Seal oli põrand juba enne mind kriimustatud ja see on lepingus kirjas. | Like at Peeter's place. The floor there was scratched before I came, and that's written in the contract. | |
-| R2330 | Model answer | Minu üür on 600 eurot kuus. | My rent is 600 euros a month. | |
-| R2331 | Model answer | Ma pean kaks kuud ette teatama. | I have to give two months' notice. | |
-| R2332 | Model answer | Kui korter on korras, saan ma tagatisraha tagasi. | If the apartment is in good order, I get the deposit back. | |
-| R2333 | Model answer | Ma ei saa sellest lausest üldse aru. | I don't understand this sentence at all. | |
-| R2334 | Word (word) | üürileping | a rental contract, a lease | |
-| R2335 | Word (form) | üürilepingu | of the rental contract | |
-| R2336 | Word (word) | leping | a contract | |
-| R2337 | Word (form) | lepingut | the contract, after {ei} | |
-| R2338 | Word (word) | kirjas | written down; {on kirjas}, it says | |
-| R2339 | Word (word) | üürnik | a tenant | |
-| R2340 | Word (word) | üürileandja | a landlord | |
-| R2341 | Word (word) | ette | ahead, in advance | |
-| R2342 | Word (verb) | teatama | to let know, to notify | |
-| R2343 | Word (verb) | kaotama | to lose | |
-| R2344 | Word (word) | tagatisraha | a deposit | |
-| R2345 | Word (word) | aru | sense; {aru saama}, to understand | |
-| R2346 | Word (word) | korras | in good order, all right | |
-| R2347 | Word (form) | kriimustatud | scratched | |
+| R2325 | Conversation, Tom | Mari, vaata! See on meie uus üürileping. | Mari, look! This is our new rental contract. | |
+| R2326 | Conversation, Tom | Siin on kirjas: kui midagi läheb katki, parandab selle üürileandja. | It says here: if something breaks, the landlord fixes it. | |
+| R2327 | Conversation, Tom | Ja siin on veel: üürnik peab kaks kuud ette teatama. | And there's more here: the tenant has to give two months' notice. | |
+| R2328 | Conversation, Tom | Ja kui ma lepingu varem lõpetan, kaotan osa tagatisrahast. | And if I end the contract early, I lose part of the deposit. | |
+| R2329 | Conversation, Tom | Ühe kuu üür. 900 eurot. | One month's rent. 900 euros. | |
+| R2330 | Conversation, Tom | Ma ei saa sellest lausest üldse aru. Ja ma olen programmeerija! | I don't understand that sentence at all. And I'm a programmer! | |
+| R2331 | Conversation, Tom | Nagu Peetri korteris. Seal oli põrand juba enne mind kriimustatud ja see on lepingus kirjas. | Like at Peeter's place. The floor there was scratched before I came, and that's written in the contract. | |
+| R2332 | Model answer | Minu üür on 600 eurot kuus. | My rent is 600 euros a month. | |
+| R2333 | Model answer | Ma pean kaks kuud ette teatama. | I have to give two months' notice. | |
+| R2334 | Model answer | Kui korter on korras, saan ma tagatisraha tagasi. | If the apartment is in good order, I get the deposit back. | |
+| R2335 | Model answer | Ma ei saa sellest lausest üldse aru. | I don't understand this sentence at all. | |
+| R2336 | Word (word) | üürileping | a rental contract, a lease | |
+| R2337 | Word (form) | üürilepingu | of the rental contract | |
+| R2338 | Word (word) | leping | a contract | |
+| R2339 | Word (form) | lepingut | the contract, after {ei} | |
+| R2340 | Word (word) | kirjas | written down; {on kirjas}, it says | |
+| R2341 | Word (word) | üürnik | a tenant | |
+| R2342 | Word (word) | üürileandja | a landlord | |
+| R2343 | Word (word) | ette | ahead, in advance | |
+| R2344 | Word (verb) | teatama | to let know, to notify | |
+| R2345 | Word (verb) | kaotama | to lose | |
+| R2346 | Word (word) | tagatisraha | a deposit | |
+| R2347 | Word (word) | aru | sense; {aru saama}, to understand | |
+| R2348 | Word (word) | korras | in good order, all right | |
+| R2349 | Word (form) | kriimustatud | scratched | |
 
 #### B1 27. A complaint to the landlord (`b1-27-complaint`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2348 | Conversation, Tom | Meil uues korteris ei tööta küte juba nädal aega. Ma kannan mütsi ka kodus. | The heating in our new apartment hasn't worked for a week now. I wear a hat at home too. | |
-| R2349 | Conversation, Tom | Helistasin kolm korda. Urmas ütleb alati, et meister tuleb homme. | Three times. Urmas, the landlord, always says the repairman is coming tomorrow. | |
-| R2350 | Conversation, Tom | Ei tule. Toas on ainult 15 kraadi. | He doesn't. It's only 15 degrees indoors. | |
-| R2351 | Conversation, Tom | Kaebus? Aga ta on ju tore mees. | A complaint? But he's a nice man. | |
-| R2352 | Conversation, Tom | Ja kuidas ma kirja alustan? | And how do I start the letter? | |
-| R2353 | Conversation, Tom | See on väga ametlik. | That's very formal. | |
-| R2354 | Conversation, Tom | Olgu. Kirjutan kohe. Mütsiga. | OK. I'll write it right away. In my hat. | |
-| R2355 | Model answer | Küte ei tööta juba nädal aega. | The heating hasn't worked for a week. | |
-| R2356 | Model answer | Ma helistasin talle kolm korda. | I called him three times. | |
-| R2357 | Model answer | Palun saatke meister hiljemalt reedeks. | Please send a repairman by Friday at the latest. | |
-| R2358 | Model answer | Lugupidamisega, Tom. | Sincerely, Tom. | |
-| R2359 | Word (verb) | kandma | to wear; to carry | |
-| R2360 | Word (form) | kandsin | I wore | |
-| R2361 | Word (word) | küte | the heating | |
-| R2362 | Word (form) | helistasin | I called, I phoned | |
-| R2363 | Word (word) | kaebus | a complaint | |
-| R2364 | Word (word) | kirjalikult | in writing | |
-| R2365 | Word (word) | viisakalt | politely | |
-| R2366 | Word (word) | kindlalt | firmly | |
-| R2367 | Word (form) | vastust | an answer, while you wait for it | |
-| R2368 | Word (form) | vastas | he answered, she answered | |
-| R2369 | Word (form) | kirjutasin | I wrote | |
-| R2370 | Word (word) | lugupeetud | dear (opening a formal letter) | |
-| R2371 | Word (word) | lugupidamisega | sincerely, with respect (closing a formal letter) | |
-| R2372 | Word (word) | ametlik | formal, official | |
-| R2373 | Word (word) | tõsine | serious | |
-| R2374 | Word (form) | mütsiga | with a hat, in a hat | |
-| R2375 | Word (form) | saatke | send!, polite | |
-| R2376 | Word (word) | hiljemalt | at the latest | |
+| R2350 | Conversation, Tom | Meil uues korteris ei tööta küte juba nädal aega. Ma kannan mütsi ka kodus. | The heating in our new apartment hasn't worked for a week now. I wear a hat at home too. | |
+| R2351 | Conversation, Tom | Helistasin kolm korda. Urmas ütleb alati, et meister tuleb homme. | Three times. Urmas, the landlord, always says the repairman is coming tomorrow. | |
+| R2352 | Conversation, Tom | Ei tule. Toas on ainult 15 kraadi. | He doesn't. It's only 15 degrees indoors. | |
+| R2353 | Conversation, Tom | Kaebus? Aga ta on ju tore mees. | A complaint? But he's a nice man. | |
+| R2354 | Conversation, Tom | Ja kuidas ma kirja alustan? | And how do I start the letter? | |
+| R2355 | Conversation, Tom | See on väga ametlik. | That's very formal. | |
+| R2356 | Conversation, Tom | Olgu. Kirjutan kohe. Mütsiga. | OK. I'll write it right away. In my hat. | |
+| R2357 | Model answer | Küte ei tööta juba nädal aega. | The heating hasn't worked for a week. | |
+| R2358 | Model answer | Ma helistasin talle kolm korda. | I called him three times. | |
+| R2359 | Model answer | Palun saatke meister hiljemalt reedeks. | Please send a repairman by Friday at the latest. | |
+| R2360 | Model answer | Lugupidamisega, Tom. | Sincerely, Tom. | |
+| R2361 | Word (verb) | kandma | to wear; to carry | |
+| R2362 | Word (form) | kandsin | I wore | |
+| R2363 | Word (word) | küte | the heating | |
+| R2364 | Word (form) | helistasin | I called, I phoned | |
+| R2365 | Word (word) | kaebus | a complaint | |
+| R2366 | Word (word) | kirjalikult | in writing | |
+| R2367 | Word (word) | viisakalt | politely | |
+| R2368 | Word (word) | kindlalt | firmly | |
+| R2369 | Word (form) | vastust | an answer, while you wait for it | |
+| R2370 | Word (form) | vastas | he answered, she answered | |
+| R2371 | Word (form) | kirjutasin | I wrote | |
+| R2372 | Word (word) | lugupeetud | dear (opening a formal letter) | |
+| R2373 | Word (word) | lugupidamisega | sincerely, with respect (closing a formal letter) | |
+| R2374 | Word (word) | ametlik | formal, official | |
+| R2375 | Word (word) | tõsine | serious | |
+| R2376 | Word (form) | mütsiga | with a hat, in a hat | |
+| R2377 | Word (form) | saatke | send!, polite | |
+| R2378 | Word (word) | hiljemalt | at the latest | |
 
 #### B1 28. Getting your deposit back (`b1-28-deposit`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2377 | Conversation, Peeter | Tere, Tom. Vaatame korteri koos läbi. | Hello, Tom. Let's walk through the apartment together. | |
-| R2378 | Conversation, Tom | Tere! Kõik on korras. Ma koristasin eile terve päeva. | Hello! Everything's in order. I cleaned all day yesterday. | |
-| R2379 | Conversation, Peeter | Köök on küll ilus, aga põrand on kriimustatud. | The kitchen looks nice, but the floor is scratched. | |
-| R2380 | Conversation, Tom | See oli juba enne mind kriimustatud. | It was scratched before I came. | |
-| R2381 | Conversation, Peeter | Võimalik, aga osa tagatisrahast jääb mulle. | Maybe, but part of the deposit stays with me. | |
-| R2382 | Conversation, Tom | Vabandust, aga see on lepingus kirjas. Vaata ise! | Sorry, but it's written in the contract. See for yourself! | |
-| R2383 | Conversation, Peeter | Tõesti? Vaatame lepingut. | Really? Let's look at the contract. | |
-| R2384 | Conversation, Peeter | Jah, siin on see kirjas. | Yes, it says so here. | |
-| R2385 | Conversation, Tom | Ja ma parandasin ise köögis kraani. | And I fixed the kitchen tap myself. | |
-| R2386 | Conversation, Peeter | Ma mäletan seda kraani väga hästi. | I remember that tap very well. | |
-| R2387 | Conversation, Tom | Nii et ma saan terve tagatisraha tagasi? | So I get the whole deposit back? | |
-| R2388 | Conversation, Peeter | Jah, saad. Sa olid hea üürnik. Ainult natuke liiga hea meister. | Yes, you do. You were a good tenant. Just a bit too good a handyman. | |
-| R2389 | Model answer | Kõik on korras. Ma koristasin eile terve päeva. | Everything's in order. I cleaned all day yesterday. | |
-| R2390 | Model answer | Kas ma saan terve tagatisraha tagasi? | Do I get the whole deposit back? | |
-| R2391 | Model answer | Tere! Kõik on korras. | Hello! Everything's in order. | |
-| R2392 | Model answer | Vabandage, aga see on lepingus kirjas. | Excuse me, but it's written in the contract. | |
-| R2393 | Model answer | Ei. Ma parandasin ise köögis kraani. | No. I fixed the kitchen tap myself. | |
-| R2394 | Model answer | Ainult pirn tuleb vahetada. | Only the bulb needs changing. | |
-| R2395 | Model answer | Aitäh! Head aega! | Thank you! Goodbye! | |
+| R2379 | Conversation, Peeter | Tere, Tom. Vaatame korteri koos läbi. | Hello, Tom. Let's walk through the apartment together. | |
+| R2380 | Conversation, Tom | Tere! Kõik on korras. Ma koristasin eile terve päeva. | Hello! Everything's in order. I cleaned all day yesterday. | |
+| R2381 | Conversation, Peeter | Köök on küll ilus, aga põrand on kriimustatud. | The kitchen looks nice, but the floor is scratched. | |
+| R2382 | Conversation, Tom | See oli juba enne mind kriimustatud. | It was scratched before I came. | |
+| R2383 | Conversation, Peeter | Võimalik, aga osa tagatisrahast jääb mulle. | Maybe, but part of the deposit stays with me. | |
+| R2384 | Conversation, Tom | Vabandust, aga see on lepingus kirjas. Vaata ise! | Sorry, but it's written in the contract. See for yourself! | |
+| R2385 | Conversation, Peeter | Tõesti? Vaatame lepingut. | Really? Let's look at the contract. | |
+| R2386 | Conversation, Peeter | Jah, siin on see kirjas. | Yes, it says so here. | |
+| R2387 | Conversation, Tom | Ja ma parandasin ise köögis kraani. | And I fixed the kitchen tap myself. | |
+| R2388 | Conversation, Peeter | Ma mäletan seda kraani väga hästi. | I remember that tap very well. | |
+| R2389 | Conversation, Tom | Nii et ma saan terve tagatisraha tagasi? | So I get the whole deposit back? | |
+| R2390 | Conversation, Peeter | Jah, saad. Sa olid hea üürnik. Ainult natuke liiga hea meister. | Yes, you do. You were a good tenant. Just a bit too good a handyman. | |
+| R2391 | Model answer | Kõik on korras. Ma koristasin eile terve päeva. | Everything's in order. I cleaned all day yesterday. | |
+| R2392 | Model answer | Kas ma saan terve tagatisraha tagasi? | Do I get the whole deposit back? | |
+| R2393 | Model answer | Tere! Kõik on korras. | Hello! Everything's in order. | |
+| R2394 | Model answer | Vabandage, aga see on lepingus kirjas. | Excuse me, but it's written in the contract. | |
+| R2395 | Model answer | Ei. Ma parandasin ise köögis kraani. | No. I fixed the kitchen tap myself. | |
+| R2396 | Model answer | Ainult pirn tuleb vahetada. | Only the bulb needs changing. | |
+| R2397 | Model answer | Aitäh! Head aega! | Thank you! Goodbye! | |
 
 #### B1 29. What people do here (`b1-29-people-do`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2396 | Conversation, Tom | Jah! Kas te toote mulle kooki? | Yes! Are you bringing me cake? | |
-| R2397 | Conversation, Tom | Kes selle toob? | Who brings it? | |
-| R2398 | Conversation, Tom | Huvitav. Mida Eestis veel tehakse? | Interesting. What else do people do in Estonia? | |
-| R2399 | Conversation, Tom | Seda ma tean. Aga miks liftis keegi ei räägi? | That I know. But why does nobody talk in the lift? | |
-| R2400 | Conversation, Tom | Üldse mitte? | Not at all? | |
-| R2401 | Conversation, Tom | Hästi. Homme toon kooki. Kui palju seda süüakse? | All right. I'll bring cake tomorrow. How much of it gets eaten? | |
-| R2402 | Model answer | Eestis räägitakse eesti keelt. | Estonian is spoken in Estonia. | |
-| R2403 | Model answer | Jaaniõhtul tehakse lõket ja käiakse saunas. | On Midsummer Eve people light a bonfire and go to the sauna. | |
-| R2404 | Model answer | Siin ei suitsetata. | No smoking here. | |
-| R2405 | Model answer | Sünnipäeval tuuakse kooki. | Cake gets brought on a birthday. | |
-| R2406 | Word (form) | räägitakse | people speak, it's spoken | |
-| R2407 | Word (form) | räägita | people speak, after {ei} | |
-| R2408 | Word (form) | tehakse | people do, people make, it's done | |
-| R2409 | Word (form) | tuuakse | people bring, it's brought | |
-| R2410 | Word (form) | juuakse | people drink, it's drunk | |
-| R2411 | Word (form) | käiakse | people go, people visit | |
-| R2412 | Word (form) | süüakse | people eat, it's eaten | |
-| R2413 | Word (form) | suitsetata | people smoke, after {ei} | |
-| R2414 | Word (form) | keelt | a language, as an object | |
-| R2415 | Word (word) | jaaniõhtul | on Midsummer Eve, June 23 | |
-| R2416 | Word (word) | lõke | bonfire | |
-| R2417 | Word (form) | lõket | a bonfire, as an object | |
-| R2418 | Word (form) | liftis | in the lift | |
-| R2419 | Word (word) | komme | custom, habit | |
-| R2420 | Word (form) | ilmast | about the weather | |
-| R2421 | Word (form) | igal | every (on, at) | |
-| R2422 | Word (form) | põles | burned, was burning | |
+| R2398 | Conversation, Tom | Jah! Kas te toote mulle kooki? | Yes! Are you bringing me cake? | |
+| R2399 | Conversation, Tom | Kes selle toob? | Who brings it? | |
+| R2400 | Conversation, Tom | Huvitav. Mida Eestis veel tehakse? | Interesting. What else do people do in Estonia? | |
+| R2401 | Conversation, Tom | Seda ma tean. Aga miks liftis keegi ei räägi? | That I know. But why does nobody talk in the lift? | |
+| R2402 | Conversation, Tom | Üldse mitte? | Not at all? | |
+| R2403 | Conversation, Tom | Hästi. Homme toon kooki. Kui palju seda süüakse? | All right. I'll bring cake tomorrow. How much of it gets eaten? | |
+| R2404 | Model answer | Eestis räägitakse eesti keelt. | Estonian is spoken in Estonia. | |
+| R2405 | Model answer | Jaaniõhtul tehakse lõket ja käiakse saunas. | On Midsummer Eve people light a bonfire and go to the sauna. | |
+| R2406 | Model answer | Siin ei suitsetata. | No smoking here. | |
+| R2407 | Model answer | Sünnipäeval tuuakse kooki. | Cake gets brought on a birthday. | |
+| R2408 | Word (form) | räägitakse | people speak, it's spoken | |
+| R2409 | Word (form) | räägita | people speak, after {ei} | |
+| R2410 | Word (form) | tehakse | people do, people make, it's done | |
+| R2411 | Word (form) | tuuakse | people bring, it's brought | |
+| R2412 | Word (form) | juuakse | people drink, it's drunk | |
+| R2413 | Word (form) | käiakse | people go, people visit | |
+| R2414 | Word (form) | süüakse | people eat, it's eaten | |
+| R2415 | Word (form) | suitsetata | people smoke, after {ei} | |
+| R2416 | Word (form) | keelt | a language, as an object | |
+| R2417 | Word (word) | jaaniõhtul | on Midsummer Eve, June 23 | |
+| R2418 | Word (word) | lõke | bonfire | |
+| R2419 | Word (form) | lõket | a bonfire, as an object | |
+| R2420 | Word (form) | liftis | in the lift | |
+| R2421 | Word (word) | komme | custom, habit | |
+| R2422 | Word (form) | ilmast | about the weather | |
+| R2423 | Word (form) | igal | every (on, at) | |
+| R2424 | Word (form) | põles | burned, was burning | |
 
 #### B1 30. It was built in 1930 (`b1-30-was-built`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2423 | Conversation, Tom | Ilus! Ja see kollane maja seal üle tee? | Beautiful! And that yellow building across the road? | |
-| R2424 | Conversation, Tom | Ja muuseum siin kõrval? Lähme sisse! | And the museum next door? Let's go in! | |
-| R2425 | Conversation, Tom | Miks? | Why? | |
-| R2426 | Conversation, Tom | Päriselt? Kas keegi sai rikkaks? | Really? Did anybody get rich? | |
-| R2427 | Conversation, Tom | Aga muuseum on ju kinni! | But the museum's closed! | |
-| R2428 | Conversation, Tom | Millal muuseum jälle avatakse? | When does the museum open again? | |
-| R2429 | Model answer | See ehitati 1930. aastal. | It was built in 1930. | |
-| R2430 | Model answer | Seal on remont. | There's building work there. | |
-| R2431 | Model answer | Eelmisel aastal avati uus kohvik. | A new café was opened last year. | |
-| R2432 | Word (word) | raekoda | town hall | |
-| R2433 | Word (form) | ehitati | was built | |
-| R2434 | Word (form) | ehitatud | built; {oli ehitatud}, had been built | |
-| R2435 | Word (form) | renoveeriti | was renovated | |
-| R2436 | Word (form) | avati | was opened | |
-| R2437 | Word (form) | avatakse | is opened, opens | |
-| R2438 | Word (form) | suleti | was closed | |
-| R2439 | Word (word) | remont | building work, repairs | |
-| R2440 | Word (form) | remondi | of the building work | |
-| R2441 | Word (form) | ajal | during, at the time of | |
-| R2442 | Word (form) | seina | of the wall | |
-| R2443 | Word (form) | leiti | was found | |
-| R2444 | Word (word) | päriselt | really, for real | |
-| R2445 | Word (form) | rikkaks | rich, becoming | |
-| R2446 | Word (form) | viidi | was taken | |
-| R2447 | Word (form) | viiakse | is taken | |
+| R2425 | Conversation, Tom | Ilus! Ja see kollane maja seal üle tee? | Beautiful! And that yellow building across the road? | |
+| R2426 | Conversation, Tom | Ja muuseum siin kõrval? Lähme sisse! | And the museum next door? Let's go in! | |
+| R2427 | Conversation, Tom | Miks? | Why? | |
+| R2428 | Conversation, Tom | Päriselt? Kas keegi sai rikkaks? | Really? Did anybody get rich? | |
+| R2429 | Conversation, Tom | Aga muuseum on ju kinni! | But the museum's closed! | |
+| R2430 | Conversation, Tom | Millal muuseum jälle avatakse? | When does the museum open again? | |
+| R2431 | Model answer | See ehitati 1930. aastal. | It was built in 1930. | |
+| R2432 | Model answer | Seal on remont. | There's building work there. | |
+| R2433 | Model answer | Eelmisel aastal avati uus kohvik. | A new café was opened last year. | |
+| R2434 | Word (word) | raekoda | town hall | |
+| R2435 | Word (form) | ehitati | was built | |
+| R2436 | Word (form) | ehitatud | built; {oli ehitatud}, had been built | |
+| R2437 | Word (form) | renoveeriti | was renovated | |
+| R2438 | Word (form) | avati | was opened | |
+| R2439 | Word (form) | avatakse | is opened, opens | |
+| R2440 | Word (form) | suleti | was closed | |
+| R2441 | Word (word) | remont | building work, repairs | |
+| R2442 | Word (form) | remondi | of the building work | |
+| R2443 | Word (form) | ajal | during, at the time of | |
+| R2444 | Word (form) | seina | of the wall | |
+| R2445 | Word (form) | leiti | was found | |
+| R2446 | Word (word) | päriselt | really, for real | |
+| R2447 | Word (form) | rikkaks | rich, becoming | |
+| R2448 | Word (form) | viidi | was taken | |
+| R2449 | Word (form) | viiakse | is taken | |
 
 #### B1 31. She had already gone (`b1-31-had-gone`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2448 | Conversation, Tom | Halvasti. Kui ma hommikul peatusse jõudsin, oli buss juba läinud. | Badly. When I got to the stop this morning, the bus had already gone. | |
-| R2449 | Conversation, Tom | Ma võtsin takso. Aga kui ma tööle jõudsin, oli koosolek juba alanud. | I took a taxi. But when I got to work, the meeting had already started. | |
-| R2450 | Conversation, Tom | Ei, ta oli ise ka hilinenud! | No, she'd been late too! | |
-| R2451 | Conversation, Tom | Oota, see pole veel kõik. Lõunal oli supp juba otsa saanud. | Wait, that's not all. At lunch the soup had already run out. | |
-| R2452 | Conversation, Tom | Ja õhtul tahtsin sulle helistada, aga telefon oli tühjaks saanud. | And in the evening I wanted to call you, but my phone had died. | |
-| R2453 | Conversation, Tom | Lõpuks üks hea uudis! | Some good news at last! | |
-| R2454 | Model answer | Kui ma tööle jõudsin, oli koosolek juba alanud. | When I got to work, the meeting had already started. | |
-| R2455 | Model answer | Ma olin telefoni koju unustanud. | I'd left my phone at home. | |
-| R2456 | Model answer | Supp oli juba otsa saanud. | The soup had already run out. | |
-| R2457 | Model answer | Ei, see polnud veel läinud. | No, it hadn't gone yet. | |
-| R2458 | Word (form) | alanud | begun, started | |
-| R2459 | Word (form) | hilinenud | been late | |
-| R2460 | Word (phrase) | otsa saanud | run out, all gone | |
-| R2461 | Word (form) | tühjaks | empty, becoming; of a phone, dead | |
-| R2462 | Word (form) | tundub | it seems, it looks like | |
-| R2463 | Word (form) | lõunal | at lunch | |
-| R2464 | Word (word) | vaene | poor | |
-| R2465 | Word (form) | lugenud | read (-nud form) | |
-| R2466 | Word (form) | unustanud | forgotten | |
-| R2467 | Word (form) | kohale | there, to the place; with {jõudma}, to arrive | |
-| R2468 | Word (form) | peatusse | to the stop, a bus stop | |
-| R2469 | Word (form) | pileti | the ticket, the whole of it | |
-| R2470 | Word (form) | diivanil | on the sofa | |
-| R2471 | Word (form) | polnud | wasn't, hadn't been | |
-| R2472 | Word (word) | söökla | canteen | |
+| R2450 | Conversation, Tom | Halvasti. Kui ma hommikul peatusse jõudsin, oli buss juba läinud. | Badly. When I got to the stop this morning, the bus had already gone. | |
+| R2451 | Conversation, Tom | Ma võtsin takso. Aga kui ma tööle jõudsin, oli koosolek juba alanud. | I took a taxi. But when I got to work, the meeting had already started. | |
+| R2452 | Conversation, Tom | Ei, ta oli ise ka hilinenud! | No, she'd been late too! | |
+| R2453 | Conversation, Tom | Oota, see pole veel kõik. Lõunal oli supp juba otsa saanud. | Wait, that's not all. At lunch the soup had already run out. | |
+| R2454 | Conversation, Tom | Ja õhtul tahtsin sulle helistada, aga telefon oli tühjaks saanud. | And in the evening I wanted to call you, but my phone had died. | |
+| R2455 | Conversation, Tom | Lõpuks üks hea uudis! | Some good news at last! | |
+| R2456 | Model answer | Kui ma tööle jõudsin, oli koosolek juba alanud. | When I got to work, the meeting had already started. | |
+| R2457 | Model answer | Ma olin telefoni koju unustanud. | I'd left my phone at home. | |
+| R2458 | Model answer | Supp oli juba otsa saanud. | The soup had already run out. | |
+| R2459 | Model answer | Ei, see polnud veel läinud. | No, it hadn't gone yet. | |
+| R2460 | Word (form) | alanud | begun, started | |
+| R2461 | Word (form) | hilinenud | been late | |
+| R2462 | Word (phrase) | otsa saanud | run out, all gone | |
+| R2463 | Word (form) | tühjaks | empty, becoming; of a phone, dead | |
+| R2464 | Word (form) | tundub | it seems, it looks like | |
+| R2465 | Word (form) | lõunal | at lunch | |
+| R2466 | Word (word) | vaene | poor | |
+| R2467 | Word (form) | lugenud | read (-nud form) | |
+| R2468 | Word (form) | unustanud | forgotten | |
+| R2469 | Word (form) | kohale | there, to the place; with {jõudma}, to arrive | |
+| R2470 | Word (form) | peatusse | to the stop, a bus stop | |
+| R2471 | Word (form) | pileti | the ticket, the whole of it | |
+| R2472 | Word (form) | diivanil | on the sofa | |
+| R2473 | Word (form) | polnud | wasn't, hadn't been | |
+| R2474 | Word (word) | söökla | canteen | |
 
 #### B1 32. In the news (`b1-32-news`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2473 | Conversation, Tom | Oi! Äkki on see see uus restoran meie kontori lähedal? | Oh! Could that be the new restaurant near our office? | |
-| R2474 | Conversation, Jaan | Ma ei kuulnud. Kas keegi sai haiget? | I didn't catch that. Was anybody hurt? | |
-| R2475 | Conversation, Tom | Me tahtsime seal neljapäeval lõunat süüa! | We wanted to have lunch there on Thursday! | |
-| R2476 | Conversation, Jaan | Siis sööte neljapäeval jälle sööklas. | Then it's the canteen again on Thursday. | |
-| R2477 | Conversation, Tom | Siis lähme sinna kuu aja pärast. | Then we'll go there in a month. | |
-| R2478 | Conversation, Jaan | Kui köök vahepeal jälle põlema ei lähe. | If the kitchen doesn't catch fire again in the meantime. | |
-| R2479 | Model answer | Kesklinnas oli tulekahju. | There was a fire in the city center. | |
-| R2480 | Model answer | Õnneks ei saanud keegi vigastada. | Luckily nobody was hurt. | |
-| R2481 | Model answer | Hommikul oli linnas õnnetus. | There was an accident in town this morning. | |
-| R2482 | Model answer | Kas sa lugesid uudiseid? | Did you read the news? | |
-| R2483 | Word (form) | uudiseid | the news, some of it, as an object | |
-| R2484 | Word (form) | uudistes | in the news | |
-| R2485 | Word (form) | uudised | the news | |
-| R2486 | Word (word) | tulekahju | fire, a building on fire | |
-| R2487 | Word (form) | toimus | happened, took place | |
-| R2488 | Word (verb) | kutsuma | to call, to invite | |
-| R2489 | Word (form) | kutsuti | was called, were called | |
-| R2490 | Word (form) | kutsus | called, he or she called | |
-| R2491 | Word (word) | päästjad | firefighters, the rescue service | |
-| R2492 | Word (form) | vigastada | hurt; with {sai}, got hurt | |
-| R2493 | Word (form) | haiget | hurt; with {sai}, got hurt, as people say it | |
-| R2494 | Word (word) | õnneks | luckily | |
-| R2495 | Word (form) | inimesed | people | |
-| R2496 | Word (form) | teatati | was announced, it was reported | |
-| R2497 | Word (form) | teatatud | reported, announced | |
-| R2498 | Word (form) | aja | of time; with {kuu} and {pärast}, in a month | |
-| R2499 | Word (word) | kohutav | terrible, awful | |
-| R2500 | Word (word) | õnnetus | accident | |
-| R2501 | Word (form) | teada | to know: the [da-tegevusnimi] (-da) | |
+| R2475 | Conversation, Tom | Oi! Äkki on see see uus restoran meie kontori lähedal? | Oh! Could that be the new restaurant near our office? | |
+| R2476 | Conversation, Jaan | Ma ei kuulnud. Kas keegi sai haiget? | I didn't catch that. Was anybody hurt? | |
+| R2477 | Conversation, Tom | Me tahtsime seal neljapäeval lõunat süüa! | We wanted to have lunch there on Thursday! | |
+| R2478 | Conversation, Jaan | Siis sööte neljapäeval jälle sööklas. | Then it's the canteen again on Thursday. | |
+| R2479 | Conversation, Tom | Siis lähme sinna kuu aja pärast. | Then we'll go there in a month. | |
+| R2480 | Conversation, Jaan | Kui köök vahepeal jälle põlema ei lähe. | If the kitchen doesn't catch fire again in the meantime. | |
+| R2481 | Model answer | Kesklinnas oli tulekahju. | There was a fire in the city center. | |
+| R2482 | Model answer | Õnneks ei saanud keegi vigastada. | Luckily nobody was hurt. | |
+| R2483 | Model answer | Hommikul oli linnas õnnetus. | There was an accident in town this morning. | |
+| R2484 | Model answer | Kas sa lugesid uudiseid? | Did you read the news? | |
+| R2485 | Word (form) | uudiseid | the news, some of it, as an object | |
+| R2486 | Word (form) | uudistes | in the news | |
+| R2487 | Word (form) | uudised | the news | |
+| R2488 | Word (word) | tulekahju | fire, a building on fire | |
+| R2489 | Word (form) | toimus | happened, took place | |
+| R2490 | Word (verb) | kutsuma | to call, to invite | |
+| R2491 | Word (form) | kutsuti | was called, were called | |
+| R2492 | Word (form) | kutsus | called, he or she called | |
+| R2493 | Word (word) | päästjad | firefighters, the rescue service | |
+| R2494 | Word (form) | vigastada | hurt; with {sai}, got hurt | |
+| R2495 | Word (form) | haiget | hurt; with {sai}, got hurt, as people say it | |
+| R2496 | Word (word) | õnneks | luckily | |
+| R2497 | Word (form) | inimesed | people | |
+| R2498 | Word (form) | teatati | was announced, it was reported | |
+| R2499 | Word (form) | teatatud | reported, announced | |
+| R2500 | Word (form) | aja | of time; with {kuu} and {pärast}, in a month | |
+| R2501 | Word (word) | kohutav | terrible, awful | |
+| R2502 | Word (word) | õnnetus | accident | |
+| R2503 | Word (form) | teada | to know: the [da-tegevusnimi] (-da) | |
 
 #### B1 33. What the meeting decided (`b1-33-decided`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2502 | Conversation, Tom | Kadri, mida eilsel koosolekul otsustati? | Kadri, what was decided at yesterday's meeting? | |
-| R2503 | Conversation, Tom | Olin arsti juures. Aja olin juba ammu kinni pannud. | I was at the doctor's. I'd booked the appointment ages ago. | |
-| R2504 | Conversation, Tom | Kas midagi olulist ka otsustati? | Was anything important decided? | |
-| R2505 | Conversation, Tom | Juba? Kes seda teeb? | Already? Who's doing it? | |
-| R2506 | Conversation, Tom | Mis?! Miks mulle keegi midagi ei öelnud? | What?! Why didn't anybody tell me? | |
-| R2507 | Conversation, Tom | Kas see kõik on protokollis kirjas? | Is all of that in the minutes? | |
-| R2508 | Conversation, Tom | Ma pole seda veel lugenud. | I haven't read them yet. | |
-| R2509 | Model answer | Otsustati, et projekt algab järgmisel kuul. | It was decided the project starts next month. | |
-| R2510 | Model answer | Arutati uut projekti. | The new project was discussed. | |
-| R2511 | Model answer | Mida koosolekul kokku lepiti? | What was agreed at the meeting? | |
-| R2512 | Model answer | Ma pole protokolli veel lugenud. | I haven't read the minutes yet. | |
-| R2513 | Word (form) | eilsel | yesterday's (at, on) | |
-| R2514 | Word (word) | eilne | yesterday's | |
-| R2515 | Word (verb) | arutama | to discuss, to talk over | |
-| R2516 | Word (form) | arutati | was discussed | |
-| R2517 | Word (form) | arutatakse | is discussed | |
-| R2518 | Word (verb) | otsustama | to decide | |
-| R2519 | Word (form) | otsustati | it was decided | |
-| R2520 | Word (form) | otsustas | decided, he or she decided | |
-| R2521 | Word (form) | pannud | put; with {kinni}, booked | |
-| R2522 | Word (form) | olulist | important, after {midagi} | |
-| R2523 | Word (form) | lepiti | with {kokku}, it was agreed | |
-| R2524 | Word (word) | protokoll | the minutes, a written record | |
-| R2525 | Word (form) | protokolli | of the minutes | |
-| R2526 | Word (form) | saadeti | was sent | |
-| R2527 | Word (form) | kõigile | to everybody | |
-| R2528 | Word (word) | igaüks | everybody, each one | |
+| R2504 | Conversation, Tom | Kadri, mida eilsel koosolekul otsustati? | Kadri, what was decided at yesterday's meeting? | |
+| R2505 | Conversation, Tom | Olin arsti juures. Ma olin aja juba ammu kinni pannud. | I was at the doctor's. I'd booked the appointment ages ago. | |
+| R2506 | Conversation, Tom | Kas midagi olulist ka otsustati? | Was anything important decided? | |
+| R2507 | Conversation, Tom | Juba? Kes seda teeb? | Already? Who's doing it? | |
+| R2508 | Conversation, Tom | Mis?! Miks mulle keegi midagi ei öelnud? | What?! Why didn't anybody tell me? | |
+| R2509 | Conversation, Tom | Kas see kõik on protokollis kirjas? | Is all of that in the minutes? | |
+| R2510 | Conversation, Tom | Ma pole seda veel lugenud. | I haven't read them yet. | |
+| R2511 | Model answer | Otsustati, et projekt algab järgmisel kuul. | It was decided the project starts next month. | |
+| R2512 | Model answer | Arutati uut projekti. | The new project was discussed. | |
+| R2513 | Model answer | Mida koosolekul kokku lepiti? | What was agreed at the meeting? | |
+| R2514 | Model answer | Ma pole protokolli veel lugenud. | I haven't read the minutes yet. | |
+| R2515 | Word (form) | eilsel | yesterday's (at, on) | |
+| R2516 | Word (word) | eilne | yesterday's | |
+| R2517 | Word (verb) | arutama | to discuss, to talk over | |
+| R2518 | Word (form) | arutati | was discussed | |
+| R2519 | Word (form) | arutatakse | is discussed | |
+| R2520 | Word (verb) | otsustama | to decide | |
+| R2521 | Word (form) | otsustati | it was decided | |
+| R2522 | Word (form) | otsustas | decided, he or she decided | |
+| R2523 | Word (form) | pannud | put; with {kinni}, booked | |
+| R2524 | Word (form) | olulist | important, after {midagi} | |
+| R2525 | Word (form) | lepiti | with {kokku}, it was agreed | |
+| R2526 | Word (word) | protokoll | the minutes, a written record | |
+| R2527 | Word (form) | protokolli | of the minutes | |
+| R2528 | Word (form) | saadeti | was sent | |
+| R2529 | Word (form) | kõigile | to everybody | |
+| R2530 | Word (word) | igaüks | everybody, each one | |
 
 #### B1 34. What happened: a short report (`b1-34-report`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2529 | Conversation, Tom | Tean! Nägin hommikul. Keldris oli vett põlvini. | I know! I saw it this morning. The water in the cellar was up to your knees. | |
-| R2530 | Conversation, Tom | Kas toru on juba parandatud? | Has the pipe been fixed yet? | |
-| R2531 | Conversation, Tom | Eesti keeles? Ma pole seda kunagi teinud. | In Estonian? I've never done that. | |
-| R2532 | Conversation, Tom | Aga kui ma vigu teen? | But what if I make mistakes? | |
-| R2533 | Conversation, Tom | Hästi, kirjutan täna õhtul ära. | All right. I'll write it tonight. | |
-| R2534 | Model answer | Öösel läks keldris toru katki. | A pipe burst in the cellar last night. | |
-| R2535 | Model answer | Torumees kutsuti ja toru vahetati välja. | A plumber was called and the pipe was replaced. | |
-| R2536 | Model answer | Vanad torud tuleb välja vahetada. | The old pipes have to be replaced. | |
-| R2537 | Model answer | Ma pole seda kunagi teinud. | I've never done that. | |
-| R2538 | Word (word) | kelder | cellar, basement | |
-| R2539 | Word (form) | keldri | of the cellar | |
-| R2540 | Word (form) | keldrit | the cellar, as an object | |
-| R2541 | Word (form) | torud | pipes | |
-| R2542 | Word (form) | põlvini | up to the knees | |
-| R2543 | Word (word) | torumees | plumber | |
-| R2544 | Word (form) | keerati | was turned; with {kinni}, was turned off | |
-| R2545 | Word (form) | parandatud | fixed, repaired | |
-| R2546 | Word (form) | parandati | was fixed | |
-| R2547 | Word (form) | vahetati | was changed; with {välja}, was replaced | |
-| R2548 | Word (form) | vahetatakse | is changed, will be changed | |
-| R2549 | Word (word) | ühistu | the house association, the building's owners | |
-| R2550 | Word (form) | tehti | was done | |
-| R2551 | Word (form) | vigu | mistakes, as an object | |
-| R2552 | Word (word) | nagunii | anyway | |
-| R2553 | Word (form) | kartulid | potatoes | |
-| R2554 | Word (form) | vanad | old (more than one) | |
+| R2531 | Conversation, Tom | Tean! Nägin hommikul. Keldris oli vett põlvini. | I know! I saw it this morning. The water in the cellar was up to your knees. | |
+| R2532 | Conversation, Tom | Kas toru on juba parandatud? | Has the pipe been fixed yet? | |
+| R2533 | Conversation, Tom | Eesti keeles? Ma pole seda kunagi teinud. | In Estonian? I've never done that. | |
+| R2534 | Conversation, Tom | Aga kui ma vigu teen? | But what if I make mistakes? | |
+| R2535 | Conversation, Tom | Hästi, kirjutan täna õhtul ära. | All right. I'll write it tonight. | |
+| R2536 | Model answer | Öösel läks keldris toru katki. | A pipe burst in the cellar last night. | |
+| R2537 | Model answer | Torumees kutsuti ja toru vahetati välja. | A plumber was called and the pipe was replaced. | |
+| R2538 | Model answer | Vanad torud tuleb välja vahetada. | The old pipes have to be replaced. | |
+| R2539 | Model answer | Ma pole seda kunagi teinud. | I've never done that. | |
+| R2540 | Word (word) | kelder | cellar, basement | |
+| R2541 | Word (form) | keldri | of the cellar | |
+| R2542 | Word (form) | keldrit | the cellar, as an object | |
+| R2543 | Word (form) | torud | pipes | |
+| R2544 | Word (form) | põlvini | up to the knees | |
+| R2545 | Word (word) | torumees | plumber | |
+| R2546 | Word (form) | keerati | was turned; with {kinni}, was turned off | |
+| R2547 | Word (form) | parandatud | fixed, repaired | |
+| R2548 | Word (form) | parandati | was fixed | |
+| R2549 | Word (form) | vahetati | was changed; with {välja}, was replaced | |
+| R2550 | Word (form) | vahetatakse | is changed, will be changed | |
+| R2551 | Word (word) | ühistu | the house association, the building's owners | |
+| R2552 | Word (form) | tehti | was done | |
+| R2553 | Word (form) | vigu | mistakes, as an object | |
+| R2554 | Word (word) | nagunii | anyway | |
+| R2555 | Word (form) | kartulid | potatoes | |
+| R2556 | Word (form) | vanad | old (more than one) | |
 
 #### B1 35. The residents' meeting (`b1-35-residents`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2555 | Conversation, Tom | Eelmisel nädalal läks öösel keldris toru katki. Hommikul oli vett põlvini. | Last week a pipe burst in the cellar during the night. By the morning the water was up to your knees. | |
-| R2556 | Conversation, Tom | Aga see polnud esimene kord. Toru oli juba eelmisel talvel katki läinud. | But it wasn't the first time. The pipe had already burst last winter. | |
-| R2557 | Conversation, Tom | Minu arvates tuleb kõik vanad torud välja vahetada. | In my opinion all the old pipes have to be replaced. | |
-| R2558 | Conversation, Tom | Jah, aga uus õnnetus on veel kallim. | Yes, but another accident costs even more. | |
-| R2559 | Model answer | Eelmisel nädalal läks toru katki. | A pipe burst last week. | |
-| R2560 | Model answer | Ei, toru oli juba eelmisel talvel katki läinud. | No, the pipe had already burst last winter. | |
-| R2561 | Model answer | Kohe kutsuti torumees. | A plumber was called straight away. | |
-| R2562 | Model answer | Öösel läks keldris toru katki. | A pipe burst in the cellar during the night. | |
-| R2563 | Model answer | Torumees kutsuti ja toru vahetati välja. | A plumber was called and the pipe was replaced. | |
-| R2564 | Model answer | Vett ei ole, aga kõik on veel märg. | There's no water, but everything is still wet. | |
-| R2565 | Model answer | Minu arvates tuleb vanad torud välja vahetada. | In my opinion the old pipes have to be replaced. | |
-| R2566 | Model answer | Kevadel. Siis ei ole külm. | In the spring. It isn't cold then. | |
-| R2567 | Model answer | Aitäh! Head aega! | Thank you! Goodbye! | |
+| R2557 | Conversation, Tom | Eelmisel nädalal läks öösel keldris toru katki. Hommikul oli vett põlvini. | Last week a pipe burst in the cellar during the night. By the morning the water was up to your knees. | |
+| R2558 | Conversation, Tom | Aga see polnud esimene kord. Toru oli juba eelmisel talvel katki läinud. | But it wasn't the first time. The pipe had already burst last winter. | |
+| R2559 | Conversation, Tom | Minu arvates tuleb kõik vanad torud välja vahetada. | In my opinion all the old pipes have to be replaced. | |
+| R2560 | Conversation, Tom | Jah, aga uus õnnetus on veel kallim. | Yes, but another accident costs even more. | |
+| R2561 | Model answer | Eelmisel nädalal läks toru katki. | A pipe burst last week. | |
+| R2562 | Model answer | Ei, toru oli juba eelmisel talvel katki läinud. | No, the pipe had already burst last winter. | |
+| R2563 | Model answer | Kohe kutsuti torumees. | A plumber was called straight away. | |
+| R2564 | Model answer | Öösel läks keldris toru katki. | A pipe burst in the cellar during the night. | |
+| R2565 | Model answer | Torumees kutsuti ja toru vahetati välja. | A plumber was called and the pipe was replaced. | |
+| R2566 | Model answer | Vett ei ole, aga kõik on veel märg. | There's no water, but everything is still wet. | |
+| R2567 | Model answer | Minu arvates tuleb vanad torud välja vahetada. | In my opinion the old pipes have to be replaced. | |
+| R2568 | Model answer | Kevadel. Siis ei ole külm. | In the spring. It isn't cold then. | |
+| R2569 | Model answer | Aitäh! Head aega! | Thank you! Goodbye! | |
 
 #### B1 36. Because, although, so that (`b1-36-although`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2568 | Conversation, Tom | Mari, mu auto on jälle katki. | Mari, my car's broken again. | |
-| R2569 | Conversation, Tom | Kakskümmend aastat. Kuigi see on vana, sõidab see tavaliselt hästi. | Twenty years. Although it's old, it usually runs well. | |
-| R2570 | Conversation, Tom | Ma mõtlen, et ostan uuema auto. | I'm thinking of buying a newer car. | |
-| R2571 | Conversation, Tom | Aga mul on autot vaja, et lapsi lasteaeda viia. | But I need a car to take the kids to kindergarten. | |
-| R2572 | Conversation, Tom | Aga buss ei sõida metsa. Kui mul on auto, olen ma vaba! | But the bus doesn't go into the forest. If I have a car, I'm free! | |
-| R2573 | Conversation, Tom | Hea küll. Ma helistan mehaanikule, et küsida, kui palju remont maksab. | All right. I'll call the mechanic to ask how much the repair costs. | |
-| R2574 | Conversation, Tom | Sada eurot. | A hundred euros. | |
-| R2575 | Conversation, Tom | Ei. Remont maksab ikka vähem kui uus auto. Sõidan vana autoga veel natuke. | No. The repair costs less than a new car, after all. I'll drive the old one a while longer. | |
-| R2576 | Conversation, Tom | Kuigi see jälle katki läheb. | Even though it'll break down again. | |
-| R2577 | Model answer | Ei ole, kuna ma elan kesklinnas. | No, since I live in the city center. | |
-| R2578 | Model answer | Ma tahaksin autot, et maale sõita. | I'd like a car so I can drive to the country. | |
-| R2579 | Model answer | Auto on mugav, kuigi see on kallis. | A car is comfortable, although it's expensive. | |
-| R2580 | Model answer | Kui ilm on ilus, käin ma jala tööl. | If the weather's nice, I walk to work. | |
-| R2581 | Word (word) | kuigi | although, even though | |
-| R2582 | Word (word) | mugav | comfortable, convenient | |
-| R2583 | Word (form) | uuema | a newer one's; {uuema auto}, a newer car, the whole of it | |
-| R2584 | Word (form) | müü | sell!, to one person | |
-| R2585 | Word (word) | maha | down, off; {Müü see maha}, sell it | |
-| R2586 | Word (form) | lapsi | children, as an object | |
-| R2587 | Word (form) | lasteaeda | to kindergarten | |
-| R2588 | Word (form) | viia | to take: the [da-tegevusnimi] (-da) | |
-| R2589 | Word (word) | mehaanik | a mechanic | |
-| R2590 | Word (form) | mehaanikule | to the mechanic | |
-| R2591 | Word (word) | vähem | less, fewer | |
-| R2592 | Word (form) | sõita | to drive, to travel: the [da-tegevusnimi] (-da) | |
-| R2593 | Word (phrase) | Hea küll. | All right. Fine. | |
+| R2570 | Conversation, Tom | Mari, mu auto on jälle katki. | Mari, my car's broken again. | |
+| R2571 | Conversation, Tom | Kakskümmend aastat. Kuigi see on vana, sõidab see tavaliselt hästi. | Twenty years. Although it's old, it usually runs well. | |
+| R2572 | Conversation, Tom | Ma mõtlen, et ostan uuema auto. | I'm thinking of buying a newer car. | |
+| R2573 | Conversation, Tom | Aga mul on autot vaja, et lapsi lasteaeda viia. | But I need a car to take the kids to kindergarten. | |
+| R2574 | Conversation, Tom | Aga buss ei sõida metsa. Kui mul on auto, olen ma vaba! | But the bus doesn't go into the forest. If I have a car, I'm free! | |
+| R2575 | Conversation, Tom | Hea küll. Ma helistan mehaanikule, et küsida, kui palju remont maksab. | All right. I'll call the mechanic to ask how much the repair costs. | |
+| R2576 | Conversation, Tom | Sada eurot. | A hundred euros. | |
+| R2577 | Conversation, Tom | Ei. Remont maksab ikka vähem kui uus auto. Sõidan vana autoga veel natuke. | No. The repair costs less than a new car, after all. I'll drive the old one a while longer. | |
+| R2578 | Conversation, Tom | Kuigi see jälle katki läheb. | Even though it'll break down again. | |
+| R2579 | Model answer | Ei ole, kuna ma elan kesklinnas. | No, since I live in the city center. | |
+| R2580 | Model answer | Ma tahaksin autot, et maale sõita. | I'd like a car so I can drive to the country. | |
+| R2581 | Model answer | Auto on mugav, kuigi see on kallis. | A car is comfortable, although it's expensive. | |
+| R2582 | Model answer | Kui ilm on ilus, käin ma jala tööl. | If the weather's nice, I walk to work. | |
+| R2583 | Word (word) | kuigi | although, even though | |
+| R2584 | Word (word) | mugav | comfortable, convenient | |
+| R2585 | Word (form) | uuema | a newer one's; {uuema auto}, a newer car, the whole of it | |
+| R2586 | Word (form) | müü | sell!, to one person | |
+| R2587 | Word (word) | maha | down, off; {Müü see maha}, sell it | |
+| R2588 | Word (form) | lapsi | children, as an object | |
+| R2589 | Word (form) | lasteaeda | to kindergarten | |
+| R2590 | Word (form) | viia | to take: the [da-tegevusnimi] (-da) | |
+| R2591 | Word (word) | mehaanik | a mechanic | |
+| R2592 | Word (form) | mehaanikule | to the mechanic | |
+| R2593 | Word (word) | vähem | less, fewer | |
+| R2594 | Word (form) | sõita | to drive, to travel: the [da-tegevusnimi] (-da) | |
+| R2595 | Word (phrase) | Hea küll. | All right. Fine. | |
 
 #### B1 37. The one who, the one that (`b1-37-the-one-who`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2594 | Conversation, Tom | Anna, ma ei tunne siin kedagi. Kes need inimesed on? | Anna, I don't know anybody here. Who are these people? | |
-| R2595 | Conversation, Tom | Ja see naine, kellega ta räägib? | And the woman she's talking to? | |
-| R2596 | Conversation, Tom | Päriselt? Mis raamatuid? | Really? What books? | |
-| R2597 | Conversation, Tom | Ei usu! Ma pean temaga rääkima. | No way! I have to talk to her. | |
-| R2598 | Conversation, Tom | Aga kes on see mees, kes juba kolmandat tükki kooki sööb? | But who's that man who's already on his third piece of cake? | |
-| R2599 | Conversation, Tom | Oi. Aga kook on tõesti hea. | Oh. But the cake really is good. | |
-| R2600 | Model answer | See on naine, kes elab meie kõrval. | That's the woman who lives next door to us. | |
-| R2601 | Model answer | Raamat, mida ma loen, on väga hea. | The book I'm reading is very good. | |
-| R2602 | Model answer | Firma, kus ma töötan, on kesklinnas. | The company where I work is in the city center. | |
-| R2603 | Model answer | Mari on sõber, kellega ma tihti kohvi joon. | Mari is the friend I often have coffee with. | |
-| R2604 | Word (form) | mille | which, the whole of it: the [omastav] (2nd form) of {mis} | |
-| R2605 | Word (form) | raamatuid | books, some of them | |
-| R2606 | Word (form) | kirjutas | he, she wrote | |
-| R2607 | Word (form) | kolmandat | the third one, some of it | |
-| R2608 | Word (form) | tundnud | known, after {ei}: {ma ei tundnud} | |
-| R2609 | Word (form) | meest | the man, as the one you know: {Ma tunnen seda meest} | |
+| R2596 | Conversation, Tom | Anna, ma ei tunne siin kedagi. Kes need inimesed on? | Anna, I don't know anybody here. Who are these people? | |
+| R2597 | Conversation, Tom | Ja see naine, kellega ta räägib? | And the woman she's talking to? | |
+| R2598 | Conversation, Tom | Päriselt? Mis raamatuid? | Really? What books? | |
+| R2599 | Conversation, Tom | Ei usu! Ma pean temaga rääkima. | No way! I have to talk to her. | |
+| R2600 | Conversation, Tom | Aga kes on see mees, kes juba kolmandat tükki kooki sööb? | But who's that man who's already on his third piece of cake? | |
+| R2601 | Conversation, Tom | Oi. Aga kook on tõesti hea. | Oh. But the cake really is good. | |
+| R2602 | Model answer | See on naine, kes elab meie kõrval. | That's the woman who lives next door to us. | |
+| R2603 | Model answer | Raamat, mida ma loen, on väga hea. | The book I'm reading is very good. | |
+| R2604 | Model answer | Firma, kus ma töötan, on kesklinnas. | The company where I work is in the city center. | |
+| R2605 | Model answer | Mari on sõber, kellega ma tihti kohvi joon. | Mari is the friend I often have coffee with. | |
+| R2606 | Word (form) | mille | which, the whole of it: the [omastav] (2nd form) of {mis} | |
+| R2607 | Word (form) | raamatuid | books, some of them | |
+| R2608 | Word (form) | kirjutas | he, she wrote | |
+| R2609 | Word (form) | kolmandat | the third one, some of it | |
+| R2610 | Word (form) | tundnud | known, after {ei}: {ma ei tundnud} | |
+| R2611 | Word (form) | meest | the man, as the one you know: {Ma tunnen seda meest} | |
 
 #### B1 38. I see it differently (`b1-38-differently`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2610 | Conversation, Tom | Minu meelest oli see liiga pikk. Kolm tundi! | If you ask me, it was too long. Three hours! | |
-| R2611 | Conversation, Tom | Ainult natuke! Võib-olla pool tundi. | Only a bit! Maybe half an hour. | |
-| R2612 | Conversation, Tom | Ühest küljest on sul õigus. Teisest küljest oli film väga igav. | On the one hand, you're right. On the other hand, the film was really boring. | |
-| R2613 | Conversation, Tom | Ma saan sinust aru, aga minu meelest oli see ikka igav. | I see where you're coming from, but I still think it was boring. | |
-| R2614 | Conversation, Tom | Nõus. Ja mina magan jälle. | Agreed. And I'll sleep again. | |
-| R2615 | Model answer | Minu meelest oli see liiga pikk. | If you ask me, it was too long. | |
-| R2616 | Model answer | Ma ei ole sinuga üldse nõus. | I don't agree with you at all. | |
-| R2617 | Model answer | Mulle tundub, et lõpp oli kõige parem. | It seems to me the ending was the best part. | |
-| R2618 | Model answer | Sellega olen nõus. | I agree with that. | |
-| R2619 | Word (form) | meelest | in the mind of: {minu meelest}, in my opinion | |
-| R2620 | Word (form) | küljest | from the side: {ühest küljest}, {teisest küljest} | |
-| R2621 | Word (word) | õigus | right: {sul on õigus}, you're right | |
-| R2622 | Word (form) | minuga | with me | |
+| R2612 | Conversation, Tom | Minu meelest oli see liiga pikk. Kolm tundi! | If you ask me, it was too long. Three hours! | |
+| R2613 | Conversation, Tom | Ainult natuke! Võib-olla pool tundi. | Only a bit! Maybe half an hour. | |
+| R2614 | Conversation, Tom | Ühest küljest on sul õigus. Teisest küljest oli film väga igav. | On the one hand, you're right. On the other hand, the film was really boring. | |
+| R2615 | Conversation, Tom | Ma saan sinust aru, aga minu meelest oli see ikka igav. | I see where you're coming from, but I still think it was boring. | |
+| R2616 | Conversation, Tom | Nõus. Ja mina magan jälle. | Agreed. And I'll sleep again. | |
+| R2617 | Model answer | Minu meelest oli see liiga pikk. | If you ask me, it was too long. | |
+| R2618 | Model answer | Ma ei ole sinuga üldse nõus. | I don't agree with you at all. | |
+| R2619 | Model answer | Mulle tundub, et lõpp oli kõige parem. | It seems to me the ending was the best part. | |
+| R2620 | Model answer | Sellega olen nõus. | I agree with that. | |
+| R2621 | Word (form) | meelest | in the mind of: {minu meelest}, in my opinion | |
+| R2622 | Word (form) | küljest | from the side: {ühest küljest}, {teisest küljest} | |
+| R2623 | Word (word) | õigus | right: {sul on õigus}, you're right | |
+| R2624 | Word (form) | minuga | with me | |
 
 #### B1 39. Always online (`b1-39-online`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2623 | Conversation, Tom | Mis juhtus? | What happened? | |
-| R2624 | Conversation, Tom | Kas sa laadisid seda? | Did you charge it? | |
-| R2625 | Conversation, Tom | See juhe ei sobi. Uue telefoni juhe on siin karbis. | That cable doesn't fit. The new phone's cable is here in the box. | |
-| R2626 | Conversation, Tom | Need on su tütrelt. Ta muretseb, sest sa ei vasta. | They're from your daughter. She's worried because you don't answer. | |
-| R2627 | Conversation, Tom | See on rakendus, millega saab tasuta helistada. | That's an app you can make calls with for free. | |
-| R2628 | Conversation, Tom | Väga tore. | Lovely. | |
-| R2629 | Model answer | Jah, ja ma laadin seda iga päev. | Yes, and I charge it every day. | |
-| R2630 | Model answer | Mul on kakskümmend sõnumit. | I've got twenty messages. | |
-| R2631 | Model answer | Seda ma ei teadnud. | I didn't know that. | |
-| R2632 | Word (word) | nutitelefon | smartphone | |
-| R2633 | Word (form) | nutitelefoni | a smartphone's, of a smartphone | |
-| R2634 | Word (word) | ekraan | screen | |
-| R2635 | Word (verb) | laadima | to charge (a phone), to load | |
-| R2636 | Word (form) | laadisin | I charged | |
-| R2637 | Word (form) | laadis | he, she charged | |
-| R2638 | Word (word) | juhe | a cable, a lead | |
-| R2639 | Word (form) | juhtmega | with a cable | |
-| R2640 | Word (form) | juhet | a cable, as an object | |
-| R2641 | Word (form) | karbis | in the box | |
-| R2642 | Word (form) | sõnumit | message, after a number or as some of it | |
-| R2643 | Word (word) | rakendus | app | |
-| R2644 | Word (form) | rakenduse | an app's, of an app | |
-| R2645 | Word (form) | rakendused | apps | |
-| R2646 | Word (form) | sotsiaalmeedia | of social media | |
-| R2647 | Word (form) | helistas | he, she called | |
-| R2648 | Word (form) | tütrelt | from a daughter | |
+| R2625 | Conversation, Tom | Mis juhtus? | What happened? | |
+| R2626 | Conversation, Tom | Kas sa laadisid seda? | Did you charge it? | |
+| R2627 | Conversation, Tom | See juhe ei sobi. Uue telefoni juhe on siin karbis. | That cable doesn't fit. The new phone's cable is here in the box. | |
+| R2628 | Conversation, Tom | Need on su tütrelt. Ta muretseb, sest sa ei vasta. | They're from your daughter. She's worried because you don't answer. | |
+| R2629 | Conversation, Tom | See on rakendus, millega saab tasuta helistada. | That's an app you can make calls with for free. | |
+| R2630 | Conversation, Tom | Väga tore. | Lovely. | |
+| R2631 | Model answer | Jah, ja ma laadin seda iga päev. | Yes, and I charge it every day. | |
+| R2632 | Model answer | Mul on kakskümmend sõnumit. | I've got twenty messages. | |
+| R2633 | Model answer | Seda ma ei teadnud. | I didn't know that. | |
+| R2634 | Word (word) | nutitelefon | smartphone | |
+| R2635 | Word (form) | nutitelefoni | a smartphone's, of a smartphone | |
+| R2636 | Word (word) | ekraan | screen | |
+| R2637 | Word (verb) | laadima | to charge (a phone), to load | |
+| R2638 | Word (form) | laadisin | I charged | |
+| R2639 | Word (form) | laadis | he, she charged | |
+| R2640 | Word (word) | juhe | a cable, a lead | |
+| R2641 | Word (form) | juhtmega | with a cable | |
+| R2642 | Word (form) | juhet | a cable, as an object | |
+| R2643 | Word (form) | karbis | in the box | |
+| R2644 | Word (form) | sõnumit | message, after a number or as some of it | |
+| R2645 | Word (word) | rakendus | app | |
+| R2646 | Word (form) | rakenduse | an app's, of an app | |
+| R2647 | Word (form) | rakendused | apps | |
+| R2648 | Word (form) | sotsiaalmeedia | of social media | |
+| R2649 | Word (form) | helistas | he, she called | |
+| R2650 | Word (form) | tütrelt | from a daughter | |
 
 #### B1 40. Sorting the rubbish (`b1-40-rubbish`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2649 | Conversation, Tom | Oi, vabandust! Kuhu see siis käib? | Oh, sorry! So where does it go? | |
-| R2650 | Conversation, Tom | Ja toit? Ja vana kampsun? | And food? And an old sweater? | |
-| R2651 | Conversation, Tom | See on palju tööd. Miks see nii oluline on? | That's a lot of work. Why does it matter so much? | |
-| R2652 | Conversation, Tom | Pakend, paber, pakend... | Packaging, paper, packaging... | |
-| R2653 | Conversation, Tom | ...ja mu võtmed! | ...and my keys! | |
-| R2654 | Conversation, Tom | Sul on õigus. | You're right. | |
-| R2655 | Model answer | Jah, sest see on oluline. | Yes, because it's important. | |
-| R2656 | Model answer | Pakendid lähevad kollasesse kasti. | Packaging goes in the yellow bin. | |
-| R2657 | Model answer | Paber läheb sinisesse kasti. | Paper goes in the blue bin. | |
-| R2658 | Model answer | Keskkond on meie kõigi kodu. | The environment is home to all of us. | |
-| R2659 | Word (verb) | sorteerima | to sort | |
-| R2660 | Word (word) | pakend | packaging, a wrapper | |
-| R2661 | Word (form) | pakendid | packaging, wrappers | |
-| R2662 | Word (word) | paber | paper | |
-| R2663 | Word (form) | kollasesse | into the yellow one | |
-| R2664 | Word (form) | sinisesse | into the blue one | |
-| R2665 | Word (form) | pruuni | into the brown one | |
-| R2666 | Word (form) | anda | to give: the [da-tegevusnimi] (-da) | |
-| R2667 | Word (word) | loodus | nature | |
-| R2668 | Word (form) | loodust | nature, as some of it | |
-| R2669 | Word (verb) | hoidma | to keep, to look after | |
-| R2670 | Word (form) | hoida | to keep, to look after: the [da-tegevusnimi] (-da) | |
-| R2671 | Word (word) | keskkond | environment | |
-| R2672 | Word (form) | kõigi | of everybody, of all of us | |
-| R2673 | Word (word) | kasulik | useful, worth it | |
+| R2651 | Conversation, Tom | Oi, vabandust! Kuhu see siis käib? | Oh, sorry! So where does it go? | |
+| R2652 | Conversation, Tom | Ja toit? Ja vana kampsun? | And food? And an old sweater? | |
+| R2653 | Conversation, Tom | See on palju tööd. Miks see nii oluline on? | That's a lot of work. Why does it matter so much? | |
+| R2654 | Conversation, Tom | Pakend, paber, pakend... | Packaging, paper, packaging... | |
+| R2655 | Conversation, Tom | ...ja mu võtmed! | ...and my keys! | |
+| R2656 | Conversation, Tom | Sul on õigus. | You're right. | |
+| R2657 | Model answer | Jah, sest see on oluline. | Yes, because it's important. | |
+| R2658 | Model answer | Pakendid lähevad kollasesse kasti. | Packaging goes in the yellow bin. | |
+| R2659 | Model answer | Paber läheb sinisesse kasti. | Paper goes in the blue bin. | |
+| R2660 | Model answer | Keskkond on meie kõigi kodu. | The environment is home to all of us. | |
+| R2661 | Word (verb) | sorteerima | to sort | |
+| R2662 | Word (word) | pakend | packaging, a wrapper | |
+| R2663 | Word (form) | pakendid | packaging, wrappers | |
+| R2664 | Word (word) | paber | paper | |
+| R2665 | Word (form) | kollasesse | into the yellow one | |
+| R2666 | Word (form) | sinisesse | into the blue one | |
+| R2667 | Word (form) | pruuni | into the brown one | |
+| R2668 | Word (form) | anda | to give: the [da-tegevusnimi] (-da) | |
+| R2669 | Word (word) | loodus | nature | |
+| R2670 | Word (form) | loodust | nature, as some of it | |
+| R2671 | Word (verb) | hoidma | to keep, to look after | |
+| R2672 | Word (form) | hoida | to keep, to look after: the [da-tegevusnimi] (-da) | |
+| R2673 | Word (word) | keskkond | environment | |
+| R2674 | Word (form) | kõigi | of everybody, of all of us | |
+| R2675 | Word (word) | kasulik | useful, worth it | |
 
 #### B1 41. Your opinion on a forum (`b1-41-forum`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2674 | Model answer | Ma olen selle plaani vastu. | I'm against the plan. | |
-| R2675 | Model answer | Park on koht, kus lapsed mängivad. | The park is a place where children play. | |
-| R2676 | Model answer | See on ainus roheline koht, mis meil siin on. | It's the only green place we have here. | |
-| R2677 | Model answer | Palun mõelge veel kord! | Please think again! | |
-| R2678 | Word (word) | park | park | |
-| R2679 | Word (form) | pargi | a park's, of a park | |
-| R2680 | Word (word) | asemele | in place of, instead of | |
-| R2681 | Word (word) | parkla | car park | |
-| R2682 | Word (form) | parklat | a car park, as some of it | |
-| R2683 | Word (form) | ehitada | to build: the [da-tegevusnimi] (-da) | |
-| R2684 | Word (form) | koeraga | with the dog | |
-| R2685 | Word (verb) | jalutama | to go for a walk | |
-| R2686 | Word (word) | foorum | forum | |
-| R2687 | Word (form) | foorumi | of a forum | |
-| R2688 | Word (word) | arvamus | opinion, what you think | |
-| R2689 | Word (form) | arvamust | an opinion, as some of it | |
-| R2690 | Word (phrase) | oma arvamust avaldada | to give your opinion, to say what you think | |
-| R2691 | Word (form) | kirjutada | to write: the [da-tegevusnimi] (-da) | |
-| R2692 | Word (form) | plaani | a plan's, of the plan | |
-| R2693 | Word (word) | linnavalitsus | city government, city hall | |
-| R2694 | Word (word) | ainus | the only one | |
-| R2695 | Word (form) | mõelge | think: to more than one person, or politely | |
+| R2676 | Model answer | Ma olen selle plaani vastu. | I'm against the plan. | |
+| R2677 | Model answer | Park on koht, kus lapsed mängivad. | The park is a place where children play. | |
+| R2678 | Model answer | See on ainus roheline koht, mis meil siin on. | It's the only green place we have here. | |
+| R2679 | Model answer | Palun mõelge veel kord! | Please think again! | |
+| R2680 | Word (word) | park | park | |
+| R2681 | Word (form) | pargi | a park's, of a park | |
+| R2682 | Word (word) | asemele | in place of, instead of | |
+| R2683 | Word (word) | parkla | car park | |
+| R2684 | Word (form) | parklat | a car park, as some of it | |
+| R2685 | Word (form) | ehitada | to build: the [da-tegevusnimi] (-da) | |
+| R2686 | Word (form) | koeraga | with the dog | |
+| R2687 | Word (verb) | jalutama | to go for a walk | |
+| R2688 | Word (word) | foorum | forum | |
+| R2689 | Word (form) | foorumi | of a forum | |
+| R2690 | Word (word) | arvamus | opinion, what you think | |
+| R2691 | Word (form) | arvamust | an opinion, as some of it | |
+| R2692 | Word (phrase) | oma arvamust avaldada | to give your opinion, to say what you think | |
+| R2693 | Word (form) | kirjutada | to write: the [da-tegevusnimi] (-da) | |
+| R2694 | Word (form) | plaani | a plan's, of the plan | |
+| R2695 | Word (word) | linnavalitsus | city government, city hall | |
+| R2696 | Word (word) | ainus | the only one | |
+| R2697 | Word (form) | mõelge | think: to more than one person, or politely | |
 
 #### B1 42. A meeting where you disagree (`b1-42-disagree`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2696 | Conversation, Tom | Ma ei ole päris nõus. Kuigi kodus on mugav, on mul seal igav, sest ma ei näe kolleege. | I don't quite agree. Although it's comfortable at home, I get bored there, because I don't see my colleagues. | |
-| R2697 | Conversation, Tom | Arvuti ei joo minuga kohvi. | The computer doesn't drink coffee with me. | |
-| R2698 | Conversation, Tom | Mul on idee. Kaks päeva nädalas töötame kodus ja kolm päeva kontoris. Siis ei pea me kolima. | I've got an idea. Two days a week we work from home and three at the office. Then we don't have to move. | |
-| R2699 | Conversation, Tom | Hea küll. Kaks päeva kontoris ja kolm kodus? Reedeti on mul nagunii kursus. | All right. Two days at the office and three at home? I've got my course on Fridays anyway. | |
-| R2700 | Model answer | Ma ei ole nõus, kuna suur kontor on kallis. | I don't agree, since a big office is expensive. | |
-| R2701 | Model answer | Kodus on mugav töötada, kuigi seal on igav. | Working from home is comfortable, although it's boring there. | |
-| R2702 | Model answer | Sellega olen nõus. | I'll agree to that. | |
-| R2703 | Model answer | Ma ei ole päris nõus. | I don't quite agree. | |
-| R2704 | Model answer | Kuigi kodus on mugav, on mul seal igav. | Although it's comfortable at home, I get bored there. | |
-| R2705 | Model answer | See on tõsi, aga mulle meeldib bussiga sõita. | That's true, but I like taking the bus. | |
-| R2706 | Model answer | Ühest küljest on sul õigus. | On the one hand, you're right. | |
-| R2707 | Model answer | Kaks päeva kontoris ja kolm päeva kodus. | Two days at the office and three at home. | |
-| R2708 | Model answer | Tore! Ja kohvi joome kontoris koos. | Great! And we'll have coffee together at the office. | |
+| R2698 | Conversation, Tom | Ma ei ole päris nõus. Kuigi kodus on mugav, on mul seal igav, sest ma ei näe kolleege. | I don't quite agree. Although it's comfortable at home, I get bored there, because I don't see my colleagues. | |
+| R2699 | Conversation, Tom | Arvuti ei joo minuga kohvi. | The computer doesn't drink coffee with me. | |
+| R2700 | Conversation, Tom | Mul on idee. Kaks päeva nädalas töötame kodus ja kolm päeva kontoris. Siis ei pea me kolima. | I've got an idea. Two days a week we work from home and three at the office. Then we don't have to move. | |
+| R2701 | Conversation, Tom | Hea küll. Kaks päeva kontoris ja kolm kodus? Reedeti on mul nagunii kursus. | All right. Two days at the office and three at home? I've got my course on Fridays anyway. | |
+| R2702 | Model answer | Ma ei ole nõus, kuna suur kontor on kallis. | I don't agree, since a big office is expensive. | |
+| R2703 | Model answer | Kodus on mugav töötada, kuigi seal on igav. | Working from home is comfortable, although it's boring there. | |
+| R2704 | Model answer | Sellega olen nõus. | I'll agree to that. | |
+| R2705 | Model answer | Ma ei ole päris nõus. | I don't quite agree. | |
+| R2706 | Model answer | Kuigi kodus on mugav, on mul seal igav. | Although it's comfortable at home, I get bored there. | |
+| R2707 | Model answer | See on tõsi, aga mulle meeldib bussiga sõita. | That's true, but I like taking the bus. | |
+| R2708 | Model answer | Ühest küljest on sul õigus. | On the one hand, you're right. | |
+| R2709 | Model answer | Kaks päeva kontoris ja kolm päeva kodus. | Two days at the office and three at home. | |
+| R2710 | Model answer | Tore! Ja kohvi joome kontoris koos. | Great! And we'll have coffee together at the office. | |
 
 #### B1 43. Fill it in, sign it (`b1-43-sign-here`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2709 | Conversation, Tom | Tere! Mu pangakaart läks katki. Mul oleks uut kaarti vaja. | Hello! My bank card broke. I need a new card. | |
-| R2710 | Conversation, Tom | Kõik read? Neid on ju nii palju! | Every line? There are so many of them! | |
-| R2711 | Conversation, Tom | Nii. Ma täitsin blanketi ära. | There. I've filled in the form. | |
-| R2712 | Conversation, Tom | Siia? | Here? | |
-| R2713 | Conversation, Tom | Vabandust. Nii, kirjutasin alla. | Sorry. There, I've signed. | |
-| R2714 | Conversation, Tom | Ja mis ma vana kaardiga teen? | And what do I do with the old card? | |
-| R2715 | Conversation, Tom | Hästi. Aga andke palun mu pastakas tagasi! | All right. But please give me my pen back! | |
-| R2716 | Model answer | Jah, ma täitsin blanketi ära. | Yes, I've filled in the form. | |
-| R2717 | Model answer | Kuhu ma pean alla kirjutama? | Where should I sign? | |
-| R2718 | Model answer | Ma toon vana kaardi tagasi, kui uue kätte saan. | I'll bring the old card back when I get the new one. | |
-| R2719 | Model answer | Vabandust, ma kirjutasin kogemata vales kohas alla. | Sorry, I signed in the wrong place by accident. | |
-| R2720 | Word (verb) | täitma | to fill, to fill in | |
-| R2721 | Word (form) | täitke | fill in!, polite | |
-| R2722 | Word (form) | täitsin | I filled in | |
-| R2723 | Word (form) | täitis | he, she filled in | |
-| R2724 | Word (word) | blankett | a form, on paper | |
-| R2725 | Word (form) | blanketi | of the form; the whole form, done | |
-| R2726 | Word (form) | blanketti | the form, while you're still on it, or after {ei} | |
-| R2727 | Word (form) | read | lines, rows | |
-| R2728 | Word (form) | pange | put!, polite | |
-| R2729 | Word (form) | kirjutage | write!, polite; {kirjutage alla}, sign! | |
-| R2730 | Word (form) | andke | give!, polite | |
-| R2731 | Word (form) | tooge | bring!, polite | |
-| R2732 | Word (word) | pastakas | a pen | |
-| R2733 | Word (form) | pastaka | of the pen; the whole pen | |
-| R2734 | Word (word) | kaart | card | |
-| R2735 | Word (form) | kaarti | a card, as some of it: {uut kaarti} | |
-| R2736 | Word (word) | teenindaja | a clerk who serves you, at a bank or a shop | |
-| R2737 | Word (word) | kogemata | by accident | |
-| R2738 | Word (form) | täidetud | filled in, done: {blankett on täidetud} | |
+| R2711 | Conversation, Tom | Tere! Mu pangakaart läks katki. Mul oleks uut kaarti vaja. | Hello! My bank card broke. I need a new card. | |
+| R2712 | Conversation, Tom | Kõik read? Neid on ju nii palju! | Every line? There are so many of them! | |
+| R2713 | Conversation, Tom | Nii. Ma täitsin blanketi ära. | There. I've filled in the form. | |
+| R2714 | Conversation, Tom | Siia? | Here? | |
+| R2715 | Conversation, Tom | Vabandust. Nii, kirjutasin alla. | Sorry. There, I've signed. | |
+| R2716 | Conversation, Tom | Ja mis ma vana kaardiga teen? | And what do I do with the old card? | |
+| R2717 | Conversation, Tom | Hästi. Aga andke palun mu pastakas tagasi! | All right. But please give me my pen back! | |
+| R2718 | Model answer | Jah, ma täitsin blanketi ära. | Yes, I've filled in the form. | |
+| R2719 | Model answer | Kuhu ma pean alla kirjutama? | Where should I sign? | |
+| R2720 | Model answer | Ma toon vana kaardi tagasi, kui uue kätte saan. | I'll bring the old card back when I get the new one. | |
+| R2721 | Model answer | Vabandust, ma kirjutasin kogemata vales kohas alla. | Sorry, I signed in the wrong place by accident. | |
+| R2722 | Word (verb) | täitma | to fill, to fill in | |
+| R2723 | Word (form) | täitke | fill in!, polite | |
+| R2724 | Word (form) | täitsin | I filled in | |
+| R2725 | Word (form) | täitis | he, she filled in | |
+| R2726 | Word (word) | blankett | a form, on paper | |
+| R2727 | Word (form) | blanketi | of the form; the whole form, done | |
+| R2728 | Word (form) | blanketti | the form, while you're still on it, or after {ei} | |
+| R2729 | Word (form) | read | lines, rows | |
+| R2730 | Word (form) | pange | put!, polite | |
+| R2731 | Word (form) | kirjutage | write!, polite; {kirjutage alla}, sign! | |
+| R2732 | Word (form) | andke | give!, polite | |
+| R2733 | Word (form) | tooge | bring!, polite | |
+| R2734 | Word (word) | pastakas | a pen | |
+| R2735 | Word (form) | pastaka | of the pen; the whole pen | |
+| R2736 | Word (word) | kaart | card | |
+| R2737 | Word (form) | kaarti | a card, as some of it: {uut kaarti} | |
+| R2738 | Word (word) | teenindaja | a clerk who serves you, at a bank or a shop | |
+| R2739 | Word (word) | kogemata | by accident | |
+| R2740 | Word (form) | täidetud | filled in, done: {blankett on täidetud} | |
 
 #### B1 44. At the office (`b1-44-office`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2739 | Conversation, Tom | Lõpuks! Ootasin üle tunni. | At last! I waited over an hour. | |
-| R2740 | Conversation, Tom | Ma tahaksin elamisluba pikendada. | I'd like to extend my residence permit. | |
-| R2741 | Conversation, Tom | Siin on avaldus ja foto. Kõik blanketid on täidetud! | Here's the application and the photo. All the forms are filled in! | |
-| R2742 | Conversation, Tom | Oi. Mu pass on naise kotis ja naine on kodus. | Oh. My passport's in my wife's bag, and she's at home. | |
-| R2743 | Conversation, Tom | Kas ma võiksin passi homme tuua? | Could I bring the passport tomorrow? | |
-| R2744 | Conversation, Tom | Jälle sada nelikümmend seitse? | One hundred forty-seven again? | |
-| R2745 | Model answer | Ma tahaksin elamisluba taotleda. | I'd like to apply for a residence permit. | |
-| R2746 | Model answer | Siin on avaldus ja pass. | Here's the application and the passport. | |
-| R2747 | Model answer | Ma ootasin üle tunni. | I waited over an hour. | |
-| R2748 | Word (word) | ametnik | an official, a clerk | |
-| R2749 | Word (form) | ametnikku | clerks, after a number | |
-| R2750 | Word (word) | elamisluba | residence permit | |
-| R2751 | Word (verb) | pikendama | to extend, to renew | |
-| R2752 | Word (form) | pikendada | to extend, after would like or can | |
-| R2753 | Word (verb) | taotlema | to apply for | |
-| R2754 | Word (form) | taotleda | to apply for, after would like or can | |
-| R2755 | Word (word) | dokument | a document | |
-| R2756 | Word (form) | dokumendid | documents | |
-| R2757 | Word (word) | avaldus | an application, a formal request | |
-| R2758 | Word (form) | avalduse | of the application; the whole application | |
-| R2759 | Word (form) | avaldust | the application, after {ei} or a number | |
-| R2760 | Word (word) | foto | a photo | |
-| R2761 | Word (form) | passi | of the passport; the whole passport | |
-| R2762 | Word (form) | tuua | to bring, after could or can | |
-| R2763 | Word (form) | võtnud | taken; after {ei}, didn't take | |
-| R2764 | Word (word) | järjekorranumber | a queue number, a ticket in line | |
-| R2765 | Word (word) | järjekord | a queue, a line | |
-| R2766 | Word (word) | loodetavasti | hopefully | |
-| R2767 | Word (word) | kaasas | with you, on you: {mul on pass kaasas} | |
-| R2768 | Word (form) | blanketid | forms | |
+| R2741 | Conversation, Tom | Lõpuks! Ootasin üle tunni. | At last! I waited over an hour. | |
+| R2742 | Conversation, Tom | Ma tahaksin elamisluba pikendada. | I'd like to extend my residence permit. | |
+| R2743 | Conversation, Tom | Siin on avaldus ja foto. Kõik blanketid on täidetud! | Here's the application and the photo. All the forms are filled in! | |
+| R2744 | Conversation, Tom | Oi. Mu pass on naise kotis, ja ta on kodus. | Oh. My passport's in my wife's bag, and she's at home. | |
+| R2745 | Conversation, Tom | Kas ma võiksin passi homme tuua? | Could I bring the passport tomorrow? | |
+| R2746 | Conversation, Tom | Jälle sada nelikümmend seitse? | One hundred forty-seven again? | |
+| R2747 | Model answer | Ma tahaksin elamisluba taotleda. | I'd like to apply for a residence permit. | |
+| R2748 | Model answer | Siin on avaldus ja pass. | Here's the application and the passport. | |
+| R2749 | Model answer | Ma ootasin üle tunni. | I waited over an hour. | |
+| R2750 | Word (word) | ametnik | an official, a clerk | |
+| R2751 | Word (form) | ametnikku | clerks, after a number | |
+| R2752 | Word (word) | elamisluba | residence permit | |
+| R2753 | Word (verb) | pikendama | to extend, to renew | |
+| R2754 | Word (form) | pikendada | to extend, after would like or can | |
+| R2755 | Word (verb) | taotlema | to apply for | |
+| R2756 | Word (form) | taotleda | to apply for, after would like or can | |
+| R2757 | Word (word) | dokument | a document | |
+| R2758 | Word (form) | dokumendid | documents | |
+| R2759 | Word (word) | avaldus | an application, a formal request | |
+| R2760 | Word (form) | avalduse | of the application; the whole application | |
+| R2761 | Word (form) | avaldust | the application, after {ei} or a number | |
+| R2762 | Word (word) | foto | a photo | |
+| R2763 | Word (form) | passi | of the passport; the whole passport | |
+| R2764 | Word (form) | tuua | to bring, after could or can | |
+| R2765 | Word (form) | võtnud | taken; after {ei}, didn't take | |
+| R2766 | Word (word) | järjekorranumber | a queue number, a ticket in line | |
+| R2767 | Word (word) | järjekord | a queue, a line | |
+| R2768 | Word (word) | loodetavasti | hopefully | |
+| R2769 | Word (word) | kaasas | with you, on you: {mul on pass kaasas} | |
+| R2770 | Word (form) | blanketid | forms | |
 
 #### B1 45. I've lost my wallet (`b1-45-lost`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2769 | Conversation, Tom | Anna, mul on suur probleem. Ma kaotasin rahakoti ära! | Anna, I've got a big problem. I've lost my wallet! | |
-| R2770 | Conversation, Tom | Ei tea. Võib-olla jätsin bussi. | I don't know. Maybe I left it on the bus. | |
-| R2771 | Conversation, Tom | Kuidas? | How? | |
-| R2772 | Conversation, Tom | Tere, ma kaotasin oma kaardi. Palun pange see kinni. | Hello, I've lost my card. Please block it. | |
-| R2773 | Conversation, Tom | Nii. Kaart on kinni. | There. The card is blocked. | |
-| R2774 | Conversation, Tom | Mu rahakott! Panin selle ju hommikul ise sinna. | My wallet! I put it there myself this morning. | |
-| R2775 | Conversation, Tom | Ega midagi. Helistan pangale tagasi. | Oh well. I'll call the bank back. | |
-| R2776 | Model answer | Ma kaotasin rahakoti ära. | I've lost my wallet. | |
-| R2777 | Model answer | Palun pange mu kaart kinni. | Please block my card. | |
-| R2778 | Model answer | Ma panin selle ise sinna. | I put it there myself. | |
-| R2779 | Model answer | Ma lahendasin probleemi ise. | I solved the problem myself. | |
-| R2780 | Word (word) | rahakott | a wallet | |
-| R2781 | Word (form) | rahakoti | of the wallet; the whole wallet | |
-| R2782 | Word (form) | rahakotti | the wallet, after {ei} | |
-| R2783 | Word (form) | kaotasin | I lost; {kaotasin ära}, I lost it for good | |
-| R2784 | Word (form) | kaotas | he lost, she lost | |
-| R2785 | Word (verb) | varastama | to steal | |
-| R2786 | Word (form) | varastati | was stolen, somebody stole it | |
-| R2787 | Word (form) | jätsin | I left something somewhere | |
-| R2788 | Word (form) | olulisem | more important; {kõige olulisem}, the most important thing | |
-| R2789 | Word (word) | ega | nor, and not; {Ega midagi}, oh well | |
-| R2790 | Word (word) | alt | from under: {arvuti alt} | |
-| R2791 | Word (form) | arvas | he thought, she thought | |
-| R2792 | Word (phrase) | tagasi saama | to get back | |
-| R2793 | Word (word) | peale | onto, on top of: {laua peale} | |
-| R2794 | Word (form) | probleemi | of the problem; the whole problem | |
-| R2795 | Word (form) | lahendasin | I solved | |
+| R2771 | Conversation, Tom | Anna, mul on suur probleem. Ma kaotasin rahakoti ära! | Anna, I've got a big problem. I've lost my wallet! | |
+| R2772 | Conversation, Tom | Ei tea. Võib-olla jätsin selle bussi. | I don't know. Maybe I left it on the bus. | |
+| R2773 | Conversation, Tom | Kuidas? | How? | |
+| R2774 | Conversation, Tom | Tere, ma kaotasin oma kaardi. Palun pange see kinni. | Hello, I've lost my card. Please block it. | |
+| R2775 | Conversation, Tom | Nii. Kaart on kinni. | There. The card is blocked. | |
+| R2776 | Conversation, Tom | Mu rahakott! Panin selle ju hommikul ise sinna. | My wallet! I put it there myself this morning. | |
+| R2777 | Conversation, Tom | Ega midagi. Helistan pangale tagasi. | Oh well. I'll call the bank back. | |
+| R2778 | Model answer | Ma kaotasin rahakoti ära. | I've lost my wallet. | |
+| R2779 | Model answer | Palun pange mu kaart kinni. | Please block my card. | |
+| R2780 | Model answer | Ma panin selle ise sinna. | I put it there myself. | |
+| R2781 | Model answer | Ma lahendasin probleemi ise. | I solved the problem myself. | |
+| R2782 | Word (word) | rahakott | a wallet | |
+| R2783 | Word (form) | rahakoti | of the wallet; the whole wallet | |
+| R2784 | Word (form) | rahakotti | the wallet, after {ei} | |
+| R2785 | Word (form) | kaotasin | I lost; {kaotasin ära}, I lost it for good | |
+| R2786 | Word (form) | kaotas | he lost, she lost | |
+| R2787 | Word (verb) | varastama | to steal | |
+| R2788 | Word (form) | varastati | was stolen, somebody stole it | |
+| R2789 | Word (form) | jätsin | I left something somewhere | |
+| R2790 | Word (form) | olulisem | more important; {kõige olulisem}, the most important thing | |
+| R2791 | Word (word) | ega | nor, and not; {Ega midagi}, oh well | |
+| R2792 | Word (word) | alt | from under: {arvuti alt} | |
+| R2793 | Word (form) | arvas | he thought, she thought | |
+| R2794 | Word (phrase) | tagasi saama | to get back | |
+| R2795 | Word (word) | peale | onto, on top of: {laua peale} | |
+| R2796 | Word (form) | probleemi | of the problem; the whole problem | |
+| R2797 | Word (form) | lahendasin | I solved | |
 
 #### B1 46. A form about you (`b1-46-words`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2796 | Conversation, Tom | Mari, kas aitaksid mind? Täidan ujumiskursuse blanketti. | Mari, would you help me? I'm filling in the form for a swimming course. | |
-| R2797 | Conversation, Tom | Sellepärast ju! Aga siin on nii palju küsimusi. See on nagu eksam! | That's exactly why! But there are so many questions here. It's like an exam! | |
-| R2798 | Conversation, Tom | Kirjutan: programmeerija. | I'll write: programmer. | |
-| R2799 | Conversation, Tom | Muidugi töötan! | Of course I work! | |
-| R2800 | Conversation, Tom | Lugemine ja jalutamine. Ja ujumine. | Reading and walking. And swimming. | |
-| R2801 | Conversation, Tom | Siis kirjutan: ujumise õppimine. | Then I'll write: learning to swim. | |
-| R2802 | Conversation, Tom | Sõbralik. Valmis! Ma saadan blanketi kohe ära. | Friendly. Done! I'll send the form off right away. | |
-| R2803 | Model answer | Ma olen programmeerija. | I'm a programmer. | |
-| R2804 | Model answer | Mulle meeldib lugemine ja ujumine. | I like reading and swimming. | |
-| R2805 | Model answer | Ei, ma töötan. | No, I work. | |
-| R2806 | Model answer | Mu kolleegid on sõbralikud. | My colleagues are friendly. | |
-| R2807 | Word (word) | ujumiskursus | a swimming course | |
-| R2808 | Word (form) | ujumiskursuse | of the swimming course | |
-| R2809 | Word (word) | eksam | an exam | |
-| R2810 | Word (form) | eksamil | at an exam, an exam has | |
-| R2811 | Word (verb) | ehitama | to build | |
-| R2812 | Word (word) | ehitaja | a builder | |
-| R2813 | Word (word) | töötu | out of work | |
-| R2814 | Word (word) | lugemine | reading | |
-| R2815 | Word (word) | jalutamine | walking, going for walks | |
-| R2816 | Word (verb) | ujuma | to swim | |
-| R2817 | Word (form) | ujuda | to swim: the [da-tegevusnimi] (-da) | |
-| R2818 | Word (word) | ujumine | swimming | |
-| R2819 | Word (form) | ujumise | of swimming | |
-| R2820 | Word (word) | õppimine | studying, learning | |
-| R2821 | Word (word) | sõbralik | friendly | |
-| R2822 | Word (form) | sõbralikud | friendly, of more than one | |
-| R2823 | Word (word) | ujuja | a swimmer | |
-| R2824 | Word (word) | maitse | taste | |
-| R2825 | Word (form) | maitset | taste, after {ei ole} | |
-| R2826 | Word (form) | toidul | food has; on the food | |
-| R2827 | Word (word) | maitsetu | tasteless | |
-| R2828 | Word (form) | kolleegidega | with colleagues | |
-| R2829 | Word (form) | kolleegid | colleagues | |
+| R2798 | Conversation, Tom | Mari, kas aitaksid mind? Täidan ujumiskursuse blanketti. | Mari, would you help me? I'm filling in the form for a swimming course. | |
+| R2799 | Conversation, Tom | Sellepärast ju! Aga siin on nii palju küsimusi. See on nagu eksam! | That's exactly why! But there are so many questions here. It's like an exam! | |
+| R2800 | Conversation, Tom | Kirjutan: programmeerija. | I'll write: programmer. | |
+| R2801 | Conversation, Tom | Muidugi töötan! | Of course I work! | |
+| R2802 | Conversation, Tom | Lugemine ja jalutamine. Ja ujumine. | Reading and walking. And swimming. | |
+| R2803 | Conversation, Tom | Siis kirjutan: ujumise õppimine. | Then I'll write: learning to swim. | |
+| R2804 | Conversation, Tom | Sõbralik. Valmis! Ma saadan blanketi kohe ära. | Friendly. Done! I'll send the form off right away. | |
+| R2805 | Model answer | Ma olen programmeerija. | I'm a programmer. | |
+| R2806 | Model answer | Mulle meeldib lugemine ja ujumine. | I like reading and swimming. | |
+| R2807 | Model answer | Ei, ma töötan. | No, I work. | |
+| R2808 | Model answer | Mu kolleegid on sõbralikud. | My colleagues are friendly. | |
+| R2809 | Word (word) | ujumiskursus | a swimming course | |
+| R2810 | Word (form) | ujumiskursuse | of the swimming course | |
+| R2811 | Word (word) | eksam | an exam | |
+| R2812 | Word (form) | eksamil | at an exam, an exam has | |
+| R2813 | Word (verb) | ehitama | to build | |
+| R2814 | Word (word) | ehitaja | a builder | |
+| R2815 | Word (word) | töötu | out of work | |
+| R2816 | Word (word) | lugemine | reading | |
+| R2817 | Word (word) | jalutamine | walking, going for walks | |
+| R2818 | Word (verb) | ujuma | to swim | |
+| R2819 | Word (form) | ujuda | to swim: the [da-tegevusnimi] (-da) | |
+| R2820 | Word (word) | ujumine | swimming | |
+| R2821 | Word (form) | ujumise | of swimming | |
+| R2822 | Word (word) | õppimine | studying, learning | |
+| R2823 | Word (word) | sõbralik | friendly | |
+| R2824 | Word (form) | sõbralikud | friendly, of more than one | |
+| R2825 | Word (word) | ujuja | a swimmer | |
+| R2826 | Word (word) | maitse | taste | |
+| R2827 | Word (form) | maitset | taste, after {ei ole} | |
+| R2828 | Word (form) | toidul | food has; on the food | |
+| R2829 | Word (word) | maitsetu | tasteless | |
+| R2830 | Word (form) | kolleegidega | with colleagues | |
+| R2831 | Word (form) | kolleegid | colleagues | |
 
 #### B1 47. On the phone (`b1-47-phone`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2830 | Conversation, Tom | Tere! Mul on küsimus parkimisloa kohta. | Hello! I have a question about a parking permit. | |
-| R2831 | Conversation, Tom | Tere! Ma tahaksin parkimisluba taotleda. | Hello! I'd like to apply for a parking permit. | |
-| R2832 | Conversation, Tom | Halloo? Ma olen juba kümme minutit ootel! | Hello? I've been on hold for ten minutes already! | |
-| R2833 | Conversation, Tom | Jälle teie! Ma helistasin teile juba pool tundi tagasi! | You again! I called you half an hour ago! | |
-| R2834 | Conversation, Tom | Jah. Palun öelge, et ta helistaks mulle tagasi. | Yes. Please ask them to call me back. | |
-| R2835 | Conversation, Tom | Siis kirjutan avalduse ise. Ma oleksin pidanud seda kohe tegema! | Then I'll write the application myself. I should have done that right away! | |
-| R2836 | Model answer | Ma olen juba kümme minutit ootel. | I've been on hold for ten minutes already. | |
-| R2837 | Model answer | Jah. Palun helistage mulle tagasi. | Yes. Please call me back. | |
-| R2838 | Model answer | Ma helistasin pool tundi tagasi. | I called half an hour ago. | |
-| R2839 | Word (form) | linnavalitsusse | to the city government | |
-| R2840 | Word (word) | parkimisluba | a parking permit | |
-| R2841 | Word (form) | parkimisloa | of a parking permit | |
-| R2842 | Word (form) | parkimisload | parking permits | |
-| R2843 | Word (form) | ametnikud | officials, clerks | |
-| R2844 | Word (word) | kohta | about, after the [omastav] (2nd form): {parkimisloa kohta} | |
-| R2845 | Word (form) | jääge | stay!, polite | |
-| R2846 | Word (word) | ootel | on hold, waiting | |
-| R2847 | Word (form) | ootele | onto hold: {jääge ootele}, please hold | |
-| R2848 | Word (verb) | ühendama | to connect; {edasi ühendama}, to put through | |
-| R2849 | Word (form) | ühendati | was put through, somebody put you through | |
-| R2850 | Word (form) | helistanud | called, after {ei} | |
-| R2851 | Word (form) | kõne | a call | |
-| R2852 | Word (word) | hõivatud | busy, engaged (a person or a line) | |
-| R2853 | Word (form) | jätate | you leave, polite | |
-| R2854 | Word (form) | kiirem | quicker | |
-| R2855 | Word (form) | teid | you, polite or more than one | |
-| R2856 | Word (form) | minutit | minutes, after a number | |
-| R2857 | Word (form) | üheksast | from nine: {kella üheksast} | |
+| R2832 | Conversation, Tom | Tere! Mul on küsimus parkimisloa kohta. | Hello! I have a question about a parking permit. | |
+| R2833 | Conversation, Tom | Tere! Ma tahaksin parkimisluba taotleda. | Hello! I'd like to apply for a parking permit. | |
+| R2834 | Conversation, Tom | Halloo? Ma olen juba kümme minutit ootel! | Hello? I've been on hold for ten minutes already! | |
+| R2835 | Conversation, Tom | Jälle teie! Ma helistasin teile juba pool tundi tagasi! | You again! I called you half an hour ago! | |
+| R2836 | Conversation, Tom | Jah. Palun öelge, et ta helistaks mulle tagasi. | Yes. Please ask them to call me back. | |
+| R2837 | Conversation, Tom | Siis kirjutan avalduse ise. Ma oleksin pidanud seda kohe tegema! | Then I'll write the application myself. I should have done that right away! | |
+| R2838 | Model answer | Ma olen juba kümme minutit ootel. | I've been on hold for ten minutes already. | |
+| R2839 | Model answer | Jah. Palun helistage mulle tagasi. | Yes. Please call me back. | |
+| R2840 | Model answer | Ma helistasin pool tundi tagasi. | I called half an hour ago. | |
+| R2841 | Word (form) | linnavalitsusse | to the city government | |
+| R2842 | Word (word) | parkimisluba | a parking permit | |
+| R2843 | Word (form) | parkimisloa | of a parking permit | |
+| R2844 | Word (form) | parkimisload | parking permits | |
+| R2845 | Word (form) | ametnikud | officials, clerks | |
+| R2846 | Word (word) | kohta | about, after the [omastav] (2nd form): {parkimisloa kohta} | |
+| R2847 | Word (form) | jääge | stay!, polite | |
+| R2848 | Word (word) | ootel | on hold, waiting | |
+| R2849 | Word (form) | ootele | onto hold: {jääge ootele}, please hold | |
+| R2850 | Word (verb) | ühendama | to connect; {edasi ühendama}, to put through | |
+| R2851 | Word (form) | ühendati | was put through, somebody put you through | |
+| R2852 | Word (form) | helistanud | called, after {ei} | |
+| R2853 | Word (form) | kõne | a call | |
+| R2854 | Word (word) | hõivatud | busy, engaged (a person or a line) | |
+| R2855 | Word (form) | jätate | you leave, polite | |
+| R2856 | Word (form) | kiirem | quicker | |
+| R2857 | Word (form) | teid | you, polite or more than one | |
+| R2858 | Word (form) | minutit | minutes, after a number | |
+| R2859 | Word (form) | üheksast | from nine: {kella üheksast} | |
 
 #### B1 48. A formal application (`b1-48-application`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2858 | Conversation, Tom | Peeter, ma pean linnale avalduse kirjutama. Kas sa aitaksid? | Peeter, I have to write an application to the city. Would you help? | |
-| R2859 | Conversation, Peeter | Muidugi. Ma olen elus sada avaldust kirjutanud. | Of course. I've written a hundred applications in my life. | |
-| R2860 | Conversation, Tom | Kuidas avaldus algab? | How does an application start? | |
-| R2861 | Conversation, Peeter | Kõigepealt kirjutad, kellele see on: linnavalitsusele. | First you write who it's to: the city government. | |
-| R2862 | Conversation, Peeter | Siis tuleb pealkiri: avaldus. | Then comes the title: Application. | |
-| R2863 | Conversation, Tom | Ja siis kirjutan: tere, ma tahaksin parkimisluba? | And then I write: hi, I'd like a parking permit? | |
-| R2864 | Conversation, Peeter | Ei, ei! Ametlikult kirjutad nii: palun väljastada mulle parkimisluba. | No, no! Officially you write it like this: please issue me a parking permit. | |
-| R2865 | Conversation, Tom | Kas ma pean ka ütlema, miks? | Do I have to say why, too? | |
-| R2866 | Conversation, Peeter | Jah. Kirjuta, et sa kolisid siia sel aastal koos perega ja sul on autot iga päev vaja. | Yes. Write that you moved here this year with your family and you need the car every day. | |
-| R2867 | Conversation, Peeter | Ja lõpus kirjuta viisakalt: lugupidamisega. | And at the end, close politely: sincerely. | |
-| R2868 | Conversation, Tom | Lugupidamisega, Tom. Lühike, aga väga ametlik! | Sincerely, Tom. Short, but very official! | |
-| R2869 | Conversation, Peeter | Ametlik on hea. Linnavalitsus armastab ametlikku keelt. | Official is good. The city government loves official language. | |
-| R2870 | Model answer | Linnavalitsusele. | To the city government. | |
-| R2871 | Model answer | Palun väljastada mulle parkimisluba. | Please issue me a parking permit. | |
-| R2872 | Model answer | Mul on autot iga päev vaja. | I need the car every day. | |
-| R2873 | Model answer | Siin on raske elada, kui sul ei ole autot. | It's hard to live here if you don't have a car. | |
-| R2874 | Word (form) | linnale | to the city | |
-| R2875 | Word (word) | elus | in your life, ever | |
-| R2876 | Word (form) | kirjutanud | written: {olen kirjutanud}, I have written | |
-| R2877 | Word (form) | linnavalitsusele | to the city government | |
-| R2878 | Word (word) | pealkiri | a title, a heading | |
-| R2879 | Word (word) | lasteaed | a kindergarten | |
-| R2880 | Word (form) | perega | with the family | |
-| R2881 | Word (word) | ametlikult | officially | |
-| R2882 | Word (verb) | väljastama | to issue | |
-| R2883 | Word (form) | väljastada | to issue; {palun väljastada}, please issue | |
-| R2884 | Word (form) | ametlikku | official, the [osastav] (3rd form) | |
-| R2885 | Word (form) | armastab | loves | |
-| R2886 | Word (form) | vabu | free, of more than one, after {ei ole} | |
-| R2887 | Word (form) | parkimiskohti | parking spaces, after {ei ole} | |
-| R2888 | Word (form) | parkimiskohta | a parking space, while you're looking for one | |
-| R2889 | Word (verb) | lisama | to add, to attach | |
-| R2890 | Word (word) | elaniku | a resident's | |
+| R2860 | Conversation, Tom | Peeter, ma pean linnale avalduse kirjutama. Kas sa aitaksid? | Peeter, I have to write an application to the city. Would you help? | |
+| R2861 | Conversation, Peeter | Muidugi. Ma olen elus sada avaldust kirjutanud. | Of course. I've written a hundred applications in my life. | |
+| R2862 | Conversation, Tom | Kuidas avaldus algab? | How does an application start? | |
+| R2863 | Conversation, Peeter | Kõigepealt kirjutad, kellele see on: linnavalitsusele. | First you write who it's to: the city government. | |
+| R2864 | Conversation, Peeter | Siis tuleb pealkiri: avaldus. | Then comes the title: Application. | |
+| R2865 | Conversation, Tom | Ja siis kirjutan: tere, ma tahaksin parkimisluba? | And then I write: hi, I'd like a parking permit? | |
+| R2866 | Conversation, Peeter | Ei, ei! Ametlikult kirjutad nii: palun väljastada mulle parkimisluba. | No, no! Officially you write it like this: please issue me a parking permit. | |
+| R2867 | Conversation, Tom | Kas ma pean ka ütlema, miks? | Do I have to say why, too? | |
+| R2868 | Conversation, Peeter | Jah. Kirjuta, et sa kolisid siia sel aastal koos perega ja sul on autot iga päev vaja. | Yes. Write that you moved here this year with your family and you need the car every day. | |
+| R2869 | Conversation, Peeter | Ja lõpus kirjuta viisakalt: lugupidamisega. | And at the end, close politely: sincerely. | |
+| R2870 | Conversation, Tom | Lugupidamisega, Tom. Lühike, aga väga ametlik! | Sincerely, Tom. Short, but very official! | |
+| R2871 | Conversation, Peeter | Ametlik on hea. Linnavalitsus armastab ametlikku keelt. | Official is good. The city government loves official language. | |
+| R2872 | Model answer | Linnavalitsusele. | To the city government. | |
+| R2873 | Model answer | Palun väljastada mulle parkimisluba. | Please issue me a parking permit. | |
+| R2874 | Model answer | Mul on autot iga päev vaja. | I need the car every day. | |
+| R2875 | Model answer | Siin on raske elada, kui sul ei ole autot. | It's hard to live here if you don't have a car. | |
+| R2876 | Word (form) | linnale | to the city | |
+| R2877 | Word (word) | elus | in your life, ever | |
+| R2878 | Word (form) | kirjutanud | written: {olen kirjutanud}, I have written | |
+| R2879 | Word (form) | linnavalitsusele | to the city government | |
+| R2880 | Word (word) | pealkiri | a title, a heading | |
+| R2881 | Word (word) | lasteaed | a kindergarten | |
+| R2882 | Word (form) | perega | with the family | |
+| R2883 | Word (word) | ametlikult | officially | |
+| R2884 | Word (verb) | väljastama | to issue | |
+| R2885 | Word (form) | väljastada | to issue; {palun väljastada}, please issue | |
+| R2886 | Word (form) | ametlikku | official, the [osastav] (3rd form) | |
+| R2887 | Word (form) | armastab | loves | |
+| R2888 | Word (form) | vabu | free, of more than one, after {ei ole} | |
+| R2889 | Word (form) | parkimiskohti | parking spaces, after {ei ole} | |
+| R2890 | Word (form) | parkimiskohta | a parking space, while you're looking for one | |
+| R2891 | Word (verb) | lisama | to add, to attach | |
+| R2892 | Word (word) | elaniku | a resident's | |
 
 #### B1 49. The B1 speaking exam (`b1-49-end`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|
-| R2891 | Conversation, Tom | Ma olen Tom ja ma olen pärit Inglismaalt. Ma elan perega Tallinnas ja töötan programmeerijana ühes väikeses firmas. | I'm Tom, and I'm from England. I live in Tallinn with my family and work as a programmer at a small company. | |
-| R2892 | Conversation, Tom | Mulle meeldib mu töö, sest kolleegid on sõbralikud ja aitavad mind alati. Aga koosolekuid on natuke liiga palju. | I like my job, because my colleagues are friendly and always help me. But there are a few too many meetings. | |
-| R2893 | Conversation, Tom | Tere! Ma kaotasin eile oma rahakoti ära. Palun pange mu kaart kohe kinni. | Hello! I lost my wallet yesterday. Please block my card right away. | |
-| R2894 | Conversation, Tom | Jah, palun. Mida ma pean tegema? Ja millal uus kaart tuleb? | Yes, please. What do I have to do? And when does the new card come? | |
-| R2895 | Conversation, Tom | Minu arvates ei ole. Kuigi mul on nüüd parkimisluba, on kesklinnas vähe parkimiskohti. Nii et tööle sõidan ma bussiga. | In my opinion it isn't. Although I've got a parking permit now, there are few parking spaces in the center. So I take the bus to work. | |
-| R2896 | Model answer | Ma olen Tom ja ma olen pärit Inglismaalt. Ma elan Tallinnas ja töötan programmeerijana. | I'm Tom, and I'm from England. I live in Tallinn and I work as a programmer. | |
-| R2897 | Model answer | Mulle meeldib mu töö, sest kolleegid on sõbralikud. | I like my job, because my colleagues are friendly. | |
-| R2898 | Model answer | Minu arvates ei ole see lihtne, kuigi mul on parkimisluba. | In my opinion it isn't easy, although I have a parking permit. | |
-| R2899 | Model answer | Tere! Ma olen Tom ja ma olen pärit Inglismaalt. Ma elan perega Tallinnas ja töötan programmeerijana. | Hello! I'm Tom, and I'm from England. I live in Tallinn with my family and I work as a programmer. | |
-| R2900 | Model answer | Tere! Ma kaotasin eile bussis oma rahakoti ära. Palun pange mu kaart kohe kinni. | Hello! I lost my wallet on the bus yesterday. Please block my card right away. | |
-| R2901 | Model answer | Hästi, ma täidan blanketi kohe ära. Aitäh! | All right, I'll fill in the form right away. Thank you! | |
-| R2902 | Model answer | Minu arvates on linnas parem, sest seal on töö ja kool lähedal. Aga maal on vaikne ja ilus, ja seal on rohkem loodust. | In my opinion the city is better, because work and school are close by there. But the country is quiet and beautiful, and there's more nature. | |
-| R2903 | Model answer | Aitäh! Head aega! | Thank you! Goodbye! | |
+| R2893 | Conversation, Tom | Ma olen Tom ja ma olen pärit Inglismaalt. Ma elan perega Tallinnas ja töötan programmeerijana ühes väikeses firmas. | I'm Tom, and I'm from England. I live in Tallinn with my family and work as a programmer at a small company. | |
+| R2894 | Conversation, Tom | Mulle meeldib mu töö, sest kolleegid on sõbralikud ja aitavad mind alati. Aga koosolekuid on natuke liiga palju. | I like my job, because my colleagues are friendly and always help me. But there are a few too many meetings. | |
+| R2895 | Conversation, Tom | Tere! Ma kaotasin eile oma rahakoti ära. Palun pange mu kaart kohe kinni. | Hello! I lost my wallet yesterday. Please block my card right away. | |
+| R2896 | Conversation, Tom | Jah, palun. Mida ma pean tegema? Ja millal uus kaart tuleb? | Yes, please. What do I have to do? And when does the new card come? | |
+| R2897 | Conversation, Tom | Minu arvates ei ole. Kuigi mul on nüüd parkimisluba, on kesklinnas vähe parkimiskohti. Nii et tööle sõidan ma bussiga. | In my opinion it isn't. Although I've got a parking permit now, there are few parking spaces in the center. So I take the bus to work. | |
+| R2898 | Model answer | Ma olen Tom ja ma olen pärit Inglismaalt. Ma elan Tallinnas ja töötan programmeerijana. | I'm Tom, and I'm from England. I live in Tallinn and I work as a programmer. | |
+| R2899 | Model answer | Mulle meeldib mu töö, sest kolleegid on sõbralikud. | I like my job, because my colleagues are friendly. | |
+| R2900 | Model answer | Minu arvates ei ole see lihtne, kuigi mul on parkimisluba. | In my opinion it isn't easy, although I have a parking permit. | |
+| R2901 | Model answer | Tere! Ma olen Tom ja ma olen pärit Inglismaalt. Ma elan perega Tallinnas ja töötan programmeerijana. | Hello! I'm Tom, and I'm from England. I live in Tallinn with my family and I work as a programmer. | |
+| R2902 | Model answer | Tere! Ma kaotasin eile bussis oma rahakoti ära. Palun pange mu kaart kohe kinni. | Hello! I lost my wallet on the bus yesterday. Please block my card right away. | |
+| R2903 | Model answer | Hästi, ma täidan blanketi kohe ära. Aitäh! | All right, I'll fill in the form right away. Thank you! | |
+| R2904 | Model answer | Minu arvates on linnas parem, sest seal on töö ja kool lähedal. Aga maal on vaikne ja ilus, ja seal on rohkem loodust. | In my opinion the city is better, because work and school are close by there. But the country is quiet and beautiful, and there's more nature. | |
+| R2905 | Model answer | Aitäh! Head aega! | Thank you! Goodbye! | |

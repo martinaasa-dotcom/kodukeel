@@ -187,7 +187,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
         "The no works on every one of them, as in lesson 12: {Laupäeval ma ei tööta}.",
       ],
       watchOut: "At seven is {kell seitse}. There's no word for at: {kell} does that job.",
-      examples: [0, 4, 5],
+      examples: [0, 3, 5],
     },
     answers: [
       { ask: { et: "Mis kell sa hommikul ärkad?", en: "What time do you get up in the morning?" }, cue: "Say when you get up.", model: { et: "Ma ärkan kell seitse.", en: "I get up at seven." } },

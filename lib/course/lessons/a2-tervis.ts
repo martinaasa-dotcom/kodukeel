@@ -168,7 +168,7 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
       { who: "Liis", et: "Jah, need tabletid. Võtke üks tablett kolm korda päevas.", en: "Yes, these tablets. Take one tablet three times a day." },
       { who: "Tom", et: "Kas neid saab ilma retseptita?", en: "Can I get them without a prescription?" },
       { who: "Liis", et: "Jah, saab.", en: "Yes, you can." },
-      { who: "Tom", et: "Aga nohu vastu?", en: "And for a runny nose?" },
+      { who: "Tom", et: "Aga midagi nohu vastu?", en: "And something for a runny nose?" },
       { who: "Liis", et: "Jah, ninatilgad.", en: "Yes, nose drops." },
       { who: "Tom", et: "Aitäh, ma võtan need.", en: "Thank you, I'll take them." },
     ],
@@ -326,7 +326,7 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
     answers: [
       { ask: { et: "Teil on gripp.", en: "You have the flu." }, cue: "Ask what you have to do.", model: { et: "Mida ma pean tegema?", en: "What do I have to do?" } },
       { cue: "Ask if you're allowed to go to work.", model: { et: "Kas ma tohin tööle minna?", en: "Am I allowed to go to work?" } },
-      { ask: { et: "Kas ma võin sporti teha?", en: "Can I play sports?" }, cue: "Say no, they mustn't.", model: { et: "Ei, te ei tohi.", en: "No, you mustn't." } },
+      { ask: { et: "Kas ma võin sporti teha?", en: "Can I play sports?" }, cue: "Say no, they mustn't.", model: { et: "Ei, ei tohi.", en: "No, you mustn't." } },
       { cue: "Tell a patient politely not to go to work.", model: { et: "Ärge minge tööle.", en: "Don't go to work." } },
     ],
   },

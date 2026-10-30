@@ -30,7 +30,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "eksam-b2", beat: "counter", text: "Aga kõik ei ole sellega nõus.", model: "authored", draftedAt: "2026-10-16", reviewedAt: "2026-10-16" },
   { scene: "eksam-b2", beat: "counter", text: "Aga see ei ole nii lihtne.", model: "authored", draftedAt: "2026-10-16", reviewedAt: "2026-10-16" },
   { scene: "eksam-b2", beat: "counter", text: "Ma ei ole selles nii kindel.", model: "authored", draftedAt: "2026-10-16", reviewedAt: "2026-10-16" },
-  { scene: "eksam-b2", beat: "decide", text: "Milleni me siis jõuame?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "eksam-b2", beat: "decide", text: "Mis me siis otsustame?", model: "authored", draftedAt: "2026-10-30", reviewedAt: "2026-10-30" },
   { scene: "eksam-b2", beat: "decide", text: "Milles me siis kokku lepime?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "eksam-b2", beat: "like", text: "Mis teile seal kõige rohkem meeldib?", model: "authored", draftedAt: "2026-10-16", reviewedAt: "2026-10-16" },
   { scene: "eksam-b2", beat: "close", text: "Aitäh, see on kõik. Eksam on läbi. Head aega!", model: "authored", draftedAt: "2026-10-16", reviewedAt: "2026-10-16" },

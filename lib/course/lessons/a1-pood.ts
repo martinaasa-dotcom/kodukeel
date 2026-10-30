@@ -30,11 +30,11 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
     cast: { Mari: "mari", Tom: "kalev" },
     conversation: [
       { who: "Mari", et: "Tom, kas su uus korter on suur?", en: "Tom, is your new apartment big?" },
-      { who: "Tom", et: "Ei, on väike. Aga ilus.", en: "No, it's small. But it's nice." },
+      { who: "Tom", et: "Ei, see on väike. Aga ilus.", en: "No, it's small. But it's nice." },
       { who: "Mari", et: "Ja köök?", en: "And the kitchen?" },
       { who: "Tom", et: "Köök on väga väike! Aga aken on suur.", en: "The kitchen's really small! But the window's big." },
       { who: "Mari", et: "Ja maja? Kas see on uus?", en: "And the building? Is it new?" },
-      { who: "Tom", et: "Ei, on vana. Aga hea maja!", en: "No, it's old. But it's a good building!" },
+      { who: "Tom", et: "Ei, vana. Aga hea maja!", en: "No, it's old. But it's a good building!" },
     ],
     teaches: [
       { kind: "word", et: "suur", en: "big" },
@@ -66,7 +66,7 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
       examples: [0, 1, 5],
     },
     answers: [
-      { ask: { et: "Kas su korter on suur?", en: "Is your apartment big?" }, cue: "Say no, it's small, but nice.", model: { et: "Ei, on väike, aga ilus.", en: "No, it's small, but nice." } },
+      { ask: { et: "Kas su korter on suur?", en: "Is your apartment big?" }, cue: "Say no, it's small, but nice.", model: { et: "Ei, see on väike, aga ilus.", en: "No, it's small, but nice." } },
       { cue: "Say the coffee here is expensive.", model: { et: "Kohv on siin kallis.", en: "The coffee here is expensive." } },
       { ask: { et: "Kas see on uus?", en: "Is it new?" }, cue: "Say no, it's old.", model: { et: "Ei, see on vana.", en: "No, it's old." } },
     ],

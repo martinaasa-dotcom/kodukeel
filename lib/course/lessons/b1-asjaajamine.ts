@@ -177,7 +177,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       { who: "Tiina", et: "Palun andke oma dokumendid.", en: "Please give me your documents." },
       { who: "Tom", et: "Siin on avaldus ja foto. Kõik blanketid on täidetud!", en: "Here's the application and the photo. All the forms are filled in!" },
       { who: "Tiina", et: "Hästi. Ja teie pass?", en: "Good. And your passport?" },
-      { who: "Tom", et: "Oi. Mu pass on naise kotis ja naine on kodus.", en: "Oh. My passport's in my wife's bag, and she's at home." },
+      { who: "Tom", et: "Oi. Mu pass on naise kotis, ja ta on kodus.", en: "Oh. My passport's in my wife's bag, and she's at home." },
       { who: "Tiina", et: "Ilma teie passita ma ei saa avaldust vastu võtta.", en: "Without your passport I can't accept the application." },
       { who: "Tom", et: "Kas ma võiksin passi homme tuua?", en: "Could I bring the passport tomorrow?" },
       { who: "Tiina", et: "Jah, võib küll. Aga siis võtke uus järjekorranumber.", en: "Yes, you can. But then take a new queue number." },
@@ -286,7 +286,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Tom", et: "Anna, mul on suur probleem. Ma kaotasin rahakoti ära!", en: "Anna, I've got a big problem. I've lost my wallet!" },
       { who: "Anna", et: "Oi ei! Äkki varastati?", en: "Oh no! Maybe it was stolen?" },
-      { who: "Tom", et: "Ei tea. Võib-olla jätsin bussi.", en: "I don't know. Maybe I left it on the bus." },
+      { who: "Tom", et: "Ei tea. Võib-olla jätsin selle bussi.", en: "I don't know. Maybe I left it on the bus." },
       { who: "Anna", et: "Kõige olulisem: pane kaart kohe kinni!", en: "The most important thing: get your card blocked right away!" },
       { who: "Tom", et: "Kuidas?", en: "How?" },
       { who: "Anna", et: "Helista kohe pangale!", en: "Call the bank right now!" },

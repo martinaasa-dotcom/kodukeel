@@ -398,7 +398,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       { who: "Raadio", et: "Öösel oli kesklinnas tulekahju.", en: "There was a fire in the city center last night." },
       { who: "Raadio", et: "Ühes restoranis läks köök põlema. Kohale kutsuti päästjad ja politsei.", en: "A kitchen caught fire in a restaurant. The firefighters and the police were called." },
       { who: "Raadio", et: "Kõik inimesed viidi kohe välja. Õnneks ei saanud keegi vigastada.", en: "Everybody was taken out straight away. Luckily nobody was hurt." },
-      { who: "Raadio", et: "Restoran avatakse uuesti kuu aja pärast.", en: "The restaurant will open again in a month." },
+      { who: "Raadio", et: "Teatati ka, et restoran avatakse uuesti kuu aja pärast.", en: "It was also reported that the restaurant will open again in a month." },
       { who: "Tom", et: "Oi! Äkki on see see uus restoran meie kontori lähedal?", en: "Oh! Could that be the new restaurant near our office?" },
       { who: "Jaan", et: "Ma ei kuulnud. Kas keegi sai haiget?", en: "I didn't catch that. Was anybody hurt?" },
       { who: "Anna", et: "Õnneks mitte. Kõik viidi kohe välja.", en: "Luckily not. Everybody was taken out straight away." },
@@ -517,7 +517,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Tom", et: "Kadri, mida eilsel koosolekul otsustati?", en: "Kadri, what was decided at yesterday's meeting?" },
       { who: "Kadri", et: "Sind polnud seal? Miks?", en: "You weren't there? Why?" },
-      { who: "Tom", et: "Olin arsti juures. Aja olin juba ammu kinni pannud.", en: "I was at the doctor's. I'd booked the appointment ages ago." },
+      { who: "Tom", et: "Olin arsti juures. Ma olin aja juba ammu kinni pannud.", en: "I was at the doctor's. I'd booked the appointment ages ago." },
       { who: "Kadri", et: "Selge. Kõigepealt arutati uut projekti.", en: "I see. First they talked about the new project." },
       { who: "Tom", et: "Kas midagi olulist ka otsustati?", en: "Was anything important decided?" },
       { who: "Kadri", et: "Jah. Otsustati, et projekt algab järgmisel kuul.", en: "Yes. It was decided that the project starts next month." },
@@ -650,7 +650,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Eesti keeles? Ma pole seda kunagi teinud.", en: "In Estonian? I've never done that." },
       { who: "Helgi", et: "See on lihtne. Kirjuta, mis juhtus, mis tehti ja mis on veel vaja teha.", en: "It's easy. Write what happened, what was done and what still needs doing." },
       { who: "Tom", et: "Aga kui ma vigu teen?", en: "But what if I make mistakes?" },
-      { who: "Helgi", et: "Pole viga. Vigu teevad kõik.", en: "No problem. Everybody makes mistakes." },
+      { who: "Helgi", et: "Pole viga. Seda ei loe nagunii keegi.", en: "No problem. Nobody reads it anyway." },
       { who: "Tom", et: "Hästi, kirjutan täna õhtul ära.", en: "All right. I'll write it tonight." },
     ],
     teaches: [

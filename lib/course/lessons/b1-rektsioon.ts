@@ -219,15 +219,15 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
     ],
     reworks: [
       {
-        from: { et: "Ma huvitun muusikast.", en: "I'm into music." },
+        from: { et: "Mind huvitab muusika.", en: "I'm into music." },
         ask: "Say it with {huvitatud}.",
         to: { et: "Ma olen huvitatud muusikast.", en: "I'm interested in music." },
         pattern: "government",
       },
       {
-        from: { et: "Ma huvitun muusikast.", en: "I'm into music." },
-        ask: "Say you're into sport instead.",
-        to: { et: "Ma huvitun spordist.", en: "I'm into sport." },
+        from: { et: "Ma huvitun muusikast.", en: "I'm interested in music." },
+        ask: "Say you're interested in sport instead.",
+        to: { et: "Ma huvitun spordist.", en: "I'm interested in sport." },
         pattern: "government",
       },
       {
@@ -635,7 +635,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { who: "Liis", et: "Mul on laupäeval sünnipäev!", en: "It's my birthday on Saturday!" },
       { who: "Liis", et: "Pidu on minu juures, kell seitse.", en: "The party's at my place, at seven." },
       { who: "Liis", et: "Võta oma naine ka kaasa. Ma tahan temaga juba ammu tutvuda.", en: "Bring your wife along too. I've wanted to meet her for ages." },
-      { who: "Liis", et: "Ja mul on ka üks palve: mu ahi on katki, nii et kook oleks väga hea.", en: "And I've got a favor to ask too: my oven's broken, so a cake would be great." },
+      { who: "Liis", et: "Ja kui sa tahad millegagi aidata, siis mu ahi on katki, nii et kook oleks väga hea.", en: "And if you'd like to help with something: my oven's broken, so a cake would be great." },
       { who: "Liis", et: "Kirjuta mulle, palun! Ma pean teadma, mitu inimest tuleb.", en: "Write back, please! I need to know how many people are coming." },
       { who: "Liis", et: "Kohtumiseni!", en: "See you!" },
     ],

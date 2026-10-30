@@ -22,7 +22,7 @@ export const abiPalumine: ScenePicks = {
   ],
   thanks: [
     { et: "Aitäh ja vabandust! Head aega!", en: "Thank you, and sorry! Goodbye!" },
-    { et: "Suur aitäh! Vabandust, et teid kinni hoidsin.", en: "Thanks so much! Sorry for holding you up." },
+    { et: "Suur aitäh, väga tore teist!", en: "Thanks so much, that's very kind of you!" },
     { et: "Vabandust, et teie aega võtsin. Aitäh, head aega!", en: "Sorry for taking your time. Thank you, goodbye!" },
   ],
 };

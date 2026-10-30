@@ -250,6 +250,7 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
       { who: "Liis", et: "Kas see on raske?", en: "Is it hard?" },
       { who: "Tom", et: "Natuke. Täna lugesin juba kümme lehekülge.", en: "A bit. I've already read ten pages today." },
       { who: "Liis", et: "Tubli!", en: "Well done!" },
+      { who: "Tom", et: "Nüüd loen iga päev natuke.", en: "Now I'll read a bit every day." },
     ],
     teaches: [
       { kind: "form", et: "raamatu", of: "raamat", en: "a book, the whole of it; of a book", stem: true },

@@ -21,7 +21,6 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "kuulsin", beat: "greet", text: "Tere! Kuidas teil läheb?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "kuulsin", beat: "news", text: "Kas on midagi uut?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "kuulsin", beat: "news", text: "Mis uudist?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "kuulsin", beat: "when", text: "Millal see avab?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "kuulsin", beat: "when", text: "Mis päeval?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "kuulsin", beat: "source", text: "Kust te seda teate?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "kuulsin", beat: "source", text: "Kust te seda kuulnud olete?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
@@ -43,7 +42,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "kuulsin", beat: "hurdle:misheard", text: "Kas esmaspäeval või reedel?", model: "authored", draftedAt: "2026-10-15", about: "when", reviewedAt: "2026-10-15" },
   { scene: "kuulsin", beat: "close", text: "Tore uudis, aitäh! Nägemist!", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "kuulsin", beat: "close", text: "Aitäh, see on hea uudis! Head aega!", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
-  { scene: "kuulsin", beat: "hurdle:other-register", text: "Kas sa tead, mis päeval see avab?", model: "authored", draftedAt: "2026-10-16", about: "news", reviewedAt: "2026-10-16" },
+  { scene: "kuulsin", beat: "hurdle:other-register", text: "Kas sa tead, mis päeval?", model: "authored", draftedAt: "2026-10-30", about: "news", reviewedAt: "2026-10-30" },
   { scene: "kuulsin", beat: "hurdle:other-register", text: "Kust sa seda kuulnud oled?", model: "authored", draftedAt: "2026-10-16", about: "when", reviewedAt: "2026-10-16" },
 ];
 
