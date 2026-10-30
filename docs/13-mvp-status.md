@@ -4070,3 +4070,9 @@ them; first run stamps the part it places a learner on; a learner moved back to 
 follows the exam's three parts, the part-end scenes ask a distinct group of words per beat, and the
 gists have four options. The new Estonian and six questions for the native speaker are in
 `docs/reviews/b1-flags.md`. Nine invariants are new this pass, each made to fail on a planted fault.
+
+**What this pass could not verify.** The recordings joined into one clip for spelling
+(`playNativeSequence`) have not been heard on iOS Safari, where a clip that starts late is the shape
+of fault the device warm-up exists for; nobody here holds the device. And the six questions in
+`docs/reviews/b1-flags.md` wait on the native speaker, with the Russian and Ukrainian of every new
+line on a fluent reader.
