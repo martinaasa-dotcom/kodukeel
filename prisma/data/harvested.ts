@@ -12,7 +12,7 @@
  * first time a word is viewed — storing it here would be a second source of
  * truth that goes stale.
  *
- * 1881 words, harvested 2026-10-27.
+ * 1887 words, harvested 2026-10-30.
  */
 
 export interface HarvestedWord {
@@ -4662,6 +4662,18 @@ export const HARVESTED: readonly HarvestedWord[] = [
     note: "häda tekitav, kahjustav nähtus või olukord, miski halb",
     semanticTypes: ["nähtus"],
     rus: ["вред", "ущерб"], ukr: ["шкода", "втрата"],
+  },
+  {
+    lemma: "kahjuks", gloss: "unfortunately", pos: "ADVERB", cefr: "A2",
+    ekilexWordId: 176567,
+    ekilexPos: ["adv", "postp"],
+    parts: {  },
+    extraForms: [],
+    government: null,
+    usages: ["Kodukanti satun kahjuks harva.", "Kahjuks ei vasta see jutt tõele.", "Uurimine kahjuks venib.", "Kahjuks pole mul aega."],
+    note: "märgib kahetsevat suhtumist, kahjutunnet mingi soovimatu, ebameeldiva, paratamatu asjaolu puhul",
+    semanticTypes: ["ADV_modaalsus"],
+    rus: ["к сожалению", "жаль"], ukr: ["на жаль", "на нещастя"],
   },
   {
     lemma: "kahjulik", gloss: "harmful", pos: "ADJECTIVE", cefr: "B1",
@@ -10256,6 +10268,18 @@ export const HARVESTED: readonly HarvestedWord[] = [
     rus: ["что-то", "нечто"], ukr: ["щось", "ніщо"],
   },
   {
+    lemma: "mitmekesi", gloss: "how many of you, together", pos: "ADVERB", cefr: "B2",
+    ekilexWordId: 203161,
+    ekilexPos: ["adv"],
+    parts: {  },
+    extraForms: [],
+    government: null,
+    usages: ["Kui kassid on mitmekesi väikeses puuris, tekib neil stress.", "Mitmekesi on lõbusam reisida."],
+    note: "mitu koos",
+    semanticTypes: ["ADV_viis"],
+    rus: ["сообща"], ukr: ["разом", "вкупі"],
+  },
+  {
     lemma: "mitmetähenduslik", gloss: "polysemous", pos: "ADJECTIVE", cefr: null,
     ekilexWordId: 203213,
     ekilexPos: ["adj"],
@@ -11432,6 +11456,30 @@ export const HARVESTED: readonly HarvestedWord[] = [
     rus: ["и", "а также"], ukr: ["і", "й"],
   },
   {
+    lemma: "no", gloss: "well, so (opening what you say)", pos: "ADVERB", cefr: null,
+    ekilexWordId: 208603,
+    ekilexPos: ["adv", "interj"],
+    parts: {  },
+    extraForms: [],
+    government: null,
+    usages: ["No eks meil kõigil on probleeme.", "No kuulge, me ei ela ju keskajal!", "No ja mis siis?", "No tule nüüd ometi!"],
+    note: "(rõhutav üldlaiend:) aitab esile tuua öeldava tundetooni, väljendada teatavat suhtumist (nt möönmist, nõustumist, meelepaha)",
+    semanticTypes: ["ADV_modaalsus"],
+    rus: ["ну", "да"], ukr: ["ну"],
+  },
+  {
+    lemma: "noh", gloss: "well (while you think)", pos: "ADVERB", cefr: null,
+    ekilexWordId: 208649,
+    ekilexPos: ["adv", "interj"],
+    parts: {  },
+    extraForms: [],
+    government: null,
+    usages: ["Noh, kuidas sul siis elu läheb?", "Noh, terekest kah!", "Kas tead, keda ma eile nägin? – Noh?", "Noh, kuidas läheb?"],
+    note: "alustab tuttavlikku suhtlusväljendit",
+    semanticTypes: [],
+    rus: ["ну что", "ну"], ukr: ["ну що", "ну"],
+  },
+  {
     lemma: "noor", gloss: "young", pos: "ADJECTIVE", cefr: "A1",
     ekilexWordId: 208832,
     ekilexPos: ["adj", "s"],
@@ -11862,6 +11910,18 @@ export const HARVESTED: readonly HarvestedWord[] = [
     note: "selline, mis ei põhjusta või kus ei juhtu õnnetust ega midagi halba",
     semanticTypes: ["omadus_kval"],
     rus: ["безопасный", "безвредный"], ukr: ["безпечний", "нешкідливий"],
+  },
+  {
+    lemma: "oi", gloss: "oh!", pos: "ADVERB", cefr: null,
+    ekilexWordId: 210710,
+    ekilexPos: ["interj"],
+    parts: {  },
+    extraForms: [],
+    government: null,
+    usages: ["Oi kui tore!", "Oi, nüüd läks küll midagi viltu.", "Oi, kuidas tahaks ka kosmoses käia!", "Oi, kui valus mu külg on!"],
+    note: "väljendab ja rõhutab vaimustust, imestust, üllatust, ehmatust, igatsust või hädaldamist, valu, viha",
+    semanticTypes: ["esitus_keel_suhtlus"],
+    rus: ["ой", "ох"], ukr: ["ой", "ох"],
   },
   {
     lemma: "oktoober", gloss: "October", pos: "NOUN", cefr: "A1",
@@ -16081,7 +16141,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
     ekilexPos: ["v"],
     parts: { INF_MA: "soovitama", INF_DA: "soovitada", PRES_1SG: "soovitan", PAST_1SG: "soovitasin", PART_TUD: "soovitatud" },
     extraForms: [{ code: "ImpPrPl2", value: "soovitage" }, { code: "IndIpfSg3", value: "soovitas" }, { code: "PtsPtPs", value: "soovitanud" }, { code: "PtsPrPs", value: "soovitav" }],
-    government: "mida* (partitive) · kellel + mida teha · kellele (allative) · keda* (partitive)",
+    government: "mida* (partitive), kellel + mida teha, kellele (allative), keda* (partitive)",
     usages: ["Soovitan lugeda „Võlumäge“.", "Arst soovitas meil puugi vastu vaktsineerida.", "Mulle soovitati just seda hotelli.", "Väga mõnus, soovitan soojalt."],
     note: "kellelegi midagi nõuandvalt välja pakkuma",
     semanticTypes: ["VERB_abstr", "VERB_suhtlus"],
@@ -18306,6 +18366,18 @@ export const HARVESTED: readonly HarvestedWord[] = [
     note: "lame sõõrikujuline löökpill, mida mängitakse pulkade või sõrmedega pinguldatud nahast või tehiskilest membraanile lüües",
     semanticTypes: ["ese_instru"],
     rus: ["барабан"], ukr: ["барабан"],
+  },
+  {
+    lemma: "tsau", gloss: "hi, bye (between friends)", pos: "ADVERB", cefr: null,
+    ekilexWordId: 247015,
+    ekilexPos: ["interj"],
+    parts: {  },
+    extraForms: [],
+    government: null,
+    usages: ["Nii, tsau jälle kõigile!", "Ole tubli, tsau!"],
+    note: "tervitus- ja hüvastijätusõna",
+    semanticTypes: ["esitus_keel_suhtlus"],
+    rus: ["чао"], ukr: [],
   },
   {
     lemma: "tšekk", gloss: "receipt (from a shop)", pos: "NOUN", cefr: "B2",

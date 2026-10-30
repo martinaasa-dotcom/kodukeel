@@ -262,7 +262,7 @@ Estonian" without saying so.
 Everything except the three things that need a model: Anu, reading a photo (a page of words, or
 the things around you), and the two-minute chat after an evening.
 
-- **Dictionary**, 6,294 words (A1 to C2), with principal parts, consonant gradation and the full
+- **Dictionary**, 6,300 words (A1 to C2), with principal parts, consonant gradation and the full
   case table worked out from the genitive. Search for a form you met in class, like `toas`,
   `lugesin`, `tubadega` or `helistab`, and it finds the word *and* tells you which form you typed.
   Anything missing can be added by hand, principal parts and all.

@@ -154,4 +154,4 @@
  * `tööaeg`, `sotsiaalmeedia`, `parkimiskoht`, `ükski` and the rest, each put to
  * Ekilex by the unit that suits it.
  */
-export const SEED_SET_SIZE = { words: 6_294, forms: 40_487 };
+export const SEED_SET_SIZE = { words: 6_300, forms: 40_487 };

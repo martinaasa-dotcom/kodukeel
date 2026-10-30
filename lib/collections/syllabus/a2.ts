@@ -376,6 +376,7 @@ export const A2 = [
       ["seen", "mushroom"],
       ["maitse", "taste, flavor"],
       ["portsjon", "portion"],
+      ["mitmekesi", "how many of you, together", "ADVERB"],
       ["arve", "bill"],
       ["tellima", "to order", "VERB", 243828],
       ["soovitama", "to recommend"],
