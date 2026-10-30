@@ -644,7 +644,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
     ],
     fixes: [
       { line: { et: "Halloo? Ma olen juba kümme minutit ootel!", en: "Hello? I've been on hold for ten minutes already!" }, right: "ootel", wrong: "ootele", pair: ["ADESSIVE", "ALLATIVE"], why: "Tom is on hold already, so where he is: {ootel}." },
-      { line: { et: "Üks hetk, palun jääge ootele. Ma ühendan teid edasi.", en: "One moment, please hold. I'll put you through." }, right: "ootele", wrong: "ootel", pair: ["ALLATIVE", "ADESSIVE"], why: "Going on hold is where you go: {jääge ootele}." },
+      { line: { et: "Üks hetk, palun jääge ootele. Ma ühendan teid edasi.", en: "One moment, please hold. I'll put you through." }, right: "ootele", wrong: "ootel", pair: ["ALLATIVE", "ADESSIVE"], why: "Kaja asks him to stay on hold, which is where he goes: {jääge ootele}. Once he is there, he is {ootel}." },
     ],
     retell: {
       who: "Tom",
