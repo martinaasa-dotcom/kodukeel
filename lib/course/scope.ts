@@ -119,7 +119,7 @@ export function scopeSoFar(
      word and every page before it asks anything (docs/43-lessons.md §1). */
   const lessonDone = Boolean(day.lesson) && done.has(LESSON_STEP);
   const read = done.has(READ_STEP) || lessonDone;
-  const shown = done.has(FORMS_STEP);
+  const shown = done.has(FORMS_STEP) || lessonDone;
   const metSet = new Set(lessonDone ? day.words : met);
   const tonight = day.words.filter((w) => metSet.has(w));
   const course = [...new Set([...taughtThrough(programme, before), ...tonight, ...met])];
