@@ -6,7 +6,7 @@ import { LESSON_SCENES } from "./lessonScenes";
  * A LESSON'S CONVERSATION IS TRANSLATED WHERE ITS LESSON IS.
  *
  * The screen reads a scene's title, place and role card, the goal of each
- * beat, a break in time and the outcome through the tables and prints the
+ * beat and what the other side does in it (`they`), a break in time and the outcome through the tables and prints the
  * English where none holds the line, which is the right fallback and the
  * reason the gap went unseen: not one B1 part-end conversation had its
  * Russian or Ukrainian. The lines are read off the scene files, so a scene
@@ -20,6 +20,7 @@ function screenLines(): string[] {
     lines.add(scene.role);
     for (const beat of scene.beats) {
       lines.add(beat.goal);
+      if (beat.they) lines.add(beat.they);
       if (beat.meanwhile) lines.add(beat.meanwhile);
     }
     for (const outcome of scene.outcomes) lines.add(outcome.says);

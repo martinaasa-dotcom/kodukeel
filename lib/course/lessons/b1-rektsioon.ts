@@ -499,8 +499,8 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       },
       {
         from: { et: "Ta parandas mu autot.", en: "He was fixing my car." },
-        ask: "Say he got it fixed. Use {ära}.",
-        to: { et: "Ta parandas mu auto ära.", en: "He got my car fixed." },
+        ask: "Say he fixed it. Use {ära}.",
+        to: { et: "Ta parandas mu auto ära.", en: "He fixed my car." },
         also: ["Tema parandas mu auto ära.", "Ta parandas minu auto ära.", "Ta parandas selle ära."],
         pattern: "object",
       },

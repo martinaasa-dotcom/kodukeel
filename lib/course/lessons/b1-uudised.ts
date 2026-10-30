@@ -457,7 +457,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
         "Hurt is {sai vigastada}, got injured: {Kas keegi sai vigastada?}",
         "{Õnneks} is luckily: {Õnneks ei saanud keegi vigastada}.",
       ],
-      watchOut: "The [umbisikuline] has one form however many there are: {kutsuti päästjad ja politsei}.",
+      watchOut: "The [umbisikuline] (-takse, people do) has one form however many there are: {kutsuti päästjad ja politsei}.",
       examples: [2, 3, 7, 10],
     },
     listenFor: [

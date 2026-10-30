@@ -25,7 +25,7 @@ in `docs/44-language-reviews.md` section 1.
 
 ### `b1-rektsioon` (lessons 8 to 14)
 
-- Kept: `Aitäh, ma natuke kardan.` (10), `Ma palun ülemust appi.` (now only in a table and a fix).
+- Kept: `Aitäh, ma natuke kardan.` (14), `Ma palun ülemust appi.` (now only in a table, a note, and the sentence lesson 8's fourth rework starts from).
 - New: lesson 11, `Tom, abiellume!`, and the rework source `Me sõbrustame.`
 - New: lesson 12, `Ma loodan, et sel aastal on ilus ilm.` in place of `Ma loodan ilusale ilmale.`
 - New: lesson 13 opens on a voice message from Liis, and its model letter is rewritten.

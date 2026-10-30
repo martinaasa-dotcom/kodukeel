@@ -171,7 +171,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       notes: [
         "{Ma arvan, et...} is I think that, and {Ma usun, et...} is I believe that. Both go before a whole sentence.",
         "{Mõtlema} is thinking something over, where {arvama} is what you think of it.",
-        "{Otsima} and {vajama} always take the [osastav] (3rd form): {Ma otsin telefoni}. {Leidma} takes the [omastav] (2nd form) for a whole thing found, the way {Ma ostsin raamatu} does, but after {ei} it takes the [osastav]: {Ma ei leia seda}.",
+        "{Otsima} and {vajama} always take the [osastav] (3rd form): {Ma otsin telefoni}. {Leidma} takes the [omastav] (2nd form) for a whole thing found, the way {Ma ostsin raamatu} does, but after {ei} it takes the [osastav] (3rd form): {Ma ei leia seda}.",
       ],
       watchOut: "{Otsima} is look for and {leidma} is find: {Ma otsin, aga ma ei leia}, I'm looking, but I can't find it.",
       examples: [1, 2, 4],

@@ -107,7 +107,7 @@ describe("the lessons, A1 and on", () => {
       else if (Array.isArray(value)) value.forEach(walk);
       else if (value && typeof value === "object") Object.values(value).forEach(walk);
     };
-    walk(A1_LESSONS);
+    walk(COURSE_LESSONS);
     const bad: string[] = [];
     let named = 0;
     for (const text of strings) {
