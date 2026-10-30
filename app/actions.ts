@@ -3352,7 +3352,7 @@ export async function checkLessonSentence(lessonIdIn: unknown, whichIn: unknown,
   const busy = throttleAction(ownerId, "checkSentence");
   if (busy) return await sayRefusal(ownerId, busy);
   // Any lesson, the course's or one in preview: every lesson has cards to say, where only some have a writing task.
-  const lesson = lessonOrPreview(lessonIdIn);
+  const lesson = await lessonOrPreview(lessonIdIn);
   const index = typeof indexIn === "number" && Number.isInteger(indexIn) ? indexIn : -1;
   const prompts = text(whichIn) === "turns" ? lesson?.roleplay?.turns ?? [] : lesson?.answers ?? [];
   const prompt = prompts[index];
@@ -3368,13 +3368,21 @@ const MAX_WRITTEN_CHARS = 2400;
 /** The longest single sentence a learner may keep, which is a long sentence of a long draft. */
 const MAX_KEPT_SENTENCE_CHARS = 600;
 
-/** A writing lesson by id, the course's and the preview's alike. */
-function lessonOrPreview(lessonId: unknown) {
-  return [...LESSONS, ...PREVIEW_LESSONS].find((l) => l.id === text(lessonId)) ?? null;
+/**
+ * A lesson by id: the course's to anybody, and one still in preview only to
+ * whoever the lesson page itself would show it to (a reviewer), so nothing
+ * unreleased is read or written into a deck through a request typed by hand.
+ */
+async function lessonOrPreview(lessonId: unknown) {
+  const id = text(lessonId);
+  const course = LESSONS.find((l) => l.id === id);
+  if (course) return course;
+  return (await isAdmin()) ? PREVIEW_LESSONS.find((l) => l.id === id) ?? null : null;
 }
 
-function writingLesson(lessonId: unknown) {
-  const lesson = lessonOrPreview(lessonId);
+/** A lesson with a writing task, by the same rule. */
+async function writingLesson(lessonId: unknown) {
+  const lesson = await lessonOrPreview(lessonId);
   return lesson?.write ? lesson : null;
 }
 
@@ -3407,7 +3415,7 @@ export async function checkLessonText(lessonIdIn: unknown, textIn: unknown) {
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "checkText");
   if (busy) return await sayRefusal(ownerId, busy);
-  const lesson = writingLesson(lessonIdIn);
+  const lesson = await writingLesson(lessonIdIn);
   if (!lesson?.write) return { ok: false as const, error: "That writing task isn't in this lesson any more." };
   const typed = visibleProse(textIn, MAX_WRITTEN_CHARS);
   if (!typed) return { ok: false as const, error: "Write something first." };
@@ -3449,7 +3457,7 @@ export async function keepLessonSentences(lessonIdIn: unknown, sentencesIn: unkn
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "keepSentences");
   if (busy) return await sayRefusal(ownerId, busy);
-  const lesson = writingLesson(lessonIdIn);
+  const lesson = await writingLesson(lessonIdIn);
   if (!lesson?.write) return { ok: false as const, error: "That writing task isn't in this lesson any more." };
   // Each ticked string read as the sentences it holds, since a card is made per sentence and one long
   // string past the reader's word limit would otherwise make cards out of words nobody read.

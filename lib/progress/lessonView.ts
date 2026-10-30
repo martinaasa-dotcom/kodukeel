@@ -1,7 +1,9 @@
 import { lessonById, lessonLabel, LESSON_PARTS, LESSONS, type LessonSpec } from "@/lib/course/lessons";
 import { PREVIEW_LESSONS, PREVIEW_PARTS } from "@/lib/course/lessons/preview";
 import { lessonListStates } from "@/lib/progress/course";
-import type { PracticeItem } from "@/lib/course/lessons/practice";
+import { acceptedSentences, withOrders, type PracticeItem } from "@/lib/course/lessons/practice";
+import { orderContextFor } from "@/lib/dict/wordOrder";
+import { lessonWordsWorthAsking } from "@/lib/estonian/wordOrder";
 import { sayableName } from "@/lib/course/lessons/ownAnswer";
 import { lessonPlan } from "@/lib/progress/lessonPlan";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
@@ -83,7 +85,15 @@ export async function lessonView(
     checksPassedFor(ownerId),
     lessonListStates(ownerId),
   ]);
-  const { closes, after, ...plan } = lessonPlan(lesson, confusions(mixups).map((c) => c.pair));
+  const { closes, after, ...built } = lessonPlan(lesson, confusions(mixups).map((c) => c.pair));
+  /*
+    THE OTHER ORDERS OF A REWORK'S SENTENCES THE DICTIONARY VOUCHES FOR, which
+    the marker calls right and which it cannot work out alone, since which
+    words are verbs is the dictionary's to say and the lesson marks in the
+    browser. One read, bounded by the sentences the lesson counts.
+  */
+  const dict = await orderContextFor(acceptedSentences([...built.practice, ...built.review]), lessonWordsWorthAsking);
+  const plan = { ...built, practice: withOrders(built.practice, dict), review: withOrders(built.review, dict) };
   /*
     THE PART THIS LESSON IS IN, lesson by lesson, so the screen can say "4 of
     8 in First words" and the finish can light the one just done. A lesson

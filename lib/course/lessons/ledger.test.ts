@@ -234,38 +234,11 @@ describe("a sentence to change (Rework)", () => {
     expect(unchanged.verdict).toBe("wrong");
     expect(unchanged.note).toContain("as it was");
     expect(markRework("", item).note).toBe("Nothing typed.");
-    // The right words in another order, or with the pronoun dropped, are nearly and never wrong.
+    // The right words in another order are nearly, and say so; the full table is practice.test.ts.
     expect(markRework("Raamatu lugesin ma läbi.", item).verdict).toBe("nearly");
-    expect(markRework("Lugesin raamatu läbi.", item).verdict).toBe("nearly");
-    expect(markRework("Lugesin raamatu läbi.", item).note).toContain("pronoun");
-    expect(markRework("Raamatu lugesin ma läbi.", item).note).toContain("order");
+    expect(markRework("Raamatu lugesin ma läbi.", item).note).toContain("another order");
     // But another ending in another order is still the wrong word.
     expect(markRework("Raamatut lugesin ma läbi.", item).verdict).toBe("wrong");
-  });
-});
-
-describe("the same words, another way", () => {
-  it("lets a first- or second-person pronoun be left out, and nothing else", async () => {
-    const { sameWords } = await import("./practice");
-    expect(sameWords("eile ma palusin ülemust appi", "eile palusin ülemust appi")).toBe("pronoun");
-    expect(sameWords("ma lugesin raamatu läbi", "lugesin raamatu läbi")).toBe("pronoun");
-    // A third person is kept, and a negative is the same for every person, so the pronoun is what says whose.
-    expect(sameWords("tema sõi õunu", "sõi õunu")).toBeNull();
-    expect(sameWords("ma ei ostnud mune", "ei ostnud mune")).toBeNull();
-    // Another pronoun is another person.
-    expect(sameWords("ma ei ostnud mune", "ta ei ostnud mune")).toBeNull();
-    expect(sameWords("ma parandasin auto ära", "sa parandasin auto ära")).toBeNull();
-  });
-
-  it("lets the words of one clause move, keeping ei in front of its word", async () => {
-    const { sameWords } = await import("./practice");
-    expect(sameWords("ma lugesin raamatu läbi", "raamatu lugesin ma läbi")).toBe("order");
-    expect(sameWords("ma ei ostnud mune", "mune ma ei ostnud")).toBe("order");
-    expect(sameWords("ma ei ostnud mune", "ma ostnud ei mune")).toBeNull();
-    // Across a kuigi or a comma, the order is what says which half is which.
-    expect(sameWords("kuigi film oli igav oli lõpp hea", "kuigi lõpp oli hea oli film igav")).toBeNull();
-    expect(sameWords("ma lugesin raamatu", "ma lugesin raamatut")).toBeNull();
-    expect(sameWords("ma ei ole nõus", "ma ei ole nõus")).toBeNull();
   });
 });
 

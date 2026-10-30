@@ -24781,8 +24781,9 @@ check("an order the writer did not choose is not a wrong order", () => {
     no screen a learner could reach. A list in the reader is a list that falls
     behind the rule; `wordsWorthAsking` lives beside both word lists.
   */
+  // Its default is the rule's own narrowing; a lesson hands in `lessonWordsWorthAsking`, which lives beside it.
   assert.match(
-    resolver, /wordsWorthAsking\(/,
+    resolver, /=\s*wordsWorthAsking\b/,
     "the dictionary read narrows by a rule of its own again, which is how a move the rule offers "
     + "reaches the audit and never reaches a learner",
   );

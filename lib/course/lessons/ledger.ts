@@ -361,6 +361,7 @@ export function estonianOf(lesson: LessonSpec): { where: string; et: string; hea
       if (p.ask) out.push({ where: `${label} ${i + 1}, asked`, et: p.ask.et });
       english(`${label} ${i + 1}, cue`, p.cue);
       out.push({ where: `${label} ${i + 1}, model`, et: p.model.et });
+      p.also?.forEach((et, j) => out.push({ where: `${label} ${i + 1}, also ${j + 1}`, et }));
     });
   prompts("question", lesson.answers);
   lesson.reworks?.forEach((r, i) => {

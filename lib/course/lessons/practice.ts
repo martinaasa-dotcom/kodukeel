@@ -36,6 +36,9 @@ import { rng, seedFrom } from "@/lib/random/seeded";
 import { shuffle } from "@/lib/random/shuffle";
 import { estonianIn, familiesOf, ledgerThrough, lessonRank, teach, unfold, withSlip, wordsOf, type Asked, type Ledger } from "./ledger";
 import { STAND_IN, hasStandIn, personal } from "./ownAnswer";
+import { sameSentence, type Persons } from "./sameSentence";
+import { personForms, type Person } from "@/lib/estonian/conjugate";
+import { lessonOrders, type OrderContext } from "@/lib/estonian/wordOrder";
 import type { LessonSpec } from "./types";
 
 /** What practice asks about: a verb is already its two spellings here. */
@@ -80,13 +83,29 @@ export type PracticeItem =
    * and every way of saying the result that counts, the lesson's own first.
    */
   | { readonly kind: "rework"; readonly from: { readonly et: string; readonly en: string }; readonly ask: string;
-      readonly answer: string; readonly answerEn: string; readonly accept: readonly string[] }
+      readonly answer: string; readonly answerEn: string; readonly accept: readonly string[];
+      /** Where the ask names how the sentence must begin ("Start with {Ma ei}"), that beginning. */
+      readonly opens: string | null } & Checkable
   /**
    * A line with one word swapped for another form of it (`Fix`), typed back
    * put right. `shown` is the line with the slip, `answer` the line itself.
    */
   | { readonly kind: "fix"; readonly shown: string; readonly en: string; readonly answer: string;
-      readonly accept: readonly string[]; readonly wrong: string; readonly right: string; readonly why: string };
+      readonly accept: readonly string[]; readonly wrong: string; readonly right: string; readonly why: string } & Checkable;
+
+/**
+ * What a typed sentence is checked against beyond the sentences written for it.
+ * `persons` is which person each verb taught by now is, so a subject pronoun
+ * left out or put in is read against the verb beside it (`sameSentence.ts`).
+ * `orders` is the other orders of an accepted sentence the dictionary vouches
+ * for (`alsoRightOrders` in `lib/estonian/wordOrder.ts`), filled where the
+ * lesson is read (`lib/progress/lessonView.ts`), since the reading needs the
+ * dictionary and this module may not reach it.
+ */
+interface Checkable {
+  readonly persons: Persons;
+  readonly orders: readonly string[];
+}
 
 /** The Estonian a practice item asks about, which the ledger has to cover. */
 export function itemEstonian(item: PracticeItem): string[] {
@@ -135,7 +154,7 @@ const pairKey = (pair: readonly [string, string]) => [...pair].sort().join(" ");
  * not, commoner confusions first, and the lesson's own order stands within
  * each. Never more than `FIX_AT_MOST`.
  */
-export function fixesFor(lesson: LessonSpec, confusions: readonly (readonly [string, string])[] = []): PracticeItem[] {
+export function fixesFor(lesson: LessonSpec, taught: Ledger, confusions: readonly (readonly [string, string])[] = []): PracticeItem[] {
   const rank = new Map(confusions.map((pair, i) => [pairKey(pair), i] as const));
   const ordered = (lesson.fixes ?? [])
     .map((fix, i) => ({ fix, i, mine: rank.get(pairKey(fix.pair)) }))
@@ -143,6 +162,7 @@ export function fixesFor(lesson: LessonSpec, confusions: readonly (readonly [str
   return ordered.slice(0, FIX_AT_MOST).map(({ fix }): PracticeItem => ({
     kind: "fix", shown: withSlip(fix), en: fix.line.en, answer: fix.line.et, accept: [fix.line.et],
     wrong: fix.wrong, right: fix.right, why: fix.why,
+    persons: personsFor(taught, [fix.line.et, withSlip(fix)]), orders: [],
   }));
 }
 
@@ -514,10 +534,14 @@ export function practiceFor(
   const asked = shuffle(chosen.filter((item) => wordsOf(item.et).length <= TYPE_UP_TO_WORDS), random)
     .slice(0, PRODUCE_AT_MOST)
     .map((item) => produce(item, pool));
-  const reworks = (lesson.reworks ?? []).slice(0, REWORK_AT_MOST).map((r): PracticeItem => ({
-    kind: "rework", from: r.from, ask: r.ask, answer: r.to.et, answerEn: r.to.en, accept: [r.to.et, ...(r.also ?? [])],
-  }));
-  return [...(match ? [match] : []), ...recog, ...gaps, ...replies, ...reworks, ...fixesFor(lesson, confusions), ...asked];
+  const reworks = (lesson.reworks ?? []).slice(0, REWORK_AT_MOST).map((r): PracticeItem => {
+    const accept = [r.to.et, ...(r.also ?? [])];
+    return {
+      kind: "rework", from: r.from, ask: r.ask, answer: r.to.et, answerEn: r.to.en, accept, opens: opensOf(r.ask),
+      persons: personsFor(after, [r.from.et, ...accept]), orders: [],
+    };
+  });
+  return [...(match ? [match] : []), ...recog, ...gaps, ...replies, ...reworks, ...fixesFor(lesson, after, confusions), ...asked];
 }
 
 /**
@@ -557,62 +581,6 @@ export function normalisePhrase(text: string): string {
   return wordsOf(text).map((w) => w.low).join(" ");
 }
 
-/** `pole` and `poleks` written out, so a short negative is compared as the long one. */
-function shortNegative(phrase: string): string {
-  return phrase.split(" ").map((w) => (w === "pole" ? "ei ole" : w === "poleks" ? "ei oleks" : w)).join(" ");
-}
-
-/**
- * The subject pronouns Estonian drops where the verb's ending says who:
- * first and second person, whose endings (`-n`, `-d`, `-me`, `-te`) pin the
- * person. Not the third, which the language keeps (`Tema sõi õunu`, never
- * `Sõi õunu`), and not in a negative, where `ei ostnud` is the same for every
- * person and the pronoun is the only thing saying whose it was.
- */
-const DROPPABLE = new Set(["ma", "mina", "sa", "sina", "me", "meie", "te", "teie"]);
-const NEGATIVE = new Set(["ei", "pole", "poleks", "ega"]);
-/** Words that open a second clause, across which a reordering changes what is said. */
-const JOINS = new Set(["kuigi", "kuna", "sest", "et", "kui", "aga", "ja", "ning", "või", "kes", "mis", "mida", "kus", "kuhu", "millal", "nii"]);
-
-/** How a typed sentence differs from a written one where it holds the same words. */
-export type SameWords = "pronoun" | "order" | null;
-
-/**
- * Whether a typed sentence is a written one with only what Estonian lets
- * move moved. Two things, each narrow on purpose, since what it answers is
- * shown as "it may well be right":
- *
- * - `pronoun`: the same words in the same order, with a first- or
- *   second-person subject left out or put in, outside a negative.
- * - `order`: the same words, pronouns included, in another order, inside one
- *   clause (no comma, no word that opens another clause), with `ei` still in
- *   front of the word it was in front of. Across a `kuigi` or a `kuna` the
- *   order is what says which half is which, so a reordering there is a
- *   different sentence.
- *
- * Pure counting and position: it says nothing about whether the order is
- * Estonian, which is why it marks nearly and never right.
- */
-export function sameWords(written: string, typed: string): SameWords {
-  const a = shortNegative(written).split(" ").filter(Boolean);
-  const b = shortNegative(typed).split(" ").filter(Boolean);
-  if (a.length === 0 || a.join(" ") === b.join(" ")) return null;
-  // A pronoun dropped or added, everything else the same and in the same place.
-  const negative = a.some((w) => NEGATIVE.has(w)) || b.some((w) => NEGATIVE.has(w));
-  if (!negative && Math.abs(a.length - b.length) === 1) {
-    const [long, short] = a.length > b.length ? [a, b] : [b, a];
-    const without = (i: number) => [...long.slice(0, i), ...long.slice(i + 1)].join(" ");
-    if (long.some((w, i) => DROPPABLE.has(w) && without(i) === short.join(" "))) return "pronoun";
-  }
-  // The same words in another order, inside one clause.
-  if (a.length !== b.length || a.length < 2) return null;
-  if (/,/.test(written) || /,/.test(typed) || a.some((w) => JOINS.has(w))) return null;
-  if ([...a].sort().join(" ") !== [...b].sort().join(" ")) return null;
-  const after = (ws: readonly string[]) => ws.flatMap((w, i) => (w === "ei" ? [ws[i + 1] ?? ""] : [])).sort().join(" ");
-  if (after(a) !== after(b)) return null;
-  return "order";
-}
-
 /** The slip floor for a one-letter difference (`lib/estonian/answer.ts`). */
 const SLIP_FLOOR = 8;
 
@@ -634,6 +602,43 @@ export interface TypedMark {
 }
 
 /**
+ * Every note a typed answer can be marked with, so each has one spelling and
+ * every one is translated (`practice.test.ts` holds the second half).
+ */
+export const NOTES = {
+  nothing: "Nothing typed.",
+  right: "That's it.",
+  marks: "Nearly: mind the letters with marks on them.",
+  halfRight: "Half right: the word is in there, but only that one word was asked for.",
+  letterOut: "Nearly: one letter out.",
+  notQuite: "Not quite.",
+  asItWas: "That's the sentence as it was. Change it the way the line above asks.",
+  slipStill: "That's the line with the slip still in it.",
+  otherOrder: "That's it. We wrote it in another order; ours is below.",
+  pronoun: "That's it. Ours has the pronoun the other way, and both are right.",
+  orderUnchecked: "These are the right words. We have them in another order; ours is below.",
+  orderMarks: "Nearly: the right words, in another order. Mind the letters with marks on them.",
+  opens: "The words are right, but start it the way the line above asks.",
+  fixHalf: "The slip is put right. Mind the spelling of one other word.",
+} as const;
+
+/**
+ * Whether two phrases are one letter apart on one word long enough for that
+ * to be a slip of the hand (`SLIP_FLOOR`), every other word the same.
+ *
+ * Word by word, because in a sentence the one letter is often the whole point:
+ * `poes` and `poest`, `raamatu` and `raamatut`, are one letter and two
+ * meanings, and measured on the whole sentence they read as a typo.
+ */
+function oneLetterOut(said: string, want: string): boolean {
+  const a = said.split(" ");
+  const b = want.split(" ");
+  if (a.length !== b.length) return false;
+  const off = a.map((w, i) => [w, b[i]!] as const).filter(([x, y]) => x !== y);
+  return off.length === 1 && off[0]![1].length >= SLIP_FLOOR && editDistance(off[0]![0], off[0]![1], 1) <= 1;
+}
+
+/**
  * How a typed or spoken answer compares with the phrase it was asked for.
  * `accept` is every spelling that counts, the asked one first.
  */
@@ -641,68 +646,121 @@ export function markPhrase(typed: string, accept: readonly string[]): TypedMark 
   const said = normalisePhrase(typed);
   const wants = accept.map(normalisePhrase);
   const want = wants.find((w) => w === said) ?? wants.find((w) => fold(w) === fold(said)) ?? wants[0] ?? "";
-  if (said.length === 0) return { verdict: "wrong", note: "Nothing typed.", close: false };
-  // "sa olid ja nad olid": the joining word is not part of the answer.
+  if (said.length === 0) return { verdict: "wrong", note: NOTES.nothing, close: false };
+  // "sa olid ja nad olid": a joining word between two answers is not part of either, but never one on the end.
   if (!wants.includes(said)) {
-    const without = said.split(" ").filter((w) => w !== "ja" && w !== "ning").join(" ");
-    if (without !== said && wants.includes(without)) return { verdict: "right", note: "That's it.", close: false };
+    const words = said.split(" ");
+    const without = words.filter((w, i) => !((w === "ja" || w === "ning") && i > 0 && i < words.length - 1)).join(" ");
+    if (without !== said && without.includes(" ") && wants.includes(without)) return { verdict: "right", note: NOTES.right, close: false };
   }
-  if (said === want) return { verdict: "right", note: "That's it.", close: false };
-  if (fold(said) === fold(want)) return { verdict: "nearly", note: "Nearly: mind the letters with marks on them.", close: false };
+  if (said === want) return { verdict: "right", note: NOTES.right, close: false };
+  if (fold(said) === fold(want)) return { verdict: "nearly", note: NOTES.marks, close: false };
   // The right word with more around it: half of it is right, which is worth saying.
   if (said.split(" ").length > 1 && wants.some((w) => w.length > 0 && !w.includes(" ") && said.split(" ").includes(w))) {
-    return { verdict: "nearly", note: "Half right: the word is in there, but only that one word was asked for.", close: false };
+    return { verdict: "nearly", note: NOTES.halfRight, close: false };
   }
-  if (wants.some((w) => w.length >= SLIP_FLOOR && editDistance(said, w, 1) <= 1)) return { verdict: "nearly", note: "Nearly: one letter out.", close: false };
-  return { verdict: "wrong", note: "Not quite.", close: wants.some((w) => nearMiss(said, w)) };
+  if (wants.some((w) => oneLetterOut(said, w))) return { verdict: "nearly", note: NOTES.letterOut, close: false };
+  return { verdict: "wrong", note: NOTES.notQuite, close: wants.some((w) => nearMiss(said, w)) };
+}
+
+/**
+ * Where a rework's ask names how the sentence must begin, that beginning:
+ * "Start with {Ma ei}." A suggestion ("You can start with {Kui}") is not one.
+ */
+export function opensOf(ask: string): string | null {
+  const m = /(?:^|[.!?]\s+)Start with \{([^{}]+)\}/.exec(ask);
+  return m ? m[1]! : null;
+}
+
+/**
+ * Which person each finite form taught by now is, for the words of these
+ * sentences only, so an item carries what its own marking reads and no more.
+ */
+export function personsFor(ledger: Ledger, sentences: readonly string[]): Persons {
+  const wanted = new Set(sentences.flatMap((s) => wordsOf(s).map((w) => w.low)));
+  const out: Record<string, Person[]> = {};
+  const add = (value: string, persons: readonly Person[]) => {
+    if (!wanted.has(value)) return;
+    out[value] = [...new Set([...(out[value] ?? []), ...persons])];
+  };
+  for (const verb of ledger.verbs) for (const f of personForms({ lemma: verb.lemma, pres1sg: verb.first })) add(f.value, f.persons);
+  for (const past of ledger.pasts) for (const f of personForms({ lemma: "", pres1sg: null, past1sg: past })) add(f.value, f.persons);
+  return out;
+}
+
+/** Every sentence a rework or a fix counts, which is what the dictionary is asked about to fill `orders`. */
+export function acceptedSentences(items: readonly PracticeItem[]): string[] {
+  return items.flatMap((item) => (item.kind === "rework" || item.kind === "fix" ? item.accept : []));
+}
+
+/**
+ * The reworks and fixes with the orders of their sentences the dictionary
+ * vouches for (`lessonOrders`), given its reading of the words; everything
+ * else as it was. Where the lesson is read (`lib/progress/lessonView.ts`).
+ */
+export function withOrders(items: readonly PracticeItem[], dict: OrderContext): PracticeItem[] {
+  return items.map((item) => {
+    if (item.kind !== "rework" && item.kind !== "fix") return item;
+    const orders = [...new Set(item.accept.flatMap((a) => lessonOrders(a, dict)))]
+      .filter((o) => !item.accept.map(normalisePhrase).includes(normalisePhrase(o)));
+    return { ...item, orders };
+  });
 }
 
 /**
  * HOW A CHANGED SENTENCE COMPARES WITH THE ONES THAT COUNT.
  *
- * Not `markPhrase`, for one reason: its slip rule forgives a letter out from
- * eight letters up, and in a sentence that letter is often the whole point,
- * since `raamatu` and `raamatut` are one letter and two meanings. So a changed
- * sentence is right where its words are the words of one that counts, nearly
- * where only the letters with marks on them differ, and otherwise not, with
- * one more thing worth saying: the sentence typed back unchanged.
+ * Not `markPhrase`, for one reason: a letter out in a sentence is often the
+ * whole point, since `raamatu` and `raamatut` are one letter and two meanings,
+ * so no slip is forgiven here except on the other word of a fix.
+ *
+ * A sentence is right where it is one that counts, or one of them said
+ * another way the marker can vouch for (`sameSentence.ts`: a pronoun's short
+ * or long spelling, a first- or second-person subject left out or put in
+ * beside a verb that says who, a reason or condition moved to the other end,
+ * or another order the dictionary vouches for, `orders`); each of those but
+ * the first says so, and the sentence written down is shown beside it. The
+ * same words in an order nothing here can vouch for are nearly, with a note
+ * that says only that: Estonian word order is free enough that some of those
+ * are right and some are not, and this cannot tell which.
  */
 export function markRework(typed: string, item: Extract<PracticeItem, { kind: "rework" | "fix" }>): TypedMark {
   const said = normalisePhrase(typed);
   const wants = item.accept.map(normalisePhrase);
-  if (said.length === 0) return { verdict: "wrong", note: "Nothing typed.", close: false };
-  if (wants.includes(said)) return { verdict: "right", note: "That's it.", close: false };
-  // `pole` is `ei ole` said short, everywhere and always, so either is the sentence as written.
-  if (wants.some((w) => shortNegative(w) === shortNegative(said))) return { verdict: "right", note: "That's it.", close: false };
-  // Typed back unchanged is not a reordering, even where the change asked for was the order.
-  if (shortNegative(said) === shortNegative(normalisePhrase(item.kind === "fix" ? item.shown : item.from.et))) {
-    return item.kind === "fix"
-      ? { verdict: "wrong", note: "That's the line with the slip still in it.", close: false }
-      : { verdict: "wrong", note: "That's the sentence as it was. Change it the way the line above asks.", close: false };
+  if (said.length === 0) return { verdict: "wrong", note: NOTES.nothing, close: false };
+  if (wants.includes(said)) return { verdict: "right", note: NOTES.right, close: false };
+  // The sentence typed back unchanged, however it is reordered or spelled, is not a change.
+  const before = item.kind === "fix" ? item.shown : item.from.et;
+  const unchanged = sameSentence(before, typed, item.persons);
+  if (unchanged && (unchanged.how === "same" || unchanged.how === "order")) {
+    return { verdict: "wrong", note: item.kind === "fix" ? NOTES.slipStill : NOTES.asItWas, close: false };
   }
-  /*
-    THE RIGHT WORDS IN ANOTHER ORDER ARE NEVER CALLED WRONG. Estonian word
-    order is free enough that the sentences written down for a rework cannot
-    hold every right one, and the subject pronoun is dropped where the verb
-    already says who: a learner who wrote one of those had it right, as far as
-    anybody here can tell. So the same words in another order, or with the
-    pronoun left out or put in, are nearly, with a note that says why and that
-    it may well be right too, and the written sentence is shown beside it.
-  */
-  const how = wants.map((w) => sameWords(w, said)).find((h) => h !== null) ?? null;
-  if (how === "pronoun") {
-    return { verdict: "nearly", note: "Right words. We have it with the pronoun the other way, and yours may well be right too.", close: false };
-  }
-  if (how === "order") {
-    return { verdict: "nearly", note: "The words are right. The order isn't one we have written down, and it may well be right too.", close: false };
-  }
-  if (wants.some((w) => fold(w) === fold(said))) return { verdict: "nearly", note: "Nearly: mind the letters with marks on them.", close: false };
+  // An ask naming how it starts is answered only by a sentence that starts that way.
+  const opens = item.kind === "rework" ? item.opens : null;
+  const opensRight = !opens || said.startsWith(`${normalisePhrase(opens)} `) || said === normalisePhrase(opens);
+  // Each sentence that counts, then each order of one the dictionary vouches for, and how the typed one says it.
+  const ways = [
+    ...item.accept.map((w) => ({ m: sameSentence(w, typed, item.persons), ours: true })),
+    ...item.orders.map((w) => ({ m: sameSentence(w, typed, item.persons), ours: false })),
+  ].flatMap(({ m, ours }) => (m ? [{ ...m, ours }] : []));
+  const find = (how: "same" | "pronoun" | "order", folded: boolean, ours?: boolean) =>
+    ways.find((w) => w.how === how && w.folded === folded && (ours === undefined || w.ours === ours));
+  if (!opensRight && ways.length > 0) return { verdict: "nearly", note: NOTES.opens, close: false };
+  if (find("same", false, true)) return { verdict: "right", note: NOTES.right, close: false };
+  if (find("same", false, false)) return { verdict: "right", note: NOTES.otherOrder, close: false };
+  if (find("pronoun", false)) return { verdict: "right", note: NOTES.pronoun, close: false };
+  if (find("same", true, true)) return { verdict: "nearly", note: NOTES.marks, close: false };
+  if (find("pronoun", true)) return { verdict: "nearly", note: NOTES.marks, close: false };
+  if (find("same", true, false)) return { verdict: "nearly", note: NOTES.orderMarks, close: false };
+  if (find("order", false)) return { verdict: "nearly", note: NOTES.orderUnchecked, close: false };
+  if (find("order", true)) return { verdict: "nearly", note: NOTES.orderMarks, close: false };
   /*
     A FIX IS ABOUT ONE WORD. The whole line is retyped, so a slip of the hand
     anywhere else in it used to cost the fix itself: the learner put the slip
     right and read "Not quite". Where the word in question is now right and the
-    only other difference is one near miss, it is nearly, and says which half
-    they got.
+    only other difference is one letter out on a word long enough for that to
+    be a slip, it is nearly, and says which half they got. (A difference in
+    marks alone is caught above, as the whole line folded.)
   */
   if (item.kind === "fix") {
     const typedWords = said.split(" ");
@@ -710,16 +768,14 @@ export function markRework(typed: string, item: Extract<PracticeItem, { kind: "r
     const right = normalisePhrase(item.right);
     if (typedWords.length === wanted.length && typedWords.includes(right) && !typedWords.includes(normalisePhrase(item.wrong))) {
       const off = typedWords.map((w, i) => ({ w, want: wanted[i]! })).filter(({ w, want }) => w !== want);
-      // A slip of the hand on the other word is only what `markPhrase` calls one: its marks, or one letter out from eight letters up, so `sina` typed for `mina` is a different word and not a slip.
-      const slip = off.length === 1 && (fold(off[0]!.w) === fold(off[0]!.want)
-        || (off[0]!.want.length >= SLIP_FLOOR && editDistance(off[0]!.w, off[0]!.want, 1) <= 1));
-      if (slip) {
-        return { verdict: "nearly", note: "The slip is put right. Mind the spelling of one other word.", close: false };
+      // `sina` typed for `mina` is a different word and not a slip, so only one letter out from eight letters up.
+      if (off.length === 1 && off[0]!.want.length >= SLIP_FLOOR && editDistance(off[0]!.w, off[0]!.want, 1) <= 1) {
+        return { verdict: "nearly", note: NOTES.fixHalf, close: false };
       }
     }
   }
   // Never painted as nearly: a third of a sentence's letters is room for the one ending the exercise is about.
-  return { verdict: "wrong", note: "Not quite.", close: false };
+  return { verdict: "wrong", note: NOTES.notQuite, close: false };
 }
 
 /**
@@ -727,8 +783,8 @@ export function markRework(typed: string, item: Extract<PracticeItem, { kind: "r
  * against the model with your name in it, and with the stand-in's place open
  * to any one word, so `Minu nimi on Amanda` is "That's it."
  */
-export function markOwnAnswer(typed: string, model: string, name: string | null): TypedMark {
-  const accept = name ? [personal(model, name), model] : [model];
+export function markOwnAnswer(typed: string, model: string, name: string | null, also: readonly string[] = []): TypedMark {
+  const accept = [...(name ? [personal(model, name), model] : [model]), ...also];
   const mark = markPhrase(typed, accept);
   if (mark.verdict === "right" || !hasStandIn(model)) return mark;
   const said = wordsOf(typed).map((w) => w.low);
@@ -743,8 +799,8 @@ export function markOwnAnswer(typed: string, model: string, name: string | null)
     return mark;
   }
   return folded
-    ? { verdict: "nearly", note: "Nearly: mind the letters with marks on them.", close: false }
-    : { verdict: "right", note: "That's it.", close: false };
+    ? { verdict: "nearly", note: NOTES.marks, close: false }
+    : { verdict: "right", note: NOTES.right, close: false };
 }
 
 /*

@@ -2538,6 +2538,14 @@
                         "et",
                         "en"
                       ]
+                    },
+                    "also": {
+                      "description": "Every other way of saying the model that counts.",
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   },
                   "required": [
@@ -2935,6 +2943,14 @@
                             "et",
                             "en"
                           ]
+                        },
+                        "also": {
+                          "description": "Every other way of saying the model that counts.",
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
                         }
                       },
                       "required": [
@@ -3124,6 +3140,44 @@
                       "items": {
                         "type": "string"
                       }
+                    },
+                    "opens": {
+                      "description": "Where the ask names how the sentence must begin, that beginning.",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "persons": {
+                      "readOnly": true,
+                      "description": "Which person each verb in these sentences is, so a subject pronoun left out or put in is read against the verb beside it.",
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "readOnly": true,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "Sg1",
+                            "Sg2",
+                            "Sg3",
+                            "Pl1",
+                            "Pl2",
+                            "Pl3"
+                          ]
+                        }
+                      }
+                    },
+                    "orders": {
+                      "readOnly": true,
+                      "description": "Other orders of an accepted sentence the dictionary vouches for, marked right.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   },
                   "required": [
@@ -3132,7 +3186,10 @@
                     "ask",
                     "answer",
                     "answerEn",
-                    "accept"
+                    "accept",
+                    "opens",
+                    "persons",
+                    "orders"
                   ],
                   "description": "A sentence to change the way `ask` says (B1 on), typed and marked against `accept`."
                 },
@@ -3167,6 +3224,37 @@
                     },
                     "why": {
                       "type": "string"
+                    },
+                    "persons": {
+                      "readOnly": true,
+                      "description": "Which person each verb in these sentences is, so a subject pronoun left out or put in is read against the verb beside it.",
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "readOnly": true,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "Sg1",
+                            "Sg2",
+                            "Sg3",
+                            "Pl1",
+                            "Pl2",
+                            "Pl3"
+                          ]
+                        }
+                      }
+                    },
+                    "orders": {
+                      "readOnly": true,
+                      "description": "Other orders of an accepted sentence the dictionary vouches for, marked right.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   },
                   "required": [
@@ -3177,7 +3265,9 @@
                     "accept",
                     "wrong",
                     "right",
-                    "why"
+                    "why",
+                    "persons",
+                    "orders"
                   ],
                   "description": "A line with one word swapped for another form of it (B1 on); typed back put right."
                 },
@@ -3431,6 +3521,44 @@
                       "items": {
                         "type": "string"
                       }
+                    },
+                    "opens": {
+                      "description": "Where the ask names how the sentence must begin, that beginning.",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "persons": {
+                      "readOnly": true,
+                      "description": "Which person each verb in these sentences is, so a subject pronoun left out or put in is read against the verb beside it.",
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "readOnly": true,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "Sg1",
+                            "Sg2",
+                            "Sg3",
+                            "Pl1",
+                            "Pl2",
+                            "Pl3"
+                          ]
+                        }
+                      }
+                    },
+                    "orders": {
+                      "readOnly": true,
+                      "description": "Other orders of an accepted sentence the dictionary vouches for, marked right.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   },
                   "required": [
@@ -3439,7 +3567,10 @@
                     "ask",
                     "answer",
                     "answerEn",
-                    "accept"
+                    "accept",
+                    "opens",
+                    "persons",
+                    "orders"
                   ],
                   "description": "A sentence to change the way `ask` says (B1 on), typed and marked against `accept`."
                 },
@@ -3474,6 +3605,37 @@
                     },
                     "why": {
                       "type": "string"
+                    },
+                    "persons": {
+                      "readOnly": true,
+                      "description": "Which person each verb in these sentences is, so a subject pronoun left out or put in is read against the verb beside it.",
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "readOnly": true,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "Sg1",
+                            "Sg2",
+                            "Sg3",
+                            "Pl1",
+                            "Pl2",
+                            "Pl3"
+                          ]
+                        }
+                      }
+                    },
+                    "orders": {
+                      "readOnly": true,
+                      "description": "Other orders of an accepted sentence the dictionary vouches for, marked right.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   },
                   "required": [
@@ -3484,7 +3646,9 @@
                     "accept",
                     "wrong",
                     "right",
-                    "why"
+                    "why",
+                    "persons",
+                    "orders"
                   ],
                   "description": "A line with one word swapped for another form of it (B1 on); typed back put right."
                 },
@@ -4027,6 +4191,44 @@
                       "items": {
                         "type": "string"
                       }
+                    },
+                    "opens": {
+                      "description": "Where the ask names how the sentence must begin, that beginning.",
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "persons": {
+                      "readOnly": true,
+                      "description": "Which person each verb in these sentences is, so a subject pronoun left out or put in is read against the verb beside it.",
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "readOnly": true,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "Sg1",
+                            "Sg2",
+                            "Sg3",
+                            "Pl1",
+                            "Pl2",
+                            "Pl3"
+                          ]
+                        }
+                      }
+                    },
+                    "orders": {
+                      "readOnly": true,
+                      "description": "Other orders of an accepted sentence the dictionary vouches for, marked right.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   },
                   "required": [
@@ -4035,7 +4237,10 @@
                     "ask",
                     "answer",
                     "answerEn",
-                    "accept"
+                    "accept",
+                    "opens",
+                    "persons",
+                    "orders"
                   ],
                   "description": "A sentence to change the way `ask` says (B1 on), typed and marked against `accept`."
                 },
@@ -4070,6 +4275,37 @@
                     },
                     "why": {
                       "type": "string"
+                    },
+                    "persons": {
+                      "readOnly": true,
+                      "description": "Which person each verb in these sentences is, so a subject pronoun left out or put in is read against the verb beside it.",
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "readOnly": true,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": [
+                            "Sg1",
+                            "Sg2",
+                            "Sg3",
+                            "Pl1",
+                            "Pl2",
+                            "Pl3"
+                          ]
+                        }
+                      }
+                    },
+                    "orders": {
+                      "readOnly": true,
+                      "description": "Other orders of an accepted sentence the dictionary vouches for, marked right.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   },
                   "required": [
@@ -4080,7 +4316,9 @@
                     "accept",
                     "wrong",
                     "right",
-                    "why"
+                    "why",
+                    "persons",
+                    "orders"
                   ],
                   "description": "A line with one word swapped for another form of it (B1 on); typed back put right."
                 },
