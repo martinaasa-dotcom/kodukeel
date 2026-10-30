@@ -260,7 +260,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
         { et: "Tema nimi on Kertu.", en: "Her name is Kertu." },
         { et: "Ta kirjutas selle raamatu, mida ma praegu loen!", en: "She wrote the book I'm reading right now!" },
         { et: "Ja üks mees, keda ma ei tundnud, sõi kolm tükki kooki.", en: "And a man I didn't know ate three pieces of cake." },
-        { et: "Kooki tegi tema naine.", en: "His wife had made the cake." },
+        { et: "Koogi tegi tema naine.", en: "His wife had made the cake." },
       ],
       points: [
         { en: "There was a party in Tom's building. Tell it about him: {ta}, not {ma}.", any: ["pidu", "majas"] },
@@ -575,7 +575,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       { q: "Which comes first?", options: ["Tom finds his keys in the bag", "Tom opens the bag and starts sorting", "Helgi says what goes in which bin"], answer: 2 },
     ],
     answers: [
-      { ask: { et: "Kas sa sorteerid prügi?", en: "Do you sort your rubbish?" }, cue: "Say yes, because it's important.", model: { et: "Jah, kuna see on oluline.", en: "Yes, because it's important." } },
+      { ask: { et: "Kas sa sorteerid prügi?", en: "Do you sort your rubbish?" }, cue: "Say yes, because it's important.", model: { et: "Jah, sest see on oluline.", en: "Yes, because it's important." } },
       { cue: "Say packaging goes in the yellow bin.", model: { et: "Pakendid lähevad kollasesse kasti.", en: "Packaging goes in the yellow bin." } },
       { cue: "Say paper goes in the blue bin.", model: { et: "Paber läheb sinisesse kasti.", en: "Paper goes in the blue bin." } },
       { ask: { et: "Miks see oluline on?", en: "Why does it matter?" }, cue: "Say the environment is home to all of us.", model: { et: "Keskkond on meie kõigi kodu.", en: "The environment is home to all of us." } },

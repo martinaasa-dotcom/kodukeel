@@ -37,7 +37,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Tom", et: "Anna, kas sul on natuke aega? Mul on üks probleem.", en: "Anna, have you got a minute? I've got a problem.", stage: "At home, in the evening." },
       { who: "Anna", et: "Muidugi. Mis juhtus?", en: "Of course. What happened?" },
-      { who: "Tom", et: "Ülemus tahab aruannet homseks. Ma tegin seda terve päeva, aga midagi on ikka vale.", en: "My boss wants the report by tomorrow. I've been on it all day, and something's still wrong." },
+      { who: "Tom", et: "Ülemus tahab aruannet homseks. Ma tegin seda terve päeva, aga midagi on ikka valesti.", en: "My boss wants the report by tomorrow. I've been on it all day, and something's still wrong." },
       { who: "Anna", et: "Terve päeva? Miks sa minult abi ei küsinud?", en: "All day? Why didn't you ask me for help?" },
       { who: "Tom", et: "Ma ei tahtnud sind segada. Sul on ju palju tööd.", en: "I didn't want to bother you. You've got plenty of work yourself." },
       { who: "Anna", et: "Pole hullu. Näita! Siin on viga. See number on vale.", en: "That's all right. Show me! Here's the mistake. This number is wrong." },
@@ -64,6 +64,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "aruannet", of: "aruanne", en: "the report, while you're on it" },
       { kind: "form", et: "segada", of: "segama", en: "to bother, to disturb (after another verb)" },
       { kind: "phrase", et: "pole hullu", en: "that's all right, it doesn't matter" },
+      { kind: "word", et: "valesti", en: "wrong, the wrong way" },
     ],
     patterns: ["government"],
     how: {
@@ -155,7 +156,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Ja millest sina huvitud?", en: "And what are you into?" },
       { who: "Triin", et: "Mina olen huvitatud ajaloost. Ja autodest!", en: "I'm interested in history. And cars!" },
       { who: "Tom", et: "Autodest? Minu auto vajab abi. See on umbes kakskümmend aastat vana.", en: "Cars? My car needs help. It's about twenty years old." },
-      { who: "Triin", et: "Väga hea! Sa tuled reedel koori ja mina vaatan su autot.", en: "Very good! You come to choir on Friday and I'll look at your car." },
+      { who: "Triin", et: "Siis teeme nii: sa tuled reedel koori ja mina vaatan su autot.", en: "Then let's do this: you come to choir on Friday and I'll look at your car." },
       { who: "Tom", et: "Olgu! Aga ma laulan väga vaikselt.", en: "All right! But I'll sing very quietly." },
     ],
     teaches: [
@@ -276,7 +277,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Ühe naisega! Nad rääkisid terve tunni ja naersid palju.", en: "A woman! They talked for a whole hour and laughed a lot." },
       { who: "Tom", et: "Millest nad rääkisid?", en: "What were they talking about?" },
       { who: "Mari", et: "Ma ei kuulnud. Aga Peeter on viimasel ajal väga rõõmus. Ja eile ostis ta lilli!", en: "I didn't hear. But Peeter's been very cheerful lately. And yesterday he bought flowers!" },
-      { who: "Tom", et: "Ehk on see tema tütar?", en: "Maybe it's his daughter?" },
+      { who: "Tom", et: "Ehk oli see tema tütar?", en: "Maybe it was his daughter?" },
       { who: "Mari", et: "Ei, tütar elab kaugel. See on huvitav lugu! Ma mõtlen terve päeva ainult sellele.", en: "No, his daughter lives far away. It's an interesting story! I've thought about nothing else all day." },
       { who: "Tom", et: "Mari, sa räägid ju alati teistest inimestest.", en: "Mari, you're always talking about other people." },
       { who: "Mari", et: "Aga ainult heas mõttes!", en: "But only in a nice way!" },
@@ -324,7 +325,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       notes: [
         "About is the [seestütlev] (-st, out of) in Estonian: {minust}, {temast}, {ilmast}. {Teadma} works the same way: {Ma ei tea sellest midagi}.",
         "You meet with somebody: {Ma kohtusin temaga}, never {teda}.",
-        "{Ehk} is a gentle maybe, good for gossip: {Ehk on see tema tütar?}",
+        "{Ehk} is a gentle maybe, good for gossip: {Ehk oli see tema tütar?}",
       ],
       watchOut: "{Mõtlema} can take either: {Ma mõtlen sellele} and {Ma mõtlen sellest} both say you're thinking about it. The -le one is the usual one, so start with that.",
       examples: [0, 6, 7, 10],

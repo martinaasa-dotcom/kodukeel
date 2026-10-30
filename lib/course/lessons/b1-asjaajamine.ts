@@ -535,7 +535,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
     goal: "Call an office, get put through, wait on hold, and leave a message asking them to call you back.",
     cast: { Salvestus: "albert", Kaja: "vesta", Andres: "tambet", Tom: "kalev" },
     conversation: [
-      { who: "Salvestus", et: "Tere! Te helistasite linnavalitsusse.", en: "Hello! You've called the city government.", stage: "Tom calls the city. A recorded message answers." },
+      { who: "Salvestus", et: "Tere! Olete helistanud linnavalitsusse.", en: "Hello! You've called the city government.", stage: "Tom calls the city. A recorded message answers." },
       { who: "Salvestus", et: "Meie ametnikud vastavad esmaspäevast reedeni, kella üheksast viieni.", en: "Our officials answer from Monday to Friday, from nine to five." },
       { who: "Salvestus", et: "Praegu on kõik ametnikud hõivatud. Teie kõne on meile oluline. Palun jääge ootele.", en: "All our officials are busy right now. Your call is important to us. Please hold." },
       { who: "Kaja", et: "Linnavalitsus, tere!", en: "City government, hello!", stage: "Music, then at last a person." },
@@ -676,7 +676,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Ja siis kirjutan: tere, ma tahaksin parkimisluba?", en: "And then I write: hi, I'd like a parking permit?" },
       { who: "Peeter", et: "Ei, ei! Ametlikult on see nii: palun väljastada mulle parkimisluba.", en: "No, no! Officially it goes like this: please issue me a parking permit." },
       { who: "Tom", et: "Kas ma pean ka ütlema, miks?", en: "Do I have to say why, too?" },
-      { who: "Peeter", et: "Jah. Kirjuta, et te kolisite siia sel aastal perega ja sul on autot iga päev vaja.", en: "Yes. Write that you moved here this year with your family and you need the car every day." },
+      { who: "Peeter", et: "Jah. Kirjuta, et sa kolisid siia sel aastal koos perega ja sul on autot iga päev vaja.", en: "Yes. Write that you moved here this year with your family and you need the car every day." },
       { who: "Peeter", et: "Ja lõpus kirjuta viisakalt: lugupidamisega.", en: "And at the end, close politely: sincerely." },
       { who: "Tom", et: "Lugupidamisega, Tom. Väga ametlik, kuigi lühike!", en: "Sincerely, Tom. Very official, although short!" },
       { who: "Peeter", et: "Ametlik on hea. Linnavalitsus armastab ametlikku keelt.", en: "Official is good. The city government loves official language." },

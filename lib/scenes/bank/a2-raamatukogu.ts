@@ -19,8 +19,8 @@ import type { ScriptedLine } from "../scripted";
 const LINES: readonly ScriptedLine[] = [
   { scene: "a2-raamatukogu", beat: "greet", text: "Tere!", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-raamatukogu", beat: "greet", text: "Tere päevast!", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
-  { scene: "a2-raamatukogu", beat: "card", text: "Kuidas ma saan aidata?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
-  { scene: "a2-raamatukogu", beat: "card", text: "Tere! Kuidas ma saan aidata?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
+  { scene: "a2-raamatukogu", beat: "card", text: "Kuidas saan aidata?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
+  { scene: "a2-raamatukogu", beat: "card", text: "Tere! Kuidas saan aidata?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-raamatukogu", beat: "name", text: "Mis on teie eesnimi ja perekonnanimi?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-raamatukogu", beat: "name", text: "Muidugi. Teie eesnimi?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-raamatukogu", beat: "address", text: "Teie aadress?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },

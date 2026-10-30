@@ -217,7 +217,7 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
     cast: { Mari: "mari", Tom: "kalev" },
     conversation: [
       { who: "Mari", et: "Tom, millal sa tuled?", en: "Tom, when are you coming?", stage: "On the phone, in the afternoon." },
-      { who: "Tom", et: "Pärast tööd. Ma lõpetan kell viis.", en: "After work. I finish at five." },
+      { who: "Tom", et: "Pärast tööd. Ma lõpetan kümne minuti pärast.", en: "After work. I finish in ten minutes." },
       { who: "Mari", et: "Selge. Kas sa tuled bussiga?", en: "Got it. Are you coming by bus?" },
       { who: "Tom", et: "Jah. Ma olen sinu juures tunni pärast.", en: "Yes. I'll be at your place in an hour." },
       { who: "Mari", et: "Väga hea. Pärast sööki vaatame filmi.", en: "Lovely. After we eat, we'll watch a film." },
@@ -344,7 +344,7 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
     goal: "Give your details at a desk: first name, surname, address and date of birth.",
     cast: { Liis: "liivika", Tom: "kalev" },
     conversation: [
-      { who: "Liis", et: "Tere! Kuidas ma saan aidata?", en: "Hello! How can I help?", stage: "At the library desk." },
+      { who: "Liis", et: "Tere! Kuidas saan aidata?", en: "Hello! How can I help?", stage: "At the library desk." },
       { who: "Tom", et: "Tere! Ma soovin raamatukogukaarti.", en: "Hello! I'd like a library card." },
       { who: "Liis", et: "Muidugi. Teie eesnimi?", en: "Of course. Your first name?" },
       { who: "Tom", et: "Tom.", en: "Tom." },
@@ -357,7 +357,7 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
       { who: "Liis", et: "Aitäh. Palun kirjutage siia alla.", en: "Thank you. Please sign here." },
     ],
     teaches: [
-      { kind: "phrase", et: "Kuidas ma saan aidata?", en: "How can I help?" },
+      { kind: "phrase", et: "Kuidas saan aidata?", en: "How can I help?" },
       { kind: "word", et: "raamatukogu", en: "library" },
       { kind: "word", et: "raamatukogukaart", en: "library card" },
       { kind: "form", et: "raamatukogukaarti", of: "raamatukogukaart", en: "a library card, as what you'd like" },
@@ -407,7 +407,7 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
     goal: "Get a library card, give your details, and find who something belongs to.",
     cast: { Liis: "liivika", Tom: "kalev" },
     conversation: [
-      { who: "Liis", et: "Tere, Tom! Kuidas ma saan aidata?", en: "Hello, Tom! How can I help?", stage: "A week later, at the same desk." },
+      { who: "Liis", et: "Tere, Tom! Kuidas saan aidata?", en: "Hello, Tom! How can I help?", stage: "A week later, at the same desk." },
       { who: "Tom", et: "Tere! See raamat on minu naise oma.", en: "Hello! This book is my wife's." },
       { who: "Liis", et: "Selge. Ja teie naise nimi?", en: "I see. And your wife's name?" },
       { who: "Tom", et: "Anna Smith. Ta on täna kodus.", en: "Anna Smith. She's at home today." },
@@ -428,14 +428,14 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
       examples: [1, 4, 5],
     },
     answers: [
-      { ask: { et: "Kuidas ma saan aidata?", en: "How can I help?" }, cue: "Say you'd like a library card.", model: { et: "Ma soovin raamatukogukaarti.", en: "I'd like a library card." } },
+      { ask: { et: "Kuidas saan aidata?", en: "How can I help?" }, cue: "Say you'd like a library card.", model: { et: "Ma soovin raamatukogukaarti.", en: "I'd like a library card." } },
       { ask: { et: "Teie eesnimi ja perekonnanimi?", en: "Your first name and surname?" }, cue: "Give your name.", model: { et: "Tom Smith.", en: "Tom Smith." } },
       { cue: "You found a phone on the table. Ask whose it is.", model: { et: "Kelle telefon see on?", en: "Whose phone is this?" } },
     ],
     roleplay: {
       scene: "You're at the library desk, getting a card. The librarian speaks first. Answer as yourself.",
       turns: [
-        { ask: { et: "Tere! Kuidas ma saan aidata?", en: "Hello! How can I help?" }, cue: "Say hello, and that you'd like a library card.", model: { et: "Tere! Ma soovin raamatukogukaarti.", en: "Hello! I'd like a library card." } },
+        { ask: { et: "Tere! Kuidas saan aidata?", en: "Hello! How can I help?" }, cue: "Say hello, and that you'd like a library card.", model: { et: "Tere! Ma soovin raamatukogukaarti.", en: "Hello! I'd like a library card." } },
         { ask: { et: "Muidugi. Teie eesnimi?", en: "Of course. Your first name?" }, cue: "Give your first name.", model: { et: "Tom.", en: "Tom." } },
         { ask: { et: "Teie aadress?", en: "Your address?" }, cue: "Give an address. Any street will do.", model: { et: "Pikk tänav kaks, korter neli.", en: "Pikk Street two, apartment four." } },
         { ask: { et: "Ja sünniaeg?", en: "And your date of birth?" }, cue: "Give a date of birth.", model: { et: "Kümnes juuni.", en: "The tenth of June." } },

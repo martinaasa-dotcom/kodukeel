@@ -100,7 +100,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Mari", et: "Halloo, Tom! Kus sa oled?", en: "Hello, Tom! Where are you?", stage: "On the phone." },
       { who: "Tom", et: "Ma olen turul. Ostan kala ja kartulit.", en: "I'm at the market. I'm buying fish and potatoes." },
-      { who: "Mari", et: "Mina olen veel tööl. Kas saame kokku väljakul?", en: "I'm still at work. Should we meet on the square?" },
+      { who: "Mari", et: "Mina olen veel tööl. Kas saame väljakul kokku?", en: "I'm still at work. Should we meet on the square?" },
       { who: "Tom", et: "Jah. Ma lähen turult otse väljakule.", en: "Yes. I'll go straight from the market to the square." },
       { who: "Mari", et: "Hästi. Ma ootan kohvikus kiriku kõrval.", en: "All right. I'll wait in the café next to the church." },
       { who: "Tom", et: "Selge! Kümne minuti pärast!", en: "Got it! See you in ten minutes!" },

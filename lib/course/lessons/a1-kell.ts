@@ -71,7 +71,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "The first four count the week from the start, first to fourth, and you can see {kolm} and {neli} in the start of two of them.",
+        "The first four count the week from the start, first to fourth: {kolmapäev} starts with {kolm}, three, and {neljapäev} with a form of {neli}, four.",
         "{Täna} is today, {homme} tomorrow and {eile} yesterday. With them you can say {Täna on reede}.",
         "{Oli} is was: {Eile oli esmaspäev}. Take it whole for now; the past has lessons of its own.",
       ],
@@ -384,7 +384,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
       { who: "Liis", et: "Kell kuus. Kas sa saad?", en: "At six. Can you?" },
       { who: "Tom", et: "Kell kuus ma ei saa. Kell seitse?", en: "I can't at six. Seven?" },
       { who: "Liis", et: "Hästi, kell seitse. Head aega!", en: "Fine, seven. Bye!" },
-      { who: "Tom", et: "Nägemist! Laupäeval!", en: "See you! On Saturday!" },
+      { who: "Tom", et: "Nägemist laupäeval!", en: "See you on Saturday!" },
     ],
     teaches: [],
     how: {

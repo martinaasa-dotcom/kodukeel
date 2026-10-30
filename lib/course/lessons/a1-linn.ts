@@ -38,8 +38,6 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Köök on siin. Ja seal on minu tuba.", en: "The kitchen's here. And my room's over there." },
       { who: "Mari", et: "Mis see on?", en: "What's this?" },
       { who: "Tom", et: "See on laud ja see on tool. Ja seal on voodi.", en: "This is a table and this is a chair. And that's the bed." },
-      { who: "Mari", et: "Ja kus on aken?", en: "And where's the window?" },
-      { who: "Tom", et: "Aken? Siin!", en: "The window? Here!" },
     ],
     teaches: [
       { kind: "word", et: "kodu", en: "home" },
@@ -205,8 +203,8 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Magamistoas. Magamistuba on seal.", en: "In the bedroom. The bedroom's there." },
       { who: "Anna", et: "Kus on vannituba?", en: "Where's the bathroom?" },
       { who: "Mari", et: "Vannituba on siin.", en: "The bathroom's here." },
-      { who: "Anna", et: "Ja külmkapp?", en: "And the fridge?" },
-      { who: "Mari", et: "Köögis, muidugi! Mahl on külmkapis.", en: "In the kitchen, of course! There's juice in the fridge." },
+      { who: "Anna", et: "Kas sul on mahla?", en: "Do you have any juice?" },
+      { who: "Mari", et: "Jah, muidugi! Külmkapis.", en: "Yes, of course! In the fridge." },
     ],
     teaches: [
       { kind: "word", et: "elutuba", en: "living room" },
@@ -441,8 +439,8 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Kas see on kaugel?", en: "Is it far?" },
       { who: "Liis", et: "Ei, see on lähedal. Kuhu te sõidate?", en: "No, it's close. Where are you going?" },
       { who: "Tom", et: "Ma sõidan Tartusse.", en: "I'm going to Tartu." },
-      { who: "Liis", et: "Tartusse? Bussiga või rongiga?", en: "To Tartu? By bus or by train?" },
-      { who: "Tom", et: "Bussiga. Aitäh! Head aega!", en: "By bus. Thank you! Goodbye!" },
+      { who: "Liis", et: "Tartusse? Tore!", en: "To Tartu? Nice!" },
+      { who: "Tom", et: "Aitäh! Head aega!", en: "Thank you! Goodbye!" },
     ],
     teaches: [],
     how: {

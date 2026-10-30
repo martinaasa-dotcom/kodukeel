@@ -584,7 +584,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Kes see mees on?", en: "Who's that man?" },
       { who: "Mari", et: "See on minu onu. Ja see naine on minu tädi.", en: "That's my uncle. And that woman is my aunt." },
       { who: "Tom", et: "Ja poiss ja tüdruk?", en: "And the boy and the girl?" },
-      { who: "Mari", et: "Poiss on minu vend. Tüdruk on tema tütar.", en: "The boy is my brother. The girl is their daughter." },
+      { who: "Mari", et: "Poiss on minu vend. Tüdruk on nende tütar.", en: "The boy is my brother. The girl is their daughter." },
       { who: "Tom", et: "Ja kes on see vana mees?", en: "And who's that old man?" },
       { who: "Mari", et: "See on minu vanaisa! Ta on üheksakümmend.", en: "That's my grandfather! He's ninety." },
     ],

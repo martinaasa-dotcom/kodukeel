@@ -300,7 +300,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
     goal: "Ask to try clothes on, and ask for a bigger or a smaller one.",
     cast: { Kati: "vesta", Tom: "kalev" },
     conversation: [
-      { who: "Kati", et: "Tere! Kuidas ma saan aidata?", en: "Hello! How can I help?" },
+      { who: "Kati", et: "Tere! Kuidas saan aidata?", en: "Hello! How can I help?" },
       { who: "Tom", et: "Tere! Kas ma võiksin seda jopet proovida?", en: "Hello! Could I try this jacket on?" },
       { who: "Kati", et: "Muidugi. Proovikabiin on seal.", en: "Of course. The fitting room is over there." },
       { who: "Tom", et: "See on liiga väike. Kas teil on suuremat?", en: "It's too small. Do you have a bigger one?" },
@@ -330,7 +330,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
         "Clothes that fit {sobivad}: {See sobib hästi}, the verb of the appointment that suits you in part four.",
         "{Ma võtan selle} is I'll take it, the whole thing: part three's whole object, with {selle}.",
       ],
-      watchOut: "Trying is {seda}, some of it, since you haven't decided. Taking is {selle}, the whole of it.",
+      watchOut: "Trying always takes {seda}, whether or not you've decided. Taking it is {selle}, the whole of it.",
       examples: [1, 3, 5],
     },
     answers: [

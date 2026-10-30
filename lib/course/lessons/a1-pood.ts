@@ -314,7 +314,7 @@ export const A1_POOD_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Tom, mis ilm Tallinnas on?", en: "Tom, what's the weather like in Tallinn?", stage: "On the phone." },
       { who: "Tom", et: "Täna on külm. Ja sajab vihma.", en: "It's cold today. And it's raining." },
       { who: "Mari", et: "Tartus on päike! Ja soe.", en: "In Tartu it's sunny! And warm." },
-      { who: "Tom", et: "Tõesti? Siin on väga külm ja tuul.", en: "Really? Here it's very cold and windy." },
+      { who: "Tom", et: "Tõesti? Siin on väga külm ja suur tuul.", en: "Really? Here it's very cold, with a strong wind." },
       { who: "Mari", et: "Ja homme sajab lund!", en: "And tomorrow it's going to snow!" },
       { who: "Tom", et: "Lund? Ei!", en: "Snow? Oh no!" },
     ],

@@ -258,7 +258,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Tere! Mina olen Mari. Ma elan ka siin.", en: "Hello! I'm Mari. I live here too." },
       { who: "Tom", et: "Tere! Väga meeldiv! Mina olen Tom.", en: "Hello! Nice to meet you! I'm Tom." },
       { who: "Mari", et: "Kust sa pärit oled?", en: "Where are you from?" },
-      { who: "Tom", et: "Ma olen pärit Inglismaalt. Aga ma elan Eestis.", en: "I'm from England. But I live in Estonia." },
+      { who: "Tom", et: "Ma olen pärit Inglismaalt.", en: "I'm from England." },
       { who: "Mari", et: "Sa räägid hästi eesti keelt!", en: "You speak Estonian well!" },
       { who: "Tom", et: "Aitäh! Ma õpin veel.", en: "Thank you! I'm still learning." },
       { who: "Mari", et: "Tule laupäeval meile! Ma teen süüa.", en: "Come over to our place on Saturday! I'm cooking." },

@@ -163,7 +163,7 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
     patterns: ["abessive"],
     cast: { Liis: "liivika", Tom: "kalev" },
     conversation: [
-      { who: "Liis", et: "Tere! Kuidas ma saan aidata?", en: "Hello! How can I help?" },
+      { who: "Liis", et: "Tere! Kuidas saan aidata?", en: "Hello! How can I help?" },
       { who: "Tom", et: "Mul on külmetus. Kas teil on midagi köha vastu?", en: "I have a cold. Do you have anything for a cough?" },
       { who: "Liis", et: "Jah, need tabletid. Võtke üks tablett kolm korda päevas.", en: "Yes, these tablets. Take one tablet three times a day." },
       { who: "Tom", et: "Kas neid saab ilma retseptita?", en: "Can I get them without a prescription?" },
@@ -209,7 +209,7 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
       examples: [1, 2, 3],
     },
     answers: [
-      { ask: { et: "Kuidas ma saan aidata?", en: "How can I help?" }, cue: "Say you have a cold, and ask for something for a cough.", model: { et: "Mul on külmetus. Kas teil on midagi köha vastu?", en: "I have a cold. Do you have anything for a cough?" } },
+      { ask: { et: "Kuidas saan aidata?", en: "How can I help?" }, cue: "Say you have a cold, and ask for something for a cough.", model: { et: "Mul on külmetus. Kas teil on midagi köha vastu?", en: "I have a cold. Do you have anything for a cough?" } },
       { cue: "Ask if you can get them without a prescription.", model: { et: "Kas neid saab ilma retseptita?", en: "Can I get them without a prescription?" } },
       { ask: { et: "Kas kohvi piimaga?", en: "Coffee with milk?" }, cue: "Say no, without milk.", model: { et: "Ei, piimata.", en: "No, without milk." } },
       { ask: { et: "Võtke üks tablett kolm korda päevas.", en: "Take one tablet three times a day." }, cue: "Say thank you, you'll take them.", model: { et: "Aitäh, ma võtan need.", en: "Thank you, I'll take them." } },
@@ -290,7 +290,7 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Mida ma pean tegema?", en: "What do I have to do?" },
       { who: "Peeter", et: "Te peate kolm päeva voodis olema. Jooge palju teed.", en: "You have to stay in bed for three days. Drink lots of tea." },
       { who: "Tom", et: "Kas ma tohin tööle minna?", en: "Am I allowed to go to work?" },
-      { who: "Peeter", et: "Ei, tööle ei tohi minna. Ärge minge tööle.", en: "No, you mustn't go to work. Don't go to work." },
+      { who: "Peeter", et: "Ei, ei tohi. Ärge minge tööle.", en: "No, you mustn't. Don't go to work." },
       { who: "Tom", et: "Kas ma võin sporti teha?", en: "Can I play sports?" },
       { who: "Peeter", et: "Nädala pärast võite.", en: "In a week you can." },
       { who: "Tom", et: "Aitäh, doktor!", en: "Thank you, doctor!" },

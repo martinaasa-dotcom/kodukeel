@@ -93,7 +93,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Kas buss sõidab jaamast kesklinnani?", en: "Does the bus go from the station to the town center?" },
       { who: "Tom", et: "Jah, aga mina lähen jalgsi.", en: "Yes, but I'm going on foot." },
       { who: "Mari", et: "Millal sa tagasi tuled?", en: "When are you coming back?" },
-      { who: "Tom", et: "Laupäeval. Ma olen kontoris kella viieni.", en: "On Saturday. I'm at the office until five." },
+      { who: "Tom", et: "Laupäeval. Reedel olen kontoris kella viieni.", en: "On Saturday. On Friday I'm at the office until five." },
       { who: "Mari", et: "Hästi. Head reisi!", en: "All right. Have a good trip!" },
     ],
     teaches: [
@@ -262,7 +262,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Kui kaugel Pärnu on?", en: "How far is Pärnu?" },
       { who: "Mari", et: "Tallinnast Pärnuni on umbes sada kolmkümmend kilomeetrit.", en: "From Tallinn to Pärnu it's about a hundred and thirty kilometers." },
       { who: "Tom", et: "Kas sinna saab bussiga?", en: "Can you get there by bus?" },
-      { who: "Mari", et: "Jah, buss sõidab iga tund. Sõit kestab kaks tundi.", en: "Yes, the bus goes every hour. The ride takes two hours." },
+      { who: "Mari", et: "Jah, buss käib iga tund. Sõit kestab kaks tundi.", en: "Yes, the bus goes every hour. The ride takes two hours." },
       { who: "Tom", et: "Milline linn Pärnu on?", en: "What kind of town is it?" },
       { who: "Mari", et: "Väike ja ilus. Pärnu on mere ääres.", en: "Small and pretty. Pärnu is by the sea." },
       { who: "Tom", et: "Suvel lähen kindlasti!", en: "I'll definitely go in the summer!" },

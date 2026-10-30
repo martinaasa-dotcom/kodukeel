@@ -95,8 +95,8 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
       { who: "Kati", et: "Ta tahab saada arstiks. Ta õpib ülikoolis.", en: "She wants to become a doctor. She's studying at university." },
       { who: "Mari", et: "Tubli! Ja mida ta sünnipäevaks tahab?", en: "Good for her! And what does she want for her birthday?" },
       { who: "Kati", et: "Uut telefoni. Ma ostan selle homseks.", en: "A new phone. I'm buying it for tomorrow." },
-      { who: "Mari", et: "Homme on ta sünnipäev? Palju õnne!", en: "It's her birthday tomorrow? Congratulations!" },
-      { who: "Kati", et: "Aitäh! Ja ilm läheb ka soojaks.", en: "Thank you! And the weather's getting warm too." },
+      { who: "Mari", et: "Homme on ta sünnipäev? Palju õnne talle!", en: "It's her birthday tomorrow? Happy birthday to her!" },
+      { who: "Kati", et: "Aitäh! Ja homseks läheb ilm ka soojaks.", en: "Thank you! And by tomorrow the weather's getting warm too." },
     ],
     teaches: [
       { kind: "form", et: "saada", of: "saama", en: "to become, to get, after want" },
@@ -253,7 +253,7 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Liis", et: "Tom, mul on üks küsimus.", en: "Tom, I have a question." },
       { who: "Tom", et: "Jah? Mis asi?", en: "Yes? What is it?" },
-      { who: "Liis", et: "Homme on Mari sünnipäev, aga mul ei ole veel ideed.", en: "Tomorrow's Mari's birthday, but I don't have an idea yet." },
+      { who: "Liis", et: "Homme on Mari sünnipäev, aga mul ei ole veel ideed, mida osta.", en: "Tomorrow's Mari's birthday, but I have no idea yet what to buy." },
       { who: "Tom", et: "Mul on üks idee: osta talle raamat!", en: "I have an idea: buy her a book!" },
       { who: "Liis", et: "Hea mõte! Aga mul on üks probleem: mul ei ole palju raha.", en: "Good thinking! But I have a problem: I don't have much money." },
       { who: "Tom", et: "Pole viga. Ma maksan pool.", en: "No problem. I'll pay half." },
@@ -311,7 +311,7 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
     goal: "Open an account, and give your personal code and your card details.",
     cast: { Liis: "liivika", Tom: "kalev" },
     conversation: [
-      { who: "Liis", et: "Tere! Kuidas ma saan aidata?", en: "Hello! How can I help?" },
+      { who: "Liis", et: "Tere! Kuidas saan aidata?", en: "Hello! How can I help?" },
       { who: "Tom", et: "Tere! Ma tahaksin konto avada.", en: "Hello! I'd like to open an account." },
       { who: "Liis", et: "Kas teil on Eesti isikukood?", en: "Do you have an Estonian personal code?" },
       { who: "Tom", et: "Jah, on. Siin on mu ID-kaart.", en: "Yes, I do. Here's my ID card." },
@@ -351,7 +351,7 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
       examples: [1, 2, 5],
     },
     answers: [
-      { ask: { et: "Kuidas ma saan aidata?", en: "How can I help?" }, cue: "Say you'd like to open an account.", model: { et: "Ma tahaksin konto avada.", en: "I'd like to open an account." } },
+      { ask: { et: "Kuidas saan aidata?", en: "How can I help?" }, cue: "Say you'd like to open an account.", model: { et: "Ma tahaksin konto avada.", en: "I'd like to open an account." } },
       { ask: { et: "Kas teil on Eesti isikukood?", en: "Do you have an Estonian personal code?" }, cue: "Say yes, here's your ID card.", model: { et: "Jah, on. Siin on mu ID-kaart.", en: "Yes, I do. Here's my ID card." } },
       { cue: "Ask if you can take out cash too.", model: { et: "Kas ma saan ka sularaha võtta?", en: "Can I take out cash too?" } },
       { cue: "Say you'd like to pay by card.", model: { et: "Ma tahaksin kaardiga maksta.", en: "I'd like to pay by card." } },

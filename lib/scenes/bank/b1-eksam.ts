@@ -24,7 +24,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "b1-eksam", beat: "work", text: "Mis teile oma töö juures meeldib?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-eksam", beat: "work", text: "Ja mis teile töö juures meeldib?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-eksam", beat: "lost", text: "Teine osa. Nüüd töötan mina pangas. Tere! Kuidas ma saan teid aidata?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
-  { scene: "b1-eksam", beat: "lost", text: "Teine osa. Nüüd oleme pangas. Tere! Kuidas ma saan aidata?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
+  { scene: "b1-eksam", beat: "lost", text: "Teine osa. Nüüd oleme pangas. Tere! Kuidas saan aidata?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-eksam", beat: "card", text: "Selge, kaart on nüüd kinni. Kas te soovite uut kaarti?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-eksam", beat: "card", text: "Kaart on kinni. Kas te tahate uut kaarti?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-eksam", beat: "form", text: "Täitke see blankett ära. Uus kaart tuleb nädala pärast.", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },

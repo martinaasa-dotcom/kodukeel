@@ -304,7 +304,7 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Tore. Suvel lähme Saaremaale. Kas sa tuled ka?", en: "Great. In the summer we're going to Saaremaa. Will you come too?" },
       { who: "Tom", et: "Hea meelega! Kas Liis tuleb ka?", en: "I'd love to! Is Liis coming too?" },
       { who: "Mari", et: "Ei. Liis ei saa tulla, ta töötab suvel.", en: "No. Liis can't come, she's working in the summer." },
-      { who: "Tom", et: "Kahju! Ta ei käi kuskil.", en: "What a pity! She never goes anywhere." },
+      { who: "Tom", et: "Kahju! Siis järgmisel suvel.", en: "What a pity! Next summer, then." },
     ],
     teaches: [
       { kind: "form", et: "järgmisel", of: "järgmine", en: "next, as in next summer" },
@@ -363,7 +363,7 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Kõigepealt ärkasin liiga hilja.", en: "First, I woke up too late." },
       { who: "Tom", et: "Siis jooksin bussile, aga buss läks just ära.", en: "Then I ran for the bus, but it had just left." },
       { who: "Mari", et: "Ja siis?", en: "And then?" },
-      { who: "Tom", et: "Pärast seda läksin jalgsi. Jõudsin tööle tund aega hiljem.", en: "After that I walked. I got to work an hour late." },
+      { who: "Tom", et: "Pärast seda läksin jalgsi. Jõudsin tööle tund aega hiljem.", en: "After that I walked. I got to work an hour later." },
       { who: "Mari", et: "Ja lõpuks?", en: "And in the end?" },
       { who: "Tom", et: "Lõpuks oli kõik hästi. Ülemus ei öelnud midagi.", en: "In the end it was all fine. My boss didn't say anything." },
     ],

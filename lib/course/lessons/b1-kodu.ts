@@ -141,7 +141,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
     hearing: "phone",
     conversation: [
       { who: "Tom", et: "Tere, Mari! Siin Tom.", en: "Hi, Mari! It's Tom.", stage: "A week after the move, Tom leaves Mari a voice message." },
-      { who: "Tom", et: "Me kolisime eelmisel nädalal uude korterisse ja kõik on väga hea!", en: "We moved into the new apartment last week, and everything's great!" },
+      { who: "Tom", et: "Me kolisime eelmisel nädalal uude korterisse ja kõik on väga hästi!", en: "We moved into the new apartment last week, and everything's great!" },
       { who: "Tom", et: "Meil on nüüd kolm tuba ja köök. Elutuba on suur ja hele.", en: "We've got three rooms and a kitchen now. The living room is big and bright." },
       { who: "Tom", et: "Mu laud on suures heledas toas, akna juures.", en: "My desk is in the big bright room, by the window." },
       { who: "Tom", et: "Poeg ja tütar magavad väikeses toas, kuna seal on vaikne.", en: "Our son and daughter sleep in the small room, since it's quiet there." },
@@ -366,7 +366,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
     cast: { Tom: "kalev", Urmas: "indrek" },
     hearing: "phone",
     conversation: [
-      { who: "Tom", et: "Tere, Urmas! Siin on jälle Tom.", en: "Hello, Urmas! It's Tom again.", stage: "The new apartment. Tom phones Urmas, the landlord, for the third time this week." },
+      { who: "Tom", et: "Tere, Urmas! Siin jälle Tom.", en: "Hello, Urmas! It's Tom again.", stage: "The new apartment. Tom phones Urmas, the landlord, for the third time this week." },
       { who: "Urmas", et: "Tere, Tom. Mis seal jälle toimub?", en: "Hello, Tom. What's going on there this time?" },
       { who: "Tom", et: "Köögis lekib kraan ja vesi on põrandal.", en: "The kitchen tap is leaking and there's water on the floor." },
       { who: "Urmas", et: "Jälle? Kas te proovisite kraani ise parandada?", en: "Again? Did you try to fix the tap yourself?" },

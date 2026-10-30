@@ -33,7 +33,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "helistamine", beat: "hurdle:not-possible", text: "Täna seda ei ole.", model: "authored", draftedAt: "2026-09-05", about: "have", reviewedAt: "2026-10-15" },
   { scene: "helistamine", beat: "hurdle:small-talk", text: "Kuidas ilm täna on?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "helistamine", beat: "hurdle:small-talk", text: "Täna on ilus ilm, eks?", model: "authored", draftedAt: "2026-09-06", reviewedAt: "2026-10-15" },
-  { scene: "helistamine", beat: "why", text: "Kuidas ma saan aidata?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
+  { scene: "helistamine", beat: "why", text: "Kuidas saan aidata?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "helistamine", beat: "why", text: "Kuidas ma teid aidata saan?", model: "authored", draftedAt: "2026-09-12", reviewedAt: "2026-10-15" },
   { scene: "helistamine", beat: "why", text: "Mida te soovite?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "helistamine", beat: "close", text: "Hästi, siis näeme. Head aega!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },

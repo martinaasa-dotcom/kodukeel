@@ -241,7 +241,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
     cast: { Mari: "mari", Tom: "kalev" },
     conversation: [
       { who: "Mari", et: "Pühapäeval lähme metsa seeni korjama. Kas tuled kaasa?", en: "On Sunday we're going to the forest to pick mushrooms. Are you coming along?" },
-      { who: "Tom", et: "Hea meelega! Kus mets on?", en: "I'd love to! Where's the forest?" },
+      { who: "Tom", et: "Hea meelega! Kus see mets on?", en: "I'd love to! Where's the forest?" },
       { who: "Mari", et: "Linnast väljas, järve ääres.", en: "Outside town, by a lake." },
       { who: "Tom", et: "Kas seal on ka marju?", en: "Are there berries there too?" },
       { who: "Mari", et: "Jah, mustikaid. Võta korv kaasa!", en: "Yes, blueberries. Bring a basket!" },
@@ -282,7 +282,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       examples: [0, 2, 5],
     },
     answers: [
-      { ask: { et: "Kas tuled kaasa?", en: "Are you coming along?" }, cue: "Say you'd love to, and ask where the forest is.", model: { et: "Hea meelega! Kus mets on?", en: "I'd love to! Where's the forest?" } },
+      { ask: { et: "Kas tuled kaasa?", en: "Are you coming along?" }, cue: "Say you'd love to, and ask where the forest is.", model: { et: "Hea meelega! Kus see mets on?", en: "I'd love to! Where's the forest?" } },
       { cue: "Say you're going to the forest to pick mushrooms.", model: { et: "Ma lähen metsa seeni korjama.", en: "I'm going to the forest to pick mushrooms." } },
       { cue: "Ask if there are berries there too.", model: { et: "Kas seal on ka marju?", en: "Are there berries there too?" } },
       { cue: "Say you don't know mushrooms.", model: { et: "Ma ei tunne seeni.", en: "I don't know mushrooms." } },
