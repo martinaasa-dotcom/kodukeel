@@ -277,8 +277,8 @@ export default async function TodayPage() {
   const sceneToday = sceneOfDay(
     summary.dayKey,
     SCENES,
-    reached ? new Set(unitsThrough(reached.programme, reached.day.index)) : programme ? new Set(unitsThrough(programme, -1)) : null,
-    reached ? situationsOfferedThrough(reached.day.lesson ?? null) : firstLesson ? situationsOfferedBefore(firstLesson) : new Set<string>(),
+    reached?.entered ? new Set(unitsThrough(reached.programme, reached.day.index)) : programme ? new Set(unitsThrough(programme, -1)) : null,
+    reached?.entered ? situationsOfferedThrough(reached.day.lesson ?? null) : firstLesson ? situationsOfferedBefore(firstLesson) : new Set<string>(),
   );
   // The cards the learner hid in Settings: not dealt, and the two that cost a
   // read are not even asked for.

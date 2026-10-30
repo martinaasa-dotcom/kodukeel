@@ -450,21 +450,33 @@ const closingOpensAt = (ticks: Ticks, day: CourseDay): Date | undefined => {
  * makes; with none there is no module to be held to and every round behaves
  * exactly as it did.
  *
+ * BUT A TICK IN ANY PART IS A LEARNER FOLLOWING THE MODULE. Read off the part
+ * in play alone, a learner who had just passed a check and moved on to the
+ * next part, and not yet ticked its first lesson, held nothing: every round
+ * and the daily queue let go of the hold until they did, and asked cases and
+ * words nobody had taught. So where the part has no ticks and the learner has
+ * one somewhere, the standing is the part's first evening, not yet entered
+ * (`entered: false`): everything the parts before taught, and nothing of it.
+ *
  * Memoised for the render, like `ticksFor` underneath it, because Today and
  * the round it links to both ask.
  */
 export const moduleReached = cache(async (
   ownerId: string,
-): Promise<{ programme: Programme; day: CourseDay; ticked: ReadonlySet<string> } | null> => {
+): Promise<{ programme: Programme; day: CourseDay; ticked: ReadonlySet<string>; entered: boolean } | null> => {
   const programme = await programmeFor(ownerId);
   if (!programme) return null;
   const ticks = await ticksFor(ownerId, programme);
-  if (ticks.byDay.size === 0) return null;
+  if (ticks.byDay.size === 0) {
+    const first = programme.days[0];
+    const followed = first && await prisma.courseStep.findFirst({ where: { ownerId }, select: { id: true }, orderBy: { id: "asc" } });
+    return first && followed ? { programme, day: first, ticked: new Set<string>(), entered: false } : null;
+  }
   const day = dayReached(programme, new Set(ticks.byDay.keys()));
   // The steps of that evening that carry a row, which is what tells a screen
   // the module did not open whether today's page has been read yet
   // (`scopeSoFar`). Pressed steps and latched derived ones alike.
-  return { programme, day, ticked: ticks.byDay.get(day.id) ?? new Set<string>() };
+  return { programme, day, ticked: ticks.byDay.get(day.id) ?? new Set<string>(), entered: true };
 });
 
 export async function dayIsInPlay(
