@@ -2296,7 +2296,7 @@ export async function completeOnboarding(input: {
   /*
     AND RUN AGAIN IT IS NOT A WAY PAST THE CHECKS. Every export here is a
     public endpoint, and this one can be called after set-up as readily as
-    during it: a learner climbing the A1 lessons who sent it again with a
+    during it: a learner climbing the lessons who sent it again with a
     higher level was moved straight onto that part. Somebody on no part yet
     places freely, which is what first run is for; somebody already on one
     moves only where `setProgramme` would let them.
@@ -3976,7 +3976,7 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
       /*
         THE PART OF THE COURSE COMES BACK ONLY WHERE THE CHECKS WOULD LET THEM
         MOVE THERE. A file is not a way past `moveBlockedFor`: a learner
-        climbing the A1 lessons who restored a backup naming C1.1 was on C1.1.
+        climbing the lessons who restored a backup naming C1.1 was on C1.1.
       */
       /*
         A BACKUP FROM BEFORE B1 BECAME LESSONS is moved back the way a learner

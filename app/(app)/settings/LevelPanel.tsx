@@ -30,7 +30,7 @@ import { NOT_REACHED } from "@/lib/copy/values";
  * chips says it, and the start that goes over the level held first sits under
  * that, for anybody who would rather not move on yet.
  *
- * A REFUSAL IS SAID. Moving up out of the A1 lessons waits on their checks, and
+ * A REFUSAL IS SAID. Moving up through the lessons, A1 to B1, waits on their checks, and
  * the picker used to read any answer as success, so the chip moved and the
  * course did not, with nothing to say why. It puts the chip back and prints
  * the reason.
