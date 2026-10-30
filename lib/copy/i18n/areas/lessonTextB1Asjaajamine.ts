@@ -34,7 +34,7 @@ export const LESSON_TEXT_B1_ASJAAJAMINE: Area = {
     "Every line? There are so many of them!": "Все строки? Их же так много!",
     "Yes, all of them. Write down your personal code and your address too.": "Да, все. Запишите также свой личный код и адрес.",
     "There. I've filled in the form.": "Вот. Я заполнил бланк.",
-    "He writes for a long time.": "Он долго пишет.",
+    "Tom writes for a long time.": "Том долго пишет.",
     "Thank you. Now please sign it.": "Спасибо. Теперь, пожалуйста, подпишите.",
     "Here?": "Здесь?",
     "No, that's my place! Yours is down here.": "Нет, это моё место! Ваше вот здесь, внизу.",
@@ -311,7 +311,7 @@ export const LESSON_TEXT_B1_ASJAAJAMINE: Area = {
     "I sent the form off yesterday.": "Я отправил бланк вчера.",
     "Bring the pen back.": "Верните ручку.",
     "Say it to a friend, with {sina}.": "Скажи это другу, на {sina}.",
-    "It happened and it's finished, so the whole form in the [omastav] (2nd form): {blanketi}.": "Это случилось и закончено, поэтому весь бланк в [omastav] (2-я форма): {blanketi}.",
+    "Tom says what he did, which isn't a command, so the whole form takes the [omastav] (2nd form): {blanketi}. The [nimetav] (1st form), {blankett}, is for a command.": "Том говорит, что он сделал, и это не приказ, поэтому бланк целиком стоит в [omastav] (2-я форма): {blanketi}. [nimetav] (1-я форма), {blankett}, нужен для приказа.",
     "A command keeps the whole thing in the [nimetav] (1st form): {see blankett}.": "В приказе весь предмет стоит в [nimetav] (1-я форма): {see blankett}.",
     "Why is Tom at the bank?": "Почему Том в банке?",
     "He wants to open an account": "Он хочет открыть счёт",
@@ -392,7 +392,7 @@ export const LESSON_TEXT_B1_ASJAAJAMINE: Area = {
 
     // Part 7, recast and ramped (docs/reviews/b1-cast.md)
     "You've met small words after a verb all through B1. Forms are full of them, and there the small word is half the verb: {alla kirjutama} is to sign, {ära täitma} to fill a form in, and {ära saatma} to send it off.": "Маленькие слова после глагола встречаются тебе на всём B1. В бланках их полно, и там маленькое слово составляет половину глагола: {alla kirjutama} значит «подписать», {ära täitma} значит «заполнить бланк», а {ära saatma} значит «отправить».",
-    "He takes out his own pen.": "Он достаёт свою ручку.",
+    "Tom takes out his own pen.": "Том достаёт свою ручку.",
     "He picks up the form, and Tom's pen with it.": "Он берёт бланк, а вместе с ним и ручку Тома.",
     "All right. But please give me my pen back!": "Хорошо. Но верните, пожалуйста, мою ручку!",
     "Say sorry, you signed in the wrong place by accident.": "Извинись: ты случайно подписал не в том месте.",
@@ -707,7 +707,7 @@ export const LESSON_TEXT_B1_ASJAAJAMINE: Area = {
     "Every line? There are so many of them!": "Усі рядки? Їх же так багато!",
     "Yes, all of them. Write down your personal code and your address too.": "Так, усі. Запишіть також свій особистий код і адресу.",
     "There. I've filled in the form.": "Ось. Я заповнив бланк.",
-    "He writes for a long time.": "Він довго пише.",
+    "Tom writes for a long time.": "Том довго пише.",
     "Thank you. Now please sign it.": "Дякую. Тепер, будь ласка, підпишіть.",
     "Here?": "Тут?",
     "No, that's my place! Yours is down here.": "Ні, це моє місце! Ваше ось тут, унизу.",
@@ -984,7 +984,7 @@ export const LESSON_TEXT_B1_ASJAAJAMINE: Area = {
     "I sent the form off yesterday.": "Я надіслав бланк учора.",
     "Bring the pen back.": "Поверніть ручку.",
     "Say it to a friend, with {sina}.": "Скажи це другові, на {sina}.",
-    "It happened and it's finished, so the whole form in the [omastav] (2nd form): {blanketi}.": "Це сталося й закінчено, тому весь бланк у [omastav] (2-га форма): {blanketi}.",
+    "Tom says what he did, which isn't a command, so the whole form takes the [omastav] (2nd form): {blanketi}. The [nimetav] (1st form), {blankett}, is for a command.": "Том каже, що він зробив, і це не наказ, тому бланк цілком стоїть у [omastav] (2-га форма): {blanketi}. [nimetav] (1-ша форма), {blankett}, потрібен для наказу.",
     "A command keeps the whole thing in the [nimetav] (1st form): {see blankett}.": "У наказі вся річ стоїть у [nimetav] (1-ша форма): {see blankett}.",
     "Why is Tom at the bank?": "Чому Том у банку?",
     "He wants to open an account": "Він хоче відкрити рахунок",
@@ -1065,7 +1065,7 @@ export const LESSON_TEXT_B1_ASJAAJAMINE: Area = {
 
     // Part 7, recast and ramped (docs/reviews/b1-cast.md)
     "You've met small words after a verb all through B1. Forms are full of them, and there the small word is half the verb: {alla kirjutama} is to sign, {ära täitma} to fill a form in, and {ära saatma} to send it off.": "Маленькі слова після дієслова трапляються тобі на всьому B1. У бланках їх повно, і там маленьке слово становить половину дієслова: {alla kirjutama} означає «підписати», {ära täitma} означає «заповнити бланк», а {ära saatma} означає «відправити».",
-    "He takes out his own pen.": "Він дістає свою ручку.",
+    "Tom takes out his own pen.": "Том дістає свою ручку.",
     "He picks up the form, and Tom's pen with it.": "Він бере бланк, а разом із ним і ручку Тома.",
     "All right. But please give me my pen back!": "Добре. Але поверніть, будь ласка, мою ручку!",
     "Say sorry, you signed in the wrong place by accident.": "Перепроси: ти випадково підписав не в тому місці.",

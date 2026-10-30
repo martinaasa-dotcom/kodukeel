@@ -749,7 +749,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
     fixes: [
       { line: { et: "Võta oma naine ka kaasa, sest ma tahan temaga juba ammu tutvuda.", en: "Bring your wife along too, because I've wanted to meet her for ages." }, right: "temaga", wrong: "teda", pair: ["COMITATIVE", "PARTITIVE"], why: "{Tutvuma} is with somebody: {temaga}." },
       { line: { et: "Kas sa saaksid mind aruandega aidata?", en: "Could you help me with the report?" }, right: "aruandega", wrong: "aruannet", pair: ["COMITATIVE", "PARTITIVE"], why: "Help with something takes the [kaasaütlev] (-ga, with): {aruandega}." },
-      { line: { et: "Kas ma võiksin oma naise kaasa võtta?", en: "Could I bring my wife along?" }, right: "naise", wrong: "naine", pair: ["GENITIVE", "NOMINATIVE"], why: "You bring the whole person, not some of her: the [omastav] (2nd form), {oma naise}." },
+      { line: { et: "Kas ma võiksin oma naise kaasa võtta?", en: "Could I bring my wife along?" }, right: "naise", wrong: "naine", pair: ["GENITIVE", "NOMINATIVE"], why: "It's a question, not a command, so the whole person takes the [omastav] (2nd form): {oma naise}. The [nimetav] (1st form) is for a command: {Võta oma naine ka kaasa}." },
     ],
     write: {
       genre: "A reply to an invitation, with a favor asked",

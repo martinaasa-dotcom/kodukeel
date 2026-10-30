@@ -172,8 +172,8 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       { who: "Kristi", et: "Kadri tuli meile eelmisel kuul. Ta istub ukse juures.", en: "Kadri joined us last month. She sits by the door." },
       { who: "Kristi", et: "Ja mina? Mina alustasin siin ka praktikandina. Ma tegin rohkem kohvi kui koodi.", en: "And me? I started here as an intern too. I made more coffee than code.", stage: "Everybody laughs." },
       { who: "Kristi", et: "Nüüd olen ma projektijuht.", en: "Now I'm a project manager." },
-      { who: "Kristi", et: "Ja eelmisel nädalal valiti mind ka meie spordiklubi esimeheks. Nüüd helistab mulle terve klubi.", en: "And last week I was elected chair of our sports club too. Now the whole club calls me." },
-      { who: "Kristi", et: "Palju õnne? Ei, pigem jõudu!", en: "Congratulations? No, good luck, more like!", stage: "Somebody at the table says congratulations." },
+      { who: "Kristi", et: "Ja eelmisel nädalal valiti mind ka meie spordiklubi esimeheks. Nüüd helistab mulle terve klubi.", en: "And last week I was elected chair of our sports club too. Now the whole club calls me.", stage: "Somebody at the table says congratulations." },
+      { who: "Kristi", et: "Palju õnne? Ei, pigem jõudu!", en: "Congratulations? No, good luck, more like!" },
       { who: "Kristi", et: "Siim, jõudu ka sulle! Siin on kõik võimalik.", en: "Good luck to you too, Siim! Anything is possible here." },
     ],
     teaches: [
@@ -635,7 +635,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
     fixes: [
       { line: { et: "Siis on sul kaks vaba päeva järjest.", en: "Then you'll have two days off in a row." }, right: "päeva", wrong: "päev", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a number, the [osastav] (3rd form): {kaks vaba päeva}." },
       { line: { et: "Ja ma pean juhilt luba küsima.", en: "And I have to ask the boss for permission." }, right: "juhilt", wrong: "juhile", pair: ["ABLATIVE", "ALLATIVE"], why: "You ask something from somebody, so -lt: {juhilt}." },
-      { line: { et: "Liis, kas sa saaksid laupäeval minu vahetuse võtta?", en: "Liis, could you take my shift on Saturday?" }, right: "vahetuse", wrong: "vahetus", pair: ["GENITIVE", "NOMINATIVE"], why: "She takes the whole shift, so the [omastav] (2nd form): {vahetuse}." },
+      { line: { et: "Liis, kas sa saaksid laupäeval minu vahetuse võtta?", en: "Liis, could you take my shift on Saturday?" }, right: "vahetuse", wrong: "vahetus", pair: ["GENITIVE", "NOMINATIVE"], why: "It's a question, not a command, so the whole shift takes the [omastav] (2nd form): {vahetuse}. The [nimetav] (1st form), {vahetus}, is for a command." },
     ],
     retell: {
       who: "Mari",
@@ -667,8 +667,8 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Anna, mul on küsimus. Kuidas ma kirjutan juhile, et tahan neli päeva nädalas töötada?", en: "Anna, I have a question. How do I write to the boss that I want to work four days a week?" },
       { who: "Anna", et: "Neli päeva? Miks?", en: "Four days? Why?" },
       { who: "Tom", et: "Reedeti on ülikoolis eesti keele kursus.", en: "There's an Estonian course at the university on Fridays." },
-      { who: "Anna", et: "Tore! Kirjuta talle. Näita, mis sul juba on.", en: "Nice! Write to her. Show me what you've got so far." },
-      { who: "Tom", et: "Tere, Kristi! Ma ei taha enam reedeti töötada.", en: "Hello, Kristi! I don't want to work on Fridays any more.", stage: "He reads it out, proud of it." },
+      { who: "Anna", et: "Tore! Kirjuta talle. Näita, mis sul juba on.", en: "Nice! Write to her. Show me what you've got so far.", stage: "He reads it out, proud of it." },
+      { who: "Tom", et: "Tere, Kristi! Ma ei taha enam reedeti töötada.", en: "Hello, Kristi! I don't want to work on Fridays any more." },
       { who: "Anna", et: "Appi! Nii ei saa. Kirjuta pigem: ma sooviksin muuta oma tööaega.", en: "Help! You can't say that. Write this instead: I'd like to change my working hours." },
       { who: "Tom", et: "Ja siis?", en: "And then?" },
       { who: "Anna", et: "Siis selgita, miks. Ja paku lahendus: esmaspäevast neljapäevani töötaksid kümme tundi päevas.", en: "Then explain why. And offer a solution: Monday to Thursday you'd work ten hours a day." },
