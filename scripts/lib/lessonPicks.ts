@@ -17,6 +17,7 @@ import { PROGRAMMES } from "@/lib/course";
 import { courseChecks } from "@/lib/course/checks";
 import { tr } from "@/lib/copy/locale";
 import type { LessonSpec } from "@/lib/course/lessons/types";
+import { frameOf } from "@/lib/course/lessons/frame";
 
 const b1 = LESSONS.filter((l) => l.level === "B1" && !l.extra);
 const pick = (why: string, test: (l: LessonSpec) => boolean): LessonSpec => {
@@ -31,7 +32,9 @@ const pick = (why: string, test: (l: LessonSpec) => boolean): LessonSpec => {
 const first = pick("the first", (l) => l.n === 1);
 const retell = pick("a plain lesson ending in a retold story", (l) => l.n > 1 && !!l.retell && !l.write && !l.roleplay);
 const faster = pick("a plain lesson ending in an answer said faster", (l) => !!l.faster && !l.write && !l.roleplay);
-const write = pick("a writing lesson", (l) => !!l.write);
+// One whose frame has a gap with a marked letter in it, so the walk can drop the mark and reach "nearly".
+const write = pick("a writing lesson with a marked letter in its frame", (l) => !!l.write
+  && frameOf(l.write).some((line) => line.parts.some((p) => p.kind === "gap" && /[õäöüšž]/i.test(p.answer))));
 const capstone = pick("a part's closing conversation", (l) => !!l.roleplay);
 const a2 = LESSONS.find((l) => l.level === "A2" && l.n === 1 && !l.extra)!;
 
@@ -45,7 +48,13 @@ const shape = (l: LessonSpec, role: string) => ({
   line: l.conversation.find((c) => c.et && c.et.split(/\s+/).length >= 3)?.et ?? null,
   retell: l.retell ? l.retell.story.map((s) => s.et).join(" ") : null,
   faster: l.faster ? l.faster.model.et : null,
-  write: l.write ? { model: l.write.model.map((m) => m.et).join(" "), least: l.write.least } : null,
+  write: l.write ? {
+    model: l.write.model.map((m) => m.et).join(" "),
+    least: l.write.least,
+    /** What each gap of the frame takes, in the order the screen draws them, so a walk can fill it right. */
+    frame: frameOf(l.write).flatMap((line) => line.parts.flatMap((p) => (p.kind === "gap" ? [{ n: p.n, answer: p.answer }] : [])))
+      .sort((a, b) => a.n - b.n).map((g) => g.answer),
+  } : null,
   capstone: !!l.roleplay,
   /** Each rework's line and the line it should become, so a walk can answer one right. */
   reworks: (l.reworks ?? []).map((r) => ({ from: r.from.et, to: r.to.et })),

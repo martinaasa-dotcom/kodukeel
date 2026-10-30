@@ -775,9 +775,9 @@ describe("what a day reads and where it goes", () => {
       for (const d of programme.days) {
         const scope = moduleScopeFrom({ module: `${programme.id}~${d.id}~do:review~3~5~0` })!;
         for (const lemma of scope.lemmas) {
-          const shown = scope.formsShown.includes(lemma);
-          for (const slot of ["IndIpfSg1", "IndIpfSg3", "ImpPrPl2"]) {
-            if (!shown) expect(slotWithin(scope, slot, lemma), `${d.id} ${lemma} ${slot}`).toBe(false);
+          // The past is shown by a lesson or a forms step, the polite imperative by a forms step alone.
+          for (const [slot, shownIn] of [["IndIpfSg1", scope.pastsShown], ["IndIpfSg3", scope.pastsShown], ["ImpPrPl2", scope.formsShown]] as const) {
+            if (!shownIn.includes(lemma)) expect(slotWithin(scope, slot, lemma), `${d.id} ${lemma} ${slot}`).toBe(false);
           }
           checked += 1;
         }
@@ -795,7 +795,7 @@ describe("what a day reads and where it goes", () => {
           cardType: "CONJUGATION", targetCase: null, slot: null,
           front: "juhtuma \u2192 lihtminevik, ma", back: "juhtusin", lexeme: { lemma: "juhtuma" },
         };
-        expect(cardWithin(scope, card, null), d.id).toBe(scope.formsShown.includes("juhtuma"));
+        expect(cardWithin(scope, card, null), d.id).toBe(scope.pastsShown.includes("juhtuma"));
       }
     }
 
@@ -807,7 +807,8 @@ describe("what a day reads and where it goes", () => {
     // name, and what they taught by name is what the module counts as shown.
     const a1Pasts = [...new Set(LESSONS.filter((l) => l.level === "A1").flatMap(lessonPasts))];
     expect(a1Pasts).toEqual(expect.arrayContaining(["olema", "tegema", "käima"]));
-    expect([...scope.formsShown].sort()).toEqual(a1Pasts.sort());
+    expect([...scope.pastsShown].sort()).toEqual(a1Pasts.sort());
+    expect(scope.formsShown).toEqual([]);
   });
 
   it("shows every taught verb's past, a handful an evening, after the page about the past", () => {
@@ -842,13 +843,13 @@ describe("what a day reads and where it goes", () => {
       }
     }
     // Every verb with a stored past that the ladder teaches is shown somewhere:
-    // by a lesson that taught its past by name, or by a forms step, never both.
-    // A lesson that teaches a verb's stored past counts, flagged `past` or not
-    // (A1's yesterday lesson teaches `olin` before the past is a pattern).
+    // by a forms step, which shows the past and the polite imperative. A lesson
+    // that taught a verb's past by name has shown the past alone, flagged `past`
+    // or not (A1's yesterday lesson teaches `olin` before the past is a
+    // pattern), so the forms step still shows that verb for its `-ge` form.
     const taughtPasts = new Set(LESSONS.flatMap(lessonPasts));
-    for (const v of shown) expect(taughtPasts.has(v), `${v}: a lesson taught its past, and a forms step shows it again`).toBe(false);
     const taughtVerbs = new Set(DAYS.flatMap(({ day }) => day.words).filter((w) => withPast.has(w)));
-    const missing = [...taughtVerbs].filter((v) => !shown.has(v) && !taughtPasts.has(v));
+    const missing = [...taughtVerbs].filter((v) => !shown.has(v));
     expect(missing).toEqual([]);
     expect(taughtPasts.size).toBeGreaterThan(40);
     // And the module counts what the lessons showed as shown, so B2 and C1 may ask it:
@@ -858,9 +859,19 @@ describe("what a day reads and where it goes", () => {
     for (const [programme, day] of [[lessonEnd, lessonEnd.days.at(-1)!], [last, last.days.at(-1)!]] as const) {
       const scope = scopeFor(programme, day);
       for (const v of taughtPasts) {
-        expect(scope.formsShown.includes(v), `${programme.id} ${v}`).toBe(true);
+        expect(scope.pastsShown.includes(v), `${programme.id} ${v}`).toBe(true);
         expect(slotWithin(scope, "IndIpfSg1", v), `${programme.id} ${v}`).toBe(true);
       }
+    }
+    // A lesson taught the past and nothing else, so the polite imperative of
+    // those verbs (`tehke`, `lugege`) waits for the forms step that shows it:
+    // not askable when the lessons end, and shown by the last evening.
+    const endScope = scopeFor(lessonEnd, lessonEnd.days.at(-1)!);
+    const lastScope = scopeFor(last, last.days.at(-1)!);
+    for (const v of taughtPasts) {
+      expect(slotWithin(endScope, "ImpPrPl", v), `${lessonEnd.id} ${v} polite imperative`).toBe(false);
+      expect(lastScope.formsShown.includes(v), `${v}: no forms step shows its polite imperative`).toBe(true);
+      expect(slotWithin(lastScope, "ImpPrPl", v), `${last.id} ${v} polite imperative`).toBe(true);
     }
   });
 
@@ -1077,12 +1088,14 @@ describe("what a day reads and where it goes", () => {
     // (`lugesin`) is askable from B2's first evening, and one nobody has shown yet waits.
     const b2 = BUILT.find((p) => p.id === "b2.1")!;
     const scope = moduleScopeFrom({ module: `${b2.id}~${b2.days[0]!.id}~do:review~3~5~0` })!;
-    expect(scope.formsShown).toContain("lugema");
+    expect(scope.pastsShown).toContain("lugema");
     expect(cardWithin(scope, { ...past, lexeme: { lemma: "lugema" } }, spellings)).toBe(true);
     expect(cardWithin(scope, present, spellings)).toBe(true);
-    const later = BUILT.filter((p) => p.level === "B2").flatMap((p) => p.days).filter((d) => d !== b2.days[0]).flatMap((d) => d.forms ?? [])[0]!;
+    const byLessons = new Set(LESSONS.flatMap(lessonPasts));
+    const later = BUILT.filter((p) => p.level === "B2").flatMap((p) => p.days).filter((d) => d !== b2.days[0])
+      .flatMap((d) => d.forms ?? []).find((v) => !byLessons.has(v))!;
     expect(later).toBeDefined();
-    expect(scope.formsShown).not.toContain(later);
+    expect(scope.pastsShown).not.toContain(later);
     expect(slotWithin(scope, "IndIpfSg3", later)).toBe(false);
   });
 

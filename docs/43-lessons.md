@@ -554,9 +554,11 @@ voices the app has, form names with their agreed hint) is asked of every level t
 4. **A scene per role-play** in `lib/scenes/specs/b1-*.ts`, registered in `LESSON_SCENES`;
    `lessonScenes.test.ts` plays each as seven kinds of learner at the level's own pitch.
 5. **The old B1 parts go**, their day ids with them, and a learner on one restarts B1 at its first
-   lesson, which is the A1 and A2 precedent. Catalog conversations that opened on a B1 unit move to a
-   free evening of the level after (`EARLIER_SCENES_FOR_UNIT`), and the reference pages B1 explains
-   join `LESSON_PAGES`.
+   lesson, which is the A1 and A2 precedent. Catalog conversations that opened on a B1 unit are
+   offered on the finish of the B1 lesson that rehearses them (`LESSON_SITUATIONS` in
+   `lib/course/lessonSituations.ts`), beside eight of A2's errands; the three A2 errands no lesson
+   rehearses sit on a free evening of B2 (`EARLIER_SCENES_FOR_UNIT` in `lib/course/plan.ts`). The
+   reference pages B1 explains join `LESSON_PAGES`.
 6. **Re-run `npm run check:authored`**, since a written sentence that passed against the old order
    of teaching can fail against the new one, and drop what fails.
 7. **Translate every new line** into `lib/copy/i18n/areas/lessonText.ts` and run

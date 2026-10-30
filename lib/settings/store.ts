@@ -400,6 +400,22 @@ export const SETTING_KEYS = {
    */
   programmeChosenAt: "programmeChosenAt",
   /**
+   * The furthest part a learner has ever been placed on or moved to, by id.
+   *
+   * Raised every time a part is chosen (`choosePart`) and never lowered, so a
+   * learner placed at B1 who steps down to refresh A2 moves back up to B1
+   * without A2's checks in the way (`moveBlockedFor`), whether or not they
+   * ticked anything up there, and whatever a restart of the part deleted.
+   */
+  highestPart: "highestPart",
+  /**
+   * The old part a restore moved a learner back from, where the backup predates
+   * the switch to lessons and its old ticks were dropped (`movedBackFrom`), so
+   * the screen can still say why they are on the level's first lesson. Written
+   * by the restore alone, never taken from the file.
+   */
+  movedBackFrom: "movedBackFrom",
+  /**
    * When the learner last moved part through an offer on the module screen.
    *
    * The reading of how somebody is doing (`lib/course/adapt.ts`) counts only

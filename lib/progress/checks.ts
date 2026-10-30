@@ -3,7 +3,7 @@ import { blockedBy, passedFrom, type CourseCheck } from "@/lib/course/checks";
 import { readSetting, writeSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { movesFreely } from "@/lib/auth/admin";
 import { prisma } from "@/lib/db";
-import { programmeFor } from "@/lib/progress/course";
+import { highestPartFor, programmeFor } from "@/lib/progress/course";
 
 /**
  * The checks between the parts of the lessons, as one learner stands with them: which
@@ -66,6 +66,14 @@ export async function moveBlockedFor(
     below it; a part above any they have worked is still held.
   */
   const at = PROGRAMMES.findIndex((p) => p.id === to.id);
+  /*
+    And a part as far up as the furthest one they were ever placed on or moved
+    to is open, ticked or not (`choosePart` records it). Without that, a learner
+    placed on B1.1 who stepped down before ticking anything, or whose ticks up
+    there a restart had deleted, was asked A2's checks to go back.
+  */
+  const highest = await highestPartFor(ownerId);
+  if (highest && at >= 0 && PROGRAMMES.findIndex((p) => p.id === highest.id) >= at) return null;
   const reachedBefore = at < 0 ? [] : PROGRAMMES.slice(at).filter((p) => lessonParts.includes(p)).map((p) => p.id);
   const beenAbove = await prisma.courseStep.findFirst({
     where: {

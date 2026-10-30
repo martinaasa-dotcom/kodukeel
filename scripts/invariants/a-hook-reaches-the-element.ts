@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 
 import type { InvariantKit } from "../lib/invariantKit";
+import { tagsIn } from "../lib/jsxTags";
 
 /**
  * A `data-*` HOOK HANDED TO A COMPONENT REACHES AN ELEMENT, a bare one included.
@@ -14,6 +15,18 @@ import type { InvariantKit } from "../lib/invariantKit";
  * spread them onto what it draws. Read off the import, so a component renamed
  * on the way in (`PrefetchLink` as `Link`) is the one asked.
  */
+/** A tag's own attributes, with everything inside a brace emptied, so a hook on an element passed in a prop is not read as this tag's. */
+function topLevel(text: string): string {
+  let depth = 0;
+  let out = "";
+  for (const c of text) {
+    if (c === "{") { if (depth === 0) out += c; depth += 1; continue; }
+    if (c === "}") { depth -= 1; if (depth === 0) out += c; continue; }
+    if (depth === 0) out += c;
+  }
+  return out;
+}
+
 export default function aHookReachesTheElement({ check, ALL, code }: InvariantKit) {
   check("a data- hook handed to a component is spread onto an element", () => {
     const files = ALL.filter((f) => /^(app|components)\//.test(f) && f.endsWith(".tsx"));
@@ -21,10 +34,24 @@ export default function aHookReachesTheElement({ check, ALL, code }: InvariantKi
     const offenders: string[] = [];
     for (const f of files) {
       const source = code(f);
-      for (const m of source.matchAll(/<([A-Z][A-Za-z]*)\b[^<>]*?\bdata-[a-z-]+(?=[=\s/>])/g)) {
-        const name = m[1]!;
+      // A tag read whole, so a handler before the hook (`onClick={() => …}`) does not end it early.
+      for (const tag of tagsIn(source)) {
+        if (tag.closing || !/^[A-Z][A-Za-z]*$/.test(tag.name)) continue;
+        if (!/\bdata-[a-z-]+(?=[=\s/>])/.test(topLevel(tag.text))) continue;
+        const name = tag.name;
         // A tag name held in a variable (`as: Tag`) draws the element itself.
         if (new RegExp(`\\bas:\\s*${name}\\b|\\b(?:const|let)\\s+${name}\\b`).test(source)) continue;
+        // A component defined in the same file is read where it is defined.
+        const local = source.search(new RegExp(`\\bfunction ${name}\\b`));
+        if (local >= 0) {
+          const next = source.indexOf("\nfunction ", local + 1);
+          const body = source.slice(local, next < 0 ? undefined : next);
+          seen += 1;
+          if (!/\.\.\.\w+\s*[}:]/.test(body) || !/\{\s*\.\.\.\w+\s*\}/.test(body)) {
+            offenders.push(`${f}: <${name}> is handed a data- hook and its own ${name} spreads nothing onto what it draws`);
+          }
+          continue;
+        }
         const imported = new RegExp(`import\\s+(?:\\{[^}]*?\\b(?:(\\w+)\\s+as\\s+)?${name}\\b[^}]*\\}|${name})\\s+from\\s+"(@/[^"]+|\\.[^"]+)"`).exec(source);
         if (!imported) { offenders.push(`${f}: <${name}> is not imported from a file this check can read`); continue; }
         const original = imported[1] ?? name;
@@ -43,7 +70,8 @@ export default function aHookReachesTheElement({ check, ALL, code }: InvariantKi
         }
       }
     }
-    assert.ok(seen >= 8, `only ${seen} hooks on components found, so the haystack stopped matching`);
+    // 32 hooks on components measured on 2026-10-30, with tags read whole; the floor sits a quarter below.
+    assert.ok(seen >= 24, `only ${seen} hooks on components found, so the haystack stopped matching`);
     assert.deepEqual(offenders, [], offenders.join("\n"));
   });
 }

@@ -75,7 +75,7 @@ import { markSayingsShown } from "@/lib/progress/sayings";
 import { bringBack, keepWord, putAside, setStar, wordReaches } from "@/lib/progress/wordActions";
 import { addScanToDeckFor, saveScanFor } from "@/lib/progress/scans";
 import {
-  forgetSettings, readSetting, SETTING_KEYS, writeSetting, writeSettings, type ReviewMode,
+  forgetSettings, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
 } from "@/lib/settings/store";
 
 
@@ -115,7 +115,7 @@ import {
   programmeById, stepCard, stepText,
 } from "@/lib/course";
 import { localeFor } from "@/lib/progress/locale";
-import { courseReading, dayIsInPlay, openingPart, programmeFor, forgetRehoming, partAfterSwitch } from "@/lib/progress/course";
+import { courseReading, dayIsInPlay, openingPart, programmeFor, forgetRehoming, partAfterSwitch, choosePart, furthestPart, rehomeFrom } from "@/lib/progress/course";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { doneKeyFrom, doneToday, withDone } from "@/lib/ux/workbookDone";
 import { notePlayed } from "@/lib/progress/gamesPlayed";
@@ -2296,17 +2296,14 @@ export async function completeOnboarding(input: {
   /*
     AND RUN AGAIN IT IS NOT A WAY PAST THE CHECKS. Every export here is a
     public endpoint, and this one can be called after set-up as readily as
-    during it: a learner climbing the A1 lessons who sent it again with a
+    during it: a learner climbing the lessons who sent it again with a
     higher level was moved straight onto that part. Somebody on no part yet
     places freely, which is what first run is for; somebody already on one
     moves only where `setProgramme` would let them.
   */
   if (!await moveBlockedFor(ownerId, partFrom(await readSetting(ownerId, SETTING_KEYS.programme)), opening)) {
     // Stamped as chosen, like every other move: a part picked here is not one the lessons' switch sends back (`lib/progress/course.ts`).
-    await writeSettings(ownerId, [
-      [SETTING_KEYS.programme, opening.id],
-      [SETTING_KEYS.programmeChosenAt, new Date().toISOString()],
-    ]);
+    await choosePart(ownerId, opening.id);
   }
 
   /*
@@ -3748,10 +3745,19 @@ const NOT_RESTORED = [
   SETTING_KEYS.milestoneToldFor,
   SETTING_KEYS.shieldToldFor,
   SETTING_KEYS.emailUndeliverable,
+  SETTING_KEYS.movedBackFrom,
 ] as const;
 /** The part a stored programme setting names, or null for "off" and nothing. */
 function partFrom(stored: string | null | undefined) {
   return stored && stored !== "off" ? programmeById(stored) ?? null : null;
+}
+/** A backup's ticks as the switch's rule reads them (`rehomeFrom`). */
+function backupTicks(backup: { courseSteps?: readonly Record<string, unknown>[] | null }) {
+  return (backup.courseSteps ?? []).map((raw) => ({
+    programmeId: String(raw.programmeId ?? ""),
+    dayId: String(raw.dayId ?? ""),
+    createdAt: typeof raw.createdAt === "string" ? raw.createdAt : null,
+  }));
 }
 /** The longest setting a backup may write. The longest real one is a list of ids. */
 const MAX_RESTORED_SETTING = 4000;
@@ -3773,12 +3779,14 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
   */
   let reachableParts: Set<string>;
   try {
-    const namedParts = (backup.settings ?? []).flatMap((row) => row.key === SETTING_KEYS.programme ? [String(row.value ?? "")] : []);
-    const ticked = (backup.courseSteps ?? []).map((row) => ({ programmeId: String(row.programmeId ?? ""), dayId: String(row.dayId ?? "") }));
+    const namedParts = (backup.settings ?? []).flatMap((row) =>
+      row.key === SETTING_KEYS.programme || row.key === SETTING_KEYS.highestPart ? [String(row.value ?? "")] : []);
+    const ticked = backupTicks(backup);
+    const chosenAt = (backup.settings ?? []).find((row) => row.key === SETTING_KEYS.programmeChosenAt)?.value;
     reachableParts = await restorableParts(ownerId, [
       ...namedParts,
       // Where a backup from before the switch is moved back to, asked of the checks like the rest.
-      ...namedParts.flatMap((id) => { const p = programmeById(id); return p ? [partAfterSwitch(p, ticked).id] : []; }),
+      ...namedParts.flatMap((id) => { const p = programmeById(id); return p ? [partAfterSwitch(p, ticked, chosenAt == null ? null : String(chosenAt)).id] : []; }),
       ...ticked.map((t) => t.programmeId),
     ]);
   } catch {
@@ -3968,7 +3976,7 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
       /*
         THE PART OF THE COURSE COMES BACK ONLY WHERE THE CHECKS WOULD LET THEM
         MOVE THERE. A file is not a way past `moveBlockedFor`: a learner
-        climbing the A1 lessons who restored a backup naming C1.1 was on C1.1.
+        climbing the lessons who restored a backup naming C1.1 was on C1.1.
       */
       /*
         A BACKUP FROM BEFORE B1 BECAME LESSONS is moved back the way a learner
@@ -3978,12 +3986,13 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
       const named = settings.get(SETTING_KEYS.programme);
       const namedPart = named ? programmeById(named) : undefined;
       if (namedPart) {
-        const ticks = (backup.courseSteps ?? []).map((raw) => ({ programmeId: String(raw.programmeId ?? ""), dayId: String(raw.dayId ?? "") }));
-        const back = partAfterSwitch(namedPart, ticks);
-        if (back.id !== namedPart.id) {
-          settings.set(SETTING_KEYS.programme, back.id);
+        const read = rehomeFrom(namedPart, backupTicks(backup), settings.get(SETTING_KEYS.programmeChosenAt));
+        if (read.part.id !== namedPart.id) {
+          settings.set(SETTING_KEYS.programme, read.part.id);
           settings.delete(SETTING_KEYS.programmeChosenAt);
         }
+        // Their old ticks are dropped below, so the part they were on is kept to say why (`movedBackFrom`).
+        if (!read.settled) settings.set(SETTING_KEYS.movedBackFrom, namedPart.id);
       }
       const restoredPart = settings.get(SETTING_KEYS.programme);
       if (restoredPart !== undefined) {
@@ -3993,6 +4002,21 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
           settings.delete(SETTING_KEYS.programme);
         }
       }
+      /*
+        THE FURTHEST PART THEY WERE EVER ON comes back as far as the checks would
+        let them go, and never lower than the one held here: it is what lets a
+        learner who stepped down move back up (`moveBlockedFor`), so a file
+        naming C1 is not a way past every check, and a backup from before B1
+        became lessons keeps the old part it named, whose ticks are dropped below.
+      */
+      const held = await tx.setting.findMany({ where: { ownerId, key: SETTING_KEYS.highestPart }, select: { value: true } });
+      const highest = furthestPart([
+        ...held.map((row) => row.value),
+        ...[settings.get(SETTING_KEYS.highestPart), named, settings.get(SETTING_KEYS.programme)]
+          .filter((id): id is string => Boolean(id) && reachableParts.has(id!)),
+      ]);
+      if (highest) settings.set(SETTING_KEYS.highestPart, highest.id);
+      else settings.delete(SETTING_KEYS.highestPart);
       const heldKeys = new Set((await tx.setting.findMany({
         where: { ownerId, key: { in: [...settings.keys()] } }, select: { key: true },
       })).map((row) => row.key));
@@ -4499,10 +4523,7 @@ export async function setProgramme(value: string) {
     ? levelHeldOnHandOff(from.level, to.level, standing?.held ?? null)
     : null;
   await Promise.all([
-    writeSettings(ownerId, [
-      [SETTING_KEYS.programme, wanted || defaultProgramme().id],
-      [SETTING_KEYS.programmeChosenAt, new Date().toISOString()],
-    ]),
+    choosePart(ownerId, wanted || defaultProgramme().id),
     held ? recordCourseLevel(ownerId, held) : Promise.resolve(),
   ]);
   revalidatePath("/course");
@@ -4561,10 +4582,7 @@ export async function acceptCourseMove(kind: string) {
   const levelWrite = move.held === was ? null : (move.held ?? "A0");
 
   await Promise.all([
-    writeSettings(ownerId, [
-      [SETTING_KEYS.programme, move.to.id],
-      [SETTING_KEYS.programmeChosenAt, now.toISOString()],
-    ]),
+    choosePart(ownerId, move.to.id, now),
     writeSetting(ownerId, SETTING_KEYS.adaptMovedAt, now.toISOString()),
     writeSetting(ownerId, SETTING_KEYS.adaptSnoozedUntil, ""),
     levelWrite ? recordCourseLevel(ownerId, levelWrite, now) : Promise.resolve(),

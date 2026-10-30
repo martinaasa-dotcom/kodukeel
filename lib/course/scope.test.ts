@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PROGRAMMES, formsThrough, grammarThrough, taughtThrough } from "./index";
+import { PROGRAMMES, grammarThrough, pastsThrough, taughtThrough } from "./index";
 import {
   byRecency, cardWithin, recentLemmas, reviewable, scopeFor, scopeSoFar, slotWithin, tonightFirst, tonightsCase,
 } from "./scope";
@@ -200,17 +200,23 @@ describe("scopeSoFar", () => {
     const shown = all.filter(({ day }) => (day.forms?.length ?? 0) > 0);
     expect(shown.length).toBeGreaterThan(10);
     let checked = 0;
+    let byLesson = 0;
     for (const { programme, day } of shown) {
       for (const verb of day.forms!) {
-        if (formsThrough(programme, day.index - 1).includes(verb)) continue;
         const read = new Set([MEET_STEP, READ_STEP]);
-        expect(slotWithin(scopeSoFar(programme, day, read, day.words), "IndIpfSg1", verb), day.id).toBe(false);
+        const before = scopeSoFar(programme, day, read, day.words);
+        // The polite imperative waits for this step whoever showed the past.
+        expect(slotWithin(before, "ImpPrPl", verb), `${day.id} ${verb}`).toBe(false);
         const after = scopeSoFar(programme, day, new Set([...read, FORMS_STEP]), day.words);
         expect(after.formsShown, day.id).toContain(verb);
+        if (pastsThrough(programme, day.index - 1).includes(verb)) { byLesson += 1; continue; }
+        expect(slotWithin(before, "IndIpfSg1", verb), day.id).toBe(false);
         checked += 1;
       }
     }
     expect(checked).toBeGreaterThan(20);
+    // A verb a lesson showed the past of still reaches a forms step, for its `-ge` form.
+    expect(byLesson).toBeGreaterThan(20);
   });
 
   it("holds the learner's own words, behind the course's in recency, and never twice", () => {

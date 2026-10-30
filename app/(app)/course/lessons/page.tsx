@@ -89,7 +89,7 @@ export default async function LessonsPage() {
         {moved && (
           <Card data-moved-back={moved.from.id}>
             <p className="text-base" style={{ color: "var(--ink)" }}>
-              {fill(t("{level} is built as lessons now, so you pick it up from {part}. Your cards are kept, and Review asks each one again once the course has taught its word."), { level: moved.from.level, part: moved.to.id.toUpperCase() })}
+              {fill(t("{level} is built as lessons now, so you pick it up again with {part}. Your cards are kept, and Review asks the ones whose words these lessons teach as each lesson reaches them."), { level: moved.from.level, part: t(moved.to.title) })}
             </p>
           </Card>
         )}

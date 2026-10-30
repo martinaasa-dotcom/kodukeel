@@ -279,6 +279,12 @@ export interface DaySpec {
    */
   forms?: readonly string[];
   /**
+   * Verbs whose simple past a lesson taught by name (`lessonPasts`): the past
+   * alone, never the polite imperative, so a forms step still shows those
+   * verbs later for their `-ge` form. A lesson evening draws no forms step.
+   */
+  pasts?: readonly string[];
+  /**
    * The lesson this evening is, where it is one (docs/43-lessons.md): A1 is
    * the lessons now, one evening each, and a lesson evening has one step,
    * the lesson, rather than the ladder, a reading and two rounds.

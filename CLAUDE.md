@@ -6701,7 +6701,9 @@ questions off its own lessons, the last part's thirty off the whole of A1, each 
 (`checkFor`), the server builds the one it marks (`submitCheck`), and a pass is a setting
 (`checksPassed`), since nothing in the log can say a check was passed. Every door up asks
 `moveBlockedFor` (the next part, the level picker, the module's skip ahead), going back is always
-open, somebody placed past A1 is never asked, and a name in `ADMIN_EMAILS` on a hosted deployment
+open, a part as far up as the furthest one a learner was ever placed on or moved to is open too
+(`highestPart`, written by `choosePart`, the one door that moves a learner), so a refresher is never
+a trap, and a name in `ADMIN_EMAILS` on a hosted deployment
 moves freely (`movesFreely`), never a local install, where `isAdmin` is everybody. The retention
 reading at the hand-off still never blocks. Asserted in `scripts/invariants/a1-is-left-by-passing.ts`.
 
@@ -10741,15 +10743,16 @@ or one answer given three times faster (`faster`); and a part's writing evening 
 read by the dictionary first and by Anu behind `verify.ts`, with a sentence written right kept as a
 `WRITTEN` card. `lessonEnglish` collects all of that English, so the translation check covers it.
 Twenty-one lessons offer the catalog conversation they rehearse on their finish
-(`lessonSituations.ts`), which is where the conversations that opened on old B1 evenings went,
+(`lessonSituations.ts`), which is where the conversations that opened on old B1 evenings went, along with eight of A2's
+errands (the other three sit in B2, `EARLIER_SCENES_FOR_UNIT`),
 and the board and Today count one as reached once its lesson is done (`situationsOfferedThrough`).
 **B1 is one family's year and a name is one person** (`docs/reviews/b1-cast.md`): read it before
 writing a line that names anybody. Each part asks more than the one before (its ramp table, whose
 retell, writing, room and fade rows are checked by `ramp.test.ts` and `fade.test.ts`, the rest
 being the authors' rule), a part's closing conversation carries a turn it never rehearsed and no
 retell or race (`levelContractProblems`), and `scripts/test-lessons.mjs` walks the shapes in a
-browser. A past a lesson taught by name is carried as that evening's `forms` (`lessonPasts`), so B2
-shows it again nowhere and the module asks it from B2 on. The conversations B2 and C1 deal declare
+browser. A past a lesson taught by name is carried as that evening's `pasts` (`lessonPasts`), so the module
+asks that past from then on, and the polite imperative waits for the forms step that shows it. The conversations B2 and C1 deal declare
 units the lessons taught only in part, and the words they ask for that no evening has taught are
 named per scene in `course.test.ts` for B2's lessons to take up.
 
