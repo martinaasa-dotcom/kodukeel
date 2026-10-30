@@ -93,13 +93,20 @@ describe("the B1 reworks accept every honest answer they can be held to", () => 
 });
 
 /*
- * An ask that says "he" or "she" about somebody it does not name lets the
- * learner say "ta" for them, as the ask itself did. So where the sentence names
- * the person, the list has to carry a "ta" or "tema" line beside the name.
+ * An ask that says "he" or "she" lets the learner say "ta", as the ask itself
+ * did, whoever the sentence is about: a name off the cast ({Helgi}, {Tom}) or a
+ * role ({Meister}, {Ametnik}). So a list whose lines all name the subject has
+ * to carry a "ta" or "tema" line beside them. Two shapes are not this: an ask
+ * where the learner speaks to that person ("Ask the handyman when he'll fix
+ * it" is answered with {te}), and an ask that puts the noun in the learner's
+ * mouth with "Use {...}". "You can start with" is an offer, not an order, so it
+ * does not excuse the list.
  */
 describe("a B1 ask about he or she", () => {
-  const cast = new Set(B1_LESSONS.flatMap((l) => Object.keys(l.cast ?? {})));
-  const names = (s: string) => s.split(/[^\p{L}]+/u).filter((w) => cast.has(w));
+  const word = (w: string) => new RegExp(`(^|[^\\p{L}])(${w})([^\\p{L}]|$)`, "iu");
+  // Any case of {tema}: in {Teda huvitab muusika} "she" is the one it interests.
+  const TA = word("ta|tema|teda|talle|temale|tal|temal|talt|temalt|temast|temaga|temas|temasse|temani|temana|temata");
+  const ADDRESSED = word("te|teie|sa|sina|sul|teil|teid|sind");
 
   it("accepts ta for the person it calls he or she", () => {
     const missing: string[] = [];
@@ -111,13 +118,14 @@ describe("a B1 ask about he or she", () => {
       ];
       for (const { ask, lines } of rows) {
         if (!/\b(he|she)\b/i.test(ask)) continue;
-        const named = names(lines[0]!).filter((n) => !ask.includes(n));
-        if (named.length === 0) continue;
+        if (lines.every((s) => ADDRESSED.test(s))) continue;
+        const subject = lines[0]!.split(/[^\p{L}]+/u).find((w) => /^\p{Lu}/u.test(w));
+        if (subject && new RegExp(`Use \\{${subject}`, "u").test(ask)) continue;
         seen += 1;
-        if (!lines.some((s) => /(^|[^\p{L}])(ta|tema)([^\p{L}]|$)/iu.test(s))) missing.push(`${lesson.id}: "${ask}" has no ta line for ${named.join(", ")}`);
+        if (!lines.some((s) => TA.test(s))) missing.push(`${lesson.id}: "${ask}" has no ta line`);
       }
     }
-    expect(seen, "asks about he or she over a named person").toBeGreaterThan(1);
+    expect(seen, "asks about he or she").toBeGreaterThan(10);
     expect(missing).toEqual([]);
   });
 });

@@ -21,7 +21,7 @@ import type { InvariantKit } from "../lib/invariantKit";
  */
 // "ma-form" and "the command form" are the same plain names one spelling over:
 // the dictionary's findings on a typed sentence said them for a while.
-const OLD_PLAIN = /(?<!\()\b(?:1st|2nd|3rd) form\b|\b(?:in|to|from|with|until|as|without|becoming) form \(-|\b(?:[Tt]he|its|an?) (?:in|to|from|with|until|as|without|becoming) form\b|(?<![(\w])-(?:ma|da|tud) form\b|short to form|past I form|(?<!\()\bI form\b|\b(?:ma|da|tud|nud)-form\b|\b(?:the|a|polite) command form\b/;
+const OLD_PLAIN = /(?<!\()\b(?:1st|2nd|3rd) form\b|\b(?:in|to|from|with|until|as|without|becoming) form \(-|\b(?:[Tt]he|its|an?) (?:in|to|from|with|until|as|without|becoming) form\b|(?<![(\w])-(?:ma|da|tud|nud) form\b|short to form|past I form|(?<!\()\bI form\b|\b(?:ma|da|tud|nud)-form\b|\b(?:the|a|polite) command form\b/;
 
 export default function aFormIsNamedInEstonianWithAHint({ check, ALL, code }: InvariantKit) {
   check("CaseLabel draws the Estonian name as Estonian and its hint beside it", () => {

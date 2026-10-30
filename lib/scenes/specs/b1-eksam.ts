@@ -8,10 +8,12 @@ import { FAREWELLS, HELLOS } from "./shared";
   A practice exam in the shape of the real one (`docs/16-exam.md`,
   `PLANS.B1.speaking`): first the learner talks about themselves and their
   work; then a decision made together, with the examiner playing the other
-  candidate, who says `sina`; then a phone call from a card, to a swimming
-  course, asking when it starts and what it costs. How the two of you get to
-  the place you choose is the one question the lesson's own conversation
-  never asks, so the learner meets something new, as at the real exam.
+  candidate, who says `sina`, so the four beats of part two carry
+  `register: "sina"` and the gate holds their lines to it; then a phone call
+  from a card, to a swimming course, asking when it starts and what it costs.
+  How the two of you get to the place you choose is the one question the
+  lesson's own conversation never asks, so the learner meets something new,
+  as at the real exam.
 
   Every beat that a lesson rehearsed asks for its own words, so a turn has to
   do what the part asks; only that one new question takes any answer.
@@ -27,7 +29,7 @@ export default inLesson("b1-49-end", {
   place: "A quiet room, an examiner you've never met across the table",
   tests: "liitverbid",
   register: "teie",
-  role: "You're at the B1 speaking exam, in its three parts. In part two the examiner plays the other candidate and says {sina}; in part three you call a swimming course from a card. Answer as yourself, in two or three sentences.",
+  role: "You're at the B1 speaking exam, in its three parts. In part two the examiner plays the other candidate, a colleague, and talks to you informally; in part three you call a swimming course from a card. Answer as yourself, in two or three sentences.",
   props: [
     { kind: "price", slot: "price", min: 40, max: 70, says: "What a month of the course costs.", theirs: true },
   ],
@@ -68,6 +70,7 @@ export default inLesson("b1-49-end", {
     },
     {
       id: "choose",
+      register: "sina",
       meanwhile: "Part two. The examiner plays the other candidate: the two of you decide where your company goes together in the summer.",
       goal: "Suggest a place to go, with a reason.",
       they: "Part two: she plays your colleague, says the two of you have to decide where the company goes in the summer, and asks what you think.",
@@ -80,6 +83,7 @@ export default inLesson("b1-49-end", {
     },
     {
       id: "counter",
+      register: "sina",
       goal: "She doesn't quite agree. Say she's right on the one hand, but keep your own view.",
       they: "She doesn't quite agree, and says it seems too far to her.",
       move: "ask",
@@ -91,6 +95,7 @@ export default inLesson("b1-49-end", {
     },
     {
       id: "getthere",
+      register: "sina",
       goal: "Say how the two of you will travel there.",
       they: "She asks how you'll travel there.",
       move: "ask",
@@ -102,6 +107,7 @@ export default inLesson("b1-49-end", {
     },
     {
       id: "decided",
+      register: "sina",
       goal: "Say it's a deal.",
       they: "She agrees with you, and asks whether it's a deal.",
       move: "ask",

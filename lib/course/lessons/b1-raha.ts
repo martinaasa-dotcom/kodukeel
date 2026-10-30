@@ -52,7 +52,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "projekt", en: "project" },
       { kind: "form", et: "projekti", of: "projekt", en: "of the project", stem: true },
       { kind: "word", et: "tähtaeg", en: "deadline" },
-      { kind: "form", et: "oleksin", of: "olema", en: "I would be; with a -nud form, I would have" },
+      { kind: "form", et: "oleksin", of: "olema", en: "I would be; with the [nud-kesksõna] (-nud, done), I would have" },
       { kind: "form", et: "poleks", of: "olema", en: "wouldn't be, wouldn't have: {ei oleks} in one word" },
       { kind: "form", et: "oleksime", of: "olema", en: "we would be" },
       { kind: "form", et: "oleksite", of: "olema", en: "you would be, to more than one or politely" },

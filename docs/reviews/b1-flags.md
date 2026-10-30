@@ -77,6 +77,20 @@ in `docs/44-language-reviews.md` section 1.
 - New: lesson 47 opens on the city's recorded hold message (`Teie kõne on meile oluline. Palun jääge ootele.`).
 - New: lesson 49's part two, `Ma ei ole päris nõus. Maal on igav. Mina tahaksin minna muuseumi.`
 - ASK NATIVE: lesson 49, `Teine osa. Nüüd olen mina teie kolleeg ja me räägime sina.` Is `me räägime sina` how an examiner says the two candidates now use `sina` with each other? If not, write the line a native speaker would say.
+- ASK NATIVE: the scene `b1-eksam` now holds part two to `sina` (the lesson says the other candidate
+  says it), so its two part-two openings were rewritten into it: `Teine osa. Nüüd olen mina sinu
+  kolleeg. Me peame koos otsustama, kuhu meie firma suvel kõik koos läheb. Mida sina arvad?` and
+  `Teine osa. Nüüd olen ma su kolleeg. Kuhu meie firma suvel koos läheb? Mida sa arvad?` Would an
+  examiner announce the part in `sina` like this, or announce it in teie and only then switch? If the
+  second, the opening needs splitting from the colleague's question.
+- ASK NATIVE: lesson 49, `Kuu aega maksab viiskümmend eurot.` Would a native say it this way, or
+  Üks kuu maksab or Kuu maksab?
+- ASK NATIVE: lesson 45's rework, `Ma ei leidnud rahakotti bussist.` A learner who writes the
+  inessive, rahakotti bussis, is marked wrong. Is `bussis` right here beside `bussist`? If so, it
+  goes on the rework's list.
+- ASK NATIVE: lesson 36's rework, `Kuigi auto on vana, sõidab see hästi.` A learner who writes
+  sõidab ta hästi, with `ta` for the car, is marked wrong. Is `ta` for a thing acceptable here? If
+  so, it goes on the list.
 
 ## Changed after the independent review (2026-10-28)
 
