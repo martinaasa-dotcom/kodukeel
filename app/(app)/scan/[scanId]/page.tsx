@@ -7,6 +7,8 @@ import { deckSnapshot } from "@/lib/progress/summary";
 import { unitProgress } from "@/lib/collections/syllabus";
 import { MAX_ITEMS } from "@/lib/scan/extract";
 import { parseItems, summarise } from "@/lib/scan/items";
+import { wordsToSuggest } from "@/lib/suggestions/shareWord";
+import { SuggestWords } from "@/components/SuggestWords";
 import { Speak } from "@/components/Speak";
 import { ButtonLink } from "@/components/Button";
 import { BackLink, Card, Chip, Empty, Meter, Page, Ring, SectionTitle } from "@/components/ui";
@@ -51,7 +53,7 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
   const summary = summarise(items);
   const ids = items.map((i) => i.lexemeId).filter((id): id is string => id !== null);
 
-  const [snapshot, lexemes, locale] = await Promise.all([
+  const [snapshot, lexemes, locale, ownWords] = await Promise.all([
     deckSnapshot(ownerId),
     ids.length
       ? prisma.lexeme.findMany({
@@ -63,6 +65,8 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
         })
       : Promise.resolve([]),
     localeFor(ownerId),
+    // The words on the page that are still the learner's alone and not yet asked about.
+    wordsToSuggest(ownerId, ids),
   ]);
   const t = (english: string) => tr(locale, english);
 
@@ -129,6 +133,8 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
           </div>
           <ScanActions scanId={scan.id} title={scan.title} pending={progress.available - inDeck} />
         </Card>
+
+        <SuggestWords lexemeIds={ownWords} />
 
         {inDeck > 0 && (
           <section>

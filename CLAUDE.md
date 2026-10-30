@@ -5121,6 +5121,17 @@ reviewer always, by its author while it is unpassed and nobody else holds a card
 is a row and never a spelling, so removing `kogunud` typed in as a headword leaves the `kogunud` Ekilex
 records under `koguma`, which is the past participle and is a real word.
 
+**And a word that came off a photo or out of a paste can be put forward the same way, and a reviewer is told.**
+The scanner and the importer write `USER` rows exactly like the add-a-word form, so both offer to ask for
+them in one press after the words are in (`components/SuggestWords.tsx`, `suggestMyWords`), never by default,
+since a paste is often private vocabulary and a photo can hold a misreading. `wordsToSuggest` is what is
+offered, the learner's own unpassed words with no open request, and `shareOwnWords` files at most
+`MAX_SHARED_AT_ONCE`, passing over any word that is not theirs. A reviewer sees what is waiting without
+opening the queue: `reviewWaiting` in `lib/suggestions/waiting.ts` asks `isAdmin` and then counts open groups,
+words to add apart from everything else, held thirty seconds and cleared when a report is filed or decided,
+and the rail, the phone sheet and Today draw it. `scripts/invariants/the-review-queue-is-told-to-its-reviewers.ts`
+holds the order of those two questions.
+
 **A number shaped for a screen is never a divisor, and a headline is never a second opinion on
 the sentence under it.** The plan at `/assess` and on the last screen of first run is arithmetic
 somebody is going to make a decision on, and it was wrong in two ways that both look like rounding

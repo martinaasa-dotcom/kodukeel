@@ -16,7 +16,8 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { busyMessage, throttleAction, type ActionRefusal } from "@/lib/security/actionLimits";
 import { recordSuggestion } from "@/lib/suggestions/record";
-import { shareOwnWord } from "@/lib/suggestions/shareWord";
+import { shareOwnWord, shareOwnWords, wordsToSuggest } from "@/lib/suggestions/shareWord";
+import { forgetReviewWaiting } from "@/lib/suggestions/waitingCount";
 import { removeWord } from "@/lib/progress/removeWord";
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
 import { visibleLine, visibleProse } from "@/lib/security/visibleText";
@@ -974,6 +975,24 @@ export async function suggestMyWord(lexemeId: unknown) {
 }
 
 /**
+ * The same request for every word a scanned page or a pasted list wrote.
+ *
+ * One press, charged like one edit, because what it costs a reviewer is
+ * already bounded: `shareOwnWords` puts forward at most a page's worth and
+ * passes over any word that is not this learner's own to ask for.
+ */
+export async function suggestMyWords(lexemeIds: unknown) {
+  const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "editDictionary");
+  if (busy) return await sayRefusal(ownerId, busy);
+  const ids = Array.isArray(lexemeIds) ? lexemeIds.map((id) => text(id).slice(0, 64)) : [];
+  const result = await shareOwnWords(ownerId, ids);
+  revalidatePath("/dictionary");
+  revalidatePath("/suggestions");
+  return result;
+}
+
+/**
  * Takes a word somebody typed back out of the dictionary.
  *
  * A reviewer may remove any such word, a learner their own while nobody else
@@ -1203,9 +1222,17 @@ export async function importWords(rows: { lemma: string; translation: string; po
     if (result.ok) cards += result.added ?? 0;
   }
 
+  /*
+    The words in this paste that are still the learner's alone, so the panel
+    can offer to put them forward for everybody. Asked of the rows rather than
+    of `fresh`, because a line can name a word this learner typed last week and
+    never asked about, and one that somebody else typed is not theirs to ask.
+  */
+  const ownWords = await wordsToSuggest(ownerId, [...present.values()]);
+
   revalidatePath("/words");
   revalidatePath("/");
-  return { ok: true as const, created, cards, skipped, truncated, limit: MAX_IMPORT_ROWS };
+  return { ok: true as const, created, cards, skipped, truncated, limit: MAX_IMPORT_ROWS, ownWords };
 }
 
 /**
@@ -5084,6 +5111,8 @@ export async function reviewSuggestion(input: unknown) {
       ...(replaced !== null ? { replaced } : {}),
     },
   });
+  // The badge in the rail and the notice on Today count what is still open.
+  forgetReviewWaiting();
 
   /*
     NOT `/admin/suggestions`. Working through a queue is the one screen where
@@ -5098,6 +5127,8 @@ export async function reviewSuggestion(input: unknown) {
     has since dropped.
   */
   revalidatePath("/suggestions");
+  // The shell draws the count on every page, so the next page reads it fresh.
+  revalidatePath("/", "layout");
   if (applied) {
     revalidatePath("/dictionary");
     revalidatePath("/words");

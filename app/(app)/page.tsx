@@ -63,6 +63,7 @@ import { JokeOfDayCard } from "@/components/JokeOfDay";
 import { GoodNewsSlot } from "@/components/GoodNewsSlot";
 import { jokesForThisVisit } from "@/lib/progress/jokeOfDay";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
+import { reviewWaiting } from "@/lib/suggestions/waiting";
 
 export async function generateMetadata() {
   return titleFor("Today");
@@ -123,7 +124,7 @@ export default async function TodayPage() {
     two are now one query between them (lib/settings/store.ts). What is left is
     the deck, and the level this learner placed at.
   */
-  const [clock, snapshot, settings, placement, locale] = await Promise.all([
+  const [clock, snapshot, settings, placement, locale, waiting] = await Promise.all([
     /*
       The learner's own midnight, not this server's. Every day-shaped figure on
       this page reads it: the streak, the goal ring, the quests and the week
@@ -144,6 +145,11 @@ export default async function TodayPage() {
     */
     courseLevelFor(ownerId),
     localeFor(ownerId),
+    /*
+      What is waiting in the review queue, for a reviewer and nobody else. The
+      shell asked the same in this request, so this is the held answer.
+    */
+    reviewWaiting(),
   ]);
   /*
     THE PAGE'S OWN WORDS IN THE LEARNER'S LANGUAGE. `t` is a fixed line; `say`
@@ -1232,6 +1238,29 @@ export default async function TodayPage() {
             evening. See `Lettered` in components/HeroLetters.tsx. */}
         <Lettered show={!!courseCard}>{doNowCard}</Lettered>
         {reviewStrip}
+        {/*
+          A REVIEWER IS TOLD WHAT IS WAITING, ON THE PAGE THEY OPEN FIRST.
+          Learners who press "Suggest it for everyone" are waiting to hear,
+          and a queue nobody is told about is a queue that grows. Drawn only
+          for a reviewer and only when something is open; the rail carries
+          the same figures on every other page (lib/suggestions/waiting.ts).
+        */}
+        {waiting && waiting.words + waiting.other > 0 && (
+          <Card className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-4" data-review-waiting>
+            <p className="text-base" style={{ color: "var(--ink)" }}>
+              <span className="font-semibold">{t("Waiting for you to review")}</span>
+              <span style={{ color: "var(--ink-2)" }}>
+                {" "}{fill(t("({words} to add to the dictionary, {reports} about other things)"), {
+                  words: countOf(locale, waiting.words, "word"),
+                  reports: countOf(locale, waiting.other, "report"),
+                })}
+              </span>
+            </p>
+            <CardLink href={waiting.words > 0 && waiting.other === 0 ? "/admin/suggestions?category=MISSING_WORD" : "/admin/suggestions"}>
+              {t("Open the review queue")}
+            </CardLink>
+          </Card>
+        )}
         {/*
           THE WHITE CARDS, TWO COLUMNS THAT EACH END WHERE THEY END. The order is
           still read in rows (game and word, calendar and conversation, progress

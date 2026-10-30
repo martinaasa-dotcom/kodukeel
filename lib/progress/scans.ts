@@ -8,6 +8,7 @@ import { visibleLine } from "@/lib/security/visibleText";
 import { availableCardTypes, type LexemeForCards } from "@/lib/srs/cards";
 import { addCardsFor } from "@/lib/srs/deck";
 import { clip } from "@/lib/copy/clip";
+import { wordsToSuggest } from "@/lib/suggestions/shareWord";
 
 /**
  * A PAGE KEPT, AND ITS WORDS PUT IN THE DECK, FOR EITHER DOOR.
@@ -149,12 +150,21 @@ export async function saveScanFor(ownerId: string, raw: unknown) {
     }
   }
 
-  const scan = await prisma.scan.create({
-    data: { ownerId, title, items: serialiseItems(stored) },
-    select: { id: true },
-  });
+  /*
+    Kept, and beside it the words on the page that are still this learner's
+    alone, so the screen can offer to put them forward for everybody
+    (`shareOwnWords`). A word the dictionary vouched for is everybody's already
+    and is not asked about. Neither needs the other, so they are one round trip.
+  */
+  const [scan, ownWords] = await Promise.all([
+    prisma.scan.create({
+      data: { ownerId, title, items: serialiseItems(stored) },
+      select: { id: true },
+    }),
+    wordsToSuggest(ownerId, [...byKey.values()].map((row) => row.id)),
+  ]);
 
-  return { ok: true as const, id: scan.id, words: stored.length, cards, created };
+  return { ok: true as const, id: scan.id, words: stored.length, cards, created, ownWords };
 }
 
 /** Adds every word on a saved page that is not in the deck yet. */
