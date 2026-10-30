@@ -12,7 +12,7 @@ export const tehnilineTugi: ScenePicks = {
   ],
   device: [
     { et: "{device}.", en: "The {device}." },
-    { et: "Praegu {device:COMITATIVE}.", en: "With the {device}, right now." },
+    { et: "Mul on {device}.", en: "I've got a {device}." },
   ],
   screen: [
     { et: "Ekraanil on viga.", en: "There's an error on the screen." },

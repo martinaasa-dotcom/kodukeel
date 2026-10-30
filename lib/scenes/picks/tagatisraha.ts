@@ -8,7 +8,7 @@ export const tagatisraha: ScenePicks = {
   ],
   why: [
     { et: "Ma tahan oma raha tagasi.", en: "I want my money back." },
-    { et: "Minu raha ei ole veel tagasi tulnud.", en: "My money hasn't come back yet." },
+    { et: "Ma pole oma raha veel tagasi saanud.", en: "I haven't got my money back yet." },
   ],
   moved: [
     { et: "{moved:INESSIVE}.", en: "In {moved}." },
@@ -18,7 +18,7 @@ export const tagatisraha: ScenePicks = {
   clean: [
     { et: "Ei, korter oli puhas.", en: "No, the flat was clean." },
     { et: "Ma koristasin korteri ise.", en: "I cleaned the flat myself." },
-    { et: "See ei ole õige, ma koristasin kõik.", en: "That's not right, I cleaned everything." },
+    { et: "See pole õige, ma koristasin ju kõik ära.", en: "That's not right, I cleaned everything up." },
   ],
   offer: [
     { et: "Jah, see sobib.", en: "Yes, that works." },

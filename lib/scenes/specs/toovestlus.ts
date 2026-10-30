@@ -15,7 +15,9 @@ const INTERVIEW: SceneSpec = {
   */
   units: [...COMMON, "too-ja-raha", "haridus", "kool-ja-keel", "kus-ja-kuhu", "ostmine", "kodu", "minevik", "plaanid", "omadussonad", "inimesed",
     /* `tugev` for what you are strong at, `pakkuma` for what they offer, `meeldima` for why you want it. */
-    "vordlemine", "tingiv", "rektsioon"],
+    "vordlemine", "tingiv", "rektsioon",
+    /* `vene` and `prantsuse` for a language you speak well. */
+    "riigid"],
   register: "teie",
   role: "You're being interviewed for a job. Your card says where you worked before, what you're good at and when you could start. None of it is about your real life.",
   props: [
@@ -25,13 +27,17 @@ const INTERVIEW: SceneSpec = {
     },
     {
       /*
+        A computer you work with, or a language you speak, which are the two
+        things a candidate at this level actually says they are good at.
         Not `inimene`: what a person is good at is people, plural, and every
-        line a card can build says it in the singular (`inimesega`), which
-        nobody says. These three read in the singular.
+        line a card can build says it in the singular. And not `keel` or
+        `projekt`, which the card dealt for a while: `Ma oskan hästi keelega
+        töötada` and `Ma tunnen projekti väga hästi` were the lines that
+        built, and nobody says either. A language is spoken and a computer is
+        worked with, so the picks are written per value (`PickSpec.when`).
       */
-      kind: "word", slot: "skill", oneOf: ["keel", "arvuti", "projekt"],
+      kind: "word", slot: "skill", oneOf: ["arvuti", "vene", "prantsuse"],
       says: "What you're good at.",
-      means: { keel: "language" },
     },
     {
       kind: "weekday", slot: "start",

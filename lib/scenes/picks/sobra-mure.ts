@@ -18,7 +18,7 @@ export const sobraMure: ScenePicks = {
   help: [
     { et: "Ma aitan sind.", en: "I'll help you." },
     { et: "Ma saan sind aidata.", en: "I can help you." },
-    { et: "Ma olen sinuga, me saame koos hakkama.", en: "I'm with you, we'll manage together." },
+    { et: "Ära muretse, koos saame hakkama.", en: "Stop worrying, we'll manage together." },
   ],
   meet: [
     { et: "Jah, kindlasti.", en: "Yes, of course." },

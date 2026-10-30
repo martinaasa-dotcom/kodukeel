@@ -28,7 +28,7 @@ export const b1Palgatous: ScenePicks = {
   ],
   offer: [
     { et: "Kas me võiksime aasta lõpus uuesti rääkida?", en: "Could we talk again at the end of the year?" },
-    { et: "See sobib mulle.", en: "That works for me." },
+    { et: "Mulle sobib.", en: "That works for me." },
   ],
   plan: [
     { et: "Ma tahaksin saada meeskonna juhiks.", en: "I'd like to become the team lead." },

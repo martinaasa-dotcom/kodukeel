@@ -36,13 +36,14 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Mari", et: "Tom, mis päev täna on?", en: "Tom, what day is it today?" },
       { who: "Tom", et: "Täna on esmaspäev.", en: "Today's Monday." },
-      { who: "Mari", et: "Ei ole! Täna on teisipäev.", en: "No, it isn't! Today's Tuesday." },
-      { who: "Tom", et: "Vabandust! Jah, eile oli esmaspäev.", en: "Sorry! Yes, yesterday was Monday." },
+      { who: "Mari", et: "Ei ole ju! Täna on teisipäev.", en: "No it isn't! Today's Tuesday." },
+      { who: "Tom", et: "Ah jaa! Eile oli esmaspäev.", en: "Oh, right! Yesterday was Monday." },
       { who: "Mari", et: "Ja homme on kolmapäev.", en: "And tomorrow's Wednesday." },
     ],
     teaches: [
       { kind: "phrase", et: "Mis päev täna on?", en: "What day is it today?" },
       { kind: "word", et: "päev", en: "day" },
+      { kind: "phrase", et: "Ah jaa!", en: "Oh, right!" },
       { kind: "word", et: "nädal", en: "week" },
       { kind: "word", et: "esmaspäev", en: "Monday" },
       { kind: "word", et: "teisipäev", en: "Tuesday" },
@@ -55,6 +56,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "homme", en: "tomorrow" },
       { kind: "word", et: "eile", en: "yesterday" },
       { kind: "form", et: "oli", of: "olema", en: "was" },
+      { kind: "word", et: "ju", en: "after all, you know (for something plain to see)" },
     ],
     how: {
       point: "The days are written in small letters, and six of the seven end in {päev}, day.",
@@ -71,7 +73,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "The first four count the week from the start, first to fourth, and you can see {kolm} and {neli} in the start of two of them.",
+        "The first four count the week from the start, first to fourth: {kolmapäev} starts with {kolm}, three, and {neljapäev} with a form of {neli}, four.",
         "{Täna} is today, {homme} tomorrow and {eile} yesterday. With them you can say {Täna on reede}.",
         "{Oli} is was: {Eile oli esmaspäev}. Take it whole for now; the past has lessons of its own.",
       ],
@@ -101,7 +103,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Mis kell on?", en: "What time is it?", stage: "An hour and a half later, he asks again." },
       { who: "Mari", et: "Pool viis.", en: "Half past four." },
       { who: "Tom", et: "Pool viis?", en: "Half past four?" },
-      { who: "Mari", et: "Jah. Kell on neli kolmkümmend.", en: "Yes. It's four thirty." },
+      { who: "Mari", et: "Jah, neli kolmkümmend.", en: "Yes, four thirty." },
     ],
     teaches: [
       { kind: "phrase", et: "Mis kell on?", en: "What time is it?" },
@@ -145,7 +147,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
     cast: { Liis: "liivika", Tom: "kalev" },
     conversation: [
       { who: "Liis", et: "Tom, mis kell sa hommikul ärkad?", en: "Tom, what time do you get up in the morning?" },
-      { who: "Tom", et: "Ma ärkan kell seitse. Ja sina?", en: "I get up at seven. And you?" },
+      { who: "Tom", et: "Kell seitse. Ja sina?", en: "At seven. And you?" },
       { who: "Liis", et: "Kell kuus! Ma töötan hommikul.", en: "At six! I work in the mornings." },
       { who: "Tom", et: "Mina töötan õhtul.", en: "I work in the evenings." },
       { who: "Liis", et: "Ja mis kell sa magama lähed?", en: "And what time do you go to bed?" },
@@ -186,7 +188,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
         "The no works on every one of them, as in lesson 12: {Laupäeval ma ei tööta}.",
       ],
       watchOut: "At seven is {kell seitse}. There's no word for at: {kell} does that job.",
-      examples: [0, 1, 5],
+      examples: [0, 3, 5],
     },
     answers: [
       { ask: { et: "Mis kell sa hommikul ärkad?", en: "What time do you get up in the morning?" }, cue: "Say when you get up.", model: { et: "Ma ärkan kell seitse.", en: "I get up at seven." } },
@@ -207,10 +209,10 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Mari", et: "Tere, Tom! Mida sa teed?", en: "Hi, Tom! What are you doing?", stage: "On the phone." },
       { who: "Tom", et: "Praegu ma loen raamatut. Ja sina?", en: "Right now I'm reading a book. And you?" },
-      { who: "Mari", et: "Ma kuulan muusikat. Jaan vaatab telerit.", en: "I'm listening to music. Jaan's watching TV." },
+      { who: "Mari", et: "Kuulan muusikat. Jaan vaatab telekat.", en: "I'm listening to music. Jaan's watching TV." },
       { who: "Tom", et: "Ja Liis?", en: "And Liis?" },
-      { who: "Mari", et: "Liis õpib. Mida sa teed õhtul?", en: "Liis is studying. What are you doing this evening?" },
-      { who: "Tom", et: "Ma ei tea. Ma loen!", en: "I don't know. Reading!" },
+      { who: "Mari", et: "Liis õpib. Mis sa õhtul teed?", en: "Liis is studying. What are you doing this evening?" },
+      { who: "Tom", et: "Õhtul? Noh, ma ei tea veel.", en: "This evening? Well, I don't know yet." },
     ],
     teaches: [
       { kind: "phrase", et: "Mida sa teed?", en: "What are you doing?" },
@@ -220,23 +222,24 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
       { kind: "verb", et: "vaatama", first: "vaatan", en: "to watch, to look at", firstEn: "I watch" },
       { kind: "phrase", et: "raamatut", en: "a book (as in “I read a book”)" },
       { kind: "phrase", et: "muusikat", en: "music, after listen" },
-      { kind: "phrase", et: "telerit", en: "TV, after watch" },
+      { kind: "phrase", et: "telekat", en: "TV, after watch" },
       { kind: "word", et: "praegu", en: "now, right now" },
       { kind: "phrase", et: "Ma ei tea.", en: "I don't know." },
+      { kind: "word", et: "noh", en: "well..." },
     ],
     how: {
-      point: "What you read, hear or watch takes an ending of its own: {loen raamatut}, {kuulan muusikat}, {vaatan telerit}.",
+      point: "What you read, hear or watch takes an ending of its own: {loen raamatut}, {kuulan muusikat}, {vaatan telekat}.",
       table: {
         head: ["Verb", "I", "What"],
         rows: [
           [{ et: "lugema" }, { et: "loen" }, { et: "raamatut" }],
           [{ et: "kuulama" }, { et: "kuulan" }, { et: "muusikat" }],
-          [{ et: "vaatama" }, { et: "vaatan" }, { et: "telerit" }],
+          [{ et: "vaatama" }, { et: "vaatan" }, { et: "telekat" }],
         ],
       },
       notes: [
-        "Learn {raamatut}, {muusikat} and {telerit} whole for now. The ending is the same one as in {eesti keelt} and {kaks aastat}, and lesson 25 explains it.",
-        "{Mida sa teed?} is the everyday question. Its first word means what, with the ending a verb like {tegema} puts on it, and lesson 25 explains that too.",
+        "Learn {raamatut}, {muusikat} and {telekat} whole for now. The ending is the same one as in {eesti keelt} and {kaks aastat}, and lesson 25 explains it.",
+        "{Mida sa teed?} is the everyday question, and {Mis sa teed?} is just as common. In the first, what carries the ending a verb like {tegema} puts on it, and lesson 25 explains that too.",
         "{Tegema} is do and make, and its pair is {tegema, teen}. The persons follow from {teen}: {teed}, {teeb}.",
       ],
       watchOut: "{Ma loen} is both I read and I'm reading. Estonian has one present for both.",
@@ -245,7 +248,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
     answers: [
       { ask: { et: "Mida sa teed?", en: "What are you doing?" }, cue: "Say that right now you're reading a book.", model: { et: "Praegu ma loen raamatut.", en: "Right now I'm reading a book." } },
       { cue: "Ask a friend what they're doing.", model: { et: "Mida sa teed?", en: "What are you doing?" } },
-      { ask: { et: "Mida sa teed õhtul?", en: "What are you doing this evening?" }, cue: "Say you don't know.", model: { et: "Ma ei tea.", en: "I don't know." } },
+      { ask: { et: "Mis sa õhtul teed?", en: "What are you doing this evening?" }, cue: "Say you don't know.", model: { et: "Ma ei tea.", en: "I don't know." } },
     ],
   },
   {
@@ -261,12 +264,12 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Mari", et: "Millal sa ärkad?", en: "When do you wake up?" },
       { who: "Tom", et: "Tavaliselt kell seitse.", en: "Usually at seven." },
-      { who: "Mari", et: "Ja õhtul? Mida sa teed?", en: "And in the evening? What do you do?" },
-      { who: "Tom", et: "Mõnikord ma loen, mõnikord vaatan telerit.", en: "Sometimes I read, sometimes I watch TV." },
+      { who: "Mari", et: "Ja õhtul? Mis sa teed?", en: "And in the evening? What do you do?" },
+      { who: "Tom", et: "Mõnikord ma loen, mõnikord vaatan telekat.", en: "Sometimes I read, sometimes I watch TV." },
       { who: "Mari", et: "Millal sa magama lähed?", en: "When do you go to bed?" },
       { who: "Tom", et: "Tihti kell üksteist. Aga laupäeval kell kaks!", en: "Often at eleven. But on Saturday at two!" },
-      { who: "Mari", et: "Kell kaks? Mida sa teed öösel?", en: "At two? What do you do at night?" },
-      { who: "Tom", et: "Ma vaatan alati telerit!", en: "I always watch TV!" },
+      { who: "Mari", et: "Kell kaks? Mis sa öösel teed?", en: "At two? What do you do at night?" },
+      { who: "Tom", et: "Ma vaatan alati telekat!", en: "I always watch TV!" },
     ],
     teaches: [
       { kind: "word", et: "millal", en: "when" },
@@ -291,7 +294,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "The how-often word can lead the sentence, {Mõnikord ma loen}, or follow the verb, {Ma vaatan alati telerit}. Both are fine.",
+        "The how-often word can lead the sentence, {Mõnikord ma loen}, or follow the verb, {Ma vaatan alati telekat}. Both are fine.",
         "{Öösel} is at night, like {hommikul} and {õhtul} from lesson 20.",
       ],
       listen: [
@@ -317,11 +320,11 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
     cast: { Tom: "kalev", Mari: "mari" },
     conversation: [
       { who: "Tom", et: "Mari, ma tahan süüa!", en: "Mari, I want to eat!" },
-      { who: "Mari", et: "Mina tahan ka. Aga ma pean täna õppima.", en: "So do I. But I have to study today." },
-      { who: "Tom", et: "Kas sa saad homme tulla?", en: "Can you come tomorrow?" },
+      { who: "Mari", et: "Mina ka. Aga ma pean täna kahjuks õppima.", en: "Me too. But unfortunately I have to study today." },
+      { who: "Tom", et: "Äkki saad homme tulla?", en: "Maybe you can come tomorrow?" },
       { who: "Mari", et: "Jah, homme saan.", en: "Yes, tomorrow I can." },
       { who: "Tom", et: "Kas sa oskad süüa teha?", en: "Can you cook?" },
-      { who: "Mari", et: "Natuke. Aga Jaan oskab väga hästi!", en: "A little. But Jaan's very good at it!" },
+      { who: "Mari", et: "Natuke. Aga Jaan oskab küll väga hästi!", en: "A little. But Jaan's really good at it!" },
     ],
     teaches: [
       { kind: "verb", et: "tahtma", first: "tahan", en: "to want", firstEn: "I want" },
@@ -337,6 +340,9 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "lugeda", of: "lugema", en: "to read, after want or can" },
       { kind: "form", et: "rääkida", of: "rääkima", en: "to speak, after want or can" },
       { kind: "phrase", et: "süüa teha", en: "to cook" },
+      { kind: "word", et: "kahjuks", en: "unfortunately, sadly" },
+      { kind: "word", et: "äkki", en: "maybe; suddenly" },
+      { kind: "word", et: "küll", en: "indeed, really; it makes a yes warmer" },
     ],
     how: {
       point: "After {tahan}, {saan} and {oskan}, the next verb takes its [da-tegevusnimi] (-da): {Ma tahan süüa}.",
@@ -377,14 +383,14 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
     goal: "Make a plan with a friend: what you're doing, whether you can, and what time.",
     cast: { Liis: "liivika", Tom: "kalev" },
     conversation: [
-      { who: "Liis", et: "Tere, Tom! Mida sa teed laupäeval?", en: "Hi, Tom! What are you doing on Saturday?", stage: "On the phone." },
-      { who: "Tom", et: "Ma ei tea. Ma ei tööta.", en: "I don't know. I'm not working." },
-      { who: "Liis", et: "Kas sa tahad tulla? Mina teen süüa.", en: "Do you want to come over? I'm cooking." },
+      { who: "Liis", et: "Tere, Tom! Mis sa laupäeval teed?", en: "Hi, Tom! What are you doing on Saturday?", stage: "On the phone." },
+      { who: "Tom", et: "Ma ei tea veel.", en: "I don't know yet." },
+      { who: "Liis", et: "Tahad tulla? Ma teen süüa.", en: "Do you want to come over? I'm cooking." },
       { who: "Tom", et: "Jah! Mis kell?", en: "Yes! What time?" },
       { who: "Liis", et: "Kell kuus. Kas sa saad?", en: "At six. Can you?" },
-      { who: "Tom", et: "Kell kuus ma ei saa. Kell seitse?", en: "I can't at six. Seven?" },
-      { who: "Liis", et: "Hästi, kell seitse. Head aega!", en: "Fine, seven. Bye!" },
-      { who: "Tom", et: "Nägemist! Laupäeval!", en: "See you! On Saturday!" },
+      { who: "Tom", et: "Kell kuus ma kahjuks ei saa. Kell seitse?", en: "Unfortunately I can't at six. Seven?" },
+      { who: "Liis", et: "Väga hästi, kell seitse!", en: "Great, seven it is!" },
+      { who: "Tom", et: "Tsau!", en: "Bye!" },
     ],
     teaches: [],
     how: {
@@ -398,15 +404,15 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
       examples: [2, 5],
     },
     answers: [
-      { ask: { et: "Mida sa teed laupäeval?", en: "What are you doing on Saturday?" }, cue: "Say you don't know.", model: { et: "Ma ei tea.", en: "I don't know." } },
+      { ask: { et: "Mis sa laupäeval teed?", en: "What are you doing on Saturday?" }, cue: "Say you don't know.", model: { et: "Ma ei tea.", en: "I don't know." } },
       { ask: { et: "Kas sa saad homme tulla?", en: "Can you come tomorrow?" }, cue: "Say yes, and ask what time.", model: { et: "Jah! Mis kell?", en: "Yes! What time?" } },
       { ask: { et: "Kell kuus?", en: "At six?" }, cue: "Say you can't at six, and offer seven.", model: { et: "Kell kuus ma ei saa. Kell seitse?", en: "I can't at six. Seven?" } },
     ],
     roleplay: {
       scene: "Your friend Liis calls to invite you over this weekend. Make a plan with her.",
       turns: [
-        { ask: { et: "Tere! Mida sa teed laupäeval?", en: "Hi! What are you doing on Saturday?" }, cue: "Say you're not working.", model: { et: "Ma ei tööta.", en: "I'm not working." } },
-        { ask: { et: "Kas sa tahad tulla? Mina teen süüa.", en: "Do you want to come over? I'm cooking." }, cue: "Say yes, and ask what time.", model: { et: "Jah! Mis kell?", en: "Yes! What time?" } },
+        { ask: { et: "Tere! Mis sa laupäeval teed?", en: "Hi! What are you doing on Saturday?" }, cue: "Say you don't know yet.", model: { et: "Ma ei tea veel.", en: "I don't know yet." } },
+        { ask: { et: "Tahad tulla? Ma teen süüa.", en: "Do you want to come over? I'm cooking." }, cue: "Say yes, and ask what time.", model: { et: "Jah! Mis kell?", en: "Yes! What time?" } },
         { ask: { et: "Kell kuus. Kas sa saad?", en: "At six. Can you?" }, cue: "Say you can't at six, and offer seven.", model: { et: "Kell kuus ma ei saa. Kell seitse?", en: "I can't at six. Seven?" } },
         { ask: { et: "Hästi, kell seitse!", en: "Fine, seven!" }, cue: "Say thank you and goodbye.", model: { et: "Aitäh! Head aega!", en: "Thanks! Bye!" } },
       ],

@@ -4,7 +4,7 @@ import type { ScenePicks } from "../picks";
 export const eksamB2: ScenePicks = {
   greet: [
     { et: "Tere!", en: "Hello!" },
-    { et: "Tere, tere!", en: "Hello, hello!" },
+    { et: "Tere päevast!", en: "Good afternoon!" },
   ],
   work: [
     { et: "Ma töötan ühes firmas.", en: "I work at a company." },
@@ -27,14 +27,14 @@ export const eksamB2: ScenePicks = {
     { et: "Sest tööd on sama palju, aga aega on vähem.", en: "Because there's the same amount of work, but less time." },
   ],
   counter: [
-    { et: "See on õige, aga ma arvan ikka nii.", en: "That's true, but I still think so." },
-    { et: "Kuigi see ei ole lihtne, arvan ma ikka sama.", en: "Even though it isn't simple, I still think the same." },
+    { et: "Osaliselt olen nõus, aga mitte kõiges.", en: "I partly agree, but not with everything." },
+    { et: "See pole lihtne, aga ma arvan ikka sama.", en: "It isn't simple, but I still think the same." },
     { et: "Ma saan aru, aga minu põhjus on ikka sama.", en: "I understand, but my reason is still the same." },
   ],
   decide: [
     { et: "Jah, võiks proovida.", en: "Yes, it's worth a try." },
     { et: "Kokkuvõttes on see hea, aga mitte igale firmale.", en: "All in all it's good, but not for every company." },
-    { et: "Seega teeme kompromissi ja proovime seda.", en: "So let's compromise and give it a try." },
+    { et: "Teeme siis kompromissi ja proovime.", en: "So let's meet halfway and give it a try." },
   ],
   close: [
     { et: "Aitäh, head aega!", en: "Thank you, goodbye!" },

@@ -29,7 +29,7 @@ export const kaebus: ScenePicks = {
   insist: [
     { et: "Mida te siis saate teha?", en: "Then what can you do?" },
     { et: "Kas on mõni teine lahendus?", en: "Is there another solution?" },
-    { et: "Siis ma tahaksin esitada kaebuse.", en: "Then I'd like to make a complaint." },
+    { et: "Siis ma tahaksin kaebuse kirjutada.", en: "Then I'd like to write a complaint." },
   ],
   close: [
     { et: "Aitäh, head aega!", en: "Thank you, goodbye!" },

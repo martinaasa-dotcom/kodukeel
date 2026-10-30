@@ -44,7 +44,7 @@ export const curveballPicks: Readonly<Record<string, readonly PickSpec[]>> = {
   ],
   "wrong-price": [
     { et: "Kui palju see nüüd maksab?", en: "How much is it now?" },
-    { et: "Jah, see on hea.", en: "Yes, that's fine." },
+    { et: "Hästi, selge.", en: "All right, got it." },
   ],
   contradiction: [
     { et: "Ei, see ei ole õige.", en: "No, that's not right." },

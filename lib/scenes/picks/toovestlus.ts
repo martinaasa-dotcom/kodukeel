@@ -12,8 +12,10 @@ export const toovestlus: ScenePicks = {
     { et: "Varem töötasin {before:INESSIVE}.", en: "Before this I worked at a {before}." },
   ],
   skill: [
-    { et: "Ma oskan hästi {skill:COMITATIVE} töötada.", en: "I'm good at working with {skill}." },
-    { et: "Ma tunnen {skill:PARTITIVE} väga hästi.", en: "I know {skill} very well." },
+    { et: "Ma oskan hästi {skill:COMITATIVE} töötada.", en: "I'm good at working with a {skill}.", when: { slot: "skill", oneOf: ["arvuti"] } },
+    { et: "Ma töötan iga päev arvutiga.", en: "I work with a computer every day.", when: { slot: "skill", oneOf: ["arvuti"] } },
+    { et: "Ma räägin hästi {skill} keelt.", en: "I speak good {skill}.", when: { slot: "skill", oneOf: ["vene", "prantsuse"] } },
+    { et: "Ma oskan väga hästi {skill} keelt.", en: "I know {skill} very well.", when: { slot: "skill", oneOf: ["vene", "prantsuse"] } },
   ],
   why: [
     { et: "Ma tahan uut tööd.", en: "I want a new job." },

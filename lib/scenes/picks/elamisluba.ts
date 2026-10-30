@@ -8,7 +8,7 @@ export const elamisluba: ScenePicks = {
   ],
   want: [
     { et: "Ma tulin uue loa pärast.", en: "I've come about a new permit." },
-    { et: "Ma tahaksin taotlust esitada.", en: "I'd like to hand in an application." },
+    { et: "Ma tahaksin taotluse ära anda.", en: "I'd like to hand in an application." },
   ],
   booking: [
     { et: "Palun, {ref}.", en: "Here you are, {ref}." },

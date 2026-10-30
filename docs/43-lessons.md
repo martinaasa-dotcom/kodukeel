@@ -533,8 +533,36 @@ right on its own:
 - a part's line says more than its title;
 - every role-play has a live scene (`sceneForLesson`);
 - `LEVEL_INFO` says what the level is for and where it leaves somebody;
+- no line holds a phrase `lib/estonian/spoken.ts` refuses (`spoken.test.ts`, below);
 - every line a lesson draws is in Russian and Ukrainian (a number, a clock time, a bare ending and
   braced Estonian are exempt, since they read the same in every language).
+
+**Every line is what people actually say, not what is merely correct.** The bar for a
+conversation, a model answer, a written text, a scene line and a pick is whether an ordinary
+Estonian, talking to a friend, a neighbor, a shop assistant or a colleague, would say exactly that.
+A line can be grammatical and still be a textbook sentence, an English sentence in Estonian words or
+a reply nobody would make, and a learner who copies it sounds like a phrasebook. The operator
+reported one ("Kõik? Tubli!" about a book read to the end, where anybody says "Terve raamatu?"),
+and two sweeps of every lesson and scene followed (2026-10-30). What to hold a new line to:
+
+- a reply follows from the line before it: nobody repeats a fact they just gave, answers a question
+  nobody asked, or reacts with surprise to something unremarkable;
+- the everyday word and the spoken form: `pole` where people say it, `ma` and `sa` unless there is
+  contrast, a pronoun dropped where a native drops it, the particles a native puts in (`ju`, `ka`,
+  `siis`, `vist`, `no`, `ikka`);
+- the reactions people use (`Tore!`, `Oi!`, `Päriselt?`, `Selge.`, `Kahju!`, `Pole hullu.`), and no
+  calque from English;
+- the register a relationship has, kept the whole way through: `sina` to a friend, `teie` to a
+  stranger at a counter or an official;
+- a written text (an email, a notice, the news) reads the way Estonians write that kind of text.
+
+No check can hear whether a sentence is natural, so the native speaker reads every new line. What a
+check can do is refuse what has already been refused: `lib/estonian/spoken.ts` is the table of
+phrases a native speaker turned down, each with what to say instead and why, and
+`lib/course/lessons/spoken.test.ts` sweeps every lesson line, scene line, pick, written sentence and
+joke against it. `npm run check:lines` and `npm run check:authored` refuse the same phrases while a
+line is being written. When the native speaker refuses a phrase that would be wrong anywhere, add it
+to the table with an example that breaks it, so it cannot come back.
 
 The rest of `lessons.test.ts` (spellings the forms list knows, Estonian kept out of the English,
 voices the app has, form names with their agreed hint) is asked of every level too.

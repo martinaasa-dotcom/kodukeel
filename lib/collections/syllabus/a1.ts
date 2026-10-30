@@ -286,6 +286,17 @@ export const A1 = [
       ["Palju õnne!", "Congratulations!", "PHRASE"],
       ["Mul on hea meel", "I'm glad", "PHRASE"],
       ["Ma ei tea veel", "I don't know yet", "PHRASE"],
+      /*
+        What people put around the phrases above when they actually talk: a
+        friend's hi and bye, the well that opens a reply, the oh that reacts,
+        and unfortunately before a no. Taught with the greetings because a
+        conversation without them reads as a phrasebook.
+      */
+      ["tsau", "hi, bye (between friends)", "ADVERB"],
+      ["no", "well, so (opening what you say)", "ADVERB"],
+      ["noh", "well (while you think)", "ADVERB"],
+      ["oi", "oh!", "ADVERB"],
+      ["kahjuks", "unfortunately", "ADVERB"],
     ],
   }),
 

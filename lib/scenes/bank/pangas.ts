@@ -17,16 +17,16 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `pangas`. */
 const LINES: readonly ScriptedLine[] = [
-  { scene: "pangas", beat: "want", text: "Kuidas ma saan teid aidata?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "pangas", beat: "want", text: "Kuidas saan aidata?", model: "authored", draftedAt: "2026-10-30", reviewedAt: "2026-10-30" },
   { scene: "pangas", beat: "want", text: "Mida te soovite?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "pangas", beat: "for", text: "Milleks teil konto vaja on?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "pangas", beat: "for", text: "Milleks teil kontot vaja on?", model: "authored", draftedAt: "2026-10-30", reviewedAt: "2026-10-30" },
   { scene: "pangas", beat: "for", text: "Milleks te kontot kasutate?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "pangas", beat: "brought", text: "Kas teil on midagi kaasas?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "pangas", beat: "brought", text: "Mis teil kaasas on?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "pangas", beat: "card", text: "Kas teile on ka kaarti vaja?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "pangas", beat: "card", text: "Kas soovite kontoga ka kaarti?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "pangas", beat: "sign", text: "Palun kirjutage siia alla.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "pangas", beat: "sign", text: "Teie allkiri tuleb siia alla.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
+  { scene: "pangas", beat: "sign", text: "Ja allkiri siia alla, palun.", model: "authored", draftedAt: "2026-10-30" },
   { scene: "pangas", beat: "close", text: "Kaart tuleb postiga. Head aega!", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "pangas", beat: "close", text: "Kaardi saadame teile postiga. Nägemist!", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "pangas", beat: "hurdle:missing-document", text: "Kas teil on veel mõni dokument kaasas?", model: "authored", draftedAt: "2026-10-16", reviewedAt: "2026-10-16" },

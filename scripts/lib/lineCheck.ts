@@ -12,6 +12,7 @@
  * digit, no dash or colon, not the form the beat is about to ask for, a verb
  * where the beat wants a clause, and never the way out.
  */
+import { notSaidIn } from "../../lib/estonian/spoken";
 import { FALLBACK_PHRASE, sceneById } from "../../lib/scenes/catalogue";
 import { gateFor, runGate } from "../../lib/scenes/gate";
 import { words } from "../../lib/scenes/lexicon";
@@ -45,5 +46,6 @@ export function lineRefusals(sceneId: string, beatId: string, text: string): str
   if (words(text).some((w) => answerForms(beat, context.lexicon).has(w))) why.push("hands over the answer");
   if (lacksFiniteVerb(text, beat)) why.push("no finite verb");
   if (words(text).join(" ") === words(FALLBACK_PHRASE).join(" ")) why.push("the way out");
+  for (const n of notSaidIn(text)) why.push(`not how people say it, say ${n.say}`);
   return why;
 }

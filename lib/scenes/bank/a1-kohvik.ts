@@ -20,7 +20,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "a1-kohvik", beat: "greet", text: "Tere õhtust!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
   { scene: "a1-kohvik", beat: "greet", text: "Tere!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
   { scene: "a1-kohvik", beat: "order", text: "Mida soovite?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
-  { scene: "a1-kohvik", beat: "order", text: "Mida te soovite?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
+  { scene: "a1-kohvik", beat: "order", text: "Mida te soovite?", model: "authored", draftedAt: "2026-10-30" },
   { scene: "a1-kohvik", beat: "more", text: "Kas veel midagi?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
   { scene: "a1-kohvik", beat: "price", text: "Palun!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
   { scene: "a1-kohvik", beat: "close", text: "Aitäh! Head aega!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },

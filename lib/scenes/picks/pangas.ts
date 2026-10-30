@@ -20,7 +20,7 @@ export const pangas: ScenePicks = {
   ],
   card: [
     { et: "Jah, palun.", en: "Yes, please." },
-    { et: "Jah, kaart oleks hea.", en: "Yes, a card would be good." },
+    { et: "Jah, kaarti on ka vaja.", en: "Yes, I need a card too." },
   ],
   sign: [
     { et: "Hästi.", en: "OK." },

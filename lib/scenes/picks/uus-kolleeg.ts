@@ -12,8 +12,8 @@ export const uusKolleeg: ScenePicks = {
     { et: "Minu nimi on Anna.", en: "My name is Anna." },
   ],
   from: [
-    { et: "Mu kodumaa on {from}.", en: "My home country is {from}." },
-    { et: "Mu kodumaa on {from}, aga elan nüüd Eestis.", en: "My home country is {from}, but I live in Estonia now." },
+    { et: "Ma olen pärit {from:FROM}.", en: "I'm from {from}." },
+    { et: "Olen pärit {from:FROM}, aga elan nüüd Eestis.", en: "I'm from {from}, but I live in Estonia now." },
   ],
   job: [
     { et: "Ma olen {job}.", en: "I'm a {job}." },

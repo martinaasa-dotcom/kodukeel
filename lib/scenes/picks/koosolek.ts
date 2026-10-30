@@ -9,10 +9,10 @@ export const koosolek: ScenePicks = {
   idea: [
     { et: "Ma ei ole nõus.", en: "I don't agree." },
     { et: "Ma kahtlen, kas see homme valmis saab.", en: "I doubt it'll be ready by tomorrow." },
-    { et: "Vabandust, aga ma ei nõustu.", en: "Sorry, but I don't agree." },
+    { et: "Ma pole sellega päris nõus.", en: "I don't quite agree with that." },
   ],
   why: [
-    { et: "Sest meil ei ole nii palju aega.", en: "Because we don't have that much time." },
+    { et: "Sest meil pole nii palju aega.", en: "Because we don't have that much time." },
     { et: "Mul on praegu palju tööd.", en: "I have a lot of work right now." },
   ],
   propose: [

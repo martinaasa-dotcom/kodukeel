@@ -1,4 +1,5 @@
 import type { CaseKey } from "@/lib/estonian/types";
+import { localCasesFor } from "@/lib/estonian/caseQuestion";
 import { caseKeyFor, type Lexicon } from "./lexicon";
 import { propBySlot, type RoleCard } from "./props";
 import type { BeatSpec, SceneSpec } from "./types";
@@ -34,7 +35,10 @@ import { PICKS, CURVEBALL_PICKS } from "./picks/index";
 export interface PickSpec {
   /**
    * The line, with `{slot}` for a value off the card and `{slot:CASE}` for
-   * that value in a case read off the dictionary's own table.
+   * that value in a case read off the dictionary's own table. `{slot:FROM}`
+   * is where somebody is from: the ablative for a `-maa` place (`Saksamaalt`)
+   * and the elative for any other (`Soomest`), which is how a native says it
+   * and which no single case gives across a card of countries.
    */
   readonly et: string;
   /** What it says, with `{slot}` for the value's English. */
@@ -45,6 +49,14 @@ export interface PickSpec {
    * a friend on the phone is never asked to slow down in the polite plural.
    */
   readonly register?: "teie" | "sina";
+  /**
+   * The values of one slot this line is written for, where the slot deals
+   * things that are not said alike: a language is spoken (`Ma räägin hästi
+   * vene keelt`) and a computer is worked with (`Ma oskan hästi arvutiga
+   * töötada`), and no one line says both. A card dealing another value is
+   * offered the scene's other lines instead.
+   */
+  readonly when?: { readonly slot: string; readonly oneOf: readonly string[] };
 }
 
 export interface PickOption {
@@ -59,9 +71,21 @@ export type ScenePicks = Readonly<Record<string, readonly PickSpec[]>>;
 
 const SLOT = /\{([a-zA-Z0-9]+)(?::([A-Z]+))?\}/g;
 
+/** Where a place is from, in the set of local cases the place takes (`lib/estonian/caseQuestion.ts`). */
+const FROM = "FROM";
+
+/** The case a slot's marker asks for, given the value's lemma. */
+export function caseFor(marker: string, lemma: string): CaseKey {
+  if (marker === FROM) {
+    const takes = localCasesFor({ lemma, semanticTypes: null, nomSg: lemma });
+    return takes.includes("ELATIVE") ? "ELATIVE" : "ABLATIVE";
+  }
+  return marker as CaseKey;
+}
+
 /** The slots a template names, for the test. */
-export function slotsOf(template: string): { slot: string; grammCase?: CaseKey }[] {
-  return [...template.matchAll(SLOT)].map((m) => ({ slot: m[1]!, grammCase: m[2] as CaseKey | undefined }));
+export function slotsOf(template: string): { slot: string; marker?: string }[] {
+  return [...template.matchAll(SLOT)].map((m) => ({ slot: m[1]!, marker: m[2] }));
 }
 
 /** The template with its slots taken out, which is every word written here. */
@@ -75,13 +99,14 @@ export function literalOf(template: string): string {
  * than printed in the nominative, which would be Estonian nobody says.
  */
 export function buildPick(template: PickSpec, card: RoleCard | null, lexicon: Lexicon): { et: string; en: string } | null {
+  if (!fitsCard(template, card)) return null;
   let missing = false;
   const et = template.et.replace(SLOT, (_, slot: string, grammCase?: string) => {
     const prop = card ? propBySlot(card, slot) : undefined;
     if (!prop?.value) { missing = true; return ""; }
     if (!grammCase) return prop.value;
     const lemma = prop.lemmas[0];
-    const form = lemma ? lexicon.caseForm.get(caseKeyFor(lemma, grammCase as CaseKey)) : undefined;
+    const form = lemma ? lexicon.caseForm.get(caseKeyFor(lemma, caseFor(grammCase, lemma))) : undefined;
     if (!form) { missing = true; return ""; }
     return form;
   });
@@ -98,6 +123,13 @@ export function buildPick(template: PickSpec, card: RoleCard | null, lexicon: Le
   // A value at the front of a line starts the sentence.
   const lead = et.trimStart();
   return { et: lead.charAt(0).toUpperCase() + lead.slice(1), en };
+}
+
+/** Whether a line is written for the value the card dealt (`PickSpec.when`); a line with no `when` fits every card. */
+export function fitsCard(template: PickSpec, card: RoleCard | null): boolean {
+  if (!template.when) return true;
+  const prop = card ? propBySlot(card, template.when.slot) : undefined;
+  return !!prop?.lemmas.some((lemma) => template.when!.oneOf.includes(lemma));
 }
 
 /** The specs offered on a beat: the scene's own, else the curveball's shared ones, in the scene's register. */

@@ -19,20 +19,20 @@ import type { ScriptedLine } from "../scripted";
 const LINES: readonly ScriptedLine[] = [
   { scene: "b1-palgatous", beat: "greet", text: "Tere!", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-palgatous", beat: "greet", text: "Tere, tere!", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
-  { scene: "b1-palgatous", beat: "topic", text: "Muidugi. Istu. Millest sa rääkida tahaksid?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
+  { scene: "b1-palgatous", beat: "topic", text: "Muidugi, istu. Millest sa rääkida tahtsid?", model: "authored", draftedAt: "2026-10-30" },
   { scene: "b1-palgatous", beat: "topic", text: "Millest sa rääkida tahaksid?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
-  { scene: "b1-palgatous", beat: "done", text: "Hästi. Mida sa oled sel aastal teinud?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
+  { scene: "b1-palgatous", beat: "done", text: "Hästi. Mis sa sel aastal teinud oled?", model: "authored", draftedAt: "2026-10-30" },
   { scene: "b1-palgatous", beat: "done", text: "Mida sa oled teinud?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-palgatous", beat: "earlier", text: "See on tõsi. Aga miks sa varem ei küsinud?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-palgatous", beat: "earlier", text: "Aga miks sa ei ole varem küsinud?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
-  { scene: "b1-palgatous", beat: "amount", text: "Ja mis summa sulle sobiks?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
+  { scene: "b1-palgatous", beat: "amount", text: "Ja kui palju sa siis tahaksid?", model: "authored", draftedAt: "2026-10-30" },
   { scene: "b1-palgatous", beat: "amount", text: "Mis summa sulle sobiks?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
-  { scene: "b1-palgatous", beat: "offer", text: "Kümme on palju. Ma saan pakkuda viis protsenti kohe.", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
+  { scene: "b1-palgatous", beat: "offer", text: "Kümme on ikka palju. Ma saan pakkuda viis protsenti kohe.", model: "authored", draftedAt: "2026-10-30" },
   { scene: "b1-palgatous", beat: "offer", text: "Ma saan pakkuda viis protsenti kohe ja veel viis aasta lõpus.", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-palgatous", beat: "plan", text: "Jah, aasta lõpus räägime uuesti. Ja kelleks sa tahaksid järgmisel aastal saada?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-palgatous", beat: "plan", text: "Kelleks sa tahaksid järgmisel aastal saada?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
-  { scene: "b1-palgatous", beat: "close", text: "Lepime kokku! Head aega!", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
-  { scene: "b1-palgatous", beat: "close", text: "Lepime kokku! Nägemist!", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
+  { scene: "b1-palgatous", beat: "close", text: "Kokku lepitud! Head aega!", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
+  { scene: "b1-palgatous", beat: "close", text: "Kokku lepitud! Nägemist!", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
 ];
 
 export default LINES;

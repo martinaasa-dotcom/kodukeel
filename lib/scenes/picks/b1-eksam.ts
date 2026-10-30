@@ -11,7 +11,7 @@ export const b1Eksam: ScenePicks = {
     { et: "Tere päevast!", en: "Good afternoon!" },
   ],
   about: [
-    { et: "Tere! Ma olen Tom ja ma olen pärit Inglismaalt. Ma elan perega Tallinnas ja töötan programmeerijana.", en: "Hello! I'm Tom, and I'm from England. I live in Tallinn with my family and I work as a programmer." },
+    { et: "Ma olen Tom ja ma olen pärit Inglismaalt. Ma elan perega Tallinnas ja töötan programmeerijana.", en: "I'm Tom, and I'm from England. I live in Tallinn with my family and I work as a programmer." },
     { et: "Ma elan Tallinnas ja töötan ühes väikeses firmas.", en: "I live in Tallinn and I work at a small company." },
   ],
   work: [

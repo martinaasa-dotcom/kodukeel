@@ -12,9 +12,9 @@ export const graafik: ScenePicks = {
     { et: "Sel kuul näeme selget {trend:PARTITIVE}.", en: "This month we see a clear {trend}." },
   ],
   much: [
-    { et: "{percent} protsenti.", en: "{percent} per cent." },
-    { et: "{percent} protsenti, see on palju.", en: "{percent} per cent, that's a lot." },
-    { et: "Ühe kuuga {percent} protsenti.", en: "{percent} per cent in a single month." },
+    { et: "{percent} protsenti.", en: "{percent} percent." },
+    { et: "{percent} protsenti, see on palju.", en: "{percent} percent, that's a lot." },
+    { et: "Ühe kuuga {percent} protsenti.", en: "{percent} percent in a single month." },
   ],
   why: [
     { et: "Hindade pärast.", en: "Because of prices." },

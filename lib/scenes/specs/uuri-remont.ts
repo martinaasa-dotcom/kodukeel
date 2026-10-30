@@ -21,9 +21,12 @@ const LANDLORD: SceneSpec = {
       /*
         Things that break. Not `remont`, which is the repair rather than the
         broken thing: a card reading "What's broken: repair" dealt a tenant
-        `Remont on katki`, which nobody says.
+        `Remont on katki`, which nobody says. Not `elekter` or `mööbel`
+        either: with no electricity a person says `Elektrit pole`, and
+        furniture is not one thing that breaks, so `Elekter on katki` and
+        `Mööbel on katki` are not said. A learner may still name either.
       */
-      kind: "word", slot: "problem", oneOf: ["küte", "elekter", "mööbel", "aken", "uks", "voodi"],
+      kind: "word", slot: "problem", oneOf: ["küte", "aken", "uks", "voodi"],
       says: "What's broken.",
     },
     {

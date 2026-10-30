@@ -24,7 +24,7 @@ export const a1Mutsipood: ScenePicks = {
   ],
   pay: [
     { et: "Kaardiga, palun.", en: "By card, please." },
-    { et: "Väga hea. Kaardiga, palun.", en: "Very good. By card, please." },
+    { et: "Selge. Kaardiga, palun.", en: "Okay. By card, please." },
     { et: "Sularahas.", en: "In cash." },
   ],
   close: [

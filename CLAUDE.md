@@ -1868,7 +1868,7 @@ boundary between them, so the obvious spelling misses the words this language is
 **And Ekilex's own part of speech was being discarded**, so a deliberate coarsening could not be
 told from a mistake. `ekilexPos` records it. The table of legitimate coarsenings was set by
 narrowing until something honest complained rather than widening until nothing did, and with it
-written down the course's label and Ekilex's agree on all 1,881 words. `PRONOUN` is a part of speech for it, harvested as a nominal
+written down the course's label and Ekilex's agree on all 1,887 words. `PRONOUN` is a part of speech for it, harvested as a nominal
 because it declines like one (`kes`, `kelle`, `keda`), and a pronoun with no singular (`meie`,
 `nemad`) is kept the way an adverb is, attested and formless, rather than dropped.
 `lib/collections/syllabus/retired.ts` is the other half: the ten C2 units were cut in §19 of the
@@ -2118,7 +2118,7 @@ So the harvest stores what the rules miss, and it **asks the rules rather than c
 the rule it is the complement of. A list would be two copies of one fact and the copy in the
 builder is the one that rots, because a missing form does not look like an error, it looks like a
 word that inflects less. Asserted on the call in both builders. That is 2,011 forms across 436 of the
-1,881 course words. Four codes are nearly all of it, and the fact that they are the four is the
+1,887 course words. Four codes are nearly all of it, and the fact that they are the four is the
 argument: the simple past third person (310), the polite imperative (312) and both participles
 (313 past, 309 present), which are exactly the slots the two paragraphs below record the evals
 finding one at a time. The rest is `olema`'s present, `minema`'s imperative, `pole`, and the short
@@ -10730,6 +10730,18 @@ own spellings, and the app and the harness both read it (asserted). `lessonScene
 scene keyless as seven kinds of beginner, at its own lesson's level, and fails on any word the other side says that the lesson has
 not taught, which is how the engine's own `või`, `aga` and `selge` were caught. A word a card deals must
 be a dictionary entry, or no answer can meet it.
+
+**And every line is what an ordinary Estonian would say, not merely what is correct.** The operator
+read `Kõik? Tubli!` about a book read to the end, where anybody says `Terve raamatu?`, and asked for
+every lesson, scene, pick and written sentence to be how people really talk: the everyday word, the
+spoken form, the reaction people use, a reply that follows from the line before, one register per
+relationship, no calque from English. Two sweeps of all of it followed on 2026-10-30. No check can
+hear naturalness, so the native speaker reads every new line; what a check does is keep a refused
+phrase refused. `lib/estonian/spoken.ts` is the table, each entry with an example that breaks it and
+what to say instead, `lib/course/lessons/spoken.test.ts` sweeps every line against it, and
+`npm run check:lines` and `npm run check:authored` refuse the same while a line is being written. A
+phrase goes in only when it is wrong everywhere; `docs/43-lessons.md` §10 is what to hold a new line
+to. `scripts/invariants/lines-are-everyday-estonian.ts` holds it.
 
 **And B1 is a level up in how it is learned, not A2 with harder words.** The same six steps, so it
 reads as one course, and inside them the learner who has the words is asked for the ear, the speed

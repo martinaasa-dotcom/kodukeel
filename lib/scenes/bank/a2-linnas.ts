@@ -21,7 +21,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "a2-linnas", beat: "greet", text: "Tere, tere!", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-linnas", beat: "where", text: "Kus sa praegu oled?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-linnas", beat: "where", text: "Aga kus sa praegu oled?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
-  { scene: "a2-linnas", beat: "come", text: "Mina olen turul. Kas sa tuled siia?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
+  { scene: "a2-linnas", beat: "come", text: "Ma olen turul. Tuled siia?", model: "authored", draftedAt: "2026-10-30" },
   { scene: "a2-linnas", beat: "come", text: "Ma olen turul. Kas sa tuled ka?", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-linnas", beat: "way", text: "Mine otse ja siis vasakule. Turg on kiriku taga.", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
   { scene: "a2-linnas", beat: "way", text: "Otse ja siis vasakule. Turg on kiriku taga.", model: "authored", draftedAt: "2026-10-24", reviewedAt: "2026-10-24" },
