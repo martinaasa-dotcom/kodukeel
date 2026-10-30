@@ -1,10 +1,11 @@
 import { cachedBlob, cachedClip, rememberClip } from "./clipCache";
 import { CLEAN, type Condition } from "./conditions";
 import { needsMixer, playThrough, stopMixed } from "./mixer";
+import { wakeOutput } from "./output";
 import { sequence } from "./sequence";
 import { stretch } from "./stretch";
 import { DEFAULT_PACE, SLOWEST, SLOW_OF_NORMAL, type Pace } from "./pace";
-import { decodeWav, encodeWav16, normaliseLoudness } from "./wav";
+import { decodeWav, encodeWav16, normaliseLoudness, withLead } from "./wav";
 import { nativeClip, nativeFor, nativeUrl, type NativeClip } from "./native";
 
 /**
@@ -403,6 +404,24 @@ export function untilQuiet(capMs: number): Promise<void> {
   });
 }
 
+/**
+ * The clip with a cold output's head start in front of it, as a url to play
+ * and the way to let that url go. Where the output was awake it is the clip's
+ * own url, untouched; where it was not, `coldMs` of silence is put in front of
+ * the word so the device is up before the first sound reaches it
+ * (lib/audio/output.ts). A clip this cannot read plays as it came.
+ */
+async function withHeadStart(clip: HeldClip, coldMs: number): Promise<{ url: string; release: () => void }> {
+  if (coldMs <= 0) return { url: clip.url, release: () => undefined };
+  try {
+    const out = encodeWav16(withLead(decodeWav(new Uint8Array(await clip.blob.arrayBuffer())), coldMs));
+    const made = URL.createObjectURL(new Blob([out.buffer as ArrayBuffer], { type: "audio/wav" }));
+    return { url: made, release: () => URL.revokeObjectURL(made) };
+  } catch {
+    return { url: clip.url, release: () => undefined };
+  }
+}
+
 /** The clip playing through an element, so a screen's Stop can end it mid-line rather than after it. */
 let playing: HTMLAudioElement | null = null;
 /*
@@ -451,19 +470,27 @@ export async function playClip(
     // The element rather than a buffer source for the plain case, on purpose:
     // an element plays through a phone's silent switch and a Web Audio graph
     // does not, and a learner who pressed the speaker asked to hear it.
-    // Stopped while the length was being read: still not said.
+    // A device that has gone to sleep since the last word would swallow this
+    // one's first sound while it woke, and close on its last: it is woken
+    // here, kept awake between words, and a cold one is given its head start
+    // inside the clip so the play still starts inside the press
+    // (lib/audio/output.ts).
+    const start = await withHeadStart(clip, (await wakeOutput()).coldMs);
+    // Stopped while the length was being read or the output woken: still not said.
     if (stops !== asked) {
+      start.release();
       end();
       return "played";
     }
-    const audio = new Audio(clip.url);
+    const audio = new Audio(start.url);
     playing = audio;
     for (const event of ["ended", "pause", "error"] as const) {
-      audio.addEventListener(event, () => { if (playing === audio) playing = null; end(); }, { once: true });
+      audio.addEventListener(event, () => { if (playing === audio) playing = null; start.release(); end(); }, { once: true });
     }
     try {
       await audio.play();
     } catch (error) {
+      start.release();
       end();
       if (unasked && error instanceof DOMException && error.name === "NotAllowedError") {
         return "blocked";
@@ -508,7 +535,12 @@ export async function playNativeSequence(
       gapAfterMs: items[i]!.gapAfterMs,
     })));
     const joined = sequence(pieces);
-    const made = URL.createObjectURL(new Blob([encodeWav16(joined.pcm).buffer as ArrayBuffer], { type: "audio/wav" }));
+    // A cold output's head start goes in front of the run, and every span
+    // moves with it, so the letters still light as they are said.
+    const { coldMs } = await wakeOutput();
+    const shift = coldMs / 1000;
+    const spans = joined.spans.map((span) => ({ from: span.from + shift, to: span.to + shift }));
+    const made = URL.createObjectURL(new Blob([encodeWav16(withLead(joined.pcm, coldMs)).buffer as ArrayBuffer], { type: "audio/wav" }));
     url = made;
     const audio = new Audio(made);
     let finish: () => void = () => undefined;
@@ -521,7 +553,7 @@ export async function playNativeSequence(
     });
     for (const event of ["ended", "pause", "error"] as const) audio.addEventListener(event, finish, { once: true });
     await audio.play();
-    return { audio, spans: joined.spans, ended, stop: () => audio.pause() };
+    return { audio, spans, ended, stop: () => audio.pause() };
   } catch (error) {
     end();
     if (url) URL.revokeObjectURL(url);
@@ -581,7 +613,9 @@ export function playRecording(
       // stretch takes the main thread, and a stop pressed in between is heard.
       await new Promise<void>((resolve) => setTimeout(resolve, 0));
       if (stopped) return "played";
-      const out = encodeWav16(stretch(normaliseLoudness({ rate: piece.rate, samples: padded }), speed));
+      const { coldMs } = await wakeOutput();
+      if (stopped) return "played";
+      const out = encodeWav16(withLead(stretch(normaliseLoudness({ rate: piece.rate, samples: padded }), speed), coldMs));
       if (stopped) return "played";
       url = URL.createObjectURL(new Blob([out.buffer as ArrayBuffer], { type: "audio/wav" }));
       const element = new Audio(url);
@@ -647,6 +681,15 @@ export async function playHeard(request: ClipRequest): Promise<PlayOutcome> {
         blob = new Blob([out.buffer as ArrayBuffer], { type: "audio/wav" });
       } catch {
         blob = fetched;
+      }
+    }
+    const { coldMs } = await wakeOutput();
+    if (coldMs > 0) {
+      try {
+        const out = encodeWav16(withLead(decodeWav(new Uint8Array(await blob.arrayBuffer())), coldMs));
+        blob = new Blob([out.buffer as ArrayBuffer], { type: "audio/wav" });
+      } catch {
+        // Played as it came: an untouched clip is better than none.
       }
     }
     url = URL.createObjectURL(blob);

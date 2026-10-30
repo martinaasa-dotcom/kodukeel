@@ -1329,8 +1329,10 @@ check("the room a clip is heard in is made in one module, and only the rounds th
     holders,
     // The speech engine's is a capture graph, the microphone into the worklet
     // that resamples it for the recognizer (ADR-028), and plays nothing.
-    ["components/speech/webEngine.ts", "lib/audio/feedback.ts", "lib/audio/mixer.ts"],
-    "an AudioContext is opened somewhere other than the mixer, the feedback tones and the speech engine's capture",
+    // `output.ts` holds the one playing context the mixer and the tones share,
+    // and keeps the device awake between words; it plays no clip itself.
+    ["components/speech/webEngine.ts", "lib/audio/feedback.ts", "lib/audio/mixer.ts", "lib/audio/output.ts"],
+    "an AudioContext is opened somewhere other than the mixer, the feedback tones, the shared output and the speech engine's capture",
   );
   assert.match(code("lib/audio/clip.ts"), /playThrough\(/, "playClip stopped routing a condition through the mixer");
   // The rate is the one stretch over the one clip, never a number sent to the
