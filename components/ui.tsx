@@ -151,7 +151,7 @@ const CARD_TONES = {
 
 export type CardTone = keyof typeof CARD_TONES;
 
-export function Card({ children, className = "", as: Tag = "div", tone = "plain", hover, style, dense }: {
+export function Card({ children, className = "", as: Tag = "div", tone = "plain", hover, style, dense, ...data }: {
   children: ReactNode;
   className?: string;
   as?: "div" | "section" | "article" | "li";
@@ -161,9 +161,12 @@ export function Card({ children, className = "", as: Tag = "div", tone = "plain"
   style?: CSSProperties;
   /** Tighter padding, for a card that has to share one screen with others. */
   dense?: boolean;
+  /** A hook for a suite. JSX does not type-check a hyphenated name, so one a card dropped would vanish without a word. */
+  [hook: `data-${string}`]: string | undefined;
 }) {
   return (
     <Tag
+      {...data}
       className={`rounded-[var(--r-xl)] border ${dense ? "p-3 md:p-4" : "p-5 md:p-7"} ${tone === "night" ? "night" : ""} ${hover ? "lift glow" : ""} ${className}`}
       style={{
         ...CARD_TONES[tone],

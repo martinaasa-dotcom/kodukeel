@@ -42,7 +42,7 @@ const { check, absent, done } = suite("The lessons, walked", {
     the retell, the three goes, the four writing stages, the capstone, and A2
     staying as it was. Counted off a run, so a block that stops is a shortfall.
   */
-  floor: 110,
+  floor: 163,
 });
 // `--only=<role>` walks one lesson (or `spoken`, the race out loud) for working on it; it reports under the floor by design.
 
@@ -420,6 +420,7 @@ async function spokenRace(lesson) {
 
 try {
   if (ONLY === "spoken") await spokenRace(byRole.faster);
+  else if (ONLY === "check") await checkWalk(byRole.check.id, byRole.check.part);
   else if (ONLY) await walk(byRole[ONLY]);
   else await everything();
 } finally {
@@ -444,7 +445,7 @@ async function everything() {
   const capstone = await walk(byRole.capstone);
   check("a part's closing conversation asks no retell and no race", capstone?.retold === false && capstone?.faster === false);
   await walk(byRole.a2);
-  await checkWalk(byRole.check.id);
+  await checkWalk(byRole.check.id, byRole.check.part);
   await inRussian(byRole.first);
   await spokenRace(byRole.faster);
   if (errors.length) console.log(errors.slice(0, 5).join("\n"));
@@ -457,8 +458,19 @@ async function everything() {
   to say it did not go through and put the caret on the way to send it again,
   and the second has to arrive at a result.
 */
-async function checkWalk(id) {
+async function checkWalk(id, part) {
   const where = `the ${id} check`;
+  // A check opens on the part it closes, so the learner stands there for the walk and is put back after.
+  const key = { ownerId_key: { ownerId: OWNER, key: "programme" } };
+  const before = await prisma.setting.findUnique({ where: key });
+  await prisma.setting.upsert({ where: key, create: { ownerId: OWNER, key: "programme", value: part }, update: { value: part } });
+  try { await sitCheck(id, where); } finally {
+    if (before) await prisma.setting.update({ where: key, data: { value: before.value } });
+    else await prisma.setting.delete({ where: key }).catch(() => {});
+  }
+}
+
+async function sitCheck(id, where) {
   await page.goto(`${B}/course/check/${id}`, { waitUntil: "domcontentloaded" });
   await page.locator("[data-course-check]").waitFor({ timeout: 30_000 });
   await page.waitForFunction(() => Object.keys(document.querySelector("[data-course-check]") ?? {}).some((k) => k.startsWith("__react")), null, { timeout: 30_000 });
@@ -475,7 +487,7 @@ async function checkWalk(id) {
   check(`${where}: and the caret is on that way to send it`, failed && await retry.evaluate((el) => el === document.activeElement));
   if (failed) await retry.click();
   const result = await page.locator("[data-check-result]").waitFor({ timeout: 15_000 }).then(() => true, () => false);
-  check(`${where}: sent again, it is marked`, result);
+  check(`${where}: sent again, it is marked`, result, result ? "" : (await text()).slice(-240));
   check(`${where}: the result line takes the caret`, result && await page.evaluate(() => (document.activeElement?.textContent ?? "").includes(" of ")));
   await page.unroute(`**/course/check/${id}**`);
   await axeHere(`${where} result`);

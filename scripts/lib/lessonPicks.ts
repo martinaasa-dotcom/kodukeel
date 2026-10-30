@@ -59,5 +59,5 @@ const b1check = courseChecks(PROGRAMMES).find((c) => c.level === "B1" && !c.fina
 process.stdout.write(JSON.stringify([
   shape(first, "first"), shape(retell, "retell"), shape(faster, "faster"),
   shape(write, "write"), shape(capstone, "capstone"), shape(a2, "a2"),
-  { role: "check", id: b1check.id },
+  { role: "check", id: b1check.id, part: b1check.programmeId },
 ]));
