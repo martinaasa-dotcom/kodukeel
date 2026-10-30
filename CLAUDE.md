@@ -6701,7 +6701,9 @@ questions off its own lessons, the last part's thirty off the whole of A1, each 
 (`checkFor`), the server builds the one it marks (`submitCheck`), and a pass is a setting
 (`checksPassed`), since nothing in the log can say a check was passed. Every door up asks
 `moveBlockedFor` (the next part, the level picker, the module's skip ahead), going back is always
-open, somebody placed past A1 is never asked, and a name in `ADMIN_EMAILS` on a hosted deployment
+open, a part as far up as the furthest one a learner was ever placed on or moved to is open too
+(`highestPart`, written by `choosePart`, the one door that moves a learner), so a refresher is never
+a trap, and a name in `ADMIN_EMAILS` on a hosted deployment
 moves freely (`movesFreely`), never a local install, where `isAdmin` is everybody. The retention
 reading at the hand-off still never blocks. Asserted in `scripts/invariants/a1-is-left-by-passing.ts`.
 

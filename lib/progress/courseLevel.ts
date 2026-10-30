@@ -2,11 +2,11 @@ import { z } from "zod";
 
 import { PROGRAMMES } from "@/lib/course";
 import { moveBlockedFor } from "@/lib/progress/checks";
-import { openingPart, openingPartFor, programmeFor } from "@/lib/progress/course";
+import { choosePart, openingPart, openingPartFor, programmeFor } from "@/lib/progress/course";
 import { goOverAgain, heldFromChoice, HELD_CHOICES, startingLevel, type HeldChoice } from "@/lib/course/placement";
 import { restartPart } from "@/lib/progress/courseReset";
 import { courseLevelFor, courseStandingFor, recordCourseLevel } from "@/lib/progress/level";
-import { readSetting, SETTING_KEYS, writeSetting, writeSettings } from "@/lib/settings/store";
+import { readSetting, SETTING_KEYS, writeSetting } from "@/lib/settings/store";
 
 /**
  * THE LEVEL THE LEARNER SAYS THEY ARE AT, CHANGED FROM EITHER DOOR (N-8, D2).
@@ -90,10 +90,7 @@ export async function changeCourseLevel(ownerId: string, level: unknown, now: Da
   const moved = Boolean(current && (before !== parsed.data || current.level !== opening.level));
   if (moved) {
     await Promise.all([
-      writeSettings(ownerId, [
-        [SETTING_KEYS.programme, opening.id],
-        [SETTING_KEYS.programmeChosenAt, now.toISOString()],
-      ]),
+      choosePart(ownerId, opening.id, now),
       restartPart(ownerId, opening.id),
       writeSetting(ownerId, SETTING_KEYS.adaptMovedAt, now.toISOString()),
       writeSetting(ownerId, SETTING_KEYS.adaptSnoozedUntil, ""),
@@ -137,10 +134,7 @@ export async function changeCourseStart(ownerId: string, which: unknown, now: Da
     return { ok: false, reason: "blocked", error: "Pass the checks to move up a level. Each part of the lessons ends in one." };
   }
   await Promise.all([
-    writeSettings(ownerId, [
-      [SETTING_KEYS.programme, to.id],
-      [SETTING_KEYS.programmeChosenAt, now.toISOString()],
-    ]),
+    choosePart(ownerId, to.id, now),
     restartPart(ownerId, to.id),
     writeSetting(ownerId, SETTING_KEYS.adaptMovedAt, now.toISOString()),
     writeSetting(ownerId, SETTING_KEYS.adaptSnoozedUntil, ""),

@@ -3,7 +3,7 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
 import { forgetSettings, SETTING_KEYS, writeSetting } from "@/lib/settings/store";
 import { PROGRAMMES } from "@/lib/course";
-import { forgetRehoming, movedBackFrom, programmeFor } from "./course";
+import { choosePart, forgetRehoming, highestPartFor, movedBackFrom, programmeFor } from "./course";
 import { moveBlockedFor } from "./checks";
 
 /**
@@ -122,6 +122,38 @@ describe("a learner on a part that has become lessons", () => {
     expect(await moveBlockedFor(MINE, a2[0]!, a2[1]!)).toBeNull();
     // Further up than they have ever worked is still held.
     expect(await moveBlockedFor(MINE, a2[0]!, b1[2]!)).not.toBeNull();
+  });
+
+  it("lets a learner placed at B1 who stepped down before ticking anything go back up", async () => {
+    // Placed on B1.1 by first run, then straight down to A2 from Settings: no tick anywhere.
+    await choosePart(MINE, b1[0]!.id);
+    forgetSettings(MINE);
+    await choosePart(MINE, a2[0]!.id);
+    forgetSettings(MINE);
+    expect(await moveBlockedFor(MINE, a2[0]!, b1[0]!)).toBeNull();
+    expect(await moveBlockedFor(MINE, a2[0]!, a2[1]!)).toBeNull();
+    // Further up than they have ever been placed is still held.
+    expect(await moveBlockedFor(MINE, a2[0]!, b1[1]!)).not.toBeNull();
+  });
+
+  it("keeps that way up once a restart of the part has deleted the ticks up there", async () => {
+    const day = b1[0]!.days[0]!;
+    await choosePart(MINE, b1[0]!.id);
+    await prisma.courseStep.create({ data: { ownerId: MINE, programmeId: b1[0]!.id, dayId: day.id, stepId: day.steps[0]!.id } });
+    forgetSettings(MINE);
+    await choosePart(MINE, a2[0]!.id);
+    // Going back up restarts B1.1, which deletes the very tick the old exemption read.
+    await prisma.courseStep.deleteMany({ where: { ownerId: MINE, programmeId: b1[0]!.id } });
+    forgetSettings(MINE);
+    expect(await moveBlockedFor(MINE, a2[0]!, b1[0]!)).toBeNull();
+  });
+
+  it("never lowers the furthest part on a step down", async () => {
+    await choosePart(MINE, b1[1]!.id);
+    forgetSettings(MINE);
+    await choosePart(MINE, a2[0]!.id);
+    forgetSettings(MINE);
+    expect((await highestPartFor(MINE))?.id).toBe(b1[1]!.id);
   });
 
   it("holds a learner who has only ever worked in A2 to its checks", async () => {

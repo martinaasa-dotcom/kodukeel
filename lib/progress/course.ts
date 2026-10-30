@@ -5,7 +5,7 @@ import { deferredWordIds } from "@/lib/progress/deferrals";
 import { LADDER_CARD_TYPE } from "@/lib/learn/ladder";
 import { courseStandingFor } from "@/lib/progress/level";
 import { LEVELS, LEVEL_INFO, type Level } from "@/lib/collections/syllabus";
-import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
+import { readSetting, SETTING_KEYS, writeSettings } from "@/lib/settings/store";
 import type { DayClock } from "@/lib/time/day";
 import { computeStreak } from "@/lib/stats/streak";
 import { closingLeft } from "@/lib/progress/closing";
@@ -142,6 +142,45 @@ const REHOMED_LEVELS: ReadonlySet<string> = new Set(["B1"]);
 */
 const SETTLED = new Set<string>();
 const SETTLED_MAX = 50_000;
+
+/** The furthest of several parts named by id, in ladder order; ids that name no part are ignored. */
+export function furthestPart(ids: Iterable<string | null | undefined>): Programme | null {
+  let best = -1;
+  for (const id of ids) {
+    const at = id ? PROGRAMMES.findIndex((p) => p.id === id) : -1;
+    if (at > best) best = at;
+  }
+  return best >= 0 ? PROGRAMMES[best]! : null;
+}
+
+/** The furthest part a learner has ever been placed on or moved to (`SETTING_KEYS.highestPart`). */
+export async function highestPartFor(ownerId: string): Promise<Programme | null> {
+  return furthestPart([await readSetting(ownerId, SETTING_KEYS.highestPart)]);
+}
+
+/**
+ * PUTS A LEARNER ON A PART THEY CHOSE, OR WERE PLACED ON.
+ *
+ * Three settings in one transaction: the part, the stamp saying it was chosen
+ * (which the lessons' switch reads, `partAfterSwitch`), and the furthest part
+ * they have ever been on, raised past the part they are leaving and the part
+ * they are going to and never lowered. That last is what lets a learner placed
+ * at B1 who steps down to refresh A2 move back up without A2's checks
+ * (`moveBlockedFor`), with no tick up there to prove it and whatever a restart
+ * of the part deleted. Every door that moves a learner goes through here.
+ */
+export async function choosePart(ownerId: string, partId: string, now: Date = new Date()): Promise<void> {
+  const [stored, current] = await Promise.all([
+    readSetting(ownerId, SETTING_KEYS.highestPart),
+    programmeFor(ownerId),
+  ]);
+  const highest = furthestPart([stored, current?.id, partId]);
+  await writeSettings(ownerId, [
+    [SETTING_KEYS.programme, partId],
+    [SETTING_KEYS.programmeChosenAt, now.toISOString()],
+    ...(highest ? [[SETTING_KEYS.highestPart, highest.id] as const] : []),
+  ]);
+}
 
 /**
  * The old part a learner was moved back from, where they were: stored on a

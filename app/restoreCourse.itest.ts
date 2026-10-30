@@ -9,7 +9,9 @@ vi.mock("@/lib/auth/session", async (real) => ({
 
 import { prisma } from "@/lib/db";
 import { restoreBackup } from "@/app/actions";
-import { SETTING_KEYS } from "@/lib/settings/store";
+import { forgetSettings, SETTING_KEYS } from "@/lib/settings/store";
+import { PROGRAMMES, programmeById } from "@/lib/course";
+import { moveBlockedFor } from "@/lib/progress/checks";
 
 /**
  * A backup's place in the course is held to the checks, from where the learner
@@ -41,8 +43,12 @@ function file(): string {
   });
 }
 
+async function setting(key: string) {
+  return (await prisma.setting.findUnique({ where: { ownerId_key: { ownerId: OWNER, key } } }))?.value ?? null;
+}
+
 async function part() {
-  return (await prisma.setting.findUnique({ where: { ownerId_key: { ownerId: OWNER, key: SETTING_KEYS.programme } } }))?.value ?? null;
+  return setting(SETTING_KEYS.programme);
 }
 
 describe("a restored place in the course", () => {
@@ -69,6 +75,26 @@ describe("a restored place in the course", () => {
     expect(out).toEqual(expect.objectContaining({ ok: true }));
     // Not b1.3, whose lessons assume two parts the learner never had.
     expect(await part()).toBe("b1.1");
+    // And the old part is kept as how far they got, since its ticks are not: a
+    // refresher in A2 does not then hold them behind A2's checks.
+    expect(await setting(SETTING_KEYS.highestPart)).toBe("b1.3");
+    forgetSettings(OWNER);
+    const a2 = PROGRAMMES.filter((p) => p.level === "A2");
+    expect(await moveBlockedFor(OWNER, a2[0]!, programmeById("b1.1")!)).toBeNull();
+  });
+
+  it("does not take a file's furthest part past the checks", async () => {
+    await prisma.setting.create({ data: { ownerId: OWNER, key: SETTING_KEYS.programme, value: "a1.1" } });
+    await prisma.courseStep.create({ data: { ownerId: OWNER, programmeId: "a1.1", dayId: "a1-01-hello", stepId: "lesson" } });
+    const forged = JSON.stringify({
+      format: "kodukeel-v1",
+      exportedAt: at,
+      lexemes: [], forms: [], cards: [], reviews: [], tasks: [],
+      settings: [{ ownerId: "x", key: SETTING_KEYS.highestPart, value: "c1.1" }],
+      courseSteps: [],
+    });
+    expect(await restoreBackup(forged, "merge")).toEqual(expect.objectContaining({ ok: true }));
+    expect(await setting(SETTING_KEYS.highestPart)).not.toBe("c1.1");
   });
 
   it("is held to the checks for somebody already climbing", async () => {

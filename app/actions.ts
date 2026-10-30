@@ -75,7 +75,7 @@ import { markSayingsShown } from "@/lib/progress/sayings";
 import { bringBack, keepWord, putAside, setStar, wordReaches } from "@/lib/progress/wordActions";
 import { addScanToDeckFor, saveScanFor } from "@/lib/progress/scans";
 import {
-  forgetSettings, readSetting, SETTING_KEYS, writeSetting, writeSettings, type ReviewMode,
+  forgetSettings, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
 } from "@/lib/settings/store";
 
 
@@ -115,7 +115,7 @@ import {
   programmeById, stepCard, stepText,
 } from "@/lib/course";
 import { localeFor } from "@/lib/progress/locale";
-import { courseReading, dayIsInPlay, openingPart, programmeFor, forgetRehoming, partAfterSwitch } from "@/lib/progress/course";
+import { courseReading, dayIsInPlay, openingPart, programmeFor, forgetRehoming, partAfterSwitch, choosePart, furthestPart } from "@/lib/progress/course";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { doneKeyFrom, doneToday, withDone } from "@/lib/ux/workbookDone";
 import { notePlayed } from "@/lib/progress/gamesPlayed";
@@ -2303,10 +2303,7 @@ export async function completeOnboarding(input: {
   */
   if (!await moveBlockedFor(ownerId, partFrom(await readSetting(ownerId, SETTING_KEYS.programme)), opening)) {
     // Stamped as chosen, like every other move: a part picked here is not one the lessons' switch sends back (`lib/progress/course.ts`).
-    await writeSettings(ownerId, [
-      [SETTING_KEYS.programme, opening.id],
-      [SETTING_KEYS.programmeChosenAt, new Date().toISOString()],
-    ]);
+    await choosePart(ownerId, opening.id);
   }
 
   /*
@@ -3773,7 +3770,8 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
   */
   let reachableParts: Set<string>;
   try {
-    const namedParts = (backup.settings ?? []).flatMap((row) => row.key === SETTING_KEYS.programme ? [String(row.value ?? "")] : []);
+    const namedParts = (backup.settings ?? []).flatMap((row) =>
+      row.key === SETTING_KEYS.programme || row.key === SETTING_KEYS.highestPart ? [String(row.value ?? "")] : []);
     const ticked = (backup.courseSteps ?? []).map((row) => ({ programmeId: String(row.programmeId ?? ""), dayId: String(row.dayId ?? "") }));
     reachableParts = await restorableParts(ownerId, [
       ...namedParts,
@@ -3993,6 +3991,21 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
           settings.delete(SETTING_KEYS.programme);
         }
       }
+      /*
+        THE FURTHEST PART THEY WERE EVER ON comes back as far as the checks would
+        let them go, and never lower than the one held here: it is what lets a
+        learner who stepped down move back up (`moveBlockedFor`), so a file
+        naming C1 is not a way past every check, and a backup from before B1
+        became lessons keeps the old part it named, whose ticks are dropped below.
+      */
+      const held = await tx.setting.findMany({ where: { ownerId, key: SETTING_KEYS.highestPart }, select: { value: true } });
+      const highest = furthestPart([
+        ...held.map((row) => row.value),
+        ...[settings.get(SETTING_KEYS.highestPart), named, settings.get(SETTING_KEYS.programme)]
+          .filter((id): id is string => Boolean(id) && reachableParts.has(id!)),
+      ]);
+      if (highest) settings.set(SETTING_KEYS.highestPart, highest.id);
+      else settings.delete(SETTING_KEYS.highestPart);
       const heldKeys = new Set((await tx.setting.findMany({
         where: { ownerId, key: { in: [...settings.keys()] } }, select: { key: true },
       })).map((row) => row.key));
@@ -4499,10 +4512,7 @@ export async function setProgramme(value: string) {
     ? levelHeldOnHandOff(from.level, to.level, standing?.held ?? null)
     : null;
   await Promise.all([
-    writeSettings(ownerId, [
-      [SETTING_KEYS.programme, wanted || defaultProgramme().id],
-      [SETTING_KEYS.programmeChosenAt, new Date().toISOString()],
-    ]),
+    choosePart(ownerId, wanted || defaultProgramme().id),
     held ? recordCourseLevel(ownerId, held) : Promise.resolve(),
   ]);
   revalidatePath("/course");
@@ -4561,10 +4571,7 @@ export async function acceptCourseMove(kind: string) {
   const levelWrite = move.held === was ? null : (move.held ?? "A0");
 
   await Promise.all([
-    writeSettings(ownerId, [
-      [SETTING_KEYS.programme, move.to.id],
-      [SETTING_KEYS.programmeChosenAt, now.toISOString()],
-    ]),
+    choosePart(ownerId, move.to.id, now),
     writeSetting(ownerId, SETTING_KEYS.adaptMovedAt, now.toISOString()),
     writeSetting(ownerId, SETTING_KEYS.adaptSnoozedUntil, ""),
     levelWrite ? recordCourseLevel(ownerId, levelWrite, now) : Promise.resolve(),

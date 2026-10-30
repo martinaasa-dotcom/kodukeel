@@ -19,7 +19,7 @@ export default function theModuleAsksWhatItTaught({ check, code }: InvariantKit)
     const end = level.indexOf("export async function", start + 10);
     const body = level.slice(start, end < 0 ? undefined : end);
     assert.match(body, /openingPartFor\(ownerId\)/, "setCourseLevel no longer works out where the new level opens");
-    assert.match(body, /SETTING_KEYS\.programme,\s*opening\.id/, "setCourseLevel no longer moves the course");
+    assert.match(body, /choosePart\(ownerId,\s*opening\.id/, "setCourseLevel no longer moves the course");
   });
 
   check("the module's closing round reads only tonight's words, and stops at MODULE_SESSION", () => {
@@ -36,10 +36,15 @@ export default function theModuleAsksWhatItTaught({ check, code }: InvariantKit)
 
   check("a verb form learned verb by verb is asked inside the module only once an evening showed it", () => {
     const scope = code("lib/course/scope.ts");
-    assert.match(scope, /LEARNED_PER_VERB[^=]*=\s*\["IndIpf", "ImpPrPl"\]/, "the list of per-verb forms changed");
+    // The past is shown by a lesson or a forms step, the polite imperative by a forms step alone.
     assert.match(
       scope,
-      /LEARNED_PER_VERB\.some\(\(code\) => slot\.startsWith\(code\)\) && !\(lemma && scope\.formsShown\.includes\(lemma\)\)\)\s*\{\s*return false;/,
+      /LEARNED_PER_VERB[\s\S]{0,200}?\{ code: "IndIpf", shownIn: "pastsShown" \},\s*\{ code: "ImpPrPl", shownIn: "formsShown" \}/,
+      "the list of per-verb forms changed",
+    );
+    assert.match(
+      scope,
+      /const learned = LEARNED_PER_VERB\.find\(\(l\) => slot\.startsWith\(l\.code\)\);\s*if \(learned && !\(lemma && scope\[learned\.shownIn\]\.includes\(lemma\)\)\) return false;/,
       "slotWithin stopped holding a verb's past to the evening that showed it",
     );
     assert.match(scope, /slotWithin\(scope, card\.slot \?\? conjugationSlotFromFront\(card\.front\), card\.lexeme\?\.lemma\)/,

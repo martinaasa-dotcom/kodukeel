@@ -24,7 +24,7 @@ export default function aNamedLevelIsHeld({ check, code, read, APP, COMPONENTS }
     );
     assert.match(
       onboarding,
-      /const opening = openingPart\(heldLevel\(answer\)[\s\S]{0,1600}?writeSettings\(ownerId, \[\s*\[SETTING_KEYS\.programme, opening\.id\]/,
+      /const opening = openingPart\(heldLevel\(answer\)[\s\S]{0,1600}?choosePart\(ownerId, opening\.id\)/,
       "first run no longer writes the part `openingPart` names off the level the learner holds",
     );
     assert.match(onboarding, /currentLevelAnswer\(ownerId\)/, "first run stopped reading the level off the server's own answer");
@@ -67,7 +67,7 @@ export default function aNamedLevelIsHeld({ check, code, read, APP, COMPONENTS }
     const move = actions.slice(start, actions.indexOf("export async function", start + 10));
     assert.match(move, /adaptOfferFor\(ownerId, programme\)/, "a move is no longer worked out off the learner's own answers");
     assert.match(move, /move\.kind !== wanted/, "a move the reading no longer offers is not refused");
-    assert.match(move, /SETTING_KEYS\.programme, move\.to\.id/, "the part written is not the offered move's");
+    assert.match(move, /choosePart\(ownerId, move\.to\.id/, "the part written is not the offered move's");
     assert.match(move, /recordCourseLevel\(/, "a move across a level no longer goes through recordCourseLevel");
     assert.match(move, /SETTING_KEYS\.adaptMovedAt/, "a move no longer restarts the reading, so it would be offered again on the same evidence");
   });
