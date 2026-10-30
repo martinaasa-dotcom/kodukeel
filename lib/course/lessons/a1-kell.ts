@@ -36,7 +36,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Mari", et: "Tom, mis päev täna on?", en: "Tom, what day is it today?" },
       { who: "Tom", et: "Täna on esmaspäev.", en: "Today's Monday." },
-      { who: "Mari", et: "Ei ole! Täna on teisipäev.", en: "No, it isn't! Today's Tuesday." },
+      { who: "Mari", et: "Ei ole ju! Täna on teisipäev.", en: "No it isn't! Today's Tuesday." },
       { who: "Tom", et: "Ah jaa! Eile oli esmaspäev.", en: "Oh, right! Yesterday was Monday." },
       { who: "Mari", et: "Ja homme on kolmapäev.", en: "And tomorrow's Wednesday." },
     ],
@@ -56,6 +56,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "homme", en: "tomorrow" },
       { kind: "word", et: "eile", en: "yesterday" },
       { kind: "form", et: "oli", of: "olema", en: "was" },
+      { kind: "word", et: "ju", en: "after all, you know (for something plain to see)" },
     ],
     how: {
       point: "The days are written in small letters, and six of the seven end in {päev}, day.",
@@ -211,7 +212,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Kuulan muusikat. Jaan vaatab telekat.", en: "I'm listening to music. Jaan's watching TV." },
       { who: "Tom", et: "Ja Liis?", en: "And Liis?" },
       { who: "Mari", et: "Liis õpib. Mis sa õhtul teed?", en: "Liis is studying. What are you doing this evening?" },
-      { who: "Tom", et: "Õhtul? Ma ei tea veel.", en: "This evening? I don't know yet." },
+      { who: "Tom", et: "Õhtul? Noh, ma ei tea veel.", en: "This evening? Well, I don't know yet." },
     ],
     teaches: [
       { kind: "phrase", et: "Mida sa teed?", en: "What are you doing?" },
@@ -224,6 +225,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "telekat", en: "TV, after watch" },
       { kind: "word", et: "praegu", en: "now, right now" },
       { kind: "phrase", et: "Ma ei tea.", en: "I don't know." },
+      { kind: "word", et: "noh", en: "well..." },
     ],
     how: {
       point: "What you read, hear or watch takes an ending of its own: {loen raamatut}, {kuulan muusikat}, {vaatan telekat}.",
@@ -318,11 +320,11 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
     cast: { Tom: "kalev", Mari: "mari" },
     conversation: [
       { who: "Tom", et: "Mari, ma tahan süüa!", en: "Mari, I want to eat!" },
-      { who: "Mari", et: "Mina ka. Aga ma pean täna õppima.", en: "So do I. But I have to study today." },
-      { who: "Tom", et: "Kas sa saad homme tulla?", en: "Can you come tomorrow?" },
+      { who: "Mari", et: "Mina ka. Aga ma pean täna kahjuks õppima.", en: "Me too. But unfortunately I have to study today." },
+      { who: "Tom", et: "Äkki saad homme tulla?", en: "Maybe you can come tomorrow?" },
       { who: "Mari", et: "Jah, homme saan.", en: "Yes, tomorrow I can." },
       { who: "Tom", et: "Kas sa oskad süüa teha?", en: "Can you cook?" },
-      { who: "Mari", et: "Natuke. Aga Jaan oskab väga hästi!", en: "A little. But Jaan's very good at it!" },
+      { who: "Mari", et: "Natuke. Aga Jaan oskab küll väga hästi!", en: "A little. But Jaan's really good at it!" },
     ],
     teaches: [
       { kind: "verb", et: "tahtma", first: "tahan", en: "to want", firstEn: "I want" },
@@ -338,6 +340,9 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "lugeda", of: "lugema", en: "to read, after want or can" },
       { kind: "form", et: "rääkida", of: "rääkima", en: "to speak, after want or can" },
       { kind: "phrase", et: "süüa teha", en: "to cook" },
+      { kind: "word", et: "kahjuks", en: "unfortunately, sadly" },
+      { kind: "word", et: "äkki", en: "maybe; suddenly" },
+      { kind: "word", et: "küll", en: "indeed, really; it makes a yes warmer" },
     ],
     how: {
       point: "After {tahan}, {saan} and {oskan}, the next verb takes its [da-tegevusnimi] (-da): {Ma tahan süüa}.",
@@ -383,7 +388,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
       { who: "Liis", et: "Tahad tulla? Ma teen süüa.", en: "Do you want to come over? I'm cooking." },
       { who: "Tom", et: "Jah! Mis kell?", en: "Yes! What time?" },
       { who: "Liis", et: "Kell kuus. Kas sa saad?", en: "At six. Can you?" },
-      { who: "Tom", et: "Kell kuus ma ei saa. Kell seitse?", en: "I can't at six. Seven?" },
+      { who: "Tom", et: "Kell kuus ma kahjuks ei saa. Kell seitse?", en: "Unfortunately I can't at six. Seven?" },
       { who: "Liis", et: "Väga hästi, kell seitse!", en: "Great, seven it is!" },
       { who: "Tom", et: "Tsau!", en: "Bye!" },
     ],

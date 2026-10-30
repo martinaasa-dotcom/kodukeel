@@ -400,7 +400,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       { who: "Liis", et: "Kakskümmend viis.", en: "Twenty-five." },
       { who: "Tom", et: "Ja Jaan?", en: "And Jaan?" },
       { who: "Liis", et: "Jaan on nelikümmend. Ta on vana!", en: "Jaan's forty. He's old!" },
-      { who: "Jaan", et: "Ei ole!", en: "I am not!", stage: "From across the room." },
+      { who: "Jaan", et: "No ei ole!", en: "Oh, I'm not!", stage: "From across the room." },
     ],
     teaches: [
       { kind: "word", et: "üksteist", en: "eleven, 11" },
@@ -425,6 +425,7 @@ export const A1_ELAD_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "vana", en: "old" },
       { kind: "word", et: "aasta", en: "year" },
       { kind: "form", et: "aastat", of: "aasta", en: "years, after a number" },
+      { kind: "word", et: "no", en: "well, so (at the start of what you say)" },
     ],
     how: {
       point: "Eleven to nineteen add -teist, and the tens add -kümmend, to the numbers you already know.",

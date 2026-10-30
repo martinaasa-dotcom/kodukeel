@@ -248,7 +248,6 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
       { kind: "verb", et: "muretsema", first: "muretsen", en: "to worry", firstEn: "I worry" },
       { kind: "form", et: "ära", of: "ei", en: "don't!, to one person" },
       { kind: "verb", et: "lootma", first: "loodan", en: "to hope", firstEn: "I hope" },
-      { kind: "word", et: "küll", en: "indeed, really; it makes a yes warmer" },
       { kind: "word", et: "jälle", en: "again" },
     ],
     how: {

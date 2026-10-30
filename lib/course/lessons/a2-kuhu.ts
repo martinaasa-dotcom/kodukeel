@@ -224,7 +224,6 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "peo", of: "pidu", en: "of the party", stem: true },
       { kind: "form", et: "sünnipäeva", of: "sünnipäev", en: "of the birthday", stem: true },
       { kind: "form", et: "keele", of: "keel", en: "of a language", stem: true },
-      { kind: "word", et: "kahjuks", en: "unfortunately, sadly" },
       { kind: "word", et: "kord", en: "a time, as in next time; a turn" },
     ],
     how: {

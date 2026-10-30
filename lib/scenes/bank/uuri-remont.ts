@@ -28,7 +28,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "uuri-remont", beat: "hurdle:interrupted", text: "Oodake natuke, palun.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "uuri-remont", beat: "hurdle:interrupted", text: "Üks hetk, keegi räägib minuga.", model: "authored", draftedAt: "2026-10-30", reviewedAt: "2026-10-30" },
   { scene: "uuri-remont", beat: "hurdle:not-possible", text: "Vabandust, täna ei saa keegi tulla.", model: "authored", draftedAt: "2026-10-30", about: "problem", reviewedAt: "2026-10-30" },
-  { scene: "uuri-remont", beat: "hurdle:not-possible", text: "Täna ei saa keegi tulla.", model: "authored", draftedAt: "2026-10-15", about: "problem", reviewedAt: "2026-10-16" },
+  { scene: "uuri-remont", beat: "hurdle:not-possible", text: "Kahjuks täna ei saa keegi tulla.", model: "authored", draftedAt: "2026-10-30" },
   { scene: "uuri-remont", beat: "hurdle:other-register", text: "Kas sa oled praegu korteris?", model: "authored", draftedAt: "2026-09-11", reviewedAt: "2026-10-15" },
   { scene: "uuri-remont", beat: "hurdle:other-register", text: "Millal sa kodus oled?", model: "authored", draftedAt: "2026-09-11", reviewedAt: "2026-10-15" },
   { scene: "uuri-remont", beat: "hurdle:small-talk", text: "Küll on täna külm, eks?", model: "authored", draftedAt: "2026-10-30", reviewedAt: "2026-10-30" },

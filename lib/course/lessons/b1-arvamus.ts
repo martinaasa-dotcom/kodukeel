@@ -297,7 +297,6 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
     teaches: [
       { kind: "form", et: "meelest", of: "meel", en: "in the mind of: {minu meelest}, in my opinion" },
       { kind: "form", et: "küljest", of: "külg", en: "from the side: {ühest küljest}, {teisest küljest}" },
-      { kind: "word", et: "õigus", en: "right: {sul on õigus}, you're right" },
       { kind: "form", et: "minuga", of: "mina", en: "with me" },
     ],
     how: {

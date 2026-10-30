@@ -20,7 +20,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "poodi-piima", beat: "back", text: "Kust sa nüüd tuled?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "poodi-piima", beat: "back", text: "Kust sa tuled?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "poodi-piima", beat: "back", text: "Kust sa praegu tuled?", model: "gemini-3.8-flash", draftedAt: "2026-09-12", level: "A1", reviewedAt: "2026-10-15" },
-  { scene: "poodi-piima", beat: "close", text: "Head aega!", model: "minimax/minimax-m3:free", draftedAt: "2026-09-04", reviewedAt: "2026-10-15" },
+  { scene: "poodi-piima", beat: "close", text: "Tsau!", model: "authored", draftedAt: "2026-10-30" },
   { scene: "poodi-piima", beat: "close", text: "Hästi, nägemist!", model: "authored", draftedAt: "2026-10-30", level: "A1", reviewedAt: "2026-10-30" },
   { scene: "poodi-piima", beat: "going", text: "Kuhu sa nüüd lähed?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "poodi-piima", beat: "going", text: "Kuule, kuhu sa praegu lähed?", model: "authored", draftedAt: "2026-10-30" },
@@ -44,7 +44,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "poodi-piima", beat: "item", text: "Mis sa osta tahad?", model: "authored", draftedAt: "2026-10-30" },
   { scene: "poodi-piima", beat: "item", text: "Mis sa poest osta tahad?", model: "authored", draftedAt: "2026-10-30", level: "A1" },
   { scene: "poodi-piima", beat: "item", text: "Mis sa ostad?", model: "authored", draftedAt: "2026-10-30" },
-  { scene: "poodi-piima", beat: "close", text: "Hästi, siis näeme varsti. Head aega!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },
+  { scene: "poodi-piima", beat: "close", text: "Hästi, siis näeme varsti. Tsau!", model: "authored", draftedAt: "2026-10-30" },
   { scene: "poodi-piima", beat: "close", text: "Tore, räägime hiljem. Nägemist!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },
 ];
 

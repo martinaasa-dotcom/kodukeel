@@ -32,7 +32,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "soovitus", beat: "hurdle:contradiction", text: "Aga ma kuulsin, et see on igav.", model: "authored", draftedAt: "2026-10-15", about: "like", reviewedAt: "2026-10-16" },
   { scene: "soovitus", beat: "hurdle:contradiction", text: "Aga eelmine oli ju parem, eks?", model: "authored", draftedAt: "2026-10-15", about: "compare", reviewedAt: "2026-10-16" },
   { scene: "soovitus", beat: "close", text: "Tore oli sind näha. Nägemist!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },
-  { scene: "soovitus", beat: "close", text: "Varsti näeme jälle. Head aega!", model: "authored", draftedAt: "2026-10-23", reviewedAt: "2026-10-25" },
+  { scene: "soovitus", beat: "close", text: "Varsti näeme jälle. Tsau!", model: "authored", draftedAt: "2026-10-30" },
 ];
 
 export default LINES;

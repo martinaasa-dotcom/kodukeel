@@ -31,7 +31,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "peretoetus", beat: "answer:check", text: "Saatke see meile kirjaga.", model: "authored", draftedAt: "2026-10-16", reviewedAt: "2026-10-16" },
   { scene: "peretoetus", beat: "hurdle:missing-document", text: "Kas te olete meie kirja saanud?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "peretoetus", beat: "hurdle:missing-document", text: "Kas meie kiri on teile tulnud?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
-  { scene: "peretoetus", beat: "hurdle:not-possible", text: "Täna ei saa, helistage homme.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15", about: "check" },
+  { scene: "peretoetus", beat: "hurdle:not-possible", text: "Kahjuks täna ei saa, helistage homme.", model: "authored", draftedAt: "2026-10-30" },
   { scene: "peretoetus", beat: "hurdle:not-possible", text: "Vabandust, täna ei saa. Helistage homme.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15", about: "check" },
   { scene: "peretoetus", beat: "hurdle:not-possible", text: "Aga täna me raha saata ei saa.", model: "authored", draftedAt: "2026-10-16", about: "check", reviewedAt: "2026-10-16" },
   { scene: "peretoetus", beat: "answer:hurdle:not-possible", text: "Homme saab.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },

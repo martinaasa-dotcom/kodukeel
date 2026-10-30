@@ -367,7 +367,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
     goal: "Tell a friend what you did over the weekend, and make a plan for next week.",
     cast: { Liis: "liivika", Tom: "kalev" },
     conversation: [
-      { who: "Liis", et: "Tere, Tom! Kuidas läheb?", en: "Hi, Tom! How's it going?" },
+      { who: "Liis", et: "No tere, Tom! Kuidas läheb?", en: "Well hi, Tom! How's it going?" },
       { who: "Tom", et: "Hästi, aitäh! Ja sinul?", en: "Good, thanks! And you?" },
       { who: "Liis", et: "Normaalselt. Mida sa laupäeval tegid?", en: "Not bad. What did you do on Saturday?" },
       { who: "Tom", et: "Käisin poes, siis olin kodus ja lugesin raamatut.", en: "I went to the shop, then I was at home and read a book." },

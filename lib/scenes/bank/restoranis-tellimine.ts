@@ -31,7 +31,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "restoranis-tellimine", beat: "drink", text: "Ja mida te juua soovite?", model: "authored", draftedAt: "2026-09-12", reviewedAt: "2026-10-15" },
   { scene: "restoranis-tellimine", beat: "drink", text: "Mida te joote?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "restoranis-tellimine", beat: "drink", text: "Mida te soovite juua?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
-  { scene: "restoranis-tellimine", beat: "how-many", text: "Mitu teid on?", model: "authored", draftedAt: "2026-10-30", reviewedAt: "2026-10-30" },
+  { scene: "restoranis-tellimine", beat: "how-many", text: "Mitmekesi te olete?", model: "authored", draftedAt: "2026-10-30" },
   { scene: "restoranis-tellimine", beat: "how-many", text: "Mitu inimest te olete?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "restoranis-tellimine", beat: "hurdle:faster", text: "Mul on natuke kiire.", model: "authored", draftedAt: "2026-10-30", reviewedAt: "2026-10-30" },
   { scene: "restoranis-tellimine", beat: "hurdle:faster", text: "Vabandust, täna on väga kiire.", model: "authored", draftedAt: "2026-10-30", reviewedAt: "2026-10-30" },

@@ -93,7 +93,7 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Ma tahan kohvi. Ja sina?", en: "I want coffee. And you?" },
       { who: "Mari", et: "Mina joon teed ja söön saia.", en: "I'm having tea and a bun." },
       { who: "Tom", et: "Kas meil on piima?", en: "Do we have any milk?" },
-      { who: "Mari", et: "Ei, piima pole. Aga vett on!", en: "No, there's no milk. But there's water!" },
+      { who: "Mari", et: "Ei, piima vist pole. Aga vett on!", en: "No, I don't think there's any milk. But there's water!" },
     ],
     teaches: [
       { kind: "form", et: "kohvi", of: "kohv", en: "coffee, some coffee" },
@@ -104,6 +104,7 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "saia", of: "sai", en: "a bun, some bread" },
       { kind: "form", et: "kooki", of: "kook", en: "cake, some cake" },
       { kind: "form", et: "mida", of: "mis", en: "what, as the thing you do or want" },
+      { kind: "word", et: "vist", en: "probably, I think" },
     ],
     how: {
       point: "After {tahan}, {joon} and {söön}, a noun takes its [osastav] (3rd form), the \"some of it\" form: {Ma tahan kohvi}.",
@@ -313,7 +314,7 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Mari", et: "Tom, kas sulle meeldib kohv?", en: "Tom, do you like coffee?" },
       { who: "Tom", et: "Jah, väga! Ja sulle?", en: "Yes, a lot! And you?" },
-      { who: "Mari", et: "Mulle ei meeldi. Ma joon ainult teed.", en: "I don't. I only drink tea." },
+      { who: "Mari", et: "Mulle mitte. Ma joon ainult teed.", en: "Not me. I only drink tea." },
       { who: "Tom", et: "Ja Jaan? Kas talle meeldib tee?", en: "And Jaan? Does he like tea?" },
       { who: "Mari", et: "Ei. Talle meeldib ainult õlu!", en: "No. He only likes beer!" },
     ],
@@ -329,6 +330,7 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "neile", of: "nemad", en: "to them" },
       { kind: "word", et: "ainult", en: "only" },
       { kind: "word", et: "õlu", en: "beer" },
+      { kind: "word", et: "mitte", en: "not, before a word rather than a verb" },
     ],
     how: {
       point: "{Mulle meeldib} means \"I like\": {Mulle meeldib kohv}, I like coffee.",

@@ -37,7 +37,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "arsti-aeg", beat: "hurdle:missing-document", text: "Kas teil on mõni dokument kaasas?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "arsti-aeg", beat: "hurdle:not-possible", text: "Arst täna vastu ei võta.", model: "authored", draftedAt: "2026-09-05", about: "since", reviewedAt: "2026-10-15" },
   { scene: "arsti-aeg", beat: "hurdle:not-possible", text: "Täna ei ole arsti.", model: "authored", draftedAt: "2026-09-05", about: "since", reviewedAt: "2026-10-15" },
-  { scene: "arsti-aeg", beat: "hurdle:not-possible", text: "Täna ei saa, tulge homme.", model: "authored", draftedAt: "2026-09-05", about: "since", reviewedAt: "2026-10-15" },
+  { scene: "arsti-aeg", beat: "hurdle:not-possible", text: "Kahjuks täna ei saa, tulge homme.", model: "authored", draftedAt: "2026-10-30" },
   { scene: "arsti-aeg", beat: "hurdle:other-register", text: "Kas sul on praegu valu?", model: "authored", draftedAt: "2026-09-11", reviewedAt: "2026-10-15" },
   { scene: "arsti-aeg", beat: "hurdle:other-register", text: "Kuidas sa end täna tunned?", model: "authored", draftedAt: "2026-09-11", reviewedAt: "2026-10-15" },
   { scene: "arsti-aeg", beat: "hurdle:place-instruction", text: "Enne minge palun sinna.", model: "authored", draftedAt: "2026-09-05", about: "greet", reviewedAt: "2026-10-15" },
