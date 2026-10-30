@@ -105,7 +105,7 @@ export const PARALLEL_REVIEW: Readonly<Record<string, ParallelDecision>> = {
   mune: {
     keep: true, why: "Eggs, as the object, in every lesson that says it.",
     read: [
-      "Ei ostnud mune.", "Ei, ma ei ostnud mune. Need olid otsas.", "Ma ei ostnud mune.", "Mune ma ei ostnud.", "Osta mune!",
+      "Ei ostnud mune.", "Ei, ma ei ostnud mune.", "Ei, ma ei ostnud mune. Need olid otsas.", "Ma ei ostnud mune.", "Mune ma ei ostnud.", "Osta mune!",
       "Tubli! Kas sa ka mune ostsid?", "mune",
     ],
   },
