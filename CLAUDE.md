@@ -7745,6 +7745,23 @@ frames the floor called silence, what is added is zeros, and the ramp at each se
 exists to prevent. `lib/audio/stretch.ts` marks the lead and the trail as padding and leaves them
 exactly as long as they are, so a slow play keeps the same head start.
 
+**And the speaker is woken before the word, because the device was what ate the edges.** A learner
+reported the listening round as horrible audio that would not let the first or last letter play.
+Every link before the speaker was measured and none was cutting anything: `prepareClip` keeps every
+frame above the hiss over 155 real clips in ten voices, the stretch keeps the lead and the trail at
+every rate a round plays at, and a real Chromium recording its own element through `captureStream`
+gave back every frame of the prepared clip. What was left is the output. Every word was a new
+`HTMLAudioElement` on a device that had been quiet for the five seconds a learner thinks between
+words, and a sleeping output (Bluetooth headphones, Android's standby after three seconds, a laptop
+codec) drops what it is sent for the 100 to 400 ms it takes to wake, and loses queued samples when a
+stream closes. `lib/audio/output.ts` holds the one playing `AudioContext`, shared by the mixer and
+the feedback tones, and keeps the device awake with a noise loop at -80 dBFS for a minute after the
+last sound, released when the tab is hidden. A sound that finds it cold is given `WAKE_MS` of extra
+silence inside the clip (`withLead`) rather than a wait before `play()`, because Safari stops
+counting a play as the learner's press if the press is made to wait. Every element play in
+`lib/audio/clip.ts` and the mixer ask it first. No clip changed shape, so neither `CLIP_SHAPE` nor
+the worker's `VERSION` moved.
+
 **And a word is asked for as a finished sentence, because the speed was never the fault.** A
 learner reported single words sounding "like the word is incomplete", and named one: `õde` in a
 deep voice, heard as "öd". The speed was the suspect and it is not the cause. Measured through the
