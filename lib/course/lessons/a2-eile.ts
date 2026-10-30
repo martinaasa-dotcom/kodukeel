@@ -158,7 +158,7 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
         "{Marit} is Mari after {nägema}: a name takes the [osastav] (3rd form) too, like {kohvi}.",
         "{Kaua} after a verb is for ages: {Me rääkisime kaua}.",
       ],
-      watchOut: "{Võttis}, not võtsis: the he and she form is the one to learn by heart.",
+      watchOut: "{Võttis}, with a double t and no s before the ending: the he and she form is the one to learn by heart.",
       examples: [1, 3, 5],
     },
     answers: [
