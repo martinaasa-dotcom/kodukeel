@@ -126,6 +126,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
         from: { et: "Me sööme koogi ära.", en: "We eat the whole cake." },
         ask: "Say the whole cake gets eaten, with nobody named. Mind what the cake turns into.",
         to: { et: "Kook süüakse ära.", en: "The whole cake gets eaten." },
+        also: ["Terve kook süüakse ära."],
         pattern: "impersonal",
       },
     ],
@@ -357,7 +358,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
         from: { et: "Mari on pileti koju unustanud.", en: "Mari has left the ticket at home." },
         ask: "Say you had left it at home yourself, before something else happened.",
         to: { et: "Ma olin pileti koju unustanud.", en: "I'd left the ticket at home." },
-        also: ["Olin pileti koju unustanud.", "Ma olin pileti koju ära unustanud."],
+        also: ["Olin pileti koju unustanud.", "Ma olin pileti koju ära unustanud.", "Ma olin selle koju unustanud."],
         pattern: "pluperfect",
       },
       {
@@ -724,6 +725,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
         from: { et: "Toru on katki.", en: "The pipe is broken." },
         ask: "Say it has been fixed.",
         to: { et: "Toru on parandatud.", en: "The pipe has been fixed." },
+        also: ["Toru on ära parandatud."],
         pattern: "participle",
       },
       {
@@ -737,7 +739,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
         from: { et: "Toru on parandatud.", en: "The pipe has been fixed." },
         ask: "Say it had already been fixed, before something else happened.",
         to: { et: "Toru oli juba parandatud.", en: "The pipe had already been fixed." },
-        also: ["Toru oli parandatud."],
+        also: ["Toru oli parandatud.", "Toru oli juba ära parandatud.", "Toru oli ära parandatud."],
         pattern: "pluperfect",
       },
     ],

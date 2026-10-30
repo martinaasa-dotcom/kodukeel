@@ -108,7 +108,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       },
       {
         from: { et: "Uks on suletud.", en: "The door is shut." },
-        ask: "Say the opposite.",
+        ask: "Say it's open instead, with another -tud word.",
         to: { et: "Uks on avatud.", en: "The door is open." },
         also: ["Uks on lahti."],
         pattern: "participle",
@@ -197,14 +197,14 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         from: { et: "Tuba on suur ja hele.", en: "The room is big and bright." },
         ask: "Say you work in that room.",
         to: { et: "Ma töötan suures heledas toas.", en: "I work in the big bright room." },
-        also: ["Ma töötan suures ja heledas toas.", "Töötan suures heledas toas.", "Töötan suures ja heledas toas."],
+        also: ["Ma töötan suures ja heledas toas.", "Töötan suures heledas toas.", "Töötan suures ja heledas toas.", "Ma töötan selles suures heledas toas.", "Töötan selles suures heledas toas.", "Ma töötan selles suures ja heledas toas."],
         pattern: "agreement",
       },
       {
         from: { et: "See on uus korter.", en: "It's a new apartment." },
         ask: "Say you're moving into it.",
         to: { et: "Ma kolin uude korterisse.", en: "I'm moving into a new apartment." },
-        also: ["Me kolime uude korterisse.", "Ma kolin uuesse korterisse.", "Kolin uude korterisse.", "Me kolime uuesse korterisse."],
+        also: ["Me kolime uude korterisse.", "Ma kolin uuesse korterisse.", "Kolin uude korterisse.", "Me kolime uuesse korterisse.", "Kolin uuesse korterisse."],
         pattern: "agreement",
       },
       {
@@ -218,7 +218,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         from: { et: "Maja on vana.", en: "The building is old." },
         ask: "Say you live in that old building.",
         to: { et: "Ma elan vanas majas.", en: "I live in an old building." },
-        also: ["Elan vanas majas.", "Me elame vanas majas."],
+        also: ["Elan vanas majas.", "Me elame vanas majas.", "Ma elan selles vanas majas.", "Elan selles vanas majas.", "Me elame selles vanas majas."],
         pattern: "agreement",
       },
     ],
@@ -442,7 +442,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         from: { et: "Meister vahetab toru.", en: "The handyman is changing the pipe." },
         ask: "Say he changed it, the job done. Use {ära}.",
         to: { et: "Meister vahetas toru ära.", en: "The handyman changed the pipe." },
-        also: ["Meister vahetas toru välja."],
+        also: ["Meister vahetas toru välja.", "Meister vahetas selle ära."],
         pattern: "object",
       },
       {
@@ -560,7 +560,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         from: { et: "Ma lõpetan lepingu.", en: "I'm ending the contract." },
         ask: "Say you're not ending it.",
         to: { et: "Ma ei lõpeta lepingut.", en: "I'm not ending the contract." },
-        also: ["Ei lõpeta lepingut.", "Lepingut ma ei lõpeta."],
+        also: ["Ei lõpeta lepingut.", "Lepingut ma ei lõpeta.", "Ma ei lõpeta seda.", "Ei lõpeta seda."],
         pattern: "object",
       },
       {
