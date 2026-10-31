@@ -26,9 +26,11 @@
  * list moves to `b2.ts` whole and this one is empty again.
  */
 import type { LessonSpec, PartOfLessons } from "./types";
+import { B2_KULTUUR_LESSONS, B2_KULTUUR_PART } from "./b2-kultuur";
 
 const PARTS: readonly (readonly [PartOfLessons, readonly LessonSpec[]])[] = [
   // One line per B2 part, in teaching order: [B2_<PART>_PART, B2_<PART>_LESSONS],
+  [B2_KULTUUR_PART, B2_KULTUUR_LESSONS],
 ];
 
 export const PREVIEW_PARTS: readonly PartOfLessons[] = PARTS.map(([part]) => part);

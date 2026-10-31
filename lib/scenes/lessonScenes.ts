@@ -35,11 +35,13 @@ import B1_MEISTER from "./specs/b1-meister";
 import B1_TAGATIS from "./specs/b1-tagatis";
 import B1_EKSAM from "./specs/b1-eksam";
 import B1_KOLLEEG from "./specs/b1-kolleeg";
+import B2_MONOLOOG from "./specs/b2-monoloog";
 
 export const LESSON_SCENES: readonly SceneSpec[] = [
   A1_TREPIL, A1_KURSUS, A1_PLAAN, A1_KOHVIK, A1_TEE, A1_MUTSIPOOD, A1_NADAL, A1_KUTSE,
   A2_RAAMATUKOGU, A2_LINNAS, A2_SUVI, A2_ARST, A2_PILETIKASSA, A2_RESTORAN, A2_INTERVJUU, A2_VANA_SOBER,
   B1_MEISTER, B1_KOLLEEG, B1_PALGATOUS, B1_TAGATIS, B1_UHISTU, B1_VAIDLUS, B1_EKSAM,
+  B2_MONOLOOG,
 ];
 
 /** The conversation a lesson's role-play opens, if it has one. */
