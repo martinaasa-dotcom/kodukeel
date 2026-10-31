@@ -236,6 +236,7 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "harjutanud", of: "harjutama", en: "practiced: {olime harjutanud}, we had practiced" },
       { kind: "word", et: "hirm", en: "fear; {mul oli hirm}, I was scared" },
       { kind: "form", et: "lauldakse", of: "laulma", en: "people sing, there's singing: nobody named" },
+      { kind: "word", et: "aastane", en: "years old, in a compound: {kaheksa-aastane}, eight years old" },
     ],
     how: {
       point: "A story moves in the simple past: {jõudsin}, {laulsid}. What had already happened before that moment takes {oli} and the -nud word, {olid juba ära laulnud}: it puts one event behind another.",
@@ -252,7 +253,7 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
         "{Kui} with the simple past is the moment the story stops at. The other half decides the order: {laulsid} is at that moment, {olid laulnud} is before it.",
         "{Kuidas nii?} is how come? It asks for the reason, and the other person goes on with the story.",
       ],
-      watchOut: "English lets the had slip: when we got there, they already sang. Estonian keeps it. Without {olid}, {Kui me jõudsime, nad laulsid} means they were singing as you arrived.",
+      watchOut: "English lets the had slip: when we got there, they already sang. Estonian keeps it. Without {olid}, {Kui me kohale jõudsime, laulsid nad} means they were singing as you arrived.",
       examples: [2, 10, 11],
     },
     listenFor: [
@@ -319,7 +320,7 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
       who: "Kati",
       hearings: 1,
       story: [
-        { et: "Kui ma esimest korda laulupeol laulsin, olin ma kaheksa aastat vana.", en: "The first time I sang at the song festival, I was eight years old." },
+        { et: "Kui ma esimest korda laulupeol laulsin, olin ma kaheksa-aastane.", en: "The first time I sang at the song festival, I was eight years old." },
         { et: "Ema oli mulle rahvariided ostnud.", en: "My mother had bought me a national costume." },
         { et: "Me olime pool aastat harjutanud.", en: "We had practiced for half a year." },
         { et: "Seal oli sada tuhat inimest.", en: "There were a hundred thousand people there." },
@@ -393,6 +394,7 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "hoiatanud", of: "hoiatama", en: "warned: {oli hoiatanud}, had warned" },
       { kind: "form", et: "puhtad", of: "puhas", en: "clean, of more than one" },
       { kind: "word", et: "huumor", en: "humor" },
+      { kind: "form", et: "ulatus", of: "ulatuma", en: "reached, stretched as far as" },
     ],
     how: {
       point: "Some things are said whole and never word for word: {Kerget leili!} to somebody going into the sauna, {Head isu!} at the table. Learn each like one word, with the moment it belongs to.",
@@ -421,7 +423,7 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
     read: {
       genre: "The rules on the wall of a public sauna",
       lines: [
-        { et: "Reeglid saunas", en: "Rules in the sauna" },
+        { et: "Saunareeglid", en: "Sauna rules" },
         { et: "Enne sauna mine duši alla.", en: "Take a shower before the sauna." },
         { et: "Leili viska ainult siis, kui kõik on nõus.", en: "Throw water on the stones only if everybody agrees." },
         { et: "Saunas ära joo alkoholi.", en: "Don't drink alcohol in the sauna." },
@@ -471,7 +473,7 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
       who: "Tom",
       hearings: 1,
       story: [
-        { et: "Laupäeval käisin ma esimest korda päris Eesti saunas.", en: "On Saturday I went to a real Estonian sauna for the first time." },
+        { et: "Laupäeval käisin ma esimest korda päris eesti saunas.", en: "On Saturday I went to a real Estonian sauna for the first time." },
         { et: "Jaan viskas nii palju leili, et ma ei saanud hingata.", en: "Jaan threw so much water on the stones that I couldn't breathe." },
         { et: "Siis vihtlesin ma ennast.", en: "Then I whisked myself." },
         { et: "Ma ei teadnud, et see nii mõnus on.", en: "I didn't know it was so nice." },
@@ -519,7 +521,7 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Taastas? Miks just taastas?", en: "Restored? Why restored, of all words?" },
       { who: "Kati", et: "Sest Eesti oli juba enne sõda iseseisev olnud. Pärast sõda tuli okupatsioon.", en: "Because Estonia had already been independent before the war. After the war came the occupation." },
       { who: "Tom", et: "Ja iseseisvus taastati ilma sõjata?", en: "And independence was restored without a war?" },
-      { who: "Kati", et: "Just. Laulude abil. Sellepärast ei ole laulupidu meile lihtsalt pidu.", en: "Exactly. With the help of songs. That's why for us the song festival is never only a party." },
+      { who: "Kati", et: "Just. Laulude abil. Sellepärast ei ole laulupidu meile lihtsalt pidu.", en: "Exactly. With the help of songs. That's why the song festival means more to us than a party." },
       { who: "Tom", et: "Nüüd ma saan aru, miks sa laulupeol nutsid.", en: "Now I see why you cried at the song festival." },
     ],
     teaches: [
@@ -633,7 +635,7 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
       story: [
         { et: "Mu ema oli 1989. aastal veel noor.", en: "In 1989 my mother was still young." },
         { et: "Ta sõitis koos sõbraga Tallinnast välja ja seisis tee ääres.", en: "She drove out of Tallinn with a friend and stood by the road." },
-        { et: "Seal seisid inimesed käest kinni nii kaugele, kui silm nägi.", en: "There people stood hand in hand as far as the eye could see." },
+        { et: "Seal seisid inimesed käest kinni nii kaugele, kui silm ulatus.", en: "There people stood hand in hand as far as the eye could see." },
         { et: "Keegi ei teadnud, mis edasi saab.", en: "Nobody knew what would happen next." },
         { et: "Emal oli hirm, aga ta ei läinud koju.", en: "My mother was scared, but she didn't go home." },
         { et: "Kõik laulsid koos.", en: "Everybody sang together." },
@@ -697,6 +699,7 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "naljakat", of: "naljakas", en: "funny, after {midagi}: {midagi naljakat}" },
       { kind: "word", et: "hiljuti", en: "lately, not long ago" },
       { kind: "form", et: "eksami", of: "eksam", en: "of the exam; the whole exam", stem: true },
+      { kind: "form", et: "suve", of: "suvi", en: "of the summer: {suve kõige suurem pidu}, the biggest party of the summer" },
     ],
     how: {
       point: "A story you tell has a shape: when it was, what had already happened, what went wrong, and how it ended. The had-done, {olime ostnud}, is how you step back in time inside it.",
@@ -732,7 +735,7 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
         { et: "Pärast aktust lähevad lapsed koos õpetajaga oma klassi.", en: "After the ceremony the children go with their teacher to their classroom." },
         { et: "Vanemad saavad lapsed kooli õuelt kätte kell 11.00.", en: "Parents can pick the children up in the schoolyard at 11 a.m." },
         { et: "Esimesel nädalal lõpevad tunnid kell 12.00.", en: "In the first week, lessons end at noon." },
-        { et: "Palume lapsel kaasa võtta pinal ja vahetusjalanõud.", en: "Please send your child with a pencil case and a change of shoes." },
+        { et: "Palume lapsel kaasa võtta pinali ja vahetusjalanõud.", en: "Please send your child with a pencil case and a change of shoes." },
         { et: "Ilusat kooliaasta algust!", en: "Have a lovely start to the school year!" },
       ],
     },
@@ -782,7 +785,7 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
         { et: "Lapsed viivad sel päeval õpetajale lilli.", en: "On that day children take flowers to their teacher." },
         { et: "Sel aastal läks ka meie poeg esimest korda kooli.", en: "This year our son went to school for the first time too." },
         { et: "Me olime eelmisel õhtul kõik valmis pannud: koti, uued riided ja ilusad lilled õpetajale.", en: "The evening before, we had got everything ready: the bag, new clothes and beautiful flowers for the teacher." },
-        { et: "Kõik algas nagu lepase reega.", en: "It all started without a hitch." },
+        { et: "Alguses läks kõik nagu lepase reega.", en: "At first everything went without a hitch." },
         { et: "Kõik olid õigel ajal valmis ja keegi ei nutnud.", en: "Everybody was ready on time and nobody cried." },
         { et: "Isegi ilm oli ilus.", en: "Even the weather was lovely." },
         { et: "Alles bussis sain aru, et olime lilled koju unustanud.", en: "It was only on the bus that I realized we'd left the flowers at home." },
@@ -795,7 +798,7 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
         { et: "Ta küsis ainult: „Isa, kus sa olid?“", en: "All he asked was, “Dad, where were you?”" },
         { et: "Pärast andis ta lilled kooli koristajale, sest ta arvas, et see on direktor.", en: "Afterwards he gave the flowers to the school's cleaner, because he thought she was the head." },
         { et: "Koristaja oli väga õnnelik.", en: "The cleaner was very happy." },
-        { et: "Alguses ei teadnud ta, mida rääkida.", en: "At first she didn't know what to say." },
+        { et: "Alguses ei teadnud ta, mida öelda.", en: "At first she didn't know what to say." },
         { et: "Ta ütles, et keegi ei olnud talle kolmkümmend aastat lilli toonud.", en: "She said nobody had brought her flowers in thirty years." },
         { et: "Õhtul naersime terve perega selle üle.", en: "In the evening the whole family laughed about it." },
         { et: "Minu arvates oli see hea algus, sest poeg leidis kohe sõbra ja koristaja sai lilled.", en: "I think it was a good start, because our son found a friend straight away and the cleaner got flowers." },
@@ -840,7 +843,7 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Vähe. Ja kui käiakse, siis mitte koos perega.", en: "Not much. And when they do, it's not with the family." },
       { who: "Priit", et: "Väga hea. Nüüd vahetame: mina räägin, teie küsite. Kui ma noor olin, laulsin ma laulupeol.", en: "Very good. Now we swap: I talk, you ask. When I was young, I sang at the song festival." },
       { who: "Tom", et: "Päriselt? Mis aastal see oli?", en: "Really? What year was that?" },
-      { who: "Priit", et: "1988. aastal. Seda aega ei unusta ma kunagi.", en: "In 1988. I'll never forget that time." },
+      { who: "Priit", et: "1990. aastal. Seda aega ei unusta ma kunagi.", en: "In 1990. I'll never forget that time." },
       { who: "Tom", et: "Kuidas nii? Mis siis juhtus?", en: "How come? What happened?" },
       { who: "Priit", et: "Me laulsime laule, mida oli aastaid keelatud laulda. Ja keegi ei teadnud, mis edasi saab.", en: "We sang songs that had been forbidden for years. And nobody knew what would happen next." },
       { who: "Tom", et: "Ja mis siis edasi sai?", en: "And what happened next?" },
@@ -860,7 +863,7 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
     },
     listenFor: [
       { q: "What topic does Tom talk about?", options: ["The song festival", "The sauna", "Midsummer", "His first school day"], answer: 1 },
-      { q: "When did Priit sing at the song festival?", options: ["Last summer", "In 1991", "In 1988", "He never has"], answer: 2 },
+      { q: "When did Priit sing at the song festival?", options: ["Last summer", "In 1991", "In 1990", "He never has"], answer: 2 },
       { q: "True or false: Priit tells Tom everything about independence that day.", options: ["True", "False"], answer: 1 },
     ],
     answers: [
@@ -873,10 +876,10 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
       who: "Priit",
       turns: [
         { ask: { et: "Tere! Täna teeme läbi eksami esimese osa. Teie teema on üks eesti traditsioon. Teil on kaks minutit aega.", en: "Hello! Today we're going through the first part of the exam. Your topic is an Estonian tradition. You have two minutes." }, cue: "Say hello, say you're ready, and say which tradition you'll talk about.", model: { et: "Tere! Olen valmis. Ma räägin jaanipäevast.", en: "Hello! I'm ready. I'll talk about Midsummer." } },
-        { ask: { et: "Palun, teie minut algab nüüd.", en: "Go ahead, your minute starts now." }, cue: "Give your talk: what people do, what the weather's usually like, and what you think of it, with a reason.", model: { et: "Jaanipäev on Eestis suvel kõige suurem pidu. Jaaniõhtul tehakse lõket ja käiakse saunas. Kes üle lõkke hüppab, sel läheb terve aasta hästi. Ilm on tihti vihmane, aga see on meil juba traditsioon. Minu arvates on see aasta kõige ilusam öö, sest öö on nii valge.", en: "Midsummer is the biggest celebration of the summer in Estonia. On Midsummer Eve people light a bonfire and go to the sauna. Whoever jumps over the fire has a good year. The weather's often rainy, but that's a tradition by now. I think it's the most beautiful night of the year, because the night is so light." } },
+        { ask: { et: "Palun, teie minut algab nüüd.", en: "Go ahead, your minute starts now." }, cue: "Give your talk: what people do, what the weather's usually like, and what you think of it, with a reason.", model: { et: "Jaanipäev on Eestis suve kõige suurem pidu. Jaaniõhtul tehakse lõket ja käiakse saunas. Kes üle lõkke hüppab, sel läheb terve aasta hästi. Ilm on tihti vihmane, aga see on meil juba traditsioon. Minu arvates on see aasta kõige ilusam öö, sest öö on nii valge.", en: "Midsummer is the biggest celebration of the summer in Estonia. On Midsummer Eve people light a bonfire and go to the sauna. Whoever jumps over the fire has a good year. The weather's often rainy, but that's a tradition by now. I think it's the most beautiful night of the year, because the night is so light." } },
         { ask: { et: "Aitäh. Kas seal, kus te pärit olete, on ka jaanipäev?", en: "Thank you. Where you're from, is there a Midsummer too?" }, cue: "Answer the follow-up: say whether there's a Midsummer where you're from, and what people do in summer there.", model: { et: "Meil jaanipäeva ei ole. Aga suvel on inimesed seal ka palju õues.", en: "We don't have Midsummer. But in summer people spend a lot of time outside there too." } },
         { ask: { et: "Väga hea. Nüüd vahetame. Kui ma noor olin, laulsin ma laulupeol.", en: "Very good. Now we swap. When I was young, I sang at the song festival." }, cue: "Keep him talking: ask a follow-up question.", model: { et: "Päriselt? Mis aastal see oli?", en: "Really? What year was that?" } },
-        { ask: { et: "1988. aastal. Seda aega ei unusta ma kunagi.", en: "In 1988. I'll never forget that time." }, cue: "Ask him how come, and what happened.", model: { et: "Kuidas nii? Mis siis juhtus?", en: "How come? What happened?" } },
+        { ask: { et: "1990. aastal. Seda aega ei unusta ma kunagi.", en: "In 1990. I'll never forget that time." }, cue: "Ask him how come, and what happened.", model: { et: "Kuidas nii? Mis siis juhtus?", en: "How come? What happened?" } },
         { ask: { et: "Me laulsime laule, mida oli aastaid keelatud laulda.", en: "We sang songs that had been forbidden for years." }, cue: "Ask what happened next.", model: { et: "Ja mis siis edasi sai?", en: "And what happened next?" } },
         { ask: { et: "Ja viimane küsimus: mis teile Eestis kõige rohkem nalja teeb?", en: "And one last question: what makes you laugh most in Estonia?" }, cue: "This one wasn't in the practice. Answer with an example, and say why it's funny.", model: { et: "Mulle teeb nalja, et kui sajab vihma, ütlevad eestlased: ilus ilm. Ja et saunas räägitakse nii vähe. Minu arvates on eesti huumor väga kuiv, aga hea.", en: "It makes me laugh that when it rains, Estonians say: lovely weather. And that people talk so little in the sauna. I think Estonian humor is very dry, but good." } },
         { ask: { et: "Aitäh. Te küsisite väga hästi.", en: "Thank you. You asked very well." }, cue: "Thank him and say goodbye.", model: { et: "Aitäh! Nägemist!", en: "Thank you! Goodbye!" } },

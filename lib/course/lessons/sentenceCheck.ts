@@ -440,7 +440,7 @@ interface Clause {
 
 /**
  * The sentence as clauses of tokens, cut at a stop and at a comma. A word in
- * quotation marks is a word mentioned rather than used (`ei ütle „pool”`), so
+ * quotation marks is a word mentioned rather than used (`ei ütle „pool“`), so
  * it is read as a name and nothing is said about it.
  */
 function clauses(text: string): Clause[] {

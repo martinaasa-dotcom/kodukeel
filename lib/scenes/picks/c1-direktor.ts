@@ -16,7 +16,7 @@ export const c1Direktor: ScenePicks = {
   ],
   disagree: [
     { et: "Ma saan aru, aga ma ei ole sellega päris nõus. See on kestnud juba mitu nädalat.", en: "I understand, but I don't quite agree. It's been going on for several weeks now." },
-    { et: "Ma saan aru, aga ise see üle ei lähe.", en: "I understand, but it isn't passing by itself." },
+    { et: "Ma saan aru, aga ise see üle ei lähe.", en: "I understand, but it won't go away by itself." },
   ],
   notask: [
     { et: "Seda me ei palu. Me palume, et kool aitaks neil koos midagi teha.", en: "That's not what we're asking. We're asking the school to help them do things together." },

@@ -199,9 +199,10 @@ describe("scopeSoFar", () => {
       }
     }
     // Measured the day C1 became lessons: 30 tables, 136 verbs asked of first by a table, 81 whose past a lesson showed first.
-    expect(checked).toBeGreaterThanOrEqual(136);
+    // The 2026-10-31 reading put one more past into a lesson line, so one verb moved across: 135 and 82, the same 217.
+    expect(checked).toBeGreaterThanOrEqual(135);
     // A verb a lesson showed the past of still reaches a forms table, for its `-ge` form.
-    expect(byLesson).toBeGreaterThanOrEqual(81);
+    expect(byLesson).toBeGreaterThanOrEqual(82);
   });
 
 

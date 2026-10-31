@@ -369,7 +369,7 @@ export const TODAY: Area = {
   "When somebody switches to English to help you, ask to carry on in Estonian, and carry on.":
     "Когда кто-нибудь переходит на английский, чтобы тебе помочь, попроси продолжить по-эстонски и продолжай.",
   "Read one headline and tell somebody what it said, as something you heard.":
-    "Прочитай один заголовок и перескажи кому-нибудь, о чём он, как услышанное.",
+    "Прочитай один заголовок и перескажи кому-нибудь, о чём он, как будто передаёшь услышанное.",
   "Say one thing in Estonian to a teacher or another parent at the door.":
     "Скажи что-нибудь по-эстонски учителю или другому родителю у дверей.",
   "Book an appointment with your family doctor in Estonian, on the phone if you can.":
@@ -391,9 +391,9 @@ export const TODAY: Area = {
   "Write to a school, a kindergarten or an office with a request in Estonian, and send it.":
     "Напиши по-эстонски просьбу в школу, детский сад или учреждение и отправь её.",
   "Give a short presentation or chair a meeting in Estonian, and put the thirty words of your own job into your deck.":
-    "Сделай короткую презентацию или проведи совещание на эстонском и добавь в колоду тридцать слов своей работы.",
+    "Сделай короткую презентацию или проведи совещание на эстонском и добавь в колоду тридцать слов, связанных со своей работой.",
   "Comment on a public consultation in Estonian, or speak at a meeting of your building or your town.":
-    "Оставь по-эстонски отзыв на общественное обсуждение или выступи на собрании своего дома или города.",
+    "Оставь по-эстонски комментарий в общественном обсуждении или выступи на собрании своего дома или города.",
   "Talk to an older Estonian about how things were, or go where a dialect is spoken and listen.":
     "Поговори с пожилым эстонцем о том, как всё было раньше, или съезди туда, где говорят на диалекте, и послушай.",
   "Read an Estonian book, or book the C1 exam.":
@@ -541,9 +541,9 @@ export const TODAY: Area = {
   "You can explain, disagree and handle the unexpected without switching to English.":
     "Ты можешь объяснить, возразить и справиться с неожиданным, не переходя на русский или английский.",
   "You can live in Estonian: phone an office, the doctor or the school and get what you called for, and write every text the B2 exam sets.":
-    "Ты можешь жить на эстонском: позвонить в учреждение, врачу или в школу и добиться того, ради чего звонишь, и написать каждый текст экзамена B2.",
+    "Ты можешь жить на эстонском: позвонить в учреждение, врачу или в школу и добиться того, ради чего звонишь, и написать любой текст, который требуется на экзамене B2.",
   "You can be yourself in Estonian: as funny, as precise and as firm as in your own language, at work, at a public meeting and on paper.":
-    "Ты можешь быть собой на эстонском, с тем же юмором, точностью и твёрдостью, что и на своём языке: на работе, на общем собрании и на бумаге.",
+    "Ты можешь быть собой на эстонском, с тем же юмором, точностью и твёрдостью, что и на своём языке: на работе, на открытом собрании и на бумаге.",
 
   // THE MODULE SCREEN.
   "Your evenings, already planned":
@@ -1465,7 +1465,7 @@ export const TODAY: Area = {
   "Read one headline and tell somebody what it said, as something you heard.":
     "Прочитай один заголовок і перекажи комусь, про що він, як почуте.",
   "Say one thing in Estonian to a teacher or another parent at the door.":
-    "Скажи щось естонською вчителеві або іншому батькові біля дверей.",
+    "Скажи щось естонською вчителеві або комусь з інших батьків біля дверей.",
   "Book an appointment with your family doctor in Estonian, on the phone if you can.":
     "Запишися до сімейного лікаря естонською, краще телефоном.",
   "Say one thing in a meeting held in Estonian: a question, a short update, or that you agree.":
@@ -1485,7 +1485,7 @@ export const TODAY: Area = {
   "Write to a school, a kindergarten or an office with a request in Estonian, and send it.":
     "Напиши естонською прохання до школи, дитячого садка чи установи і надішли його.",
   "Give a short presentation or chair a meeting in Estonian, and put the thirty words of your own job into your deck.":
-    "Зроби коротку презентацію або проведи нараду естонською і додай до колоди тридцять слів своєї роботи.",
+    "Виступи з короткою презентацією або проведи нараду естонською і додай до колоди тридцять слів зі своєї роботи.",
   "Comment on a public consultation in Estonian, or speak at a meeting of your building or your town.":
     "Залиш естонською відгук на громадське обговорення або виступи на зборах свого будинку чи міста.",
   "Talk to an older Estonian about how things were, or go where a dialect is spoken and listen.":

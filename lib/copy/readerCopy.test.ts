@@ -35,7 +35,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { EM_DASH as EM, EMOJI, EN_DASH as EN, TELLS, findTells } from "./voice";
+import { EM_DASH as EM, EMOJI, EN_DASH as EN, TELLS, findTells, withoutCyrillicTire } from "./voice";
 import { CAPTION_MAX } from "./values";
 
 /**
@@ -338,7 +338,7 @@ const MARKDOWN = ["CLAUDE.md", "README.md", "AGENTS.md", ...sourceFiles("docs", 
 function offenders(character: string): string[] {
   return FILES.filter((f) => !excused(f, "dash")).flatMap((f) =>
     readerFacingLines(f)
-      .filter((l) => l.text.includes(character))
+      .filter((l) => (character === EN ? withoutCyrillicTire(l.text) : l.text).includes(character))
       .map((l) => `${f}:${l.line}: ${l.text.trim()}`),
   );
 }

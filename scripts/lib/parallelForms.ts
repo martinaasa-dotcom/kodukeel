@@ -100,7 +100,7 @@ export const PARALLEL_REVIEW: Readonly<Record<string, ParallelDecision>> = {
       "Keegi ei toonud talle lilli.",
       "Kolmkümmend aastat ei olnud keegi talle lilli toonud.",
       "Kui sind kutsutakse kellegi koju, siis võta kaasa midagi väikest, näiteks kommi või lilli.",
-      "Kõigepealt ütlen ma: mul on nii kahju. Siis: meie siiras kaastunne. Rohkem pole vaja öelda. Kaardile kirjutan paar rida: siiras kaastunne, mõtleme sinule, või puhaku ta rahus. Matustele viin paarisarv lilli, kaks või neli, sest paaritu arv on sünnipäevaks.",
+      "Kõigepealt ütlen ma: mul on nii kahju. Siis: meie siiras kaastunne. Rohkem pole vaja öelda. Kaardile kirjutan paar rida: siiras kaastunne, mõtleme sinule või puhaku ta rahus. Matustele viin paarisarv lilli, kaks või neli, sest paaritu arv on sünnipäevaks.",
       "Lapsed viivad sel päeval õpetajale lilli.",
       "lilli",
       "Lilli oli ta eile õhtul viimast korda kastnud, kuigi teadis, et seda pole enam vaja.",
@@ -141,15 +141,7 @@ export const PARALLEL_REVIEW: Readonly<Record<string, ParallelDecision>> = {
   },
   marju: {
     keep: true, why: "Berries, after on or as the object, in every lesson that says it.",
-    read: [
-      "Hiies ei tohtinud puid raiuda ega marju korjata, ja sinna ei mindud niisama, vaid kindlatel päevadel.",
-      "Kas seal on ka marju?",
-      "Kas seal on marju?",
-      "marju",
-      "Metsades on suvel marju ja seeni rohkem, kui keegi jõuab korjata.",
-      "Nüüd tulevad inimesed rappa hoopis puhkama ja marju korjama.",
-      "Rappa mindi ainult siis, kui oli vaja, näiteks marju korjama.",
-    ],
+    read: ["Hiies ei tohtinud puid raiuda ega marju korjata ning sinna ei mindud niisama, vaid kindlatel päevadel.", "Kas seal on ka marju?", "Kas seal on marju?", "marju", "Metsades on suvel marju ja seeni rohkem, kui keegi jõuab korjata.", "Nüüd tulevad inimesed rappa hoopis puhkama ja marju korjama.", "Rappa mindi ainult siis, kui oli vaja, näiteks marju korjama."],
   },
   mune: {
     keep: true, why: "Eggs, as the object, in every lesson that says it.",
@@ -170,20 +162,7 @@ export const PARALLEL_REVIEW: Readonly<Record<string, ParallelDecision>> = {
   },
   asju: {
     keep: true, why: "Things, as the object, in every lesson that says it.",
-    read: [
-      "„Kui elanikud toovad välja asju, mida me ei ole arvestanud, oleme valmis plaani muutma,” lubas ta.",
-      "Alguses õpite iga nädal kümneid uusi asju ja tunnete, et lähete edasi.",
-      "Eestlastel on hea komme öelda asju otse, ja see on sageli eelis.",
-      "Ja hiiglase muistend on katse seletada asju, mida tolleaegne inimene ei saanud teisiti mõista, näiteks suuri kive keset põldu.",
-      "Minu tugevus on oskus seletada tehnilisi asju nii, et ka inimene, kes tehnikast midagi ei tea, neist aru saab.",
-      "oskust selgitada keerulisi asju lihtsalt;",
-      "palju asju",
-      "Palume kahjustatud asju mitte ära visata enne eksperdi külastust.",
-      "Teisalt tehakse talgutel palju asju, mida linn üksi kunagi ei teeks.",
-      "Tulge sisse! Oi, kui palju asju te tõite!",
-      "Uus juht tahab tavaliselt kohe näidata, et ta sobib oma kohale, ja hakkab kiiresti asju muutma.",
-      "Üks minu õpilane ütles mulle kord, et eesti keeles on tal julgust öelda asju, mida ta oma emakeeles ei julgeks.",
-    ],
+    read: ["„Kui elanikud toovad välja asju, mida me ei ole arvestanud, oleme valmis plaani muutma,“ lubas ta.", "Alguses õpite iga nädal kümneid uusi asju ja tunnete, et lähete edasi.", "Eestlastel on hea komme öelda asju otse ja see on sageli eelis.", "Ja hiiglase muistend on katse seletada asju, mida tolleaegne inimene ei saanud teisiti mõista, näiteks suuri kive keset põldu.", "Minu tugevus on oskus seletada tehnilisi asju nii, et ka inimene, kes tehnikast midagi ei tea, neist aru saab.", "oskust selgitada keerulisi asju lihtsalt;", "palju asju", "Palume kahjustatud asju mitte ära visata enne eksperdi külastust.", "Teisalt tehakse talgutel palju asju, mida linn üksi kunagi ei teeks.", "Tulge sisse! Oi, kui palju asju te tõite!", "Uus juht tahab tavaliselt kohe näidata, et ta sobib oma kohale, ja hakkab kiiresti asju muutma.", "Üks minu õpilane ütles mulle kord, et eesti keeles on tal julgust öelda asju, mida ta oma emakeeles ei julgeks."],
   },
   kirju: {
     keep: true, why: "Letters, as the object, in every lesson that says it.",
@@ -208,16 +187,13 @@ export const PARALLEL_REVIEW: Readonly<Record<string, ParallelDecision>> = {
       "Neid laule ei saanud aastaid laulda.",
       "Nii et ma hakkasin vanaema juures käima ja tema käest laule õppima.",
       "Siis ma sain aru, et kui keegi neid laule ei õpi, siis neid ühel päeval enam ei ole.",
-      "Tänapäeval õpitakse leelot ka koolis, ja mõned noored lauljad on hakanud ise uusi laule looma.",
+      "Tänapäeval õpitakse leelot ka koolis ja mõned noored lauljad on hakanud ise uusi laule looma.",
       "Vanemad lauljad räägivad, et lapsena õppisid nad laule ema ja vanaema kõrval, ilma et keegi oleks neid õpetanud.",
     ],
   },
   plaane: {
     keep: true, why: "Plans, as the object, in every lesson that says it.",
-    read: [
-      "Kui te reedeks ei jõua, andke palun varakult teada, et saaksime oma plaane muuta.",
-      "Täpsemalt räägime kõigest järgmise nädala meeskonna koosolekul, kus saate ka uue kontori plaane näha.",
-    ],
+    read: ["Kui te reedeks ei jõua, andke palun varakult teada, et saaksime oma plaane muuta.", "Täpsemalt räägime kõigest järgmise nädala meeskonnakoosolekul, kus saate ka uue kontori plaane näha."],
   },
   probleeme: {
     keep: true, why: "Problems, after on, in every lesson that says it.",
@@ -228,60 +204,11 @@ export const PARALLEL_REVIEW: Readonly<Record<string, ParallelDecision>> = {
   },
   puid: {
     keep: true, why: "Trees and firewood, as the object, in every lesson that says it.",
-    read: [
-      "Hiies ei tohtinud puid raiuda ega marju korjata, ja sinna ei mindud niisama, vaid kindlatel päevadel.",
-      "Hiis on püha mets, kus ei tohi puid maha võtta.",
-      "Igal kevadel toimub nüüd üle Eesti talgupäev, kus inimesed koristavad parke, korrastavad koolimaju ja istutavad puid.",
-      "Inimesed tulevad laupäeva hommikul kokku, korjavad prügi, riisuvad lehti ja istutavad puid.",
-      "istutame puid",
-      "Jaan oli terve nädala puid teinud.",
-      "Kodu asub vaikses rohelises piirkonnas, kus on palju puid ja mänguväljakuid.",
-      "Kui sa oled kellegagi koos kaks tundi puid istutanud, siis trepikojas te enam vaikides mööda ei kõnni.",
-      "puid",
-      "puid istutama",
-      "Puid? Kas see pole mitte linna töö? Iseenesest on talgud tore asi, aga...",
-      "Põleb küll. Jaan kuivatas terve päeva puid. Saunas.",
-      "Rabas on vaikne, aga mitte päris: kuula, kuidas tuul liigutab puid ja kuidas linnud omavahel räägivad.",
-      "Seal laua peal. Täna korjame prügi ja istutame puid.",
-      "Seda ma tean! Hiis on püha mets, kus ei tohi puid maha võtta.",
-      "Tahan, et see oleks elav tänav, kus on ka poode, mitte ainult puid ja rattateid.",
-      "Ära korja taimi ega murra puid.",
-    ],
+    read: ["Hiies ei tohtinud puid raiuda ega marju korjata ning sinna ei mindud niisama, vaid kindlatel päevadel.", "Hiis on püha mets, kus ei tohi puid maha võtta.", "Igal kevadel toimub nüüd üle Eesti talgupäev, kus inimesed koristavad parke, korrastavad koolimaju ja istutavad puid.", "Inimesed tulevad laupäeva hommikul kokku, korjavad prügi, riisuvad lehti ja istutavad puid.", "istutame puid", "Jaan oli terve nädala puid teinud.", "Kodu asub vaikses rohelises piirkonnas, kus on palju puid ja mänguväljakuid.", "Kui sa oled kellegagi koos kaks tundi puid istutanud, siis trepikojas te enam vaikides mööda ei kõnni.", "puid", "puid istutama", "Puid? Kas see pole mitte linna töö? Iseenesest on talgud tore asi, aga...", "Põleb küll. Jaan kuivatas terve päeva puid. Saunas.", "Rabas on vaikne, aga mitte päris: kuula, kuidas tuul liigutab puid ja kuidas linnud omavahel räägivad.", "Seal laua peal. Täna korjame prügi ja istutame puid.", "Seda ma tean! Hiis on püha mets, kus ei tohi puid maha võtta.", "Tahan, et see oleks elav tänav, kus on ka poode, mitte ainult puid ja rattateid.", "Ära korja taimi ega murra puid."],
   },
   "s\u00f5nu": {
     keep: true, why: "Words, as the object, in every lesson that says it.",
-    read: [
-      "...natuke nagu võru keel, jah. Aga laulus on ka sõnu, mida keegi enam ei kasuta.",
-      "Ametnikud armastavad pikki sõnu. Ma kirjutasin ise kolmkümmend aastat selliseid kirju.",
-      "Areng ei kao, see muutub lihtsalt peenemaks: te ei õpi enam niivõrd uusi sõnu, kuivõrd seda, millal ja kuidas neid kasutada.",
-      "Enamik sõnu on tuttavad, ainult häälikud on natuke teised.",
-      "Eriti armastame me sõnamänge, sest eesti keeles on palju sõnu, millel on mitu tähendust.",
-      "hullemaid sõnu",
-      "Järgmises osas räägime sellest, miks me sõnu unustame ja kuidas neid paremini meelde jätta.",
-      "Ka külalised võivad kaasa laulda, sõnu ei pea oskama.",
-      "Keegi ei oota sinult õigeid sõnu.",
-      "Keeleteadlased on märganud, et paljudes keeltes on kurbuse kohta rohkem sõnu kui rõõmu kohta, nagu oleks inimesel vaja kurbust täpsemalt kirjeldada.",
-      "Laulu tempo on aeglane, et kõik jõuaksid sõnu kuulda ja kaasa laulda.",
-      "Leelo on vana seto laul, mida lauldakse mitmel häälel. Eeslaulja laulab rea ette, ja koor kordab seda. Osa sõnu on sajandeid vanad, osa teeb eeslaulja seal samas. Kui sa sõnu ei oska, kuula meloodiat ja laula julgelt kaasa.",
-      "Ma ei oska ju sõnu.",
-      "Ma ei oska sõnu.",
-      "Ma ju ei oska sõnu.",
-      "Muistendites on vanu sõnu ja vanu väljendeid, mis igapäevasest keelest on ammu kadunud, ja ilma nende lugudeta kaoksid ka sõnad.",
-      "Neid kuuleb siiski, sest laul hoiab sõnu kauem kui jutt.",
-      "On küll. Aga on ka hullemaid sõnu. Neid sa minult ei kuule, eriti mitte Mihkli ees.",
-      "Pole hullu, kui sõnu ei tea. Kui koor kordab, laulge kaasa!",
-      "Raamatuis on palju sõnu, mida keegi enam ei kasuta.",
-      "Raamatutes on palju sõnu, mida keegi enam ei kasuta.",
-      "Seepärast on parem korrata sõnu natuke iga päev kui palju korraga üks kord nädalas.",
-      "Seletage lapsele rahulikult, et on sõnu, mida öeldakse ainult siis, kui ollakse väga vihane, ja et koolis, õpetaja ees ja võõraste juuresolekul neid ei öelda.",
-      "Te võite julgelt kaasa laulda, sõnu ei pea oskama.",
-      "Te võite kaasa laulda, sõnu ei pea oskama.",
-      "Teine nõuanne puudutab lähedase tähendusega sõnu, mida sõnaraamat tõlgib ühtemoodi.",
-      "Tule kaasa laulma, sõnu ei pea oskama!",
-      "Vanades lauludes ja raamatuis on palju sõnu, mida tänapäeval enam ei kasutata.",
-      "Vastus 1: Ärge muretsege, see on täiesti tavaline. Lapsed proovivad sõnu, mille peale täiskasvanud kõige rohkem reageerivad.",
-      "Ülejäänu tuleb kontekstist, ja just nii õpitakse uusi sõnu kõige loomulikumalt.",
-    ],
+    read: ["...natuke nagu võru keel, jah. Aga laulus on ka sõnu, mida keegi enam ei kasuta.", "Ametnikud armastavad pikki sõnu. Ma kirjutasin ise kolmkümmend aastat selliseid kirju.", "Areng ei kao, see muutub lihtsalt peenemaks: te ei õpi enam niivõrd uusi sõnu, kuivõrd seda, millal ja kuidas neid kasutada.", "Enamik sõnu on tuttavad, ainult häälikud on natuke teistsugused.", "Eriti armastame me sõnamänge, sest eesti keeles on palju sõnu, millel on mitu tähendust.", "hullemaid sõnu", "Järgmises osas räägime sellest, miks me sõnu unustame ja kuidas neid paremini meelde jätta.", "Ka külalised võivad kaasa laulda, sõnu ei pea oskama.", "Keegi ei oota sinult õigeid sõnu.", "Keeleteadlased on märganud, et paljudes keeltes on kurbuse kohta rohkem sõnu kui rõõmu kohta, nagu oleks inimesel vaja kurbust täpsemalt kirjeldada.", "Laulu tempo on aeglane, et kõik jõuaksid sõnu kuulda ja kaasa laulda.", "Leelo on vana seto laul, mida lauldakse mitmel häälel. Eeslaulja laulab rea ette ja koor kordab seda. Osa sõnu on sajandeid vanad, osa teeb eeslaulja seal samas. Kui sa sõnu ei oska, kuula meloodiat ja laula julgelt kaasa.", "Ma ei oska ju sõnu.", "Ma ei oska sõnu.", "Ma ju ei oska sõnu.", "Muistendites on vanu sõnu ja vanu väljendeid, mis igapäevasest keelest on ammu kadunud, ja ilma nende lugudeta kaoksid ka sõnad.", "Neid kuuleb siiski, sest laul hoiab sõnu kauem kui jutt.", "On küll. Aga on ka hullemaid sõnu. Neid sa minult ei kuule, eriti mitte Mihkli ees.", "Pole hullu, kui sõnu ei tea. Kui koor kordab, laulge kaasa!", "Raamatuis on palju sõnu, mida keegi enam ei kasuta.", "Raamatutes on palju sõnu, mida keegi enam ei kasuta.", "Seepärast on parem korrata sõnu natuke iga päev kui palju korraga üks kord nädalas.", "Seletage lapsele rahulikult, et on sõnu, mida öeldakse ainult siis, kui ollakse väga vihased, ja et koolis, õpetaja ees ja võõraste juuresolekul neid ei öelda.", "Te võite julgelt kaasa laulda, sõnu ei pea oskama.", "Te võite kaasa laulda, sõnu ei pea oskama.", "Teine nõuanne puudutab lähedase tähendusega sõnu, mida sõnaraamat tõlgib ühtemoodi.", "Tule kaasa laulma, sõnu ei pea oskama!", "Vanades lauludes ja raamatuis on palju sõnu, mida tänapäeval enam ei kasutata.", "Vastus 1: Ärge muretsege, see on täiesti tavaline. Lapsed proovivad sõnu, mille peale täiskasvanud kõige rohkem reageerivad.", "Ülejäänu tuleb kontekstist ja just nii õpitakse uusi sõnu kõige loomulikumalt."],
   },
   "v\u00e4ikesi": {
     keep: true, why: "Small, before the plural it describes, in every lesson that says it.",
@@ -300,9 +227,7 @@ export const PARALLEL_REVIEW: Readonly<Record<string, ParallelDecision>> = {
   },
   hirme: {
     keep: true, why: "Fears, after one of the commonest.",
-    read: [
-      "Ärevus enne eksamit on üks levinumaid hirme ja see ei vali vanust.",
-    ],
+    read: ["Ärevus enne eksamit on üks levinumaid hirme ja see ei vaata vanusele."],
   },
   "järvi": {
     keep: true, why: "Lakes, after many.",
@@ -322,9 +247,7 @@ export const PARALLEL_REVIEW: Readonly<Record<string, ParallelDecision>> = {
   },
   "kõnniteid": {
     keep: true, why: "Pavements, as the object of a plan.",
-    read: [
-      "Planeeringu ala hõlmab peatänavat kogu selle pikkuses ning tänavaga piirnevaid kõnniteid ja haljasalasid.",
-    ],
+    read: ["Planeeringuala hõlmab peatänavat kogu selle pikkuses ning tänavaga piirnevaid kõnniteid ja haljasalasid."],
   },
   linnu: { keep: false, why: "In the lessons it is the bird's, the genitive of lind, never towns." },
   loomi: {
@@ -393,7 +316,7 @@ export const PARALLEL_REVIEW: Readonly<Record<string, ParallelDecision>> = {
   "sündmusi": {
     keep: true, why: "Events, as the object or after many.",
     read: [
-      "Iga peatükk on jutustatud ühe naise silmade läbi, ja juba esimestel lehekülgedel saab selgeks, et nad mäletavad samu sündmusi täiesti erinevalt.",
+      "Iga peatükk on jutustatud ühe naise silmade läbi ja juba esimestel lehekülgedel saab selgeks, et nad mäletavad samu sündmusi täiesti erinevalt.",
       "Suvel on siin palju väikeseid sündmusi, mida suurtes linnades ei näe.",
     ],
   },
@@ -411,25 +334,15 @@ export const PARALLEL_REVIEW: Readonly<Record<string, ParallelDecision>> = {
   },
   tekste: {
     keep: true, why: "Texts, as the object, in every lesson that says it.",
-    read: [
-      "Kui vajate meilt midagi, näiteks tekste või pilte, saadame need esimesel võimalusel.",
-      "Selleks vajame teilt hiljemalt järgmiseks reedeks lõplikke tekste ja pilte, mida tellimise vaates kasutada.",
-    ],
+    read: ["Harjutage eriti kuulamist, sest pikemaid tekste kuulatakse ainult üks kord.", "Kui vajate meilt midagi, näiteks tekste või pilte, saadame need esimesel võimalusel.", "Selleks vajame teilt hiljemalt järgmiseks reedeks lõplikke tekste ja pilte, mida tellimise vaates kasutada."],
   },
   vanu: {
     keep: true, why: "Old, before the plural it describes, in every lesson that says it.",
-    read: [
-      "Kes tõi vanu laudu, kes aitas katust parandada, kes küpsetas töölistele pirukaid.",
-      "Muistendites on vanu sõnu ja vanu väljendeid, mis igapäevasest keelest on ammu kadunud, ja ilma nende lugudeta kaoksid ka sõnad.",
-      "Raamatu jaoks on külaelanikud toonud vanu kirju, päevikuid ja fotosid.",
-      "Vanad laulud kasutavad sageli lühemaid vorme ja vanu mitmuse vorme, mida tänapäeva keeles enam ei kohta.",
-    ],
+    read: ["Kes tõi vanu laudu, kes aitas katust parandada, kes küpsetas töölistele pirukaid.", "Muistendites on vanu sõnu ja vanu väljendeid, mis igapäevasest keelest on ammu kadunud, ja ilma nende lugudeta kaoksid ka sõnad.", "Raamatu jaoks on külaelanikud toonud vanu kirju, päevikuid ja fotosid.", "Vanad laulud ja raamatud kasutavad sageli vanu mitmuse vorme, mida tänapäeva keeles harva kohtab."],
   },
   vorme: {
     keep: true, why: "Forms, as the object.",
-    read: [
-      "Vanad laulud kasutavad sageli lühemaid vorme ja vanu mitmuse vorme, mida tänapäeva keeles enam ei kohta.",
-    ],
+    read: ["Vanad laulud ja raamatud kasutavad sageli vanu mitmuse vorme, mida tänapäeva keeles harva kohtab."],
   },
   "võime": { keep: false, why: "In the lessons it is võima, we can, never powers." },
   "öid": {
@@ -440,19 +353,7 @@ export const PARALLEL_REVIEW: Readonly<Record<string, ParallelDecision>> = {
   },
   teste: {
     keep: true, why: "Tests, as the object, in every lesson that says it.",
-    read: [
-      "automaatseid teste",
-      "Just seetõttu soovitan automaatseid teste.",
-      "Just seetõttu soovitan ma automaatseid teste.",
-      "Kaalusime kahte variant: teist testijat või automaatseid teste.",
-      "Kaalusime kahte varianti: teist testijat või automaatseid teste.",
-      "Ma soovitan seetõttu automaatseid teste.",
-      "Meie probleem on see, et testime käsitsi ja see võtab palju aega. Kaalusime kahte varianti: teist testijat või automaatseid teste. Testija on kohe olemas, aga talle tuleb iga kuu palka maksta. Automaatsed testid maksavad alguses rohkem, aga pikas plaanis säästavad nad aega. Seetõttu soovitan just automaatseid teste.",
-      "Mina soovitan automaatseid teste.",
-      "Olen ise kirjutanud ka automaatseid teste ja tean, kui palju aega need hiljem säästavad.",
-      "Sel kuul hilines kood kaks korda. Kaalusime kahte varianti: teist testijat või automaatseid teste.",
-      "Sina, aga mitte kaua. Ma soovitan juhatusele automaatseid teste. Kulu on alguses suurem, aga pikas plaanis säästame.",
-    ],
+    read: ["automaatseid teste", "Just seetõttu soovitan automaatseid teste.", "Just seetõttu soovitan ma automaatseid teste.", "Kaalusime kahte variant: teist testijat või automaatseid teste.", "Kaalusime kahte varianti: teist testijat või automaatseid teste.", "Ma soovitan seetõttu automaatseid teste.", "Meie probleem on see, et testime käsitsi ja see võtab palju aega. Kaalusime kahte varianti: teist testijat või automaatseid teste. Testija on kohe olemas, aga talle tuleb iga kuu palka maksta. Automaatsed testid maksavad alguses rohkem, aga pikas plaanis säästavad nad aega. Seetõttu soovitan just automaatseid teste.", "Mina soovitan automaatseid teste.", "Olen ise kirjutanud ka automaatseid teste ja tean, kui palju aega need hiljem säästavad.", "Sel kuul hilines kood kaks korda. Kaalusime kahte varianti: teist testijat või automaatseid teste.", "Sina, aga mitte kaua. Ma soovitan juhatusele automaatseid teste. Kulu on alguses suurem, aga pikas plaanis säästame."],
   },
 };
 

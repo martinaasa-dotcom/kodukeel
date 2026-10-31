@@ -12,7 +12,7 @@
  *
  *   1. Nothing shown before it is taught (`lessonProblems`), numbering aside.
  *   2. The part's shape (`levelContractProblems`), its lessons renumbered from 1.
- *   3. Every spelling is one the forms list knows (`isExactForm`), read by
+ *   3. Every spelling is one the forms list accounts for (`isWrittenSpelling`), read by
  *      `formsCheckWords`: a regional spelling in a text or a talk (C1) is asked
  *      as its standard word from `DIALECT_WORDS`, and the glossary is held to
  *      its own shape (`dialectProblems`).
@@ -43,7 +43,7 @@
  *
  * Exits 1 on any problem, printing each.
  */
-import { isExactForm } from "../lib/dict/forms";
+import { isWrittenSpelling } from "../lib/dict/forms";
 import { shardKey } from "../lib/dict/formsLayout";
 import { fold } from "../lib/estonian/fold";
 import { VOICES } from "../lib/audio/voice";
@@ -99,7 +99,7 @@ for (const p of dialectProblems()) problems.push(`dialect: ${p}`);
 const byShard = [...where.keys()].sort((a, b) => shardKey(fold(a)).localeCompare(shardKey(fold(b))) || a.localeCompare(b));
 
 async function main() {
-for (const word of byShard) if (!(await isExactForm(word))) problems.push(`forms list does not know: ${where.get(word)}`);
+for (const word of byShard) if (!(await isWrittenSpelling(word))) problems.push(`forms list does not know: ${where.get(word)}`);
 
 // 4. Estonian letters stay inside braces in the English.
 const ESTONIAN_LETTER = /[õäöüšž]/i;

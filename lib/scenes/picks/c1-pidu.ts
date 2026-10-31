@@ -7,8 +7,8 @@ import type { ScenePicks } from "../picks";
  */
 export const c1Pidu: ScenePicks = {
   greet: [
-    { et: "Tere! Jah, see olen mina. Eksam oli täna hommikul.", en: "Hello! Yes, that's me. The exam was this morning." },
-    { et: "Tere! Jah, see olen mina.", en: "Hello! Yes, that's me." },
+    { et: "Tere! Jah, olen küll. Eksam oli täna hommikul.", en: "Hello! Yes, I am. The exam was this morning." },
+    { et: "Tere! Jah, olen küll.", en: "Hello! Yes, I am." },
   ],
   how: [
     { et: "Alguses olin närvis, aga siis läks nagu tavaline vestlus.", en: "At first I was nervous, but then it went like an ordinary conversation." },
@@ -31,7 +31,7 @@ export const c1Pidu: ScenePicks = {
     { et: "Räägi iga päev eesti keelt ja ära karda vigu.", en: "Speak Estonian every day, and don't be afraid of mistakes." },
   ],
   close: [
-    { et: "Kõike head! Klaas üles!", en: "All the best! Glasses up!" },
+    { et: "Kõike head! Terviseks!", en: "All the best! Cheers!" },
     { et: "Aitäh! Head aega!", en: "Thanks! Goodbye!" },
   ],
 };

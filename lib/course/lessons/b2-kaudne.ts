@@ -39,7 +39,7 @@ export const B2_KAUDNE_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Mari", et: "Tere, Tom! Kas sa oled juba kuulnud?", en: "Hi, Tom! Have you heard?", stage: "A winter morning in the café where Mari works. Tom has come in for a coffee before work." },
       { who: "Tom", et: "Ei. Mida?", en: "No. Heard what?" },
-      { who: "Mari", et: "Pood meie nurgal minevat kinni.", en: "The shop on our corner is closing, apparently." },
+      { who: "Mari", et: "Meie nurgapood minevat kinni.", en: "The shop on our corner is closing, apparently." },
       { who: "Tom", et: "Päriselt? Kes seda ütles?", en: "Really? Who said so?" },
       { who: "Mari", et: "Helgi ütles. Ta olevat ise müüjaga rääkinud.", en: "Helgi said so. She's talked to the shop assistant herself, apparently." },
       { who: "Tom", et: "Aga miks? Seal käivad ju kõik.", en: "But why? Everybody goes there." },
@@ -68,6 +68,8 @@ export const B2_KAUDNE_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "kõike", of: "kõik", en: "everything, as an object" },
       { kind: "form", et: "rääkinud", of: "rääkima", en: "talked, told; {olevat rääkinud}, has talked, they say" },
       { kind: "word", et: "hoopis", en: "instead, after all" },
+      { kind: "word", et: "nurgapood", en: "the corner shop" },
+      { kind: "word", et: "poetöötajad", en: "shop workers" },
     ],
     patterns: ["quotative"],
     how: {
@@ -106,7 +108,7 @@ export const B2_KAUDNE_LESSONS: readonly LessonSpec[] = [
       ],
     },
     answers: [
-      { ask: { et: "Mis sa kuulsid?", en: "What did you hear?" }, cue: "Pass on that the shop on the corner is closing, as something you heard.", model: { et: "Pood meie nurgal minevat kinni.", en: "The shop on our corner is closing, apparently." }, also: ["Pood minevat kinni.", "Meie nurgal pood minevat kinni."] },
+      { ask: { et: "Mis sa kuulsid?", en: "What did you hear?" }, cue: "Pass on that the shop on the corner is closing, as something you heard.", model: { et: "Meie nurgapood minevat kinni.", en: "The shop on our corner is closing, apparently." }, also: ["Pood minevat kinni.", "Meie nurgapood minevat kinni."] },
       { ask: { et: "Kes seda ütles?", en: "Who said so?" }, cue: "Say Helgi told you, and that it's only a rumor.", model: { et: "Helgi rääkis. Aga see on ainult kuuldus.", en: "Helgi told me. But it's only a rumor." } },
       { cue: "Pass on that the new neighbors are from Finland, apparently.", model: { et: "Uued naabrid olevat Soomest.", en: "The new neighbors are from Finland, apparently." }, also: ["Nad olevat Soomest."] },
       { cue: "Pass on that the owner wants a rest, they say.", model: { et: "Omanik tahtvat puhata.", en: "The owner wants a rest, they say." } },
@@ -172,10 +174,10 @@ export const B2_KAUDNE_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Mis seadusest?", en: "What law?" },
       { who: "Anna", et: "Valitsus tahab, et suured poed oleksid pühapäeviti kinni.", en: "The government wants the big shops closed on Sundays." },
       { who: "Tom", et: "Päriselt? Miks?", en: "Really? Why?" },
-      { who: "Anna", et: "Valitsuse sõnul vajavat ka poe töötajad vaba päeva.", en: "According to the government, shop workers need a day off too." },
+      { who: "Anna", et: "Valitsuse sõnul vajavat ka poetöötajad vaba päeva.", en: "According to the government, shop workers need a day off too." },
       { who: "Tom", et: "No see on ju õige. Aga mida inimesed arvavad?", en: "Well, that's fair. But what do people think?" },
       { who: "Anna", et: "Raadios rääkis üks ajakirjanik. Tema sõnul on enamik inimesi selle vastu.", en: "A journalist was talking on the radio. According to him, most people are against it." },
-      { who: "Tom", et: "Ma usun. Pühapäeval käivad ju kõik poes.", en: "I believe it. Everybody goes shopping on Sundays." },
+      { who: "Tom", et: "Seda ma usun. Pühapäeval käivad ju kõik poes.", en: "I believe it. Everybody goes shopping on Sundays." },
       { who: "Anna", et: "Ja ühe poe juht rõhutas, et nende töötajad tahavad pühapäeviti töötada, sest siis makstakse rohkem.", en: "And the head of one shop stressed that their staff want to work on Sundays, because the pay's better then." },
       { who: "Tom", et: "Kas see on juba otsustatud?", en: "Has it been decided already?" },
       { who: "Anna", et: "Ei, see on alles plaan. Seadus tulevat alles järgmisel aastal.", en: "No, it's only a plan. The law won't come in until next year, they say." },
@@ -247,7 +249,7 @@ export const B2_KAUDNE_LESSONS: readonly LessonSpec[] = [
       { ask: { et: "Mida raadios öeldi?", en: "What did they say on the radio?" }, cue: "Say the government wants the big shops closed on Sundays.", model: { et: "Valitsus tahab, et suured poed oleksid pühapäeviti kinni.", en: "The government wants the big shops closed on Sundays." }, also: ["Valitsus tahab, et suured poed oleksid pühapäeval kinni."] },
       { ask: { et: "Mida inimesed arvavad?", en: "What do people think?" }, cue: "Say most people are against it, according to the journalist.", model: { et: "Ajakirjaniku sõnul on enamik inimesi selle vastu.", en: "According to the journalist, most people are against it." }, also: ["Ajakirjaniku sõnul on enamik selle vastu.", "Ajakirjaniku sõnul olevat enamik inimesi selle vastu."] },
       { cue: "Say it's only a plan.", model: { et: "See on alles plaan.", en: "It's only a plan." } },
-      { cue: "Say in your opinion shop workers need a day off too.", model: { et: "Minu arvates vajavad ka poe töötajad vaba päeva.", en: "In my opinion shop workers need a day off too." } },
+      { cue: "Say in your opinion shop workers need a day off too.", model: { et: "Minu arvates vajavad ka poetöötajad vaba päeva.", en: "In my opinion shop workers need a day off too." } },
     ],
     reworks: [
       {
@@ -272,7 +274,7 @@ export const B2_KAUDNE_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Valitsuse sõnul vajavat ka poe töötajad vaba päeva.", en: "According to the government, shop workers need a day off too." }, right: "Valitsuse", wrong: "Valitsus", pair: ["GENITIVE", "NOMINATIVE"], why: "Before {sõnul} it's the [omastav] (2nd form): {valitsuse sõnul}." },
+      { line: { et: "Valitsuse sõnul vajavat ka poetöötajad vaba päeva.", en: "According to the government, shop workers need a day off too." }, right: "Valitsuse", wrong: "Valitsus", pair: ["GENITIVE", "NOMINATIVE"], why: "Before {sõnul} it's the [omastav] (2nd form): {valitsuse sõnul}." },
       { line: { et: "Tema sõnul on enamik inimesi selle vastu.", en: "According to him, most people are against it." }, right: "inimesi", wrong: "inimesed", pair: ["PARTITIVE", "NOMINATIVE"], why: "After {enamik} the noun is in the [osastav] (3rd form), plural: {enamik inimesi}." },
     ],
     workOut: [
@@ -512,7 +514,7 @@ export const B2_KAUDNE_LESSONS: readonly LessonSpec[] = [
     answers: [
       { ask: { et: "Mida õpetaja palus?", en: "What did the teacher ask?" }, cue: "Say she asked us to bring our child in by eight on Thursday.", model: { et: "Ta palus, et me tooksime lapse neljapäeval kella kaheksaks.", en: "She asked us to bring our child in by eight on Thursday." }, also: ["Ta palus, et me tooksime neljapäeval lapse kella kaheksaks."] },
       { ask: { et: "Kas raha on ka vaja?", en: "Do we need money too?" }, cue: "Say yes: she asked us to put five euros in an envelope.", model: { et: "Jah, ta palus meid viis eurot ümbrikusse panna.", en: "Yes, she asked us to put five euros in an envelope." }, also: ["Jah, ta palus, et me paneksime viis eurot ümbrikusse."] },
-      { cue: "Check you've understood the teacher: by eight on Thursday.", model: { et: "Kas ma saan õigesti aru, et neljapäeval kella kaheksaks?", en: "Have I got it right, by eight on Thursday?" } },
+      { cue: "Check you've understood the teacher: by eight on Thursday.", model: { et: "Kas ma saan õigesti aru: neljapäeval kella kaheksaks?", en: "Have I got it right, by eight on Thursday?" } },
       { cue: "Say she asked whether one of us could come and help.", model: { et: "Ta küsis, kas keegi meist saaks appi tulla.", en: "She asked whether one of us could come and help." } },
     ],
     reworks: [
@@ -582,7 +584,6 @@ export const B2_KAUDNE_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "kirjutatakse", of: "kirjutama", en: "people write, it's written" },
       { kind: "word", et: "sama", en: "the same; {ikka sama}, still the same" },
       { kind: "form", et: "majja", of: "maja", en: "into the building" },
-      { kind: "form", et: "remonti", of: "remont", en: "building work, as an object" },
       { kind: "form", et: "öelda", of: "ütlema", en: "to say, to tell, after a verb like {paluma}" },
       { kind: "phrase", et: "igaks juhuks", en: "just in case" },
       { kind: "phrase", et: "Aitäh kirja eest!", en: "Thank you for your letter!" },
@@ -709,7 +710,7 @@ export const B2_KAUDNE_LESSONS: readonly LessonSpec[] = [
     ],
     answers: [
       { ask: { et: "Mis Signe ütles?", en: "What did Signe say?" }, cue: "Pass on that the theater is on Friday now.", model: { et: "Teater olevat nüüd reedel.", en: "The theater's on Friday now, apparently." }, also: ["Teater olevat nüüd reedel, mitte neljapäeval."] },
-      { ask: { et: "Mis ta veel palus?", en: "What else did she ask?" }, cue: "Say she asked us to bring our child in by eight.", model: { et: "Ta palus, et me tooksime lapse kella kaheksaks.", en: "She asked us to bring our child in by eight." }, also: ["Ta palus meid laps kella kaheksaks tuua."] },
+      { ask: { et: "Mis ta veel palus?", en: "What else did she ask?" }, cue: "Say she asked us to bring our child in by eight.", model: { et: "Ta palus, et me tooksime lapse kella kaheksaks.", en: "She asked us to bring our child in by eight." }, also: ["Ta palus meid lapse kella kaheksaks tuua."] },
       { cue: "Check you've understood: Anna can't go on Friday.", model: { et: "Kas ma saan õigesti aru, et sa reedel ei saa?", en: "Do I understand right that you can't on Friday?" }, also: ["Kas ma saan õigesti aru, et sina reedel ei saa?"] },
     ],
     roleplay: {
@@ -718,7 +719,7 @@ export const B2_KAUDNE_LESSONS: readonly LessonSpec[] = [
       turns: [
         { ask: { et: "No, kuidas lasteaias läks? Kas Signe ütles midagi?", en: "So, how did it go at the kindergarten? Did Signe say anything?" }, cue: "Say yes: the theater is on Friday now, not Thursday, as something you were told.", model: { et: "Jah. Teater olevat nüüd reedel, mitte neljapäeval.", en: "Yes. The theater's on Friday now, apparently, not Thursday." }, also: ["Teater olevat nüüd reedel.", "Jah, teater olevat nüüd reedel."] },
         { ask: { et: "Miks?", en: "Why?" }, cue: "Pass on that several children at the kindergarten are ill, apparently.", model: { et: "Lasteaias olevat mitu last haige.", en: "Several children at the kindergarten are ill, apparently." }, also: ["Mitu last olevat haige."] },
-        { ask: { et: "Mis kell peab laps seal olema?", en: "What time does our child have to be there?" }, cue: "Say she asked us to bring our child in by eight.", model: { et: "Ta palus, et me tooksime lapse kella kaheksaks.", en: "She asked us to bring our child in by eight." }, also: ["Ta palus meid laps kella kaheksaks tuua.", "Kella kaheksaks."] },
+        { ask: { et: "Mis kell peab laps seal olema?", en: "What time does our child have to be there?" }, cue: "Say she asked us to bring our child in by eight.", model: { et: "Ta palus, et me tooksime lapse kella kaheksaks.", en: "She asked us to bring our child in by eight." }, also: ["Ta palus meid lapse kella kaheksaks tuua.", "Kella kaheksaks."] },
         { ask: { et: "Kas raha on ka vaja?", en: "Do we need money too?" }, cue: "Say yes, five euros in an envelope.", model: { et: "Jah, viis eurot ümbrikus.", en: "Yes, five euros in an envelope." } },
         { ask: { et: "Kas ta veel midagi küsis?", en: "Did she ask anything else?" }, cue: "Say she asked whether Anna could go along.", model: { et: "Ta küsis, kas sina saaksid kaasa tulla.", en: "She asked whether you could go along." }, also: ["Ta küsis, kas sa saaksid kaasa tulla."] },
         { ask: { et: "Reedel ma ei saa, mul on arsti juurde aeg.", en: "I can't on Friday, I've got a doctor's appointment." }, cue: "Check you've understood: she can't go on Friday.", model: { et: "Kas ma saan õigesti aru, et sa reedel ei saa?", en: "Do I understand right that you can't on Friday?" }, also: ["Kas ma saan õigesti aru, et sina reedel ei saa?"] },

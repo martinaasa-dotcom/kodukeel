@@ -742,6 +742,22 @@ export const REFUSED_SENTENCES: readonly RefusedSentence[] = [
     et: "Ilma temata on nagu mingi vürts puudu.",
     why: "Puudu here is the adverb in olema puudu, not an imperative of puuduma; the theme is misleading. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
   },
+  {
+    et: "Kena välimusega püürist ei piisa, see peab olema ka parimast materjalist.",
+    why: "Püür is a word learners and most natives do not know. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Naera või vats haigeks.",
+    why: "An idiom where naera is not a real command, and opaque at A2. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Teist korda poiss sama viga ei korranud.",
+    why: "Korda here is the noun kord in its third form, not an imperative of kordama, so it teaches nothing about the imperative. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
+  {
+    et: "Eks elu näita.",
+    why: "Eks elu näita is not Estonian (the saying is Eks elu näitab), so it cannot be an imperative exercise. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
+  },
 ];
 
 /**

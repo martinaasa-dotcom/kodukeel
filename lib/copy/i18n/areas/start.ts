@@ -30,7 +30,7 @@ export const START: Area = {
     "That link would have signed you in as someone else, so to be safe we signed you out and didn’t follow it. If the link is yours, sign in below. If you didn’t ask for it, you can safely ignore it.":
       "Эта ссылка вела в чужой аккаунт, поэтому для безопасности мы вывели тебя из аккаунта и не стали её открывать. Если ссылка твоя, войди ниже. Если нет, просто не обращай на неё внимания.",
     "Only continue if you asked for this sign-in link yourself just now. If you didn’t, close this page.":
-      "Продолжай, только если эта ссылка для входа пришла по твоему собственному запросу только что. Если нет, закрой эту страницу.",
+      "Продолжай, только если ты сам(а) только что запросил(а) эту ссылку для входа. Если нет, закрой эту страницу.",
     "Finish signing in": "Завершить вход",
     "This browser couldn’t finish that sign-in. Either the link was opened in a different browser from the one that asked for it, or you ended up on a different address from the one you started on. Try again from here.":
       "Этот браузер не смог завершить вход. Либо ссылку открыли не в том браузере, в котором её запросили, либо открылся не тот адрес сайта, с которого начинался вход. Попробуй ещё раз отсюда.",

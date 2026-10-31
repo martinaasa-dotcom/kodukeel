@@ -211,7 +211,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         from: { et: "Köök on väike.", en: "The kitchen is small." },
         ask: "Say it's an apartment with a small kitchen.",
         to: { et: "See on väikese köögiga korter.", en: "It's an apartment with a small kitchen." },
-        also: ["Korter on väikese köögiga.", "See korter on väikese köögiga.", "Korteris on väike köök."],
+        also: ["Korter on väikese köögiga.", "See korter on väikese köögiga."],
         pattern: "agreement",
       },
       {

@@ -19,7 +19,7 @@ import type { ScriptedLine } from "../scripted";
 const LINES: readonly ScriptedLine[] = [
   { scene: "c1-arutelu", beat: "name", text: "Nii palju plaanist. Nüüd on sõna teil. Palun öelge alguses oma nimi.", model: "authored", draftedAt: "2026-10-31" },
   { scene: "c1-arutelu", beat: "name", text: "Aitäh. Palun, teie sõna. Öelge alguses oma nimi.", model: "authored", draftedAt: "2026-10-31" },
-  { scene: "c1-arutelu", beat: "figure", text: "Teie naaber ütles, et parkimiskohti jääb sada võrra vähem. Kas see on õige?", model: "authored", draftedAt: "2026-10-31" },
+  { scene: "c1-arutelu", beat: "figure", text: "Teie naaber ütles, et parkimiskohti jääb saja võrra vähem. Kas see on õige?", model: "authored", draftedAt: "2026-10-31" },
   { scene: "c1-arutelu", beat: "figure", text: "Teie naaber rääkis, et linn võtab tänavalt sada parkimiskohta ära. Kas see on nii?", model: "authored", draftedAt: "2026-10-31" },
   { scene: "c1-arutelu", beat: "both", text: "Aitäh. Ja mida te plaanist arvate?", model: "authored", draftedAt: "2026-10-31" },
   { scene: "c1-arutelu", beat: "both", text: "Selge, aitäh. Mis on teie arvamus plaani kohta?", model: "authored", draftedAt: "2026-10-31" },

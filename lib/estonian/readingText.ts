@@ -13,7 +13,7 @@
 /** How much text a reader may paste at once. */
 export const MAX_READING_CHARS = 4000;
 
-const SENTENCE_END = /(?<=[.!?…])["»”)]*\s+/u;
+const SENTENCE_END = /(?<=[.!?…])["»“”)]*\s+/u;
 
 export function readingParagraphs(text: string): string[][] {
   return text

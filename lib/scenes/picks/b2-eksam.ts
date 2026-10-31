@@ -16,14 +16,14 @@ export const b2Eksam: ScenePicks = {
   ],
   choose: [
     { et: "Mina valiksin raamatukogu. Park oleks küll tore, aga raamatukogus käivad nii lapsed kui ka vanad inimesed.", en: "I'd choose the library. A park would be nice, granted, but children and old people both go to the library." },
-    { et: "Mina valiksin pargi, sest see on tervislik.", en: "I'd choose the park, because it's healthy." },
+    { et: "Mina valiksin pargi, sest see on tervisele kasulik.", en: "I'd choose the park, because it's good for your health." },
   ],
   disagree: [
     { et: "Selles on teil õigus. Samas loevad noored üha vähem ja raamatukogu on koht, kus nad saavad lugeda.", en: "You're right there. Then again, young people read less and less, and a library is a place where they can read." },
     { et: "Selles on teil õigus, aga ma arvan teisiti.", en: "You're right there, but I think differently." },
   ],
   phone: [
-    { et: "Ma näen seda natuke teisiti. Raamatukogus ei ole ainult raamatud. Seal saavad inimesed kokku, seal on vaikne ja see on tasuta.", en: "I see it a little differently. A library isn't only books. People meet there, it's quiet and it's free." },
+    { et: "Ma näen seda natuke teisiti. Raamatukogu ei ole ainult raamatud. Seal saavad inimesed kokku, seal on vaikne ja see on tasuta.", en: "I see it a little differently. A library isn't only books. People meet there, it's quiet and it's free." },
     { et: "Raamatukogu on tasuta ja seal on vaikne.", en: "The library is free and it's quiet there." },
   ],
   decide: [

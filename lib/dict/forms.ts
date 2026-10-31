@@ -238,6 +238,22 @@ export async function couldBeCompound(query: string, budget?: ColdBudget): Promi
 }
 
 /**
+ * Whether a spelling a written line holds is Estonian the forms list can account
+ * for: a form it holds, a compound of forms it holds (`poetöötajad`), or a form
+ * it holds with the clitic -gi or -ki on it (`mõtlegi`, `arvasingi`). The forms
+ * list stores neither of the last two, since Estonian builds both at will. Read
+ * by the lessons test and `scripts/check-lesson-part.ts`, so the two agree; the
+ * accept side only, like everything in this file.
+ */
+export async function isWrittenSpelling(query: string): Promise<boolean> {
+  const word = query.trim().toLowerCase();
+  if (await isExactForm(word)) return true;
+  const clitic = /^(.{2,}?)(gi|ki)$/u.exec(word);
+  if (clitic && (await isExactForm(clitic[1]!))) return true;
+  return (await couldBeCompound(word)) === true;
+}
+
+/**
  * Whether this exact spelling, diacritics and all, is a form of some word. The
  * folded reading above is right for a search box and wrong for telling a slip of
  * the hand from a real word: `poder` folds onto `põder` and is still a slip.

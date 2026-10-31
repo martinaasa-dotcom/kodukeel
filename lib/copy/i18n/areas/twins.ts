@@ -173,7 +173,7 @@ export const TWINS: Area = {
     "it is walking, moving on your own feet with nowhere to get to in the sentence.":
       "это ходьба, движение на своих ногах, и в предложении нет места, куда нужно попасть.",
     "it is a visit there and back, or a habit. Estonian then says where you were (in the theater, at work), not where you headed.":
-      "это посещение туда и обратно или привычка. Тогда по-эстонски говорят, где ты был (в театре, на работе), а не куда направлялся.",
+      "это поход туда и обратно или привычка. Тогда по-эстонски говорят, где ты был (в театре, на работе), а не куда направлялся.",
     "to know how to": "уметь",
     "to manage to": "суметь, быть в силах",
     "may, can (it is possible)": "мочь (это возможно)",

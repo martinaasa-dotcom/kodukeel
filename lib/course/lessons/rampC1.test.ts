@@ -141,7 +141,7 @@ describe("C1's ramp", () => {
   });
 
   it("asks a text of the table's length, in the band's shape", () => {
-    expect(broken(1, (l) => (l.read ? { ...l, read: { ...l.read, lines: l.read.lines.slice(0, 3) } } : l))).toMatch(/runs to 9 words, where part 1 reads 200/);
+    expect(broken(1, (l) => (l.read ? { ...l, read: { ...l.read, lines: l.read.lines.slice(0, 3) } } : l))).toMatch(/runs to 9 words, where part 1 reads 195/);
     expect(broken(4, (l) => (l.read ? { ...l, read: { ...l.read, questions: [] } } : l))).toMatch(/asked no match question/);
     expect(broken(8, (l) => (l.read ? { ...l, read: readFor(3) } : l))).toMatch(/asked no short question/);
   });

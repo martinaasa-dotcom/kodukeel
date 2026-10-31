@@ -276,7 +276,6 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
       { kind: "verb", et: "tooma", first: "toon", en: "to bring", firstEn: "I bring" },
       { kind: "verb", et: "viima", first: "viin", en: "to take (away)", firstEn: "I take" },
       { kind: "word", et: "sinna", en: "there, going there" },
-      { kind: "word", et: "siit", en: "from here" },
       { kind: "word", et: "sealt", en: "from there" },
       { kind: "word", et: "juurde", en: "to beside, over to" },
       { kind: "word", et: "juurest", en: "from beside" },

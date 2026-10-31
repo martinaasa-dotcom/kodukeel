@@ -11,8 +11,8 @@ describe("a pasted text as paragraphs of sentences", () => {
   });
 
   it("keeps a closing quote with its sentence and splits paragraphs on a blank line", () => {
-    const parts = readingParagraphs("Ta ütles: „Tule homme.” Ma tulen.\n\nTeine lõik\njätkub siin.");
-    expect(parts).toEqual([["Ta ütles: „Tule homme.”", "Ma tulen."], ["Teine lõik jätkub siin."]]);
+    const parts = readingParagraphs("Ta ütles: „Tule homme.“ Ma tulen.\n\nTeine lõik\njätkub siin.");
+    expect(parts).toEqual([["Ta ütles: „Tule homme.“", "Ma tulen."], ["Teine lõik jätkub siin."]]);
   });
 
   it("returns nothing for a text with nothing in it", () => {

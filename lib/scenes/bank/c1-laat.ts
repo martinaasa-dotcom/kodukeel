@@ -26,7 +26,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "c1-laat", beat: "then", text: "Just nii. Vanasti oli igal talul oma rehi. Nüüd on neid vähe alles.", model: "authored", draftedAt: "2026-10-31" },
   { scene: "c1-laat", beat: "then", text: "Jah, just nii. Nüüd on neid vähe alles.", model: "authored", draftedAt: "2026-10-31" },
   { scene: "c1-laat", beat: "stayed", text: "Kolhoosi ajal jäid talud tühjaks. Noored läksid linna.", model: "authored", draftedAt: "2026-10-31" },
-  { scene: "c1-laat", beat: "stayed", text: "Siis tuli kolhoos, ja talud jäid tühjaks. Noored läksid linna.", model: "authored", draftedAt: "2026-10-31" },
+  { scene: "c1-laat", beat: "stayed", text: "Siis tuli kolhoos ja talud jäid tühjaks. Noored läksid linna.", model: "authored", draftedAt: "2026-10-31" },
   { scene: "c1-laat", beat: "answer:stayed", text: "Siin on minu kodu.", model: "authored", draftedAt: "2026-10-31" },
   { scene: "c1-laat", beat: "answer:stayed", text: "Miks? Siin on minu kodu.", model: "authored", draftedAt: "2026-10-31" },
   { scene: "c1-laat", beat: "kirmas", text: "Mu ema oli eeslaulja. Tema laulis siin kirmasel terve öö.", model: "authored", draftedAt: "2026-10-31" },

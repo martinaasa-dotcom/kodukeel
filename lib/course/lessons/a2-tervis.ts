@@ -103,7 +103,7 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
       { who: "Kati", et: "Tervisekeskus, tere!", en: "Health center, hello!", stage: "On the phone." },
       { who: "Tom", et: "Tere! Ma tahaksin aega perearsti juurde.", en: "Hello! I'd like an appointment with my family doctor." },
       { who: "Kati", et: "Mis teil viga on?", en: "What's the matter?" },
-      { who: "Tom", et: "Mul on köha ja nohu, ja kurk valutab ka.", en: "I have a cough and a runny nose, and my throat hurts too." },
+      { who: "Tom", et: "Mul on köha ja nohu, kurk valutab ka.", en: "I have a cough and a runny nose, and my throat hurts too." },
       { who: "Kati", et: "Millal see algas?", en: "When did it start?" },
       { who: "Tom", et: "Eile õhtul.", en: "Yesterday evening." },
       { who: "Kati", et: "Kas homme kell kümme sobib?", en: "Does tomorrow at ten suit you?" },

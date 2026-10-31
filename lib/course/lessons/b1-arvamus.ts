@@ -469,7 +469,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       story: [
         { et: "Eile tuli meie naaber Helgi minu juurde.", en: "Yesterday our neighbor Helgi came over to see me." },
         { et: "Tal on uus nutitelefon, aga ekraan oli must.", en: "She's got a new smartphone, but the screen was black." },
-        { et: "Ta laadis seda vana telefoni juhtmega ja ei teadnud, et see juhe ei sobi.", en: "She was charging it with her old phone's cable and didn't know that cable doesn't fit." },
+        { et: "Ta laadis uut telefoni vana juhtmega ja ei teadnud, et see juhe ei sobi.", en: "She was charging the new phone with her old cable and didn't know that cable doesn't fit." },
         { et: "Me laadisime telefoni uue juhtmega ja siis oli seal kakskümmend sõnumit.", en: "We charged the phone with the new cable, and then there were twenty messages on it." },
         { et: "Need olid tema tütrelt.", en: "They were from her daughter." },
         { et: "Ma ütlesin talle, et rakendusega saab tasuta helistada.", en: "I told her that with the app you can call for free." },
@@ -566,7 +566,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
         from: { et: "Kampsun ei ole prügi. Selle võid sõbrale anda.", en: "A sweater isn't trash. You can give it to a friend." },
         ask: "Join them with {kuna}. You can put the reason first.",
         to: { et: "Kuna kampsun ei ole prügi, võid selle sõbrale anda.", en: "Since a sweater isn't trash, you can give it to a friend." },
-        also: ["Kuna kampsun ei ole prügi, võid sa selle sõbrale anda.", "Kuna kampsun ei ole prügi, sa võid selle sõbrale anda.", "Kuna kampsun pole prügi, sa võid selle sõbrale anda.", "Selle võid sõbrale anda, kuna kampsun ei ole prügi.", "Kuna kampsun pole prügi, võid selle sõbrale anda.", "Kuna kampsun pole prügi, võid sa selle sõbrale anda.", "Kuna kampsun ei ole prügi, siis võid selle sõbrale anda.", "Kuna kampsun ei ole prügi, siis võid sa selle sõbrale anda."],
+        also: ["Kuna kampsun ei ole prügi, võid sa selle sõbrale anda.", "Kuna kampsun ei ole prügi, sa võid selle sõbrale anda.", "Kuna kampsun pole prügi, sa võid selle sõbrale anda.", "Kuna kampsun pole prügi, võid selle sõbrale anda.", "Kuna kampsun pole prügi, võid sa selle sõbrale anda.", "Kuna kampsun ei ole prügi, siis võid selle sõbrale anda.", "Kuna kampsun ei ole prügi, siis võid sa selle sõbrale anda."],
         pattern: "subordinate",
       },
       {
@@ -612,7 +612,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       { who: "Helgi", et: "Minu meelest on see väga halb idee.", en: "If you ask me, it's a very bad idea." },
       { who: "Helgi", et: "Linnal on foorum, kus saab oma arvamust avaldada.", en: "The city has a forum where you can give your opinion." },
       { who: "Helgi", et: "Sul on ju hea eesti keel. Kirjuta palun sinna, mida sa arvad ja miks.", en: "Your Estonian's good, after all. Please write there what you think and why." },
-      { who: "Helgi", et: "Ma kirjutan ka. Helista mulle tagasi! Head aega!", en: "I'm writing too. Call me back! Bye!" },
+      { who: "Helgi", et: "Ma kirjutan ka. Helista mulle tagasi! Head aega!", en: "I'll write too. Call me back! Bye!" },
     ],
     teaches: [
       { kind: "word", et: "park", en: "park" },
@@ -867,7 +867,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       { who: "Kadri", et: "Kolm päeva kontoris? Mulle tundub, et see on liiga palju.", en: "Three days at the office? It seems to me that's too many." },
       { who: "Tom", et: "Hea küll. Kaks päeva kontoris ja kolm kodus? Reedeti on mul nagunii kursus.", en: "All right. Two days at the office and three at home? I've got my course on Fridays anyway." },
       { who: "Kadri", et: "Sellega olen nõus.", en: "I'll agree to that." },
-      { who: "Kristi", et: "Kokku lepitud! Ja kohvi joome kontoris koos.", en: "It's a deal! And we drink coffee together at the office." },
+      { who: "Kristi", et: "Kokku lepitud! Ja kohvi joome kontoris koos.", en: "It's a deal! And we'll have coffee together at the office." },
     ],
     teaches: [],
     how: {

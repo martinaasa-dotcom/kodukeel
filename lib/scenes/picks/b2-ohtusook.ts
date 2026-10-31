@@ -11,7 +11,7 @@ export const b2Ohtusook: ScenePicks = {
     { et: "Tere õhtust!", en: "Good evening!" },
   ],
   how: [
-    { et: "Täitsa hästi, aitäh.", en: "Really well, thanks." },
+    { et: "Täitsa hästi, aitäh.", en: "Pretty well, thanks." },
     { et: "Hästi, aitäh.", en: "Fine, thanks." },
   ],
   once: [

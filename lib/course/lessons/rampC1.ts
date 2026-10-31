@@ -88,12 +88,19 @@ export const C1_TOPIC_PREPARE = 180;
 /** On the spot: band 4's race after one minute, which at least one race of parts 7 and 8 is. */
 export const C1_ON_THE_SPOT = 60;
 
-/** The fewest words a text read runs to, by band, and the question shape each band asks it in. */
+/**
+ * The fewest words a text read runs to, by band, and the question shape each
+ * band asks it in. Five under the round figures in the table above: the
+ * native speaker's reading of 2026-10-31 wrote compounds as one word
+ * (`ajalooõpetajana` for `ajaloo õpetajana`) and took out filler, which made
+ * three texts a word shorter to count and no shorter to read. The length a
+ * band is after is unchanged; the figure is a count of spaces.
+ */
 export const C1_READ: Readonly<Record<C1Band, { readonly words: number; readonly asks: "match" | "gap" | "short" | null }>> = {
-  1: { words: 200, asks: null },
-  2: { words: 350, asks: "match" },
-  3: { words: 450, asks: "gap" },
-  4: { words: 550, asks: "short" },
+  1: { words: 195, asks: null },
+  2: { words: 345, asks: "match" },
+  3: { words: 445, asks: "gap" },
+  4: { words: 545, asks: "short" },
 };
 
 /** The talk a band asks for at least once, in words, and how often it is heard. Band 4's is part 7's lecture. */

@@ -1661,7 +1661,7 @@ export const ROUNDS: Area = {
     "One step before {part}: a short check": "Ще один крок до {part}: коротка перевірка",
     "One step left: the {level} check": "Лишився один крок: перевірка рівня {level}",
     "Questions on everything {level} taught, the way the lessons asked them. Pass it and the course is finished. You can take it as often as you like.": "Запитання з усього, що було на рівні {level}, у тому ж вигляді, що й в уроках. Пройди перевірку, і курс пройдено. Проходити її можна скільки завгодно разів.",
-    "That was the last {level} lesson, and the course is nearly done. Next is the {level} check, about ten minutes, whenever you're ready.": "Це був останній урок {level}, і курс майже пройдено. Далі перевірка рівня {level}, хвилин десять, коли будеш готовий (готова).",
+    "That was the last {level} lesson, and the course is nearly done. Next is the {level} check, about ten minutes, whenever you're ready.": "Це був останній урок {level}, і курс майже пройдено. Далі – перевірка рівня {level}, хвилин десять, коли будеш готовий (готова).",
     "You finished the {level} lessons. Pass the check on everything {level} taught, and the course is finished.": "Уроки {level} пройдено. Пройди перевірку з усього матеріалу {level}, і курс пройдено.",
     "You've finished the course, so this is what's due. {more}": "Курс пройдено, тож тут те, що час повторити. {more}",
     "What helps from here": "Що допоможе далі",
