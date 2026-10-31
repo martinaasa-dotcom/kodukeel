@@ -121,6 +121,14 @@ export const B2 = [
       ["põhjalik", "thorough", "ADJECTIVE"],
       ["ulatuslik", "extensive", "ADJECTIVE"],
       ["järjekindel", "consistent", "ADJECTIVE"],
+      // B2 is the lessons (docs/43-lessons.md §14): words built from words that the lessons teach and no unit had asked for.
+      ["asumine", "starting (work), taking up"],
+      ["töötamine", "working, employment"],
+      ["koristamine", "cleaning up"],
+      ["magamaminek", "going to bed"],
+      ["sõitja", "passenger, rider"],
+      ["rattur", "cyclist"],
+      ["kuueaastane", "six-year-old", "ADJECTIVE"],
     ],
   }),
 
@@ -153,6 +161,9 @@ export const B2 = [
       ["ränne", "migration"],
       ["lõimumine", "integration"],
       ["rahvusvaheline", "international", "ADJECTIVE"],
+      // What the B2 lessons say about the kindergarten and the web, which no unit had asked for.
+      ["suss", "slipper"],
+      ["veeb", "the web"],
     ],
   }),
 
@@ -279,6 +290,7 @@ export const B2 = [
       ["järeldama", "to conclude"],
       ["veenduma", "to make sure"],
       ["avastama", "to discover"],
+      ["selguma", "to become clear, to turn out"],
     ],
   }),
 
@@ -343,6 +355,7 @@ export const B2 = [
       ["kujutama", "to depict"],
       ["kultuur", "culture"],
       ["kunstnik", "artist"],
+      ["lauluväljak", "song festival grounds"],
     ],
   }),
 
@@ -374,6 +387,7 @@ export const B2 = [
       ["kohanema", "to adapt (oneself), to settle in"],
       ["keskenduma", "to concentrate"],
       ["tajuma", "to perceive"],
+      ["närv", "nerve"],
     ],
   }),
 
@@ -465,6 +479,8 @@ export const B2 = [
       ["oluliselt", "significantly", "ADVERB"],
       ["ületama", "to exceed"],
       ["moodustama", "to constitute"],
+      ["vähenema", "to decrease, to go down"],
+      ["suurenema", "to increase, to go up"],
     ],
   }),
 

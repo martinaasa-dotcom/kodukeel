@@ -147,6 +147,23 @@ export const ERRANDS: readonly Errand[] = [
   { id: "opinion", says: "Say what you thought of something you read or watched, and one reason.", where: "With a friend", unit: "kirjandus", scene: "raamatuklubi" },
   { id: "minute", says: "Talk about yourself for one minute in Estonian without stopping.", where: "Anywhere", unit: "haridus", scene: "eksam-b1" },
   { id: "decision", says: "Explain a decision you made and one reason against it.", where: "With a friend", unit: "argumenteerimine", scene: "eksam-b2" },
+  /*
+    B2'S EIGHT, ONE A PART (docs/reviews/b2-cast.md, "Its errand"), each on a
+    unit the part owns. A lesson's own role-play declares no units, so it
+    cannot be an errand's rehearsal under the rule above; where a catalog
+    conversation the part offers on a lesson's finish declares the unit, it is
+    named (the office's letter, the B2 exam), and the others name none rather
+    than a conversation about something else. The first part owns no unit, so
+    its errand takes the A2 unit of talking to people.
+  */
+  { id: "keepon", says: "When somebody switches to English to help you, ask to carry on in Estonian, and carry on.", where: "Anywhere", unit: "suhtlemine" },
+  { id: "headline", says: "Read one headline and tell somebody what it said, as something you heard.", where: "Anywhere", unit: "kaudne" },
+  { id: "door", says: "Say one thing in Estonian to a teacher or another parent at the door.", where: "A school, a kindergarten", unit: "des-vorm" },
+  { id: "doctor", says: "Book an appointment with your family doctor in Estonian, on the phone if you can.", where: "On the phone", unit: "tervishoid" },
+  { id: "meeting", says: "Say one thing in a meeting held in Estonian: a question, a short update, or that you agree.", where: "Work", unit: "toomaailm" },
+  { id: "plainly", says: "Read a letter from an office and say plainly, in Estonian, what it wants from you.", where: "Home, an office", unit: "umbisikuline", scene: "elamisluba" },
+  { id: "radio", says: "Listen to ten minutes of Estonian radio, or watch an Estonian show with Estonian subtitles.", where: "Home", unit: "kunst" },
+  { id: "politely", says: "Disagree with somebody politely in Estonian, and say why.", where: "Work, a class", unit: "argumenteerimine", scene: "eksam-b2" },
 ];
 
 /**

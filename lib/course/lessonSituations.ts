@@ -1,5 +1,5 @@
 /**
- * A B1 LESSON POINTS AT A CONVERSATION OUT THERE, ON ITS FINISH SCREEN.
+ * A B1 OR B2 LESSON POINTS AT A CONVERSATION OUT THERE, ON ITS FINISH SCREEN.
  *
  * The catalog's conversations (`lib/scenes/catalogue.ts`) rehearse the errands
  * B1 is for: opening a bank account, the landlord about something broken, a
@@ -16,14 +16,27 @@
  * (`lessonScenes.ts`); this is the same situation one step further out, with
  * somebody who talks the way people do there.
  *
+ * B2 did the same when it became lessons (docs/43-lessons.md §14): the
+ * fourteen conversations its old unit evenings opened, and the three A2
+ * errands that sat on free evenings of those units, are each offered by the
+ * B2 lesson nearest them. The doctor's appointment, the family doctor and the
+ * emergency call are on the body-and-care part; the unemployment fund, the
+ * residence permit, family benefit, a deposit and taking something back on
+ * paper and the state; a raise and a chart on the working week and on figures
+ * in the news; the residents' meeting on granting a point; the B2 exam on the
+ * B2 exam. The weekend, a friend's bad news, the café where somebody switches
+ * to English and the corner shop that is said to be closing are among friends
+ * and neighbors, and the bus ticket is on the song festival, where the bus was
+ * full. The job interview stays on its B1 lesson, which offered it first.
+ *
  * Keyed on the lesson id and held both ways by `lessonSituations.test.ts`:
  * every key is a lesson and every value a catalog conversation, and every
- * conversation that no evening of B2 and on opens is offered by one lesson.
+ * conversation that no evening of C1 opens is offered by one lesson.
  *
  * And the board agrees with the finish screen (`situationsOfferedThrough`): a
  * conversation a lesson has offered is one the course has brought in, so the
  * situations board stops calling it "later" from the evening that lesson is
- * finished. Its words come from units B1's lessons teach by goal rather than
+ * finished. Its words come from units the lessons teach by goal rather than
  * unit by unit, so the unit rule alone would call it early for the whole level.
  *
  * Pure: no React, no Prisma, no clock.
@@ -52,6 +65,23 @@ export const LESSON_SITUATIONS: Readonly<Record<string, string>> = {
   "b1-44-office": "ametiasutus",
   "b1-45-lost": "apteek",
   "b1-49-end": "eksam-b1",
+  "b2-01-friends": "nadalavahetus",
+  "b2-02-reactions": "sobra-mure",
+  "b2-05-keep-estonian": "kohvikus",
+  "b2-07-heard": "poodi-piima",
+  "b2-19-kulmetus": "perearst",
+  "b2-20-registratuur": "arsti-aeg",
+  "b2-22-emo": "hadaabi",
+  "b2-27-feedback": "palk",
+  "b2-31-tax-board": "elamisluba",
+  "b2-32-new-job": "tootukassa",
+  "b2-34-insurance": "tagatisraha",
+  "b2-35-complaint": "kaebus",
+  "b2-36-the-call": "peretoetus",
+  "b2-38-song-festival": "bussipilet",
+  "b2-43-figures": "graafik",
+  "b2-44-granted": "elanike-koosolek",
+  "b2-48-end": "eksam-b2",
 };
 
 /** The catalog conversation a lesson's finish screen offers, by id, or null. */

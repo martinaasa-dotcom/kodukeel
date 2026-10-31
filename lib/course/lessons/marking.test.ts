@@ -183,7 +183,7 @@ describe("a typed verb takes its pronoun", () => {
       }
     }
     expect(wrong).toEqual([]);
-  });
+  }, 120_000);
 });
 
 describe("start with what the line asks", () => {

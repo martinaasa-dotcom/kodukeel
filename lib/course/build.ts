@@ -261,6 +261,20 @@ export const WORDS_FOR_LETTERS = 4;
 export const FORMS_PER_EVENING = 5;
 
 /**
+ * C1 SHOWS TWELVE, BECAUSE IT INHERITS THE QUEUE.
+ *
+ * Once B2 became lessons, C1 is the only level the forms step runs on after
+ * B1, and it opens with every verb B2's lessons taught still waiting for its
+ * past or its polite command. At five a night, on every other evening, that
+ * was 90 verbs over nineteen evenings and 137 on the ladder's last, which is
+ * the one evening that may not be a wall of tables. Twelve spreads them over
+ * the evenings C1 has; a C1 learner reads a table of twelve verbs as a list.
+ */
+export function formsPerEvening(level: string): number {
+  return level === "C1" ? 12 : FORMS_PER_EVENING;
+}
+
+/**
  * What each round needs to have been taught before the module deals it.
  *
  * Match and Listening need nothing but words, which is why they stand in for
@@ -673,7 +687,7 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
            however many that is: there is no later evening for it to go to,
            and a scene placed anywhere below moves the every-other-evening
            cadence by one, which is enough to leave more than a handful. */
-        : ledger.showForms(ladderEnd ? Infinity : FORMS_PER_EVENING);
+        : ledger.showForms(ladderEnd ? Infinity : formsPerEvening(spec.level));
       const dealt = onThePage(
         onTheCase(
           rounds(
@@ -826,9 +840,9 @@ export function withForms(
 }
 
 /**
- * WHAT THE LESSONS TAUGHT, HANDED TO THE LEDGER BEFORE B2 IS BUILT.
+ * WHAT THE LESSONS TAUGHT, HANDED TO THE LEDGER BEFORE C1 IS BUILT.
  *
- * A1, A2 and B1 are the lessons (`lessonCourse.ts`), and B2's first evening is dealt
+ * A1, A2, B1 and B2 are the lessons (`lessonCourse.ts`), and C1's first evening is dealt
  * against what a learner had when it began: every word a lesson taught,
  * as the harvest holds it, and every page a lesson explained. A word a lesson
  * taught as a verb is a verb whatever the harvest found it under first, so
@@ -840,7 +854,7 @@ export function withForms(
  * lesson's evening carries it as `pasts` and `pastsThird` (`lessonPastSlots`), slot by slot, which `pastsThrough`
  * and `thirdPastsThrough` read, so the module may ask the slot that lesson showed from then on (D4). The verb
  * stays in the forms queue, because no lesson shows its polite imperative
- * (`tehke`, `lugege`), and B2's forms step is where that is shown.
+ * (`tehke`, `lugege`), and C1's forms step is where that is shown.
  */
 export function teachLessons(ledger: Ledger): Ledger {
   for (const programme of lessonProgrammes()) {
@@ -870,9 +884,9 @@ export function ledgerBefore(spec: PartSpec): Ledger {
 }
 
 /**
- * The whole ladder: the A1, A2 and B1 lessons, then every part from B2 built
- * in order over one ledger that starts with what the lessons taught, so what
- * the lessons handed over is what b2.1's first evening is dealt against.
+ * The whole ladder: the A1 to B2 lessons, then every part of C1 built in
+ * order over one ledger that starts with what the lessons taught, so what
+ * the lessons handed over is what c1.1's first evening is dealt against.
  */
 export function buildProgrammes(): Programme[] {
   return (BUILT ??= assemble());

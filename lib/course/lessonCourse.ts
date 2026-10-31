@@ -1,15 +1,15 @@
 /**
- * A1, A2 AND B1 AS LESSONS: EACH LESSON ONE EVENING OF THE PLANNED COURSE.
+ * A1 TO B2 AS LESSONS: EACH LESSON ONE EVENING OF THE PLANNED COURSE.
  *
  * The old A1 cut each unit's word list into fives in the order the words were
  * typed, and an evening was those five words met, a reading, two rounds and a
- * review (docs/43-lessons.md §0). A1, A2 and B1 are the lessons now: an evening
+ * review (docs/43-lessons.md §0). A1, A2, B1 and B2 are the lessons now: an evening
  * is one lesson, and a lesson is its own six steps on its own screen, so the
  * evening has one step, the lesson, and finishing the lesson is finishing the
  * evening. Each part of the lessons is a part of the course, so the module
  * screen, Today, the rail and everything that reads what the course has
  * taught (`taughtThrough`, `grammarThrough`) read the lessons through the
- * same `Programme` shape as B2 and C1.
+ * same `Programme` shape as C1.
  *
  * What an evening has taught is the lesson's own list, as the dictionary heads
  * it (`lessonWords`).
@@ -69,6 +69,18 @@ export const PATTERN_PAGE: Readonly<Partial<Record<PatternId, string>>> = {
   subordinate: "subordination",
   agreement: "adjective-agreement",
   derivation: "derivation",
+  /*
+    B2's (docs/43-lessons.md §13). The supine's cases (-mas, -mast, -maks,
+    -mata) are the -ma word's own, so they count as the page on the two
+    infinitives read; the spoken register is the page on reading the room.
+  */
+  quotative: "quotative",
+  converb: "converb",
+  supine: "infinitives",
+  nominal: "nominalisation",
+  hedging: "hedging",
+  concession: "concession",
+  spoken: "register",
 };
 
 /**
@@ -114,6 +126,12 @@ export const LESSON_PAGES: Readonly<Record<string, { cases?: readonly string[]; 
   */
   "b1-01-done": { topics: ["aspect"] },
   "b1-16-as": { cases: ["ESSIVE", "TRANSLATIVE"] },
+  /*
+    B2: a question and a request passed on (`ta küsis, kas`, `ta palus, et`),
+    which the quotative's pattern does not name and the page on reported
+    speech explains; b2-kaudne's lesson on passing on a question reads it.
+  */
+  "b2-09-asked": { topics: ["reported-speech"] },
 };
 
 /**
@@ -136,8 +154,11 @@ export function lessonMinutes(lesson: LessonSpec): number {
   return LESSON_MINUTES
     + (lesson.listenFor ? 2 : 0)
     + (lesson.retell ? 5 : 0)
-    + (lesson.faster ? 4 : 0)
-    + (lesson.write ? 15 : 0);
+    + (lesson.faster ? 4 + Math.round((lesson.faster.prepare ?? 0) / 60) : 0)
+    + (lesson.write ? 15 : 0)
+    // B2: a real text read in the Listen step, and words worked out in Practice.
+    + (lesson.read ? 2 : 0)
+    + (lesson.workOut && lesson.workOut.length > 0 ? 1 : 0);
 }
 
 /** Each harvested verb's stored simple past, the I form and the third person, for telling a taught past apart. */

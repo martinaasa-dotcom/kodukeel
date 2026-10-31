@@ -1,4 +1,4 @@
-import { ledgersBefore, LESSONS as COURSE_LESSONS, practiceFor, reviewFor, type LessonSpec } from "@/lib/course/lessons";
+import { ledgersBefore, lessonRank, LESSONS as COURSE_LESSONS, practiceFor, reviewFor, teach, type Ledger, type LessonSpec } from "@/lib/course/lessons";
 import { PREVIEW_LESSONS } from "@/lib/course/lessons/preview";
 import { PROGRAMMES, lessonDayFor } from "@/lib/course";
 import { checkAfter, type CourseCheck } from "@/lib/course/checks";
@@ -27,8 +27,13 @@ function ledgerBefore(id: string) {
   return (BEFORE ??= ledgersBefore(LESSONS)).get(id)!;
 }
 
+/** The ledger at the end of a lesson, its own items included: what the learner holds by the time they read its text. */
+export function ledgerTonight(lesson: LessonSpec): Ledger {
+  return teach(ledgerBefore(lesson.id), lesson.teaches, lessonRank(lesson), lesson.patterns);
+}
+
 /** The half of a lesson's view that is the same for every learner, which is all of it but three fields. */
-export type LessonPlan = Omit<LessonView, "name" | "due" | "check" | "part" | "next" | "partAt" | "timeMultiplier"> & {
+export type LessonPlan = Omit<LessonView, "name" | "due" | "check" | "part" | "next" | "partAt" | "timeMultiplier" | "read"> & {
   closes: CourseCheck | null;
   /** The next lesson, and whether it opens another part, which waits behind this part's check. */
   after: { id: string; title: string; crossesPart: boolean } | null;

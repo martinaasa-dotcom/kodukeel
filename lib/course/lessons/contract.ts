@@ -1,10 +1,11 @@
 import { normalisePhrase } from "./ledger";
-import type { LessonSpec, PartOfLessons } from "./types";
+import { B2_PATTERNS, type LessonSpec, type PartOfLessons } from "./types";
+import { b2PartAt, b2PatternsAboveMissing } from "./rampB2";
 
 /**
  * WHAT A LEVEL OF LESSONS HAS TO BE, WHICHEVER LEVEL IT IS.
  *
- * A1, A2 and B1 are lessons, and B2 and C1 will be. Every rule here was true
+ * A1, A2, B1 and B2 are lessons, and C1 will be. Every rule here was true
  * of A1 by the time A2 was written and was found broken by a reading of A2,
  * which is the argument for writing them down as a check rather than a
  * habit: four parts ended on an evening labeled "Check-in" where the rest
@@ -50,6 +51,9 @@ export function lessonEnglish(lesson: LessonSpec): string[] {
     ...(lesson.write
       ? [lesson.write.genre, lesson.write.purpose, lesson.write.task, ...lesson.write.model.map((l) => l.en), ...lesson.write.uses.map((u) => u.en)]
       : []),
+    // The B2 additions: a real text in the Listen step, and words to work out.
+    ...(lesson.read ? [lesson.read.genre, ...lesson.read.lines.map((l) => l.en)] : []),
+    ...(lesson.workOut ?? []).flatMap((w) => [w.sentence.en, w.means, ...w.options]),
   ].filter((s) => s.trim() !== "");
 }
 
@@ -211,5 +215,45 @@ export function levelContractProblems(lessons: readonly LessonSpec[], parts: rea
       }
     }
   }
+  problems.push(...b2LevelProblems(lessons, parts));
+  return problems;
+}
+
+/**
+ * WHAT A B2 PART HAS TO BE ON TOP OF EVERY LEVEL'S SHAPE (docs/43-lessons.md
+ * §13.3, §13.4). Asked of B2 alone, so A1 to B1 are untouched.
+ *
+ *   - Every part writes exactly one real text (`write`): the four writing
+ *     tasks of the B2 paper are each written once, in the part whose life
+ *     needs that genre, and a part with two or none is a part out of step.
+ *   - From the third part on, a part's reworks ask for at least one B2
+ *     pattern an earlier B2 part explained, so the quotative is still in use
+ *     at the end of the level rather than only in part two.
+ *
+ * `parts` in teaching order. A part's patterns are what its lessons explain.
+ * Exported apart from `levelContractProblems` because the per-part check
+ * (`scripts/check-lesson-part.ts`) asks the shape of one part alone and has to
+ * ask this of the whole level to know which parts came before it.
+ */
+export function b2LevelProblems(lessons: readonly LessonSpec[], parts: readonly PartOfLessons[]): string[] {
+  const problems: string[] = [];
+  const earlier = new Set<string>();
+  const present = new Set(parts.filter((p) => p.level === "B2").map((p) => p.id));
+  parts.filter((p) => p.level === "B2").forEach((part, n) => {
+    // Placed by B2's fixed order, and crediting the parts above it not written yet (`B2_PART_ORDER`).
+    const i = b2PartAt(part.id, n + 1) - 1;
+    for (const x of b2PatternsAboveMissing(part.id, present)) earlier.add(x);
+    const inPart = lessons.filter((l) => l.part === part.id);
+    const at = `B2 ${part.id}`;
+    const writes = inPart.filter((l) => l.write).length;
+    if (writes !== 1) problems.push(`${at}: writes ${writes} real texts, where a B2 part writes exactly one`);
+    if (i >= 2) {
+      const recycles = inPart.some((l) => (l.reworks ?? []).some((r) => earlier.has(r.pattern)));
+      if (!recycles) {
+        problems.push(`${at}: no rework asks for a pattern an earlier B2 part explained (${earlier.size > 0 ? [...earlier].join(", ") : "none yet"}), where from the third part one does`);
+      }
+    }
+    for (const l of inPart) for (const p of l.patterns ?? []) if ((B2_PATTERNS as readonly string[]).includes(p)) earlier.add(p);
+  });
   return problems;
 }

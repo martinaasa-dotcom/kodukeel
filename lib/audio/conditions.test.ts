@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  CLEAN, CONDITIONS, OPENS_AT, conditionById, conditionFor, describeHearing, hearingFrom, openConditions, removesWords,
+  CLEAN, CONDITIONS, OPENS_AT, conditionById, conditionFor, describeHearing, hearingFrom, openConditions, removesWords, roomForLine,
 } from "./conditions";
 
 describe("hearing conditions", () => {
@@ -94,5 +94,15 @@ describe("hearing conditions", () => {
   it("says the room only when it was not a quiet one", () => {
     expect(describeHearing("Mari", CLEAN, "en")).toBe("Read by Mari.");
     expect(describeHearing("Mari", conditionById("cafe"), "en")).toBe("Read by Mari, over café noise.");
+  });
+});
+
+describe("a conversation heard in a room", () => {
+  it("colors every line where the room only colors, and joins only the first spoken line where it removes words", () => {
+    const phone = conditionById("phone");
+    const half = conditionById("half");
+    expect([0, 1, 2].map((i) => roomForLine(phone, i, 1))).toEqual([phone, phone, phone]);
+    expect([0, 1, 2].map((i) => roomForLine(half, i, 1))).toEqual([undefined, half, undefined]);
+    expect(roomForLine(undefined, 0, 0)).toBeUndefined();
   });
 });

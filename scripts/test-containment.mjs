@@ -209,9 +209,9 @@ const ROUTES = [
   // The course.
   "/learn",
   "/learn/new",
-  "/learn/uhiskond",
-  "/learn/uhiskond/lesson",
-  "/learn/uhiskond/worksheet",
+  "/learn/nominalisatsioon",
+  "/learn/nominalisatsioon/lesson",
+  "/learn/nominalisatsioon/worksheet",
   "/learn/checkpoint/A1",
   "/course",
   "/course/learn",
@@ -451,11 +451,12 @@ const SPARSE = new Map([
 const { check, absent, done } = suite(PART ? `Containment, the ${PART} half` : "Containment", { floor: PART ? 1200 : 2425 });
 
 /**
- * A unit whose lesson meets words with their sentence under them. A1, A2 and
- * B1 are the lessons now (docs/43-lessons.md) and a link to one of their units
- * lands on `/course/lessons`, so this is a B2 unit, one of nouns with cases.
+ * A unit whose lesson meets words with their sentence under them. A1 to B2
+ * are the lessons now (docs/43-lessons.md) and a link to one of their units
+ * lands on `/course/lessons`, so this is a C1 unit, one of nouns: fifteen of
+ * its eighteen words carry a recorded sentence.
  */
-const UNIT = "uhiskond";
+const UNIT = "nominalisatsioon";
 
 const browser = await launchChromium();
 
@@ -1663,7 +1664,7 @@ async function askedForStates(ctx, at) {
     "Ready" as well, and the key cap makes that button's name "Ready ↵", so
     it could not have got past the first screen even on a deck that had one.
 
-    A B2 unit's lesson meets words that carry a sentence whatever the deck
+    A C1 unit's lesson meets words that carry a sentence whatever the deck
     holds, because a lesson plans from the unit rather than from the queue,
     and the dictionary is seeded wherever this suite runs. So a panel that
     does not open there is the markup failing, and is reported as that.

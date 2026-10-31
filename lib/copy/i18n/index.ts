@@ -40,13 +40,22 @@ import { CHAT } from "./areas/chat";
 import { LESSONS_AREA } from "./areas/lessons";
 import { LESSON_TEXT_AREA } from "./areas/lessonText";
 import { LESSONS_B1_AREA } from "./areas/lessonsB1";
+import { LESSONS_B2_AREA } from "./areas/lessonsB2";
 import { LESSON_TEXT_B1_OBJEKT } from "./areas/lessonTextB1Objekt";
 import { LESSON_TEXT_B1_REKTSIOON } from "./areas/lessonTextB1Rektsioon";
 import { LESSON_TEXT_B1_RAHA } from "./areas/lessonTextB1Raha";
 import { LESSON_TEXT_B1_KODU } from "./areas/lessonTextB1Kodu";
 import { LESSON_TEXT_B1_UUDISED } from "./areas/lessonTextB1Uudised";
+import { LESSON_TEXT_B2_KONEKEEL } from "./areas/lessonTextB2Konekeel";
+import { LESSON_TEXT_B2_KAUDNE } from "./areas/lessonTextB2Kaudne";
+import { LESSON_TEXT_B2_PERE } from "./areas/lessonTextB2Pere";
+import { LESSON_TEXT_B2_TOO } from "./areas/lessonTextB2Too";
+import { LESSON_TEXT_B2_ARUTELU } from "./areas/lessonTextB2Arutelu";
 import { LESSON_TEXT_B1_ARVAMUS } from "./areas/lessonTextB1Arvamus";
 import { LESSON_TEXT_B1_ASJAAJAMINE } from "./areas/lessonTextB1Asjaajamine";
+import { LESSON_TEXT_B2_TERVIS } from "./areas/lessonTextB2Tervis";
+import { LESSON_TEXT_B2_RIIK } from "./areas/lessonTextB2Riik";
+import { LESSON_TEXT_B2_KULTUUR } from "./areas/lessonTextB2Kultuur";
 import { LESSON_SCENES_AREA } from "./areas/lessonScenes";
 import { SOUNDS_AREA } from "./areas/sounds";
 import { ADMIN_SPEECH } from "./areas/adminSpeech";
@@ -99,13 +108,22 @@ export const AREAS: readonly (readonly [name: string, area: Area])[] = [
   ["lessons", LESSONS_AREA],
   ["lessonText", LESSON_TEXT_AREA],
   ["lessonsB1", LESSONS_B1_AREA],
+  ["lessonsB2", LESSONS_B2_AREA],
   ["lessonTextB1Objekt", LESSON_TEXT_B1_OBJEKT],
   ["lessonTextB1Rektsioon", LESSON_TEXT_B1_REKTSIOON],
   ["lessonTextB1Raha", LESSON_TEXT_B1_RAHA],
   ["lessonTextB1Kodu", LESSON_TEXT_B1_KODU],
   ["lessonTextB1Uudised", LESSON_TEXT_B1_UUDISED],
+  ["lessonTextB2Pere", LESSON_TEXT_B2_PERE],
+  ["lessonTextB2Too", LESSON_TEXT_B2_TOO],
+  ["lessonTextB2Arutelu", LESSON_TEXT_B2_ARUTELU],
   ["lessonTextB1Arvamus", LESSON_TEXT_B1_ARVAMUS],
   ["lessonTextB1Asjaajamine", LESSON_TEXT_B1_ASJAAJAMINE],
+  ["lessonTextB2Konekeel", LESSON_TEXT_B2_KONEKEEL],
+  ["lessonTextB2Tervis", LESSON_TEXT_B2_TERVIS],
+  ["lessonTextB2Kaudne", LESSON_TEXT_B2_KAUDNE],
+  ["lessonTextB2Riik", LESSON_TEXT_B2_RIIK],
+  ["lessonTextB2Kultuur", LESSON_TEXT_B2_KULTUUR],
   ["lessonScenes", LESSON_SCENES_AREA],
   ["sounds", SOUNDS_AREA],
   ["adminSpeech", ADMIN_SPEECH],

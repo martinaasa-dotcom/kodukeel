@@ -584,9 +584,11 @@ voices the app has, form names with their agreed hint) is asked of every level t
 5. **The old B1 parts go**, their day ids with them, and a learner on one restarts B1 at its first
    lesson, which is the A1 and A2 precedent. Catalog conversations that opened on a B1 unit are
    offered on the finish of the B1 lesson that rehearses them (`LESSON_SITUATIONS` in
-   `lib/course/lessonSituations.ts`), beside eight of A2's errands; the three A2 errands no lesson
-   rehearses sit on a free evening of B2 (`EARLIER_SCENES_FOR_UNIT` in `lib/course/plan.ts`). The
-   reference pages B1 explains join `LESSON_PAGES`.
+   `lib/course/lessonSituations.ts`), beside eight of A2's errands; the three A2 errands no B1
+   lesson rehearsed sat on a free evening of B2 (`EARLIER_SCENES_FOR_UNIT` in `lib/course/plan.ts`)
+   until B2 became lessons, and are offered by B2 lessons now (§14). The reference pages B1
+   explains join `LESSON_PAGES`. For B2 the same step was the same list one level up, with the
+   level's sample unit in the browser suites moving to C1.
 6. **Re-run `npm run check:authored`**, since a written sentence that passed against the old order
    of teaching can fail against the new one, and drop what fails.
 7. **Translate every new line** into `lib/copy/i18n/areas/lessonText.ts` and run
@@ -605,7 +607,7 @@ voices the app has, form names with their agreed hint) is asked of every level t
 11. **List what waits on a person.** Run `npx tsx scripts/export-language-reviews.ts --since <ref>`
    and `npx tsx scripts/export-translations.ts --since <ref> --out docs/translations/<level>`, so the
    Estonian to read, the voice lines to record and the Russian and Ukrainian to check are one file
-   each (`docs/44-language-reviews.md` holds A1, A2 and B1). The recordings stop at A1's lesson 13, and a
+   each (`docs/44-language-reviews.md` holds A1 to B2). The recordings stop at A1's lesson 13, and a
    man's part plays the native voice only where every line of it is recorded.
 
 ## 11. B1 and B2 as lessons: the measurement, and the plan (for approval)
@@ -949,3 +951,381 @@ since no evening teaches those words now.
 **What waits on a person.** Every new Estonian line is in `docs/44-language-reviews.md` section 1.
 The native speaker reads `docs/reviews/b1-flags.md` first (B-L7): what the rewrite kept on
 purpose, the new lines worth a first look, and the one line a second model flagged that is still open. The Russian and Ukrainian need a fluent reader, as A2's do.
+
+## 13. B2 as lessons: measured against B1 as built, and the plan revised (for approval)
+
+Written on 2026-10-31, after B1 merged. §11.5 drafted B2 before B1 existed, and B1 as built
+explains several things that draft gave B2 to introduce. This is §10's first two steps again, read
+off `ledgerThrough` of `b1-49-end` with `npx tsx scripts/measure-b-levels.ts --through b1-49-end`.
+
+### 13.1 What B2 can assume
+
+**The ledger at the end of B1.** 2,050 items, 1,092 headwords, 5,490 spellings and 79 phrases.
+Twenty-three patterns, eleven of them added by B1: the object, government, the past conditional,
+the participles, agreement, the impersonal, the pluperfect, subordinate and relative clauses,
+particle verbs and derivation.
+
+**So the grammar B2 introduces is short.** Of §11.5's six parts, three were built on a pattern B1
+has already explained: the impersonal (`b1-uudised`), the pluperfect and the participles, and
+derivation. What no lesson has explained yet is the quotative and reported speech, the converb
+(`-des`), nominalization as the written register, and concession and hedging. A grammar point is
+explained once in a level, so B2 can take the impersonal, the participles and derivation further,
+into the past impersonal, participle phrases and the formal register, but it does not present them
+as new.
+
+**The words are most of the work.** The sixteen B2 units name 233 words, and B1 taught 10 of them.
+94 of the 400 commonest words are still untaught. About half are subtitle vocabulary (`kolonel`,
+`relv`, `kurat`, `isand`) that no level should hurry. The rest are everyday words a B2 speaker
+uses daily: `suutma`, `üritama`, `püüdma`, `lahkuma`, `kohtama`, `mõistma`, `usaldama`, `tänu`,
+`tõsi`, `tähelepanu`, `seega`, `ümber`, `tugev`, `puhas`, `normaalne`, `võimatu`, `ettevaatlik`,
+`isiklik`.
+
+**And some of the gaps are A2 words.** The catalog conversations B2 deals already ask for 49 words
+that no evening has taught (`KNOWN_UNTAUGHT` in `lib/course/course.test.ts`). Some are B2
+vocabulary (`hüvitis`, `taotlus`, `ettevõte`), but `hind`, `valu`, `keha`, `süda`, `puu`, `lind`,
+`õhk`, `klient`, `ajaleht`, `raadio`, `õpik`, `seletama` and `tõlkima` are not. A learner who has
+finished B1 has never been taught the word for price. Those belong in lettered extras where they
+fit (§10, step 9), not in B2.
+
+### 13.2 What B2 is for
+
+B1 ends with somebody who gets things done in Estonian when the other person meets them halfway.
+B2 ends with somebody who lives in it. They:
+
+- follow two Estonians talking to each other at full speed;
+- read what arrives from the school, the doctor and the state without a translator;
+- keep a conversation in Estonian when the other person switches to English;
+- have the words for the parts of life B1 never reached: a child's school, a doctor, a working week
+  in Estonian and the state.
+
+That is the moment `docs/22-real-life.md` is about, and B2 is where the course can aim at all of
+it. So a B2 part is judged on what it lets somebody do outside the app the next day, and each one
+carries five things, where a B1 part carried three:
+
+1. **A part of life** a person living here meets in their first years, for which the course has
+   not yet given them the words.
+2. **One grammar point**: a new pattern, or a B1 pattern taken into the written register.
+3. **One real text** the part writes, in the genre that situation really uses.
+4. **An ear skill**, one step harder than the part before (13.5).
+5. **An errand out there**: one real thing to say, read or do in Estonian. The part's last lesson
+   offers it and Today counts it (`Encounter`).
+
+### 13.3 B2, part by part
+
+Eight parts of six lessons, forty-eight core lessons, inside the contract's four to ten a part.
+The family's second year (13.7) carries all eight, as one year carried B1. The order follows two
+rules: no part leans on a pattern a later part explains, and the parts a newcomer meets first in
+real life come first.
+
+| Part | Life | Grammar | Deepened from B1 | The text it writes | Ends in | Out there |
+| --- | --- | --- | --- | --- | --- | --- |
+| `b2-kõnekeel` How people really talk | friends over dinner, small talk that lasts, a group chat | the spoken register: the particles people use (`noh`, `nagu`, `ju`, `ometi`, `vaata`), the reactions, and the everyday words B1 skipped (`suutma`, `üritama`, `tõsi`, `normaalne`, `lahe`) | word order for emphasis | a group chat thread | a dinner where two friends talk over each other and one switches to English | when somebody switches to English, carry on in Estonian |
+| `b2-kaudne` What people say | news among neighbors and colleagues, a message passed on | the quotative (`olevat`, `tulnud`), reported questions and requests (`ta küsis, kas`, `ta palus, et`) | subordinate clauses | an informal letter telling a friend what you heard (the exam's `mitteametlik kiri`) | passing on to Anna what the kindergarten teacher said | read one headline and tell somebody what it said |
+| `b2-pere` The children's world | enrolling the son for school, the daughter's kindergarten place, a sick child, a parents' evening, messages from the school | the converb (`kooli minnes`) and the supine forms (`ta on poes käimas`, `tulin trennist`) | the past impersonal (`koosolek peeti`) | an email to the teacher | the parents' evening, with a curveball from another parent | say one thing to a teacher or another parent at the door |
+| `b2-tervis` Body and care | the family doctor, symptoms, the pharmacy, an emergency, stress and sleep | the body and health words B1 never reached (`valu`, `keha`, `süda`, `haigus`) beyond the extras in 13.8 | participle phrases (`arsti kirjutatud retsept`) | a message to the doctor through the health portal | describing symptoms on the phone, over a bad line | book an appointment in Estonian |
+| `b2-töö` A working week in Estonian | meetings, feedback, explaining your job to a newcomer, work chat | hedging (`pigem`, `võib-olla`, `ma ei ole kindel, aga`) and nominalization (`-mine`, `-us`) as the register of work | the conditional as softening | a meeting summary with your own comment (the exam's `kokkuvõte koos omapoolse kommentaariga`) | a team meeting where Tom presents and a colleague disagrees | say one thing in a meeting held in Estonian |
+| `b2-riik` Paper and the state | eesti.ee, the tax return, the bank, Anna at the unemployment office, an insurance claim | officialese read and said plainly: what a page in the written register means | derivation, the impersonal in notices | a formal complaint (the exam's `poolametlik kiri`) | a formal phone call about a letter that got something wrong | read a real letter from an office and say what it wants |
+| `b2-kultuur` Belonging | jaanipäev, the song festival, the sauna, what Estonians laugh at, a little history, the radio | idioms and set phrases (with `Väljendid`), irony, telling a story | the pluperfect against the past | a story about something that happened to you | the exam's talk: one minute on a topic after two minutes to prepare, and a follow-up question | listen to ten minutes of Estonian radio, or watch an Estonian show with Estonian subtitles |
+| `b2-arutelu` Making a case | an opinion at work, a debate among friends, figures in the news | concession (`küll ... aga`, `kuigi`, `samas`), arguing from figures | comparison | an argued text (the exam's `arutlev tekst`) | the exam's debate: say what you think, then decide together | disagree with somebody, politely and in Estonian |
+
+So the four writing tasks of the state B2 paper (`lib/exam/spec.ts`) are each written once, in a
+part whose life needs that genre, and both speaking tasks are each rehearsed once, at the end of a
+part. A learner who finishes B2 has done every task of the exam once, in context, before the mock
+exam asks for them.
+
+Against §11.5, the impersonal and word-building parts are gone as parts. B1 explained both, and
+what is left of them is register, which `b2-töö` and `b2-riik` carry. The quotative is second,
+because it is the one large new pattern and the parts after it lean on it. And B2 opens on spoken
+Estonian rather than a new pattern, because that is what a B1 graduate notices first in real life:
+Estonians do not talk like the lessons.
+
+### 13.4 What changes inside a lesson at B2
+
+The six steps stay, so B2 reads as the same course. What is new in each:
+
+| Step | At B1 | At B2 |
+| --- | --- | --- |
+| **Listen** | eight to fourteen lines, heard before read | two or more people talking to each other rather than to the learner, at full speed, in voices that change from lesson to lesson. The gist questions come first and the transcript only after. Then a short real text to read in the same step (13.6). |
+| **Words** | words with what each verb asks for | word families as well (`laulma`, `laul`, `laulja`, `laulupidu`), since at B2 vocabulary grows faster by family than word by word |
+| **How it works** | one pattern, as a change to a sentence | one pattern, and the same sentence said the spoken way and the written way side by side |
+| **Practice** | rework and fix | rework, fix and **work it out** (13.6). Each part's rework also asks for one pattern from an earlier B2 part, so the quotative is still in use at the end of the level, not only in part two. |
+| **Say it** | retell, again faster, say along | the same three, harder (13.5). The exam's talk and debate arrive in `b2-kultuur` and `b2-arutelu`. |
+| **Review** | as at A2, with the learner's own sentences | the same |
+
+**Every role-play has a curveball, and from `b2-kõnekeel` on, one role-play per part has the other
+side switch to English.** The `english` curveball already exists in `lib/scenes/curveballs.ts`. At
+B2 its way out is the move the whole course is for: ask to carry on in Estonian, and carry on. Each
+part also teaches one way to keep a conversation going when you are lost, in the order a person
+needs them:
+
+| Part | The move |
+| --- | --- |
+| `b2-kõnekeel` | ask somebody to keep speaking Estonian |
+| `b2-kaudne` | check you understood (`Kas ma saan õigesti aru, et ...`) |
+| `b2-pere` | ask what a word means, and remember it |
+| `b2-tervis` | ask somebody to repeat or slow down, on a bad line |
+| `b2-töö` | take a turn in a group, and hold it |
+| `b2-riik` | say a thing another way when you are missing the word |
+| `b2-kultuur` | ask a follow-up question that keeps the other person talking |
+| `b2-arutelu` | disagree, and close politely |
+
+### 13.5 How the level ramps
+
+B1 holds every part to asking more than the one before (`ramp.test.ts`). B2's ramp, checked the
+same way:
+
+| Part | Listen | Retell | Again, faster | Real text to read |
+| --- | --- | --- | --- | --- |
+| 1 to 2 | two speakers, clean, at full speed | heard twice | 90, 60 and 45 seconds | a headline, a chat |
+| 3 to 4 | two or three speakers, a phone line or a café (`lib/audio/conditions.ts`) | heard once | 60, 45 and 30 seconds | a school message, a notice |
+| 5 to 6 | three speakers, sped up or joined halfway | heard once, retold in the past | 45, 30 and 20 seconds | an email, a page of a form |
+| 7 to 8 | a radio clip, no transcript until the end | heard once, with a reason or an opinion added | the exam's one minute, after two to prepare | a news item, a short opinion piece |
+
+### 13.6 Real Estonian, and words nobody taught you
+
+**Real texts from the first part** (B-L4, moved earlier). A headline comes off the news feed
+(`lib/news/`), word for word, with the dictionary under every word: the same gate the headlines on
+the dictionary page already pass. A notice, a school message or a letter from an office is written
+by the native speaker in that genre, as every lesson line is (ADR-005 amendment 6), and no model
+writes one. Its untaught words are underlined to their dictionary entries. It is read, and nothing
+in it is ever asked for.
+
+**Work it out.** At B2, understanding everything does not mean having been taught everything. It
+means working out a word from what you know. Estonian makes that unusually possible: a compound is
+its parts (`haigekassa`, `lasteaiakoht`), and a derived word is a stem plus a suffix B1 explained
+(`-ja`, `-mine`, `-us`, `-lik`, `-tu`). In this practice kind, a sentence carries one word the
+ledger has not taught but whose parts it has. The learner picks its meaning from three, and only
+then is the dictionary entry shown.
+
+This changes the ledger rule that nothing untaught is ever asked, in one narrow way. A word is
+**derivable** when every part of it but the last is a taught spelling, and the last is a taught
+spelling or a suffix the derivation table names (`DERIVATION_SUFFIXES` in
+`lib/course/lessons/workOut.ts`: the four B1 explains, -ja, -mine, -lik and -tu, and the rest of
+the handful the grammar reference's page names). A derivable word may be asked about for its
+meaning, never asked for its form, at most one to a sentence. The word itself has to be a spelling
+the forms list knows, so it is a word somebody wrote down and never one the app built (ADR-005).
+
+**The split is the author's, and the check over it is mechanical.** The plan first read the parts
+off Vabamorf's analysis with guessing off, which marks the boundary inside a compound. That
+analysis runs in the forms build (Python, offline), and the unit suite may not run it, so a check
+resting on it would be a check the suite cannot ask. So each item names its parts beside the word
+(`parts: ["laste", "aia", "koht"]`), and `workOutProblems` holds the split to being honest: the
+parts joined are the word, case aside; every part but the last is in the ledger by that lesson; the
+last is in the ledger or in the suffix table; the word stands in its sentence once and nothing else
+in the sentence is untaught; and `derivation` has been explained. A word inflected past its suffix
+is split with a taught spelling last, or a sentence holding the base shape is chosen.
+
+### 13.7 The family's second year
+
+B2 picks up a year after B1 (`docs/reviews/b1-cast.md`), and a B2 cast page is written before the
+first line, with the same rule that a name means one person for the whole course.
+
+- **The son** turns seven in the summer. The year runs from registering him for school in the
+  spring to his first day on 1 September, when Estonian school starts. **The daughter**, now three,
+  gets her kindergarten place.
+- **Anna** looks for work through the unemployment office, and from `b2-riik` on she works.
+- **Tom** is asked to run part of his team's meetings in Estonian, which is `b2-töö`.
+- **Helgi**, **Mari**, **Liis**, **Jaan** and **Kristi** stay as they were. A teacher, a family
+  doctor and a clerk at the unemployment office are new, each with a name and the same person every
+  time they appear.
+
+### 13.8 The words
+
+Read in this order:
+
+1. **Before B2: three lettered B1 extras.** The gaps behind B2's conversations and the A2 words in
+   13.1 (`hind`, `valu`, `keha`, `süda`, `klient`, `ajaleht` and the rest) are taught as extras at the
+   ends of the B1 parts whose topics fit them (`hind` and `klient` in `b1-raha`, `ajaleht` and
+   `raadio` in `b1-uudised`), each word placed when the extras are written. B1 rather than A2, because an A2 extra
+   never reaches a learner who is already in B1. **Built**, as three lessons in the shape of A2's extras with
+   B1's listen-first questions and an answer said faster: `b1-20a-customers` in `b1-raha` (Tom and Siim at
+   work: `hind`, `toode`, `klient`, `reklaam`, `tõusma`, `tagastama`, `nõustuma`, `toetama`, `amet`,
+   `eriala`, `töötaja`, `tänu`, `huvi`, `isiklik`, `koguma`, `prantsuse`, `vene`, `rahul`), `b1-34a-papers` in
+   `b1-uudised` (Tom and Anna over the Saturday paper: `ajaleht`, `leht`, `artikkel`, `raadio`, `saade`,
+   `pilt`, `laulja`, `näitleja`, `kuulus`, `maailm`, `tähelepanu`, `eriline`, `üleeile`, `tõlkima`,
+   `seletama`, `õpik`, `mööbel`) and `b1-41a-park` in `b1-arvamus` (Tom, after a fall, and Jaan, the
+   doctor: `kukkuma`, `valu`, `keha`, `süda`, `haigus`, `tugev`, `nõrk`, `harjutus`, `kordama`, `puu`,
+   `lind`, `õhk`, `puhas`, `ohutu`, `julge`, `ettevaatlik`, `normaalne`, `võimatu`, `ruum`). `KNOWN_UNTAUGHT`
+   is down from 49 words to five: `taotlus`, `registreerima`, `hüvitis` and `ettevõte`, which are B2's office
+   vocabulary, and `seega`, which `b2-kõnekeel` teaches. `tõsi` is still a phrase (`See on tõsi`) rather
+   than a word of its own, since the harvest holds no entry for it. Every new line is in
+   `docs/44-language-reviews.md` §1 for the native speaker.
+2. **The everyday common words** still untaught (13.1), in `b2-kõnekeel`.
+3. **The B2 units' 233 words**, spread over the parts by topic, not unit by unit.
+4. **What each part's life needs** that no unit names (`lasteaiakoht`, `hooldusleht`,
+   `tuludeklaratsioon`). Each is a request against Ekilex, like every lemma in the course.
+
+That is about four hundred words over forty-eight lessons, eight or nine an evening, well inside
+`MOST_TAUGHT`. A learner placed straight into B2 is assumed to hold B1's ledger, as a learner placed
+into B1 is assumed to hold A2's.
+
+### 13.9 Done means
+
+A learner who finishes B2 can do each of these, and each part's last role-play tests one:
+
+- follow two Estonians talking to each other at full speed, and say what they agreed;
+- keep a conversation in Estonian when the other person switches to English;
+- phone an office, the doctor or the school and get what they called for;
+- read a letter from the state or the school and say what it asks of them;
+- write each of the four texts the B2 paper sets;
+- give the exam's one-minute talk and hold up their end of its debate.
+
+The level's last screen offers the B2 mock exam (`/exam/B2`) as the next step, before C1.
+
+### 13.10 Decided
+
+Settled on 2026-10-31. The operator asked for the plan's best judgment on every open question.
+
+| # | Question | Decision |
+| --- | --- | --- |
+| B2-1 | The parts and their order | The eight parts in 13.3, in that order, forty-eight core lessons. |
+| B2-2 | The A2 words B1 never taught | Three lettered B1 extras, built first (13.8). |
+| B2-3 | B1's rules (B-L1 to B-L8) | They hold, with three changes: real texts from the first part; a curveball in every role-play and a switch to English in one per part; and B-L7 widened, so the native speaker reads every line of `b2-kõnekeel` and `b2-kultuur`. A model is weakest on the spoken register and on idiom, and those two parts are made of them. Flagged lines alone stay the rule for the other six. |
+| B2-4 | Work it out | Yes. A derivable word is asked for its meaning only, one to a sentence, with its parts written by the author and checked mechanically against the ledger and the suffix table (13.6; the plan's Vabamorf split was replaced, 13.12). |
+| B2-5 | Errands | One per part, written as errands in `lib/collections/errands.ts` that name the part's B2 unit and the scene that rehearses it. |
+| B2-6 | The cast | The family's second year (13.7), with a cast page first. |
+| B2-7 | Build order | Below. |
+
+### 13.11 The build
+
+Each step is one pull request. The steps before the parts are engine and words, so no B2 lesson is
+written against a rule that will change under it.
+
+1. **The B1 extras** (13.8), so B2's conversations stop asking for untaught words. Built: `b1-20a-customers`, `b1-34a-papers` and `b1-41a-park`.
+2. **The engine**: derivable words and the work-it-out practice kind; two speakers and the hearing
+   conditions in the Listen step; a real text in the Listen step; the B2 ramp checks; and rework
+   that recycles an earlier part's pattern.
+3. **The cast page** and the eight errands.
+4. **`b2-kõnekeel`**, played through by hand once, and read whole by the native speaker.
+5. **The other seven parts**, one pull request each, each with its lesson scenes played keyless by
+   `lessonScenes.test.ts`.
+6. **B2 becomes the course.** The old B2 units go with their day ids (the A1, A2 and B1 precedent),
+   a learner on one restarts B2 at its first lesson, and the translations are done. **Built**
+   on 2026-10-31: §14 says what it took and what it found.
+
+### 13.12 The engine, as built
+
+Step 2 of 13.11, built on 2026-10-31 before any B2 lesson, so the eight parts are written against
+rules that hold still. Every field below is in `lib/course/lessons/types.ts`, named field for field
+in the v1 contract (`lib/api/contract.ts`), and checked by the ledger or the contract.
+
+**Where a part is written.** In a file of its own beside the B1 parts, named for the part without
+the marks (`b2-konekeel.ts`, `b2-too.ts`), exporting the part and its lessons the way `b1-uudised.ts`
+does, with one line added to `PARTS` in `lib/course/lessons/preview.ts`, in the teaching order of
+13.3. The order is read: the ramp takes a part's band off its place, and the recycling rule takes
+which B2 patterns came before it. `lib/course/lessons/b2.ts` was the empty skeleton the parts moved
+to the day B2 became the course (§14), and `preview.ts` is empty again, for C1. Then:
+
+```
+npx tsx scripts/check-lesson-part.ts --part b2-kõnekeel
+```
+
+asks every check of that part, step 8 being B2's own.
+
+**The new fields.**
+
+| Field | What it is | What checks it |
+| --- | --- | --- |
+| `patterns`: `quotative`, `converb`, `supine`, `nominal`, `hedging`, `concession`, `spoken` | B2's rules (`B2_PATTERNS`, part of the one list `B_PATTERNS`). Like B1's they build no spelling and gate what Rework may ask; each counts its grammar page as read (`PATTERN_PAGE`: `quotative`, `converb`, `infinitives`, `nominalisation`, `hedging`, `concession`, `register`). `supine` is the -ma word's cases, -mas, -mast, -maks and -mata, each taught by name; the noun's -ta case stays `abessive`. | explained once a level; a rework asks only for one explained by then |
+| `hearing: "half"` | The conversation joined halfway: its first spoken line starts two fifths of the way in and the rest are heard whole (`roomForLine` in `lib/audio/conditions.ts`). | the ramp |
+| `read: { genre, lines: [{ et, en }] }` | A real text read in the Listen step after the transcript (`components/course/ReadText.tsx`), never asked about. Its words need not be taught; the ones the ledger has not taught by tonight are underlined to their dictionary entries (`read.ts`, glossed in `lessonView`). | every spelling in the forms list (check-lesson-part step 3, the lessons test); left out of the taught-word check; its English held to braces and translated; a genre and lines with both languages |
+| `workOut: [{ sentence: { et, en }, word, parts, means, options }]` | A word worked out from its parts in Practice: three English meanings, then the parts and a link to the entry. Grades nothing, like every lesson question. | `workOutProblems` (13.6); the rest of its sentence held to the ledger; the word in the forms list |
+| `retell.hearings: 1 \| 2` | How often the story may be heard; absent is twice. The screen draws one hearing as two stages and takes the play button away once heard. | 1 or 2; the ramp |
+| `faster.seconds: number[]`, `faster.prepare: number` | The race's own windows, one to three, each shorter than the last, 15 to 180 seconds; and seconds to prepare first, 10 to 300, drawn as a clock that can be cut short and never starts a go by itself. A single window is drawn as the exam's talk. | the ledger; the ramp |
+
+**What a B2 part is held to on top of every level's shape.** `b2LevelProblems` in `contract.ts`,
+inside `levelContractProblems` and asked again by step 8 against the parts before: exactly one
+`write` a part, and from the third part on at least one rework whose pattern is a B2 pattern an
+earlier B2 part explained. `b2RampProblems` in `rampB2.ts`, by band of two parts: in parts 1 and 2
+a conversation heard first has no `hearing`, from part 3 it has one, and in parts 5 and 6 it is
+`quick` or `half`; a story is heard twice in parts 1 and 2 and once (`hearings: 1`) from part 3;
+the race runs 90, 60 and 45 seconds, then 60, 45 and 30, then 45, 30 and 20, and in parts 7 and 8
+one go of 60 after `prepare: 120`, which no earlier part uses; and every core lesson but a part's
+last carries a `read`. Both are asked of B2 alone, and of synthetic parts both ways in
+`contract.test.ts` and `ramp.test.ts`, so A1 to B1 do not move.
+
+**Still the authors' rule**, since no field records it: two or three speakers talking to each other,
+a story retold in the past from part 5 or with an opinion added in parts 7 and 8, one role-play a
+part with the `english` curveball, the conversation move of 13.4, and a headline off the news feed,
+which the screen does not draw yet: a `read` is the native speaker's text.
+
+## 14. B2, as built
+
+**Forty-eight lessons in eight parts**, numbered 1 to 48, and the same ledger walks A1, A2, B1 and B2
+as one course: a B2 lesson may show nothing an earlier lesson of any level has not taught, beyond
+the real text it reads (13.6) and the words it works out from their parts. B2 ends where a learner
+can follow Estonians talking to each other at full speed, keep a conversation in Estonian when the
+other person switches to English, phone an office, the doctor or the school and get what they called
+for, read what the state and the school send, write each of the four texts the B2 paper sets, and
+give the exam's one-minute talk and hold up their end of its debate (13.9).
+
+| Part | Lessons | What it teaches | It writes | Ends in |
+| --- | --- | --- | --- | --- |
+| `b2-konekeel` How people really talk | 1 to 6 | the spoken register: particles, reactions, word order with weight, the everyday words B1 skipped | a group chat thread | dinner at Liis and Jaan's (`b2-ohtusook`) |
+| `b2-kaudne` What people say | 7 to 12 | the quotative, a question and a request passed on | an informal letter (`mitteametlik kiri`) | what the teacher said (`b2-teade`) |
+| `b2-pere` The children's world | 13 to 18 | the converb, the -ma word's cases | an email to the teacher | the parents' evening (`b2-lastevanemad`) |
+| `b2-tervis` Body and care | 19 to 24 | participle phrases, the body and health | a message to the doctor | the doctor on the phone, on a bad line (`b2-perearst`) |
+| `b2-too` A working week in Estonian | 25 to 30 | hedging, the register of work | a summary with your own comment (`kokkuvõte`) | Tom presents, Kadri disagrees (`b2-koosolek`) |
+| `b2-riik` Paper and the state | 31 to 36 | officialese said plainly, nominalization | a semi-formal complaint (`poolametlik kiri`) | on the phone to the office (`b2-ametikone`) |
+| `b2-kultuur` Belonging | 37 to 42 | idioms, irony, the pluperfect in a story | a story about something that happened to you | the exam's one-minute talk (`b2-monoloog`) |
+| `b2-arutelu` Making a case | 43 to 48 | concession, arguing from figures, comparison | an argued text (`arutlev tekst`) | the B2 speaking exam (`b2-eksam`) |
+
+**The ramp as built**, read off the lessons (`rampB2.ts` checks the hearing, the retell's hearings
+and the race by band; the writing never asks less than a part before it, `levelContractProblems`):
+
+| Part | Heard in | Story retold | Again, faster | Writing asks |
+| --- | --- | --- | --- | --- |
+| 1, 2 | a quiet room | 6 to 8 sentences, heard twice | none dealt | 50, then 100 words |
+| 3, 4 | a café, a phone line | 8 sentences, heard once | 60, 45 and 30 seconds | 100, then 120 |
+| 5, 6 | joined halfway, sped up | 7 to 10 sentences, heard once | 45, 30 and 20 seconds | 140, 140 |
+| 7, 8 | every room | 8 to 10 sentences, heard once | one minute after two to prepare | 180, 180 |
+
+Every core lesson but a part's last reads a real text after the conversation (40 in all), and
+practice works 25 words out from their parts. The two letters ask 140 words and the argued text
+180, which is the state paper's own length for each (`docs/16-exam.md`); they were 120 and 170 as
+drafted, and the level contract, which had only met B2 in preview, refused the writing asking less
+than the part before it.
+
+**What the move turned up**, since every check that ran over the course alone met B2 for the first
+time. Six reworks asked for `pole` against `ei ole`, or `ma` against `mina`, which the marker reads
+as one sentence, so the starting sentence was marked right; five went and the sixth, in `b2-pere`,
+is a quotative instead, which keeps that part recycling an earlier pattern. A question opening on
+`ja`, `aga` or `no` before its question word is read as the question it is, so practice can ask
+what was said back to `Ja mis sa ütlesid?`; B2's conversations are full of those, and the reply
+floor (more than half the lessons) holds at 134 against 112. A pronoun is never let in before the
+`seda` of `mida ..., seda ...`. Nine plural partitives with a parallel spelling were decided
+(`kuid` is the conjunction, never months), the new acceptances were read, and a draft is read to 36
+sentences, since the argued text runs to 180 words.
+
+**What B2 replaced, and what moved.** The old B2 parts `b2.1` to `b2.3`, built from sixteen units,
+are gone and their day ids with them, the A1, A2 and B1 precedent, and a learner on one restarts B2
+at its first lesson (`REHOMED_LEVELS`, held by `rehome.itest.ts` and `restoreCourse.itest.ts`). The
+B2 units stay as the dictionary's request list; fourteen words the lessons teach and no unit had
+asked for (`suss`, `magamaminek`, `asumine`, `töötamine`, `lauluväljak`, `vähenema` and the rest)
+were added to them, most to word-building, and asked of Ekilex. The fourteen catalog conversations
+the old B2 evenings opened, and the three A2 errands that sat on their free evenings, are offered on
+the finish of the B2 lesson that rehearses them (`lessonSituations.ts`): the doctor's appointment on
+booking a doctor, the family doctor on the cold that won't go, the emergency call on the night at the
+emergency department, the unemployment fund on Anna's new job, the B2 exam conversation on the B2
+exam. The job interview stays on its B1 lesson. `EARLIER_SCENES_FOR_UNIT` is empty. The page on
+reported speech is read by the lesson on passing a question on (`LESSON_PAGES`), the checks follow
+the lessons, a check closing each B2 part and the last one covering the whole level, and unit
+homework starts at C1. The level-done screen offers the B2 mock exam before C1. 99 written sentences
+for words only the old B2 units taught, and C1 sentences that leaned on them, were dropped; 509
+remain. Eight errands, one a part, join `lib/collections/errands.ts`; two of them name the catalog
+conversation their part offers that declares their unit (the office's letter, the B2 exam), and the
+rest name none, since a lesson's own role-play declares no units.
+
+**What C1 now carries alone.** C1 is the only level built from units: three parts, forty-two
+evenings, six conversations. Every floor that counted B2's evenings was measured again on C1's and
+set to what C1 reaches, with the figure in a comment. Two things are worth a look before C1 moves.
+No evening of the course reads a case page as its reading any more, so `tonightsCase` answers for
+nothing a learner meets; and the verbs whose polite imperative no lesson shows wait for C1's forms
+step, every other evening. At five a night that left 137 of 227 for the ladder's last evening to
+show at once, so C1 shows twelve a night (`formsPerEvening`), spreading them over its nineteen forms
+evenings and leaving eleven for the last.
+
+**What waits on a person.** Every new Estonian line is in `docs/44-language-reviews.md` section 1,
+and `docs/reviews/b2-flags.md` is what to read first: the two parts the native speaker reads whole,
+the lines each other part's author was least sure of, and what the integration changed. The Russian
+and Ukrainian are machine-written and need a fluent reader. B2 is recorded nowhere yet.

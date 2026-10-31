@@ -35,7 +35,7 @@ export type FinishLessonResult =
 /**
  * A LESSON, FINISHED: ITS EVENING TICKED AND ITS WORDS IN THE DECK.
  *
- * A1, A2 and B1 are the lessons (docs/43-lessons.md), and an evening of
+ * A1, A2, B1 and B2 are the lessons (docs/43-lessons.md), and an evening of
  * those is one lesson with one step. The step is ticked, which is what moves the course
  * on (`dayReached`), and the lesson's words go into the deck as recognition and
  * production, so Review and Practice repeat what the lesson taught and nothing
@@ -124,7 +124,7 @@ export async function submitCheckFor(
   if (!check) return { ok: false, reason: "not_found", error: "We couldn't find that check." };
   /*
     A CHECK IS SAT WHERE THE LEARNER STANDS. The checks are the way up through
-    the lessons, A1 to B1, and the paper is rebuilt from its attempt number, so a
+    the lessons, A1 to B2, and the paper is rebuilt from its attempt number, so a
     script that handed in papers for parts ahead of the learner, as often as it
     liked, could pass every check between them and C1 before sitting a single
     lesson. A check for the part they are on, or one they have left, is open;

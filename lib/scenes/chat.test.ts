@@ -79,7 +79,8 @@ describe("which of today's words a chat asks for", () => {
 
 describe("a chat built from a real evening", () => {
   it("has evenings to be offered after", () => {
-    expect(EVENINGS.length).toBeGreaterThanOrEqual(70);
+    // C1's forty-two, the only evenings built from units since B2 became lessons.
+    expect(EVENINGS.length).toBeGreaterThanOrEqual(42);
   });
 
   it("asks only for that evening's words, and every one is a word the evenings have taught", () => {
@@ -121,7 +122,7 @@ describe("a chat built from a real evening", () => {
       for (const word of plan.words) expect(list.has(word.lemma)).toBe(true);
       for (const lemma of scopeFor(programme, day).lemmas) expect(list.has(lemma)).toBe(true);
     }
-    expect(built).toBeGreaterThanOrEqual(70);
+    expect(built).toBeGreaterThanOrEqual(42);
   });
 
   it("names in its requirements only words the evenings taught or the shared machinery", () => {

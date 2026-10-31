@@ -153,5 +153,11 @@
  * teaches that no unit had asked for: `remontima`, `möbleerima`, `ületund`,
  * `tööaeg`, `sotsiaalmeedia`, `parkimiskoht`, `ükski` and the rest, each put to
  * Ekilex by the unit that suits it.
+ *
+ * Fourteen more came with B2's (docs/43-lessons.md §14), the same way:
+ * `suss`, `kuueaastane`, `magamaminek`, `närv`, `asumine`, `töötamine`,
+ * `koristamine`, `veeb`, `lauluväljak`, `vähenema`, `suurenema`, `sõitja`,
+ * `rattur` and `selguma`. Most are words built from words, which is what the
+ * B2 lessons teach them as, so they went to the word-building unit.
  */
-export const SEED_SET_SIZE = { words: 6_300, forms: 40_487 };
+export const SEED_SET_SIZE = { words: 6_314, forms: 40_587 };

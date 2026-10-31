@@ -1,8 +1,8 @@
 /**
- * THE LADDER FROM B2 UP, PLANNED: B2.1 TO C1.3, SIX PARTS.
+ * THE LADDER AT C1, PLANNED: C1.1 TO C1.3, THREE PARTS.
  *
- * A1, A2 and B1 are the lessons (`lib/course/lessons/`, docs/43-lessons.md),
- * eight, eight and seven parts, which come in front of these. This file is the judgment
+ * A1, A2, B1 and B2 are the lessons (`lib/course/lessons/`, docs/43-lessons.md),
+ * eight, eight, seven and eight parts, which come in front of these. This file is the judgment
  * for the rest. Everything else in `lib/course/` is machinery
  * that turns it into evenings, and the machinery has no opinions: it does not
  * choose a word, a round or a grammar page, it reads what is decided here and
@@ -13,7 +13,7 @@
  * Not the words. `lib/collections/syllabus/` is the course, its units are in
  * teaching order and so are the words inside each one, and both were written
  * by somebody who knows the language. A program walks that order and slices
- * it into evenings. Every word of every unit from B2 up is in exactly one
+ * it into evenings. Every word of every unit of C1 is in exactly one
  * evening of exactly one part, which is a stronger claim than a hand-picked
  * hundred, and it means nothing there is quietly unreachable through the short
  * way.
@@ -150,70 +150,46 @@ export const ROTATION: Record<string, readonly ActivityKey[]> = {
  */
 export const SCENE_FOR_UNIT: Record<string, string> = {
   /*
-    A1, A2 AND B1 ARE THE LESSONS NOW (docs/43-lessons.md §9 and §12), and
-    their role-plays are the lessons' own conversations
+    A1, A2, B1 AND B2 ARE THE LESSONS NOW (docs/43-lessons.md §9, §12 and
+    §14), and their role-plays are the lessons' own conversations
     (`lib/scenes/lessonScenes.ts`). The catalog's conversations that used to
-    open on a B1 unit are offered on the finish of the B1 lesson that
+    open on a B1 or a B2 unit are offered on the finish of the lesson that
     rehearses them (`lib/course/lessonSituations.ts`), and the ones below
-    declare units a learner has once B1's lessons are behind them
-    (`unitsThrough`), so B2 is the first place the module opens one.
+    declare units a learner has once B2's lessons are behind them
+    (`unitsThrough`), so C1 is the first place the module opens one.
   */
-  oigus: "kaebus",
-  uhiskond: "bussipilet",
-  tervishoid: "arsti-aeg",
-  toomaailm: "toovestlus",
   akadeemiline: "keeletund",
   register: "uuri-remont",
   rahvusvaheline: "helistamine",
   /*
-    THE THIRD BATCH'S SCENES (docs/38-third-batch.md, TB-10) from B2 on. Two
-    moved off the unit the brief named, each because course.test.ts refused
-    the placement, and each scene's own comment says why: `sobra-mure` is on
-    `kunst` (its sorry beat needs `probleemid`), and `kuulsin` on
-    `nominalisatsioon` (`kaudne` has one reading and the scene evening would
-    take it).
+    THE THIRD BATCH'S SCENES (docs/38-third-batch.md, TB-10) at C1. `kuulsin`
+    moved off the unit the brief named because course.test.ts refused the
+    placement (`kaudne` had one reading and the scene evening would take it),
+    and sits on `nominalisatsioon`.
   */
-  teadus: "nadalavahetus",
-  "des-vorm": "perearst",
-  majandus: "tootukassa",
-  umbisikuline: "elamisluba",
-  ajalugu: "peretoetus",
-  kunst: "sobra-mure",
-  sonamoodustus: "palk",
-  psuhholoogia: "tagatisraha",
   diskursus: "kolm-palvet",
   nominalisatsioon: "kuulsin",
-  poliitika: "elanike-koosolek",
-  statistika: "graafik",
   kirjandus: "raamatuklubi",
-  argumenteerimine: "eksam-b2",
 };
 
 /**
  * THE EVERYDAY ERRANDS THAT USED TO OPEN ON AN A2 UNIT, ON A FREE EVENING OF
- * A B2 ONE.
+ * A UNIT FURTHER ON.
  *
  * Eleven conversations of the catalog rehearsed A2's own errands, the shop,
  * the café, the pharmacy, the way to somewhere, and sat on the A2 units the
- * lessons replaced. Eight are offered on the finish of a B1 lesson now
- * (`lessonSituations.ts`); these go to the start of B2, on an evening of a unit that reads no page that night: a scene
- * evening shows no reading (`day()` in types.ts), so an evening that had none
- * to show loses nothing. The builder deals each, in order, on the unit's
+ * lessons replaced. Eight are offered on the finish of a B1 lesson
+ * (`lessonSituations.ts`), and the last three, which sat on free evenings of
+ * B2's units, on the finish of a B2 lesson since B2 became lessons: the café
+ * where somebody switches to English, the corner shop that is said to be
+ * closing, and the emergency call on the night at the emergency department.
+ * So no unit carries one today. The table stays for the next errand that
+ * needs a free evening: the builder deals each, in order, on the unit's
  * earliest evening with no page left to read and before its last, which is
- * `SCENE_FOR_UNIT`'s (`build.ts`), and `course.test.ts` holds every one to
- * having landed.
+ * `SCENE_FOR_UNIT`'s (`build.ts`), since a scene evening shows no reading
+ * (`day()` in types.ts), and `course.test.ts` holds every one to having landed.
  */
-export const EARLIER_SCENES_FOR_UNIT: Readonly<Record<string, readonly string[]>> = {
-  /*
-    The other eight are offered by the B1 lessons that rehearse them
-    (`lessonSituations.ts`). These three sit in B2, each where it is nearest
-    home: the café among the society unit's people, the corner shop with the
-    economy, and the emergency call with health.
-  */
-  uhiskond: ["kohvikus"],
-  majandus: ["poodi-piima"],
-  tervishoid: ["hadaabi"],
-};
+export const EARLIER_SCENES_FOR_UNIT: Readonly<Record<string, readonly string[]>> = {};
 
 /**
  * AND WHY THE CATALOG'S CONVERSATIONS START AT B1, WHICH IS A FINDING RATHER
@@ -221,7 +197,7 @@ export const EARLIER_SCENES_FOR_UNIT: Readonly<Record<string, readonly string[]>
  *
  * Every scene in the catalog declares `korraldused` among the units it may
  * draw on, which is the unit for asking, telling and offering, and it is A2.
- * A1, A2 and B1 are the lessons, which teach by goal rather than unit by unit, so
+ * A1, A2, B1 and B2 are the lessons, which teach by goal rather than unit by unit, so
  * no unit of theirs counts as taught until the level's lessons are behind a
  * learner (`unitsThrough`), and `course.test.ts` asks the question
  * mechanically: a scene is opened only once every unit it declares has been
@@ -249,7 +225,7 @@ export interface PartSpec {
 }
 
 /**
- * The parts from B2 up. A1, A2 and B1 are the lessons (`lessonCourse.ts`).
+ * The parts of C1. A1, A2, B1 and B2 are the lessons (`lessonCourse.ts`).
  *
  * WHERE THE BREAKS FALL IS THE ONE THING ARITHMETIC COULD NOT DECIDE. A part
  * is two to three weeks of fifteen-minute evenings, which is short enough to
@@ -266,46 +242,18 @@ export interface PartSpec {
  */
 export const PARTS: readonly PartSpec[] = [
   /*
-    A1, A2 AND B1 ARE THE LESSONS (docs/43-lessons.md), built by
-    `lessonProgrammes` in `lessonCourse.ts`, and these parts start at B2. The
-    builder's ledger is handed what the lessons taught before B2.1 is built
-    (`teachLessons` in `build.ts`), so B2's first evening is dealt against the
-    A1, A2 and B1 a learner actually had. B1's old parts (b1.1 to b1.3, built
-    from the objekt to liitverbid units) went when B1 became lessons, with
-    their day ids, which is the A2 precedent: a learner on one restarts B1 at
-    its first lesson and keeps every card and review. The lesson parts reuse the
-    old ids, so that restart is worked out off the learner's own ticks
-    (`rehomed` in `lib/progress/course.ts`, held by `rehome.itest.ts`).
+    A1, A2, B1 AND B2 ARE THE LESSONS (docs/43-lessons.md), built by
+    `lessonProgrammes` in `lessonCourse.ts`, and these parts are C1. The
+    builder's ledger is handed what the lessons taught before C1.1 is built
+    (`teachLessons` in `build.ts`), so C1's first evening is dealt against the
+    A1 to B2 a learner actually had. B2's old parts (b2.1 to b2.3, built from
+    the umbisikuline to argumenteerimine units) went when B2 became lessons,
+    with their day ids, which is the A2 and B1 precedent: a learner on one
+    restarts B2 at its first lesson and keeps every card and review. The
+    lesson parts reuse the old ids, so that restart is worked out off the
+    learner's own ticks (`rehomed` in `lib/progress/course.ts`, held by
+    `rehome.itest.ts`).
   */
-  {
-    id: "b2.1", level: "B2",
-    title: "Kes seda ütles", subtitle: "Leaving out who did it, society, hearsay, the economy, and doing two things at once",
-    blurb:
-      "Estonian has three forms you learn here: one for when nobody is named, one for passing "
-      + "on what you heard, and one for doing two things at once. Each comes with the words it "
-      + "usually goes with: the impersonal with society, the reported form with the economy, and "
-      + "the last on its own. By the end you can read a report that never names anybody.",
-    units: ["umbisikuline", "uhiskond", "kaudne", "majandus", "des-vorm"],
-  },
-  {
-    id: "b2.2", level: "B2",
-    title: "Ajalugu ja sõnamoodustus", subtitle: "History, building new words, politics, health and science",
-    blurb:
-      "It opens on had done, the past before the past, learned on history, where you'll meet it "
-      + "most. Then how to "
-      + "work out a word you've never seen from one you already know, and three subjects to try "
-      + "it on. By the end you can read an opinion piece on any of them without a dictionary "
-      + "open.",
-    units: ["ajalugu", "sonamoodustus", "poliitika", "tervishoid", "teadus"],
-  },
-  {
-    id: "b2.3", level: "B2",
-    title: "Kunst, töö ja argument", subtitle: "The arts, the law, the mind, working life, figures, and making a case",
-    blurb:
-      "The end of B2: the arts, making a proper complaint, describing how people behave, working in Estonian, reading a table of figures, and building an argument that concedes a point.",
-    units: ["kunst", "oigus", "psuhholoogia", "toomaailm", "statistika", "argumenteerimine"],
-  },
-
   {
     id: "c1.1", level: "C1",
     title: "Lause ja mõte", subtitle: "Saying more in fewer words, and long sentences that hold together",

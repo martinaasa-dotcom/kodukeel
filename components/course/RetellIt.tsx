@@ -21,7 +21,8 @@ import type { Retell } from "@/lib/course/lessons/types";
  * RETELL IT (B1 on, docs/43-lessons.md §11.2, Talk).
  *
  * A short story, told by one of tonight's voices, heard twice with the words
- * hidden, then told back in the learner's own Estonian. The checklist under it
+ * hidden (once from B2's third part, `Retell.hearings`, as a person tells you
+ * something once), then told back in the learner's own Estonian. The checklist under it
  * lights a point the moment one of its words is heard (`pointsHeard`), so what
  * the learner sees filling in is what came across. It is the B1 speaking
  * exam's own move, and the dictogloss done aloud.
@@ -73,8 +74,11 @@ export function RetellIt({ retell, voice, typed, onDone, kept, onKeep }: { retel
   // Announced off what has been said, not the words still arriving, so a point is not read out lighting and going out mid-sentence.
   const settledCount = useMemo(() => pointsHeard(retell, said).filter(Boolean).length, [retell, said]);
   const mic = !typed && speech.offered;
-  // One loud button a screen: hearing the story until it has been heard twice or told, then Next.
-  const hearFirst = plays < 2 && said.trim() === "";
+  // How many hearings the story allows: twice at B1, once from B2's third part (`Retell.hearings`).
+  const hearings = retell.hearings ?? 2;
+  const heardOut = plays >= hearings;
+  // One loud button a screen: hearing the story until it has been heard as often as it may be, or told, then Next.
+  const hearFirst = !heardOut && said.trim() === "";
 
   const play = async () => {
     const run = await player.toggle(retell.story.map((line) => ({ text: line.et, voice, pace: prefs.pace })), { gapMs: 250 });
@@ -89,24 +93,29 @@ export function RetellIt({ retell, voice, typed, onDone, kept, onKeep }: { retel
       <div className="mb-5">
         <StepPills
           label={t("The three stages")}
-          pills={[t("Hear it"), t("Hear it again"), t("Tell it back")].map((label, i) => ({
+          pills={(hearings === 1 ? [t("Hear it"), t("Tell it back")] : [t("Hear it"), t("Hear it again"), t("Tell it back")]).map((label, i) => ({
             key: label,
             label,
-            state: (i < 2 ? plays > i : said.trim().length > 0) ? "done" : "ahead",
+            state: (i < hearings ? plays > i : said.trim().length > 0) ? "done" : "ahead",
           }))}
         />
       </div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
-        <Button variant={hearFirst ? "primary" : "secondary"} onClick={play}>
-          {playing ? <Pause size={15} aria-hidden /> : <Play size={15} aria-hidden />}
-          {playing ? t("Stop") : plays === 0 ? t("Hear the story") : t("Hear it again")}
-        </Button>
+        {/* Heard as often as it may be, the button goes: a story told once is told once, and "Show the story" is the way back to it. */}
+        {(!heardOut || playing) && (
+          <Button variant={hearFirst ? "primary" : "secondary"} onClick={play}>
+            {playing ? <Pause size={15} aria-hidden /> : <Play size={15} aria-hidden />}
+            {playing ? t("Stop") : plays === 0 ? t("Hear the story") : t("Hear it again")}
+          </Button>
+        )}
         <span className="text-sm" style={{ color: "var(--ink-3)" }}>
           {unheard && plays === 0
             ? t("The voice didn't come through just now. Show the story and read it instead.")
             : plays > 0
-              ? fill(t(plays === 1 ? "Heard once." : "Heard {n} times."), { n: String(plays) })
-              : shown ? null : t("No words on screen. Just listen.")}
+              ? hearings === 1
+                ? t("Heard once, the way a person tells you something. Now tell it back.")
+                : fill(t(plays === 1 ? "Heard once." : "Heard {n} times."), { n: String(plays) })
+              : shown ? null : hearings === 1 ? t("You'll hear it once. No words on screen, so listen closely.") : t("No words on screen. Just listen.")}
         </span>
       </div>
 

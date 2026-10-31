@@ -36,6 +36,8 @@ import { SayIt, type SayPlace } from "./SayIt";
 import { lessonSceneHref, type ConversationReturn } from "@/lib/scenes/lessonReturn";
 import { nameOf } from "@/lib/ux/roundNames";
 import { worksheetLink, type LessonWorksheet } from "@/lib/course/lessonWorksheet";
+import { ReadText } from "@/components/course/ReadText";
+import type { GlossedToken } from "@/lib/dict/glossed";
 
 /**
  * ONE LESSON, ITS STEPS ALWAYS IN THIS ORDER (docs/43-lessons.md §1).
@@ -106,8 +108,14 @@ const WORKBOOK_NAME = nameOf("/review/workbook") ?? { et: "Töövihik", en: "Wor
 /** Every step not on this list asks nothing, and is finished by being open. */
 const ASKS: ReadonlySet<Step> = new Set(["practise", "write", "say", "review"]);
 
-export function LessonRunner({ lesson, practice, review, next, scene, situation = null, worksheet = null, conversation, place, name, due = 0, check = null, part, timeMultiplier, partAt }: {
+export function LessonRunner({ lesson, practice, review, next, scene, situation = null, worksheet = null, conversation, place, name, due = 0, check = null, part, timeMultiplier, partAt, read = null }: {
   lesson: LessonSpec;
+  /**
+   * The lesson's text to read (B2 on), a line at a time, with the dictionary
+   * under the words the lessons have not taught yet (`lib/progress/lessonView.ts`).
+   * Null where the lesson has none, and then a text it does have is drawn plain.
+   */
+  read?: readonly (readonly GlossedToken[])[] | null;
   /** How much longer than the standard a timed go runs for this learner (`lib/ux/roundClock.ts`). */
   timeMultiplier: number;
   /** Which part of its level the lesson is in, counted from 1: the fade starts harder later on (`fade.ts`). */
@@ -533,7 +541,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
           <h2 id="lesson-step" ref={heading} tabIndex={-1} className="mb-4 text-xl font-bold scroll-mt-24" style={{ color: "var(--ink)" }}>
             {fill(t("Step {n} of {total}: {step}"), { n: String(at + 1), total: String(steps.length), step: t(titleOf(step)) })}
           </h2>
-          {step === "listen" && <Listen lesson={lesson} heard={heard} heardOnReload={heardOnReload} onHeard={() => setHeard(true)} />}
+          {step === "listen" && <Listen lesson={lesson} read={read} heard={heard} heardOnReload={heardOnReload} onHeard={() => setHeard(true)} />}
           {step === "words" && <Words lesson={lesson} />}
           {step === "how" && <How lesson={lesson} />}
           {kept("practise") && <div hidden={step !== "practise"}><Quiz key="practise" level={3} items={practice} onFinished={(result) => { setScore((first) => first ?? result); finish("practise"); }} /></div>}
@@ -592,7 +600,7 @@ function wordsUsed(lesson: LessonSpec): number {
 }
 
 /** Step 1: the conversation, in the cast's voices, with the English under each line. */
-function Listen({ lesson, heard, heardOnReload, onHeard }: { lesson: LessonSpec; heard: boolean; heardOnReload: boolean; onHeard: () => void }) {
+function Listen({ lesson, read, heard, heardOnReload, onHeard }: { lesson: LessonSpec; read: readonly (readonly GlossedToken[])[] | null; heard: boolean; heardOnReload: boolean; onHeard: () => void }) {
   const t = useT();
   const [english, setEnglish] = useState(true);
   /* Pressing "Read it" replaces the card the button was on, so the caret goes
@@ -608,6 +616,7 @@ function Listen({ lesson, heard, heardOnReload, onHeard }: { lesson: LessonSpec;
   // B1 on, the conversation is heard before it is read (`ListenFirst`).
   if (!heard) return <ListenFirst lesson={lesson} onRead={onHeard} />;
   return (
+    <div className="flex flex-col gap-6">
     <Card>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <p ref={leadRef} tabIndex={-1} className="text-base outline-none" style={{ color: "var(--ink-2)" }}>
@@ -620,6 +629,9 @@ function Listen({ lesson, heard, heardOnReload, onHeard }: { lesson: LessonSpec;
       </div>
       <LessonConversation lines={lesson.conversation} cast={lesson.cast} english={english} quiet />
     </Card>
+    {/* B2: a real text, after the transcript, read and never asked about (`LessonSpec.read`). */}
+    {lesson.read && <ReadText text={lesson.read} tokens={read} english={english} />}
+    </div>
   );
 }
 

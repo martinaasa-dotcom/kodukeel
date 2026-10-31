@@ -202,13 +202,20 @@ function formatScore(score: number): string {
  * more of both, the parts of the level ticked off by name, what somebody can
  * now do in one sentence (`LEVEL_INFO.arrival`), and what the next level is.
  *
- * WHERE THE NEXT LEVEL IS BUILT DIFFERENTLY, IT SAYS SO. A1, A2 and B1 are
- * lessons; from B2 an evening is a topic's words, a short page on one point
+ * WHERE THE NEXT LEVEL IS BUILT DIFFERENTLY, IT SAYS SO. A1 to B2 are
+ * lessons; at C1 an evening is a topic's words, a short page on one point
  * of grammar, a round or two and a review. A learner who walked the lessons
  * and arrived on a checklist with no word about why would read it as
  * something broken, so the change is named here, once, before it happens
  * (`level.next`, which says how the next level is built).
+ *
+ * AND B2 OFFERS ITS MOCK EXAM FIRST (docs/43-lessons.md §13.9). A learner who
+ * finishes B2 has written every text and rehearsed both spoken tasks of the
+ * state's B2 paper once, in the lessons, so the paper itself is the next step
+ * before C1: the four parts, timed as the real ones are (`/exam/B2`).
  */
+const MOCK_EXAM_AFTER: ReadonlySet<string> = new Set(["B2"]);
+
 function LevelFinished({ level, score }: { level: LevelDone; score: string }) {
   const t = useT();
   return (
@@ -234,6 +241,19 @@ function LevelFinished({ level, score }: { level: LevelDone; score: string }) {
           ))}
         </ul>
       </Card>
+      {MOCK_EXAM_AFTER.has(level.level) && (
+        <Card data-level-exam={level.level}>
+          <p className="font-display text-xl font-bold" style={{ color: "var(--ink)" }}>
+            {fill(t("Before anything else: the {level} mock exam"), { level: level.level })}
+          </p>
+          <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>
+            {t("You've written every text and rehearsed both spoken tasks of the real paper once, in the lessons. The mock exam puts all four parts together, timed the way the real ones are, so you know where you stand.")}
+          </p>
+          <div className="mt-3">
+            <ButtonLink href={`/exam/${level.level}`} variant="secondary">{fill(t("Sit the {level} mock exam"), { level: level.level })}</ButtonLink>
+          </div>
+        </Card>
+      )}
       {level.next && (
         <Card tone="accent" data-level-next={level.next.level}>
           <p className="font-display text-xl font-bold" style={{ color: "var(--ink)" }}>

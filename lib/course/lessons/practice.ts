@@ -105,7 +105,17 @@ export type PracticeItem =
       /** Taught spellings of another word one letter from a word of the line. */
       readonly otherWords?: readonly string[];
       /** Taught spellings one letter from a word of the line that the ledger cannot place. */
-      readonly unplaced?: readonly string[] } & Checkable;
+      readonly unplaced?: readonly string[] } & Checkable
+  /**
+   * A sentence with one word nobody has taught whose parts the learner has
+   * (`WorkOut`, B2): which of three meanings it is, and then its parts. `et`
+   * is the whole sentence, with `word` standing in it once; the sentence's
+   * English is shown after the answer, since it says what the word means.
+   * Asked for its meaning only, never for its form, and graded nowhere, like
+   * every other choice in a lesson.
+   */
+  | { readonly kind: "workOut"; readonly et: string; readonly en: string; readonly word: string;
+      readonly parts: readonly string[]; readonly options: readonly string[]; readonly answer: string };
 
 /**
  * What a typed sentence is checked against beyond the sentences written for it.
@@ -130,8 +140,32 @@ export function itemEstonian(item: PracticeItem): string[] {
     case "reply": return [item.ask.et, ...item.options];
     case "rework": return [item.from.et, ...item.accept];
     case "fix": return [item.shown, ...item.accept];
+    // The one word to work out is the one the ledger is not asked to cover; the rest of its sentence is.
+    case "workOut": return [withoutWord(item.et, item.word)];
     default: return [item.et];
   }
+}
+
+/** A sentence with one whole word taken out, which is what a work-it-out sentence holds the ledger to. */
+function withoutWord(sentence: string, word: string): string {
+  return sentence.replace(new RegExp(`(?<![\\p{L}])${word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\p{L}])`, "u"), " ").replace(/\s+/g, " ").trim();
+}
+
+/**
+ * The work-it-out questions a lesson asks (B2), in the order written, with
+ * their three meanings drawn in an order of their own off the word, so the
+ * right one is not always where the author put it and a reload keeps it.
+ */
+export function workOutItems(lesson: LessonSpec): Extract<PracticeItem, { kind: "workOut" }>[] {
+  return (lesson.workOut ?? []).map((w) => ({
+    kind: "workOut" as const,
+    et: w.sentence.et,
+    en: w.sentence.en,
+    word: w.word,
+    parts: w.parts,
+    options: shuffle(w.options, rng(seedFrom(`workout:${lesson.id}:${w.word}`))),
+    answer: w.means,
+  }));
 }
 
 /** Longest answer a learner is asked to produce whole, in words. */
@@ -487,6 +521,20 @@ const QUESTION_WORDS = new Set([
   "kellele", "milline", "mitmes", "kui", "kas", "mille", "millega", "mitmendal", "kelleks", "kuni",
 ]);
 
+/**
+ * The small words a spoken question may open on before its question word:
+ * `Ja mis sa ütlesid?`, `Aga miks?`, `No kuidas läks?`. The question word
+ * after one of them is still what the line asks, so it is read past them.
+ */
+const LEADING_PARTICLES = new Set(["ja", "aga", "no", "noh"]);
+
+/** The question word a line opens on, past a leading particle, or "" where it opens on none. */
+function questionWordOf(et: string): string {
+  const words = wordsOf(et).map((w) => w.low);
+  const at = LEADING_PARTICLES.has(words[0] ?? "") ? 1 : 0;
+  return QUESTION_WORDS.has(words[at] ?? "") ? words[at]! : "";
+}
+
 /** A question and what was said back, from one conversation. */
 interface Exchange { readonly ask: Said; readonly back: Said }
 
@@ -498,8 +546,7 @@ function exchangesOf(lessons: readonly LessonSpec[]): Exchange[] {
     for (let i = 0; i + 1 < said.length; i++) {
       const ask = said[i]!;
       const back = said[i + 1]!;
-      const first = wordsOf(ask.et)[0]?.low ?? "";
-      if (!ask.et.trim().endsWith("?") || !QUESTION_WORDS.has(first)) continue;
+      if (!ask.et.trim().endsWith("?") || !questionWordOf(ask.et)) continue;
       if (back.who === ask.who || back.et.trim().endsWith("?") || wordsOf(back.et).length > 8) continue;
       out.push({ ask, back });
     }
@@ -521,12 +568,12 @@ function repliesFrom(prompts: readonly Exchange[], pool: readonly Exchange[], ra
     if (out.length >= max) break;
     if (asked.has(ex.ask.et)) continue;
     const askWords = new Set(wordsOf(ex.ask.et).map((w) => w.low));
-    const opener = wordsOf(ex.ask.et)[0]?.low;
+    const opener = questionWordOf(ex.ask.et);
     const right = normalisePhrase(ex.back.et);
     const wrong: string[] = [];
     for (const other of shuffle(pool, random)) {
       if (wrong.length >= OPTIONS - 1) break;
-      if (wordsOf(other.ask.et)[0]?.low === opener) continue;
+      if (questionWordOf(other.ask.et) === opener) continue;
       const said = normalisePhrase(other.back.et);
       if (said === right || wrong.some((w) => normalisePhrase(w) === said)) continue;
       if (wordsOf(other.back.et).some((w) => askWords.has(w.low))) continue;
@@ -569,7 +616,7 @@ export function practiceFor(
     .slice(0, PRODUCE_AT_MOST)
     .map((item) => produce(item, pool, after));
   const reworks = (lesson.reworks ?? []).slice(0, REWORK_AT_MOST).map((r) => reworkItem(r, after));
-  return [...(match ? [match] : []), ...recog, ...gaps, ...replies, ...reworks, ...fixesFor(lesson, after, confusions), ...asked];
+  return [...(match ? [match] : []), ...recog, ...gaps, ...replies, ...reworks, ...fixesFor(lesson, after, confusions), ...workOutItems(lesson), ...asked];
 }
 
 /**

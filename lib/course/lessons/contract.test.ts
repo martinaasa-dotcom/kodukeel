@@ -4,15 +4,15 @@ import { LEVEL_INFO } from "@/lib/collections/syllabus";
 import { sceneForLesson } from "@/lib/scenes/lessonScenes";
 import { LESSONS, LESSON_LEVELS, LESSON_PARTS } from "./index";
 import { lessonProblems } from "./ledger";
-import { lessonEnglish, levelContractProblems, untranslated } from "./contract";
+import { b2LevelProblems, lessonEnglish, levelContractProblems, untranslated } from "./contract";
 
 /**
  * THE LEVEL CONTRACT, ASKED OF EVERY LEVEL THAT IS LESSONS. Written once A1
  * and A2 met it, so that B1, B2 and C1 meet it the day they are lessons too.
  */
 describe("every level of lessons", () => {
-  it("is A1, A2 and B1 today, and the rules below are asked of whatever it becomes", () => {
-    expect([...LESSON_LEVELS]).toEqual(["A1", "A2", "B1"]);
+  it("is A1, A2, B1 and B2 today, and the rules below are asked of whatever it becomes", () => {
+    expect([...LESSON_LEVELS]).toEqual(["A1", "A2", "B1", "B2"]);
   });
 
   it("never shows a word before it is taught, across the levels as one course", () => {
@@ -132,5 +132,47 @@ describe("the contract itself", () => {
     const gist = (options: string[]) => ({ ...lessons[0]!, listenFor: [{ q: "q", options, answer: 0 }] });
     expect(levelContractProblems([gist(["A", "B", "C"]), ...lessons.slice(1)], [part]).join(" ")).toMatch(/3 options/);
     expect(levelContractProblems([gist(["True", "False"]), ...lessons.slice(1)], [part]).join(" ")).not.toMatch(/options/);
+  });
+});
+
+/**
+ * B2'S OWN RULES (`b2LevelProblems`), asked both ways on parts made here: no B2
+ * part is written yet, and a rule nothing fires on is a rule nobody knows the
+ * state of.
+ */
+describe("the B2 contract", () => {
+  const writing = LESSONS.find((l) => l.level === "B1" && l.write)!;
+  const plain = LESSONS.find((l) => l.level === "B1" && l.kind === "lesson" && !l.write && (l.reworks?.length ?? 0) > 0)!;
+  const rework = plain.reworks![0]!;
+  const parts = [1, 2, 3].map((n) => ({ id: `b${n}`, level: "B2" as const, title: `Part ${n}`, about: "A test part." }));
+  const partOf = (n: number, extra: Partial<typeof plain> = {}) => [
+    { ...writing, id: `b${n}-w`, part: `b${n}`, level: "B2" as const },
+    { ...plain, id: `b${n}-p`, part: `b${n}`, level: "B2" as const, ...extra },
+  ];
+  const level = (third: Partial<typeof plain>) => [
+    ...partOf(1, { patterns: ["spoken"] }),
+    ...partOf(2, { patterns: ["quotative"] }),
+    ...partOf(3, third),
+  ];
+
+  it("passes a third part whose rework asks for a pattern an earlier B2 part explained", () => {
+    const ok = level({ patterns: [], reworks: [{ ...rework, pattern: "quotative" }] });
+    expect(b2LevelProblems(ok, parts)).toEqual([]);
+  });
+
+  it("refuses a third part that recycles nothing, and names what it could have", () => {
+    const off = level({ patterns: [], reworks: [{ ...rework, pattern: "object" }] });
+    expect(b2LevelProblems(off, parts).join(" ")).toMatch(/B2 b3: no rework asks for a pattern an earlier B2 part explained \(spoken, quotative\)/);
+  });
+
+  it("refuses a part that writes no text, or two", () => {
+    const none = level({ reworks: [{ ...rework, pattern: "spoken" }] }).filter((l) => l.id !== "b2-w");
+    expect(b2LevelProblems(none, parts).join(" ")).toMatch(/B2 b2: writes 0 real texts/);
+    const two = level({ reworks: [{ ...rework, pattern: "spoken" }], write: writing.write });
+    expect(b2LevelProblems(two, parts).join(" ")).toMatch(/B2 b3: writes 2 real texts/);
+  });
+
+  it("asks nothing of a level that is not B2", () => {
+    expect(b2LevelProblems(LESSONS, LESSON_PARTS)).toEqual([]);
   });
 });

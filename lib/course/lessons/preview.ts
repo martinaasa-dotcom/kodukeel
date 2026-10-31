@@ -9,7 +9,9 @@
  * records nothing, and it is not in `LESSONS`, so nothing that lists the
  * course, counts it or asks it for a translation reads it.
  *
- * Empty since B1 became the course (`b1.ts`). B2 is drafted here next.
+ * Empty since B2 became the course (`b2.ts`, docs/43-lessons.md §14). C1 is
+ * drafted here next, each part in a file of its own (`c1-<part>.ts`) with one
+ * line in a `PARTS` list, in teaching order, the way B2 was.
  */
 import type { LessonSpec, PartOfLessons } from "./types";
 

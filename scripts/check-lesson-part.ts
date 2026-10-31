@@ -17,6 +17,15 @@
  *   5. Every speaker in a voice the app has.
  *   6. Every line of English in Russian and Ukrainian (`tr`), unless --no-translations.
  *   7. Every role-play lesson has its scene (`sceneForLesson`).
+ *   8. For a B2 part, B2's own rules against the parts before it: exactly one
+ *      real text written, a pattern of an earlier B2 part recycled from part 3
+ *      (`b2LevelProblems`), and the ramp for its place (`b2RampProblems`):
+ *      where the conversation is heard, how often the story is, the race's
+ *      windows, and a text to read in every lesson but the last.
+ *
+ * Step 1 holds a text to read (`read`) to the forms list alone, and a word to
+ * work out (`workOut`) to its own split, the rest of its sentence to the
+ * ledger: both are read by `estonianOf` and checked there.
  *
  * Exits 1 on any problem, printing each.
  */
@@ -28,7 +37,8 @@ import { tr } from "../lib/copy/locale";
 import { LESSONS as COURSE, LESSON_PARTS as COURSE_PARTS } from "../lib/course/lessons";
 import { PREVIEW_LESSONS, PREVIEW_PARTS } from "../lib/course/lessons/preview";
 import { PLACE_SPELLINGS, estonianOf, lessonProblems, namesOf, wordsOf } from "../lib/course/lessons/ledger";
-import { lessonEnglish, levelContractProblems, untranslated } from "../lib/course/lessons/contract";
+import { b2LevelProblems, lessonEnglish, levelContractProblems, untranslated } from "../lib/course/lessons/contract";
+import { b2PatternsAboveMissing, b2RampProblems } from "../lib/course/lessons/rampB2";
 import { sceneForLesson } from "../lib/scenes/lessonScenes";
 
 const arg = (name: string) => {
@@ -48,9 +58,13 @@ const ids = new Set(mine.map((l) => l.id));
 const problems: string[] = [];
 
 // 1. The ledger, over the whole course in order, keeping this part's problems and dropping its numbering.
+// A B2 pattern a part above this one will explain, and that part is not written yet, counts as explained (`B2_PART_ORDER`).
+const awaited = b2PatternsAboveMissing(partId, new Set(PARTS.map((p) => p.id)));
 for (const p of lessonProblems(LESSONS)) {
   if (![...ids].some((id) => p.includes(`(${id})`))) continue;
   if (/: numbered \d+ where|: lettered /.test(p)) continue;
+  const early = /asks for the (\w+) pattern before it is explained/.exec(p);
+  if (early && awaited.has(early[1] ?? "")) continue;
   problems.push(`ledger: ${p}`);
 }
 
@@ -100,6 +114,23 @@ if (!process.argv.includes("--no-translations")) {
 
 // 7. Scenes.
 for (const lesson of mine) if (lesson.roleplay && !sceneForLesson(lesson.id)) problems.push(`scene: ${lesson.id} ends in a role-play and has no scene in lib/scenes/lessonScenes.ts`);
+
+/*
+  8. B2's level rules and its ramp, which need the parts before this one: the
+  ramp reads the part's band off its place among B2's parts, and the recycling
+  rule reads which B2 patterns the parts before it explained. Asked of the
+  whole level and kept to this part's lines. A part that is not B2 has none.
+*/
+if (part.level === "B2") {
+  // Step 2 already asked the part alone, so a line it printed (a part writing two texts) is not printed twice.
+  const seen = new Set(problems);
+  const forThisPart = (p: string) => p.includes(` ${partId}:`) || p.includes(` ${partId},`);
+  for (const p of [...b2LevelProblems(LESSONS, PARTS), ...b2RampProblems(LESSONS, PARTS)]) {
+    if (!forThisPart(p) || seen.has(`shape: ${p}`) || seen.has(`B2: ${p}`)) continue;
+    seen.add(`B2: ${p}`);
+    problems.push(`B2: ${p}`);
+  }
+}
 
 console.log(`${partId}: ${mine.length} lessons, ${where.size} distinct spellings.`);
 if (problems.length > 0) {

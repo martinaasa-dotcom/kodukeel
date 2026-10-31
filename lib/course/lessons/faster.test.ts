@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FASTER_SECONDS, goOf } from "./faster";
+import { FASTER_SECONDS, fasterWindows, goOf } from "./faster";
 
 describe("again, faster", () => {
   it("is three windows, each shorter than the last", () => {
@@ -14,5 +14,12 @@ describe("again, faster", () => {
     expect(goOf("Jah", 1, 45).perMinute).toBe(12);
     // Time past the window counts as the window.
     expect(goOf("üks kaks kolm", 500, 45).perMinute).toBe(4);
+  });
+});
+
+describe("the race's windows", () => {
+  it("are a lesson's own where it names them, and B1's three otherwise", () => {
+    expect(fasterWindows({})).toEqual(FASTER_SECONDS);
+    expect(fasterWindows({ seconds: [60] })).toEqual([60]);
   });
 });

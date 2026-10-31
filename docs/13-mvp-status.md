@@ -4110,3 +4110,29 @@ second plural partitive (`munasid` beside `mune`) is a generated, reviewed table
 - **The questions in `docs/reviews/b1-flags.md`** (now including the examiner's `sina` in part two,
   `Kuu aega maksab…`, `bussis` beside `bussist`, `ta` for a thing) wait on the native speaker, and the
   Russian and Ukrainian of every new line on a fluent reader.
+
+## 77. The seventy-first pass: B2 is the lessons too
+
+**B2 is forty-eight lessons in eight parts** (`lib/course/lessons/b2-*.ts`, `docs/43-lessons.md`
+§13 and §14), walked by the same ledger as A1 to B1, and it replaces the parts `b2.1` to `b2.3`,
+built from sixteen units, outright; a learner on one restarts B2 at lesson 1 and keeps every card
+and review. C1 is the one level still built from units.
+
+**What a B2 lesson asks that a B1 one does not.** The conversation is people talking to each other
+rather than to the learner, heard before it is read, and from the third part heard in a café, down a
+phone line, sped up or joined halfway. A real text follows it in the Listen step (a chat, a notice, a
+school message, a letter from an office, a news item), its untaught words underlined to the
+dictionary and nothing in it asked. Practice adds working a new word out from its parts. The story
+is heard once from the third part, and the race shortens part by part to the exam's one minute after
+two to prepare. Each part writes one of the B2 paper's four texts and ends on a role-play with a
+curveball, and the level's last screen offers the B2 mock exam before C1.
+
+**What moved.** The catalog conversations the old B2 evenings opened, and the three A2 errands on
+their free evenings, are offered on the finish of the B2 lesson that rehearses them. Fourteen words
+the lessons teach were asked of Ekilex. Each B2 part closes on a check, unit homework starts at C1,
+eight errands join the list, and 99 written sentences for words only the old units taught were
+dropped. Every check that ran over the course alone met B2 for the first time and found six reworks
+the marker could not mark, writing that asked less than the part before, a reply floor B2's
+conversations did not reach, and eight English lines translated two ways; each is fixed and §14
+says how. The Russian and Ukrainian are machine-written, every new Estonian line waits on the native
+speaker (`docs/reviews/b2-flags.md` first), and B2 is recorded nowhere yet.

@@ -46,7 +46,7 @@ const { check, done, absent } = suite("Today's chat", {
     Two keyless checks, five on the offer and the briefing, and per word one
     objective met and one line clean of the word, then the goodbye, the
     debrief, the grades and the memory. The evening this ticks is the first
-    built out of units, B2.1 since B1 became lessons, and asks five words.
+    built out of units, C1.1 since B2 became lessons, and asks five words.
     Three more ask that a composed line can be reported (R-2a), and two that
     one of Anu's answers can, so the floor moved from 27 to 32.
   */

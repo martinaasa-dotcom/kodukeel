@@ -59,12 +59,20 @@ import { a2Restoran } from "./a2-restoran";
 import { a2Intervjuu } from "./a2-intervjuu";
 import { a2VanaSober } from "./a2-vana-sober";
 import { b1Vaidlus } from "./b1-vaidlus";
+import { b2Ohtusook } from "./b2-ohtusook";
 import { b1Uhistu } from "./b1-uhistu";
 import { b1Palgatous } from "./b1-palgatous";
 import { b1Meister } from "./b1-meister";
 import { b1Tagatis } from "./b1-tagatis";
+import { b2Teade } from "./b2-teade";
 import { b1Eksam } from "./b1-eksam";
+import { b2Lastevanemad } from "./b2-lastevanemad";
 import { b1Kolleeg } from "./b1-kolleeg";
+import { b2Perearst } from "./b2-perearst";
+import { b2Koosolek } from "./b2-koosolek";
+import { b2Ametikone } from "./b2-ametikone";
+import { b2Monoloog } from "./b2-monoloog";
+import { b2Eksam } from "./b2-eksam";
 import { curveballPicks } from "./curveballs";
 
 /** Every scene's picks, by scene id. One file per scene, so two people writing picks never touch one file. */
@@ -128,12 +136,20 @@ export const PICKS: Readonly<Record<string, ScenePicks>> = {
   "a2-intervjuu": a2Intervjuu,
   "a2-vana-sober": a2VanaSober,
   "b1-vaidlus": b1Vaidlus,
+  "b2-ohtusook": b2Ohtusook,
   "b1-uhistu": b1Uhistu,
   "b1-palgatous": b1Palgatous,
   "b1-meister": b1Meister,
   "b1-tagatis": b1Tagatis,
+  "b2-teade": b2Teade,
   "b1-eksam": b1Eksam,
+  "b2-lastevanemad": b2Lastevanemad,
   "b1-kolleeg": b1Kolleeg,
+  "b2-perearst": b2Perearst,
+  "b2-koosolek": b2Koosolek,
+  "b2-ametikone": b2Ametikone,
+  "b2-monoloog": b2Monoloog,
+  "b2-eksam": b2Eksam,
   "uus-kolleeg": uusKolleeg,
 };
 

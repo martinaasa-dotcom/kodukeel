@@ -10,13 +10,21 @@
  * has fallen behind the data.
  */
 export const PARALLEL_FORMS: Readonly<Record<string, string>> = {
+  "asjasid": "asju",
   "bussisid": "busse",
+  "kirjasid": "kirju",
   "koerasid": "koeri",
   "kolleegisid": "kolleege",
+  "laulusid": "laule",
   "lillesid": "lilli",
   "maksusid": "makse",
   "marjasid": "marju",
   "munasid": "mune",
+  "plaanisid": "plaane",
+  "probleemisid": "probleeme",
+  "puusid": "puid",
+  "sõnasid": "sõnu",
   "vabasid": "vabu",
+  "väikeseid": "väikesi",
   "õunasid": "õunu",
 };
