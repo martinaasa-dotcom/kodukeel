@@ -21,7 +21,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "c1-ettekanne", beat: "problem", text: "Alustame. Mis on teie probleem?", model: "authored", draftedAt: "2026-10-31" },
   { scene: "c1-ettekanne", beat: "options", text: "Selge. Ja mida te siis teha tahate?", model: "authored", draftedAt: "2026-10-31" },
   { scene: "c1-ettekanne", beat: "options", text: "Hea küll. Mis variandid teil on?", model: "authored", draftedAt: "2026-10-31" },
-  { scene: "c1-ettekanne", beat: "cutin", text: "Vabandust, et vahele segan, aga miks te lihtsalt kiiremini ei tööta?", model: "authored", draftedAt: "2026-10-31" },
+  { scene: "c1-ettekanne", beat: "cutin", text: "Vabandust, üks küsimus. Miks te lihtsalt kiiremini ei tööta?", model: "authored", draftedAt: "2026-10-31" },
   { scene: "c1-ettekanne", beat: "cutin", text: "Oodake, üks hetk. Miks te lihtsalt kiiremini ei tööta?", model: "authored", draftedAt: "2026-10-31" },
   { scene: "c1-ettekanne", beat: "cost", text: "Hea küll, rääkige edasi. Mida see maksab?", model: "authored", draftedAt: "2026-10-31" },
   { scene: "c1-ettekanne", beat: "cost", text: "Selge. Ja mida see meile maksab?", model: "authored", draftedAt: "2026-10-31" },
