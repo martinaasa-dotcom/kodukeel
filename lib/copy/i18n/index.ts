@@ -62,6 +62,7 @@ import { LESSON_TEXT_C1_KOOL } from "./areas/lessonTextC1Kool";
 import { LESSON_TEXT_B2_KULTUUR } from "./areas/lessonTextB2Kultuur";
 import { LESSON_TEXT_C1_KODU } from "./areas/lessonTextC1Kodu";
 import { LESSON_TEXT_C1_JUHT } from "./areas/lessonTextC1Juht";
+import { LESSON_TEXT_C1_UHISKOND } from "./areas/lessonTextC1Uhiskond";
 import { LESSON_SCENES_AREA } from "./areas/lessonScenes";
 import { SOUNDS_AREA } from "./areas/sounds";
 import { ADMIN_SPEECH } from "./areas/adminSpeech";
@@ -136,6 +137,7 @@ export const AREAS: readonly (readonly [name: string, area: Area])[] = [
   ["lessonTextC1Meedia", LESSON_TEXT_C1_MEEDIA],
   ["lessonTextC1Kodu", LESSON_TEXT_C1_KODU],
   ["lessonTextC1Juht", LESSON_TEXT_C1_JUHT],
+  ["lessonTextC1Uhiskond", LESSON_TEXT_C1_UHISKOND],
   ["lessonScenes", LESSON_SCENES_AREA],
   ["sounds", SOUNDS_AREA],
   ["adminSpeech", ADMIN_SPEECH],

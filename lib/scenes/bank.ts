@@ -93,6 +93,7 @@ import C1_MYSTEERIUM_LINES from "./bank/c1-mysteerium";
 import C1_PAKKUMINE_LINES from "./bank/c1-pakkumine";
 import C1_DIREKTOR_LINES from "./bank/c1-direktor";
 import C1_ETTEKANNE_LINES from "./bank/c1-ettekanne";
+import C1_ARUTELU_LINES from "./bank/c1-arutelu";
 
 /** Every scene's prepared lines, one file a scene under `lib/scenes/bank/`, in scene order. */
 export const BANK: readonly ScriptedLine[] = [
@@ -175,4 +176,5 @@ export const BANK: readonly ScriptedLine[] = [
   ...C1_PAKKUMINE_LINES,
   ...C1_DIREKTOR_LINES,
   ...C1_ETTEKANNE_LINES,
+  ...C1_ARUTELU_LINES,
 ];
