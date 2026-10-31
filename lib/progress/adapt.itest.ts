@@ -7,6 +7,8 @@ import { PROGRAMMES } from "@/lib/course";
 import { adaptOfferFor, adaptReadingFor } from "./adapt";
 import { ladderPosition, openingPartFor, programmeFor } from "./course";
 import { recordCourseLevel } from "./level";
+import { recordCheckPassed } from "./checks";
+import { checkAfter } from "@/lib/course/checks";
 
 /**
  * Where the course opens, and what it offers when the answers say the part is
@@ -157,10 +159,11 @@ describe("what the course offers somebody struggling", () => {
 
 describe("what the course offers somebody flying", () => {
   it("is the next part, with the lean the other way", async () => {
-    // B1 and B2 are lessons, and a lesson part is left by passing its check, so
-    // the skip ahead is offered from the first part above them.
+    // Every level is lessons, and a lesson part is left by passing its check, so
+    // the skip ahead is offered once the part's own check is passed.
     await recordCourseLevel(MINE, "B2");
     const part = firstOf("C1");
+    await recordCheckPassed(MINE, checkAfter(PROGRAMMES, part.id)!.id);
     await answers(80, 80);
     const fit = await adaptOfferFor(MINE, part);
     expect(fit.offer?.reading.kind).toBe("flying");
