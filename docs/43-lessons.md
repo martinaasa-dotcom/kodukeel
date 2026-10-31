@@ -949,3 +949,67 @@ since no evening teaches those words now.
 **What waits on a person.** Every new Estonian line is in `docs/44-language-reviews.md` section 1.
 The native speaker reads `docs/reviews/b1-flags.md` first (B-L7): what the rewrite kept on
 purpose, the new lines worth a first look, and the one line a second model flagged that is still open. The Russian and Ukrainian need a fluent reader, as A2's do.
+
+## 13. B2 as lessons: measured against B1 as built, and the plan revised (for approval)
+
+Written on 2026-10-31, after B1 merged. §11.5 drafted B2 before B1 existed, and B1 as built
+explains several things that draft gave B2 to introduce. This is §10's first two steps again, read
+off `ledgerThrough` of `b1-49-end` with `npx tsx scripts/measure-b-levels.ts --through b1-49-end`.
+
+### 13.1 What B2 can assume
+
+**The ledger at the end of B1.** 2,050 items, 1,092 headwords, 5,490 spellings and 79 phrases.
+Twenty-three patterns, eleven of them added by B1: the object, government, the past conditional,
+the participles, agreement, the impersonal, the pluperfect, subordinate and relative clauses,
+particle verbs and derivation.
+
+**So the grammar B2 introduces is short.** Of §11.5's six parts, three were built on a pattern B1
+has already explained: the impersonal (`b1-uudised`), the pluperfect and the participles, and
+derivation. What no lesson has explained yet is the quotative and reported speech, the converb
+(`-des`), nominalization as the written register, and concession and hedging. A grammar point is
+explained once in a level, so B2 can take the impersonal, the participles and derivation further,
+into the past impersonal, participle phrases and the formal register, but it does not present them
+as new.
+
+**The words are most of the work.** The sixteen B2 units name 233 words, and B1 taught 10 of them.
+94 of the 400 commonest words are still untaught. About half are subtitle vocabulary (`kolonel`,
+`relv`, `kurat`, `isand`) that no level should hurry. The rest are everyday words a B2 speaker
+uses daily: `suutma`, `üritama`, `püüdma`, `lahkuma`, `kohtama`, `mõistma`, `usaldama`, `tänu`,
+`tõsi`, `tähelepanu`, `seega`, `ümber`, `tugev`, `puhas`, `normaalne`, `võimatu`, `ettevaatlik`,
+`isiklik`.
+
+**And some of the gaps are A2 words.** The catalog conversations B2 deals already ask for 49 words
+that no evening has taught (`KNOWN_UNTAUGHT` in `lib/course/course.test.ts`). Some are B2
+vocabulary (`hüvitis`, `taotlus`, `ettevõte`), but `hind`, `valu`, `keha`, `süda`, `puu`, `lind`,
+`õhk`, `klient`, `ajaleht`, `raadio`, `õpik`, `seletama` and `tõlkima` are not. A learner who has
+finished B1 has never been taught the word for price. Those belong in lettered extras where they
+fit (§10, step 9), not in B2.
+
+### 13.2 B2, part by part, revised
+
+Six parts again, about forty core lessons. B2 is still register: every part puts one thing said the
+spoken way beside the written way, and each part writes one real text.
+
+| Part | New at B2 | Deepened from B1 | The text it writes | Ends in |
+| --- | --- | --- | --- | --- |
+| `b2-kaudne` What people say | the quotative (`olevat`, `tulnud`), reported questions | subordinate clauses | a summary of what somebody told you | passing on news you heard |
+| `b2-des` Two things at once | the converb (`-des`), how things are done | the participles as adjectives | instructions for a process | explaining your job to a newcomer |
+| `b2-ametlik` On paper | nominalization (`-mine`, `-us`) as the written register | the past impersonal (`oldi`, `tehti`), derivation | a public notice and a formal email | the citizens' services office, then a formal phone call |
+| `b2-tervis` Body and care | the health vocabulary B1 never reached | the impersonal for procedures | a complaint about a service | describing symptoms by phone |
+| `b2-ajalugu` How it came to be | participle phrases in narrative | the pluperfect against the past | a story told in the past | two minutes on a topic, the long turn |
+| `b2-argument` Making a case | concession and hedging (`küll... aga`, `vist`, `pigem`), figures | comparison | a summary of a table with your comment | the B2 speaking exam, practiced |
+
+Against §11.5: `b2-umbisikuline` and `b2-sonad` become one part, `b2-ametlik`, because B1 already
+taught their grammar and what is left of both is the formal register. The freed part goes to
+health, which three of the conversations B2 deals (`perearst`, `arsti-aeg`, `hadaabi`) need and
+nothing has taught. The quotative moves first because it is the one big new pattern and the rest
+lean on it.
+
+### 13.3 What the operator decides before the build
+
+| # | Question | Proposal |
+| --- | --- | --- |
+| B2-1 | The six parts in 13.2, in that order? | Yes. |
+| B2-2 | The A2 words in 13.1 (`hind`, `valu`, `keha` and the rest): lettered A2 or B1 extras, or taught inside B2? | Lettered extras, so the conversations that ask for them stop running ahead of the ledger. |
+| B2-3 | B-L1 to B-L8 for B1 (speaking first, one written text per part, own sentences as cards, the flagged-line reading): do they hold for B2? | Yes, with B-L4's real Estonian reading step from the first part, not from `b2-sonad`. |
+| B2-4 | Build order. | One part per pull request, `b2-kaudne` first and played by hand, then the other five; the old B2 units go with the last part, by the A1, A2 and B1 precedent. |
