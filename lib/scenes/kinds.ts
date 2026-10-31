@@ -117,6 +117,7 @@ export const SCENE_KINDS: Readonly<Record<string, SceneKind>> = {
   "c1-direktor": "people",
   "c1-ettekanne": "people",
   "c1-arutelu": "people",
+  "c1-laat": "people",
 };
 
 export function kindOf(sceneId: string): KindSpec {

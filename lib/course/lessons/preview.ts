@@ -33,6 +33,7 @@ import { C1_KODU_LESSONS, C1_KODU_PART } from "./c1-kodu";
 import { C1_KOOL_LESSONS, C1_KOOL_PART } from "./c1-kool";
 import { C1_JUHT_LESSONS, C1_JUHT_PART } from "./c1-juht";
 import { C1_UHISKOND_LESSONS, C1_UHISKOND_PART } from "./c1-uhiskond";
+import { C1_MAA_LESSONS, C1_MAA_PART } from "./c1-maa";
 import type { LessonSpec, PartOfLessons } from "./types";
 
 const PARTS: readonly (readonly [PartOfLessons, readonly LessonSpec[]])[] = [
@@ -43,6 +44,7 @@ const PARTS: readonly (readonly [PartOfLessons, readonly LessonSpec[]])[] = [
   [C1_KOOL_PART, C1_KOOL_LESSONS],
   [C1_JUHT_PART, C1_JUHT_LESSONS],
   [C1_UHISKOND_PART, C1_UHISKOND_LESSONS],
+  [C1_MAA_PART, C1_MAA_LESSONS],
 ];
 
 export const PREVIEW_PARTS: readonly PartOfLessons[] = PARTS.map(([part]) => part);
