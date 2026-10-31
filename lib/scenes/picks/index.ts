@@ -72,6 +72,7 @@ import { b2Perearst } from "./b2-perearst";
 import { b2Koosolek } from "./b2-koosolek";
 import { b2Ametikone } from "./b2-ametikone";
 import { b2Monoloog } from "./b2-monoloog";
+import { c1Ettekanne } from "./c1-ettekanne";
 import { b2Eksam } from "./b2-eksam";
 import { curveballPicks } from "./curveballs";
 
@@ -149,6 +150,7 @@ export const PICKS: Readonly<Record<string, ScenePicks>> = {
   "b2-koosolek": b2Koosolek,
   "b2-ametikone": b2Ametikone,
   "b2-monoloog": b2Monoloog,
+  "c1-ettekanne": c1Ettekanne,
   "b2-eksam": b2Eksam,
   "uus-kolleeg": uusKolleeg,
 };
