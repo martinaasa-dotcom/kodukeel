@@ -1764,3 +1764,119 @@ Each step is one pull request, engine and words before any lesson, as at B2.
    translations are done.
 6. **The last lesson and the hand-over** (15.11).
 7. **The unit builder goes** (C1-9), a week after step 5, with `tonightsCase` (C1-14).
+
+### 15.15 The engine, as built
+
+Step 1 of 15.14, built on 2026-10-31 before any C1 lesson, so the eight parts are written against
+rules that hold still, the way 13.12 was for B2. Every field below is in
+`lib/course/lessons/types.ts`, named field for field in the v1 contract (`lib/api/contract.ts`, held
+to the type in both directions by `lessonContract.test.ts`; `public/api/v1.schema.json` regenerated),
+and checked by the ledger or the contract.
+
+**Where a part is written.** In a file of its own beside the B2 parts, named for the part without the
+marks (`c1-isiksus.ts`, `c1-uhiskond.ts`, `c1-mote.ts`), exporting `C1_<PART>_PART` and
+`C1_<PART>_LESSONS` the way `b2-konekeel.ts` does, with one line added to `PARTS` in
+`lib/course/lessons/preview.ts`, in the teaching order of 15.3 and the cast page. A part is placed by
+`C1_PART_ORDER` in `rampC1.ts` rather than by where its line sits, and a part above it that is not
+written yet still counts as having explained its patterns (`c1PatternsAboveMissing`), so parts
+written side by side can recycle a pattern a part above explains. `lib/course/lessons/c1.ts` is the
+empty skeleton the parts move to the day C1 becomes the course, as `b2.ts` was. Then:
+
+```
+npx tsx scripts/check-lesson-part.ts --part c1-isiksus
+```
+
+asks every check of that part, step 9 being C1's own. The preview path (the ledger walk in
+`lessons.test.ts`, `lessonScenes.test.ts`, `lessonView` for a reviewer) reads C1 preview parts as it
+read B2's, and was walked with a throwaway C1 part to see step 9 report.
+
+**The new fields.**
+
+| Field | What it is | What checks it |
+| --- | --- | --- |
+| `patterns`: `jussive`, `stance`, `presentParticiple`, `connective`, `cohesion`, `emphasis`, `argument`, `literary`, `collocation` | C1's rules (`C1_PATTERNS`, part of the one list `B_PATTERNS`). They build no spelling and gate what Rework may ask; each counts its grammar page as read (`PATTERN_PAGE`: `imperative`, `hedging`, `participles`, `connectives`, `cohesion`, `emphasis`, `concession`, `variation`, `collocation`). `connectives` ("Formal links built from verbs") is a new page in `grammar.ts`, its three points pinned to attested sentences in `grammarExamples.ts`. A C1 lesson may also name `punctuation` through `LESSON_PAGES`. | explained once a level; a rework asks only for one explained by then; every C1 pattern has a page (`lessonCourse.test.ts`); `C1_PART_ORDER` names each pattern once (`rampC1.test.ts`) |
+| `notes` | A talk taken down as notes in the Listen step (`components/course/NotesTalk.tsx`): a play control that honors `hearings` and goes once the talk is heard, carrying on from the line it was stopped at; a notes box kept on the device with the lesson's place and never sent (`lessonResume.ts`, `/privacy` says so); questions marked mechanically and graded nowhere; then the transcript, its untaught words underlined (`LessonView.notes`, `notesUntaught`), and the key ideas beside the learner's notes. | speaker in the cast; hearings 1 or 2; title, lines and questions in both languages; every line under the 400 characters the speech route reads (`SPOKEN_LINE_MOST`, asserted equal to `TtsRequest`); a question at least, key ideas named; a choice's answer one of its options; every word of a short answer a word of the talk or taught; its spellings in the forms list and left out of the taught-word check, English held to braces; `lessonMinutes` adds `notesMinutes`, words at 130 a minute times hearings, plus 3 |
+| `read.lines[].section`, `read.questions` | A text asked about in the C1 paper's three shapes, drawn under the text after it is read (`ReadText.tsx`), graded nowhere: `match` (statements to sections), `gap` (a whole sentence out of three for a line taken out, drawn as a gap until answered) and `short` (a word or two, `markPhrase`). | sections number every line or none and count up from 1; a match has two sections and two statements, each naming a section the text has; a gap takes out a line the text has, offers three, and its answer is that line and no other option is; a short answer's words are words of the text or taught; questions held like the text; `lessonMinutes` +3 |
+| `rooms` | Which room (`WhichRoom`): one thing said three ways, to a friend, at work and in writing. Practice asks which version fits the room asked (`room` practice item, a new kind in the v1 enum), then, where given, turns one version into another, a `rework` item marked by `markRework` against the `to` version and `accept`. | three versions, one for each room (`ROOMS`); the asked room has one; versions distinct and in both languages; a rework changes the room, never accepts its starting sentence, lists nothing twice; every version and accepted sentence held to the ledger like a rework's; `lessonMinutes` +1 |
+| `listenFor[].meant` | A question about what was meant rather than said, drawn the same with a line over it (`ListenFirst.tsx`). | in the contract; a question on what was heard has a spoken conversation to hear (the ledger) |
+| `faster.topics` | Two topics to choose between before the preparation (the paper's presentation), drawn as two buttons (`AgainFaster.tsx`); the chosen one is kept on stepping away and shown during the go. | exactly two, each saying something, only with a `prepare` (the ledger); only with the exam's 180 seconds to prepare, and required there (the ramp) |
+| `DIALECT_WORDS` | The glossary in `lib/course/lessons/dialect.ts`, a regional spelling to its standard word, which a `read` or `notes` line may hold. Empty; the `c1-maa` author fills it. A line holding one says its standard word under it (`DialectNote.tsx`). | such a spelling is asked as its standard word and never itself, in a text or a talk only (`formsCheckWords`, the one reading for the lessons test and step 3); the glossary held to its shape (`dialectProblems`) and every standard word to the forms list (`dialect.test.ts`) |
+
+The exact shapes, as `types.ts` has them:
+
+```ts
+export type C1PatternId =
+  | "jussive" | "stance" | "presentParticiple" | "connective" | "cohesion"
+  | "emphasis" | "argument" | "literary" | "collocation";
+
+export interface ReadText {
+  readonly genre: string;
+  readonly lines: readonly { readonly et: string; readonly en: string; readonly section?: number }[];
+  readonly questions?: readonly ReadQuestion[];
+}
+
+export type ReadQuestion =
+  | { readonly kind: "match"; readonly statements: readonly { readonly et: string; readonly en: string; readonly section: number }[] }
+  | { readonly kind: "gap"; readonly line: number; readonly options: readonly { readonly et: string; readonly en: string }[]; readonly answer: number }
+  | { readonly kind: "short"; readonly q: { readonly et: string; readonly en: string }; readonly accept: readonly string[] };
+
+export interface NotesTalk {
+  readonly title: { readonly et: string; readonly en: string };
+  readonly speaker: Speaker;
+  readonly hearings: 1 | 2;
+  readonly lines: readonly { readonly et: string; readonly en: string }[];
+  readonly questions: readonly NotesQuestion[];
+  readonly keyIdeas: readonly { readonly en: string }[];
+}
+
+export type NotesQuestion =
+  | { readonly kind: "short"; readonly q: { readonly et: string; readonly en: string }; readonly accept: readonly string[] }
+  | { readonly kind: "choice"; readonly q: { readonly et: string; readonly en: string }; readonly options: readonly { readonly et: string; readonly en: string }[]; readonly answer: number };
+
+export type Room = "friend" | "work" | "writing";
+
+export interface WhichRoom {
+  readonly versions: readonly { readonly room: Room; readonly et: string; readonly en: string }[];
+  readonly ask: Room;
+  readonly rework?: { readonly from: Room; readonly to: Room; readonly accept: readonly string[] };
+}
+
+// On Gist:   readonly meant?: true;
+// On Faster: readonly topics?: readonly { readonly en: string }[];
+// On LessonSpec: readonly notes?: NotesTalk; readonly rooms?: readonly WhichRoom[];
+```
+
+**What a C1 part is held to on top of every level's shape.** `c1LevelProblems` in `contract.ts`,
+inside `levelContractProblems` and asked again by step 9 against the parts before: exactly one
+`write` a part; from the second part on at least one rework whose pattern is a C1 pattern an earlier
+C1 part explained; in every part at least one rework whose pattern is a B2 pattern; every core lesson
+but a part's last carries a `read`; and from the third part every `read` carries `questions`. A C1
+part's closing conversation admits a curveball, which no lesson field records, so it is asked of its
+scene (`curveballs`), in `lessonScenes.test.ts` and step 7. `c1RampProblems` in `rampC1.ts`, by band
+of two parts: every conversation heard first has a `hearing`, and in parts 5 and 6 it is `half` or
+`quick`; a story is heard once (`hearings: 1`) everywhere, and from part 3 a talk is too; the race is
+one go of 60 after 60 in parts 1 and 2, of 90 after 120 in parts 3 and 4, of 120 after 180 on a choice
+of two `topics` in parts 5 and 6, and of 120 in parts 7 and 8, after 60 (on the spot) or after 180
+with `topics`, at least one race of the band on the spot; part 2 has a talk of 300 words or more heard
+twice, parts 3 and 4 one of 350 heard once, parts 5 and 6 one of 600, part 7 one of 1,100 (the
+paper's lecture); a text read runs to 200 words in parts 1 and 2, 350 with a `match` in 3 and 4, 450
+with a `gap` in 5 and 6, and 550 with a `short` in 7 and 8. A band's rule about the band as a whole is
+asked once both its parts are written. The writing floor never falls (level-wide, as before). Both are
+asked of C1 alone, and of synthetic parts both ways in `contract.test.ts` and `rampC1.test.ts`, so A1
+to B2 do not move. Nothing in either counts lessons: a part holds four to ten, as the level contract
+allows, and part 8 holds seven.
+
+**Still the authors' rule**, since no field records it: three or four speakers who interrupt each
+other, a story retold to a different listener or from notes, the conversation move of 15.5, the older
+and regional voices of parts 7 and 8, the `english` curveball in one role-play a part, the
+collocations of the Words step and their review as the lesson's own phrase cards, and which
+questions ask what was meant.
+
+**Not built, and why.** The forms queue at the foot of a C1 lesson's Words step (15.9, C1-8) reads the
+course's own queue of verbs whose stored forms no evening has shown (`Ledger.showForms` in
+`lib/course/build.ts`), which is built from the unit evenings C1 still is; it belongs with step 5,
+when C1's evenings become lessons and that queue is read off them.
+
+`scripts/lib/lessonPicks.ts` reaches B2 now: the five shapes it picks for B1 are picked off B2 the
+same way (`b2-first`, `b2-retell`, `b2-faster`, `b2-write`, `b2-capstone`), with B2's own two
+(`b2-read`, `b2-talk`), and `scripts/test-lessons.mjs` walks `b2-first`.
