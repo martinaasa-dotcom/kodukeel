@@ -106,6 +106,7 @@ export const SCENE_KINDS: Readonly<Record<string, SceneKind>> = {
   "b2-ohtusook": "people",
   "b2-perearst": "care",
   "b2-teade": "people",
+  "b2-lastevanemad": "people",
 };
 
 export function kindOf(sceneId: string): KindSpec {
