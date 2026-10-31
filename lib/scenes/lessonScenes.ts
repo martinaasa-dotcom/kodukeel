@@ -47,6 +47,7 @@ import C1_NIMEPIDU from "./specs/c1-nimepidu";
 import C1_MYSTEERIUM from "./specs/c1-mysteerium";
 import C1_PAKKUMINE from "./specs/c1-pakkumine";
 import C1_DIREKTOR from "./specs/c1-direktor";
+import C1_ETTEKANNE from "./specs/c1-ettekanne";
 
 export const LESSON_SCENES: readonly SceneSpec[] = [
   A1_TREPIL, A1_KURSUS, A1_PLAAN, A1_KOHVIK, A1_TEE, A1_MUTSIPOOD, A1_NADAL, A1_KUTSE,
@@ -57,6 +58,7 @@ export const LESSON_SCENES: readonly SceneSpec[] = [
   C1_MYSTEERIUM,
   C1_PAKKUMINE,
   C1_DIREKTOR,
+  C1_ETTEKANNE,
 ];
 
 /** The conversation a lesson's role-play opens, if it has one. */
