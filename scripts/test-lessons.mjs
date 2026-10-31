@@ -20,10 +20,11 @@ import { requireLocalDatabase } from "./lib/local-db.mjs";
  * pointing at the conversation the lesson rehearsed. The unit tests hold the
  * lessons' content to its rules; none of them can press a button.
  *
- * Six lessons, chosen off the course by `scripts/lib/lessonPicks.ts` so this
+ * Seven lessons, chosen off the course by `scripts/lib/lessonPicks.ts` so this
  * cannot fall behind it: B1's first, one ending in a retold story, one ending
  * in an answer said faster, a writing lesson, a part's closing conversation,
- * and A2's first, which has none of the B1 machinery and must stay that way.
+ * A2's first, which has none of the B1 machinery and must stay that way, and
+ * B2's first, heard first with a text to read after its conversation.
  * Everything a finished lesson writes for the local learner is taken off again
  * at the end, so the deck and the course read as they did before.
  *
@@ -559,6 +560,8 @@ async function everything() {
   const capstone = await walk(byRole.capstone);
   check("a part's closing conversation asks no retell and no race", capstone?.retold === false && capstone?.faster === false);
   await walk(byRole.a2);
+  // B2, picked the same way (`lessonPicks.ts`): its first lesson, heard first with a text to read after it.
+  await walk(byRole["b2-first"]);
   await checkWalk(byRole.check.id, byRole.check.part);
   await inRussian(byRole.first);
   await spokenRace(byRole.faster);

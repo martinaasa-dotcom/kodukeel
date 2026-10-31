@@ -11,6 +11,13 @@
  * retold story, one that ends in an answer said faster, one with a writing
  * step, and one whose Say it is the part's whole conversation. And A2's first,
  * which has none of it and has to stay that way.
+ *
+ * B2 is picked the same way, off its own lessons, under the same roles with
+ * `b2-` in front (`b2-first`, `b2-retell`, `b2-faster`, `b2-write`,
+ * `b2-capstone`), plus the two shapes B2 added: `b2-read`, a lesson with a text
+ * to read and a word to work out, and `b2-talk`, the exam's one go after time
+ * to prepare. A level that has none of a shape is said on stderr and stops the
+ * run, so the suite cannot quietly walk less than it claims.
  */
 import { LESSONS } from "@/lib/course/lessons";
 import { PROGRAMMES } from "@/lib/course";
@@ -21,23 +28,36 @@ import { frameOf } from "@/lib/course/lessons/frame";
 import { situationFor } from "@/lib/course/lessonSituations";
 import { FOLD } from "@/lib/estonian/fold";
 
-const b1 = LESSONS.filter((l) => l.level === "B1" && !l.extra);
-const pick = (why: string, test: (l: LessonSpec) => boolean): LessonSpec => {
-  const found = b1.find(test);
+/** A lesson of `level`'s core lessons that passes `test`, or the run stops naming what was missing. */
+const pickIn = (level: "B1" | "B2") => (why: string, test: (l: LessonSpec) => boolean): LessonSpec => {
+  const found = LESSONS.filter((l) => l.level === level && !l.extra).find(test);
   if (!found) {
-    process.stderr.write(`no B1 lesson is ${why}\n`);
+    process.stderr.write(`no ${level} lesson is ${why}\n`);
     process.exit(1);
   }
   return found;
 };
 
-const first = pick("the first", (l) => l.n === 1);
-const retell = pick("a plain lesson ending in a retold story", (l) => l.n > 1 && !!l.retell && !l.write && !l.roleplay);
-const faster = pick("a plain lesson ending in an answer said faster", (l) => !!l.faster && !l.write && !l.roleplay);
-// One whose frame has a gap with a marked letter in it, so the walk can drop the mark and reach "nearly".
-const write = pick("a writing lesson with a marked letter in its frame", (l) => !!l.write
-  && frameOf(l.write).some((line) => line.parts.some((p) => p.kind === "gap" && /[õäöüšž]/i.test(p.answer))));
-const capstone = pick("a part's closing conversation", (l) => !!l.roleplay);
+/** The five shapes B1 added, picked off one level's lessons the same way. */
+const shapesOf = (level: "B1" | "B2") => {
+  const pick = pickIn(level);
+  return {
+    first: pick("the first", (l) => l.n === 1),
+    retell: pick("a plain lesson ending in a retold story", (l) => l.n > 1 && !!l.retell && !l.write && !l.roleplay),
+    // A race of three goes, the shape the walk answers by typing three times; B2's single go after preparing is `b2-talk`.
+    faster: pick("a plain lesson ending in an answer said faster", (l) => !!l.faster && !l.faster.prepare && !l.write && !l.roleplay),
+    // One whose frame has a gap with a marked letter in it, so the walk can drop the mark and reach "nearly".
+    write: pick("a writing lesson with a marked letter in its frame", (l) => !!l.write
+      && frameOf(l.write).some((line) => line.parts.some((p) => p.kind === "gap" && /[õäöüšž]/i.test(p.answer)))),
+    capstone: pick("a part's closing conversation", (l) => !!l.roleplay),
+  };
+};
+
+const { first, retell, faster, write, capstone } = shapesOf("B1");
+const b2 = shapesOf("B2");
+const b2Pick = pickIn("B2");
+const b2Read = b2Pick("a lesson with a text to read and a word to work out", (l) => !!l.read && (l.workOut?.length ?? 0) > 0 && !l.roleplay);
+const b2Talk = b2Pick("a lesson whose race is one go after time to prepare", (l) => !!l.faster?.prepare && !l.roleplay);
 const a2 = LESSONS.find((l) => l.level === "A2" && l.n === 1 && !l.extra)!;
 
 /** A word with its marks dropped through `FOLD`, a capital kept a capital. */
@@ -80,6 +100,11 @@ const shape = (l: LessonSpec, role: string) => ({
   goalRu: tr("ru", l.goal),
   /** The catalog conversation the finish screen offers (`LESSON_SITUATIONS`), or null for a lesson that rehearses none. */
   situation: situationFor(l.id),
+  /** Whether it reads a real text after the conversation (B2 on), and how many words it works out. */
+  read: !!l.read,
+  workOut: l.workOut?.length ?? 0,
+  /** The race's windows and its preparation, where it has one, so a walk can tell three goes from the exam's one. */
+  race: l.faster ? { seconds: l.faster.seconds ?? null, prepare: l.faster.prepare ?? null } : null,
 });
 
 /* The first check at B1, which a walk sits end to end. */
@@ -88,5 +113,7 @@ const b1check = courseChecks(PROGRAMMES).find((c) => c.level === "B1" && !c.fina
 process.stdout.write(JSON.stringify([
   shape(first, "first"), shape(retell, "retell"), shape(faster, "faster"),
   shape(write, "write"), shape(capstone, "capstone"), shape(a2, "a2"),
+  shape(b2.first, "b2-first"), shape(b2.retell, "b2-retell"), shape(b2.faster, "b2-faster"),
+  shape(b2.write, "b2-write"), shape(b2.capstone, "b2-capstone"), shape(b2Read, "b2-read"), shape(b2Talk, "b2-talk"),
   { role: "check", id: b1check.id, part: b1check.programmeId },
 ]));
