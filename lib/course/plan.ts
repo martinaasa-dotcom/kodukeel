@@ -1,43 +1,27 @@
 /**
- * THE LADDER AT C1, PLANNED: C1.1 TO C1.3, THREE PARTS.
+ * THE LADDER BUILT FROM UNITS, WITH NO PART LEFT TO BUILD.
  *
- * A1, A2, B1 and B2 are the lessons (`lib/course/lessons/`, docs/43-lessons.md),
- * eight, eight, seven and eight parts, which come in front of these. This file is the judgment
- * for the rest. Everything else in `lib/course/` is machinery
- * that turns it into evenings, and the machinery has no opinions: it does not
- * choose a word, a round or a grammar page, it reads what is decided here and
- * what the syllabus already decided.
+ * Every level from A1 to C1 is lessons now (`lib/course/lessons/`,
+ * docs/43-lessons.md §9, §12, §14 and §16): eight, eight, seven, eight and
+ * eight parts. C1 was the last level built from units, and its three parts
+ * (c1.1 to c1.3) went with their day ids the day its forty-nine lessons
+ * replaced them, so `PARTS` below is empty and the builder in `build.ts`
+ * builds nothing from it.
  *
- * WHAT IS DECIDED HERE, AND WHAT IS NOT.
+ * What is left here is what the unit builder still reads until it is removed
+ * in its own pull request a week after the move (docs/43-lessons.md §15.13,
+ * C1-9): the rotations, `SCENE_FOR_UNIT` (empty: the six catalog
+ * conversations C1's units opened are offered on the finish of a C1 lesson,
+ * `lessonSituations.ts`) and `EARLIER_SCENES_FOR_UNIT` (empty since B2 moved).
+ * The pure-function tests of the builder ask them until then.
  *
- * Not the words. `lib/collections/syllabus/` is the course, its units are in
- * teaching order and so are the words inside each one, and both were written
- * by somebody who knows the language. A program walks that order and slices
- * it into evenings. Every word of every unit of C1 is in exactly one
- * evening of exactly one part, which is a stronger claim than a hand-picked
- * hundred, and it means nothing there is quietly unreachable through the short
- * way.
- *
- * Not the grammar page either. A unit already names the points it teaches, in
- * its own order, so an evening reads the next one on that list. `kus-ja-kuhu`
- * names six cases and takes three evenings, so it opens three different case
- * pages, which is what a class would do with it.
- *
- * What is decided here is the shape of the thing: where the parts break, how
- * many words an evening carries at each level, which rounds a level rotates
- * through, and which of the conversations belongs to which unit.
- *
- * THE ROUNDS ALTERNATE, AND THAT IS LOAD-BEARING. Each level's rotation runs
- * game, drill, game, drill, and an evening takes two neighbors off it, so
- * every evening has one of each and no two evenings running are the same pair.
- * A fortnight of drills is homework and a fortnight of games teaches nothing,
- * and the alternation is what keeps a hundred and eighty evenings from being
- * either. `course.test.ts` asserts it rather than trusting the lists below.
- *
- * A UNIT OF VERBS IS CONJUGATED. That is the one round pinned by what a unit
- * is made of rather than by where it falls, worked out from the unit's own
- * parts of speech: a unit that is mostly verbs gets the conjugation table,
- * because a verb you cannot put in the third person is a verb you cannot use.
+ * What a part built from units was is still written down below: where the
+ * breaks fell, how many words an evening carried, which rounds rotated and
+ * which conversation sat on which unit. THE ROUNDS ALTERNATED, a game and a
+ * drill, so every evening had one of each and no two evenings running were
+ * the same pair, and A UNIT OF VERBS WAS CONJUGATED: a unit that is mostly
+ * verbs got the conjugation table. `course.test.ts` asserts the rotations
+ * while they last.
  */
 
 import type { ActivityKey } from "./types";
@@ -150,26 +134,14 @@ export const ROTATION: Record<string, readonly ActivityKey[]> = {
  */
 export const SCENE_FOR_UNIT: Record<string, string> = {
   /*
-    A1, A2, B1 AND B2 ARE THE LESSONS NOW (docs/43-lessons.md §9, §12 and
-    §14), and their role-plays are the lessons' own conversations
-    (`lib/scenes/lessonScenes.ts`). The catalog's conversations that used to
-    open on a B1 or a B2 unit are offered on the finish of the lesson that
-    rehearses them (`lib/course/lessonSituations.ts`), and the ones below
-    declare units a learner has once B2's lessons are behind them
-    (`unitsThrough`), so C1 is the first place the module opens one.
+    EVERY LEVEL IS LESSONS NOW (docs/43-lessons.md §16), and their role-plays
+    are the lessons' own conversations (`lib/scenes/lessonScenes.ts`). The six
+    catalog conversations that opened on a C1 unit (keeletund on akadeemiline,
+    uuri-remont on register, helistamine on rahvusvaheline, kolm-palvet on
+    diskursus, kuulsin on nominalisatsioon, raamatuklubi on kirjandus) are
+    offered on the finish of the lesson that rehearses them
+    (`lib/course/lessonSituations.ts`), as B1's and B2's were. No unit opens one.
   */
-  akadeemiline: "keeletund",
-  register: "uuri-remont",
-  rahvusvaheline: "helistamine",
-  /*
-    THE THIRD BATCH'S SCENES (docs/38-third-batch.md, TB-10) at C1. `kuulsin`
-    moved off the unit the brief named because course.test.ts refused the
-    placement (`kaudne` had one reading and the scene evening would take it),
-    and sits on `nominalisatsioon`.
-  */
-  diskursus: "kolm-palvet",
-  nominalisatsioon: "kuulsin",
-  kirjandus: "raamatuklubi",
 };
 
 /**
@@ -197,7 +169,7 @@ export const EARLIER_SCENES_FOR_UNIT: Readonly<Record<string, readonly string[]>
  *
  * Every scene in the catalog declares `korraldused` among the units it may
  * draw on, which is the unit for asking, telling and offering, and it is A2.
- * A1, A2, B1 and B2 are the lessons, which teach by goal rather than unit by unit, so
+ * Every level is the lessons, which teach by goal rather than unit by unit, so
  * no unit of theirs counts as taught until the level's lessons are behind a
  * learner (`unitsThrough`), and `course.test.ts` asks the question
  * mechanically: a scene is opened only once every unit it declares has been
@@ -225,9 +197,9 @@ export interface PartSpec {
 }
 
 /**
- * The parts of C1. A1, A2, B1 and B2 are the lessons (`lessonCourse.ts`).
+ * The parts built from units, none since C1 became lessons (`lessonCourse.ts`).
  *
- * WHERE THE BREAKS FALL IS THE ONE THING ARITHMETIC COULD NOT DECIDE. A part
+ * WHERE THE BREAKS FELL WAS THE ONE THING ARITHMETIC COULD NOT DECIDE. A part
  * is two to three weeks of fifteen-minute evenings, which is short enough to
  * see the end of from the first night and long enough to be worth finishing,
  * and every break lands between two units rather than inside one. They land on
@@ -242,37 +214,13 @@ export interface PartSpec {
  */
 export const PARTS: readonly PartSpec[] = [
   /*
-    A1, A2, B1 AND B2 ARE THE LESSONS (docs/43-lessons.md), built by
-    `lessonProgrammes` in `lessonCourse.ts`, and these parts are C1. The
-    builder's ledger is handed what the lessons taught before C1.1 is built
-    (`teachLessons` in `build.ts`), so C1's first evening is dealt against the
-    A1 to B2 a learner actually had. B2's old parts (b2.1 to b2.3, built from
-    the umbisikuline to argumenteerimine units) went when B2 became lessons,
-    with their day ids, which is the A2 and B1 precedent: a learner on one
-    restarts B2 at its first lesson and keeps every card and review. The
-    lesson parts reuse the old ids, so that restart is worked out off the
-    learner's own ticks (`rehomed` in `lib/progress/course.ts`, held by
-    `rehome.itest.ts`).
+    EMPTY: EVERY LEVEL IS LESSONS (docs/43-lessons.md), built by
+    `lessonProgrammes` in `lessonCourse.ts`. C1's old parts (c1.1 to c1.3,
+    built from the nominalisatsioon to nuansid units) went when C1 became
+    lessons, with their day ids, which is the A2, B1 and B2 precedent: a
+    learner on one restarts C1 at its first lesson and keeps every card and
+    review. The lesson parts reuse the old ids c1.1 to c1.3, so that restart is
+    worked out off the learner's own ticks (`rehomed` in
+    `lib/progress/course.ts`, held by `rehome.itest.ts`).
   */
-  {
-    id: "c1.1", level: "C1",
-    title: "Lause ja mõte", subtitle: "Saying more in fewer words, and long sentences that hold together",
-    blurb:
-      "C1 is about fitting into a phrase what B2 needed a whole clause for. You practice it on academic writing, research and philosophy, which is where you'll need it most.",
-    units: ["nominalisatsioon", "lauseloome", "akadeemiline", "teadustoo", "filosoofia"],
-  },
-  {
-    id: "c1.2", level: "C1",
-    title: "Veenmine ja register", subtitle: "Ethics, persuasion, how formal to be, idioms, and holding a text together",
-    blurb:
-      "Knowing how formal to be and getting it right, winning over somebody who disagrees, and set phrases you learn whole.",
-    units: ["eetika", "retoorika", "register", "idioomid", "diskursus"],
-  },
-  {
-    id: "c1.3", level: "C1",
-    title: "Maailm ja nüanss", subtitle: "New ideas, the wider world, literature, and words that almost mean the same",
-    blurb:
-      "The last part of the course. By the end you've met everything in it.",
-    units: ["innovatsioon", "rahvusvaheline", "kirjandus", "nuansid"],
-  },
 ];

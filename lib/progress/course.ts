@@ -109,7 +109,7 @@ export const programmeFor = cache(async (ownerId: string): Promise<Programme | n
  * A LEARNER WHO WAS PART WAY THROUGH A PART THAT HAS SINCE BECOME LESSONS
  * STARTS ITS LEVEL AT ITS FIRST LESSON.
  *
- * When a level moves from unit-built evenings to lessons (B1 and B2 did), its parts
+ * When a level moves from unit-built evenings to lessons (B1, B2 and C1 did), its parts
  * keep their ids and lose their days. Somebody stored on the old third part
  * would otherwise open on the new third part's first lesson, whose ledger
  * assumes the two parts before it: a lesson full of words they never met.
@@ -123,11 +123,11 @@ export const programmeFor = cache(async (ownerId: string): Promise<Programme | n
  */
 /*
   Asked only of the levels that became lessons while learners were on them,
-  which is B1 and B2: A1 and A2 had nobody on their unit-built parts when they moved,
+  which is B1, B2 and C1: A1 and A2 had nobody on their unit-built parts when they moved,
   and every page calls `programmeFor`, so the two reads below would otherwise
   be a cost every learner pays on every page for a learner nobody is.
 */
-const REHOMED_LEVELS: ReadonlySet<string> = new Set(["B1", "B2"]);
+const REHOMED_LEVELS: ReadonlySet<string> = new Set(["B1", "B2", "C1"]);
 
 /*
   WHO NEEDS NO MOVING IS SETTLED FOR GOOD, so it is asked once per instance.

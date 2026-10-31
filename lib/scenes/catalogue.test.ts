@@ -21,7 +21,7 @@ import { ASIDES, FALLBACK_PHRASE, FEELINGS, REACTIONS, SCENES, sceneById } from 
 import { HARVESTED } from "@/prisma/data/harvested";
 import { curveballById } from "./curveballs";
 import { LEFT_OUTCOME, QUESTION_SHAPE, leafNeeds } from "./types";
-import { unitById } from "@/lib/collections/syllabus";
+import { PATH, unitById } from "@/lib/collections/syllabus";
 import { CLOCK_LEMMA, TIME_LEMMAS } from "./props";
 import { CHOICE_WORD, OFFERABLE } from "./choice";
 import { CHAT_ID, CHAT_MIN_NEW, chatScene, chatWords } from "./specs/chat";
@@ -813,7 +813,7 @@ describe("an exam practice scene", () => {
   TODAY'S CHAT IS A SCENE OF A NEW KIND, built per evening and in no
   catalog (`lib/scenes/specs/chat.ts`, docs/41-fifth-batch.md VB-11). The
   rules above iterate the catalog, so the ones that hold of any scene are
-  asked again here of a chat built for every evening that offers one, read
+  asked again here of a chat built from an evening's words, read
   through the same shipped harvest: it opens and closes, its beats have goals
   and directions from the other side's side, its endings are reachable and
   include walking out, and every lemma it names is a word its own closed list
@@ -822,21 +822,29 @@ describe("an exam practice scene", () => {
 describe("today's chat, the new kind", () => {
   const gloss = new Map(HARVESTED.map((w) => [w.lemma, w.gloss.split(/[,;]/)[0]!.trim()]));
   const known = new Set(HARVESTED.map((w) => w.lemma));
+  /*
+    No evening is built from units since C1 became lessons, so the module
+    offers a chat after none (docs/43-lessons.md §16) and its code goes with
+    the unit builder (§15.13, C1-9). Until then it is asked of a sample: C1's
+    lesson evenings' words, which are real words with real glosses, built into
+    a chat the way an evening's were, each tested against the C1 unit that
+    holds the first of its words, since a lesson day carries no unit.
+  */
+  const unitOf = (words: readonly string[]) =>
+    PATH.find((u) => u.level === "C1" && words.some((w) => u.lemmas.includes(w)))?.id ?? "nuansid";
   const chats = PROGRAMMES.flatMap((programme) => programme.days
-    .filter((day) => !day.lesson && newWordsIn(day) >= CHAT_MIN_NEW)
+    .filter((day) => day.level === "C1" && newWordsIn(day) >= CHAT_MIN_NEW)
     .map((day) => {
       const words = chatWords(day.words.map((lemma) => ({ lemma, gloss: gloss.get(lemma) ?? "" })), new Set(), (l) => known.has(l));
       return words.length === 0 ? null : chatScene(
-        { programmeId: programme.id, dayId: day.id, unitId: day.unitId, words, remembered: null },
+        { programmeId: programme.id, dayId: day.id, unitId: unitOf(day.words), words, remembered: null },
         scopeFor(programme, day).lemmas,
       );
     })
     .filter((scene): scene is NonNullable<typeof scene> => scene !== null));
 
-  it("is built for most evenings that offer one", () => {
-    // A built evening of C1; A1 to B2 are the lessons, which have their own role-plays.
-    // Every one of C1's forty-two evenings builds one.
-    expect(chats.length).toBeGreaterThanOrEqual(42);
+  it("is built from the sample, so the rules below have something to hold", () => {
+    expect(chats.length).toBeGreaterThan(20);
   });
 
   it("is in no catalog, so the listing and the bank never meet it", () => {

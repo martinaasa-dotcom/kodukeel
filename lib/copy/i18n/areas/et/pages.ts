@@ -85,8 +85,8 @@ export const PAGES_ET: readonly (readonly [en: string, et: string])[] = [
   // /TEACHERS and /STATE-EXAM: what the page's frame borrows.
   ["The class below is drawn as the app draws it, and the app is in English, Russian or Ukrainian.",
     "Allolev klass on näidatud nii, nagu rakendus seda näitab, ja rakendus on inglise, vene või ukraina keeles."],
-  ["A1, A2, B1 and B2 are taught as lessons, so unit homework starts at C1.",
-    "A1, A2, B1 ja B2 õpetatakse tundidena, nii et teemade kodutöö algab tasemest C1."],
+  ["Every level is taught as lessons now, so a class is sent a conversation or homework of your own rather than a unit.",
+    "Kõiki tasemeid õpetatakse nüüd tundidena, nii et klassile antakse teema asemel vestlus või oma kodutöö."],
   ["Writing",
     "Kirjutamine"],
   ["Listening",

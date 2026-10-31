@@ -6,7 +6,7 @@ import { c1PartAt, c1PatternsAboveMissing } from "./rampC1";
 /**
  * WHAT A LEVEL OF LESSONS HAS TO BE, WHICHEVER LEVEL IT IS.
  *
- * A1, A2, B1 and B2 are lessons, and C1 will be. Every rule here was true
+ * A1, A2, B1, B2 and C1 are lessons, every level the course has. Every rule here was true
  * of A1 by the time A2 was written and was found broken by a reading of A2,
  * which is the argument for writing them down as a check rather than a
  * habit: four parts ended on an evening labeled "Check-in" where the rest
@@ -190,7 +190,16 @@ export function levelContractProblems(lessons: readonly LessonSpec[], parts: rea
       const inPart = lessons.filter((l) => l.part === part.id);
       const longest = Math.max(0, ...inPart.map((l) => l.retell?.story.length ?? 0));
       const most = Math.max(0, ...inPart.map((l) => l.write?.least ?? 0));
-      if (longest > 0 && longest < story) problems.push(`${level} ${part.id}: its longest retell is ${longest} sentences, under the ${story} of a part before it`);
+      /*
+        Not at C1, whose retell gets harder by how it is told rather than by
+        how long the story is (docs/43-lessons.md §15.6): heard once and
+        retold with an opinion, then to a different listener, then from notes
+        in five sentences, then from notes with a reason and a counterargument.
+        A part 5 story of eleven sentences retold from notes asks more than a
+        part 2 story of twelve retold as heard, and `c1RampProblems` holds the
+        hearing; the writing below still never falls at C1.
+      */
+      if (level !== "C1" && longest > 0 && longest < story) problems.push(`${level} ${part.id}: its longest retell is ${longest} sentences, under the ${story} of a part before it`);
       if (most > 0 && most < words) problems.push(`${level} ${part.id}: its writing asks ${most} words at most, under the ${words} of a part before it`);
       story = Math.max(story, longest);
       words = Math.max(words, most);

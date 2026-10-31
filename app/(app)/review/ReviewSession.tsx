@@ -426,12 +426,14 @@ interface Done {
 }
 
 export function ReviewSession({
-  cards: initialCards, drillCase, drillUnit, drillScan, totalCards, mode, nextDue,
+  cards: initialCards, drillCase, drillUnit, drillUnitHref = "/course/lessons", drillScan, totalCards, mode, nextDue,
   waitingOnCourse = false, title,
 }: {
   cards: ReviewCard[];
   drillCase?: string;
   drillUnit?: string;
+  /** Where "Open the lesson" goes for a unit drill: the lesson teaching the unit's words (`unitLessonHref`), worked out by the page. */
+  drillUnitHref?: string;
   /** A photographed page being drilled on its own: its id, and what it is called. */
   drillScan?: { id: string; title: string };
   totalCards: number;
@@ -1393,8 +1395,8 @@ export function ReviewSession({
         ) : drillUnit ? (
           <Empty
             title={t("None of this unit is in your deck yet")}
-            body={t("Do the unit's lesson first. Its words will turn up here once you've met them.")}
-            action={<ButtonLink href={`/learn/${drillUnit}`} variant="primary">{t("Open the unit")}</ButtonLink>}
+            body={t("Do the lesson that teaches them first. Its words will turn up here once you've met them.")}
+            action={<ButtonLink href={drillUnitHref} variant="primary">{t("Open the lesson")}</ButtonLink>}
           />
         ) : drillScan ? (
           <Empty

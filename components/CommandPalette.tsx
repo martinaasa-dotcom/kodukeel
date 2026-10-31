@@ -104,8 +104,9 @@ function loadUnitCommands(): Promise<Command[]> {
   if (unitCommands) return Promise.resolve(unitCommands);
   return import("@/lib/collections/syllabus").then(({ PATH }) => {
     // A level taught as lessons (docs/43-lessons.md) sends a link to one of its
-    // units to the lessons, so none is offered here. Read off the light list
-    // rather than `isLessonLevel`, which would pull the lessons into this bundle.
+    // units to the lessons, so none is offered here, which since C1 moved is
+    // every unit. Read off the light list rather than `isLessonLevel`, which
+    // would pull the lessons into this bundle.
     unitCommands = PATH.filter((u) => !isLessonLevelName(u.level)).map((u) => ({
       id: `unit-${u.id}`,
       label: u.title,

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { PROGRAMMES, grammarThrough, pastsThrough, taughtThrough } from "./index";
+import { PROGRAMMES, pastsThrough, taughtThrough } from "./index";
 import {
   byRecency, cardWithin, recentLemmas, reviewable, scopeFor, scopeSoFar, slotWithin, tonightFirst, tonightsCase,
 } from "./scope";
-import { FORMS_STEP, MEET_STEP, READ_STEP } from "./types";
+import { LESSON_STEP } from "./types";
 import { caseFromFront } from "@/lib/copy/caseHint";
 import { CASES } from "@/lib/estonian/cases";
 
@@ -168,32 +168,6 @@ describe("the words taught most recently", () => {
 describe("scopeSoFar", () => {
   const all = PROGRAMMES.flatMap((programme) => programme.days.map((day) => ({ programme, day })));
 
-  it("counts today's case and topic only once the reading is ticked", () => {
-    let reading = 0;
-    for (const { programme, day } of all) {
-      if (!day.grammarCase && !day.grammar) continue;
-      const already = grammarThrough(programme, day.index - 1);
-      const before = scopeSoFar(programme, day, new Set([MEET_STEP]), day.words);
-      expect(tonightsCase(before), day.id).toBeNull();
-      if (day.grammarCase && !already.cases.includes(day.grammarCase)) {
-        reading += 1;
-        expect(before.cases, day.id).not.toContain(day.grammarCase);
-      }
-      if (day.grammar && !already.topics.includes(day.grammar)) {
-        reading += 1;
-        expect(before.topics, day.id).not.toContain(day.grammar);
-      }
-      const after = scopeSoFar(programme, day, new Set([MEET_STEP, READ_STEP]), day.words);
-      if (day.grammarCase) {
-        expect(after.cases, day.id).toContain(day.grammarCase);
-        expect(tonightsCase(after), day.id).toBe(day.grammarCase);
-      }
-      if (day.grammar) expect(after.topics, day.id).toContain(day.grammar);
-    }
-    // C1's evenings, the only ones built from units since B2 became lessons, read seven pages for the first time.
-    expect(reading).toBeGreaterThanOrEqual(7);
-  });
-
   it("counts a word of today's only once the ladder has asked it", () => {
     const { programme, day } = all.find(({ day }) => day.index > 1 && day.words.length >= 3)!;
     const [first, ...rest] = day.words;
@@ -204,28 +178,32 @@ describe("scopeSoFar", () => {
     expect(recentLemmas(scope)[0]).toBe(first);
   });
 
-  it("asks a verb's past only once today's forms step has shown it", () => {
+  it("asks a verb's past only once today's forms table has shown it", () => {
+    // C1's lessons, where a forms table sits at the foot of the Words step (`withLessonForms`), shown once the lesson is done.
     const shown = all.filter(({ day }) => (day.forms?.length ?? 0) > 0);
-    expect(shown.length).toBeGreaterThan(10);
+    expect(shown.length).toBeGreaterThanOrEqual(30);
     let checked = 0;
     let byLesson = 0;
     for (const { programme, day } of shown) {
+      expect(day.lesson, day.id).toBeTruthy();
       for (const verb of day.forms!) {
-        const read = new Set([MEET_STEP, READ_STEP]);
-        const before = scopeSoFar(programme, day, read, day.words);
-        // The polite imperative waits for this step whoever showed the past.
+        const before = scopeSoFar(programme, day, new Set(), day.words);
+        // The polite imperative waits for this table whoever showed the past.
         expect(slotWithin(before, "ImpPrPl", verb), `${day.id} ${verb}`).toBe(false);
-        const after = scopeSoFar(programme, day, new Set([...read, FORMS_STEP]), day.words);
+        const after = scopeSoFar(programme, day, new Set([LESSON_STEP]), day.words);
         expect(after.formsShown, day.id).toContain(verb);
+        expect(slotWithin(after, "ImpPrPl", verb), `${day.id} ${verb}`).toBe(true);
         if (pastsThrough(programme, day.index - 1).includes(verb)) { byLesson += 1; continue; }
         expect(slotWithin(before, "IndIpfSg1", verb), day.id).toBe(false);
         checked += 1;
       }
     }
-    expect(checked).toBeGreaterThan(20);
-    // A verb a lesson showed the past of still reaches a forms step, for its `-ge` form.
-    expect(byLesson).toBeGreaterThan(20);
+    // Measured the day C1 became lessons: 30 tables, 136 verbs asked of first by a table, 81 whose past a lesson showed first.
+    expect(checked).toBeGreaterThanOrEqual(136);
+    // A verb a lesson showed the past of still reaches a forms table, for its `-ge` form.
+    expect(byLesson).toBeGreaterThanOrEqual(81);
   });
+
 
   it("holds the learner's own words, behind the course's in recency, and never twice", () => {
     const { programme, day } = all.find(({ day }) => day.index > 3)!;

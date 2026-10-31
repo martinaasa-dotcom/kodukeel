@@ -2904,9 +2904,14 @@ export async function assignUnit(rawClassroomId: unknown, rawUnitId: unknown, ra
 
   const unit = unitById(unitId);
   if (!unit) return { ok: false as const, error: "We couldn't find that unit." };
-  // The picker offers only the units above the lessons; this is a public
-  // endpoint and refuses an A1 unit too, or a class is sent somewhere the
-  // course no longer walks anybody. Homework already set from one stays a task.
+  /*
+    UNIT HOMEWORK IS RETIRED (docs/43-lessons.md §16). Every level is lessons
+    since C1 moved, so no screen offers a unit any more; this is a public
+    endpoint and an old tab or a native build may still call it, so it refuses
+    every unit the course has, in the sentence /teachers says. Homework already
+    set from one stays a task. The fan-out below stays for the day a level is
+    built from units again, which nothing plans.
+  */
   if (lessonLevels(LESSONS).has(unit.level)) return { ok: false as const, error: UNIT_HOMEWORK_FROM };
 
   const full = await homeworkRoomFor(classroom.id);

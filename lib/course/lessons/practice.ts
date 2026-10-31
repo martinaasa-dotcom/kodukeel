@@ -379,7 +379,7 @@ function onePerMeaning(items: readonly Asked[]): Asked[] {
  */
 function eachWithItsPronoun(item: Asked, pool: readonly Asked[]): string[] {
   const clean = (text: string) => text.replace(/,/g, "").trim().toLocaleLowerCase("en");
-  const perPart = item.en.split(/,\s+/).map((part) => {
+  const perPart = formEnglish(item.en).split(/,\s+/).map((part) => {
     const lead = clean(part).split(" ")[0] ?? "";
     return pool
       .filter((o) => wordsOf(o.et).length === 1 && PRONOUN_ENGLISH[lead] === clean(o.en))
@@ -389,6 +389,17 @@ function eachWithItsPronoun(item: Asked, pool: readonly Asked[]): string[] {
   const sets = perPart.reduce<string[][]>((acc, options) => acc.flatMap((a) => options.map((o) => [...a, o])), [[]]);
   const permute = (xs: string[]): string[][] => xs.length <= 1 ? [xs] : xs.flatMap((x, i) => permute([...xs.slice(0, i), ...xs.slice(i + 1)]).map((r) => [x, ...r]));
   return sets.flatMap(permute).map((p) => p.join(" "));
+}
+
+/**
+ * A form's own English, without the example after it. An Estonian example in
+ * braces after the form's English is another form, and the English after it
+ * is that one's: `I invited; {kutsusime}, we invited` is the I form, and read
+ * whole it named a second person, so the I form was offered as `ma kutsusin me
+ * kutsusin` and `ma kutsusin` alone was half right (C1's past forms).
+ */
+export function formEnglish(en: string): string {
+  return en.split(/[;,]\s*(?=\{)/)[0]!;
 }
 
 /** The English a subject pronoun is taught under, by the word that opens its part of a prompt. */
@@ -408,7 +419,7 @@ export const NOTE_WITH_ON = "Just the word that goes with “on”. “… on”
 
 function noteFor(item: Asked): { note?: string } {
   if (/^with \{on\}:/i.test(item.en)) return { note: NOTE_WITH_ON };
-  const parts = item.en.split(/,\s+/);
+  const parts = formEnglish(item.en).split(/,\s+/);
   // "you were, they were": two meanings, one spelling, which reads as two answers to give.
   // Only where each part is a different person ("you were, they were"), never a qualifier or a synonym.
   const people = parts.map(personOf);
@@ -904,7 +915,7 @@ const slipFields = (n: NotSlips) => ({
  */
 export function personsInEnglish(en: string): Person[] {
   const out = new Set<Person>();
-  for (const part of en.split(/[,;]\s*/)) {
+  for (const part of formEnglish(en).split(/[,;]\s*/)) {
     const first = part.trim().split(/\s+/)[0]?.toLocaleLowerCase("en") ?? "";
     if (first === "i") out.add("Sg1");
     else if (first === "we") out.add("Pl1");
@@ -951,11 +962,14 @@ export function personsFor(ledger: Ledger, sentences: readonly string[]): Person
 }
 
 /**
- * A first person that is a particle far more often than a verb: `palun` is
- * "I ask" and is "please" in every request a lesson writes (`Tule palun
- * homme`), so read as a verb it agreed with an `ma` put in front of a command.
+ * A person of a verb that a lesson only ever says as something else: `palun`
+ * is "I ask" and is "please" in every request a lesson writes (`Tule palun
+ * homme`), so read as a verb it agreed with an `ma` put in front of a command;
+ * and `testid` is "you test" and is "the tests" in every C1 lesson that says
+ * it (`Testid on juuni lõpuks valmis`), so read as a verb it let a `sa` in
+ * before a third person (`Kuigi sa automaatsed testid maksavad`).
  */
-const NOT_A_PERSON: ReadonlySet<string> = new Set(["palun"]);
+const NOT_A_PERSON: ReadonlySet<string> = new Set(["palun", "testid"]);
 
 /** The persons whose pronoun Estonian drops beside a verb that says it; a third person's ending on another stem is not read. */
 const DROPPABLE_PERSONS: ReadonlySet<Person> = new Set(["Sg1", "Sg2", "Pl1", "Pl2"]);

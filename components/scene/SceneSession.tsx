@@ -354,9 +354,11 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
    * is what makes a conversation a room rather than a page (`SceneStage`).
    * So it is offered on the briefing, where somebody deciding whether they
    * are ready is the person it is for, and nowhere during the conversation,
-   * where a link to a lesson is a door out of the room.
+   * where a link to a lesson is a door out of the room. `href` is the lesson
+   * that teaches the unit's words (`unitLessonHref`), since a unit's own page
+   * sends anybody to the lessons now that every level is lessons.
    */
-  unit?: { id: string; title: string } | null;
+  unit?: { id: string; title: string; href?: string } | null;
   /**
    * The learner's own course level, for where the dial opens.
    *
@@ -1590,7 +1592,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
             module is one step of an evening, and a lesson is a door out of it.
             Somebody who chose this conversation still gets the door. */}
         {unit && !inModule && !lessonScene && (
-          <CardLink href={`/learn/${unit.id}`} icon={<BookOpen size={16} aria-hidden />}>
+          <CardLink href={unit.href ?? "/course/lessons"} icon={<BookOpen size={16} aria-hidden />}>
             {fill(t("The lesson behind it: {title}"), { title: unit.title })}
           </CardLink>
         )}

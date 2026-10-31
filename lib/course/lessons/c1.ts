@@ -20,18 +20,33 @@
  * the exam. The family's third year carries all eight
  * (`docs/reviews/c1-cast.md`).
  *
- * EMPTY UNTIL C1 BECOMES THE COURSE. The parts are written in `preview.ts`,
- * where the ledger walks them after the course and every check asks them, and
- * move here whole the day C1 replaces its parts built from units (§15.14 step
- * 5), the way B2's did (`b2.ts`). The order is load-bearing: the ramp reads a
- * part's band off its place, and the recycling rule reads which C1 patterns
- * came before it.
+ * Written part by part in `preview.ts`, where the ledger walked them after the
+ * course and every check asked them, and moved here whole the day C1 replaced
+ * its three parts built from units (§15.14 step 5, §16), which left no level of
+ * the course built from units. The order is load-bearing and is
+ * `C1_PART_ORDER`'s: the ramp reads a part's band off its place, and the
+ * recycling rule reads which C1 patterns came before it.
  */
 
+import { C1_ISIKSUS_LESSONS, C1_ISIKSUS_PART } from "./c1-isiksus";
+import { C1_MEEDIA_LESSONS, C1_MEEDIA_PART } from "./c1-meedia";
+import { C1_KODU_LESSONS, C1_KODU_PART } from "./c1-kodu";
+import { C1_KOOL_LESSONS, C1_KOOL_PART } from "./c1-kool";
+import { C1_JUHT_LESSONS, C1_JUHT_PART } from "./c1-juht";
+import { C1_UHISKOND_LESSONS, C1_UHISKOND_PART } from "./c1-uhiskond";
+import { C1_MAA_LESSONS, C1_MAA_PART } from "./c1-maa";
+import { C1_MOTE_LESSONS, C1_MOTE_PART } from "./c1-mote";
 import type { LessonSpec, PartOfLessons } from "./types";
 
 const PARTS: readonly (readonly [PartOfLessons, readonly LessonSpec[]])[] = [
-  // One line per C1 part, in teaching order, on the day C1 becomes the course: [C1_<PART>_PART, C1_<PART>_LESSONS],
+  [C1_ISIKSUS_PART, C1_ISIKSUS_LESSONS],
+  [C1_MEEDIA_PART, C1_MEEDIA_LESSONS],
+  [C1_KODU_PART, C1_KODU_LESSONS],
+  [C1_KOOL_PART, C1_KOOL_LESSONS],
+  [C1_JUHT_PART, C1_JUHT_LESSONS],
+  [C1_UHISKOND_PART, C1_UHISKOND_LESSONS],
+  [C1_MAA_PART, C1_MAA_LESSONS],
+  [C1_MOTE_PART, C1_MOTE_LESSONS],
 ];
 
 export const C1_LESSON_PARTS: readonly PartOfLessons[] = PARTS.map(([part]) => part);

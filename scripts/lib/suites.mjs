@@ -58,6 +58,14 @@ export const NOT_IN_CI = {
     "byte of /partners. Its answer is a fact about that deployment on the day, " +
     "not about the commit in front of CI, so it is run by hand against " +
     "production, through `npm run check:show-ready -- <address>`.",
+  "test-chat.mjs":
+    "Finishes an evening built from units and asserts tonight's chat is offered " +
+    "after it, played with a model stubbed. The chat follows such an evening " +
+    "alone (`chatFits` needs `!day.lesson`), and since C1 became lessons no " +
+    "evening is built from units, so there is no evening to finish and nothing " +
+    "for the module to offer: the suite would fail on its first step, naming a " +
+    "missing evening rather than a fault. The chat's code goes with the unit " +
+    "builder (docs/43-lessons.md §15.13, C1-9), and this suite with it.",
   "load-test.mjs":
     "Run by the separate `load` job, through `npm run test:load -- " +
     "--budget-only`, because it needs a fixture of forty learners and a year " +

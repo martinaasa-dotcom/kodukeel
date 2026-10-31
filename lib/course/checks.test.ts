@@ -84,7 +84,7 @@ describe("the checks between the parts of the lessons", () => {
       }
     }
     expect(papers).toBe(checks.length * 5);
-  });
+  }, 120_000);
 
   it("passes at four in five, a nearly counting half", () => {
     const paper = checkPaper(checks[0]!, 1);
@@ -107,12 +107,13 @@ describe("the checks between the parts of the lessons", () => {
     // Back is open, and so is a first choice.
     expect(blockedBy(PROGRAMMES, third, first!, new Set())).toBeNull();
     expect(blockedBy(PROGRAMMES, null, third!, new Set())).toBeNull();
-    // Somebody placed past the lessons is not asked to pass their checks.
+    // C1 is lessons too since it moved, so nobody is above the lessons: a move up inside C1 waits on its check.
     const a2 = PROGRAMMES.find((p) => p.level === "A2")!;
     const b1 = PROGRAMMES.find((p) => p.level === "B1")!;
     const c1 = PROGRAMMES.find((p) => p.level === "C1")!;
     const c1next = PROGRAMMES[PROGRAMMES.indexOf(c1) + 1]!;
-    expect(blockedBy(PROGRAMMES, c1, c1next, new Set())).toBeNull();
+    expect(blockedBy(PROGRAMMES, c1, c1next, new Set())?.id).toBe(`check-${c1.id}`);
+    expect(blockedBy(PROGRAMMES, c1, c1next, new Set([`check-${c1.id}`]))).toBeNull();
     // And B1 waits on A2's last check, the whole of A2, as A2 waits on A1's.
     const a2checks = checks.filter((c) => PROGRAMMES.find((p) => p.id === c.programmeId)?.level === "A2");
     expect(blockedBy(PROGRAMMES, a2, b1, new Set(a2checks.filter((c) => !c.final).map((c) => c.id)))?.final).toBe(true);

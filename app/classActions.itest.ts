@@ -55,12 +55,13 @@ describe("class actions", () => {
     expect((await assignHomework(archived.id, "Read", "itest-class-actions")).ok).toBe(false);
   });
 
-  it("refuse an A1 unit, because A1 is taught as lessons", async () => {
+  it("refuse a unit of any level, because every level is taught as lessons", async () => {
     const live = await room(false);
-    const a1 = SYLLABUS.find((u) => u.level === "A1")!.id;
     const before = await prisma.task.count({ where: { ownerId: LOCAL_USER_ID } });
-    const result = await assignUnit(live.id, a1);
-    expect(result).toEqual({ ok: false, error: UNIT_HOMEWORK_FROM });
+    for (const level of ["A1", "C1"]) {
+      const unit = SYLLABUS.find((u) => u.level === level)!.id;
+      expect(await assignUnit(live.id, unit)).toEqual({ ok: false, error: UNIT_HOMEWORK_FROM });
+    }
     expect(await prisma.task.count({ where: { ownerId: LOCAL_USER_ID } })).toBe(before);
   });
 });

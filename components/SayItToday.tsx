@@ -47,7 +47,7 @@ import { Mic } from "lucide-react";
  * direction that flatters. A learner who closes the tab between the two is
  * asked again tomorrow, which is the honest state.
  */
-export function SayItToday({ errand, scene, answered, conversations, days, unitTitle, sayOnce = null }: {
+export function SayItToday({ errand, scene, answered, conversations, days, unitTitle, unitHref = "/course/lessons", sayOnce = null }: {
   errand: Errand;
   /**
    * The scene that rehearses today's errand, resolved on the server through
@@ -62,6 +62,12 @@ export function SayItToday({ errand, scene, answered, conversations, days, unitT
   conversations: number;
   days: number;
   unitTitle: string;
+  /**
+   * Where "the words are in" goes: the lesson that teaches the errand's unit
+   * (`unitLessonHref`), worked out by the page, since a unit's own page sends
+   * anybody to the lessons now that every level is lessons.
+   */
+  unitHref?: string;
   /**
    * The scene's first line and the learner's opening line, where today's errand
    * has a scene that rehearses it (`lib/scenes/rehearse.ts`). Offered under the
@@ -237,13 +243,13 @@ export function SayItToday({ errand, scene, answered, conversations, days, unitT
           {locale === "en" ? (
             <>
               {errandPlaces(errand)}. You&apos;ll find the words in{" "}
-              <Link href={`/learn/${errand.unit}`} className="underline">{unitTitle}</Link>.
+              <Link href={unitHref} className="underline">{unitTitle}</Link>.
               {scene && <> Or <Link href={`/situations/${scene}`} className="underline">try it out here first</Link>.</>}
             </>
           ) : (
             <>
               {placesIn(locale, errand.where, t)}.{" "}
-              <Linked template={t("You'll find the words in {unit}.")} href={`/learn/${errand.unit}`} label={unitTitle} />
+              <Linked template={t("You'll find the words in {unit}.")} href={unitHref} label={unitTitle} />
               {scene && <>{" "}<Linked template={t("Or {try}.")} href={`/situations/${scene}`} label={t("try it out here first")} /></>}
             </>
           )}

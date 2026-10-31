@@ -166,8 +166,8 @@ describe("the lessons' own sentences, through the marker", () => {
   const items = LESSONS.flatMap((lesson) => {
     const taught = teach(before.get(lesson.id)!, lesson.teaches, lessonRank(lesson), lesson.patterns);
     return [
-      ...(lesson.reworks ?? []).map((r) => ({ lesson: lesson.id, item: reworkItem(r, taught) as Extract<PracticeItem, { kind: "rework" | "fix" }> })),
-      ...(lesson.fixes ?? []).map((f) => ({ lesson: lesson.id, item: fixItem(f, taught) as Extract<PracticeItem, { kind: "rework" | "fix" }> })),
+      ...(lesson.reworks ?? []).map((r) => ({ lesson: lesson.id, pattern: r.pattern, item: reworkItem(r, taught) as Extract<PracticeItem, { kind: "rework" | "fix" }> })),
+      ...(lesson.fixes ?? []).map((f) => ({ lesson: lesson.id, pattern: undefined, item: fixItem(f, taught) as Extract<PracticeItem, { kind: "rework" | "fix" }> })),
     ];
   });
 
@@ -184,7 +184,15 @@ describe("the lessons' own sentences, through the marker", () => {
   });
 
   it("never reads a sentence's starting point as one of its answers said another way", () => {
-    const same = items.flatMap(({ lesson, item }) => {
+    const same = items.flatMap(({ lesson, item, pattern }) => {
+      /*
+        Except a rework on C1's emphasis, whose whole ask is to move a word to
+        where Estonian stresses it (`Meeskonda hakkab juhtima Tom.` from `Tom
+        hakkab meeskonda juhtima.`): its answer is its start in another order
+        by design, and the test above holds the marker to marking that start
+        wrong all the same.
+      */
+      if (pattern === "emphasis") return [];
       const from = item.kind === "fix" ? item.shown : item.from.et;
       return item.accept.filter((a) => sameSentence(a, from, item.persons) !== null).map((a) => `${lesson}: ${from} / ${a}`);
     });

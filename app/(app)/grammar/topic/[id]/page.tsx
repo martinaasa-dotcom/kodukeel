@@ -1,3 +1,4 @@
+import { unitLessonHref } from "@/lib/course/unitLesson";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ReadingEnd } from "@/components/course/ReadingEnd";
 import { questionReading } from "@/lib/estonian/cases";
@@ -309,7 +310,9 @@ export default async function TopicPage({
         {!only && tryIt}
 
         {/* The units that teach it and the drill that asks about it, which a
-            module step may not carry: see the header. */}
+            module step may not carry: see the header. A unit's own page sends
+            anybody to the lessons since every level is lessons, so each unit's
+            link goes to the lesson that teaches its words (`unitLessonHref`). */}
         {!inModule && (
         <section>
           <SectionTitle hint={countOf(locale, units.length, "unit")}>
@@ -330,7 +333,7 @@ export default async function TopicPage({
                   <span className="flex flex-wrap items-baseline gap-2">
                     {viewer ? (
                       <Link
-                        href={`/learn/${unit.id}`}
+                        href={unitLessonHref(unit.id)}
                         lang={uiWantsEnglish(placement) ? undefined : "et"}
                         className="text-md font-bold hover:underline"
                         style={{ color: "var(--ink)" }}
@@ -346,7 +349,7 @@ export default async function TopicPage({
                     {t(unit.canDo)}
                   </span>
                   {viewer && <Link
-                    href={`/learn/${unit.id}/lesson`}
+                    href={unitLessonHref(unit.id)}
                     className="mt-2 inline-flex items-center gap-1.5 text-sm underline"
                     style={{ color: "var(--accent-deep)" }}
                   >

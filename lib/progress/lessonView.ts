@@ -15,6 +15,8 @@ import { prisma } from "@/lib/db";
 import { confusions } from "@/lib/stats/confusions";
 import { multiplierFor, roundPaceFrom } from "@/lib/ux/roundClock";
 import type { LessonWorksheet } from "@/lib/course/lessonWorksheet";
+import { lessonDayFor } from "@/lib/course";
+import { verbExamples, type VerbExample } from "@/lib/progress/verbExamples";
 
 /**
  * How far back a lesson looks for the learner's own mix-ups: the newest
@@ -64,6 +66,13 @@ export interface LessonView {
    * no talk.
    */
   notes: readonly (readonly GlossedToken[])[] | null;
+  /**
+   * The verbs whose past and polite command this lesson's Words step shows in
+   * a table at its foot (C1, `withLessonForms`, docs/43-lessons.md §15.9), in
+   * the order the evening names them, every form off the dictionary and none
+   * worked out by the screen; empty on every other lesson.
+   */
+  forms: readonly VerbExample[];
 }
 
 /**
@@ -100,6 +109,14 @@ async function notesTokens(lesson: LessonSpec): Promise<GlossedToken[][] | null>
   return glossed.map((tokens, i) => onlyUntaught(tokens, untaught[i] ?? new Set()));
 }
 
+/** The verbs a lesson's forms table shows, as the dictionary holds them, in the evening's own order. */
+async function formsTable(ownerId: string, lesson: LessonSpec): Promise<VerbExample[]> {
+  const lemmas = lessonDayFor(lesson.id)?.day.forms ?? [];
+  if (lemmas.length === 0) return [];
+  const verbs = await verbExamples(ownerId, lemmas.length, lemmas);
+  return [...verbs].sort((a, b) => lemmas.indexOf(a.lemma) - lemmas.indexOf(b.lemma));
+}
+
 /**
  * One lesson's view for a learner, or null where there is no such lesson.
  *
@@ -117,7 +134,7 @@ export async function lessonView(
   const lesson = lessonById(lessonId) ?? (allowPreview ? PREVIEW_LESSONS.find((l) => l.id === lessonId) ?? null : null);
   if (!lesson) return null;
   // Every read at once: none of them needs another's answer, and each is a round trip.
-  const [mixups, nameSetting, pace, queue, passed, states, read, notes] = await Promise.all([
+  const [mixups, nameSetting, pace, queue, passed, states, read, notes, forms] = await Promise.all([
     lesson.fixes?.length
       ? prisma.review.findMany({
         where: { ownerId, reachedSlot: { not: null } },
@@ -134,6 +151,7 @@ export async function lessonView(
     lessonListStates(ownerId),
     readTokens(lesson),
     notesTokens(lesson),
+    formsTable(ownerId, lesson),
   ]);
   const { closes, after, ...built } = lessonPlan(lesson, confusions(mixups).map((c) => c.pair));
   /*
@@ -170,5 +188,6 @@ export async function lessonView(
     timeMultiplier: multiplierFor(roundPaceFrom(pace)),
     read,
     notes,
+    forms,
   };
 }

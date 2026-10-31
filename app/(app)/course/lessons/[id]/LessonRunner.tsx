@@ -39,6 +39,8 @@ import { worksheetLink, type LessonWorksheet } from "@/lib/course/lessonWorkshee
 import { ReadText } from "@/components/course/ReadText";
 import { NotesTalk } from "@/components/course/NotesTalk";
 import type { GlossedToken } from "@/lib/dict/glossed";
+import type { VerbExample } from "@/lib/progress/verbExamples";
+import { VerbTable } from "@/app/(app)/grammar/topic/[id]/VerbTable";
 
 /**
  * ONE LESSON, ITS STEPS ALWAYS IN THIS ORDER (docs/43-lessons.md §1).
@@ -109,13 +111,19 @@ const WORKBOOK_NAME = nameOf("/review/workbook") ?? { et: "Töövihik", en: "Wor
 /** Every step not on this list asks nothing, and is finished by being open. */
 const ASKS: ReadonlySet<Step> = new Set(["practise", "write", "say", "review"]);
 
-export function LessonRunner({ lesson, practice, review, next, scene, situation = null, worksheet = null, conversation, place, name, due = 0, check = null, part, timeMultiplier, partAt, read = null, notes = null }: {
+export function LessonRunner({ lesson, practice, review, next, scene, situation = null, worksheet = null, conversation, place, name, due = 0, check = null, part, timeMultiplier, partAt, read = null, notes = null, forms = [] }: {
   /**
    * The transcript of the lesson's talk taken down as notes (C1), glossed as
    * the text to read is; null where there is none, and then a talk it does
    * have is drawn plain.
    */
   notes?: readonly (readonly GlossedToken[])[] | null;
+  /**
+   * C1: the verbs whose past and polite command the Words step shows in a
+   * table at its foot (`withLessonForms`), heard and read and never asked;
+   * empty on every other lesson.
+   */
+  forms?: readonly VerbExample[];
   lesson: LessonSpec;
   /**
    * The lesson's text to read (B2 on), a line at a time, with the dictionary
@@ -549,7 +557,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
             {fill(t("Step {n} of {total}: {step}"), { n: String(at + 1), total: String(steps.length), step: t(titleOf(step)) })}
           </h2>
           {step === "listen" && <Listen lesson={lesson} read={read} notes={notes} heard={heard} heardOnReload={heardOnReload} onHeard={() => setHeard(true)} />}
-          {step === "words" && <Words lesson={lesson} />}
+          {step === "words" && <Words lesson={lesson} forms={forms} />}
           {step === "how" && <How lesson={lesson} />}
           {kept("practise") && <div hidden={step !== "practise"}><Quiz key="practise" level={3} items={practice} onFinished={(result) => { setScore((first) => first ?? result); finish("practise"); }} /></div>}
           {step === "write" && lesson.write && <WriteStep lesson={lesson} onDone={() => { finish("write"); go(at + 1); }} />}
@@ -678,8 +686,38 @@ function rowsOf(items: readonly Taught[]): Taught[][] {
   return rows;
 }
 
-/** Step 2: everything new tonight, in one table, with nothing asked. */
-function Words({ lesson }: { lesson: LessonSpec }) {
+/** Step 2: everything new tonight, in one table, with nothing asked; at C1, the forms table under it. */
+function Words({ lesson, forms }: { lesson: LessonSpec; forms: readonly VerbExample[] }) {
+  return (
+    <div className="flex flex-col gap-6">
+      <NewWords lesson={lesson} />
+      {forms.length > 0 && <FormsTable forms={forms} />}
+    </div>
+  );
+}
+
+/**
+ * THE FORMS QUEUE, AT THE FOOT OF A C1 LESSON'S WORDS STEP (docs/43-lessons.md
+ * §15.9, C1-8). Twelve verbs the lessons taught, their past and their polite
+ * command, which are learned verb by verb: heard and read, never asked, every
+ * form off the dictionary (`VerbTable`, the table the past-forms step drew).
+ */
+function FormsTable({ forms }: { forms: readonly VerbExample[] }) {
+  const t = useT();
+  const locale = useLocale();
+  return (
+    <section data-lesson-forms>
+      <SectionTitle hint={t("the ones you've met")}>{t("The past of your verbs")}</SectionTitle>
+      <p className="mb-3 text-base" style={{ color: "var(--ink-2)" }}>
+        {t("Each one makes its past and its polite command its own way. Listen and read them; nothing here is asked.")}
+      </p>
+      <VerbTable verbs={forms} show="forms" locale={locale} />
+    </section>
+  );
+}
+
+/** The lesson's own new words, in one table. */
+function NewWords({ lesson }: { lesson: LessonSpec }) {
   const t = useT();
   const locale = useLocale();
   if (lesson.teaches.length === 0) {

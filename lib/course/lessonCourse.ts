@@ -150,6 +150,21 @@ export const LESSON_PAGES: Readonly<Record<string, { cases?: readonly string[]; 
     speech explains; b2-kaudne's lesson on passing on a question reads it.
   */
   "b2-09-asked": { topics: ["reported-speech"] },
+  /*
+    C1: the pages the C1 units declared that no C1 pattern names, each read by
+    the lesson whose goal is that page's subject, so nothing a unit taught was
+    lost when the units went (docs/43-lessons.md §16). The comma before every
+    clause on the school message; where the stress goes and the question
+    nobody needs to answer on the lesson about who leads the team, which is
+    where both are first used; and among friends, a set phrase on the lesson
+    about exclamations, irony on the lesson about jokes, and the word that is
+    almost right on the lesson about saying exactly how you feel.
+  */
+  "c1-03-pun": { topics: ["irony"] },
+  "c1-04-kurat": { topics: ["idiom"] },
+  "c1-05-feel": { topics: ["nuance"] },
+  "c1-20-comma": { topics: ["punctuation"] },
+  "c1-25-new-lead": { topics: ["word-order", "rhetorical-questions"] },
 };
 
 /**
@@ -168,7 +183,7 @@ export function lessonWords(lesson: LessonSpec): string[] {
  * three times) and its writing evening adds the text, so the evening says so
  * rather than claiming eighteen minutes for forty.
  */
-export function lessonMinutes(lesson: LessonSpec): number {
+export function lessonMinutes(lesson: LessonSpec, forms = 0): number {
   return LESSON_MINUTES
     + (lesson.listenFor ? 2 : 0)
     + (lesson.retell ? 5 : 0)
@@ -180,8 +195,16 @@ export function lessonMinutes(lesson: LessonSpec): number {
     // C1: the text's questions, a talk taken down as notes, and which room.
     + (lesson.read?.questions && lesson.read.questions.length > 0 ? 3 : 0)
     + (lesson.notes ? notesMinutes(lesson.notes) : 0)
-    + (lesson.rooms && lesson.rooms.length > 0 ? 1 : 0);
+    + (lesson.rooms && lesson.rooms.length > 0 ? 1 : 0)
+    // C1: the forms table at the foot of the Words step, where the evening shows one (`withLessonForms`).
+    + (forms > 0 ? LESSON_FORMS_MINUTES : 0);
 }
+
+/**
+ * How long a C1 lesson's forms table adds (docs/43-lessons.md §15.9, C1-8):
+ * twelve verbs' past and polite command, heard and read, never asked.
+ */
+export const LESSON_FORMS_MINUTES = 2;
 
 /** About how fast a talk is spoken, in words a minute: what a talk taken down as notes is counted in. */
 export const TALK_WORDS_PER_MINUTE = 130;

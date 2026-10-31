@@ -4929,6 +4929,68 @@
             ],
             "description": "The transcript of the lesson's talk taken down as notes (C1), a line at a time, glossed as `read` is; null where the lesson has no talk."
           },
+          "forms": {
+            "readOnly": true,
+            "description": "C1: the verbs whose past and polite command the Words step shows in a table at its foot, heard and read and never asked, every form as the dictionary holds it; empty on every other lesson.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "lexemeId": {
+                  "type": "string"
+                },
+                "lemma": {
+                  "type": "string"
+                },
+                "translation": {
+                  "type": "string"
+                },
+                "pres1sg": {
+                  "type": "string"
+                },
+                "forms": {
+                  "readOnly": true,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "code": {
+                        "type": "string",
+                        "description": "Ekilex's code for the slot, such as `IndIpfSg3` or `ImpPrPl2`."
+                      },
+                      "value": {
+                        "type": "string"
+                      },
+                      "origin": {
+                        "type": "string",
+                        "enum": [
+                          "EKILEX",
+                          "STORED",
+                          "DERIVED"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "code",
+                      "value",
+                      "origin"
+                    ]
+                  }
+                },
+                "inDeck": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "lexemeId",
+                "lemma",
+                "translation",
+                "pres1sg",
+                "forms",
+                "inDeck"
+              ]
+            }
+          },
           "locale": {
             "type": "string",
             "enum": [
@@ -4972,6 +5034,7 @@
           "timeMultiplier",
           "read",
           "notes",
+          "forms",
           "locale",
           "nativePart",
           "translations"

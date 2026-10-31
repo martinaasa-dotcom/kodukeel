@@ -30,7 +30,9 @@ describe("lessonStates", () => {
   });
 
   it("marks nothing for somebody following no lesson part", () => {
-    const states = lessonStates(PARTS, new Map(), "c1.1");
+    // Every part is a lesson part since C1 became lessons, so "no lesson part" is following none at all, or one the course does not hold.
+    expect([...lessonStates(PARTS, new Map(), "no-such-part").values()].every((s) => s === "ahead")).toBe(true);
+    const states = lessonStates(PARTS, new Map(), null);
     expect([...states.values()].every((s) => s === "ahead")).toBe(true);
     expect(states.size).toBeGreaterThan(40);
   });

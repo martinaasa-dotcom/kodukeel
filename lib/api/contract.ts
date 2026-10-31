@@ -552,6 +552,18 @@ export const LessonResponse = z.object({
     .describe("The lesson's text to read (B2 on), a line at a time, with the dictionary under each word the lessons have not taught by now and nothing under the ones they have; null where the lesson has no text."),
   notes: z.array(z.array(GlossedToken).readonly()).readonly().nullable()
     .describe("The transcript of the lesson's talk taken down as notes (C1), a line at a time, glossed as `read` is; null where the lesson has no talk."),
+  forms: z.array(z.object({
+    lexemeId: z.string(),
+    lemma: z.string(),
+    translation: z.string(),
+    pres1sg: z.string(),
+    forms: z.array(z.object({
+      code: z.string().describe("Ekilex's code for the slot, such as `IndIpfSg3` or `ImpPrPl2`."),
+      value: z.string(),
+      origin: z.enum(["EKILEX", "STORED", "DERIVED"]),
+    })).readonly(),
+    inDeck: z.boolean(),
+  })).readonly().describe("C1: the verbs whose past and polite command the Words step shows in a table at its foot, heard and read and never asked, every form as the dictionary holds it; empty on every other lesson."),
   locale: InterfaceLanguage,
   nativePart: z.string().nullable().describe(
     "The one part of the conversation the native speaker recorded whole, which a phone plays in his voice by " +

@@ -4,9 +4,7 @@ import { Download, FileText, Printer, Target } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { classworkHistory } from "@/app/actions";
-import { PATH } from "@/lib/collections/syllabus";
-import { LESSONS } from "@/lib/course/lessons";
-import { unitsAboveLessons } from "@/lib/curriculum/align";
+import { UNIT_HOMEWORK_FROM } from "@/lib/copy/homework";
 import { classRoster, joinedMember, workplaceRoster } from "@/lib/classroom/roster";
 import { rosterPath } from "@/lib/classroom/rosterCsv";
 import { emailPrefsFrom, wants } from "@/lib/email/prefs";
@@ -19,7 +17,7 @@ import { ClassFigures } from "@/components/class/ClassFigures";
 import { LocalDate } from "@/components/LocalDate";
 import { DUE_DATE_FORMAT } from "@/lib/ux/agenda";
 import { BackLink, Card, Empty, Meter, Note, Page, SectionTitle, Stack } from "@/components/ui";
-import { ArchiveClass, AssignHomework, AssignScene, AssignUnit, ClassDigest, CopyCode, LeaveClass } from "../ClassForms";
+import { ArchiveClass, AssignHomework, AssignScene, ClassDigest, CopyCode, LeaveClass } from "../ClassForms";
 import { SCENES } from "@/lib/scenes/catalogue";
 import { sceneHomeworkCount } from "@/lib/progress/homework";
 import { localeFor } from "@/lib/progress/locale";
@@ -115,7 +113,6 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
   */
   const rows = roster ? (isTeacher ? roster.entries.filter(joinedMember) : roster.entries) : [];
   const nobodyElse = roster ? (isTeacher ? roster.joined === 0 : roster.joined <= 1) : true;
-  const units = unitsAboveLessons(PATH, LESSONS).map((u) => ({ id: u.id, title: u.title, subtitle: u.subtitle }));
   const scenes = SCENES.map((scene) => ({ id: scene.id, title: t(scene.title) }));
   /*
     How far the class has got with each conversation it was sent, counted off
@@ -268,14 +265,9 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
         {isTeacher && !classroom.archived && (
           <section>
             <SectionTitle>{t("Homework")}</SectionTitle>
+            {/* No unit picker: every level is lessons, so unit homework is retired (docs/43-lessons.md §16). */}
+            <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>{t(UNIT_HOMEWORK_FROM)}</p>
             <Card>
-              <AssignUnit classroomId={classroomId} units={units} />
-              <Explain label={t("What this does to their deck")}>
-                {t("Each student gets it as a task in their own list, with a link to the unit. Nobody’s deck changes. They choose when to add the words.")}
-              </Explain>
-            </Card>
-
-            <Card className="mt-3">
               <AssignScene classroomId={classroomId} scenes={scenes} />
               <Explain label={t("When it counts as done")}>
                 {t("Each student gets it on Today with a button that opens it. It counts as done once they finish the conversation, so nobody has to tick anything.")}

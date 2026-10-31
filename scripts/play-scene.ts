@@ -330,7 +330,7 @@ function learnerTurn(
 }
 
 /*
-  TONIGHT'S CHAT (VB-11), PLAYED HERE TOO. `--scene chat --day c1.1-04` builds
+  TONIGHT'S CHAT (VB-11), PLAYED HERE TOO. `--scene chat --day <evening>` builds
   the chat a learner would be offered after that evening, the way `planChat`
   does off the database and with nothing remembered: the evening's new words
   first, each with the dictionary's first English sense, and none the forms list
@@ -561,8 +561,13 @@ async function play(sceneId: string) {
 
 (async () => {
   if (only === CHAT_ID) {
-    chatScene = await harnessChat(arg("day") ?? "c1.1-04");
-    if (!chatScene) throw new Error(`no chat to have after ${arg("day") ?? "c1.1-04"}: the evening is unknown or has no readable new words`);
+    /* No default evening: a chat follows an evening built from units, and since
+       C1 became lessons there is none (docs/43-lessons.md §16), so a run names
+       the evening it means or is refused. The chat goes with the unit builder. */
+    const day = arg("day");
+    if (!day) throw new Error("name the evening with --day: no evening is built from units since C1 became lessons, so there is no default to play a chat after");
+    chatScene = await harnessChat(day);
+    if (!chatScene) throw new Error(`no chat to have after ${day}: the evening is unknown or has no readable new words`);
     await play(CHAT_ID);
   }
   /*

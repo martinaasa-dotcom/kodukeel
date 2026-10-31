@@ -9,47 +9,13 @@
  * records nothing, and it is not in `LESSONS`, so nothing that lists the
  * course, counts it or asks it for a translation reads it.
  *
- * C1 IS DRAFTED HERE (docs/43-lessons.md §15). Each part author writes their
- * part in a file of its own in this directory, named for the part without the
- * marks (`c1-isiksus.ts`, `c1-mote.ts`), exporting `C1_<PART>_PART` and
- * `C1_<PART>_LESSONS` the way `b2-konekeel.ts` does, and adds ONE line to
- * `PARTS` below, `[C1_<PART>_PART, C1_<PART>_LESSONS],`, in the teaching order
- * of §15.3 and `docs/reviews/c1-cast.md`:
- *
- *   1 c1-isiksus   2 c1-meedia   3 c1-kodu      4 c1-kool
- *   5 c1-juht      6 c1-uhiskond 7 c1-maa       8 c1-mote
- *
- * A part is placed by `C1_PART_ORDER` (`rampC1.ts`) rather than by where its
- * line sits, so parts written side by side can land in any order; keep the
- * lines in teaching order anyway, since the ledger walks them as listed and a
- * word one part teaches has to come before the part that uses it. Then
- * `npx tsx scripts/check-lesson-part.ts --part <id>` asks every check of that
- * part, step 9 being C1's own. The day C1 becomes the course, this list moves
- * to `c1.ts` whole and this one is empty again.
+ * Empty since C1 became the course (`c1.ts`, docs/43-lessons.md §16), which
+ * left no level to draft: every level from A1 to C1 is lessons and there is no
+ * C2 (C1-10). The list stays, and the paths that read it, for a part written
+ * beside the course before it replaces one, in a file of its own with one line
+ * in a `PARTS` list, in teaching order, the way B2's and C1's were.
  */
-import { C1_ISIKSUS_LESSONS, C1_ISIKSUS_PART } from "./c1-isiksus";
-import { C1_MEEDIA_LESSONS, C1_MEEDIA_PART } from "./c1-meedia";
-import { C1_KODU_LESSONS, C1_KODU_PART } from "./c1-kodu";
-import { C1_KOOL_LESSONS, C1_KOOL_PART } from "./c1-kool";
-import { C1_JUHT_LESSONS, C1_JUHT_PART } from "./c1-juht";
-import { C1_UHISKOND_LESSONS, C1_UHISKOND_PART } from "./c1-uhiskond";
-import { C1_MAA_LESSONS, C1_MAA_PART } from "./c1-maa";
-import { C1_MOTE_LESSONS, C1_MOTE_PART } from "./c1-mote";
 import type { LessonSpec, PartOfLessons } from "./types";
 
-const PARTS: readonly (readonly [PartOfLessons, readonly LessonSpec[]])[] = [
-  // One line per C1 part, in teaching order: [C1_<PART>_PART, C1_<PART>_LESSONS],
-  [C1_ISIKSUS_PART, C1_ISIKSUS_LESSONS],
-  [C1_MEEDIA_PART, C1_MEEDIA_LESSONS],
-  [C1_KODU_PART, C1_KODU_LESSONS],
-  [C1_KOOL_PART, C1_KOOL_LESSONS],
-  [C1_JUHT_PART, C1_JUHT_LESSONS],
-  [C1_UHISKOND_PART, C1_UHISKOND_LESSONS],
-  [C1_MAA_PART, C1_MAA_LESSONS],
-  [C1_MOTE_PART, C1_MOTE_LESSONS],
-];
-
-export const PREVIEW_PARTS: readonly PartOfLessons[] = PARTS.map(([part]) => part);
-
-/** The lessons in preview, in teaching order, part by part. */
-export const PREVIEW_LESSONS: readonly LessonSpec[] = PARTS.flatMap(([, lessons]) => lessons);
+export const PREVIEW_LESSONS: readonly LessonSpec[] = [];
+export const PREVIEW_PARTS: readonly PartOfLessons[] = [];

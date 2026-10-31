@@ -1,3 +1,4 @@
+import { unitLessonHref } from "@/lib/course/unitLesson";
 import { Suspense } from "react";
 import { isLessonLevel } from "@/lib/course/lessons";
 import { Lettered } from "@/components/HeroLetters";
@@ -349,7 +350,7 @@ export default async function TodayPage() {
     startedUnitIds: new Set(units.filter((u) => u.state === "learning").map((u) => u.unit.id)),
     placement,
   });
-  // A1, A2, B1 and B2 are the lessons rather than units (docs/43-lessons.md), so a unit of theirs is never offered here.
+  // Every level is the lessons rather than units (docs/43-lessons.md §16), so no unit is offered here and this is undefined; were one, its link would go to the lesson that teaches it.
   const nextUnit = nextSyllabusUnit && !isLessonLevel(nextSyllabusUnit.level)
     ? units.find((u) => u.unit.id === nextSyllabusUnit.id)
     : undefined;
@@ -506,7 +507,7 @@ export default async function TodayPage() {
   ) : (
     <>
       {nextUnit ? (
-        <ButtonLink href={`/learn/${nextUnit.unit.id}/lesson`} variant="secondary" className="w-full justify-center">
+        <ButtonLink href={unitLessonHref(nextUnit.unit.id)} variant="secondary" className="w-full justify-center">
           {fill(t("Start {unit}"), { unit: ui(nextUnit.unit.title, nextUnit.unit.subtitle) })} <ArrowRight size={16} aria-hidden />
         </ButtonLink>
       ) : (
@@ -944,6 +945,7 @@ export default async function TodayPage() {
         if (!errandUnit) return errand.unit;
         return ui(errandUnit.title, errandUnit.subtitle);
       })()}
+      unitHref={unitLessonHref(errand.unit)}
       sayOnce={(() => {
         /* The scene's first line and the learner's own answer, from the bank and the picks (VB-4). */
         const scene = sceneForErrand(errand);
@@ -994,7 +996,7 @@ export default async function TodayPage() {
           label={fill(t("{unit}: {pct}% complete"), { unit: ui(nextUnit.unit.title, nextUnit.unit.subtitle), pct: nextUnit.pct })}
         />
       </div>
-      <ButtonLink href={`/learn/${nextUnit.unit.id}/lesson`} className="mt-4 w-full">
+      <ButtonLink href={unitLessonHref(nextUnit.unit.id)} className="mt-4 w-full">
         {nextUnit.state === "learning" ? t("Pick up where you left off") : t("Start this unit")}
         <ArrowRight size={15} aria-hidden />
       </ButtonLink>

@@ -259,7 +259,7 @@ export const C1_MAA_LESSONS: readonly LessonSpec[] = [
     kind: "lesson",
     title: "Across the bog",
     goal: "Follow a legend told on a walk, check the words you've guessed as it goes, and tell an old story the way it is told.",
-    cast: { Giid: "albert", Anna: "kylli", Tom: "kalev", Kati: "vesta" },
+    cast: { Giid: "tambet", Anna: "kylli", Tom: "kalev", Kati: "vesta" },
     conversation: [
       { who: "Giid", et: "Nii, nüüd oleme raba ääres. Edasi läheme ainult mööda laudteed.", en: "Right, now we're at the edge of the bog. From here on we go only along the boardwalk.", stage: "A few days later, a windy morning. Kati has brought them on a guided walk across the bog near her grandparents' farm." },
       { who: "Anna", et: "Miks ainult mööda laudteed? Kas raba on ohtlik?", en: "Why only along the boardwalk? Is the bog dangerous?" },

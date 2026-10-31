@@ -8,11 +8,11 @@ import { b2LevelProblems, c1LevelProblems, lessonEnglish, levelContractProblems,
 
 /**
  * THE LEVEL CONTRACT, ASKED OF EVERY LEVEL THAT IS LESSONS. Written once A1
- * and A2 met it, so that B1, B2 and C1 meet it the day they are lessons too.
+ * and A2 met it, so that B1, B2 and C1 met it the day each became lessons.
  */
 describe("every level of lessons", () => {
-  it("is A1, A2, B1 and B2 today, and the rules below are asked of whatever it becomes", () => {
-    expect([...LESSON_LEVELS]).toEqual(["A1", "A2", "B1", "B2"]);
+  it("is A1, A2, B1, B2 and C1, every level, and the rules below are asked of all of them", () => {
+    expect([...LESSON_LEVELS]).toEqual(["A1", "A2", "B1", "B2", "C1"]);
   });
 
   it("never shows a word before it is taught, across the levels as one course", () => {
@@ -106,6 +106,11 @@ describe("the contract itself", () => {
     const problems = levelContractProblems([...a, ...b], [part, second]).join(" ");
     expect(problems).toMatch(/longest retell is 4 sentences, under the 6/);
     expect(problems).toMatch(/asks 40 words at most, under the 60/);
+    // At C1 a retell gets harder by how it is told, so a shorter story is no fall; fewer words to write still is.
+    const asC1 = (ls: typeof a) => ls.map((l) => ({ ...l, level: "C1" as const }));
+    const c1 = levelContractProblems([...asC1(a), ...asC1(b)], [{ ...part, level: "C1" }, { ...second, level: "C1" }]).join(" ");
+    expect(c1).not.toMatch(/longest retell/);
+    expect(c1).toMatch(/asks 40 words at most, under the 60/);
   });
 
   it("refuses a partEnd before the part's last lesson, a lesson of another level, and a part with no title or line", () => {
