@@ -322,7 +322,7 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
     },
     hearing: "phone",
     listenFor: [
-      { q: "Why does Piret phone?", options: ["She needs a parent to help on a class trip", "Mark has been ill at school", "The trip has been cancelled", "She wants to change the parents' meeting"], answer: 0 },
+      { q: "Why does Piret phone?", options: ["She needs a parent to help on a class trip", "Mark has been ill at school", "The trip has been canceled", "She wants to change the parents' meeting"], answer: 0 },
       { q: "What does Piret ask Anna to do afterwards?", options: ["Confirm it in writing", "Pay for the ticket", "Bring a packed lunch", "Phone the museum"], answer: 0 },
       { q: "True or false: Anna has to leave the trip early.", options: ["True", "False"], answer: 0 },
       { q: "When Tom says Anna writes like a head teacher, what does he mean?", options: ["Her message sounds very formal, and he's teasing her", "He thinks she should apply for the job", "Her handwriting is hard to read", "She has made a lot of mistakes"], answer: 0, meant: true },
@@ -465,7 +465,7 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
       { who: "Anna", et: "Miks?", en: "Why?" },
       { who: "Piret", et: "Neil on oma klubi ja Mark ei ole nende klubis. Nii nad ütlesid.", en: "They've got their own club, and Mark isn't in it. That's what they said." },
       { who: "Anna", et: "Oma klubi, seitsmeaastased! Ja ta istus terve tee üksi?", en: "Their own club, at seven! And he sat on his own the whole way?" },
-      { who: "Piret", et: "Ei, ma panin ta istuma enda kõrvale. Ausalt öeldes olen ma seda vahetundides ka märganud.", en: "No, I had him sit next to me. To be honest, I've noticed it at break as well." },
+      { who: "Piret", et: "Ei, ma panin ta istuma enda kõrvale. Ma olen seda vahetundides ka märganud.", en: "No, I had him sit next to me. I've noticed it at break as well." },
       { who: "Giid", et: "...ja kevadel ärkab karu üles ja on väga näljane. Kes oskab öelda, mida ta sööb?", en: "...and in spring the bear wakes up and is very hungry. Who can tell me what it eats?" },
       { who: "Piret", et: "Räägime sellest pärast, eks? Praegu panen ta Grete kõrvale.", en: "Let's talk about it afterwards, shall we? For now I'll put him with Grete." },
       { who: "Anna", et: "Aitäh. Ma ei taha, et ta tunneks ennast...", en: "Thank you. I don't want him to feel..." },
@@ -485,7 +485,6 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "istus", of: "istuma", en: "sat, he or she" },
       { kind: "form", et: "kõrvale", of: "kõrval", en: "next to, going there: {enda kõrvale}" },
       { kind: "form", et: "enda", of: "ise", en: "oneself's, my own: {enda kõrvale}, next to me" },
-      { kind: "word", et: "aus", en: "honest" },
       { kind: "form", et: "märganud", of: "märkama", en: "noticed: {olen märganud}, I've noticed" },
       { kind: "word", et: "näljane", en: "hungry" },
       { kind: "form", et: "seitsmeaastased", of: "seitsmeaastane", en: "seven-year-olds" },
@@ -555,7 +554,7 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
         { et: "Pärast külastust", en: "After the visit", section: 5 },
         { et: "Soovi korral saadame õpetajale materjali, millega teemat klassis jätkata.", en: "If you'd like, we'll send the teacher material to carry the topic on in class.", section: 5 },
         { et: "Paljud klassid teevad pärast külastust näituse või plakati, ja kui saadate meile sellest pildi, paneme selle hea meelega muuseumi kodulehele.", en: "Many classes make an exhibition or a poster after the visit, and if you send us a picture of it, we're happy to put it on the museum's website.", section: 5 },
-        { et: "Oleme tänulikud, kui annate meile tagasisidet, sest see aitab meil programme paremaks muuta.", en: "We're grateful for your feedback, because it helps us make the programs better.", section: 5 },
+        { et: "Oleme tänulikud, kui annate meile tagasisidet, sest see aitab meil programmi paremaks muuta.", en: "We're grateful for your feedback, because it helps us make the program better.", section: 5 },
         { et: "Ootame teid taas!", en: "We look forward to seeing you again!", section: 5 },
       ],
       questions: [
@@ -597,7 +596,7 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ei, ma panin ta istuma enda kõrvale. Ausalt öeldes olen ma seda vahetundides ka märganud.", en: "No, I had him sit next to me. To be honest, I've noticed it at break as well." }, right: "istuma", wrong: "istuda", pair: ["Sup", "Inf"], why: "{Panema} takes what you have somebody do in the [ma-tegevusnimi] (-ma): {panin ta istuma}." },
+      { line: { et: "Ei, ma panin ta istuma enda kõrvale. Ma olen seda vahetundides ka märganud.", en: "No, I had him sit next to me. I've noticed it at break as well." }, right: "istuma", wrong: "istuda", pair: ["Sup", "Inf"], why: "{Panema} takes what you have somebody do in the [ma-tegevusnimi] (-ma): {panin ta istuma}." },
       { line: { et: "Ma näen. Oskar ja Hugo ütlesid juba bussis, et ta ei saa nende kõrval istuda.", en: "I can see. Oskar and Hugo said on the bus already that he can't sit next to them." }, right: "istuda", wrong: "istuma", pair: ["Inf", "Sup"], why: "After {saama} in the sense of can, the [da-tegevusnimi] (-da): {ei saa istuda}." },
     ],
     workOut: [
@@ -660,12 +659,12 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Keegi? Aga Grete ju...", en: "Nobody? But Grete..." },
       { who: "Anna", et: "...Grete küll, aga poisid mitte. Ta palus, et nad võtaksid ta mängu, ja nad ütlesid, et ei.", en: "...Grete does, but the boys don't. He asked them to let him join in, and they said no." },
       { who: "Tom", et: "Lapsed võivad olla nii karmid. Kas me peaksime kohe õpetajale kirjutama?", en: "Kids can be so harsh. Should we write to the teacher straight away?" },
-      { who: "Anna", et: "Ma püüan kõigepealt Grete emaga rääkida. Grete näeb ju kõike.", en: "I'll try talking to Grete's mum first. Grete sees everything, after all." },
+      { who: "Anna", et: "Ma püüan kõigepealt Grete emaga rääkida. Grete näeb ju kõike.", en: "I'll try talking to Grete's mom first. Grete sees everything, after all." },
       { who: "Kaire", et: "Tere, Anna! Ei, sa ei sega üldse. Mis lahti?", en: "Hi, Anna! No, you're not disturbing me at all. What's up?", stage: "Anna phones Kaire, Grete's mother." },
       { who: "Anna", et: "Vabandust, et nii hilja helistan. Mark ütles, et temaga keegi ei mängi. Kas Grete on midagi rääkinud?", en: "Sorry to ring so late. Mark says nobody plays with him. Has Grete said anything?" },
       { who: "Kaire", et: "No... Grete rääkis küll midagi. Et poistel on oma klubi ja sinna saavad ainult need, kes olid koos lasteaias.", en: "Well... Grete did say something. That the boys have their own club, and only the ones who were at kindergarten together can join." },
       { who: "Anna", et: "Ja Mark käis teises lasteaias.", en: "And Mark went to a different kindergarten." },
-      { who: "Kaire", et: "Just. Aga ausalt öeldes ma ei usu, et nad tahavad halba. Lapsed on lihtsalt...", en: "Exactly. But to be honest, I don't think they mean any harm. Kids are just..." },
+      { who: "Kaire", et: "Just. Aga ma ei usu, et nad tahavad halba. Lapsed on lihtsalt...", en: "Exactly. But I don't think they mean any harm. Kids are just..." },
       { who: "Tom", et: "...sellised, jah, aga Mark on igal õhtul kurb.", en: "...like that, yes, but Mark is sad every evening.", stage: "Tom, close enough to the phone to hear." },
       { who: "Kaire", et: "Ma saan aru. Kedagi ei saa ju sundida, aga kas ma võin midagi soovitada? Kutsuge mõni poiss külla. Kodus on lihtsam sõbraks saada.", en: "I understand. You can't force anybody, of course, but can I suggest something? Invite one of the boys over. It's easier to make friends at home." },
       { who: "Anna", et: "See on hea mõte. Aga kui see ei aita...", en: "That's a good idea. But if it doesn't help..." },
@@ -829,9 +828,9 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
     ],
     reworks: [
       {
-        from: { et: "Ma püüan kõigepealt Grete emaga rääkida. Grete näeb kõike.", en: "I'll try talking to Grete's mum first. Grete sees everything." },
+        from: { et: "Ma püüan kõigepealt Grete emaga rääkida. Grete näeb kõike.", en: "I'll try talking to Grete's mom first. Grete sees everything." },
         ask: "Join them into one sentence that gives the reason, with {sest}.",
-        to: { et: "Ma püüan kõigepealt Grete emaga rääkida, sest Grete näeb kõike.", en: "I'll try talking to Grete's mum first, because Grete sees everything." },
+        to: { et: "Ma püüan kõigepealt Grete emaga rääkida, sest Grete näeb kõike.", en: "I'll try talking to Grete's mom first, because Grete sees everything." },
         pattern: "cohesion",
       },
       {
@@ -907,6 +906,7 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
     ],
     teaches: [
       { kind: "word", et: "viisakas", en: "polite; {viisakas, aga kindel}, polite but firm" },
+      { kind: "word", et: "aus", en: "fair, honest: {See ei ole aus.}, that isn't fair" },
       { kind: "word", et: "sageli", en: "often: the word a letter uses, where you'd say {tihti}" },
       { kind: "form", et: "klassijuhataja", of: "klassijuhataja", en: "of the class teacher; {klassijuhatajaga}, with the class teacher", stem: true },
       { kind: "form", et: "mänge", of: "mäng", en: "games, as an object: {rohkem mänge}" },
@@ -967,7 +967,7 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
         { et: "Vestlus õpetajaga võib toimuda nii koolis kui ka telefoni teel.", en: "A conversation with the teacher can take place at school or by phone.", section: 1 },
         { et: "Klassijuhataja kontaktid leiate kooli kodulehelt.", en: "You'll find the class teacher's contact details on the school's website.", section: 1 },
         { et: "Kui klassijuhataja on haige või puhkusel, aitab teid tema asendaja.", en: "If the class teacher is ill or on holiday, their substitute will help you.", section: 1 },
-        { et: "Aineõpetaja poole tasub pöörduda siis, kui küsimus puudutab üht kindlat õppeainet, näiteks matemaatikat või eesti keelt.", en: "It's worth going to a subject teacher when the question is about one particular subject, such as maths or Estonian.", section: 1 },
+        { et: "Aineõpetaja poole tasub pöörduda siis, kui küsimus puudutab üht kindlat õppeainet, näiteks matemaatikat või eesti keelt.", en: "It's worth going to a subject teacher when the question is about one particular subject, such as math or Estonian.", section: 1 },
         { et: "Millal kirjutada direktorile?", en: "When to write to the head", section: 2 },
         { et: "Direktori poole pöördutakse siis, kui klassijuhatajaga ei ole lahendust leitud või kui küsimus puudutab kogu kooli.", en: "Parents turn to the head when no solution has been found with the class teacher, or when the question concerns the whole school.", section: 2 },
         { et: "Palun kirjutage võimalikult konkreetselt.", en: "Please write as concretely as you can.", section: 2 },
@@ -1125,7 +1125,7 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Toomas", et: "Tere tulemast! Istuge, palun. Piret rääkis mulle teie murest.", en: "Welcome! Please, have a seat. Piret told me about your worry.", stage: "The next week, after school, in the head's office. Toomas, the head of the school, and Piret are at the table." },
       { who: "Anna", et: "Aitäh, et leidsite aega. Nagu me kirjutasime, jääb Mark juba mitu nädalat vahetundides kõrvale.", en: "Thank you for finding the time. As we wrote, Mark has been left out at break for several weeks now." },
-      { who: "Toomas", et: "Jah. Ausalt öeldes juhtub seda esimeses klassis igal aastal. Tavaliselt saavad lapsed ise hakkama.", en: "Yes. To be honest, it happens in first grade every year. Usually the children sort it out themselves." },
+      { who: "Toomas", et: "Jah. Esimeses klassis juhtub seda igal aastal. Tavaliselt saavad lapsed ise hakkama.", en: "Yes. It happens in first grade every year. Usually the children sort it out themselves." },
       { who: "Anna", et: "Ma saan aru, aga ma ei ole sellega päris nõus. See on kestnud juba mitu nädalat ja ise see üle ei lähe.", en: "I understand, but I don't quite agree. It's been going on for several weeks now, and it isn't passing by itself." },
       { who: "Toomas", et: "Me ei saa ju lapsi sundida, et nad...", en: "We can't force children to..." },
       { who: "Tom", et: "...sõbraks saaksid, jah. Aga seda me ei palu. Me palume, et kool aitaks neil koos midagi teha.", en: "...become friends, yes. But that's not what we're asking. We're asking the school to help them do things together." },
@@ -1169,7 +1169,7 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
       who: "Toomas",
       turns: [
         { ask: { et: "Tere tulemast! Piret rääkis mulle teie murest. Rääkige palun, mis juhtus.", en: "Welcome! Piret told me about your worry. Please tell me what happened." }, cue: "Thank him for finding the time, and say your son has been left out at break for several weeks.", model: { et: "Aitäh, et leidsite aega. Meie poeg jääb juba mitu nädalat vahetundides kõrvale.", en: "Thank you for finding the time. Our son has been left out at break for several weeks now." } },
-        { ask: { et: "Ausalt öeldes juhtub seda esimeses klassis igal aastal. Tavaliselt saavad lapsed ise hakkama.", en: "To be honest, it happens in first grade every year. Usually the children sort it out themselves." }, cue: "Disagree, politely and firmly: you understand, but you don't quite agree, because it has gone on for weeks.", model: { et: "Ma saan aru, aga ma ei ole sellega päris nõus. See on kestnud juba mitu nädalat.", en: "I understand, but I don't quite agree. It's been going on for several weeks now." } },
+        { ask: { et: "Esimeses klassis juhtub seda igal aastal. Tavaliselt saavad lapsed ise hakkama.", en: "It happens in first grade every year. Usually the children sort it out themselves." }, cue: "Disagree, politely and firmly: you understand, but you don't quite agree, because it has gone on for weeks.", model: { et: "Ma saan aru, aga ma ei ole sellega päris nõus. See on kestnud juba mitu nädalat.", en: "I understand, but I don't quite agree. It's been going on for several weeks now." } },
         { ask: { et: "Me ei saa ju lapsi sundida, et nad sõbraks saaksid.", en: "We can't force children to become friends." }, cue: "Say that's not what you're asking: you ask the school to help them do things together.", model: { et: "Seda me ei palu. Me palume, et kool aitaks neil koos midagi teha.", en: "That's not what we're asking. We're asking the school to help them do things together." } },
         { ask: { et: "Mida te siis täpselt soovite?", en: "So what exactly would you like?" }, cue: "Say what you ask for: games at break that everybody can join, and that the psychologist talks to your son.", model: { et: "Sooviksime, et vahetunnis oleks mänge, kus kõik saavad kaasa teha. Ühtlasi palume, et psühholoog räägiks meie pojaga.", en: "We would like there to be games at break that everybody can join in. We also ask that the psychologist talk to our son." } },
         { ask: { et: "Kas me peaksime siis kõik vanemad kokku kutsuma?", en: "Should we call all the parents together, then?" }, cue: "This one wasn't in the practice. Say you don't think that's needed, and that it's enough if the teacher talks to the two boys.", model: { et: "Ma arvan, et seda ei ole vaja. Aitab, kui õpetaja räägib kahe poisiga.", en: "I don't think there's any need. It's enough if the teacher talks to the two boys." } },
