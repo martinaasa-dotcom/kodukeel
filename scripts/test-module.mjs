@@ -63,13 +63,18 @@ const prisma = newPrismaClient();
 await requireLocalDatabase(prisma);
 
 /*
-  THE WALK RUNS ON A PART BUILT OUT OF UNITS, AND A1 TO B2 ARE THE LESSONS.
+  THE WALK RUNS ON A LESSON EVENING, BECAUSE EVERY LEVEL IS THE LESSONS.
 
-  An A1 evening is one step, the lesson, whose own six steps happen inside the
-  lesson screen (docs/43-lessons.md, P3, and A2 the same way since §9), so a
-  fixture whose learner opens on A1 to B2 would hand this walk a one-step evening and nothing to walk. The learner's
-  part is pinned to the first part built out of units for the walk and put back
-  afterwards; the A1 evening is asked its own two questions at the end.
+  An evening is one step, the lesson, whose own six steps happen inside the
+  lesson screen (docs/43-lessons.md, P3, and every level the same way since
+  §16). The walk of an evening built out of units, its steps one after another
+  with the reading and the rounds between them, went with the last such part,
+  and so did the checks that only it could reach. What is asked is the lesson
+  evening: its one step, the lesson drawn inside the module and leading
+  nowhere out of it, the marker it carries opening every screen a module can
+  frame, a press with the plug out, and finishing the lesson ticking the
+  evening and filling the deck. The learner's part is pinned to A1.1 for the
+  walk and put back afterwards.
 */
 const PROGRAMME_KEY = "programme";
 const keptProgramme = await prisma.setting.findUnique({ where: { ownerId_key: { ownerId: OWNER, key: PROGRAMME_KEY } } });
@@ -81,27 +86,14 @@ async function pinProgramme(value) {
     update: { value },
   });
 }
-await pinProgramme("c1.1");
+await pinProgramme("a1.1");
 
 /*
-  THE FLOOR IS WHAT THE SHORTEST HONEST EVENING REACHES, NOT WHAT TONIGHT DID.
-
-  The walk asks five things at every step, and how many steps an evening has is
-  the program's business: an ordinary one is five and one carrying a
-  conversation is three, because a conversation replaces the reading and both
-  rounds. A floor set to the run in front of me would fail on a fixture whose
-  learner opens on a different part, which is a suite reporting the database
-  rather than the code.
-
-  So the floor is the three-step evening, and what actually catches a block
-  that stopped running is the check below that the walk visited every step the
-  list named. A floor alone cannot do it here and saying so is better than a
-  number that looks stricter than it is. The five reading checks below run on
-  every evening now, off the walk's own marker when the evening dealt no
-  reading, so they are in the floor: 33 was the three-step evening with them
-  waived.
+  THE FLOOR IS THE LESSON EVENING'S, COUNTED OFF A RUN: its two list checks, the
+  lesson drawn and leading nowhere out, the sweep, the four offline checks, the
+  three ticks and cards, and the reference outside a module.
 */
-const { check, absent, done } = suite("Today's module", { floor: 42 });
+const { check, absent, done } = suite("Today's module", { floor: 15 });
 
 /** The module's own screen, with a program running. */
 async function openModule(page) {
@@ -136,58 +128,6 @@ const browser = await launchChromium();
 const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
 
 try {
-  await openModule(page);
-  const steps = await stepsOn(page);
-  check("the module lists today's steps", steps.length >= 3, `${steps.length} steps`);
-
-  /*
-    THE WHOLE EVENING IS WALKED, STEP BY STEP, THE WAY A LEARNER WALKS IT.
-
-    Only the open step carries a button, which is the list's whole argument:
-    one thing to do at a time. So this presses that button and then presses on
-    until the evening runs out, which is the only way to reach the later steps
-    without inventing addresses the app never wrote.
-
-    AND THE QUESTION IS ASKED AT EVERY ONE OF THEM. The report was about the
-    reading, and the reading was only where somebody happened to notice: a
-    round's own finish screen offers Today, the practice menu and another
-    round, and an empty one offers the dictionary. Checking the step that was
-    reported and trusting the rest is how the next one of these reaches a
-    learner. Whatever today's rotation dealt is walked, so the evenings that
-    carry a conversation or a game are covered by the same loop without it
-    being told what they are.
-  */
-  /*
-    AND THE WALK STARTS WHERE THE EVENING IS OPEN, WHICH IS NOT ALWAYS STEP ONE.
-
-    Meeting the words is proved by the review log rather than ticked, so on a
-    database where the day's words have already been met the list opens on the
-    reading and there is no way into the step behind it. CI found this and the
-    fixture here could not: its demo learner starts on A2.1 with the words
-    already in the deck, so the walk began at step 2 of 5 while this box began
-    at step 1 of 5. The steps behind the open one are waived by name, so the
-    floor still means something and the reason is on the screen.
-  */
-  const openAt = steps.findIndex((s) => s.open !== null);
-  check("the list has exactly one way in", openAt >= 0 && steps.filter((s) => s.open !== null).length === 1);
-  /* One waiver per step rather than a multiplication, because the count a
-     waiver carries has to be a number a reader can check against the block it
-     stands for, and `scripts/test-invariants.ts` holds every suite here to
-     that. Six is what the loop below asks at each step. */
-  for (const behind of steps.slice(0, Math.max(0, openAt))) {
-    absent(6, `"${behind.title}" to be unfinished: it was already done before this run, and the list offers no way back into a step behind the open one`);
-  }
-
-  const first = page.locator("[data-step-start] a, [data-step-start] button").first();
-  check("the open step has one way in", await first.count() === 1);
-  await first.click();
-  await page.waitForFunction(
-    () => !location.pathname.startsWith("/course") || location.search.includes("module="),
-    null, { timeout: 20_000 },
-  );
-  await page.waitForSelector("main h1", { timeout: 20_000 });
-  check("which opens it inside the module", page.url().includes("module="), decodeURIComponent(page.url().replace(B, "")));
-
   /**
    * Every link the page offers, minus the module's own way back to the list
    * and the one deliberate door back into the app, which the bar marks
@@ -207,314 +147,36 @@ try {
     MODULE_HOME,
   );
 
-  const walked = [];
-  let reading = null;
   /*
-    THE MARKER, FROM WHICHEVER STEP CARRIED ONE FIRST.
+    AN A1 EVENING IS ONE LESSON.
 
-    It used to be read off the reading alone, and an evening whose conversation
-    replaces the reading has none: `marker` came back null, the offline block
-    below built its address as `?module=`, which `readFocus` correctly refuses,
-    and the four checks about a step surviving the plug being pulled measured a
-    page with no frame on it and failed every time that evening came round.
-    They were failing on CI for exactly that reason and the message named the
-    missing frame rather than the missing marker, which is a failure misnaming
-    its own cause. Every step of the walk is inside the module and says so in
-    its own address, so the first of them is as good a marker as the reading's.
-  */
-  let marker = null;
-  for (let step = 0; step < 12; step += 1) {
-    /* Through the briefing, so every check below is about the round. */
-    await startRound(page, { waitMs: 600 });
-    const here = decodeURIComponent(new URL(page.url()).pathname);
-    walked.push(here);
-    check(`step ${walked.length} draws the frame  (${here})`, await page.locator(".module-step").count() === 1);
-    const away = await waysOut();
-    check(`and nothing on it leads out of the module  (${here})`, away.length === 0, JSON.stringify(away));
-    /*
-      AND THE RAIL AND ANU ARE STILL THERE, ON A DESKTOP.
-
-      The first version took the whole website off the screen and was reported
-      the other way: a learner three steps in had no idea where in the app they
-      were and nobody to ask about the card. So the rail is the ordinary rail
-      with Learn lit and today's steps under it, no class group, Anu in her
-      corner, and on a desktop no bar at all: the way on is "Next" where the
-      step ends.
-    */
-    for (const part of ["rail", "anu"]) {
-      check(
-        `and the ${part} is on the screen  (${here})`,
-        await page.locator(`[data-chrome="${part}"]`).isVisible().catch(() => false),
-      );
-    }
-    check(
-      `and the rail lights Learn, whatever the step opened  (${here})`,
-      await page.locator('[data-chrome="rail"] [aria-current="page"]').count() === 1
-        && await page.locator('[data-chrome="rail"] [aria-current="page"]').getAttribute("href") === "/learn",
-    );
-    /* The steps arrive from the server a moment after the page, so waited for. */
-    await page.waitForSelector('[data-rail-tonight] [aria-current="step"]', { timeout: 10_000 }).catch(() => {});
-    const tonight = await page.evaluate(() => {
-      const list = document.querySelector("[data-rail-tonight]");
-      const learn = document.querySelector('[data-chrome="rail"] a[href="/learn"]');
-      return {
-        rows: list ? list.querySelectorAll("li a").length : 0,
-        now: list ? list.querySelectorAll('[aria-current="step"]').length : 0,
-        underLearn: !!list && !!learn && list.previousElementSibling === learn,
-        marked: list ? [...list.querySelectorAll("li a")].every((a) => a.href.includes("module=")) : false,
-      };
-    });
-    check(
-      `and today's steps hang under it, the one open marked now  (${here})`,
-      tonight.rows === steps.length && tonight.now === 1 && tonight.underLearn && tonight.marked,
-      JSON.stringify(tonight),
-    );
-    check(
-      `and no class group in the rail during a module  (${here})`,
-      await page.locator("[data-rail-classes]").count() === 0,
-    );
-    check(
-      `and the way into the app is the rail's Today, not a second door  (${here})`,
-      await page.locator('[data-chrome="rail"] a[href="/"]').first().isVisible().catch(() => false)
-        && !(await page.locator(".module-step [data-module-leave]").isVisible().catch(() => true)),
-    );
-    check(
-      `and no bar over the step on a desktop  (${here})`,
-      !(await page.locator(".module-step").isVisible().catch(() => true)),
-    );
-    if (/\/grammar\//.test(here)) reading = page.url();
-    marker ??= new URL(page.url()).searchParams.get("module");
-
-    const was = page.url();
-    /*
-      A reading ends on its own "Next", which is the desktop's way on and is
-      pressed as a learner presses it. A round's "Next" is on its finish
-      screen, which this walk does not play to, so the press there goes to the
-      phone bar's quiet "Next step": the same press through the same action,
-      one element over, and the phone half of this suite shows that button on
-      a screen.
-    */
-    const readingNext = page.locator("[data-reading-end] button");
-    /* And a round that has nothing to deal on this fixture ends at once, on
-       its empty state, which draws the named Next in the page; the bar's
-       button steps aside while that one is on the screen, so it is the one
-       pressed. */
-    const pageNext = page.locator("[data-module-next] button").first();
-    if (await readingNext.isVisible().catch(() => false)) {
-      check(`the reading ends on a named Next  (${here})`, /Next, step \d+|Finish today's module/.test(await readingNext.innerText()));
-      await readingNext.click();
-    } else if (await pageNext.isVisible().catch(() => false)) {
-      await pageNext.click();
-    } else {
-      /* By text rather than role: a hidden button is out of the accessibility
-         tree, which is what `getByRole` reads. */
-      await page.locator(".module-step button", { hasText: /Next step|Finish/ }).evaluate((b) => b.click());
-    }
-    await page.waitForFunction((u) => location.href !== u, was, { timeout: 30_000 });
-    await page.waitForSelector("main h1", { timeout: 30_000 });
-    /*
-      AND THE FIRST PRESS ON HANDS THE CARET TO WHAT IT OPENED.
-
-      The bar lives in the shell and survives the navigation it causes, so the
-      browser leaves focus on a button now sitting above a different screen:
-      measured, the body. A keyboard walked back to the top for every step of
-      every evening and a screen reader was told nothing about arriving
-      somewhere new. Asked once rather than per step, because it is one
-      mechanism and five copies of the answer is five copies.
-    */
-    if (walked.length === 1) {
-      /* Waited for rather than sampled: the caret is moved by an effect, which
-         runs after React has committed the new route, and `waitForSelector`
-         resolves as soon as the markup is there. A check that reads it in the
-         same tick is asserting this machine's scheduling. */
-      await page.waitForFunction(
-        () => document.activeElement === document.querySelector("#main h1"),
-        null, { timeout: 5_000 },
-      ).catch(() => {});
-      const caret = await page.evaluate(() => {
-        const a = document.activeElement;
-        if (!a || a === document.body) return "the body";
-        return a === document.querySelector("#main h1") ? "the heading" : (a.tagName.toLowerCase());
-      });
-      check("pressing on hands the caret to the step it opened", caret === "the heading", caret);
-
-      /*
-        A PHONE ON ITS SIDE IS SHORT RATHER THAN NARROW.
-
-        Every other check in this suite pins the height at 900 and the phone
-        suite pins it at 740, so the one shape neither sees is a phone turned
-        over. Measured at 844x390 before the rule that fixed it: the bar was
-        91px and the page reserved another 128 under it, so a third of the
-        screen went to the way on, on a step whose job is text somebody is
-        reading. Asked here because this is the first point in the walk with an
-        address in hand: the step the list opens on is a button, since that is
-        the one press that writes cards.
-      */
-      const sideways = await browser.newPage({ viewport: { width: 844, height: 390 } });
-      await sideways.goto(page.url(), { waitUntil: "domcontentloaded" });
-      await sideways.waitForSelector("main h1", { timeout: 20_000 });
-      /* 844 is past the width the rail appears at, so there is no bar at all
-         there, and nothing is pinned over the step. */
-      const share = await sideways.evaluate(() => {
-        const bar = document.querySelector(".module-step");
-        const pad = parseFloat(getComputedStyle(document.querySelector("main")).paddingBottom);
-        return bar ? { display: getComputedStyle(bar).display, pad: Math.round(pad) } : null;
-      });
-      await sideways.close();
-      check(
-        "a phone on its side keeps the whole screen for the step",
-        share !== null && share.display === "none" && share.pad <= 100,
-        JSON.stringify(share),
-      );
-
-      /*
-        AND ON A PHONE THE WAY ON IS PINNED, WITH ANU CLEAR OF IT.
-
-        The phone bar goes because the module's own bar stands where it stood,
-        and Anu stands off that bar's measured height, so neither is drawn over
-        the other and the button a thumb reaches for is never her face.
-      */
-      const phone = await browser.newPage({ viewport: { width: 390, height: 844 } });
-      await phone.goto(page.url(), { waitUntil: "domcontentloaded" });
-      await phone.waitForSelector("main h1", { timeout: 20_000 });
-      await phone.waitForTimeout(600);
-      const onPhone = await phone.evaluate(() => {
-        const bar = document.querySelector(".module-step");
-        const anu = document.querySelector('[data-chrome="anu"]');
-        const dock = document.querySelector('[data-chrome="dock"]');
-        const shown = (e) => !!e && getComputedStyle(e).display !== "none" && e.getBoundingClientRect().height > 0;
-        return {
-          pinned: !!bar && getComputedStyle(bar).position === "fixed",
-          anu: shown(anu),
-          dock: shown(dock),
-          clear: !!bar && !!anu && anu.getBoundingClientRect().bottom <= bar.getBoundingClientRect().top + 1,
-          leave: !!document.querySelector(".module-step [data-module-leave]")?.getClientRects().length,
-        };
-      });
-      await phone.close();
-      check("on a phone the way on is pinned to the foot", onPhone.pinned, JSON.stringify(onPhone));
-      check("with Anu on the screen and clear of it", onPhone.anu && onPhone.clear, JSON.stringify(onPhone));
-      check("and the phone bar off, since the way on stands in its place", !onPhone.dock, JSON.stringify(onPhone));
-      check("and one cross back to Today", onPhone.leave, JSON.stringify(onPhone));
-    }
-    /* The last step's way on is the list, which is where the evening ends. */
-    if (new URL(page.url()).pathname === MODULE_HOME) break;
-    check(`pressing on stays inside the module  (after ${here})`, page.url().includes("module="));
-  }
-  check("the evening ends on the module's own screen", new URL(page.url()).pathname === MODULE_HOME, walked.join(" -> "));
-  /* Every step from the open one to the end, and no fewer: this is what
-     catches a block of the loop quietly not running, which the floor above
-     cannot. Counted from where the walk could start rather than from the top
-     of the list, since the steps behind it were finished before this run and
-     were waived by name above. */
-  check(
-    "and every step the list left to do was walked",
-    walked.length === steps.length - Math.max(0, openAt),
-    `${walked.length} walked of ${steps.length - Math.max(0, openAt)} left of ${steps.length} listed`,
-  );
-
-  /*
-    AN EVENING WITH NO READING STILL HAS A READING TO ASK ABOUT.
-
-    The waiver here used to say "this day is a conversation, which replaces
-    it", and on the fixture that was never the reason: the demo learner opens
-    on the first evening of A1.1, whose steps are the words, two rounds and the
-    review, because A1's first two evenings read nothing (`reads()` in
-    `lib/course/build.ts`). So these five checks were waived on every run CI
-    has ever made. The drill checks below already carry the marker the app
-    wrote onto a grammar page of their choosing, which is the same address in
-    the same shape, so the reading is asked that way too when the walk dealt
-    none. Only a walk that produced no marker at all is waived.
-  */
-  const readingAt = reading ?? (marker ? `${B}/grammar/topic/imperative?module=${encodeURIComponent(marker)}` : null);
-  if (!readingAt) {
-    /* Five, counted off the block below rather than guessed: a waiver lowers
-       the floor by exactly as much as it skips, and one too many is a block
-       that can stop running without the floor noticing. */
-    absent(5, "a marker the app wrote: no step of this evening carried one, so there is no reading address to ask");
-  } else {
-    await page.goto(readingAt, { waitUntil: "domcontentloaded" });
-    await page.waitForSelector("main h1", { timeout: 20_000 });
-    await page.waitForSelector("[data-reading-end] button", { timeout: 10_000 }).catch(() => {});
-    /* Waited for as text rather than read once. CI read this as empty nine
-       milliseconds before the next check found the same element drawn and
-       holding the page's last line, so the element was there and a render
-       was still settling under it: a single read races that, and a failure
-       here should mean the sentence never arrived. Read off the DOM rather
-       than through a strict locator, which throws while two copies of the
-       tree briefly coexist and reports that as an empty sentence. */
-    await page
-      .waitForFunction(
-        () => [...document.querySelectorAll("[data-reading-end]")].some((e) => /end of the page/.test(e.innerText)),
-        undefined,
-        { timeout: 10_000 },
-      )
-      .catch(() => {});
-    const end = await page.evaluate(() =>
-      [...document.querySelectorAll("[data-reading-end]")].map((e) => e.innerText).find((t) => t.trim()) ?? "",
-    );
-    check(
-      "the reading says where it ends and which step of the evening it is",
-      /end of the page/.test(end) && /step \d+ of \d+/i.test(end),
-      end.split("\n").slice(0, 2).join(" / "),
-    );
-
-    /* And the page ends there: the way on is the last thing in it. */
-    const foot = await page.evaluate(() => {
-      const end = document.querySelector("[data-reading-end]");
-      const leaves = [...document.querySelectorAll("#main *")]
-        .filter((e) => !e.children.length && e.textContent?.trim() && e.getClientRects().length);
-      return { last: !!end && !!leaves.length && end.contains(leaves.at(-1)) };
-    });
-    check("the foot of the reading is its way on", foot.last, JSON.stringify(foot));
-
-    /*
-      AND THE DRILL, WHICH IS THE THING THAT WAS REPORTED, ON A PAGE THAT HAS
-      ONE.
-
-      Only four grammar topics carry a drill, and the reading an evening deals
-      is whichever point its unit teaches next, so asking this on the page the
-      walk happens to land on is a check that passes by having nothing to find.
-      That is the fault `scripts/lib/checks.mjs` gives a suite a floor to catch,
-      one check further in. So the marker the app itself wrote is carried onto
-      a topic that does have one, which is the same address in the same shape
-      with the same step behind it, and the page is asked there.
-    */
-    const readingMarker = new URL(readingAt).searchParams.get("module");
-    check("the reading's address carries a readable marker", Boolean(readingMarker), String(readingMarker));
-    for (const [what, path] of [["topic", "/grammar/topic/government"], ["ending", "/grammar/inessive"]]) {
-      await page.goto(`${B}${path}?module=${encodeURIComponent(readingMarker)}`, { waitUntil: "domcontentloaded" });
-      await page.waitForSelector("main h1", { timeout: 20_000 });
-      check(
-        `the ${what} page with a drill does not offer it inside a module`,
-        await page.getByText("Drill it", { exact: true }).count() === 0,
-      );
-    }
-  }
-
-  /*
-    AND THE STEPS THE LOG DOES NOT PROVE ARE FINISHED WITHOUT BEING TICKED.
-
-    The half a learner reported: they read the page, came back, and were asked
-    to press "I did this" about it. A Server Action, a redirect and a re-render
-    apart, so only a browser can say it. Meeting the words and the closing
-    round are deliberately not among them, since those are read off the review
-    log and this press writes nothing for either.
+    One step on the list, opening the lesson inside the module, so the way on
+    and the evening's place are drawn round it like any other step.
   */
   await openModule(page);
-  const after = await stepsOn(page);
-  const ticked = after.filter((s) => s.chip === "Done").map((s) => s.title);
-  check(
-    "walking the evening finished the steps a press can finish",
-    ticked.length >= 1 && after.some((s) => /Read the point/i.test(s.title) ? s.chip === "Done" : true),
-    ticked.join(" | ") || "none",
-  );
+  const lessonSteps = await stepsOn(page);
+  check("an A1 evening lists one step, the lesson", lessonSteps.length === 1
+    && /^Lesson /.test(lessonSteps[0]?.title ?? ""), JSON.stringify(lessonSteps));
+  const lessonHref = lessonSteps[0]?.open ?? "";
+  check("which opens the lesson inside the module", /^\/course\/lessons\/[^?]+\?module=/.test(lessonHref), lessonHref);
+  if (lessonHref.startsWith("/")) {
+    await page.goto(`${B}${lessonHref}`, { waitUntil: "domcontentloaded" });
+    await page.waitForSelector("main h1", { timeout: 20_000 });
+    check("and the lesson is drawn as a step of tonight's module", await page.locator(".module-step").count() > 0);
+    const away = await waysOut();
+    check("and nothing on it leads out of the module", away.length === 0, JSON.stringify(away));
+
+  }
+  const marker = lessonHref.startsWith("/") ? new URL(`${B}${lessonHref}`).searchParams.get("module") : null;
+  const reading = lessonHref.startsWith("/") ? `${B}${lessonHref}` : null;
 
   /*
     AND EVERY ROUND A ROTATION CAN DEAL, NOT ONLY THE TWO TONIGHT DEALT.
 
-    The walk above proves the mechanism on whatever the evening dealt, and an
-    evening deals two rounds out of ten, so one run of it sees a fifth of them.
+    A lesson evening opens one screen, the lesson, and the frame is drawn off
+    the address, so a marker the app wrote opens any round as a step of the
+    module. The walk of an evening built from units used to prove this on the
+    two rounds it dealt; that walk went with the last such part.
     That is not a measurement of the rule, and saying so is not theoretical:
     the walk found `Full entry` on the review card, CI's walk found the verb
     table on an A2 reading, and opening all of them found four more that no
@@ -529,10 +191,17 @@ try {
     cannot import it: a list that drifts is the fifth door nobody counted.
   */
   if (!marker) {
-    absent(1, "a marker the app wrote: no step of this evening carried one");
+    absent(1, "a marker the app wrote: the lesson step carried none");
   } else {
     const wayOut = [];
-    for (const screen of MODULE_SCREENS) {
+    /*
+      The Learn ladder is a step of an evening built from units, and a lesson
+      evening's marker asks it about a day whose one step is the lesson, which
+      it answers by pointing at the lesson. No learner reaches that, so it is
+      the one screen of the table this sweep leaves out; the ladder goes with
+      the unit builder (docs/43-lessons.md §15.14, step 7).
+    */
+    for (const screen of MODULE_SCREENS.filter((s) => s !== "/course/learn")) {
       await page.goto(`${B}${screen}?module=${encodeURIComponent(marker)}`, { waitUntil: "domcontentloaded" });
       await page.waitForSelector("main h1", { timeout: 30_000 });
       /*
@@ -547,7 +216,7 @@ try {
       if (away.length || !framed) wayOut.push(`${screen} ${framed ? "" : "(no frame) "}${JSON.stringify(away)}`);
     }
     check(
-      `none of the ${MODULE_SCREENS.length} screens a step can open leads out of the module`,
+      `none of the ${MODULE_SCREENS.length - 1} screens a lesson's marker can open leads out of the module`,
       wayOut.length === 0,
       wayOut.join("  ·  "),
     );
@@ -573,7 +242,7 @@ try {
        since every step of it is asserted to carry a marker, and it is here
        because the alternative is building an address out of the word "null"
        and measuring the page that refuses it. */
-    absent(4, "a step address carrying the app's own marker, which the walk above did not produce");
+    absent(4, "a step address carrying the app's own marker, which the lesson step did not carry");
   } else {
   /* A phone, where the way on is the bar and is on the screen on every step:
      the press is the same action as a desktop's "Next", through the same
@@ -628,37 +297,9 @@ try {
   }
   }
 
-  /*
-    AND THE SAME PAGE REACHED ANY OTHER WAY IS THE PAGE IT WAS.
-
-    The frame is drawn off the address, so nothing above is a change to the
-    reference: a learner who opens it from the grammar index still gets the
-    units that teach the point and the drill on their own deck.
-  */
-  await page.goto(`${B}/grammar/topic/government`, { waitUntil: "domcontentloaded" });
-  await page.waitForSelector("main h1", { timeout: 20_000 });
-  check("the reference outside a module keeps its rail", await page.locator('[data-chrome="rail"]').isVisible());
-  check("and its drill", await page.getByText("Drill it", { exact: true }).count() === 1);
-  check("and no frame is drawn over it", await page.locator(".module-step").count() === 0);
-
-  /*
-    AN A1 EVENING IS ONE LESSON.
-
-    One step on the list, opening the lesson inside the module, so the way on
-    and the evening's place are drawn round it like any other step.
-  */
-  await pinProgramme("a1.1");
-  await openModule(page);
-  const lessonSteps = await stepsOn(page);
-  check("an A1 evening lists one step, the lesson", lessonSteps.length === 1
-    && /^Lesson /.test(lessonSteps[0]?.title ?? ""), JSON.stringify(lessonSteps));
-  const lessonHref = lessonSteps[0]?.open ?? "";
-  check("which opens the lesson inside the module", /^\/course\/lessons\/[^?]+\?module=/.test(lessonHref), lessonHref);
   if (lessonHref.startsWith("/")) {
     await page.goto(`${B}${lessonHref}`, { waitUntil: "domcontentloaded" });
     await page.waitForSelector("main h1", { timeout: 20_000 });
-    check("and the lesson is drawn as a step of tonight's module", await page.locator(".module-step").count() > 0);
-
     /*
       AND FINISHING IT FINISHES THE EVENING AND FILLS THE DECK.
 
@@ -695,6 +336,19 @@ try {
   } else {
     absent(4, "the lesson step carried no address to open");
   }
+  /*
+    AND THE SAME PAGE REACHED ANY OTHER WAY IS THE PAGE IT WAS.
+
+    The frame is drawn off the address, so nothing above is a change to the
+    reference: a learner who opens it from the grammar index still gets the
+    units that teach the point and the drill on their own deck.
+  */
+  await page.goto(`${B}/grammar/topic/government`, { waitUntil: "domcontentloaded" });
+  await page.waitForSelector("main h1", { timeout: 20_000 });
+  check("the reference outside a module keeps its rail", await page.locator('[data-chrome="rail"]').isVisible());
+  check("and its drill", await page.getByText("Drill it", { exact: true }).count() === 1);
+  check("and no frame is drawn over it", await page.locator(".module-step").count() === 0);
+
 } finally {
   /*
     THE COURSE PUT BACK WHERE IT WAS FOUND.

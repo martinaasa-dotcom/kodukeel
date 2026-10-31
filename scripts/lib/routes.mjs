@@ -16,7 +16,7 @@ import { join } from "node:path";
   learner would reach by mistyping, which is worth rendering too.
 */
 export const FILL = {
-  "[unitId]": "nominalisatsioon", "[situationId]": "tervitused", "[level]": "A1", "[id]": "partitive",
+  "[situationId]": "tervitused", "[level]": "A1", "[id]": "partitive",
   "[caseKey]": "partitive", "[case]": "partitive",
   "[code]": "AAAAAA", "[groupId]": "none",
 };
@@ -35,9 +35,19 @@ function walk(dir, prefix = "") {
   return out;
 }
 
-/** Every page as the URL that reaches it, dynamic segments filled, sorted. */
+/*
+  A UNIT'S PAGES RENDER NOTHING NOW. Every level is the lessons since C1 moved
+  (docs/43-lessons.md §16), so `/learn/[unitId]`, its lesson and its worksheet
+  each redirect to `/course/lessons`, and a walk that opened them would measure
+  the list of lessons three more times. They are left out here, and
+  `test-lessons.mjs` asserts the redirect (`UNIT_ROUTES`).
+*/
+export const UNIT_ROUTES = ["/learn/nominalisatsioon", "/learn/nominalisatsioon/lesson", "/learn/nominalisatsioon/worksheet"];
+
+/** Every page as the URL that reaches it, dynamic segments filled, sorted, a unit's pages left out. */
 export function appRoutes() {
   return [...new Set(walk(new URL("../../app", import.meta.url).pathname))]
+    .filter((r) => !r.includes("[unitId]"))
     .map((r) => r.replace(/\[[^\]]+\]/g, (m) => FILL[m] ?? "x"))
     .sort();
 }

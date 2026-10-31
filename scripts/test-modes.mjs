@@ -129,19 +129,16 @@ await page.goto(`${B}/learn`, { waitUntil: "networkidle" });
 // The unit's own name shows in English until the learner reaches A2
 // (lib/copy/uiLanguage.ts), so a suite that does not know this account's
 // level checks for either name rather than assuming Estonian always shows.
-// A1 to B2 are the lessons (docs/43-lessons.md), so their parts link to
-// them; the units start at C1, and a link to a B2 unit lands on the lessons.
+// Every level is the lessons (docs/43-lessons.md §16), so a part links to
+// them, and a unit's own page lands on the list of lessons.
 check("path shows A1 as lessons", (await page.locator('a[href^="/course/lessons#"]').count()) > 0);
-check(
-  "path shows units",
-  (await page.getByText("Nominalisatsioon").count()) > 0
-    || (await page.getByText("Turning clauses into phrases").count()) > 0,
-);
+// No level is built from units since C1 moved (docs/43-lessons.md §16), so C1's parts are on the path as lessons too.
+check("path shows C1 as lessons", (await page.locator('a[href^="/course/lessons#c1-"]').count()) > 0);
 check("path reports overall progress", (await page.getByText(/words known/).count()) > 0);
 
 await page.goto(`${B}/learn/nominalisatsioon`, { waitUntil: "networkidle" });
-check("a unit lists its words", (await page.getByText("rakendamine", { exact: true }).count()) > 0);
-check("a unit says which card types it makes", (await page.getByText(/recognition, production/i).count()) > 0);
+check("a unit's page sends you to the lessons, since every level is lessons", new URL(page.url()).pathname === "/course/lessons", page.url());
+check("and the lessons list C1 among the rest", (await page.locator('a[href^="/course/lessons/c1-"]').count()) > 0);
 
 // 2 — Practice keeps the words fresh and Games is for play, each round named
 // the Estonian way with its English after it (lib/ux/roundNames.ts).

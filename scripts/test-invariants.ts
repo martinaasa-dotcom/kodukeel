@@ -27982,9 +27982,18 @@ check("every route the app has is walked by the containment and accessibility sw
   const matches = (route: string, entry: string) =>
     new RegExp(`^${route.replace(/\[[^\]]+\]/g, "[^/]+")}$`).test(entry);
 
+  /*
+    A unit's pages render nothing: every level is the lessons since C1 moved
+    (docs/43-lessons.md §16), so each redirects to `/course/lessons`, which
+    `test-lessons.mjs` asserts (`UNIT_ROUTES`), and a sweep walking them would
+    measure the list of lessons again. They go with the unit builder.
+  */
+  const REDIRECTED = ["/learn/[unitId]", "/learn/[unitId]/lesson", "/learn/[unitId]/worksheet"];
+  assert.match(code("scripts/lib/routes.mjs"), /export const UNIT_ROUTES/, "the unit pages are exempt here and nothing asserts their redirect any more");
+  assert.match(code("scripts/test-lessons.mjs"), /UNIT_ROUTES/, "the unit pages are exempt here and test-lessons.mjs no longer asserts their redirect");
   for (const [file, made] of [
-    ["scripts/test-containment.mjs", [...Object.keys(MADE), "/exam/[level]"]],
-    ["scripts/a11y-check.mjs", ["/review/deck/[deckId]", "/class/[classroomId]", "/class/[classroomId]/poster", "/class/[classroomId]/report", ...NOT_BY_AXE]],
+    ["scripts/test-containment.mjs", [...Object.keys(MADE), "/exam/[level]", ...REDIRECTED]],
+    ["scripts/a11y-check.mjs", ["/review/deck/[deckId]", "/class/[classroomId]", "/class/[classroomId]/poster", "/class/[classroomId]/report", ...NOT_BY_AXE, ...REDIRECTED]],
   ] as const) {
     const entries = listed(file);
     const missing = routes.filter((r) => !made.includes(r) && !entries.some((e) => matches(r, e)));

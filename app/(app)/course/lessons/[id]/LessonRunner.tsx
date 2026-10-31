@@ -349,7 +349,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
                       // In the reader's language, its marks dropped since a tooltip draws none.
                       title={`${l.label}. ${tr(locale, l.title).replace(/[{}[\]]/g, "")}`}
                       style={{
-                        width: 28, height: 10, borderRadius: 999,
+                        width: 28, height: 10, borderRadius: 9999,
                         background: past ? "var(--accent)" : "color-mix(in srgb, var(--ink) 10%, transparent)",
                         boxShadow: here ? "0 0 0 3px var(--accent-soft)" : undefined,
                       }}

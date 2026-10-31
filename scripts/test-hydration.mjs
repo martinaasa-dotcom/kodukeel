@@ -46,12 +46,14 @@ function routes(dir, prefix = "") {
 /* A value each dynamic segment can be answered for, as `test-first-day.mjs`
    fills them, so the walk meets the screen rather than the not-found. */
 const FILL = {
-  "[unitId]": "nominalisatsioon", "[situationId]": "tervitused", "[level]": "A1", "[id]": "partitive",
+  "[situationId]": "tervitused", "[level]": "A1", "[id]": "partitive",
   "[caseKey]": "partitive", "[case]": "partitive",
   "[code]": "AAAAAA", "[groupId]": "none",
 };
 
+/* A unit's pages redirect to the lessons since every level is lessons (`UNIT_ROUTES` in scripts/lib/routes.mjs). */
 const all = [...new Set(routes(new URL("../app", import.meta.url).pathname))]
+  .filter((r) => !r.includes("[unitId]"))
   .map((r) => r.replace(/\[[^\]]+\]/g, (m) => FILL[m] ?? "x"))
   .sort();
 

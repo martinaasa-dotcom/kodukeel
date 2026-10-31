@@ -209,9 +209,8 @@ const ROUTES = [
   // The course.
   "/learn",
   "/learn/new",
-  "/learn/nominalisatsioon",
-  "/learn/nominalisatsioon/lesson",
-  "/learn/nominalisatsioon/worksheet",
+  "/course/lessons/c1-01-news",
+  "/course/lessons/c1-20-comma",
   "/learn/checkpoint/A1",
   "/course",
   "/course/learn",
@@ -450,13 +449,6 @@ const SPARSE = new Map([
 */
 const { check, absent, done } = suite(PART ? `Containment, the ${PART} half` : "Containment", { floor: PART ? 1200 : 2425 });
 
-/**
- * A unit whose lesson meets words with their sentence under them. A1 to B2
- * are the lessons now (docs/43-lessons.md) and a link to one of their units
- * lands on `/course/lessons`, so this is a C1 unit, one of nouns: fifteen of
- * its eighteen words carry a recorded sentence.
- */
-const UNIT = "nominalisatsioon";
 
 const browser = await launchChromium();
 
@@ -1664,39 +1656,21 @@ async function askedForStates(ctx, at) {
     "Ready" as well, and the key cap makes that button's name "Ready ↵", so
     it could not have got past the first screen even on a deck that had one.
 
-    A C1 unit's lesson meets words that carry a sentence whatever the deck
-    holds, because a lesson plans from the unit rather than from the queue,
-    and the dictionary is seeded wherever this suite runs. So a panel that
-    does not open there is the markup failing, and is reported as that.
+    A unit's lesson was walked first and no unit page renders now that every
+    level is the lessons (docs/43-lessons.md §16), so the scanned page's own
+    drill below is where the meeting is walked: it opens on a first meeting
+    whatever the deck holds, and a panel that does not open there is the
+    markup failing, and is reported as that.
   */
-  await page.goto(`${B}/learn/${UNIT}/lesson`, { waitUntil: "networkidle", timeout: 60000 });
-  await startRound(page);
   let opened = false;
-  for (let tries = 0; tries < 12 && !opened; tries += 1) {
-    const words = page.locator("main p[lang=et] button");
-    if (await words.count()) {
-      await words.last().click().catch(() => {});
-      opened = (await page.getByRole("button", { name: /Add to my deck/ }).count()) > 0;
-      if (opened) break;
-    }
-    // Into the lesson, then past a meet step whose sentence held no word the
-    // dictionary vouches for. `\b` rather than `$`: a key cap is part of a
-    // button's accessible name.
-    const on = page.getByRole("button", { name: /^(Start these|Got it)\b/ });
-    if (await on.count()) await on.first().click().catch(() => {});
-    await page.waitForTimeout(500);
-  }
   /*
-    AND WHERE THE LADDER DEALT NO SUCH MEETING, THE SCANNED PAGE'S OWN DRILL.
-
-    The demo fixture's ladder is full of A1 words already past their first
-    meeting, so the loop above finds nothing to tap there on every run. The
-    page made above carries one vouched word above A1, ticking it built that
-    word's cards, and the page's drill opens on its first meeting, which is
-    the same `WordIntro` with the same dictionary under the same sentence.
+    THE SCANNED PAGE'S OWN DRILL. The page made above carries one vouched word
+    above A1, ticking it built that word's cards, and the page's drill opens on
+    its first meeting, which is `WordIntro` with the dictionary under its
+    sentence.
   */
   const scanPath = made.find((path) => /^\/scan\/[^/]+$/.test(path));
-  if (!opened && scanPath) {
+  if (scanPath) {
     await page.goto(`${B}/review?scan=${encodeURIComponent(scanPath.split("/").pop())}`, {
       waitUntil: "networkidle", timeout: 60000,
     });
@@ -1718,7 +1692,7 @@ async function askedForStates(ctx, at) {
     await measure(page, `a word opened out of a teaching sentence ${at}`);
   } else {
     check(`a word opened out of a teaching sentence ${at}`, false,
-      `/learn/${UNIT}/lesson met no word whose sentence opened a panel with "Add to my deck"`);
+      `the scanned page's drill met no word whose sentence opened a panel with "Add to my deck"`);
   }
 
   /*

@@ -6,6 +6,7 @@ import { eventually, launchChromium } from "./lib/browser.mjs";
 import { newPrismaClient } from "./lib/db.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 import { requireLocalDatabase } from "./lib/local-db.mjs";
+import { UNIT_ROUTES } from "./lib/routes.mjs";
 
 /**
  * THE LESSONS, WALKED STEP BY STEP (docs/43-lessons.md §11 and §12).
@@ -42,10 +43,12 @@ const { check, absent, done } = suite("The lessons, walked", {
     the finished screen and its conversation offer. Plus the first lesson's "What's new", its fade and its keyboard pass,
     the retell, the three goes, the four writing stages, the capstone, and A2
     staying as it was. Counted off a run, so a block that stops is a shortfall.
+    Then, since every level is lessons, the workbook page on each finish (seven),
+    the three unit pages landing on the lessons, and the end of the course (nine).
   */
-  floor: 195,
+  floor: 214,
 });
-// `--only=<role>` walks one lesson (or `spoken`, the race out loud) for working on it; it reports under the floor by design.
+// `--only=<role>` walks one lesson (or `spoken`, the race out loud, or `end`, the unit redirects and the end of the course) for working on it; it reports under the floor by design.
 
 const picks = JSON.parse(execFileSync("npx", ["tsx", "scripts/lib/lessonPicks.ts"], { encoding: "utf8" }));
 const byRole = Object.fromEntries(picks.map((p) => [p.role, p]));
@@ -469,6 +472,18 @@ async function walk(lesson, { mode = "type" } = {}) {
   } else {
     check(`${where}: the finish screen offers no conversation, since the lesson rehearses none`, (await offers.count()) === 0, `${await offers.count()} offers`);
   }
+  /*
+    And from B1 the finish screen offers a page of the workbook on what the
+    lessons have taught, which is the worksheet a learner is offered now that
+    no unit prints one (`lessonWorksheet.ts`); A2 offers none.
+  */
+  const sheet = page.locator("[data-lesson-worksheet]");
+  if (lesson.level === "A2") {
+    check(`${where}: the finish screen offers no worksheet below B1`, (await sheet.count()) === 0, `${await sheet.count()} offered`);
+  } else {
+    const opens = await sheet.first().getByRole("link").getAttribute("href").catch(() => null);
+    check(`${where}: the finish screen offers a workbook page on what the lessons taught`, (await sheet.count()) === 1 && /^\/review\/workbook/.test(opens ?? ""), `${await sheet.count()} offered, opening ${opens ?? "nothing"}`);
+  }
   if (SHOTS) await shoot(`${where} finished`);
   return said;
 }
@@ -536,6 +551,7 @@ async function spokenRace(lesson) {
 try {
   if (ONLY === "spoken") await spokenRace(byRole.faster);
   else if (ONLY === "check") await checkWalk(byRole.check.id, byRole.check.part);
+  else if (ONLY === "end") { await unitPagesRedirect(); await courseEnd(); }
   else if (ONLY) await walk(byRole[ONLY]);
   else await everything();
 } finally {
@@ -564,6 +580,8 @@ async function everything() {
   await walk(byRole["b2-first"]);
   await checkWalk(byRole.check.id, byRole.check.part);
   await inRussian(byRole.first);
+  await unitPagesRedirect();
+  await courseEnd();
   await spokenRace(byRole.faster);
   if (errors.length) console.log(errors.slice(0, 5).join("\n"));
   check("no console errors", errors.length === 0, `${errors.length}`);
@@ -610,6 +628,81 @@ async function sitCheck(id, where) {
   check(`${where}: the result line takes the caret`, caretOnResult === true);
   await page.unroute(`**/course/check/${id}**`);
   await axeHere(`${where} result`);
+}
+
+/*
+  A UNIT'S PAGES SEND YOU TO THE LESSONS. Every level is the lessons since C1
+  moved (docs/43-lessons.md §16), so a unit's page, its lesson and its
+  worksheet redirect to the list, and the route walks leave them out
+  (`UNIT_ROUTES`, scripts/lib/routes.mjs).
+*/
+async function unitPagesRedirect() {
+  for (const route of UNIT_ROUTES) {
+    await page.goto(`${B}${route}`, { waitUntil: "domcontentloaded" });
+    // The page redirects while it streams, so the browser follows once the shell has hydrated.
+    await page.waitForURL((url) => url.pathname === "/course/lessons", { timeout: 20_000 }).catch(() => {});
+    check(`${route} lands on the list of lessons`, new URL(page.url()).pathname === "/course/lessons", page.url());
+  }
+}
+
+/*
+  THE END OF THE COURSE. Every lesson of the last part ticked: /course offers
+  the C1 check rather than saying nothing, and once that check is passed,
+  /course is the course-finished screen, with its heading, its six pieces of
+  advice and its three buttons, and Today's line over what is due points at
+  it. The ticks and the pass are taken off again with everything else this
+  suite writes (the `finally` below), and the part the learner follows is put
+  back here.
+*/
+async function courseEnd() {
+  const settled = async () => {
+    await page.waitForSelector("main h1", { timeout: 30_000 });
+    await page.waitForLoadState("load").catch(() => {});
+  };
+  const end = JSON.parse(execFileSync("npx", ["tsx", "-e",
+    `import { PROGRAMMES } from "./lib/course"; import { checkAfter } from "./lib/course/checks";
+     const last = PROGRAMMES.at(-1);
+     process.stdout.write(JSON.stringify({ part: last.id, days: last.days.map((d) => d.id), check: checkAfter(PROGRAMMES, last.id).id }));`,
+  ], { encoding: "utf8" }));
+  const key = { ownerId_key: { ownerId: OWNER, key: "programme" } };
+  const before = await prisma.setting.findUnique({ where: key });
+  const passed = { ownerId_key: { ownerId: OWNER, key: "checksPassed" } };
+  try {
+    await prisma.setting.upsert({ where: key, create: { ownerId: OWNER, key: "programme", value: end.part }, update: { value: end.part } });
+    await prisma.courseStep.createMany({
+      data: end.days.map((dayId) => ({ ownerId: OWNER, programmeId: end.part, dayId, stepId: "lesson", createdAt: new Date(Date.now() - 2 * 86_400_000) })),
+      skipDuplicates: true,
+    });
+    await prisma.setting.deleteMany({ where: { ownerId: OWNER, key: "checksPassed" } });
+
+    await page.goto(`${B}/course`, { waitUntil: "domcontentloaded" });
+    await settled();
+    const due = await page.locator("[data-check-due]").getAttribute("data-check-due").catch(() => null);
+    check("after the last lesson, /course offers the C1 check", due === end.check, `offers ${due ?? "nothing"}, where the course ends on ${end.check}`);
+    await page.goto(`${B}/`, { waitUntil: "domcontentloaded" });
+    await settled();
+    check("and so does Today", (await page.locator(`a[href="/course/check/${end.check}"]`).count()) > 0);
+
+    await prisma.setting.upsert({ where: passed, create: { ownerId: OWNER, key: "checksPassed", value: end.check }, update: { value: end.check } });
+    await page.goto(`${B}/course`, { waitUntil: "domcontentloaded" });
+    await settled();
+    const finished = page.locator("[data-course-finished]");
+    check("once it is passed, /course is the course-finished screen", (await finished.count()) === 1);
+    check("headed as the course finished", (await page.locator("h1#course-finished").innerText().catch(() => "")).trim() === "You've finished the course.");
+    check("with the six pieces of advice", (await page.locator("[data-course-advice] > li").count()) === 6);
+    const buttons = await page.locator("[data-course-finished-actions] a").evaluateAll((els) => els.map((e) => [e.textContent.trim(), e.getAttribute("href")]));
+    check("and its three buttons, Today last", JSON.stringify(buttons) === JSON.stringify([["See every lesson", "/course/lessons"], ["Sit the C1 mock exam", "/exam/C1"], ["Back to Today", "/"]]), JSON.stringify(buttons));
+    check("the two Estonian lines are marked Estonian", (await finished.locator('[lang="et"]').count()) >= 3);
+    await axeHere("the course-finished screen");
+    await page.goto(`${B}/`, { waitUntil: "domcontentloaded" });
+    await settled();
+    check("Today says the course is finished and points at it", (await page.locator('[data-hero-reason] a[href="/course"]').count()) === 1);
+  } finally {
+    // Dated two days back so they read as an earlier evening, so the suite's own sweep by time would miss them.
+    await prisma.courseStep.deleteMany({ where: { ownerId: OWNER, programmeId: end.part, id: { notIn: [...stepsBefore] } } });
+    if (before) await prisma.setting.update({ where: key, data: { value: before.value } });
+    else await prisma.setting.delete({ where: key }).catch(() => {});
+  }
 }
 
 /* A B1 lesson in Russian: its goal in Russian on the screen, and the step headings too. */

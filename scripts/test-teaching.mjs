@@ -18,7 +18,7 @@ const B = baseUrl();
 // Floor: 79, measured in the state CI seeds, which is the 58 this suite had
 // before `/grammar/build-a-word` and the twenty-three checks that screen added.
 // A thinner database reads as short.
-const { check, absent, done } = suite("Teaching layer", { floor: 88 });
+const { check, absent, done } = suite("Teaching layer", { floor: 79 });
 
 const browser = await launchChromium();
 const page = await (await browser.newContext({ viewport: { width: 1280, height: 1100 } })).newPage();
@@ -664,45 +664,15 @@ if (hasRound) {
   check("and lands on the next sentence or the summary", advanced);
 }
 
-// ─── The printable worksheet ──────────────────────────────────────────────────
-
-await page.goto(`${B}/learn/nominalisatsioon/worksheet`, { waitUntil: "networkidle" });
-check("a unit prints as a worksheet", (await page.getByText(/What does it mean/i).count()) > 0);
-check("with an answer key", (await page.getByText("Answer key").count()) > 0);
-check("built from principal parts the dictionary holds",
-  (await page.getByText(/Complete the table/i).count()) > 0);
-check("and it credits Ekilex, as CC BY requires",
-  (await page.getByText(/Institute of the Estonian Language/).count()) > 0);
-
+// ─── The printable worksheet, gone with the units ─────────────────────────────
 /*
-  Printed, the app's own furniture has to disappear: a worksheet with a
-  navigation rail down the side is not a worksheet.
-
-  ON SCREEN FIRST, WHICH IS WHAT MAKES THE TWO BELOW MEAN ANYTHING.
-
-  An element that is not there reports not-visible, so `!visible` is true of a
-  rail that print hides and equally true of a selector that has stopped
-  matching anything: rename the rail's label and both checks below go green
-  having looked at nothing. The `.catch(() => false)` they used to carry widened
-  it a second way, swallowing a strict-mode violation, so two matching elements
-  would also have read as success. Asserting each is drawn before the media
-  changes is what turns a rotted selector into a failure one line earlier, and
-  dropping the catch is what lets a genuine ambiguity be reported rather than
-  passed. Same fault as the one scripts/test-decks.mjs found in itself: a check
-  whose subject can be absent is a check that can pass without looking.
+  A unit printed as a worksheet with an answer key, and nine checks here asked
+  it. No unit page renders now that every level is the lessons (docs/43-lessons.md
+  §16): `/learn/[unitId]/worksheet` redirects to the list of lessons, which
+  `test-lessons.mjs` asserts, and the worksheet a learner is offered now is the
+  workbook page on a lesson's finish, which that suite reaches too. So the nine
+  went with their subject, and the floor came down by exactly nine.
 */
-const rail = page.locator('nav[aria-label="Main"]').first();
-const printButton = page.getByRole("button", { name: /Print this worksheet/ });
-check("the rail is on the screen to begin with", await rail.isVisible());
-check("and so is the print button", await printButton.isVisible());
-
-await page.emulateMedia({ media: "print" });
-await page.waitForTimeout(200);
-check("the rail comes off the paper", !(await rail.isVisible()));
-check("so does the print button", !(await printButton.isVisible()));
-check("the answer key still prints, on its own sheet",
-  (await page.getByText("Answer key").count()) > 0);
-await page.emulateMedia({ media: "screen" });
 
 // ─── The retention reading ────────────────────────────────────────────────────
 

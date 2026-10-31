@@ -144,12 +144,14 @@ const FILL = {
   "/exam/result/[id]": await firstId("examAttempt", { ownerId: owner }),
 };
 const SEGMENT = {
-  "[level]": "B1", "[caseKey]": "partitive", "[kind]": "stem", "[unitId]": "nominalisatsioon",
+  "[level]": "B1", "[caseKey]": "partitive", "[kind]": "stem",
   "[situationId]": "sook-ja-jook", "[group]": "noun",
 };
 const ROUTES = [];
 const unmade = [];
 for (const template of routes(new URL("../app/(app)", import.meta.url).pathname).sort()) {
+  // A unit's pages redirect to the lessons since every level is lessons (`UNIT_ROUTES` in scripts/lib/routes.mjs).
+  if (template.includes("[unitId]")) continue;
   if (template in FILL) {
     if (FILL[template]) ROUTES.push(template.replace(/\[[^\]]+\]$/, FILL[template]));
     else unmade.push(template);
