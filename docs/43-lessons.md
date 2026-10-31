@@ -1421,8 +1421,8 @@ real practice rather than a token, and the part's finish says how much of the we
 
 ### 15.3 C1, part by part
 
-Eight parts of six lessons, forty-eight core lessons, the same size as B2 so the course keeps one
-rhythm. The family's third year (15.8) carries all eight. The order follows three rules:
+Eight parts, seven of six lessons and the last of seven, forty-nine core lessons like B1, so the
+course keeps one rhythm and still ends on a celebration rather than on the exam (15.11). The family's third year (15.8) carries all eight. The order follows three rules:
 
 - no part leans on a pattern a later part explains;
 - the parts a person meets first in real life come first;
@@ -1594,8 +1594,11 @@ below were checked against both earlier cast pages and the lessons, and none is 
 - **Urve** is the city planner at the public hearing.
 - **Tõnu** and **Margit** host the morning show (15.5). They are heard and never met.
 - **Kalju** is the old man at the village fair in Setomaa.
-- **Anna** takes a university evening course for her work, because a job she wants asks for C1, and
-  sits the C1 exam in part 8 with a new examiner, **Evi**.
+- **Anna** takes a university evening course for her work, because a job she wants asks for C1.
+- **Tom** passed B2 in the last lesson of B2, and his certificate is C1's first line. He sits the C1
+  speaking exam in part 8 with a new examiner, **Evi**, a year after the B2 one, and the party after
+  it is the course's last lesson, where **Daniel**, a newcomer a month into Estonia, switches to
+  English and Tom keeps it in Estonian and helps him. `docs/reviews/c1-cast.md` is the whole cast.
 
 ### 15.9 The words
 
@@ -1616,7 +1619,7 @@ below were checked against both earlier cast pages and the lessons, and none is 
    the dictionary, a scanned page or a document from work, into the deck, where the review asks them
    like any other.
 
-That is about 370 headwords over forty-eight lessons, eight an evening, the same pace as B2's 365
+That is about 370 headwords over forty-nine lessons, eight an evening, the same pace as B2's 365
 and inside `MOST_TAUGHT`. A learner placed straight into C1 is assumed to hold B2's ledger.
 
 **And the forms queue moves into the lessons.** Today C1's unit evenings carry the forms step that
@@ -1681,7 +1684,7 @@ named three as the ones that matter most; those carry their reasons below the ta
 
 | # | Question | Decision |
 | --- | --- | --- |
-| C1-1 | The parts and their order | The eight parts in 15.3, in that order, forty-eight core lessons. |
+| C1-1 | The parts and their order | The eight parts in 15.3, in that order, forty-nine core lessons: part 8 has seven, the exam and then the party. |
 | C1-2 | Texts asked about | Yes, from part 3, in the paper's three shapes, grading nothing (15.7). |
 | C1-3 | The lecture with notes | Yes: a `notes` Listen kind from part 2, reaching the paper's ten minutes, heard once, in part 7, every talk a guest on the morning show. |
 | C1-4 | Which room | Yes: a practice kind with three authored versions, openings and closings included, and a rework marked as any rework. |
