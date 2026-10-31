@@ -61,17 +61,18 @@ life needs that no unit names (each a request against Ekilex, like every
 lemma). Anything B1 taught it may simply use. A word the part needs that
 another part owns is said another way, or left out. The B2 units are in
 `lib/collections/syllabus/`; `npx tsx scripts/measure-b-levels.ts --through
-b1-49-end --spellings` prints every spelling already taught (re-run it after
-the B1 extras land, since they teach `hind`, `valu`, `keha` and others).
+b1-49-end --spellings` prints every spelling already taught, including the
+three B1 extras (`b1-20a`, `b1-34a`, `b1-41a`), which teach `hind`, `valu`,
+`keha`, `tugev`, `normaalne`, `tänu`, `isiklik` and sixty more.
 
 | Part | Its B2 units | Its other words |
 | --- | --- | --- |
-| 1 | none | the everyday common words B1 did not teach (§13.1: `suutma`, `üritama`, `püüdma`, `lahkuma`, `kohtama`, `mõistma`, `usaldama`, `tänu`, `tõsi`, `seega`, `ümber`, `lahe`, `hull`, `normaalne`, `veider`, `uhke`, `tugev` if the extras did not take it), the particles and reactions |
+| 1 | none | the everyday common words still untaught (`suutma`, `üritama`, `püüdma`, `lahkuma`, `kohtama`, `mõistma`, `usaldama`, `tõsi` as a word, `seega`, `ümber`, `lahe`, `hull`, `veider`, `uhke`, `segane`, `tõeline`), the particles and reactions |
 | 2 | `kaudne`, `uhiskond` | news and media, rumors, messages |
 | 3 | `des-vorm` | school, kindergarten, children, a sick child (`hooldusleht`), the school year |
 | 4 | `tervishoid`, `psuhholoogia` | the body, symptoms, the pharmacy, an emergency, sleep and stress |
-| 5 | `toomaailm`, `majandus` | meetings, feedback, projects, deadlines |
-| 6 | `umbisikuline`, `poliitika`, `oigus` | eesti.ee, taxes (`tuludeklaratsioon`), the bank, contracts, the unemployment office, insurance |
+| 5 | `toomaailm`, `majandus` | meetings, feedback, projects, deadlines, `ettevõte` |
+| 6 | `umbisikuline`, `poliitika`, `oigus` | eesti.ee, taxes (`tuludeklaratsioon`), the bank, contracts, the unemployment office, insurance, `taotlus`, `registreerima`, `hüvitis` |
 | 7 | `ajalugu`, `kunst`, `sonamoodustus` | holidays and traditions, the sauna, the song festival, humor and idioms, the radio |
 | 8 | `statistika`, `argumenteerimine`, `teadus` | figures and trends, debate |
 
