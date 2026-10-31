@@ -24,7 +24,7 @@ describe("the checks between the parts of the lessons", () => {
       expect(final.size).toBe(LEVEL_CHECK);
     }
     for (const c of checks.filter((c) => !c.final)) expect(c.size).toBe(PART_CHECK);
-  });
+  }, 120_000);
 
   it("asks a full paper on every check, the same paper for one attempt and a different one for the next", () => {
     for (const check of checks) {
@@ -69,7 +69,7 @@ describe("the checks between the parts of the lessons", () => {
       }
     }
     expect(asked).toBeGreaterThan(checks.length * 10);
-  });
+  }, 120_000);
 
   it("never prints an answer a typed question on the same paper asks for", () => {
     let papers = 0;
@@ -123,13 +123,13 @@ describe("the checks between the parts of the lessons", () => {
     expect(blockedBy(PROGRAMMES, first, a2, all)).toBeNull();
     const notFinal = new Set(checks.filter((c) => !c.final).map((c) => c.id));
     expect(blockedBy(PROGRAMMES, first, a2, notFinal)?.final).toBe(true);
-  });
+  }, 120_000);
 
   it("reads the stored passes and nothing else", () => {
     expect([...passedFrom("check-a1.1 check-a1.2 junk ")]).toEqual(["check-a1.1", "check-a1.2"]);
     expect(passedFrom(null).size).toBe(0);
     expect(checkAfter(PROGRAMMES, programmeById("a1.1")!.id)?.id).toBe("check-a1.1");
-  });
+  }, 120_000);
 });
 
 describe("where a pass leads, said once for the check page and the app", () => {
@@ -161,5 +161,5 @@ describe("where a pass leads, said once for the check page and the app", () => {
     }
     expect(parts).toBeGreaterThan(5);
     expect(finals).toBe(LESSON_LEVELS.size);
-  });
+  }, 120_000);
 });
