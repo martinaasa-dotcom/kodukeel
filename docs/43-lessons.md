@@ -1126,7 +1126,19 @@ Read in this order:
    13.1 (`hind`, `valu`, `keha`, `süda`, `klient`, `ajaleht` and the rest) are taught as extras at the
    ends of the B1 parts whose topics fit them (`hind` and `klient` in `b1-raha`, `ajaleht` and
    `raadio` in `b1-uudised`), each word placed when the extras are written. B1 rather than A2, because an A2 extra
-   never reaches a learner who is already in B1.
+   never reaches a learner who is already in B1. **Built**, as three lessons in the shape of A2's extras with
+   B1's listen-first questions and an answer said faster: `b1-20a-customers` in `b1-raha` (Tom and Siim at
+   work: `hind`, `toode`, `klient`, `reklaam`, `tõusma`, `tagastama`, `nõustuma`, `toetama`, `amet`,
+   `eriala`, `töötaja`, `tänu`, `huvi`, `isiklik`, `koguma`, `prantsuse`, `vene`, `rahul`), `b1-34a-papers` in
+   `b1-uudised` (Tom and Anna over the Saturday paper: `ajaleht`, `leht`, `artikkel`, `raadio`, `saade`,
+   `pilt`, `laulja`, `näitleja`, `kuulus`, `maailm`, `tähelepanu`, `eriline`, `üleeile`, `tõlkima`,
+   `seletama`, `õpik`, `mööbel`) and `b1-41a-park` in `b1-arvamus` (Tom, after a fall, and Jaan, the
+   doctor: `kukkuma`, `valu`, `keha`, `süda`, `haigus`, `tugev`, `nõrk`, `harjutus`, `kordama`, `puu`,
+   `lind`, `õhk`, `puhas`, `ohutu`, `julge`, `ettevaatlik`, `normaalne`, `võimatu`, `ruum`). `KNOWN_UNTAUGHT`
+   is down from 49 words to five: `taotlus`, `registreerima`, `hüvitis` and `ettevõte`, which are B2's office
+   vocabulary, and `seega`, which `b2-kõnekeel` teaches. `tõsi` is still a phrase (`See on tõsi`) rather
+   than a word of its own, since the harvest holds no entry for it. Every new line is in
+   `docs/44-language-reviews.md` §1 for the native speaker.
 2. **The everyday common words** still untaught (13.1), in `b2-kõnekeel`.
 3. **The B2 units' 233 words**, spread over the parts by topic, not unit by unit.
 4. **What each part's life needs** that no unit names (`lasteaiakoht`, `hooldusleht`,
@@ -1168,7 +1180,7 @@ Settled on 2026-10-31. The operator asked for the plan's best judgment on every 
 Each step is one pull request. The steps before the parts are engine and words, so no B2 lesson is
 written against a rule that will change under it.
 
-1. **The B1 extras** (13.8), so B2's conversations stop asking for untaught words.
+1. **The B1 extras** (13.8), so B2's conversations stop asking for untaught words. Built: `b1-20a-customers`, `b1-34a-papers` and `b1-41a-park`.
 2. **The engine**: derivable words and the work-it-out practice kind; two speakers and the hearing
    conditions in the Listen step; a real text in the Listen step; the B2 ramp checks; and rework
    that recycles an earlier part's pattern.
