@@ -71,6 +71,7 @@ import { b1Kolleeg } from "./b1-kolleeg";
 import { b2Perearst } from "./b2-perearst";
 import { b2Koosolek } from "./b2-koosolek";
 import { b2Ametikone } from "./b2-ametikone";
+import { c1Mysteerium } from "./c1-mysteerium";
 import { b2Monoloog } from "./b2-monoloog";
 import { b2Eksam } from "./b2-eksam";
 import { c1Nimepidu } from "./c1-nimepidu";
@@ -152,6 +153,7 @@ export const PICKS: Readonly<Record<string, ScenePicks>> = {
   "b2-monoloog": b2Monoloog,
   "b2-eksam": b2Eksam,
   "c1-nimepidu": c1Nimepidu,
+  "c1-mysteerium": c1Mysteerium,
   "uus-kolleeg": uusKolleeg,
 };
 
