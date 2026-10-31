@@ -44,7 +44,8 @@ await page.goto(`${B}/settings?tab=account`, { waitUntil: "networkidle" });
 await page.getByLabel("Choose a backup file").setInputFiles({
   name: "old.json", mimeType: "application/json", buffer: Buffer.from(oldFormat),
 });
-await page.waitForTimeout(1500);
+// The preview is read off the file in the browser; waited for rather than given a fixed second and a half.
+await page.getByText(/holds|doesn't look like/).first().waitFor({ timeout: 15_000 }).catch(() => {});
 check("a backup written before the rename is still accepted",
   (await page.getByText(/holds/).count()) > 0,
   await page.getByText(/doesn't look like/).innerText().catch(() => "accepted"));
