@@ -34,8 +34,8 @@ in `docs/44-language-reviews.md` section 1.
 ### `b1-raha` (lessons 15 to 21)
 
 - Kept: `iga õhtu` (`igal` is not taught yet), `Pole viga`, `Kristi, kas sul oleks hetk aega?`,
-  `Ma pakuksin talle lõunat.`, `palk enne/pärast makse`, `Säästa on raske`, `Kaks tükki!`,
-  `Tervitustega, Tom`.
+  `Ma pakuksin talle lõunat.`, `palk enne/pärast makse`, `Säästa on raske`, `Kaks tükki!`.
+  The letter's sign-off is `Tervitustega` with the name on the line under it, since the 2026-10-31 reading.
 - New: lesson 16 opens on Kristi introducing the team at the Monday meeting (`Mina alustasin siin ka
   praktikandina. Ma tegin rohkem kohvi kui koodi.`, `Palju õnne? Ei, pigem jõudu!`).
 - New: lesson 21's closing conversation `b1-palgatous` asks `Kelleks sa tahaksid järgmisel aastal saada?`

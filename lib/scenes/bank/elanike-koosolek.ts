@@ -34,7 +34,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "elanike-koosolek", beat: "close", text: "Kõik on poolt. Otsus on tehtud! Aitäh, head aega!", model: "authored", draftedAt: "2026-10-16", reviewedAt: "2026-10-16" },
   { scene: "elanike-koosolek", beat: "hurdle:interrupted", text: "Üks minut, palun.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "elanike-koosolek", beat: "hurdle:interrupted", text: "Vabandust, üks minut.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "elanike-koosolek", beat: "hurdle:faster", text: "Meil on veel palju teha, rääkige palun.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "elanike-koosolek", beat: "hurdle:faster", text: "Meil on veel palju teha, rääkige palun lühidalt.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "elanike-koosolek", beat: "hurdle:faster", text: "Meil on täna kiire, öelge palun.", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "elanike-koosolek", beat: "close", text: "Hästi, kõik on nõus. Otsus on tehtud! Aitäh, head aega!", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "elanike-koosolek", beat: "close", text: "Otsus on vastu võetud. Aitäh, head õhtut!", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },

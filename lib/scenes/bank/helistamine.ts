@@ -22,7 +22,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "helistamine", beat: "have", text: "Mida te soovite osta?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "helistamine", beat: "have", text: "Mis teil vaja on?", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "helistamine", beat: "hours", text: "Jah, meil on see.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
-  { scene: "helistamine", beat: "hours", text: "Jah, see meil on.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
+  { scene: "helistamine", beat: "hours", text: "Jah, meil on see olemas.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "helistamine", beat: "hurdle:faster", text: "Mul on natuke kiire, öelge palun.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "helistamine", beat: "hurdle:faster", text: "Siin on praegu kiire, öelge palun.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },
   { scene: "helistamine", beat: "hurdle:interrupted", text: "Üks hetk, mul on klient.", model: "authored", draftedAt: "2026-09-05", reviewedAt: "2026-10-15" },

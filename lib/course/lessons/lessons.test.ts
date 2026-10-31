@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isExactForm } from "@/lib/dict/forms";
+import { isWrittenSpelling } from "@/lib/dict/forms";
 import { shardKey } from "@/lib/dict/formsLayout";
 import { fold } from "@/lib/estonian/fold";
 import { VOICES } from "@/lib/audio/voice";
@@ -60,7 +60,7 @@ describe("the lessons, A1 and on", () => {
     }
     const unknown: string[] = [];
     const byShard = [...where.keys()].sort((a, b) => shardKey(fold(a)).localeCompare(shardKey(fold(b))) || a.localeCompare(b));
-    for (const word of byShard) if (!(await isExactForm(word))) unknown.push(where.get(word)!);
+    for (const word of byShard) if (!(await isWrittenSpelling(word))) unknown.push(where.get(word)!);
     expect(unknown).toEqual([]);
     expect(where.size).toBeGreaterThan(500);
   }, 120_000);

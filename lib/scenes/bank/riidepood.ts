@@ -51,7 +51,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "riidepood", beat: "size", text: "Mis suurus teile sobib?", model: "authored", draftedAt: "2026-10-30", level: "A1", reviewedAt: "2026-10-30" },
   { scene: "riidepood", beat: "size", text: "Mis suurus teil on?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "riidepood", beat: "size", text: "Millist suurust te soovite?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
-  { scene: "riidepood", beat: "sobib", text: "Kas suurus on hea?", model: "authored", draftedAt: "2026-10-30", level: "A1", reviewedAt: "2026-10-30" },
+  { scene: "riidepood", beat: "sobib", text: "Kas suurus sobib?", model: "authored", draftedAt: "2026-10-30", level: "A1", reviewedAt: "2026-10-30" },
   { scene: "riidepood", beat: "sobib", text: "Kas see on teile liiga suur?", model: "qwen/qwen3.8-27b", draftedAt: "2026-09-22", level: "A1", reviewedAt: "2026-10-15" },
   { scene: "riidepood", beat: "sobib", text: "Kas see on teile liiga suur või väike?", model: "qwen/qwen3.8-27b", draftedAt: "2026-09-22", level: "A2", reviewedAt: "2026-10-15" },
   { scene: "riidepood", beat: "sobib", text: "Kuidas on? Kui on liiga väike, toon teise.", model: "authored", draftedAt: "2026-10-30", level: "B1", reviewedAt: "2026-10-30" },

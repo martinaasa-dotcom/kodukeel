@@ -1165,7 +1165,7 @@ export const PUBLIC_ET: readonly (readonly [en: string, et: string])[] = [
   ["Every level, A1 to {through}, is {lessons}. They come in {parts}, and every part ends in a check of what its lessons taught.",
     "Igal tasemel, A1-st kuni {through}-ni, on {lessons} ja {parts} ning iga osa lõpeb kontrolliga selle kohta, mida selle tunnid õpetasid."],
   ["What each lesson says a learner can do, and which part of the state examination it prepares for, is on {curriculum}.",
-    "Mida õppija pärast iga tundi oskab ja millise riigieksami osa jaoks see ette valmistab, on kirjas lehel „{curriculum}“."],
+    "Mida õppija pärast iga tundi oskab ja millise tasemeeksami osa jaoks see ette valmistab, on kirjas lehel „{curriculum}“."],
   ["How it uses Ekilex",
     "Kuidas see Ekilexit kasutab"],
   ["Every dictionary entry that Ekilex supplied carries this credit:",

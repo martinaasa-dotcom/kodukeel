@@ -490,7 +490,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
     "Having something done for you, with the verb for \"let\"": [
       { lemma: "õmblema", et: "Lasin endale ülikonna õmmelda.", form: "Lasin" },
-      { lemma: "mandel", et: "Eelmisel teisipäeval lasin mandlid ära lõigata.", form: "lasin" },
+      { lemma: "mandel", et: "Eelmisel teisipäeval lasin mandlid välja lõigata.", form: "lasin" },
     ],
   },
   hedging: {

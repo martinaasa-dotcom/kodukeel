@@ -35,7 +35,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { EM_DASH as EM, EMOJI, EN_DASH as EN, TELLS, findTells } from "./voice";
+import { EM_DASH as EM, EMOJI, EN_DASH as EN, TELLS, findTells, withoutCyrillicTire } from "./voice";
 import { CAPTION_MAX } from "./values";
 
 /**
@@ -338,7 +338,7 @@ const MARKDOWN = ["CLAUDE.md", "README.md", "AGENTS.md", ...sourceFiles("docs", 
 function offenders(character: string): string[] {
   return FILES.filter((f) => !excused(f, "dash")).flatMap((f) =>
     readerFacingLines(f)
-      .filter((l) => l.text.includes(character))
+      .filter((l) => (character === EN ? withoutCyrillicTire(l.text) : l.text).includes(character))
       .map((l) => `${f}:${l.line}: ${l.text.trim()}`),
   );
 }
@@ -391,7 +391,7 @@ describe("copy reads as a person wrote it", () => {
   it("has no dash a reader could see in the README or the docs", () => {
     const bad = MARKDOWN.filter((f) => !excused(f, "dash")).flatMap((f) =>
       markdownProse(f)
-        .filter((l) => l.text.includes(EM) || l.text.includes(EN))
+        .filter((l) => l.text.includes(EM) || withoutCyrillicTire(l.text).includes(EN))
         .map((l) => `${f}:${l.line}: ${l.text.trim().slice(0, 100)}`),
     );
     expect(bad).toEqual([]);

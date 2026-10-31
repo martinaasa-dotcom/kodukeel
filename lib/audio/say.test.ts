@@ -41,7 +41,7 @@ describe("spokenText", () => {
   it("reads past a closing quote or bracket to find the punctuation", () => {
     expect(spokenText('Ta ütles: "Tere."')).toBe('Ta ütles: "Tere."');
     expect(spokenText("(vaata ka)")).toBe("(vaata ka).");
-    expect(spokenText("„Järgne mulle!”")).toBe("„Järgne mulle!”");
+    expect(spokenText("„Järgne mulle!“")).toBe("„Järgne mulle!“");
   });
 
   it("knows Estonian closes a quotation with the glyph English opens with", () => {
@@ -57,7 +57,7 @@ describe("spokenText", () => {
     const texts = [
       "õde", "Kuidas läheb?", "kass", "Ma ei tea", "šokolaad", "ÕUN", "Tere,",
       "sõna;", "Ta ütles:", "1990", "kaks 3 neli", "(vt ka)", "üks, kaks", "sõna -",
-      "Ta ütles nii ...", "„Järgne mulle!”", "aadress ja e-post",
+      "Ta ütles nii ...", "„Järgne mulle!“", "aadress ja e-post",
     ];
     for (const text of texts) {
       expect(said(spokenText(text))).toBe(said(text));

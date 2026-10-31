@@ -38,7 +38,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Anna", et: "Mis sa täna tegid?", en: "What did you do today?" },
       { who: "Tom", et: "Hommikul parandasin autot.", en: "In the morning I was working on the car." },
-      { who: "Anna", et: "Kas sa parandasid auto ära?", en: "Did you get the car fixed?" },
+      { who: "Anna", et: "Kas sa parandasid auto ära?", en: "Did you fix the car?" },
       { who: "Tom", et: "Ei, veel mitte. See on ju vana auto. Homme parandan edasi.", en: "No, not yet. It's an old car, you know. I'll carry on tomorrow." },
       { who: "Tom", et: "Aga ma lugesin raamatu läbi!", en: "But I read the book to the end!" },
       { who: "Anna", et: "Terve raamatu? Tubli!", en: "The whole book? Well done!" },
@@ -133,7 +133,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
         { et: "Eile hommikul parandasin ma autot.", en: "Yesterday morning I was working on the car." },
         { et: "Auto on ikka veel katki.", en: "The car is still broken." },
         { et: "Aga õhtul lugesin ma raamatu läbi.", en: "But in the evening I read a book to the end." },
-        { et: "Homme koristame Annaga köögi ära.", en: "Tomorrow Anna and I will finish cleaning the kitchen." },
+        { et: "Homme koristame Annaga köögi ära.", en: "Tomorrow Anna and I will clean the kitchen." },
       ],
       points: [
         { en: "Tom was working on the car yesterday morning. Tell it about him: {ta}, not {ma}.", any: ["autot", "auto"] },

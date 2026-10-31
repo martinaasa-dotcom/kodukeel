@@ -113,7 +113,7 @@ describe("checkSentence", () => {
       "Kokku kaks eurot.",
       "Kell on viis.",
       // A word in quotation marks is mentioned, not used.
-      "Ma ei ütle „pool”.",
+      "Ma ei ütle „pool“.",
       // A pronoun compared rather than a subject.
       "Ta on sama pikk kui mina.",
     ]) {

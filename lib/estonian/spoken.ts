@@ -42,12 +42,6 @@ const re = (body: string) => new RegExp(`${B}${body}${E}`, "iu");
 
 export const NOT_SAID: readonly NotSaid[] = [
   {
-    pattern: re("kuidas ma saan (teid |sind )?aidata"),
-    example: "Tere! Kuidas ma saan aidata?",
-    say: "Kuidas saan aidata? / Kuidas saan teid aidata? / Millega saan aidata?",
-    why: "The pronoun in front is English word order; a shop, a desk or a phone line drops it.",
-  },
-  {
     pattern: new RegExp(`(?:^|[.!?]\\s+)lepime kokku!`, "iu"),
     example: "Hea küll. Lepime kokku!",
     say: "Kokku lepitud!",
@@ -78,12 +72,6 @@ export const NOT_SAID: readonly NotSaid[] = [
     why: "A regular service käib; sõidab is a vehicle on a particular trip.",
   },
   {
-    pattern: re("kõik\\? tubli"),
-    example: "Kõik? Tubli!",
-    say: "Terve raamatu? Tubli!",
-    why: "Kõik is all of several things; one whole thing is terve.",
-  },
-  {
     pattern: re("tere (hommikust|päevast|õhtust), kõik!"),
     example: "Tere hommikust, kõik!",
     say: "Tere hommikust kõigile!",
@@ -111,19 +99,13 @@ export const NOT_SAID: readonly NotSaid[] = [
     pattern: re("ei, on (väike|suur|vana|uus|hea|halb|ilus|kallis|odav|noor|pikk|lühike|kerge|raske)"),
     example: "Ei, on väike. Aga ilus.",
     say: "Ei, see on väike. / Ei, väike.",
-    why: "A no cannot drop the subject and keep on: keep see on, or drop both.",
+    why: "Right after Ei, a bare on sounds clipped: keep see on, or drop both.",
   },
   {
     pattern: re("(kiire on|mul on kiire), (öelge|rääkige|räägi|ütle) kohe"),
     example: "Kiire on, öelge kohe.",
     say: "Mul on natuke kiire. / Vabandust, mul on kiire.",
     why: "A hurried person says they are in a hurry; ordering the other side to say it now is a phrasebook line.",
-  },
-  {
-    pattern: /^(?:[\p{L}-]+\?\s+)?tore!?$/iu,
-    example: "Tartusse? Tore!",
-    say: "Selge. Head teed! / Tore! Mida sa seal teed?",
-    why: "A bare Tore is not an answer to anything; it takes something after it, or the reply is another word.",
   },
   {
     pattern: re("(suur|suure|suurt) (tuul|tuule|tuult)"),
@@ -136,12 +118,6 @@ export const NOT_SAID: readonly NotSaid[] = [
     example: "Millal te selle ostnud olete?",
     say: "Millal te selle ostsite?",
     why: "A question about when takes the simple past; the perfect with millal is a textbook sentence.",
-  },
-  {
-    pattern: re("tšau"),
-    example: "Hästi, tšau!",
-    say: "Hästi, tsau!",
-    why: "Everybody writes tsau; tšau is only the dictionary's spelling, which the first lesson mentions once.",
   },
 ];
 

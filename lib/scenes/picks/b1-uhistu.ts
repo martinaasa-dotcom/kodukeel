@@ -24,7 +24,7 @@ export const b1Uhistu: ScenePicks = {
   ],
   before: [
     { et: "Ei, toru oli juba eelmisel talvel katki läinud.", en: "No, the pipe had already burst last winter." },
-    { et: "Ei, see oli juba katki läinud.", en: "No, it had burst before." },
+    { et: "Ei, see oli juba varem katki läinud.", en: "No, it had burst before." },
   ],
   suggest: [
     { et: "Minu arvates tuleb vanad torud välja vahetada.", en: "In my opinion the old pipes have to be replaced." },

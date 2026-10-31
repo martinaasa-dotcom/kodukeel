@@ -277,6 +277,7 @@ export const A1_LINN_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "haigla", en: "hospital" },
       { kind: "word", et: "bussijaam", en: "bus station" },
       { kind: "word", et: "otse", en: "straight on" },
+      { kind: "word", et: "siit", en: "from here" },
       { kind: "word", et: "vasakule", en: "to the left, turn left" },
       { kind: "word", et: "paremale", en: "to the right, turn right" },
       { kind: "word", et: "lähedal", en: "near, close by" },

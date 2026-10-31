@@ -1,45 +1,41 @@
 # What a fluent reader still has to read, beyond the lessons
 
-Counted on 2026-10-30, after #955 rewrote the lesson and scene lines to sound spoken. The reading of
-every written line in Estonian, Russian and Ukrainian before that is in `docs/reviews/`, the 2026-10-25
-files. The lessons and their recordings
-have a list of their own, generated from the lesson files: `docs/44-language-reviews.md`. This file holds
-everything else, each with the command that opens it.
+Counted on 2026-10-31, after the reading of every line that had not been read (`docs/reviews/2026-10-31-applied.md`).
+The lessons and their recordings have a list of their own, generated from the lesson files:
+`docs/44-language-reviews.md`. This file holds everything else, each with the command that opens it.
 
 A count goes stale the day somebody writes a new line, so regenerate before you trust one.
 
 | What | Language | Still open | Where to start |
 |---|---|---|---|
-| Lesson lines | ET | 2,738 lines added or changed since `e347893` (A1 179, A2 310, B1 2,249) | `docs/44-language-reviews.md` §1 |
-| Lesson recordings | ET | 8 known retakes, then 2,918 lines and words to record, `Tsau!` among them | `docs/44-language-reviews.md` §2 |
-| Scene bank lines | ET | 67 rows with no `reviewedAt`, most rewritten in #955 | `lib/scenes/bank/` |
-| Interface and lesson translations | RU, UK | 4,966 of 22,365 (RU), 4,964 of 22,419 (UK), machine translated | `export-translations.ts --unconfirmed` |
-| Lines the session wrote while applying the reading | ET, RU, UK | None, read on the second sheet | `docs/reviews/2026-10-25-written-lines-applied.md` |
+| Lesson, scene and pick lines | ET | None: all read on 2026-10-31 | `docs/44-language-reviews.md` §1 |
+| Lesson recordings | ET | 8 known retakes, then 5,473 lines and words to record | `docs/44-language-reviews.md` §2 |
+| Interface and lesson translations | RU, UK | None: 35,306 of 35,306 (RU) and 35,366 of 35,366 (UK) confirmed | `export-translations.ts --unconfirmed` |
+| Workbook lines | ET | None dealt and unread: 131 read on 2026-10-31 | `npm run reading:workbook` |
 | One sentence per picture scene | ET | 60 to write, none yet | `npm run scenes:template` |
-| Sounds page | ET | 64 English glosses and the 32 letter names, with the recordings | `lib/collections/sounds.ts` |
+| Sounds page | ET | Read on 2026-10-31; the 32 letter names go with the recordings | `lib/collections/sounds.ts` |
 
-Read and done on 2026-10-25: the sentence openers, the store listing in all four languages, the Estonian
-public pages and their counted nouns, the brief for EKI, the 59 scene goodbyes, the 188 jokes, the 16
-picture examples, all 2,693 workbook lines, the 71 twins and the 252 grammar examples. Before that: the
-A1 and A2 lessons with their role-plays, the sentences written for beginners (`lib/dict/authored.ts`)
-and the catalog scene lines.
+Read and done on 2026-10-31: every Estonian line of the lessons, their role-plays and live scenes and the
+learner's picks, the catalog conversations, the Estonian public pages, the grammar examples, the refused
+phrases, the dialect glossary, the parallel plural forms, the sounds page and the workbook lines dealt from
+Practice, and every Russian and Ukrainian line. On 2026-10-25 before that: the sentence openers, the store
+listing, the Estonian public pages, the brief for EKI, the scene goodbyes, the jokes, the picture examples,
+the workbook lines, the twins and the grammar examples.
 
 ## 0. Left open by #955
 
 #955 read every lesson, scene and pick line four times for how people really talk, and left these for the
 native speaker:
 
-1. **Read the changed Estonian.** `docs/44-language-reviews.md` §1, one row per line, OK or a fix.
+1. **Read the changed Estonian.** Done on 2026-10-31.
 2. **The known retakes.** `docs/44-language-reviews.md` §2 opens with them: Tom living in Tartu in
    `a1-12-saying-no`, Jaan's `Aga` in `a1-10a-neighbours`, Tom repeating himself in `a1-11-languages`, the
    model answer's word order in `a1-12-saying-no`, the doubled fact in `a1-10-from` (optional), `õpilane` for
    an adult in `a1-04-persons`, the `a1-trepil` pick, and the `a1-09` line nothing plays any more. The
    recorded text was left alone; change the lesson when the new take is cut.
 3. **Record `Tsau!`.** It is taught in A1 lesson 1 now, with the note that the dictionary spells it tšau.
-4. **The scene bank rows marked unreviewed.** A row with no `reviewedAt` was drafted or rewritten and nobody
-   has read it in its conversation. `npm run replay:scene` plays one keyless.
-5. **The Russian and Ukrainian of the changed lines.** Every English line #955 changed was translated by a
-   model; section 1 below is how a fluent reader confirms them.
+4. **The scene bank rows marked unreviewed.** Read on 2026-10-31, with the rest of the catalog conversations.
+5. **The Russian and Ukrainian of the changed lines.** Read and confirmed on 2026-10-31.
 
 ## 1. Russian and Ukrainian
 
@@ -58,8 +54,7 @@ A line written or changed after a reading is not confirmed. To read those:
 
 A second sheet the same day took the 68 left after the first: the onboarding and level lines that landed
 in #933 and #934 after the export, one public line, the landing page's quiz button, and every line the
-session wrote while applying the first (see the record). The 4,966 open on 2026-10-30 are mostly the B1 lessons
-and the lines #955 rewrote, all machine translated.
+session wrote while applying the first (see the record). The 4,966 open on 2026-10-30, and the B2 and C1 lines written after them, were read on 2026-10-31; none is open.
 
 ## 2. Estonian
 

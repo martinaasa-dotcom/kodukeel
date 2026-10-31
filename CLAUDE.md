@@ -10947,7 +10947,10 @@ offer the C1 check, and a pass draws the course-finished screen (`CourseFinished
   Identifiers (`tonightSteps`, the `tonight` email kind) are code and stay. `scripts/invariants/nothing-is-called-tonight.ts` fails on a prose string
   saying it, with every exemption checked for staleness.
 - **No em dash or en dash in anything a person reads**, anywhere in `app/`, `lib/`, `components/`
-  or the README. A dash used as a clause break is the loudest single tell that a sentence was
+  or the README. One exception, decided in the 2026-10-31 reading: Russian and Ukrainian write the
+  tire as a spaced en dash (`Парк – это место`), because there it is grammar and a hyphen is wrong
+  typography. `withoutCyrillicTire` in `lib/copy/voice.ts` is the one rule every sweep reads; `—` is
+  never allowed, and an en dash in English or Estonian, or unspaced, still fails. A dash used as a clause break is the loudest single tell that a sentence was
   generated, and every screen here is one person explaining Estonian to another.
   `lib/copy/readerCopy.test.ts` walks the whole tree and fails on one, alongside every other tell
   in `lib/copy/voice.ts`; its `ALLOWED` list is now the table itself, the one file that has to name

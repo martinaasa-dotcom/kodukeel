@@ -43,7 +43,7 @@ export const B2_KONEKEEL_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Kati", et: "Mari, tere! Noh, kuidas läheb?", en: "Mari, hi! So, how's it going?", stage: "Autumn. Kati drops in at the café where Mari works. Tom is at the counter with a coffee." },
       { who: "Mari", et: "Ah, tead küll, nagu ikka. Tööd on palju. Aga sul?", en: "Oh, you know, same as always. Lots of work. And you?" },
-      { who: "Kati", et: "Mul läheb täitsa hästi. Vaata, ma käisin eile kontserdil!", en: "I'm really good. Listen, I went to a concert yesterday!" },
+      { who: "Kati", et: "Mul läheb täitsa hästi. Vaata, ma käisin eile kontserdil!", en: "Pretty good. Listen, I went to a concert yesterday!" },
       { who: "Mari", et: "Päriselt? Kelle kontserdil?", en: "Really? Whose concert?" },
       { who: "Kati", et: "Noh, see noor laulja, kes oli raadios. Ma ei mäleta ta nime.", en: "Oh, that young singer who was on the radio. I can't remember his name." },
       { who: "Mari", et: "Ah, tema! Teda on ju praegu igal pool.", en: "Oh, him! He's everywhere right now." },
@@ -111,7 +111,7 @@ export const B2_KONEKEEL_LESSONS: readonly LessonSpec[] = [
       ],
     },
     answers: [
-      { ask: { et: "Noh, kuidas läheb?", en: "So, how's it going?" }, cue: "Say you're really good, same as always.", model: { et: "Täitsa hästi, nagu ikka.", en: "Really good, same as always." }, also: ["Täitsa hästi, aitäh. Nagu ikka.", "Nagu ikka, täitsa hästi."] },
+      { ask: { et: "Noh, kuidas läheb?", en: "So, how's it going?" }, cue: "Say you're really good, same as always.", model: { et: "Täitsa hästi, nagu ikka.", en: "Pretty good, same as always." }, also: ["Täitsa hästi, aitäh. Nagu ikka.", "Nagu ikka, täitsa hästi."] },
       { ask: { et: "Keda sa eile kohtasid?", en: "Who did you run into yesterday?" }, cue: "Say you ran into Jaan at the concert.", model: { et: "Ma kohtasin kontserdil Jaani.", en: "I ran into Jaan at the concert." }, also: ["Kohtasin kontserdil Jaani.", "Kontserdil kohtasin Jaani.", "Ma kohtasin Jaani kontserdil.", "Jaani. Ma kohtasin teda kontserdil."] },
       { cue: "Say it was totally weird.", model: { et: "See oli täitsa veider.", en: "It was totally weird." }, also: ["Täitsa veider."] },
       { ask: { et: "Kas kontsert oli hea?", en: "Was the concert good?" }, cue: "Say yes, it was really cool.", model: { et: "Jah, see oli täitsa lahe.", en: "Yes, it was really cool." }, also: ["Jah, täitsa lahe.", "Jah, väga lahe.", "Jah, see oli väga lahe."] },
@@ -192,7 +192,7 @@ export const B2_KONEKEEL_LESSONS: readonly LessonSpec[] = [
       { who: "Liis", et: "Seal oli hullult palju tööd. Mõni nädal kuuskümmend tundi!", en: "There was a crazy amount of work there. Some weeks sixty hours!" },
       { who: "Anna", et: "Kuuskümmend? See on ju hull!", en: "Sixty? That's crazy!" },
       { who: "Liis", et: "No jah. Uues kohas on tal rohkem vaba aega.", en: "Well, yes. In the new place he'll have more free time." },
-      { who: "Anna", et: "Väga hea. Ja reedel laulab ta meile ka!", en: "Great. And on Friday he can sing for us too!" },
+      { who: "Anna", et: "Väga hea. Ja reedel laulab ta meile ka!", en: "Great. And on Friday he'll sing for us too!" },
       { who: "Liis", et: "Ära talle seda ütle! Muidu ta tõesti laulab.", en: "Don't tell him that! Or he really will sing." },
     ],
     teaches: [
@@ -208,6 +208,7 @@ export const B2_KONEKEEL_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "hull", en: "crazy, mad" },
       { kind: "word", et: "hullult", en: "a crazy amount, crazily (said)" },
       { kind: "word", et: "muidu", en: "otherwise, or else" },
+      { kind: "form", et: "uudist", of: "uudis", en: "news, as an object: {head uudist}, good news" },
     ],
     how: {
       point: "To make a thing stand out, say it first: {Seda ma küll ei usu!} The plain order is {Ma ei usu seda}. {Küll} after it adds weight.",
@@ -273,7 +274,7 @@ export const B2_KONEKEEL_LESSONS: readonly LessonSpec[] = [
       { line: { et: "Uues kohas on tal rohkem vaba aega.", en: "In the new place he'll have more free time." }, right: "aega", wrong: "aeg", pair: ["PARTITIVE", "NOMINATIVE"], why: "After {rohkem}, the [osastav] (3rd form): {rohkem aega}." },
     ],
     faster: {
-      ask: { et: "Mis on sinu viimane hea uudis?", en: "What's your latest good news?" },
+      ask: { et: "Mis sul head uudist on?", en: "What good news have you got?" },
       cue: "Tell a friend some good news of yours, and say how you felt about it.",
       model: { et: "Tead mis? Ma sain uue töö! Ma olen lausa õnnelik, sest uues kohas on rohkem vaba aega.", en: "Guess what? I got a new job! I'm over the moon, because in the new place there's more free time." },
     },
@@ -344,7 +345,7 @@ export const B2_KONEKEEL_LESSONS: readonly LessonSpec[] = [
       notes: [
         "A silence hands the turn over. A {noh} or a {kuidas öelda} keeps it while you think.",
         "{Üritama} is to try and {suutma} is to manage or to be able to. Both take the [da-tegevusnimi] (-da): {üritasin vaadata}, {suutsin vaadata}.",
-        "{Aru saama} is to follow; {mõistma} is to grasp why: {ma mõistsin, mis juhtus}.",
+        "{Aru saama} is the everyday word; {mõistma} means the same but sounds a bit more formal: {ma mõistsin, mis juhtus}.",
         "In writing these words drop out. They're the sound of somebody thinking aloud.",
       ],
       watchOut: "{Mis mõttes?} asks what somebody means. It isn't a question about your thoughts, so don't answer it with what you think.",
@@ -558,7 +559,7 @@ export const B2_KONEKEEL_LESSONS: readonly LessonSpec[] = [
     faster: {
       ask: { et: "Mida sa sel nädalavahetusel teed?", en: "What are you doing this weekend?" },
       cue: "Say what you're doing this weekend, who with, and what you're bringing.",
-      model: { et: "Reedel lähen Liisile külla. Seal on õhtusöök ja ma toon veini. Laupäeval puhkan kodus.", en: "On Friday I'm going over to Liis's. There's a dinner and I'm bringing wine. On Saturday I'm resting at home." },
+      model: { et: "Reedel lähen Liisile külla. Seal on õhtusöök ja ma viin veini kaasa. Laupäeval puhkan kodus.", en: "On Friday I'm going over to Liis's. There's a dinner and I'm bringing wine. On Saturday I'm resting at home." },
     },
   },
   {
@@ -699,7 +700,7 @@ export const B2_KONEKEEL_LESSONS: readonly LessonSpec[] = [
     cast: { Liis: "liivika", Jaan: "meelis", Mari: "mari", Kati: "vesta", Tom: "kalev", Anna: "kylli" },
     conversation: [
       { who: "Liis", et: "Tere, tulge sisse!", en: "Hi, come in!", stage: "Friday evening at Liis and Jaan's. Six friends around one table." },
-      { who: "Jaan", et: "Istuge laua ümber, toit on kohe valmis.", en: "Sit down at the table, the food's nearly ready." },
+      { who: "Jaan", et: "Istuge lauda, toit on kohe valmis.", en: "Sit down at the table, the food's nearly ready." },
       { who: "Mari", et: "Kati, räägi nüüd, kuidas kontsert oli!", en: "Kati, now tell us how the concert was!" },
       { who: "Kati", et: "Oi, täitsa lahe! Ja Jaan oli ka seal ja...", en: "Oh, really cool! And Jaan was there too, and...", stage: "Mari talks over her." },
       { who: "Mari", et: "Jaan kontserdil! Seda ma küll ei usu, ta läheb ju kell üheksa...", en: "Jaan at a concert! Now that I don't believe, he goes to bed at nine...", stage: "Both of them at once." },
@@ -738,7 +739,7 @@ export const B2_KONEKEEL_LESSONS: readonly LessonSpec[] = [
       scene: "Dinner at Liis and Jaan's. Kati and Mari are telling the same story at once, and Jaan, trying to help, offers to switch to English. He says {sina} to you.",
       who: "Jaan",
       turns: [
-        { ask: { et: "Tere, tule sisse! Kuidas läheb?", en: "Hi, come in! How's it going?" }, cue: "Say hi, and that you're really well.", model: { et: "Tere! Täitsa hästi, aitäh.", en: "Hi! Really well, thanks." }, also: ["Tere! Väga hästi, aitäh.", "Tere! Hästi, aitäh.", "Tere! Täitsa hästi."] },
+        { ask: { et: "Tere, tule sisse! Kuidas läheb?", en: "Hi, come in! How's it going?" }, cue: "Say hi, and that you're really well.", model: { et: "Tere! Täitsa hästi, aitäh.", en: "Hi! Pretty well, thanks." }, also: ["Tere! Väga hästi, aitäh.", "Tere! Hästi, aitäh.", "Tere! Täitsa hästi."] },
         { ask: { et: "Kati ja Mari räägivad jälle korraga. Kas sa saad aru?", en: "Kati and Mari are talking at once again. Are you following?" }, cue: "Say not really, and ask them to talk one at a time.", model: { et: "Mitte eriti. Üks korraga, palun!", en: "Not really. One at a time, please!" }, also: ["Ei saa. Üks korraga, palun!", "Mitte väga. Üks korraga, palun!"] },
         { ask: { et: "Tahad, ma räägin inglise keeles?", en: "Want me to speak English?" }, cue: "Say no thanks, let's carry on in Estonian: you want to practice.", model: { et: "Ei, aitäh. Räägime eesti keeles edasi, ma tahan harjutada.", en: "No, thanks. Let's carry on in Estonian, I want to practice." }, also: ["Ei, aitäh, räägime eesti keeles edasi. Ma tahan harjutada.", "Ei-ei, räägime eesti keeles edasi. Ma tahan harjutada."] },
         { ask: { et: "Hästi. Kas Kati rääkis sulle kontserdist?", en: "OK. Did Kati tell you about the concert?" }, cue: "Say yes: she ran into him there, and it was totally weird.", model: { et: "Jah. Ta kohtas seal sind ja see oli täitsa veider!", en: "Yes. She ran into you there, and it was totally weird!" }, also: ["Jah, ta kohtas sind seal. See oli täitsa veider!", "Jah. Ta kohtas sind kontserdil ja see oli täitsa veider!"] },

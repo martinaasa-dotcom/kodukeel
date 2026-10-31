@@ -102,8 +102,9 @@ export function correctionProblems(english: string, correction: string): string[
   const got = slotsOf(correction).join(",");
   const list = (slots: string[]) => (slots.length ? slots.map((s) => `{${s}}`).join(", ") : "none");
   if (want !== got) out.push(`the slots in braces must be ${list(slotsOf(english))} exactly, and the correction has ${list(slotsOf(correction))}`);
-  if (/[õäöüšž]/i.test(correction)) out.push("an Estonian letter, which this table may not hold (ADR-005)");
-  if (/[\u2013\u2014]/.test(correction)) out.push("a long dash, which no screen may show; a full stop or a comma does it");
+  if (/[õäöüšž]/i.test(correction.replace(/\{[^}]*\}|\[[^\]]*\]/g, ""))) out.push("an Estonian letter, which this table may not hold (ADR-005)");
+  if (/\u2014/.test(correction)) out.push("an em dash, which no screen may show; a full stop or a comma does it");
+  if (/\u2013/.test(correction.replace(/ \u2013 /g, ""))) out.push("an en dash that is not the spaced tire ( \u2013 ), the one dash Russian and Ukrainian grammar takes");
   return out;
 }
 

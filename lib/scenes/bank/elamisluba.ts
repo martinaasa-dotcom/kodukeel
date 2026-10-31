@@ -19,7 +19,7 @@ import type { ScriptedLine } from "../scripted";
 const LINES: readonly ScriptedLine[] = [
   { scene: "elamisluba", beat: "want", text: "Mida te soovite?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "elamisluba", beat: "want", text: "Kuidas saan aidata?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "elamisluba", beat: "booking", text: "Mis teie broneeritud aja number on?", model: "authored", draftedAt: "2026-10-30" },
+  { scene: "elamisluba", beat: "booking", text: "Mis on teie broneeringu number?", model: "authored", draftedAt: "2026-10-30" },
   { scene: "elamisluba", beat: "booking", text: "Teie broneeritud aja number, palun?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "elamisluba", beat: "brought", text: "Mis teil kaasas on?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "elamisluba", beat: "brought", text: "Kas teil on kõik kaasas?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },

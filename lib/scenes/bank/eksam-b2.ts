@@ -24,7 +24,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "eksam-b2", beat: "like", text: "Mis teile selle juures meeldib?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "eksam-b2", beat: "like", text: "Mis teile selles kõige rohkem meeldib?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-16" },
   { scene: "eksam-b2", beat: "side", text: "Kas neli päeva nädalas oleks parem?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
-  { scene: "eksam-b2", beat: "side", text: "Mis te arvate, kas neli päeva tööd nädalas oleks parem?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
+  { scene: "eksam-b2", beat: "side", text: "Mis te arvate, kas neli tööpäeva nädalas oleks parem?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "eksam-b2", beat: "reason", text: "Miks te nii arvate?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "eksam-b2", beat: "reason", text: "Mis põhjusel?", model: "authored", draftedAt: "2026-10-15", reviewedAt: "2026-10-15" },
   { scene: "eksam-b2", beat: "counter", text: "Aga kõik ei ole sellega nõus.", model: "authored", draftedAt: "2026-10-16", reviewedAt: "2026-10-16" },

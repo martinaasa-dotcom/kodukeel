@@ -75,6 +75,7 @@ export const NAMES: ReadonlySet<string> = new Set([
   */
   "Jaani", "Peetri", "Liisi", "Marit", "Marile", "Maril", "Marilt", "Mariga",
   "Jaanile", "Jaaniga", "Liisile", "Liisiga", "Katile", "Katiga", "Annale", "Annaga", "Peetrile", "Peetriga",
+  "Heinot",
 ]);
 
 /** The word an item is about: a form's lemma, or the item itself. */

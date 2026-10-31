@@ -49,7 +49,7 @@ describe("a dropped pronoun, on the lessons' own sentences", () => {
     ["b1-22 F2", () => fix("b1-22", 2), "Elan remonditud korteris."],
     ["b1-41 F1", () => fix("b1-41", 1), "Olen selle plaani vastu."],
     ["b1-19 R3", () => rework("b1-19", 3), "Oleksin pidanud juba ammu puhkusele minema."],
-    ["b1-31 R3", () => rework("b1-31", 3), "Olin pileti koju ära unustanud."],
+    ["b1-31 R3", () => rework("b1-31", 3), "Ta oli pileti koju ära unustanud."],
     ["b1-31 F1", () => fix("b1-31", 1), "Olin telefoni koju unustanud."],
     ["b1-15 R1", () => rework("b1-15", 1), "Oleks varem alustanud."],
     // A full stop ends a clause, so one pronoun is dropped from one clause.
@@ -410,7 +410,7 @@ describe("a count in digits (round 2, L2)", () => {
 describe("two accepted changes made at once", () => {
   it("is right where each change is a row's (the content audit's cases)", () => {
     for (const [typed, row] of [
-      ["Ma olin selle koju ära unustanud.", "Ma olin pileti koju unustanud."],
+      ["Ta oli selle koju ära unustanud.", "Ta oli pileti koju unustanud."],
       ["Ära too seda!", "Ära too diivanit siia!"],
       ["Palun too see!", "Too kast!"],
       ["Ma ei parandanud seda ära.", "Ma ei parandanud akent."],
@@ -422,7 +422,7 @@ describe("two accepted changes made at once", () => {
   });
 
   it("is wrong where one change is in no row", () => {
-    expect(markRework("Ma olin selle koju ära kaotanud.", itemAccepting("Ma olin pileti koju unustanud.")).verdict).toBe("wrong");
+    expect(markRework("Ta oli selle koju ära kaotanud.", itemAccepting("Ta oli pileti koju unustanud.")).verdict).toBe("wrong");
     expect(markRework("Ära too seda sinna!", itemAccepting("Ära too diivanit siia!")).verdict).not.toBe("right");
     expect(markRework("Palun too see sinna!", itemAccepting("Too kast!")).verdict).not.toBe("right");
   });

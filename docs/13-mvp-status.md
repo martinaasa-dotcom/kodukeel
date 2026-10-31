@@ -4167,3 +4167,19 @@ sentences for words only the old units taught were dropped. The landing page, `/
 `/partners` say the course is lessons from A1 to C1. The Russian and Ukrainian are machine-written,
 every new Estonian line waits on the native speaker (`docs/reviews/c1-flags.md` first), and C1 is
 recorded nowhere yet.
+
+## 79. The seventy-third pass: every unread line is read
+
+Every Estonian, Russian and Ukrainian line nobody had read was read, in one sheet compiled from main at
+`8251380`: the lessons A1 to C1 with their role-plays, live scenes and picks, the catalog conversations,
+the Estonian public pages, the smaller tables, the workbook lines, and every unconfirmed Russian and
+Ukrainian line. The verdicts are kept in `docs/reviews/2026-10-31-review.json` and what applying them
+took in `docs/reviews/2026-10-31-applied.md`.
+
+**What changed.** 645 Estonian fixes and 15 drops, 1,797 Russian and 1,537 Ukrainian corrections, and
+every line of both languages confirmed. Estonian quotes close on `“`. Russian and Ukrainian write the
+tire as a spaced en dash, the one dash a reader may see (`withoutCyrillicTire`). Four phrases the course
+had refused as not what people say are ordinary Estonian and are no longer refused. Words the reading
+brought into a lesson before any lesson taught them are taught where they first appear, and a compound
+or a `-gi` form the forms list does not store is read as the words it is built from. Nothing waits on a
+reader now; the recordings still do (`docs/44-language-reviews.md` §2).

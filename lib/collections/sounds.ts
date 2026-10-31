@@ -104,7 +104,7 @@ export const VOWEL_PAIRS: readonly WordSet[] = [
   { words: [{ clip: "pair-koht", en: "a place", mark: "o" }, { clip: "pair-kouht", en: "a belly", mark: "õ" }] },
   { words: [{ clip: "pair-suu", en: "a mouth", mark: "uu" }, { clip: "pair-suueue", en: "guilt", mark: "üü" }] },
   { words: [{ clip: "pair-tuli", en: "fire", mark: "u" }, { clip: "pair-tueli", en: "a quarrel", mark: "ü" }] },
-  { words: [{ clip: "number-kuus", en: "six", mark: "uu" }, { clip: "pair-kueues", en: "a nail", mark: "üü" }] },
+  { words: [{ clip: "number-kuus", en: "six", mark: "uu" }, { clip: "pair-kueues", en: "a fingernail", mark: "üü" }] },
   { words: [{ clip: "pair-kera", en: "a sphere", mark: "e" }, { clip: "pair-kaera", en: "a racket, a din", mark: "ä" }] },
 ];
 

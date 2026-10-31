@@ -112,7 +112,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Agree is {olema nõus}, to be in agreement: {Ma olen nõus}. Disagreeing is {ei ole}, and in speech nearly always {pole}: {Ma pole nõus}.",
+        "Agree is {olema nõus}, to be in agreement: {Ma olen nõus}. Disagreeing is {ei ole}, and in speech often {pole}: {Ma pole nõus}.",
         "{Sul on õigus} is you're right: you have the right of it, with {sul} like {sul on}.",
         "Inside a sentence, {et} and {sest} take a comma in front of them. Estonian is strict about it.",
       ],
@@ -485,6 +485,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "trenn", en: "training, a workout" },
       { kind: "phrase", et: "Lepime kokku", en: "let's settle it, let's agree" },
       { kind: "phrase", et: "Kokku lepitud!", en: "Agreed! It's a deal!" },
+      { kind: "word", et: "ammu", en: "for ages, long ago" },
     ],
     how: {
       point: "A time that works {sobib}, for somebody in -le: {Kas sulle sobib?}, does it suit you? To settle it you say {Lepime kokku}, and the answer is {Kokku lepitud!}",
@@ -523,7 +524,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
     goal: "Catch up with a friend: what you did, how you are, what you think and what you'll do.",
     cast: { Mari: "mari", Tom: "kalev" },
     conversation: [
-      { who: "Mari", et: "No tere, Tom! Kaua pole näinud! Mis sa vahepeal tegid?", en: "Hey, Tom! Long time no see! What have you been up to?" },
+      { who: "Mari", et: "No tere, Tom! Ammu pole näinud! Mis sa vahepeal tegid?", en: "Hey, Tom! Long time no see! What have you been up to?" },
       { who: "Tom", et: "Olin Tartus. Töötasin seal programmeerijana.", en: "I was in Tartu. I worked there as a programmer." },
       { who: "Mari", et: "Kuidas sulle Tartu meeldis?", en: "How did you like Tartu?" },
       { who: "Tom", et: "Väga meeldis! Ma arvan, et see on Eesti kõige ilusam linn.", en: "I liked it a lot! I think it's the prettiest town in Estonia." },
@@ -551,7 +552,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       scene: "You meet an old friend you haven't seen for a while. She speaks first. Answer as yourself.",
       who: "Mari",
       turns: [
-        { ask: { et: "No tere! Kaua pole näinud! Mis sa vahepeal tegid?", en: "Hey! Long time no see! What have you been up to?" }, cue: "Say where you were, and what you did there.", model: { et: "Olin Tartus. Töötasin seal.", en: "I was in Tartu. I worked there." } },
+        { ask: { et: "No tere! Ammu pole näinud! Mis sa vahepeal tegid?", en: "Hey! Long time no see! What have you been up to?" }, cue: "Say where you were, and what you did there.", model: { et: "Olin Tartus. Töötasin seal.", en: "I was in Tartu. I worked there." } },
         { ask: { et: "Kuidas sulle Tartu meeldis?", en: "How did you like Tartu?" }, cue: "Say what you think of it.", model: { et: "Ma arvan, et see on Eesti kõige ilusam linn.", en: "I think it's the prettiest town in Estonia." } },
         { ask: { et: "Mis su plaanid on?", en: "What are your plans?" }, cue: "Say what you plan to do in the summer.", model: { et: "Suvel kavatsen Saaremaale minna.", en: "In the summer I plan to go to Saaremaa." } },
         { ask: { et: "Tore! Kellega sa lähed?", en: "Lovely! Who are you going with?" }, cue: "Say who with, and ask if she'd come along too.", model: { et: "Jaaniga. Kas tuleksid ka kaasa?", en: "With Jaan. Would you come along too?" } },

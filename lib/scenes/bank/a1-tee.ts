@@ -23,7 +23,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "a1-tee", beat: "where", text: "Jah, palun?", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
   { scene: "a1-tee", beat: "way", text: "Otse, siis paremale.", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
   { scene: "a1-tee", beat: "way", text: "Otse, siis vasakule.", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
-  { scene: "a1-tee", beat: "way", text: "See on siin otse.", model: "authored", draftedAt: "2026-10-30" },
+  { scene: "a1-tee", beat: "way", text: "See on siit otse.", model: "authored", draftedAt: "2026-10-30" },
   { scene: "a1-tee", beat: "answer:far", text: "Ei, see on siin lähedal.", model: "authored", draftedAt: "2026-10-30" },
   { scene: "a1-tee", beat: "answer:far", text: "Ei, pole kaugel.", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },
   { scene: "a1-tee", beat: "close", text: "Palun! Head aega!", model: "authored", draftedAt: "2026-10-17", reviewedAt: "2026-10-17" },

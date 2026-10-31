@@ -296,7 +296,7 @@ export const B2_TERVIS_LESSONS: readonly LessonSpec[] = [
     faster: {
       ask: { et: "Kuidas sinu kodumaal arsti juurde saab?", en: "How do you get to see a doctor in your home country?" },
       cue: "Say how you book a doctor at home, how long you wait, and what you think of it.",
-      model: { et: "Kodus helistan tavaliselt arstile ja saan aja kahe päeva pärast. Siin pean vahel nädal aega ootama, aga arst saab ka telefoni teel aidata. See on mugav.", en: "At home I usually ring the doctor and get an appointment two days later. Here I sometimes have to wait a week, but the doctor can also help over the phone. That's handy." },
+      model: { et: "Kodumaal helistan tavaliselt arstile ja saan aja kahe päeva pärast. Siin pean vahel nädal aega ootama, aga arst saab ka telefoni teel aidata. See on mugav.", en: "At home I usually ring the doctor and get an appointment two days later. Here I sometimes have to wait a week, but the doctor can also help over the phone. That's handy." },
       seconds: [60, 45, 30],
     },
   },
@@ -377,7 +377,7 @@ export const B2_TERVIS_LESSONS: readonly LessonSpec[] = [
       lines: [
         { et: "Pakendi infoleht: teave kasutajale", en: "Package leaflet: information for the user" },
         { et: "Enne ravimi võtmist lugege see infoleht hoolikalt läbi.", en: "Read all of this leaflet carefully before you start taking this medicine." },
-        { et: "Võtke seda ravimit täpselt nii, nagu arst on teile määranud.", en: "Always take this medicine exactly as your doctor has told you." },
+        { et: "Võtke seda ravimit täpselt nii, nagu arst on teile määranud.", en: "Take this medicine exactly as your doctor has told you." },
         { et: "Ärge lõpetage ravimi võtmist enne kuuri lõppu, isegi kui tunnete end paremini.", en: "Do not stop taking it before the end of the course, even if you feel better." },
         { et: "See ravim on välja kirjutatud ainult teile. Ärge andke seda teistele.", en: "This medicine has been prescribed for you only. Do not pass it on to others." },
         { et: "Kui teil tekib lööve või on raske hingata, pöörduge kohe arsti poole.", en: "If you get a rash or find it hard to breathe, see a doctor at once." },
@@ -491,7 +491,7 @@ export const B2_TERVIS_LESSONS: readonly LessonSpec[] = [
       notes: [
         "People call the emergency department {EMO}, from its first letters, and a notice writes the whole name out.",
         "{Pöörduma} is how papers say go and see: {pöörduge arsti poole}. Nobody says it about popping round to a friend.",
-        "{Tuleb minna} says the same as {minge}, a little softer: {Teil tuleb kohe minna}.",
+        "{Tuleb minna} says the same as {minge}, but less directly: {Teil tuleb kohe minna}.",
       ],
       watchOut: "To one person you call {sina}, there's no -ge: {mine}, {helista}. Keep the -ge for {teie}.",
       examples: [9, 11],
@@ -579,7 +579,7 @@ export const B2_TERVIS_LESSONS: readonly LessonSpec[] = [
     cast: { Liis: "liivika", Tom: "kalev", Lepp: "vesta", Sofia: "mari" },
     hearing: "cafe",
     conversation: [
-      { who: "Liis", et: "Tom, sa näed küll väga väsinud välja. Kas köha on ikka veel?", en: "Tom, you really do look tired. Have you still got that cough?", stage: "A week later. Tom meets Liis at a café after work." },
+      { who: "Liis", et: "Tom, sa näed küll väga väsinud välja. Kas sul on ikka veel köha?", en: "Tom, you really do look tired. Have you still got that cough?", stage: "A week later. Tom meets Liis at a café after work." },
       { who: "Tom", et: "Ei, köha on üle läinud. Antibiootikum aitas. Aga ma ei saa üldse magada.", en: "No, the cough's gone. The antibiotic helped. But I can't sleep at all." },
       { who: "Liis", et: "Kuidas nii?", en: "How come?" },
       { who: "Tom", et: "Uinun alles kella ühe paiku ja kell neli ärkan jälle üles. Ja siis ma lihtsalt leban ja mõtlen.", en: "I don't fall asleep until around one, and at four I'm awake again. And then I just lie there and think." },
@@ -591,7 +591,7 @@ export const B2_TERVIS_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Ilma telefonita? See on raske.", en: "Without my phone? That's hard." },
       { who: "Liis", et: "Alguses küll. Aga uni läks palju paremaks.", en: "At first, yes. But my sleep got a lot better." },
       { who: "Tom", et: "Ma peaksin vist arstiga rääkima.", en: "I should probably talk to a doctor." },
-      { who: "Liis", et: "Kirjuta oma perearstile. Digiloo kaudu saab sõnumi saata ja arst vastab paari päeva jooksul.", en: "Write to your family doctor. You can send a message through the health portal, and the doctor answers within a couple of days." },
+      { who: "Liis", et: "Kirjuta oma perearstile. Terviseportaali kaudu saab sõnumi saata ja arst vastab paari päeva jooksul.", en: "Write to your family doctor. You can send a message through the health portal, and the doctor answers within a couple of days." },
       { who: "Tom", et: "Hea mõte. Kirjutan juba täna õhtul.", en: "Good idea. I'll write this evening." },
     ],
     teaches: [
@@ -608,8 +608,8 @@ export const B2_TERVIS_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "saata", of: "saatma", en: "to send, after {saab}" },
       { kind: "form", et: "paari", of: "paar", en: "a couple of; {paari päeva jooksul}, within a couple of days" },
       { kind: "word", et: "jooksul", en: "within, in the course of" },
-      { kind: "word", et: "digilugu", en: "the health portal, your health record online" },
-      { kind: "form", et: "digiloo", of: "digilugu", en: "of the health portal", stem: true },
+      { kind: "word", et: "terviseportaal", en: "the health portal, your health record online" },
+      { kind: "form", et: "terviseportaali", of: "terviseportaal", en: "of the health portal", stem: true },
       { kind: "verb", et: "keskenduma", first: "keskendun", en: "to concentrate", firstEn: "I concentrate" },
       { kind: "form", et: "keskenduda", of: "keskenduma", en: "to concentrate, after {saan} or {raske}" },
       { kind: "word", et: "korralikult", en: "properly" },

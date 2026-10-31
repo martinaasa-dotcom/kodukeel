@@ -15,7 +15,7 @@ export const LESSONS_B2_AREA: Area = {
     "Work it out": "Догадайся",
     "One word here is new, and you know its parts. What does it mean?": "Одно слово здесь новое, но его части ты знаешь. Что оно значит?",
     "How it is built": "Из чего оно состоит",
-    "Heard once, the way a person tells you something. Now tell it back.": "Прослушано один раз, как когда человек тебе что-то рассказывает. Теперь перескажи.",
+    "Heard once, the way a person tells you something. Now tell it back.": "Прослушано один раз, как бывает, когда тебе что-то рассказывают. Теперь перескажи.",
     "You'll hear it once. No words on screen, so listen closely.": "Ты услышишь это один раз. Слов на экране нет, так что слушай внимательно.",
     "one go": "одна попытка",
     "{n} goes": "попыток: {n}",

@@ -17,8 +17,8 @@ import type { ScriptedLine } from "../scripted";
 
 /** The prepared lines of `c1-pidu`. */
 const LINES: readonly ScriptedLine[] = [
-  { scene: "c1-pidu", beat: "greet", text: "Tere! Mina olen Daniel. Kas sina oled Tom, kes tegi täna eksami?", model: "authored", draftedAt: "2026-10-31" },
-  { scene: "c1-pidu", beat: "greet", text: "Tere õhtust! Mina olen Daniel, Jaani kolleeg. Sina tegid täna eksami, eks?", model: "authored", draftedAt: "2026-10-31" },
+  { scene: "c1-pidu", beat: "greet", text: "Tere! Mina olen Daniel. Kas sina oled see Tom, kes käis täna eksamil?", model: "authored", draftedAt: "2026-10-31" },
+  { scene: "c1-pidu", beat: "greet", text: "Tere õhtust! Mina olen Daniel, Jaani kolleeg. Sina käisid täna eksamil, eks?", model: "authored", draftedAt: "2026-10-31" },
   { scene: "c1-pidu", beat: "how", text: "Väga tore! Ja kuidas läks?", model: "authored", draftedAt: "2026-10-31" },
   { scene: "c1-pidu", beat: "how", text: "Palju õnne! Kuidas eksam läks?", model: "authored", draftedAt: "2026-10-31" },
   { scene: "c1-pidu", beat: "hardest", text: "Ja mis oli kõige raskem?", model: "authored", draftedAt: "2026-10-31" },

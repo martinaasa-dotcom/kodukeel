@@ -316,6 +316,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "lubas", of: "lubama", en: "she allowed, he promised" },
       { kind: "form", et: "küsida", of: "küsima", en: "to ask, after want or dare" },
       { kind: "form", et: "julgenud", of: "julgema", en: "dared, after {ei}" },
+      { kind: "form", et: "arvete", of: "arve", en: "of the bills" },
     ],
     how: {
       point: "The [tingiv kõneviis] (-ks, would) makes a request soft: {Kas ma võiksin...?} is could I...?, {Kas sa saaksid...?} is could you...?, and {Ma tahaksin paluda...} is I'd like to ask for...",
@@ -513,7 +514,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
     ],
     fixes: [
       { line: { et: "Lepingus on ju palk enne makse.", en: "The contract has the pay before tax." }, right: "makse", wrong: "maksud", pair: ["PARTITIVE", "NOMINATIVE"], why: "After {enne}, the [osastav] (3rd form): {enne makse}." },
-      { line: { et: "Ma maksan üüri ja arved.", en: "I pay the rent and the bills." }, right: "arved", wrong: "arveid", pair: ["NOMINATIVE", "PARTITIVE"], why: "All the bills, paid and done, so {arved}. {Arveid} would be some of them, or paying that is still going on." },
+      { line: { et: "Ma maksan üüri ja arved.", en: "I pay the rent and the bills." }, right: "arved", wrong: "arvete", pair: ["NOMINATIVE", "GENITIVE"], why: "All the bills, paid and done, so {arved}." },
     ],
     faster: {
       ask: { et: "Mida sa oma palgaga teed?", en: "What do you do with your pay?" },
@@ -694,6 +695,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       { kind: "verb", et: "kustutama", first: "kustutan", en: "to delete, to put out", firstEn: "I delete" },
       { kind: "word", et: "alates", en: "from, starting from" },
       { kind: "phrase", et: "Tervitustega", en: "Best wishes, to close an email" },
+      { kind: "form", et: "meeskonnajuhiks", of: "meeskonnajuht", en: "a team lead, as what you become: {saada meeskonnajuhiks}" },
     ],
     how: {
       point: "An email that asks for something goes in four steps: what you'd like ({Ma sooviksin}), why, what you'd suggest ({Ma pakuksin}), and a question to close ({Kas me saaksime...?}). After the reason, {sellepärast}, that's why, leads into the next sentence.",
@@ -774,7 +776,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
         { et: "Kui see ei sobi, võiksin töötada ka neli päeva nädalas väiksema palgaga.", en: "If that doesn't work, I could also work four days a week for a smaller salary." },
         { et: "Kümme tundi päevas on küll pikk, aga see oleks mulle parem.", en: "Ten hours a day is long, but that would suit me better." },
         { et: "Kas me saaksime sellest rääkida?", en: "Could we talk about it?" },
-        { et: "Tervitustega, Tom", en: "Best wishes, Tom" },
+        { et: "Tervitustega\nTom", en: "Best wishes, Tom" },
       ],
       uses: [
         { et: "sooviksin", en: "I'd like" },
@@ -823,7 +825,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Palju õnne! Arendaja on hea amet.", en: "Congratulations! Developer's a good job." },
       { who: "Siim", et: "Aitäh, see on tänu sulle. Sa toetasid mind alati.", en: "Thanks, it's thanks to you. You always backed me up." },
       { who: "Tom", et: "Ei, sa tegid kõik ise. Mis sa esimese palgaga teed?", en: "No, you did it all yourself. What are you going to do with your first pay?" },
-      { who: "Siim", et: "Kogun raha oma korteri jaoks.", en: "Save up for an apartment of my own." },
+      { who: "Siim", et: "Kogun raha oma korteri jaoks.", en: "I'm saving up for an apartment of my own." },
     ],
     teaches: [
       { kind: "word", et: "hind", en: "price" },
@@ -869,7 +871,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
         "After {midagi}, a describing word takes the [osastav] (3rd form): {midagi isiklikku}, something personal.",
         "{Tagastama} is the word a shop or an office uses for giving something back: {Toote saab tagastada}.",
       ],
-      watchOut: "{Tõusma} is also to get up in the morning: {Ma tõusen kell seitse}. A price and a person both go up with it.",
+      watchOut: "{Tõusma} is also to get up in the morning: {Ma tõusen kell seitse}. A price goes up with it, and a person gets up with it.",
       examples: [0, 3, 12],
     },
     listenFor: [
@@ -946,7 +948,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
         { ask: { et: "Miks sa varem ei küsinud?", en: "Why didn't you ask earlier?" }, cue: "Say you'd have liked to ask earlier, but didn't dare.", model: { et: "Ma oleksin tahtnud varem küsida, aga ma ei julgenud.", en: "I'd have liked to ask earlier, but I didn't dare." } },
         { ask: { et: "Ja mis summa sulle sobiks?", en: "And what amount would suit you?" }, cue: "Say what would be fair.", model: { et: "Ma arvan, et kümme protsenti rohkem oleks õiglane.", en: "I think ten percent more would be fair." } },
         { ask: { et: "Ma saan pakkuda viis protsenti kohe.", en: "I can offer five percent now." }, cue: "Ask if you could talk again at the end of the year.", model: { et: "Kas me võiksime aasta lõpus uuesti rääkida?", en: "Could we talk again at the end of the year?" } },
-        { ask: { et: "Jah, aasta lõpus räägime uuesti. Ja kelleks sa tahaksid järgmisel aastal saada?", en: "Yes, we'll talk again at the end of the year. And what would you like to become next year?" }, cue: "Say what you'd like to become.", model: { et: "Ma tahaksin saada meeskonna juhiks.", en: "I'd like to become the team lead." } },
+        { ask: { et: "Jah, aasta lõpus räägime uuesti. Ja kelleks sa tahaksid järgmisel aastal saada?", en: "Yes, we'll talk again at the end of the year. And what would you like to become next year?" }, cue: "Say what you'd like to become.", model: { et: "Ma tahaksin saada meeskonnajuhiks.", en: "I'd like to become the team lead." } },
         { ask: { et: "Hea plaan. Kas lepime kokku?", en: "Good plan. Shall we agree on that?" }, cue: "Thank her and agree.", model: { et: "Aitäh! Kokku lepitud.", en: "Thank you! Agreed." } },
       ],
     },

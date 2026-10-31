@@ -37,7 +37,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Anna", et: "Tom, homme on su sünnipäev, eks?", en: "Tom, it's your birthday tomorrow, right?" },
       { who: "Tom", et: "Jah! Kas te toote mulle kooki?", en: "Yes! Are you bringing me cake?" },
-      { who: "Anna", et: "Tead, Eestis tehakse seda tegelikult teisiti.", en: "You know, in Estonia it's actually done the other way round." },
+      { who: "Anna", et: "Tead, Eestis tehakse seda tegelikult teisiti.", en: "You know, in Estonia it's actually done differently." },
       { who: "Anna", et: "Sünnipäeval tuuakse tööle kooki.", en: "On your birthday, cake gets brought to work." },
       { who: "Tom", et: "Kes selle toob?", en: "Who brings it?" },
       { who: "Anna", et: "Sina ise! Ja siis juuakse koos kohvi.", en: "You do, yourself! And then everybody has coffee together." },
@@ -170,7 +170,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Ilus! Ja see kollane maja seal üle tee?", en: "Beautiful! And that yellow building across the road?" },
       { who: "Mari", et: "See ehitati 1930. aastal. Eelmisel aastal renoveeriti see ja avati hotellina.", en: "That was built in 1930. Last year it was renovated and opened as a hotel." },
       { who: "Tom", et: "Ja muuseum siin kõrval? Lähme sisse!", en: "And the museum next door? Let's go in!" },
-      { who: "Mari", et: "Kahjuks mitte, muuseum on kinni. See suleti eelmisel kuul.", en: "Sadly not, the museum's closed. It was closed last month." },
+      { who: "Mari", et: "Kahjuks ei saa, muuseum on kinni. See suleti eelmisel kuul.", en: "Sadly not, the museum's closed. It was closed last month." },
       { who: "Tom", et: "Miks?", en: "Why?" },
       { who: "Mari", et: "Seal on remont. Aga tead mis? Remondi ajal leiti seina seest vana raha!", en: "There's building work. But guess what? During the work they found old money inside a wall!" },
       { who: "Tom", et: "Päriselt? Kas keegi sai rikkaks?", en: "Really? Did anybody get rich?" },
@@ -255,7 +255,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Kahjuks mitte, muuseum on kinni. See suleti eelmisel kuul.", en: "Sadly not, the museum's closed. It was closed last month." }, right: "suleti", wrong: "suletakse", pair: ["IndIpfIps", "IndPrIps"], why: "Last month is over, so the past: {suleti}, was closed." },
+      { line: { et: "Kahjuks ei saa, muuseum on kinni. See suleti eelmisel kuul.", en: "Sadly not, the museum's closed. It was closed last month." }, right: "suleti", wrong: "suletakse", pair: ["IndIpfIps", "IndPrIps"], why: "Last month is over, so the past: {suleti}, was closed." },
       { line: { et: "See ehitati 1930. aastal. Eelmisel aastal renoveeriti see ja avati hotellina.", en: "That was built in 1930. Last year it was renovated and opened as a hotel." }, right: "avati", wrong: "avas", pair: ["IndIpfIps", "IndIpfSg3"], why: "Nobody is named as the one who opened it, so {avati}, was opened." },
     ],
     faster: {
@@ -343,8 +343,8 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       {
         from: { et: "Buss on läinud.", en: "The bus has gone." },
         ask: "Say it had already gone when you got there. You can start with {Kui ma jõudsin}.",
-        to: { et: "Kui ma jõudsin, oli buss juba läinud.", en: "When I got there, the bus had already gone." },
-        also: ["Kui ma jõudsin, oli buss läinud.", "Kui ma jõudsin, buss oli juba läinud.", "Kui ma jõudsin, oli buss juba ära läinud.", "Kui jõudsin, oli buss juba läinud.", "Kui ma kohale jõudsin, oli buss juba läinud.", "Buss oli juba läinud, kui ma jõudsin.", "Kui ma kohale jõudsin, oli buss juba ära läinud.", "Kui ma jõudsin, buss oli juba ära läinud."],
+        to: { et: "Kui jõudsin, oli buss juba läinud.", en: "When I got there, the bus had already gone." },
+        also: ["Kui ma jõudsin, oli buss juba läinud.", "Kui ma jõudsin, oli buss läinud.", "Kui ma jõudsin, buss oli juba läinud.", "Kui ma jõudsin, oli buss juba ära läinud.", "Buss oli juba läinud, kui ma jõudsin.", "Kui ma kohale jõudsin, oli buss juba ära läinud.", "Kui ma jõudsin, buss oli juba ära läinud."],
         pattern: "pluperfect",
       },
       {
@@ -357,8 +357,8 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       {
         from: { et: "Mari on pileti koju unustanud.", en: "Mari has left the ticket at home." },
         ask: "Say you had left it at home yourself, before something else happened.",
-        to: { et: "Ma olin pileti koju unustanud.", en: "I'd left the ticket at home." },
-        also: ["Olin pileti koju unustanud.", "Ma olin pileti koju ära unustanud.", "Ma olin selle koju unustanud."],
+        to: { et: "Ta oli pileti koju unustanud.", en: "She'd left the ticket at home." },
+        also: ["Ta oli pileti koju ära unustanud.", "Mari oli pileti koju unustanud.", "Ta oli selle koju unustanud."],
         pattern: "pluperfect",
       },
       {
@@ -683,6 +683,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "kartulid", of: "kartul", en: "potatoes" },
       { kind: "form", et: "vanad", of: "vana", en: "old (more than one)" },
       { kind: "form", et: "naabrid", of: "naaber", en: "the neighbors" },
+      { kind: "phrase", et: "Ära mõtlegi!", en: "Don't even think about it!" },
     ],
     how: {
       point: "A report says what happened and what was done, with nobody named: {Torumees kutsuti}, {toru vahetati välja}. What still has to be done is {tuleb} with the [da-tegevusnimi] (-da): {Vanad torud tuleb välja vahetada}.",
@@ -812,14 +813,13 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Kas ma tõlgin sulle?", en: "Shall I translate for you?" },
       { who: "Anna", et: "Ei, ära tõlgi. Ajalehest õpin ma rohkem kui õpikust. Lihtsalt seleta, mis see sõna tähendab.", en: "No, don't translate. I learn more from the paper than from a textbook. Just explain what this word means." },
       { who: "Tom", et: "Hästi. Ja kui ta juulis tuleb, lähme kuulama?", en: "All right. And when he comes in July, shall we go and hear him?" },
-      { who: "Anna", et: "Muidugi lähme! Ja vaata, siin on mööbli reklaam. Kõik on väga odav.", en: "Of course we'll go! And look, here's an ad for furniture. It's all really cheap." },
-      { who: "Tom", et: "Ära isegi mõtle!", en: "Don't even think about it!" },
+      { who: "Anna", et: "Muidugi lähme! Ja vaata, siin on mööblipoe reklaam. Kõik on väga odav.", en: "Of course we'll go! And look, here's an ad for a furniture shop. It's all really cheap." },
+      { who: "Tom", et: "Ära mõtlegi!", en: "Don't even think about it!" },
     ],
     teaches: [
       { kind: "word", et: "ajaleht", en: "newspaper" },
       { kind: "form", et: "ajalehe", of: "ajaleht", en: "of the newspaper", stem: true },
       { kind: "word", et: "kuulus", en: "famous" },
-      { kind: "word", et: "laulja", en: "singer" },
       { kind: "word", et: "leht", en: "page; the paper, said casually" },
       { kind: "form", et: "lehe", of: "leht", en: "of the page", stem: true },
       { kind: "word", et: "pilt", en: "picture, photo" },
@@ -840,6 +840,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       { kind: "verb", et: "seletama", first: "seletan", en: "to explain", firstEn: "I explain" },
       { kind: "word", et: "mööbel", en: "furniture" },
       { kind: "form", et: "mööbli", of: "mööbel", en: "of the furniture; {mööbli reklaam}, an ad for furniture", stem: true },
+      { kind: "phrase", et: "mööblipoe reklaam", en: "an ad for a furniture shop" },
     ],
     how: {
       point: "The news is in a place: {ajalehes}, in the paper, {raadios}, on the radio, {esimesel lehel}, on the front page. Something you read out of it takes -st: {Ma lugesin seda ajalehest}.",

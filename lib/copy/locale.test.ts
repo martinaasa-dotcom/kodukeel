@@ -1,3 +1,4 @@
+import { withoutCyrillicTire } from "./voice";
 import { describe, expect, it } from "vitest";
 import { BRIEFINGS } from "./briefings";
 import { SECTIONS } from "@/lib/ux/nav";
@@ -112,7 +113,7 @@ describe("the interface language", () => {
           .replace(/\{[^}]*\}/g, (span) => (own.has(span) ? (braced += 1, "") : span))
           .replace(/[\p{L}]+/gu, (word) => (/[õäöüšžÕÄÖÜŠŽ]/.test(word) && named.has(word) ? "" : word));
         expect(bare, out).not.toMatch(/[õäöüšžÕÄÖÜŠŽ]/);
-        expect(out, out).not.toMatch(/[–—]/);
+        expect(withoutCyrillicTire(out), out).not.toMatch(/[–—]/);
       }
       expect(braced).toBeGreaterThan(0);
     });

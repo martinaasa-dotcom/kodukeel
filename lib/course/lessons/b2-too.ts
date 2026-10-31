@@ -366,7 +366,7 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
         "{Rääkima vahele} is to talk over somebody, and the person takes -le: {Marko rääkis talle vahele}.",
         "The words for the harder talks at work: {konflikt}, a conflict; {kompromiss}, which you find, {leidsime kompromissi}; and {motiveerima}, to motivate.",
       ],
-      watchOut: "Praise what was done rather than the person: {Sa rääkisid selgelt} says what was good, where {Sa oled tubli} only says somebody was.",
+      watchOut: "Praise what was done rather than the person: {Sa rääkisid selgelt} says what was good, where {Sa oled tubli} only praises the person.",
       examples: [2, 4, 6, 7],
     },
     listenFor: [
@@ -400,7 +400,7 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
       { ask: { et: "Kuidas sinu meelest koosolek läks?", en: "How do you think the meeting went?" }, cue: "Say that, honestly, you were a bit nervous.", model: { et: "Ausalt öeldes olin natuke närvis.", en: "Honestly, I was a bit nervous." }, also: ["Ausalt öeldes ma olin natuke närvis."] },
       { cue: "Ask what you could do better.", model: { et: "Mida ma võiksin paremini teha?", en: "What could I do better?" }, also: ["Mida ma saaksin paremini teha?", "Mida võiksin paremini teha?"] },
       { cue: "Somebody is talking over Kadri. Say one moment, let Kadri finish.", model: { et: "Üks hetk, las Kadri lõpetab.", en: "One moment, let Kadri finish." } },
-      { cue: "Give a colleague feedback: say they spoke clearly, very good, and one thing for next time: ask more questions.", model: { et: "Sa rääkisid selgelt, väga hea. Üks asi: järgmine kord küsi rohkem küsimusi.", en: "You spoke clearly, very good. One thing: next time ask more questions." } },
+      { cue: "Give a colleague feedback: say they spoke clearly, very good, and one thing for next time: ask more questions.", model: { et: "Sa rääkisid selgelt, väga hea. Üks asi: järgmine kord võiksid rohkem küsida.", en: "You spoke clearly, very good. One thing: next time you could ask more." } },
     ],
     reworks: [
       {
@@ -489,6 +489,10 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "värbamine", en: "recruitment, hiring" },
       { kind: "word", et: "edutamine", en: "promotion" },
       { kind: "word", et: "juhend", en: "instructions, a guide" },
+      { kind: "form", et: "esitasid", of: "esitama", en: "you presented: {esitasid oma ettepaneku}" },
+      { kind: "form", et: "arvamusel", of: "arvamus", en: "{teisel arvamusel olema}, to see it differently" },
+      { kind: "form", et: "kokkuvõtte", of: "kokkuvõte", en: "a summary, as an object: {kokkuvõtte kirja panema}, to write a summary" },
+      { kind: "word", et: "majandusolukord", en: "the economic situation" },
     ],
     how: {
       point: "Say what you're responsible for with {vastutama} and {eest}: the thing comes first, in the [omastav] (2nd form), {Ma vastutan rakenduse eest}.",
@@ -581,7 +585,7 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
         { et: "Täna alustas meie meeskonnas uus kolleeg Rasmus.", en: "Today a new colleague, Rasmus, started in our team." },
         { et: "Kristi palus mul talle näidata, kuidas meil kõik käib.", en: "Kristi asked me to show him how everything works." },
         { et: "Ma rääkisin talle, et meie ettevõte teeb rakendusi teistele firmadele.", en: "I told him our company makes apps for other firms." },
-        { et: "Ma ise vastutan selle osa eest, mida klient näeb.", en: "I'm responsible for the part the client sees myself." },
+        { et: "Ma ise vastutan selle osa eest, mida klient näeb.", en: "I myself am responsible for the part the client sees." },
         { et: "Rasmus küsis, mis kell me hommikul alustame.", en: "Rasmus asked what time we start in the morning." },
         { et: "Ta oli väga rõõmus, et reedeti saab kodus töötada.", en: "He was really pleased you can work from home on Fridays." },
         { et: "Aga kõige rohkem meeldis talle, et kell kolm joome koos kohvi.", en: "But what he liked best was that we have coffee together at three." },
@@ -616,7 +620,7 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Kristi", et: "Kõigepealt head uudised: meie ettevõte oli sel aastal kasumis.", en: "First the good news: our company made a profit this year.", stage: "A meeting about next year's budget." },
       { who: "Marko", et: "Tore! Kas siis palk ka tõuseb?", en: "Great! So is the pay going up too?" },
-      { who: "Kristi", et: "Oota. On ka halvad uudised: majandus on raske ja konkurents on tihe.", en: "Wait. There's bad news too: the economy's tough and the competition's fierce." },
+      { who: "Kristi", et: "Oota. On ka halvad uudised: majandusolukord on raske ja konkurents on tihe.", en: "Wait. There's bad news too: the economy's tough and the competition's fierce." },
       { who: "Kristi", et: "Hinnatõus jätkub ja meie kliendid kulutavad vähem.", en: "Prices keep going up, and our clients are spending less." },
       { who: "Tom", et: "Kas nõudlus ka langeb?", en: "Is the demand falling too?" },
       { who: "Kristi", et: "Pigem mitte. Nõudlus on olemas, aga kliendid tahavad maksta vähem.", en: "Not really. The demand is there, but clients want to pay less." },
@@ -624,7 +628,7 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
       { who: "Kristi", et: "Ei, koondamisi kindlasti ei tule. Aga uut inimest me järgmisel aastal tõenäoliselt ei võta.", en: "No, there definitely won't be redundancies. But we probably won't take on anybody new next year." },
       { who: "Tom", et: "Mul on ettepanek: investeerime pigem testimisse. Kui vigu on vähem, on kliendid rahul.", en: "I've got a proposal: let's invest in testing instead. If there are fewer bugs, the clients are happy." },
       { who: "Marko", et: "Ma pole kindel, et see aitab. Aga proovida võib.", en: "I'm not sure it'll help. But it's worth a try." },
-      { who: "Kristi", et: "Mulle see mõte meeldib. Tom, kas sa paneksid koosoleku lühidalt kirja? Ja lisa ka oma arvamus.", en: "I like the idea. Tom, would you write the meeting up briefly? And add what you think, too." },
+      { who: "Kristi", et: "Mulle see mõte meeldib. Tom, kas sa paneksid koosoleku kokkuvõtte lühidalt kirja? Ja lisa ka oma arvamus.", en: "I like the idea. Tom, would you write the meeting up briefly? And add what you think, too." },
       { who: "Tom", et: "Muidugi. Saadan selle täna kõigile.", en: "Of course. I'll send it to everybody today." },
       { who: "Marko", et: "Ja palga kohta küsime järgmine kord uuesti.", en: "And we'll ask about the pay again next time." },
     ],
@@ -710,7 +714,7 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
         from: { et: "Vigu on vähem. Kliendid on rahul.", en: "There are fewer bugs. The clients are happy." },
         ask: "Join them with {kui}, the if first.",
         to: { et: "Kui vigu on vähem, on kliendid rahul.", en: "If there are fewer bugs, the clients are happy." },
-        also: ["Kui vigu on vähem, kliendid on rahul.", "Kliendid on rahul, kui vigu on vähem."],
+        also: ["Kui vigu on vähem, siis on kliendid rahul.", "Kliendid on rahul, kui vigu on vähem."],
         pattern: "subordinate",
       },
       {
@@ -736,15 +740,15 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
       who: "Tom",
       hearings: 1,
       story: [
-        { et: "Täna oli meil koosolek eelarve üle.", en: "Today we had a meeting about the budget." },
+        { et: "Täna oli meil koosolek, kus arutasime eelarvet.", en: "Today we had a meeting about the budget." },
         { et: "Kristi ütles, et ettevõte oli sel aastal kasumis.", en: "Kristi said the company made a profit this year." },
         { et: "Marko küsis kohe, kas palk tõuseb.", en: "Marko asked straight away whether the pay would go up." },
-        { et: "Aga Kristi ütles, et majandus on raske ja konkurents on tihe.", en: "But Kristi said the economy's tough and the competition's fierce." },
+        { et: "Aga Kristi ütles, et majandusolukord on raske ja konkurents on tihe.", en: "But Kristi said the economy's tough and the competition's fierce." },
         { et: "Kliendid kulutavad vähem, sest hinnatõus jätkub.", en: "Clients are spending less, because prices keep rising." },
         { et: "Koondamisi ei tule, aga uut inimest me tõenäoliselt ei võta.", en: "There won't be redundancies, but we probably won't take on anybody new." },
         { et: "Mina tegin ettepaneku investeerida testimisse.", en: "I suggested investing in testing." },
         { et: "Marko polnud kindel, aga Kristi arvas, et see on hea mõte.", en: "Marko wasn't sure, but Kristi thought it was a good idea." },
-        { et: "Nüüd pean ma koosoleku lühidalt kirja panema.", en: "Now I have to write the meeting up briefly." },
+        { et: "Nüüd pean ma koosoleku kokkuvõtte lühidalt kirja panema.", en: "Now I have to write the meeting up briefly." },
       ],
       points: [
         { en: "The meeting was about the budget.", any: ["eelarve", "koosolek"] },
@@ -762,9 +766,9 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
       purpose: "Tell the team what the meeting discussed and decided, then say what you think, and why.",
       model: [
         { et: "Tere, kõik!", en: "Hi, everybody!" },
-        { et: "Saadan lühidalt, mida me esmaspäeval koosolekul arutasime.", en: "Here's a short note on what we discussed at Monday's meeting." },
+        { et: "Kirjutan lühidalt, mida me esmaspäeval koosolekul arutasime.", en: "Here's a short note on what we discussed at Monday's meeting." },
         { et: "Kristi rääkis, et meie ettevõte oli sel aastal kasumis.", en: "Kristi told us our company made a profit this year." },
-        { et: "Aga majandus on raske ja konkurents on tihe.", en: "But the economy's tough and the competition's fierce." },
+        { et: "Aga majandusolukord on raske ja konkurents on tihe.", en: "But the economy's tough and the competition's fierce." },
         { et: "Hinnatõus jätkub ja kliendid kulutavad vähem.", en: "Prices keep going up, and clients are spending less." },
         { et: "Nõudlus on olemas, aga kliendid tahavad maksta vähem.", en: "The demand is there, but clients want to pay less." },
         { et: "Otsustasime, et koondamisi ei tule.", en: "We decided there won't be any redundancies." },
@@ -772,7 +776,7 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
         { et: "Minu arvates oleks hea investeerida testimisse.", en: "In my view it would be good to invest in testing." },
         { et: "Kui vigu on vähem, on kliendid tõenäoliselt rahul ja tellivad rohkem.", en: "If there are fewer bugs, the clients will probably be happy and order more." },
         { et: "Ma pole kindel, et see kohe aitab, aga pikas plaanis pigem aitab.", en: "I'm not sure it'll help straight away, but in the long run it probably will." },
-        { et: "Kui teil on teine arvamus, kirjutage mulle.", en: "If you see it differently, write to me." },
+        { et: "Kui olete teisel arvamusel, kirjutage mulle.", en: "If you see it differently, write to me." },
         { et: "Tom", en: "Tom" },
       ],
       uses: [
@@ -815,7 +819,7 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Siis vaatame sügisel uuesti. Kas see sobib?", en: "Then we look at it again in the autumn. Does that work?" },
       { who: "Marko", et: "Kas ma nüüd võin rääkida? Mulle sobib.", en: "Can I talk now? Fine by me." },
       { who: "Kadri", et: "Hea küll. Proovime.", en: "All right. Let's try it." },
-      { who: "Kristi", et: "Kokku lepitud. Tom, sa juhtisid koosolekut väga hästi.", en: "It's a deal. Tom, you ran that meeting really well." },
+      { who: "Kristi", et: "Kokku lepitud. Tom, sa esitasid oma ettepaneku väga hästi.", en: "It's a deal. Tom, you presented your proposal really well." },
     ],
     teaches: [],
     how: {
@@ -843,7 +847,7 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
       who: "Kadri",
       turns: [
         { ask: { et: "Tom, mis su ettepanek on?", en: "Tom, what's your proposal?" }, cue: "Put your proposal: invest part of the budget in testing.", model: { et: "Mul on ettepanek: investeerime osa eelarvest testimisse.", en: "I've got a proposal: let's invest part of the budget in testing." }, also: ["Investeerime osa eelarvest testimisse."] },
-        { ask: { et: "Miks just testimisse?", en: "Why testing, of all things?" }, cue: "Give a reason with {kui}: if there are fewer bugs, the clients are happy.", model: { et: "Kui vigu on vähem, on kliendid rahul.", en: "If there are fewer bugs, the clients are happy." }, also: ["Kui vigu on vähem, kliendid on rahul."] },
+        { ask: { et: "Miks just testimisse?", en: "Why testing, specifically?" }, cue: "Give a reason with {kui}: if there are fewer bugs, the clients are happy.", model: { et: "Kui vigu on vähem, on kliendid rahul.", en: "If there are fewer bugs, the clients are happy." }, also: ["Kui vigu on vähem, siis on kliendid rahul."] },
         { ask: { et: "Ma pole päris nõus. Meil on pigem vaja programmeerijat.", en: "I don't quite agree. What we need is a programmer." }, cue: "Say you understand, but the budget won't allow a new person.", model: { et: "Ma saan aru, aga eelarve ei luba uut inimest.", en: "I understand, but the budget won't allow a new person." } },
         { ask: { et: "Aga oota, kui me...", en: "But wait, if we..." }, cue: "She cuts in before you've finished. Keep your turn: one moment, let me finish.", model: { et: "Üks hetk, las ma lõpetan.", en: "One moment, let me finish." }, also: ["Hetk, las ma lõpetan.", "Kadri, üks hetk, las ma lõpetan."] },
         { ask: { et: "Hea küll, räägi.", en: "All right, go on." }, cue: "Finish: testing is cheaper, and it'll probably help quickly.", model: { et: "Testimine on odavam ja aitab tõenäoliselt kiiresti.", en: "Testing is cheaper, and it'll probably help quickly." } },

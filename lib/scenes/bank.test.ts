@@ -7,6 +7,7 @@ import { LESSON_SCENES } from "./lessonScenes";
 // The catalog and the lessons' own conversations, which keep a bank like any scene.
 const SCENES = [...CATALOGUE, ...LESSON_SCENES];
 import { isPhrase } from "@/lib/dict/pos";
+import { isExactForm } from "@/lib/dict/forms";
 import { POOL } from "../../scripts/lib/sceneDraft";
 import { passes, gateFor, runGate } from "./gate";
 import { words } from "./lexicon";
@@ -69,12 +70,26 @@ describe("the scripted bank", () => {
     }
   });
 
-  it("passes the gate today, against its scene's own word list", () => {
+  it("passes the gate today, against its scene's own word list", async () => {
     const contexts = new Map(SCENES.map((scene) => [scene.id, keylessContext(scene)]));
+    /*
+      Vouched the way the route vouches (`sceneVouch`): the scene's own list,
+      then the forms list, so a word Ekilex holds no headword for and the forms
+      list does (`olemas`) is Estonian here as it is on the screen. How far a
+      line may reach past the scene's list is still `stretch`'s to say.
+    */
+    const outside = new Set<string>();
+    for (const row of BANK) for (const w of words(row.text)) if (!contexts.get(row.scene)!.lexicon.forms.has(w)) outside.add(w);
+    const known = new Set<string>();
+    for (const w of outside) if (await isExactForm(w)) known.add(w);
     for (const row of BANK) {
       const scene = sceneById(row.scene)!;
       const beat = beatById(scene, row.beat)!;
-      const verdict = runGate(row.text, beat, gateFor(row.beat, contexts.get(scene.id)!.gate));
+      const ctx = contexts.get(scene.id)!;
+      const own = ctx.gate.vouched ?? ((w: string) => ctx.lexicon.forms.has(w));
+      // A lesson's scene stays held to its lesson (`lessonGate`): only a catalog scene reaches the forms list.
+      const vouched = "vouched" in ctx.gate ? own : (w: string) => own(w) || known.has(w);
+      const verdict = runGate(row.text, beat, gateFor(row.beat, { ...ctx.gate, vouched }));
       expect(passes(verdict), `${row.scene}/${row.beat}: "${row.text}" fails ${verdict.failed.join(", ")} [${verdict.unknown.join(" ")}]`)
         .toBe(true);
     }

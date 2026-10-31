@@ -47,6 +47,18 @@
 export const EM_DASH = "—";
 export const EN_DASH = "–";
 
+/**
+ * The one dash a reader may see: the tire in Russian and Ukrainian, spaced, as
+ * in «Парк – это место». It is grammar there rather than a clause break, and a
+ * plain hyphen is wrong typography in those languages. Decided in the
+ * 2026-10-31 reading. So a line holding Cyrillic has its spaced en dashes taken
+ * out before a sweep looks for dashes; an em dash is never allowed, and an en
+ * dash in English or Estonian, or unspaced, is still a fault.
+ */
+export function withoutCyrillicTire(text: string): string {
+  return /\p{Script=Cyrillic}/u.test(text) ? text.replaceAll(` ${EN_DASH} `, " ") : text;
+}
+
 export interface Tell {
   /** A short name, printed when a sweep fails so the failure says what it found. */
   readonly name: string;

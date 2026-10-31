@@ -11,8 +11,8 @@ export const c1Arutelu: ScenePicks = {
     { et: "Tere! Mina olen Anna ja elan siin tänaval.", en: "Hello! I'm Anna, and I live on this street." },
   ],
   figure: [
-    { et: "Ei, tegelikult jääb parkimiskohti nelikümmend võrra vähem, mitte sada.", en: "No, in fact there'll be forty parking places fewer, not a hundred." },
-    { et: "Vabandust, aga see ei ole päris õige. Kohti jääb nelikümmend võrra vähem.", en: "Sorry, but that isn't quite right. There'll be forty places fewer." },
+    { et: "Ei, tegelikult jääb parkimiskohti neljakümne võrra vähem, mitte saja.", en: "No, in fact there'll be forty parking places fewer, not a hundred." },
+    { et: "Vabandust, aga see ei ole päris õige. Kohti jääb neljakümne võrra vähem.", en: "Sorry, but that isn't quite right. There'll be forty places fewer." },
   ],
   both: [
     { et: "Kui ma saan õigesti aru, siis ühelt poolt muutub tänav ohutumaks, teisalt jääb parkimiskohti vähem.", en: "If I understand correctly, on the one hand the street gets safer, and on the other there'll be fewer parking places." },

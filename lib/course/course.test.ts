@@ -303,12 +303,12 @@ describe("what a day reads and where it goes", () => {
       turul: ["hind", "maasikas", "pannkook", "porgand", "sibul", "tomat"], // offered by b1-03-some-or-all
       ootamine: ["kellaaeg", "paistma", "udu"], // offered by b1-04-waiting
       "abi-palumine": ["aeglaselt", "hoidma", "kandma", "tänama", "vabandama"], // offered by b1-05-do-it
-      "uus-kolleeg": ["Prantsusmaa", "laulja", "näitleja"], // offered by b1-08-help
+      "uus-kolleeg": ["Prantsusmaa", "näitleja"], // offered by b1-08-help
       trepikoda: ["üksi"], // offered by b1-10-about
       bussipeatus: ["maha", "peatus"], // offered by b1-13-reply
       toovestlus: ["ettevõte", "huvi", "leping", "nõustuma", "palk", "prantsuse", "vene"], // offered by b1-16-as
       pangas: ["allkiri", "dokument", "teenima"], // offered by b1-18-payday
-      "uuri-remont": ["küte", "mööbel", "remont", "ruum", "üleeile"], // offered by b1-25-broken
+      "uuri-remont": ["küte", "mööbel", "ruum", "üleeile"], // offered by b1-25-broken
       "tee-kusimine": ["vasak"], // offered by b1-30-was-built
       koosolek: ["kahtlema", "keeruline"], // offered by b1-33-decided
       lastevanemad: ["murelik"], // offered by b1-36-although
@@ -322,7 +322,6 @@ describe("what a day reads and where it goes", () => {
       kaebus: ["kaebama"], // offered by b2-35-complaint
       graafik: ["inflatsioon", "kriis", "pakkumine", "tööpuudus"], // offered by b2-43-figures
       "elanike-koosolek": ["hääletama", "kogukond"], // offered by b2-44-granted
-      "eksam-b2": ["kokkuvõte"], // offered by b2-48-end
       raamatuklubi: ["mõjuv"], // offered by c1-43-book
     };
     const bare = (w: string) => w.toLocaleLowerCase("et").replace(/[.!?,]+/g, "").trim();

@@ -270,15 +270,15 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
     "Жодне з них не вдалося надіслати. Можливо, вони вже є в спільному словнику."],
 
   // THE REVIEW QUEUE, FOR A REVIEWER: THE RAIL ROW AND THE NOTICE ON TODAY.
-  ["Nothing is waiting for review.", "На проверку ничего не ждёт.", "На перевірку нічого не чекає."],
+  ["Nothing is waiting for review.", "Ничего не ждёт проверки.", "На перевірку нічого не чекає."],
   ["Words to add: {words}. Other reports: {other}.",
     "Слов на добавление: {words}. Других сообщений: {other}.",
-    "Слів на додавання: {words}. Інших повідомлень: {other}."],
+    "Слів для додавання: {words}. Інших повідомлень: {other}."],
   ["{words} to add, {other} other", "добавить: {words}, другое: {other}", "додати: {words}, інше: {other}"],
   ["Waiting for you to review", "Ждёт твоей проверки", "Чекає на твою перевірку"],
   ["({words} to add to the dictionary, {reports} about other things)",
     "({words} на добавление в словарь, {reports} о другом)",
-    "({words} на додавання до словника, {reports} про інше)"],
+    "({words} для додавання до словника, {reports} про інше)"],
   ["Remove this word", "Удалить это слово", "Видалити це слово"],
   ["Remove it", "Удалить", "Видалити"],
   ["Removing…", "Удаляем…", "Видаляємо…"],
