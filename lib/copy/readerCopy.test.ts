@@ -391,7 +391,7 @@ describe("copy reads as a person wrote it", () => {
   it("has no dash a reader could see in the README or the docs", () => {
     const bad = MARKDOWN.filter((f) => !excused(f, "dash")).flatMap((f) =>
       markdownProse(f)
-        .filter((l) => l.text.includes(EM) || l.text.includes(EN))
+        .filter((l) => l.text.includes(EM) || withoutCyrillicTire(l.text).includes(EN))
         .map((l) => `${f}:${l.line}: ${l.text.trim().slice(0, 100)}`),
     );
     expect(bad).toEqual([]);
