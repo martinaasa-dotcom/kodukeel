@@ -397,7 +397,12 @@ if (onboarded) {
   */
   check("and it does not promise a number of minutes it cannot keep",
     !/ten.minute|10.minute/i.test(await page.locator("body").innerText()));
-  await page.getByRole("radio", { name: /I get by/ }).click();
+  /*
+    Conversational is B1 held, which opens B2. A2 held opens B1, and since B1
+    is lessons that path hands over no unit list for the deck step below to
+    read, so the chip that still opens on units is the one pressed.
+  */
+  await page.getByRole("radio", { name: /Conversational/ }).click();
   await page.getByRole("button", { name: /^Continue$/ }).click();
 
   check("it asks why, and one of the reasons is the one with an exam attached",
@@ -454,7 +459,7 @@ if (onboarded) {
     picks the first three units, names them, and says how big they are.
   */
   check("it names the units it is giving rather than asking which to take",
-    /Tervitused|Minevik|Sihitis/.test(deckStep));
+    /Umbisikuline|Ühiskond|Kaudne kõneviis|Majandus/.test(deckStep));
   check("and asks nobody to pick, because a stranger cannot answer that yet",
     (await page.getByRole("button", { name: /Units to start with/i }).count()) === 0);
 
