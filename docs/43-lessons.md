@@ -588,15 +588,17 @@ voices the app has, form names with their agreed hint) is asked of every level t
    lesson rehearsed sat on a free evening of B2 (`EARLIER_SCENES_FOR_UNIT` in `lib/course/plan.ts`)
    until B2 became lessons, and are offered by B2 lessons now (§14). The reference pages B1
    explains join `LESSON_PAGES`. For B2 the same step was the same list one level up, with the
-   level's sample unit in the browser suites moving to C1.
+   level's sample unit in the browser suites moving to C1. For C1 it was the last time: no level is
+   built from units after it, a unit's page redirects to the lessons, and the suites walk lessons
+   (§16).
 6. **Re-run `npm run check:authored`**, since a written sentence that passed against the old order
    of teaching can fail against the new one, and drop what fails.
 7. **Translate every new line** into `lib/copy/i18n/areas/lessonText.ts` and run
    `npm run i18n:tables`; the contract fails until it is done.
 8. **The end of the level before it changes by itself.** The level-done screen names the next level
-   from `LEVEL_INFO`, and the paragraph saying an evening is built differently from here on, on that
-   screen and on the course page, shows only where the next level is not lessons; once C1 is
-   lessons it is never drawn.
+   from `LEVEL_INFO`. The paragraph that said an evening is built differently from here on, on that
+   screen and on the course page, was deleted the day C1 became lessons, since no level is built
+   differently any more, and C1's own level-done screen is the course-finished screen (§16).
 9. **Read the commonest words against the level's last lesson.** A1 and A2 left 189 of the 400
    commonest Estonian words untaught; four A2 lessons of more words (`a2-45a`, `a2-50a`, `a2-52a`,
    `a2-53a`) teach the everyday ones (a question, money, look for, find, still, not anymore,
@@ -607,7 +609,7 @@ voices the app has, form names with their agreed hint) is asked of every level t
 11. **List what waits on a person.** Run `npx tsx scripts/export-language-reviews.ts --since <ref>`
    and `npx tsx scripts/export-translations.ts --since <ref> --out docs/translations/<level>`, so the
    Estonian to read, the voice lines to record and the Russian and Ukrainian to check are one file
-   each (`docs/44-language-reviews.md` holds A1 to B2). The recordings stop at A1's lesson 13, and a
+   each (`docs/44-language-reviews.md` holds A1 to C1). The recordings stop at A1's lesson 13, and a
    man's part plays the native voice only where every line of it is recorded.
 
 ## 11. B1 and B2 as lessons: the measurement, and the plan (for approval)
@@ -1761,7 +1763,8 @@ Each step is one pull request, engine and words before any lesson, as at B2.
 5. **C1 becomes the course**: the C1 units' evenings go with their day ids, a learner on one
    restarts C1 at its first lesson (`REHOMED_LEVELS`), the six catalog conversations move to C1
    lessons, every floor that counted C1's unit evenings is rewritten against the lessons, and the
-   translations are done.
+   translations are done. **Done on 2026-10-31**, with the forms queue (C1-8) and the last lesson's
+   hand-over (step 6) beside it; §16 is what it found.
 6. **The last lesson and the hand-over** (15.11).
 7. **The unit builder goes** (C1-9), a week after step 5, with `tonightsCase` (C1-14).
 
@@ -1872,11 +1875,108 @@ and regional voices of parts 7 and 8, the `english` curveball in one role-play a
 collocations of the Words step and their review as the lesson's own phrase cards, and which
 questions ask what was meant.
 
-**Not built, and why.** The forms queue at the foot of a C1 lesson's Words step (15.9, C1-8) reads the
-course's own queue of verbs whose stored forms no evening has shown (`Ledger.showForms` in
-`lib/course/build.ts`), which is built from the unit evenings C1 still is; it belongs with step 5,
-when C1's evenings become lessons and that queue is read off them.
+**Not built then, and built since.** The forms queue at the foot of a C1 lesson's Words step (15.9,
+C1-8) read the course's own queue of verbs whose stored forms no evening had shown
+(`Ledger.showForms` in `lib/course/build.ts`), which was built from the unit evenings C1 still was. It
+was built with step 5, when C1's evenings became lessons (§16).
 
 `scripts/lib/lessonPicks.ts` reaches B2 now: the five shapes it picks for B1 are picked off B2 the
 same way (`b2-first`, `b2-retell`, `b2-faster`, `b2-write`, `b2-capstone`), with B2's own two
 (`b2-read`, `b2-talk`), and `scripts/test-lessons.mjs` walks `b2-first`.
+
+## 16. C1, as built
+
+**Forty-nine lessons in eight parts**, numbered 1 to 49, and the same ledger walks A1 to C1 as one
+course: a C1 lesson may show nothing an earlier lesson of any level has not taught, beyond the real
+text it reads, the talk it takes down as notes and the words it works out from their parts. **No
+level is built from units any more.** C1 ends where 15.2 put it: somebody who is themselves in
+Estonian, who follows a radio debate and a joke, writes the C1 paper's two texts and sits its whole
+speaking part.
+
+| Part | Lessons | What it teaches | It writes | Ends in |
+| --- | --- | --- | --- | --- |
+| `c1-isiksus` Being yourself | 1 to 6 | the jussive, stance, irony, idiom and nuance | a letter to a friend with one happy and one sad piece of news | Mihkel's naming party (`c1-nimepidu`) |
+| `c1-meedia` Understanding everything | 7 to 12 | the present participle, the morning show taken down as notes | a summary of a radio piece (`kokkuvõte`) | the mystery evening at Mari's (`c1-mysteerium`) |
+| `c1-kodu` Buying a home | 13 to 18 | the formal connectives | a neutral summary of figures (`ülevaade`), the paper's first text | holding the price (`c1-pakkumine`) |
+| `c1-kool` The school from the inside | 19 to 24 | cohesion, punctuation | a formal letter (`ametlik kiri`) to the head | the meeting with the head (`c1-direktor`) |
+| `c1-juht` Leading | 25 to 30 | emphasis, word order and the rhetorical question | a proposal to management | in front of the board (`c1-ettekanne`) |
+| `c1-uhiskond` Taking part | 31 to 36 | the argued case | the paper's opinion text (`arvamuslugu`) | the public hearing (`c1-arutelu`) |
+| `c1-maa` Estonia beyond Tallinn | 37 to 42 | the literary register, a word of dialect | a travel piece | talking to Kalju at the fair (`c1-laat`) |
+| `c1-mote` Ideas, books and the exam | 43 to 49 | collocations, the whole speaking part | a review of an Estonian novel (`arvustus`) | the party after the exam (`c1-pidu`) |
+
+**The ramp as built** is 15.6's table, held by `rampC1.ts` by band of two parts, with one rule left
+out at C1: the story's length. A C1 retell is from notes or told to another listener, and the level
+contract's B2 count of sentences in a story heard does not describe it (`contract.ts`). The writing
+asks 180, 180, 180, 200, 220, 220, 240 and 260 words. A lesson runs to 34 minutes on average and a
+writing lesson to between 43 and 51 (`LEVEL_NEW.C1` says so on the first lesson, held by
+`levelNew.test.ts`).
+
+**The forms queue (C1-8), as built.** Every C1 lesson but a part's last shows, in a table at the foot
+of its Words step, the simple past and the polite imperative of up to twelve verbs the lessons have
+taught, heard and read and never asked, as the dictionary holds them (`withLessonForms` in
+`lib/course/build.ts`, `LessonView.forms`). It adds two minutes to the evening
+(`LESSON_FORMS_MINUTES`). The 188 verbs left waiting from A1 to B2 and the 27 C1 teaches are shown
+over 30 tables, twelve a lesson until the queue drains at `c1-20`, and the last lesson that shows a
+table takes whatever is left. A verb's past is asked inside the module only once a table or a lesson
+has shown it (`slotWithin`).
+
+**What the move turned up**, since every check that ran over the course alone met C1 for the first
+time:
+
+- the marker read a braced English example as two persons (`I invited; {kutsusime}, we invited`), so
+  `formEnglish` reads the English up to the first brace; and it let `sa` stand before `testid`, a
+  plural noun spelled like a person of `testima` (`NOT_A_PERSON`);
+- a rework that already opens on its pronoun is not asked to drop it, and an emphasis rework, whose
+  point is moving a word, is not held to "changes its starting sentence" by word list;
+- the novel review reads 260 words, so `MOST_READ` is 52 sentences;
+- 24 plural partitives with a parallel spelling were decided (`teste` kept beside `testisid`, `linnu`
+  refused as the genitive of `lind`, `võime` refused as a form of `võima`), and `makse` kept, since
+  refusing it broke B1's `makse või maksusid`;
+- eleven words the lessons teach had no entry (`laen`, `värvima`, `alandama`, `südaöö`,
+  `kodukoht`, `parim`, `test`, `peatänav`, `meloodia`, `märkmed`, `hullem`); they went to the C1
+  units and came back from Ekilex with nothing dropped, 6,325 entries and 40,663 forms in the seed.
+  `Mihkel` and `mõõtev` are in no Ekilex entry, so the name is a word item and `mõõtvat` is taught
+  as a form of `mõõtma`. Re-harvested rows join their government with commas, so `governmentParts`
+  reads both separators;
+- the guide across the bog in `c1-38` speaks in the voice the guide of the class trip in `c1-21` does
+  (`tambet`);
+- 100 written sentences filed under words only the old C1 units taught were dropped, since no
+  evening teaches those words now; 409 remain, and the floor counts the rows under A1's and A2's
+  lessons (231 and 308) rather than the table's length.
+
+**What C1 replaced, and what moved.** The old parts `c1.1` to `c1.3`, built from the C1 units, went
+with their day ids, and a learner on one restarts C1 at its first lesson keeping every card and
+review (`REHOMED_LEVELS`, held by `rehome.itest.ts` and `restoreCourse.itest.ts`). The C1 units stay as
+the dictionary's request list, and a link to a unit, from readiness, review, the grammar pages,
+Situations, Learn or Today, lands on the lesson that teaches most of its words (`unitLessonHref`);
+`/learn/[unitId]`, its lesson and its worksheet redirect to the lessons. The six conversations the old
+C1 evenings opened are offered on the finish of the C1 lesson that rehearses them, except
+`uuri-remont`, which stays on B1's `b1-25-broken`: `kuulsin` on a rumor at work, `helistamine` on the
+bank's offer, `kolm-palvet` on saying the hard thing, `raamatuklubi` on how the book ends, `keeletund` on
+almost the same word.
+Every conversation the app has is offered by some lesson now; the words a conversation asks for that
+its lesson has not taught are named in `course.test.ts` (`KNOWN_UNTAUGHT`, 23 at B1 and B2 and
+`mõjuv` on `raamatuklubi`). The pages on punctuation, word order, the rhetorical question, idiom, irony
+and nuance are read by the lessons that teach them (`LESSON_PAGES`), each part names the paper task it
+rehearses (`LESSON_PART_PREPARES`), and eight errands, one a part, join `lib/collections/errands.ts`.
+Unit homework is refused at every level, since every level is lessons, and the class pages say a
+teacher sends a conversation or homework of their own. The chat after an evening of units has no
+evening to follow and its suite leaves CI; its code goes with the builder.
+
+**The end of the course.** After C1's last lesson, `/course` and Today offer the C1 check, and the check
+says a pass finishes the course. Once it is passed, the level-done screen draws the course-finished
+screen (`components/course/CourseFinished.tsx`) in place of a next level, beside the C1 mock exam, and
+`/course` is that screen from then on, which Today's line over what is due points at. Its copy is
+`lib/copy/finale.ts`, every claim in it checked against the app, and what the course took is read off
+the learner's own log: lessons finished, distinct days studied in their own zone, and the
+conversations they told Today about, a sentence left out where its figure cannot be read.
+`test-lessons.mjs` reaches it.
+
+**What is left of the units, for a week.** The unit builder (`assemble`'s `PARTS` path, the
+rotations, `tonightsCase`, the derived steps and the closing round's counter) builds nothing and goes
+in step 7 (C1-9), with its pure tests.
+
+**What waits on a person.** Every new Estonian line is in `docs/44-language-reviews.md` section 1, and
+`docs/reviews/c1-flags.md` is what to read first: the lines each part's author was least sure of, and
+what the integration changed. The Russian and Ukrainian are machine-written and need a fluent reader.
+C1 is recorded nowhere yet.
