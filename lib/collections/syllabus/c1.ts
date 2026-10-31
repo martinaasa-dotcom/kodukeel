@@ -42,6 +42,10 @@ export const C1 = [
       ["säilitamine", "preservation"],
       ["kujundamine", "shaping"],
       ["teostus", "execution"],
+      // C1 is the lessons (docs/43-lessons.md §16): what the lessons on buying a home teach and no unit had asked for.
+      ["laen", "loan"],
+      ["värvima", "to paint", "VERB"],
+      ["alandama", "to lower, to bring down", "VERB"],
     ],
   }),
 
@@ -149,6 +153,8 @@ export const C1 = [
       ["publikatsioon", "publication"],
       ["andmebaas", "database"],
       ["statistika", "statistics"],
+      // What C1's lessons on the radio say, which no unit had asked for.
+      ["südaöö", "midnight"],
     ],
   }),
 
@@ -220,6 +226,9 @@ export const C1 = [
       ["hüve", "benefit, good"],
       ["kahjulik", "harmful", "ADJECTIVE"],
       ["lugupidamine", "respect"],
+      // What C1's lessons on taking part say, which no unit had asked for.
+      ["kodukoht", "home place, where you live"],
+      ["parim", "best", "ADJECTIVE"],
     ],
   }),
 
@@ -255,6 +264,8 @@ export const C1 = [
       ["sõnavõtt", "speech, statement"],
       ["kuulaja", "listener"],
       ["mulje", "impression"],
+      // What C1's lessons on leading say, which no unit had asked for.
+      ["test", "test"],
     ],
   }),
 
@@ -393,6 +404,8 @@ export const C1 = [
       ["kasutajakogemus", "user experience"],
       ["algoritm", "algorithm"],
       ["andmekaitse", "data protection"],
+      // The street a plan is for, in C1's lessons on taking part.
+      ["peatänav", "main street"],
     ],
   }),
 
@@ -461,6 +474,9 @@ export const C1 = [
       ["peategelane", "protagonist"],
       ["kirjanik", "writer"],
       ["pöördepunkt", "turning point"],
+      // What C1's lessons on the old songs and on ideas say, which no unit had asked for.
+      ["meloodia", "melody, tune"],
+      ["märkmed", "notes"],
     ],
   }),
 
@@ -495,6 +511,8 @@ export const C1 = [
       ["selgitama", "to clarify"],
       ["omapärane", "distinctive", "ADJECTIVE"],
       ["napp", "scant, terse", "ADJECTIVE", 207401],
+      // What C1's lessons on being yourself say, which no unit had asked for.
+      ["hullem", "worse", "ADJECTIVE"],
     ],
   }),
 ] as const;

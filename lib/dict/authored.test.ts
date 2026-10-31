@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { authoredFor, authoredRows, isAuthored } from "@/lib/dict/authored";
 import { checkAuthored } from "../../scripts/lib/authoredCheck";
+import { PROGRAMMES, taughtThrough } from "@/lib/course";
 
 describe("the sentences written for a beginner", () => {
   /*
@@ -19,8 +20,21 @@ describe("the sentences written for a beginner", () => {
     with nothing in it, and the screens then fall back to meeting every A1
     word alone, which looks exactly like a table that was never written.
   */
-  it("covers the A1 course, rather than passing on an empty table", () => {
-    expect(authoredRows().length).toBeGreaterThanOrEqual(480);
+  /*
+    Counted on the words the lessons teach rather than on the table's length:
+    the day C1 became lessons, the 100 rows filed under words only the old C1
+    units taught were dropped, since no evening teaches those words now, and
+    a length that included them was measuring the units. Measured then: 231
+    rows filed under a word the A1 lessons teach, and 308 through A2.
+  */
+  it("covers the A1 and A2 lessons, rather than passing on an empty table", () => {
+    const through = (level: string) => {
+      const last = PROGRAMMES.filter((p) => p.level === level).at(-1)!;
+      const taught = new Set(taughtThrough(last, last.days.length - 1));
+      return authoredRows().filter(([lemma]) => taught.has(lemma)).length;
+    };
+    expect(through("A1")).toBeGreaterThanOrEqual(231);
+    expect(through("A2")).toBeGreaterThanOrEqual(308);
   });
 
   /*

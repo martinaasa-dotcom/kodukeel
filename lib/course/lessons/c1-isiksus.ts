@@ -79,7 +79,7 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "soovida", of: "soovima", en: "to wish, after {kuidas} or {tahan}" },
       { kind: "verb", et: "õnnitlema", first: "õnnitlen", en: "to congratulate", firstEn: "I congratulate" },
       { kind: "word", et: "õnnitlus", en: "a congratulation, a message wishing somebody well" },
-      { kind: "form", et: "Mihkli", of: "Mihkel", en: "Mihkel's: a name takes the endings every word does, and this one changes: {Mihkli terviseks}" },
+      { kind: "word", et: "Mihkli", en: "Mihkel's: a name takes the endings every word does, and this one changes: {Mihkli terviseks}" },
       { kind: "form", et: "sõpra", of: "sõber", en: "a friend, as an object: {sõpra õnnitlema}" },
       { kind: "form", et: "igale", of: "iga", en: "onto every, to every: {igale kaardile}" },
       { kind: "form", et: "end", of: "ise", en: "yourself, himself, themselves: {tunnevad end hästi}, are doing well" },

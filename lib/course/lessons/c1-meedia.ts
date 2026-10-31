@@ -782,7 +782,7 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "saate", of: "saade", en: "of the program; {saates}, on the program", stem: true },
       { kind: "form", et: "külalise", of: "külaline", en: "of the guest; {külaliseks}, as a guest", stem: true },
       { kind: "form", et: "seadet", of: "seade", en: "a device, as an object" },
-      { kind: "form", et: "mõõtvat", of: "mõõtev", en: "measuring, as an object: {und mõõtvat seadet}" },
+      { kind: "form", et: "mõõtvat", of: "mõõtma", en: "measuring, as an object: {und mõõtvat seadet}" },
       { kind: "form", et: "südaööd", of: "südaöö", en: "midnight, after {pärast}: {pärast südaööd}, after midnight" },
       { kind: "word", et: "soovitus", en: "a piece of advice, a recommendation: {soovitust andma}, to give advice" },
       { kind: "form", et: "soovitust", of: "soovitus", en: "advice, as an object: {kolm soovitust}" },
