@@ -1511,6 +1511,13 @@ async function lessonStepStates(ctx, at) {
     if (await say.locator("[data-fade-line]").count()) await measure(page, `a B1 lesson's lines fading ${at}`);
     else check(`a B1 lesson's lines fading ${at}`, false, `${retell.id}'s Say it opened on no fading line`);
     for (let n = 0; n < 20 && !(await say.locator("[data-retell-points]").count()); n++) {
+      // An answer card between the lines and the story has no Next until it is answered, as in `test-lessons.mjs`.
+      const box = say.getByLabel(/^(Your answer|What you said), in Estonian/);
+      if (await box.count()) {
+        await box.first().fill("Ma ei tea.").catch(() => {});
+        await say.getByRole("button", { name: /^Check it/ }).first().click().catch(() => {});
+        await say.getByRole("button", { name: /^(Next|Done)/ }).first().waitFor({ timeout: 20000 }).catch(() => {});
+      }
       const next = say.getByRole("button", { name: /^(Next|Done)/ });
       if (!(await next.count())) break;
       await next.last().click().catch(() => {});
