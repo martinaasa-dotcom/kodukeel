@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { EMPTY_LEDGER, estonianIn, lessonProblems, teach, uncovered } from "./ledger";
+import { EMPTY_LEDGER, SPOKEN_LINE_MOST, estonianIn, estonianOf, lessonProblems, teach, uncovered } from "./ledger";
+import { TtsRequest } from "@/lib/api/contract";
 import { itemEstonian, markRework, practiceFor } from "./practice";
 import { B_PATTERNS, type LessonSpec } from "./types";
 
@@ -368,5 +369,115 @@ describe("the B2 fields", () => {
     expect(item.kind === "workOut" && [...item.options].sort()).toEqual([...work.options].sort());
     expect(item.kind === "workOut" && item.answer).toBe(work.means);
     expect(itemEstonian(item)).toEqual(["on hea."]);
+  });
+});
+
+/**
+ * C1'S ADDITIONS (docs/43-lessons.md §15.7): a text asked about in the paper's
+ * three shapes, a talk taken down as notes, which room, the presentation's two
+ * topics, and a question on what was meant. Each held both ways.
+ */
+describe("the C1 fields", () => {
+  const taught = [
+    { kind: "phrase" as const, et: "Tere!", en: "Hello!" },
+    { kind: "word" as const, et: "maja", en: "house" },
+    { kind: "word" as const, et: "on", en: "is" },
+    { kind: "word" as const, et: "suur", en: "big" },
+    { kind: "word" as const, et: "väike", en: "small" },
+    { kind: "word" as const, et: "vana", en: "old" },
+    { kind: "word" as const, et: "hea", en: "good" },
+    { kind: "word" as const, et: "ja", en: "and" },
+  ];
+  const c1 = (over: Partial<LessonSpec>) => lesson({ level: "C1", teaches: taught, ...over });
+  const lines = [
+    { et: "Maja on suur.", en: "The house is big.", section: 1 },
+    { et: "Maja on vana.", en: "The house is old.", section: 1 },
+    { et: "Lift on katki.", en: "The lift is broken.", section: 2 },
+  ];
+  const at = (over: Partial<LessonSpec>) => lessonProblems([c1(over)]).join(" ");
+
+  it("asks a text in its three shapes, each held to the text", () => {
+    const match = { kind: "match" as const, statements: [{ et: "Maja on suur.", en: "The house is big.", section: 1 }, { et: "Lift on katki.", en: "The lift is broken.", section: 2 }] };
+    const gap = { kind: "gap" as const, line: 1, options: [{ et: "Maja on vana.", en: "The house is old." }, { et: "Maja on hea.", en: "The house is good." }, { et: "Maja on väike.", en: "The house is small." }], answer: 0 };
+    const short = { kind: "short" as const, q: { et: "Mis on katki?", en: "What is broken?" }, accept: ["lift", "Lift on katki"] };
+    const questions = [match, gap, short];
+    expect(at({ read: { genre: "a notice", lines, questions } })).toBe("");
+    // A section count that jumps, a statement naming a section the text has not, and a line half numbered.
+    expect(at({ read: { genre: "a notice", lines: [lines[0]!, { ...lines[2]!, section: 3 }], questions: [] } })).toMatch(/section 3 after 1/);
+    expect(at({ read: { genre: "a notice", lines, questions: [{ kind: "match", statements: [{ et: "Maja on suur.", en: "x", section: 4 }, match.statements[1]!] }] } })).toMatch(/names section 4/);
+    expect(at({ read: { genre: "a notice", lines: [lines[0]!, { et: "Maja on vana.", en: "The house is old." }], questions: [] } })).toMatch(/numbers every line/);
+    // A gap whose right sentence is not the line it takes out, or with two options.
+    expect(at({ read: { genre: "a notice", lines, questions: [{ ...gap, answer: 1 }] } })).toMatch(/the right sentence is not the line taken out/);
+    expect(at({ read: { genre: "a notice", lines, questions: [{ ...gap, options: gap.options.slice(0, 2) }] } })).toMatch(/offers 2 sentences/);
+    // A short answer that is no word of the text and not taught.
+    expect(at({ read: { genre: "a notice", lines, questions: [{ ...short, accept: ["trepp"] }] } })).toMatch(/"trepp" holds trepp/);
+  });
+
+  const shortAsked = { kind: "short" as const, q: { et: "Mis on katki?", en: "What is broken?" }, accept: ["lift"] };
+  const choiceAsked = { kind: "choice" as const, q: { et: "Maja on?", en: "The house is?" }, options: [{ et: "vana", en: "old" }, { et: "väike", en: "small" }], answer: 0 };
+  const talk = {
+    title: { et: "Vana maja", en: "The old house" },
+    speaker: "Mari",
+    hearings: 2 as const,
+    lines: [{ et: "Maja on vana.", en: "The house is old." }, { et: "Lift on katki ja maja on suur.", en: "The lift is broken and the house is big." }],
+    questions: [shortAsked, choiceAsked],
+    keyIdeas: [{ en: "The house is old." }, { en: "The lift is broken." }],
+  };
+
+  it("holds a talk taken down as notes like a text read, its answers to the talk, and its lines to what the speech route reads", () => {
+    expect(at({ notes: talk })).toBe("");
+    expect(at({ notes: { ...talk, speaker: "Jaan" } })).toMatch(/given by Jaan, who is not in the cast/);
+    expect(at({ notes: { ...talk, questions: [] } })).toMatch(/asks nothing the notes should answer/);
+    expect(at({ notes: { ...talk, keyIdeas: [] } })).toMatch(/names its key ideas/);
+    expect(at({ notes: { ...talk, lines: [talk.lines[0]!, { et: `${"Maja on vana. ".repeat(40)}`, en: "Long." }] } })).toMatch(/over the 400 the speech route reads/);
+    expect(at({ notes: { ...talk, questions: [{ ...shortAsked, accept: ["trepp"] }] } })).toMatch(/no word of the talk/);
+    expect(at({ notes: { ...talk, questions: [{ ...choiceAsked, answer: 5 }] } })).toMatch(/answer is not one of its options/);
+    // Its spellings run ahead of the course, as a text's do: `katki` and `lift` are not taught.
+    expect(estonianOf(c1({ notes: talk })).filter((e) => e.where.startsWith("the talk, line")).every((e) => e.heard && e.dialect)).toBe(true);
+  });
+
+  it("matches the speech route's own ceiling on a line", () => {
+    expect(TtsRequest.shape.text.maxLength).toBe(SPOKEN_LINE_MOST);
+  });
+
+  const rooms = [{
+    versions: [
+      { room: "friend" as const, et: "Maja on vana.", en: "The house is old." },
+      { room: "work" as const, et: "Maja on suur ja vana.", en: "The house is big and old." },
+      { room: "writing" as const, et: "Maja on hea ja vana.", en: "The house is good and old." },
+    ],
+    ask: "work" as const,
+    rework: { from: "friend" as const, to: "writing" as const, accept: ["Maja on vana ja hea."] },
+  }];
+
+  it("says one thing three ways, once a room, each held to the ledger, and turns one into another", () => {
+    expect(at({ rooms })).toBe("");
+    expect(at({ rooms: [{ ...rooms[0]!, versions: rooms[0]!.versions.slice(0, 2) }] })).toMatch(/says it three ways/);
+    expect(at({ rooms: [{ ...rooms[0]!, rework: { from: "friend", to: "friend", accept: [] } }] })).toMatch(/stays in friend/);
+    expect(at({ rooms: [{ ...rooms[0]!, rework: { ...rooms[0]!.rework!, accept: ["Maja on vana."] } }] })).toMatch(/one it starts from/);
+    expect(at({ rooms: [{ ...rooms[0]!, versions: [rooms[0]!.versions[0]!, rooms[0]!.versions[1]!, { room: "writing", et: "Lift on vana.", en: "x" }] }] })).toMatch(/Lift, not taught/);
+  });
+
+  it("puts which room in practice as a pick and, where given, a rework marked as one", () => {
+    const items = practiceFor(c1({ rooms }), EMPTY_LEDGER);
+    const pick = items.find((i) => i.kind === "room");
+    expect(pick && pick.kind === "room" && pick.answer).toBe("Maja on suur ja vana.");
+    expect(pick && pick.kind === "room" && [...pick.options].sort()).toEqual(rooms[0]!.versions.map((v) => v.et).sort());
+    const turn = items.find((i) => i.kind === "rework" && i.from.et === "Maja on vana.");
+    expect(turn).toBeTruthy();
+    if (turn?.kind !== "rework") return;
+    expect(markRework("Maja on hea ja vana.", turn).verdict).toBe("right");
+    expect(markRework("Maja on vana ja hea.", turn).verdict).toBe("right");
+    expect(markRework("Maja on vana.", turn).verdict).not.toBe("right");
+  });
+
+  it("offers two topics only before a preparation, and asks of a question on what was heard that there is something to hear", () => {
+    const faster = { ask: { et: "Tere!", en: "Hello!" }, cue: "c", model: { et: "Tere!", en: "Hello!" }, seconds: [120], prepare: 180 };
+    expect(at({ faster: { ...faster, topics: [{ en: "Your town" }, { en: "Your work" }] } })).toBe("");
+    expect(at({ faster: { ...faster, topics: [{ en: "Your town" }] } })).toMatch(/offers 1 topics/);
+    expect(at({ faster: { ...faster, prepare: undefined, topics: [{ en: "Your town" }, { en: "Your work" }] } })).toMatch(/topics with no time to prepare/);
+    const gist = { q: "What was meant?", options: ["A", "B", "C", "D"], answer: 0, meant: true as const };
+    expect(at({ listenFor: [gist] })).toBe("");
+    expect(at({ listenFor: [gist], conversation: [] })).toMatch(/the conversation has no spoken line/);
   });
 });

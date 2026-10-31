@@ -177,6 +177,9 @@ export function CheckRunner({ checkId, attempt, items, needed, alreadyPassed, ne
                     <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{item.ask.et}</span>
                     <span lang="et" style={{ color: "var(--accent-deep)" }}>{item.answer}</span>
                   </>
+                ) : item.kind === "room" ? (
+                  /* A check asks no which-room question; drawn as the version it wanted, should one ever reach a paper. */
+                  <span lang="et" className="font-semibold" style={{ color: "var(--accent-deep)" }}>{item.answer}</span>
                 ) : (
                   <>
                     <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{item.et}</span>

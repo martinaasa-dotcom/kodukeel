@@ -24,6 +24,7 @@ import { pastPersons } from "@/lib/estonian/conjugate";
 import { LESSONS, LESSON_PARTS, casesOfPattern, type LessonSpec, type PartOfLessons, type PatternId } from "./lessons";
 import { lessonHeads } from "./lessonHeads";
 import { lessonLabel } from "./lessons/label";
+import { wordCount } from "./lessons/read";
 import { LESSON_STEP, type CourseDay, type Programme } from "./types";
 
 /**
@@ -81,6 +82,23 @@ export const PATTERN_PAGE: Readonly<Partial<Record<PatternId, string>>> = {
   hedging: "hedging",
   concession: "concession",
   spoken: "register",
+  /*
+    C1's (docs/43-lessons.md §15.3). The command and the wish are the
+    imperative's own page, the stance words are hedging's, the present
+    participles are the participles', and an argued text is built on the page
+    about granting a point. The formal links built from verbs have a page of
+    their own (`connectives`); a C1 lesson may also name `punctuation` through
+    `LESSON_PAGES`.
+  */
+  jussive: "imperative",
+  stance: "hedging",
+  presentParticiple: "participles",
+  connective: "connectives",
+  cohesion: "cohesion",
+  emphasis: "emphasis",
+  argument: "concession",
+  literary: "variation",
+  collocation: "collocation",
 };
 
 /**
@@ -158,7 +176,23 @@ export function lessonMinutes(lesson: LessonSpec): number {
     + (lesson.write ? 15 : 0)
     // B2: a real text read in the Listen step, and words worked out in Practice.
     + (lesson.read ? 2 : 0)
-    + (lesson.workOut && lesson.workOut.length > 0 ? 1 : 0);
+    + (lesson.workOut && lesson.workOut.length > 0 ? 1 : 0)
+    // C1: the text's questions, a talk taken down as notes, and which room.
+    + (lesson.read?.questions && lesson.read.questions.length > 0 ? 3 : 0)
+    + (lesson.notes ? notesMinutes(lesson.notes) : 0)
+    + (lesson.rooms && lesson.rooms.length > 0 ? 1 : 0);
+}
+
+/** About how fast a talk is spoken, in words a minute: what a talk taken down as notes is counted in. */
+export const TALK_WORDS_PER_MINUTE = 130;
+
+/**
+ * How long a talk taken down as notes takes (C1): its words at about
+ * `TALK_WORDS_PER_MINUTE`, times how often it is heard, and three minutes for
+ * the questions and setting the notes beside the key ideas.
+ */
+export function notesMinutes(notes: NonNullable<LessonSpec["notes"]>): number {
+  return Math.round((wordCount(notes.lines) / TALK_WORDS_PER_MINUTE) * notes.hearings) + 3;
 }
 
 /** Each harvested verb's stored simple past, the I form and the third person, for telling a taught past apart. */

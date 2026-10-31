@@ -37,6 +37,11 @@ import type { Gist, LessonSpec } from "@/lib/course/lessons/types";
  * the first" by the second part. Seeded rather than random, so the server and
  * the browser draw the same order and a reload keeps it.
  *
+ * FROM C1 A QUESTION MAY ASK WHAT WAS MEANT (`Gist.meant`): the irony, the
+ * polite refusal, the thing nobody says outright. It is drawn the same, with
+ * one line over it saying so, since a learner answering by the words alone
+ * picks the literal option and is told the other one.
+ *
  * AND IT IS HEARD IN ITS ROOM where the lesson says so (`LessonSpec.hearing`):
  * a phone call down a phone line, a café over its noise. Only this first,
  * hidden play: the text that follows reads clean.
@@ -121,6 +126,12 @@ function GistQuestion({ gist, n, of, picked, onPick }: { gist: Gist; n: number; 
   return (
     <div>
       <p className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>{fill(t("Question {n} of {total}"), { n: String(n), total: String(of) })}</p>
+      {/* C1: a question about what was meant, which the irony or the polite refusal answers rather than the words. */}
+      {gist.meant && (
+        <p className="mb-1 inline-flex rounded-full px-2.5 py-0.5 text-sm font-semibold" style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }} data-gist-meant>
+          {t("What was meant, not what was said")}
+        </p>
+      )}
       <p className="mb-3 text-lg font-semibold" style={{ color: "var(--ink)" }}><LessonText text={gist.q} locale={locale} /></p>
       <ChoiceGroup ariaLabel={tr(locale, gist.q)} select="one" answer className="choice-grid">
         {order.map((i) => {

@@ -2349,7 +2349,16 @@
                     "nominal",
                     "hedging",
                     "concession",
-                    "spoken"
+                    "spoken",
+                    "jussive",
+                    "stance",
+                    "presentParticiple",
+                    "connective",
+                    "cohesion",
+                    "emphasis",
+                    "argument",
+                    "literary",
+                    "collocation"
                   ]
                 }
               },
@@ -2640,7 +2649,16 @@
                         "nominal",
                         "hedging",
                         "concession",
-                        "spoken"
+                        "spoken",
+                        "jussive",
+                        "stance",
+                        "presentParticiple",
+                        "connective",
+                        "cohesion",
+                        "emphasis",
+                        "argument",
+                        "literary",
+                        "collocation"
                       ]
                     }
                   },
@@ -2729,6 +2747,11 @@
                       "type": "integer",
                       "minimum": -9007199254740991,
                       "maximum": 9007199254740991
+                    },
+                    "meant": {
+                      "description": "A question about what was meant rather than what was said (C1): draw it the same, saying so.",
+                      "type": "boolean",
+                      "const": true
                     }
                   },
                   "required": [
@@ -2869,6 +2892,22 @@
                     "type": "integer",
                     "minimum": -9007199254740991,
                     "maximum": 9007199254740991
+                  },
+                  "topics": {
+                    "description": "Two topics to choose between before the preparation starts (C1, the exam's presentation); the go runs on the one chosen.",
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "en"
+                      ]
+                    }
                   }
                 },
                 "required": [
@@ -3027,11 +3066,150 @@
                         },
                         "en": {
                           "type": "string"
+                        },
+                        "section": {
+                          "description": "Which section of the text the line is in, from 1, where a `match` question names sections (C1).",
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
                         }
                       },
                       "required": [
                         "et",
                         "en"
+                      ]
+                    }
+                  },
+                  "questions": {
+                    "description": "Questions about the text in the C1 paper's three shapes, asked under it after it is read and graded nowhere (C1 from its third part).",
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "match"
+                            },
+                            "statements": {
+                              "readOnly": true,
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "et": {
+                                    "type": "string"
+                                  },
+                                  "en": {
+                                    "type": "string"
+                                  },
+                                  "section": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "required": [
+                                  "et",
+                                  "en",
+                                  "section"
+                                ]
+                              }
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "statements"
+                          ],
+                          "description": "Statements, each to be matched to the section of the text it is about (`read.lines[].section`)."
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "gap"
+                            },
+                            "line": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991,
+                              "description": "The line of the text taken out, from 0."
+                            },
+                            "options": {
+                              "readOnly": true,
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "et": {
+                                    "type": "string"
+                                  },
+                                  "en": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "et",
+                                  "en"
+                                ]
+                              }
+                            },
+                            "answer": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991,
+                              "description": "The option that is the line taken out, by index."
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "line",
+                            "options",
+                            "answer"
+                          ],
+                          "description": "A whole sentence chosen out of three for a gap in the text: draw the text with that line taken out until it is answered."
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "short"
+                            },
+                            "q": {
+                              "type": "object",
+                              "properties": {
+                                "et": {
+                                  "type": "string"
+                                },
+                                "en": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "et",
+                                "en"
+                              ]
+                            },
+                            "accept": {
+                              "readOnly": true,
+                              "description": "Every answer that counts, marked as a typed phrase is.",
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "q",
+                            "accept"
+                          ],
+                          "description": "A question answered in a word or two."
+                        }
                       ]
                     }
                   }
@@ -3090,6 +3268,269 @@
                     "parts",
                     "means",
                     "options"
+                  ]
+                }
+              },
+              "notes": {
+                "description": "A talk taken down as notes in the Listen step (C1 from its second part): no transcript until the questions are answered; the notes stay on the device and are never sent. `LessonResponse.notes` carries the dictionary under the transcript's untaught words.",
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "object",
+                    "properties": {
+                      "et": {
+                        "type": "string"
+                      },
+                      "en": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "et",
+                      "en"
+                    ]
+                  },
+                  "speaker": {
+                    "type": "string",
+                    "description": "Who gives the talk, a speaker of the cast, in whose voice it is read."
+                  },
+                  "hearings": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "const": 1
+                      },
+                      {
+                        "type": "number",
+                        "const": 2
+                      }
+                    ],
+                    "description": "How often the talk may be heard before the questions; the play control goes once it has been."
+                  },
+                  "lines": {
+                    "readOnly": true,
+                    "description": "The talk a line at a time, each under the speech route's 400 characters, played one after another.",
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "et": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "et",
+                        "en"
+                      ]
+                    }
+                  },
+                  "questions": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "short"
+                            },
+                            "q": {
+                              "type": "object",
+                              "properties": {
+                                "et": {
+                                  "type": "string"
+                                },
+                                "en": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "et",
+                                "en"
+                              ]
+                            },
+                            "accept": {
+                              "readOnly": true,
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "q",
+                            "accept"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "choice"
+                            },
+                            "q": {
+                              "type": "object",
+                              "properties": {
+                                "et": {
+                                  "type": "string"
+                                },
+                                "en": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "et",
+                                "en"
+                              ]
+                            },
+                            "options": {
+                              "readOnly": true,
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "et": {
+                                    "type": "string"
+                                  },
+                                  "en": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "et",
+                                  "en"
+                                ]
+                              }
+                            },
+                            "answer": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "q",
+                            "options",
+                            "answer"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "keyIdeas": {
+                    "readOnly": true,
+                    "description": "The ideas a good set of notes catches, shown beside the learner's own after the questions.",
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "en"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "title",
+                  "speaker",
+                  "hearings",
+                  "lines",
+                  "questions",
+                  "keyIdeas"
+                ]
+              },
+              "rooms": {
+                "description": "One thing said three ways, to a friend, at work and in writing (C1); the practice step carries each as a `room` item, and its rework as a `rework` item.",
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "versions": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "room": {
+                            "type": "string",
+                            "enum": [
+                              "friend",
+                              "work",
+                              "writing"
+                            ]
+                          },
+                          "et": {
+                            "type": "string"
+                          },
+                          "en": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "room",
+                          "et",
+                          "en"
+                        ]
+                      }
+                    },
+                    "ask": {
+                      "type": "string",
+                      "enum": [
+                        "friend",
+                        "work",
+                        "writing"
+                      ]
+                    },
+                    "rework": {
+                      "type": "object",
+                      "properties": {
+                        "from": {
+                          "type": "string",
+                          "enum": [
+                            "friend",
+                            "work",
+                            "writing"
+                          ]
+                        },
+                        "to": {
+                          "type": "string",
+                          "enum": [
+                            "friend",
+                            "work",
+                            "writing"
+                          ]
+                        },
+                        "accept": {
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "from",
+                        "to",
+                        "accept"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "versions",
+                    "ask"
                   ]
                 }
               }
@@ -3449,6 +3890,69 @@
                   "properties": {
                     "kind": {
                       "type": "string",
+                      "const": "room"
+                    },
+                    "ask": {
+                      "type": "string",
+                      "enum": [
+                        "friend",
+                        "work",
+                        "writing"
+                      ]
+                    },
+                    "versions": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "room": {
+                            "type": "string",
+                            "enum": [
+                              "friend",
+                              "work",
+                              "writing"
+                            ]
+                          },
+                          "et": {
+                            "type": "string"
+                          },
+                          "en": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "room",
+                          "et",
+                          "en"
+                        ]
+                      }
+                    },
+                    "options": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "answer": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "ask",
+                    "versions",
+                    "options",
+                    "answer"
+                  ],
+                  "description": "Which of three ways of saying one thing fits the room `ask` names (C1): pick among `options`, then show every version with its room."
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
                       "const": "hear"
                     },
                     "et": {
@@ -3533,7 +4037,7 @@
                   ]
                 }
               ],
-              "description": "One question, built on the server; the client never decides what a learner is asked. A kind is added and never removed within v1 (`rework` and `fix` came with B1, `workOut` with B2), so a client skips an item whose kind it does not know rather than failing the lesson: a lesson with one question fewer is still a lesson."
+              "description": "One question, built on the server; the client never decides what a learner is asked. A kind is added and never removed within v1 (`rework` and `fix` came with B1, `workOut` with B2, `room` with C1), so a client skips an item whose kind it does not know rather than failing the lesson: a lesson with one question fewer is still a lesson."
             }
           },
           "review": {
@@ -3875,6 +4379,69 @@
                   "properties": {
                     "kind": {
                       "type": "string",
+                      "const": "room"
+                    },
+                    "ask": {
+                      "type": "string",
+                      "enum": [
+                        "friend",
+                        "work",
+                        "writing"
+                      ]
+                    },
+                    "versions": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "room": {
+                            "type": "string",
+                            "enum": [
+                              "friend",
+                              "work",
+                              "writing"
+                            ]
+                          },
+                          "et": {
+                            "type": "string"
+                          },
+                          "en": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "room",
+                          "et",
+                          "en"
+                        ]
+                      }
+                    },
+                    "options": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "answer": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "ask",
+                    "versions",
+                    "options",
+                    "answer"
+                  ],
+                  "description": "Which of three ways of saying one thing fits the room `ask` names (C1): pick among `options`, then show every version with its room."
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
                       "const": "hear"
                     },
                     "et": {
@@ -3959,7 +4526,7 @@
                   ]
                 }
               ],
-              "description": "One question, built on the server; the client never decides what a learner is asked. A kind is added and never removed within v1 (`rework` and `fix` came with B1, `workOut` with B2), so a client skips an item whose kind it does not know rather than failing the lesson: a lesson with one question fewer is still a lesson."
+              "description": "One question, built on the server; the client never decides what a learner is asked. A kind is added and never removed within v1 (`rework` and `fix` came with B1, `workOut` with B2, `room` with C1), so a client skips an item whose kind it does not know rather than failing the lesson: a lesson with one question fewer is still a lesson."
             }
           },
           "next": {
@@ -4255,6 +4822,113 @@
             ],
             "description": "The lesson's text to read (B2 on), a line at a time, with the dictionary under each word the lessons have not taught by now and nothing under the ones they have; null where the lesson has no text."
           },
+          "notes": {
+            "anyOf": [
+              {
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                  "readOnly": true,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "string"
+                      },
+                      "word": {
+                        "type": "boolean"
+                      },
+                      "taught": {
+                        "type": "boolean"
+                      },
+                      "entry": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "lexemeId": {
+                                "type": "string"
+                              },
+                              "lemma": {
+                                "type": "string"
+                              },
+                              "gloss": {
+                                "type": "string"
+                              },
+                              "matchedAs": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "reading": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "clause": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "alsoSaid": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "spelling": {
+                                        "type": "string"
+                                      },
+                                      "everyday": {
+                                        "type": "boolean"
+                                      }
+                                    },
+                                    "required": [
+                                      "spelling",
+                                      "everyday"
+                                    ]
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "lexemeId",
+                              "lemma",
+                              "gloss",
+                              "matchedAs",
+                              "reading",
+                              "clause",
+                              "alsoSaid"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "text",
+                      "word",
+                      "taught",
+                      "entry"
+                    ],
+                    "description": "One run of a sentence, with the dictionary entry it was vouched as, if any."
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The transcript of the lesson's talk taken down as notes (C1), a line at a time, glossed as `read` is; null where the lesson has no talk."
+          },
           "locale": {
             "type": "string",
             "enum": [
@@ -4297,6 +4971,7 @@
           "partAt",
           "timeMultiplier",
           "read",
+          "notes",
           "locale",
           "nativePart",
           "translations"
@@ -4698,6 +5373,69 @@
                   "properties": {
                     "kind": {
                       "type": "string",
+                      "const": "room"
+                    },
+                    "ask": {
+                      "type": "string",
+                      "enum": [
+                        "friend",
+                        "work",
+                        "writing"
+                      ]
+                    },
+                    "versions": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "room": {
+                            "type": "string",
+                            "enum": [
+                              "friend",
+                              "work",
+                              "writing"
+                            ]
+                          },
+                          "et": {
+                            "type": "string"
+                          },
+                          "en": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "room",
+                          "et",
+                          "en"
+                        ]
+                      }
+                    },
+                    "options": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "answer": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "ask",
+                    "versions",
+                    "options",
+                    "answer"
+                  ],
+                  "description": "Which of three ways of saying one thing fits the room `ask` names (C1): pick among `options`, then show every version with its room."
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
                       "const": "hear"
                     },
                     "et": {
@@ -4782,7 +5520,7 @@
                   ]
                 }
               ],
-              "description": "One question, built on the server; the client never decides what a learner is asked. A kind is added and never removed within v1 (`rework` and `fix` came with B1, `workOut` with B2), so a client skips an item whose kind it does not know rather than failing the lesson: a lesson with one question fewer is still a lesson."
+              "description": "One question, built on the server; the client never decides what a learner is asked. A kind is added and never removed within v1 (`rework` and `fix` came with B1, `workOut` with B2, `room` with C1), so a client skips an item whose kind it does not know rather than failing the lesson: a lesson with one question fewer is still a lesson."
             }
           },
           "needed": {

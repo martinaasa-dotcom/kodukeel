@@ -15,6 +15,7 @@ import { Card, Meter, SectionTitle } from "@/components/ui";
 import { fill, type Locale } from "@/lib/copy/locale";
 // By its own module, never the barrel, which imports every lesson the course has.
 import { isTyped, markTyped, type PracticeItem, type TypedMark } from "@/lib/course/lessons/practice";
+import type { Room } from "@/lib/course/lessons/types";
 import { rng, seedFrom } from "@/lib/random/seeded";
 import { shuffle } from "@/lib/random/shuffle";
 import { isAdvanceKey, onOwnControl } from "@/lib/ux/advanceKey";
@@ -184,6 +185,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true, review = fal
     rework: t("Change the sentence"),
     fix: t("Put it right"),
     workOut: t("Work it out"),
+    room: t("Which room is it for?"),
   }[item.kind];
 
   return (
@@ -255,15 +257,19 @@ export function Quiz({ items, onFinished, onAnswer, summary = true, review = fal
 
         {item.kind === "workOut" && <WorkOutSentence item={item} answered={picked !== null} />}
 
+        {item.kind === "room" && (
+          <p className="text-lg font-semibold" style={{ color: "var(--ink)" }} data-room-ask={item.ask}>{t(ROOM_ASK[item.ask])}</p>
+        )}
+
         {item.kind === "match" && (
           <Match key={at} pairs={item.pairs} onDone={(clean) => { setMatched(clean); scored(clean); sound("right"); }} />
         )}
 
-        {(item.kind === "hear" || item.kind === "pick" || item.kind === "gap" || item.kind === "reply" || item.kind === "workOut") && (
-          <ChoiceGroup ariaLabel={item.kind === "gap" ? t("Which word fits") : item.kind === "reply" ? t("What they say back") : t("What it means")} select="one" answer className="choice-grid mt-4">
+        {(item.kind === "hear" || item.kind === "pick" || item.kind === "gap" || item.kind === "reply" || item.kind === "workOut" || item.kind === "room") && (
+          <ChoiceGroup ariaLabel={item.kind === "gap" ? t("Which word fits") : item.kind === "reply" ? t("What they say back") : item.kind === "room" ? t(ROOM_ASK[item.ask]) : t("What it means")} select="one" answer className="choice-grid mt-4">
             {item.options.map((option) => {
               const state = picked === null ? null : optionState(option === item.answer, option === picked);
-              const estonian = item.kind === "gap" || item.kind === "reply";
+              const estonian = item.kind === "gap" || item.kind === "reply" || item.kind === "room";
               return (
                 <button
                   key={option}
@@ -288,6 +294,22 @@ export function Quiz({ items, onFinished, onAnswer, summary = true, review = fal
         )}
 
         {item.kind === "workOut" && picked !== null && <WorkOutParts item={item} />}
+
+        {/* The three ways side by side once picked, each with the room it is for and what it says. */}
+        {item.kind === "room" && picked !== null && (
+          <ul className="mt-4 flex flex-col gap-3" data-room-versions>
+            {item.versions.map((v) => (
+              <li key={v.room} className="rounded-[var(--r-lg)] border px-4 py-3" style={{ borderColor: "var(--edge)", background: v.room === item.ask ? "var(--accent-soft)" : "var(--surface)" }}>
+                <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t(ROOM_NAME[v.room])}</p>
+                <p className="mt-1 flex items-start gap-2">
+                  <Speak text={v.et} size={15} />
+                  <span lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>{v.et}</span>
+                </p>
+                <p className="text-base" style={{ color: "var(--ink-2)" }}><LessonText text={v.en} locale={locale} /></p>
+              </li>
+            ))}
+          </ul>
+        )}
 
         {(item.kind === "rework" || item.kind === "fix") && (
           <div className="mt-2 flex flex-col gap-3" data-rework={item.kind}>
@@ -418,13 +440,27 @@ function liveLine(
   if (item.kind === "match") return matched === null ? "" : matched ? t("All matched, first time.") : t("All matched.");
   if (picked === null) return "";
   if (picked === item.answer) return t("Right.");
-  if (item.kind === "gap" || item.kind === "reply") {
+  if (item.kind === "gap" || item.kind === "reply" || item.kind === "room") {
     const [before, after = ""] = t("Not this one. It's {answer}.").split("{answer}");
     return <>{before}<span lang="et">{item.answer}</span>{after}</>;
   }
   // The meaning drawn as the option drew it, so `cleaned, after {ei}` is read with no braces and `ei` as Estonian.
   return fillNodes(t("Not this one. It means {answer}."), { answer: <LessonText text={item.answer} locale={locale} /> });
 }
+
+/** What a which-room question asks, by the room (C1, `WhichRoom`): one line each, translated once. */
+const ROOM_ASK: Readonly<Record<Room, string>> = {
+  friend: "Which would you say to a friend?",
+  work: "Which would you say to a colleague at work?",
+  writing: "Which would you put in writing?",
+};
+
+/** A room's name over its version, once the question is answered. */
+const ROOM_NAME: Readonly<Record<Room, string>> = {
+  friend: "To a friend",
+  work: "At work",
+  writing: "In writing",
+};
 
 /**
  * A MATCH: TAP A WORD, THEN ITS MEANING.

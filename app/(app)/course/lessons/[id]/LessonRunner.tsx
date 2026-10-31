@@ -37,6 +37,7 @@ import { lessonSceneHref, type ConversationReturn } from "@/lib/scenes/lessonRet
 import { nameOf } from "@/lib/ux/roundNames";
 import { worksheetLink, type LessonWorksheet } from "@/lib/course/lessonWorksheet";
 import { ReadText } from "@/components/course/ReadText";
+import { NotesTalk } from "@/components/course/NotesTalk";
 import type { GlossedToken } from "@/lib/dict/glossed";
 
 /**
@@ -108,7 +109,13 @@ const WORKBOOK_NAME = nameOf("/review/workbook") ?? { et: "Töövihik", en: "Wor
 /** Every step not on this list asks nothing, and is finished by being open. */
 const ASKS: ReadonlySet<Step> = new Set(["practise", "write", "say", "review"]);
 
-export function LessonRunner({ lesson, practice, review, next, scene, situation = null, worksheet = null, conversation, place, name, due = 0, check = null, part, timeMultiplier, partAt, read = null }: {
+export function LessonRunner({ lesson, practice, review, next, scene, situation = null, worksheet = null, conversation, place, name, due = 0, check = null, part, timeMultiplier, partAt, read = null, notes = null }: {
+  /**
+   * The transcript of the lesson's talk taken down as notes (C1), glossed as
+   * the text to read is; null where there is none, and then a talk it does
+   * have is drawn plain.
+   */
+  notes?: readonly (readonly GlossedToken[])[] | null;
   lesson: LessonSpec;
   /**
    * The lesson's text to read (B2 on), a line at a time, with the dictionary
@@ -541,7 +548,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
           <h2 id="lesson-step" ref={heading} tabIndex={-1} className="mb-4 text-xl font-bold scroll-mt-24" style={{ color: "var(--ink)" }}>
             {fill(t("Step {n} of {total}: {step}"), { n: String(at + 1), total: String(steps.length), step: t(titleOf(step)) })}
           </h2>
-          {step === "listen" && <Listen lesson={lesson} read={read} heard={heard} heardOnReload={heardOnReload} onHeard={() => setHeard(true)} />}
+          {step === "listen" && <Listen lesson={lesson} read={read} notes={notes} heard={heard} heardOnReload={heardOnReload} onHeard={() => setHeard(true)} />}
           {step === "words" && <Words lesson={lesson} />}
           {step === "how" && <How lesson={lesson} />}
           {kept("practise") && <div hidden={step !== "practise"}><Quiz key="practise" level={3} items={practice} onFinished={(result) => { setScore((first) => first ?? result); finish("practise"); }} /></div>}
@@ -600,7 +607,10 @@ function wordsUsed(lesson: LessonSpec): number {
 }
 
 /** Step 1: the conversation, in the cast's voices, with the English under each line. */
-function Listen({ lesson, read, heard, heardOnReload, onHeard }: { lesson: LessonSpec; read: readonly (readonly GlossedToken[])[] | null; heard: boolean; heardOnReload: boolean; onHeard: () => void }) {
+function Listen({ lesson, read, notes, heard, heardOnReload, onHeard }: {
+  lesson: LessonSpec; read: readonly (readonly GlossedToken[])[] | null; notes: readonly (readonly GlossedToken[])[] | null;
+  heard: boolean; heardOnReload: boolean; onHeard: () => void;
+}) {
   const t = useT();
   const [english, setEnglish] = useState(true);
   /* Pressing "Read it" replaces the card the button was on, so the caret goes
@@ -615,9 +625,14 @@ function Listen({ lesson, read, heard, heardOnReload, onHeard }: { lesson: Lesso
   }, [heard, heardOnReload]);
   // B1 on, the conversation is heard before it is read (`ListenFirst`).
   if (!heard) return <ListenFirst lesson={lesson} onRead={onHeard} />;
+  // C1: a lesson whose Listen step is a talk taken down as notes may have no conversation to read.
+  const spoken = lesson.conversation.some((l) => l.et);
   return (
     <div className="flex flex-col gap-6">
-    <Card>
+    {!spoken && (lesson.notes || lesson.read) && (
+      <div className="flex justify-end"><EnglishToggle english={english} onToggle={() => setEnglish((on) => !on)} /></div>
+    )}
+    {spoken && <Card>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <p ref={leadRef} tabIndex={-1} className="text-base outline-none" style={{ color: "var(--ink-2)" }}>
           {/* At B1 the questions came first, so "nothing is asked" would be false a breath after asking. */}
@@ -628,8 +643,10 @@ function Listen({ lesson, read, heard, heardOnReload, onHeard }: { lesson: Lesso
         <EnglishToggle english={english} onToggle={() => setEnglish((on) => !on)} />
       </div>
       <LessonConversation lines={lesson.conversation} cast={lesson.cast} english={english} quiet />
-    </Card>
-    {/* B2: a real text, after the transcript, read and never asked about (`LessonSpec.read`). */}
+    </Card>}
+    {/* C1: a talk taken down as notes, with no transcript until its questions are answered (`LessonSpec.notes`). */}
+    {lesson.notes && <NotesTalk lessonId={lesson.id} talk={lesson.notes} tokens={notes} voice={lesson.cast[lesson.notes.speaker]} english={english} />}
+    {/* B2: a real text, after the transcript, read and never asked about; from C1's third part, asked about (`LessonSpec.read`). */}
     {lesson.read && <ReadText text={lesson.read} tokens={read} english={english} />}
     </div>
   );

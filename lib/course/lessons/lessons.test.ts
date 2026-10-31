@@ -4,7 +4,7 @@ import { shardKey } from "@/lib/dict/formsLayout";
 import { fold } from "@/lib/estonian/fold";
 import { VOICES } from "@/lib/audio/voice";
 import { A1_LESSONS } from "./a1";
-import { NAMES, PLACE_SPELLINGS, estonianOf, familiesOf, ledgersBefore, lessonProblems, lessonRank, namesOf, teach, uncovered, wordsOf } from "./ledger";
+import { NAMES, estonianOf, familiesOf, formsCheckWords, ledgersBefore, lessonProblems, lessonRank, namesOf, teach, uncovered, wordsOf } from "./ledger";
 import { FIX_AT_MOST, REWORK_AT_MOST, everyTypedQuestion, itemEstonian, markPhrase, meaningShows, practiceFor, reviewFor } from "./practice";
 import { estonianIn } from "./ledger";
 import { LESSONS as COURSE_LESSONS, LESSON_PARTS as COURSE_PARTS } from "./index";
@@ -54,15 +54,9 @@ describe("the lessons, A1 and on", () => {
       shard was unzipped and parsed again every time its word came round.
     */
     const where = new Map<string, string>();
+    // One reading with the per-part check: names and places let through, a dialect spelling asked as its standard word.
     for (const lesson of LESSONS) {
-      const names = namesOf(lesson);
-      const texts = [...estonianOf(lesson).map((e) => e.et), ...lesson.teaches.flatMap((t) => (t.kind === "verb" ? [t.et, t.first] : [t.et]))];
-      for (const text of texts) {
-        for (const w of wordsOf(text)) {
-          if (names.has(w.raw) || PLACE_SPELLINGS.has(w.raw)) continue;
-          if (!where.has(w.low)) where.set(w.low, `${lesson.id}: ${w.raw} in "${text}"`);
-        }
-      }
+      for (const w of formsCheckWords(lesson)) if (!where.has(w.low)) where.set(w.low, w.where);
     }
     const unknown: string[] = [];
     const byShard = [...where.keys()].sort((a, b) => shardKey(fold(a)).localeCompare(shardKey(fold(b))) || a.localeCompare(b));
@@ -174,6 +168,8 @@ describe("the lessons, A1 and on", () => {
           : item.kind === "reply" ? [[item.answer, [item.ask.en]]]
           : item.kind === "rework" ? [[item.answer, [item.from.en]]]
           : item.kind === "fix" ? [[item.right, [item.en]]]
+          // A which-room question puts its answer among the three versions on purpose; the line above them is English with nothing quoted.
+          : item.kind === "room" ? [[item.answer, []]]
           : [[item.et, item.options]];
         for (const [et, shown] of pairs) {
           const answer = new Set(wordsOf(et).map((w) => w.low));

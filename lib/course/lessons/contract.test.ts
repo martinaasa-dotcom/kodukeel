@@ -4,7 +4,7 @@ import { LEVEL_INFO } from "@/lib/collections/syllabus";
 import { sceneForLesson } from "@/lib/scenes/lessonScenes";
 import { LESSONS, LESSON_LEVELS, LESSON_PARTS } from "./index";
 import { lessonProblems } from "./ledger";
-import { b2LevelProblems, lessonEnglish, levelContractProblems, untranslated } from "./contract";
+import { b2LevelProblems, c1LevelProblems, lessonEnglish, levelContractProblems, untranslated } from "./contract";
 
 /**
  * THE LEVEL CONTRACT, ASKED OF EVERY LEVEL THAT IS LESSONS. Written once A1
@@ -174,5 +174,61 @@ describe("the B2 contract", () => {
 
   it("asks nothing of a level that is not B2", () => {
     expect(b2LevelProblems(LESSONS, LESSON_PARTS)).toEqual([]);
+  });
+});
+
+/**
+ * C1'S OWN RULES (`c1LevelProblems`), asked both ways on parts made here: no C1
+ * part is written yet, and a rule nothing fires on is a rule nobody knows the
+ * state of. Parts are four to ten lessons, as the level contract allows: two
+ * are made here, since nothing in these rules counts lessons.
+ */
+describe("the C1 contract", () => {
+  const writing = LESSONS.find((l) => l.level === "B2" && l.write)!;
+  const plain = LESSONS.find((l) => l.level === "B2" && l.kind === "lesson" && !l.write && (l.reworks?.length ?? 0) > 0)!;
+  const rework = plain.reworks![0]!;
+  const read = { genre: "a text", lines: [{ et: "Tere.", en: "Hello." }], questions: [{ kind: "short" as const, q: { et: "Tere?", en: "Hello?" }, accept: ["tere"] }] };
+  const parts = [1, 2, 3].map((n) => ({ id: `c${n}`, level: "C1" as const, title: `Part ${n}`, about: "A test part." }));
+  const partOf = (n: number, extra: Partial<typeof plain> = {}) => [
+    { ...writing, id: `c${n}-w`, part: `c${n}`, level: "C1" as const, read, reworks: [{ ...rework, pattern: "hedging" as const }] },
+    { ...plain, id: `c${n}-p`, part: `c${n}`, level: "C1" as const, read, ...extra },
+  ];
+  const level = (second: Partial<typeof plain>, third: Partial<typeof plain> = { patterns: [], reworks: [{ ...rework, pattern: "jussive" }] }) => [
+    ...partOf(1, { patterns: ["jussive"], reworks: [] }),
+    ...partOf(2, second),
+    ...partOf(3, third),
+  ];
+
+  it("passes a second part whose rework recycles a C1 pattern of an earlier part, with a B2 one in every part", () => {
+    expect(c1LevelProblems(level({ patterns: ["stance"], reworks: [{ ...rework, pattern: "jussive" }] }), parts)).toEqual([]);
+  });
+
+  it("refuses a second part that recycles no earlier C1 pattern, and names what it could have", () => {
+    const off = level({ patterns: [], reworks: [{ ...rework, pattern: "quotative" }] });
+    expect(c1LevelProblems(off, parts).join(" ")).toMatch(/C1 c2: no rework asks for a C1 pattern an earlier C1 part explained \(jussive\)/);
+  });
+
+  it("refuses a part that recycles no B2 pattern", () => {
+    const off = level({ patterns: ["stance"], reworks: [{ ...rework, pattern: "jussive" }] }).map((l) => (l.id === "c3-w" ? { ...l, reworks: [] } : l));
+    expect(c1LevelProblems(off, parts).join(" ")).toMatch(/C1 c3: no rework asks for a B2 pattern/);
+  });
+
+  it("refuses a part that writes no text, or two", () => {
+    const ok = level({ patterns: ["stance"], reworks: [{ ...rework, pattern: "jussive" }] });
+    expect(c1LevelProblems(ok.filter((l) => l.id !== "c2-w").map((l) => (l.id === "c2-p" ? { ...l, reworks: [{ ...rework, pattern: "hedging" as const }, { ...rework, pattern: "jussive" as const }] } : l)), parts).join(" "))
+      .toMatch(/C1 c2: writes 0 real texts/);
+    expect(c1LevelProblems(ok.map((l) => (l.id === "c3-p" ? { ...l, write: writing.write } : l)), parts).join(" ")).toMatch(/C1 c3: writes 2 real texts/);
+  });
+
+  it("refuses a lesson with no text to read but a part's last, and from the third part a text asked nothing", () => {
+    const ok = level({ patterns: ["stance"], reworks: [{ ...rework, pattern: "jussive" }] });
+    expect(c1LevelProblems(ok.map((l) => (l.id === "c1-p" ? { ...l, read: undefined } : l)), parts).join(" ")).toMatch(/c1-p: carries no text to read/);
+    const asked = (id: string) => ok.map((l) => (l.id === id ? { ...l, read: { ...read, questions: [] } } : l));
+    expect(c1LevelProblems(asked("c2-p"), parts)).toEqual([]);
+    expect(c1LevelProblems(asked("c3-p"), parts).join(" ")).toMatch(/c3-p: its text is asked nothing/);
+  });
+
+  it("asks nothing of a level that is not C1", () => {
+    expect(c1LevelProblems(LESSONS, LESSON_PARTS)).toEqual([]);
   });
 });

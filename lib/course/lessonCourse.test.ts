@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import { CASES } from "@/lib/estonian/cases";
 import { grammarTopic } from "@/lib/estonian/grammar";
 import { LESSONS, LESSON_PARTS, isLessonLevel } from "./lessons";
-import { LESSON_PAGES, PATTERN_PAGE, lessonMinutes, lessonProgrammes, lessonWords } from "./lessonCourse";
+import { LESSON_PAGES, PATTERN_PAGE, lessonMinutes, lessonProgrammes, lessonWords, notesMinutes } from "./lessonCourse";
+import { C1_PATTERNS } from "./lessons/types";
 import { LESSON_STEP, PROGRAMMES, grammarThrough, lessonDayFor, taughtThrough, unitsThrough } from "./index";
 import { scopeSoFar } from "./scope";
 
@@ -136,5 +137,40 @@ describe("A1, A2, B1 and B2 as lessons", () => {
     const first = PROGRAMMES.find((p) => p.level === "C1")!;
     const taught = new Set(taughtThrough(first, 1));
     for (const w of lessonWordsAll) expect(taught.has(w), w).toBe(true);
+  });
+});
+
+/*
+  C1'S PATTERNS COUNT THEIR PAGES AS READ, AND ITS NEW STEPS COUNT THEIR
+  MINUTES (docs/43-lessons.md §15.5, §15.12), on a lesson made here since no C1
+  lesson is written yet.
+*/
+describe("C1's additions to an evening", () => {
+  it("names a grammar page for every C1 pattern", () => {
+    for (const p of C1_PATTERNS) {
+      const page = PATTERN_PAGE[p];
+      expect(page, p).toBeTruthy();
+      expect(grammarTopic(page!), p).toBeTruthy();
+    }
+    expect(PATTERN_PAGE.connective).toBe("connectives");
+  });
+
+  it("counts a talk at about 130 words a minute, times its hearings, and three for its questions", () => {
+    const base = LESSONS.find((l) => l.level === "B2" && l.kind === "lesson" && !l.read?.questions)!;
+    const line = { et: Array.from({ length: 13 }, () => "sõna").join(" "), en: "words" };
+    const talk = (lines: number, hearings: 1 | 2) => ({
+      title: { et: "Jutt", en: "A talk" }, speaker: "Mari", hearings,
+      lines: Array.from({ length: lines }, () => line), questions: [], keyIdeas: [],
+    });
+    // 1,300 words heard once is ten minutes and three; twice is twenty and three.
+    expect(notesMinutes(talk(100, 1))).toBe(13);
+    expect(notesMinutes(talk(100, 2))).toBe(23);
+    expect(lessonMinutes({ ...base, notes: talk(100, 1) })).toBe(lessonMinutes(base) + 13);
+    // A text's questions are three more, which room one.
+    const read = { genre: "x", lines: [{ et: "Tere.", en: "Hello." }] };
+    const withRead = { ...base, read };
+    expect(lessonMinutes({ ...withRead, read: { ...read, questions: [{ kind: "short" as const, q: { et: "Tere?", en: "Hi?" }, accept: ["tere"] }] } })).toBe(lessonMinutes(withRead) + 3);
+    const rooms = [{ versions: [], ask: "work" as const }];
+    expect(lessonMinutes({ ...base, rooms })).toBe(lessonMinutes(base) + 1);
   });
 });

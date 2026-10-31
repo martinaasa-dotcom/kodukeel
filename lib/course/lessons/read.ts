@@ -17,13 +17,31 @@
  *
  * Pure: no React, no Prisma, no clock.
  */
-import { namesOf, uncovered, type Ledger } from "./ledger";
+import { namesOf, uncovered, wordsOf, type Ledger } from "./ledger";
 import type { LessonSpec } from "./types";
 
 /** Per line of the lesson's text, the words the ledger does not cover, lower-cased. Empty without a text. */
 export function readUntaught(lesson: LessonSpec, ledger: Ledger): ReadonlySet<string>[] {
+  return untaughtPerLine(lesson, lesson.read?.lines ?? [], ledger);
+}
+
+/**
+ * The same for a talk taken down as notes (C1, `LessonSpec.notes`), whose
+ * transcript is shown after the questions with the new words underlined as a
+ * text's are. Empty without a talk.
+ */
+export function notesUntaught(lesson: LessonSpec, ledger: Ledger): ReadonlySet<string>[] {
+  return untaughtPerLine(lesson, lesson.notes?.lines ?? [], ledger);
+}
+
+function untaughtPerLine(lesson: LessonSpec, lines: readonly { readonly et: string }[], ledger: Ledger): ReadonlySet<string>[] {
   const names = namesOf(lesson);
-  return (lesson.read?.lines ?? []).map((line) => new Set(uncovered(line.et, ledger, names).map((w) => w.toLocaleLowerCase("et"))));
+  return lines.map((line) => new Set(uncovered(line.et, ledger, names).map((w) => w.toLocaleLowerCase("et"))));
+}
+
+/** How many words a text runs to: what the C1 ramp measures a text read and a talk by (`rampC1.ts`). */
+export function wordCount(lines: readonly { readonly et: string }[]): number {
+  return lines.reduce((n, l) => n + wordsOf(l.et).length, 0);
 }
 
 /**

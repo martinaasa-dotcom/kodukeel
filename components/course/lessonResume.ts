@@ -61,7 +61,57 @@ export function saveLessonPlace(lessonId: string, steps: readonly string[], plac
 export function forgetLessonPlace(lessonId: string): void {
   try {
     window.sessionStorage.removeItem(keyFor(lessonId));
+    window.sessionStorage.removeItem(notesKeyFor(lessonId));
   } catch {
     // As above.
+  }
+}
+
+/**
+ * A TALK'S NOTES, KEPT WITH THE PLACE (C1, `LessonSpec.notes`).
+ *
+ * The one thing a learner types that is kept: the notes they take while a talk
+ * plays, so a reload ten minutes into a lecture heard once does not throw them
+ * away. Beside them, how often the talk was heard and where it was stopped, so
+ * a talk heard once is not heard again for a reload, and the answers given.
+ * In the tab's `sessionStorage` with the place, under the same prefix, so a
+ * sign-out sweeps it; removed with the place when the lesson is finished, and
+ * never sent anywhere.
+ */
+export interface NotesKept {
+  readonly notes: string;
+  readonly plays: number;
+  readonly at: number;
+  readonly answers: readonly string[];
+  readonly checked: boolean;
+}
+
+const notesKeyFor = (lessonId: string) => `${SNAPSHOT_PREFIX}lesson.${lessonId}.notes`;
+
+/** The notes kept for this lesson's talk, or null. `questions` is how many the talk asks, so a changed talk starts over. */
+export function loadLessonNotes(lessonId: string, questions: number, now = Date.now()): NotesKept | null {
+  try {
+    const raw = window.sessionStorage.getItem(notesKeyFor(lessonId));
+    if (!raw) return null;
+    const p = JSON.parse(raw) as { v?: number; savedAt?: unknown; notes?: unknown; plays?: unknown; at?: unknown; answers?: unknown; checked?: unknown };
+    if (p.v !== VERSION || typeof p.savedAt !== "number" || now - p.savedAt > MAX_AGE_MS) {
+      window.sessionStorage.removeItem(notesKeyFor(lessonId));
+      return null;
+    }
+    const count = (n: unknown) => (typeof n === "number" && Number.isInteger(n) && n >= 0 ? n : 0);
+    const answers = Array.isArray(p.answers) && p.answers.length === questions && p.answers.every((a) => typeof a === "string")
+      ? (p.answers as string[])
+      : Array.from({ length: questions }, () => "");
+    return { notes: typeof p.notes === "string" ? p.notes : "", plays: count(p.plays), at: count(p.at), answers, checked: p.checked === true };
+  } catch {
+    return null;
+  }
+}
+
+export function saveLessonNotes(lessonId: string, kept: NotesKept, now = Date.now()): void {
+  try {
+    window.sessionStorage.setItem(notesKeyFor(lessonId), JSON.stringify({ v: VERSION, ...kept, savedAt: now }));
+  } catch {
+    // Kept nowhere: the notes still work, and a reload starts them over.
   }
 }

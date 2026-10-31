@@ -41,6 +41,7 @@ import { LESSONS_AREA } from "./areas/lessons";
 import { LESSON_TEXT_AREA } from "./areas/lessonText";
 import { LESSONS_B1_AREA } from "./areas/lessonsB1";
 import { LESSONS_B2_AREA } from "./areas/lessonsB2";
+import { LESSONS_C1_AREA } from "./areas/lessonsC1";
 import { LESSON_TEXT_B1_OBJEKT } from "./areas/lessonTextB1Objekt";
 import { LESSON_TEXT_B1_REKTSIOON } from "./areas/lessonTextB1Rektsioon";
 import { LESSON_TEXT_B1_RAHA } from "./areas/lessonTextB1Raha";
@@ -109,6 +110,7 @@ export const AREAS: readonly (readonly [name: string, area: Area])[] = [
   ["lessonText", LESSON_TEXT_AREA],
   ["lessonsB1", LESSONS_B1_AREA],
   ["lessonsB2", LESSONS_B2_AREA],
+  ["lessonsC1", LESSONS_C1_AREA],
   ["lessonTextB1Objekt", LESSON_TEXT_B1_OBJEKT],
   ["lessonTextB1Rektsioon", LESSON_TEXT_B1_REKTSIOON],
   ["lessonTextB1Raha", LESSON_TEXT_B1_RAHA],

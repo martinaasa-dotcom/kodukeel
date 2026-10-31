@@ -41,7 +41,7 @@ import { STAND_IN, hasStandIn, personal } from "./ownAnswer";
 import { FRONTABLE, combinedSentences, foldedPhrase, sameSentence, spokenPhrase, subjectPerson, type Persons } from "./sameSentence";
 import { personForms, type Person } from "@/lib/estonian/conjugate";
 import { lessonOrders, type OrderContext } from "@/lib/estonian/wordOrder";
-import type { LessonSpec } from "./types";
+import type { LessonSpec, Room } from "./types";
 
 import type { Verdict } from "@/lib/ux/verdict";
 
@@ -115,7 +115,17 @@ export type PracticeItem =
    * every other choice in a lesson.
    */
   | { readonly kind: "workOut"; readonly et: string; readonly en: string; readonly word: string;
-      readonly parts: readonly string[]; readonly options: readonly string[]; readonly answer: string };
+      readonly parts: readonly string[]; readonly options: readonly string[]; readonly answer: string }
+  /**
+   * One thing said three ways (`WhichRoom`, C1): which version fits the room
+   * asked for. `options` are the three versions' Estonian in an order of
+   * their own, `answer` the asked room's, and `versions` every version with
+   * its room and English, shown after the answer so the three can be read
+   * side by side. Graded nowhere, like every other choice in a lesson.
+   */
+  | { readonly kind: "room"; readonly ask: Room;
+      readonly versions: readonly { readonly room: Room; readonly et: string; readonly en: string }[];
+      readonly options: readonly string[]; readonly answer: string };
 
 /**
  * What a typed sentence is checked against beyond the sentences written for it.
@@ -142,6 +152,7 @@ export function itemEstonian(item: PracticeItem): string[] {
     case "fix": return [item.shown, ...item.accept];
     // The one word to work out is the one the ledger is not asked to cover; the rest of its sentence is.
     case "workOut": return [withoutWord(item.et, item.word)];
+    case "room": return item.versions.map((v) => v.et);
     default: return [item.et];
   }
 }
@@ -220,6 +231,45 @@ export function fixItem(fix: NonNullable<LessonSpec["fixes"]>[number], taught: L
     persons: personsFor(taught, [...accept, withSlip(fix)]), orders: [],
     ...slipFields(notSlipsFor(accept, taught)),
   };
+}
+
+/**
+ * What a which-room rework asks, by the room it turns the sentence into: one
+ * line each, so each has one spelling and is translated once.
+ */
+export const ROOM_REWORK_ASK: Readonly<Record<Room, string>> = {
+  friend: "Now say it the way you'd say it to a friend.",
+  work: "Now say it the way you'd say it to a colleague at work.",
+  writing: "Now say it the way you'd put it in writing.",
+};
+
+/**
+ * The which-room questions a lesson asks (C1): the room picked, and after it,
+ * where the author gave one, the version turned into another room's, which
+ * is a rework and marked as one (`markRework`). The options are drawn in an
+ * order of their own off the versions, so the asked room's version is not
+ * always where the author put it and a reload keeps it.
+ */
+export function roomItems(lesson: LessonSpec, taught: Ledger): PracticeItem[] {
+  return (lesson.rooms ?? []).flatMap((r, i): PracticeItem[] => {
+    const asked = r.versions.find((v) => v.room === r.ask);
+    if (!asked) return [];
+    const pick: PracticeItem = {
+      kind: "room", ask: r.ask, versions: r.versions,
+      options: shuffle(r.versions.map((v) => v.et), rng(seedFrom(`room:${lesson.id}:${i}`))),
+      answer: asked.et,
+    };
+    const from = r.rework && r.versions.find((v) => v.room === r.rework!.from);
+    const to = r.rework && r.versions.find((v) => v.room === r.rework!.to);
+    if (!r.rework || !from || !to) return [pick];
+    const accept = [to.et, ...r.rework.accept];
+    const turn: PracticeItem = {
+      kind: "rework", from: { et: from.et, en: from.en }, ask: ROOM_REWORK_ASK[r.rework.to],
+      answer: to.et, answerEn: to.en, accept, opens: null,
+      persons: personsFor(taught, [from.et, ...accept]), orders: [],
+    };
+    return [pick, turn];
+  });
 }
 
 /** One rework as the question that asks it, read against everything taught by its lesson's end. */
@@ -616,7 +666,7 @@ export function practiceFor(
     .slice(0, PRODUCE_AT_MOST)
     .map((item) => produce(item, pool, after));
   const reworks = (lesson.reworks ?? []).slice(0, REWORK_AT_MOST).map((r) => reworkItem(r, after));
-  return [...(match ? [match] : []), ...recog, ...gaps, ...replies, ...reworks, ...fixesFor(lesson, after, confusions), ...workOutItems(lesson), ...asked];
+  return [...(match ? [match] : []), ...recog, ...gaps, ...replies, ...reworks, ...roomItems(lesson, after), ...fixesFor(lesson, after, confusions), ...workOutItems(lesson), ...asked];
 }
 
 /**

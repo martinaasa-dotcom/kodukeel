@@ -237,3 +237,30 @@ describe("a scene of a lesson still in preview", () => {
     expect(isPreviewScene({ lesson: undefined })).toBe(false);
   });
 });
+
+/*
+  A C1 PART'S CLOSING CONVERSATION ADMITS A CURVEBALL (docs/43-lessons.md
+  §15.5): "every role-play has a curveball", which no lesson field records and
+  the scene's own `curveballs` do. Asked of every C1 part end there is, the
+  preview's included, and of a made-up pair so a rule that stops firing fails
+  today rather than the day a part breaks it.
+*/
+describe("a C1 part's closing conversation", () => {
+  const missing = (
+    lessons: readonly { id: string; level: string; kind: string; roleplay?: unknown }[],
+    sceneOf: (id: string) => { curveballs: readonly string[] } | undefined,
+  ) => lessons
+    .filter((l) => l.level === "C1" && l.kind === "partEnd" && l.roleplay)
+    .filter((l) => (sceneOf(l.id)?.curveballs.length ?? 0) === 0)
+    .map((l) => l.id);
+
+  it("admits at least one curveball in every C1 part's end written so far", () => {
+    expect(missing(LESSONS, sceneForLesson)).toEqual([]);
+  });
+
+  it("would refuse a part end whose scene admits none, and ask nothing of a B2 one", () => {
+    const ends = [{ id: "c1-x", level: "C1", kind: "partEnd", roleplay: {} }, { id: "b2-x", level: "B2", kind: "partEnd", roleplay: {} }];
+    expect(missing(ends, () => ({ curveballs: [] }))).toEqual(["c1-x"]);
+    expect(missing(ends, () => ({ curveballs: ["english"] }))).toEqual([]);
+  });
+});

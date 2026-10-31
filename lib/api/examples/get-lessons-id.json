@@ -401,6 +401,7 @@
   "partAt": 1,
   "timeMultiplier": 1,
   "read": null,
+  "notes": null,
   "name": null,
   "due": 33,
   "check": null,
