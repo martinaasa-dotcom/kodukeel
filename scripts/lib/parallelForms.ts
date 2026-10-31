@@ -92,8 +92,17 @@ export const PARALLEL_REVIEW: Readonly<Record<string, ParallelDecision>> = {
     read: ["Ma ei ole päris nõus. Kuigi kodus on mugav, on mul seal igav, sest ma ei näe kolleege."],
   },
   lilli: {
-    keep: true, why: "Flowers, as the object.",
-    read: ["Ma ei kuulnud. Aga Peeter on viimasel ajal väga rõõmus. Ja eile ostis ta lilli!", "Osta lilli! Lilled on alati hea kingitus."],
+    keep: true, why: "Flowers, as the object, in every lesson that says it.",
+    read: [
+      "Et keegi ei olnud talle kolmkümmend aastat lilli toonud.",
+      "Keegi ei olnud talle kolmkümmend aastat lilli toonud.",
+      "Keegi ei toonud talle lilli.",
+      "Kolmkümmend aastat ei olnud keegi talle lilli toonud.",
+      "Lapsed viivad sel päeval õpetajale lilli.",
+      "Ma ei kuulnud. Aga Peeter on viimasel ajal väga rõõmus. Ja eile ostis ta lilli!",
+      "Osta lilli! Lilled on alati hea kingitus.",
+      "Ta ütles, et keegi ei olnud talle kolmkümmend aastat lilli toonud.",
+    ],
   },
   makse: {
     keep: true, why: "Taxes after enne and pärast, in every lesson that says it. The payment noun spelled the same is taught nowhere.",
@@ -119,6 +128,66 @@ export const PARALLEL_REVIEW: Readonly<Record<string, ParallelDecision>> = {
   õunu: {
     keep: true, why: "Apples, as the object, in every lesson that says it.",
     read: ["Aga bussis sõi ta õunu.", "kilo õunu", "Ma ostsin õunu", "Ma ostsin õunu.", "Ma pesin õunu juba ära.", "Ma sõin õunu.", "Noh, need olid nii head. Sõin bussis õunu.", "Ta sõi natuke õunu.", "Ta sõi õunu.", "Tema sõi õunu.", "Tom läks tagasi turule ja ostis veel õunu.", "Tom ostis turult terve kilo õunu.", "Tom, kas sa ostsid õunu?", "õunu"],
+  },
+  asju: {
+    keep: true, why: "Things, as the object of a notice (b2-34).",
+    read: [
+      "Palume kahjustatud asju mitte ära visata enne eksperdi külastust.",
+    ],
+  },
+  kirju: {
+    keep: true, why: "Letters, as the object (b2-31).",
+    read: [
+      "Ametnikud armastavad pikki sõnu. Ma kirjutasin ise kolmkümmend aastat selliseid kirju.",
+    ],
+  },
+  kuid: { keep: false, why: "In the lessons it is the conjunction, but (B2), never the months." },
+  laule: {
+    keep: true, why: "Songs, as the object, in every lesson that says it (b2-40, b2-42).",
+    read: [
+      "Igal õhtul tuli lauluväljakule tuhandeid inimesi. Nad laulsid laule, mida oli aastaid keelatud laulda.",
+      "Laule oli aastaid keelatud laulda.",
+      "Me laulsime laule, mida oli aastaid keelatud laulda.",
+      "Me laulsime laule, mida oli aastaid keelatud laulda. Ja keegi ei teadnud, mis edasi saab.",
+      "Nad laulsid laule, mida oli aastaid keelatud laulda.",
+      "Nad laulsid laule. Neid oli aastaid keelatud laulda.",
+      "Neid laule ei saanud aastaid laulda.",
+    ],
+  },
+  plaane: {
+    keep: true, why: "Plans, as the object (b2-26).",
+    read: [
+      "Kui te reedeks ei jõua, andke palun varakult teada, et saaksime oma plaane muuta.",
+    ],
+  },
+  probleeme: {
+    keep: true, why: "Problems, after on (b2-23).",
+    read: [
+      "Kui unega on probleeme kauem kui kuu, rääkige sellest oma perearstiga.",
+    ],
+  },
+  puid: {
+    keep: true, why: "Firewood, as the object, in every lesson that says it (b2-37, b2-39).",
+    read: [
+      "Jaan oli terve nädala puid teinud.",
+      "puid",
+      "Põleb küll. Jaan kuivatas terve päeva puid. Saunas.",
+    ],
+  },
+  sõnu: {
+    keep: true, why: "Words, as the object, in every lesson that says it.",
+    read: [
+      "Ametnikud armastavad pikki sõnu. Ma kirjutasin ise kolmkümmend aastat selliseid kirju.",
+      "Ma ei oska ju sõnu.",
+      "Ma ei oska sõnu.",
+      "Ma ju ei oska sõnu.",
+    ],
+  },
+  väikesi: {
+    keep: true, why: "Small, before the shops it describes (b2-44).",
+    read: [
+      "Väikesi poode ja apteeke uus kord ei puudutaks.",
+    ],
   },
 };
 

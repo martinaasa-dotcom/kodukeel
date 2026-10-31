@@ -381,7 +381,7 @@ export const B2_KAUDNE_LESSONS: readonly LessonSpec[] = [
       },
       {
         from: { et: "Mis kell see on?", en: "What time is it?" },
-        ask: "Say you asked her this. Start with {Ma küsisin}.",
+        ask: "Say you asked her this.",
         to: { et: "Ma küsisin, mis kell see on.", en: "I asked what time it is." },
         pattern: "subordinate",
       },

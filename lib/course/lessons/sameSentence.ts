@@ -322,7 +322,15 @@ function dropAllowed(s: Words, i: number, person: Person, persons: Persons, fold
     return added ? ps.length === 1 && ps[0] === person : ps.includes(person);
   };
   if (!rest.some(licenses)) return false;
-  return k === clauseStart(clause) || licenses(clause[k - 1]) || licenses(clause[k + 1]);
+  /*
+    The second half of `mida ..., seda ...` opens on `seda` and nothing goes in
+    front of it: `mida rohkem räägid, seda kiiremini sa õpid`, never `sa seda
+    kiiremini õpid`. So a clause that opens on the correlative `seda`, after a
+    `mida` earlier in the sentence, has no free start for a pronoun; one beside
+    its verb still counts.
+  */
+  const correlative = rest[k] === "seda" && s.words.slice(0, start).includes("mida");
+  return (k === clauseStart(clause) && !correlative) || licenses(clause[k - 1]) || licenses(clause[k + 1]);
 }
 
 /**

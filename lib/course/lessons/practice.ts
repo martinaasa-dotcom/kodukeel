@@ -521,6 +521,20 @@ const QUESTION_WORDS = new Set([
   "kellele", "milline", "mitmes", "kui", "kas", "mille", "millega", "mitmendal", "kelleks", "kuni",
 ]);
 
+/**
+ * The small words a spoken question may open on before its question word:
+ * `Ja mis sa ütlesid?`, `Aga miks?`, `No kuidas läks?`. The question word
+ * after one of them is still what the line asks, so it is read past them.
+ */
+const LEADING_PARTICLES = new Set(["ja", "aga", "no", "noh"]);
+
+/** The question word a line opens on, past a leading particle, or "" where it opens on none. */
+function questionWordOf(et: string): string {
+  const words = wordsOf(et).map((w) => w.low);
+  const at = LEADING_PARTICLES.has(words[0] ?? "") ? 1 : 0;
+  return QUESTION_WORDS.has(words[at] ?? "") ? words[at]! : "";
+}
+
 /** A question and what was said back, from one conversation. */
 interface Exchange { readonly ask: Said; readonly back: Said }
 
@@ -532,8 +546,7 @@ function exchangesOf(lessons: readonly LessonSpec[]): Exchange[] {
     for (let i = 0; i + 1 < said.length; i++) {
       const ask = said[i]!;
       const back = said[i + 1]!;
-      const first = wordsOf(ask.et)[0]?.low ?? "";
-      if (!ask.et.trim().endsWith("?") || !QUESTION_WORDS.has(first)) continue;
+      if (!ask.et.trim().endsWith("?") || !questionWordOf(ask.et)) continue;
       if (back.who === ask.who || back.et.trim().endsWith("?") || wordsOf(back.et).length > 8) continue;
       out.push({ ask, back });
     }
@@ -555,12 +568,12 @@ function repliesFrom(prompts: readonly Exchange[], pool: readonly Exchange[], ra
     if (out.length >= max) break;
     if (asked.has(ex.ask.et)) continue;
     const askWords = new Set(wordsOf(ex.ask.et).map((w) => w.low));
-    const opener = wordsOf(ex.ask.et)[0]?.low;
+    const opener = questionWordOf(ex.ask.et);
     const right = normalisePhrase(ex.back.et);
     const wrong: string[] = [];
     for (const other of shuffle(pool, random)) {
       if (wrong.length >= OPTIONS - 1) break;
-      if (wordsOf(other.ask.et)[0]?.low === opener) continue;
+      if (questionWordOf(other.ask.et) === opener) continue;
       const said = normalisePhrase(other.back.et);
       if (said === right || wrong.some((w) => normalisePhrase(w) === said)) continue;
       if (wordsOf(other.back.et).some((w) => askWords.has(w.low))) continue;
