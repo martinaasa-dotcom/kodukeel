@@ -600,7 +600,9 @@ async function sitCheck(id, where) {
   if (failed) await retry.click();
   const result = await page.locator("[data-check-result]").waitFor({ timeout: 15_000 }).then(() => true, () => false);
   check(`${where}: sent again, it is marked`, result, result ? "" : (await text()).slice(-240));
-  check(`${where}: the result line takes the caret`, result && await page.evaluate(() => (document.activeElement?.textContent ?? "").includes(" of ")));
+  // The caret moves a frame after the result draws, so it is waited for rather than sampled.
+  const caretOnResult = result && await eventually(() => page.evaluate(() => (document.activeElement?.textContent ?? "").includes(" of ")), { timeoutMs: 3000 }).catch(() => false);
+  check(`${where}: the result line takes the caret`, caretOnResult === true);
   await page.unroute(`**/course/check/${id}**`);
   await axeHere(`${where} result`);
 }
