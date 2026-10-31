@@ -12,7 +12,7 @@ export const c1Pakkumine: ScenePicks = {
   ],
   survey: [
     { et: "Katus laseb vett läbi ja kelder on niiske. Remont maksab umbes kaheksa tuhat eurot.", en: "The roof lets water through and the cellar is damp. The repairs come to about eight thousand euros." },
-    { et: "Keldris on hallitus ja katus laseb vett läbi.", en: "There's mould in the cellar, and the roof lets water through." },
+    { et: "Keldris on hallitus ja katus laseb vett läbi.", en: "There's mold in the cellar, and the roof lets water through." },
   ],
   number: [
     { et: "Vaatamata uuele köögile on maja vana. Me pakume 230 000.", en: "Despite the new kitchen, the building is old. We're offering 230,000." },
