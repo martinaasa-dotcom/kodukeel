@@ -686,7 +686,7 @@ export const C1_KODU_LESSONS: readonly LessonSpec[] = [
       { who: "Aivar", et: "Saab küll. Laske katus korda teha ja kelder kuivatada. Kokku umbes kaheksa tuhat eurot.", en: "It can. Have the roof put right and the cellar dried out. About eight thousand euros all told." },
       { who: "Tom", et: "Kaheksa tuhat! Hoolimata sellest tahame seda korterit ikka, aga mitte selle hinnaga.", en: "Eight thousand! We still want this flat in spite of that, but not at this price." },
       { who: "Raivo", et: "Tere! Noh, kas kõik on korras?", en: "Hello! Well, is everything all right?", stage: "Raivo comes down the cellar stairs." },
-      { who: "Anna", et: "Mitte päris, Raivo. Kelder ei ole sugugi kuiv.", en: "Not quite, Raivo. The cellar isn't dry at all." },
+      { who: "Anna", et: "Mitte päris, Raivo. Kelder ei ole sugugi kuiv.", en: "Raivo, that isn't quite right. The cellar isn't dry at all." },
     ],
     teaches: [
       { kind: "word", et: "hallitus", en: "mold" },

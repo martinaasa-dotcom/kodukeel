@@ -894,7 +894,7 @@ export const C1_MOTE_LESSONS: readonly LessonSpec[] = [
     conversation: [
       { who: "Margit", et: "Meiega on täna Riina Mets. Riina on keeleteadlane ja uurib, kuidas täiskasvanud uut keelt õpivad.", en: "With us today is Riina Mets. Riina is a linguist, and she studies how adults learn a new language.", stage: "A Saturday morning. The morning show is on again, and Anna is making breakfast." },
       { who: "Tõnu", et: "Tere tulemast, Riina! Kas täiskasvanu saab üldse veel uue keele selgeks?", en: "Welcome, Riina! Can an adult still really learn a new language at all?" },
-      { who: "Riina", et: "Saab küll. Ja tihti kiiremini, kui arvatakse. Aga ta õpib teisiti kui laps.", en: "Certainly. And often faster than people think. But an adult learns differently from a child." },
+      { who: "Riina", et: "Saab küll. Ja tihti kiiremini, kui arvatakse. Aga ta õpib teisiti kui laps.", en: "Yes, they can. And often faster than people think. But an adult learns differently from a child." },
       { who: "Anna", et: "Tom, tule kuula! Siin räägitakse sinust.", en: "Tom, come and listen! They're talking about you." },
       { who: "Tom", et: "Minust? Mida nad minust räägivad?", en: "About me? What are they saying about me?", stage: "Tom comes in with his coffee." },
       { who: "Anna", et: "Et täiskasvanu õpib...", en: "That an adult learns..." },

@@ -434,7 +434,7 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "{Justkui} and {otsekui} say the same thing. {Justkui} is what you hear, {otsekui} what you read. Both are followed by the [tingiv kõneviis] (-ks, would), because what comes after them didn't happen.",
-        "For something past it's {oleks} and the -nud form, as at B1: {justkui ma oleksin hulluks läinud}.",
+        "For something past it's {oleks} and the [nud-kesksõna] (-nud, done), as at B1: {justkui ma oleksin hulluks läinud}.",
         "Spoken, people often just say {nagu oleks}: {Ta vaatas mind, nagu oleksin hulluks läinud}. It means the same.",
         "A pun turns on one word with two meanings: {tee} is tea and a road, {kuu} is the moon and a month. Find the meaning the sentence wants, then the other one, and the other one is the joke.",
       ],

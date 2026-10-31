@@ -302,7 +302,7 @@ export const C1_MAA_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "inimese", of: "inimene", en: "of a person; the whole person", stem: true },
     ],
     how: {
-      point: "A legend is told, not claimed: {Räägitakse, et kunagi ammu olevat siin olnud küla.} {Olevat} and the -nud form say this is what people tell; the pluperfect, {olid muutunud}, says what had happened before; and the plain past is the storyteller stepping out: {Hommikul oli seal ainult raba.}",
+      point: "A legend is told, not claimed: {Räägitakse, et kunagi ammu olevat siin olnud küla.} {Olevat} and the [nud-kesksõna] (-nud, done) say this is what people tell; the pluperfect, {olid muutunud}, says what had happened before; and the plain past is the storyteller stepping out: {Hommikul oli seal ainult raba.}",
       table: {
         head: ["Who tells it", "Estonian", "In English"],
         rows: [
@@ -313,7 +313,7 @@ export const C1_MAA_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "{Räägitakse, et} or {Kunagi ammu} opens it, and everybody knows a story is coming.",
-        "{Olevat} with the -nud form passes on what is told: {olevat vajunud}, sank, they say. You met it in B2 for news; in a legend it is the voice the story is told in.",
+        "{Olevat} with the [nud-kesksõna] (-nud, done) passes on what is told: {olevat vajunud}, sank, they say. You met it in B2 for news; in a legend it is the voice the story is told in.",
         "What had already happened goes in the pluperfect: {Inimesed olid muutunud ahneks}, before the night it all sank.",
         "When the teller steps out of the story to say what is there now, it's the plain past or the present: {Hommikul oli seal ainult raba}, {Raba on palju vanem kui küla}.",
         "A book says it with nouns and no voice at all: {Muistendi järgi oli raba kohal kunagi küla}.",
