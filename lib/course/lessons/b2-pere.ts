@@ -527,7 +527,7 @@ export const B2_PERE_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "klassijuhataja", en: "class teacher, the teacher in charge of a class" },
       { kind: "phrase", et: "paar rida", en: "a few lines" },
       { kind: "form", et: "septembri", of: "september", en: "of September; {1. septembril}, on 1 September; {septembris}, in September", stem: true },
-      { kind: "word", et: "joonistama", en: "to draw" },
+      { kind: "verb", et: "joonistama", first: "joonistan", en: "to draw", firstEn: "I draw" },
       { kind: "form", et: "joonistada", of: "joonistama", en: "to draw: the [da-tegevusnimi] (-da)" },
       { kind: "form", et: "kuueaastane", of: "kuueaastane", en: "six years old" },
     ],
