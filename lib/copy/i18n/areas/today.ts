@@ -542,8 +542,8 @@ export const TODAY: Area = {
     "Ты можешь объяснить, возразить и справиться с неожиданным, не переходя на русский или английский.",
   "You can live in Estonian: phone an office, the doctor or the school and get what you called for, and write every text the B2 exam sets.":
     "Ты можешь жить на эстонском: позвонить в учреждение, врачу или в школу и добиться того, ради чего звонишь, и написать каждый текст экзамена B2.",
-  "You can write academic and professional Estonian that reads as if it was written in Estonian, not translated.":
-    "Ты можешь писать на академическом и профессиональном эстонском так, будто текст сразу написан по-эстонски, а не переведён.",
+  "You can be yourself in Estonian: as funny, as precise and as firm as in your own language, at work, at a public meeting and on paper.":
+    "Ты можешь быть собой на эстонском: таким же остроумным, точным и твёрдым, как на своём языке, на работе, на общем собрании и на бумаге.",
 
   // THE MODULE SCREEN.
   "Your evenings, already planned":
@@ -588,8 +588,6 @@ export const TODAY: Area = {
     "Курс по плану выключен, поэтому здесь то, что пора повторить. {turnOn}",
   "Turn it back on":
     "Включить снова",
-  "You've finished the whole course, so this is what's due.":
-    "Весь курс пройден, поэтому здесь то, что пора повторить.",
   "Open the course":
     "Открыть курс",
   "Today's module is done":
@@ -1662,8 +1660,8 @@ export const TODAY: Area = {
     "Ти можеш пояснити, заперечити й упоратися з несподіваним, не переходячи на англійську.",
   "You can live in Estonian: phone an office, the doctor or the school and get what you called for, and write every text the B2 exam sets.":
     "Ти можеш жити естонською: зателефонувати до установи, лікаря чи школи й домогтися того, заради чого телефонуєш, і написати кожен текст іспиту B2.",
-  "You can write academic and professional Estonian that reads as if it was written in Estonian, not translated.":
-    "Ти можеш писати академічною та професійною естонською так, ніби текст одразу написано естонською, а не перекладено.",
+  "You can be yourself in Estonian: as funny, as precise and as firm as in your own language, at work, at a public meeting and on paper.":
+    "Ти можеш бути собою естонською: таким самим дотепним, точним і твердим, як своєю мовою, на роботі, на громадських зборах і на папері.",
 
   // THE MODULE SCREEN.
   "Your evenings, already planned":
@@ -1708,8 +1706,6 @@ export const TODAY: Area = {
     "Курс за планом вимкнено, тож тут те, що час повторити. {turnOn}",
   "Turn it back on":
     "Увімкнути знову",
-  "You've finished the whole course, so this is what's due.":
-    "Увесь курс пройдено, тож тут те, що час повторити.",
   "Open the course":
     "Відкрити курс",
   "Today's module is done":

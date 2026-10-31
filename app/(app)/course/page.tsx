@@ -1,6 +1,8 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { checkAfter } from "@/lib/course/checks";
-import { moveBlockedFor } from "@/lib/progress/checks";
+import { checksPassedFor, moveBlockedFor } from "@/lib/progress/checks";
+import { courseFinishedFigures } from "@/lib/progress/courseFinished";
+import { CourseFinished } from "@/components/course/CourseFinished";
 import { ArrowRight, CalendarCheck, Check } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
 import { learnerDayClock } from "@/lib/progress/dayClock";
@@ -200,6 +202,47 @@ export default async function CoursePage({
     const check = lessonCheck;
     const afterName = after ? (after.level !== programme.level ? after.level : after.days.every((d) => d.lesson) ? t(after.title) : after.id.toUpperCase()) : "";
     const checkDue = check && after ? await moveBlockedFor(ownerId, programme, after) : null;
+    /*
+      THE LAST PART ENDS THE COURSE, AND ITS CHECK IS HOW THE COURSE ENDS.
+      There is no part after it for `moveBlockedFor` to ask about, so the C1
+      check is offered here until it is passed, and once it is, this is the
+      course-finished screen, which Today's card sends somebody back to.
+    */
+    if (!after && check) {
+      if ((await checksPassedFor(ownerId)).has(check.id)) {
+        const figures = await courseFinishedFigures(ownerId);
+        return (
+          <div className="mx-auto max-w-4xl px-5 py-8 md:px-10 md:py-12">
+            <CourseFinished figures={figures} heading="h1" />
+          </div>
+        );
+      }
+      return (
+        <Page
+          eyebrow={<span>{programme.level}</span>}
+          title={fill(t("{part} is finished"), { part: partName })}
+          lead={fill(t("All {total} evenings done. Every word you met is in your reviews now."), { total })}
+        >
+          <Stack>
+            <Card tone="accent" data-check-due={check.id}>
+              <SectionTitle hint={t("about ten minutes")}>
+                {fill(t("One step left: the {level} check"), { level: programme.level })}
+              </SectionTitle>
+              <p className="mt-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                {fill(t("Questions on everything {level} taught, the way the lessons asked them. Pass it and the course is finished. You can take it as often as you like."), { level: programme.level })}
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <ButtonLink href="/review">{t("Review your words first")}</ButtonLink>
+                <ButtonLink href={`/course/check/${check.id}`} variant="primary">
+                  {t("Take the check")} <ArrowRight size={15} aria-hidden />
+                </ButtonLink>
+              </div>
+            </Card>
+            {talkOver && <TalkItOver locale={locale} />}
+          </Stack>
+        </Page>
+      );
+    }
     if (check && checkDue) {
       return (
         <Page
@@ -278,12 +321,6 @@ export default async function CoursePage({
                     })
                     : t("Every word in the course is in your reviews, and each one will come back just as you're about to forget it.")}
                 </p>
-                {/* Out of the lessons and into the parts built from units: said once, here, before it happens. */}
-                {after && check && !after.days.some((d) => d.lesson) && (
-                  <p className="mt-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }} data-course-bridge>
-                    {t("From here an evening is built a little differently: the words of one topic, a short page on one point of grammar, a round or two that use them, and a review. The conversations carry on, and everything the lessons taught comes with you.")}
-                  </p>
-                )}
                 <div className="mt-4 flex flex-wrap gap-2">
                   <ButtonLink href="/progress/readiness">{t("See what you could handle out there")}</ButtonLink>
                   {after

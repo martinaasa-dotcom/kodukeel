@@ -42,8 +42,18 @@ export interface StudyRecord {
   readonly conversations: number;
 }
 
+/** Conversations in Estonian the learner told Today about, ever: every answer `isConversation` reads as one. */
+export function conversationsReported(ownerId: string): Promise<number> {
+  return prisma.encounter.count({ where: { ownerId, outcome: { in: [...OUTCOMES.filter(isConversation)] } } });
+}
+
+/** The distinct days, in the learner's own zone, with a review in their log (`studyTotals`). */
+export async function daysStudied(ownerId: string, clock: DayClock): Promise<number> {
+  const reviews = await prisma.review.findMany({ where: { ownerId }, select: { reviewedAt: true, durationMs: true } });
+  return studyTotals(reviews, (at) => clock.dayKey(at)).activeDays;
+}
+
 export async function studyRecord(ownerId: string): Promise<StudyRecord> {
-  const conversationOutcomes = OUTCOMES.filter(isConversation);
   const [clock, name, reviews, snapshot, checks, papers, conversations] = await Promise.all([
     learnerDayClock(ownerId),
     readSetting(ownerId, SETTING_KEYS.displayName),
@@ -60,7 +70,7 @@ export async function studyRecord(ownerId: string): Promise<StudyRecord> {
       take: SITTINGS,
       select: { finishedAt: true, level: true, pct: true, passed: true },
     }),
-    prisma.encounter.count({ where: { ownerId, outcome: { in: [...conversationOutcomes] } } }),
+    conversationsReported(ownerId),
   ]);
   const units = await pathWithProgress(ownerId, snapshot);
 

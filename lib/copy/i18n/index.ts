@@ -70,6 +70,7 @@ import { SOUNDS_AREA } from "./areas/sounds";
 import { ADMIN_SPEECH } from "./areas/adminSpeech";
 import { ACCOUNT_AREA } from "./areas/account";
 import { PHONES_AREA } from "./areas/phones";
+import { COURSE_FINISHED } from "./areas/courseFinished";
 
 /**
  * Every area of the interface that has been translated. The first is the
@@ -87,6 +88,7 @@ export const AREAS: readonly (readonly [name: string, area: Area])[] = [
   ["rounds", ROUNDS],
   ["progress", PROGRESS],
   ["course", COURSE],
+  ["courseFinished", COURSE_FINISHED],
   ["shell", SHELL],
   ["finish", FINISH],
   ["grammarCases", GRAMMAR_CASES],

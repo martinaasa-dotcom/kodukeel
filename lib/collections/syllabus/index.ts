@@ -101,8 +101,8 @@ export const LEVEL_INFO: Record<Level, LevelInfo> = {
     level: "C1",
     title: "Vilunud keelekasutaja",
     titleEn: "Proficient user",
-    summary: "Pack more into a sentence, hedge a claim and pick the exact word.",
-    arrival: "You can write academic and professional Estonian that reads as if it was written in Estonian, not translated.",
+    summary: "Be yourself in Estonian: get the joke and what was meant, give a toast or hard feedback, and write a long text that holds together.",
+    arrival: "You can be yourself in Estonian: as funny, as precise and as firm as in your own language, at work, at a public meeting and on paper.",
   },
 };
 

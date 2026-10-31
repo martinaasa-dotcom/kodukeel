@@ -14,6 +14,7 @@ import { fill } from "@/lib/copy/locale";
 import { NOT_REACHED } from "@/lib/copy/values";
 import type { PracticeItem } from "@/lib/course/lessons/practice";
 import { Quiz } from "../../lessons/[id]/Quiz";
+import { CourseFinished, type CourseFinishedFigures } from "@/components/course/CourseFinished";
 
 /**
  * A CHECK, ONE QUESTION AT A TIME, MARKED BY THE SERVER AT THE END.
@@ -32,7 +33,7 @@ export interface LevelDone {
   readonly next: { readonly level: string; readonly title: string; readonly summary: string; readonly lessons: boolean } | null;
 }
 
-export function CheckRunner({ checkId, attempt, items, needed, alreadyPassed, next, pastNext = false, level = null }: {
+export function CheckRunner({ checkId, attempt, items, needed, alreadyPassed, next, pastNext = false, level = null, finished = null }: {
   checkId: string;
   attempt: number;
   items: readonly PracticeItem[];
@@ -43,6 +44,8 @@ export function CheckRunner({ checkId, attempt, items, needed, alreadyPassed, ne
   pastNext?: boolean;
   /** Set on the last check of a level: what the level was and what comes next. */
   level?: LevelDone | null;
+  /** Set on the check that finishes the course: what the course took, for the course-finished screen. */
+  finished?: CourseFinishedFigures | null;
 }) {
   const t = useT();
   const locale = useLocale();
@@ -103,7 +106,7 @@ export function CheckRunner({ checkId, attempt, items, needed, alreadyPassed, ne
           <button ref={retryRef} type="button" className="tap-tint underline" onClick={finish}>{t("Try sending it again")}</button>
         </div>
       )}
-      {result?.passed && level && <LevelFinished level={level} score={`${formatScore(result.score)} / ${result.total}`} />}
+      {result?.passed && level && <LevelFinished level={level} score={`${formatScore(result.score)} / ${result.total}`} finished={finished} />}
       {result && !(result.passed && level) && result.passed && <Confetti count={50} />}
       {result && (
         <Card tone={result.passed ? "sky" : "butter"} data-check-result={result.passed ? "passed" : "not-yet"}>
@@ -205,21 +208,26 @@ function formatScore(score: number): string {
  * more of both, the parts of the level ticked off by name, what somebody can
  * now do in one sentence (`LEVEL_INFO.arrival`), and what the next level is.
  *
- * WHERE THE NEXT LEVEL IS BUILT DIFFERENTLY, IT SAYS SO. A1 to B2 are
- * lessons; at C1 an evening is a topic's words, a short page on one point
- * of grammar, a round or two and a review. A learner who walked the lessons
- * and arrived on a checklist with no word about why would read it as
- * something broken, so the change is named here, once, before it happens
- * (`level.next`, which says how the next level is built).
+ * B2 AND C1 OFFER THEIR MOCK EXAM (docs/43-lessons.md §13.9, §15.10). A
+ * learner who finishes B2 has written every text and rehearsed both spoken
+ * tasks of the state's B2 paper once, in the lessons, so the paper itself is
+ * the next step before C1; one who finishes C1 has written both of its texts
+ * and sat its whole speaking part. The four parts, timed as the real ones are
+ * (`/exam/B2`, `/exam/C1`).
  *
- * AND B2 OFFERS ITS MOCK EXAM FIRST (docs/43-lessons.md §13.9). A learner who
- * finishes B2 has written every text and rehearsed both spoken tasks of the
- * state's B2 paper once, in the lessons, so the paper itself is the next step
- * before C1: the four parts, timed as the real ones are (`/exam/B2`).
+ * AND C1 IS THE END OF THE COURSE, so in place of a next level it draws the
+ * course-finished screen (`CourseFinished`), whose own buttons leave the mock
+ * exam to the card above it.
  */
-const MOCK_EXAM_AFTER: ReadonlySet<string> = new Set(["B2"]);
+const MOCK_EXAM_AFTER: ReadonlySet<string> = new Set(["B2", "C1"]);
 
-function LevelFinished({ level, score }: { level: LevelDone; score: string }) {
+/** What the mock exam card says, per level: what the lessons have already rehearsed of that paper. */
+const MOCK_EXAM_LINE: Readonly<Record<string, string>> = {
+  B2: "You've written every text and rehearsed both spoken tasks of the real paper once, in the lessons. The mock exam puts all four parts together, timed the way the real ones are, so you know where you stand.",
+  C1: "You've written both texts and sat the whole speaking part of the real paper once, in the lessons. The mock exam puts all four parts together, timed the way the real ones are, so you know where you stand.",
+};
+
+function LevelFinished({ level, score, finished }: { level: LevelDone; score: string; finished: CourseFinishedFigures | null }) {
   const t = useT();
   return (
     <section aria-labelledby="level-done" className="flex flex-col gap-4" data-level-done={level.level}>
@@ -250,7 +258,7 @@ function LevelFinished({ level, score }: { level: LevelDone; score: string }) {
             {fill(t("Before anything else: the {level} mock exam"), { level: level.level })}
           </p>
           <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>
-            {t("You've written every text and rehearsed both spoken tasks of the real paper once, in the lessons. The mock exam puts all four parts together, timed the way the real ones are, so you know where you stand.")}
+            {t(MOCK_EXAM_LINE[level.level]!)}
           </p>
           <div className="mt-3">
             <ButtonLink href={`/exam/${level.level}`} variant="secondary">{fill(t("Sit the {level} mock exam"), { level: level.level })}</ButtonLink>
@@ -263,13 +271,9 @@ function LevelFinished({ level, score }: { level: LevelDone; score: string }) {
             {fill(t("Next: {level}, {title}"), { level: level.next.level, title: level.next.title })}
           </p>
           <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>{level.next.summary}</p>
-          {!level.next.lessons && (
-            <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-              {t("From here an evening is built a little differently: the words of one topic, a short page on one point of grammar, a round or two that use them, and a review. The conversations carry on, and everything the lessons taught comes with you.")}
-            </p>
-          )}
         </Card>
       )}
+      {!level.next && finished && <CourseFinished figures={finished} exam={!MOCK_EXAM_AFTER.has(level.level)} />}
     </section>
   );
 }
