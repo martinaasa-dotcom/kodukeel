@@ -565,24 +565,17 @@ describe("what a day reads and where it goes", () => {
     ways, so a word taught later comes off it and a new gap fails.
   */
   it("asks for a word in a conversation above the lessons only where the ladder taught it, or names it", () => {
+    /*
+      The everyday ones (`hind`, `valu`, `ajaleht` and the rest) are taught by
+      the three lettered B1 lessons of more words (20a, 34a, 41a); what is left
+      is the B2 office vocabulary and `seega`, which B2's own parts teach.
+    */
     const KNOWN_UNTAUGHT: Readonly<Record<string, readonly string[]>> = {
-      elamisluba: ["pilt", "taotlus"],
-      tootukassa: ["laulja", "näitleja", "registreerima"],
-      perearst: ["nõrk", "tugev"],
-      palk: ["nõustuma", "toode"],
-      "elanike-koosolek": ["koguma", "lind", "nõustuma", "ohutu", "puhas", "puu", "õhk"],
-      hadaabi: ["kukkuma", "valu"],
-      "arsti-aeg": ["haigus", "keha", "süda", "valu"],
-      "sobra-mure": ["toetama"],
-      kaebus: ["hüvitis", "klient", "üleeile"],
-      tagatisraha: ["puhas", "tagastama"],
-      toovestlus: ["ettevõte", "huvi", "nõustuma", "prantsuse", "vene"],
-      graafik: ["hind", "klient", "reklaam", "toode", "tõusma"],
-      "eksam-b2": ["amet", "eriala", "ettevõte", "nõustuma", "seega", "töötaja"],
-      kuulsin: ["ajaleht", "artikkel", "leht", "raadio", "saade"],
-      keeletund: ["harjutus", "huvi", "kordama", "seletama", "tõlkima", "õpik"],
-      "uuri-remont": ["mööbel", "ruum", "üleeile"],
-      raamatuklubi: ["julge", "nõustuma"],
+      elamisluba: ["taotlus"],
+      tootukassa: ["registreerima"],
+      kaebus: ["hüvitis"],
+      toovestlus: ["ettevõte"],
+      "eksam-b2": ["ettevõte", "seega"],
     };
     const bare = (w: string) => w.toLocaleLowerCase("et").replace(/[.!?,]+/g, "").trim();
     let dealt = 0;

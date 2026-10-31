@@ -11,7 +11,9 @@ describe("what is new at a level", () => {
 
   it("claims only what the level's lessons do", () => {
     const b1 = LESSONS.filter((l) => l.level === "B1");
-    expect(b1.length).toBe(49);
+    // Forty-nine core lessons and three lettered lessons of more words (20a, 34a, 41a).
+    expect(b1.filter((l) => !l.extra).length).toBe(49);
+    expect(b1.length).toBe(52);
     expect(b1.every((l) => l.listenFor && l.listenFor.length > 0), "every B1 lesson is heard first").toBe(true);
     expect(b1.filter((l) => !l.extra && l.kind !== "partEnd").every((l) => (l.reworks?.length ?? 0) > 0), "every core B1 lesson reworks a sentence").toBe(true);
     // A part's closing conversation talks for longer by being the whole conversation, with a turn
@@ -23,7 +25,7 @@ describe("what is new at a level", () => {
     const plain = b1.filter((l) => !l.write).map(lessonMinutes);
     const writing = b1.filter((l) => l.write).map(lessonMinutes);
     expect(writing.length).toBe(7);
-    expect(plain.length).toBe(42);
+    expect(plain.length).toBe(45);
     for (const m of plain) expect(Math.abs(m - 25)).toBeLessThanOrEqual(5);
     for (const m of writing) expect(Math.abs(m - 40)).toBeLessThanOrEqual(5);
   });
