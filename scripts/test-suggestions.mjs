@@ -30,8 +30,13 @@ import { requireLocalDatabase } from "./lib/local-db.mjs";
  */
 const B = baseUrl();
 const OWNER = "local-single-user";
-/** A word no dictionary has, so the missing-word path is exercised honestly. */
-const WORD = "kodukeelparandustest";
+/**
+ * A word no dictionary has, so the missing-word path is exercised honestly. It
+ * holds no Estonian part either: the dead end offers the parts of a compound
+ * (`lib/dict/nearby.ts`), and `kodukeelparandustest` stopped being a dead end
+ * the day the course taught `test`.
+ */
+const WORD = "qzxwvjkpqzxw";
 const MEANING = "a word invented for a test";
 const CORRECTED = "a corrected meaning";
 
