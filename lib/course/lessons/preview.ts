@@ -28,9 +28,11 @@
  * to `c1.ts` whole and this one is empty again.
  */
 import type { LessonSpec, PartOfLessons } from "./types";
+import { C1_KOOL_LESSONS, C1_KOOL_PART } from "./c1-kool";
 
 const PARTS: readonly (readonly [PartOfLessons, readonly LessonSpec[]])[] = [
   // One line per C1 part, in teaching order: [C1_<PART>_PART, C1_<PART>_LESSONS],
+  [C1_KOOL_PART, C1_KOOL_LESSONS],
 ];
 
 export const PREVIEW_PARTS: readonly PartOfLessons[] = PARTS.map(([part]) => part);
