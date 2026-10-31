@@ -1332,22 +1332,23 @@ and Ukrainian are machine-written and need a fluent reader. B2 is recorded nowhe
 
 ## 15. C1 as lessons: measured against B2 as built, and the plan (for approval)
 
-Written on 2026-10-31, after B2 merged. This is §10's first two steps again, read off `ledgerThrough`
-of `b2-48-end` with `npx tsx scripts/measure-b-levels.ts --through b2-48-end`, against the fourteen C1
+Written on 2026-10-31, after B2 merged, and revised the same day after a second pass that checked
+each assumption against the code. This is §10's first two steps again, read off `ledgerThrough` of
+`b2-48-end` with `npx tsx scripts/measure-b-levels.ts --through b2-48-end`, against the fourteen C1
 units, the C1 paper (`lib/exam/spec.ts`, `docs/16-exam.md`) and B2 as built (§14). C1 is the last
-level the state examines and the last level of this course, so the plan also says what happens after
-it (15.10).
+level the state examines and the last level of this course, so the plan also says what comes after
+it (15.11) and what could go wrong (15.12).
 
 ### 15.1 What C1 can assume
 
 **The ledger at the end of B2.** 2,927 items, 1,511 headwords, 8,144 spellings and 121 phrases.
 Thirty patterns: every case, every tense and mood the paper asks about, the object, government, the
 participles, the impersonal, the quotative, the converb, the -ma word's cases, nominalization,
-hedging and concession, and the spoken register. A learner at the end of B2 has met every grammar
-point a C1 textbook explains as such.
+hedging, concession and the spoken register. A learner at the end of B2 has met every grammar point
+a C1 textbook explains as such.
 
 **So C1 adds almost no new morphology, and that is the measurement rather than a gap.** What the
-ledger has never taught is a short list, read spelling by spelling:
+ledger has never taught is a short list, checked spelling by spelling:
 
 - **the third person command and the wish**, `tulgu`, `tehku`, `elagu`, beside the `olgu` and `las`
   B2 already uses;
@@ -1361,21 +1362,26 @@ ledger has never taught is a short list, read spelling by spelling:
   `muuhulgas`, `õigupoolest`, `iseenesest`, `paraku`;
 - **the stance words**, `küllap`, `arvatavasti`, `nähtavasti`, `justkui`, `otsekui`, `ehkki`;
 - **the old and literary forms**, the i-plural (`raamatuis`) and the stem plural (`jalgu`), which a
-  C1 reader meets in literature and in old texts and never has to produce;
+  C1 reader meets in literature and in old texts and never has to produce. The forms list already
+  knows them (`isExactForm`), so they need no new machinery;
 - **the abbreviations** of written Estonian, `jne`, `sh`, `vrd`, `nt`.
 
-**The words are most of the work, again.** The fourteen C1 units name 263 words and B2 taught 20 of
-them. 59 of the 400 commonest words are still untaught. About half are subtitle vocabulary
-(`kolonel`, `kapten`, `isand`, `kuningas`, `relv`) that no level should hurry. The rest are words a
-C1 speaker uses every day and B2 never needed: `laskma` (and `lasta teha`, having something done),
-`paistma` (`paistab, et`), `püüdma`, `kaduma`, `ajama`, `mingi`, `nägu`, `tõde`, `aus`, `tegu`,
-`rahu`, `armastus`, `täielik`, `kõva`, `arusaadav`, `endine`, `üllatunud`, `hirmus`, `tänulik`,
-`suurepärane`, `rase`. And the exclamations the lessons have kept out so far, `kurat`, `pagan` and
-`jumal küll`, which every learner hears in the first week and no course explains.
+**The words are most of the work, as at B2, and the units are a source rather than a quota.** B2's
+lessons taught 365 new headwords and only 86 of the 247 words its own units named, because a lesson
+teaches what its life needs. B1 did the same, with 119 of its units' 242. The fourteen C1 units name
+263 words and B2 taught 20 of them. Read the same way, they are where a part looks first, not a list
+to work through. 59 of the 400 commonest words are still untaught. About half are subtitle
+vocabulary (`kolonel`, `kapten`, `isand`, `kuningas`, `relv`) that no level should hurry. The rest
+are words a C1 speaker uses every day and B2 never needed: `laskma` (and `lasta teha`, having
+something done), `paistma` (`paistab, et`), `püüdma`, `kaduma`, `ajama`, `mingi`, `nägu`, `tõde`,
+`aus`, `tegu`, `rahu`, `armastus`, `täielik`, `kõva`, `arusaadav`, `endine`, `üllatunud`,
+`hirmus`, `tänulik`, `suurepärane`, `rase`. Then there are the exclamations the lessons have kept
+out so far: `kurat`, `pagan` and `jumal küll`, which every learner hears in the first week and no
+course explains.
 
 **The catalog's C1 conversations ask for one word no evening has taught**: `kuulduma`, in `kuulsin`
-(`KNOWN_UNTAUGHT` in `course.test.ts`). So unlike B2, C1 needs no lettered extras before it. The
-six catalog conversations C1's units open today (`keeletund`, `uuri-remont`, `helistamine`,
+(`KNOWN_UNTAUGHT` in `course.test.ts`). So unlike B2, C1 needs no lettered extras first. The six
+catalog conversations C1's units open today (`keeletund`, `uuri-remont`, `helistamine`,
 `kolm-palvet`, `kuulsin`, `raamatuklubi`) move to the finish of the C1 lesson that rehearses them,
 as B2's did.
 
@@ -1393,58 +1399,88 @@ funny, as precise, as kind and as firm as they are in their own language. They:
 - write a long text that holds together, from a neutral summary to an argued opinion.
 
 That is the level the state's own note calls the most any post in Estonia requires
-(`docs/16-exam.md`). So a C1 part is judged on what it lets somebody do the next day outside the app,
-and each part carries the five things a B2 part carried, plus a sixth:
+(`docs/16-exam.md`). So a C1 part is judged on what it lets somebody do the next day outside the
+app. Each part carries the five things a B2 part carried, plus a sixth:
 
 1. **A part of life** a person living here meets in their third year or later.
-2. **One grammar point** or one register skill, explained once.
+2. **One grammar point or register skill**, explained once in the level.
 3. **One real text** the part writes, in the genre that situation uses.
-4. **An ear skill**, one step harder than the part before (15.5).
+4. **An ear skill**, one step harder than the part before (15.6).
 5. **An errand out there**, counted on Today (`Encounter`).
-6. **A text read and asked about**, from the third part on (15.6). B2 read texts and never asked;
-   C1 reads longer texts and asks, because the paper does.
+6. **A text read and asked about**, from the third part on (15.7). B2 read texts and never asked
+   about them. C1 reads longer texts and asks, because the paper does.
+
+**The lessons are the spine, and the hours come from around them.** The plan model puts B2 to C1 at
+340 to 400 hours (`hoursBetween`). A C1 lesson with a read text, a retell and a timed answer runs to
+about 38 minutes by `lessonMinutes`, and a writing evening to 50, so forty-eight lessons are about
+thirty hours. The rest is the daily review, the practice rounds, the Väljendid and the news, and
+above all the errands. At C1 the errand is a whole radio show, a meeting, a book, which is the
+bulk of the level's hours and where the language is really learned. So every C1 errand is sized as
+real practice rather than a token, and the part's finish says how much of the week it should take.
 
 ### 15.3 C1, part by part
 
 Eight parts of six lessons, forty-eight core lessons, the same size as B2 so the course keeps one
-rhythm. The family's third year (15.7) carries all eight. The order follows B2's two rules, no part
-leans on a pattern a later part explains and the parts a person meets first in real life come first,
-and a third: the writing never asks less than the part before it (the contract checks it), so the
-paper's own 180-word summary sits early and its 220 to 260-word opinion text late.
+rhythm. The family's third year (15.8) carries all eight. The order follows three rules:
+
+- no part leans on a pattern a later part explains;
+- the parts a person meets first in real life come first;
+- the writing never asks less than the part before it (the contract checks it), so the paper's own
+  180-word summary sits early and its 220 to 260-word opinion text late.
+
+Second, a dependency the first draft missed: the texts of parts 3 to 6 all need a long text to hold
+together, so the signposts and the commas come in part 4. Part 6 then explains how an argued text is
+built.
 
 | Part | Life | Grammar or skill | Deepened from B2 | Its C1 units | The text it writes | Ends in | Out there |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `c1-isiksus` Being yourself | a birth and a death among friends, a toast, telling a joke and getting one, swearing and when not to, saying exactly how you feel | the third person command and the wish (`tulgu`, `elagu`, `olgu peale`, `las ta`) with the whole command table, and the stance words (`küllap`, `justkui`, `otsekui` with the conditional) | the spoken register into feeling and humor | `idioomid`, `nuansid` | a letter to a friend with two pieces of news, one happy and one sad (180 words) | the naming party for Liis and Jaan's baby, where Tom gives a toast and a joke has to be understood | say a toast, a congratulation or a condolence in Estonian |
-| `c1-meedia` Understanding everything | the radio, a podcast, a TV debate, a film without subtitles, science news, a rumor at work | the present participles as adjectives (`kehtiv seadus`, `arutatav eelnõu`, `lahendamata küsimus`) and the impersonal quotative (`tehtavat`) | the quotative | `rahvusvaheline`, `teadustoo` | the ten key ideas of a radio talk, written up from notes (180) | a murder-mystery evening at Mari's: every guest has heard something, and the learner works out who did it | listen to a whole Estonian radio show or podcast episode, and tell somebody what it said |
-| `c1-kodu` Buying a home | viewing apartments, the bank's loan offer, the survey that finds damp, the notary, the builders | the formal connectives (`vastavalt`, `arvestades`, `võrreldes`, `hoolimata`, `selmet`) and `lasta teha`, having it done | nominalization, into the prose of a contract | `nominalisatsioon` | the paper's neutral summary of figures: three loan offers compared, no opinion (180) | the price, negotiated with the seller's agent after the survey, when another buyer appears | read a real offer or contract clause and explain it to somebody |
-| `c1-kool` The school from the inside | Mark's homework in Estonian, the school's messages, a class trip, Mark left out by classmates | punctuation: the comma before every subordinate clause, and long sentences that hold together; and the grammar words Estonian schools use (`nimisõna`, `omastav`, `alus`) | subordinate and relative clauses, into three clauses | `lauseloome` | a formal letter to the head of the school (200) | the meeting with the teacher and the head, polite and firm when they disagree | write to a school, a kindergarten or an office with a request, and send it |
+| `c1-isiksus` Being yourself | a birth and a death among friends, a toast, jokes and puns, swearing and when not to, saying exactly how you feel | the third person command and the wish (`tulgu`, `elagu`, `olgu peale`, `las ta`) with the whole command table; the stance words (`küllap`, `justkui` and `otsekui` with the conditional) | the spoken register, into feeling and humor | `idioomid`, `nuansid` | a letter to a friend with two pieces of news, one happy and one sad (180 words) | the naming party for Liis and Jaan's baby, where Tom gives a toast and a joke has to be understood | say a toast, a congratulation or a condolence in Estonian |
+| `c1-meedia` Understanding everything | the radio, a podcast, a TV debate, a film without subtitles, science news, a rumor at work | the present participles as adjectives (`kehtiv seadus`, `arutatav eelnõu`, `lahendamata küsimus`) and the impersonal quotative (`tehtavat`) | the quotative | `rahvusvaheline`, `teadustoo` | a summary of a radio piece for a friend who missed it, from notes (180) | a murder-mystery evening at Mari's: every guest has heard something, and the learner works out who did it | listen to a whole Estonian radio show or podcast episode, and tell somebody what it said |
+| `c1-kodu` Buying a home | viewing apartments, the bank's loan offer, the survey that finds damp, the notary, the builders | the formal connectives (`vastavalt`, `arvestades`, `võrreldes`, `hoolimata`, `selmet`) and `lasta teha`, having it done | nominalization, into the prose of a contract | `nominalisatsioon` | the paper's neutral summary of figures, for a reader who wants only the facts: the prices Raivo sends, by district and size, with no opinion (180) | the price, negotiated with the seller's agent after the survey, when another buyer appears | read a real offer or contract clause and explain it to somebody |
+| `c1-kool` The school from the inside | Mark's homework in Estonian, the school's messages, a class trip, Mark left out by classmates | a long sentence and a long text that hold together: the comma before every subordinate clause, and the signposts (`seejuures`, `ühtlasi`, `niisiis`, `järelikult`); and the grammar words Estonian schools use (`nimisõna`, `omastav`, `alus`) | subordinate and relative clauses, into three clauses | `lauseloome`, `diskursus` | a formal letter to the head of the school (200) | the meeting with the teacher and the head, polite and firm when they disagree | write to a school, a kindergarten or an office with a request, and send it |
 | `c1-juht` Leading | Tom becomes team lead: interviewing a candidate, hard feedback, a client who wants it sooner, a presentation to the board | emphasis and the room: word order for focus, `just`, `nimelt`, `isegi`, `alles`, rhetorical questions, and saying one thing three ways for three rooms | hedging, into diplomacy | `retoorika`, `register` | a proposal to management with a recommendation (220) | the paper's presentation: two minutes after three to prepare, then the board's questions, and the director cuts in | give a short presentation or chair a meeting in Estonian |
-| `c1-ühiskond` Taking part | the city's plan for the street, a public consultation, the local election, the residents' board, a volunteer evening | holding a long text together: the signposts (`esiteks`, `seejuures`, `ühtlasi`, `niisiis`, `järelikult`, `kokkuvõttes`) | concession, into an argued case | `eetika`, `diskursus`, `innovatsioon` | the paper's opinion text, 220 to 260 words, as a piece for the local paper | the paper's discussion: a public hearing where somebody quotes the figures wrong | comment on a public consultation, or speak at a meeting of your building or town |
+| `c1-ühiskond` Taking part | the city's plan for the street, a public consultation, the local election, the residents' board, a volunteer evening | building an argued text: a claim, two points developed, the other side's best case and the answer to it (`samas`, `seevastu`, `teisalt`, `kokkuvõttes`), which is what the paper's opinion text asks | concession, into a whole case | `eetika`, `innovatsioon` | the paper's opinion text, 220 to 260 words, as a piece for the local paper | the paper's discussion: a public hearing where somebody quotes the figures wrong | comment on a public consultation, or speak at a meeting of your building or town |
 | `c1-maa` Estonia beyond Tallinn | a summer in Võrumaa and Setomaa, an island, a bog walk, a village fair, a quiz night, old songs and old stories | reading the old and the regional: the i-plural and stem plural, dialect words, the short illative in songs, all read and never produced | the pluperfect and the quotative in legends (`kunagi elanud siin hiiglane`) | none (its words are its life) | a travel piece for a friend's blog (240) | talking to an old man at the village fair about the past, with words nobody has taught | talk to an older Estonian about how things were, or go where a dialect is spoken and listen |
-| `c1-mõte` Ideas, books and the exam | a book club, an ethics argument over dinner, Anna's university course, the C1 exam, and looking back | collocation and nuance: which verb goes with which noun (`otsust langetama`, `küsimust tõstatama`), and two words the dictionary translates the same way | everything, in the exam | `kirjandus`, `filosoofia`, `akadeemiline` | a review of an Estonian book (260) | the C1 speaking exam with a new examiner, the presentation and the discussion | read an Estonian book, or book the C1 exam |
+| `c1-mõte` Ideas, books and the exam | a book club, an ethics argument over dinner, Anna's university course, the C1 exam, and looking back | collocation and nuance: which verb goes with which noun (`otsust langetama`, `küsimust tõstatama`), and two words the dictionary translates the same way | everything, in the exam | `kirjandus`, `filosoofia`, `akadeemiline` | a review of an Estonian book (260) | the C1 speaking exam with a new examiner, the self-introduction, the presentation and the discussion | read an Estonian book, or book the C1 exam |
 
 All fourteen C1 units are in the table once. Both writing tasks of the C1 paper are written in a
-part whose life needs that genre (`c1-kodu`, `c1-ühiskond`), and both speaking tasks are rehearsed at
-a part's end (`c1-juht`, `c1-ühiskond`) and then sat together in `c1-mõte`. The two tasks the mock
-exam cannot set, the ten-minute lecture taken down as notes and the twelve short answers about an
-information text (`notSet` in `spec.ts`), are set by the lessons (15.6). So a learner who finishes C1
-has done every task of the real paper in context, including the two the mock leaves out.
+part whose life needs that genre (`c1-kodu`, `c1-ühiskond`). Both speaking tasks are rehearsed at a
+part's end (`c1-juht`, `c1-ühiskond`) and then sat together in `c1-mõte`, opening, as the real
+spoken part does, on a minute about yourself and your work, which `c1-juht` practices first. The
+two tasks the mock exam cannot set, the ten-minute lecture taken down as notes and the twelve short
+answers about an information text (`notSet` in `spec.ts`), are set by the lessons (15.7). So a
+learner who finishes C1 has done every task of the real paper in context, including the two the mock
+leaves out.
 
-### 15.4 What changes inside a lesson at C1
+### 15.4 Part 1, lesson by lesson
+
+Part 1 is played through by hand and read whole by the native speaker before the other seven are
+written (15.14), so it is sketched here in full. The other parts get the same sketch on the cast
+page.
+
+| # | Lesson | What happens | Its point |
+| --- | --- | --- | --- |
+| 1 | `c1-01-news` Good news | Liis posts in the friends' chat that the baby has come; everybody answers, in three registers, from Mari's emoji to Helgi's formal card | the wish: `Elagu!`, `Olgu ta terve!`, `Kasvagu suureks!` |
+| 2 | `c1-02-sorry` A hard week | Helgi's brother Heino has died. Tom and Anna work out what to say, what to write in the card, and why the flowers come in an even number | the third person command in what people say at a funeral (`Puhaku ta rahus`), and saying a hard thing kindly |
+| 3 | `c1-03-pun` Is that a joke? | Mari tells a pun at the café that turns on `tee`; Tom gets it a beat late, then answers with one of his own | `justkui` and `otsekui` with the conditional, and wordplay worked out before it is explained |
+| 4 | `c1-04-kurat` Kurat! | Tom drops a box on his foot in front of Mark. What Estonians say, how strong each one is, and what not to say in front of a child or a boss | how strong a word is, from `oi` and `pagan` to `kurat` and `jumal küll` |
+| 5 | `c1-05-feel` Exactly how I feel | Anna tries to tell Mari how the year has been, and the first word for it is never quite the right one (`kurb`, `nukker`, `pettunud`, `kurvameelne`) | the stance words (`küllap`, `arvatavasti`, `nähtavasti`), and the writing evening: the letter with two pieces of news |
+| 6 | `c1-06-end` The naming party | Tom gives a toast at Mihkel's naming party, a guest switches to English, and the joke of the evening has to be understood in time | the part's role-play and live scene |
+
+### 15.5 What changes inside a lesson at C1
 
 The six steps stay. What is new in each:
 
 | Step | At B2 | At C1 |
 | --- | --- | --- |
-| **Listen** | two or three people talking to each other, in a room that changes; gist questions first; then a short real text, read and never asked | three or four people who interrupt and overlap, at full speed. The questions ask what was **meant** as well as what was said (the C1 paper's own wording): the irony, the polite refusal, the thing nobody says outright. From part 5, some lessons replace the conversation with a talk heard once and taken down as notes (15.6). |
+| **Listen** | two or three people talking to each other, in a room that changes; gist questions first; then a short real text, read and never asked | three or four people who interrupt each other at full speed: a line broken off and taken over by the next speaker, since a synthetic voice can take a turn but cannot talk over another one. The questions ask what was **meant** as well as what was said (the C1 paper's own wording): the irony, the polite refusal, the thing nobody says outright. From part 2, some lessons replace the conversation with a talk taken down as notes (15.7). |
 | **Words** | families | families and **collocations**: a noun arrives with the verbs it goes with (`otsus` with `tegema`, `langetama`, `vastu võtma`), since at C1 knowing a word is knowing its company |
-| **How it works** | one pattern, spoken and written side by side | one pattern or one register skill, and the same thing said **three** ways: to a friend, to a colleague, in writing |
-| **Practice** | rework, fix, work it out | the same, plus **which room** (15.6): three versions of one sentence and the room each fits. Each part's rework recycles one C1 pattern from an earlier C1 part and one B2 pattern, so the quotative and hedging are still in use at the end. |
+| **How it works** | one pattern, spoken and written side by side | one pattern or register skill, and the same thing said **three** ways: to a friend, to a colleague, in writing |
+| **Practice** | rework, fix, work it out | the same, plus **which room** (15.7) and the read text's questions. Each part's reworks recycle one C1 pattern from an earlier C1 part and one B2 pattern, so the quotative and hedging are still in use at the end. |
 | **Say it** | retell, faster, say along | retell to a different listener (to Mark, to the board), the paper's presentation with a choice of two topics, and say along at real speed with the words hidden from the first round (shadowing) |
 | **Review** | the learner's own sentences | the same, plus the collocations they got wrong |
 
-**What makes it fun is in the lessons, not on top of them.** Each of these is a lesson, and each one
-practices the part's skill:
+**What makes it fun is in the lessons, and each fun thing practices the part's skill:**
 
 - **puns and riddles** in `c1-isiksus`: `tee` is tea and road, `kuu` is the moon and a month, and an
   Estonian joke that turns on one is worked out before it is explained;
@@ -1456,7 +1492,7 @@ practices the part's skill:
   call and answer;
 - **the ethics dinner** in `c1-mõte` ("would you tell her?"), and a book club that argues about an
   ending;
-- **the last lesson**, which plays the course's first conversation back (15.10).
+- **the last lesson**, which plays the course's first conversation back (15.11).
 
 **Every role-play has a curveball, and each part teaches one conversation move.** The `english`
 curveball stays in one role-play a part. B2's moves were about staying in Estonian; C1's are about
@@ -1473,98 +1509,118 @@ control:
 | `c1-maa` | work out a word from context, and check it without stopping the story |
 | `c1-mõte` | change your mind out loud, or concede a point and keep your position |
 
-### 15.5 How the level ramps
+### 15.6 How the level ramps
 
 Checked the way B2's is (`rampC1.ts`, by band of two parts):
 
-| Part | Listen | Retell | Say it | Read |
-| --- | --- | --- | --- | --- |
-| 1, 2 | four speakers who overlap, a party or a café; a three-minute radio piece, heard twice | heard once, with your opinion added (where B2 ended) | one minute after one minute to prepare | 250 words, not asked; three words worked out a lesson |
-| 3, 4 | the phone, slang and fast casual speech; a four-minute conversation heard once, asked about what was meant | heard once, retold to a different listener in their register | ninety seconds after two minutes | 400 words, statements matched to its sections (the paper's matching) |
-| 5, 6 | a radio debate joined halfway; a five-minute talk heard once and taken down as notes | retold from notes, in five sentences | the paper's two minutes after three, with a choice of two topics | 500 words, a whole sentence chosen for each gap out of three (the paper's gaps) |
-| 7, 8 | older and regional voices, every room; the paper's ten-minute lecture heard once, notes written up as ten key ideas | retold from notes, with a reason and a counterargument | two minutes after one minute: on the spot, as in life | 600 words and a page of literature; twelve short answers about an information text (the task the mock cannot set) |
+| Part | Listen | Notes | Retell | Say it | Read |
+| --- | --- | --- | --- | --- | --- |
+| 1, 2 | four speakers who interrupt, a party or a café | in part 2, a three-minute radio piece heard twice | heard once, with your opinion added (where B2 ended) | one minute after one minute to prepare | 250 words, not asked; three words worked out a lesson |
+| 3, 4 | the phone, slang and fast casual speech; a four-minute conversation heard once, asked what was meant | a three-minute piece heard once | heard once, retold to a different listener in their register | ninety seconds after two minutes | 400 words, statements matched to its sections (the paper's matching) |
+| 5, 6 | a radio debate joined halfway | a five-minute talk heard once | retold from notes, in five sentences | the paper's two minutes after three, with a choice of two topics | 500 words, a whole sentence chosen for each gap out of three (the paper's gaps) |
+| 7, 8 | older and regional voices, every room | the paper's ten-minute lecture heard once, notes written up as ten key ideas | retold from notes, with a reason and a counterargument | two minutes after one minute: on the spot, as in life | 600 words and a page of literature; twelve short answers about an information text (the task the mock cannot set) |
 
 The writing climbs 180, 180, 180, 200, 220, 220 to 260, 240 and 260 words, which is the paper's own
-floor and ceiling where a part writes the paper's text.
+floor and ceiling wherever a part writes the paper's text.
 
-### 15.6 Long listening, texts that are asked about, and the room
+### 15.7 Long listening, texts that are asked about, the room, and dialect
 
-**The lecture with notes.** The C1 paper's last listening task is a ten-minute lecture heard once,
+**The lecture with notes.** The C1 paper's last listening task is a ten-minute lecture heard once and
 written up as ten key ideas, and the mock exam cannot set it. The lessons can. A new Listen kind,
-`notes`, plays an authored talk once (TTS, from the native speaker's text, ADR-005 amendment 6), with
-a box for notes and no transcript. Then Practice asks questions the notes should answer, each a
-short answer marked against the accepted answers or a choice, and only then shows the transcript and
-the author's ten key ideas to set beside the learner's own. It grades nothing, like every lesson
-question. It starts at three minutes in part 5 and reaches the paper's ten in part 7.
+`notes`, plays an authored talk (the native speaker's text, ADR-005 amendment 6), with a box for
+notes and no transcript. The speech route reads at most 400 characters at a time (`TtsRequest`), so
+a talk is a monologue of short lines played one after another, as a conversation already is, about
+1,300 words for the ten minutes. Then Practice asks questions the notes should answer: each a short
+answer marked against the accepted answers (`markPhrase`), or a choice. Only then does it show the
+transcript and the author's ten key ideas to set beside the learner's own. It grades nothing, like
+every lesson question. The notes stay on the device with the rest of an unfinished lesson and are
+never sent anywhere. It starts at three minutes heard twice in part 2 and reaches the paper's ten,
+heard once, in part 7.
 
 **Texts that are asked about.** At B2 a real text is read and never asked about. From part 3 of C1
-the `read` carries questions in the three shapes of the C1 paper's reading: statements matched to
-the text's sections, a whole sentence chosen out of three for a gap (which is cohesion tested
-directly), and short answers about an information text. The untaught-word rule holds as at B2: a
-text may hold words no lesson taught, underlined to the dictionary; a question may ask about what
-the text says, never for a form, and an answer is always a word of the text or a taught one.
+the `read` carries questions in the three shapes of the C1 paper's reading:
+
+- statements matched to the text's sections;
+- a whole sentence chosen out of three for a gap, which is cohesion tested directly;
+- short answers about an information text.
+
+The untaught-word rule holds as at B2: a text may hold words no lesson taught, underlined to the
+dictionary. A question may ask about what the text says, never for a form, and its answer is always
+a word of the text or a taught one.
 
 **Which room.** C1's register skill made into practice: one thing said three ways (to a friend, at
-work, in writing), and the learner says which fits a given room, then reworks a sentence from one
-register into another. The three versions are the author's, and the rework is marked like any rework
-(`markRework`), so nothing here is generated (ADR-005).
+work, in writing). The learner says which fits a given room, then reworks a sentence from one
+register into another. The three versions are the author's, and the rework is marked like any
+rework (`markRework`), so nothing here is generated (ADR-005).
 
 **Work it out, further.** B2 worked out a word from a suffix it had explained. C1 has every suffix
 the derivation page names and long compounds (`kinnisvaramaakler`, `laenulepingu`), so from part 1
 a lesson works out three words, and a `read` may hold more words worked out than taught.
 
-**Dialect is read, not heard.** TartuNLP's voices speak standard Estonian, and a synthetic voice
-putting on a Võro accent would be this app inventing a dialect. So `c1-maa` reads dialect, in a text
-the native speaker writes or quotes, and its errand is where the real thing is heard: a Võro
-program on the radio, or an older speaker in person. The old man at the village fair speaks
-standard Estonian slowly, with old words in it.
+**Dialect is read, and checked against its own glossary.** TartuNLP's voices speak standard
+Estonian, and a synthetic voice putting on a Võro accent would be this app inventing a dialect. So
+`c1-maa` reads dialect, in a text the native speaker writes or quotes, and its errand is where the
+real thing is heard: a Võro program on the radio, or an older speaker in person. The old man at the
+village fair speaks standard Estonian slowly, with old words in it. A dialect word cannot be held to
+the forms list the way every other `read` spelling is. The list does not know `mõtsa` (Võro for
+`metsa`), and it reads `vällä` (for `välja`) as a form of `vald`, which would let a wrong reading
+through in silence. So each dialect word in a text is in a short glossary the native speaker writes
+(`DIALECT_WORDS`), with its standard word beside it. The standard word has to be a taught spelling
+or in the forms list, and the check reads the glossary for those words and never the forms list.
 
-### 15.7 The family's third year
+### 15.8 The family's third year
 
 C1 picks up from the end of B2 (`docs/reviews/b2-cast.md`), and a C1 cast page is written before the
 first line, with the same rule that a name means one person for the whole course. The new names
-below are checked against both earlier cast pages and the lessons; none is used.
+below were checked against both earlier cast pages and the lessons, and none is used.
 
 - **Mark** is in his first school year, from September to June, and **Sofia** turns four.
 - **Liis and Jaan** have a baby, **Mihkel**, in the autumn. The naming party ends part 1.
 - **Helgi** loses her brother, **Heino**, in the same weeks, and the family writes to her and goes
-  to the funeral. Joy and grief in one part, because that is how a year goes, and both are moments
-  a person needs Estonian for and no course teaches.
+  to the funeral. Joy and grief sit in one part because that is how a year goes, and both are
+  moments a person needs Estonian for and no course teaches.
 - **The family buys a home** in the winter: **Raivo**, the seller's agent, and **Anneli**, the bank's
   loan consultant. **Urmas**, the landlord, is told they are leaving.
 - **Toomas** is the head of Mark's school, and **Piret** is still his teacher.
 - **Tom** becomes team lead when **Kristi** moves on, and hires **Ott**.
 - **Urve** is the city planner at the public hearing.
 - **Kalju** is the old man at the village fair in Setomaa.
-- **Anna** takes a university evening course for her work, and sits the C1 exam in part 8 with a
-  new examiner, **Evi**.
+- **Anna** takes a university evening course for her work, because a job she wants asks for C1, and
+  sits the C1 exam in part 8 with a new examiner, **Evi**.
 
-### 15.8 The words
+### 15.9 The words
 
-1. **The C1 units' 243 untaught words**, spread over the parts as the table says, by topic rather
-   than unit by unit.
+1. **What each part's life needs**, first, as at B2: `kinnisvaramaakler`, `sissemakse`, `intress`,
+   `notar`, `kaastunne`, `matused`, `volikogu`, `murre`, each a request against Ekilex like every
+   lemma in the course.
 2. **The everyday common words still untaught** (15.1), in `c1-isiksus` and wherever their life
-   fits, with `kurat`, `pagan` and `jumal küll` taught in one lesson as exclamations, with when not
+   fits. `kurat`, `pagan` and `jumal küll` are taught in one lesson as exclamations, with when not
    to say them. The subtitle vocabulary is left for no level.
 3. **The connectives, the signposts and the stance words** of 15.1, in the parts whose grammar they
    are.
-4. **What each part's life needs** that no unit names (`kinnisvaramaakler`, `sissemakse`,
-   `intress`, `notar`, `kaastunne`, `matused`, `volikogu`, `murre`), each a request
-   against Ekilex like every lemma in the course.
+4. **The C1 units' words**, where a part's life uses them. The part author reads each unit first,
+   as at B2, and a unit word no lesson needs stays in the dictionary, where the practice rounds and
+   Anu reach it.
 5. **`kuulduma`**, in `c1-meedia`, which clears `KNOWN_UNTAUGHT`.
+6. **The learner's own field.** At C1 the words that matter most are the learner's own work, and no
+   course can know them. `c1-juht`'s errand includes gathering the thirty words of your own job, from
+   the dictionary, a scanned page or a document from work, into the deck, where the review asks them
+   like any other.
 
-That is about 410 words over forty-eight lessons, eight or nine an evening, inside `MOST_TAUGHT` and
-the same pace as B2. A learner placed straight into C1 is assumed to hold B2's ledger.
+That is about 370 headwords over forty-eight lessons, eight an evening, the same pace as B2's 365
+and inside `MOST_TAUGHT`. A learner placed straight into C1 is assumed to hold B2's ledger.
 
 **And the forms queue moves into the lessons.** Today C1's unit evenings carry the forms step that
 shows the stored past and polite imperative of verbs no lesson showed, twelve a night
 (`formsPerEvening`). When C1 is lessons, no unit evening is left to carry it, and a verb whose forms
 nobody showed would never be asked them. So every C1 lesson that is not a part's end carries the
-queue's next twelve as a short table, read off the harvest and never typed, and `c1-isiksus`, whose
-grammar is the command, shows the whole command table on the learner's verbs. Forty lessons of twelve
-is more than the 227 verbs that were waiting when B2 moved (§14), so the queue is empty well before the last part.
+queue's next twelve as a short table at the foot of its Words step, heard and never asked, read off
+the harvest and never typed, which `lessonMinutes` counts as two minutes. `c1-isiksus`, whose grammar
+is the command, shows the whole command table on the learner's own verbs. Forty lessons of twelve
+is more than the 227 verbs that were waiting when B2 moved (§14), so the queue is empty well before
+the last part.
 
-### 15.9 Done means
+### 15.10 Done means
 
 A learner who finishes C1 can do each of these, and each part's last role-play or text tests one:
 
@@ -1574,53 +1630,76 @@ A learner who finishes C1 can do each of these, and each part's last role-play o
 - read a contract, a policy page or a page of a novel and answer questions about it;
 - say one thing three ways and pick the right one for the room;
 - give a toast and a condolence, negotiate a price, and disagree with a school, in Estonian;
-- run a meeting, give the paper's two-minute presentation and hold up their end of its discussion;
+- run a meeting, introduce themselves and their work, give the paper's two-minute presentation and
+  hold up their end of its discussion;
 - write a neutral summary of figures, a formal letter and a 220 to 260-word opinion text;
 - work out a word of dialect or an old form from context.
 
 The level's last screen offers the C1 mock exam (`/exam/C1`).
 
-### 15.10 After C1
+### 15.11 After C1
 
 C1 is the end of the course, and `docs/22-real-life.md` says what the app is for: to be left. So the
-last lesson of `c1-mõte` is not a lesson. Tom and Anna look back, and the course's first
-conversation, Mari's `Tere hommikust!` across the café counter in A1's first lesson, plays again. Then the screen says what keeps
-Estonian alive from here, every item already in the app: the daily review, the word of the day,
-Väljendid, the news headlines with the dictionary under them, the book club, and the count of
-conversations out there, which is the number the app has measured itself by since A1. There is no C2
-level and no C2 lesson, because the state sets no C2 paper and no post asks for it
+last lesson of `c1-mõte` looks back rather than teaching anything new. The course's first
+conversation, Mari's `Tere hommikust!` across the café counter in A1's first lesson, plays again.
+Then the screen says what keeps Estonian alive from here, every item already in the app:
+
+- the daily review;
+- the word of the day and Väljendid;
+- the news headlines with the dictionary under them;
+- the book club;
+- the count of conversations out there, which is the number the app has measured itself by since A1.
+
+There is no C2 level and no C2 lesson, because the state sets no C2 paper and no post asks for one
 (`docs/16-exam.md`).
 
-### 15.11 Proposed decisions (for approval)
+### 15.12 What could go wrong
+
+| Risk | What the plan does about it |
+| --- | --- |
+| A ten-minute lecture and a 600-word text make an evening far longer than the fifteen minutes Today promises | `lessonMinutes` counts the notes and the read questions, and the lecture evening drops the retell and the timed answer, so no evening runs past about fifty minutes. The ten minutes come once, in part 7. |
+| The native speaker's reading load grows with longer texts | B2's conversations were 638 lines and 5,455 words, plus 265 lines of read text. C1's will be about half again, plus three lectures. Parts 1 and 7 are read whole and the rest by flagged lines (C1-7), and the parts are written so each can be read the week it lands. |
+| Long texts in machine Russian and Ukrainian are worse than short ones | The translations are machine-written, as at B2, and a fluent reader is listed as owed. A read text and a lecture are translated sentence by sentence, never as a whole, so a wrong sentence is one sentence. |
+| Dialect slips past the checks | Its own glossary (15.7), never the forms list. |
+| Collocations are a judgment no check can make | Each collocation the Words step teaches is the author's and in the native speaker's reading; the review asks it back exactly as written and never a combination the lesson did not show. |
+| A unit word left untaught looks like a hole | It is in the dictionary and the practice rounds, as B1's and B2's were; §15.1 says why. |
+| Nothing at C1 is recorded by a person | As at B2, the plan does not wait on recordings. The native speaker's list (`docs/44-language-reviews.md` §2) gains C1's lines in the order a learner meets them. |
+
+### 15.13 Proposed decisions (for approval)
 
 | # | Question | Proposed |
 | --- | --- | --- |
 | C1-1 | The parts and their order | The eight parts in 15.3, in that order, forty-eight core lessons. |
-| C1-2 | Texts asked about | Yes, from part 3, in the paper's three shapes, grading nothing (15.6). |
-| C1-3 | The lecture with notes | Yes: a `notes` Listen kind from part 5, reaching the paper's ten minutes in part 7. |
+| C1-2 | Texts asked about | Yes, from part 3, in the paper's three shapes, grading nothing (15.7). |
+| C1-3 | The lecture with notes | Yes: a `notes` Listen kind from part 2, reaching the paper's ten minutes, heard once, in part 7. |
 | C1-4 | Which room | Yes: a practice kind with three authored versions, and a rework marked as any rework. |
-| C1-5 | Dialect | Read in a text and heard only out there; no voice puts on an accent. |
+| C1-5 | Dialect | Read in a text, checked against its own glossary, and heard only out there; no voice puts on an accent. |
 | C1-6 | Swearing | The mild ones, taught as exclamations with when not to say them; nothing vulgar. |
 | C1-7 | The native speaker reads | Every line of `c1-isiksus` (humor, feeling, toasts) and `c1-maa` (dialect, old forms); flagged lines in the other six, as at B2. |
-| C1-8 | The forms queue | Into the lessons, twelve a lesson (15.8). |
+| C1-8 | The forms queue | Into the lessons, twelve a lesson at the foot of the Words step (15.9). |
 | C1-9 | The unit builder | C1 is its last user. It is removed in its own pull request after C1 moves, keeping the units as the dictionary's request list and every practice round. |
-| C1-10 | After C1 | The last lesson looks back and hands over (15.10); no C2. |
-| C1-11 | The cast | The family's third year (15.7), with a cast page first. |
+| C1-10 | After C1 | The last lesson looks back and hands over (15.11); no C2. |
+| C1-11 | The cast | The family's third year (15.8), with a cast page first. |
+| C1-12 | Unit words | A source, not a quota (15.1, 15.9), as B1 and B2 were in practice. |
+| C1-13 | The errands | Sized as real practice, a whole show or a meeting rather than a sentence, because they are most of the level's hours (15.2). |
 
-### 15.12 The build
+### 15.14 The build
 
 Each step is one pull request, engine and words before any lesson, as at B2.
 
 0. **What B2 left.** `tonightsCase` answers for nothing a learner meets, so it is re-aimed at the
    evening's pattern or removed. `scripts/lib/lessonPicks.ts` reaches B2. The `asumine` gloss is
-   corrected. The B2 recordings are put on the native speaker's list (`docs/44-language-reviews.md`
-   §2).
-1. **The engine**: the C1 patterns and their pages (`PATTERN_PAGE`; a page for the formal
-   connectives, which `grammar.ts` does not have yet); `notes`; `read` questions in three shapes;
-   which room; listen questions on what was meant; the presentation's choice of two topics; the
-   forms table in a lesson; `c1LevelProblems` and `rampC1.ts`, asked of synthetic parts both ways so
-   A1 to B2 do not move.
-2. **The cast page and the eight errands.**
+   corrected. The B2 recordings go on the native speaker's list (`docs/44-language-reviews.md` §2).
+1. **The engine**:
+   - the C1 patterns and their pages (`PATTERN_PAGE`, `LESSON_PAGES`), with one new page for the
+     formal connectives, which `grammar.ts` does not have yet;
+   - `notes`, and `read` questions in three shapes;
+   - which room, and listen questions on what was meant;
+   - the presentation's choice of two topics, and the forms table in a lesson;
+   - `DIALECT_WORDS`, and `lessonMinutes` counting the new steps;
+   - `c1LevelProblems` and `rampC1.ts`, asked of synthetic parts both ways so A1 to B2 do not move.
+2. **The cast page**, with every part's lessons sketched as 15.4 sketches part 1, and the eight
+   errands.
 3. **`c1-isiksus`**, played through by hand once and read whole by the native speaker.
 4. **The other seven parts**, written side by side from one brief, as B2's were, each with its
    lesson scene played keyless by `lessonScenes.test.ts`.
@@ -1628,4 +1707,4 @@ Each step is one pull request, engine and words before any lesson, as at B2.
    restarts C1 at its first lesson (`REHOMED_LEVELS`), the six catalog conversations move to C1
    lessons, every floor that counted C1's unit evenings is rewritten against the lessons, and the
    translations are done.
-6. **The unit builder goes** (C1-9), and the last lesson and the hand-over (15.10).
+6. **The unit builder goes** (C1-9), along with the last lesson and the hand-over (15.11).
