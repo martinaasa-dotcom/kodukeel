@@ -404,13 +404,13 @@ export const B2_ARUTELU_LESSONS: readonly LessonSpec[] = [
         from: { et: "Kui sa räägid rohkem, õpid sa kiiremini.", en: "If you talk more, you learn faster." },
         ask: "Say it with {mida ..., seda}: the more you talk, the faster you learn.",
         to: { et: "Mida rohkem sa räägid, seda kiiremini sa õpid.", en: "The more you talk, the faster you learn." },
-        also: ["Mida rohkem räägid, seda kiiremini õpid.", "Mida rohkem sa räägid, seda kiiremini õpid."],
+        also: ["Mida rohkem räägid, seda kiiremini õpid.", "Mida rohkem sa räägid, seda kiiremini õpid.", "Mida sa rohkem räägid, seda kiiremini õpid.", "Mida sa rohkem räägid, seda kiiremini sa õpid."],
         pattern: "subordinate",
       },
     ],
     fixes: [
       { line: { et: "Ja linnas on kursusel viisteist inimest. Meil oleks ainult kuus.", en: "And there are fifteen people on the course in town. We'd only be six." }, right: "kursusel", wrong: "kursus", pair: ["ADESSIVE", "NOMINATIVE"], why: "On a course: -l, the [alalütlev] (-l, on/at/has), {kursusel}." },
-      { line: { et: "Mida vähem inimesi, seda rohkem igaüks räägib. Ja mida rohkem räägid, seda kiiremini õpid.", en: "The fewer people, the more each one talks. And the more you talk, the faster you learn." }, right: "inimesi", wrong: "inimesed", pair: ["PARTITIVE", "NOMINATIVE"], why: "After {vähem}, as after any amount, the [osastav] (3rd form): {vähem inimesi}." },
+      { line: { et: "Mida vähem inimesi, seda rohkem igaüks räägib. Ja mida rohkem räägid, seda kiiremini õpid.", en: "The fewer people, the more each one talks. And the more you talk, the faster you learn." }, right: "inimesi", wrong: "inimesed", pair: ["PARTITIVE", "NOMINATIVE"], why: "After {vähem}, as after any amount, the [osastav] (3rd form): {vähem inimesi}.", also: ["Mida vähem inimesi, seda rohkem igaüks räägib. Ja mida sa rohkem räägid, seda kiiremini õpid.", "Mida vähem inimesi, seda rohkem igaüks räägib. Ja mida rohkem sa räägid, seda kiiremini õpid."] },
     ],
     workOut: [
       {
@@ -570,7 +570,7 @@ export const B2_ARUTELU_LESSONS: readonly LessonSpec[] = [
         { et: "järeldus", en: "conclusion" },
       ],
       task: "Write your own argued text on a question in your town or your work: say where you stand, give two arguments with a figure if you have one, answer the case against, and conclude.",
-      least: 170,
+      least: 180,
     },
     faster: {
       ask: { et: "Mis on teie seisukoht: kas kesklinnas peaks olema vähem autosid?", en: "What's your position: should there be fewer cars in the center?" },

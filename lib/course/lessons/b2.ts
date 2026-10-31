@@ -21,17 +21,36 @@
  * Eight parts of six lessons, in the order of §13.3: how people really talk,
  * what people say, the children's world, body and care, a working week in
  * Estonian, paper and the state, belonging, and making a case. The family's
- * second year carries all eight (`docs/reviews/b2-cast.md`, once written).
+ * second year carries all eight (`docs/reviews/b2-cast.md`).
  *
- * EMPTY UNTIL B2 IS THE COURSE. The parts are written in `preview.ts` first,
- * where the ledger walks them after the course and every check asks them, and
- * move here, in teaching order, the day B2 replaces its units (§13.11 step 6).
- * Not imported by `index.ts` until then.
+ * Written part by part in `preview.ts`, where the ledger walked them after the
+ * course and every check asked them, and moved here whole the day B2 replaced
+ * its three parts built from units (§13.11 step 6, §14). The order is
+ * load-bearing: the ramp (`rampB2.ts`) reads a part's band off its place here,
+ * and the recycling rule (`b2LevelProblems`) reads which B2 patterns came
+ * before it.
  */
 
+import { B2_KONEKEEL_LESSONS, B2_KONEKEEL_PART } from "./b2-konekeel";
+import { B2_KAUDNE_LESSONS, B2_KAUDNE_PART } from "./b2-kaudne";
+import { B2_PERE_LESSONS, B2_PERE_PART } from "./b2-pere";
+import { B2_TERVIS_LESSONS, B2_TERVIS_PART } from "./b2-tervis";
+import { B2_TOO_LESSONS, B2_TOO_PART } from "./b2-too";
+import { B2_RIIK_LESSONS, B2_RIIK_PART } from "./b2-riik";
+import { B2_KULTUUR_LESSONS, B2_KULTUUR_PART } from "./b2-kultuur";
+import { B2_ARUTELU_LESSONS, B2_ARUTELU_PART } from "./b2-arutelu";
 import type { LessonSpec, PartOfLessons } from "./types";
 
-const PARTS: readonly (readonly [PartOfLessons, readonly LessonSpec[]])[] = [];
+const PARTS: readonly (readonly [PartOfLessons, readonly LessonSpec[]])[] = [
+  [B2_KONEKEEL_PART, B2_KONEKEEL_LESSONS],
+  [B2_KAUDNE_PART, B2_KAUDNE_LESSONS],
+  [B2_PERE_PART, B2_PERE_LESSONS],
+  [B2_TERVIS_PART, B2_TERVIS_LESSONS],
+  [B2_TOO_PART, B2_TOO_LESSONS],
+  [B2_RIIK_PART, B2_RIIK_LESSONS],
+  [B2_KULTUUR_PART, B2_KULTUUR_LESSONS],
+  [B2_ARUTELU_PART, B2_ARUTELU_LESSONS],
+];
 
 export const B2_LESSON_PARTS: readonly PartOfLessons[] = PARTS.map(([part]) => part);
 

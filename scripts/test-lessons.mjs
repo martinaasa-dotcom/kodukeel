@@ -388,7 +388,7 @@ async function walk(lesson, { mode = "type" } = {}) {
   await eventually(async () => (await stepHeading()).startsWith("Step 1"), { timeoutMs: 10_000 });
   check(`${where}: opens on its first step`, (await stepHeading()).startsWith("Step 1"), await stepHeading());
   check(`${where}: says what is new at the level on the level's first lesson only`,
-    (await page.locator("[data-level-new]").count()) === (lesson.first && lesson.level === "B1" ? 1 : 0));
+    (await page.locator("[data-level-new]").count()) === (lesson.first && ["B1", "B2"].includes(lesson.level) ? 1 : 0));
   if (lesson.gists > 0) await listenFirst(lesson);
   else check(`${where}: below B1 the conversation is read from the start`, (await page.locator("[data-listen-first]").count()) === 0);
   let said = null;

@@ -94,8 +94,8 @@ export const LEVEL_INFO: Record<Level, LevelInfo> = {
     level: "B2",
     title: "Kindel keelekasutaja",
     titleEn: "Confident user",
-    summary: "Switch between formal and casual at will, and read a newspaper without a dictionary.",
-    arrival: "You can follow a public debate and argue your side of it in writing.",
+    summary: "Follow Estonians talking to each other at full speed, read what the school, the doctor and the state send, and keep it in Estonian when somebody switches to English.",
+    arrival: "You can live in Estonian: phone an office, the doctor or the school and get what you called for, and write every text the B2 exam sets.",
   },
   C1: {
     level: "C1",

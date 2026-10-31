@@ -826,9 +826,9 @@ export function withForms(
 }
 
 /**
- * WHAT THE LESSONS TAUGHT, HANDED TO THE LEDGER BEFORE B2 IS BUILT.
+ * WHAT THE LESSONS TAUGHT, HANDED TO THE LEDGER BEFORE C1 IS BUILT.
  *
- * A1, A2 and B1 are the lessons (`lessonCourse.ts`), and B2's first evening is dealt
+ * A1, A2, B1 and B2 are the lessons (`lessonCourse.ts`), and C1's first evening is dealt
  * against what a learner had when it began: every word a lesson taught,
  * as the harvest holds it, and every page a lesson explained. A word a lesson
  * taught as a verb is a verb whatever the harvest found it under first, so
@@ -840,7 +840,7 @@ export function withForms(
  * lesson's evening carries it as `pasts` and `pastsThird` (`lessonPastSlots`), slot by slot, which `pastsThrough`
  * and `thirdPastsThrough` read, so the module may ask the slot that lesson showed from then on (D4). The verb
  * stays in the forms queue, because no lesson shows its polite imperative
- * (`tehke`, `lugege`), and B2's forms step is where that is shown.
+ * (`tehke`, `lugege`), and C1's forms step is where that is shown.
  */
 export function teachLessons(ledger: Ledger): Ledger {
   for (const programme of lessonProgrammes()) {
@@ -870,9 +870,9 @@ export function ledgerBefore(spec: PartSpec): Ledger {
 }
 
 /**
- * The whole ladder: the A1, A2 and B1 lessons, then every part from B2 built
- * in order over one ledger that starts with what the lessons taught, so what
- * the lessons handed over is what b2.1's first evening is dealt against.
+ * The whole ladder: the A1 to B2 lessons, then every part of C1 built in
+ * order over one ledger that starts with what the lessons taught, so what
+ * the lessons handed over is what c1.1's first evening is dealt against.
  */
 export function buildProgrammes(): Programme[] {
   return (BUILT ??= assemble());

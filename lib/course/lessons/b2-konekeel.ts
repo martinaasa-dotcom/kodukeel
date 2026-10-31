@@ -118,12 +118,6 @@ export const B2_KONEKEEL_LESSONS: readonly LessonSpec[] = [
     ],
     reworks: [
       {
-        from: { et: "Mul ei ole aega.", en: "I don't have time." },
-        ask: "Say it the short way, as people say it.",
-        to: { et: "Mul pole aega.", en: "I don't have time." },
-        pattern: "spoken",
-      },
-      {
         from: { et: "Kuidas sul läheb?", en: "How are you?" },
         ask: "Ask it the way a friend does. Start with {Noh}.",
         to: { et: "Noh, kuidas läheb?", en: "So, how's it going?" },
@@ -258,12 +252,6 @@ export const B2_KONEKEEL_LESSONS: readonly LessonSpec[] = [
         from: { et: "Ma ei usu seda.", en: "I don't believe it." },
         ask: "Put {seda} first to make it stand out, and add {küll}.",
         to: { et: "Seda ma küll ei usu.", en: "Now that I don't believe." },
-        pattern: "spoken",
-      },
-      {
-        from: { et: "Uues kohas ei ole tal palju tööd.", en: "In the new place he doesn't have much work." },
-        ask: "Say it the short way.",
-        to: { et: "Uues kohas pole tal palju tööd.", en: "In the new place he doesn't have much work." },
         pattern: "spoken",
       },
       {
@@ -403,12 +391,6 @@ export const B2_KONEKEEL_LESSONS: readonly LessonSpec[] = [
         to: { et: "Ma ei mõistnud seda.", en: "I didn't understand it." },
         pattern: "negative",
       },
-      {
-        from: { et: "Ma ei ole seda filmi näinud.", en: "I haven't seen that film." },
-        ask: "Say it the short way.",
-        to: { et: "Ma pole seda filmi näinud.", en: "I haven't seen that film." },
-        pattern: "spoken",
-      },
     ],
     fixes: [
       { line: { et: "Eile üritasin üht Eesti filmi vaadata.", en: "Yesterday I tried to watch an Estonian film." }, right: "üritasin", wrong: "üritan", pair: ["IndIpfSg1", "IndPrSg1"], why: "Yesterday is over, so the past: {üritasin}." },
@@ -538,12 +520,6 @@ export const B2_KONEKEEL_LESSONS: readonly LessonSpec[] = [
         to: { et: "Kõik tulevad, seega toon kaks kooki.", en: "Everybody's coming, so I'll bring two cakes." },
         also: ["Kõik tulevad, seega ma toon kaks kooki."],
         pattern: "subordinate",
-      },
-      {
-        from: { et: "Mari ei ole veel tulnud.", en: "Mari hasn't come yet." },
-        ask: "Say it the short way.",
-        to: { et: "Mari pole veel tulnud.", en: "Mari hasn't come yet." },
-        pattern: "spoken",
       },
       {
         from: { et: "Ma hilinen natuke.", en: "I'll be a bit late." },

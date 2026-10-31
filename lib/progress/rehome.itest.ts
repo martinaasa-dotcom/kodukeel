@@ -238,3 +238,43 @@ describe("an admin course reset of a learner moved back", () => {
     expect(await movedBackFrom(THEIRS)).toBeNull();
   });
 });
+
+/*
+  AND B2, WHICH MOVED THE SAME WAY (docs/43-lessons.md §14). Its three old
+  parts were built from units (`b2.1` to `b2.3`) and the lessons have eight
+  parts under the same spelling, so a learner on the old `b2.3` is told apart
+  the same way, by ticks on day ids no part holds now, and starts B2 at its
+  first lesson keeping every card and review.
+*/
+describe("a learner on the old B2 when it became lessons", () => {
+  const b2 = PROGRAMMES.filter((p) => p.level === "B2");
+
+  it("is a premise this test can hold: B2 is lessons, and its old day ids are gone", () => {
+    expect(b2.length).toBe(8);
+    expect(b2.every((p) => p.days.every((d) => d.lesson))).toBe(true);
+    for (const part of b2.slice(0, 3)) expect(part.days.some((d) => d.id === `${part.id}-05`)).toBe(false);
+  });
+
+  it("starts B2 at its first lesson, wherever they were on the old part", async () => {
+    await writeSetting(MINE, SETTING_KEYS.programme, b2[2]!.id);
+    await prisma.courseStep.create({ data: oldTick(b2[2]!.id) });
+    expect((await programmeFor(MINE))?.id).toBe(b2[0]!.id);
+    expect(await movedBackFrom(MINE)).toEqual({ from: b2[2], to: b2[0] });
+  });
+
+  it("and is then on the furthest B2 part they have worked in since", async () => {
+    await writeSetting(MINE, SETTING_KEYS.programme, b2[2]!.id);
+    await prisma.courseStep.createMany({
+      data: [oldTick(b2[2]!.id), { ownerId: MINE, programmeId: b2[1]!.id, dayId: b2[1]!.days[0]!.id, stepId: b2[1]!.days[0]!.steps[0]!.id }],
+    });
+    expect((await programmeFor(MINE))?.id).toBe(b2[1]!.id);
+  });
+
+  it("leaves a learner alone who has worked in the new part itself", async () => {
+    await writeSetting(MINE, SETTING_KEYS.programme, b2[2]!.id);
+    await prisma.courseStep.createMany({
+      data: [oldTick(b2[2]!.id), { ownerId: MINE, programmeId: b2[2]!.id, dayId: b2[2]!.days[0]!.id, stepId: b2[2]!.days[0]!.steps[0]!.id }],
+    });
+    expect((await programmeFor(MINE))?.id).toBe(b2[2]!.id);
+  });
+});

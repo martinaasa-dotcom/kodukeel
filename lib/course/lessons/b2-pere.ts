@@ -154,11 +154,10 @@ export const B2_PERE_LESSONS: readonly LessonSpec[] = [
         pattern: "converb",
       },
       {
-        from: { et: "Mina ei ole seda kooli veel näinud.", en: "I haven't seen that school yet." },
-        ask: "Say it the way people say it out loud, with the shorter words.",
-        to: { et: "Ma pole seda kooli veel näinud.", en: "I haven't seen that school yet." },
-        also: ["Pole seda kooli veel näinud."],
-        pattern: "spoken",
+        from: { et: "Mais on lahtiste uste päev.", en: "There's an open day in May." },
+        ask: "Pass it on as something you heard.",
+        to: { et: "Mais olevat lahtiste uste päev.", en: "There's an open day in May, apparently." },
+        pattern: "quotative",
       },
     ],
     fixes: [
@@ -586,13 +585,6 @@ export const B2_PERE_LESSONS: readonly LessonSpec[] = [
         to: { et: "Kirjutan küsimaks.", en: "I'm writing to ask." },
         also: ["Ma kirjutan küsimaks."],
         pattern: "supine",
-      },
-      {
-        from: { et: "Mina ei ole tema kirja veel lugenud.", en: "I haven't read her email yet." },
-        ask: "Say it the way people say it out loud, with the shorter words.",
-        to: { et: "Ma pole ta kirja veel lugenud.", en: "I haven't read her email yet." },
-        also: ["Ma pole tema kirja veel lugenud.", "Pole ta kirja veel lugenud."],
-        pattern: "spoken",
       },
     ],
     fixes: [

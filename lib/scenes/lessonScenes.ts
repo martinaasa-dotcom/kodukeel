@@ -36,26 +36,19 @@ import B1_TAGATIS from "./specs/b1-tagatis";
 import B1_EKSAM from "./specs/b1-eksam";
 import B1_KOLLEEG from "./specs/b1-kolleeg";
 import B2_OHTUSOOK from "./specs/b2-ohtusook";
-import B2_PEREARST from "./specs/b2-perearst";
 import B2_TEADE from "./specs/b2-teade";
 import B2_LASTEVANEMAD from "./specs/b2-lastevanemad";
-import B2_AMETIKONE from "./specs/b2-ametikone";
+import B2_PEREARST from "./specs/b2-perearst";
 import B2_KOOSOLEK from "./specs/b2-koosolek";
-import B2_EKSAM from "./specs/b2-eksam";
+import B2_AMETIKONE from "./specs/b2-ametikone";
 import B2_MONOLOOG from "./specs/b2-monoloog";
+import B2_EKSAM from "./specs/b2-eksam";
 
 export const LESSON_SCENES: readonly SceneSpec[] = [
   A1_TREPIL, A1_KURSUS, A1_PLAAN, A1_KOHVIK, A1_TEE, A1_MUTSIPOOD, A1_NADAL, A1_KUTSE,
   A2_RAAMATUKOGU, A2_LINNAS, A2_SUVI, A2_ARST, A2_PILETIKASSA, A2_RESTORAN, A2_INTERVJUU, A2_VANA_SOBER,
   B1_MEISTER, B1_KOLLEEG, B1_PALGATOUS, B1_TAGATIS, B1_UHISTU, B1_VAIDLUS, B1_EKSAM,
-  B2_OHTUSOOK,
-  B2_PEREARST,
-  B2_TEADE,
-  B2_LASTEVANEMAD,
-  B2_AMETIKONE,
-  B2_KOOSOLEK,
-  B2_EKSAM,
-  B2_MONOLOOG,
+  B2_OHTUSOOK, B2_TEADE, B2_LASTEVANEMAD, B2_PEREARST, B2_KOOSOLEK, B2_AMETIKONE, B2_MONOLOOG, B2_EKSAM,
 ];
 
 /** The conversation a lesson's role-play opens, if it has one. */

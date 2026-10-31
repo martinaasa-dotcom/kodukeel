@@ -738,7 +738,7 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Kõigepealt kirjutad „Lugupeetud” ja nimi, siis kohe asja juurde: „Pöördun Teie poole seoses otsusega...”", en: "First you write 'Dear' and the name, then you come to the matter right away: 'I am writing to you about the decision...'" }, right: "otsusega", wrong: "otsuse", pair: ["COMITATIVE", "GENITIVE"], why: "{Seoses} takes the [kaasaütlev] (-ga, with): {seoses otsusega}." },
+      { line: { et: "Pöördun Teie poole seoses otsusega.", en: "I'm writing to you about the decision." }, right: "otsusega", wrong: "otsuse", pair: ["COMITATIVE", "GENITIVE"], why: "{Seoses} takes the [kaasaütlev] (-ga, with): {seoses otsusega}.", also: ["Ma pöördun Teie poole seoses otsusega."] },
       { line: { et: "Otsuses on kirjas, et ma asusin tööle esimesel juunil. See kuupäev on vale!", en: "The decision says I started work on the first of June. That date is wrong!" }, right: "Otsuses", wrong: "Otsusest", pair: ["INESSIVE", "ELATIVE"], why: "What a paper says is in it: {otsuses on kirjas}." },
     ],
     workOut: [
@@ -780,7 +780,7 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
         { et: "Lugupidamisega", en: "sincerely, the formal close" },
       ],
       task: "Write your own complaint to an office that got something wrong: a date, an amount or a name. Say which decision it is, what it says, why it's wrong and what shows it, ask for it to be corrected, and close it formally.",
-      least: 120,
+      least: 140,
     },
     faster: {
       ask: { et: "Mis selles otsuses valesti on?", en: "What's wrong in this decision?" },

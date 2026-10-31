@@ -122,7 +122,14 @@ describe("today's case first", () => {
   });
 
   it("names the case an evening reads, and nothing on an evening that reads none", () => {
-    const withCase = PROGRAMMES.flatMap((p) => p.days.map((d) => ({ p, d }))).find(({ d }) => d.grammarCase)!;
+    /*
+      No evening of the course reads a case page as its reading since B2
+      became lessons: the lessons explain every case, and C1's units read
+      topics. So the evening is a C1 one with a case page put on it.
+    */
+    const c1 = PROGRAMMES.find((p) => p.level === "C1")!;
+    const withCase = PROGRAMMES.flatMap((p) => p.days.map((d) => ({ p, d }))).find(({ d }) => d.grammarCase)
+      ?? { p: c1, d: { ...c1.days[0]!, grammarCase: "INESSIVE" } };
     expect(tonightsCase(scopeFor(withCase.p, withCase.d))).toBe(withCase.d.grammarCase);
     const first = PROGRAMMES[0]!;
     expect(tonightsCase(scopeFor(first, first.days[0]!))).toBeNull();
@@ -183,7 +190,8 @@ describe("scopeSoFar", () => {
       }
       if (day.grammar) expect(after.topics, day.id).toContain(day.grammar);
     }
-    expect(reading).toBeGreaterThan(10);
+    // C1's evenings, the only ones built from units since B2 became lessons, read seven pages for the first time.
+    expect(reading).toBeGreaterThanOrEqual(7);
   });
 
   it("counts a word of today's only once the ladder has asked it", () => {
