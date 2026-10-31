@@ -1,12 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { LESSONS } from "./index";
+import { PREVIEW_LESSONS } from "./preview";
 import { lessonMinutes } from "../lessonCourse";
 import { LEVEL_NEW, levelNewsFor } from "./levelNew";
 
 describe("what is new at a level", () => {
   it("is said on the level's first lesson and nowhere else", () => {
-    const said = LESSONS.filter((l) => levelNewsFor(l) !== null).map((l) => l.id);
-    expect(said).toEqual(Object.keys(LEVEL_NEW).map((level) => LESSONS.find((l) => l.level === level && l.n === 1 && !l.extra)!.id));
+    // A level drafted in preview (B2) says it on its first lesson there, before it is the course.
+    const all = [...LESSONS, ...PREVIEW_LESSONS];
+    const said = all.filter((l) => levelNewsFor(l) !== null).map((l) => l.id);
+    expect(said).toEqual(Object.keys(LEVEL_NEW).map((level) => all.find((l) => l.level === level && l.n === 1 && !l.extra)!.id));
   });
 
   it("claims only what the level's lessons do", () => {

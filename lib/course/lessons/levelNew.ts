@@ -30,6 +30,16 @@ export const LEVEL_NEW: Readonly<Record<string, LevelNews>> = {
       { what: "A lesson takes longer.", why: "Most take about twenty-five minutes, and a writing lesson about forty." },
     ],
   },
+  B2: {
+    lead: "You can get things done in Estonian now. B2 is about living in it: following people at full speed, and keeping the conversation in Estonian.",
+    items: [
+      { what: "People talk to each other.", why: "The conversation isn't for you: you follow friends, colleagues and neighbors talking among themselves, at full speed." },
+      { what: "You read real texts.", why: "Each lesson has a chat, a message, a headline or a letter to read, with its new words underlined to the dictionary." },
+      { what: "You work words out.", why: "A word you haven't been taught, but whose parts you know, is yours to work out before the dictionary tells you." },
+      { what: "It gets harder part by part.", why: "From the third part you hear the conversation on a phone or in a café, the story only once, and you get less time to answer." },
+      { what: "You keep it in Estonian.", why: "Each part ends in a conversation where somebody switches to English, and you carry on in Estonian." },
+    ],
+  },
 };
 
 /** What is new, where this lesson is the first core lesson of its level; null elsewhere. */
