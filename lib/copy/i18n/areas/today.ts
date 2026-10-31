@@ -366,6 +366,24 @@ export const TODAY: Area = {
     "Говори о себе по-эстонски минуту без остановки.",
   "Explain a decision you made and one reason against it.":
     "Объясни одно своё решение и назови один довод против него.",
+  "When somebody switches to English to help you, ask to carry on in Estonian, and carry on.":
+    "Когда кто-нибудь переходит на английский, чтобы тебе помочь, попроси продолжить по-эстонски и продолжай.",
+  "Read one headline and tell somebody what it said, as something you heard.":
+    "Прочитай один заголовок и перескажи кому-нибудь, о чём он, как услышанное.",
+  "Say one thing in Estonian to a teacher or another parent at the door.":
+    "Скажи что-нибудь по-эстонски учителю или другому родителю у дверей.",
+  "Book an appointment with your family doctor in Estonian, on the phone if you can.":
+    "Запишись к семейному врачу по-эстонски, лучше по телефону.",
+  "Say one thing in a meeting held in Estonian: a question, a short update, or that you agree.":
+    "Скажи что-нибудь на совещании на эстонском: вопрос, короткую новость или что ты согласен(на).",
+  "Read a letter from an office and say plainly, in Estonian, what it wants from you.":
+    "Прочитай письмо из учреждения и простыми словами скажи по-эстонски, чего от тебя хотят.",
+  "Listen to ten minutes of Estonian radio, or watch an Estonian show with Estonian subtitles.":
+    "Послушай десять минут эстонского радио или посмотри эстонскую передачу с эстонскими субтитрами.",
+  "Disagree with somebody politely in Estonian, and say why.":
+    "Вежливо не согласись с кем-нибудь по-эстонски и скажи почему.",
+  "A school, a kindergarten":
+    "Школа, детский сад",
   "Ask the same thing twice today: once of somebody you say sina to, and once of somebody you say teie to.":
     "Сегодня попроси об одном и том же дважды: один раз того, кому говоришь sina, и один раз того, кому говоришь teie.",
   "Tell somebody one piece of news you read, as something you heard.":
@@ -506,8 +524,8 @@ export const TODAY: Area = {
     "Ты можешь поддержать простой разговор о своём дне, семье и планах.",
   "You can explain, disagree and handle the unexpected without switching to English.":
     "Ты можешь объяснить, возразить и справиться с неожиданным, не переходя на русский или английский.",
-  "You can follow a public debate and argue your side of it in writing.":
-    "Ты можешь следить за публичной дискуссией и письменно отстаивать свою позицию.",
+  "You can live in Estonian: phone an office, the doctor or the school and get what you called for, and write every text the B2 exam sets.":
+    "Ты можешь жить на эстонском: позвонить в учреждение, врачу или в школу и добиться того, ради чего звонишь, и написать каждый текст экзамена B2.",
   "You can write academic and professional Estonian that reads as if it was written in Estonian, not translated.":
     "Ты можешь писать на академическом и профессиональном эстонском так, будто текст сразу написан по-эстонски, а не переведён.",
 
@@ -1426,6 +1444,24 @@ export const TODAY: Area = {
     "Говори про себе естонською хвилину без зупинки.",
   "Explain a decision you made and one reason against it.":
     "Поясни одне своє рішення й назви один аргумент проти нього.",
+  "When somebody switches to English to help you, ask to carry on in Estonian, and carry on.":
+    "Коли хтось переходить на англійську, щоб тобі допомогти, попроси продовжити естонською і продовжуй.",
+  "Read one headline and tell somebody what it said, as something you heard.":
+    "Прочитай один заголовок і перекажи комусь, про що він, як почуте.",
+  "Say one thing in Estonian to a teacher or another parent at the door.":
+    "Скажи щось естонською вчителеві або іншому батькові біля дверей.",
+  "Book an appointment with your family doctor in Estonian, on the phone if you can.":
+    "Запишися до сімейного лікаря естонською, краще телефоном.",
+  "Say one thing in a meeting held in Estonian: a question, a short update, or that you agree.":
+    "Скажи щось на нараді естонською: запитання, коротку новину або що ти згоден (згодна).",
+  "Read a letter from an office and say plainly, in Estonian, what it wants from you.":
+    "Прочитай лист з установи й простими словами скажи естонською, чого від тебе хочуть.",
+  "Listen to ten minutes of Estonian radio, or watch an Estonian show with Estonian subtitles.":
+    "Послухай десять хвилин естонського радіо або подивися естонську передачу з естонськими субтитрами.",
+  "Disagree with somebody politely in Estonian, and say why.":
+    "Ввічливо не погодься з кимось естонською і скажи чому.",
+  "A school, a kindergarten":
+    "Школа, дитячий садок",
   "Ask the same thing twice today: once of somebody you say sina to, and once of somebody you say teie to.":
     "Сьогодні попроси про одне й те саме двічі: один раз того, кому кажеш sina, і один раз того, кому кажеш teie.",
   "Tell somebody one piece of news you read, as something you heard.":
@@ -1590,8 +1626,8 @@ export const TODAY: Area = {
     "Ти можеш підтримати просту розмову про свій день, родину й плани.",
   "You can explain, disagree and handle the unexpected without switching to English.":
     "Ти можеш пояснити, заперечити й упоратися з несподіваним, не переходячи на англійську.",
-  "You can follow a public debate and argue your side of it in writing.":
-    "Ти можеш стежити за публічною дискусією й письмово обстоювати свою позицію.",
+  "You can live in Estonian: phone an office, the doctor or the school and get what you called for, and write every text the B2 exam sets.":
+    "Ти можеш жити естонською: зателефонувати до установи, лікаря чи школи й домогтися того, заради чого телефонуєш, і написати кожен текст іспиту B2.",
   "You can write academic and professional Estonian that reads as if it was written in Estonian, not translated.":
     "Ти можеш писати академічною та професійною естонською так, ніби текст одразу написано естонською, а не перекладено.",
 

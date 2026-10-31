@@ -6,7 +6,7 @@ import { LEVEL_NEW, levelNewsFor } from "./levelNew";
 
 describe("what is new at a level", () => {
   it("is said on the level's first lesson and nowhere else", () => {
-    // A level drafted in preview (B2) says it on its first lesson there, before it is the course.
+    // A level drafted in preview says it on its first lesson there, before it is the course.
     const all = [...LESSONS, ...PREVIEW_LESSONS];
     const said = all.filter((l) => levelNewsFor(l) !== null).map((l) => l.id);
     expect(said).toEqual(Object.keys(LEVEL_NEW).map((level) => all.find((l) => l.level === level && l.n === 1 && !l.extra)!.id));

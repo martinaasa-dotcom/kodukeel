@@ -152,6 +152,23 @@ export const LESSON_PART_PREPARES: Readonly<Record<string, Preparation>> = {
   "b1-uudised": { parts: ["listening", "writing"], why: "The listening paper sets a monologue and an interview, like a news item read aloud, and the second writing task can be a story told in the past." },
   "b1-arvamus": { parts: ["speaking", "writing"], why: "The speaking part ends on agreeing a decision with another candidate, which this part's meeting rehearses, and a forum post says what you think and why." },
   "b1-asjaajamine": { parts: ["speaking", "writing", "listening"], why: "The part ends on the speaking exam itself, the formal application is a note that gets something done, and the listening paper's short clips are calls like the one to the city office." },
+  /*
+    B2: the paper's writing is a semi-formal or an informal letter of about 140
+    words, then a summary of figures with your own comment or an argument of
+    about 180; each is written once, on the writing evening of the part whose
+    life needs it. The speaking part is a conversation about work, a one-minute
+    talk after two minutes to prepare, and a debate that ends in a decision,
+    and the listening paper's first task is short clips heard once
+    (docs/16-exam.md, section 1; docs/43-lessons.md §13.3).
+  */
+  "b2-konekeel": { parts: ["listening", "speaking"], why: "The listening paper plays people talking to each other at full speed, and this part follows friends over dinner. The speaking part opens on a conversation, which this part keeps in Estonian when somebody switches." },
+  "b2-kaudne": { parts: ["writing", "listening"], why: "The first writing task can be an informal letter, and this part writes one telling a friend what you heard. The listening paper's monologue is a news item like the one this part passes on." },
+  "b2-pere": { parts: ["reading", "writing"], why: "The reading paper's article and its matched paragraphs are texts like the messages a school sends, and the semi-formal letter is the register of the email to the teacher this part writes." },
+  "b2-tervis": { parts: ["listening", "speaking"], why: "The listening paper's short clips are heard once, like a call on a bad line, and the speaking part's conversation is the kind this part has on the phone with the doctor." },
+  "b2-too": { parts: ["writing", "speaking"], why: "The second writing task can be a summary with your own comment, which this part writes after a meeting, and the speaking part opens on a conversation about your work." },
+  "b2-riik": { parts: ["writing", "reading"], why: "The first writing task can be a semi-formal letter, and this part writes a complaint to an office. The reading paper's long article is in the written register this part reads the state's letters in." },
+  "b2-kultuur": { parts: ["speaking", "listening"], why: "The speaking part's one-minute talk after two minutes to prepare, with a question after it, is what this part ends on, and the listening paper's monologue is like the history item on the radio." },
+  "b2-arutelu": { parts: ["writing", "speaking"], why: "The second writing task can be an argument, which this part writes. The speaking part ends on a debate that reaches a decision, which is this part's last evening." },
 };
 
 export interface UnitLike {

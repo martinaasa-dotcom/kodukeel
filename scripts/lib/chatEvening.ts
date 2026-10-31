@@ -5,7 +5,7 @@
  * so the suite asks this, through `tsx`, which evening to tick and what its
  * steps are called, rather than keeping a second copy of the program that
  * would fall behind the first. The evening is the first of the first part built
- * out of units (B2.1, since A1, A2 and B1 are the lessons and a lesson evening has no chat)
+ * out of units (C1.1, since A1, A2, B1 and B2 are the lessons and a lesson evening has no chat)
  * past the first two that meets at least `CHAT_MIN_NEW` new words, which is an
  * evening a chat is offered after.
  *

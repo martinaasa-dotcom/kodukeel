@@ -11,8 +11,8 @@ import { b2LevelProblems, lessonEnglish, levelContractProblems, untranslated } f
  * and A2 met it, so that B1, B2 and C1 meet it the day they are lessons too.
  */
 describe("every level of lessons", () => {
-  it("is A1, A2 and B1 today, and the rules below are asked of whatever it becomes", () => {
-    expect([...LESSON_LEVELS]).toEqual(["A1", "A2", "B1"]);
+  it("is A1, A2, B1 and B2 today, and the rules below are asked of whatever it becomes", () => {
+    expect([...LESSON_LEVELS]).toEqual(["A1", "A2", "B1", "B2"]);
   });
 
   it("never shows a word before it is taught, across the levels as one course", () => {

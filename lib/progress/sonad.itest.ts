@@ -113,7 +113,7 @@ describe("a learner the module holds", () => {
   const HELD = "itest-owner-puzzle-held";
   const ARRIVED = "itest-owner-puzzle-arrived";
   const day = "2027-03-10" as DayKey;
-  /* A1, A2 and B1 are the lessons, one step an evening (docs/43-lessons.md, P3 and §9); these readings are about an evening of units. */
+  /* A1, A2, B1 and B2 are the lessons, one step an evening (docs/43-lessons.md, P3 and §9); these readings are about an evening of units. */
   const programme = PROGRAMMES.find((p) => !p.days.some((d) => d.lesson))!;
   /* Its next-to-last evening, so the one after it is there to tick today. */
   const reached = programme.days[programme.days.length - 2]!;

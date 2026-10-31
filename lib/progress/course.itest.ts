@@ -31,7 +31,7 @@ import { SETTING_KEYS } from "@/lib/settings/store";
 const OWNER = "itest-owner-course";
 const CLOCK = dayClock("Europe/Tallinn");
 /*
-  A1, A2 and B1 are the lessons, one step an evening (docs/43-lessons.md, P3 and
+  A1, A2, B1 and B2 are the lessons, one step an evening (docs/43-lessons.md, P3 and
   §9); these readings are about an evening of units, and about a second
   evening with two rounds to tick, so the first part built out of units whose
   second evening is not a conversation (one press finishes that one).

@@ -9,45 +9,11 @@
  * records nothing, and it is not in `LESSONS`, so nothing that lists the
  * course, counts it or asks it for a translation reads it.
  *
- * B2 IS DRAFTED HERE (docs/43-lessons.md §13). Each part author writes their
- * part in a file of its own in this directory, named for the part without the
- * marks (`b2-konekeel.ts`, `b2-too.ts`), exporting
- * `B2_<PART>_PART` and `B2_<PART>_LESSONS` the way `b1-uudised.ts` does, and
- * adds ONE line to `PARTS` below, `[B2_<PART>_PART, B2_<PART>_LESSONS],`, in
- * the teaching order of §13.3:
- *
- *   1 b2-kõnekeel   2 b2-kaudne   3 b2-pere      4 b2-tervis
- *   5 b2-töö        6 b2-riik     7 b2-kultuur   8 b2-arutelu
- *
- * The order is load-bearing: the ramp (`rampB2.ts`) reads a part's band off
- * its place here, and the recycling rule (`b2LevelProblems`) reads which B2
- * patterns came before it. Then `npx tsx scripts/check-lesson-part.ts --part
- * <id>` asks every check of that part. The day B2 becomes the course, this
- * list moves to `b2.ts` whole and this one is empty again.
+ * Empty since B2 became the course (`b2.ts`, docs/43-lessons.md §14). C1 is
+ * drafted here next, each part in a file of its own (`c1-<part>.ts`) with one
+ * line in a `PARTS` list, in teaching order, the way B2 was.
  */
-import { B2_KONEKEEL_LESSONS, B2_KONEKEEL_PART } from "./b2-konekeel";
-import { B2_KAUDNE_LESSONS, B2_KAUDNE_PART } from "./b2-kaudne";
-import { B2_PERE_LESSONS, B2_PERE_PART } from "./b2-pere";
-import { B2_TERVIS_LESSONS, B2_TERVIS_PART } from "./b2-tervis";
-import { B2_TOO_LESSONS, B2_TOO_PART } from "./b2-too";
-import { B2_RIIK_LESSONS, B2_RIIK_PART } from "./b2-riik";
-import { B2_KULTUUR_LESSONS, B2_KULTUUR_PART } from "./b2-kultuur";
-import { B2_ARUTELU_LESSONS, B2_ARUTELU_PART } from "./b2-arutelu";
 import type { LessonSpec, PartOfLessons } from "./types";
 
-const PARTS: readonly (readonly [PartOfLessons, readonly LessonSpec[]])[] = [
-  // One line per B2 part, in teaching order: [B2_<PART>_PART, B2_<PART>_LESSONS],
-  [B2_KONEKEEL_PART, B2_KONEKEEL_LESSONS],
-  [B2_KAUDNE_PART, B2_KAUDNE_LESSONS],
-  [B2_PERE_PART, B2_PERE_LESSONS],
-  [B2_TERVIS_PART, B2_TERVIS_LESSONS],
-  [B2_TOO_PART, B2_TOO_LESSONS],
-  [B2_RIIK_PART, B2_RIIK_LESSONS],
-  [B2_KULTUUR_PART, B2_KULTUUR_LESSONS],
-  [B2_ARUTELU_PART, B2_ARUTELU_LESSONS],
-];
-
-export const PREVIEW_PARTS: readonly PartOfLessons[] = PARTS.map(([part]) => part);
-
-/** The lessons in preview, in teaching order, part by part. */
-export const PREVIEW_LESSONS: readonly LessonSpec[] = PARTS.flatMap(([, lessons]) => lessons);
+export const PREVIEW_LESSONS: readonly LessonSpec[] = [];
+export const PREVIEW_PARTS: readonly PartOfLessons[] = [];

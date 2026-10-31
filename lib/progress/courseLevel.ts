@@ -14,7 +14,7 @@ import { readSetting, SETTING_KEYS, writeSetting } from "@/lib/settings/store";
  * The body `setCourseLevel` in `app/actions.ts` used to hold, moved here so the
  * web's level picker and `PATCH /api/v1/me` change a level one way: the owner
  * is a parameter, the value arrives off the wire, and the door up asks
- * `moveBlockedFor` before anything is written, so a learner in the lessons, A1 to B1,
+ * `moveBlockedFor` before anything is written, so a learner in the lessons, A1 to B2,
  * cannot step past an unpassed check from a phone any more than from Settings
  * (`lib/course/checks.ts`). Going down is always open. Each door keeps its
  * own refresh of the pages that read a level.
@@ -42,7 +42,7 @@ export async function changeCourseLevel(ownerId: string, level: unknown, now: Da
   ]);
   /*
     A LEARNER WHO STARTED AT A1 MOVES UP BY PASSING, and the picker is a door
-    up like any other: from a part of the lessons, A1 to B1, a higher level waits on
+    up like any other: from a part of the lessons, A1 to B2, a higher level waits on
     the checks between (`lib/course/checks.ts`). Going down is always open.
 
     Asked of where the choice SENDS them, not of the level on the chip: a level

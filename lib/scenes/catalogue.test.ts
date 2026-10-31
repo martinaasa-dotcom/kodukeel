@@ -834,8 +834,9 @@ describe("today's chat, the new kind", () => {
     .filter((scene): scene is NonNullable<typeof scene> => scene !== null));
 
   it("is built for most evenings that offer one", () => {
-    // A built evening from B2 up; A1 to B1 are the lessons, which have their own role-plays.
-    expect(chats.length).toBeGreaterThanOrEqual(70);
+    // A built evening of C1; A1 to B2 are the lessons, which have their own role-plays.
+    // Every one of C1's forty-two evenings builds one.
+    expect(chats.length).toBeGreaterThanOrEqual(42);
   });
 
   it("is in no catalog, so the listing and the bank never meet it", () => {

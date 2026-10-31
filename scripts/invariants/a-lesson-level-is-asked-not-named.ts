@@ -5,7 +5,7 @@ import type { InvariantKit } from "../lib/invariantKit";
 /**
  * WHETHER A LEVEL IS LESSONS IS ASKED, NEVER SPELLED OUT.
  *
- * A1, A2 and B1 are lessons now and B2 is next. A condition written as
+ * A1, A2, B1 and B2 are lessons now and C1 is next. A condition written as
  * `level === "A1" || level === "A2"` was right the day it was typed and wrong
  * the day B1 moved, silently: a test of the course read A2's last part off a
  * list that by then ended in B1. A lesson level is asked through
@@ -18,7 +18,7 @@ import type { InvariantKit } from "../lib/invariantKit";
  * Test files are read as well, since the fault that named this check was in
  * one, and both spellings a condition takes are looked for: a chain of
  * comparisons and a list asked whether it includes a level. `level !== "B2"`
- * is not looked for, because B2 is named alone for reasons of its own all over
+ * is not looked for, because a band is named alone for reasons of its own all over
  * the exam and the scenes and a check that fires on those gets waived.
  */
 const EXEMPT: Readonly<Record<string, string>> = {
@@ -28,10 +28,10 @@ const EXEMPT: Readonly<Record<string, string>> = {
   "lib/course/lessonWorksheet.test.ts": "a worksheet follows a lesson from B1 up (`WORKSHEET_FROM`), a rule about practice inside the lesson below it, not about which levels are lessons",
   "lib/progress/twins.ts": "a pair of words near a beginner's band, A1 and A2 by the dictionary, not by lessons",
 };
-const BAND = String.raw`"(?:A1|A2|B1)"`;
+const BAND = String.raw`"(?:A1|A2|B1|B2)"`;
 const NAMED = [
   new RegExp(String.raw`\blevel\s*===\s*${BAND}\s*\|\|[^;\n]*?\blevel\s*===\s*${BAND}`),
-  new RegExp(String.raw`\[\s*${BAND}\s*,\s*${BAND}(?:\s*,\s*${BAND})?\s*\](?:\s*as\s+const)?\s*\)?\s*\.includes\(`),
+  new RegExp(String.raw`\[\s*${BAND}\s*,\s*${BAND}(?:\s*,\s*${BAND}){0,2}\s*\](?:\s*as\s+const)?\s*\)?\s*\.includes\(`),
 ];
 
 export default function aLessonLevelIsAskedNotNamed({ check, ALL, code }: InvariantKit) {

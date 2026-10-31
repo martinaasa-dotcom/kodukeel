@@ -110,9 +110,9 @@ describe("the checks between the parts of the lessons", () => {
     // Somebody placed past the lessons is not asked to pass their checks.
     const a2 = PROGRAMMES.find((p) => p.level === "A2")!;
     const b1 = PROGRAMMES.find((p) => p.level === "B1")!;
-    const b2 = PROGRAMMES.find((p) => p.level === "B2")!;
-    const b2next = PROGRAMMES[PROGRAMMES.indexOf(b2) + 1]!;
-    expect(blockedBy(PROGRAMMES, b2, b2next, new Set())).toBeNull();
+    const c1 = PROGRAMMES.find((p) => p.level === "C1")!;
+    const c1next = PROGRAMMES[PROGRAMMES.indexOf(c1) + 1]!;
+    expect(blockedBy(PROGRAMMES, c1, c1next, new Set())).toBeNull();
     // And B1 waits on A2's last check, the whole of A2, as A2 waits on A1's.
     const a2checks = checks.filter((c) => PROGRAMMES.find((p) => p.id === c.programmeId)?.level === "A2");
     expect(blockedBy(PROGRAMMES, a2, b1, new Set(a2checks.filter((c) => !c.final).map((c) => c.id)))?.final).toBe(true);
