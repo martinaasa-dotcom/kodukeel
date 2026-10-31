@@ -356,9 +356,9 @@ function Hero({ say, stats, words }: { say: Say; stats: { words: number; forms: 
     reason to read; the same numbers beside the call to action are the reason to
     believe the sentence above them. The unit count and the level range are read
     from the course itself rather than written by hand, which is what kept this
-    line from going stale the way "eighteen units, A1 to C1" once did. Since A1
-    became the lessons, what the course is made of is two lists: lessons at A1
-    and units above it, both counted off the code (`courseMadeOf`).
+    line from going stale the way "eighteen units, A1 to C1" once did. Since C1
+    became the lessons the course is lessons from end to end, counted off the
+    code (`courseMadeOf`).
   */
   const made = courseMadeOf(PATH, LESSONS);
   const claims = [
@@ -372,9 +372,10 @@ function Hero({ say, stats, words }: { say: Say; stats: { words: number; forms: 
       sources one screen down; this line is the promise they add up to.
     */
     fill(t("{words}, {forms}, and not one of them made up by AI"), { words: counted(stats.words, "word"), forms: counted(stats.forms, "form") }),
-    fill(t(made.through === LEVELS[0] ? "{lessons} at {first}, then {units} all the way to {last}" : "{lessons} from {first} to {through}, then {units} all the way to {last}"), {
-      lessons: counted(made.lessons, "lesson"), units: counted(made.units, "unit"),
-      first: LEVELS[0]!, through: made.through, last: LEVELS[LEVELS.length - 1]!,
+    /* Every level is lessons since C1 moved (docs/43-lessons.md §16), so the course is lessons from end to end. */
+    fill(t("{lessons} from {first} to {last}"), {
+      lessons: counted(made.lessons, "lesson"),
+      first: LEVELS[0]!, last: LEVELS[LEVELS.length - 1]!,
     }),
     t("Free, and it works offline"),
     t("Counts the real conversations you have, not the days you open the app"),

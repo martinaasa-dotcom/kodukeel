@@ -427,6 +427,7 @@ describe("what a day reads and where it goes", () => {
   it("asks a verb's past inside the module only once an evening has shown that verb's", () => {
     // Asked of C1's lessons, which are where the forms tables show verbs (`withLessonForms`).
     const c1 = PROGRAMMES.filter((p) => p.level === "C1");
+    expect(c1.length).toBe(8);
     let checked = 0;
     for (const programme of c1) {
       for (const d of programme.days) {

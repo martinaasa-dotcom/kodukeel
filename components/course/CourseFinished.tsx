@@ -5,6 +5,7 @@ import { useT } from "@/components/Locale";
 import { ButtonLink } from "@/components/Button";
 import { Card, SectionTitle } from "@/components/ui";
 import { fillNodes } from "@/components/fillNodes";
+import { FitText } from "@/components/FitText";
 import { ADVICE, FINALE } from "@/lib/copy/finale";
 
 /** What the course took, read on the server (`lib/progress/courseFinished.ts`). */
@@ -42,9 +43,7 @@ export function CourseFinished({ figures, heading = "h2", exam = true }: {
   return (
     <section aria-labelledby="course-finished" className="flex flex-col gap-4" data-course-finished>
       <Card tone="accent" className="text-center">
-        <p lang="et" className="font-display text-4xl font-bold leading-tight tracking-tight" style={{ color: "var(--accent-deep)" }}>
-          Palju õnne!
-        </p>
+        <FitText as="p" text="Palju õnne!" lang="et" max="var(--text-4xl)" className="font-display font-bold leading-tight tracking-tight" style={{ color: "var(--accent-deep)" }} />
         <Heading id="course-finished" tabIndex={-1} className="font-display outline-none mt-3 text-2xl font-bold leading-tight tracking-tight md:text-3xl" style={{ color: "var(--ink)", textWrap: "balance" }}>
           {t(FINALE.heading)}
         </Heading>
@@ -102,9 +101,7 @@ export function CourseFinished({ figures, heading = "h2", exam = true }: {
       </Card>
 
       <Card tone="accent" className="text-center">
-        <p lang="et" className="font-display text-4xl font-bold leading-tight tracking-tight" style={{ color: "var(--accent-deep)" }}>
-          Aitäh!
-        </p>
+        <FitText as="p" text="Aitäh!" lang="et" max="var(--text-4xl)" className="font-display font-bold leading-tight tracking-tight" style={{ color: "var(--accent-deep)" }} />
         <p className="mt-2 text-lg" style={{ color: "var(--ink)" }}>{t(FINALE.thanks)}</p>
         <div className="mt-5 flex flex-wrap justify-center gap-2" data-course-finished-actions>
           <ButtonLink href="/course/lessons">{t(FINALE.lessons)}</ButtonLink>

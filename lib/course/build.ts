@@ -301,18 +301,6 @@ export function supportsRound(key: ActivityKey, taught: Taught, _level = "A2"): 
   }
 }
 
-/** The rotation's rounds this evening could deal, given what has been taught. */
-export function supportedRounds(level: string, taught: Taught): ActivityKey[] {
-  const rotation = ROTATION[level] ?? ROTATION.A2!;
-  return rotation.filter((key) => supportsRound(key, taught, level));
-}
-
-/** The rounds that need something taught first, for the tests to walk. */
-export const NEEDS: Partial<Record<ActivityKey, keyof Taught>> = {
-  conjugation: "verbs",
-  letters: "spellable",
-};
-
 /**
  * The round that stands in for one the words cannot carry yet: the same kind,
  * so the evening still has its game and its drill, and always available,

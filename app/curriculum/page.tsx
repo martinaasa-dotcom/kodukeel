@@ -42,13 +42,12 @@ const quoted = (locale: PublicLocale, title: ReactNode) => (locale === "et" ? <>
 /**
  * WHAT THE COURSE TEACHES AT EACH LEVEL, AND WHAT IT PREPARES SOMEBODY FOR.
  *
- * Generated from the repository rather than typed. A1, A2, B1 and B2 are the lessons:
- * each part, its lessons, the role-play it ends on, the check that closes it
- * and at A2 the exam parts it prepares for, off `LESSONS`, `LESSON_PARTS`, the
- * course's own checks and `lib/curriculum/align.ts`. The levels above
- * are units: their "can do" sentences are the syllabus, the exam parts are
- * `lib/curriculum/align.ts`, and the conversation is the scene that tests the
- * unit. A teacher or a reviewer reads it to see where the course has nothing,
+ * Generated from the repository rather than typed. Every level is the lessons,
+ * A1 to C1: each part, its lessons, the role-play it ends on, the check that
+ * closes it and the exam parts it prepares for, off `LESSONS`, `LESSON_PARTS`,
+ * the course's own checks and `lib/curriculum/align.ts`. The units' section
+ * below draws nothing now that no level is built from units, and goes with the
+ * builder (§15.13, C1-9). A teacher or a reviewer reads it to see where the course has nothing,
  * so the gaps are printed as plainly as the rest.
  */
 export default async function CurriculumPage({ searchParams }: { searchParams: PublicSearch }) {
@@ -62,12 +61,12 @@ export default async function CurriculumPage({ searchParams }: { searchParams: P
   const lessonLevelList = [...taught];
   const through = lessonLevelList[lessonLevelList.length - 1] ?? "A1";
   return (
-    <Legal title={t("What the course covers")} updated="25 October 2026" locale={locale} explicit={explicit} path="/curriculum">
+    <Legal title={t("What the course covers")} updated="31 October 2026" locale={locale} explicit={explicit} path="/curriculum">
       <P>
-        {fill(t("The whole course, by level. The levels up to {through} are taught as {lessons} lessons in {parts} parts, and the levels above as units until each of them becomes lessons too."), { through, lessons: LESSONS.length, parts: LESSON_PARTS.length })}
+        {fill(t("The whole course, by level. Every level, A1 to {through}, is taught as {lessons} lessons in {parts} parts."), { through, lessons: LESSONS.length, parts: LESSON_PARTS.length })}
       </P>
       <P>
-        {t("For every lesson, what a learner can do afterwards, and for every part of the lessons at an examined level, which part of the Estonian language examination it prepares for. For every unit, what it says a learner can do, which part of the examination it prepares for, and the conversation that tests it where there is one. The levels are the Council of Europe’s CEFR scale. The “can do” sentences are this course’s own, and this page does not claim to follow any official curriculum document.")}
+        {t("For every lesson, what a learner can do afterwards, and for every part of the lessons at an examined level, which part of the Estonian language examination it prepares for. The levels are the Council of Europe’s CEFR scale. The “can do” sentences are this course’s own, and this page does not claim to follow any official curriculum document.")}
       </P>
       {/*
         The course describes its lessons and units in English, in the
@@ -76,7 +75,7 @@ export default async function CurriculumPage({ searchParams }: { searchParams: P
         that would drift. Each such line is marked English, so a screen reader
         reads it in English, and this paragraph says so first.
       */}
-      {locale !== "en" && <P>{t("The lessons and units below describe themselves in English, as the course itself is written. The headings and everything around them are in this page’s language.")}</P>}
+      {locale !== "en" && <P>{t("The lessons below describe themselves in English, as the course itself is written. The headings and everything around them are in this page’s language.")}</P>}
       <P>
         {t("The state examines A2, B1, B2 and C1, each in four parts: writing, listening, reading and speaking. There is no A1 examination, so the A1 lessons prepare for no part of one.")}{" "}
         <Link href={localeHref("/state-exam", locale, explicit)} className="underline underline-offset-2">{t("What each part sets is on the page about the examination.")}</Link>{" "}

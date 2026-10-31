@@ -54,7 +54,7 @@ export const MAX_STARTER_UNITS = 6;
 /**
  * The units a learner at this level starts with.
  *
- * NONE AT A LEVEL TAUGHT AS LESSONS (A1, A2, B1 and B2, docs/43-lessons.md). A lesson
+ * NONE AT A LEVEL TAUGHT AS LESSONS, WHICH IS EVERY LEVEL (docs/43-lessons.md). A lesson
  * teaches its words before it asks anything and hands them to the deck when it
  * is finished (`finishLesson`), so a beginner's deck grows one evening at a
  * time from the first lesson rather than arriving as four units of words

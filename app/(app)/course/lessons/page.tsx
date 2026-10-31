@@ -24,7 +24,7 @@ export const dynamic = "force-dynamic";
 /**
  * EVERY LESSON, IN THE ORDER THEY ARE TAUGHT (docs/43-lessons.md).
  *
- * A1, A2, B1 and B2 are the lessons: the planned course walks them one evening at a
+ * Every level is lessons, A1 to C1: the planned course walks them one evening at a
  * time, and this is the whole list, for somebody who wants to look back at one
  * or read ahead. Reading ahead records nothing, since the course reaches a
  * lesson when the course reaches it (`finishLesson`).

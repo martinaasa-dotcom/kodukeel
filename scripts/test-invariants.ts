@@ -24169,7 +24169,12 @@ check("a planned course day names words rather than writing any", () => {
     "a day's words stopped coming out of its unit's own list. A program may not name a lemma (ADR-005)",
   );
   const plan = code("lib/course/plan.ts");
-  assert.match(plan, /units: \[/, "a part stopped naming the units it works");
+  /*
+    No part is built from units since C1 became lessons, so the plan names no
+    unit at all, and a day's words come from a lesson's own list, which
+    `lessonProblems` holds to the ledger word by word (`lessons.test.ts`).
+  */
+  assert.match(plan, /export const PARTS: readonly PartSpec\[\] = \[\s*\]/, "a part built from units came back to the plan");
   /*
     The plan names units, scenes and rounds by id and holds no word list of its
     own, which is the same rule `lib/collections/topical.ts` carries: the moment
@@ -24181,10 +24186,10 @@ check("a planned course day names words rather than writing any", () => {
     "lib/course/plan.ts grew a word list. A part names units; the units name the words (ADR-005)",
   );
 
-  const tests = code("lib/course/course.test.ts");
+  const tests = code("lib/course/lessons/lessons.test.ts");
   assert.match(
-    tests, /teaches only words its own unit teaches/,
-    "the check that a day may not introduce vocabulary is gone",
+    tests, /expect\(lessonProblems\(LESSONS\)\)\.toEqual\(\[\]\)/,
+    "the check that a lesson may not show a word before it is taught is gone",
   );
 });
 

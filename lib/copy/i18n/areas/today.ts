@@ -543,7 +543,7 @@ export const TODAY: Area = {
   "You can live in Estonian: phone an office, the doctor or the school and get what you called for, and write every text the B2 exam sets.":
     "Ты можешь жить на эстонском: позвонить в учреждение, врачу или в школу и добиться того, ради чего звонишь, и написать каждый текст экзамена B2.",
   "You can be yourself in Estonian: as funny, as precise and as firm as in your own language, at work, at a public meeting and on paper.":
-    "Ты можешь быть собой на эстонском: таким же остроумным, точным и твёрдым, как на своём языке, на работе, на общем собрании и на бумаге.",
+    "Ты можешь быть собой на эстонском, с тем же юмором, точностью и твёрдостью, что и на своём языке: на работе, на общем собрании и на бумаге.",
 
   // THE MODULE SCREEN.
   "Your evenings, already planned":
@@ -1661,7 +1661,7 @@ export const TODAY: Area = {
   "You can live in Estonian: phone an office, the doctor or the school and get what you called for, and write every text the B2 exam sets.":
     "Ти можеш жити естонською: зателефонувати до установи, лікаря чи школи й домогтися того, заради чого телефонуєш, і написати кожен текст іспиту B2.",
   "You can be yourself in Estonian: as funny, as precise and as firm as in your own language, at work, at a public meeting and on paper.":
-    "Ти можеш бути собою естонською: таким самим дотепним, точним і твердим, як своєю мовою, на роботі, на громадських зборах і на папері.",
+    "Ти можеш бути собою естонською, з тим самим гумором, точністю й твердістю, що й своєю мовою: на роботі, на громадських зборах і на папері.",
 
   // THE MODULE SCREEN.
   "Your evenings, already planned":

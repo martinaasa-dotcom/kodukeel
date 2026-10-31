@@ -32,4 +32,26 @@ describe("what is new at a level", () => {
     for (const m of plain) expect(Math.abs(m - 25)).toBeLessThanOrEqual(5);
     for (const m of writing) expect(Math.abs(m - 40)).toBeLessThanOrEqual(5);
   });
+
+  it("claims only what C1's lessons do", () => {
+    const c1 = LESSONS.filter((l) => l.level === "C1");
+    const parts = [...new Set(c1.map((l) => l.part))];
+    expect(parts.length).toBe(8);
+    // "You choose the room": measured at 35 of 49 the day C1 became the course.
+    expect(c1.filter((l) => l.rooms !== undefined).length).toBeGreaterThanOrEqual(35);
+    // "From the second part ... a talk ... taken down as notes", and never in the first.
+    const notes = c1.filter((l) => l.notes).map((l) => parts.indexOf(l.part));
+    expect(notes.length).toBeGreaterThan(0);
+    expect(Math.min(...notes)).toBe(1);
+    // "From the third part, the text you read comes with questions", and never before.
+    const asked = c1.filter((l) => (l.read?.questions?.length ?? 0) > 0).map((l) => parts.indexOf(l.part));
+    expect(asked.length).toBeGreaterThan(0);
+    expect(Math.min(...asked)).toBe(2);
+    // "Most take about thirty-five minutes, and a writing lesson about fifty."
+    const plain = c1.filter((l) => !l.write).map(lessonMinutes);
+    const writing = c1.filter((l) => l.write).map(lessonMinutes);
+    const near = plain.filter((m) => Math.abs(m - 35) <= 7);
+    expect(near.length * 2).toBeGreaterThan(plain.length);
+    for (const m of writing) expect(Math.abs(m - 50)).toBeLessThanOrEqual(7);
+  });
 });
