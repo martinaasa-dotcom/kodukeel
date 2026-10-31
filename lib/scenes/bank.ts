@@ -78,6 +78,7 @@ import B1_UHISTU_LINES from "./bank/b1-uhistu";
 import B1_PALGATOUS_LINES from "./bank/b1-palgatous";
 import B1_MEISTER_LINES from "./bank/b1-meister";
 import B1_TAGATIS_LINES from "./bank/b1-tagatis";
+import B2_AMETIKONE_LINES from "./bank/b2-ametikone";
 import B1_EKSAM_LINES from "./bank/b1-eksam";
 import B1_KOLLEEG_LINES from "./bank/b1-kolleeg";
 
@@ -149,4 +150,5 @@ export const BANK: readonly ScriptedLine[] = [
   ...B1_TAGATIS_LINES,
   ...B1_EKSAM_LINES,
   ...B1_KOLLEEG_LINES,
+  ...B2_AMETIKONE_LINES,
 ];

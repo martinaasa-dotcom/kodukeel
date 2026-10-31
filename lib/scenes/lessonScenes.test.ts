@@ -229,7 +229,9 @@ describe("the lessons' own conversations", () => {
 
 describe("a scene of a lesson still in preview", () => {
   it("is told apart from the course's, so beginSceneFor keeps it to a reviewer", () => {
-    for (const scene of LESSON_SCENES) expect(isPreviewScene(scene), scene.id).toBe(false);
+    // A scene whose lesson is in the course is the course's; one whose lesson is still in preview is told apart.
+    const inCourse = new Set(COURSE_LESSONS.map((l) => l.id));
+    for (const scene of LESSON_SCENES) expect(isPreviewScene(scene), scene.id).toBe(!inCourse.has(scene.lesson!));
     for (const scene of SCENES) expect(isPreviewScene(scene), scene.id).toBe(false);
     expect(isPreviewScene({ lesson: "b2-01-not-in-the-course" })).toBe(true);
     expect(isPreviewScene({ lesson: undefined })).toBe(false);
