@@ -26,12 +26,14 @@
  * list moves to `b2.ts` whole and this one is empty again.
  */
 import { B2_KONEKEEL_LESSONS, B2_KONEKEEL_PART } from "./b2-konekeel";
-import type { LessonSpec, PartOfLessons } from "./types";
+import { B2_KAUDNE_LESSONS, B2_KAUDNE_PART } from "./b2-kaudne";
 import { B2_TERVIS_LESSONS, B2_TERVIS_PART } from "./b2-tervis";
+import type { LessonSpec, PartOfLessons } from "./types";
 
 const PARTS: readonly (readonly [PartOfLessons, readonly LessonSpec[]])[] = [
   // One line per B2 part, in teaching order: [B2_<PART>_PART, B2_<PART>_LESSONS],
   [B2_KONEKEEL_PART, B2_KONEKEEL_LESSONS],
+  [B2_KAUDNE_PART, B2_KAUDNE_LESSONS],
   [B2_TERVIS_PART, B2_TERVIS_LESSONS],
 ];
 

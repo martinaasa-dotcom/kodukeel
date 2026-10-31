@@ -82,6 +82,7 @@ import B1_EKSAM_LINES from "./bank/b1-eksam";
 import B1_KOLLEEG_LINES from "./bank/b1-kolleeg";
 import B2_OHTUSOOK_LINES from "./bank/b2-ohtusook";
 import B2_PEREARST_LINES from "./bank/b2-perearst";
+import B2_TEADE_LINES from "./bank/b2-teade";
 
 /** Every scene's prepared lines, one file a scene under `lib/scenes/bank/`, in scene order. */
 export const BANK: readonly ScriptedLine[] = [
@@ -153,4 +154,5 @@ export const BANK: readonly ScriptedLine[] = [
   ...B1_KOLLEEG_LINES,
   ...B2_OHTUSOOK_LINES,
   ...B2_PEREARST_LINES,
+  ...B2_TEADE_LINES,
 ];
