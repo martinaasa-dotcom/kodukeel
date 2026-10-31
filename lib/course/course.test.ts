@@ -15,7 +15,7 @@ import {
   EARLIER_SCENES_FOR_UNIT, PARTS, PROGRAMMES, ROTATION, SCENE_FOR_UNIT, VERB_HEAVY, dayStanding, ordinaryWords, programmeAfter,
   programmeStanding, programmeUnits, slice, wordsThrough, taughtThrough, unitsThrough, activityTitle,
   MEET_STEP, REVIEW_STEP, NEEDS, PAGE_NEEDS, builtOnACase, supportedRounds, supportsRound, taughtFrom, grammarThrough, readingPlan,
-  WORDS_FOR_LETTERS, NO_TAUGHT, rounds, FORMS_STEP, FORMS_PER_EVENING, formsPerEvening, CASE_ROUNDS, PAGE_ROUND, newWordsIn,
+  WORDS_FOR_LETTERS, NO_TAUGHT, rounds, FORMS_STEP, formsPerEvening, CASE_ROUNDS, PAGE_ROUND, newWordsIn,
 } from "./index";
 import { LESSON_PARTS } from "./lessons";
 import { HARVESTED } from "@/prisma/data/harvested";
