@@ -585,7 +585,6 @@ export const B2_KAUDNE_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "remonti", of: "remont", en: "building work, as an object" },
       { kind: "form", et: "öelda", of: "ütlema", en: "to say, to tell, after a verb like {paluma}" },
       { kind: "phrase", et: "igaks juhuks", en: "just in case" },
-      { kind: "form", et: "kolisid", of: "kolima", en: "they moved" },
       { kind: "phrase", et: "Aitäh kirja eest!", en: "Thank you for your letter!" },
     ],
     how: {

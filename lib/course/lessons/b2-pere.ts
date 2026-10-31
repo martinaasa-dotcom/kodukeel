@@ -225,7 +225,6 @@ export const B2_PERE_LESSONS: readonly LessonSpec[] = [
     teaches: [
       { kind: "word", et: "rühm", en: "group, a kindergarten class" },
       { kind: "form", et: "rühma", of: "rühm", en: "of the group; into the group", stem: true },
-      { kind: "form", et: "lasteaia", of: "lasteaed", en: "of the kindergarten", stem: true },
       { kind: "word", et: "riided", en: "clothes" },
       { kind: "form", et: "sussid", of: "suss", en: "slippers" },
       { kind: "word", et: "kaisuloom", en: "cuddly toy" },
@@ -521,7 +520,6 @@ export const B2_PERE_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "kõigiga", of: "kõik", en: "with everybody" },
       { kind: "form", et: "tunde", of: "tund", en: "lessons; {pärast tunde}, after lessons" },
       { kind: "form", et: "öeldakse", of: "ütlema", en: "people say, it's said" },
-      { kind: "form", et: "kirjutatakse", of: "kirjutama", en: "people write, it's written" },
       { kind: "form", et: "lõppu", of: "lõpp", en: "to the end, at the end" },
       { kind: "word", et: "koopia", en: "copy" },
       { kind: "word", et: "klassijuhataja", en: "class teacher, the teacher in charge of a class" },

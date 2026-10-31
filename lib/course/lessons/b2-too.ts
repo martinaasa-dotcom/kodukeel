@@ -184,7 +184,6 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "ilmselt", en: "probably, by the look of it" },
       { kind: "word", et: "tõenäoliselt", en: "probably, most likely" },
       { kind: "word", et: "vaevalt", en: "hardly, it's unlikely that" },
-      { kind: "form", et: "öelda", of: "ütlema", en: "to say: the [da-tegevusnimi] (-da); {Raske öelda}, hard to say" },
       { kind: "form", et: "kindlat", of: "kindel", en: "a definite one, as an object: {kindlat vastust}" },
       { kind: "word", et: "kood", en: "code" },
       { kind: "word", et: "testimine", en: "testing" },
@@ -333,7 +332,6 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "tagasisidet", of: "tagasiside", en: "feedback, as some of it: {anna tagasisidet}" },
       { kind: "form", et: "närvis", of: "närv", en: "nervous: {olin närvis}, I was nervous" },
       { kind: "word", et: "selgelt", en: "clearly" },
-      { kind: "word", et: "paremini", en: "better, the way you do something" },
       { kind: "word", et: "vahele", en: "in between; {rääkis talle vahele}, talked over her", asks: "{kellele?} the person talked over ([alaleütlev] (-le, onto/to))" },
       { kind: "verb", et: "märkama", first: "märkan", en: "to notice", firstEn: "I notice" },
       { kind: "form", et: "märkasin", of: "märkama", en: "I noticed", past: true },
@@ -348,7 +346,6 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "kompromissi", of: "kompromiss", en: "a compromise, as an object: {leidsime kompromissi}" },
       { kind: "verb", et: "motiveerima", first: "motiveerin", en: "to motivate", firstEn: "I motivate" },
       { kind: "form", et: "tahtis", of: "tahtma", en: "he, she wanted" },
-      { kind: "form", et: "kõike", of: "kõik", en: "everything, as an object: {kõike ise tegema}" },
       { kind: "form", et: "pakkus", of: "pakkuma", en: "he, she offered" },
     ],
     how: {
