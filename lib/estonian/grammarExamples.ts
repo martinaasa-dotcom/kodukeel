@@ -479,6 +479,20 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
       { lemma: "kõhklema", et: "Mari kõhkles hetke, ent siis otsustas teistega kaasa minna.", form: "ent" },
     ],
   },
+  connectives: {
+    "Words like \"according to\" and \"compared with\", made from a verb": [
+      { lemma: "nõudlus", et: "Hind muutub vastavalt nõudlusele ja pakkumisele.", form: "vastavalt" },
+      { lemma: "võrdlema", et: "Tulekahjusid oli eelmise aastaga võrreldes vähem.", form: "võrreldes" },
+    ],
+    "Words like \"despite\" and \"instead of\", after the word they go with": [
+      { lemma: "tuletõrjuja", et: "Maastikupõleng kogub hoogu tuletõrjujate pingutustest hoolimata.", form: "hoolimata" },
+      { lemma: "sibul", et: "Meie kandis kasvatatakse kartuli asemel põllul sibulaid.", form: "asemel" },
+    ],
+    "Having something done for you, with the verb for \"let\"": [
+      { lemma: "õmblema", et: "Lasin endale ülikonna õmmelda.", form: "Lasin" },
+      { lemma: "mandel", et: "Eelmisel teisipäeval lasin mandlid ära lõigata.", form: "lasin" },
+    ],
+  },
   hedging: {
     "Words like \"probably\", \"likely\" and \"perhaps\"": [
       { lemma: "vist", et: "Ema vist magab juba.", form: "vist" },

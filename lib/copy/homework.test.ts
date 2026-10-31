@@ -4,15 +4,13 @@ import { LESSONS } from "@/lib/course/lessons";
 import { lessonLevels, unitsAboveLessons } from "@/lib/curriculum/align";
 import { UNIT_HOMEWORK_FROM } from "./homework";
 
-describe("unit homework starts where the lessons stop", () => {
-  it("names the level the lessons teach and the first level a unit can be set from", () => {
+describe("unit homework is retired, since every level is lessons", () => {
+  it("says every level is taught as lessons, and the course has no unit left to set", () => {
     const taught = [...lessonLevels(LESSONS)];
-    const offered = unitsAboveLessons(PATH, LESSONS);
-    expect(taught).toEqual(["A1", "A2", "B1", "B2"]);
-    expect(offered.length).toBeGreaterThan(0);
-    expect(offered[0]!.level).toBe("C1");
-    expect(UNIT_HOMEWORK_FROM).toContain(`${taught.slice(0, -1).join(", ")} and ${taught[taught.length - 1]} are taught as lessons`);
-    expect(UNIT_HOMEWORK_FROM).toContain(`starts at ${offered[0]!.level}`);
+    expect(taught).toEqual(["A1", "A2", "B1", "B2", "C1"]);
+    expect(unitsAboveLessons(PATH, LESSONS)).toEqual([]);
+    expect(UNIT_HOMEWORK_FROM).toMatch(/^Every level is taught as lessons/);
+    expect(UNIT_HOMEWORK_FROM).toContain("rather than a unit");
   });
 
   it("offers no unit at a level taught as lessons", () => {

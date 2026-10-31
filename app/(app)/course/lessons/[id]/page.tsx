@@ -48,6 +48,8 @@ export default async function LessonPage({ params, searchParams }: { params: Pro
       timeMultiplier={view.timeMultiplier}
       partAt={view.partAt}
       read={view.read}
+      notes={view.notes}
+      forms={view.forms}
     />
   );
 }

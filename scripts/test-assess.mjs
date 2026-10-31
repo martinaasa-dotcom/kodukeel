@@ -23,7 +23,7 @@ const B = baseUrl();
   Raised by one: first run now asks what language a meaning should be given in,
   on the screen before any Estonian is shown.
 */
-const { check, absent, done } = suite("Level check", { floor: 55 });
+const { check, absent, done } = suite("Level check", { floor: 52 });
 
 /*
   The sittings already stored, counted before this run sits one. "It comes back"
@@ -398,10 +398,9 @@ if (onboarded) {
   check("and it does not promise a number of minutes it cannot keep",
     !/ten.minute|10.minute/i.test(await page.locator("body").innerText()));
   /*
-    Fluent is C1 held, which opens C1, the top. Every level below it is
-    lessons since B2 moved (docs/43-lessons.md §14), and a lesson level hands
-    over no unit list for the deck step below to read, so the chip that still
-    opens on units is the one pressed.
+    Fluent is C1 held, which opens C1, the top. Every level is lessons since
+    C1 moved (docs/43-lessons.md §16), and a lesson level hands over no unit
+    list: the deck step below says the first lesson gives its words.
   */
   await page.getByRole("radio", { name: /Fluent/ }).click();
   await page.getByRole("button", { name: /^Continue$/ }).click();
@@ -441,41 +440,18 @@ if (onboarded) {
 
   check("the deck step comes last", (await page.getByText(/Your first words/i).count()) > 0);
   /*
-    The unit list and the rest of the course sit behind a press since TB-17,
-    so the step fits a phone; the count stays on the page. A closed details
-    is not in innerText, so it is opened before the step is read, and the
-    press is itself a check that the list is still offered.
+    NO UNIT LIST, BECAUSE EVERY LEVEL IS LESSONS (docs/43-lessons.md §16). The
+    step used to name the three units of a starter deck behind a press and
+    count their cards and the weeks they take; a lesson level builds no starter
+    deck, since a lesson hands the deck its words when it is finished, so those
+    three checks went with their subject and the floor came down by three.
   */
-  const unitsPress = page.locator("summary", { hasText: /The words, unit by unit/ });
-  check("the units are one press away", (await unitsPress.count()) === 1);
-  if (await unitsPress.count()) await unitsPress.click();
+  check("a lesson level offers no unit list", (await page.locator("summary", { hasText: /The words, unit by unit/ }).count()) === 0);
   const deckStep = await page.locator("body").innerText();
-
-  /*
-    The deck is stated, not chosen. It used to be fourteen units with
-    checkboxes, which is fourteen decisions handed to somebody ninety seconds
-    into the app, and the honest reading of a list like that is "tick
-    everything": at A1 that is 2063 cards, which at the pace this app itself
-    calls sustainable is a four year backlog built by accident. So the course
-    picks the first three units, names them, and says how big they are.
-  */
-  check("it names the units it is giving rather than asking which to take",
-    /Nominalisatsioon|Lauseloome|Akadeemiline eesti keel|Teadustöö/.test(deckStep));
+  check("it says the first lesson gives you its words, rather than asking which to take",
+    /Your first lesson gives you its words/.test(deckStep));
   check("and asks nobody to pick, because a stranger cannot answer that yet",
     (await page.getByRole("button", { name: /Units to start with/i }).count()) === 0);
-
-  /*
-    The count and the timeline. `words * 2` was the old estimate and it is out
-    by a factor of four at A2, where every unit drills seven cases and up to two
-    recorded sentences on top of recognition and production. A screen promising
-    a hundred cards where the deck is four hundred and sixty has misdescribed
-    the next year of somebody's evenings, so the server builds the cards and
-    counts them.
-  */
-  check("it says how many cards that actually is", /\d+ words, \d+ cards/.test(deckStep));
-  check("and how long they take at the chosen pace", /\d+ weeks to work through/.test(deckStep));
-  check("and that the rest of the course is still there",
-    /on the path whenever you want them/i.test(deckStep));
 
   /*
     The sentence this screen exists to get right. It read "setting this higher

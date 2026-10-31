@@ -2,9 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { Archive, Check, Copy, LogOut, Plus, Printer } from "lucide-react";
-import { archiveClassroom, assignHomework, assignScene, assignUnit, createClassroom, joinClassroom, leaveClassroom, setEmailKind } from "@/app/actions";
+import { Archive, Check, Copy, LogOut, Plus } from "lucide-react";
+import { archiveClassroom, assignHomework, assignScene, createClassroom, joinClassroom, leaveClassroom, setEmailKind } from "@/app/actions";
 import { Button } from "@/components/Button";
 import { COPY_LABEL, useCopy } from "@/components/useCopy";
 import { ChoiceCard, ChoiceChip, ChoiceGroup } from "@/components/Choice";
@@ -15,7 +14,6 @@ import {
 import { EXAM_LEVELS } from "@/lib/exam/spec";
 import { Explain } from "@/components/Explain";
 import { NOT_REACHED } from "@/lib/copy/values";
-import { UNIT_HOMEWORK_FROM } from "@/lib/copy/homework";
 import { useLocale, useT } from "@/components/Locale";
 import { countOf, fill } from "@/lib/copy/locale";
 
@@ -252,77 +250,8 @@ export function ArchiveClass({ classroomId }: { classroomId: string }) {
   );
 }
 
-export function AssignUnit({ classroomId, units }: {
-  classroomId: string;
-  units: { id: string; title: string; subtitle: string }[];
-}) {
-  const t = useT();
-  const locale = useLocale();
-  const router = useRouter();
-  const [unitId, setUnitId] = useState(units[0]?.id ?? "");
-  const [due, setDue] = useState("");
-  const [message, setMessage] = useState<string | null>(null);
-  const [pending, start] = useTransition();
-
-  return (
-    <div className="flex flex-wrap items-end gap-2">
-      <div className="min-w-[210px] flex-1">
-        <label htmlFor="assign-unit" className="label-xs mb-1 block" style={{ color: "var(--ink-3)" }}>
-          {t("Set a unit as homework")}
-        </label>
-        <select
-          id="assign-unit"
-          value={unitId}
-          onChange={(e) => setUnitId(e.target.value)}
-          className="w-full rounded-[var(--r)] border px-3 py-2 text-sm"
-          style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
-        >
-          {units.map((u) => (
-            <option key={u.id} value={u.id}>{u.title}, {t(u.subtitle)}</option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <label htmlFor="assign-due" className="label-xs mb-1 block" style={{ color: "var(--ink-3)" }}>
-          {t("Due (optional)")}
-        </label>
-        <input
-          id="assign-due"
-          type="date"
-          value={due}
-          onChange={(e) => setDue(e.target.value)}
-          className="field text-sm"
-          style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
-        />
-      </div>
-      <Button
-        variant="primary"
-        disabled={pending || !unitId}
-        onClick={() => start(async () => {
-          const result = await assignUnit(classroomId, unitId, due || undefined).catch(() => null);
-          if (!result) { setMessage(t(NOT_REACHED)); return; }
-          setMessage(result.ok ? fill(t("Sent to {people}."), { people: countOf(locale, result.assigned, "person") }) : t(result.error));
-          router.refresh();
-        })}
-      >
-        {t(pending ? "Sending…" : "Send it to the class")}
-      </Button>
-      {/* The same unit, on paper. A class that meets in a room wants both. */}
-      <Link
-        href={`/learn/${unitId}/worksheet`}
-        className="press inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-semibold transition-ui hover:-translate-y-px"
-        style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}
-      >
-        <Printer size={14} aria-hidden /> {t("Print a worksheet")}
-      </Link>
-      <p className="w-full text-sm" style={{ color: "var(--ink-2)" }}>{t(UNIT_HOMEWORK_FROM)}</p>
-      {message && <p role="status" className="w-full text-xs" style={{ color: "var(--ink-3)" }}>{message}</p>}
-    </div>
-  );
-}
-
 /**
- * One of the conversations as homework (FB-6). The shape of `AssignUnit`: pick
+ * One of the conversations as homework (FB-6): pick
  * one, an optional date, send. What makes it different is after, not here:
  * nobody ticks it, since it is done when a learner finishes a run of it, and
  * the class page counts how many have.
@@ -391,7 +320,7 @@ export function AssignScene({ classroomId, scenes }: {
 /**
  * Anything else as homework: a page number, an exercise, a sentence to write.
  * Most of what a real class actually assigns is not one of the fixed units,
- * so `AssignUnit` alone left a teacher typing the real homework into a
+ * so the unit picker it was first written beside left a teacher typing the real homework into a
  * WhatsApp group anyway, which is the exact gap the class feature exists to
  * close.
  */

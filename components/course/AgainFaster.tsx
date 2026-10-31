@@ -45,6 +45,8 @@ export interface FasterKept {
   readonly helped: boolean;
   /** Whether the preparation before the first go is over, where the go has one (B2's exam talk). */
   readonly prepared?: boolean;
+  /** Which of two topics was chosen, by index, where the race offers a choice (C1's presentation). */
+  readonly topic?: number;
 }
 
 /*
@@ -61,7 +63,15 @@ export function AgainFaster({ faster, voice, typed, multiplier, onDone, kept, on
   const [goes, setGoes] = useState<readonly Go[]>(kept?.goes ?? []);
   const [helped, setHelped] = useState(kept?.helped ?? false);
   const [prepared, setPrepared] = useState(kept?.prepared ?? (!faster.prepare || (kept?.goes.length ?? 0) > 0));
-  useKeep(useMemo(() => ({ goes, helped, prepared }), [goes, helped, prepared]), onKeep);
+  /*
+    C1'S PRESENTATION OFFERS TWO TOPICS (`Faster.topics`), chosen before the
+    preparation starts, as the paper does: the clock to prepare is for the
+    topic in hand, so it waits for the choice, and the go runs on that one.
+  */
+  const topics = faster.topics ?? [];
+  const [topic, setTopic] = useState<number | null>(kept?.topic ?? null);
+  const choosing = topics.length > 0 && topic === null && !prepared;
+  useKeep(useMemo(() => ({ goes, helped, prepared, ...(topic !== null ? { topic } : {}) }), [goes, helped, prepared, topic]), onKeep);
   // "Need an idea?" goes once pressed, so the caret goes to the idea it showed.
   const ideaRef = useRef<HTMLDivElement>(null);
   const asking = useRef(false);
@@ -102,9 +112,16 @@ export function AgainFaster({ faster, voice, typed, multiplier, onDone, kept, on
         </p>
       </div>
 
-      {!prepared && faster.prepare
-        ? <Prepare seconds={faster.prepare} onReady={() => setPrepared(true)} />
-        : !over && <OneGo key={round} seconds={windows[round]!} typed={typed} focusStart={round > 0 || Boolean(faster.prepare)} onGo={(go) => setGoes((all) => [...all, go])} />}
+      {topic !== null && topics[topic] && (
+        <p className="mb-3 text-base" style={{ color: "var(--ink)" }} data-faster-topic={topic + 1}>
+          <span className="font-semibold">{t("Your topic:")}</span> <LessonText text={topics[topic]!.en} locale={locale} />
+        </p>
+      )}
+      {choosing
+        ? <TopicChoice topics={topics} onChoose={setTopic} />
+        : !prepared && faster.prepare
+          ? <Prepare seconds={faster.prepare} onReady={() => setPrepared(true)} />
+          : !over && <OneGo key={round} seconds={windows[round]!} typed={typed} focusStart={round > 0 || Boolean(faster.prepare)} onGo={(go) => setGoes((all) => [...all, go])} />}
 
       {round > 0 && !helped && !over && (
         <Button variant="ghost" size="sm" onClick={() => { asking.current = true; setHelped(true); }}>{t("Need an idea?")}</Button>
@@ -128,6 +145,26 @@ export function AgainFaster({ faster, voice, typed, multiplier, onDone, kept, on
         </Button>
       </div>
     </Card>
+  );
+}
+
+/** Two topics, two buttons: the choice the exam's presentation opens on (C1). */
+function TopicChoice({ topics, onChoose }: { topics: readonly { readonly en: string }[]; onChoose: (i: number) => void }) {
+  const t = useT();
+  const locale = useLocale();
+  const first = useRef<HTMLButtonElement>(null);
+  useEffect(() => { first.current?.focus(); }, []);
+  return (
+    <div className="mb-4 flex flex-col gap-3" data-faster-topics>
+      <p className="text-base" style={{ color: "var(--ink-2)" }}>{t("Choose one of two topics, as in the exam. The time to prepare starts once you have.")}</p>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {topics.map((topic, i) => (
+          <Button key={topic.en} ref={i === 0 ? first : undefined} variant="secondary" onClick={() => onChoose(i)}>
+            <LessonText text={topic.en} locale={locale} />
+          </Button>
+        ))}
+      </div>
+    </div>
   );
 }
 

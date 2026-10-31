@@ -1,3 +1,4 @@
+import { unitLessonHref } from "@/lib/course/unitLesson";
 import { meaningPrefsFrom } from "@/lib/collections/glossLanguage";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
@@ -153,6 +154,7 @@ export default async function ReviewPage({
         <ReviewSession
           cards={await withChoices(drill, gloss, ownerId)}
           drillUnit={unitId}
+          drillUnitHref={unitLessonHref(unitId)}
           totalCards={0}
           mode={await modeChosen()}
         />

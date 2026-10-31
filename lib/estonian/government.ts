@@ -190,7 +190,11 @@ export function parseGovernment(raw: string | null | undefined): Government | nu
  * (`lib/course/lessons/sentenceCheck.ts`).
  */
 export function governmentParts(raw: string | null | undefined): string[] {
-  return (raw ?? "").split("·").map((part) => part.trim()).filter((part) => part.length > 0);
+  /* Two separators, because the stored strings carry both: rows harvested
+     before the middot came off every screen join with `·`, and
+     `formatGovernment` joins with a comma now, so a word harvested again (C1's
+     lessons asked for eleven) carries the comma. No part holds either. */
+  return (raw ?? "").split(/[·,]/).map((part) => part.trim()).filter((part) => part.length > 0);
 }
 
 /**

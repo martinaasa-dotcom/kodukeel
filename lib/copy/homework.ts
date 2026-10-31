@@ -1,10 +1,12 @@
 /**
- * WHY A CLASS CANNOT BE SENT AN A1 UNIT (docs/44-sixth-batch.md, S-1a).
+ * WHY A CLASS IS NOT SENT A UNIT (docs/44-sixth-batch.md, S-1a; docs/43-lessons.md §16).
  *
- * A1, A2, B1 and B2 are taught as lessons, and their units are the dictionary's request
- * list rather than a place anybody is walked through, so homework set from a
- * unit starts at C1. One sentence, said in the picker, on /teachers and by
- * `assignUnit` when it refuses an A1 unit, so the three cannot word it three
- * ways. `homework.test.ts` holds the two levels it names to the course.
+ * Every level from A1 to C1 is taught as lessons, and the units are the
+ * dictionary's request list rather than a place anybody is walked through, so
+ * unit homework is retired: a class is sent one of the conversations or a
+ * piece of homework the teacher writes. One sentence, said on /teachers and
+ * by `assignUnit` when it refuses, so the two cannot word it two ways.
+ * `homework.test.ts` holds it to the course having no level left to set a
+ * unit from.
  */
-export const UNIT_HOMEWORK_FROM = "A1, A2, B1 and B2 are taught as lessons, so unit homework starts at C1.";
+export const UNIT_HOMEWORK_FROM = "Every level is taught as lessons now, so a class is sent a conversation or homework of your own rather than a unit.";

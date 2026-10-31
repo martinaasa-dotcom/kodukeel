@@ -159,5 +159,13 @@
  * `koristamine`, `veeb`, `lauluväljak`, `vähenema`, `suurenema`, `sõitja`,
  * `rattur` and `selguma`. Most are words built from words, which is what the
  * B2 lessons teach them as, so they went to the word-building unit.
+ *
+ * Eleven more came with C1's (docs/43-lessons.md §16): `hullem`, `südaöö`,
+ * `laen`, `värvima`, `alandama`, `test`, `kodukoht`, `parim`, `peatänav`,
+ * `meloodia` and `märkmed`, each under the C1 unit of the part that teaches it.
+ * Two more were asked and Ekilex has neither as asked, so the lessons say them
+ * otherwise: the name `Mihkel`, whose genitive the naming party teaches as a
+ * chunk of its own, and the participle `mõõtev`, which the radio lesson now
+ * files under the verb it is a form of, `mõõtma`.
  */
-export const SEED_SET_SIZE = { words: 6_314, forms: 40_587 };
+export const SEED_SET_SIZE = { words: 6_325, forms: 40_663 };

@@ -1,11 +1,12 @@
 import { normalisePhrase } from "./ledger";
-import { B2_PATTERNS, type LessonSpec, type PartOfLessons } from "./types";
+import { B2_PATTERNS, C1_PATTERNS, type LessonSpec, type PartOfLessons } from "./types";
 import { b2PartAt, b2PatternsAboveMissing } from "./rampB2";
+import { c1PartAt, c1PatternsAboveMissing } from "./rampC1";
 
 /**
  * WHAT A LEVEL OF LESSONS HAS TO BE, WHICHEVER LEVEL IT IS.
  *
- * A1, A2, B1 and B2 are lessons, and C1 will be. Every rule here was true
+ * A1, A2, B1, B2 and C1 are lessons, every level the course has. Every rule here was true
  * of A1 by the time A2 was written and was found broken by a reading of A2,
  * which is the argument for writing them down as a check rather than a
  * habit: four parts ended on an evening labeled "Check-in" where the rest
@@ -54,6 +55,19 @@ export function lessonEnglish(lesson: LessonSpec): string[] {
     // The B2 additions: a real text in the Listen step, and words to work out.
     ...(lesson.read ? [lesson.read.genre, ...lesson.read.lines.map((l) => l.en)] : []),
     ...(lesson.workOut ?? []).flatMap((w) => [w.sentence.en, w.means, ...w.options]),
+    // The C1 additions: a text's questions, a talk taken down as notes, which room, and the presentation's topics.
+    ...(lesson.read?.questions ?? []).flatMap((q) =>
+      q.kind === "match" ? q.statements.map((s) => s.en) : q.kind === "gap" ? q.options.map((o) => o.en) : [q.q.en]),
+    ...(lesson.notes
+      ? [
+        lesson.notes.title.en,
+        ...lesson.notes.lines.map((l) => l.en),
+        ...lesson.notes.questions.flatMap((q) => [q.q.en, ...(q.kind === "choice" ? q.options.map((o) => o.en) : [])]),
+        ...lesson.notes.keyIdeas.map((k) => k.en),
+      ]
+      : []),
+    ...(lesson.rooms ?? []).flatMap((r) => r.versions.map((v) => v.en)),
+    ...(lesson.faster?.topics ?? []).map((t) => t.en),
   ].filter((s) => s.trim() !== "");
 }
 
@@ -176,7 +190,16 @@ export function levelContractProblems(lessons: readonly LessonSpec[], parts: rea
       const inPart = lessons.filter((l) => l.part === part.id);
       const longest = Math.max(0, ...inPart.map((l) => l.retell?.story.length ?? 0));
       const most = Math.max(0, ...inPart.map((l) => l.write?.least ?? 0));
-      if (longest > 0 && longest < story) problems.push(`${level} ${part.id}: its longest retell is ${longest} sentences, under the ${story} of a part before it`);
+      /*
+        Not at C1, whose retell gets harder by how it is told rather than by
+        how long the story is (docs/43-lessons.md §15.6): heard once and
+        retold with an opinion, then to a different listener, then from notes
+        in five sentences, then from notes with a reason and a counterargument.
+        A part 5 story of eleven sentences retold from notes asks more than a
+        part 2 story of twelve retold as heard, and `c1RampProblems` holds the
+        hearing; the writing below still never falls at C1.
+      */
+      if (level !== "C1" && longest > 0 && longest < story) problems.push(`${level} ${part.id}: its longest retell is ${longest} sentences, under the ${story} of a part before it`);
       if (most > 0 && most < words) problems.push(`${level} ${part.id}: its writing asks ${most} words at most, under the ${words} of a part before it`);
       story = Math.max(story, longest);
       words = Math.max(words, most);
@@ -216,6 +239,7 @@ export function levelContractProblems(lessons: readonly LessonSpec[], parts: rea
     }
   }
   problems.push(...b2LevelProblems(lessons, parts));
+  problems.push(...c1LevelProblems(lessons, parts));
   return problems;
 }
 
@@ -254,6 +278,52 @@ export function b2LevelProblems(lessons: readonly LessonSpec[], parts: readonly 
       }
     }
     for (const l of inPart) for (const p of l.patterns ?? []) if ((B2_PATTERNS as readonly string[]).includes(p)) earlier.add(p);
+  });
+  return problems;
+}
+
+/**
+ * WHAT A C1 PART HAS TO BE ON TOP OF EVERY LEVEL'S SHAPE (docs/43-lessons.md
+ * §15.2, §15.3, §15.5, §15.7). Asked of C1 alone, so A1 to B2 are untouched.
+ *
+ *   - Every part writes exactly one real text (`write`), as at B2.
+ *   - From the second part on, a part's reworks ask for at least one C1
+ *     pattern an earlier C1 part explained, and in every part for at least one
+ *     B2 pattern, so the quotative and hedging are still in use at the end.
+ *   - Every core lesson but a part's last reads a real text (`read`), and from
+ *     the third part on every text read is asked about (`read.questions`).
+ *
+ * A C1 part's closing conversation admits a curveball, which no lesson field
+ * records: its scene's `curveballs` do, so it is asked where the scene is, by
+ * `lessonScenes.test.ts` and step 7 of `scripts/check-lesson-part.ts`.
+ *
+ * `parts` in teaching order, placed by `C1_PART_ORDER` and crediting the parts
+ * above not written yet, as `b2LevelProblems` does.
+ */
+export function c1LevelProblems(lessons: readonly LessonSpec[], parts: readonly PartOfLessons[]): string[] {
+  const problems: string[] = [];
+  const earlier = new Set<string>();
+  const ofLevel = parts.filter((p) => p.level === "C1");
+  const present = new Set(ofLevel.map((p) => p.id));
+  ofLevel.forEach((part, n) => {
+    const i = c1PartAt(part.id, n + 1) - 1;
+    for (const x of c1PatternsAboveMissing(part.id, present)) earlier.add(x);
+    const inPart = lessons.filter((l) => l.part === part.id);
+    const at = `C1 ${part.id}`;
+    const writes = inPart.filter((l) => l.write).length;
+    if (writes !== 1) problems.push(`${at}: writes ${writes} real texts, where a C1 part writes exactly one`);
+    const reworks = inPart.flatMap((l) => l.reworks ?? []);
+    if (i >= 1 && !reworks.some((r) => earlier.has(r.pattern))) {
+      problems.push(`${at}: no rework asks for a C1 pattern an earlier C1 part explained (${earlier.size > 0 ? [...earlier].join(", ") : "none yet"}), where from the second part one does`);
+    }
+    if (!reworks.some((r) => (B2_PATTERNS as readonly string[]).includes(r.pattern))) {
+      problems.push(`${at}: no rework asks for a B2 pattern (${B2_PATTERNS.join(", ")}), where every C1 part recycles one`);
+    }
+    for (const l of inPart) {
+      if (!l.extra && l.kind !== "partEnd" && !l.read) problems.push(`${at}, ${l.id}: carries no text to read (\`read\`), where every C1 lesson but a part's last does`);
+      if (i >= 2 && l.read && (l.read.questions ?? []).length === 0) problems.push(`${at}, ${l.id}: its text is asked nothing (\`read.questions\`), where from the third part a text is asked about`);
+    }
+    for (const l of inPart) for (const p of l.patterns ?? []) if ((C1_PATTERNS as readonly string[]).includes(p)) earlier.add(p);
   });
   return problems;
 }

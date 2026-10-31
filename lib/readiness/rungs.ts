@@ -1,3 +1,4 @@
+import { unitLessonHref } from "@/lib/course/unitLesson";
 import type { Level } from "@/lib/collections/syllabus";
 import { CASES, caseByKey, casePlainName } from "@/lib/estonian/cases";
 import type { CaseKey } from "@/lib/estonian/types";
@@ -316,8 +317,8 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
         ? say("The course hasn't brought you these words yet, so there's nothing to go on.")
         : say("Words you haven't met yet."),
       blocks: at.met === 0 ? "follow" : share(at.follow) >= FOLLOW_SHARE ? "takePart" : "follow",
-      href: `/learn/${situation.id}`,
-      cta: "Open the unit",
+      href: unitLessonHref(situation.id),
+      cta: "Open the lesson",
     }));
   }
 
@@ -419,8 +420,8 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
             ? say("Leading means asking. Question words let you steer the conversation instead of just answering.")
             : say("Every conversation leans on these, whatever it's about."),
         blocks: "lead",
-        href: `/learn/${unit}`,
-        cta: "Open the unit",
+        href: unitLessonHref(unit),
+        cta: "Open the lesson",
       }));
     }
 
@@ -499,8 +500,8 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
       title: say("Only {answers} answers so far, so this stays at \"{rung}\" for now", { answers }, { rung: RUNG_LABEL[rung].toLowerCase() }),
       detail: say("A dozen answers is too few to say more without guessing. Give it another week of reviews and this can tell you properly."),
       blocks: RUNG_ORDER[rungRank(rung) + 1] ?? "lead",
-      href: `/learn/${situation.id}`,
-      cta: "Open the unit",
+      href: unitLessonHref(situation.id),
+      cta: "Open the lesson",
     }));
   }
 

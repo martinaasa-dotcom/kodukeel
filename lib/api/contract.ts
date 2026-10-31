@@ -343,6 +343,30 @@ const LessonPattern = z.enum([
   "participle", "conditionalPast", "subordinate", "agreement", "derivation",
   // B2's, added for the B2 lessons (docs/43-lessons.md §13). The same kind of rule as B1's: they build no spelling.
   "quotative", "converb", "supine", "nominal", "hedging", "concession", "spoken",
+  // C1's, added for the C1 lessons (docs/43-lessons.md §15). The same kind again: they build no spelling.
+  "jussive", "stance", "presentParticiple", "connective", "cohesion", "emphasis", "argument", "literary", "collocation",
+]);
+
+const LessonRoom = z.enum(["friend", "work", "writing"]);
+
+const ReadQuestionSchema = z.discriminatedUnion("kind", [
+  z.object({
+    kind: z.literal("match"),
+    statements: z.array(z.object({ et: z.string(), en: z.string(), section: z.number().int() })).readonly(),
+  }).describe("Statements, each to be matched to the section of the text it is about (`read.lines[].section`)."),
+  z.object({
+    kind: z.literal("gap"), line: z.number().int().describe("The line of the text taken out, from 0."),
+    options: z.array(EtEn).readonly(), answer: z.number().int().describe("The option that is the line taken out, by index."),
+  }).describe("A whole sentence chosen out of three for a gap in the text: draw the text with that line taken out until it is answered."),
+  z.object({
+    kind: z.literal("short"), q: EtEn,
+    accept: z.array(z.string()).readonly().describe("Every answer that counts, marked as a typed phrase is."),
+  }).describe("A question answered in a word or two."),
+]);
+
+const NotesQuestionSchema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("short"), q: EtEn, accept: z.array(z.string()).readonly() }),
+  z.object({ kind: z.literal("choice"), q: EtEn, options: z.array(EtEn).readonly(), answer: z.number().int() }),
 ]);
 
 export const LessonSpecSchema = z.object({
@@ -392,6 +416,7 @@ export const LessonSpecSchema = z.object({
   })).readonly().optional().describe("Lines with a slip in them, B1 on; the practice step carries them as `fix` items."),
   listenFor: z.array(z.object({
     q: z.string(), options: z.array(z.string()).readonly(), answer: z.number().int(),
+    meant: z.literal(true).optional().describe("A question about what was meant rather than what was said (C1): draw it the same, saying so."),
   })).readonly().optional().describe("Questions on what was heard, asked before the text is shown, B1 on. Draw the options in the order the web does: shuffled with a seed taken from the question."),
   hearing: z.enum(["phone", "cafe", "quick", "half"]).optional()
     .describe("The room the hidden first play of the conversation is heard in (B1 on): a phone line, a café, sped up, or joined halfway (B2: the first line starts two fifths of the way in). Absent is a quiet room."),
@@ -406,6 +431,8 @@ export const LessonSpecSchema = z.object({
     seconds: z.array(z.number().int()).readonly().optional()
       .describe("The windows in seconds at the standard pace, one go each, each shorter than the last; absent is 90, 60 and 45 (B2 shortens them, and its last parts have one go of 60)."),
     prepare: z.number().int().optional().describe("Seconds to get ready before the first go, a clock that can be cut short and never starts a go by itself (B2's exam talk: 120)."),
+    topics: z.array(z.object({ en: z.string() })).readonly().optional()
+      .describe("Two topics to choose between before the preparation starts (C1, the exam's presentation); the go runs on the one chosen."),
   }).optional().describe("One answer said three times, in 90, 60 and 45 seconds at the standard pace (times `timeMultiplier`), B1 on."),
   write: z.object({
     genre: z.string(), purpose: z.string(),
@@ -415,11 +442,29 @@ export const LessonSpecSchema = z.object({
   roleplay: z.object({ scene: z.string(), turns: z.array(LessonPrompt).readonly() }).optional(),
   read: z.object({
     genre: z.string(),
-    lines: z.array(EtEn).readonly(),
+    lines: z.array(z.object({
+      et: z.string(), en: z.string(),
+      section: z.number().int().optional().describe("Which section of the text the line is in, from 1, where a `match` question names sections (C1)."),
+    })).readonly(),
+    questions: z.array(ReadQuestionSchema).readonly().optional()
+      .describe("Questions about the text in the C1 paper's three shapes, asked under it after it is read and graded nowhere (C1 from its third part)."),
   }).optional().describe("A real text read in the Listen step after the transcript and never asked about (B2 on); its words may run ahead of the course, and `LessonResponse.read` carries the dictionary under the ones not yet taught."),
   workOut: z.array(z.object({
     sentence: EtEn, word: z.string(), parts: z.array(z.string()).readonly(), means: z.string(), options: z.array(z.string()).readonly(),
   })).readonly().optional().describe("Words to work out from their parts (B2 on); the practice step carries them as `workOut` items."),
+  notes: z.object({
+    title: EtEn,
+    speaker: z.string().describe("Who gives the talk, a speaker of the cast, in whose voice it is read."),
+    hearings: z.union([z.literal(1), z.literal(2)]).describe("How often the talk may be heard before the questions; the play control goes once it has been."),
+    lines: z.array(EtEn).readonly().describe("The talk a line at a time, each under the speech route's 400 characters, played one after another."),
+    questions: z.array(NotesQuestionSchema).readonly(),
+    keyIdeas: z.array(z.object({ en: z.string() })).readonly().describe("The ideas a good set of notes catches, shown beside the learner's own after the questions."),
+  }).optional().describe("A talk taken down as notes in the Listen step (C1 from its second part): no transcript until the questions are answered; the notes stay on the device and are never sent. `LessonResponse.notes` carries the dictionary under the transcript's untaught words."),
+  rooms: z.array(z.object({
+    versions: z.array(z.object({ room: LessonRoom, et: z.string(), en: z.string() })).readonly(),
+    ask: LessonRoom,
+    rework: z.object({ from: LessonRoom, to: LessonRoom, accept: z.array(z.string()).readonly() }).optional(),
+  })).readonly().optional().describe("One thing said three ways, to a friend, at work and in writing (C1); the practice step carries each as a `room` item, and its rework as a `rework` item."),
 }).describe(
   "One lesson as the web's lesson screen receives it. Two conventions run through its English, and a " +
   "native screen draws them as the web's `Braced` does: Estonian inside an English sentence is written in " +
@@ -461,6 +506,11 @@ export const PracticeItemSchema = z.discriminatedUnion("kind", [
     kind: z.literal("workOut"), et: z.string(), en: z.string(), word: z.string(),
     parts: z.array(z.string()).readonly(), options: z.array(z.string()).readonly(), answer: z.string(),
   }).describe("A sentence with one untaught word whose parts are taught (B2 on): pick its meaning among `options`, then show `word` as its `parts` and the sentence's English, which says the meaning and so waits until after."),
+  z.object({
+    kind: z.literal("room"), ask: LessonRoom,
+    versions: z.array(z.object({ room: LessonRoom, et: z.string(), en: z.string() })).readonly(),
+    options: z.array(z.string()).readonly(), answer: z.string(),
+  }).describe("Which of three ways of saying one thing fits the room `ask` names (C1): pick among `options`, then show every version with its room."),
   z.object({ kind: z.literal("hear"), et: z.string(), options: z.array(z.string()).readonly(), answer: z.string() }),
   z.object({ kind: z.literal("pick"), et: z.string(), options: z.array(z.string()).readonly(), answer: z.string() }),
   z.object({
@@ -472,7 +522,7 @@ export const PracticeItemSchema = z.discriminatedUnion("kind", [
   }),
 ]).describe(
   "One question, built on the server; the client never decides what a learner is asked. A kind is added " +
-  "and never removed within v1 (`rework` and `fix` came with B1, `workOut` with B2), so a client skips an item whose kind it " +
+  "and never removed within v1 (`rework` and `fix` came with B1, `workOut` with B2, `room` with C1), so a client skips an item whose kind it " +
   "does not know rather than failing the lesson: a lesson with one question fewer is still a lesson.",
 );
 
@@ -500,6 +550,20 @@ export const LessonResponse = z.object({
   timeMultiplier: z.number().min(1).describe("How many times the standard a timed go runs for this learner (their round pace), for \"Again, faster\"."),
   read: z.array(z.array(GlossedToken).readonly()).readonly().nullable()
     .describe("The lesson's text to read (B2 on), a line at a time, with the dictionary under each word the lessons have not taught by now and nothing under the ones they have; null where the lesson has no text."),
+  notes: z.array(z.array(GlossedToken).readonly()).readonly().nullable()
+    .describe("The transcript of the lesson's talk taken down as notes (C1), a line at a time, glossed as `read` is; null where the lesson has no talk."),
+  forms: z.array(z.object({
+    lexemeId: z.string(),
+    lemma: z.string(),
+    translation: z.string(),
+    pres1sg: z.string(),
+    forms: z.array(z.object({
+      code: z.string().describe("Ekilex's code for the slot, such as `IndIpfSg3` or `ImpPrPl2`."),
+      value: z.string(),
+      origin: z.enum(["EKILEX", "STORED", "DERIVED"]),
+    })).readonly(),
+    inDeck: z.boolean(),
+  })).readonly().describe("C1: the verbs whose past and polite command the Words step shows in a table at its foot, heard and read and never asked, every form as the dictionary holds it; empty on every other lesson."),
   locale: InterfaceLanguage,
   nativePart: z.string().nullable().describe(
     "The one part of the conversation the native speaker recorded whole, which a phone plays in his voice by " +

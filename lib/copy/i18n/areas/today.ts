@@ -382,6 +382,22 @@ export const TODAY: Area = {
     "Послушай десять минут эстонского радио или посмотри эстонскую передачу с эстонскими субтитрами.",
   "Disagree with somebody politely in Estonian, and say why.":
     "Вежливо не согласись с кем-нибудь по-эстонски и скажи почему.",
+  "Say a toast, a congratulation or a condolence in Estonian, at a party, in a card or at the door.":
+    "Скажи по-эстонски тост, поздравление или соболезнование: на празднике, в открытке или у дверей.",
+  "Listen to a whole Estonian radio show or podcast episode, and tell somebody what it said.":
+    "Послушай целиком эстонскую радиопередачу или выпуск подкаста и расскажи кому-нибудь, о чём там говорили.",
+  "Read a real offer or a clause of a contract in Estonian, and explain it to somebody in plain words.":
+    "Прочитай настоящее предложение или пункт договора на эстонском и объясни его кому-нибудь простыми словами.",
+  "Write to a school, a kindergarten or an office with a request in Estonian, and send it.":
+    "Напиши по-эстонски просьбу в школу, детский сад или учреждение и отправь её.",
+  "Give a short presentation or chair a meeting in Estonian, and put the thirty words of your own job into your deck.":
+    "Сделай короткую презентацию или проведи совещание на эстонском и добавь в колоду тридцать слов своей работы.",
+  "Comment on a public consultation in Estonian, or speak at a meeting of your building or your town.":
+    "Оставь по-эстонски отзыв на общественное обсуждение или выступи на собрании своего дома или города.",
+  "Talk to an older Estonian about how things were, or go where a dialect is spoken and listen.":
+    "Поговори с пожилым эстонцем о том, как всё было раньше, или съезди туда, где говорят на диалекте, и послушай.",
+  "Read an Estonian book, or book the C1 exam.":
+    "Прочитай эстонскую книгу или запишись на экзамен C1.",
   "A school, a kindergarten":
     "Школа, детский сад",
   "Ask the same thing twice today: once of somebody you say sina to, and once of somebody you say teie to.":
@@ -526,8 +542,8 @@ export const TODAY: Area = {
     "Ты можешь объяснить, возразить и справиться с неожиданным, не переходя на русский или английский.",
   "You can live in Estonian: phone an office, the doctor or the school and get what you called for, and write every text the B2 exam sets.":
     "Ты можешь жить на эстонском: позвонить в учреждение, врачу или в школу и добиться того, ради чего звонишь, и написать каждый текст экзамена B2.",
-  "You can write academic and professional Estonian that reads as if it was written in Estonian, not translated.":
-    "Ты можешь писать на академическом и профессиональном эстонском так, будто текст сразу написан по-эстонски, а не переведён.",
+  "You can be yourself in Estonian: as funny, as precise and as firm as in your own language, at work, at a public meeting and on paper.":
+    "Ты можешь быть собой на эстонском, с тем же юмором, точностью и твёрдостью, что и на своём языке: на работе, на общем собрании и на бумаге.",
 
   // THE MODULE SCREEN.
   "Your evenings, already planned":
@@ -572,8 +588,6 @@ export const TODAY: Area = {
     "Курс по плану выключен, поэтому здесь то, что пора повторить. {turnOn}",
   "Turn it back on":
     "Включить снова",
-  "You've finished the whole course, so this is what's due.":
-    "Весь курс пройден, поэтому здесь то, что пора повторить.",
   "Open the course":
     "Открыть курс",
   "Today's module is done":
@@ -794,6 +808,8 @@ export const TODAY: Area = {
     "Форм прошедшего времени для сегодняшних глаголов у нас пока нет. Переходи к следующему шагу.",
   "the ones you've met":
     "те, что уже встречались",
+  "Each one makes its past and its polite command its own way. Listen and read them; nothing here is asked.":
+    "Каждый глагол образует прошедшее время и вежливое повеление по-своему. Послушай и прочитай, здесь ничего не спрашивают.",
   "Today's verbs":
     "Глаголы на сегодня",
 
@@ -1460,6 +1476,22 @@ export const TODAY: Area = {
     "Послухай десять хвилин естонського радіо або подивися естонську передачу з естонськими субтитрами.",
   "Disagree with somebody politely in Estonian, and say why.":
     "Ввічливо не погодься з кимось естонською і скажи чому.",
+  "Say a toast, a congratulation or a condolence in Estonian, at a party, in a card or at the door.":
+    "Скажи естонською тост, привітання або співчуття: на святі, в листівці чи біля дверей.",
+  "Listen to a whole Estonian radio show or podcast episode, and tell somebody what it said.":
+    "Послухай цілу естонську радіопередачу або випуск подкасту і розкажи комусь, про що там ішлося.",
+  "Read a real offer or a clause of a contract in Estonian, and explain it to somebody in plain words.":
+    "Прочитай справжню пропозицію або пункт договору естонською і поясни його комусь простими словами.",
+  "Write to a school, a kindergarten or an office with a request in Estonian, and send it.":
+    "Напиши естонською прохання до школи, дитячого садка чи установи і надішли його.",
+  "Give a short presentation or chair a meeting in Estonian, and put the thirty words of your own job into your deck.":
+    "Зроби коротку презентацію або проведи нараду естонською і додай до колоди тридцять слів своєї роботи.",
+  "Comment on a public consultation in Estonian, or speak at a meeting of your building or your town.":
+    "Залиш естонською відгук на громадське обговорення або виступи на зборах свого будинку чи міста.",
+  "Talk to an older Estonian about how things were, or go where a dialect is spoken and listen.":
+    "Поговори з літнім естонцем про те, як усе було колись, або поїдь туди, де говорять діалектом, і послухай.",
+  "Read an Estonian book, or book the C1 exam.":
+    "Прочитай естонську книжку або запишися на іспит C1.",
   "A school, a kindergarten":
     "Школа, дитячий садок",
   "Ask the same thing twice today: once of somebody you say sina to, and once of somebody you say teie to.":
@@ -1628,8 +1660,8 @@ export const TODAY: Area = {
     "Ти можеш пояснити, заперечити й упоратися з несподіваним, не переходячи на англійську.",
   "You can live in Estonian: phone an office, the doctor or the school and get what you called for, and write every text the B2 exam sets.":
     "Ти можеш жити естонською: зателефонувати до установи, лікаря чи школи й домогтися того, заради чого телефонуєш, і написати кожен текст іспиту B2.",
-  "You can write academic and professional Estonian that reads as if it was written in Estonian, not translated.":
-    "Ти можеш писати академічною та професійною естонською так, ніби текст одразу написано естонською, а не перекладено.",
+  "You can be yourself in Estonian: as funny, as precise and as firm as in your own language, at work, at a public meeting and on paper.":
+    "Ти можеш бути собою естонською, з тим самим гумором, точністю й твердістю, що й своєю мовою: на роботі, на громадських зборах і на папері.",
 
   // THE MODULE SCREEN.
   "Your evenings, already planned":
@@ -1674,8 +1706,6 @@ export const TODAY: Area = {
     "Курс за планом вимкнено, тож тут те, що час повторити. {turnOn}",
   "Turn it back on":
     "Увімкнути знову",
-  "You've finished the whole course, so this is what's due.":
-    "Увесь курс пройдено, тож тут те, що час повторити.",
   "Open the course":
     "Відкрити курс",
   "Today's module is done":
@@ -1896,6 +1926,8 @@ export const TODAY: Area = {
     "Форм минулого часу для сьогоднішніх дієслів у нас поки немає. Переходь до наступного кроку.",
   "the ones you've met":
     "ті, що вже траплялися",
+  "Each one makes its past and its polite command its own way. Listen and read them; nothing here is asked.":
+    "Кожне дієслово утворює минулий час і ввічливий наказ по-своєму. Послухай і прочитай, тут нічого не питають.",
   "Today's verbs":
     "Дієслова на сьогодні",
 

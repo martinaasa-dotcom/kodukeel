@@ -1,3 +1,4 @@
+import { unitLessonHref } from "@/lib/course/unitLesson";
 import { Suspense } from "react";
 import { isLessonLevel } from "@/lib/course/lessons";
 import { Lettered } from "@/components/HeroLetters";
@@ -56,7 +57,8 @@ import { unitById } from "@/lib/collections/syllabus";
 import { localeFor, titleFor } from "@/lib/progress/locale";
 import { countOf, fill, tr, type Locale } from "@/lib/copy/locale";
 import { programmeAfter, stepCard, stepsIn } from "@/lib/course";
-import { moveBlockedFor } from "@/lib/progress/checks";
+import { checksPassedFor, moveBlockedFor } from "@/lib/progress/checks";
+import { courseEndCheck } from "@/lib/progress/courseFinished";
 import { HeroFan } from "@/components/HeroFan";
 import { fillNodes } from "@/components/TemplateNodes";
 import { JokeOfDayCard } from "@/components/JokeOfDay";
@@ -349,7 +351,7 @@ export default async function TodayPage() {
     startedUnitIds: new Set(units.filter((u) => u.state === "learning").map((u) => u.unit.id)),
     placement,
   });
-  // A1, A2, B1 and B2 are the lessons rather than units (docs/43-lessons.md), so a unit of theirs is never offered here.
+  // Every level is the lessons rather than units (docs/43-lessons.md §16), so no unit is offered here and this is undefined; were one, its link would go to the lesson that teaches it.
   const nextUnit = nextSyllabusUnit && !isLessonLevel(nextSyllabusUnit.level)
     ? units.find((u) => u.unit.id === nextSyllabusUnit.id)
     : undefined;
@@ -506,7 +508,7 @@ export default async function TodayPage() {
   ) : (
     <>
       {nextUnit ? (
-        <ButtonLink href={`/learn/${nextUnit.unit.id}/lesson`} variant="secondary" className="w-full justify-center">
+        <ButtonLink href={unitLessonHref(nextUnit.unit.id)} variant="secondary" className="w-full justify-center">
           {fill(t("Start {unit}"), { unit: ui(nextUnit.unit.title, nextUnit.unit.subtitle) })} <ArrowRight size={16} aria-hidden />
         </ButtonLink>
       ) : (
@@ -578,6 +580,14 @@ export default async function TodayPage() {
   const checkDue = nextPart && programme ? await moveBlockedFor(ownerId, programme, nextPart) : null;
   const partCheck = nextPartDay ? checkDue : null;
   /*
+    THE LAST PART HAS NO NEXT ONE, SO ITS CHECK IS ASKED ABOUT HERE. The C1
+    check is how the course ends: until it is passed the hero offers it, and
+    once it is, the line over what is due says the course is finished and
+    points at the course-finished screen on /course.
+  */
+  const courseEnd = programme && courseNow?.finished && !nextPart ? courseEndCheck() : null;
+  const endCheckDue = courseEnd && !(await checksPassedFor(ownerId)).has(courseEnd.id) ? courseEnd : null;
+  /*
     WHAT A PART AND AN EVENING ARE CALLED. A lesson part is named in English
     (`lessonCourse.ts`) and an evening of it is the lesson's title, so neither
     is ever Estonian, whatever the learner's level; a part built from units is
@@ -622,7 +632,24 @@ export default async function TodayPage() {
     />
   ) : null;
 
-  const courseCard = nextPartCard ?? (moduleTonight && courseDay && courseStep ? (
+  const endCard = endCheckDue && !courseNow?.finishedToday ? (
+    <HeroFan
+      bright
+      eyebrow={t("The last step")}
+      title={fill(t("The {level} check"), { level: programme!.level })}
+      text={fill(t("You finished the {level} lessons. Pass the check on everything {level} taught, and the course is finished."), { level: programme!.level })}
+      action={
+        <ButtonLink href={`/course/check/${endCheckDue.id}`} variant="primary" size="lg" className="whitespace-nowrap">
+          {t("Take the check")} <ArrowRight size={17} aria-hidden />
+        </ButtonLink>
+      }
+      nextLabel={t("Next")}
+      cardsLabel={t("about ten minutes")}
+      cards={[{ label: t("Check"), detail: t("about ten minutes"), icon: "ClipboardCheck", state: "now" }]}
+    />
+  ) : null;
+
+  const courseCard = nextPartCard ?? endCard ?? (moduleTonight && courseDay && courseStep ? (
     /*
       THE EVENING AS A FAN OF ITS STEPS, AND THE ONE BRIGHT HERO IN THE APP.
 
@@ -685,12 +712,14 @@ export default async function TodayPage() {
                   part: <b>{partName(programme!)}</b>,
                   next: <b>{partName(nextPart)}</b>,
                 })
-                : t("That was the very last evening of the course. Every word you met along the way will keep coming back in your reviews.")}
+                : endCheckDue
+                  ? fill(t("That was the last {level} lesson, and the course is nearly done. Next is the {level} check, about ten minutes, whenever you're ready."), { level: programme!.level })
+                  : t("That was the very last evening of the course. Every word you met along the way will keep coming back in your reviews.")}
         </p>
       </div>
       <div className="flex flex-col gap-3 lg:w-[19rem] lg:shrink-0">
-        {checkDue ? (
-          <ButtonLink href={`/course/check/${checkDue.id}`} variant="secondary" className="w-full justify-center">
+        {checkDue ?? endCheckDue ? (
+          <ButtonLink href={`/course/check/${(checkDue ?? endCheckDue)!.id}`} variant="secondary" className="w-full justify-center">
             {t("Take the check")} <ArrowRight size={16} aria-hidden />
           </ButtonLink>
         ) : (
@@ -724,7 +753,9 @@ export default async function TodayPage() {
               ? fillNodes(t("The planned course is off, so this is what's due. {turnOn}"), {
                 turnOn: <Link href="/course" className="underline underline-offset-2">{t("Turn it back on")}</Link>,
               })
-              : t("You've finished the whole course, so this is what's due.")}
+              : fillNodes(t("You've finished the course, so this is what's due. {more}"), {
+                more: <Link href="/course" className="underline underline-offset-2">{t("What helps from here")}</Link>,
+              })}
           </p>
         )}
         {figures ?? opening}
@@ -944,6 +975,7 @@ export default async function TodayPage() {
         if (!errandUnit) return errand.unit;
         return ui(errandUnit.title, errandUnit.subtitle);
       })()}
+      unitHref={unitLessonHref(errand.unit)}
       sayOnce={(() => {
         /* The scene's first line and the learner's own answer, from the bank and the picks (VB-4). */
         const scene = sceneForErrand(errand);
@@ -994,7 +1026,7 @@ export default async function TodayPage() {
           label={fill(t("{unit}: {pct}% complete"), { unit: ui(nextUnit.unit.title, nextUnit.unit.subtitle), pct: nextUnit.pct })}
         />
       </div>
-      <ButtonLink href={`/learn/${nextUnit.unit.id}/lesson`} className="mt-4 w-full">
+      <ButtonLink href={unitLessonHref(nextUnit.unit.id)} className="mt-4 w-full">
         {nextUnit.state === "learning" ? t("Pick up where you left off") : t("Start this unit")}
         <ArrowRight size={15} aria-hidden />
       </ButtonLink>

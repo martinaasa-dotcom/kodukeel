@@ -33,10 +33,11 @@ import { levelIndex } from "@/lib/collections/syllabus/types";
 import { nativeClip } from "@/lib/audio/native";
 import { lessonLabel } from "./label";
 import { fold } from "@/lib/estonian/fold";
-import type { Fix, LessonSpec, PatternId, Taught } from "./types";
+import { ROOMS, type Fix, type LessonSpec, type PatternId, type Taught } from "./types";
 import { PARALLEL_FORMS } from "./parallelForms";
 import { workOutProblems } from "./workOut";
 import { fasterWindows } from "./faster";
+import { DIALECT_WORDS, standardOf } from "./dialect";
 
 /** A taught item as a learner is asked about it: a verb counts as its two spellings. */
 export type Asked = Exclude<Taught, { kind: "verb" }>;
@@ -363,7 +364,21 @@ export interface ShownEstonian {
   readonly et: string;
   readonly heard?: true;
   readonly except?: readonly string[];
+  /**
+   * A line of a text read or a talk heard (C1), which may hold a regional
+   * spelling from `DIALECT_WORDS`: such a spelling is checked against the
+   * glossary and its standard word against the forms list, never itself
+   * (`formsCheckWords`).
+   */
+  readonly dialect?: true;
 }
+
+/**
+ * The longest line the speech route reads at once (`TtsRequest` in
+ * `lib/api/contract.ts`, asserted equal in `ledger.test.ts`): a talk taken
+ * down as notes is played a line at a time, so a line is under it.
+ */
+export const SPOKEN_LINE_MOST = 400;
 
 /** Every piece of Estonian a lesson puts on a screen, with where it is. */
 export function estonianOf(lesson: LessonSpec): ShownEstonian[] {
@@ -464,10 +479,59 @@ export function estonianOf(lesson: LessonSpec): ShownEstonian[] {
   if (lesson.read) {
     english("the text's genre", lesson.read.genre);
     lesson.read.lines.forEach((line, i) => {
-      out.push({ where: `text to read, line ${i + 1}`, et: line.et, heard: true });
+      out.push({ where: `text to read, line ${i + 1}`, et: line.et, heard: true, dialect: true });
       english(`text to read, line ${i + 1} English`, line.en);
     });
+    // C1: its questions, held like the text: ahead of the course, in the forms list.
+    lesson.read.questions?.forEach((q, i) => {
+      const at = `text question ${i + 1}`;
+      if (q.kind === "match") {
+        q.statements.forEach((s, j) => {
+          out.push({ where: `${at}, statement ${j + 1}`, et: s.et, heard: true });
+          english(`${at}, statement ${j + 1} English`, s.en);
+        });
+      } else if (q.kind === "gap") {
+        q.options.forEach((o, j) => {
+          out.push({ where: `${at}, option ${j + 1}`, et: o.et, heard: true, dialect: true });
+          english(`${at}, option ${j + 1} English`, o.en);
+        });
+      } else {
+        out.push({ where: `${at}, asked`, et: q.q.et, heard: true });
+        english(`${at}, asked in English`, q.q.en);
+        q.accept.forEach((et, j) => out.push({ where: `${at}, answer ${j + 1}`, et, heard: true, dialect: true }));
+      }
+    });
   }
+  // C1: a talk taken down as notes, held like a text read.
+  if (lesson.notes) {
+    const notes = lesson.notes;
+    out.push({ where: "the talk's title", et: notes.title.et, heard: true });
+    english("the talk's title in English", notes.title.en);
+    notes.lines.forEach((line, i) => {
+      out.push({ where: `the talk, line ${i + 1}`, et: line.et, heard: true, dialect: true });
+      english(`the talk, line ${i + 1} English`, line.en);
+    });
+    notes.questions.forEach((q, i) => {
+      const at = `the talk's question ${i + 1}`;
+      out.push({ where: `${at}, asked`, et: q.q.et, heard: true });
+      english(`${at}, asked in English`, q.q.en);
+      if (q.kind === "short") q.accept.forEach((et, j) => out.push({ where: `${at}, answer ${j + 1}`, et, heard: true, dialect: true }));
+      else q.options.forEach((o, j) => {
+        out.push({ where: `${at}, option ${j + 1}`, et: o.et, heard: true });
+        english(`${at}, option ${j + 1} English`, o.en);
+      });
+    });
+    notes.keyIdeas.forEach((k, i) => english(`the talk's key idea ${i + 1}`, k.en));
+  }
+  // C1: one thing said three ways, each version held to the ledger like a rework's sentence.
+  lesson.rooms?.forEach((r, i) => {
+    r.versions.forEach((v) => {
+      out.push({ where: `which room ${i + 1}, ${v.room}`, et: v.et });
+      english(`which room ${i + 1}, ${v.room} English`, v.en);
+    });
+    r.rework?.accept.forEach((et, j) => out.push({ where: `which room ${i + 1}, also ${j + 1}`, et }));
+  });
+  lesson.faster?.topics?.forEach((topic, i) => english(`again-faster, topic ${i + 1}`, topic.en));
   // B2: a sentence with one word to work out, held to the ledger but for that word.
   lesson.workOut?.forEach((w, i) => {
     out.push({ where: `work it out ${i + 1}, the sentence`, et: w.sentence.et, except: [w.word] });
@@ -476,6 +540,44 @@ export function estonianOf(lesson: LessonSpec): ShownEstonian[] {
     w.options.forEach((o) => english(`work it out ${i + 1}, option`, o));
   });
   return out;
+}
+
+/**
+ * THE SPELLINGS OF A LESSON THE FORMS LIST IS ASKED ABOUT, each with where it
+ * stands. One reading for the lessons test and the per-part check
+ * (`scripts/check-lesson-part.ts`), so the two cannot disagree. A name or a
+ * place is let through; a regional spelling in a text read or a talk heard
+ * (`ShownEstonian.dialect`) is asked as its standard word from `DIALECT_WORDS`,
+ * never as itself, since the forms list does not know `mõtsa` and reads
+ * `vällä` as a form of another word.
+ */
+export function formsCheckWords(lesson: LessonSpec, glossary: Readonly<Record<string, string>> = DIALECT_WORDS): { readonly low: string; readonly where: string }[] {
+  const names = namesOf(lesson);
+  const out: { low: string; where: string }[] = [];
+  const pieces: { et: string; dialect?: true }[] = [
+    ...estonianOf(lesson),
+    ...lesson.teaches.flatMap((t) => (t.kind === "verb" ? [{ et: t.et }, { et: t.first }] : [{ et: t.et }])),
+  ];
+  for (const piece of pieces) {
+    for (const w of wordsOf(piece.et)) {
+      if (names.has(w.raw) || PLACE_SPELLINGS.has(w.raw)) continue;
+      const standard = piece.dialect ? standardOf(w.low, glossary) : null;
+      if (standard) out.push({ low: standard.toLocaleLowerCase("et"), where: `${lesson.id}: ${w.raw} (dialect for ${standard}) in "${piece.et}"` });
+      else out.push({ low: w.low, where: `${lesson.id}: ${w.raw} in "${piece.et}"` });
+    }
+  }
+  return out;
+}
+
+/**
+ * Whether every word of an accepted answer is a word of the text it is asked
+ * about or a spelling the ledger covers (a C1 question on a text or a talk):
+ * an answer asks about what was said, never for a word nobody has met.
+ */
+function answerOffText(answer: string, text: string, ledger: Ledger, names: ReadonlySet<string>): string[] {
+  const inText = new Set(wordsOf(text).map((w) => w.low));
+  const rest = wordsOf(answer).filter((w) => !inText.has(w.low)).map((w) => w.raw).join(" ");
+  return rest ? uncovered(rest, ledger, names) : [];
 }
 
 /**
@@ -701,6 +803,107 @@ export function lessonProblems(lessons: readonly LessonSpec[]): string[] {
     }
     lesson.workOut?.forEach((w, i) => {
       for (const p of workOutProblems(w, tonight, namesOf(lesson))) problems.push(`${at}, work it out ${i + 1}: ${p}`);
+    });
+    // A question on what was heard asks about a conversation, so there is one to hear.
+    if (lesson.listenFor && lesson.listenFor.length > 0 && !lesson.conversation.some((l) => l.et)) {
+      problems.push(`${at}: asks what was heard, and the conversation has no spoken line`);
+    }
+    if (lesson.faster?.topics) {
+      if (lesson.faster.topics.length !== 2) problems.push(`${at}: again-faster offers ${lesson.faster.topics.length} topics, where a choice is between two`);
+      if (lesson.faster.prepare === undefined) problems.push(`${at}: again-faster offers topics with no time to prepare, where a topic is chosen before the preparation`);
+      if (lesson.faster.topics.some((t) => !t.en.trim())) problems.push(`${at}: again-faster has a topic that says nothing`);
+    }
+    // C1: a text's questions (`ReadQuestion`).
+    if (lesson.read) {
+      const lines = lesson.read.lines;
+      const text = lines.map((l) => l.et).join(" ");
+      const sectioned = lines.filter((l) => l.section !== undefined).length;
+      if (sectioned > 0 && sectioned !== lines.length) problems.push(`${at}: a text with sections numbers every line, and ${lines.length - sectioned} have none`);
+      lines.forEach((l, i) => {
+        if (l.section === undefined) return;
+        const before = i === 0 ? 0 : lines[i - 1]!.section ?? 0;
+        if (!Number.isInteger(l.section) || (l.section !== before && l.section !== before + 1)) {
+          problems.push(`${at}, text to read line ${i + 1}: section ${l.section} after ${before}, where sections count up from 1`);
+        }
+      });
+      const sections = new Set(lines.flatMap((l) => (l.section === undefined ? [] : [l.section])));
+      lesson.read.questions?.forEach((q, i) => {
+        const where = `${at}, text question ${i + 1}`;
+        if (q.kind === "match") {
+          if (sections.size < 2) problems.push(`${where}: matches statements to sections, and the text has ${sections.size}`);
+          if (q.statements.length < 2) problems.push(`${where}: matches ${q.statements.length} statement, where it matches two or more`);
+          q.statements.forEach((s, j) => {
+            if (!sections.has(s.section)) problems.push(`${where}, statement ${j + 1}: names section ${s.section}, which the text does not have`);
+            if (!s.et.trim() || !s.en.trim()) problems.push(`${where}, statement ${j + 1}: has Estonian or English and not both`);
+          });
+        } else if (q.kind === "gap") {
+          const line = lines[q.line];
+          if (!Number.isInteger(q.line) || !line) problems.push(`${where}: takes out line ${q.line + 1}, which the text does not have`);
+          if (q.options.length !== 3) problems.push(`${where}: offers ${q.options.length} sentences for the gap, where it offers three`);
+          if (!Number.isInteger(q.answer) || q.answer < 0 || q.answer >= q.options.length) problems.push(`${where}: its answer is not one of its options`);
+          else if (line && normalisePhrase(q.options[q.answer]!.et) !== normalisePhrase(line.et)) problems.push(`${where}: the right sentence is not the line taken out`);
+          const others = q.options.filter((_, j) => j !== q.answer).map((o) => normalisePhrase(o.et));
+          if (line && others.includes(normalisePhrase(line.et))) problems.push(`${where}: a wrong sentence is the line taken out`);
+          if (new Set(q.options.map((o) => normalisePhrase(o.et))).size !== q.options.length) problems.push(`${where}: offers one sentence twice`);
+          q.options.forEach((o, j) => { if (!o.et.trim() || !o.en.trim()) problems.push(`${where}, option ${j + 1}: has Estonian or English and not both`); });
+        } else {
+          if (!q.q.et.trim() || !q.q.en.trim()) problems.push(`${where}: asks in Estonian or English and not both`);
+          if (q.accept.length === 0) problems.push(`${where}: accepts no answer`);
+          for (const a of q.accept) {
+            const off = answerOffText(a, text, tonight, namesOf(lesson));
+            if (off.length > 0) problems.push(`${where}: the answer "${a}" holds ${off.join(", ")}, which is no word of the text and not taught by now`);
+          }
+        }
+      });
+    }
+    // C1: a talk taken down as notes (`NotesTalk`).
+    if (lesson.notes) {
+      const notes = lesson.notes;
+      const where = `${at}, the talk`;
+      const text = notes.lines.map((l) => l.et).join(" ");
+      if (!(notes.speaker in lesson.cast)) problems.push(`${where}: is given by ${notes.speaker}, who is not in the cast`);
+      if (notes.hearings !== 1 && notes.hearings !== 2) problems.push(`${where}: is heard once or twice, and this says ${String(notes.hearings)}`);
+      if (!notes.title.et.trim() || !notes.title.en.trim()) problems.push(`${where}: its title has Estonian or English and not both`);
+      if (notes.lines.length < 2) problems.push(`${where}: a talk is more than one line`);
+      notes.lines.forEach((l, i) => {
+        if (!l.et.trim() || !l.en.trim()) problems.push(`${where}, line ${i + 1}: has Estonian or English and not both`);
+        if (l.et.length > SPOKEN_LINE_MOST) problems.push(`${where}, line ${i + 1}: runs to ${l.et.length} characters, over the ${SPOKEN_LINE_MOST} the speech route reads at once`);
+      });
+      if (notes.questions.length === 0) problems.push(`${where}: asks nothing the notes should answer`);
+      if (notes.keyIdeas.length === 0 || notes.keyIdeas.some((k) => !k.en.trim())) problems.push(`${where}: names its key ideas, each in a line`);
+      notes.questions.forEach((q, i) => {
+        const at2 = `${where}, question ${i + 1}`;
+        if (!q.q.et.trim() || !q.q.en.trim()) problems.push(`${at2}: asks in Estonian or English and not both`);
+        if (q.kind === "choice") {
+          if (q.options.length < 2) problems.push(`${at2}: offers ${q.options.length} option`);
+          if (!Number.isInteger(q.answer) || q.answer < 0 || q.answer >= q.options.length) problems.push(`${at2}: its answer is not one of its options`);
+          if (new Set(q.options.map((o) => normalisePhrase(o.et))).size !== q.options.length) problems.push(`${at2}: offers one option twice`);
+        } else {
+          if (q.accept.length === 0) problems.push(`${at2}: accepts no answer`);
+          for (const a of q.accept) {
+            const off = answerOffText(a, text, tonight, namesOf(lesson));
+            if (off.length > 0) problems.push(`${at2}: the answer "${a}" holds ${off.join(", ")}, which is no word of the talk and not taught by now`);
+          }
+        }
+      });
+    }
+    // C1: which room (`WhichRoom`): three versions, one a room, and a rework that changes the room.
+    lesson.rooms?.forEach((r, i) => {
+      const where = `${at}, which room ${i + 1}`;
+      const rooms = r.versions.map((v) => v.room);
+      if (r.versions.length !== ROOMS.length || ROOMS.some((room) => !rooms.includes(room))) problems.push(`${where}: says it three ways, once for each room, and this has ${rooms.join(", ") || "none"}`);
+      if (!rooms.includes(r.ask)) problems.push(`${where}: asks for the ${r.ask} version, which it does not have`);
+      r.versions.forEach((v) => { if (!v.et.trim() || !v.en.trim()) problems.push(`${where}, ${v.room}: has Estonian or English and not both`); });
+      if (new Set(r.versions.map((v) => normalisePhrase(v.et))).size !== r.versions.length) problems.push(`${where}: two versions are one sentence`);
+      if (r.rework) {
+        const from = r.versions.find((v) => v.room === r.rework!.from);
+        const to = r.versions.find((v) => v.room === r.rework!.to);
+        if (r.rework.from === r.rework.to) problems.push(`${where}: a rework turns a version into another room's, and this stays in ${r.rework.from}`);
+        if (!from || !to) problems.push(`${where}: a rework names a room it has no version for`);
+        const all = [to?.et ?? "", ...r.rework.accept].map(normalisePhrase);
+        if (from && all.includes(normalisePhrase(from.et))) problems.push(`${where}: an accepted sentence is the one it starts from`);
+        if (new Set(all).size !== all.length) problems.push(`${where}: an accepted sentence is listed twice`);
+      }
     });
     if (lesson.write) {
       const text = lesson.write.model.map((l) => l.et).join(" ");

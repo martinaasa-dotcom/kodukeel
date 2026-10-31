@@ -4136,3 +4136,34 @@ the marker could not mark, writing that asked less than the part before, a reply
 conversations did not reach, and eight English lines translated two ways; each is fixed and §14
 says how. The Russian and Ukrainian are machine-written, every new Estonian line waits on the native
 speaker (`docs/reviews/b2-flags.md` first), and B2 is recorded nowhere yet.
+
+## 78. The seventy-second pass: C1 is the lessons too, and no level is built from units
+
+**C1 is forty-nine lessons in eight parts** (`lib/course/lessons/c1-*.ts`, `docs/43-lessons.md`
+§15 and §16), walked by the same ledger as A1 to B2, and it replaces the parts `c1.1` to `c1.3`,
+built from the C1 units, outright; a learner on one restarts C1 at lesson 1 and keeps every card
+and review. **No level of the course is built from units now.** The unit builder builds nothing and
+goes in a week (C1-9), with its pure tests.
+
+**What a C1 lesson asks that a B2 one does not.** People interrupt each other and the questions ask
+what was meant; from the second part some lessons are a talk on the morning show taken down as
+notes; from the third, the text read comes with the C1 paper's questions; practice asks which room,
+the same thing said to a friend, at work and in writing. Each part writes a text the C1 paper or a
+life in Estonian asks for, and the last part sits the whole speaking part. Every C1 lesson but a
+part's last ends its Words step on a table of twelve taught verbs' past and polite imperative, heard
+and never asked, which is how the 188 verbs left waiting from A1 to B2 are finally shown.
+
+**The end of the course.** After the last lesson, `/course` and Today offer the C1 check, which used
+to be offered nowhere, and a pass draws the course-finished screen: what the course took, read off
+the learner's own log, what C1 means, six things that keep Estonian growing and what in the app helps
+with each, and the C1 mock exam. `/course` stays that screen afterwards.
+
+**What moved.** Five catalog conversations the old C1 evenings opened are offered on the C1 lessons
+that rehearse them, eleven lesson words were asked of Ekilex (6,325 entries and 40,663 forms), eight
+errands join the list, the C1 grammar pages are read on their lessons, each part names the paper task
+it rehearses, a unit's page and every link to a unit land on the lesson that teaches its words, unit
+homework is refused at every level, the chat after an evening of units leaves CI, and 100 written
+sentences for words only the old units taught were dropped. The landing page, `/curriculum` and
+`/partners` say the course is lessons from A1 to C1. The Russian and Ukrainian are machine-written,
+every new Estonian line waits on the native speaker (`docs/reviews/c1-flags.md` first), and C1 is
+recorded nowhere yet.

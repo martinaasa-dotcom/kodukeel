@@ -1,3 +1,4 @@
+import { unitLessonHref } from "@/lib/course/unitLesson";
 import { notFound } from "next/navigation";
 import { requireUserId } from "@/lib/auth/session";
 import { sceneById } from "@/lib/scenes/catalogue";
@@ -86,7 +87,7 @@ export default async function ScenePage({ params, searchParams }: {
     <SceneSession
       scene={scene}
       minutes={minutesFor(scene)}
-      unit={unit ? { id: unit.id, title: uiText(learnerLevel, unit.title, tr(locale, unit.subtitle)) } : null}
+      unit={unit ? { id: unit.id, title: uiText(learnerLevel, unit.title, tr(locale, unit.subtitle)), href: unitLessonHref(unit.id) } : null}
       learnerLevel={learnerLevel}
       openAt={tiltedLevel(learnerLevel, tilt)}
       answeredLast={sceneAnswerFrom(answer)}

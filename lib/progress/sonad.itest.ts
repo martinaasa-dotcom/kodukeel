@@ -1,3 +1,4 @@
+import { LESSON_STEP } from "@/lib/course/types";
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { prisma } from "@/lib/db";
 import { SEED_SET_SIZE } from "@/lib/collections/seedSize";
@@ -113,8 +114,8 @@ describe("a learner the module holds", () => {
   const HELD = "itest-owner-puzzle-held";
   const ARRIVED = "itest-owner-puzzle-arrived";
   const day = "2027-03-10" as DayKey;
-  /* A1, A2, B1 and B2 are the lessons, one step an evening (docs/43-lessons.md, P3 and §9); these readings are about an evening of units. */
-  const programme = PROGRAMMES.find((p) => !p.days.some((d) => d.lesson))!;
+  /* Every level is the lessons, one step an evening (docs/43-lessons.md §16); C1's first part, deep enough in for six-letter words. */
+  const programme = PROGRAMMES.find((p) => p.level === "C1")!;
   /* Its next-to-last evening, so the one after it is there to tick today. */
   const reached = programme.days[programme.days.length - 2]!;
 
@@ -129,7 +130,7 @@ describe("a learner the module holds", () => {
     await prisma.setting.create({ data: { ownerId: HELD, key: SETTING_KEYS.programme, value: programme.id } });
     await prisma.courseStep.createMany({
       data: programme.days.filter((d) => d.index <= reached.index).map((d) => ({
-        ownerId: HELD, programmeId: programme.id, dayId: d.id, stepId: "do:match",
+        ownerId: HELD, programmeId: programme.id, dayId: d.id, stepId: LESSON_STEP,
         createdAt: new Date("2027-03-01T12:00:00Z"),
       })),
     });
@@ -140,7 +141,7 @@ describe("a learner the module holds", () => {
     expect(word!.met, "drawn from what the evenings taught").toBe(true);
     // A tick written today is a word met today, and the day's word does not move for it.
     await prisma.courseStep.create({
-      data: { ownerId: HELD, programmeId: programme.id, dayId: programme.days[reached.index]!.id, stepId: "do:match", createdAt: new Date(`${day}T12:00:00Z`) },
+      data: { ownerId: HELD, programmeId: programme.id, dayId: programme.days[reached.index]!.id, stepId: LESSON_STEP, createdAt: new Date(`${day}T12:00:00Z`) },
     });
     expect((await puzzleFor(HELD, day, "B1"))?.answer).toBe(word!.answer);
     const grid = await crosswordFor(HELD, day, "B1");
@@ -159,7 +160,7 @@ describe("a learner the module holds", () => {
   it("gives somebody whose first evening is today a word at their level, and no crossword yet", async () => {
     await prisma.setting.create({ data: { ownerId: ARRIVED, key: SETTING_KEYS.programme, value: programme.id } });
     await prisma.courseStep.create({
-      data: { ownerId: ARRIVED, programmeId: programme.id, dayId: programme.days[0]!.id, stepId: "do:match", createdAt: new Date(`${day}T12:00:00Z`) },
+      data: { ownerId: ARRIVED, programmeId: programme.id, dayId: programme.days[0]!.id, stepId: LESSON_STEP, createdAt: new Date(`${day}T12:00:00Z`) },
     });
     const word = await puzzleFor(ARRIVED, day, "A1");
     expect(word, "a word at their level rather than an empty board").not.toBeNull();

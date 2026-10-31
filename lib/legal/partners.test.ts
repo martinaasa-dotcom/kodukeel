@@ -56,8 +56,8 @@ describe("the partners page", () => {
 
   it("counts the course the way /curriculum and the landing page count it", () => {
     expect(code).toMatch(/courseMadeOf\(SYLLABUS, LESSONS\)/);
-    expect(code).toMatch(/lessonLevels\(LESSONS\)/);
-    expect(code).toMatch(/alignCourse\(SYLLABUS\.filter\(\(u\) => !taught\.has\(u\.level\)\)/);
+    // Every level is lessons since C1 moved (docs/43-lessons.md §16), so no units are counted beside them.
+    expect(code).not.toMatch(/made\.units/);
     expect(code).toMatch(/LESSON_PARTS\.length/);
   });
 

@@ -92,7 +92,7 @@ function PassMeter({ pass }: { pass: FadePass["pass"] }) {
         <span
           key={n}
           style={{
-            width: 36, height: 8, borderRadius: 999,
+            width: 36, height: 8, borderRadius: 9999,
             background: n <= pass ? "var(--accent)" : "color-mix(in srgb, var(--ink) 10%, transparent)",
           }}
         />

@@ -1,3 +1,4 @@
+import { unitLessonHref } from "@/lib/course/unitLesson";
 import { HeroFan } from "@/components/HeroFan";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ArrowRight, Check, ChevronRight, Compass, Flag, GraduationCap, Lock } from "lucide-react";
@@ -18,7 +19,6 @@ import { learnerModuleScope } from "@/lib/progress/moduleScope";
 import { programmeFor } from "@/lib/progress/course";
 import { LEARN_BATCH } from "@/lib/learn/ladder";
 import { Explain } from "@/components/Explain";
-import { splitIntoLessons } from "@/lib/collections/lesson";
 import { PROGRAMMES } from "@/lib/course";
 import { LESSONS, LESSON_LEVELS, LESSON_PARTS, isLessonLevel } from "@/lib/course/lessons";
 import { LessonText } from "@/components/course/LessonText";
@@ -78,12 +78,6 @@ export default async function LearnPage() {
   */
   const restingIds = new Set(units.filter((u) => u.through).map((u) => u.unit.id));
   const next = nextUnit({ doneUnitIds: doneIds, startedUnitIds: startedIds, restingUnitIds: restingIds, placement });
-  /* The first lesson of a unit with a word nobody has asked about yet, so a
-     unit of several lessons carries on rather than reopening the first. */
-  const lessonFor = (u: (typeof units)[number]) => {
-    const at = splitIntoLessons(u.lemmas).findIndex((words) => words.some((l) => !snapshot.seenLemmas.has(l)));
-    return at < 1 ? "" : `?part=${at + 1}`;
-  };
 
   const countWords = (rows: typeof units) => courseWordCount(rows, snapshot.knownLemmas);
 
@@ -115,7 +109,7 @@ export default async function LearnPage() {
     };
   });
 
-  const [unitsBefore, unitsAfter] = t("A unit is a bundle of dictionary words. You can find every one of them by searching too, and anything missing you can {link}. Nothing is locked: a unit above your level tells you what it builds on, and you can still open it.").split("{link}");
+  const [unitsBefore, unitsAfter] = t("Every word a lesson teaches is in the dictionary, so you can find it by searching too, and anything missing you can {link}. Nothing is locked: you can open any lesson, at any level.").split("{link}");
   return (
     <Page route="/learn"
       title={t("Learn")}
@@ -191,7 +185,7 @@ export default async function LearnPage() {
                     style={{ background: isNext ? "var(--accent-soft)" : undefined }}
                   >
                     <Link
-                      href={`/learn/${u.unit.id}`}
+                      href={unitLessonHref(u.unit.id)}
                       className="group flex min-w-0 flex-1 basis-full items-center gap-3 @md:basis-0"
                     >
                       <span
@@ -240,7 +234,7 @@ export default async function LearnPage() {
                     {isNext && (
                       <span className="w-full @md:w-auto">
                         <ButtonLink
-                          href={u.available > 0 ? `/learn/${u.unit.id}/lesson${lessonFor(u)}` : `/learn/${u.unit.id}`}
+                          href={unitLessonHref(u.unit.id)}
                           variant="primary"
                           size="sm"
                           className="w-full justify-center @md:w-32"
@@ -398,7 +392,7 @@ export default async function LearnPage() {
         <Explain label={t("What counts as known")}>
           {t("A word counts as known once you've got it right on every one of its cards, often enough that it's past the learning stage. One right answer isn't enough.")}
         </Explain>
-        <Explain label={t("Units and the dictionary")}>
+        <Explain label={t("Lessons and the dictionary")}>
           {unitsBefore}
           <Link href="/dictionary" className="underline" style={{ color: "var(--accent-deep)" }}>{t("add yourself")}</Link>
           {unitsAfter}

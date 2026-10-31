@@ -1,3 +1,4 @@
+import { unitLessonHref } from "@/lib/course/unitLesson";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
@@ -85,7 +86,7 @@ export default async function SituationPage({ params }: { params: Promise<{ situ
       actions={
         <span className="flex flex-wrap gap-2">
           <BackLink href="/progress/readiness">{t("All situations")}</BackLink>
-          <ButtonLink href={`/learn/${situation.id}`} size="sm">{t("Open the unit")}</ButtonLink>
+          <ButtonLink href={unitLessonHref(situation.id)} size="sm">{t("Open the lesson")}</ButtonLink>
         </span>
       }
     >

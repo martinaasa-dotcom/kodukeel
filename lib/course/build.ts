@@ -23,7 +23,7 @@ import { minutesFor } from "@/lib/scenes/run";
 import { unitById, type SyllabusUnit } from "@/lib/collections/syllabus";
 import { HARVESTED } from "@/prisma/data/harvested";
 import { EARLIER_SCENES_FOR_UNIT, PARTS, ROTATION, SCENE_FOR_UNIT, VERB_HEAVY, type PartSpec } from "./plan";
-import { lessonProgrammes } from "./lessonCourse";
+import { lessonMinutes, lessonProgrammes } from "./lessonCourse";
 import { LESSONS } from "./lessons";
 import {
   ACTIVITIES, day, ordinaryWords,
@@ -263,12 +263,11 @@ export const FORMS_PER_EVENING = 5;
 /**
  * C1 SHOWS TWELVE, BECAUSE IT INHERITS THE QUEUE.
  *
- * Once B2 became lessons, C1 is the only level the forms step runs on after
- * B1, and it opens with every verb B2's lessons taught still waiting for its
- * past or its polite command. At five a night, on every other evening, that
- * was 90 verbs over nineteen evenings and 137 on the ladder's last, which is
- * the one evening that may not be a wall of tables. Twelve spreads them over
- * the evenings C1 has; a C1 learner reads a table of twelve verbs as a list.
+ * C1 is the only level a forms table runs on (`withLessonForms`, below), and
+ * it opens with every verb the A1 to B2 lessons taught still waiting for its
+ * past or its polite command, 188 of them when C1 became lessons. At five a
+ * lesson that is more than the level has lessons; twelve spreads them over the
+ * lessons C1 has, and a C1 learner reads a table of twelve verbs as a list.
  */
 export function formsPerEvening(level: string): number {
   return level === "C1" ? 12 : FORMS_PER_EVENING;
@@ -301,18 +300,6 @@ export function supportsRound(key: ActivityKey, taught: Taught, _level = "A2"): 
     default: return true;
   }
 }
-
-/** The rotation's rounds this evening could deal, given what has been taught. */
-export function supportedRounds(level: string, taught: Taught): ActivityKey[] {
-  const rotation = ROTATION[level] ?? ROTATION.A2!;
-  return rotation.filter((key) => supportsRound(key, taught, level));
-}
-
-/** The rounds that need something taught first, for the tests to walk. */
-export const NEEDS: Partial<Record<ActivityKey, keyof Taught>> = {
-  conjugation: "verbs",
-  letters: "spellable",
-};
 
 /**
  * The round that stands in for one the words cannot carry yet: the same kind,
@@ -840,32 +827,75 @@ export function withForms(
 }
 
 /**
- * WHAT THE LESSONS TAUGHT, HANDED TO THE LEDGER BEFORE C1 IS BUILT.
+ * WHAT THE LESSONS TAUGHT, HANDED TO A LEDGER.
  *
- * A1, A2, B1 and B2 are the lessons (`lessonCourse.ts`), and C1's first evening is dealt
- * against what a learner had when it began: every word a lesson taught,
- * as the harvest holds it, and every page a lesson explained. A word a lesson
- * taught as a verb is a verb whatever the harvest found it under first, so
- * it counts toward the rounds that want one; any other word takes the
- * harvest's first part of speech, and a phrase the harvest does not hold
- * teaches its own spelling.
+ * Every level is lessons (`lessonCourse.ts`), so the ledger is handed what
+ * they taught, evening by evening: every word a lesson taught, as the harvest
+ * holds it, and every page a lesson explained. A word a lesson taught as a
+ * verb is a verb whatever the harvest found it under first, so it counts
+ * toward the rounds that want one; any other word takes the harvest's first
+ * part of speech, and a phrase the harvest does not hold teaches its own
+ * spelling.
  *
  * And a past a lesson taught by name has been shown, but the past alone: the
  * lesson's evening carries it as `pasts` and `pastsThird` (`lessonPastSlots`), slot by slot, which `pastsThrough`
  * and `thirdPastsThrough` read, so the module may ask the slot that lesson showed from then on (D4). The verb
  * stays in the forms queue, because no lesson shows its polite imperative
- * (`tehke`, `lugege`), and C1's forms step is where that is shown.
+ * (`tehke`, `lugege`), and C1's forms table is where that is shown
+ * (`withLessonForms`).
  */
 export function teachLessons(ledger: Ledger): Ledger {
-  for (const programme of lessonProgrammes()) {
-    for (const d of programme.days) {
-      for (const lemma of d.words) ledger.teach(lemma, LESSON_VERBS.has(lemma) ? "VERB" : POS_OF.get(lemma) ?? "PHRASE");
-      for (const key of d.cases ?? []) ledger.read({ grammarCase: key });
-      for (const topic of d.topics ?? []) ledger.read({ grammar: topic });
-    }
-  }
+  for (const programme of lessonProgrammes()) for (const d of programme.days) teachDay(ledger, d);
   return ledger;
 }
+
+/** One lesson evening handed to a ledger: its words, and the pages it explained. */
+function teachDay(ledger: Ledger, d: CourseDay): void {
+  for (const lemma of d.words) ledger.teach(lemma, LESSON_VERBS.has(lemma) ? "VERB" : POS_OF.get(lemma) ?? "PHRASE");
+  for (const key of d.cases ?? []) ledger.read({ grammarCase: key });
+  for (const topic of d.topics ?? []) ledger.read({ grammar: topic });
+}
+
+/**
+ * THE FORMS QUEUE, AT THE FOOT OF A C1 LESSON'S WORDS STEP (docs/43-lessons.md
+ * §15.9, C1-8).
+ *
+ * The simple past and the polite imperative are learned verb by verb
+ * (`lugesin` but `tahtis`, `andke` and `minge`), so a verb's are asked inside
+ * the module only once an evening has shown them (`slotWithin`). The A1 to B2
+ * lessons teach a verb's past by name now and then, and never its polite
+ * imperative, so when C1 became lessons the queue of taught verbs waiting for
+ * their table stood at 188. Every C1 lesson but a part's last shows the next
+ * twelve (`formsPerEvening`), earliest taught first, as a table under the
+ * Words step, heard and never asked, every form read off the harvest; and the
+ * last such lesson shows whatever is still waiting, since no lesson comes
+ * after it, as the ladder's last evening did. A part's last lesson is its
+ * role-play and shows none.
+ *
+ * Walked over every lesson evening in order with one ledger, so a verb a C1
+ * lesson teaches joins the queue on its own evening and is shown by a later
+ * one. The evening carries the verbs as `forms`, which `formsThrough` reads,
+ * and is `LESSON_FORMS_MINUTES` longer (`lessonMinutes`), its one step with it.
+ */
+export function withLessonForms(programmes: readonly Programme[]): Programme[] {
+  const eligible = new Set(programmes.filter((p) => p.level === "C1").flatMap((p) => p.days)
+    .filter((d) => d.lesson && LESSON_BY_ID.get(d.lesson)?.kind !== "partEnd").map((d) => d.id));
+  const last = [...programmes].flatMap((p) => p.days).filter((d) => eligible.has(d.id)).at(-1)?.id;
+  const ledger = new Ledger();
+  return programmes.map((programme) => ({
+    ...programme,
+    days: programme.days.map((d) => {
+      teachDay(ledger, d);
+      if (!eligible.has(d.id)) return d;
+      const forms = ledger.showForms(d.id === last ? Infinity : formsPerEvening(programme.level));
+      if (forms.length === 0) return d;
+      const minutes = lessonMinutes(LESSON_BY_ID.get(d.lesson!)!, forms.length);
+      return { ...d, forms, minutes, steps: d.steps.map((s) => ({ ...s, minutes })) };
+    }),
+  }));
+}
+
+const LESSON_BY_ID: ReadonlyMap<string, (typeof LESSONS)[number]> = new Map(LESSONS.map((l) => [l.id, l]));
 
 const LESSON_VERBS: ReadonlySet<string> = new Set(LESSONS.flatMap((l) => l.teaches.flatMap((t) => (t.kind === "verb" ? [t.et] : []))));
 
@@ -884,9 +914,11 @@ export function ledgerBefore(spec: PartSpec): Ledger {
 }
 
 /**
- * The whole ladder: the A1 to B2 lessons, then every part of C1 built in
- * order over one ledger that starts with what the lessons taught, so what
- * the lessons handed over is what c1.1's first evening is dealt against.
+ * The whole ladder: the lessons, A1 to C1, with C1's forms tables
+ * (`withLessonForms`), then every part built from units, of which there are
+ * none since C1 became lessons (`PARTS`), each built over one ledger that
+ * starts with what the lessons taught. The unit builder goes in its own pull
+ * request (docs/43-lessons.md §15.13, C1-9).
  */
 export function buildProgrammes(): Programme[] {
   return (BUILT ??= assemble());
@@ -902,5 +934,5 @@ let BUILT: Programme[] | null = null;
 
 function assemble(): Programme[] {
   const ledger = teachLessons(new Ledger());
-  return [...lessonProgrammes(), ...PARTS.map((spec) => buildPart(spec, ledger))];
+  return [...withLessonForms(lessonProgrammes()), ...PARTS.map((spec) => buildPart(spec, ledger))];
 }

@@ -127,7 +127,7 @@ export const PREPARES: Readonly<Record<string, Preparation>> = {
  * Every part of the lessons at an examined level, keyed by part id, for the
  * reason `PREPARES` gives about units: an A2 part added and not here fails
  * `align.test.ts`, because its exam part is a decision, not a default. Each
- * reason names the task on the A2 or B1 paper (docs/16-exam.md, section 1) and the
+ * reason names the task on the A2 to C1 paper (docs/16-exam.md, section 1) and the
  * lesson that rehearses it.
  */
 export const LESSON_PART_PREPARES: Readonly<Record<string, Preparation>> = {
@@ -169,6 +169,15 @@ export const LESSON_PART_PREPARES: Readonly<Record<string, Preparation>> = {
   "b2-riik": { parts: ["writing", "reading"], why: "The first writing task can be a semi-formal letter, and this part writes a complaint to an office. The reading paper's long article is in the written register this part reads the state's letters in." },
   "b2-kultuur": { parts: ["speaking", "listening"], why: "The speaking part's one-minute talk after two minutes to prepare, with a question after it, is what this part ends on, and the listening paper's monologue is like the history item on the radio." },
   "b2-arutelu": { parts: ["writing", "speaking"], why: "The second writing task can be an argument, which this part writes. The speaking part ends on a debate that reaches a decision, which is this part's last evening." },
+  /* C1 (docs/43-lessons.md §15.3): each part rehearses the C1 paper's task it is named for. */
+  "c1-isiksus": { parts: ["listening", "speaking"], why: "The listening paper sets a seven-minute conversation heard once, which is where feeling, jokes and set phrases are met at speed, as at the naming party this part ends on. The speaking part's discussion asks how a thing is said as well as what." },
+  "c1-meedia": { parts: ["listening"], why: "The listening paper opens with short answers from a news recording, like the morning show this part follows, and ends on a talk taken down as notes. This part begins with a researcher on the radio." },
+  "c1-kodu": { parts: ["writing", "reading"], why: "The first writing task is a neutral summary of figures for the public, which this part writes from the prices it is sent. The reading paper matches statements to the sections of a longer text, which this part's texts ask from here on." },
+  "c1-kool": { parts: ["writing", "reading"], why: "The writing is marked on being easy to follow, held together by the links this part teaches, in the formal letter it writes to the head. The reading paper matches statements to sections, as this part's school texts do." },
+  "c1-juht": { parts: ["speaking"], why: "The speaking part opens with introducing yourself and your work, and then sets a two-minute presentation on a work topic after three minutes to prepare. This part ends on one, in front of the board." },
+  "c1-uhiskond": { parts: ["writing", "speaking"], why: "The second writing task is the opinion text of 220 to 260 words that develops two given points, which this part writes for the local paper. The speaking part ends in a discussion of a set topic, like the public hearing this part ends on." },
+  "c1-maa": { parts: ["listening", "reading"], why: "The listening paper ends on a ten-minute lecture heard once and taken down as notes, which this part's quiz night rehearses, and the reading paper sets short answers about an information text." },
+  "c1-mote": { parts: ["speaking", "reading"], why: "This part sits the whole speaking part: a minute about yourself and your work, the two-minute presentation after three to prepare, and the discussion. The reading paper asks how a text is written as well as what it says, which the lessons on a book rehearse." },
 };
 
 export interface UnitLike {

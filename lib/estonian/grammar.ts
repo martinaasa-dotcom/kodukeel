@@ -696,6 +696,18 @@ export const TOPIC_NOTES: readonly TopicNote[] = [
       "They look interchangeable in a dictionary but aren't. Some start a clause and some only link sentences, and swapping them breaks the punctuation.",
   },
   {
+    id: "connectives",
+    title: "Formal links built from verbs",
+    summary: "\"According to\", \"compared with\", \"despite\": the links an official text runs on.",
+    points: [
+      "Words like \"according to\" and \"compared with\", made from a verb",
+      "Words like \"despite\" and \"instead of\", after the word they go with",
+      "Having something done for you, with the verb for \"let\"",
+    ],
+    watchOut:
+      "Each one asks for its word in a set form, and English gives no clue which. Learn the link with the form it wants, the way you learn a verb with its case.",
+  },
+  {
     id: "hedging",
     title: "Probably, rather than definitely",
     summary: "Saying something is likely without waffling about it.",
@@ -891,7 +903,7 @@ export const TOPIC_GROUPS: readonly { id: string; title: string; blurb: string; 
     blurb: "How sentences join up, what a verb demands after it, and where the commas go.",
     ids: [
       "government", "word-order", "subordination", "relative-clause", "reported-speech",
-      "concession", "hedging", "cohesion", "emphasis", "rhetorical-questions", "punctuation",
+      "concession", "connectives", "hedging", "cohesion", "emphasis", "rhetorical-questions", "punctuation",
     ],
   },
   {

@@ -41,6 +41,7 @@ import { LESSONS_AREA } from "./areas/lessons";
 import { LESSON_TEXT_AREA } from "./areas/lessonText";
 import { LESSONS_B1_AREA } from "./areas/lessonsB1";
 import { LESSONS_B2_AREA } from "./areas/lessonsB2";
+import { LESSONS_C1_AREA } from "./areas/lessonsC1";
 import { LESSON_TEXT_B1_OBJEKT } from "./areas/lessonTextB1Objekt";
 import { LESSON_TEXT_B1_REKTSIOON } from "./areas/lessonTextB1Rektsioon";
 import { LESSON_TEXT_B1_RAHA } from "./areas/lessonTextB1Raha";
@@ -55,12 +56,21 @@ import { LESSON_TEXT_B1_ARVAMUS } from "./areas/lessonTextB1Arvamus";
 import { LESSON_TEXT_B1_ASJAAJAMINE } from "./areas/lessonTextB1Asjaajamine";
 import { LESSON_TEXT_B2_TERVIS } from "./areas/lessonTextB2Tervis";
 import { LESSON_TEXT_B2_RIIK } from "./areas/lessonTextB2Riik";
+import { LESSON_TEXT_C1_ISIKSUS } from "./areas/lessonTextC1Isiksus";
+import { LESSON_TEXT_C1_MEEDIA } from "./areas/lessonTextC1Meedia";
+import { LESSON_TEXT_C1_KOOL } from "./areas/lessonTextC1Kool";
 import { LESSON_TEXT_B2_KULTUUR } from "./areas/lessonTextB2Kultuur";
+import { LESSON_TEXT_C1_KODU } from "./areas/lessonTextC1Kodu";
+import { LESSON_TEXT_C1_JUHT } from "./areas/lessonTextC1Juht";
+import { LESSON_TEXT_C1_UHISKOND } from "./areas/lessonTextC1Uhiskond";
+import { LESSON_TEXT_C1_MAA } from "./areas/lessonTextC1Maa";
+import { LESSON_TEXT_C1_MOTE } from "./areas/lessonTextC1Mote";
 import { LESSON_SCENES_AREA } from "./areas/lessonScenes";
 import { SOUNDS_AREA } from "./areas/sounds";
 import { ADMIN_SPEECH } from "./areas/adminSpeech";
 import { ACCOUNT_AREA } from "./areas/account";
 import { PHONES_AREA } from "./areas/phones";
+import { COURSE_FINISHED } from "./areas/courseFinished";
 
 /**
  * Every area of the interface that has been translated. The first is the
@@ -78,6 +88,7 @@ export const AREAS: readonly (readonly [name: string, area: Area])[] = [
   ["rounds", ROUNDS],
   ["progress", PROGRESS],
   ["course", COURSE],
+  ["courseFinished", COURSE_FINISHED],
   ["shell", SHELL],
   ["finish", FINISH],
   ["grammarCases", GRAMMAR_CASES],
@@ -109,6 +120,7 @@ export const AREAS: readonly (readonly [name: string, area: Area])[] = [
   ["lessonText", LESSON_TEXT_AREA],
   ["lessonsB1", LESSONS_B1_AREA],
   ["lessonsB2", LESSONS_B2_AREA],
+  ["lessonsC1", LESSONS_C1_AREA],
   ["lessonTextB1Objekt", LESSON_TEXT_B1_OBJEKT],
   ["lessonTextB1Rektsioon", LESSON_TEXT_B1_REKTSIOON],
   ["lessonTextB1Raha", LESSON_TEXT_B1_RAHA],
@@ -123,7 +135,15 @@ export const AREAS: readonly (readonly [name: string, area: Area])[] = [
   ["lessonTextB2Tervis", LESSON_TEXT_B2_TERVIS],
   ["lessonTextB2Kaudne", LESSON_TEXT_B2_KAUDNE],
   ["lessonTextB2Riik", LESSON_TEXT_B2_RIIK],
+  ["lessonTextC1Isiksus", LESSON_TEXT_C1_ISIKSUS],
+  ["lessonTextC1Kool", LESSON_TEXT_C1_KOOL],
   ["lessonTextB2Kultuur", LESSON_TEXT_B2_KULTUUR],
+  ["lessonTextC1Meedia", LESSON_TEXT_C1_MEEDIA],
+  ["lessonTextC1Kodu", LESSON_TEXT_C1_KODU],
+  ["lessonTextC1Juht", LESSON_TEXT_C1_JUHT],
+  ["lessonTextC1Uhiskond", LESSON_TEXT_C1_UHISKOND],
+  ["lessonTextC1Maa", LESSON_TEXT_C1_MAA],
+  ["lessonTextC1Mote", LESSON_TEXT_C1_MOTE],
   ["lessonScenes", LESSON_SCENES_AREA],
   ["sounds", SOUNDS_AREA],
   ["adminSpeech", ADMIN_SPEECH],

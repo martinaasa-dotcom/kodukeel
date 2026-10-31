@@ -6483,7 +6483,7 @@ a:focus-visible .wave-word::after {
   display: block;
   width: 5px;
   height: 10px;
-  border-radius: 999px;
+  border-radius: 9999px;
   background: color-mix(in srgb, var(--ink) 30%, transparent);
 }
 .voice-bars-live > span {

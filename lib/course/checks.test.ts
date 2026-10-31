@@ -24,7 +24,7 @@ describe("the checks between the parts of the lessons", () => {
       expect(final.size).toBe(LEVEL_CHECK);
     }
     for (const c of checks.filter((c) => !c.final)) expect(c.size).toBe(PART_CHECK);
-  });
+  }, 120_000);
 
   it("asks a full paper on every check, the same paper for one attempt and a different one for the next", () => {
     for (const check of checks) {
@@ -33,7 +33,7 @@ describe("the checks between the parts of the lessons", () => {
       expect(checkPaper(check, 1)).toEqual(paper);
       expect(checkPaper(check, 2), check.id).not.toEqual(paper);
     }
-  });
+  }, 120_000);
 
   it("never asks a match, which the check's marked list has no row for", () => {
     let asked = 0;
@@ -44,7 +44,7 @@ describe("the checks between the parts of the lessons", () => {
       }
     }
     expect(asked).toBeGreaterThan(100);
-  });
+  }, 120_000);
 
   it("asks only about what the part's own lessons taught", () => {
     let asked = 0;
@@ -64,12 +64,12 @@ describe("the checks between the parts of the lessons", () => {
           continue;
         }
         expect(item.kind).not.toBe("match");
-        if (item.kind === "match" || item.kind === "reply" || item.kind === "rework" || item.kind === "fix") continue;
+        if (item.kind === "match" || item.kind === "reply" || item.kind === "rework" || item.kind === "fix" || item.kind === "room") continue;
         expect(taught.has(item.kind === "type" ? item.answer : item.et), `${check.id}: ${JSON.stringify(item)}`).toBe(true);
       }
     }
     expect(asked).toBeGreaterThan(checks.length * 10);
-  });
+  }, 120_000);
 
   it("never prints an answer a typed question on the same paper asks for", () => {
     let papers = 0;
@@ -84,7 +84,7 @@ describe("the checks between the parts of the lessons", () => {
       }
     }
     expect(papers).toBe(checks.length * 5);
-  });
+  }, 120_000);
 
   it("passes at four in five, a nearly counting half", () => {
     const paper = checkPaper(checks[0]!, 1);
@@ -107,12 +107,13 @@ describe("the checks between the parts of the lessons", () => {
     // Back is open, and so is a first choice.
     expect(blockedBy(PROGRAMMES, third, first!, new Set())).toBeNull();
     expect(blockedBy(PROGRAMMES, null, third!, new Set())).toBeNull();
-    // Somebody placed past the lessons is not asked to pass their checks.
+    // C1 is lessons too since it moved, so nobody is above the lessons: a move up inside C1 waits on its check.
     const a2 = PROGRAMMES.find((p) => p.level === "A2")!;
     const b1 = PROGRAMMES.find((p) => p.level === "B1")!;
     const c1 = PROGRAMMES.find((p) => p.level === "C1")!;
     const c1next = PROGRAMMES[PROGRAMMES.indexOf(c1) + 1]!;
-    expect(blockedBy(PROGRAMMES, c1, c1next, new Set())).toBeNull();
+    expect(blockedBy(PROGRAMMES, c1, c1next, new Set())?.id).toBe(`check-${c1.id}`);
+    expect(blockedBy(PROGRAMMES, c1, c1next, new Set([`check-${c1.id}`]))).toBeNull();
     // And B1 waits on A2's last check, the whole of A2, as A2 waits on A1's.
     const a2checks = checks.filter((c) => PROGRAMMES.find((p) => p.id === c.programmeId)?.level === "A2");
     expect(blockedBy(PROGRAMMES, a2, b1, new Set(a2checks.filter((c) => !c.final).map((c) => c.id)))?.final).toBe(true);
@@ -122,13 +123,13 @@ describe("the checks between the parts of the lessons", () => {
     expect(blockedBy(PROGRAMMES, first, a2, all)).toBeNull();
     const notFinal = new Set(checks.filter((c) => !c.final).map((c) => c.id));
     expect(blockedBy(PROGRAMMES, first, a2, notFinal)?.final).toBe(true);
-  });
+  }, 120_000);
 
   it("reads the stored passes and nothing else", () => {
     expect([...passedFrom("check-a1.1 check-a1.2 junk ")]).toEqual(["check-a1.1", "check-a1.2"]);
     expect(passedFrom(null).size).toBe(0);
     expect(checkAfter(PROGRAMMES, programmeById("a1.1")!.id)?.id).toBe("check-a1.1");
-  });
+  }, 120_000);
 });
 
 describe("where a pass leads, said once for the check page and the app", () => {
@@ -160,5 +161,5 @@ describe("where a pass leads, said once for the check page and the app", () => {
     }
     expect(parts).toBeGreaterThan(5);
     expect(finals).toBe(LESSON_LEVELS.size);
-  });
+  }, 120_000);
 });

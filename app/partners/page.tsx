@@ -9,7 +9,7 @@ import { PITCH } from "@/lib/copy/pitch";
 import { PUBLIC_CARDS, publicCard } from "@/lib/copy/publicCards";
 import { localeHref } from "@/lib/copy/publicLocale";
 import { LESSONS, LESSON_PARTS } from "@/lib/course/lessons";
-import { alignCourse, courseMadeOf, lessonLevels } from "@/lib/curriculum/align";
+import { courseMadeOf } from "@/lib/curriculum/align";
 import { ekilexImpact } from "@/lib/dict/ekilexCount";
 import { DEFAULT_SHAPE } from "@/lib/funding/facts";
 import { floorUsd, retrenchment } from "@/lib/funding/sustainability";
@@ -47,7 +47,7 @@ const REPO = "https://github.com/martinaasa-dotcom/kodukeel/blob/main";
  * NOTHING HERE IS TYPED TWICE. Every figure and every sentence about one is
  * read through the function the page it comes from uses: the landing page's
  * own sentence (`PITCH`), `heldImpact` and `impactWords` with /impact's own
- * empty states, `courseMadeOf` and `alignCourse` as /curriculum counts the
+ * empty states, `courseMadeOf` as /curriculum counts the
  * course, `EkilexSection` and the credit the dictionary draws, `retrenchment`
  * and `floorUsd` as /funding prices it, the cards the checking pages share
  * themselves with, and `resolveOperator`. `lib/legal/partners.test.ts` holds
@@ -73,8 +73,6 @@ export default async function PartnersPage({ searchParams }: { searchParams: Pub
   const { headcount, quantity } = impactWords(locale);
 
   const made = courseMadeOf(SYLLABUS, LESSONS);
-  const taught = lessonLevels(LESSONS);
-  const levels = alignCourse(SYLLABUS.filter((u) => !taught.has(u.level)), () => undefined);
 
   const funded = retrenchment(DEFAULT_SHAPE)[0];
   const floor = floorUsd(DEFAULT_SHAPE);
@@ -129,16 +127,14 @@ export default async function PartnersPage({ searchParams }: { searchParams: Pub
 
       <S id="course" title={t("The course")}>
         <P>
-          {fill(t("The levels up to {through} are {lessons}. They come in {parts}, and every part ends in a check of what its lessons taught. The levels above are {units} until each of them becomes lessons too."), {
+          {fill(t("Every level, A1 to {through}, is {lessons}. They come in {parts}, and every part ends in a check of what its lessons taught."), {
             through: made.through,
             lessons: countOf(locale, made.lessons, "lesson"),
             parts: countOf(locale, LESSON_PARTS.length, "part"),
-            units: countOf(locale, made.units, "unit"),
           })}
         </P>
-        <ImpactRows rows={levels.map((level) => [level.level, countOf(locale, level.units.length, "unit")] as const)} />
         <P>
-          {rich(t("What each lesson and unit says a learner can do, and which part of the state examination it prepares for, is on {curriculum}."), {
+          {rich(t("What each lesson says a learner can do, and which part of the state examination it prepares for, is on {curriculum}."), {
             curriculum: link("/curriculum", "what the course covers"),
           })}
         </P>

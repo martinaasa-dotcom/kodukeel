@@ -1,5 +1,5 @@
 /**
- * A B1 OR B2 LESSON POINTS AT A CONVERSATION OUT THERE, ON ITS FINISH SCREEN.
+ * A B1, B2 OR C1 LESSON POINTS AT A CONVERSATION OUT THERE, ON ITS FINISH SCREEN.
  *
  * The catalog's conversations (`lib/scenes/catalogue.ts`) rehearse the errands
  * B1 is for: opening a bank account, the landlord about something broken, a
@@ -29,9 +29,17 @@
  * and neighbors, and the bus ticket is on the song festival, where the bus was
  * full. The job interview stays on its B1 lesson, which offered it first.
  *
+ * And C1 did the same when it became lessons (docs/43-lessons.md §16), which
+ * left no unit evening to open one: the rumor at work offers passing on what
+ * you heard, the bank on the phone offers calling a shop before you go, the
+ * feedback said three ways offers the same favor asked three ways, the book
+ * club offers the book club, and almost the same word offers the language
+ * course's first evening. The landlord about the repair stays on its B1
+ * lesson, which offered it first.
+ *
  * Keyed on the lesson id and held both ways by `lessonSituations.test.ts`:
  * every key is a lesson and every value a catalog conversation, and every
- * conversation that no evening of C1 opens is offered by one lesson.
+ * conversation in the catalog is offered by one lesson.
  *
  * And the board agrees with the finish screen (`situationsOfferedThrough`): a
  * conversation a lesson has offered is one the course has brought in, so the
@@ -82,6 +90,11 @@ export const LESSON_SITUATIONS: Readonly<Record<string, string>> = {
   "b2-43-figures": "graafik",
   "b2-44-granted": "elanike-koosolek",
   "b2-48-end": "eksam-b2",
+  "c1-09-rumor": "kuulsin",
+  "c1-15-loan": "helistamine",
+  "c1-27-feedback": "kolm-palvet",
+  "c1-43-book": "raamatuklubi",
+  "c1-45-almost": "keeletund",
 };
 
 /** The catalog conversation a lesson's finish screen offers, by id, or null. */

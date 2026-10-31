@@ -5,7 +5,7 @@ import type { InvariantKit } from "../lib/invariantKit";
 /**
  * WHETHER A LEVEL IS LESSONS IS ASKED, NEVER SPELLED OUT.
  *
- * A1, A2, B1 and B2 are lessons now and C1 is next. A condition written as
+ * Every level is lessons now, A1 to C1. A condition written as
  * `level === "A1" || level === "A2"` was right the day it was typed and wrong
  * the day B1 moved, silently: a test of the course read A2's last part off a
  * list that by then ended in B1. A lesson level is asked through
@@ -27,11 +27,12 @@ const EXEMPT: Readonly<Record<string, string>> = {
   "lib/dict/examples.test.ts": "the first-meeting sentences of the beginner's vocabulary, A1 and A2 by the dictionary's band, not by lessons",
   "lib/course/lessonWorksheet.test.ts": "a worksheet follows a lesson from B1 up (`WORKSHEET_FROM`), a rule about practice inside the lesson below it, not about which levels are lessons",
   "lib/progress/twins.ts": "a pair of words near a beginner's band, A1 and A2 by the dictionary, not by lessons",
+  "lib/scenes/curveballs.ts": "a curveball marked `from` waits for a conversation pitched at B2 or above, a rule about how hard the other side is, not about lessons",
 };
-const BAND = String.raw`"(?:A1|A2|B1|B2)"`;
+const BAND = String.raw`"(?:A1|A2|B1|B2|C1)"`;
 const NAMED = [
   new RegExp(String.raw`\blevel\s*===\s*${BAND}\s*\|\|[^;\n]*?\blevel\s*===\s*${BAND}`),
-  new RegExp(String.raw`\[\s*${BAND}\s*,\s*${BAND}(?:\s*,\s*${BAND}){0,2}\s*\](?:\s*as\s+const)?\s*\)?\s*\.includes\(`),
+  new RegExp(String.raw`\[\s*${BAND}\s*,\s*${BAND}(?:\s*,\s*${BAND}){0,3}\s*\](?:\s*as\s+const)?\s*\)?\s*\.includes\(`),
 ];
 
 export default function aLessonLevelIsAskedNotNamed({ check, ALL, code }: InvariantKit) {

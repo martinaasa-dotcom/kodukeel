@@ -1868,7 +1868,7 @@ boundary between them, so the obvious spelling misses the words this language is
 **And Ekilex's own part of speech was being discarded**, so a deliberate coarsening could not be
 told from a mistake. `ekilexPos` records it. The table of legitimate coarsenings was set by
 narrowing until something honest complained rather than widening until nothing did, and with it
-written down the course's label and Ekilex's agree on all 1,901 words. `PRONOUN` is a part of speech for it, harvested as a nominal
+written down the course's label and Ekilex's agree on all 1,912 words. `PRONOUN` is a part of speech for it, harvested as a nominal
 because it declines like one (`kes`, `kelle`, `keda`), and a pronoun with no singular (`meie`,
 `nemad`) is kept the way an adverb is, attested and formless, rather than dropped.
 `lib/collections/syllabus/retired.ts` is the other half: the ten C2 units were cut in §19 of the
@@ -2117,8 +2117,8 @@ So the harvest stores what the rules miss, and it **asks the rules rather than c
 `unreachableSlots` in `conjugate.ts` and `unreachableCaseForms` in `derive.ts`, each living beside
 the rule it is the complement of. A list would be two copies of one fact and the copy in the
 builder is the one that rots, because a missing form does not look like an error, it looks like a
-word that inflects less. Asserted on the call in both builders. That is 2,023 forms across 439 of the
-1,901 course words. Four codes are nearly all of it, and the fact that they are the four is the
+word that inflects less. Asserted on the call in both builders. That is 2,031 forms across 441 of the
+1,912 course words. Four codes are nearly all of it, and the fact that they are the four is the
 argument: the simple past third person (310), the polite imperative (312) and both participles
 (313 past, 309 present), which are exactly the slots the two paragraphs below record the evals
 finding one at a time. The rest is `olema`'s present, `minema`'s imperative, `pole`, and the short
@@ -10698,12 +10698,12 @@ steps (Listen, Words, How it works, Practice, Say it, Review), the first three a
 `lib/course/lessons/` is the engine and `lessonProblems` is the rule: every spelling on every screen
 of a lesson has to be in the ledger by then, a phrase covering its words only where they stand
 together, and the unit suite fails otherwise. The conversations are written and read by the native
-speaker (ADR-005 amendment 6). A1, A2, B1 and B2 are the lessons and nothing else (P3, §9 for A2's sixty-one, §12 for B1's forty-nine and §14 for B2's forty-eight): `lib/course/lessonCourse.ts` makes each lesson one evening
+speaker (ADR-005 amendment 6). A1, A2, B1, B2 and C1 are the lessons and nothing else (P3, §9 for A2's sixty-one, §12 for B1's forty-nine, §14 for B2's forty-eight and §16 for C1's forty-nine), so no level is built from units, and the unit builder, which builds nothing now, goes in a week (C1-9): `lib/course/lessonCourse.ts` makes each lesson one evening
 of the course with one step, finishing it ticks the evening and hands its words to the deck
-(`finishLesson`), and the builder's ledger is seeded with every lesson before C1 (`teachLessons`). A lesson
+(`finishLesson`), and the builder's ledger is seeded with every lesson (`teachLessons`). A lesson
 level is asked through `isLessonLevel`, never by naming the bands. The
-A1 to B2 units stay as the dictionary's request list and are no longer walked, so a link to one lands on
-`/course/lessons`, and a beginner's first run builds no starter deck. Nobody was on the old A1, so the
+units of every level stay as the dictionary's request list and are no longer walked, so a link to one lands on
+the lesson that teaches most of its words (`unitLessonHref`) and a unit's own page on `/course/lessons`, and a beginner's first run builds no starter deck. Nobody was on the old A1, so the
 switch broke it rather than placing anybody (L4 not needed). Every lesson item becomes a card of
 something the seed writes (`lessonHeads.ts`): a headword once it has been taught, or the lesson's own
 entry. One thing in a lesson may run ahead of the ledger: a sound key's example word with its meaning
@@ -10719,13 +10719,13 @@ every lesson was right on its own. `lib/course/lessons/contract.ts` is the shape
 levels, core lessons numbered from 1, four to ten a part, each part ending on its own `partEnd`
 with a role-play and a live scene, at most `MOST_TAUGHT` new things an evening, a point explained
 once a level, `LEVEL_INFO` filled in, and every line in Russian and Ukrainian. The rest of
-`lessons.test.ts` is asked of every level too. `docs/43-lessons.md` §10 is the list for moving
-C1 to lessons, starting with measuring what the level assumes against the lesson ledger
-rather than the old unit order. A finale says "made of what this part has taught" and never counts
+`lessons.test.ts` is asked of every level too. `docs/43-lessons.md` §10 is the list every level was
+moved to lessons by, starting with measuring what the level assumes against the lesson ledger
+rather than the old unit order; C1 was the last (§16). A finale says "made of what this part has taught" and never counts
 lessons, and a cross-reference names a part only after checking which part taught it.
 
 **A lesson's role-play is also a live scene, and it says only what that lesson has taught.**
-`lib/scenes/lessonScenes.ts` holds one scene per A1 to B2 lesson that ends in a role-play, off the situations
+`lib/scenes/lessonScenes.ts` holds one scene per lesson that ends in a role-play, off the situations
 listing (`sceneById` reads it after the catalog). `inLesson` takes the scene's word list from the
 lesson ledger instead of the old units, `lessonGate` hands the gate the `taught` check and the lesson's
 own spellings, and the app and the harness both read it (asserted). `lessonScenes.test.ts` plays every
@@ -10764,9 +10764,9 @@ retell, writing, room and fade rows are checked by `ramp.test.ts` and `fade.test
 being the authors' rule), a part's closing conversation carries a turn it never rehearsed and no
 retell or race (`levelContractProblems`), and `scripts/test-lessons.mjs` walks the shapes in a
 browser. A past a lesson taught by name is carried as that evening's `pasts` and `pastsThird` (`lessonPastSlots`), slot by slot, so the module
-asks the slot it showed from then on (the I form opens its four regular persons, the third person only its own spelling), and the polite imperative waits for the forms step that shows it. The conversations C1 deals declare
-units the lessons taught only in part, and the words they ask for that no evening has taught are
-named per scene in `course.test.ts` for C1's lessons to take up.
+asks the slot it showed from then on (the I form opens its four regular persons, the third person only its own spelling), and the polite imperative waits for the forms table that shows it. Every
+conversation the app has is offered by a lesson now, and the words one asks for that its lesson has
+not taught are named per scene in `course.test.ts` (`KNOWN_UNTAUGHT`).
 
 **And B2 is the lessons too, a level of living in Estonian rather than getting by in it**
 (`docs/43-lessons.md` §13 and §14). The same six steps again, and the conversation is people talking
@@ -10777,8 +10777,20 @@ Each part writes one of the B2 paper's four texts, at the paper's own lengths, a
 role-play with a curveball, and the level-done screen offers the B2 mock exam before C1. **B2 is the
 family's second year** (`docs/reviews/b2-cast.md`), and the lines to read first are in
 `docs/reviews/b2-flags.md`, `b2-konekeel` and `b2-kultuur` whole. Old B2 learners restart at its
-first lesson (`REHOMED_LEVELS`), the conversations its old evenings opened are offered by the B2
-lesson that rehearses them, and C1 is the one level still built from units.
+first lesson (`REHOMED_LEVELS`), and the conversations its old evenings opened are offered by the B2
+lesson that rehearses them.
+
+**And C1 is the lessons too, the level of being yourself in Estonian** (`docs/43-lessons.md` §15 and
+§16), which leaves no level built from units. People interrupt each other and the questions ask what
+was meant; from the second part some lessons are a talk taken down as notes (`notes`), from the
+third the read text is asked about in the C1 paper's three shapes (`read.questions`), and practice
+asks which room (`rooms`). Every C1 lesson but a part's last ends its Words step on a table of up to
+twelve taught verbs' past and polite imperative, heard and never asked (`withLessonForms`), which is
+where the verbs waiting from A1 to B2 are shown at last. After the last lesson `/course` and Today
+offer the C1 check, and a pass draws the course-finished screen (`CourseFinished`, its copy in
+`lib/copy/finale.ts`), which `/course` stays afterwards. **C1 is the family's third year**
+(`docs/reviews/c1-cast.md`), and the lines to read first are in `docs/reviews/c1-flags.md`,
+`c1-isiksus` and `c1-maa` whole. Old C1 learners restart at its first lesson (`REHOMED_LEVELS`).
 
 ## Conventions
 

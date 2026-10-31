@@ -1,3 +1,4 @@
+import { unitLessonHref } from "@/lib/course/unitLesson";
 import { describe, expect, it } from "vitest";
 import {
   ANSWERS_FAIR, ANSWERS_GOOD, CONVERSATIONAL_MS, HEARD_TURNS_FOR_EAR, MIN_CASE_REVIEWS, SLOW_MS,
@@ -259,7 +260,8 @@ describe("a situation, rung by rung", () => {
     for (const lemma of situationById("kusisonad")!.lemmas) evidence.delete(lemma);
     const r = readSituation(DOCTOR, { ...ctx, evidence });
     expect(r.rung).toBe("takePart");
-    expect(r.struggles.find((s) => s.id === "needs-questions")?.href).toBe("/learn/kusisonad");
+    expect(r.struggles.find((s) => s.id === "needs-questions")?.href).toBe(unitLessonHref("kusisonad"));
+    expect(unitLessonHref("kusisonad")).toMatch(/^\/course\/lessons\/a1-/);
   });
 
   it("mentions words that went wrong last time, and words gone stale", () => {

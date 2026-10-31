@@ -278,3 +278,43 @@ describe("a learner on the old B2 when it became lessons", () => {
     expect((await programmeFor(MINE))?.id).toBe(b2[2]!.id);
   });
 });
+
+/*
+  AND C1, THE LAST LEVEL TO MOVE (docs/43-lessons.md §16). Its three old
+  parts were built from units (`c1.1` to `c1.3`) and the lessons have eight
+  parts, the first three under the same spelling, so a learner on the old
+  `c1.3` is told apart by ticks on day ids no part holds now, and starts C1 at
+  its first lesson keeping every card and review.
+*/
+describe("a learner on the old C1 when it became lessons", () => {
+  const c1 = PROGRAMMES.filter((p) => p.level === "C1");
+
+  it("is a premise this test can hold: C1 is lessons, and its old day ids are gone", () => {
+    expect(c1.length).toBe(8);
+    expect(c1.every((p) => p.days.every((d) => d.lesson))).toBe(true);
+    for (const part of c1.slice(0, 3)) expect(part.days.some((d) => d.id === `${part.id}-05`)).toBe(false);
+  });
+
+  it("starts C1 at its first lesson, wherever they were on the old part", async () => {
+    await writeSetting(MINE, SETTING_KEYS.programme, c1[2]!.id);
+    await prisma.courseStep.create({ data: oldTick(c1[2]!.id) });
+    expect((await programmeFor(MINE))?.id).toBe(c1[0]!.id);
+    expect(await movedBackFrom(MINE)).toEqual({ from: c1[2], to: c1[0] });
+  });
+
+  it("and is then on the furthest C1 part they have worked in since", async () => {
+    await writeSetting(MINE, SETTING_KEYS.programme, c1[2]!.id);
+    await prisma.courseStep.createMany({
+      data: [oldTick(c1[2]!.id), { ownerId: MINE, programmeId: c1[1]!.id, dayId: c1[1]!.days[0]!.id, stepId: c1[1]!.days[0]!.steps[0]!.id }],
+    });
+    expect((await programmeFor(MINE))?.id).toBe(c1[1]!.id);
+  });
+
+  it("leaves a learner alone who has worked in the new part itself", async () => {
+    await writeSetting(MINE, SETTING_KEYS.programme, c1[2]!.id);
+    await prisma.courseStep.createMany({
+      data: [oldTick(c1[2]!.id), { ownerId: MINE, programmeId: c1[2]!.id, dayId: c1[2]!.days[0]!.id, stepId: c1[2]!.days[0]!.steps[0]!.id }],
+    });
+    expect((await programmeFor(MINE))?.id).toBe(c1[2]!.id);
+  });
+});

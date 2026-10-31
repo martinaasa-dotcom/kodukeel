@@ -15,11 +15,11 @@ export const MOST_KEPT = 8;
 
 /**
  * The most sentences of a draft the dictionary reads one by one. The longest
- * writing task asks for a hundred and eighty words (B2's argued text), and a
+ * writing task asks for two hundred and sixty words (C1's book review), and a
  * sentence at B1 and up runs to five words or more, so this reads the whole
  * of any text a task asks for. A test holds it to the longest `least` there is.
  */
-export const MOST_READ = 36;
+export const MOST_READ = 52;
 
 /**
  * Whether a lesson's Say it is the longer step B1 brings (docs/43-lessons.md

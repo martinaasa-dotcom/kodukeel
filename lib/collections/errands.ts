@@ -164,6 +164,24 @@ export const ERRANDS: readonly Errand[] = [
   { id: "plainly", says: "Read a letter from an office and say plainly, in Estonian, what it wants from you.", where: "Home, an office", unit: "umbisikuline", scene: "elamisluba" },
   { id: "radio", says: "Listen to ten minutes of Estonian radio, or watch an Estonian show with Estonian subtitles.", where: "Home", unit: "kunst" },
   { id: "politely", says: "Disagree with somebody politely in Estonian, and say why.", where: "Work, a class", unit: "argumenteerimine", scene: "eksam-b2" },
+  /*
+    C1'S EIGHT, ONE A PART (docs/reviews/c1-cast.md, "Its errand"), each on a
+    unit the part owns, sized as real practice, a whole show or a meeting
+    rather than a sentence (docs/43-lessons.md §15.13, C1-13), since out there
+    is where most of the level's hours are. The rule above holds: a lesson's
+    own role-play declares no units, so only the book club, which the part on
+    ideas and books offers on a lesson's finish and which declares the unit,
+    is named. The part beyond Tallinn owns no unit, so its errand takes B2's
+    unit of history, which is how things were.
+  */
+  { id: "toast", says: "Say a toast, a congratulation or a condolence in Estonian, at a party, in a card or at the door.", where: "Work, a party", unit: "idioomid" },
+  { id: "podcast", says: "Listen to a whole Estonian radio show or podcast episode, and tell somebody what it said.", where: "Home", unit: "rahvusvaheline" },
+  { id: "clause", says: "Read a real offer or a clause of a contract in Estonian, and explain it to somebody in plain words.", where: "A bank, an office", unit: "nominalisatsioon" },
+  { id: "request", says: "Write to a school, a kindergarten or an office with a request in Estonian, and send it.", where: "A school, a kindergarten", unit: "diskursus" },
+  { id: "present", says: "Give a short presentation or chair a meeting in Estonian, and put the thirty words of your own job into your deck.", where: "Work", unit: "retoorika" },
+  { id: "consult", says: "Comment on a public consultation in Estonian, or speak at a meeting of your building or your town.", where: "A meeting, a group", unit: "eetika" },
+  { id: "elders", says: "Talk to an older Estonian about how things were, or go where a dialect is spoken and listen.", where: "Anywhere", unit: "ajalugu" },
+  { id: "novel", says: "Read an Estonian book, or book the C1 exam.", where: "Anywhere", unit: "kirjandus", scene: "raamatuklubi" },
 ];
 
 /**

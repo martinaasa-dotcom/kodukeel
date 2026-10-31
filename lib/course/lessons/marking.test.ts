@@ -93,6 +93,8 @@ describe("a dropped pronoun, on the lessons' own sentences", () => {
       const taught = teach(BEFORE.get(l.id)!, l.teaches, lessonRank(l), l.patterns);
       const items: Item[] = [...(l.reworks ?? []).map((r) => reworkItem(r, taught)), ...(l.fixes ?? []).map((f) => fixItem(f, taught))];
       for (const item of items) {
+        // A line that asks for its start with the pronoun in it (`Start with {Ma tahan, et}`, c1-37) is nearly right without it, which is the start rule's to say.
+        if (item.kind === "rework" && item.opens && /^(?:ma|mina|me|meie|sa|sina|te|teie)\s/iu.test(item.opens)) continue;
         for (const a of item.accept) {
           if (!drop.test(a) || /\b(ei|ega|pole|polnud|poleks)\b/iu.test(a) || /^\p{L}+\s+(ära|ärge)\b/iu.test(a)) continue;
           tried += 1;
@@ -126,6 +128,9 @@ describe("personsFor reads the real ledger", () => {
     expect(personsInEnglish("you are, to one person you know")).toEqual(["Sg2"]);
     expect(personsInEnglish("you were, they were")).toEqual(["Sg2", "Pl3"]);
     expect(personsInEnglish("live, after {ei}")).toEqual([]);
+    // A braced example after the form is another form, and its English is not this one's person.
+    expect(personsInEnglish("I invited; {kutsusime}, we invited")).toEqual(["Sg1"]);
+    expect(personsInEnglish("I convinced; {sa veensid}, you convinced")).toEqual(["Sg1"]);
     expect(personsInEnglish("would be")).toEqual([]);
   });
 });

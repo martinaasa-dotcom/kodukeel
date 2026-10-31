@@ -6,6 +6,7 @@ import { fill, tr } from "@/lib/copy/locale";
 import { Page } from "@/components/ui";
 import { ButtonLink } from "@/components/Button";
 import { isLessonLevel } from "@/lib/course/lessons";
+import { courseFinishedFigures } from "@/lib/progress/courseFinished";
 import { CheckRunner } from "./CheckRunner";
 
 export async function generateMetadata() {
@@ -35,6 +36,9 @@ export default async function CheckPage({ params, searchParams }: {
   ]);
   if (!view) notFound();
   const { check, attempt, paper, needed, part, next, levelDone } = view;
+  /* The check after the course's last part finishes the course, so its pass draws the course-finished screen, with what the course took. */
+  const endsCourse = check.final && !next;
+  const finished = endsCourse && view.open ? await courseFinishedFigures(ownerId) : null;
   // Where a pass leads is `checkView`'s, so the app's check says the same.
   const nextName = view.nextLabel === null ? null : tr(locale, view.nextLabel);
   const level = levelDone && {
@@ -71,7 +75,9 @@ export default async function CheckPage({ params, searchParams }: {
       eyebrow={eyebrow}
       title={title}
       lead={fill(
-        tr(locale, check.final
+        tr(locale, endsCourse
+          ? "{n} questions on all of {level}. Get {needed} right to finish the course."
+          : check.final
           ? "{n} questions on all of {level}. Get {needed} right to open {next}. Try as often as you like."
           : "{n} questions on this part. Get {needed} right to open {next}. Try as often as you like."),
         { n: paper.length, needed, level: part.level, next: nextName ?? tr(locale, "the next part") },
@@ -87,6 +93,7 @@ export default async function CheckPage({ params, searchParams }: {
         pastNext={view.pastNext}
         next={next && nextName ? { id: next.id, label: nextName } : null}
         level={level}
+        finished={finished}
       />
     </Page>
   );

@@ -9,27 +9,33 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { PROGRAMMES, newWordsIn } from "@/lib/course";
-import { scopeFor } from "@/lib/course/scope";
 import { HARVESTED } from "@/prisma/data/harvested";
 import {
-  CHAT_ID, CHAT_MIN_NEW, CHAT_TEMPLATES, CHAT_WORDS, chatMachinery, chatScene, chatWords, wordBeatId,
+  CHAT_MIN_NEW, CHAT_TEMPLATES, CHAT_WORDS, chatScene, chatWords,
   type ChatPlan, type ChatWord,
 } from "./specs/chat";
 import { answerForms } from "./retrieval";
 import { buildLexicon, type DictEntry } from "./lexicon";
 import { composeLive } from "./prompt";
-import { leafNeeds } from "./types";
 import { sceneTemplates, onScreen } from "./onScreen";
 
 const GLOSS = new Map(HARVESTED.map((w) => [w.lemma, w.gloss.split(/[,;]/)[0]!.trim()]));
 const HAS = new Set(HARVESTED.map((w) => w.lemma));
 const words = (lemmas: readonly string[]): ChatWord[] => lemmas.map((lemma) => ({ lemma, gloss: GLOSS.get(lemma) ?? "" }));
 
-/** Every evening a chat could be offered after: at least three new words met. */
-const EVENINGS = PROGRAMMES.flatMap((programme) =>
-  programme.days.filter((day) => !day.lesson && newWordsIn(day) >= CHAT_MIN_NEW).map((day) => ({ programme, day })));
+/*
+  NO EVENING IS BUILT FROM UNITS ANY MORE, SO NONE OFFERS A CHAT. The chat
+  follows such an evening alone (`chatFits` needs `!day.lesson`), and C1 was
+  the last level built from units (docs/43-lessons.md §16). The tests that
+  walked every evening a chat could follow went with them; the builder itself
+  is kept passing until it goes with the unit builder (§15.13, C1-9), on a
+  sample: C1 lesson evenings' words, which are real words with real glosses,
+  standing in for an evening's.
+*/
+const SAMPLES = PROGRAMMES.flatMap((programme) =>
+  programme.days.filter((day) => day.level === "C1" && newWordsIn(day) >= CHAT_MIN_NEW).map((day) => ({ programme, day })));
 
-function planFor(programmeId: string, day: (typeof EVENINGS)[number]["day"], talked = new Set<string>()): ChatPlan {
+function planFor(programmeId: string, day: (typeof SAMPLES)[number]["day"], talked = new Set<string>()): ChatPlan {
   return {
     programmeId, dayId: day.id, unitId: day.unitId,
     words: chatWords(words(day.words), talked, (lemma) => HAS.has(lemma)),
@@ -77,73 +83,9 @@ describe("which of today's words a chat asks for", () => {
   });
 });
 
-describe("a chat built from a real evening", () => {
-  it("has evenings to be offered after", () => {
-    // C1's forty-two, the only evenings built from units since B2 became lessons.
-    expect(EVENINGS.length).toBeGreaterThanOrEqual(42);
-  });
-
-  it("asks only for that evening's words, and every one is a word the evenings have taught", () => {
-    let asked = 0;
-    for (const { programme, day } of EVENINGS) {
-      const plan = planFor(programme.id, day);
-      const taught = new Set(scopeFor(programme, day).lemmas);
-      for (const word of plan.words) {
-        asked += 1;
-        expect(day.words, `${day.id} asks for ${word.lemma}`).toContain(word.lemma);
-        expect(taught.has(word.lemma), `${day.id}: ${word.lemma} is not taught by then`).toBe(true);
-      }
-    }
-    expect(asked).toBeGreaterThan(EVENINGS.length);
-  });
-
-  it("greets, asks one beat a word, and ends on a goodbye", () => {
-    let built = 0;
-    for (const { programme, day } of EVENINGS) {
-      const plan = planFor(programme.id, day);
-      if (plan.words.length === 0) continue;
-      built += 1;
-      const scene = chatScene(plan, scopeFor(programme, day).lemmas);
-      expect(scene.id).toBe(CHAT_ID);
-      expect(scene.beats[0]!.move).toBe("greet");
-      expect(scene.beats[scene.beats.length - 1]!.move).toBe("close");
-      const middle = scene.beats.slice(1, -1);
-      expect(middle.map((b) => b.id)).toEqual(plan.words.map((_, i) => wordBeatId(i + 1)));
-      middle.forEach((beat, i) => {
-        expect(beat.elicits).toBe(plan.words[i]!.lemma);
-        expect(beat.needs).toEqual([{ kind: "lemma", oneOf: [plan.words[i]!.lemma] }]);
-        expect(beat.required).toBe(true);
-        // The stage direction names the meaning, never the word: a learner may read it.
-        expect(beat.they.toLowerCase()).not.toContain(`"${plan.words[i]!.lemma.toLowerCase()}"`);
-        expect(beat.goal).toContain(plan.words[i]!.gloss);
-      });
-      // Its closed list holds what it asks for and everything taught so far.
-      const list = new Set(scene.lemmas);
-      for (const word of plan.words) expect(list.has(word.lemma)).toBe(true);
-      for (const lemma of scopeFor(programme, day).lemmas) expect(list.has(lemma)).toBe(true);
-    }
-    expect(built).toBeGreaterThanOrEqual(42);
-  });
-
-  it("names in its requirements only words the evenings taught or the shared machinery", () => {
-    const machinery = new Set(chatMachinery());
-    for (const { programme, day } of EVENINGS.slice(0, 60)) {
-      const plan = planFor(programme.id, day);
-      const taught = new Set(scopeFor(programme, day).lemmas);
-      const scene = chatScene(plan, [...taught]);
-      for (const beat of scene.beats) {
-        for (const { need } of leafNeeds(beat.needs)) {
-          if (need.kind !== "lemma") continue;
-          for (const lemma of need.oneOf) {
-            expect(taught.has(lemma) || machinery.has(lemma), `${day.id}/${beat.id}: ${lemma}`).toBe(true);
-          }
-        }
-      }
-    }
-  });
-
+describe("a chat built from an evening's words", () => {
   it("opens with what the two of them talked about last time, by its meaning", () => {
-    const { programme, day } = EVENINGS[5]!;
+    const { programme, day } = SAMPLES[5]!;
     const plan = { ...planFor(programme.id, day), remembered: "the weather" };
     const scene = chatScene(plan, []);
     expect(scene.beats[1]!.they).toContain("\"the weather\" last time");
@@ -151,7 +93,7 @@ describe("a chat built from a real evening", () => {
   });
 
   it("is walked out of, ends short through nobody's fault, and has an ending for all of it", () => {
-    const { programme, day } = EVENINGS[3]!;
+    const { programme, day } = SAMPLES[3]!;
     const scene = chatScene(planFor(programme.id, day), []);
     const required = scene.beats.filter((b) => b.required).map((b) => b.id);
     const ids = scene.outcomes.map((o) => o.id);
@@ -162,7 +104,7 @@ describe("a chat built from a real evening", () => {
   });
 
   it("says some words got an outing whichever of them was used, not only the first", () => {
-    const { programme, day } = EVENINGS[3]!;
+    const { programme, day } = SAMPLES[3]!;
     const scene = chatScene(planFor(programme.id, day), []);
     const words = scene.beats.filter((b) => b.id.startsWith("word-")).map((b) => b.id);
     expect(words.length).toBeGreaterThan(1);
@@ -209,7 +151,7 @@ describe("the other side never says the word for them", () => {
 
 describe("what a chat says on screen", () => {
   it("is filled from templates the reader's language can match", () => {
-    const { programme, day } = EVENINGS[0]!;
+    const { programme, day } = SAMPLES[0]!;
     const scene = chatScene(planFor(programme.id, day), []);
     const templates = sceneTemplates(scene);
     for (const one of Object.values(CHAT_TEMPLATES)) expect(templates).toContain(one);

@@ -145,7 +145,7 @@ const ROUTES = [
   "/welcome", "/sign-in", "/start", "/suggestions", "/admin/suggestions", "/admin/errors", "/admin/speech", "/dev/asr",
   "/course", "/course/learn", "/course/forms", "/course/chat", "/course/lessons", "/course/lessons/a1-04-persons", "/course/lessons/b1-06-note", "/course/check/check-a1.1", "/review/letters", "/review/workbook", "/review/numbers", "/review/sayings", "/review/wordplay", "/review/lookups",
   "/exam/A1", "/grammar/topic/object", "/learn/checkpoint/A1",
-  "/learn/nominalisatsioon/lesson", "/learn/nominalisatsioon/worksheet",
+  "/course/lessons/c1-01-news", "/course/lessons/c1-20-comma",
   "/review", "/review/write", "/review/government", "/review/openers", "/review/twenty", "/review/conjugation", "/review/cloze", "/review/clinic",
   "/review/dictation", "/review/listening", "/review/match", "/review/pairs",
   "/review/sentences", "/review/speaking",

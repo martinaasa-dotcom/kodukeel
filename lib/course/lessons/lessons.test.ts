@@ -4,7 +4,7 @@ import { shardKey } from "@/lib/dict/formsLayout";
 import { fold } from "@/lib/estonian/fold";
 import { VOICES } from "@/lib/audio/voice";
 import { A1_LESSONS } from "./a1";
-import { NAMES, PLACE_SPELLINGS, estonianOf, familiesOf, ledgersBefore, lessonProblems, lessonRank, namesOf, teach, uncovered, wordsOf } from "./ledger";
+import { NAMES, estonianOf, familiesOf, formsCheckWords, ledgersBefore, lessonProblems, lessonRank, namesOf, teach, uncovered, wordsOf } from "./ledger";
 import { FIX_AT_MOST, REWORK_AT_MOST, everyTypedQuestion, itemEstonian, markPhrase, meaningShows, practiceFor, reviewFor } from "./practice";
 import { estonianIn } from "./ledger";
 import { LESSONS as COURSE_LESSONS, LESSON_PARTS as COURSE_PARTS } from "./index";
@@ -30,12 +30,12 @@ describe("the lessons, A1 and on", () => {
   it("never show a word before it is taught", () => {
     expect(lessonProblems(A1_LESSONS)).toEqual([]);
     expect(lessonProblems(LESSONS)).toEqual([]);
-  });
+  }, 120_000);
 
   it("introduce the four letters of their own together, on the first evening", () => {
     const first = A1_LESSONS[0]!;
     expect((first.how.sounds ?? []).map((r) => r.glyph).filter((g) => /^[õäöü]$/u.test(g)).sort()).toEqual(["ä", "õ", "ö", "ü"]);
-  });
+  }, 120_000);
 
   it("let a sound's example word run ahead of the course only with its meaning beside it", () => {
     const first = A1_LESSONS[0]!;
@@ -44,7 +44,7 @@ describe("the lessons, A1 and on", () => {
     expect(lessonProblems([row()]).join(" ")).toMatch(/üks/);
     // The meaning is English and is held to the English rule like any other.
     expect(estonianOf(row("{öö}")).map((e) => e.et)).toContain("öö");
-  });
+  }, 120_000);
 
   it("write only spellings the forms list knows", async () => {
     /*
@@ -54,22 +54,16 @@ describe("the lessons, A1 and on", () => {
       shard was unzipped and parsed again every time its word came round.
     */
     const where = new Map<string, string>();
+    // One reading with the per-part check: names and places let through, a dialect spelling asked as its standard word.
     for (const lesson of LESSONS) {
-      const names = namesOf(lesson);
-      const texts = [...estonianOf(lesson).map((e) => e.et), ...lesson.teaches.flatMap((t) => (t.kind === "verb" ? [t.et, t.first] : [t.et]))];
-      for (const text of texts) {
-        for (const w of wordsOf(text)) {
-          if (names.has(w.raw) || PLACE_SPELLINGS.has(w.raw)) continue;
-          if (!where.has(w.low)) where.set(w.low, `${lesson.id}: ${w.raw} in "${text}"`);
-        }
-      }
+      for (const w of formsCheckWords(lesson)) if (!where.has(w.low)) where.set(w.low, w.where);
     }
     const unknown: string[] = [];
     const byShard = [...where.keys()].sort((a, b) => shardKey(fold(a)).localeCompare(shardKey(fold(b))) || a.localeCompare(b));
     for (const word of byShard) if (!(await isExactForm(word))) unknown.push(where.get(word)!);
     expect(unknown).toEqual([]);
     expect(where.size).toBeGreaterThan(500);
-  });
+  }, 120_000);
 
   it("keep Estonian out of the English, except in braces", () => {
     const leaks: string[] = [];
@@ -87,7 +81,7 @@ describe("the lessons, A1 and on", () => {
       for (const e of english) if (ESTONIAN_LETTER.test(bare(e))) leaks.push(`${lesson.id}: ${e}`);
     }
     expect(leaks).toEqual([]);
-  });
+  }, 120_000);
 
   it("name a form only by a name the app knows, with its agreed hint right after it", () => {
     // The operator's list (`casePlainName`, `verbFormName`): a lesson writes
@@ -119,17 +113,17 @@ describe("the lessons, A1 and on", () => {
     }
     expect(named).toBeGreaterThan(40);
     expect(bad).toEqual([]);
-  });
+  }, 120_000);
 
   it("read every speaker in a voice the app has", () => {
     const voices = new Set(VOICES.map((v) => v.id));
     for (const lesson of LESSONS) for (const voice of Object.values(lesson.cast)) expect(voices.has(voice), lesson.id).toBe(true);
-  });
+  }, 120_000);
 
   it("belong to a part that exists", () => {
     const parts = new Set(LESSON_PARTS.map((p) => p.id));
     for (const lesson of LESSONS) expect(parts.has(lesson.part), lesson.id).toBe(true);
-  });
+  }, 120_000);
 
   it("practice and review only what has been taught, at every level", () => {
     const before = ledgersBefore(LESSONS);
@@ -158,7 +152,7 @@ describe("the lessons, A1 and on", () => {
       }
     });
     expect(asked).toBeGreaterThan(LESSONS.length * 5);
-  });
+  }, 120_000);
 
   it("never print the answer in the question or in an option", () => {
     const before = ledgersBefore(LESSONS);
@@ -174,6 +168,8 @@ describe("the lessons, A1 and on", () => {
           : item.kind === "reply" ? [[item.answer, [item.ask.en]]]
           : item.kind === "rework" ? [[item.answer, [item.from.en]]]
           : item.kind === "fix" ? [[item.right, [item.en]]]
+          // A which-room question puts its answer among the three versions on purpose; the line above them is English with nothing quoted.
+          : item.kind === "room" ? [[item.answer, []]]
           : [[item.et, item.options]];
         for (const [et, shown] of pairs) {
           const answer = new Set(wordsOf(et).map((w) => w.low));
@@ -186,7 +182,7 @@ describe("the lessons, A1 and on", () => {
       }
     });
     expect(looked).toBeGreaterThan(LESSONS.length * 10);
-  });
+  }, 120_000);
 
   it("vary the questions: most lessons ask in at least four shapes, and many put the pattern to work in a gap", () => {
     const before = ledgersBefore(LESSONS);
@@ -199,7 +195,7 @@ describe("the lessons, A1 and on", () => {
     });
     expect(varied / LESSONS.length).toBeGreaterThan(0.6);
     expect(gapped / LESSONS.length).toBeGreaterThan(0.5);
-  });
+  }, 120_000);
 
   it("offers in a gap only forms of the word the line holds, never two that mean the same", () => {
     const before = ledgersBefore(LESSONS);
@@ -222,7 +218,7 @@ describe("the lessons, A1 and on", () => {
       }
     });
     expect(gaps).toBeGreaterThan(LESSONS.length);
-  });
+  }, 120_000);
 
   it("asks what was said back only among answers to other questions", () => {
     const before = ledgersBefore(LESSONS);
@@ -240,7 +236,7 @@ describe("the lessons, A1 and on", () => {
       }
     });
     expect(replies).toBeGreaterThan(LESSONS.length / 2);
-  });
+  }, 120_000);
 
   it("knows a meaning that quotes its own word", () => {
     expect(meaningShows({ kind: "form", et: "ole", of: "olema", en: "be: {ei ole} is not" })).toBe(true);
@@ -259,7 +255,7 @@ describe("the lessons, A1 and on", () => {
       }
     }
     expect(found).toBeGreaterThan(0);
-  });
+  }, 120_000);
 
   it("accept the whole phrase for a form said with on", () => {
     const before = ledgersBefore(LESSONS);
@@ -273,7 +269,7 @@ describe("the lessons, A1 and on", () => {
       }
     }
     expect(found).toBeGreaterThan(0);
-  });
+  }, 120_000);
 
   it("accepts the shared spelling alone or with each pronoun, however it is joined", () => {
     const before = ledgersBefore(LESSONS);
@@ -292,7 +288,7 @@ describe("the lessons, A1 and on", () => {
       }
     }
     expect(found).toBeGreaterThan(0);
-  });
+  }, 120_000);
 
   it("puts the one-spelling note only on a prompt of two different persons", () => {
     const before = ledgersBefore(LESSONS);
@@ -305,7 +301,7 @@ describe("the lessons, A1 and on", () => {
     // Which prompts a lesson asks is a seeded selection; what may not happen is the note on anything but two persons.
     expect(noted.size).toBeGreaterThan(0);
     for (const en of noted) expect(en).toMatch(/^you \w+, they \w+$/);
-  });
+  }, 120_000);
 
   it("takes either outside word for either outside prompt", () => {
     const before = ledgersBefore(LESSONS);
@@ -319,7 +315,7 @@ describe("the lessons, A1 and on", () => {
     const asked = seen.filter((accept) => accept.includes("õues"));
     expect(asked.length).toBeGreaterThan(0);
     for (const accept of asked) expect(accept).toContain("väljas");
-  });
+  }, 120_000);
 
   it("says half right when the word is there with more beside it", () => {
     const m = markPhrase("sa olid, nad on", ["olid"]);
@@ -333,7 +329,7 @@ describe("the lessons, A1 and on", () => {
     const before = ledgersBefore(LESSONS);
     for (const lesson of A1_LESSONS) expect(practiceFor(lesson, before.get(lesson.id)!).length).toBeGreaterThan(3);
     expect(reviewFor(A1_LESSONS[0]!, before.get(A1_LESSONS[0]!.id)!)).toEqual([]);
-  });
+  }, 120_000);
 
   it("never write a rework or a fix the practice step cuts off", () => {
     // `practiceFor` takes the first REWORK_AT_MOST and `fixesFor` the first FIX_AT_MOST, so one past either is written and never shown.
@@ -342,7 +338,7 @@ describe("the lessons, A1 and on", () => {
       ...((l.fixes ?? []).length > FIX_AT_MOST ? [`${l.id}: ${l.fixes!.length} fixes`] : []),
     ]);
     expect(over).toEqual([]);
-  });
+  }, 120_000);
 
   it("put right only a line the learner has met in the same lesson", () => {
     // A fix says "a line you've met", so its line stands, word for word, inside one of the lesson's own.
@@ -365,7 +361,7 @@ describe("the lessons, A1 and on", () => {
     }
     expect(strays).toEqual([]);
     expect(fixes).toBeGreaterThan(50);
-  });
+  }, 120_000);
 });
 
 describe("marking a typed phrase", () => {

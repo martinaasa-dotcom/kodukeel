@@ -9777,7 +9777,7 @@ check("nothing is stored on a device that would need asking first", () => {
     "components/useRoundSnapshot.ts",
     // Where a learner is in a lesson: the step, how far they had reached, which
     // steps were finished and whether the conversation was heard, so a reload
-    // does not put them back on step 1. Nothing typed and nothing marked, in
+    // does not put them back on step 1, and at C1 the notes taken on a talk (`NotesKept`); nothing else typed and nothing marked, in
     // `sessionStorage` under the round prefix the sign-out sweeps, removed when
     // the lesson is finished and dropped after three hours.
     "components/course/lessonResume.ts",
@@ -24169,7 +24169,12 @@ check("a planned course day names words rather than writing any", () => {
     "a day's words stopped coming out of its unit's own list. A program may not name a lemma (ADR-005)",
   );
   const plan = code("lib/course/plan.ts");
-  assert.match(plan, /units: \[/, "a part stopped naming the units it works");
+  /*
+    No part is built from units since C1 became lessons, so the plan names no
+    unit at all, and a day's words come from a lesson's own list, which
+    `lessonProblems` holds to the ledger word by word (`lessons.test.ts`).
+  */
+  assert.match(plan, /export const PARTS: readonly PartSpec\[\] = \[\s*\]/, "a part built from units came back to the plan");
   /*
     The plan names units, scenes and rounds by id and holds no word list of its
     own, which is the same rule `lib/collections/topical.ts` carries: the moment
@@ -24181,10 +24186,10 @@ check("a planned course day names words rather than writing any", () => {
     "lib/course/plan.ts grew a word list. A part names units; the units name the words (ADR-005)",
   );
 
-  const tests = code("lib/course/course.test.ts");
+  const tests = code("lib/course/lessons/lessons.test.ts");
   assert.match(
-    tests, /teaches only words its own unit teaches/,
-    "the check that a day may not introduce vocabulary is gone",
+    tests, /expect\(lessonProblems\(LESSONS\)\)\.toEqual\(\[\]\)/,
+    "the check that a lesson may not show a word before it is taught is gone",
   );
 });
 
@@ -27977,9 +27982,18 @@ check("every route the app has is walked by the containment and accessibility sw
   const matches = (route: string, entry: string) =>
     new RegExp(`^${route.replace(/\[[^\]]+\]/g, "[^/]+")}$`).test(entry);
 
+  /*
+    A unit's pages render nothing: every level is the lessons since C1 moved
+    (docs/43-lessons.md §16), so each redirects to `/course/lessons`, which
+    `test-lessons.mjs` asserts (`UNIT_ROUTES`), and a sweep walking them would
+    measure the list of lessons again. They go with the unit builder.
+  */
+  const REDIRECTED = ["/learn/[unitId]", "/learn/[unitId]/lesson", "/learn/[unitId]/worksheet"];
+  assert.match(code("scripts/lib/routes.mjs"), /export const UNIT_ROUTES/, "the unit pages are exempt here and nothing asserts their redirect any more");
+  assert.match(code("scripts/test-lessons.mjs"), /UNIT_ROUTES/, "the unit pages are exempt here and test-lessons.mjs no longer asserts their redirect");
   for (const [file, made] of [
-    ["scripts/test-containment.mjs", [...Object.keys(MADE), "/exam/[level]"]],
-    ["scripts/a11y-check.mjs", ["/review/deck/[deckId]", "/class/[classroomId]", "/class/[classroomId]/poster", "/class/[classroomId]/report", ...NOT_BY_AXE]],
+    ["scripts/test-containment.mjs", [...Object.keys(MADE), "/exam/[level]", ...REDIRECTED]],
+    ["scripts/a11y-check.mjs", ["/review/deck/[deckId]", "/class/[classroomId]", "/class/[classroomId]/poster", "/class/[classroomId]/report", ...NOT_BY_AXE, ...REDIRECTED]],
   ] as const) {
     const entries = listed(file);
     const missing = routes.filter((r) => !made.includes(r) && !entries.some((e) => matches(r, e)));

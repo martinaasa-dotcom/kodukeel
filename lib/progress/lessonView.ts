@@ -7,7 +7,7 @@ import { lessonWordsWorthAsking } from "@/lib/estonian/wordOrder";
 import { sayableName } from "@/lib/course/lessons/ownAnswer";
 import { lessonPlan, ledgerTonight } from "@/lib/progress/lessonPlan";
 import { glossSentences, type GlossedToken } from "@/lib/dict/glossed";
-import { onlyUntaught, readUntaught } from "@/lib/course/lessons/read";
+import { notesUntaught, onlyUntaught, readUntaught } from "@/lib/course/lessons/read";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { checksPassedFor } from "@/lib/progress/checks";
 import { reviewQueue } from "@/lib/progress/dailyQueue";
@@ -15,6 +15,8 @@ import { prisma } from "@/lib/db";
 import { confusions } from "@/lib/stats/confusions";
 import { multiplierFor, roundPaceFrom } from "@/lib/ux/roundClock";
 import type { LessonWorksheet } from "@/lib/course/lessonWorksheet";
+import { lessonDayFor } from "@/lib/course";
+import { verbExamples, type VerbExample } from "@/lib/progress/verbExamples";
 
 /**
  * How far back a lesson looks for the learner's own mix-ups: the newest
@@ -58,6 +60,19 @@ export interface LessonView {
    * and nothing under the ones they have; null where there is no text.
    */
   read: readonly (readonly GlossedToken[])[] | null;
+  /**
+   * The transcript of the lesson's talk taken down as notes (C1,
+   * `LessonSpec.notes`), glossed as the text to read is; null where there is
+   * no talk.
+   */
+  notes: readonly (readonly GlossedToken[])[] | null;
+  /**
+   * The verbs whose past and polite command this lesson's Words step shows in
+   * a table at its foot (C1, `withLessonForms`, docs/43-lessons.md §15.9), in
+   * the order the evening names them, every form off the dictionary and none
+   * worked out by the screen; empty on every other lesson.
+   */
+  forms: readonly VerbExample[];
 }
 
 /**
@@ -80,6 +95,29 @@ async function readTokens(lesson: LessonSpec): Promise<GlossedToken[][] | null> 
 }
 
 /**
+ * How many distinct words a talk's transcript may ask the dictionary about:
+ * the paper's ten-minute lecture is about 1,300 words, so this is the ceiling
+ * a whole one would reach, stated so it cannot grow quietly.
+ */
+const NOTES_WORD_BUDGET = 600;
+
+/** The dictionary under a talk's transcript, the untaught words only, as a text's (C1). */
+async function notesTokens(lesson: LessonSpec): Promise<GlossedToken[][] | null> {
+  if (!lesson.notes || lesson.notes.lines.length === 0) return null;
+  const untaught = notesUntaught(lesson, ledgerTonight(lesson));
+  const glossed = await glossSentences(lesson.notes.lines.map((l) => ({ et: l.et, form: null })), NOTES_WORD_BUDGET);
+  return glossed.map((tokens, i) => onlyUntaught(tokens, untaught[i] ?? new Set()));
+}
+
+/** The verbs a lesson's forms table shows, as the dictionary holds them, in the evening's own order. */
+async function formsTable(ownerId: string, lesson: LessonSpec): Promise<VerbExample[]> {
+  const lemmas = lessonDayFor(lesson.id)?.day.forms ?? [];
+  if (lemmas.length === 0) return [];
+  const verbs = await verbExamples(ownerId, lemmas.length, lemmas);
+  return [...verbs].sort((a, b) => lemmas.indexOf(a.lemma) - lemmas.indexOf(b.lemma));
+}
+
+/**
  * One lesson's view for a learner, or null where there is no such lesson.
  *
  * Besides the plan, the three facts about the learner the finished screen
@@ -96,7 +134,7 @@ export async function lessonView(
   const lesson = lessonById(lessonId) ?? (allowPreview ? PREVIEW_LESSONS.find((l) => l.id === lessonId) ?? null : null);
   if (!lesson) return null;
   // Every read at once: none of them needs another's answer, and each is a round trip.
-  const [mixups, nameSetting, pace, queue, passed, states, read] = await Promise.all([
+  const [mixups, nameSetting, pace, queue, passed, states, read, notes, forms] = await Promise.all([
     lesson.fixes?.length
       ? prisma.review.findMany({
         where: { ownerId, reachedSlot: { not: null } },
@@ -112,6 +150,8 @@ export async function lessonView(
     checksPassedFor(ownerId),
     lessonListStates(ownerId),
     readTokens(lesson),
+    notesTokens(lesson),
+    formsTable(ownerId, lesson),
   ]);
   const { closes, after, ...built } = lessonPlan(lesson, confusions(mixups).map((c) => c.pair));
   /*
@@ -147,5 +187,7 @@ export async function lessonView(
     partAt: Math.max(1, [...LESSON_PARTS, ...PREVIEW_PARTS].filter((p) => p.level === lesson.level).findIndex((p) => p.id === lesson.part) + 1),
     timeMultiplier: multiplierFor(roundPaceFrom(pace)),
     read,
+    notes,
+    forms,
   };
 }

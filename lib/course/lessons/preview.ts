@@ -9,9 +9,11 @@
  * records nothing, and it is not in `LESSONS`, so nothing that lists the
  * course, counts it or asks it for a translation reads it.
  *
- * Empty since B2 became the course (`b2.ts`, docs/43-lessons.md §14). C1 is
- * drafted here next, each part in a file of its own (`c1-<part>.ts`) with one
- * line in a `PARTS` list, in teaching order, the way B2 was.
+ * Empty since C1 became the course (`c1.ts`, docs/43-lessons.md §16), which
+ * left no level to draft: every level from A1 to C1 is lessons and there is no
+ * C2 (C1-10). The list stays, and the paths that read it, for a part written
+ * beside the course before it replaces one, in a file of its own with one line
+ * in a `PARTS` list, in teaching order, the way B2's and C1's were.
  */
 import type { LessonSpec, PartOfLessons } from "./types";
 

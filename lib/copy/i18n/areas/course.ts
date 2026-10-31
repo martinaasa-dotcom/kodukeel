@@ -775,9 +775,9 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["Follow Estonians talking to each other at full speed, read what the school, the doctor and the state send, and keep it in Estonian when somebody switches to English.",
     "Понимать эстонцев, когда они говорят друг с другом в полную скорость, читать то, что присылают школа, врач и государство, и не переходить с эстонского, когда собеседник переходит на английский.",
     "Розуміти естонців, коли вони розмовляють між собою на повній швидкості, читати те, що надсилають школа, лікар і держава, і не переходити з естонської, коли співрозмовник переходить на англійську."],
-  ["Pack more into a sentence, hedge a claim and pick the exact word.",
-    "Вмещать в предложение больше, смягчать утверждения оговорками и подбирать точное слово.",
-    "Уміщувати в речення більше, пом'якшувати твердження застереженнями й добирати точне слово."],
+  ["Be yourself in Estonian: get the joke and what was meant, give a toast or hard feedback, and write a long text that holds together.",
+    "Быть собой на эстонском: понимать шутку и то, что имелось в виду, произнести тост или дать трудный отзыв и написать длинный связный текст.",
+    "Бути собою естонською: розуміти жарт і те, що малося на увазі, виголосити тост чи дати непростий відгук і написати довгий зв'язний текст."],
 
   // THE CHECKPOINT AT THE END OF EACH LEVEL (`CHECKPOINTS`), one row per
   // level, since the source writes the level into the sentence.

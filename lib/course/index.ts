@@ -102,13 +102,6 @@ export function lessonDayFor(lessonId: string): { programme: Programme; day: Cou
   return undefined;
 }
 
-/** Every unit the program draws on, in the order it first draws on each. */
-export function programmeUnits(programme: Programme): string[] {
-  const seen: string[] = [];
-  for (const d of programme.days) if (!seen.includes(d.unitId)) seen.push(d.unitId);
-  return seen;
-}
-
 /** The unit a day names, resolved, or undefined where the id is wrong. */
 export const unitOf = (d: CourseDay) => unitById(d.unitId);
 

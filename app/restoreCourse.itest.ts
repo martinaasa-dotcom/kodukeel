@@ -101,6 +101,21 @@ describe("a restored place in the course", () => {
     expect(await setting(SETTING_KEYS.highestPart)).toBe("b2.3");
   });
 
+  it("moves a backup made on the old C1 back to the first lesson of C1, the same way", async () => {
+    // C1 became lessons last, and its old parts were c1.1 to c1.3.
+    const old = JSON.stringify({
+      format: "kodukeel-v1",
+      exportedAt: at,
+      lexemes: [], forms: [], cards: [], reviews: [], tasks: [],
+      settings: [{ ownerId: "x", key: SETTING_KEYS.programme, value: "c1.3" }],
+      courseSteps: [{ ownerId: "x", programmeId: "c1.3", dayId: "c1.3-05", stepId: "meet", createdAt: at }],
+    });
+    const out = await restoreBackup(old, "replace");
+    expect(out).toEqual(expect.objectContaining({ ok: true }));
+    expect(await part()).toBe("c1.1");
+    expect(await setting(SETTING_KEYS.highestPart)).toBe("c1.3");
+  });
+
   it("tells the learner a restore moved back why they are on the first lesson", async () => {
     const old = JSON.stringify({
       format: "kodukeel-v1",

@@ -2,12 +2,13 @@ import { describe, expect, it } from "vitest";
 import { CASES } from "@/lib/estonian/cases";
 import { grammarTopic } from "@/lib/estonian/grammar";
 import { LESSONS, LESSON_PARTS, isLessonLevel } from "./lessons";
-import { LESSON_PAGES, PATTERN_PAGE, lessonMinutes, lessonProgrammes, lessonWords } from "./lessonCourse";
+import { LESSON_PAGES, PATTERN_PAGE, lessonMinutes, lessonProgrammes, lessonWords, notesMinutes } from "./lessonCourse";
+import { C1_PATTERNS } from "./lessons/types";
 import { LESSON_STEP, PROGRAMMES, grammarThrough, lessonDayFor, taughtThrough, unitsThrough } from "./index";
 import { scopeSoFar } from "./scope";
 
 /*
-  A1, A2, B1 AND B2 ARE THE LESSONS (docs/43-lessons.md). Each lesson is one evening
+  EVERY LEVEL, A1 TO C1, IS THE LESSONS (docs/43-lessons.md). Each lesson is one evening
   of the course, with one step, the lesson, and finishing it is the evening.
 */
 const PARTS = lessonProgrammes();
@@ -15,12 +16,12 @@ const A1 = PROGRAMMES.filter((p) => p.level === "A1");
 // The lesson levels as the build reads them (`isLessonLevel`), so a fourth level of lessons is in every test below by arriving.
 const LESSON_LEVELS = PROGRAMMES.filter((p) => isLessonLevel(p.level));
 
-describe("A1, A2, B1 and B2 as lessons", () => {
+describe("A1 to C1 as lessons", () => {
   it("is every lesson, once, in teaching order, one evening each", () => {
     expect(LESSON_LEVELS.map((p) => p.id)).toEqual(PARTS.map((p) => p.id));
     expect(LESSON_LEVELS.length).toBe(LESSON_PARTS.length);
     expect(LESSON_LEVELS.flatMap((p) => p.days.map((d) => d.lesson))).toEqual(LESSONS.map((l) => l.id));
-    // Each level's parts are counted from one: a1.1 to a1.8, a2.1 to a2.8, b1.1 to b1.7, then b2.1 to b2.8.
+    // Each level's parts are counted from one: a1.1 to a1.8, a2.1 to a2.8, b1.1 to b1.7, b2.1 to b2.8, then c1.1 to c1.8.
     for (const level of [...new Set(PARTS.map((p) => p.level))]) {
       const prefix = level.toLowerCase();
       expect(PARTS.filter((p) => p.level === level).map((p) => p.id)).toEqual(
@@ -43,7 +44,9 @@ describe("A1, A2, B1 and B2 as lessons", () => {
       expect(step.kind).toBe("lesson");
       expect(step.href).toBe(`/course/lessons/${d.lesson}`);
       expect(step.derived).toBe(false);
-      expect(d.minutes).toBe(lessonMinutes(LESSONS.find((l) => l.id === d.lesson)!));
+      // A C1 lesson with a forms table at the foot of its Words step is two minutes longer (`withLessonForms`).
+      expect(d.minutes).toBe(lessonMinutes(LESSONS.find((l) => l.id === d.lesson)!, d.forms?.length ?? 0));
+      expect(step.minutes).toBe(d.minutes);
       expect(d.practice).toEqual([]);
     }
   });
@@ -126,15 +129,46 @@ describe("A1, A2, B1 and B2 as lessons", () => {
     expect(unitsThrough(b1, 1)).toEqual(expect.arrayContaining(["korraldused", "minevik", "restoranis"]));
   });
 
-  it("hands C1 what the lessons taught, so its first evening marks those words as met before", () => {
-    const lessonWordsAll = new Set(LESSON_LEVELS.flatMap((p) => p.days.flatMap((d) => d.words)));
-    const c1 = PROGRAMMES.filter((p) => p.level === "C1").flatMap((p) => p.days);
-    const again = c1.flatMap((d) => d.again ?? []);
-    expect(again.length).toBeGreaterThan(0);
-    expect(again.some((w) => lessonWordsAll.has(w))).toBe(true);
-    // And taughtThrough on C1's first evening credits every lesson's words.
+  it("credits C1's first lesson with every word the levels below it taught", () => {
+    const below = new Set(LESSON_LEVELS.filter((p) => p.level !== "C1").flatMap((p) => p.days.flatMap((d) => d.words)));
+    expect(below.size).toBeGreaterThan(1000);
     const first = PROGRAMMES.find((p) => p.level === "C1")!;
     const taught = new Set(taughtThrough(first, 1));
-    for (const w of lessonWordsAll) expect(taught.has(w), w).toBe(true);
+    for (const w of below) expect(taught.has(w), w).toBe(true);
+  });
+});
+
+/*
+  C1'S PATTERNS COUNT THEIR PAGES AS READ, AND ITS NEW STEPS COUNT THEIR
+  MINUTES (docs/43-lessons.md §15.5, §15.12), on a lesson made here since no C1
+  lesson is written yet.
+*/
+describe("C1's additions to an evening", () => {
+  it("names a grammar page for every C1 pattern", () => {
+    for (const p of C1_PATTERNS) {
+      const page = PATTERN_PAGE[p];
+      expect(page, p).toBeTruthy();
+      expect(grammarTopic(page!), p).toBeTruthy();
+    }
+    expect(PATTERN_PAGE.connective).toBe("connectives");
+  });
+
+  it("counts a talk at about 130 words a minute, times its hearings, and three for its questions", () => {
+    const base = LESSONS.find((l) => l.level === "B2" && l.kind === "lesson" && !l.read?.questions)!;
+    const line = { et: Array.from({ length: 13 }, () => "sõna").join(" "), en: "words" };
+    const talk = (lines: number, hearings: 1 | 2) => ({
+      title: { et: "Jutt", en: "A talk" }, speaker: "Mari", hearings,
+      lines: Array.from({ length: lines }, () => line), questions: [], keyIdeas: [],
+    });
+    // 1,300 words heard once is ten minutes and three; twice is twenty and three.
+    expect(notesMinutes(talk(100, 1))).toBe(13);
+    expect(notesMinutes(talk(100, 2))).toBe(23);
+    expect(lessonMinutes({ ...base, notes: talk(100, 1) })).toBe(lessonMinutes(base) + 13);
+    // A text's questions are three more, which room one.
+    const read = { genre: "x", lines: [{ et: "Tere.", en: "Hello." }] };
+    const withRead = { ...base, read };
+    expect(lessonMinutes({ ...withRead, read: { ...read, questions: [{ kind: "short" as const, q: { et: "Tere?", en: "Hi?" }, accept: ["tere"] }] } })).toBe(lessonMinutes(withRead) + 3);
+    const rooms = [{ versions: [], ask: "work" as const }];
+    expect(lessonMinutes({ ...base, rooms })).toBe(lessonMinutes(base) + 1);
   });
 });

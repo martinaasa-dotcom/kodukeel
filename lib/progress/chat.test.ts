@@ -26,10 +26,17 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-// The first part built from units: A1 to B2 are the lessons, which end on their own conversation.
-const PROGRAMME = PROGRAMMES.find((p) => !p.days[0]?.lesson)!;
-const RICH = PROGRAMME.days.find((day) => newWordsIn(day) >= CHAT_MIN_NEW)!;
-// An evening of units with too few new words; built from a rich one, since C1 rarely has one.
+/*
+  NO EVENING IS BUILT FROM UNITS SINCE C1 BECAME LESSONS, so the chat is offered
+  after none (docs/43-lessons.md §16) and its code goes with the unit builder
+  (§15.13, C1-9). Until then the rules below are pure and are kept passing on
+  an evening of units made here: a C1 lesson evening with its lesson taken off,
+  which is the shape a unit evening had.
+*/
+const PROGRAMME = PROGRAMMES.find((p) => p.level === "C1")!;
+const DAY = PROGRAMME.days.find((day) => newWordsIn(day) >= CHAT_MIN_NEW)!;
+const RICH = { ...DAY, lesson: undefined };
+// An evening of units with too few new words.
 const THIN = { ...RICH, words: RICH.words.slice(0, CHAT_MIN_NEW - 1), again: [] };
 const LESSON = PROGRAMMES[0]!.days.find((day) => newWordsIn(day) >= CHAT_MIN_NEW)!;
 
@@ -140,7 +147,7 @@ describe("a stored chat plan", () => {
     expect(plan.words).toHaveLength(1);
     expect(plan.remembered).toBeNull();
     const scene = chatSceneOf(plan);
-    for (const lemma of scopeFor(PROGRAMME, RICH).lemmas) expect(scene.lemmas).toContain(lemma);
+    for (const lemma of scopeFor(PROGRAMME, DAY).lemmas) expect(scene.lemmas).toContain(lemma);
   });
 
   it("still builds on its own words where the course no longer holds its evening", () => {

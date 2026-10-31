@@ -141,7 +141,7 @@ export type PatternId =
  * what a lesson may ask: Rework may only ask for a change whose pattern has
  * been explained, and the level contract holds each to being explained once.
  */
-export type BPatternId = B1PatternId | B2PatternId;
+export type BPatternId = B1PatternId | B2PatternId | C1PatternId;
 
 export type B1PatternId =
   | "object" | "government" | "impersonal" | "pluperfect" | "relative" | "particleVerb"
@@ -164,6 +164,40 @@ export type B1PatternId =
  */
 export type B2PatternId = "quotative" | "converb" | "supine" | "nominal" | "hedging" | "concession" | "spoken";
 
+/**
+ * C1'S PATTERNS, THE SAME KIND OF RULE AGAIN (docs/43-lessons.md §15.3): C1
+ * adds almost no morphology, so each is a rule about choosing or a register
+ * skill, builds no spelling, and decides what Rework may ask. Each is
+ * explained once in the level and counts its grammar page as read
+ * (`PATTERN_PAGE`).
+ *
+ *   jussive            the third person command and the wish ({tulgu},
+ *                      {elagu}, {olgu peale}, {las ta})
+ *   stance             how sure the speaker is ({küllap}, {arvatavasti},
+ *                      {nähtavasti}, {justkui} and {otsekui} with the would form)
+ *   presentParticiple  the present participles as adjectives ({lugev},
+ *                      {kehtiv}, {arutatav}, {lahendamata}) and the impersonal
+ *                      quotative ({tehtavat})
+ *   connective         the formal links built from verbs ({vastavalt},
+ *                      {arvestades}, {võrreldes}, {hoolimata}, {selmet}) and
+ *                      having a thing done ({lasta teha})
+ *   cohesion           a long text that holds together: the comma before every
+ *                      subordinate clause, and the signposts ({seejuures},
+ *                      {ühtlasi}, {niisiis}, {järelikult})
+ *   emphasis           word order for focus, the focus words ({just},
+ *                      {nimelt}, {isegi}, {alles}), rhetorical questions, and
+ *                      one thing said three ways
+ *   argument           an argued text: a claim, two points, the other side's
+ *                      best case and the answer ({samas}, {seevastu},
+ *                      {teisalt}, {kokkuvõttes})
+ *   literary           the old and literary forms (the i-plural, the stem
+ *                      plural, regional words), read and never produced
+ *   collocation        which verb goes with which noun, and near-synonyms
+ */
+export type C1PatternId =
+  | "jussive" | "stance" | "presentParticiple" | "connective" | "cohesion"
+  | "emphasis" | "argument" | "literary" | "collocation";
+
 /** Every B1 pattern. */
 export const B1_PATTERNS: readonly B1PatternId[] = [
   "object", "government", "impersonal", "pluperfect", "relative", "particleVerb",
@@ -173,8 +207,16 @@ export const B1_PATTERNS: readonly B1PatternId[] = [
 /** Every B2 pattern, which the B2 contract's recycling rule reads (`b2LevelProblems`). */
 export const B2_PATTERNS: readonly B2PatternId[] = ["quotative", "converb", "supine", "nominal", "hedging", "concession", "spoken"];
 
-/** Every B pattern, B1's and B2's, for a check that walks them all: the one list. */
-export const B_PATTERNS: readonly BPatternId[] = [...B1_PATTERNS, ...B2_PATTERNS];
+/** Every C1 pattern, which the C1 contract's recycling rule reads (`c1LevelProblems`). */
+export const C1_PATTERNS: readonly C1PatternId[] = [
+  "jussive", "stance", "presentParticiple", "connective", "cohesion", "emphasis", "argument", "literary", "collocation",
+];
+
+/**
+ * Every rule about choosing, B1's, B2's and C1's, for a check that walks them
+ * all: the one list. Named for B, where the kind began; C1's are the same kind.
+ */
+export const B_PATTERNS: readonly BPatternId[] = [...B1_PATTERNS, ...B2_PATTERNS, ...C1_PATTERNS];
 
 /** A cell of a pattern's table: Estonian or English, never both. */
 export type Cell = { readonly et: string } | { readonly en: string };
@@ -328,6 +370,12 @@ export interface Gist {
   readonly options: readonly string[];
   /** The right option, by index. */
   readonly answer: number;
+  /**
+   * A question about what was meant rather than what was said (C1, §15.5):
+   * the irony, the polite refusal, the thing nobody says outright. Drawn the
+   * same, with a line saying it asks what was meant.
+   */
+  readonly meant?: true;
 }
 
 /**
@@ -380,6 +428,12 @@ export interface Faster {
    * never one that starts the go by itself. Absent is no preparation.
    */
   readonly prepare?: number;
+  /**
+   * Two topics to choose between before the preparation starts (C1, the
+   * paper's presentation): drawn as two buttons, and the go runs on the one
+   * chosen. Only with a preparation, and exactly two.
+   */
+  readonly topics?: readonly { readonly en: string }[];
 }
 
 /**
@@ -397,8 +451,94 @@ export interface Faster {
 export interface ReadText {
   /** What it is, in English: "a notice in the stairwell". */
   readonly genre: string;
-  /** The text a sentence (or a line) at a time, with its English. */
+  /**
+   * The text a sentence (or a line) at a time, with its English. `section`
+   * numbers the text's parts from 1 where a `match` question matches
+   * statements to them (C1); then every line carries one, in order.
+   */
+  readonly lines: readonly { readonly et: string; readonly en: string; readonly section?: number }[];
+  /**
+   * Questions about the text, in the C1 paper's three shapes (C1 from its
+   * third part, §15.7). Asked under the text after it is read, marked
+   * mechanically and graded nowhere. A question asks about what the text says,
+   * never for a form, and an answer is a word of the text or a taught one.
+   */
+  readonly questions?: readonly ReadQuestion[];
+}
+
+/**
+ * ONE QUESTION ABOUT A TEXT READ (C1, §15.7), in the paper's own shapes.
+ *
+ *   match  statements, each to be matched to the section of the text it is
+ *          about (`ReadText.lines[].section`)
+ *   gap    one line of the text taken out (`line`, from 0) and a whole
+ *          sentence chosen for the gap out of three; `options[answer]` is that
+ *          line, which is cohesion tested directly
+ *   short  a question answered in a word or two, marked against `accept`
+ *          (`markPhrase`); every word of an accepted answer is a word of the
+ *          text or a taught spelling
+ *
+ * Estonian with its English under it, held like the text itself: every
+ * spelling in the forms list, and allowed to run ahead of the course.
+ */
+export type ReadQuestion =
+  | { readonly kind: "match"; readonly statements: readonly { readonly et: string; readonly en: string; readonly section: number }[] }
+  | { readonly kind: "gap"; readonly line: number; readonly options: readonly { readonly et: string; readonly en: string }[]; readonly answer: number }
+  | { readonly kind: "short"; readonly q: { readonly et: string; readonly en: string }; readonly accept: readonly string[] };
+
+/**
+ * A TALK TAKEN DOWN AS NOTES (C1 from its second part, §15.7): the paper's
+ * lecture, which the mock exam cannot set.
+ *
+ * A guest on the morning show talks, one short line after another (each under
+ * the speech route's 400 characters, `TtsRequest`), played as a conversation
+ * is. The screen keeps a notes box on the device and shows no transcript until
+ * the questions are answered; then the transcript, with the words the lessons
+ * have not taught underlined, and the author's key ideas beside the learner's
+ * own notes. It grades nothing.
+ *
+ * The talk is held like a text read (`ReadText`): every spelling in the forms
+ * list (a regional one in `DIALECT_WORDS` instead), allowed to run ahead of the
+ * course, its English held to braces. A short answer's accepted answers are
+ * words of the talk or taught spellings.
+ */
+export interface NotesTalk {
+  /** What the talk is called, as the show announces it. */
+  readonly title: { readonly et: string; readonly en: string };
+  /** Who gives it, a speaker of the cast. */
+  readonly speaker: Speaker;
+  /** How often it may be heard before the questions: twice in C1's second part, once from its third. */
+  readonly hearings: 1 | 2;
   readonly lines: readonly { readonly et: string; readonly en: string }[];
+  readonly questions: readonly NotesQuestion[];
+  /** The ideas a good set of notes catches, in English, set beside the learner's own afterwards. */
+  readonly keyIdeas: readonly { readonly en: string }[];
+}
+
+/** A question the notes should answer: a word or two, or one of several. */
+export type NotesQuestion =
+  | { readonly kind: "short"; readonly q: { readonly et: string; readonly en: string }; readonly accept: readonly string[] }
+  | { readonly kind: "choice"; readonly q: { readonly et: string; readonly en: string }; readonly options: readonly { readonly et: string; readonly en: string }[]; readonly answer: number };
+
+/** Which room a thing is said in (C1, which room): to a friend, at work, or in writing. */
+export type Room = "friend" | "work" | "writing";
+
+export const ROOMS: readonly Room[] = ["friend", "work", "writing"];
+
+/**
+ * WHICH ROOM (C1, §15.7): one thing said three ways, to a friend, at work and
+ * in writing, openings and closings included. The learner picks which version
+ * fits the room asked for, then, where `rework` is given, turns one version
+ * into another, marked as any rework is (`markRework`) against the `to`
+ * version and `accept`. The three versions are the author's (ADR-005), each
+ * held to the ledger like a rework's sentence.
+ */
+export interface WhichRoom {
+  readonly versions: readonly { readonly room: Room; readonly et: string; readonly en: string }[];
+  /** The room whose version is to be picked. */
+  readonly ask: Room;
+  /** A version to turn into another room's: the `to` version counts, and so does every sentence in `accept`. */
+  readonly rework?: { readonly from: Room; readonly to: Room; readonly accept: readonly string[] };
 }
 
 /**
@@ -519,6 +659,10 @@ export interface LessonSpec {
   readonly read?: ReadText;
   /** Words to work out from their parts, asked for their meaning in Practice (B2 on). */
   readonly workOut?: readonly WorkOut[];
+  /** A talk taken down as notes in the Listen step (C1 from its second part). */
+  readonly notes?: NotesTalk;
+  /** One thing said three ways, for the room it is said in, in Practice (C1). */
+  readonly rooms?: readonly WhichRoom[];
   /**
    * A role-play, on a check-in and at the end of a part. `who` is the person
    * the learner talks to, a speaker of the cast: named on the intro and the

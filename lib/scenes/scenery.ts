@@ -204,6 +204,14 @@ export const SCENERY: Readonly<Record<string, Scenery>> = {
   "b2-ametikone": { icon: "Stamp", setting: "home_phone" },
   "b2-monoloog": { icon: "GraduationCap", setting: "classroom" },
   "b2-eksam": { icon: "GraduationCap", setting: "classroom" },
+  "c1-nimepidu": { icon: "Heart", setting: "restaurant" },
+  "c1-mysteerium": { icon: "Drama", setting: "restaurant" },
+  "c1-pakkumine": { icon: "House", setting: "meeting" },
+  "c1-direktor": { icon: "School", setting: "office" },
+  "c1-ettekanne": { icon: "Megaphone", setting: "meeting" },
+  "c1-arutelu": { icon: "Users", setting: "meeting" },
+  "c1-laat": { icon: "ShoppingBag", setting: "street" },
+  "c1-pidu": { icon: "Users", setting: "cafe" },
 };
 
 /**

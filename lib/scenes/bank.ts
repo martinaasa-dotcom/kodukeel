@@ -88,6 +88,14 @@ import B2_KOOSOLEK_LINES from "./bank/b2-koosolek";
 import B2_AMETIKONE_LINES from "./bank/b2-ametikone";
 import B2_MONOLOOG_LINES from "./bank/b2-monoloog";
 import B2_EKSAM_LINES from "./bank/b2-eksam";
+import C1_NIMEPIDU_LINES from "./bank/c1-nimepidu";
+import C1_MYSTEERIUM_LINES from "./bank/c1-mysteerium";
+import C1_PAKKUMINE_LINES from "./bank/c1-pakkumine";
+import C1_DIREKTOR_LINES from "./bank/c1-direktor";
+import C1_ETTEKANNE_LINES from "./bank/c1-ettekanne";
+import C1_ARUTELU_LINES from "./bank/c1-arutelu";
+import C1_LAAT_LINES from "./bank/c1-laat";
+import C1_PIDU_LINES from "./bank/c1-pidu";
 
 /** Every scene's prepared lines, one file a scene under `lib/scenes/bank/`, in scene order. */
 export const BANK: readonly ScriptedLine[] = [
@@ -165,4 +173,12 @@ export const BANK: readonly ScriptedLine[] = [
   ...B2_AMETIKONE_LINES,
   ...B2_MONOLOOG_LINES,
   ...B2_EKSAM_LINES,
+  ...C1_NIMEPIDU_LINES,
+  ...C1_MYSTEERIUM_LINES,
+  ...C1_PAKKUMINE_LINES,
+  ...C1_DIREKTOR_LINES,
+  ...C1_ETTEKANNE_LINES,
+  ...C1_ARUTELU_LINES,
+  ...C1_LAAT_LINES,
+  ...C1_PIDU_LINES,
 ];
