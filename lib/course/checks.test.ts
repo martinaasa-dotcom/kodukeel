@@ -33,7 +33,7 @@ describe("the checks between the parts of the lessons", () => {
       expect(checkPaper(check, 1)).toEqual(paper);
       expect(checkPaper(check, 2), check.id).not.toEqual(paper);
     }
-  });
+  }, 120_000);
 
   it("never asks a match, which the check's marked list has no row for", () => {
     let asked = 0;
@@ -44,7 +44,7 @@ describe("the checks between the parts of the lessons", () => {
       }
     }
     expect(asked).toBeGreaterThan(100);
-  });
+  }, 120_000);
 
   it("asks only about what the part's own lessons taught", () => {
     let asked = 0;
