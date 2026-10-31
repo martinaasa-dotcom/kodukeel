@@ -69,7 +69,6 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
       { who: "Anna", et: "Kirjuta, kirjuta. Mark loeb selle enne läbi.", en: "Go on, write it. Mark will read it through first." },
     ],
     teaches: [
-      { kind: "word", et: "hommikuprogramm", en: "a morning show on the radio; {Hommikuprogramm}, the one the family has on" },
       { kind: "form", et: "kodutööd", of: "kodutöö", en: "homework, more than one task; {kodutööd tegema}, to do homework" },
       { kind: "form", et: "kodutöödest", of: "kodutöö", en: "about homework: {räägime kodutöödest}" },
       { kind: "word", et: "homne", en: "tomorrow's: {homne kodutöö}" },
@@ -90,7 +89,6 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
       { kind: "verb", et: "joonima", first: "joonin", en: "to draw a line; {alla joonima}, to underline", firstEn: "I draw a line" },
       { kind: "form", et: "grammatikat", of: "grammatika", en: "grammar, as an object: {parandab grammatikat}" },
       { kind: "word", et: "seitsmeaastane", en: "seven years old; a seven-year-old" },
-      { kind: "form", et: "leida", of: "leidma", en: "to find, after a verb: {raske on leida}" },
       { kind: "form", et: "pidi", of: "pidama", en: "had to, he or she: {ta pidi}" },
       { kind: "form", et: "sõnumid", of: "sõnum", en: "messages" },
     ],
@@ -674,7 +672,6 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
     teaches: [
       { kind: "phrase", et: "kõrvale jääma", en: "to be left out, to end up on the side: {Mark jääb kõrvale}" },
       { kind: "phrase", et: "välja jätma", en: "to leave somebody out: {poisid jätavad ta välja}" },
-      { kind: "form", et: "mängu", of: "mäng", en: "into the game: {mängu võtma}, to let somebody join in" },
       { kind: "verb", et: "kiusama", first: "kiusan", en: "to pick on somebody, to bully: who is picked on is in the [osastav] (3rd form)", firstEn: "I pick on" },
       { kind: "form", et: "kiusata", of: "kiusama", en: "to pick on, after a verb: {ei tohi kiusata}" },
       { kind: "word", et: "kiusamine", en: "bullying" },
