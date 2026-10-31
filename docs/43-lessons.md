@@ -1413,7 +1413,7 @@ app. Each part carries the five things a B2 part carried, plus a sixth:
 
 **The lessons are the spine, and the hours come from around them.** The plan model puts B2 to C1 at
 340 to 400 hours (`hoursBetween`). A C1 lesson with a read text, a retell and a timed answer runs to
-about 38 minutes by `lessonMinutes`, and a writing evening to 50, so forty-eight lessons are about
+about 38 minutes by `lessonMinutes`, and a writing evening to 50, so forty-nine lessons are about
 thirty hours. The rest is the daily review, the practice rounds, the Väljendid and the news, and
 above all the errands. At C1 the errand is a whole radio show, a meeting, a book, which is the
 bulk of the level's hours and where the language is really learned. So every C1 errand is sized as
