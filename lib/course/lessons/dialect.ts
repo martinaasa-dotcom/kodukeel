@@ -17,9 +17,22 @@
  * of a text read or a talk heard may hold one: anywhere else a spelling is
  * held to the ledger, and a dialect word is a word nobody was taught.
  *
- * EMPTY UNTIL `c1-maa` IS WRITTEN; that part's author fills it. Pure data.
+ * FILLED BY `c1-maa`, the one part that reads dialect, each word beside its
+ * standard spelling. Pure data.
  */
-export const DIALECT_WORDS: Readonly<Record<string, string>> = {};
+export const DIALECT_WORDS: Readonly<Record<string, string>> = {
+  // Võro, in the travel page of lesson 37 and the texts after it.
+  aigu: "aega",
+  aitüma: "aitäh",
+  esä: "isa",
+  hää: "hea",
+  imä: "ema",
+  kae: "vaata",
+  kiil: "keel",
+  mõts: "mets",
+  om: "on",
+  tulõ: "tule",
+};
 
 /** The standard spelling a dialect spelling stands for, or null for an ordinary one. Case aside. */
 export function standardOf(spelling: string, glossary: Readonly<Record<string, string>> = DIALECT_WORDS): string | null {

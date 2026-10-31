@@ -204,6 +204,7 @@ export const SCENERY: Readonly<Record<string, Scenery>> = {
   "b2-ametikone": { icon: "Stamp", setting: "home_phone" },
   "b2-monoloog": { icon: "GraduationCap", setting: "classroom" },
   "b2-eksam": { icon: "GraduationCap", setting: "classroom" },
+  "c1-laat": { icon: "ShoppingBag", setting: "street" },
 };
 
 /**
