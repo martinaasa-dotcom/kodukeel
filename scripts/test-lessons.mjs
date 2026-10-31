@@ -337,7 +337,9 @@ async function writeThrough(lesson) {
   await page.getByRole("button", { name: /^Have it read/ }).click();
   check(`${where}: the second draft sits beside the first`, (await page.locator('[data-write-step="redraft"]').count()) === 1);
   // "Have it read" starts the reading itself; there is no second button to press first.
-  check(`${where}: the reading starts without a second press`, (await page.getByRole("button", { name: /^Read my text/ }).count()) === 0);
+  // The reading starts from an effect after the stage draws, so the button is waited out rather than sampled.
+  const noSecondPress = await eventually(async () => (await page.getByRole("button", { name: /^Read my text/ }).count()) === 0, { timeoutMs: 3000 });
+  check(`${where}: the reading starts without a second press`, noSecondPress);
   await page.locator("[data-write-findings]").waitFor({ timeout: 15_000 }).catch(() => {});
   check(`${where}: the dictionary reads the text, sentence by sentence`, (await page.locator("[data-write-findings]").count()) === 1);
   /*
