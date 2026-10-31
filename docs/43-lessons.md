@@ -584,9 +584,11 @@ voices the app has, form names with their agreed hint) is asked of every level t
 5. **The old B1 parts go**, their day ids with them, and a learner on one restarts B1 at its first
    lesson, which is the A1 and A2 precedent. Catalog conversations that opened on a B1 unit are
    offered on the finish of the B1 lesson that rehearses them (`LESSON_SITUATIONS` in
-   `lib/course/lessonSituations.ts`), beside eight of A2's errands; the three A2 errands no lesson
-   rehearses sit on a free evening of B2 (`EARLIER_SCENES_FOR_UNIT` in `lib/course/plan.ts`). The
-   reference pages B1 explains join `LESSON_PAGES`.
+   `lib/course/lessonSituations.ts`), beside eight of A2's errands; the three A2 errands no B1
+   lesson rehearsed sat on a free evening of B2 (`EARLIER_SCENES_FOR_UNIT` in `lib/course/plan.ts`)
+   until B2 became lessons, and are offered by B2 lessons now (§14). The reference pages B1
+   explains join `LESSON_PAGES`. For B2 the same step was the same list one level up, with the
+   level's sample unit in the browser suites moving to C1.
 6. **Re-run `npm run check:authored`**, since a written sentence that passed against the old order
    of teaching can fail against the new one, and drop what fails.
 7. **Translate every new line** into `lib/copy/i18n/areas/lessonText.ts` and run
@@ -605,7 +607,7 @@ voices the app has, form names with their agreed hint) is asked of every level t
 11. **List what waits on a person.** Run `npx tsx scripts/export-language-reviews.ts --since <ref>`
    and `npx tsx scripts/export-translations.ts --since <ref> --out docs/translations/<level>`, so the
    Estonian to read, the voice lines to record and the Russian and Ukrainian to check are one file
-   each (`docs/44-language-reviews.md` holds A1, A2 and B1). The recordings stop at A1's lesson 13, and a
+   each (`docs/44-language-reviews.md` holds A1 to B2). The recordings stop at A1's lesson 13, and a
    man's part plays the native voice only where every line of it is recorded.
 
 ## 11. B1 and B2 as lessons: the measurement, and the plan (for approval)
@@ -1198,7 +1200,8 @@ written against a rule that will change under it.
 5. **The other seven parts**, one pull request each, each with its lesson scenes played keyless by
    `lessonScenes.test.ts`.
 6. **B2 becomes the course.** The old B2 units go with their day ids (the A1, A2 and B1 precedent),
-   a learner on one restarts B2 at its first lesson, and the translations are done.
+   a learner on one restarts B2 at its first lesson, and the translations are done. **Built**
+   on 2026-10-31: §14 says what it took and what it found.
 
 ### 13.12 The engine, as built
 
@@ -1210,8 +1213,8 @@ in the v1 contract (`lib/api/contract.ts`), and checked by the ledger or the con
 the marks (`b2-konekeel.ts`, `b2-too.ts`), exporting the part and its lessons the way `b1-uudised.ts`
 does, with one line added to `PARTS` in `lib/course/lessons/preview.ts`, in the teaching order of
 13.3. The order is read: the ramp takes a part's band off its place, and the recycling rule takes
-which B2 patterns came before it. `lib/course/lessons/b2.ts` is the empty skeleton the parts move
-to the day B2 is the course. Then:
+which B2 patterns came before it. `lib/course/lessons/b2.ts` was the empty skeleton the parts moved
+to the day B2 became the course (§14), and `preview.ts` is empty again, for C1. Then:
 
 ```
 npx tsx scripts/check-lesson-part.ts --part b2-kõnekeel
@@ -1245,3 +1248,82 @@ last carries a `read`. Both are asked of B2 alone, and of synthetic parts both w
 a story retold in the past from part 5 or with an opinion added in parts 7 and 8, one role-play a
 part with the `english` curveball, the conversation move of 13.4, and a headline off the news feed,
 which the screen does not draw yet: a `read` is the native speaker's text.
+
+## 14. B2, as built
+
+**Forty-eight lessons in eight parts**, numbered 1 to 48, and the same ledger walks A1, A2, B1 and B2
+as one course: a B2 lesson may show nothing an earlier lesson of any level has not taught, beyond
+the real text it reads (13.6) and the words it works out from their parts. B2 ends where a learner
+can follow Estonians talking to each other at full speed, keep a conversation in Estonian when the
+other person switches to English, phone an office, the doctor or the school and get what they called
+for, read what the state and the school send, write each of the four texts the B2 paper sets, and
+give the exam's one-minute talk and hold up their end of its debate (13.9).
+
+| Part | Lessons | What it teaches | It writes | Ends in |
+| --- | --- | --- | --- | --- |
+| `b2-konekeel` How people really talk | 1 to 6 | the spoken register: particles, reactions, word order with weight, the everyday words B1 skipped | a group chat thread | dinner at Liis and Jaan's (`b2-ohtusook`) |
+| `b2-kaudne` What people say | 7 to 12 | the quotative, a question and a request passed on | an informal letter (`mitteametlik kiri`) | what the teacher said (`b2-teade`) |
+| `b2-pere` The children's world | 13 to 18 | the converb, the -ma word's cases | an email to the teacher | the parents' evening (`b2-lastevanemad`) |
+| `b2-tervis` Body and care | 19 to 24 | participle phrases, the body and health | a message to the doctor | the doctor on the phone, on a bad line (`b2-perearst`) |
+| `b2-too` A working week in Estonian | 25 to 30 | hedging, the register of work | a summary with your own comment (`kokkuvõte`) | Tom presents, Kadri disagrees (`b2-koosolek`) |
+| `b2-riik` Paper and the state | 31 to 36 | officialese said plainly, nominalization | a semi-formal complaint (`poolametlik kiri`) | on the phone to the office (`b2-ametikone`) |
+| `b2-kultuur` Belonging | 37 to 42 | idioms, irony, the pluperfect in a story | a story about something that happened to you | the exam's one-minute talk (`b2-monoloog`) |
+| `b2-arutelu` Making a case | 43 to 48 | concession, arguing from figures, comparison | an argued text (`arutlev tekst`) | the B2 speaking exam (`b2-eksam`) |
+
+**The ramp as built**, read off the lessons (`rampB2.ts` checks the hearing, the retell's hearings
+and the race by band; the writing never asks less than a part before it, `levelContractProblems`):
+
+| Part | Heard in | Story retold | Again, faster | Writing asks |
+| --- | --- | --- | --- | --- |
+| 1, 2 | a quiet room | 6 to 8 sentences, heard twice | none dealt | 50, then 100 words |
+| 3, 4 | a café, a phone line | 8 sentences, heard once | 60, 45 and 30 seconds | 100, then 120 |
+| 5, 6 | joined halfway, sped up | 7 to 10 sentences, heard once | 45, 30 and 20 seconds | 140, 140 |
+| 7, 8 | every room | 8 to 10 sentences, heard once | one minute after two to prepare | 180, 180 |
+
+Every core lesson but a part's last reads a real text after the conversation (40 in all), and
+practice works 25 words out from their parts. The two letters ask 140 words and the argued text
+180, which is the state paper's own length for each (`docs/16-exam.md`); they were 120 and 170 as
+drafted, and the level contract, which had only met B2 in preview, refused the writing asking less
+than the part before it.
+
+**What the move turned up**, since every check that ran over the course alone met B2 for the first
+time. Six reworks asked for `pole` against `ei ole`, or `ma` against `mina`, which the marker reads
+as one sentence, so the starting sentence was marked right; five went and the sixth, in `b2-pere`,
+is a quotative instead, which keeps that part recycling an earlier pattern. A question opening on
+`ja`, `aga` or `no` before its question word is read as the question it is, so practice can ask
+what was said back to `Ja mis sa ütlesid?`; B2's conversations are full of those, and the reply
+floor (more than half the lessons) holds at 134 against 112. A pronoun is never let in before the
+`seda` of `mida ..., seda ...`. Nine plural partitives with a parallel spelling were decided
+(`kuid` is the conjunction, never months), the new acceptances were read, and a draft is read to 36
+sentences, since the argued text runs to 180 words.
+
+**What B2 replaced, and what moved.** The old B2 parts `b2.1` to `b2.3`, built from sixteen units,
+are gone and their day ids with them, the A1, A2 and B1 precedent, and a learner on one restarts B2
+at its first lesson (`REHOMED_LEVELS`, held by `rehome.itest.ts` and `restoreCourse.itest.ts`). The
+B2 units stay as the dictionary's request list; fourteen words the lessons teach and no unit had
+asked for (`suss`, `magamaminek`, `asumine`, `töötamine`, `lauluväljak`, `vähenema` and the rest)
+were added to them, most to word-building, and asked of Ekilex. The fourteen catalog conversations
+the old B2 evenings opened, and the three A2 errands that sat on their free evenings, are offered on
+the finish of the B2 lesson that rehearses them (`lessonSituations.ts`): the doctor's appointment on
+booking a doctor, the family doctor on the cold that won't go, the emergency call on the night at the
+emergency department, the unemployment fund on Anna's new job, the B2 exam conversation on the B2
+exam. The job interview stays on its B1 lesson. `EARLIER_SCENES_FOR_UNIT` is empty. The page on
+reported speech is read by the lesson on passing a question on (`LESSON_PAGES`), the checks follow
+the lessons, a check closing each B2 part and the last one covering the whole level, and unit
+homework starts at C1. The level-done screen offers the B2 mock exam before C1. 99 written sentences
+for words only the old B2 units taught, and C1 sentences that leaned on them, were dropped; 509
+remain. Eight errands, one a part, join `lib/collections/errands.ts`; two of them name the catalog
+conversation their part offers that declares their unit (the office's letter, the B2 exam), and the
+rest name none, since a lesson's own role-play declares no units.
+
+**What C1 now carries alone.** C1 is the only level built from units: three parts, forty-two
+evenings, six conversations. Every floor that counted B2's evenings was measured again on C1's and
+set to what C1 reaches, with the figure in a comment. Two things are worth a look before C1 moves.
+No evening of the course reads a case page as its reading any more, so `tonightsCase` answers for
+nothing a learner meets; and the verbs whose polite imperative no lesson shows wait for C1's forms
+step, every other evening, which leaves about 150 for the ladder's last evening to show at once.
+
+**What waits on a person.** Every new Estonian line is in `docs/44-language-reviews.md` section 1,
+and `docs/reviews/b2-flags.md` is what to read first: the two parts the native speaker reads whole,
+the lines each other part's author was least sure of, and what the integration changed. The Russian
+and Ukrainian are machine-written and need a fluent reader. B2 is recorded nowhere yet.
