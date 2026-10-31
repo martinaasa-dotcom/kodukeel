@@ -582,9 +582,11 @@ voices the app has, form names with their agreed hint) is asked of every level t
 4. **A scene per role-play** in `lib/scenes/specs/b1-*.ts`, registered in `LESSON_SCENES`;
    `lessonScenes.test.ts` plays each as seven kinds of learner at the level's own pitch.
 5. **The old B1 parts go**, their day ids with them, and a learner on one restarts B1 at its first
-   lesson, which is the A1 and A2 precedent. Catalog conversations that opened on a B1 unit move to a
-   free evening of the level after (`EARLIER_SCENES_FOR_UNIT`), and the reference pages B1 explains
-   join `LESSON_PAGES`.
+   lesson, which is the A1 and A2 precedent. Catalog conversations that opened on a B1 unit are
+   offered on the finish of the B1 lesson that rehearses them (`LESSON_SITUATIONS` in
+   `lib/course/lessonSituations.ts`), beside eight of A2's errands; the three A2 errands no lesson
+   rehearses sit on a free evening of B2 (`EARLIER_SCENES_FOR_UNIT` in `lib/course/plan.ts`). The
+   reference pages B1 explains join `LESSON_PAGES`.
 6. **Re-run `npm run check:authored`**, since a written sentence that passed against the old order
    of teaching can fail against the new one, and drop what fails.
 7. **Translate every new line** into `lib/copy/i18n/areas/lessonText.ts` and run
@@ -603,12 +605,13 @@ voices the app has, form names with their agreed hint) is asked of every level t
 11. **List what waits on a person.** Run `npx tsx scripts/export-language-reviews.ts --since <ref>`
    and `npx tsx scripts/export-translations.ts --since <ref> --out docs/translations/<level>`, so the
    Estonian to read, the voice lines to record and the Russian and Ukrainian to check are one file
-   each (`docs/44-language-reviews.md` is A1 and A2's). The recordings stop at A1's lesson 13, and a
+   each (`docs/44-language-reviews.md` holds A1, A2 and B1). The recordings stop at A1's lesson 13, and a
    man's part plays the native voice only where every line of it is recorded.
 
 ## 11. B1 and B2 as lessons: the measurement, and the plan (for approval)
 
-Written on 2026-10-26. Nothing in this section is built. It is §10's first two steps for B1 and B2:
+Written on 2026-10-26, before any of it was built; B1 has been built since, and §12 is what that
+found. It is §10's first two steps for B1 and B2:
 what the two levels assume, measured against the lessons a learner actually has, and a plan part by
 part for the operator to approve before any code is written, as §4 and §9 were.
 
@@ -697,17 +700,32 @@ English: "say it without naming who did it" (`Ehitajad parandasid katuse` to `Ka
 "Mari told you this, pass it on" (`Ta on haige` to `Ta olevat haige`), "say he finished it", "say
 it had already happened", "join the two with `mis`", "say it to your boss". The target is a lesson
 line the native speaker read, with the other ways of saying it that the native speaker accepts listed
-beside it; anything else is compared against forms the dictionary vouches for, so the marking is
-mechanical and no model grades. Each instruction is a pattern in the ledger, so no lesson asks for a
-change it has not explained.
+beside it. Anything else is compared with those sentences by `sameSentence.ts`: a pronoun's short or
+long spelling, a first- or second-person subject left out or put in beside a verb that says who
+(next to that verb or at the start of its clause, never in the middle; and put in only beside a form
+of that one person, so `oleks` and `olid` license none, and never with punctuation the written
+sentence lacks, so `Ma. Ma lugesin` is not one), a reason moved to the other end, a count from two
+to ten written in digits, a plural partitive's second spelling (`munasid` for `mune`, from the
+reviewed table in `parallelForms.ts`), a reply word in front that agrees with the answer (`Ei, ma
+ei ostnud mune`, never `Jah` before a no), and the other orders the dictionary vouches for
+(`lessonOrders`) are right and say so. Two accepted rows' changes made at once are right where each
+row is one change of one word and an unchanged word stands between them, a word put in or taken out
+directly after a replaced word excepted (`seda ära`); a demonstrative goes in front of the noun a
+row lets it stand for, never in front of a verb, a pronoun or a possessive. What all of that accepts
+on the real lessons is listed in `lib/course/lessons/fixtures/accepted.json` and held there by
+`sweep.test.ts`. The same words in an order nothing can vouch for are nearly; and an instruction
+that fixes the start or where the reason goes holds the answer to it. The marking is mechanical and
+no model grades. Each instruction is a pattern in the ledger, so no lesson asks for a change it has
+not explained.
 
 **Fix: your own mix-ups, put right.** `Review.reachedSlot` and `lib/stats/confusions.ts` already
 know which two forms a learner confuses. From B1 on, two or three Practice items are a lesson line
 with one word swapped for the form this learner keeps reaching for, and the learner corrects it. The
 swapped word is always a real dictionary form of the same word, so nothing on the screen is Estonian
 the app wrote wrongly on purpose: the sentence is a native-read line and the slip is a spelling
-Ekilex records. Where the learner has no confusion on record, the item draws on the commonest one for
-the evening's pattern.
+Ekilex records. A fix can list other ways of putting the line right (`also`, `juhi käest` beside
+`juhilt`), and those are right too. The fixes the learner's own confusions name come first; where there are none on
+record, the lesson's own fixes are asked in the order they were written (`fixesFor`).
 
 **Talk: longer than one line.** Three exercises on the on-device recognizer, each marking what was
 understood and never how it sounded (ADR-018, ADR-028):
@@ -733,10 +751,12 @@ three of its evenings build it:
 2. **Fill in the frame**: the same text with the evening's grammar taken out, written back in.
 3. **Write your own**: the same situation with the learner's details, using two or three of the
    part's patterns.
-4. **The marking.** The dictionary first: was each pattern used, and is each required form a
-   spelling Ekilex vouches for (`checkForm`, `acceptedUses`). Then the grader says whether the text
-   holds together, behind `verify.ts`, which withholds any comment carrying a form it was not given.
-   A deployment with no model key gets the dictionary's half and says so.
+4. **The marking.** The dictionary first, on every deployment: `WriteStep` sends the draft to
+   `checkLessonText`, which cuts it into sentences (`sentencesOf`) and reads each one through
+   `checkTypedSentences` and `checkSentence`, the check a say-it answer gets; the uses the part asks
+   for are ticked as the learner types (`usesIn` in `frame.ts`). Then, on a separate press, Anu says
+   whether the text holds together, behind `verify.ts`, which withholds any comment carrying a form
+   it was not given. A deployment with no model key gets the dictionary's half and says so.
 5. **Redraft**: the learner rewrites with the comments beside them, and both versions stay side by side.
 
 The genres follow the exam (`lib/exam/spec.ts`): at B1 a `teade` (a note that has to get something
@@ -841,13 +861,38 @@ own `Review.reachedSlot`). Say it opens on saying the key lines along with the s
 each line hidden on every pass (`fade.ts`), and then either a story retold, with a checklist that
 lights as its points are heard (`retell`), or one answer given three times in 90, 60 and 45 seconds
 (`faster`). Each part's writing evening is the Write step: read the model, fill in the frame, write
-your own, have it read by the dictionary and, where a model is configured, by Anu behind
+your own, have it read by the dictionary (`checkLessonText`, sentence by sentence through
+`checkSentence`, the uses ticked by `usesIn`) and, where a model is configured, by Anu behind
 `verify.ts`, and redraft; a sentence written right can be kept as a review card (`WRITTEN`). The
 Words step names what each new verb asks for (`asks`). Each part ends in a role-play played live
 (`lib/scenes/specs/b1-*.ts`), and every scene is played keyless as seven kinds of learner in
-`lessonScenes.test.ts`, at B1's pitch. Twenty-one lessons offer a catalog conversation that
-rehearses the same errand on their finish (`lessonSituations.ts`): the payday lesson the bank, the
-leak the landlord, the speaking exam lesson the B1 exam conversation.
+`lessonScenes.test.ts`, at B1's pitch. Twenty-one lessons offer a catalog conversation on their
+finish (`lessonSituations.ts`). Where a lesson is about the same errand it is that lesson: the payday
+lesson offers the bank, the leak the landlord, the speaking exam the B1 exam conversation. B1 has no
+lesson about a bus stop, a restaurant, a clothes shop or a pharmacy, so those four sit on lessons
+about something else and are there for the words the level has taught by then.
+
+**How a rework is marked, which the operator decided on 2026-10-30.** A typed sentence is held to
+the ones written for it (`answer`, `accept`), and then to the shapes `sameSentence` can vouch for
+without a list (`lib/course/lessons/sameSentence.ts`). A pronoun's long and short spellings are one
+word (`mina` and `ma`, read off the dictionary's own pairs), so either is right with no note. A
+first- or second-person subject left out or put in is right where a verb beside it says the same
+person, and never in a negative, where the pronoun is what says whose. The same words in another
+order are right with the note "We wrote it in another order; ours is below." where the dictionary's
+reading of word order vouches for that order (`lessonOrders`), and nearly where it cannot; a reason
+or a condition moved to the other end (`kuna`, `kui`, `kuigi`, `kuni`) is the same as a reorder.
+Every one of those is tried with the marks folded away too, which makes it nearly, never right. A
+wrong rework names the sentence as it was, or the slip still standing; a fix is shown, in the order
+`fixesFor` ranks them, the learner's own commonest confusion first. The golden table of verdicts is
+`practice.test.ts`.
+
+**A pronoun for a noun is a different sentence, and the ask says which it wants.** `sameSentence`
+never reads `seda` as `kraani` or `teda` as `Marit`: which thing a pronoun stands for is a reading of
+the conversation, and a marker that guessed it would mark a wrong referent right. So an ask that
+wants a pronoun names it (`Use {teda}.`), an ask that wants the noun names the noun, and where a
+learner could honestly say either (a `selle` or `seda` for the thing the sentence is already about),
+the written variants carry both in `also`. That is a rule for whoever writes a rework or a prompt and
+it is checked by reading, since no test can tell which noun a pronoun was meant for.
 
 **And every B1 lesson ends on a worksheet page.** The old B1 dealt the worksheet (Töövihik,
 `lib/games/workbook.ts`) on its rotation, and an evening of one lesson dealt nothing, so the
@@ -867,13 +912,15 @@ view carries the offer as `worksheet`, so a native app can make it too.
 **One year, one cast, and a level that ramps.** B1 is one family's year (`docs/reviews/b1-cast.md`):
 a name is one person from A1 to B1, the move in part 4 is the move every later part lives with, and
 a stranger is a one-off name. Each part asks more than the one before, in a table the lessons are
-held to there: the retell grows from four sentences to eight and from part 5 sometimes changes
+written to there: the retell grows from four sentences to eight and from part 5 sometimes changes
 person, the writing from forty words to a hundred, the questions before the text from what it was
 about to who said it and which came first, the reworks combine two patterns from part 5, and from
 part 4 the fade hides tonight's words on its first pass (`fadePlan`, handed the part's place).
 Every part has a listening that isn't a conversation (a voicemail, a notice, a radio item, a hold
 message), heard where the story is (`hearing`: a phone line, a café, a quick news voice, through
-`lib/audio/conditions.ts`). A part's closing conversation carries a turn its lesson never
+`lib/audio/conditions.ts`). The retell, the writing, the room and the fade are checked per part
+(`ramp.test.ts`, `fade.test.ts`); the questions, the combined patterns and the listening that is
+not a conversation are the authors' rule, since no field records them. A part's closing conversation carries a turn its lesson never
 rehearsed and no retell or race, since its Say it is the conversation (`levelContractProblems`).
 The answer options are shuffled on the screen by a seed of the question, the arrow keys move focus
 rather than answer on every marked question (`ChoiceGroup`'s `answer`), the race is lengthened by

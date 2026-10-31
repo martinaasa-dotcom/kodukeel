@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { PROGRAMMES } from "@/lib/course";
 import { moveBlockedFor } from "@/lib/progress/checks";
-import { openingPart, openingPartFor, programmeFor } from "@/lib/progress/course";
+import { choosePart, openingPart, openingPartFor, programmeFor } from "@/lib/progress/course";
 import { goOverAgain, heldFromChoice, HELD_CHOICES, startingLevel, type HeldChoice } from "@/lib/course/placement";
 import { restartPart } from "@/lib/progress/courseReset";
 import { courseLevelFor, courseStandingFor, recordCourseLevel } from "@/lib/progress/level";
@@ -14,7 +14,7 @@ import { readSetting, SETTING_KEYS, writeSetting } from "@/lib/settings/store";
  * The body `setCourseLevel` in `app/actions.ts` used to hold, moved here so the
  * web's level picker and `PATCH /api/v1/me` change a level one way: the owner
  * is a parameter, the value arrives off the wire, and the door up asks
- * `moveBlockedFor` before anything is written, so a learner on the A1 lessons
+ * `moveBlockedFor` before anything is written, so a learner in the lessons, A1 to B1,
  * cannot step past an unpassed check from a phone any more than from Settings
  * (`lib/course/checks.ts`). Going down is always open. Each door keeps its
  * own refresh of the pages that read a level.
@@ -42,7 +42,7 @@ export async function changeCourseLevel(ownerId: string, level: unknown, now: Da
   ]);
   /*
     A LEARNER WHO STARTED AT A1 MOVES UP BY PASSING, and the picker is a door
-    up like any other: from a part of the A1 lessons, a higher level waits on
+    up like any other: from a part of the lessons, A1 to B1, a higher level waits on
     the checks between (`lib/course/checks.ts`). Going down is always open.
 
     Asked of where the choice SENDS them, not of the level on the chip: a level
@@ -90,7 +90,7 @@ export async function changeCourseLevel(ownerId: string, level: unknown, now: Da
   const moved = Boolean(current && (before !== parsed.data || current.level !== opening.level));
   if (moved) {
     await Promise.all([
-      writeSetting(ownerId, SETTING_KEYS.programme, opening.id),
+      choosePart(ownerId, opening.id, now),
       restartPart(ownerId, opening.id),
       writeSetting(ownerId, SETTING_KEYS.adaptMovedAt, now.toISOString()),
       writeSetting(ownerId, SETTING_KEYS.adaptSnoozedUntil, ""),
@@ -134,7 +134,7 @@ export async function changeCourseStart(ownerId: string, which: unknown, now: Da
     return { ok: false, reason: "blocked", error: "Pass the checks to move up a level. Each part of the lessons ends in one." };
   }
   await Promise.all([
-    writeSetting(ownerId, SETTING_KEYS.programme, to.id),
+    choosePart(ownerId, to.id, now),
     restartPart(ownerId, to.id),
     writeSetting(ownerId, SETTING_KEYS.adaptMovedAt, now.toISOString()),
     writeSetting(ownerId, SETTING_KEYS.adaptSnoozedUntil, ""),

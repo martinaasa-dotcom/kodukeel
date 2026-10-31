@@ -5,7 +5,7 @@ import { unitById } from "@/lib/collections/syllabus";
 import { courseLevelFor } from "@/lib/progress/level";
 import { moduleReached } from "@/lib/progress/course";
 import { unitsThrough } from "@/lib/course";
-import { situationsOfferedThrough } from "@/lib/course/lessonSituations";
+import { situationsOfferedBefore, situationsOfferedThrough } from "@/lib/course/lessonSituations";
 import { uiText } from "@/lib/copy/uiLanguage";
 import { Empty, Page, Stack } from "@/components/ui";
 import { ButtonLink } from "@/components/Button";
@@ -61,11 +61,16 @@ export default async function SituationsPage() {
     have not handed over. Nothing is locked: the tile says so, and the stage
     opens on one the course has reached.
   */
-  const unitsMet = reached ? new Set(unitsThrough(reached.programme, reached.day.index)) : null;
+  /* A part's first evening not yet entered (`entered: false`) has had what the
+     parts before it taught and nothing of its own, the way Today reads it. */
+  const through = reached ? (reached.entered ? reached.day.index : -1) : 0;
+  const unitsMet = reached ? new Set(unitsThrough(reached.programme, through)) : null;
   // A conversation a finished lesson has offered is one the course brought in,
   // whatever the unit rule says: the lessons teach by goal, so no unit of their
   // own level is ever opened by them (`lib/course/lessonSituations.ts`).
-  const offered = reached ? situationsOfferedThrough(reached.day.lesson ?? null) : null;
+  const offered = !reached ? null
+    : reached.entered ? situationsOfferedThrough(reached.day.lesson ?? null)
+    : reached.day.lesson ? situationsOfferedBefore(reached.day.lesson) : situationsOfferedThrough(null);
 
   const tiles: SituationTile[] = scenes.map((scene) => {
     const unit = unitById(scene.tests);

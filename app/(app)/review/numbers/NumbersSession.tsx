@@ -294,7 +294,7 @@ function Card({ entry, onSettled, onNext, takeCaret }: {
 
         {!answered ? (
           <div className="flex w-full max-w-md flex-col items-center gap-4">
-            <MicButton speech={speech} label={t("Say it out loud")} shortcut size="lg" />
+            <MicButton speech={speech} label={t("Say it out loud")} shortcut size="lg" fallback="box" />
             <div className="w-full text-left">
               <EstonianInput
                 value={text}

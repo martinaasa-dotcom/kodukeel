@@ -459,7 +459,7 @@ export const TOPIC_NOTES: readonly TopicNote[] = [
   },
   {
     id: "past-participle",
-    title: "The -nud form",
+    title: "The -nud word",
     summary: "The word behind \"have done\" and \"had done\", and a describing word in its own right.",
     marker: "-nud",
     points: [

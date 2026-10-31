@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { coldBudget, couldBeCompound, headwordsOfExactForm, isExactForm, lemmasOfForm, spellingsNear } from "@/lib/dict/forms";
 import { VOUCHED_ROW } from "@/lib/dict/search";
 import { ESTONIAN_WORD } from "@/lib/estonian/cloze";
+import { CEFR_LEVELS } from "@/lib/estonian/types";
 import { COLD_SHARDS_PER_REQUEST } from "@/lib/progress/speechForms";
 import { ALWAYS_READ, checkSentence, type CheckEntry, type SentenceCheck } from "@/lib/course/lessons/sentenceCheck";
 
@@ -40,6 +41,9 @@ export async function checkTypedSentence(text: string, sample: string): Promise<
 /** Distinct words read for a written text and its model; the learner's own are always read, and the model fills what is left. */
 const MAX_TEXT_WORDS = 220;
 
+/** The most headwords one reading asks the dictionary for, each asked twice (as written and with a capital). */
+const MAX_LEMMAS = 1_500;
+
 /**
  * SEVERAL SENTENCES OF ONE TEXT, READ IN ONE PASS.
  *
@@ -60,7 +64,7 @@ export async function checkTypedSentences(texts: readonly string[], sample: stri
     the cap cannot reach it before the model's words.
   */
   const spellingsOf = (ts: readonly string[]) => [...new Set(ts
-    .flatMap((t) => (t.match(ESTONIAN_WORD) ?? []).map((w) => w.toLowerCase()))
+    .flatMap((t) => (t.match(ESTONIAN_WORD) ?? []).map((w) => w.toLocaleLowerCase("et")))
     .flatMap((w) => (/[gk]i$/.test(w) && w.length > 4 ? [w, w.slice(0, -2)] : [w])))];
   // Every word the learner wrote is read, since an unread one comes back as a slip they cannot tick past; the cap is on the model's.
   const own = spellingsOf(texts);
@@ -106,9 +110,9 @@ export async function checkTypedSentences(texts: readonly string[], sample: stri
   });
   // Every headword asked reads null until a row says otherwise; a row under a capital answers for the lower-case headword.
   const bands = new Map<string, string | null>(nearLemmas.map((l) => [l, null]));
-  const rank = (b: string | null | undefined) => (b ? ["A1", "A2", "B1", "B2", "C1", "C2"].indexOf(b) : 9);
+  const rank = (b: string | null | undefined) => (b ? (CEFR_LEVELS as readonly string[]).indexOf(b) : 9);
   for (const row of banded) {
-    const key = bands.has(row.lemma) ? row.lemma : row.lemma.toLowerCase();
+    const key = bands.has(row.lemma) ? row.lemma : row.lemma.toLocaleLowerCase("et");
     if (bands.has(key) && rank(row.cefr) < rank(bands.get(key))) bands.set(key, row.cefr);
   }
   const near = around.map((spellings) => [...new Set(spellings.flatMap((n) => n.lemmas))]
@@ -127,15 +131,27 @@ export async function checkTypedSentences(texts: readonly string[], sample: stri
     has to be read as that phrase rather than as "I ask".
   */
   // Every headword that owns a spelling exactly is read too, so a homograph the check must not correct is in hand.
-  const lemmas = new Set<string>([
-    ...ALWAYS_READ, ...read.flatMap((r) => [r.word, ...r.headwords, ...r.owners.slice(0, OWNERS_PER_WORD)]), ...near.flat(),
-  ]);
+  /*
+    BOUNDED, IN THE ORDER THE JUDGMENT NEEDS THEM. A long draft is a few
+    hundred distinct words and each brings its headwords, the owners of its
+    spelling and the words a slip away, so the set grew without a ceiling into
+    a query of thousands of parameters, twice a draft. What every word needs
+    goes first (the spelling and its own headwords), then the homographs, then
+    the suggestions, and the cap only ever drops from the end: a short text is
+    read exactly as before.
+  */
+  const lemmas = new Set<string>(ALWAYS_READ);
+  const take = (more: readonly string[]) => { for (const l of more) if (lemmas.size < MAX_LEMMAS) lemmas.add(l); };
+  take(read.flatMap((r) => [r.word, ...r.headwords]));
+  take(read.flatMap((r) => r.owners.slice(0, OWNERS_PER_WORD)));
+  take(near.flat());
   const asked = [...lemmas].flatMap((l) => [l, l.charAt(0).toLocaleUpperCase("et") + l.slice(1)]);
   const rows = await prisma.lexeme.findMany({
     where: { lemma: { in: asked }, ...VOUCHED_ROW },
     select: {
       lemma: true, pos: true, cefr: true, government: true, semanticTypes: true,
-      forms: { select: { formType: true, value: true } },
+      // Ordered, since the first row of a form type is the principal part kept below: Ekilex lists the primary first.
+      forms: { select: { formType: true, value: true }, orderBy: [{ orderIndex: "asc" }, { id: "asc" }] },
     },
     orderBy: [{ lemma: "asc" }, { id: "asc" }],
   });

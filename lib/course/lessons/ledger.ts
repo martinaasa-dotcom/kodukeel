@@ -32,7 +32,9 @@ import { buildCaseTable } from "@/lib/estonian/derive";
 import { levelIndex } from "@/lib/collections/syllabus/types";
 import { nativeClip } from "@/lib/audio/native";
 import { lessonLabel } from "./label";
+import { fold } from "@/lib/estonian/fold";
 import type { Fix, LessonSpec, PatternId, Taught } from "./types";
+import { PARALLEL_FORMS } from "./parallelForms";
 
 /** A taught item as a learner is asked about it: a verb counts as its two spellings. */
 export type Asked = Exclude<Taught, { kind: "verb" }>;
@@ -163,6 +165,17 @@ export function wordsOf(text: string): Token[] {
   return [...text.matchAll(/\p{L}+/gu)].map((m) => ({ raw: m[0], low: m[0].toLocaleLowerCase("et") }));
 }
 
+/**
+ * Where a rework's ask names how the sentence must begin, that beginning:
+ * "Start with {Ma ei}." A suggestion ("You can start with {Kui}") is not one.
+ * The marker holds an answer to it and the lesson check holds the accepted
+ * sentences to it, so both read it here.
+ */
+export function opensOf(ask: string): string | null {
+  const m = /(?:^|[.!?]\s+)Start with \{([^{}]+)\}/.exec(ask);
+  return m ? m[1]! : null;
+}
+
 /** The Estonian quoted inside an English sentence, which is written in braces. */
 export function estonianIn(english: string): string[] {
   return [...english.matchAll(/\{([^{}]+)\}/g)].map((m) => m[1]!);
@@ -286,10 +299,14 @@ export function withSlip(fix: Pick<Fix, "line" | "right" | "wrong">): string {
   return fix.line.et.slice(0, i) + fix.wrong + fix.line.et.slice(i + m[0].length);
 }
 
-/** Words lower-cased and joined, as two sentences are compared. */
-const normalisePhraseOf = (text: string) => wordsOf(text).map((w) => w.low).join(" ");
+/**
+ * A phrase as it is compared: lower case, no punctuation, single spaces. A
+ * number is a word here, since `20 sõnumit` and `5 sõnumit` are two answers.
+ */
+export function normalisePhrase(text: string): string {
+  return [...text.matchAll(/[\p{L}\p{N}]+/gu)].map((m) => m[0].toLocaleLowerCase("et")).join(" ");
+}
 
-/** The names a lesson may use: the shared list and its own cast. */
 /*
   WHAT A FIX'S PAIR MAY NAME. A case, a verb slot the app records, or one of
   the impersonal's codes, which the review log never records (no card asks
@@ -299,6 +316,7 @@ const normalisePhraseOf = (text: string) => wordsOf(text).map((w) => w.low).join
 const IMPERSONAL_CODES = ["IndPrIps", "IndIpfIps", "IndPrIpsNeg"] as const;
 const PAIR_CODES: ReadonlySet<string> = new Set([...CASES.map((c) => c.key as string), ...VERB_SLOTS, ...IMPERSONAL_CODES]);
 
+/** The names a lesson may use: the shared list and its own cast. */
 export function namesOf(lesson: Pick<LessonSpec, "cast">): ReadonlySet<string> {
   return new Set([...NAMES, ...Object.keys(lesson.cast)]);
 }
@@ -309,7 +327,16 @@ export function namesOf(lesson: Pick<LessonSpec, "cast">): ReadonlySet<string> {
  */
 export function uncovered(text: string, ledger: Ledger, names: ReadonlySet<string> = NAMES): string[] {
   const words = wordsOf(text);
-  const covered = words.map((w) => names.has(w.raw) || ledger.spellings.has(w.low));
+  /* A parallel form shown beside the spelling it is parallel to (`{makse}, or
+     {maksusid}`) is that spelling said the other way, in the very text that
+     says so, and is covered where that spelling is. Only beside it: alone, it
+     is a word nobody has been shown. */
+  const here = new Set(words.map((w) => w.low));
+  const besideItsTwin = (low: string) => {
+    const stored = PARALLEL_FORMS[low];
+    return stored !== undefined && here.has(stored) && ledger.spellings.has(stored);
+  };
+  const covered = words.map((w) => names.has(w.raw) || ledger.spellings.has(w.low) || besideItsTwin(w.low));
   for (const phrase of ledger.phrases) {
     for (let i = 0; i + phrase.length <= words.length; i++) {
       if (phrase.every((p, j) => words[i + j]!.low === p)) {
@@ -361,6 +388,7 @@ export function estonianOf(lesson: LessonSpec): { where: string; et: string; hea
       if (p.ask) out.push({ where: `${label} ${i + 1}, asked`, et: p.ask.et });
       english(`${label} ${i + 1}, cue`, p.cue);
       out.push({ where: `${label} ${i + 1}, model`, et: p.model.et });
+      p.also?.forEach((et, j) => out.push({ where: `${label} ${i + 1}, also ${j + 1}`, et }));
     });
   prompts("question", lesson.answers);
   lesson.reworks?.forEach((r, i) => {
@@ -375,6 +403,7 @@ export function estonianOf(lesson: LessonSpec): { where: string; et: string; hea
     out.push({ where: `fix ${i + 1}, the line`, et: f.line.et });
     english(`fix ${i + 1}, the line's English`, f.line.en);
     out.push({ where: `fix ${i + 1}, with the slip`, et: withSlip(f) });
+    f.also?.forEach((et, j) => out.push({ where: `fix ${i + 1}, also ${j + 1}`, et }));
     english(`fix ${i + 1}, why`, f.why);
   });
   lesson.listenFor?.forEach((g, i) => {
@@ -562,7 +591,18 @@ export function lessonProblems(lessons: readonly LessonSpec[]): string[] {
     // A change is asked for by its rule, so the rule has to have been explained by tonight.
     lesson.reworks?.forEach((r, i) => {
       if (!tonight.patterns.has(r.pattern)) problems.push(`${at}, rework ${i + 1}: asks for the ${r.pattern} pattern before it is explained`);
-      if (normalisePhraseOf(r.from.et) === normalisePhraseOf(r.to.et)) problems.push(`${at}, rework ${i + 1}: the sentence it asks for is the one it starts from`);
+      if (normalisePhrase(r.from.et) === normalisePhrase(r.to.et)) problems.push(`${at}, rework ${i + 1}: the sentence it asks for is the one it starts from`);
+      // An accepted sentence that is the starting one would mark the sentence typed back unchanged as right.
+      if ((r.also ?? []).some((a) => normalisePhrase(a) === normalisePhrase(r.from.et))) problems.push(`${at}, rework ${i + 1}: an accepted sentence is the one it starts from`);
+      const all = [r.to.et, ...(r.also ?? [])].map(normalisePhrase);
+      if (new Set(all).size !== all.length) problems.push(`${at}, rework ${i + 1}: an accepted sentence is listed twice`);
+      // An ask that names its start is answered only by sentences starting that way.
+      const opens = opensOf(r.ask);
+      if (opens) {
+        const start = normalisePhrase(opens);
+        const off = all.filter((a) => a !== start && !a.startsWith(`${start} `));
+        if (off.length > 0) problems.push(`${at}, rework ${i + 1}: the ask says to start with "${opens}" and an accepted sentence does not`);
+      }
     });
     // A slip is another taught form of the same word, standing once in the line, or it is not a slip.
     const families = familiesOf(tonight);
@@ -574,11 +614,18 @@ export function lessonProblems(lessons: readonly LessonSpec[]): string[] {
     };
     lesson.fixes?.forEach((f, i) => {
       if (withSlip(f) === f.line.et) problems.push(`${at}, fix ${i + 1}: "${f.right}" is not in the line once as a word`);
+      // An accepted line that is the slip would mark the line typed back unchanged as right.
+      const lines = [f.line.et, ...(f.also ?? [])].map(normalisePhrase);
+      if (lines.includes(normalisePhrase(withSlip(f)))) problems.push(`${at}, fix ${i + 1}: an accepted line is the line with the slip`);
+      if (new Set(lines).size !== lines.length) problems.push(`${at}, fix ${i + 1}: an accepted line is listed twice`);
       // A pair code nobody recognizes is a slip that never matches the learner's own mix-ups, and says so nowhere.
       for (const code of f.pair) {
         if (!PAIR_CODES.has(code)) problems.push(`${at}, fix ${i + 1}: "${code}" names no case or verb slot`);
       }
       const of = wordOfSpelling(f.right);
+      if (fold(f.wrong.toLocaleLowerCase("et")) === fold(f.right.toLocaleLowerCase("et"))) {
+        problems.push(`${at}, fix ${i + 1}: "${f.wrong}" and "${f.right}" differ only in the letters with marks, which the marker forgives`);
+      }
       if (!of || wordOfSpelling(f.wrong) !== of || f.wrong === f.right) {
         problems.push(`${at}, fix ${i + 1}: "${f.wrong}" is not another taught form of the word "${f.right}" is`);
       }

@@ -172,7 +172,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       notes: [
         "{Ma arvan, et...} is I think that, and {Ma usun, et...} is I believe that. Both go before a whole sentence.",
         "{Mõtlema} is thinking something over, where {arvama} is what you think of it.",
-        "{Otsima} and {vajama} always take the [osastav] (3rd form): {Ma otsin telefoni}. {Leidma} takes the [omastav] (2nd form) for a whole thing found, the way {Ma ostsin raamatu} does, but after {ei} it takes the [osastav]: {Ma ei leia seda}.",
+        "{Otsima} and {vajama} always take the [osastav] (3rd form): {Ma otsin telefoni}. {Leidma} takes the [omastav] (2nd form) for a whole thing found, the way {Ma ostsin raamatu} does, but after {ei} it takes the [osastav] (3rd form): {Ma ei leia seda}.",
       ],
       watchOut: "{Otsima} is look for and {leidma} is find: {Ma otsin, aga ma ei leia}, I'm looking, but I can't find it.",
       examples: [1, 2, 4],
@@ -549,6 +549,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
     ],
     roleplay: {
       scene: "You meet an old friend you haven't seen for a while. She speaks first. Answer as yourself.",
+      who: "Mari",
       turns: [
         { ask: { et: "No tere! Kaua pole näinud! Mis sa vahepeal tegid?", en: "Hey! Long time no see! What have you been up to?" }, cue: "Say where you were, and what you did there.", model: { et: "Olin Tartus. Töötasin seal.", en: "I was in Tartu. I worked there." } },
         { ask: { et: "Kuidas sulle Tartu meeldis?", en: "How did you like Tartu?" }, cue: "Say what you think of it.", model: { et: "Ma arvan, et see on Eesti kõige ilusam linn.", en: "I think it's the prettiest town in Estonia." } },

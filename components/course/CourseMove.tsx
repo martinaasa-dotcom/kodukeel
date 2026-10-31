@@ -45,11 +45,11 @@ export function CourseMove({ kind, label }: { kind: "down" | "back" | "ahead" | 
       <div className="flex flex-wrap gap-2">
         {/* Where there is no move to make, the card is news rather than a
             question, and the press is an acknowledgment. */}
-        <Button variant="secondary" disabled={pending} onClick={() => run(() => snoozeCourseMove().catch(() => null))}>
+        <Button variant="secondary" busy={pending} onClick={() => run(() => snoozeCourseMove().catch(() => null))}>
           {kind ? t("Not now") : t("Got it")}
         </Button>
         {kind && label && (
-          <Button variant="primary" disabled={pending} onClick={() => run(() => acceptCourseMove(kind).catch(() => null))}>
+          <Button variant="primary" busy={pending} onClick={() => run(() => acceptCourseMove(kind).catch(() => null))}>
             {label} <ArrowRight size={15} aria-hidden />
           </Button>
         )}

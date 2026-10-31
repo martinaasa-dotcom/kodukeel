@@ -35,6 +35,17 @@ describe("the checks between the parts of the lessons", () => {
     }
   });
 
+  it("never asks a match, which the check's marked list has no row for", () => {
+    let asked = 0;
+    for (const check of checks) {
+      for (const item of checkPaper(check, 1)) {
+        asked += 1;
+        expect(item.kind, check.id).not.toBe("match");
+      }
+    }
+    expect(asked).toBeGreaterThan(100);
+  });
+
   it("asks only about what the part's own lessons taught", () => {
     let asked = 0;
     for (const check of checks) {

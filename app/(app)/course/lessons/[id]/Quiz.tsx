@@ -6,26 +6,28 @@ import { Button } from "@/components/Button";
 import { ChoiceGroup } from "@/components/Choice";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { Speak } from "@/components/Speak";
+import { fillNodes } from "@/components/TemplateNodes";
 import { useFeedbackSound } from "@/components/AudioPrefs";
 import { useLocale, useT } from "@/components/Locale";
 import { LessonText } from "@/components/course/LessonText";
 import { Card, Meter, SectionTitle } from "@/components/ui";
-import { fill } from "@/lib/copy/locale";
+import { fill, type Locale } from "@/lib/copy/locale";
 // By its own module, never the barrel, which imports every lesson the course has.
-import { isTyped, markPhrase, markRework, type PracticeItem, type TypedMark } from "@/lib/course/lessons/practice";
+import { isTyped, markTyped, type PracticeItem, type TypedMark } from "@/lib/course/lessons/practice";
 import { rng, seedFrom } from "@/lib/random/seeded";
 import { shuffle } from "@/lib/random/shuffle";
-import { isAdvanceKey } from "@/lib/ux/advanceKey";
+import { isAdvanceKey, onOwnControl } from "@/lib/ux/advanceKey";
 import { OPTION_CLASS, optionState, VERDICT_CLASS } from "@/lib/ux/verdict";
 
 /**
  * PRACTICE AND REVIEW: ONE QUESTION AT A TIME, BUILT BY THE SERVER FROM THE
  * LEDGER (`lib/course/lessons/practice.ts`).
  *
- * Five shapes of question, in the order the server puts them: a match to warm
- * up, a meaning picked out by ear or by eye, a line of the conversation with
- * a form taken out (the evening's pattern, asked), what somebody said back,
- * and a meaning typed back in Estonian. The questions arrive already built, so
+ * Eight shapes of question, in the order the server puts them: a match to
+ * warm up, a meaning picked out by ear or by eye, a line of the conversation
+ * with a form taken out (the evening's pattern, asked), what somebody said
+ * back, a meaning typed back in Estonian, and at B1 a sentence changed into
+ * another and a line put right. The questions arrive already built, so
  * nothing here decides what a learner may be asked.
  *
  * A RUN OF RIGHT ANSWERS IS COUNTED ON THE SCREEN, from three. It is about
@@ -37,7 +39,7 @@ import { OPTION_CLASS, optionState, VERDICT_CLASS } from "@/lib/ux/verdict";
  * how an answer went: the option wears the app's marking class and the live
  * region says it in words.
  */
-export function Quiz({ items, onFinished, onAnswer, summary = true }: {
+export function Quiz({ items, onFinished, onAnswer, summary = true, review = false, level = 2 }: {
   items: readonly PracticeItem[];
   /** Called once the last question is answered, with how many were right the first time. */
   onFinished: (score: { right: number; total: number }) => void;
@@ -45,12 +47,21 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
   onAnswer?: (at: number, response: string) => void;
   /** Whether to draw the count of first-time answers at the end; a check draws its own result. */
   summary?: boolean;
+  /** This is the lesson's review, so the summary does not send the learner to "the review" for what slipped. */
+  review?: boolean;
+  /** 3 inside a lesson's step, whose own heading is the h2. */
+  level?: 2 | 3;
 }) {
   const t = useT();
   const locale = useLocale();
   const sound = useFeedbackSound();
   const [at, setAt] = useState(0);
   const [picked, setPicked] = useState<string | null>(null);
+  // Which question's clip has played, and which one's would not load: keyed on the question, so the next one starts fresh.
+  const [heardAt, setHeardAt] = useState(-1);
+  const [silentAt, setSilentAt] = useState(-1);
+  const heardOnce = heardAt === at;
+  const silent = silentAt === at;
   const [typed, setTyped] = useState("");
   const [mark, setMark] = useState<TypedMark | null>(null);
   const [matched, setMatched] = useState<boolean | null>(null);
@@ -72,12 +83,19 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
      the Enter that pressed Next does not land on Check over an empty box and
      mark it wrong. Not on the first question: arriving is not moving on. */
   const boxRef = useRef<HTMLInputElement>(null);
+  // A question with no box takes the caret to its heading instead, or Next's going leaves it on the page.
+  const questionRef = useRef<HTMLDivElement>(null);
   const shownAt = useRef(at);
   useEffect(() => {
     if (shownAt.current === at) return;
     shownAt.current = at;
-    boxRef.current?.focus();
+    (boxRef.current ?? questionRef.current)?.focus();
   }, [at]);
+  // The summary replaces the question whose Done was pressed, so the caret goes to it and it is read.
+  const summaryRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (over) summaryRef.current?.focus();
+  }, [over]);
 
   if (!item) return null;
 
@@ -107,15 +125,15 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
   if (over) {
     const all = firstTime === items.length;
     return (
-      <div data-lesson-quiz="done">
+      <div data-lesson-quiz="done" ref={summaryRef} tabIndex={-1} className="outline-none">
         <Card tone="sky" className="pop-in">
           <p className="text-lg font-semibold" style={{ color: "var(--ink)" }}>
             {fill(t("{n} of {total} right the first time."), { n: String(firstTime), total: String(items.length) })}
           </p>
-          <p role="status" className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>
+          <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>
             {all
               ? t("Every one. Carry on when you're ready.")
-              : t("The ones you missed come back in the review at the end of the next lesson.")}
+              : review ? t("The ones that slipped come round again in a later review.") : t("Earlier words come back in the review at the end of each lesson.")}
           </p>
           {best >= 3 && (
             <p className="mt-2 inline-flex items-center gap-1.5 text-base font-semibold" style={{ color: "var(--accent-deep)" }}>
@@ -138,7 +156,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
 
   const check = () => {
     if (!isTyped(item) || mark !== null) return;
-    const m = item.kind === "type" ? markPhrase(typed, item.accept) : markRework(typed, item);
+    const m = markTyped(item, typed);
     setMark(m);
     onAnswer?.(at, typed);
     scored(m.verdict === "right");
@@ -146,7 +164,8 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
-    if (answered && isAdvanceKey(e)) {
+    // A speaker or Next that has the keyboard presses itself (`onOwnControl`).
+    if (answered && isAdvanceKey(e) && !onOwnControl(e.target)) {
       e.preventDefault();
       next();
     }
@@ -176,12 +195,25 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
         )}
       </div>
       <Card>
-        <SectionTitle hint={fill(t("{n} of {total}"), { n: String(at + 1), total: String(items.length) })}>{heading}</SectionTitle>
+        {/* Where the caret goes on a new question with no box: its heading, which says what is asked and which question this is. */}
+        <div ref={questionRef} tabIndex={-1} className="outline-none">
+          <SectionTitle level={level} hint={fill(t("{n} of {total}"), { n: String(at + 1), total: String(items.length) })}>{heading}</SectionTitle>
+        </div>
 
         {item.kind === "hear" && (
           <div className="flex flex-wrap items-center gap-3">
-            <Speak key={`${at}-${item.et}`} text={item.et} size={22} autoplay insist label={t("Play it again")} />
-            {picked !== null && <p lang="et" className="text-xl font-bold" style={{ color: "var(--ink)" }}>{item.et}</p>}
+            {/* Played once on arrival where the learner has autoplay on, and a press away where not. A clip that will not load shows the words instead, so the question can still be answered. */}
+            <Speak
+              key={`${at}-${item.et}`}
+              text={item.et}
+              size={22}
+              autoplay
+              label={heardOnce ? t("Play it again") : t("Play it")}
+              onPlay={() => setHeardAt(at)}
+              onUnavailable={() => setSilentAt(at)}
+            />
+            {silent && picked === null && <p className="text-base" style={{ color: "var(--ink-2)" }}>{t("The sound didn't come through, so here it is written.")}</p>}
+            {(picked !== null || silent) && <p lang="et" className="text-xl font-bold" style={{ color: "var(--ink)" }}>{item.et}</p>}
           </div>
         )}
         {item.kind === "pick" && (
@@ -195,7 +227,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
             <p lang="et" className="text-2xl font-bold leading-snug" style={{ color: "var(--ink)" }}>
               {item.before}
               {picked === null
-                ? <span className="mx-0.5 inline-block min-w-[3.5ch] border-b-2 align-baseline" style={{ borderColor: "var(--accent)" }} aria-label={t("a gap")}>&nbsp;</span>
+                ? <><span className="mx-0.5 inline-block min-w-[3.5ch] border-b-2 align-baseline" style={{ borderColor: "var(--accent)" }} aria-hidden>&nbsp;</span><span className="sr-only" lang={locale}>{t("a gap")}</span></>
                 : <span className="pop-in inline-block" style={{ color: "var(--accent-deep)" }}>{item.answer}</span>}
               {item.after}
             </p>
@@ -210,7 +242,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
         {item.kind === "reply" && (
           <div className="flex flex-col gap-2" data-reply>
             <div className="flex items-start gap-2">
-              <Speak key={`${at}-${item.ask.et}`} text={item.ask.et} size={18} autoplay insist label={t("Hear the question")} />
+              <Speak key={`${at}-${item.ask.et}`} text={item.ask.et} size={18} autoplay label={t("Hear the question")} />
               <p lang="et" className="text-xl font-bold" style={{ color: "var(--ink)" }}>{item.ask.et}</p>
             </div>
             <p className="text-base" style={{ color: "var(--ink-2)" }}><LessonText text={item.ask.en} locale={locale} /></p>
@@ -295,18 +327,14 @@ export function Quiz({ items, onFinished, onAnswer, summary = true }: {
               {mark && (
                 <p>
                   {t(mark.note)}{" "}
-                  {mark.verdict !== "right" && (
-                    <>
-                      {t("It's")} <span lang="et" className="font-bold">{item.answer}</span>
-                    </>
-                  )}
+                  {mark.verdict !== "right" && fillNodes(t("It's {answer}."), { answer: <span lang="et" className="font-bold">{item.answer}</span> })}
                 </p>
               )}
             </TypedBox>
           </div>
         )}
 
-        <p role="status" aria-live="polite" className="sr-only">{liveLine(item, picked, mark, matched, t)}</p>
+        <p role="status" aria-live="polite" className="sr-only">{liveLine(item, picked, mark, matched, t, locale)}</p>
 
         <div className="mt-5 flex flex-wrap items-center justify-end gap-3">
           {isTyped(item) && mark === null ? (
@@ -376,7 +404,7 @@ function TypedBox({ boxRef, label, answer, typed, setTyped, mark, onCheck, child
  * it marked `lang="et"` so a screen reader says it as Estonian.
  */
 function liveLine(
-  item: PracticeItem, picked: string | null, mark: TypedMark | null, matched: boolean | null, t: (s: string) => string,
+  item: PracticeItem, picked: string | null, mark: TypedMark | null, matched: boolean | null, t: (s: string) => string, locale: Locale,
 ): ReactNode {
   if (isTyped(item)) return mark ? <>{t(mark.note)} <span lang="et">{item.answer}</span></> : "";
   if (item.kind === "match") return matched === null ? "" : matched ? t("All matched, first time.") : t("All matched.");
@@ -386,7 +414,8 @@ function liveLine(
     const [before, after = ""] = t("Not this one. It's {answer}.").split("{answer}");
     return <>{before}<span lang="et">{item.answer}</span>{after}</>;
   }
-  return fill(t("Not this one. It means {answer}."), { answer: t(item.answer) });
+  // The meaning drawn as the option drew it, so `cleaned, after {ei}` is read with no braces and `ei` as Estonian.
+  return fillNodes(t("Not this one. It means {answer}."), { answer: <LessonText text={item.answer} locale={locale} /> });
 }
 
 /**
@@ -411,18 +440,32 @@ function Match({ pairs, onDone }: { pairs: readonly { et: string; en: string }[]
   const [wrong, setWrong] = useState<string | null>(null);
   const [slips, setSlips] = useState(0);
   const finished = done.size === pairs.length;
+  /*
+    WHAT THE LAST PRESS DID, SAID OUT LOUD. A pair that locks in recolors and
+    one that misses shakes, which a screen reader hears as nothing, so one line
+    held in state says it: the last thing that happened rather than a backlog.
+  */
+  const [said, setSaid] = useState<{ et?: string; text: string } | null>(null);
+  // A matched pair disables the meaning that was pressed, so the caret goes to the next word still to match.
+  const etRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const take = (en: string) => {
     if (chosen === null || finished) return;
     if (pairs[chosen]!.en === en) {
       const now = new Set(done).add(chosen);
       setDone(now);
+      setSaid({ et: pairs[chosen]!.et, text: t("matched.") });
       setChosen(null);
       if (now.size === pairs.length) onDone(slips === 0);
-      else sound("right");
+      else {
+        sound("right");
+        const nextOpen = pairs.findIndex((_, i) => !now.has(i));
+        requestAnimationFrame(() => etRefs.current[nextOpen]?.focus());
+      }
     } else {
       setSlips((n) => n + 1);
       setWrong(en);
+      setSaid({ text: t("Not that one. Try another meaning.") });
       sound("wrong");
       window.setTimeout(() => setWrong(null), 450);
     }
@@ -436,6 +479,7 @@ function Match({ pairs, onDone }: { pairs: readonly { et: string; en: string }[]
           return (
             <li key={pair.et}>
               <button
+                ref={(el) => { etRefs.current[i] = el; }}
                 type="button"
                 lang="et"
                 disabled={isDone || finished}
@@ -468,6 +512,9 @@ function Match({ pairs, onDone }: { pairs: readonly { et: string; en: string }[]
           );
         })}
       </ul>
+      <p className="sr-only" role="status" aria-live="polite">
+        {said && !finished ? <>{said.et && <span lang="et">{said.et} </span>}{said.text}</> : null}
+      </p>
       <p className="col-span-2 text-sm" style={{ color: "var(--ink-3)" }}>
         {finished
           ? (slips === 0 ? t("All matched, first time.") : t("All matched."))

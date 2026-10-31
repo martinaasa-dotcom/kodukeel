@@ -1,8 +1,9 @@
 import { PROGRAMMES, type Programme } from "@/lib/course";
 import { blockedBy, passedFrom, type CourseCheck } from "@/lib/course/checks";
-import { readSetting, writeSetting, SETTING_KEYS } from "@/lib/settings/store";
+import { readSetting, updateSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { movesFreely } from "@/lib/auth/admin";
 import { prisma } from "@/lib/db";
+import { highestPartFor, programmeFor } from "@/lib/progress/course";
 
 /**
  * The checks between the parts of the lessons, as one learner stands with them: which
@@ -14,12 +15,21 @@ export async function checksPassedFor(ownerId: string): Promise<Set<string>> {
   return passedFrom(await readSetting(ownerId, SETTING_KEYS.checksPassed));
 }
 
-/** Adds a pass. Only ever adds: a check passed once stays passed. */
+/**
+ * Adds a pass. Only ever adds: a check passed once stays passed.
+ *
+ * The list is read and written back under the learner's own lock
+ * (`updateSettings`), because read and written as two statements, four checks
+ * passed at once kept one: each read the list without the others' pass and
+ * the last write won. A pass lost is a check sat again.
+ */
 export async function recordCheckPassed(ownerId: string, checkId: string): Promise<void> {
-  const passed = await checksPassedFor(ownerId);
-  if (passed.has(checkId)) return;
-  passed.add(checkId);
-  await writeSetting(ownerId, SETTING_KEYS.checksPassed, [...passed].join(" "));
+  await updateSettings(ownerId, [SETTING_KEYS.checksPassed], (held) => {
+    const passed = passedFrom(held[SETTING_KEYS.checksPassed] ?? null);
+    if (passed.has(checkId)) return [];
+    passed.add(checkId);
+    return [[SETTING_KEYS.checksPassed, [...passed].join(" ")]];
+  });
 }
 
 /**
@@ -56,13 +66,31 @@ export async function moveBlockedFor(
     who walked the old B1 holds ticks under a lesson part's id, on day ids that
     part no longer has. Read as lessons, those would trap a B1 learner who took
     the refresher back down to A2 behind A2's checks.
+
+    And so does an evening of a lesson part as far up as the move or further:
+    B1 is lessons now, so a learner placed at B1 who worked its first lesson
+    and then took the A2 refresher held ticks in a lesson part and on day ids
+    it still has, and every A2 check stood between them and the part they had
+    already been on. Somebody who has worked a part has been past every check
+    below it; a part above any they have worked is still held.
   */
+  const at = PROGRAMMES.findIndex((p) => p.id === to.id);
+  /*
+    And a part as far up as the furthest one they were ever placed on or moved
+    to is open, ticked or not (`choosePart` records it). Without that, a learner
+    placed on B1.1 who stepped down before ticking anything, or whose ticks up
+    there a restart had deleted, was asked A2's checks to go back.
+  */
+  const highest = await highestPartFor(ownerId);
+  if (highest && at >= 0 && PROGRAMMES.findIndex((p) => p.id === highest.id) >= at) return null;
+  const reachedBefore = at < 0 ? [] : PROGRAMMES.slice(at).filter((p) => lessonParts.includes(p)).map((p) => p.id);
   const beenAbove = await prisma.courseStep.findFirst({
     where: {
       ownerId,
       OR: [
         { programmeId: { notIn: lessonParts.map((p) => p.id) } },
         { programmeId: { in: lessonParts.map((p) => p.id) }, dayId: { notIn: lessonParts.flatMap((p) => p.days.map((d) => d.id)) } },
+        { programmeId: { in: reachedBefore } },
       ],
     },
     select: { id: true },
@@ -103,8 +131,8 @@ export async function restorableParts(ownerId: string, ids: Iterable<string>): P
   if (wanted.length === 0) return new Set();
   const climbing = await prisma.courseStep.findFirst({ where: { ownerId }, select: { id: true } });
   if (!climbing) return new Set(wanted.map((p) => p.id));
-  const stored = await readSetting(ownerId, SETTING_KEYS.programme);
-  const standing = stored ? PROGRAMMES.find((p) => p.id === stored) ?? null : null;
+  // The part they are actually on, read the way every screen reads it: an old B1 part sent back, an unknown id placed.
+  const standing = await programmeFor(ownerId);
   const open = new Set<string>();
   for (const programme of wanted) {
     if (!await moveBlockedFor(ownerId, standing, programme)) open.add(programme.id);

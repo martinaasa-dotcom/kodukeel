@@ -26,7 +26,7 @@ export const LEVEL_NEW: Readonly<Record<string, LevelNews>> = {
       { what: "You hear it first.", why: "Each conversation plays with its words hidden, and you say what it was about before you read it." },
       { what: "You change sentences.", why: "Practice asks you to turn one sentence into another, and to fix the mix-ups you make most." },
       { what: "You talk for longer.", why: "Retell a short story, or give one answer three times, faster each time." },
-      { what: "You write a real text.", why: "Once a part you write a note, a letter or an email, and keep the sentences you get right as cards." },
+      { what: "You write a real text.", why: "Once a part you write a note, a letter, an email, a story, a forum post or an application, and keep the sentences you get right as cards." },
       { what: "A lesson takes longer.", why: "Most take about twenty-five minutes, and a writing lesson about forty." },
     ],
   },

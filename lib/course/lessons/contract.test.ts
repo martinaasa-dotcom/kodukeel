@@ -4,7 +4,7 @@ import { LEVEL_INFO } from "@/lib/collections/syllabus";
 import { sceneForLesson } from "@/lib/scenes/lessonScenes";
 import { LESSONS, LESSON_LEVELS, LESSON_PARTS } from "./index";
 import { lessonProblems } from "./ledger";
-import { lessonEnglish, levelContractProblems } from "./contract";
+import { lessonEnglish, levelContractProblems, untranslated } from "./contract";
 
 /**
  * THE LEVEL CONTRACT, ASKED OF EVERY LEVEL THAT IS LESSONS. Written once A1
@@ -37,22 +37,8 @@ describe("every level of lessons", () => {
   });
 
   it("is in Russian and Ukrainian wherever it is in English", () => {
-    const missing: string[] = [];
     const lines = [...LESSONS.flatMap(lessonEnglish), ...LESSON_PARTS.flatMap((p) => [p.title, p.about])];
-    // A number, a clock time and a bare ending are the same in every language.
-    // So is a line that is all Estonian, braced, or a form's name in brackets.
-    const sayable = (line: string) =>
-      !/^[-\d:.,\s]*[a-zõäöü]*$/.test(line) && /[A-Za-z]{2,}/.test(line.replace(/\{[^{}]*\}|\[[^[\]]*\]|\([^()]*\)|€[\d.]+/g, ""));
-    for (const line of new Set(lines.filter(sayable))) {
-      for (const locale of ["ru", "uk"] as const) {
-        // The Russian interface never mentions Ukraine and the Ukrainian never names
-        // Russia (purity-ru.test.ts, purity-uk.test.ts): those lines stay English there.
-        if (locale === "ru" && /ukrain/i.test(line)) continue;
-        if (locale === "uk" && /russia/i.test(line)) continue;
-        if (tr(locale, line) === line) missing.push(`${locale}: ${line}`);
-      }
-    }
-    expect(missing).toEqual([]);
+    expect(untranslated(lines, tr)).toEqual([]);
   });
 });
 
@@ -89,5 +75,62 @@ describe("the contract itself", () => {
   it("refuses a part whose line opens by repeating its title", () => {
     const lessons = [at(1, "lesson"), at(2, "lesson"), at(3, "lesson"), at(4, "partEnd")];
     expect(levelContractProblems(lessons, [{ ...part, about: "Test: a part." }]).join(" ")).toMatch(/repeating its title/);
+  });
+
+  const four = () => [at(1, "lesson"), at(2, "lesson"), at(3, "lesson"), at(4, "partEnd")];
+
+  it("refuses an evening that teaches too much, a lesson in no part, and a role-play too short to be one", () => {
+    const lessons = four();
+    const heavy = { ...lessons[0]!, teaches: Array.from({ length: 30 }, (_, i) => ({ kind: "word" as const, et: `sõna${i}`, en: `word ${i}` })) };
+    expect(levelContractProblems([heavy, ...lessons.slice(1)], [part]).join(" ")).toMatch(/more than \d+ in an evening/);
+    expect(levelContractProblems([{ ...lessons[0]!, part: "nowhere" }, ...lessons.slice(1)], [part]).join(" ")).toMatch(/belongs to no part/);
+    const short = { ...lessons[3]!, roleplay: { scene: "s", turns: [{ cue: "c", model: { et: "Jah.", en: "Yes." } }] } };
+    expect(levelContractProblems([...lessons.slice(0, 3), short], [part]).join(" ")).toMatch(/is not a conversation/);
+  });
+
+  it("refuses a closing conversation carrying a retell, and a point explained twice", () => {
+    const lessons = four();
+    const retell = { ...lessons[3]!, roleplay: { scene: "s", turns: [1, 2, 3].map((n) => ({ cue: "c", model: { et: `Lause ${n}.`, en: "" } })) }, retell: { who: "Tom", story: [], points: [] } };
+    expect(levelContractProblems([...lessons.slice(0, 3), retell], [part]).join(" ")).toMatch(/carries a retell/);
+    const twice = [{ ...lessons[0]!, patterns: ["present" as const] }, { ...lessons[1]!, patterns: ["present" as const] }, ...lessons.slice(2)];
+    expect(levelContractProblems(twice, [part]).join(" ")).toMatch(/explains present, which/);
+  });
+
+  it("refuses a ramp that falls: a shorter longest retell or fewer words to write than a part before", () => {
+    const second = { ...part, id: "u", title: "Second", about: "Another test part." };
+    const inPart = (lessons: ReturnType<typeof four>, id: string) => lessons.map((l, i) => ({ ...l, id: `${id}-${i}`, part: id, n: l.n + (id === "u" ? 4 : 0) }));
+    const story = (n: number) => ({ who: "Tom", story: Array.from({ length: n }, () => ({ et: "Lause.", en: "" })), points: [] });
+    const task = LESSONS.find((l) => l.write)!.write!;
+    const a = inPart(four(), "t"); a[0] = { ...a[0]!, retell: story(6), write: { ...task, least: 60 } };
+    const b = inPart(four(), "u"); b[0] = { ...b[0]!, retell: story(4), write: { ...task, least: 40 } };
+    const problems = levelContractProblems([...a, ...b], [part, second]).join(" ");
+    expect(problems).toMatch(/longest retell is 4 sentences, under the 6/);
+    expect(problems).toMatch(/asks 40 words at most, under the 60/);
+  });
+
+  it("refuses a partEnd before the part's last lesson, a lesson of another level, and a part with no title or line", () => {
+    const lessons = four();
+    expect(levelContractProblems([lessons[0]!, { ...lessons[1]!, kind: "partEnd" }, ...lessons.slice(2)], [part]).join(" ")).toMatch(/t-2 is a partEnd before the part's last lesson/);
+    expect(levelContractProblems([{ ...lessons[0]!, level: "A2" }, ...lessons.slice(1)], [part]).join(" ")).toMatch(/holds a lesson of another level/);
+    expect(levelContractProblems(lessons, [{ ...part, title: " " }]).join(" ")).toMatch(/needs a title and a line/);
+    expect(levelContractProblems(lessons, [{ ...part, about: "" }]).join(" ")).toMatch(/needs a title and a line/);
+  });
+
+  it("refuses a closing conversation every turn of which was rehearsed in the part", () => {
+    const lessons = four();
+    const said = lessons[0]!.conversation.filter((c) => c.et).slice(0, 3);
+    expect(said.length).toBe(3);
+    const gist = [{ q: "q", options: ["True", "False"], answer: 0 }];
+    const recited = { ...lessons[3]!, listenFor: gist, roleplay: { scene: "s", turns: said.map((c) => ({ cue: "c", model: { et: c.et!, en: "" } })) } };
+    expect(levelContractProblems([...lessons.slice(0, 3), recited], [part]).join(" ")).toMatch(/carries no turn the learner never rehearsed/);
+    const fresh = { ...recited, roleplay: { ...recited.roleplay, turns: [...recited.roleplay.turns.slice(0, 2), { cue: "c", model: { et: "Seda lauset pole keegi enne öelnud.", en: "" } }] } };
+    expect(levelContractProblems([...lessons.slice(0, 3), fresh], [part]).join(" ")).not.toMatch(/never rehearsed/);
+  });
+
+  it("refuses a question on what was heard with fewer than four answers, unless it is true or false", () => {
+    const lessons = four();
+    const gist = (options: string[]) => ({ ...lessons[0]!, listenFor: [{ q: "q", options, answer: 0 }] });
+    expect(levelContractProblems([gist(["A", "B", "C"]), ...lessons.slice(1)], [part]).join(" ")).toMatch(/3 options/);
+    expect(levelContractProblems([gist(["True", "False"]), ...lessons.slice(1)], [part]).join(" ")).not.toMatch(/options/);
   });
 });

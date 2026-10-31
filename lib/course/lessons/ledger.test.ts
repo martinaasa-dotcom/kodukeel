@@ -64,6 +64,15 @@ describe("the check over a level", () => {
     expect(fixed(["IndIpfIps", "PARTITIVE"])).toEqual([]);
   });
 
+  it("fails a fix whose slip and correction differ only in the letters with marks", () => {
+    const marks = (wrong: string) => lessonProblems([lesson({
+      fixes: [{ line: { et: "Head ööd!", en: "Good night!" }, right: "ööd", wrong, pair: ["IndIpfIps", "PARTITIVE"], why: "w" }],
+    })]).filter((p) => p.includes("differ only in the letters with marks"));
+    expect(marks("ood")).toHaveLength(1);
+    expect(marks("ÖÖD")).toHaveLength(1);
+    expect(marks("öö")).toEqual([]);
+  });
+
   it("fails a check-in that teaches, and one with no role-play", () => {
     const problems = lessonProblems([lesson({}), lesson({ id: "t-2", n: 2, kind: "checkin" })]);
     expect(problems.some((p) => p.includes("teaches nothing new"))).toBe(true);
@@ -219,6 +228,14 @@ describe("a sentence to change (Rework)", () => {
     expect(problems.some((p) => p.includes("the one it starts from"))).toBe(true);
   });
 
+  it("fails a rework that accepts its own starting sentence, lists one twice, or strays from the start it names", () => {
+    const at = (r: object) => lessonProblems([lesson({ conversation, answers, teaches: [read, finished], patterns: ["object"], reworks: [{ ...rework, ...r }] })]).join(" ");
+    expect(at({ also: [read.et] })).toMatch(/accepted sentence is the one it starts from/);
+    expect(at({ also: [finished.et] })).toMatch(/listed twice/);
+    expect(at({ ask: "Say you finished it. Start with {Raamatu}." })).toMatch(/start with "Raamatu"/);
+    expect(at({ ask: "Say you finished it. You can start with {Raamatu}." })).not.toMatch(/start with/);
+  });
+
   it("puts the lesson's reworks in its practice, and marks them by comparison", () => {
     const spec = lesson({ conversation, answers, teaches: [read, finished], patterns: ["object"], reworks: [rework] });
     const items = practiceFor(spec, EMPTY_LEDGER);
@@ -234,6 +251,11 @@ describe("a sentence to change (Rework)", () => {
     expect(unchanged.verdict).toBe("wrong");
     expect(unchanged.note).toContain("as it was");
     expect(markRework("", item).note).toBe("Nothing typed.");
+    // The right words in another order are nearly, and say so; the full table is practice.test.ts.
+    expect(markRework("Raamatu lugesin ma läbi.", item).verdict).toBe("nearly");
+    expect(markRework("Raamatu lugesin ma läbi.", item).note).toContain("another order");
+    // But another ending in another order is still the wrong word.
+    expect(markRework("Raamatut lugesin ma läbi.", item).verdict).toBe("wrong");
   });
 });
 

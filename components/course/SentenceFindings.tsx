@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useLocale, useT } from "@/components/Locale";
 import { fillNodes } from "@/components/TemplateNodes";
 import { casePlainName } from "@/lib/estonian/cases";
+import { verbFormName } from "@/lib/estonian/verbNames";
 import type { Finding } from "@/lib/course/lessons/sentenceCheck";
 import { VERDICT_CLASS } from "@/lib/ux/verdict";
 
@@ -20,10 +21,23 @@ import { VERDICT_CLASS } from "@/lib/ux/verdict";
  * Painted nearly rather than wrong: a sentence with a wrong ending is a
  * sentence somebody would understand, and the colors here say what happened to
  * an answer (`lib/ux/verdict.ts`). The clean result is painted right, beside
- * the words that say how far that goes. Its own live region, because it lands
- * a moment after the card's verdict and is drawn outside that one.
+ * the words that say how far that goes.
+ *
+ * NOT A LIVE REGION ITSELF. A region that arrives holding its words is often
+ * not read, so a caller that wants it announced puts it inside a region that
+ * was on the screen first (Say it does; the writing step's redraft does not,
+ * since its own summary line is what is read there).
  */
-export function SentenceFindings({ findings }: { findings: readonly Finding[] }) {
+export function SentenceFindings({ findings }: {
+  findings: readonly Finding[];
+  /**
+   * How it reaches a screen reader, said at every call: inside a live region
+   * the caller mounted first, or read through a summary the caller focuses
+   * (the writing step's redraft, where one line per sentence would be a
+   * backlog). Required, so a new caller has to decide.
+   */
+  announced: "region" | "summary";
+}) {
   const t = useT();
   const locale = useLocale();
   const et = (word: string) => <b lang="et">{word}</b>;
@@ -32,7 +46,7 @@ export function SentenceFindings({ findings }: { findings: readonly Finding[] })
 
   if (findings.length === 0) {
     return (
-      <div role="status" className={`verdict-panel ${VERDICT_CLASS.right}`} data-sentence-check="clean">
+      <div className={`verdict-panel ${VERDICT_CLASS.right}`} data-sentence-check="clean">
         <p>{t("No mistakes found in your spelling or your endings.")}</p>
       </div>
     );
@@ -64,8 +78,9 @@ export function SentenceFindings({ findings }: { findings: readonly Finding[] })
       case "dictionaryForm":
         return fillNodes(t("{word} is the dictionary form. With {subject}, say {right}."), { word: et(f.word), subject: et(f.subject), right: et(f.right) });
       case "infinitive":
-        if (f.form === "ma") return fillNodes(t("After {after}, use the ma-form: {right}, not {word}."), { after: et(f.after), right: et(f.right), word: et(f.word) });
-        return fillNodes(t("After {after}, use the da-form: {right}, not {word}."), { after: et(f.after), right: et(f.right), word: et(f.word) });
+        return fillNodes(t("After {after}, use the {form}: {right}, not {word}."), {
+          after: et(f.after), form: verbFormName(f.form === "ma" ? "MA" : "DA", locale), right: et(f.right), word: et(f.word),
+        });
       case "count":
         return fillNodes(t("After {after}, the word takes the {case}: {right}, not {word}."), { after: et(f.after), case: part, right: et(f.right), word: et(f.word) });
       case "experiencer":
@@ -80,7 +95,7 @@ export function SentenceFindings({ findings }: { findings: readonly Finding[] })
           after: et(f.after), case: casePlainName({ key: f.case }, locale), right: et(f.right), word: et(f.word),
         });
       case "command":
-        return fillNodes(t("After {after}, use the command form: {right}, not {word}."), { after: et(f.after), right: et(f.right), word: et(f.word) });
+        return fillNodes(t("After {after}, use the {form}: {right}, not {word}."), { after: et(f.after), form: verbFormName(f.polite ? "POLITE_COMMAND" : "COMMAND", locale), right: et(f.right), word: et(f.word) });
       case "postposition":
         return fillNodes(t("Before {before}, the word takes the {case}: {right}, not {word}."), { before: et(f.before), case: gen, right: et(f.right), word: et(f.word) });
       case "object":
@@ -99,7 +114,7 @@ export function SentenceFindings({ findings }: { findings: readonly Finding[] })
   };
 
   return (
-    <div role="status" className={`verdict-panel ${VERDICT_CLASS.nearly}`} data-sentence-check="findings">
+    <div className={`verdict-panel ${VERDICT_CLASS.nearly}`} data-sentence-check="findings">
       <p className="font-semibold">{findings.length === 1 ? t("One thing to fix") : t("A few things to fix")}</p>
       <ul className="mt-1 flex flex-col gap-1">
         {findings.map((f, i) => <li key={i}>{line(f)}</li>)}

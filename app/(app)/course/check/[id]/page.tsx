@@ -84,6 +84,7 @@ export default async function CheckPage({ params, searchParams }: {
         items={paper}
         needed={needed}
         alreadyPassed={view.alreadyPassed}
+        pastNext={view.pastNext}
         next={next && nextName ? { id: next.id, label: nextName } : null}
         level={level}
       />

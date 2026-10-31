@@ -332,7 +332,7 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "pangaautomaadist", of: "pangaautomaat", en: "from an ATM" },
     ],
     how: {
-      point: "Wanting to do something takes the da-form after it: {Ma tahaksin konto avada}. Learn the da-form with each new verb, as in A1.",
+      point: "Wanting to do something takes the [da-tegevusnimi] (-da) after it: {Ma tahaksin konto avada}. Learn the [da-tegevusnimi] (-da) with each new verb, as in A1.",
       table: {
         head: ["The verb", "After would like"],
         rows: [
@@ -448,6 +448,7 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
     ],
     roleplay: {
       scene: "You're at a job interview. The interviewer speaks first. Answer as yourself.",
+      who: "Liis",
       turns: [
         { ask: { et: "Tere! Palun istuge. Rääkige natuke endast.", en: "Hello! Please sit down. Tell me a little about yourself." }, cue: "Say who you are and what you do.", model: { et: "Tere! Ma olen Tom. Olen programmeerija.", en: "Hello! I'm Tom. I'm a programmer." } },
         { ask: { et: "Kus te enne töötasite?", en: "Where did you work before?" }, cue: "Say where you worked, and as what.", model: { et: "Ma töötasin Londonis programmeerijana.", en: "I worked in London as a programmer." } },

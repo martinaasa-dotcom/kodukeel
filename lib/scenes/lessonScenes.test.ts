@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { LESSON_SCENES, sceneForLesson } from "./lessonScenes";
+import { LESSON_SCENES, isPreviewScene, sceneForLesson } from "./lessonScenes";
 import { SCENES, sceneById } from "./catalogue";
 import { BANK } from "./bank";
 import { pickSpecsFor, literalOf } from "./picks";
@@ -113,6 +113,12 @@ describe("the lessons' own conversations", () => {
     expect(new Set(LESSON_SCENES.map((s) => s.lesson)).size).toBe(LESSON_SCENES.length);
   });
 
+  it("are listed in the order the course teaches their lessons", () => {
+    const at = LESSON_SCENES.map((s) => LESSONS.findIndex((l) => l.id === s.lesson));
+    expect(at.length).toBeGreaterThan(1);
+    expect(at, LESSON_SCENES.map((s) => s.id).join(", ")).toEqual([...at].sort((a, b) => a - b));
+  });
+
   it("name only words their own lesson has taught, in their beats and on their cards", () => {
     for (const scene of LESSON_SCENES) {
       const list = new Set(scene.lemmas);
@@ -219,4 +225,13 @@ describe("the lessons' own conversations", () => {
       }
     }
   }
+});
+
+describe("a scene of a lesson still in preview", () => {
+  it("is told apart from the course's, so beginSceneFor keeps it to a reviewer", () => {
+    for (const scene of LESSON_SCENES) expect(isPreviewScene(scene), scene.id).toBe(false);
+    for (const scene of SCENES) expect(isPreviewScene(scene), scene.id).toBe(false);
+    expect(isPreviewScene({ lesson: "b2-01-not-in-the-course" })).toBe(true);
+    expect(isPreviewScene({ lesson: undefined })).toBe(false);
+  });
 });

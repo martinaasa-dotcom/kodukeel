@@ -290,6 +290,37 @@ export function formsThrough(programme: Programme, index: number): string[] {
 }
 
 /**
+ * The verbs whose simple past I form an evening has shown through a day: every
+ * verb a forms step showed (`formsThrough`) and every verb whose I form a
+ * lesson taught by name (`DaySpec.pasts`). Wider than `formsThrough`, which
+ * also says the polite imperative was shown.
+ */
+export function pastsThrough(programme: Programme, index: number): string[] {
+  return shownThrough(programme, index, (d) => d.pasts);
+}
+
+/**
+ * The verbs whose third-person past an evening has shown through a day: a
+ * forms step's table, or a lesson that taught that very spelling
+ * (`DaySpec.pastsThird`). Narrower than `pastsThrough`, since teaching
+ * `tahtsin` shows nothing about `tahtis`.
+ */
+export function thirdPastsThrough(programme: Programme, index: number): string[] {
+  return shownThrough(programme, index, (d) => d.pastsThird);
+}
+
+function shownThrough(
+  programme: Programme, index: number, field: (d: CourseDay) => readonly string[] | undefined,
+): string[] {
+  const at = PROGRAMMES.findIndex((p) => p.id === programme.id);
+  const out = formsThrough(programme, index);
+  const take = (d: CourseDay) => { for (const v of field(d) ?? []) if (!out.includes(v)) out.push(v); };
+  if (at > 0) for (const before of PROGRAMMES.slice(0, at)) before.days.forEach(take);
+  for (const d of programme.days) if (d.index <= index) take(d);
+  return out;
+}
+
+/**
  * The units the ladder has opened through a day, every part before it
  * included, in teaching order. A conversation is dealt only once every unit
  * it declares is on this list (`course.test.ts`), so a screen offering one
@@ -303,8 +334,12 @@ export function unitsThrough(programme: Programme, index: number): string[] {
     than unit by unit, so inside them no unit is opened, and the catalog's
     conversations, which declare A1 and A2 units, wait for A2; the lessons'
     own role-plays are what A1 talks in. Once the lessons are behind a
-    learner, every unit of their level counts as opened, which is the claim
-    the old A1 made by walking them.
+    learner, every unit of their level counts as opened. That is a claim about
+    the setting a conversation declares (the cafe, the doctor), not about every
+    word of the units: the lessons taught by goal, and most of a B1 unit's
+    lemmas are taught by no evening. What a conversation asks a learner to say
+    is checked word by word in `course.test.ts`, which names the words the
+    ladder has not taught yet for B2's lessons to take up.
   */
   const take = (d: CourseDay) => {
     if (d.lesson && d.level === programme.level) return;

@@ -43,7 +43,7 @@ import { sceneForErrand } from "@/lib/collections/errandScenes";
 import { errandRehearsal } from "@/lib/scenes/rehearse";
 import { startedUnits } from "@/lib/collections/syllabus";
 import { courseReading, ladderPosition, moduleReached, programmeFor, targetFrom } from "@/lib/progress/course";
-import { situationsOfferedThrough } from "@/lib/course/lessonSituations";
+import { situationsOfferedThrough, situationsOfferedBefore } from "@/lib/course/lessonSituations";
 import { unitsThrough } from "@/lib/course";
 import { SCENES, sceneById } from "@/lib/scenes/catalogue";
 import { doneSceneTasks } from "@/lib/progress/homework";
@@ -271,11 +271,14 @@ export default async function TodayPage() {
     withPuzzleReady(ownerId, summary.dayKey, GAME_OF_THE_DAY),
     programme ? moduleReached(ownerId) : null,
   ]);
+  /* A part's first evening, before any of it is ticked, has had everything the
+     parts before it taught: the conversations those opened are on offer. */
+  const firstLesson = programme?.days[0]?.lesson ?? null;
   const sceneToday = sceneOfDay(
     summary.dayKey,
     SCENES,
-    reached ? new Set(unitsThrough(reached.programme, reached.day.index)) : programme ? new Set<string>() : null,
-    reached ? situationsOfferedThrough(reached.day.lesson ?? null) : new Set<string>(),
+    reached?.entered ? new Set(unitsThrough(reached.programme, reached.day.index)) : programme ? new Set(unitsThrough(programme, -1)) : null,
+    reached?.entered ? situationsOfferedThrough(reached.day.lesson ?? null) : firstLesson ? situationsOfferedBefore(firstLesson) : new Set<string>(),
   );
   // The cards the learner hid in Settings: not dealt, and the two that cost a
   // read are not even asked for.

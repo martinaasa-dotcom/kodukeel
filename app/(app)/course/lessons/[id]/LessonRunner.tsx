@@ -1,20 +1,24 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
+import { EnglishToggle } from "@/components/course/EnglishToggle";
+import { StepPills } from "@/components/course/StepPills";
+import { forgetLessonPlace, loadLessonPlace, saveLessonPlace } from "@/components/course/lessonResume";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Braced } from "@/components/Braced";
 import { RuleNote } from "@/components/RuleNote";
 import { Speak } from "@/components/Speak";
 import { nativePart } from "@/lib/audio/native";
+import { stopClip } from "@/lib/audio/clip";
 import { useLocale, useT } from "@/components/Locale";
 import { LessonText, lessonTextLang } from "@/components/course/LessonText";
 import { Card, Note, Page, SectionTitle, Stack, StatTile } from "@/components/ui";
 import { LessonConversation } from "@/components/course/LessonConversation";
 import { Confetti } from "@/components/Confetti";
 import { Mascot } from "@/components/brand";
-import { fill } from "@/lib/copy/locale";
+import { fill, tr } from "@/lib/copy/locale";
 import type { LessonSpec, PracticeItem, Taught } from "@/lib/course/lessons";
 import { lessonLabel } from "@/lib/course/lessons/label";
 import { LEVELS, levelIndex } from "@/lib/collections/syllabus/types";
@@ -28,24 +32,25 @@ import { ListenFirst } from "@/components/course/ListenFirst";
 import { WriteStep } from "@/components/course/WriteStep";
 import { levelNewsFor } from "@/lib/course/lessons/levelNew";
 import { Quiz } from "./Quiz";
-import { SayIt } from "./SayIt";
+import { SayIt, type SayPlace } from "./SayIt";
 import { lessonSceneHref, type ConversationReturn } from "@/lib/scenes/lessonReturn";
 import { nameOf } from "@/lib/ux/roundNames";
 import { worksheetLink, type LessonWorksheet } from "@/lib/course/lessonWorksheet";
 
 /**
- * ONE LESSON, SIX STEPS, ALWAYS IN THIS ORDER (docs/43-lessons.md §1).
+ * ONE LESSON, ITS STEPS ALWAYS IN THIS ORDER (docs/43-lessons.md §1).
  *
  * Listen, Words and How it works ask nothing and grade nothing: a learner
  * meets the whole idea before anybody asks them a thing about it, which is
- * the change the plan was written for. Practice and Review ask, out of what
- * has been taught and nothing else. Say it sits between them as the headline.
+ * the change the plan was written for. Practice, Say it and Review ask, out of
+ * what has been taught and nothing else, and a part's writing evening puts
+ * Write straight after Practice.
  *
- * A learner always knows where they are, because the six steps are listed at
+ * A learner always knows where they are, because the steps are listed at
  * the top with the one they are on marked, in words as well as in color. A
  * step can always be left: the button at the foot says "Continue" once the
  * step is done and "Skip this step" before, so nobody is held in a room, and
- * the three teaching steps are done the moment they are open.
+ * the steps that ask nothing are done the moment they are open.
  *
  * Pressing on moves the caret to the new step's heading, which a screen
  * reader reads out, and brings it to the top of the window, because a step is
@@ -98,7 +103,7 @@ const STEP_TITLE: Record<Step, string> = {
 /** The worksheet's agreed name, Estonian first (`lib/ux/roundNames.ts`). */
 const WORKBOOK_NAME = nameOf("/review/workbook") ?? { et: "Töövihik", en: "Workbook" };
 
-/** The three teaching steps are finished by being open. */
+/** Every step not on this list asks nothing, and is finished by being open. */
 const ASKS: ReadonlySet<Step> = new Set(["practise", "write", "say", "review"]);
 
 export function LessonRunner({ lesson, practice, review, next, scene, situation = null, worksheet = null, conversation, place, name, due = 0, check = null, part, timeMultiplier, partAt }: {
@@ -146,6 +151,8 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
   const [over, setOver] = useState(() => conversation !== null && isCapstone(lesson));
   /* Whether the finished lesson reached the server: null until it has been tried. */
   const [saved, setSaved] = useState<boolean | null>(null);
+  /* What a failed save said: the server's own refusal where it gave one, and only a press that never arrived reads as the connection. */
+  const [saveError, setSaveError] = useState<string>(NOT_REACHED);
   /* Whether finishing it counted toward the course, or was a lesson read ahead of it. */
   const [recorded, setRecorded] = useState<boolean | null>(null);
   const [saving, startSaving] = useTransition();
@@ -163,11 +170,19 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
     heading.current?.focus();
     heading.current?.scrollIntoView({ block: "start" });
   }, [at, over]);
+  /* A retry that lands takes its button away, so the caret goes back to the finished screen's heading, which reads it. */
+  const retried = useRef(false);
+  useEffect(() => {
+    if (saved !== true || !retried.current) return;
+    retried.current = false;
+    heading.current?.focus();
+  }, [saved]);
 
   const finish = (s: Step) => setFinished((prev) => new Set(prev).add(s));
   const save = () => startSaving(async () => {
     const result = await finishLesson(lesson.id).catch(() => null);
     setSaved(Boolean(result?.ok));
+    setSaveError(result && !result.ok ? result.error : NOT_REACHED);
     setRecorded(result?.ok ? result.recorded : null);
   });
   // Back from the conversation, the lesson is over and is saved the way a finished one is.
@@ -180,8 +195,31 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /*
+    PRACTICE AND REVIEW KEEP THEIR PLACE WHEN THE LEARNER STEPS AWAY. The step
+    list is the way back to the table halfway through Practice, and a step
+    drawn only while it is current started again from its first question on
+    the way back. A quiz holds no microphone and plays one clip at a time, so
+    it stays mounted, hidden, once it has been on the screen; one never shown
+    is not mounted, so nothing in it plays to an empty room, and stepping
+    away stops the clip in the air.
+  */
+  const [shown, setShown] = useState<ReadonlySet<Step>>(() => new Set());
+  useEffect(() => {
+    setShown((prev) => (prev.has(step) ? prev : new Set(prev).add(step)));
+  }, [step]);
+  const kept = (s: Step) => step === s || shown.has(s);
+  /*
+    SAY IT IS THE EXCEPTION, and goes when the learner steps away: it holds a
+    microphone and lines that play one after another, and only its going
+    closes those. Its place is kept here instead (`SayPlace`).
+  */
+  const sayPlace = useRef<SayPlace | null>(null);
+  const keepSayPlace = useCallback((p: SayPlace) => { sayPlace.current = p; }, []);
+
   const go = (n: number) => {
     moved.current = true;
+    stopClip();
     if (n >= steps.length) {
       setOver(true);
       save();
@@ -198,6 +236,32 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
     so the step's own "Read it" is its one loud button.
   */
   const [heard, setHeard] = useState(() => !(lesson.listenFor && lesson.listenFor.length > 0));
+  /* Heard before a reload rather than on this screen: nothing was pressed, so nothing takes the caret. */
+  const [heardOnReload, setHeardOnReload] = useState(false);
+  /*
+    A RELOAD PICKS THE LESSON UP WHERE IT WAS (`lessonResume.ts`): read once
+    after mount, since the server rendered step 1 and a first render that
+    disagreed with it would not hydrate; written on every move after that.
+  */
+  const restored = useRef(false);
+  useEffect(() => {
+    if (restored.current) return;
+    restored.current = true;
+    if (over) return;
+    const place = loadLessonPlace(lesson.id, steps);
+    if (!place) return;
+    setAt(place.at);
+    setReached(place.reached);
+    setFinished(new Set(place.finished as Step[]));
+    if (place.heard) { setHeard(true); setHeardOnReload(true); }
+    // Once, on arrival.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (!restored.current) return;
+    if (over) forgetLessonPlace(lesson.id);
+    else saveLessonPlace(lesson.id, steps, { at, reached, finished: [...finished], heard });
+  }, [lesson.id, steps, at, reached, finished, heard, over]);
   const done = step === "listen" ? heard : !ASKS.has(step) || finished.has(step) || (step === "review" && review.length === 0);
 
   const inPart = part.lessons.findIndex((l) => l.id === lesson.id);
@@ -259,14 +323,15 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
                     <li
                       key={l.id}
                       className={here ? "pop-in" : undefined}
-                      title={`${l.label}. ${l.title}`}
+                      // In the reader's language, its marks dropped since a tooltip draws none.
+                      title={`${l.label}. ${tr(locale, l.title).replace(/[{}[\]]/g, "")}`}
                       style={{
                         width: 28, height: 10, borderRadius: 999,
                         background: past ? "var(--accent)" : "color-mix(in srgb, var(--ink) 10%, transparent)",
                         boxShadow: here ? "0 0 0 3px var(--accent-soft)" : undefined,
                       }}
                     >
-                      <span className="sr-only">{`${l.label}. ${l.title}: ${past ? t("Done") : t("Ahead")}`}</span>
+                      <span className="sr-only">{l.label}. <LessonText text={l.title} locale={locale} />: {past ? t("Done") : t("Ahead")}</span>
                     </li>
                   );
                 })}
@@ -393,10 +458,13 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
                 <div className="mt-3"><ButtonLink href={`/course/check/${check.id}`} variant="primary">{t("Take the check")} <ArrowRight size={15} aria-hidden /></ButtonLink></div>
               </div>
             )}
-            {saved === false && !saving && (
-              <div className="mt-4 flex flex-wrap items-center justify-center gap-3" role="status">
-                <p className="text-base" style={{ color: "var(--again-ink)" }}>{t(NOT_REACHED)}</p>
-                <Button variant="secondary" size="sm" onClick={save}>{t("Try again")}</Button>
+            {/* On the screen from the start and empty, so the failure is read when it arrives. */}
+            <p className="sr-only" role="status">{saved === false && !saving ? t(saveError) : ""}</p>
+            {/* Mounted through the retry, with its button busy, so the caret a keyboard pressed it with stays on it. */}
+            {saved === false && (
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+                <p className="text-base" style={{ color: "var(--again-ink)" }} aria-hidden>{t(saveError)}</p>
+                <Button variant="secondary" size="sm" busy={saving} onClick={() => { retried.current = true; save(); }}>{t("Try again")}</Button>
               </div>
             )}
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
@@ -423,7 +491,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
     <Page eyebrow={eyebrow} title={t(lesson.title)} titleLang={lessonTextLang(lesson.title, locale)} lead={t(lesson.goal)} leadLang={lessonTextLang(lesson.goal, locale)}>
       <Stack>
         {/*
-          THE SIX STEPS, AND THE WAY BACK TO ANY OF THEM. A step already
+          THE STEPS (SIX, OR SEVEN ON A WRITING EVENING), AND THE WAY BACK TO ANY OF THEM. A step already
           reached is a button, so somebody halfway through Practice who wants
           the table again presses How it works rather than Back three times;
           a step ahead is drawn and not pressable, since skipping is what the
@@ -448,60 +516,32 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
           </section>
         )}
         <nav aria-label={t("Today's steps")}>
-          <ol className="flex flex-wrap gap-2" data-lesson-steps>
-            {steps.map((s, i) => {
-              const here = i === at;
-              const been = finished.has(s) || i < at || i <= reached;
-              const tone = here
-                ? { background: "var(--accent-soft)", color: "var(--accent-deep)", borderColor: "var(--accent)" }
-                : been
-                  ? { background: "var(--sky-soft)", color: "var(--sky-ink)", borderColor: "transparent" }
-                  : { background: "var(--raised)", color: "var(--ink-2)", borderColor: "transparent" };
-              const label = (
-                <>
-                  {i < at && !here && <Check size={12} aria-hidden className="mr-1 inline" />}
-                  {fill(t("{n}. {step}"), { n: String(i + 1), step: t(titleOf(s)) })}
-                </>
-              );
-              return (
-                <li key={s}>
-                  {been && !here ? (
-                    <button
-                      type="button"
-                      onClick={() => go(i)}
-                      className="tap-tint inline-flex items-center rounded-full border px-3 py-1 text-sm font-semibold"
-                      style={tone}
-                    >
-                      {label}
-                    </button>
-                  ) : (
-                    <span
-                      aria-current={here ? "step" : undefined}
-                      className="inline-flex items-center rounded-full border px-3 py-1 text-sm font-semibold"
-                      style={tone}
-                    >
-                      {label}
-                    </span>
-                  )}
-                </li>
-              );
-            })}
-          </ol>
+          {/* A step is done where it was finished, not where the foot's "Skip this step" passed it. */}
+          <div data-lesson-steps>
+            <StepPills
+              pills={steps.map((s, i) => {
+                const reachedIt = i < at || i <= reached;
+                const finishedIt = s === "listen" ? heard : ASKS.has(s) ? finished.has(s) || (s === "review" && review.length === 0) : reachedIt && i !== at;
+                const state = i === at ? "here" : finishedIt ? "done" : reachedIt ? "visited" : "ahead";
+                return { key: s, state, label: fill("{n}. {step}", { n: String(i + 1), step: t(titleOf(s)) }), onPress: () => go(i) };
+              })}
+            />
+          </div>
         </nav>
 
         <section aria-labelledby="lesson-step">
           <h2 id="lesson-step" ref={heading} tabIndex={-1} className="mb-4 text-xl font-bold scroll-mt-24" style={{ color: "var(--ink)" }}>
             {fill(t("Step {n} of {total}: {step}"), { n: String(at + 1), total: String(steps.length), step: t(titleOf(step)) })}
           </h2>
-          {step === "listen" && <Listen lesson={lesson} heard={heard} onHeard={() => setHeard(true)} />}
+          {step === "listen" && <Listen lesson={lesson} heard={heard} heardOnReload={heardOnReload} onHeard={() => setHeard(true)} />}
           {step === "words" && <Words lesson={lesson} />}
           {step === "how" && <How lesson={lesson} />}
-          {step === "practise" && <Quiz key="practise" items={practice} onFinished={(result) => { setScore(result); finish("practise"); }} />}
+          {kept("practise") && <div hidden={step !== "practise"}><Quiz key="practise" level={3} items={practice} onFinished={(result) => { setScore((first) => first ?? result); finish("practise"); }} /></div>}
           {step === "write" && lesson.write && <WriteStep lesson={lesson} onDone={() => { finish("write"); go(at + 1); }} />}
-          {step === "say" && <SayIt lesson={lesson} timeMultiplier={timeMultiplier} partAt={partAt} scene={scene} sceneHref={scene ? lessonSceneHref(scene, focus) : null} capstone={capstone} name={name} onComplete={() => finish("say")} />}
-          {step === "review" && (review.length > 0
-            ? <Quiz key="review" items={review} onFinished={() => finish("review")} />
-            : (
+          {step === "say" && <SayIt lesson={lesson} timeMultiplier={timeMultiplier} partAt={partAt} scene={scene} sceneHref={scene ? lessonSceneHref(scene, focus) : null} capstone={capstone} name={name} onComplete={() => finish("say")} place={sayPlace.current} onPlace={keepSayPlace} />}
+          {kept("review") && (review.length > 0
+            ? <div hidden={step !== "review"}><Quiz key="review" level={3} items={review} review onFinished={() => finish("review")} /></div>
+            : step === "review" && (
               <Card>
                 <p className="text-base" style={{ color: "var(--ink-2)" }}>
                   {t("This is your first lesson, so there's nothing older to go over yet. From the next one, this is where earlier words come back.")}
@@ -552,7 +592,7 @@ function wordsUsed(lesson: LessonSpec): number {
 }
 
 /** Step 1: the conversation, in the cast's voices, with the English under each line. */
-function Listen({ lesson, heard, onHeard }: { lesson: LessonSpec; heard: boolean; onHeard: () => void }) {
+function Listen({ lesson, heard, heardOnReload, onHeard }: { lesson: LessonSpec; heard: boolean; heardOnReload: boolean; onHeard: () => void }) {
   const t = useT();
   const [english, setEnglish] = useState(true);
   /* Pressing "Read it" replaces the card the button was on, so the caret goes
@@ -561,9 +601,10 @@ function Listen({ lesson, heard, onHeard }: { lesson: LessonSpec; heard: boolean
   const leadRef = useRef<HTMLParagraphElement>(null);
   const wasHeard = useRef(heard);
   useEffect(() => {
-    if (heard && !wasHeard.current) leadRef.current?.focus();
+    // Only a listen heard on this screen hands the caret on; a reload that brings the step back already heard moves nothing.
+    if (heard && !wasHeard.current && !heardOnReload) leadRef.current?.focus();
     wasHeard.current = heard;
-  }, [heard]);
+  }, [heard, heardOnReload]);
   // B1 on, the conversation is heard before it is read (`ListenFirst`).
   if (!heard) return <ListenFirst lesson={lesson} onRead={onHeard} />;
   return (
@@ -575,11 +616,9 @@ function Listen({ lesson, heard, onHeard }: { lesson: LessonSpec; heard: boolean
             ? t("Now read what you heard. Press a line to hear it again.")
             : t("Read it, and press a line to hear it. Nothing is asked yet.")}
         </p>
-        <Button variant="ghost" size="sm" onClick={() => setEnglish((on) => !on)} aria-pressed={!english}>
-          {english ? t("Hide the English") : t("Show the English")}
-        </Button>
+        <EnglishToggle english={english} onToggle={() => setEnglish((on) => !on)} />
       </div>
-      <LessonConversation lines={lesson.conversation} cast={lesson.cast} english={english} />
+      <LessonConversation lines={lesson.conversation} cast={lesson.cast} english={english} quiet />
     </Card>
   );
 }
@@ -721,7 +760,7 @@ function How({ lesson }: { lesson: LessonSpec }) {
       )}
       {how.listen && how.listen.length > 0 && (
         <section data-lesson-listen>
-          <SectionTitle hint={t("said by a native speaker")}>{t("Hear the difference")}</SectionTitle>
+          <SectionTitle level={3} hint={t("said by a native speaker")}>{t("Hear the difference")}</SectionTitle>
           <div className="flex flex-col gap-3">
             {how.listen.map((set) => (
               <HearSet key={set.words.map((w) => w.clip).join("|")} words={set.words} />
@@ -731,7 +770,7 @@ function How({ lesson }: { lesson: LessonSpec }) {
       )}
       {how.spell && (
         <section className="flex flex-col gap-3" data-lesson-spell>
-          <SectionTitle hint={t("said by a native speaker")}>{t("Spell your name")}</SectionTitle>
+          <SectionTitle level={3} hint={t("said by a native speaker")}>{t("Spell your name")}</SectionTitle>
           <p className="text-base" style={{ color: "var(--ink-2)" }}>
             {t("Letters have Estonian names. Type your name and hear it spelled the way you'll say it.")}{" "}
             <Link href="/grammar/sounds#alphabet" className="font-semibold underline" style={{ color: "var(--accent-deep)" }}>{t("The whole alphabet")}</Link>
@@ -741,7 +780,7 @@ function How({ lesson }: { lesson: LessonSpec }) {
       )}
       {examples.length > 0 && (
         <section>
-          <SectionTitle hint={t("from today's conversation")}>{t("Where you heard it")}</SectionTitle>
+          <SectionTitle level={3} hint={t("from today's conversation")}>{t("Where you heard it")}</SectionTitle>
           <ul className="flex flex-col gap-3">
             {examples.map((line, i) => (
               <li key={i} className="flex flex-col gap-0.5">

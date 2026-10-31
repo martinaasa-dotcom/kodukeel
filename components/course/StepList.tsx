@@ -197,7 +197,7 @@ export function StepList({ programmeId, dayId, steps, done, closing }: {
                           <Button
                             variant="secondary"
                             onClick={() => tick(step)}
-                            disabled={pending}
+                            busy={pending}
                           >
                             {t("I did this")}
                           </Button>

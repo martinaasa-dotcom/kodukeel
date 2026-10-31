@@ -5,7 +5,7 @@ import { deferredWordIds } from "@/lib/progress/deferrals";
 import { LADDER_CARD_TYPE } from "@/lib/learn/ladder";
 import { courseStandingFor } from "@/lib/progress/level";
 import { LEVELS, LEVEL_INFO, type Level } from "@/lib/collections/syllabus";
-import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
+import { readSetting, SETTING_KEYS, updateSettings, type SettingKey } from "@/lib/settings/store";
 import type { DayClock } from "@/lib/time/day";
 import { computeStreak } from "@/lib/stats/streak";
 import { closingLeft } from "@/lib/progress/closing";
@@ -80,10 +80,14 @@ const MAX_RESOLVE = 2;
  * One function so the course screen, Today and Settings cannot end up with
  * three answers to whether anybody is on a program.
  */
-export async function programmeFor(ownerId: string): Promise<Programme | null> {
+export const programmeFor = cache(async (ownerId: string): Promise<Programme | null> => {
   const stored = await readSetting(ownerId, SETTING_KEYS.programme);
   if (stored === "off") return null;
-  if (stored) return rehomed(ownerId, programmeById(stored) ?? null);
+  // A part id no build holds any more (renamed, or written by hand) is placed again rather than read as "off".
+  if (stored) {
+    const known = programmeById(stored);
+    return known ? rehomed(ownerId, known) : openingPartFor(ownerId);
+  }
   /*
     AND A LEARNER ALREADY PART WAY THROUGH ONE STAYS ON IT. Nothing is stored
     for somebody who was led here by this fallback without ever pressing
@@ -99,7 +103,7 @@ export async function programmeFor(ownerId: string): Promise<Programme | null> {
   });
   const inFlight = last ? programmeById(last.programmeId) : undefined;
   return inFlight ? rehomed(ownerId, inFlight) : openingPartFor(ownerId);
-}
+});
 
 /**
  * A LEARNER WHO WAS PART WAY THROUGH A PART THAT HAS SINCE BECOME LESSONS
@@ -133,29 +137,157 @@ const REHOMED_LEVELS: ReadonlySet<string> = new Set(["B1"]);
   they are" from then on, and every page calls `programmeFor`: remembering it
   takes the two reads below off every page for everybody but the few learners
   actually being moved back. A restore is the one way old ticks arrive later,
-  and it reaches a learner here once the instance is replaced. Bounded, for an
+  and it forgets that learner's answer on this instance (`forgetRehoming`). Bounded, for an
   instance that lives through many learners.
 */
 const SETTLED = new Set<string>();
 const SETTLED_MAX = 50_000;
 
-async function rehomed(ownerId: string, programme: Programme | null): Promise<Programme | null> {
-  if (!programme || !REHOMED_LEVELS.has(programme.level)) return programme;
-  if (programme.days.length === 0 || !programme.days.every((d) => d.lesson)) return programme;
-  const key = `${ownerId}:${programme.id}`;
-  if (SETTLED.has(key)) return programme;
-  const days = programme.days.map((d) => d.id);
-  const [old, current] = await Promise.all([
-    prisma.courseStep.findFirst({ where: { ownerId, programmeId: programme.id, dayId: { notIn: days } }, select: { id: true }, orderBy: { id: "asc" } }),
-    prisma.courseStep.findFirst({ where: { ownerId, programmeId: programme.id, dayId: { in: days } }, select: { id: true }, orderBy: { id: "asc" } }),
-  ]);
-  if (!old || current) {
-    if (SETTLED.size >= SETTLED_MAX) SETTLED.clear();
-    SETTLED.add(key);
-    return programme;
+/** The furthest of several parts named by id, in ladder order; ids that name no part are ignored. */
+export function furthestPart(ids: Iterable<string | null | undefined>): Programme | null {
+  let best = -1;
+  for (const id of ids) {
+    const at = id ? PROGRAMMES.findIndex((p) => p.id === id) : -1;
+    if (at > best) best = at;
   }
-  // Back to where they have been working since, which is the level's first part until they move on from it.
-  const parts = PROGRAMMES.filter((p) => p.level === programme.level && p.days.length > 0 && p.days.every((d) => d.lesson));
+  return best >= 0 ? PROGRAMMES[best]! : null;
+}
+
+/** The furthest part a learner has ever been placed on or moved to (`SETTING_KEYS.highestPart`). */
+export async function highestPartFor(ownerId: string): Promise<Programme | null> {
+  return furthestPart([await readSetting(ownerId, SETTING_KEYS.highestPart)]);
+}
+
+/**
+ * PUTS A LEARNER ON A PART THEY CHOSE, OR WERE PLACED ON.
+ *
+ * Three settings in one transaction: the part, the stamp saying it was chosen
+ * (which the lessons' switch reads, `partAfterSwitch`), and the furthest part
+ * they have ever been on, raised past the part they are leaving and the part
+ * they are going to and never lowered. That last is what lets a learner placed
+ * at B1 who steps down to refresh A2 move back up without A2's checks
+ * (`moveBlockedFor`), with no tick up there to prove it and whatever a restart
+ * of the part deleted. Every door that moves a learner goes through here,
+ * the admin's course reset included; the one other writer of the part is a
+ * restore, which replaces a learner's settings from a file inside its own
+ * transaction and is named, with why, in `a-part-chosen-is-stamped.ts`.
+ *
+ * READ AND WRITTEN UNDER ONE LOCK. `highestPart` is read, raised and written
+ * back, so two moves at once (two tabs, a scripted double submission) each
+ * read the old value and the slower wrote it back lower, which is the "never
+ * lowered" promise broken. `updateSettings` reads and writes it inside one
+ * transaction holding the learner's own advisory lock, so the second waits for
+ * the first and reads what it wrote. `also` is any further setting that
+ * belongs to the same move (the reset's moved-back note).
+ */
+export async function choosePart(
+  ownerId: string, partId: string, now: Date = new Date(),
+  also: readonly (readonly [SettingKey, string])[] = [],
+): Promise<void> {
+  /* The current part is read before the lock: it is a read of the whole
+     course (ticks, placement), the lock is about `highestPart`, and the
+     current part only ever adds a candidate to the maximum taken under it. */
+  const current = await programmeFor(ownerId);
+  await updateSettings(ownerId, [SETTING_KEYS.highestPart], (held) => {
+    const highest = furthestPart([held[SETTING_KEYS.highestPart], current?.id, partId]);
+    return [
+      [SETTING_KEYS.programme, partId],
+      [SETTING_KEYS.programmeChosenAt, now.toISOString()],
+      ...(highest ? [[SETTING_KEYS.highestPart, highest.id] as const] : []),
+      ...also,
+    ];
+  });
+}
+
+/**
+ * The old part a learner was moved back from, and where they are now: somebody
+ * who walked a part of a level before it became lessons, and has not yet
+ * started the new lessons of that level, so the screen can say why they are on
+ * its first lesson rather than leaving them to think the app lost their place.
+ *
+ * Read off what they did rather than off a difference of part ids, which said
+ * nothing to a learner stored on the old first part (moved to the part with the
+ * same id) and nothing after a restore, which writes the first part over the
+ * one the backup named. What says it is a tick on a day id the level no longer
+ * holds, or, after a restore that dropped those ticks, the part the restore
+ * moved them from (`SETTING_KEYS.movedBackFrom`). It stops once they tick a
+ * lesson of the level. Null for everybody else, which is nearly everybody.
+ */
+export async function movedBackFrom(ownerId: string): Promise<{ from: Programme; to: Programme } | null> {
+  const stored = await readSetting(ownerId, SETTING_KEYS.programme);
+  const at = stored && stored !== "off" ? programmeById(stored) : undefined;
+  if (!at || !REHOMED_LEVELS.has(at.level)) return null;
+  const [ticks, marker, chosenAt, to] = await Promise.all([
+    levelTicks(ownerId, at.level),
+    readSetting(ownerId, SETTING_KEYS.movedBackFrom),
+    readSetting(ownerId, SETTING_KEYS.programmeChosenAt),
+    programmeFor(ownerId),
+  ]);
+  if (!to || to.level !== at.level) return null;
+  const parts = lessonPartsOf(at.level);
+  const days = new Set(parts.flatMap((p) => p.days.map((d) => d.id)));
+  if (ticks.some((t) => days.has(t.dayId))) return null;
+  const old = ticks.filter((t) => !days.has(t.dayId));
+  // Somebody who chose this part since their old ticks stayed where they chose, and was moved nowhere.
+  if (!marker && rehomeFrom(at, ticks, chosenAt).settled) return null;
+  const fromId = marker || old.sort((a, b) => tickTime(b) - tickTime(a))[0]?.programmeId;
+  const from = fromId ? programmeById(fromId) : undefined;
+  return from && from.level === at.level ? { from, to } : null;
+}
+
+/** The parts of a level that are lessons, in ladder order. */
+function lessonPartsOf(level: string): Programme[] {
+  return PROGRAMMES.filter((p) => p.level === level && p.days.length > 0 && p.days.every((d) => d.lesson));
+}
+
+/** A tick as the rule below reads it, off the database or out of a backup. */
+export interface RehomeTick {
+  readonly programmeId: string;
+  readonly dayId: string;
+  readonly createdAt?: Date | string | null;
+}
+
+const tickTime = (t: RehomeTick): number =>
+  t.createdAt instanceof Date ? t.createdAt.getTime() : t.createdAt ? Date.parse(t.createdAt) : Number.NaN;
+
+/** Every tick a learner holds on a level's parts, for the rule below. */
+async function levelTicks(ownerId: string, level: string): Promise<RehomeTick[]> {
+  return prisma.courseStep.findMany({
+    where: { ownerId, programmeId: { in: lessonPartsOf(level).map((p) => p.id) } },
+    select: { programmeId: true, dayId: true, createdAt: true },
+    orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+  });
+}
+
+/**
+ * WHERE A LEARNER STORED ON A PART OF A LEVEL THAT BECAME LESSONS IS, read off
+ * their ticks and the stamp saying when they last chose a part: the one rule,
+ * for a learner here (`rehomed`) and for a backup being restored
+ * (`partAfterSwitch`), so a restored file lands where the live learner reads.
+ *
+ * `settled` says the answer cannot change by itself any more, which is what
+ * lets `rehomed` remember it.
+ */
+export function rehomeFrom(
+  part: Programme, ticks: readonly RehomeTick[], chosenAt: string | null | undefined,
+): { part: Programme; settled: boolean } {
+  if (!REHOMED_LEVELS.has(part.level) || part.days.length === 0 || !part.days.every((d) => d.lesson)) {
+    return { part, settled: true };
+  }
+  const days = new Set(part.days.map((d) => d.id));
+  const here = ticks.filter((t) => t.programmeId === part.id);
+  const old = here.filter((t) => !days.has(t.dayId));
+  if (old.length === 0 || here.some((t) => days.has(t.dayId))) return { part, settled: true };
+  /*
+    A PART THE LEARNER CHOSE AFTER THEIR OLD TICKS ON IT STAYS CHOSEN. Moving on
+    from a finished part, taking an offer to skip ahead, and changing level all
+    stamp the choice, so somebody sent back to B1.1 who then moved to B1.2 by
+    any of those is not sent back again.
+  */
+  const chosen = chosenAt ? Date.parse(chosenAt) : Number.NaN;
+  const newestOld = Math.max(...old.map(tickTime).filter(Number.isFinite));
+  if (Number.isFinite(chosen) && Number.isFinite(newestOld) && chosen > newestOld) return { part, settled: true };
+  const parts = lessonPartsOf(part.level);
   /*
     UNLESS THEY FINISHED THE PART BEFORE THIS ONE IN THE NEW LESSONS, which is
     how somebody moved back to B1.1 comes to be stored on B1.2 again: they
@@ -164,23 +296,61 @@ async function rehomed(ownerId: string, programme: Programme | null): Promise<Pr
     them back to the part they have just finished, for ever. The last lesson of
     the part before is the evidence, since the part ends there.
   */
-  const before = parts[parts.findIndex((p) => p.id === programme.id) - 1];
+  const before = parts[parts.findIndex((p) => p.id === part.id) - 1];
   const lastBefore = before?.days[before.days.length - 1];
-  if (before && lastBefore) {
-    const finished = await prisma.courseStep.findFirst({
-      where: { ownerId, programmeId: before.id, dayId: lastBefore.id },
-      select: { id: true },
-      orderBy: { id: "asc" },
-    });
-    if (finished) return programme;
+  if (before && lastBefore && ticks.some((t) => t.programmeId === before.id && t.dayId === lastBefore.id)) {
+    return { part, settled: true };
   }
-  const worked = await prisma.courseStep.groupBy({
-    by: ["programmeId"],
-    where: { ownerId, programmeId: { in: parts.map((p) => p.id) }, dayId: { in: parts.flatMap((p) => p.days.map((d) => d.id)) } },
-    orderBy: { programmeId: "asc" },
-  });
-  const since = new Set(worked.map((w) => w.programmeId));
-  return [...parts].reverse().find((p) => since.has(p.id)) ?? parts[0] ?? programme;
+  // Back to where they have been working since, which is the level's first part until they move on from it.
+  const since = new Set(ticks.filter((t) => {
+    const p = parts.find((q) => q.id === t.programmeId);
+    return p ? p.days.some((d) => d.id === t.dayId) : false;
+  }).map((t) => t.programmeId));
+  return { part: [...parts].reverse().find((p) => since.has(p.id)) ?? parts[0] ?? part, settled: false };
+}
+
+/**
+ * Forgets who was settled: everybody, for a test that walks one learner
+ * through several states, or one learner, which a restore does, since a
+ * backup is the one way old ticks arrive after the answer was settled.
+ * Another instance learns it when it is replaced; the memo is per instance.
+ */
+export function forgetRehoming(ownerId?: string): void {
+  if (!ownerId) { SETTLED.clear(); return; }
+  for (const key of [...SETTLED]) if (key.startsWith(`${ownerId}:`)) SETTLED.delete(key);
+}
+
+/**
+ * WHERE A RESTORED PART PUTS A LEARNER WHOSE BACKUP PREDATES THE SWITCH.
+ *
+ * The restore keeps only ticks on days a part still holds, so the old ticks
+ * that `rehomed` reads as "this learner was on the old part" never arrive, and
+ * a backup naming B1.3 put somebody on lesson 15 with two parts they never had.
+ * So the restore asks this first, of the backup's own ticks and its own stamp:
+ * `rehomeFrom`, the rule a learner here is read by, so the file lands where
+ * the live learner would.
+ */
+export function partAfterSwitch(
+  part: Programme, ticks: readonly RehomeTick[], chosenAt?: string | null,
+): Programme {
+  return rehomeFrom(part, ticks, chosenAt).part;
+}
+
+async function rehomed(ownerId: string, programme: Programme | null): Promise<Programme | null> {
+  if (!programme || !REHOMED_LEVELS.has(programme.level)) return programme;
+  if (programme.days.length === 0 || !programme.days.every((d) => d.lesson)) return programme;
+  const key = `${ownerId}:${programme.id}`;
+  if (SETTLED.has(key)) return programme;
+  const [ticks, chosenAt] = await Promise.all([
+    levelTicks(ownerId, programme.level),
+    readSetting(ownerId, SETTING_KEYS.programmeChosenAt),
+  ]);
+  const read = rehomeFrom(programme, ticks, chosenAt);
+  if (read.settled) {
+    if (SETTLED.size >= SETTLED_MAX) SETTLED.clear();
+    SETTLED.add(key);
+  }
+  return read.part;
 }
 
 /**
@@ -381,21 +551,33 @@ const closingOpensAt = (ticks: Ticks, day: CourseDay): Date | undefined => {
  * makes; with none there is no module to be held to and every round behaves
  * exactly as it did.
  *
+ * BUT A TICK IN ANY PART IS A LEARNER FOLLOWING THE MODULE. Read off the part
+ * in play alone, a learner who had just passed a check and moved on to the
+ * next part, and not yet ticked its first lesson, held nothing: every round
+ * and the daily queue let go of the hold until they did, and asked cases and
+ * words nobody had taught. So where the part has no ticks and the learner has
+ * one somewhere, the standing is the part's first evening, not yet entered
+ * (`entered: false`): everything the parts before taught, and nothing of it.
+ *
  * Memoised for the render, like `ticksFor` underneath it, because Today and
  * the round it links to both ask.
  */
 export const moduleReached = cache(async (
   ownerId: string,
-): Promise<{ programme: Programme; day: CourseDay; ticked: ReadonlySet<string> } | null> => {
+): Promise<{ programme: Programme; day: CourseDay; ticked: ReadonlySet<string>; entered: boolean } | null> => {
   const programme = await programmeFor(ownerId);
   if (!programme) return null;
   const ticks = await ticksFor(ownerId, programme);
-  if (ticks.byDay.size === 0) return null;
+  if (ticks.byDay.size === 0) {
+    const first = programme.days[0];
+    const followed = first && await prisma.courseStep.findFirst({ where: { ownerId }, select: { id: true }, orderBy: { id: "asc" } });
+    return first && followed ? { programme, day: first, ticked: new Set<string>(), entered: false } : null;
+  }
   const day = dayReached(programme, new Set(ticks.byDay.keys()));
   // The steps of that evening that carry a row, which is what tells a screen
   // the module did not open whether today's page has been read yet
   // (`scopeSoFar`). Pressed steps and latched derived ones alike.
-  return { programme, day, ticked: ticks.byDay.get(day.id) ?? new Set<string>() };
+  return { programme, day, ticked: ticks.byDay.get(day.id) ?? new Set<string>(), entered: true };
 });
 
 export async function dayIsInPlay(

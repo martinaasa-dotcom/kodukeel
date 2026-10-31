@@ -215,7 +215,7 @@ export function RestorePanel({ currentReviews }: { currentReviews: number }) {
 
       {error && <p role="alert" className="mt-3 text-sm" style={{ color: "var(--again-ink)" }}>{error}</p>}
       {done && (
-        <p ref={doneRef} tabIndex={-1} role="status" className="mt-3 text-sm outline-none" style={{ color: "var(--good-ink)" }}>
+        <p ref={doneRef} tabIndex={-1} className="mt-3 text-sm outline-none" style={{ color: "var(--good-ink)" }}>
           {done}
         </p>
       )}

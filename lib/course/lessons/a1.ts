@@ -448,6 +448,7 @@ const TERE_LESSONS: readonly LessonSpec[] = [
     ],
     roleplay: {
       scene: "You meet a neighbor, Mari, on the stairs. She speaks first. Answer her as yourself.",
+      who: "Mari",
       turns: [
         { ask: { et: "Tere õhtust!", en: "Good evening!" }, cue: "Say hello back.", model: { et: "Tere õhtust!", en: "Good evening!" } },
         { ask: { et: "Mina olen Mari. Mis su nimi on?", en: "I'm Mari. What's your name?" }, cue: "Say your name.", model: { et: "Minu nimi on Tom.", en: "My name is Tom." } },

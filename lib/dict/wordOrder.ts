@@ -46,8 +46,12 @@ import { orderContextFrom, wordsWorthAsking, type OrderContext, type OrderWord }
 /** The empty reading: no word is a verb, so every sentence keeps its one order. */
 const NOTHING = orderContextFrom([]);
 
-export async function orderContextFor(sentences: readonly string[]): Promise<OrderContext> {
-  const spellings = wordsWorthAsking(sentences);
+export async function orderContextFor(
+  sentences: readonly string[],
+  /** Which spellings to ask about: the movable words, or for a lesson's reworks the clauses too (`lessonWordsWorthAsking`). */
+  worth: (sentences: readonly string[]) => string[] = wordsWorthAsking,
+): Promise<OrderContext> {
+  const spellings = worth(sentences);
   if (spellings.length === 0) return NOTHING;
 
   const firstPersons = [...new Set(spellings.flatMap((w) => possibleFirstPersons(w)))];

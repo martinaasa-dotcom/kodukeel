@@ -1,3 +1,4 @@
+import { isLessonLevelName } from "@/lib/course/lessonLevels";
 import { LEVELS, unitsAtLevel, type Level, type SyllabusUnit } from "./syllabus";
 
 /**
@@ -53,7 +54,7 @@ export const MAX_STARTER_UNITS = 6;
 /**
  * The units a learner at this level starts with.
  *
- * NONE AT A1, BECAUSE A1 IS THE LESSONS (docs/43-lessons.md). A lesson
+ * NONE AT A LEVEL TAUGHT AS LESSONS (A1, A2 and B1, docs/43-lessons.md). A lesson
  * teaches its words before it asks anything and hands them to the deck when it
  * is finished (`finishLesson`), so a beginner's deck grows one evening at a
  * time from the first lesson rather than arriving as four units of words
@@ -62,11 +63,12 @@ export const MAX_STARTER_UNITS = 6;
  * says it is full and asks nothing. Below A1 and a level the course does not
  * carry start where A1 does, which is the first lesson.
  *
- * From A2 up the course is still units, and the first ones at the level are
- * the starter deck.
+ * Above the lessons the course is still units, and the first ones at the
+ * level are the starter deck. Asked through `isLessonLevelName`, so the next
+ * level to become lessons drops its starter units by arriving.
  */
 export function starterUnitsFor(level: string | null): readonly SyllabusUnit[] {
   const band = (LEVELS as readonly string[]).includes(level ?? "") ? (level as Level) : "A1";
-  if (band === "A1") return [];
+  if (isLessonLevelName(band)) return [];
   return unitsAtLevel(band).slice(0, STARTER_UNITS);
 }

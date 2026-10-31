@@ -132,7 +132,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
       notes: [
         "The part that hurts stays in its [nimetav] (1st form), like what you like in {Mulle meeldib kohv}.",
         "{Haige} means sick: {Ma olen haige}. A fever is something you have: {Mul on palavik}.",
-        "The doctor tells you what to do in the polite command form of lesson 46: {olge}, {jooge}.",
+        "The doctor tells you what to do in the [käskiv kõneviis] (-ge, polite command) of lesson 46: {olge}, {jooge}.",
       ],
       watchOut: "Don't start with {ma}. \"My head hurts\" is always {Mul valutab pea}: the head is the one that hurts.",
       examples: [1, 3, 6],
@@ -286,6 +286,7 @@ export const A1_ABI_LESSONS: readonly LessonSpec[] = [
     ],
     roleplay: {
       scene: "A new neighbor stops you on the stairs. She speaks first. Answer her as yourself.",
+      who: "Mari",
       turns: [
         { ask: { et: "Tere! Mina olen Mari. Ma elan ka siin.", en: "Hello! I'm Mari. I live here too." }, cue: "Say hello, you're pleased to meet her, and your name.", model: { et: "Tere! Väga meeldiv! Mina olen Tom.", en: "Hello! Nice to meet you! I'm Tom." } },
         { ask: { et: "Kust sa pärit oled?", en: "Where are you from?" }, cue: "Say where you're from.", model: { et: "Ma olen pärit Inglismaalt.", en: "I'm from England." } },

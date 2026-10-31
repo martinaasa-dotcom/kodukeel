@@ -1,6 +1,7 @@
 "use client";
 
 import { usePublicReader } from "@/components/PublicReader";
+import { useModuleFocus } from "@/components/course/moduleFocus";
 import { useSingleKeys } from "@/components/SingleKeys";
 import { mayActOnKey } from "@/lib/ux/shortcuts";
 import { useEffect, useRef, useState } from "react";
@@ -14,7 +15,7 @@ import { askText, type TryItAsk } from "@/lib/course/tryIt";
 import { useLocale, useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
 import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
-import { inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { inEditable, isAdvanceKey, onOwnControl } from "@/lib/ux/advanceKey";
 
 /**
  * THE READING ASKS BACK, AND IT IS A GAME RATHER THAN A TEST.
@@ -47,6 +48,8 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
   const sound = useFeedbackSound();
   const t = useT();
   const publicReader = usePublicReader();
+  // Only an evening of the module goes on to questions about today's words; the reference opened by hand does not.
+  const inModule = useModuleFocus() !== null;
   const locale = useLocale();
 
   /*
@@ -71,11 +74,29 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
         return;
       }
       /* Not over a focused button, which answers Enter and Space itself. */
-      if (isAdvanceKey(e) && !(e.target instanceof HTMLButtonElement)) { e.preventDefault(); now.next(); }
+      if (isAdvanceKey(e) && !onOwnControl(e.target)) { e.preventDefault(); now.next(); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [singleKeys]);
+
+  /*
+    A PICK DISABLES THE OPTION THAT WAS PRESSED, and Next takes its button away,
+    so the caret goes on with them: to Next once a form is picked, to the new
+    question after Next, and to the closing line at the end.
+  */
+  const nextRef = useRef<HTMLButtonElement>(null);
+  const promptRef = useRef<HTMLParagraphElement>(null);
+  const doneRef = useRef<HTMLDivElement>(null);
+  const moved = useRef(false);
+  useEffect(() => {
+    if (picked !== null) nextRef.current?.focus();
+  }, [picked]);
+  useEffect(() => {
+    if (!moved.current) return;
+    moved.current = false;
+    (over ? doneRef.current : promptRef.current)?.focus();
+  }, [at, over]);
 
   if (asks.length === 0) return null;
   const ask = asks[Math.min(at, asks.length - 1)]!;
@@ -91,6 +112,7 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
   };
 
   const next = () => {
+    moved.current = true;
     if (last) { setOver(true); return; }
     setAt((n) => n + 1);
     setPicked(null);
@@ -109,13 +131,14 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
       <Card tone="sky">
         <div className="flex items-start gap-3">
           <Sparkles size={20} aria-hidden style={{ color: "var(--good-ink)" }} />
-          <div className="min-w-0">
+          {/* The caret comes here, which reads both sentences; a live region beside it would read the second twice. */}
+          <div ref={doneRef} tabIndex={-1} className="min-w-0 outline-none">
             <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>
               {t("You looked the forms up in the table.")}
             </p>
-            <p role="status" className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>
+            <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>
               {rightSoFar === asks.length
-                ? t("You got every one right. Later today you'll get questions like these about today's words.")
+                ? inModule ? t("You got every one right. Later today you'll get questions like these about today's words.") : t("You got every one right.")
                 : t("Glance back at the table whenever a form looks odd.")}
             </p>
           </div>
@@ -132,7 +155,7 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
     <div data-try-it={at + 1}>
     <Card>
       <SectionTitle hint={fill(t("{n} of {total}, just practice"), { n: at + 1, total: asks.length })}>{t("Try it")}</SectionTitle>
-      <p className="mt-2 text-lg font-bold" style={{ color: "var(--ink)" }}>
+      <p ref={promptRef} tabIndex={-1} className="mt-2 text-lg font-bold outline-none" style={{ color: "var(--ink)" }}>
         <Estonianised text={said.prompt} words={[ask.about]} />
       </p>
 
@@ -178,7 +201,7 @@ export function TryIt({ asks }: { asks: readonly TryItAsk[] }) {
               <Speak text={ask.answer} size={15} /> {t("hear it")}
             </span>
           )}
-          <Button variant="primary" onClick={next}>
+          <Button ref={nextRef} variant="primary" onClick={next}>
             {last ? t("Done") : t("Next")} <ArrowRight size={15} aria-hidden />
           </Button>
         </div>

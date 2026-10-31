@@ -10,7 +10,7 @@ import { governmentParts } from "@/lib/estonian/government";
 import { fold } from "@/lib/estonian/fold";
 import { isNumber, isThing, isTime } from "@/lib/estonian/semantics";
 import { PARTICLES } from "@/lib/estonian/wordOrder";
-import type { CaseKey } from "@/lib/estonian/types";
+import { CEFR_LEVELS, type CaseKey } from "@/lib/estonian/types";
 
 /**
  * IS MY SENTENCE RIGHT, ASKED OF THE DICTIONARY RATHER THAN OF A MODEL.
@@ -167,7 +167,9 @@ export type Finding =
   /** A word a preposition governs, left in its plain form: `koos sõber` is `koos sõbraga`. */
   | { readonly kind: "governed"; readonly word: string; readonly after: string; readonly right: string; readonly case: CaseKey }
   /** A verb after `ära` in a person rather than the command: `ära tuled` is `ära tule`. */
-  | { readonly kind: "command"; readonly word: string; readonly after: string; readonly right: string }
+  | { readonly kind: "command"; readonly word: string; readonly after: string; readonly right: string;
+      /** Which command it is: `ära tule` to one person you know, `ärge tulge` to more than one or politely. */
+      readonly polite: boolean }
   /** A noun in its plain form before a postposition: `laud peal` is `laua peal`. */
   | { readonly kind: "postposition"; readonly word: string; readonly before: string; readonly right: string };
 
@@ -509,7 +511,7 @@ function nearest(word: string, pool: ReadonlySet<string>, preferred: ReadonlySet
   return closest.length === 1 ? { form: closest[0]!, diacritics: false } : null;
 }
 
-const BANDS = ["A1", "A2", "B1", "B2", "C1", "C2"];
+const BANDS: readonly string[] = CEFR_LEVELS;
 /** The band at or under which a word counts as one a learner has met: A2. */
 const COMMON_RANK = 2;
 /** How many bands earlier the word meant has to be than any other one slip away. */
@@ -645,6 +647,8 @@ export function checkSentence(
     the same word: the list files some stems as headwords of their own, so
     `raamat` is claimed by `raamatu` and `kaks` by `kahe`.
   */
+  // Declared before the first function that reads it, so no later call can meet it uninitialized; filled below.
+  const tableOf = new Map<string, readonly DerivedForm[]>();
   const alsoOf = (claim: string, lemmas: readonly string[]) => {
     const low = claim.toLowerCase();
     return lemmas.some((l) => l.toLowerCase() === low || lexicon.byLemma.get(l)?.has(low) || [...(tables.get(l)?.values() ?? [])].includes(low)
@@ -674,7 +678,6 @@ export function checkSentence(
 
   // EVERY NOMINAL, BY CASE AND NUMBER.
   const nounReadings = new Map<string, NounReading[]>();
-  const tableOf = new Map<string, readonly DerivedForm[]>();
   const nominal = new Set<string>();
   for (const entry of entries) {
     if (entry.pos === "VERB") continue;
@@ -774,6 +777,16 @@ export function checkSentence(
       const form = tables.get(lemma)?.get(code);
       if (form) maOnlyFinite.delete(form);
     }
+  }
+  /*
+    The conditional with no person ending (`oleks`, `tuleks`) stands with every
+    person in speech (`Ma oleks varem alustanud`), which the lessons teach, so
+    beside `ma` it is not a verb in the wrong person.
+  */
+  const bareConditional = new Set<string>();
+  for (const table of tables.values()) {
+    const form = table.get("KndPrPs");
+    if (form) bareConditional.add(form);
   }
   // A command takes its object in the plain form (`Pane aken kinni`), so a clause holding one is left alone.
   const imperative = new Set<string>();
@@ -1022,7 +1035,7 @@ export function checkSentence(
     if (subjectPerson && !lower.some((w, at) => owners.has(w) && at < (personAt[0] ?? 0))) {
       const s = subjectAt[0]!;
       if (personAt.length > 0) {
-        const agrees = personAt.some((at) => readingsOf.get(lower[at]!)!.some((r) => r.person === subjectPerson));
+        const agrees = personAt.some((at) => bareConditional.has(lower[at]!) || readingsOf.get(lower[at]!)!.some((r) => r.person === subjectPerson));
         // The pronoun before its verb, or straight after it (`Kas tuled sina`); further on it is a word in a list.
         const s0 = subjectAt[0]!;
         const sure = subjects.get(lower[s0]!)!.sure;
@@ -1305,7 +1318,7 @@ export function checkSentence(
       // What follows `ära` is its verb, so `tuled` there is "you come" and not fires.
       if (hits.length === 0 || new Set((readingsOf.get(next) ?? []).map((r) => r.lemma)).size > 1) continue;
       const right = formIn(hits[0]!.lemma, `ImpPr${command}`);
-      if (right && right !== next) findings.push({ kind: "command", word: tokens[at + 1]!.raw, after: tokens[at]!.raw, right });
+      if (right && right !== next) findings.push({ kind: "command", word: tokens[at + 1]!.raw, after: tokens[at]!.raw, right, polite: command === "Pl2" });
     }
 
     // COUNTED: a number above one, or a word of quantity, takes the partitive singular after it.

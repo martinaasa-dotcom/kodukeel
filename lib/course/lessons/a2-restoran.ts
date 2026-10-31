@@ -376,6 +376,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
     ],
     roleplay: {
       scene: "You've come into a restaurant with a friend. The waiter speaks first. Answer as yourself.",
+      who: "Peeter",
       turns: [
         { ask: { et: "Tere õhtust! Kas teil on broneering?", en: "Good evening! Do you have a booking?" }, cue: "Say no, and ask for a table for two.", model: { et: "Ei ole. Me sooviksime lauda kahele.", en: "No. We'd like a table for two." } },
         { ask: { et: "Palun. Mida te sooviksite juua?", en: "Here you are. What would you like to drink?" }, cue: "Say what you'd have.", model: { et: "Ma võtaksin mahla.", en: "I'd have a juice." } },

@@ -22,6 +22,21 @@ describe("your own sentences as cards", () => {
     expect(piecesOf("Tere. Ma elan Tallinnas ja töötan seal. Kas sa tuled ka?")).toHaveLength(3);
   });
 
+  it("does not cut a sentence at the stop of an ordinal", () => {
+    expect(piecesOf("Tallinn, 12. märts. Ma kolisin siia 2025. aastal.")).toEqual(["Tallinn, 12. märts.", "Ma kolisin siia 2025. aastal."]);
+    // A number ending a sentence still ends it.
+    expect(piecesOf("Ma elan majas number 5. Siin on vaikne.")).toEqual(["Ma elan majas number 5.", "Siin on vaikne."]);
+  });
+
+  it("does not cut a sentence at the stop inside a time or a date (round 3, F5)", () => {
+    expect(piecesOf("Koosolek on kell 14.30 kolmandal korrusel.")).toEqual(["Koosolek on kell 14.30 kolmandal korrusel."]);
+    expect(piecesOf("Me kolisime siia 12.03.2025 koos naise ja lastega. Siin on hea.")).toEqual([
+      "Me kolisime siia 12.03.2025 koos naise ja lastega.", "Siin on hea.",
+    ]);
+    // A sentence that ends on a number still ends there, with a space after the stop.
+    expect(piecesOf("Ma tulen kell 14. 30 minutit on palju.")).toHaveLength(2);
+  });
+
   it("takes out one taught word of four letters or more", () => {
     const card = ownCardFor("Suvel ma kavatsen Saaremaale minna.", lesson, taught, heads)!;
     expect(card).not.toBeNull();
@@ -62,6 +77,19 @@ describe("your own sentences as cards", () => {
         expect(cue === null || !cue.toLocaleLowerCase("et").split(/\W+/u).includes(card.answer.toLocaleLowerCase("et"))).toBe(true);
       }
     }
+  });
+
+  it("takes out a word the writing task asked to use first, then one tonight taught, then any other", () => {
+    const uses = email.write!.uses.map((u) => u.et);
+    expect(uses.length).toBeGreaterThan(0);
+    for (const use of uses) {
+      // `Tallinnas` comes first and was taught long before, so only the order of preference can put the use ahead of it.
+      expect(cardsOf(`Tallinnas ma elan ja ${use} on hea.`)[0]?.answer).toBe(use);
+    }
+    const tonight = email.teaches.flatMap((t) => (t.kind === "word" || t.kind === "form" ? [t.et] : []))
+      .find((et) => et.length >= 4 && !uses.includes(et) && !et.includes(" ") && emailHeads.get(et.toLocaleLowerCase("et")));
+    expect(tonight).toBeDefined();
+    expect(cardsOf(`Tallinnas ma elan ja ${tonight} on hea.`)[0]?.answer).toBe(tonight);
   });
 
   it("prefers a form of a word to the word itself, so the cue can name it", () => {

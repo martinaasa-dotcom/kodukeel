@@ -331,6 +331,7 @@ const LessonPrompt = z.object({
   ask: EtEn.optional(),
   cue: z.string(),
   model: EtEn,
+  also: z.array(z.string()).readonly().optional().describe("Every other way of saying the model that counts."),
 });
 
 const LessonPattern = z.enum([
@@ -429,10 +430,17 @@ export const PracticeItemSchema = z.discriminatedUnion("kind", [
     kind: z.literal("rework"), from: z.object({ et: z.string(), en: z.string() }), ask: z.string(),
     answer: z.string(), answerEn: z.string(),
     accept: z.array(z.string()).readonly().describe("Every sentence that counts, the lesson's own first."),
+    opens: z.string().nullable().describe("Where the ask names how the sentence must begin, that beginning."),
+    persons: z.record(z.string(), z.array(z.enum(["Sg1", "Sg2", "Sg3", "Pl1", "Pl2", "Pl3"])).readonly()).readonly()
+      .describe("Which person each verb in these sentences is, so a subject pronoun left out or put in is read against the verb beside it."),
+    orders: z.array(z.string()).readonly().describe("Other orders of an accepted sentence the dictionary vouches for, marked right."),
   }).describe("A sentence to change the way `ask` says (B1 on), typed and marked against `accept`."),
   z.object({
     kind: z.literal("fix"), shown: z.string(), en: z.string(), answer: z.string(),
     accept: z.array(z.string()).readonly(), wrong: z.string(), right: z.string(), why: z.string(),
+    persons: z.record(z.string(), z.array(z.enum(["Sg1", "Sg2", "Sg3", "Pl1", "Pl2", "Pl3"])).readonly()).readonly()
+      .describe("Which person each verb in these sentences is, so a subject pronoun left out or put in is read against the verb beside it."),
+    orders: z.array(z.string()).readonly().describe("Other orders of an accepted sentence the dictionary vouches for, marked right."),
   }).describe("A line with one word swapped for another form of it (B1 on); typed back put right."),
   z.object({ kind: z.literal("hear"), et: z.string(), options: z.array(z.string()).readonly(), answer: z.string() }),
   z.object({ kind: z.literal("pick"), et: z.string(), options: z.array(z.string()).readonly(), answer: z.string() }),

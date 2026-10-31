@@ -7,7 +7,7 @@
  * rule reaches that one (`tahtsin` but `tahtis`), and the other four persons
  * follow the I form for every verb (`lib/estonian/conjugate.ts`). Then the
  * commonest verbs, which make their past their own way, saying no in the past
- * with the -nud form, the whole object against some of it, have-done with
+ * with the [nud-kesksõna], the whole object against some of it, have-done with
  * {olema}, a story told in order, and where somebody was born and grew up. It
  * ends on what somebody did in the summer.
  *
@@ -159,7 +159,7 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
         "{Marit} is Mari after {nägema}: a name takes the [osastav] (3rd form) too, like {kohvi}.",
         "{Kaua} after a verb is for ages: {Rääkisime kaua}.",
       ],
-      watchOut: "{Võttis}, not võtsis: the he and she form is the one to learn by heart.",
+      watchOut: "{Võttis}, with a double t and no s before the ending: the he and she form is the one to learn by heart.",
       examples: [1, 3, 5],
     },
     answers: [
@@ -206,7 +206,7 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "parem", en: "better; right (not left)" },
     ],
     how: {
-      point: "No in the past is {ei} and the -nud form, the same for every person: {Ma ei tulnud}, {Nad ei tulnud}. A class calls it the [nud-kesksõna] (-nud, done).",
+      point: "No in the past is {ei} and the [nud-kesksõna] (-nud, done), the same for every person: {Ma ei tulnud}, {Nad ei tulnud}.",
       table: {
         head: ["", "Yes", "No"],
         rows: [
@@ -219,7 +219,7 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "The -nud form is learned with the verb: {minema}, {läinud}; {tegema}, {teinud}.",
+        "The [nud-kesksõna] (-nud, done) is learned with the verb: {minema}, {läinud}; {tegema}, {teinud}.",
         "{Ei käinud} on its own is a whole answer: no, I didn't go.",
         "{Midagi} is something, and after {ei} it's anything: {Ma ei söönud midagi}.",
         "{Arsti juures} is at the doctor's, the [omastav] (2nd form) and {juures} of lesson 3.",
@@ -322,7 +322,7 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "kuskil", en: "somewhere; after {ei}, anywhere" },
     ],
     how: {
-      point: "{Olen käinud} is have been: {olema} in the present and the -nud form. It's for what you've done at some time, without saying when. A class calls it the [täisminevik] (have done).",
+      point: "{Olen käinud} is have been: {olema} in the present and the [nud-kesksõna] (-nud, done). It's for what you've done at some time, without saying when. A class calls it the [täisminevik] (have done).",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -333,8 +333,8 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "It's the same -nud form as in lesson 17, with {olen} in front of it in place of {ei}.",
-        "No is {ei ole} and the -nud form: {Ma ei ole seal käinud}. And {Ei ole veel} is not yet.",
+        "It's the same [nud-kesksõna] (-nud, done) as in lesson 17, with {olen} in front of it in place of {ei}.",
+        "No is {ei ole} and the [nud-kesksõna] (-nud, done): {Ma ei ole seal käinud}. And {Ei ole veel} is not yet.",
         "{Kunagi} is ever, and {mitu korda} several times.",
         "{Hea meelega!} is gladly, the warm way to say yes to an invitation, and {Kahju!} is what a pity, the one-word answer to bad news.",
         "{Kuskil} is somewhere, and after {ei} anywhere: {Ta ei käi kuskil}.",
@@ -511,6 +511,7 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
     ],
     roleplay: {
       scene: "An old friend stops you in the street after the summer. She speaks first. Answer as yourself.",
+      who: "Liis",
       turns: [
         { ask: { et: "Tere! Kuidas suvi oli?", en: "Hi! How was your summer?" }, cue: "Say it was good, and where you went.", model: { et: "Väga hea! Ma käisin Saaremaal.", en: "Really good! I went to Saaremaa." } },
         { ask: { et: "Tore! Mis sa seal tegid?", en: "Nice! What did you do there?" }, cue: "Say what you did there.", model: { et: "Me käisime saunas ja sõime palju kala.", en: "We went to the sauna and ate lots of fish." } },

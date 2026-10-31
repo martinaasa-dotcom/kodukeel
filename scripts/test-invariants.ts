@@ -9775,6 +9775,12 @@ check("nothing is stored on a device that would need asking first", () => {
     // `sessionStorage` so it goes with the tab, removed when the round
     // finishes, not resumed after three hours, and swept by the sign-out.
     "components/useRoundSnapshot.ts",
+    // Where a learner is in a lesson: the step, how far they had reached, which
+    // steps were finished and whether the conversation was heard, so a reload
+    // does not put them back on step 1. Nothing typed and nothing marked, in
+    // `sessionStorage` under the round prefix the sign-out sweeps, removed when
+    // the lesson is finished and dropped after three hours.
+    "components/course/lessonResume.ts",
     // The speech model, which the learner asked for by pressing Download with
     // its size in front of them (D7), and one line saying it was downloaded
     // once, so a cache the browser cleared can be told from a first visit.
@@ -15159,7 +15165,8 @@ check("there is one table of which Estonian letters fold", () => {
     it with the sweep green. Both spellings now, which is this repository's own
     rule about a fault found once being found again wearing different clothes.
   */
-  const HAYSTACK = [...LIB, ...APP, ...COMPONENTS, ...sourceFiles("prisma"), ...sourceFiles("scripts")];
+  // The browser suites too, which are `.mjs`: `test-lessons.mjs` once carried a fold of its own as a `.replace` chain.
+  const HAYSTACK = [...LIB, ...APP, ...COMPONENTS, ...sourceFiles("prisma"), ...sourceFiles("scripts", /\.(ts|tsx|mjs)$/)];
   assert.ok(HAYSTACK.length > 400, `only ${HAYSTACK.length} files to sweep, so this check stopped looking`);
 
   const excused = [
@@ -15189,7 +15196,8 @@ check("there is one table of which Estonian letters fold", () => {
     .filter((file) => !excused.includes(file) && !/\.(test|itest)\.tsx?$/.test(file))
     .filter((file) => {
       const source = code(file);
-      return asRecord.test(source) || asString.test(source) || /replaceAll\("õ"/.test(source);
+      // A `replace` or `replaceAll` of õ, as a string or as a regular expression, is the sixth spelling of a table.
+      return asRecord.test(source) || asString.test(source) || /replace(?:All)?\(\s*(?:"õ"|'õ'|\/õ\/)/.test(source);
     });
   assert.deepEqual(
     offenders, [],
@@ -23429,11 +23437,18 @@ check("a control says what it does under a pointer", () => {
 */
 check("a marked answer says so out loud", () => {
   const PAGE_NOT_A_ROUND = "app/(app)/exam/result/[id]/page.tsx";
+  /*
+    A piece drawn inside a region its callers mounted first, since a region that
+    arrives holding its words is often not read. It may hold no region of its
+    own, and every file that draws it has to have one.
+  */
+  const ANNOUNCED_BY_CALLER = "components/course/SentenceFindings.tsx";
+  // How each call of it is read is held by scripts/invariants/findings-are-read-where-they-are-drawn.ts.
   let marking = 0;
   for (const file of [...APP, ...COMPONENTS]) {
     const source = code(file);
     if (!/VERDICT_CLASS|OPTION_CLASS/.test(source)) continue;
-    if (file === PAGE_NOT_A_ROUND) continue;
+    if (file === PAGE_NOT_A_ROUND || file === ANNOUNCED_BY_CALLER) continue;
     marking += 1;
     assert.match(
       source,
@@ -24758,8 +24773,9 @@ check("an order the writer did not choose is not a wrong order", () => {
     no screen a learner could reach. A list in the reader is a list that falls
     behind the rule; `wordsWorthAsking` lives beside both word lists.
   */
+  // Its default is the rule's own narrowing; a lesson hands in `lessonWordsWorthAsking`, which lives beside it.
   assert.match(
-    resolver, /wordsWorthAsking\(/,
+    resolver, /=\s*wordsWorthAsking\b/,
     "the dictionary read narrows by a rule of its own again, which is how a move the rule offers "
     + "reaches the audit and never reaches a learner",
   );

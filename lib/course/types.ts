@@ -279,6 +279,19 @@ export interface DaySpec {
    */
   forms?: readonly string[];
   /**
+   * Verbs whose simple past I form a lesson taught by name (`lessonPastSlots`),
+   * which opens the I form and the four persons built off it: the past
+   * alone, never the polite imperative, so a forms step still shows those
+   * verbs later for their `-ge` form. A lesson evening draws no forms step.
+   */
+  pasts?: readonly string[];
+  /**
+   * Verbs whose stored third-person past a lesson taught by that very
+   * spelling (`tahtis`, `jättis`). No rule reaches it from the I form, so a
+   * lesson that taught only `tahtsin` leaves it unshown.
+   */
+  pastsThird?: readonly string[];
+  /**
    * The lesson this evening is, where it is one (docs/43-lessons.md): A1 is
    * the lessons now, one evening each, and a lesson evening has one step,
    * the lesson, rather than the ladder, a reading and two rounds.

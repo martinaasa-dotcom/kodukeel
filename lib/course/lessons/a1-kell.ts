@@ -410,6 +410,7 @@ export const A1_KELL_LESSONS: readonly LessonSpec[] = [
     ],
     roleplay: {
       scene: "Your friend Liis calls to invite you over this weekend. Make a plan with her.",
+      who: "Liis",
       turns: [
         { ask: { et: "Tere! Mis sa laupäeval teed?", en: "Hi! What are you doing on Saturday?" }, cue: "Say you don't know yet.", model: { et: "Ma ei tea veel.", en: "I don't know yet." } },
         { ask: { et: "Tahad tulla? Ma teen süüa.", en: "Do you want to come over? I'm cooking." }, cue: "Say yes, and ask what time.", model: { et: "Jah! Mis kell?", en: "Yes! What time?" } },

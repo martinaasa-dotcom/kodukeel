@@ -27,15 +27,29 @@ describe("the frame", () => {
     }
   });
 
+  it("takes the longer of two uses that start in the same place, whichever is listed first", () => {
+    const frame = frameOf({
+      model: [{ et: "Tule kui ka sina tahad.", en: "Come if you want to as well." }],
+      uses: [{ et: "kui", en: "if" }, { et: "kui ka", en: "if, as well" }],
+    });
+    expect(frame[0]!.parts.filter((p) => p.kind === "gap").map((p) => (p.kind === "gap" ? p.answer : ""))).toEqual(["kui ka"]);
+  });
+
   it("marks a gap right, nearly for a missing diacritic, or wrong", () => {
     expect(markGap(" Ust ", "ust")).toBe("right");
     expect(markGap("ara", "ära")).toBe("nearly");
+    expect(markGap("kraani  ära", "kraani ära")).toBe("right");
+    expect(markGap("ust.", "ust")).toBe("right");
+    expect(markGap("uks", "ust")).toBe("wrong");
     expect(markGap("uks", "ust")).toBe("wrong");
     expect(markGap("", "ust")).toBe("wrong");
   });
 
   it("ticks the uses a draft holds as whole words, and counts its words", () => {
     expect(usesIn("Ma parandasin kraani ära. Ustav.", write.uses)).toEqual([true, false]);
+    // A dropped mark, two spaces or a capital are still the use.
+    expect(usesIn("Ma parandasin kraani ara.", write.uses)[0]).toBe(true);
+    expect(usesIn("Ma parandasin Kraani  ära.", write.uses)[0]).toBe(true);
     expect(wordCount("Ma parandasin kraani ära.")).toBe(4);
   });
 });

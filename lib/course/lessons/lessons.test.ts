@@ -5,7 +5,7 @@ import { fold } from "@/lib/estonian/fold";
 import { VOICES } from "@/lib/audio/voice";
 import { A1_LESSONS } from "./a1";
 import { NAMES, PLACE_SPELLINGS, estonianOf, familiesOf, ledgersBefore, lessonProblems, lessonRank, namesOf, teach, uncovered, wordsOf } from "./ledger";
-import { everyTypedQuestion, itemEstonian, markPhrase, meaningShows, practiceFor, reviewFor } from "./practice";
+import { FIX_AT_MOST, REWORK_AT_MOST, everyTypedQuestion, itemEstonian, markPhrase, meaningShows, practiceFor, reviewFor } from "./practice";
 import { estonianIn } from "./ledger";
 import { LESSONS as COURSE_LESSONS, LESSON_PARTS as COURSE_PARTS } from "./index";
 import { PREVIEW_LESSONS, PREVIEW_PARTS } from "./preview";
@@ -107,7 +107,7 @@ describe("the lessons, A1 and on", () => {
       else if (Array.isArray(value)) value.forEach(walk);
       else if (value && typeof value === "object") Object.values(value).forEach(walk);
     };
-    walk(A1_LESSONS);
+    walk(COURSE_LESSONS);
     const bad: string[] = [];
     let named = 0;
     for (const text of strings) {
@@ -333,6 +333,38 @@ describe("the lessons, A1 and on", () => {
     const before = ledgersBefore(LESSONS);
     for (const lesson of A1_LESSONS) expect(practiceFor(lesson, before.get(lesson.id)!).length).toBeGreaterThan(3);
     expect(reviewFor(A1_LESSONS[0]!, before.get(A1_LESSONS[0]!.id)!)).toEqual([]);
+  });
+
+  it("never write a rework or a fix the practice step cuts off", () => {
+    // `practiceFor` takes the first REWORK_AT_MOST and `fixesFor` the first FIX_AT_MOST, so one past either is written and never shown.
+    const over = LESSONS.flatMap((l) => [
+      ...((l.reworks ?? []).length > REWORK_AT_MOST ? [`${l.id}: ${l.reworks!.length} reworks`] : []),
+      ...((l.fixes ?? []).length > FIX_AT_MOST ? [`${l.id}: ${l.fixes!.length} fixes`] : []),
+    ]);
+    expect(over).toEqual([]);
+  });
+
+  it("put right only a line the learner has met in the same lesson", () => {
+    // A fix says "a line you've met", so its line stands, word for word, inside one of the lesson's own.
+    const words = (s: string) => (s.toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? []).join(" ");
+    const linesOf = (l: (typeof LESSONS)[number]) => [
+      ...l.conversation.map((c) => c.et ?? ""),
+      ...(l.how.table?.rows ?? []).flatMap((row) => row.flatMap((cell) => ("et" in cell ? [cell.et] : []))),
+      ...(l.write?.model ?? []).map((m) => m.et),
+      ...(l.retell?.story ?? []).map((s) => s.et),
+      ...[...l.answers, ...(l.roleplay?.turns ?? [])].map((p) => p.model.et),
+    ].map((s) => ` ${words(s)} `);
+    const strays: string[] = [];
+    let fixes = 0;
+    for (const lesson of LESSONS) {
+      const lines = linesOf(lesson);
+      for (const fix of lesson.fixes ?? []) {
+        fixes++;
+        if (!lines.some((line) => line.includes(` ${words(fix.line.et)} `))) strays.push(`${lesson.id}: ${fix.line.et}`);
+      }
+    }
+    expect(strays).toEqual([]);
+    expect(fixes).toBeGreaterThan(50);
   });
 });
 

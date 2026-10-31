@@ -104,12 +104,27 @@ function split(variant: Variant) {
   return { extraClass: className, style: style as CSSProperties };
 }
 
+/*
+  BUSY IS NOT DISABLED. A button whose own press is still out (a read, a save,
+  a part being opened) stays focusable and says so with `aria-busy` and
+  `aria-disabled`, and a second press does nothing. Disabling it would move
+  the caret off the button the learner just pressed, to the body, and tell a
+  screen reader nothing (`scripts/invariants/focus-survives-a-press.ts`).
+*/
 export function Button({
-  variant = "secondary", size = "md", className = "", hop, children, ...rest
-}: ComponentProps<"button"> & { variant?: Variant; size?: Size; hop?: Hop; children: ReactNode }) {
+  variant = "secondary", size = "md", className = "", hop, busy = false, children, onClick, ...rest
+}: ComponentProps<"button"> & { variant?: Variant; size?: Size; hop?: Hop; busy?: boolean; children: ReactNode }) {
   const { extraClass, style } = split(variant);
   return (
-    <button {...hopAttrs(variant, hop)} {...rest} className={`${base} ${SIZES[size]} ${extraClass} ${className}`} style={style}>
+    <button
+      {...hopAttrs(variant, hop)}
+      {...rest}
+      aria-busy={busy || undefined}
+      aria-disabled={busy || rest["aria-disabled"] || undefined}
+      onClick={busy ? (e) => e.preventDefault() : onClick}
+      className={`${base} ${SIZES[size]} ${extraClass} ${busy ? "busy" : ""} ${className}`}
+      style={style}
+    >
       {children}
     </button>
   );

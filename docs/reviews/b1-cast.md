@@ -1,7 +1,7 @@
 # B1: who is who, and what changes from part to part
 
 B1 is seven parts of seven lessons, told about one family over one year. A name means one person
-for the whole course, A1 to B1. This page is the list the lessons are held to. Read it before you
+for the whole course, A1 to B1. This page is the list the lessons are written to. Read it before you
 write a line that names anybody, or a lesson that changes how hard the level is.
 
 ## The people
@@ -15,33 +15,40 @@ write a line that names anybody, or a lesson that changes how hard the level is.
 | Jaan | Liis's fiancé, and her husband once the June wedding has happened. A doctor, as in A1. | As Liis's partner |
 | Peeter | Tom's old friend from A2, who rents the family his apartment (third floor, number 12, as in A2). Their landlord until the move in part 4, then a friend again. | Parts 1 to 4 as landlord, after that as a friend |
 | Kati | A friend from A2 (she helped Tom move in). Sings in a choir and bakes. Never at Tom's work. | As a friend |
-| Kristi | Tom's manager at work. A woman, the same boss throughout. | Parts 3, 5 and 6 |
+| Kristi | Tom's manager at work. A woman, the same boss throughout. Outside work she chairs her sports club (lesson 16), never a residents' association: that is Helgi's. | Parts 3, 5 and 6 |
 | Kadri | Tom's colleague, new in part 2 (lesson 14) and his colleague from then on. | Work |
 | Siim | The new intern Kristi welcomes in lesson 16. Tom helps him, and he is a developer by lesson 21. | Part 3 |
 | Marko | Another colleague: a developer who worked as a cook before, and has children at home. Not the team lead: nobody in the team is. | Work |
-| Rein | The handyman in Peeter's flat. | Part 1 |
-| Urmas | The landlord of the family's new, bigger flat from part 4 (number 9), who promises the handyman "tomorrow". | Part 4 |
+| Rein | The handyman in Peeter's apartment. | Part 1 |
+| Urmas | The landlord of the family's new, bigger apartment from part 4 (number 9), who promises the handyman "tomorrow". | Part 4 |
 | Triin | A friend of Kati's whom Tom meets at Kati's party, once. | Part 2 |
 | Ants | A neighbor on the top floor of the new building, at the residents' meeting. | Part 5 |
-| Helgi | An older woman, their downstairs neighbor in the new building from part 4, who tells Tom to say `sina` to her when they meet. She chairs the residents' association, so she runs the meeting in part 5. | Parts 4 to 7 |
+| Helgi | An older woman, their downstairs neighbor in the new building from part 4, who tells Tom to say `sina` to her when they meet. She chairs the residents' association, so she runs the meeting in part 5. | Parts 4 to 6 |
+| Leena | A neighbor next door in the new building, met at the neighbors' party. | Part 6 |
+| Kertu | A writer Anna talked to in the shop, at the same party. | Part 6 |
 
 A stranger with a job is a role name (a clerk, an examiner, the switchboard), or a new name used
 in one lesson and never again. Nobody in the list above ever plays a clerk, an examiner or a
 stranger. A lesson that needs Tom not to know somebody uses a new person.
 
+A person keeps one voice across every part they speak in. There are four women's voices, so a
+part with five women has two sharing one; the ones who come back keep theirs, and the one-off
+voices (Merike the examiner in lesson 49, Kaja at the city office in lesson 47, Tiina the clerk in
+lesson 44) are the ones on `kylli`.
+
 ## The year
 
-1. **Getting the job done.** Home and jobs around the flat: what is done and what isn't.
-   Peeter's flat, the handyman Rein.
+1. **Getting the job done.** Home and jobs around the apartment: what is done and what isn't.
+   Peeter's apartment, the handyman Rein.
 2. **Who and what with.** People: interests, Liis's news that she and Jaan are getting married in June, Kadri starting at Tom's work.
 3. **Money and work.** Pay, shifts at Mari and Liis's café, asking Kristi for things, a raise.
-4. **Home.** The family needs a bigger flat. They leave Peeter's flat (and get the deposit back),
+4. **Home.** The family needs a bigger apartment. They leave Peeter's apartment (and get the deposit back),
    look at a furnished one, read the contract, move within Tallinn, meet Helgi downstairs, and
-   deal with what breaks in the new flat. Tell the move in an order that makes sense over the
+   deal with what breaks in the new apartment. Tell the move in an order that makes sense over the
    part's seven lessons.
-5. **What happened.** News, the new town, and a burst pipe in the new building's cellar. Helgi
+5. **What happened.** News, the new neighborhood, and a burst pipe in the new building's cellar. Helgi
    chairs the residents' meeting.
-6. **What you think.** Opinions: a film, an old car, phones, rubbish, the town's plan for the park,
+6. **What you think.** Opinions: a film, an old car, phones, the trash, the town's plan for the park,
    a disagreement at work.
 7. **Getting things done.** Offices, forms, a lost wallet, a phone call to the city, a formal
    application, and the speaking exam that ends the level, with an examiner Tom has never met.
@@ -60,7 +67,14 @@ than the one before has not moved the level on.
 | The fade | starts with every word shown | starts with every word shown | from part 4, the first round already hides some words (engine) |
 | How it is heard | a quiet room | a phone line or a café where the story is one | the same, and one lesson a part sped up |
 
-Each part also has:
+Four rows are checked on every run: the story to retell, the writing and how it is heard, because a
+lesson records them (`lib/course/lessons/ramp.test.ts`), and the fade, which the engine plans off
+the part's place (`fadePlan`, `fade.test.ts`). The other two, the hear-first questions and the
+changing sentences, are the rule a lesson is written to and read to, since no field says what a
+question asks or which patterns a sentence combines.
+
+Each part also has (the closing conversation is checked, `levelContractProblems`; the other two are
+the authors' rule):
 
 - **One listening that isn't a conversation:** a voicemail, a notice read aloud, a radio news item
   or a station announcement.

@@ -3,6 +3,8 @@
 import { Fragment, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, BookmarkPlus, Check, Circle, Loader2, PenLine } from "lucide-react";
 import { Button } from "@/components/Button";
+import { EnglishToggle } from "@/components/course/EnglishToggle";
+import { StepPills } from "@/components/course/StepPills";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { Speak } from "@/components/Speak";
 import { AnuTextReading } from "@/components/anu/TextReading";
@@ -13,7 +15,7 @@ import { LessonText } from "@/components/course/LessonText";
 import { Card, SectionTitle } from "@/components/ui";
 import { fill, tr } from "@/lib/copy/locale";
 import { NOT_REACHED } from "@/lib/copy/values";
-import { VERDICT_CLASS } from "@/lib/ux/verdict";
+import { VERDICT_CLASS, VERDICT_INK } from "@/lib/ux/verdict";
 import { frameOf, markGap, usesIn, wordCount } from "@/lib/course/lessons/frame";
 import type { LessonSpec, WriteTask } from "@/lib/course/lessons/types";
 import type { Finding } from "@/lib/course/lessons/sentenceCheck";
@@ -63,8 +65,17 @@ export function WriteStep({ lesson, onDone }: { lesson: LessonSpec; onDone: () =
      moves on a press and never on a draft picked up from the device, whose
      stage is set before the first effects have run. */
   const pressed = useRef(false);
+  /*
+    The stage a reload, or coming back to this step, put the learner on:
+    arriving there that way is not the press that asked for a reading. Cleared
+    only by a press (`goTo`), never by an effect, since the effect for the
+    first stage runs before the stage the device held is drawn.
+  */
+  const resumed = useRef<string | null>(null);
   const goTo = (next: Stage) => {
     pressed.current = true;
+    // A press moves on: a later arrival at a stage is the learner's own, so a reading there starts by itself.
+    resumed.current = null;
     setStage(next);
   };
   const [frameTyped, setFrameTyped] = useState<readonly string[]>(() => Array.from({ length: gapCount }, () => ""));
@@ -81,6 +92,7 @@ export function WriteStep({ lesson, onDone }: { lesson: LessonSpec; onDone: () =
   useLayoutEffect(() => {
     const saved = loadWriting(lesson.id);
     if (saved) {
+      resumed.current = saved.stage;
       setStage(saved.stage);
       if (saved.frame.length === gapCount) {
         setFrameTyped(saved.frame);
@@ -114,7 +126,7 @@ export function WriteStep({ lesson, onDone }: { lesson: LessonSpec; onDone: () =
   /* Each stage replaces the one whose button was just pressed, so the caret
      goes to the stage now current, which says its name, rather than to the
      page. Not on arrival: opening the step is not moving through it. */
-  const currentRef = useRef<HTMLLIElement>(null);
+  const currentRef = useRef<HTMLElement>(null);
   useEffect(() => {
     if (!pressed.current) return;
     pressed.current = false;
@@ -123,23 +135,11 @@ export function WriteStep({ lesson, onDone }: { lesson: LessonSpec; onDone: () =
 
   return (
     <div className="flex flex-col gap-5" data-write-step={stage}>
-      <ol className="flex flex-wrap gap-2 text-sm font-semibold" aria-label={t("The four stages")}>
-        {STAGES.map((s, i) => (
-          <li
-            key={s}
-            ref={s === stage ? currentRef : undefined}
-            tabIndex={s === stage ? -1 : undefined}
-            aria-current={s === stage ? "step" : undefined}
-            className="inline-flex items-center gap-1 rounded-full border px-3 py-1"
-            style={s === stage
-              ? { background: "var(--accent-soft)", color: "var(--accent-deep)", borderColor: "var(--accent)" }
-              : i < at ? { background: "var(--sky-soft)", color: "var(--sky-ink)", borderColor: "transparent" }
-                : { background: "var(--raised)", color: "var(--ink-2)", borderColor: "transparent" }}
-          >
-            {i < at && <Check size={12} aria-hidden />} {fill(t("{n}. {step}"), { n: String(i + 1), step: titles[s] })}
-          </li>
-        ))}
-      </ol>
+      <StepPills
+        label={t("The four stages")}
+        currentRef={currentRef}
+        pills={STAGES.map((s, i) => ({ key: s, state: s === stage ? "here" : i < at ? "done" : "ahead", label: fill("{n}. {step}", { n: String(i + 1), step: titles[s] }) }))}
+      />
       <Genre write={write} />
       {stage === "model" && <Model lesson={lesson} onNext={() => goTo("frame")} />}
       {stage === "frame" && (
@@ -153,7 +153,7 @@ export function WriteStep({ lesson, onDone }: { lesson: LessonSpec; onDone: () =
         />
       )}
       {stage === "own" && <Own lesson={lesson} draft={draft} setDraft={setDraft} onNext={() => { if (!second) setSecond(draft); goTo("redraft"); }} />}
-      {stage === "redraft" && <Redraft lesson={lesson} first={draft} second={second} setSecond={setSecond} onDone={done} />}
+      {stage === "redraft" && <Redraft lesson={lesson} first={draft} second={second} setSecond={setSecond} onDone={done} readOnArrival={resumed.current !== "redraft"} />}
     </div>
   );
 }
@@ -182,9 +182,7 @@ function Model({ lesson, onNext }: { lesson: LessonSpec; onNext: () => void }) {
     <Card>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <p className="text-base" style={{ color: "var(--ink-2)" }}>{t("The marked words are what this kind of text turns on. You'll write them yourself next.")}</p>
-        <Button variant="ghost" size="sm" onClick={() => setEnglish((on) => !on)} aria-pressed={!english}>
-          {english ? t("Hide the English") : t("Show the English")}
-        </Button>
+        <EnglishToggle english={english} onToggle={() => setEnglish((on) => !on)} />
       </div>
       <div className="flex flex-col gap-3 rounded-[var(--r-lg)] border px-5 py-4" style={{ borderColor: "var(--edge)", background: "var(--surface)" }} data-write-model>
         {frame.map((line, i) => (
@@ -253,6 +251,7 @@ function Frame({ write, typed, setTyped, checked, setChecked, onNext }: {
                       style={{ width: `${Math.max(6, p.answer.length + 2)}ch` }}
                       value={typed[p.n] ?? ""}
                       readOnly={checked}
+                      aria-invalid={mark === "wrong" ? true : undefined}
                       aria-label={fill(t("Gap {n}: {meaning}"), { n: String(p.n + 1), meaning: tr(locale, p.en) })}
                       autoComplete="off"
                       autoCapitalize="off"
@@ -260,7 +259,16 @@ function Frame({ write, typed, setTyped, checked, setChecked, onNext }: {
                       onChange={(e) => { const value = e.target.value; setTyped((all) => gaps.map((_, k) => (k === p.n ? value : all[k] ?? ""))); }}
                     />
                     <span className="text-sm" style={{ color: "var(--ink-3)" }}><LessonText text={p.en} locale={locale} /></span>
-                    {checked && mark !== "right" && <span lang="et" className="text-sm font-bold" style={{ color: "var(--ink)" }}>{p.answer}</span>}
+                    {/* Said in words as well as in the gap's color, since nearly and wrong are one hue apart. */}
+                    {/* A verdict is never set below the body step, and is written in its hue's ink. */}
+                    {mark === "right" && (
+                      <span className="text-base font-semibold" style={{ color: VERDICT_INK.right }}><Check size={14} className="mr-1 inline" aria-hidden />{t("Right")}</span>
+                    )}
+                    {mark !== null && mark !== "right" && (
+                      <span className="text-base">
+                        <span className="font-semibold" style={{ color: VERDICT_INK[mark] }}>{mark === "nearly" ? t("Nearly") : t("Not quite")}</span>: <b lang="et" style={{ color: "var(--ink)" }}>{p.answer}</b>
+                      </span>
+                    )}
                   </span>
                 );
               })}
@@ -276,12 +284,19 @@ function Frame({ write, typed, setTyped, checked, setChecked, onNext }: {
         {checked ? (
           <Button variant="primary" onClick={onNext}>{t("Write your own")} <ArrowRight size={15} aria-hidden /></Button>
         ) : (
-          <Button variant="primary" onClick={() => { setChecked(true); sound(right === gaps.length ? "right" : "wrong"); }}>{t("Check it")}</Button>
+          <Button variant="primary" onClick={() => { setChecked(true); sound(marks.every((m) => m === "right") ? "right" : "wrong"); }}>{t("Check it")}</Button>
         )}
       </div>
     </Card>
   );
 }
+
+/**
+ * The fewest words worth having read at all: a reading of three words says
+ * nothing. Below `write.least`, which is what "long enough" means, so a short
+ * text can still be read and is only not the primary way on.
+ */
+const READ_FROM = 5;
 
 /** Stage 3: the learner's own text, with the key words ticking off as they appear. */
 function Own({ lesson, draft, setDraft, onNext }: { lesson: LessonSpec; draft: string; setDraft: (s: string) => void; onNext: () => void }) {
@@ -294,7 +309,7 @@ function Own({ lesson, draft, setDraft, onNext }: { lesson: LessonSpec; draft: s
 
   return (
     <Card>
-      <SectionTitle hint={fill(t("{n} words or more"), { n: String(write.least) })}><LessonText text={write.task} locale={locale} /></SectionTitle>
+      <SectionTitle level={3} hint={fill(t("{n} words or more"), { n: String(write.least) })}><LessonText text={write.task} locale={locale} /></SectionTitle>
       <textarea
         lang="et"
         className="field min-h-[180px] w-full text-lg leading-relaxed"
@@ -326,7 +341,7 @@ function Own({ lesson, draft, setDraft, onNext }: { lesson: LessonSpec; draft: s
       </div>
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm" style={{ color: "var(--ink-3)" }}>{t("Write about your own life. It doesn't have to match the model.")}</p>
-        <Button variant={enough ? "primary" : "secondary"} onClick={onNext} disabled={words < 5}>
+        <Button variant={enough ? "primary" : "secondary"} onClick={onNext} disabled={words < READ_FROM}>
           {t("Have it read")} <ArrowRight size={15} aria-hidden />
         </Button>
       </div>
@@ -347,7 +362,7 @@ interface Read {
 }
 
 /** Stages 4 and 5: the reading, the second draft beside the first, and the sentences kept. */
-function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonSpec; first: string; second: string; setSecond: (s: string) => void; onDone: () => void }) {
+function Redraft({ lesson, first, second, setSecond, onDone, readOnArrival }: { lesson: LessonSpec; first: string; second: string; setSecond: (s: string) => void; onDone: () => void; readOnArrival: boolean }) {
   const t = useT();
   const id = useId();
   const [read, setRead] = useState<Read | null>(null);
@@ -355,13 +370,15 @@ function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonS
   const findingsRef = useRef<HTMLParagraphElement>(null);
   useEffect(() => { if (read) findingsRef.current?.focus(); }, [read]);
   const [reading, setReading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  /* Which press failed and why, drawn under that press rather than at the foot of the step. */
+  const [error, setError] = useState<{ on: "read" | "keep"; text: string } | null>(null);
   const [ticked, setTicked] = useState<ReadonlySet<number>>(new Set());
   const [kept, setKept] = useState<{ kept: number; already: number; refused: number } | null>(null);
   const keptRef = useRef<HTMLParagraphElement>(null);
   useEffect(() => { if (kept) keptRef.current?.focus(); }, [kept]);
   const [keeping, setKeeping] = useState(false);
-  const current = second || first;
+  // The second draft is what is read, seeded from the first on the way in; emptied, there is nothing to read rather than the first again.
+  const current = second;
   const stale = read !== null && read.text !== current;
 
   const readIt = (text: string) => {
@@ -369,14 +386,14 @@ function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonS
     setError(null);
     checkLessonText(lesson.id, text)
       .then((r) => {
-        if (!r.ok) { setError(t(r.error)); return; }
+        if (!r.ok) { setError({ on: "read", text: t(r.error) }); return; }
         setRead({ text, sentences: r.sentences, short: r.short, beyond: r.beyond, cut: r.cut });
         // Ticked by default: the sentences the dictionary found nothing in that make a card, as many as a draft keeps.
         const clean = r.sentences.flatMap((s, i) => (s.card ? [i] : [])).slice(0, MOST_KEPT);
         setTicked(new Set(clean));
         setKept(null);
       })
-      .catch(() => setError(t(NOT_REACHED)))
+      .catch(() => setError({ on: "read", text: t(NOT_REACHED) }))
       .finally(() => setReading(false));
   };
   const keep = () => {
@@ -384,8 +401,8 @@ function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonS
     setKeeping(true);
     setError(null);
     keepLessonSentences(lesson.id, read.sentences.filter((_, i) => ticked.has(i)).map((s) => s.sentence))
-      .then((r) => { if (r.ok) setKept({ kept: r.kept, already: r.already, refused: r.refused }); else setError(t(r.error)); })
-      .catch(() => setError(t(NOT_REACHED)))
+      .then((r) => { if (r.ok) setKept({ kept: r.kept, already: r.already, refused: r.refused }); else setError({ on: "keep", text: t(r.error) }); })
+      .catch(() => setError({ on: "keep", text: t(NOT_REACHED) }))
       .finally(() => setKeeping(false));
   };
   const toggle = (i: number) => setTicked((all) => {
@@ -394,20 +411,33 @@ function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonS
     else if (next.size < MOST_KEPT) next.add(i);
     return next;
   });
+  // "Have it read" was the press that asked: the reading starts on arrival rather than behind a second button.
+  const asked = useRef(false);
+  useEffect(() => {
+    if (asked.current) return;
+    asked.current = true;
+    // Back on this stage after a reload, nothing was pressed: the button below reads it when asked.
+    if (readOnArrival && current.trim() !== "") readIt(current);
+    // Once, on arrival: a later read is the learner's own press.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const noted = read?.sentences.filter((s) => s.findings.length > 0).length ?? 0;
   const total = read ? read.sentences.length + read.short + read.beyond : 0;
 
   return (
     <div className="flex flex-col gap-5">
       <Card>
-        <SectionTitle hint={t("spelling and common slips")}>{t("The dictionary reads it")}</SectionTitle>
+        <SectionTitle level={3} hint={t("spelling and common slips")}>{t("The dictionary reads it")}</SectionTitle>
         {read === null ? (
-          <Button onClick={() => readIt(current)} disabled={reading}>
+          <Button onClick={() => readIt(current)} busy={reading} disabled={current.trim() === ""}>
             {reading ? <><Loader2 size={15} className="animate-spin" aria-hidden /> {t("Reading")}</> : t("Read my text")}
           </Button>
-        ) : (
+        ) : null}
+        {/* A failed read is said under the button that was pressed: this one before a reading, "Read it again" after. */}
+        {read === null && error?.on === "read" && <p className="mt-2 text-base" role="alert" style={{ color: "var(--blush-ink)" }}>{error.text}</p>}
+        {read === null ? null : (
           <div className="flex flex-col gap-4" data-write-findings>
-            <p ref={findingsRef} tabIndex={-1} className="text-base font-semibold outline-none" role="status" style={{ color: "var(--ink)" }}>
+            <p ref={findingsRef} tabIndex={-1} className="text-base font-semibold outline-none" style={{ color: "var(--ink)" }}>
               {noted === 0
                 ? t("The dictionary found nothing to point out. It checks spelling and the commonest slips, not every ending.")
                 : fill(t("{n} of {total} sentences have something to look at."), { n: String(noted), total: String(read.sentences.length) })}
@@ -427,32 +457,34 @@ function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonS
             {read.sentences.map((s, i) => s.findings.length > 0 && (
               <div key={i} className="flex flex-col gap-2">
                 <p lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>{s.sentence}</p>
-                <SentenceFindings findings={s.findings} />
+                <SentenceFindings findings={s.findings} announced="summary" />
               </div>
             ))}
             {stale && <p className="text-base" style={{ color: "var(--ink-2)" }}>{t("You've changed your text since the dictionary read it.")}</p>}
             <div>
-              <Button variant={stale ? "secondary" : "ghost"} size="sm" onClick={() => readIt(current)} disabled={reading}>
+              <Button variant={stale ? "secondary" : "ghost"} size="sm" onClick={() => readIt(current)} busy={reading} disabled={current.trim() === ""}>
                 {reading ? <><Loader2 size={15} className="animate-spin" aria-hidden /> {t("Reading")}</> : t("Read it again")}
               </Button>
+              {error?.on === "read" && <p className="mt-2 text-base" role="alert" style={{ color: "var(--blush-ink)" }}>{error.text}</p>}
             </div>
           </div>
         )}
       </Card>
 
       <Card>
-        <SectionTitle hint={t("on request")}>{t("Anu reads it")}</SectionTitle>
+        <SectionTitle level={3} hint={t("on request")}>{t("Anu reads it")}</SectionTitle>
         <AnuTextReading
           text={current}
           level={lesson.level}
           heading={t("Anu's read it. It's advice, and nothing here is marked.")}
           invite={t("Whether the text holds together, and one thing to do better.")}
           offline={t("Anu needs a connection to read it. Your text is still here.")}
+          where="WRITING_NOTE"
         />
       </Card>
 
       <Card>
-        <SectionTitle hint={t("first draft beside it")}>{t("Your second draft")}</SectionTitle>
+        <SectionTitle level={3} hint={t("first draft beside it")}>{t("Your second draft")}</SectionTitle>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <p className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>{t("First draft")}</p>
@@ -490,6 +522,10 @@ function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonS
             <legend className="text-base" style={{ color: "var(--ink-2)" }}>
               {t("Tick the sentences you're sure of. Each comes back in review with the marked word to fill in.")}
             </legend>
+            {/* A box greyed for being one too many says why, or it reads as broken. */}
+            {ticked.size >= MOST_KEPT && (
+              <p className="text-sm" style={{ color: "var(--ink-3)" }}>{fill(t("That's {n}, the most you can keep from one text."), { n: String(MOST_KEPT) })}</p>
+            )}
             <ul className="flex flex-col gap-1">
               {read.sentences.map((s, i) => {
                 const blocked = s.findings.length > 0 || !s.card;
@@ -517,15 +553,15 @@ function Redraft({ lesson, first, second, setSecond, onDone }: { lesson: LessonS
               })}
             </ul>
             <div className="flex justify-end">
-              <Button onClick={keep} disabled={keeping || ticked.size === 0}>
+              <Button onClick={keep} busy={keeping} disabled={ticked.size === 0}>
                 {keeping ? <Loader2 size={15} className="animate-spin" aria-hidden /> : <BookmarkPlus size={15} aria-hidden />} {t("Keep them")}
               </Button>
             </div>
+            {error?.on === "keep" && <p className="text-base" role="alert" style={{ color: "var(--blush-ink)" }}>{error.text}</p>}
           </fieldset>
         )}
       </Card>
 
-      {error && <p className="text-base" role="alert" style={{ color: "var(--blush-ink)" }}>{error}</p>}
       <div className="flex justify-end">
         <Button variant="primary" onClick={onDone}>{t("Done writing")} <ArrowRight size={15} aria-hidden /></Button>
       </div>

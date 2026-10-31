@@ -25,7 +25,7 @@ const LINES: readonly ScriptedLine[] = [
   { scene: "b1-meister", beat: "fixed", text: "Kas te midagi ise parandasite?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-meister", beat: "notdone", text: "Hästi. Mis ikka veel ei tööta?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-meister", beat: "notdone", text: "Mis veel ei tööta?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
-  { scene: "b1-meister", beat: "when", text: "Täna ma akent ei paranda, mul on vaja varuosa. Kas reedel sobib?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
+  { scene: "b1-meister", beat: "when", text: "Täna ma seda ei paranda, selle jaoks on vaja varuosa. Kas reedel sobib?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-meister", beat: "when", text: "Ma tellin varuosa. Kas reedel sobib?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-meister", beat: "key", text: "Sobib. Aga kui te kodus pole?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },
   { scene: "b1-meister", beat: "key", text: "Hästi. Kus võti siis on, kui te kodus pole?", model: "authored", draftedAt: "2026-10-27", reviewedAt: "2026-10-27" },

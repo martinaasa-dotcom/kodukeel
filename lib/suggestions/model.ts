@@ -183,6 +183,7 @@ export const AI_ANSWER_WHERE = {
   SCENE_LINE: "A line the other side said in a conversation",
   COACH_NOTE: "Anu's note on a conversation",
   EXAM_NOTE: "Anu's note on a composition",
+  WRITING_NOTE: "Anu's note on a lesson's writing",
 } as const;
 
 export type AiAnswerWhere = keyof typeof AI_ANSWER_WHERE;

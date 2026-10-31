@@ -587,7 +587,6 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
           <button
             type="button"
             onClick={() => setEnglish((on) => !on)}
-            aria-pressed={english}
             className="tap-tint ml-auto inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-sm"
             style={{ color: "var(--ink-2)" }}
           >
@@ -700,7 +699,7 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
           )}
           {readAloud && (
             <div className="mb-4 flex flex-wrap items-center gap-3">
-              <MicButton speech={speech} label={t("Read a line aloud, the gap filled")} shortcut showPartial={false} />
+              <MicButton speech={speech} label={t("Read a line aloud, the gap filled")} shortcut showPartial={false} fallback="box" />
               <p className="min-w-0 flex-1 text-sm" style={{ color: "var(--ink-2)" }} role="status">
                 {(heardNote?.at === at ? heardNote.text : null) ?? t("Or read a line aloud with the word in the gap, and the word goes into its box.")}
               </p>

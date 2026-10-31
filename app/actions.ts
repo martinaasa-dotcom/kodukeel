@@ -75,7 +75,7 @@ import { markSayingsShown } from "@/lib/progress/sayings";
 import { bringBack, keepWord, putAside, setStar, wordReaches } from "@/lib/progress/wordActions";
 import { addScanToDeckFor, saveScanFor } from "@/lib/progress/scans";
 import {
-  forgetSettings, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
+  forgetSettings, lockSettings, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
 } from "@/lib/settings/store";
 
 
@@ -115,7 +115,7 @@ import {
   programmeById, stepCard, stepText,
 } from "@/lib/course";
 import { localeFor } from "@/lib/progress/locale";
-import { courseReading, dayIsInPlay, openingPart, programmeFor } from "@/lib/progress/course";
+import { courseReading, dayIsInPlay, openingPart, programmeFor, forgetRehoming, partAfterSwitch, choosePart, furthestPart, rehomeFrom } from "@/lib/progress/course";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { doneKeyFrom, doneToday, withDone } from "@/lib/ux/workbookDone";
 import { notePlayed } from "@/lib/progress/gamesPlayed";
@@ -1577,7 +1577,7 @@ export async function beginScene(sceneId: unknown, difficulty: unknown, level?: 
   // `lib/security/actionLimits.ts`.
   const busy = await throttleShared(ownerId, "beginScene");
   if (busy) return await sayRefusal(ownerId, busy);
-  const result = await beginSceneFor(ownerId, sceneId, difficulty, level);
+  const result = await beginSceneFor(ownerId, sceneId, difficulty, level, await isAdmin());
   if (!result.ok) return { ok: false as const, error: result.error };
   return result;
 }
@@ -2296,13 +2296,14 @@ export async function completeOnboarding(input: {
   /*
     AND RUN AGAIN IT IS NOT A WAY PAST THE CHECKS. Every export here is a
     public endpoint, and this one can be called after set-up as readily as
-    during it: a learner climbing the A1 lessons who sent it again with a
+    during it: a learner climbing the lessons who sent it again with a
     higher level was moved straight onto that part. Somebody on no part yet
     places freely, which is what first run is for; somebody already on one
     moves only where `setProgramme` would let them.
   */
   if (!await moveBlockedFor(ownerId, partFrom(await readSetting(ownerId, SETTING_KEYS.programme)), opening)) {
-    await writeSetting(ownerId, SETTING_KEYS.programme, opening.id);
+    // Stamped as chosen, like every other move: a part picked here is not one the lessons' switch sends back (`lib/progress/course.ts`).
+    await choosePart(ownerId, opening.id);
   }
 
   /*
@@ -3351,7 +3352,8 @@ export async function checkLessonSentence(lessonIdIn: unknown, whichIn: unknown,
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "checkSentence");
   if (busy) return await sayRefusal(ownerId, busy);
-  const lesson = LESSONS.find((l) => l.id === text(lessonIdIn));
+  // Any lesson, the course's or one in preview: every lesson has cards to say, where only some have a writing task.
+  const lesson = await lessonOrPreview(lessonIdIn);
   const index = typeof indexIn === "number" && Number.isInteger(indexIn) ? indexIn : -1;
   const prompts = text(whichIn) === "turns" ? lesson?.roleplay?.turns ?? [] : lesson?.answers ?? [];
   const prompt = prompts[index];
@@ -3367,9 +3369,21 @@ const MAX_WRITTEN_CHARS = 2400;
 /** The longest single sentence a learner may keep, which is a long sentence of a long draft. */
 const MAX_KEPT_SENTENCE_CHARS = 600;
 
-/** A writing lesson by id, the course's and the preview's alike. */
-function writingLesson(lessonId: unknown) {
-  const lesson = [...LESSONS, ...PREVIEW_LESSONS].find((l) => l.id === text(lessonId));
+/**
+ * A lesson by id: the course's to anybody, and one still in preview only to
+ * whoever the lesson page itself would show it to (a reviewer), so nothing
+ * unreleased is read or written into a deck through a request typed by hand.
+ */
+async function lessonOrPreview(lessonId: unknown) {
+  const id = text(lessonId);
+  const course = LESSONS.find((l) => l.id === id);
+  if (course) return course;
+  return (await isAdmin()) ? PREVIEW_LESSONS.find((l) => l.id === id) ?? null : null;
+}
+
+/** A lesson with a writing task, by the same rule. */
+async function writingLesson(lessonId: unknown) {
+  const lesson = await lessonOrPreview(lessonId);
   return lesson?.write ? lesson : null;
 }
 
@@ -3402,7 +3416,7 @@ export async function checkLessonText(lessonIdIn: unknown, textIn: unknown) {
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "checkText");
   if (busy) return await sayRefusal(ownerId, busy);
-  const lesson = writingLesson(lessonIdIn);
+  const lesson = await writingLesson(lessonIdIn);
   if (!lesson?.write) return { ok: false as const, error: "That writing task isn't in this lesson any more." };
   const typed = visibleProse(textIn, MAX_WRITTEN_CHARS);
   if (!typed) return { ok: false as const, error: "Write something first." };
@@ -3444,7 +3458,7 @@ export async function keepLessonSentences(lessonIdIn: unknown, sentencesIn: unkn
   const ownerId = await requireUserId();
   const busy = throttleAction(ownerId, "keepSentences");
   if (busy) return await sayRefusal(ownerId, busy);
-  const lesson = writingLesson(lessonIdIn);
+  const lesson = await writingLesson(lessonIdIn);
   if (!lesson?.write) return { ok: false as const, error: "That writing task isn't in this lesson any more." };
   // Each ticked string read as the sentences it holds, since a card is made per sentence and one long
   // string past the reader's word limit would otherwise make cards out of words nobody read.
@@ -3731,10 +3745,19 @@ const NOT_RESTORED = [
   SETTING_KEYS.milestoneToldFor,
   SETTING_KEYS.shieldToldFor,
   SETTING_KEYS.emailUndeliverable,
+  SETTING_KEYS.movedBackFrom,
 ] as const;
 /** The part a stored programme setting names, or null for "off" and nothing. */
 function partFrom(stored: string | null | undefined) {
   return stored && stored !== "off" ? programmeById(stored) ?? null : null;
+}
+/** A backup's ticks as the switch's rule reads them (`rehomeFrom`). */
+function backupTicks(backup: { courseSteps?: readonly Record<string, unknown>[] | null }) {
+  return (backup.courseSteps ?? []).map((raw) => ({
+    programmeId: String(raw.programmeId ?? ""),
+    dayId: String(raw.dayId ?? ""),
+    createdAt: typeof raw.createdAt === "string" ? raw.createdAt : null,
+  }));
 }
 /** The longest setting a backup may write. The longest real one is a list of ids. */
 const MAX_RESTORED_SETTING = 4000;
@@ -3756,9 +3779,15 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
   */
   let reachableParts: Set<string>;
   try {
+    const namedParts = (backup.settings ?? []).flatMap((row) =>
+      row.key === SETTING_KEYS.programme || row.key === SETTING_KEYS.highestPart ? [String(row.value ?? "")] : []);
+    const ticked = backupTicks(backup);
+    const chosenAt = (backup.settings ?? []).find((row) => row.key === SETTING_KEYS.programmeChosenAt)?.value;
     reachableParts = await restorableParts(ownerId, [
-      ...(backup.settings ?? []).flatMap((row) => row.key === SETTING_KEYS.programme ? [String(row.value ?? "")] : []),
-      ...(backup.courseSteps ?? []).map((row) => String(row.programmeId ?? "")),
+      ...namedParts,
+      // Where a backup from before the switch is moved back to, asked of the checks like the rest.
+      ...namedParts.flatMap((id) => { const p = programmeById(id); return p ? [partAfterSwitch(p, ticked, chosenAt == null ? null : String(chosenAt)).id] : []; }),
+      ...ticked.map((t) => t.programmeId),
     ]);
   } catch {
     return { ok: false as const, error: tr(await localeFor(ownerId).catch(() => "en" as const), "The restore didn't finish, so nothing was changed.") };
@@ -3947,8 +3976,24 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
       /*
         THE PART OF THE COURSE COMES BACK ONLY WHERE THE CHECKS WOULD LET THEM
         MOVE THERE. A file is not a way past `moveBlockedFor`: a learner
-        climbing the A1 lessons who restored a backup naming C1.1 was on C1.1.
+        climbing the lessons who restored a backup naming C1.1 was on C1.1.
       */
+      /*
+        A BACKUP FROM BEFORE B1 BECAME LESSONS is moved back the way a learner
+        already here was: its old ticks are dropped below, so they cannot do it
+        on the next read (`partAfterSwitch`).
+      */
+      const named = settings.get(SETTING_KEYS.programme);
+      const namedPart = named ? programmeById(named) : undefined;
+      if (namedPart) {
+        const read = rehomeFrom(namedPart, backupTicks(backup), settings.get(SETTING_KEYS.programmeChosenAt));
+        if (read.part.id !== namedPart.id) {
+          settings.set(SETTING_KEYS.programme, read.part.id);
+          settings.delete(SETTING_KEYS.programmeChosenAt);
+        }
+        // Their old ticks are dropped below, so the part they were on is kept to say why (`movedBackFrom`).
+        if (!read.settled) settings.set(SETTING_KEYS.movedBackFrom, namedPart.id);
+      }
       const restoredPart = settings.get(SETTING_KEYS.programme);
       if (restoredPart !== undefined) {
         const to = programmeById(restoredPart);
@@ -3957,6 +4002,23 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
           settings.delete(SETTING_KEYS.programme);
         }
       }
+      /*
+        THE FURTHEST PART THEY WERE EVER ON comes back as far as the checks would
+        let them go, and never lower than the one held here: it is what lets a
+        learner who stepped down move back up (`moveBlockedFor`), so a file
+        naming C1 is not a way past every check, and a backup from before B1
+        became lessons keeps the old part it named, whose ticks are dropped below.
+      */
+      // Under the learner's settings lock, which `choosePart` takes too, so a move landing mid-restore is not merged away.
+      await lockSettings(tx, ownerId);
+      const held = await tx.setting.findMany({ where: { ownerId, key: SETTING_KEYS.highestPart }, select: { value: true } });
+      const highest = furthestPart([
+        ...held.map((row) => row.value),
+        ...[settings.get(SETTING_KEYS.highestPart), named, settings.get(SETTING_KEYS.programme)]
+          .filter((id): id is string => Boolean(id) && reachableParts.has(id!)),
+      ]);
+      if (highest) settings.set(SETTING_KEYS.highestPart, highest.id);
+      else settings.delete(SETTING_KEYS.highestPart);
       const heldKeys = new Set((await tx.setting.findMany({
         where: { ownerId, key: { in: [...settings.keys()] } }, select: { key: true },
       })).map((row) => row.key));
@@ -4171,6 +4233,8 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
   revalidatePath("/scan");
   revalidatePath("/settings");
   revalidatePath("/progress");
+  // Old ticks may have arrived with the file, so whether this learner needs moving is asked again.
+  forgetRehoming(ownerId);
   return { ok: true as const, summary: check.summary };
 }
 
@@ -4369,7 +4433,7 @@ export async function submitCheck(checkId: string, attempt: number, responses: (
 /**
  * A LESSON, FINISHED: ITS EVENING TICKED AND ITS WORDS IN THE DECK.
  *
- * The lesson runs its six steps on its own screen and ends on "Finish the
+ * The lesson runs its steps on its own screen and ends on "Finish the
  * lesson", which is this. The body, and why a lesson ahead of the learner's
  * evening records nothing, is `finishLessonFor` in lib/progress/lessons.ts,
  * which `POST /api/v1/lessons/{id}/finish` calls too, behind the same throttle.
@@ -4461,7 +4525,7 @@ export async function setProgramme(value: string) {
     ? levelHeldOnHandOff(from.level, to.level, standing?.held ?? null)
     : null;
   await Promise.all([
-    writeSetting(ownerId, SETTING_KEYS.programme, wanted || defaultProgramme().id),
+    choosePart(ownerId, wanted || defaultProgramme().id),
     held ? recordCourseLevel(ownerId, held) : Promise.resolve(),
   ]);
   revalidatePath("/course");
@@ -4520,7 +4584,7 @@ export async function acceptCourseMove(kind: string) {
   const levelWrite = move.held === was ? null : (move.held ?? "A0");
 
   await Promise.all([
-    writeSetting(ownerId, SETTING_KEYS.programme, move.to.id),
+    choosePart(ownerId, move.to.id, now),
     writeSetting(ownerId, SETTING_KEYS.adaptMovedAt, now.toISOString()),
     writeSetting(ownerId, SETTING_KEYS.adaptSnoozedUntil, ""),
     levelWrite ? recordCourseLevel(ownerId, levelWrite, now) : Promise.resolve(),

@@ -441,7 +441,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
           </p>
           {chantOffered && !revealed && (
             <div className="mt-4 flex flex-col items-center gap-2" data-chant>
-              <MicButton speech={speech} label={t("Say the table out loud")} shortcut />
+              <MicButton speech={speech} label={t("Say the table out loud")} shortcut fallback="box" />
               <p className="max-w-prose text-sm" style={{ color: "var(--ink-2)" }} role="status">
                 {chantNote || t("Or say all six in one go, the way a class chants them, pronouns and all.")}
               </p>

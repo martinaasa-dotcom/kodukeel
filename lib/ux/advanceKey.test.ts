@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ADVANCE_KEY_LABEL, isAdvanceKey } from "./advanceKey";
+import { ADVANCE_KEY_LABEL, isAdvanceKey, onOwnControl } from "./advanceKey";
 
 describe("isAdvanceKey", () => {
   it("takes Enter anywhere", () => {
@@ -29,5 +29,20 @@ describe("ADVANCE_KEY_LABEL", () => {
   it("is not Space, which a text box swallows", () => {
     expect(ADVANCE_KEY_LABEL).not.toBe(" ");
     expect(ADVANCE_KEY_LABEL).not.toBe("Space");
+  });
+});
+
+describe("onOwnControl", () => {
+  // A stand-in for an element: `closest` answers for the selector the way a browser would.
+  const el = (matches: boolean) => ({ closest: (selector: string) => (matches && selector.includes("button:not(:disabled)") ? {} : null) });
+
+  it("is a control that presses itself, so a card leaves its key alone", () => {
+    expect(onOwnControl(el(true))).toBe(true);
+  });
+
+  it("is not the card itself, a disabled option or nothing", () => {
+    expect(onOwnControl(el(false))).toBe(false);
+    expect(onOwnControl(null)).toBe(false);
+    expect(onOwnControl({})).toBe(false);
   });
 });

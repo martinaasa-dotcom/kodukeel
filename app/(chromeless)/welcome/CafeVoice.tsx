@@ -113,7 +113,7 @@ function Listening({ picks, onMatch, onListen, startAtOnce, onStarted }: CafeVoi
   return (
     <div className="flex flex-col gap-2" data-cafe-voice>
       <div className="flex flex-wrap items-center gap-3">
-        <MicButton speech={speech} label={t("Say one of the lines")} shortcut speaksForItself />
+        <MicButton speech={speech} label={t("Say one of the lines")} shortcut speaksForItself fallback="none" />
         {!speech.listening && !speech.thinking && speech.phase !== "downloading" && speech.phase !== "loading" && (
           // A lit line is announced by the café itself, with what happens next
           // (CafeScene's own status), so this line is not a second voice saying it.

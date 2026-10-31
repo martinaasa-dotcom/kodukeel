@@ -396,6 +396,7 @@ export const A1_EILE_LESSONS: readonly LessonSpec[] = [
     ],
     roleplay: {
       scene: "Your friend Liis calls on Monday to ask about your weekend.",
+      who: "Liis",
       turns: [
         { ask: { et: "Tere! Kuidas läheb?", en: "Hi! How's it going?" }, cue: "Say well, and ask back.", model: { et: "Hästi, aitäh! Ja sinul?", en: "Good, thanks! And you?" } },
         { ask: { et: "Normaalselt. Mida sa laupäeval tegid?", en: "Not bad. What did you do on Saturday?" }, cue: "Say what you did.", model: { et: "Ma käisin poes ja lugesin raamatut.", en: "I went to the shop and read a book." } },

@@ -10,9 +10,10 @@ import { useSpeech } from "@/components/speech/useSpeech";
 import { useLocale, useT } from "@/components/Locale";
 import { LessonText } from "@/components/course/LessonText";
 import { Card, SectionTitle } from "@/components/ui";
-import { fill } from "@/lib/copy/locale";
+import { countOf, fill } from "@/lib/copy/locale";
 import { FASTER_SECONDS, goOf, type Go } from "@/lib/course/lessons/faster";
 import type { Faster } from "@/lib/course/lessons/types";
+import { useKeep } from "@/components/course/useKeep";
 
 /**
  * AGAIN, FASTER (B1 on): one answer, three times, in 90, 60 and 45 seconds.
@@ -33,12 +34,23 @@ import type { Faster } from "@/lib/course/lessons/types";
  * gives each of these the same multiple, so "faster each time" still holds.
  * And a microphone that fails to start falls back to the box rather than
  * leaving a go that cannot end.
+ *
+ * The goes already taken survive stepping away from Say it and back
+ * (`kept`, `useKeep`), so "faster each time" is still measured against the
+ * first go rather than starting over. A go still running is not kept: its
+ * clock and its microphone close with the step.
  */
-export function AgainFaster({ faster, voice, typed, multiplier, onDone }: { faster: Faster; voice: string | undefined; typed: boolean; multiplier: number; onDone: () => void }) {
+export interface FasterKept {
+  readonly goes: readonly Go[];
+  readonly helped: boolean;
+}
+
+export function AgainFaster({ faster, voice, typed, multiplier, onDone, kept, onKeep }: { faster: Faster; voice: string | undefined; typed: boolean; multiplier: number; onDone: () => void; kept?: FasterKept; onKeep?: (kept: FasterKept) => void }) {
   const t = useT();
   const locale = useLocale();
-  const [goes, setGoes] = useState<readonly Go[]>([]);
-  const [helped, setHelped] = useState(false);
+  const [goes, setGoes] = useState<readonly Go[]>(kept?.goes ?? []);
+  const [helped, setHelped] = useState(kept?.helped ?? false);
+  useKeep(useMemo(() => ({ goes, helped }), [goes, helped]), onKeep);
   // "Need an idea?" goes once pressed, so the caret goes to the idea it showed.
   const ideaRef = useRef<HTMLDivElement>(null);
   const asking = useRef(false);
@@ -56,7 +68,7 @@ export function AgainFaster({ faster, voice, typed, multiplier, onDone }: { fast
 
   return (
     <Card>
-      <SectionTitle hint={over ? t("three goes") : fill(t("Go {n} of 3"), { n: String(round + 1) })}>{t("Again, faster")}</SectionTitle>
+      <SectionTitle level={3} hint={over ? t("three goes") : fill(t("Go {n} of 3"), { n: String(round + 1) })}>{t("Again, faster")}</SectionTitle>
       <div className="mb-4 flex flex-col gap-1.5">
         <div className="inline-flex max-w-full items-start gap-2 self-start rounded-2xl rounded-tl-sm px-4 py-2.5" style={{ background: "var(--raised)" }}>
           <Speak text={faster.ask.et} voice={voice} size={16} />
@@ -229,18 +241,32 @@ function OneGo({ seconds, typed, focusStart, onGo }: { seconds: number; typed: b
           {!armed ? (
             <Button variant="primary" onClick={start}>{mic ? t("Start, and speak") : t("Start, and type")}</Button>
           ) : mic ? (
-            <MicButton speech={speech} label={t("Speaking")} />
+            <MicButton speech={speech} label={t("Speaking")} fallback="box" />
           ) : (
-            <Button variant="secondary" onClick={() => finish(text, seconds - left)}>{t("Done")}</Button>
+            // The one thing left to press on a typed go, so it is the loud one.
+            <Button variant="primary" onClick={() => finish(text, seconds - left)}>{t("Done")}</Button>
           )}
         </div>
       </div>
       {started !== null && !mic && (
         <>
-          <textarea lang="et" className="field min-h-[80px] w-full" value={text} onChange={(e) => setText(e.target.value)} aria-label={t("Your answer, in Estonian")} autoFocus spellCheck={false} />
+          <textarea
+            lang="et"
+            className="field min-h-[80px] w-full"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            // Enter is a new line in a box this size; with a modifier it is Done, as in every other textarea here.
+            onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); finish(text, seconds - left); } }}
+            aria-label={t("Your answer, in Estonian")}
+            aria-keyshortcuts="Control+Enter Meta+Enter"
+            autoFocus
+            spellCheck={false}
+          />
           <div className="under-field"><DiacriticBar /></div>
         </>
       )}
+      {/* Mounted empty: a microphone that would not start says so rather than turning into a box in silence. */}
+      <p className="text-sm" style={{ color: "var(--ink-2)" }} role="status">{micFailed && !typed ? t("The microphone didn't start, so type this one.") : ""}</p>
       <p className="sr-only" role="timer" aria-live="off">{fill(t("{n} seconds"), { n: String(Math.ceil(left)) })}</p>
     </div>
   );
@@ -249,6 +275,8 @@ function OneGo({ seconds, typed, focusStart, onGo }: { seconds: number; typed: b
 /** The goes side by side: words that came across, and words a minute, each as a bar. */
 function Goes({ goes }: { goes: readonly Go[] }) {
   const t = useT();
+  // Counted per language, so a go of one word is "1 word" and "1 слово", not "1 words".
+  const locale = useLocale();
   const most = Math.max(1, ...goes.map((g) => g.perMinute));
   const quicker = goes.length >= 2 && goes[goes.length - 1]!.perMinute > goes[0]!.perMinute;
   return (
@@ -262,7 +290,7 @@ function Goes({ goes }: { goes: readonly Go[] }) {
             </div>
             <span className="font-display text-lg font-bold tabular-nums" style={{ color: "var(--ink)" }}>{go.perMinute}</span>
             <span className="text-center text-sm" style={{ color: "var(--ink-2)" }}>{t("words a minute")}</span>
-            <span className="text-center text-sm" style={{ color: "var(--ink-3)" }}>{fill(t("{n} words, {s} seconds"), { n: String(go.words), s: String(go.window) })}</span>
+            <span className="text-center text-sm" style={{ color: "var(--ink-3)" }}>{`${countOf(locale, go.words, "word")}, ${countOf(locale, go.window, "second")}`}</span>
           </li>
         ))}
       </ol>

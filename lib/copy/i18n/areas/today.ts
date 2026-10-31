@@ -784,6 +784,8 @@ export const TODAY: Area = {
     "Формы подсмотрены в таблице.",
   "You got every one right. Later today you'll get questions like these about today's words.":
     "Все ответы верные. Позже сегодня будут похожие вопросы о сегодняшних словах.",
+  "You got every one right.":
+    "Все ответы верные.",
   "Glance back at the table whenever a form looks odd.":
     "Если форма кажется странной, загляни в таблицу.",
   "{n} of {total}, just practice":
@@ -1866,6 +1868,8 @@ export const TODAY: Area = {
     "Форми підглянуто в таблиці.",
   "You got every one right. Later today you'll get questions like these about today's words.":
     "Усі відповіді правильні. Пізніше сьогодні будуть схожі запитання про сьогоднішні слова.",
+  "You got every one right.":
+    "Усі відповіді правильні.",
   "Glance back at the table whenever a form looks odd.":
     "Якщо форма здається дивною, зазирни в таблицю.",
   "{n} of {total}, just practice":

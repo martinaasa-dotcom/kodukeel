@@ -120,7 +120,7 @@ export function Reader() {
             })}
           </article>
           <div className="flex flex-wrap items-center gap-3">
-            <MicButton speech={speech} label={t("Read this paragraph aloud")} shortcut showPartial={false} />
+            <MicButton speech={speech} label={t("Read this paragraph aloud")} shortcut showPartial={false} fallback="none" />
             <p className="min-w-0 flex-1 text-sm" style={{ color: "var(--ink-2)" }} role="status">
               {fill(t("Paragraph {n} of {total}: {heard} of {words} words heard."), {
                 n: at + 1, total: paragraphs.length, heard: here.filter(Boolean).length, words: here.length,

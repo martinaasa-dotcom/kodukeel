@@ -391,6 +391,31 @@ export const SETTING_KEYS = {
    */
   programme: "programme",
   /**
+   * When the learner last chose a part themselves, as an instant: moving on
+   * from a finished part, an offer on the module screen, a change of level.
+   *
+   * Read by the rehoming of a level that became lessons (`lib/progress/
+   * course.ts`): a part chosen after the old ticks on it is a choice made since
+   * the switch, so the learner stays on it rather than being sent back.
+   */
+  programmeChosenAt: "programmeChosenAt",
+  /**
+   * The furthest part a learner has ever been placed on or moved to, by id.
+   *
+   * Raised every time a part is chosen (`choosePart`) and never lowered, so a
+   * learner placed at B1 who steps down to refresh A2 moves back up to B1
+   * without A2's checks in the way (`moveBlockedFor`), whether or not they
+   * ticked anything up there, and whatever a restart of the part deleted.
+   */
+  highestPart: "highestPart",
+  /**
+   * The old part a restore moved a learner back from, where the backup predates
+   * the switch to lessons and its old ticks were dropped (`movedBackFrom`), so
+   * the screen can still say why they are on the level's first lesson. Written
+   * by the restore alone, never taken from the file.
+   */
+  movedBackFrom: "movedBackFrom",
+  /**
    * When the learner last moved part through an offer on the module screen.
    *
    * The reading of how somebody is doing (`lib/course/adapt.ts`) counts only
@@ -498,6 +523,80 @@ export async function writeSetting(ownerId: string, key: SettingKey, value: stri
     update: { value },
   });
   rememberWrite(ownerId, key, value);
+}
+
+/**
+ * Several settings written together or not at all.
+ *
+ * For a pair whose meaning is the two of them: the part a learner is on and
+ * the stamp saying they chose it (`programme` and `programmeChosenAt`), where a
+ * part written without its stamp is one the lessons' switch would send back
+ * (`partAfterSwitch`). One transaction, so a dropped connection between the two
+ * leaves neither rather than half.
+ */
+export async function writeSettings(
+  ownerId: string,
+  entries: readonly (readonly [SettingKey, string])[],
+): Promise<void> {
+  await prisma.$transaction(entries.map(([key, value]) => prisma.setting.upsert({
+    where: { ownerId_key: { ownerId, key } },
+    create: { ownerId, key, value },
+    update: { value },
+  })));
+  for (const [key, value] of entries) rememberWrite(ownerId, key, value);
+}
+
+type LockRunner = { $executeRaw: (query: TemplateStringsArray, ...values: unknown[]) => Promise<number> };
+
+/**
+ * The learner's settings lock, for a transaction that reads a setting and
+ * writes it back: `updateSettings` below, and a restore, which merges the
+ * furthest part held with the backup's inside its own transaction. The
+ * transaction form and the blocking one, keyed on the learner alone.
+ */
+export async function lockSettings(tx: LockRunner, ownerId: string): Promise<void> {
+  await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`settings:${ownerId}`}, 0))`;
+}
+
+/**
+ * A SETTING READ, CHANGED AND WRITTEN BACK, UNDER THE LEARNER'S OWN LOCK.
+ *
+ * `writeSettings` is enough where the value written does not depend on the
+ * value held. Two do: the checks a learner has passed is a list the next pass
+ * is added to (`recordCheckPassed`), and the furthest part they have been on
+ * is a maximum that may never go down (`choosePart`). Read and written as two
+ * statements, two of either at once each read the old value and the slower
+ * write put its own back over the other's: measured, four checks passed at
+ * once kept one, and two moves at once left the furthest part lowered. So the
+ * keys are read inside one transaction holding a transaction-scoped advisory
+ * lock keyed on the learner, which is `lockDeck`'s shape (`lib/srs/deck.ts`),
+ * and the second caller waits for the first and reads what it wrote. The lock
+ * is per learner, so nobody waits on anybody else. `compute` is handed what
+ * the keys hold now and returns every row to write, which are written in the
+ * same transaction and returned.
+ */
+export async function updateSettings(
+  ownerId: string,
+  keys: readonly SettingKey[],
+  compute: (held: Partial<Record<SettingKey, string>>) => readonly (readonly [SettingKey, string])[],
+): Promise<readonly (readonly [SettingKey, string])[]> {
+  const entries = await prisma.$transaction(async (tx) => {
+    // Three seconds, the ledger's number and `lockDeck`'s: a refusal a learner can retry beats a hang.
+    await tx.$executeRaw`SET LOCAL lock_timeout = '3s'`;
+    await lockSettings(tx, ownerId);
+    const rows = await tx.setting.findMany({
+      where: { ownerId, key: { in: [...keys] } }, select: { key: true, value: true },
+    });
+    const held: Partial<Record<SettingKey, string>> = {};
+    for (const row of rows) held[row.key as SettingKey] = row.value;
+    const out = compute(held);
+    for (const [key, value] of out) {
+      await tx.setting.upsert({ where: { ownerId_key: { ownerId, key } }, create: { ownerId, key, value }, update: { value } });
+    }
+    return out;
+  });
+  for (const [key, value] of entries) rememberWrite(ownerId, key, value);
+  return entries;
 }
 
 /**

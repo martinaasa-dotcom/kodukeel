@@ -299,7 +299,8 @@ export function warmNative(ids: readonly string[]): void {
  * So the distinction lives here, once, and both callers read it. `blocked`
  * means "ask for a press"; anything else throws and is a real absence.
  */
-export type PlayOutcome = "played" | "blocked";
+/** `stopped`: a Stop was pressed while the clip was still on its way, so nothing was said. */
+export type PlayOutcome = "played" | "blocked" | "stopped";
 
 /**
  * THE LONGEST CLIP THAT PLAYS ON ITS OWN (WCAG 2.2, 1.4.2 Audio Control).
@@ -430,10 +431,22 @@ let playing: HTMLAudioElement | null = null;
   starts and, finding it moved once its clip arrives, does not play at all.
 */
 let stops = 0;
+/*
+  How many plays have been asked for. One voice at a time: a play that finds a
+  newer one was asked for while its clip was on its way stands down, and one
+  about to start ends whatever is in the air first, so two lines are never
+  said over each other.
+*/
+let plays = 0;
 
 /** Ends the clip in the air, through the element or the mixer, and any line still on its way. */
 export function stopClip(): void {
   stops += 1;
+  silencePrevious();
+}
+
+/** Ends what is in the air without cancelling a line still on its way: a newer play's first step. */
+function silencePrevious(): void {
   playing?.pause();
   playing = null;
   stopMixed();
@@ -445,12 +458,15 @@ export async function playClip(
 ): Promise<PlayOutcome> {
   const end = beginSpeech();
   const asked = stops;
+  const mine = ++plays;
+  // Stopped, or a newer line asked for, since this one was: it is not said.
+  const cancelled = () => stops !== asked || plays !== mine;
   try {
     const clip = await stretchedClip(request, rateFor(request));
     // Stopped while it was on its way: the line is not said after the press that asked for quiet.
-    if (stops !== asked) {
+    if (cancelled()) {
       end();
-      return "played";
+      return "stopped";
     }
     // `chosen` is a line the learner asked to hear rather than read (a voice
     // mode in a conversation, `Speak`'s `insist`), which is not unasked sound.
@@ -463,7 +479,13 @@ export async function playClip(
     // wants to hear the word and not the café.
     const condition = request.slow ? CLEAN : (request.condition ?? CLEAN);
     if (needsMixer(condition)) {
-      const outcome = await playThrough(await clip.blob.arrayBuffer(), condition, { unasked, cancelled: () => stops !== asked });
+      const bytes = await clip.blob.arrayBuffer();
+      if (cancelled()) {
+        end();
+        return "stopped";
+      }
+      silencePrevious();
+      const outcome = await playThrough(bytes, condition, { unasked, cancelled });
       end();
       return outcome;
     }
@@ -477,11 +499,12 @@ export async function playClip(
     // (lib/audio/output.ts).
     const start = await withHeadStart(clip, (await wakeOutput()).coldMs);
     // Stopped while the length was being read or the output woken: still not said.
-    if (stops !== asked) {
+    if (cancelled()) {
       start.release();
       end();
-      return "played";
+      return "stopped";
     }
+    silencePrevious();
     const audio = new Audio(start.url);
     playing = audio;
     for (const event of ["ended", "pause", "error"] as const) {
@@ -495,6 +518,8 @@ export async function playClip(
       if (unasked && error instanceof DOMException && error.name === "NotAllowedError") {
         return "blocked";
       }
+      // A Stop that paused the element before play() settled is that Stop, not a failure to play.
+      if (cancelled() && error instanceof DOMException && error.name === "AbortError") return "stopped";
       throw error;
     }
     return "played";
@@ -542,10 +567,15 @@ export async function playNativeSequence(
     const spans = joined.spans.map((span) => ({ from: span.from + shift, to: span.to + shift }));
     const made = URL.createObjectURL(new Blob([encodeWav16(withLead(joined.pcm, coldMs)).buffer as ArrayBuffer], { type: "audio/wav" }));
     url = made;
+    // One voice: a line still on its way stands down, and what is in the air ends.
+    plays += 1;
+    silencePrevious();
     const audio = new Audio(made);
+    playing = audio;
     let finish: () => void = () => undefined;
     const ended = new Promise<void>((resolve) => {
       finish = () => {
+        if (playing === audio) playing = null;
         end();
         URL.revokeObjectURL(made);
         resolve();
@@ -618,8 +648,14 @@ export function playRecording(
       const out = encodeWav16(withLead(stretch(normaliseLoudness({ rate: piece.rate, samples: padded }), speed), coldMs));
       if (stopped) return "played";
       url = URL.createObjectURL(new Blob([out.buffer as ArrayBuffer], { type: "audio/wav" }));
+      plays += 1;
+      silencePrevious();
       const element = new Audio(url);
       audio = element;
+      playing = element;
+      for (const event of ["ended", "pause", "error"] as const) {
+        element.addEventListener(event, () => { if (playing === element) playing = null; }, { once: true });
+      }
       await new Promise<void>((resolve, reject) => {
         for (const event of ["ended", "pause"] as const) element.addEventListener(event, () => resolve(), { once: true });
         element.addEventListener("error", () => reject(new Error("the recording would not play")), { once: true });
@@ -659,6 +695,9 @@ export function playRecording(
  */
 export async function playHeard(request: ClipRequest): Promise<PlayOutcome> {
   const end = beginSpeech();
+  const asked = stops;
+  const mine = ++plays;
+  const cancelled = () => stops !== asked || plays !== mine;
   let url: string | null = null;
   const release = () => {
     end();
@@ -692,14 +731,24 @@ export async function playHeard(request: ClipRequest): Promise<PlayOutcome> {
         // Played as it came: an untouched clip is better than none.
       }
     }
+    if (cancelled()) {
+      release();
+      return "stopped";
+    }
+    silencePrevious();
     url = URL.createObjectURL(blob);
     const audio = new Audio(url);
-    for (const event of ["ended", "pause", "error"] as const) audio.addEventListener(event, release, { once: true });
+    // Held where `stopClip` and the next play can reach it, so a Stop ends a read-back too.
+    playing = audio;
+    for (const event of ["ended", "pause", "error"] as const) {
+      audio.addEventListener(event, () => { if (playing === audio) playing = null; release(); }, { once: true });
+    }
     try {
       await audio.play();
     } catch (error) {
       release();
       if (error instanceof DOMException && error.name === "NotAllowedError") return "blocked";
+      if (cancelled() && error instanceof DOMException && error.name === "AbortError") return "stopped";
       throw error;
     }
     return "played";

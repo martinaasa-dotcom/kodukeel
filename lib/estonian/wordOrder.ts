@@ -797,3 +797,79 @@ export function alsoRightOrders(original: string, dict: OrderContext): string[] 
   // Deduplicated, because two words of one clause can reach the same order.
   return [...new Set(acceptedOrders(original, dict).slice(1).map((order) => order.join(" ")))];
 }
+
+/** The subordinate clauses that stand at either end of a sentence without changing what it says. */
+const FRONTABLE: ReadonlySet<string> = new Set(["kuna", "kui", "kuigi", "kuni"]);
+
+/**
+ * A main clause with its subject on the other side of its verb: `jäin ma
+ * koju` and `ma jäin koju`, `oli lõpp hea` and `lõpp oli hea`. Only where the
+ * clause opens on the two of them, a finite verb and a word that is plainly
+ * not an adverbial, since that pair at the front is the one thing fronting a
+ * clause moves.
+ */
+function invertOpening(clause: readonly string[], dict: OrderContext): string[] | null {
+  const [first, second, ...rest] = clause;
+  if (!first || !second) return null;
+  const verbFirst = dict.finiteVerb(first) && !dict.finiteVerb(second) && dict.plainWord(second);
+  const subjectFirst = dict.finiteVerb(second) && !dict.finiteVerb(first) && dict.plainWord(first);
+  return verbFirst || subjectFirst ? [second, first, ...rest] : null;
+}
+
+/**
+ * EVERY ORDER OF A LESSON'S SENTENCE THE APP IS PREPARED TO CALL ESTONIAN,
+ * beyond the one written: the moves `acceptedOrders` vouches for, and a reason,
+ * condition or concession moved to the other end of the sentence (`Jäin koju,
+ * kuna sadas` and `Kuna sadas, jäin koju`), the main clause as it was or with
+ * its subject and verb the other way round, which is what fronting a clause
+ * does and what not fronting it undoes. Both are ordinary Estonian, and the
+ * owner, a native speaker, decided they are marked right.
+ *
+ * Two clauses exactly, split at their comma, each holding a finite verb the
+ * dictionary can name, and one of them opening on `kuna`, `kui`, `kuigi` or
+ * `kuni`. Anything else gets the moves `acceptedOrders` makes and no more.
+ * Words joined by single spaces with a comma where a clause ends, since a
+ * marker reads the comma as the clause boundary it is.
+ */
+export function lessonOrders(original: string, dict: OrderContext): string[] {
+  const clauses = sentenceClauses(original);
+  // The moves keep every word inside its clause, so the commas go back where the clauses end.
+  const lengths = clauses.map((c) => c.length);
+  const punctuate = (words: readonly string[]) => {
+    const parts: string[] = [];
+    let at = 0;
+    for (const n of lengths) { parts.push(words.slice(at, at + n).join(" ")); at += n; }
+    return parts.join(", ");
+  };
+  const out = new Set(acceptedOrders(original, dict).slice(1).map(punctuate));
+  if (clauses.length === 2 && clauses.every((c) => c.some((w) => dict.finiteVerb(w)))) {
+    const [a, b] = clauses as [string[], string[]];
+    const lead = (c: readonly string[]) => FRONTABLE.has((c[0] ?? "").toLowerCase());
+    if (lead(a) !== lead(b)) {
+      const [sub, main] = lead(a) ? [a, b] : [b, a];
+      const mains = [main, invertOpening(main, dict)].filter((m): m is string[] => m !== null);
+      for (const m of mains) {
+        out.add([(lead(a) ? m : sub).join(" "), (lead(a) ? sub : m).join(" ")].join(", "));
+        if (m !== main) out.add([(lead(a) ? sub : m).join(" "), (lead(a) ? m : sub).join(" ")].join(", "));
+      }
+    }
+  }
+  out.delete(clauses.map((c) => c.join(" ")).join(", "));
+  return [...out];
+}
+
+/**
+ * The spellings `lessonOrders` needs read, which is `wordsWorthAsking`'s and
+ * the words of every sentence of two clauses one of which opens on a
+ * frontable word, since moving that clause needs to know which words are
+ * verbs.
+ */
+export function lessonWordsWorthAsking(sentences: readonly string[]): string[] {
+  const words = new Set(wordsWorthAsking(sentences));
+  for (const sentence of sentences) {
+    const clauses = sentenceClauses(sentence);
+    if (clauses.length !== 2 || !clauses.some((c) => FRONTABLE.has((c[0] ?? "").toLowerCase()))) continue;
+    for (const w of clauses.flat()) words.add(w.toLowerCase());
+  }
+  return [...words];
+}

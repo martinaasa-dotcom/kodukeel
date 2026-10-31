@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { CASES } from "@/lib/estonian/cases";
 import { grammarTopic } from "@/lib/estonian/grammar";
-import { LESSONS, LESSON_PARTS } from "./lessons";
+import { LESSONS, LESSON_PARTS, isLessonLevel } from "./lessons";
 import { LESSON_PAGES, PATTERN_PAGE, lessonMinutes, lessonProgrammes, lessonWords } from "./lessonCourse";
 import { LESSON_STEP, PROGRAMMES, grammarThrough, lessonDayFor, taughtThrough, unitsThrough } from "./index";
 import { scopeSoFar } from "./scope";
@@ -12,7 +12,8 @@ import { scopeSoFar } from "./scope";
 */
 const PARTS = lessonProgrammes();
 const A1 = PROGRAMMES.filter((p) => p.level === "A1");
-const LESSON_LEVELS = PROGRAMMES.filter((p) => p.level === "A1" || p.level === "A2" || p.level === "B1");
+// The lesson levels as the build reads them (`isLessonLevel`), so a fourth level of lessons is in every test below by arriving.
+const LESSON_LEVELS = PROGRAMMES.filter((p) => isLessonLevel(p.level));
 
 describe("A1, A2 and B1 as lessons", () => {
   it("is every lesson, once, in teaching order, one evening each", () => {
@@ -20,7 +21,7 @@ describe("A1, A2 and B1 as lessons", () => {
     expect(LESSON_LEVELS.length).toBe(LESSON_PARTS.length);
     expect(LESSON_LEVELS.flatMap((p) => p.days.map((d) => d.lesson))).toEqual(LESSONS.map((l) => l.id));
     // Each level's parts are counted from one: a1.1 to a1.8, then a2.1 to a2.8, then b1.1 to b1.7.
-    for (const level of ["A2", "B1"]) {
+    for (const level of [...new Set(PARTS.map((p) => p.level))]) {
       const prefix = level.toLowerCase();
       expect(PARTS.filter((p) => p.level === level).map((p) => p.id)).toEqual(
         Array.from({ length: PARTS.filter((p) => p.level === level).length }, (_, i) => `${prefix}.${i + 1}`),
@@ -86,7 +87,7 @@ describe("A1, A2 and B1 as lessons", () => {
     expect(end.cases).toEqual(expect.arrayContaining(["PARTITIVE", "INESSIVE", "COMITATIVE"]));
     expect(end.topics).toEqual(expect.arrayContaining(["present-tense", "negation", "imperative", "imperfect"]));
     // And by the end of A2 every place ending, the stem they go on, the would form and the rest.
-    const a2last = LESSON_LEVELS.at(-1)!;
+    const a2last = LESSON_LEVELS.filter((p) => p.level === "A2").at(-1)!;
     const a2end = grammarThrough(a2last, a2last.days.length);
     expect(a2end.cases).toEqual(expect.arrayContaining([
       "GENITIVE", "INESSIVE", "ILLATIVE", "ELATIVE", "ADESSIVE", "ALLATIVE", "ABLATIVE",

@@ -3064,7 +3064,7 @@ Russian and Ukrainian.
 | 2252 | Say it, model answer | Seda ma ei teadnud. | I didn't know that. | |
 | 2253 | Say it, model answer | See on rakendus, millega saab tasuta helistada. | It's an app you can make calls with for free. | |
 
-#### B1 40. Sorting the rubbish (`b1-40-rubbish`)
+#### B1 40. Sorting the trash (`b1-40-rubbish`)
 
 | # | Where | Estonian | English | OK / fix |
 |---|---|---|---|---|
@@ -7051,7 +7051,7 @@ Peeter to `NATIVE_PARTS` once his lines are in.
 | R2662 | Word (form) | helistas | he, she called | |
 | R2663 | Word (form) | tütrelt | from a daughter | |
 
-#### B1 40. Sorting the rubbish (`b1-40-rubbish`)
+#### B1 40. Sorting the trash (`b1-40-rubbish`)
 
 | # | What | Estonian | English | Recorded |
 |---|---|---|---|---|

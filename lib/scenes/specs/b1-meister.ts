@@ -7,7 +7,7 @@ import { FAREWELLS, HELLOS } from "./shared";
 
   The part taught the whole thing against some of it: a job done takes the
   whole thing, a no takes the [osastav], and so does a verb that never
-  finishes. The handyman comes to the flat, asks what's broken, what the
+  finishes. The handyman comes to the apartment, asks what's broken, what the
   learner fixed themselves and what still doesn't work, and they agree on a
   day for him to come back, and then where the key will be if they're out,
   which the lesson's own conversation never asked.
@@ -17,10 +17,10 @@ import { FAREWELLS, HELLOS } from "./shared";
 export default inLesson("b1-07-repair", {
   id: "b1-meister",
   title: "The repair visit",
-  place: "Your own flat, with the handyman at the door",
+  place: "Your own apartment, with the handyman at the door",
   tests: "objekt",
   register: "teie",
-  role: "The handyman has come to fix things in your flat. Tell him what's broken and what you've done, and agree on a day.",
+  role: "The handyman has come to fix things in your apartment. Tell him what's broken and what you've done, and agree on a day.",
   props: [],
   curveballs: [],
   beats: [
@@ -37,14 +37,14 @@ export default inLesson("b1-07-repair", {
     },
     {
       id: "broken",
-      goal: "Say what's broken in the flat.",
+      goal: "Say what's broken in the apartment.",
       they: "He says who he is, and asks what's broken.",
       move: "ask",
       topic: ["katki"],
-      needs: [{ kind: "anyOf", of: [{ kind: "lemma", oneOf: ["dušš", "aken", "kraan"] }, { kind: "any" }] }],
+      needs: [{ kind: "lemma", oneOf: ["katki", "dušš", "aken", "tilkuma"] }],
       required: true,
       patience: 2,
-      shape: "word",
+      shape: "sentence",
     },
     {
       id: "fixed",
@@ -52,10 +52,10 @@ export default inLesson("b1-07-repair", {
       they: "He asks if you fixed anything yourself.",
       move: "ask",
       topic: ["parandama", "ise"],
-      needs: [{ kind: "anyOf", of: [{ kind: "lemma", oneOf: ["parandama", "ise"] }, { kind: "any" }] }],
+      needs: [{ kind: "lemma", oneOf: ["parandama", "ise", "kraan"] }],
       required: true,
       patience: 2,
-      shape: "word",
+      shape: "sentence",
     },
     {
       id: "notdone",
@@ -63,10 +63,10 @@ export default inLesson("b1-07-repair", {
       they: "He asks what still doesn't work.",
       move: "ask",
       topic: ["töötama"],
-      needs: [{ kind: "any" }],
+      needs: [{ kind: "lemma", oneOf: ["töötama", "kinni", "põlema", "lamp"] }],
       required: true,
       patience: 2,
-      shape: "word",
+      shape: "sentence",
     },
     {
       id: "when",
@@ -74,10 +74,10 @@ export default inLesson("b1-07-repair", {
       they: "He says he has to order a part, and asks if Friday suits you.",
       move: "ask",
       topic: ["sobima"],
-      needs: [{ kind: "anyOf", of: [{ kind: "lemma", oneOf: ["sobima", "reede"] }, { kind: "any" }] }],
+      needs: [{ kind: "lemma", oneOf: ["sobima", "esmaspäev", "teisipäev", "kolmapäev", "neljapäev", "reede", "laupäev", "pühapäev"] }],
       required: true,
       patience: 2,
-      shape: "word",
+      shape: "sentence",
     },
     {
       id: "key",
@@ -85,7 +85,7 @@ export default inLesson("b1-07-repair", {
       they: "He asks what happens if you're not at home that day.",
       move: "ask",
       topic: ["võti", "kodu"],
-      needs: [{ kind: "anyOf", of: [{ kind: "lemma", oneOf: ["võti", "naaber"] }, { kind: "any" }] }],
+      needs: [{ kind: "any" }],
       required: true,
       patience: 2,
       shape: "word",
@@ -103,8 +103,8 @@ export default inLesson("b1-07-repair", {
     },
   ],
   outcomes: [
-    { id: "fixed-up", when: ["greet", "broken", "fixed", "notdone", "when", "key", "close"], says: "You told the handyman what's broken and what's done, and agreed on a day, using the whole part." },
-    { id: "fixed-up-thin", when: ["broken", "when"], says: "You said what's broken and when he can come. The rest can wait for his next visit." },
-    { id: "left", when: [], says: "He went before you'd told him anything. He'll be back." },
+    { id: "fixed-up", when: ["greet", "broken", "fixed", "notdone", "when", "key", "close"], says: "You told the handyman what's broken and what's done, and agreed on a day." },
+    { id: "fixed-up-thin", when: ["broken", "when"], says: "You said what's broken and when he can come." },
+    { id: "left", when: [], says: "He went before you'd told him anything." },
   ],
 });

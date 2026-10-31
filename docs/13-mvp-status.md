@@ -4042,3 +4042,71 @@ arrow key, and a clock inside a lesson step reads the learner's pace. Every line
 on purpose or newly wrote is listed for the native speaker in `docs/reviews/b1-flags.md`, and every
 new Russian and Ukrainian line is machine-written and waits on a fluent reader.
 
+
+## 75. The sixty-ninth pass: B1 audited to a count, and the gaps filled
+
+The pass before this one ended on reviews that scored B1 between seven and eight and a half, and the
+question the operator asked was the right one: if the audits can say what is missing, fill it. So
+the audits were turned into a plan with a numbered list of gaps per area (engine, screens,
+integration, content), the plan was itself audited before any of it was built, and the list was
+worked to the end rather than reviewed again in rounds.
+
+**How a rework is marked** is the operator's own call, made on four questions and written into
+`docs/43-lessons.md` §12: a pronoun's long and short spellings are one word, a subject left out or put
+in beside a verb that says the same person is right, another word order the dictionary can vouch for
+is right with a note, and a reason or a condition moved to the other end is the same as a reorder.
+`lib/course/lessons/sameSentence.ts` is the comparison and `practice.test.ts` the golden table of
+verdicts, which every lesson's own answers are run against too.
+
+**The screens** say what is true: one voice at a time, a line that takes the caret is never also a
+live region, a button whose own press is out stays focusable (`Button`'s `busy`), the microphone's
+error says "type it" only where there is a box, a hear question whose clip will not load shows the
+words, a lesson's place survives a reload for the tab, and the step pills tick what was finished
+rather than what was skipped. **The handover to B2** carries the lessons' verbs as verbs and marks
+the 78 verbs whose past a lesson taught by name as having shown that past (6 at A1, 27 at A2, 45 at B1, read off
+each lesson day's `pasts` by `lessonPasts`), so the module asks the past of those verbs from then on, while B2's forms step still shows them for the polite imperative no lesson teaches (`tehke`, `lugege`)
+(`scope.pastsShown` and `formsShown`); first run stamps the part it places a learner on; a learner moved back to B1.1 is told why.
+
+**The content** took both content audits: every fix sits on a line its lesson shows, the exam lesson
+follows the exam's three parts, the part-end scenes ask a distinct group of words per beat, and the
+gists have four options. The new Estonian and six questions for the native speaker are in
+`docs/reviews/b1-flags.md`. Nine invariants are new this pass, each made to fail on a planted fault.
+
+**What this pass could not verify.** The recordings joined into one clip for spelling
+(`playNativeSequence`) have not been heard on iOS Safari, where a clip that starts late is the shape
+of fault the device warm-up exists for; nobody here holds the device. And the six questions in
+`docs/reviews/b1-flags.md` wait on the native speaker, with the Russian and Ukrainian of every new
+line on a fluent reader.
+
+## 76. The seventieth pass: B1 audited in three rounds, and what is parked
+
+Three rounds of the count-based audit ran on B1 (two auditors per area, a frozen rubric, the lower
+score counting), each followed by fixes in all four areas. The third round's scores, before its
+fixes landed, were engine 3.0, screens 7.1, content 5.5 and integration 9.0; every finding it raised
+is fixed and merged, and nothing has scored the code since. The operator's call is that B1 is good
+enough to ship and that the last half point waits for a later push, because the rounds were costing
+more than they were finding.
+
+**What the rounds taught about the marker.** A general acceptance rule is a guess about Estonian, and
+each one added to stop a refusal came back as over-acceptance a round later: the pronoun rules after
+the first round, the combined variations and the demonstrative after the second. So the marker now
+carries `lib/course/lessons/fixtures/accepted.json`, every sentence it accepts beyond the written
+rows, read by a person, and `sweep.test.ts` fails the moment it accepts one more
+(`npx tsx scripts/sweep-acceptance.ts` prints the difference, `--write` after reading it). The
+second plural partitive (`munasid` beside `mune`) is a generated, reviewed table
+(`scripts/build-parallel-forms.ts`), not a rule.
+
+**Parked for the later push to 9.5:**
+
+- **Refusals of correct Estonian.** Marking a free sentence has no end: an auditor generating
+  thousands of variants can nearly always find one more right answer refused. The way to finish is
+  not more rules but a list: collect every disputed sentence the auditors produce with its verdict,
+  have the native speaker mark each right or wrong, make the right ones rows, and audit the marker
+  against that list and the snapshot rather than against every sentence an auditor can invent.
+- **Two correct sentences the narrowed combining rule refuses**, `Tee see aken kinni!` and
+  `oli buss ära läinud`: rows, if they should be right.
+- **The browser additions of the third round** ran once here (`test-lessons.mjs` at 197 checks); the
+  containment states for the retell, frame and race were added but their floor not yet raised.
+- **The questions in `docs/reviews/b1-flags.md`** (now including the examiner's `sina` in part two,
+  `Kuu aega maksab…`, `bussis` beside `bussist`, `ta` for a thing) wait on the native speaker, and the
+  Russian and Ukrainian of every new line on a fluent reader.

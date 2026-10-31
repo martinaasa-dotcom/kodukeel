@@ -227,7 +227,6 @@ function SuggestFixButton({
       <p
         ref={thanks}
         tabIndex={-1}
-        role="status"
         className="flex items-start gap-2 rounded-[var(--r)] px-4 py-3 text-sm outline-none"
         style={{ background: "var(--good-soft)", color: "var(--good-ink)" }}
       >

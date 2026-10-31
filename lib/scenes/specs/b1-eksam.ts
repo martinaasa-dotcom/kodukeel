@@ -5,7 +5,7 @@ import { FAREWELLS, HELLOS } from "./shared";
   THE B1 SPEAKING EXAM, PRACTICED, AT THE END OF B1, LESSON 49, PLAYED
   RATHER THAN READ.
 
-  The exam in the three parts the real one has. First the learner talks
+  A practice exam in three parts. First the learner talks
   about themselves and their work. Then a situation: the examiner plays a
   bank clerk, and the learner has lost a wallet, gets the card blocked and
   asks for a new one. Then a topic: driving in Tallinn, and one question that
@@ -129,8 +129,8 @@ export default inLesson("b1-49-end", {
     },
   ],
   outcomes: [
-    { id: "examined", when: ["greet", "about", "work", "lost", "card", "form", "opinion", "compare", "close"], says: "You got through all three parts of a speaking exam in Estonian, made of all of B1." },
-    { id: "examined-thin", when: ["about", "lost", "opinion"], says: "You talked about yourself, handled the bank and gave your view. That's the heart of the exam." },
-    { id: "left", when: [], says: "You left before the exam began. There'll be another sitting." },
+    { id: "examined", when: ["greet", "about", "work", "lost", "card", "form", "opinion", "compare", "close"], says: "You got through all three parts of a speaking exam in Estonian." },
+    { id: "examined-thin", when: ["about", "lost", "opinion"], says: "You talked about yourself, handled the bank and gave your view." },
+    { id: "left", when: [], says: "You left before the exam began." },
   ],
 });

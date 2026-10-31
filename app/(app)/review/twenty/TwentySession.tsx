@@ -394,7 +394,7 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
             <div className="under-field"><DiacriticBar /></div>
             {micOffered && (
               <div className="mt-3 flex flex-wrap items-center gap-3">
-                <MicButton speech={speech} label={t("Ask your question out loud")} shortcut showPartial />
+                <MicButton speech={speech} label={t("Ask your question out loud")} shortcut showPartial fallback="box" />
               </div>
             )}
             {suggestions.length > 0 && (

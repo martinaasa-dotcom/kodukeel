@@ -11,7 +11,9 @@ import { useLocale, useT } from "@/components/Locale";
 import { LessonText } from "@/components/course/LessonText";
 import { Card, SectionTitle } from "@/components/ui";
 import { fill } from "@/lib/copy/locale";
-import { playClip, stopClip, untilQuiet } from "@/lib/audio/clip";
+import { useLinePlayer } from "@/components/course/useLinePlayer";
+import { useKeep } from "@/components/course/useKeep";
+import { StepPills } from "@/components/course/StepPills";
 import { pointsHeard } from "@/lib/course/lessons/retell";
 import type { Retell } from "@/lib/course/lessons/types";
 
@@ -29,16 +31,27 @@ import type { Retell } from "@/lib/course/lessons/types";
  * Said in as many goes as it takes: each go is added to what was said before,
  * so a learner who stops to think is not made to start again. On a typed
  * evening the box takes it instead.
+ *
+ * Stepping away to reread the conversation and coming back finds the box, the
+ * plays and the story as they were (`kept`, `useKeep`).
  */
-export function RetellIt({ retell, voice, typed, onDone }: { retell: Retell; voice: string | undefined; typed: boolean; onDone: () => void }) {
+export interface RetellKept {
+  readonly plays: number;
+  readonly said: string;
+  readonly shown: boolean;
+}
+
+export function RetellIt({ retell, voice, typed, onDone, kept, onKeep }: { retell: Retell; voice: string | undefined; typed: boolean; onDone: () => void; kept?: RetellKept; onKeep?: (kept: RetellKept) => void }) {
   const t = useT();
   const locale = useLocale();
   const prefs = useAudioPrefs();
-  const [plays, setPlays] = useState(0);
-  const [playing, setPlaying] = useState(false);
-  const stop = useRef(false);
-  const [said, setSaid] = useState("");
-  const [shown, setShown] = useState(false);
+  const [plays, setPlays] = useState(kept?.plays ?? 0);
+  const player = useLinePlayer();
+  const { playing } = player;
+  const [unheard, setUnheard] = useState(false);
+  const [said, setSaid] = useState(kept?.said ?? "");
+  const [shown, setShown] = useState(kept?.shown ?? false);
+  useKeep(useMemo(() => ({ plays, said, shown }), [plays, said, shown]), onKeep);
   // The button that showed the story is gone, so the caret goes to the story it showed.
   const storyRef = useRef<HTMLDivElement>(null);
   const showing = useRef(false);
@@ -63,56 +76,44 @@ export function RetellIt({ retell, voice, typed, onDone }: { retell: Retell; voi
   // One loud button a screen: hearing the story until it has been heard twice or told, then Next.
   const hearFirst = plays < 2 && said.trim() === "";
 
-  // Leaving the card ends the story after the line in the air, rather than playing the rest over the next one.
-  useEffect(() => () => { stop.current = true; }, []);
-
   const play = async () => {
-    if (playing) { stop.current = true; stopClip(); return; }
-    stop.current = false;
-    setPlaying(true);
-    let heard = 0;
-    for (const line of retell.story) {
-      if (stop.current) break;
-      try {
-        if ((await playClip({ text: line.et, voice, pace: prefs.pace })) === "played") heard += 1;
-        await untilQuiet(20_000);
-      } catch {
-        // A line the speech service would not say is skipped rather than ending the story.
-      }
-      await new Promise((r) => setTimeout(r, 250));
-    }
+    const run = await player.toggle(retell.story.map((line) => ({ text: line.et, voice, pace: prefs.pace })), { gapMs: 250 });
+    if (!run || run.stopped) return;
     // A play counts as heard only where something was said: over silence it would read "Heard once" about nothing.
-    if (!stop.current && heard > 0) setPlays((n) => n + 1);
-    setPlaying(false);
+    if (run.heard > 0) { setPlays((n) => n + 1); setUnheard(false); } else setUnheard(true);
   };
 
   return (
     <Card>
-      <SectionTitle hint={fill(t("told by {who}"), { who: retell.who })}>{t("Retell it")}</SectionTitle>
-      <ol className="mb-5 flex flex-wrap gap-2 text-sm font-semibold" aria-label={t("The three stages")}>
-        {[t("Hear it"), t("Hear it again"), t("Tell it back")].map((label, i) => {
-          const done = i < 2 ? plays > i : said.trim().length > 0;
-          return (
-            <li key={label} className="inline-flex items-center gap-1 rounded-full px-3 py-1" style={{ background: done ? "var(--sky-soft)" : "var(--raised)", color: done ? "var(--sky-ink)" : "var(--ink-2)" }}>
-              {done ? <Check size={13} aria-hidden /> : <Circle size={11} aria-hidden />} {label}
-            </li>
-          );
-        })}
-      </ol>
+      <SectionTitle level={3} hint={fill(t("told by {who}"), { who: retell.who })}>{t("Retell it")}</SectionTitle>
+      <div className="mb-5">
+        <StepPills
+          label={t("The three stages")}
+          pills={[t("Hear it"), t("Hear it again"), t("Tell it back")].map((label, i) => ({
+            key: label,
+            label,
+            state: (i < 2 ? plays > i : said.trim().length > 0) ? "done" : "ahead",
+          }))}
+        />
+      </div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
-        <Button variant={hearFirst ? "primary" : "secondary"} onClick={play} aria-pressed={playing}>
+        <Button variant={hearFirst ? "primary" : "secondary"} onClick={play}>
           {playing ? <Pause size={15} aria-hidden /> : <Play size={15} aria-hidden />}
           {playing ? t("Stop") : plays === 0 ? t("Hear the story") : t("Hear it again")}
         </Button>
         <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-          {plays === 0 ? t("No words on screen. Just listen.") : fill(t(plays === 1 ? "Heard once." : "Heard {n} times."), { n: String(plays) })}
+          {unheard && plays === 0
+            ? t("The voice didn't come through just now. Show the story and read it instead.")
+            : plays > 0
+              ? fill(t(plays === 1 ? "Heard once." : "Heard {n} times."), { n: String(plays) })
+              : shown ? null : t("No words on screen. Just listen.")}
         </span>
       </div>
 
       <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("Tell it back in your own words")}</p>
       {mic && (
         <div className="mb-3 flex flex-wrap items-center gap-3">
-          <MicButton speech={speech} label={said ? t("Say more") : t("Start telling it")} />
+          <MicButton speech={speech} label={said ? t("Say more") : t("Start telling it")} fallback="box" />
           <span className="text-sm" style={{ color: "var(--ink-3)" }}>{t("Stop and start as often as you like. It all adds up.")}</span>
         </div>
       )}
@@ -130,8 +131,11 @@ export function RetellIt({ retell, voice, typed, onDone }: { retell: Retell; voi
       {/* Not a live region: the points light as words arrive, and what is announced is the settled count under them. */}
       <ul className="mt-5 flex flex-col gap-2" data-retell-points>
         {retell.points.map((point, i) => (
-          <li key={point.en} className="flex items-center gap-2 rounded-[var(--r)] px-3 py-2" style={{ background: lit[i] ? "var(--sky-soft)" : "var(--raised)" }} data-lit={lit[i] ? "true" : "false"}>
-            {lit[i] ? <Check size={16} aria-hidden style={{ color: "var(--sky-ink)" }} /> : <Circle size={14} aria-hidden style={{ color: "var(--ink-3)" }} />}
+          <li key={point.en} className="flex items-start gap-2 rounded-[var(--r)] px-3 py-2" style={{ background: lit[i] ? "var(--sky-soft)" : "var(--raised)" }} data-lit={lit[i] ? "true" : "false"}>
+            {/* One width for the tick and the circle, on the first line, so a lit or a two-line point starts its words where the rest do. */}
+            <span className="inline-flex h-6 w-4 shrink-0 items-center justify-center" aria-hidden>
+              {lit[i] ? <Check size={16} style={{ color: "var(--sky-ink)" }} /> : <Circle size={14} style={{ color: "var(--ink-3)" }} />}
+            </span>
             <span className="text-base" style={{ color: lit[i] ? "var(--sky-ink)" : "var(--ink-2)" }}><LessonText text={point.en} locale={locale} /></span>
             <span className="sr-only">{lit[i] ? t("came across") : t("not yet")}</span>
           </li>

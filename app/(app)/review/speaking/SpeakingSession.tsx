@@ -447,7 +447,7 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
 
           {step !== "meaning" && !handsFree && (
             <div className="flex flex-col items-center gap-2">
-              <MicButton speech={shadow} label={step === "along" ? t("Say it along") : t("Say it back")} shortcut showPartial={false} size="lg" />
+              <MicButton speech={shadow} label={step === "along" ? t("Say it along") : t("Say it back")} shortcut showPartial={false} size="lg" fallback="none" />
               {/* What came across, in the words it came across in: the lit line says which of its own
                   words were heard, and this says what was heard instead where they were not. */}
               {lit && share < 1 && lit.understood.trim() && (
@@ -468,7 +468,7 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
 
           {step === "meaning" && (
             <div className="flex w-full max-w-sm flex-col items-center gap-3">
-              {!check && <MicButton speech={box.speech} label={t("Answer out loud")} shortcut showPartial size="lg" />}
+              {!check && <MicButton speech={box.speech} label={t("Answer out loud")} shortcut showPartial size="lg" fallback="box" />}
               {/* Once marked, the box holds the answer that was marked; "Show me" marked nothing, so there is no box to keep. */}
               {!(check && !typed.trim()) && (
               <div className="w-full text-left">
@@ -664,7 +664,7 @@ function HandsFreePanel({ paused, wakeRefused, backgroundStop, listening, micErr
         {paused ? <Play size={28} aria-hidden /> : <Pause size={28} aria-hidden />}
         {paused ? t("Paused. Tap anywhere here to carry on.") : listening ? t("Listening. Tap anywhere here to pause.") : t("Tap anywhere here to pause.")}
       </button>
-      {micError && <MicError error={micError} onRetry={null} />}
+      {micError && <MicError error={micError} fallback="none" onRetry={null} />}
       <p className="text-sm" style={{ color: "var(--hard-ink)" }} role="status">
         {backgroundStop ? t("The browser held back the sound in this background tab. Bring the tab forward to carry on.") : ""}
         {backgroundStop && wakeRefused ? " " : ""}

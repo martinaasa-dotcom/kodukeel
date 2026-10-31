@@ -151,7 +151,7 @@ const CARD_TONES = {
 
 export type CardTone = keyof typeof CARD_TONES;
 
-export function Card({ children, className = "", as: Tag = "div", tone = "plain", hover, style, dense }: {
+export function Card({ children, className = "", as: Tag = "div", tone = "plain", hover, style, dense, ...data }: {
   children: ReactNode;
   className?: string;
   as?: "div" | "section" | "article" | "li";
@@ -161,9 +161,12 @@ export function Card({ children, className = "", as: Tag = "div", tone = "plain"
   style?: CSSProperties;
   /** Tighter padding, for a card that has to share one screen with others. */
   dense?: boolean;
+  /** A hook for a suite. JSX does not type-check a hyphenated name, so one a card dropped would vanish without a word. */
+  [hook: `data-${string}`]: string | undefined;
 }) {
   return (
     <Tag
+      {...data}
       className={`rounded-[var(--r-xl)] border ${dense ? "p-3 md:p-4" : "p-5 md:p-7"} ${tone === "night" ? "night" : ""} ${hover ? "lift glow" : ""} ${className}`}
       style={{
         ...CARD_TONES[tone],
@@ -209,10 +212,16 @@ export function Stack({ children, className = "" }: { children: ReactNode; class
  * every word whole and puts the hint under the heading, where it reads as the
  * heading's second line, only when the two do not fit side by side.
  */
-export function SectionTitle({ children, hint }: { children: ReactNode; hint?: ReactNode }) {
+/**
+ * A section's title. `level` is 3 where the section sits under a heading of
+ * its own (a lesson's step says "Step 3 of 6" in its h2), so the outline a
+ * screen reader walks does not put the step and the card inside it side by side.
+ */
+export function SectionTitle({ children, hint, level = 2 }: { children: ReactNode; hint?: ReactNode; level?: 2 | 3 }) {
+  const Heading = level === 3 ? "h3" : "h2";
   return (
     <div className="section-title mb-4 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-      <h2 className="text-lg font-bold tracking-tight md:text-xl" style={{ color: "var(--ink)" }}>{children}</h2>
+      <Heading className="text-lg font-bold tracking-tight md:text-xl" style={{ color: "var(--ink)" }}>{children}</Heading>
       {hint && <span className="text-sm" style={{ color: "var(--ink-3)" }}>{hint}</span>}
     </div>
   );

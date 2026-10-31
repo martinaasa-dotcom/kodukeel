@@ -37,7 +37,7 @@ export function StartProgramme({ programmeId, on = false }: {
 
   return (
     <div>
-      <Button variant={on ? "secondary" : "primary"} onClick={press} disabled={pending}>
+      <Button variant={on ? "secondary" : "primary"} onClick={press} busy={pending}>
         {on ? t("Stop following the course") : <>{t("Start the course")} <ArrowRight size={15} aria-hidden /></>}
       </Button>
       {failed && (

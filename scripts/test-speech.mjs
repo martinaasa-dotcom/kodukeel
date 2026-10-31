@@ -93,8 +93,9 @@ try {
   const unnamed = await page.$$eval("[data-mic-state] button.speech-mic", (buttons) => buttons.filter((b) => !b.getAttribute("aria-label")).length);
   check("every microphone has a name a screen reader can say", unnamed === 0, `${unnamed} without`);
   // Counted as well as read: a gallery that drew no error cell at all would pass "none is wordless".
+  // The reason is its own live region, filled a frame after it mounts so it is read on arrival.
   const errorCells = await page.locator("[data-mic-state^='Error']").count();
-  const wordless = await page.$$eval("[data-mic-state^='Error']", (cells) => cells.filter((c) => !/[a-z]{4}/.test(c.querySelector("[role=status] p")?.textContent ?? "")).length);
+  const wordless = await page.$$eval("[data-mic-state^='Error']", (cells) => cells.filter((c) => !/[a-z]{4}/.test(c.querySelector("p[role=status]")?.textContent ?? "")).length);
   check("every error is said in words", errorCells >= 9 && wordless === 0, `${errorCells} error states, ${wordless} without a sentence`);
   const silentLine = await page.locator("[data-mic-state='Nothing was heard']").innerText().catch(() => "");
   check("a turn that closed with nothing said says so", /Nothing was heard/.test(silentLine), silentLine.slice(0, 80));

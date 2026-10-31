@@ -20,7 +20,15 @@ import type { InvariantKit } from "../lib/invariantKit";
  * handed the whole check, never `.verdict` alone, since the bare string has
  * thrown the close reading away before the function sees it.
  */
-const MARKERS = /\b(?:checkAnswer|markForm|markFlash|markTyped|markPhrase|markLine|gradeWrite|isClozeCorrect)\(/;
+const MARKERS = /\b(?:checkAnswer|markForm|markFlash|markTyped|markPhrase|markRework|markOwnAnswer|markLine|gradeWrite|isClozeCorrect)\(/;
+/**
+ * Screens that mark a typed answer and deliberately never paint a miss nearly,
+ * each with its reason, checked both ways below.
+ */
+const NEVER_NEAR: Readonly<Record<string, string>> = {
+  "app/(app)/course/lessons/[id]/SayIt.tsx":
+    "an answer about yourself is the learner's own, so a different one is shown one way to say it and read by the dictionary, never painted as a near miss of a model it need not match",
+};
 const PAINTS = /\bVERDICT_(?:CLASS|INK)\b/;
 const READS_CLOSE = /\bverdictOfCheck\(|\bverdictOfMark\(|\bnearMiss\(|\.close\b|\bclose\b/;
 
@@ -29,7 +37,8 @@ export default function aCloseMissIsNearly({ check, ALL, code }: InvariantKit) {
     const screens = ALL.filter((f) => /^(app|components)\//.test(f) && f.endsWith(".tsx"))
       .filter((f) => { const s = code(f); return MARKERS.test(s) && PAINTS.test(s); });
     assert.ok(screens.length >= 10, `only ${screens.length} marking screens found, so the haystack stopped matching`);
-    const blind = screens.filter((f) => !READS_CLOSE.test(code(f)));
+    for (const f of Object.keys(NEVER_NEAR)) assert.ok(screens.includes(f), `${f} is exempt from the close-miss rule and no longer marks a typed answer; take it off the list`);
+    const blind = screens.filter((f) => !READS_CLOSE.test(code(f)) && !(f in NEVER_NEAR));
     assert.deepEqual(blind, [], `${blind.join("\n")}\npaint a typed miss through verdictOfCheck(check) or verdictOfMark(mark), or read check.close`);
   });
 

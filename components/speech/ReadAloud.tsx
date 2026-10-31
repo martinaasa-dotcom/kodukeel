@@ -82,7 +82,7 @@ export function ReadAloud({ line, label, onHeard, shortcut = false, voice, nativ
       </p>
       {speech.offered && (
         <div className="flex flex-wrap items-center gap-3">
-          <MicButton speech={speech} label={label ?? t("Say it along")} shortcut={shortcut} showPartial={false} />
+          <MicButton speech={speech} label={label ?? t("Say it along")} shortcut={shortcut} showPartial={false} fallback="none" />
           {!speech.listening && heard && (
             <p className="text-sm" style={{ color: "var(--ink-2)" }} role="status">
               {all ? t("Every word was understood.") : fill(t("{n} of {total} words were understood."), { n: litWords, total: spoken.length })}

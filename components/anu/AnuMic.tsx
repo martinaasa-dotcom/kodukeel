@@ -37,5 +37,5 @@ export function AnuMic({ current, onHeard, shortcut = false }: {
     },
   });
   if (!micInAnswerBox(speech, config)) return null;
-  return <MicButton speech={speech} label={t("Say your question")} shortcut={shortcut} showPartial={false} />;
+  return <MicButton speech={speech} label={t("Say your question")} shortcut={shortcut} showPartial={false} fallback="box" />;
 }

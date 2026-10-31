@@ -193,7 +193,7 @@ function WhyRow({ card, alsoRight }: {
           className={pill}
           style={{ background: "var(--raised)", color: "var(--ink-2)" }}
         >
-          <Compass size={12} aria-hidden /> {whyBefore}<span lang="et">{caseName}</span>{whyAfter}
+          <Compass size={12} aria-hidden /> <span>{whyBefore}<span lang="et">{caseName}</span>{whyAfter}</span>
         </Link>
       )}
       {/* Opens her panel over the card rather than leaving the round for

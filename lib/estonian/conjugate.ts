@@ -432,3 +432,57 @@ export function pastPersons(past1sg: string): { morphCode: PastCode; value: stri
   if (!parts) return [];
   return PAST.map(([morphCode, ending]) => ({ morphCode, value: parts.stem + ending + parts.tail }));
 }
+
+/** A grammatical person, singular or plural. */
+export type Person = "Sg1" | "Sg2" | "Sg3" | "Pl1" | "Pl2" | "Pl3";
+
+const PERSON_OF_CODE: Readonly<Record<string, readonly Person[]>> = {
+  IndPrSg1: ["Sg1"], IndPrSg2: ["Sg2"], IndPrSg3: ["Sg3"], IndPrPl1: ["Pl1"], IndPrPl2: ["Pl2"], IndPrPl3: ["Pl3"],
+  KndPrSg1: ["Sg1"], KndPrSg2: ["Sg2", "Pl3"], KndPrPs: ["Sg1", "Sg2", "Sg3", "Pl1", "Pl2", "Pl3"],
+  KndPrPl1: ["Pl1"], KndPrPl2: ["Pl2"], KndPrPl3: ["Sg2", "Pl3"],
+  IndIpfSg2: ["Sg2", "Pl3"], IndIpfPl1: ["Pl1"], IndIpfPl2: ["Pl2"], IndIpfPl3: ["Sg2", "Pl3"],
+};
+
+/**
+ * WHICH PERSON A FINITE FORM IS, for every form this module builds off a
+ * stored first person and a stored past first person.
+ *
+ * What a marker asks when a learner has added or left out a subject pronoun:
+ * is there a verb in the sentence the pronoun agrees with. The answer is read
+ * off the same endings `presentTense`, `conditional` and `pastPersons` add, so
+ * it cannot disagree with them. Two things about it are decisions:
+ *
+ * - `olema`'s first and second persons are given, because its present is
+ *   regular everywhere but the third (`on`), which is why `presentTense`
+ *   refuses it whole. The third persons are left out for it.
+ * - A form two persons share (`-ksid`, past `-id`) says both, and the bare
+ *   `-ks` conditional says every person, since `ma tahaks` and `me oleks` are
+ *   what people say.
+ *
+ * Lower-cased spellings. A verb whose first person this cannot read gives
+ * nothing, so a caller asking about it gets no person and credits nothing.
+ */
+export function personForms(verb: VerbStems & { readonly past1sg?: string | null }): { value: string; persons: readonly Person[] }[] {
+  const out: { value: string; persons: readonly Person[] }[] = [];
+  const add = (code: string, value: string) => {
+    const persons = PERSON_OF_CODE[code];
+    if (persons) out.push({ value: value.toLowerCase(), persons });
+  };
+  const present = presentTense(verb);
+  if (present) for (const f of present) add(f.morphCode, f.value);
+  else if (verb.pres1sg && IRREGULAR_PRESENT.has(verb.lemma)) {
+    const parts = split(verb.pres1sg);
+    if (parts) {
+      for (const [code, ending] of PRESENT) {
+        if (code === "IndPrSg3" || code === "IndPrPl3") continue;
+        add(code, parts.stem + ending + parts.tail);
+      }
+    }
+  }
+  for (const f of conditional(verb) ?? []) add(f.morphCode, f.value);
+  if (verb.past1sg) {
+    out.push({ value: verb.past1sg.toLowerCase(), persons: ["Sg1"] });
+    for (const f of pastPersons(verb.past1sg)) add(f.morphCode, f.value);
+  }
+  return out;
+}

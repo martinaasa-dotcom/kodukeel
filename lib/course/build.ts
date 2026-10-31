@@ -24,6 +24,7 @@ import { unitById, type SyllabusUnit } from "@/lib/collections/syllabus";
 import { HARVESTED } from "@/prisma/data/harvested";
 import { EARLIER_SCENES_FOR_UNIT, PARTS, ROTATION, SCENE_FOR_UNIT, VERB_HEAVY, type PartSpec } from "./plan";
 import { lessonProgrammes } from "./lessonCourse";
+import { LESSONS } from "./lessons";
 import {
   ACTIVITIES, day, ordinaryWords,
   type ActivityKey, type CourseDay, type DaySpec, type Programme,
@@ -829,20 +830,30 @@ export function withForms(
  *
  * A1, A2 and B1 are the lessons (`lessonCourse.ts`), and B2's first evening is dealt
  * against what a learner had when it began: every word a lesson taught,
- * as the harvest holds it (its part of speech is whichever the harvest found
- * it under first, and a phrase the harvest does not hold teaches its own
- * spelling), and every page a lesson explained.
+ * as the harvest holds it, and every page a lesson explained. A word a lesson
+ * taught as a verb is a verb whatever the harvest found it under first, so
+ * it counts toward the rounds that want one; any other word takes the
+ * harvest's first part of speech, and a phrase the harvest does not hold
+ * teaches its own spelling.
+ *
+ * And a past a lesson taught by name has been shown, but the past alone: the
+ * lesson's evening carries it as `pasts` and `pastsThird` (`lessonPastSlots`), slot by slot, which `pastsThrough`
+ * and `thirdPastsThrough` read, so the module may ask the slot that lesson showed from then on (D4). The verb
+ * stays in the forms queue, because no lesson shows its polite imperative
+ * (`tehke`, `lugege`), and B2's forms step is where that is shown.
  */
 export function teachLessons(ledger: Ledger): Ledger {
   for (const programme of lessonProgrammes()) {
     for (const d of programme.days) {
-      for (const lemma of d.words) ledger.teach(lemma, POS_OF.get(lemma) ?? "PHRASE");
+      for (const lemma of d.words) ledger.teach(lemma, LESSON_VERBS.has(lemma) ? "VERB" : POS_OF.get(lemma) ?? "PHRASE");
       for (const key of d.cases ?? []) ledger.read({ grammarCase: key });
       for (const topic of d.topics ?? []) ledger.read({ grammar: topic });
     }
   }
   return ledger;
 }
+
+const LESSON_VERBS: ReadonlySet<string> = new Set(LESSONS.flatMap((l) => l.teaches.flatMap((t) => (t.kind === "verb" ? [t.et] : []))));
 
 const POS_OF: ReadonlyMap<string, string> = (() => {
   const out = new Map<string, string>();
@@ -859,9 +870,9 @@ export function ledgerBefore(spec: PartSpec): Ledger {
 }
 
 /**
- * The whole ladder: the A1 and A2 lessons, then every part from B1 built in
- * order over one ledger that starts with what the lessons taught, so what the
- * lessons handed over is what b1.1's first evening is dealt against.
+ * The whole ladder: the A1, A2 and B1 lessons, then every part from B2 built
+ * in order over one ledger that starts with what the lessons taught, so what
+ * the lessons handed over is what b2.1's first evening is dealt against.
  */
 export function buildProgrammes(): Programme[] {
   return (BUILT ??= assemble());

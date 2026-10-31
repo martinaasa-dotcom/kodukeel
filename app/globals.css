@@ -864,6 +864,12 @@
     cursor: default;
   }
 
+  /* A button whose own press is still out: focusable, quieter, and saying it is working. */
+  .btn.busy {
+    cursor: progress;
+    opacity: 0.7;
+  }
+
   /* A tap is a tap: no gray flash, and none of the 300ms double-tap-to-zoom
      wait on the rating buttons, which are pressed hundreds of times a session. */
   button, a, [role="button"] {
@@ -3716,6 +3722,30 @@
     }
   }
   .tap-tint:active:not(:disabled) { transform: translateY(1px) scale(0.99); }
+
+  /*
+    A STEP PILL (`components/course/StepPills.tsx`). Its colors are classes
+    rather than inline styles, so a pill that goes back to a step answers a
+    pointer: an inline background beats the hover above and nothing moved.
+  */
+  .step-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    border-radius: 9999px;
+    border: 1px solid transparent;
+    padding: 0.25rem 0.75rem;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    background: var(--raised);
+    color: var(--ink-2);
+  }
+  .step-pill[data-state="here"] { background: var(--accent-soft); color: var(--accent-deep); border-color: var(--accent); }
+  .step-pill[data-state="done"] { background: var(--sky-soft); color: var(--sky-ink); }
+  @media (hover: hover) {
+    button.step-pill:hover { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--ink) 22%, transparent); }
+    button.step-pill[data-state="visited"]:hover { background: var(--surface); }
+  }
 
   /*
     THE SAME RULE AGAIN, FOR THE ONE THING IN THE RAIL THAT DID NOT LOOK LIKE

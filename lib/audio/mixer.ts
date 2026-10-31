@@ -96,7 +96,7 @@ export async function playThrough(
   const buffer = await ctx.decodeAudioData(bytes.slice(0));
   // A Stop pressed while the context was resuming or the clip decoding is a
   // Stop: the sources do not exist yet, so `stopMixed` had nothing to end.
-  if (cancelled()) return "played";
+  if (cancelled()) return "stopped";
   const offset = Math.min(buffer.duration * condition.skip, Math.max(0, buffer.duration - 0.4));
   const remaining = buffer.duration - offset;
   // A cold device is given its head start on the context rather than in the clip.
@@ -157,6 +157,8 @@ export async function playThrough(
       });
     }
   }
-  if (mixing === mine) mixing = null;
+  // Ended by a Stop or by the next line before it finished: not a line heard.
+  if (mixing !== mine) return "stopped";
+  mixing = null;
   return "played";
 }
