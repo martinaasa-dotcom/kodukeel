@@ -105,7 +105,17 @@ export type PracticeItem =
       /** Taught spellings of another word one letter from a word of the line. */
       readonly otherWords?: readonly string[];
       /** Taught spellings one letter from a word of the line that the ledger cannot place. */
-      readonly unplaced?: readonly string[] } & Checkable;
+      readonly unplaced?: readonly string[] } & Checkable
+  /**
+   * A sentence with one word nobody has taught whose parts the learner has
+   * (`WorkOut`, B2): which of three meanings it is, and then its parts. `et`
+   * is the whole sentence, with `word` standing in it once; the sentence's
+   * English is shown after the answer, since it says what the word means.
+   * Asked for its meaning only, never for its form, and graded nowhere, like
+   * every other choice in a lesson.
+   */
+  | { readonly kind: "workOut"; readonly et: string; readonly en: string; readonly word: string;
+      readonly parts: readonly string[]; readonly options: readonly string[]; readonly answer: string };
 
 /**
  * What a typed sentence is checked against beyond the sentences written for it.
@@ -130,8 +140,32 @@ export function itemEstonian(item: PracticeItem): string[] {
     case "reply": return [item.ask.et, ...item.options];
     case "rework": return [item.from.et, ...item.accept];
     case "fix": return [item.shown, ...item.accept];
+    // The one word to work out is the one the ledger is not asked to cover; the rest of its sentence is.
+    case "workOut": return [withoutWord(item.et, item.word)];
     default: return [item.et];
   }
+}
+
+/** A sentence with one whole word taken out, which is what a work-it-out sentence holds the ledger to. */
+function withoutWord(sentence: string, word: string): string {
+  return sentence.replace(new RegExp(`(?<![\\p{L}])${word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\p{L}])`, "u"), " ").replace(/\s+/g, " ").trim();
+}
+
+/**
+ * The work-it-out questions a lesson asks (B2), in the order written, with
+ * their three meanings drawn in an order of their own off the word, so the
+ * right one is not always where the author put it and a reload keeps it.
+ */
+export function workOutItems(lesson: LessonSpec): Extract<PracticeItem, { kind: "workOut" }>[] {
+  return (lesson.workOut ?? []).map((w) => ({
+    kind: "workOut" as const,
+    et: w.sentence.et,
+    en: w.sentence.en,
+    word: w.word,
+    parts: w.parts,
+    options: shuffle(w.options, rng(seedFrom(`workout:${lesson.id}:${w.word}`))),
+    answer: w.means,
+  }));
 }
 
 /** Longest answer a learner is asked to produce whole, in words. */
@@ -569,7 +603,7 @@ export function practiceFor(
     .slice(0, PRODUCE_AT_MOST)
     .map((item) => produce(item, pool, after));
   const reworks = (lesson.reworks ?? []).slice(0, REWORK_AT_MOST).map((r) => reworkItem(r, after));
-  return [...(match ? [match] : []), ...recog, ...gaps, ...replies, ...reworks, ...fixesFor(lesson, after, confusions), ...asked];
+  return [...(match ? [match] : []), ...recog, ...gaps, ...replies, ...reworks, ...fixesFor(lesson, after, confusions), ...workOutItems(lesson), ...asked];
 }
 
 /**

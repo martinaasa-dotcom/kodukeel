@@ -12,6 +12,14 @@
 /** The three windows, in seconds: the 4/3/2 exercise, scaled to one answer. */
 export const FASTER_SECONDS = [90, 60, 45] as const;
 
+/**
+ * The windows one again-faster runs in, at the standard pace: its own where it
+ * names them (B2 shortens them part by part, §13.5), B1's three otherwise.
+ */
+export function fasterWindows(faster: { readonly seconds?: readonly number[] }): readonly number[] {
+  return faster.seconds ?? FASTER_SECONDS;
+}
+
 export interface Go {
   /** The window this go had. */
   readonly window: number;
@@ -21,8 +29,8 @@ export interface Go {
   readonly perMinute: number;
 }
 
-export function goOf(said: string, took: number, window: number): Go {
+export function goOf(said: string, took: number, windowSeconds: number): Go {
   const words = [...said.matchAll(/\p{L}+/gu)].length;
-  const seconds = Math.max(5, Math.min(window, Number.isFinite(took) ? took : window));
-  return { window, words, perMinute: words === 0 ? 0 : Math.round((words / seconds) * 60) };
+  const seconds = Math.max(5, Math.min(windowSeconds, Number.isFinite(took) ? took : windowSeconds));
+  return { window: windowSeconds, words, perMinute: words === 0 ? 0 : Math.round((words / seconds) * 60) };
 }

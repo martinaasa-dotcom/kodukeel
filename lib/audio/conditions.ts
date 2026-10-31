@@ -210,6 +210,22 @@ export function removesWords(condition: Condition): boolean {
 }
 
 /**
+ * THE ROOM ONE LINE OF A CONVERSATION IS HEARD IN, where the whole of it is
+ * heard in `condition` (a lesson's `hearing`, B1 on).
+ *
+ * A room that only colors the sound (a phone line, a café, sped up) is every
+ * line. A room that removes words is walking in on a conversation already
+ * going: the first spoken line is caught partway and every line after it is
+ * heard whole, since somebody who walks into a kitchen misses the start of
+ * what is being said, not the start of every sentence (B2's `half`).
+ * `lineAt` and `firstSpoken` are indexes into the conversation's lines.
+ */
+export function roomForLine(condition: Condition | undefined, lineAt: number, firstSpoken: number): Condition | undefined {
+  if (!condition || !removesWords(condition)) return condition;
+  return lineAt === firstSpoken ? condition : undefined;
+}
+
+/**
  * The conditions a word with this many reviews behind it may be heard in.
  *
  * `skippable` is the caller's answer to the paragraph above: false where

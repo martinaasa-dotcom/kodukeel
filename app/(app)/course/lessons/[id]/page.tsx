@@ -47,6 +47,7 @@ export default async function LessonPage({ params, searchParams }: { params: Pro
       check={view.check}
       timeMultiplier={view.timeMultiplier}
       partAt={view.partAt}
+      read={view.read}
     />
   );
 }

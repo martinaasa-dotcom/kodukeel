@@ -10,6 +10,7 @@ import { fillNodes } from "@/components/TemplateNodes";
 import { useFeedbackSound } from "@/components/AudioPrefs";
 import { useLocale, useT } from "@/components/Locale";
 import { LessonText } from "@/components/course/LessonText";
+import { WordLink } from "@/components/course/WordLink";
 import { Card, Meter, SectionTitle } from "@/components/ui";
 import { fill, type Locale } from "@/lib/copy/locale";
 // By its own module, never the barrel, which imports every lesson the course has.
@@ -26,8 +27,10 @@ import { OPTION_CLASS, optionState, VERDICT_CLASS } from "@/lib/ux/verdict";
  * Eight shapes of question, in the order the server puts them: a match to
  * warm up, a meaning picked out by ear or by eye, a line of the conversation
  * with a form taken out (the evening's pattern, asked), what somebody said
- * back, a meaning typed back in Estonian, and at B1 a sentence changed into
- * another and a line put right. The questions arrive already built, so
+ * back, a meaning typed back in Estonian, at B1 a sentence changed into
+ * another and a line put right, and at B2 a new word worked out from parts
+ * the learner has (`WorkOut`), its meaning picked before its parts are shown.
+ * The questions arrive already built, so
  * nothing here decides what a learner may be asked.
  *
  * A RUN OF RIGHT ANSWERS IS COUNTED ON THE SCREEN, from three. It is about
@@ -180,6 +183,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true, review = fal
     reply: t("What do they say back?"),
     rework: t("Change the sentence"),
     fix: t("Put it right"),
+    workOut: t("Work it out"),
   }[item.kind];
 
   return (
@@ -249,11 +253,13 @@ export function Quiz({ items, onFinished, onAnswer, summary = true, review = fal
           </div>
         )}
 
+        {item.kind === "workOut" && <WorkOutSentence item={item} answered={picked !== null} />}
+
         {item.kind === "match" && (
           <Match key={at} pairs={item.pairs} onDone={(clean) => { setMatched(clean); scored(clean); sound("right"); }} />
         )}
 
-        {(item.kind === "hear" || item.kind === "pick" || item.kind === "gap" || item.kind === "reply") && (
+        {(item.kind === "hear" || item.kind === "pick" || item.kind === "gap" || item.kind === "reply" || item.kind === "workOut") && (
           <ChoiceGroup ariaLabel={item.kind === "gap" ? t("Which word fits") : item.kind === "reply" ? t("What they say back") : t("What it means")} select="one" answer className="choice-grid mt-4">
             {item.options.map((option) => {
               const state = picked === null ? null : optionState(option === item.answer, option === picked);
@@ -280,6 +286,8 @@ export function Quiz({ items, onFinished, onAnswer, summary = true, review = fal
             <LessonText text={item.answerEn} locale={locale} />
           </p>
         )}
+
+        {item.kind === "workOut" && picked !== null && <WorkOutParts item={item} />}
 
         {(item.kind === "rework" || item.kind === "fix") && (
           <div className="mt-2 flex flex-col gap-3" data-rework={item.kind}>
@@ -522,4 +530,55 @@ function Match({ pairs, onDone }: { pairs: readonly { et: string; en: string }[]
       </p>
     </div>
   );
+}
+
+/**
+ * WORK IT OUT, BEFORE THE ANSWER (B2, `WorkOut`): the sentence with its one new
+ * word marked. The sentence's English is held back until the answer is in,
+ * since it says what the word means.
+ */
+function WorkOutSentence({ item, answered }: { item: Extract<PracticeItem, { kind: "workOut" }>; answered: boolean }) {
+  const t = useT();
+  const locale = useLocale();
+  const at = wordAt(item.et, item.word);
+  return (
+    <div className="flex flex-col gap-2" data-work-out={item.word}>
+      <p className="text-base" style={{ color: "var(--ink-2)" }}>{t("One word here is new, and you know its parts. What does it mean?")}</p>
+      <div className="flex items-start gap-2">
+        <Speak text={item.et} size={18} label={t("Hear the sentence")} />
+        <p lang="et" className="text-xl font-bold leading-snug" style={{ color: "var(--ink)" }}>
+          {at < 0 ? item.et : (
+            <>
+              {item.et.slice(0, at)}
+              <mark className="rounded-sm px-0.5" style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }} data-work-out-word>{item.word}</mark>
+              {item.et.slice(at + item.word.length)}
+            </>
+          )}
+        </p>
+      </div>
+      {answered && <p className="text-base" style={{ color: "var(--ink-2)" }}><LessonText text={item.en} locale={locale} /></p>}
+    </div>
+  );
+}
+
+/** And after it: the word as its parts, and the way to its dictionary entry. */
+function WorkOutParts({ item }: { item: Extract<PracticeItem, { kind: "workOut" }> }) {
+  const t = useT();
+  const locale = useLocale();
+  return (
+    <div className="mt-4 flex flex-col gap-1 rounded-[var(--r-lg)] border px-4 py-3" style={{ borderColor: "var(--edge)", background: "var(--raised)" }} data-work-out-parts>
+      <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("How it is built")}</p>
+      <p className="text-lg font-semibold" style={{ color: "var(--ink)" }}>
+        <span lang="et">{item.parts.join(" + ")}</span>{" = "}
+        <WordLink lemma={item.word} className="font-bold" linkClass="underline underline-offset-4">{item.word}</WordLink>
+      </p>
+      <p className="text-base" style={{ color: "var(--ink-2)" }}><LessonText text={item.answer} locale={locale} /></p>
+    </div>
+  );
+}
+
+/** Where a word stands in a sentence as a whole word, or -1. */
+function wordAt(sentence: string, word: string): number {
+  for (const m of sentence.matchAll(/\p{L}+/gu)) if (m[0] === word) return m.index ?? -1;
+  return -1;
 }

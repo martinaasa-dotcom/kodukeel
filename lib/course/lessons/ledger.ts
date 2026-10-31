@@ -35,6 +35,8 @@ import { lessonLabel } from "./label";
 import { fold } from "@/lib/estonian/fold";
 import type { Fix, LessonSpec, PatternId, Taught } from "./types";
 import { PARALLEL_FORMS } from "./parallelForms";
+import { workOutProblems } from "./workOut";
+import { fasterWindows } from "./faster";
 
 /** A taught item as a learner is asked about it: a verb counts as its two spellings. */
 export type Asked = Exclude<Taught, { kind: "verb" }>;
@@ -347,9 +349,25 @@ export function uncovered(text: string, ledger: Ledger, names: ReadonlySet<strin
   return words.filter((_, i) => !covered[i]).map((w) => w.raw);
 }
 
+/**
+ * One piece of Estonian a lesson puts on a screen. `heard` marks a piece that
+ * may run ahead of the course, which the taught-word check leaves out and the
+ * forms list still reads: a sound key's example word with its meaning beside
+ * it, and every line of a real text read in the Listen step (`LessonSpec.read`,
+ * B2), which is read and never asked about. `except` is the one word of a
+ * work-it-out sentence that is there to be worked out (`WorkOut.word`): the
+ * rest of the sentence is held to the ledger, and that word is not.
+ */
+export interface ShownEstonian {
+  readonly where: string;
+  readonly et: string;
+  readonly heard?: true;
+  readonly except?: readonly string[];
+}
+
 /** Every piece of Estonian a lesson puts on a screen, with where it is. */
-export function estonianOf(lesson: LessonSpec): { where: string; et: string; heard?: true }[] {
-  const out: { where: string; et: string; heard?: true }[] = [];
+export function estonianOf(lesson: LessonSpec): ShownEstonian[] {
+  const out: ShownEstonian[] = [];
   const english = (where: string, text: string | undefined) => {
     for (const et of estonianIn(text ?? "")) out.push({ where, et });
   };
@@ -442,6 +460,21 @@ export function estonianOf(lesson: LessonSpec): { where: string; et: string; hea
     english("the role-play's scene", lesson.roleplay.scene);
     prompts("role-play turn", lesson.roleplay.turns);
   }
+  // B2: a real text, read and never asked about, so ahead of the course by design.
+  if (lesson.read) {
+    english("the text's genre", lesson.read.genre);
+    lesson.read.lines.forEach((line, i) => {
+      out.push({ where: `text to read, line ${i + 1}`, et: line.et, heard: true });
+      english(`text to read, line ${i + 1} English`, line.en);
+    });
+  }
+  // B2: a sentence with one word to work out, held to the ledger but for that word.
+  lesson.workOut?.forEach((w, i) => {
+    out.push({ where: `work it out ${i + 1}, the sentence`, et: w.sentence.et, except: [w.word] });
+    english(`work it out ${i + 1}, the sentence's English`, w.sentence.en);
+    english(`work it out ${i + 1}, the meaning`, w.means);
+    w.options.forEach((o) => english(`work it out ${i + 1}, option`, o));
+  });
   return out;
 }
 
@@ -647,6 +680,28 @@ export function lessonProblems(lessons: readonly LessonSpec[]): string[] {
         }
       });
     }
+    if (lesson.retell?.hearings !== undefined && lesson.retell.hearings !== 1 && lesson.retell.hearings !== 2) {
+      problems.push(`${at}: a story is heard once or twice, and this says ${String(lesson.retell.hearings)}`);
+    }
+    if (lesson.faster) {
+      // Each go shorter than the one before, inside what a minute or three of talk can be.
+      const windows = fasterWindows(lesson.faster);
+      if (windows.length === 0 || windows.length > 3) problems.push(`${at}: again-faster has ${windows.length} goes, where it has one to three`);
+      if (windows.some((sec) => !Number.isInteger(sec) || sec < 15 || sec > 180)) problems.push(`${at}: again-faster has a go of ${windows.join(", ")} seconds, outside 15 to 180`);
+      if (windows.some((sec, i) => i > 0 && sec >= windows[i - 1]!)) problems.push(`${at}: again-faster's goes of ${windows.join(", ")} seconds are not each shorter than the last`);
+      const prepare = lesson.faster.prepare;
+      if (prepare !== undefined && (!Number.isInteger(prepare) || prepare < 10 || prepare > 300)) problems.push(`${at}: again-faster prepares for ${prepare} seconds, outside 10 to 300`);
+    }
+    if (lesson.read) {
+      if (!lesson.read.genre.trim()) problems.push(`${at}: a text to read says what it is`);
+      if (lesson.read.lines.length === 0) problems.push(`${at}: a text to read has no lines`);
+      lesson.read.lines.forEach((line, i) => {
+        if (!line.et.trim() || !line.en.trim()) problems.push(`${at}, text to read line ${i + 1}: has Estonian or English and not both`);
+      });
+    }
+    lesson.workOut?.forEach((w, i) => {
+      for (const p of workOutProblems(w, tonight, namesOf(lesson))) problems.push(`${at}, work it out ${i + 1}: ${p}`);
+    });
     if (lesson.write) {
       const text = lesson.write.model.map((l) => l.et).join(" ");
       if (lesson.write.model.length < 3) problems.push(`${at}: a model text is three sentences or more`);
@@ -657,9 +712,9 @@ export function lessonProblems(lessons: readonly LessonSpec[]): string[] {
       if (!(lesson.write.least >= 20)) problems.push(`${at}: a text of its own runs to twenty words or more`);
     }
     const names = namesOf(lesson);
-    for (const { where, et, heard } of estonianOf(lesson)) {
+    for (const { where, et, heard, except } of estonianOf(lesson)) {
       if (heard) continue;
-      const missing = uncovered(et, tonight, names);
+      const missing = uncovered(et, tonight, except ? new Set([...names, ...except]) : names);
       if (missing.length > 0) problems.push(`${at}, ${where}: "${et}" uses ${missing.join(", ")}, not taught by now`);
     }
     ledger = tonight;

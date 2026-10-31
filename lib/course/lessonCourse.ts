@@ -69,6 +69,18 @@ export const PATTERN_PAGE: Readonly<Partial<Record<PatternId, string>>> = {
   subordinate: "subordination",
   agreement: "adjective-agreement",
   derivation: "derivation",
+  /*
+    B2's (docs/43-lessons.md §13). The supine's cases (-mas, -mast, -maks,
+    -mata) are the -ma word's own, so they count as the page on the two
+    infinitives read; the spoken register is the page on reading the room.
+  */
+  quotative: "quotative",
+  converb: "converb",
+  supine: "infinitives",
+  nominal: "nominalisation",
+  hedging: "hedging",
+  concession: "concession",
+  spoken: "register",
 };
 
 /**
@@ -136,8 +148,11 @@ export function lessonMinutes(lesson: LessonSpec): number {
   return LESSON_MINUTES
     + (lesson.listenFor ? 2 : 0)
     + (lesson.retell ? 5 : 0)
-    + (lesson.faster ? 4 : 0)
-    + (lesson.write ? 15 : 0);
+    + (lesson.faster ? 4 + Math.round((lesson.faster.prepare ?? 0) / 60) : 0)
+    + (lesson.write ? 15 : 0)
+    // B2: a real text read in the Listen step, and words worked out in Practice.
+    + (lesson.read ? 2 : 0)
+    + (lesson.workOut && lesson.workOut.length > 0 ? 1 : 0);
 }
 
 /** Each harvested verb's stored simple past, the I form and the third person, for telling a taught past apart. */
