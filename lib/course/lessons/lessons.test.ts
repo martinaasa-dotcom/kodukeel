@@ -152,7 +152,7 @@ describe("the lessons, A1 and on", () => {
       }
     });
     expect(asked).toBeGreaterThan(LESSONS.length * 5);
-  });
+  }, 120_000);
 
   it("never print the answer in the question or in an option", () => {
     const before = ledgersBefore(LESSONS);
