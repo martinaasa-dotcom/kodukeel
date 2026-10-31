@@ -31,6 +31,7 @@ import { B2_PERE_LESSONS, B2_PERE_PART } from "./b2-pere";
 import { B2_TERVIS_LESSONS, B2_TERVIS_PART } from "./b2-tervis";
 import { B2_TOO_LESSONS, B2_TOO_PART } from "./b2-too";
 import { B2_RIIK_LESSONS, B2_RIIK_PART } from "./b2-riik";
+import { B2_ARUTELU_LESSONS, B2_ARUTELU_PART } from "./b2-arutelu";
 import type { LessonSpec, PartOfLessons } from "./types";
 
 const PARTS: readonly (readonly [PartOfLessons, readonly LessonSpec[]])[] = [
@@ -41,6 +42,7 @@ const PARTS: readonly (readonly [PartOfLessons, readonly LessonSpec[]])[] = [
   [B2_TERVIS_PART, B2_TERVIS_LESSONS],
   [B2_TOO_PART, B2_TOO_LESSONS],
   [B2_RIIK_PART, B2_RIIK_LESSONS],
+  [B2_ARUTELU_PART, B2_ARUTELU_LESSONS],
 ];
 
 export const PREVIEW_PARTS: readonly PartOfLessons[] = PARTS.map(([part]) => part);

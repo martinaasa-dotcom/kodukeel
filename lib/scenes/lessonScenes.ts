@@ -41,6 +41,7 @@ import B2_TEADE from "./specs/b2-teade";
 import B2_LASTEVANEMAD from "./specs/b2-lastevanemad";
 import B2_AMETIKONE from "./specs/b2-ametikone";
 import B2_KOOSOLEK from "./specs/b2-koosolek";
+import B2_EKSAM from "./specs/b2-eksam";
 
 export const LESSON_SCENES: readonly SceneSpec[] = [
   A1_TREPIL, A1_KURSUS, A1_PLAAN, A1_KOHVIK, A1_TEE, A1_MUTSIPOOD, A1_NADAL, A1_KUTSE,
@@ -52,6 +53,7 @@ export const LESSON_SCENES: readonly SceneSpec[] = [
   B2_LASTEVANEMAD,
   B2_AMETIKONE,
   B2_KOOSOLEK,
+  B2_EKSAM,
 ];
 
 /** The conversation a lesson's role-play opens, if it has one. */
