@@ -1330,10 +1330,11 @@ and `docs/reviews/b2-flags.md` is what to read first: the two parts the native s
 the lines each other part's author was least sure of, and what the integration changed. The Russian
 and Ukrainian are machine-written and need a fluent reader. B2 is recorded nowhere yet.
 
-## 15. C1 as lessons: measured against B2 as built, and the plan (for approval)
+## 15. C1 as lessons: measured against B2 as built, and the plan (decided)
 
-Written on 2026-10-31, after B2 merged, and revised the same day after a second pass that checked
-each assumption against the code. This is §10's first two steps again, read off `ledgerThrough` of
+Written on 2026-10-31, after B2 merged, revised the same day after a second pass that checked each
+assumption against the code, and settled the same day: the operator asked for the plan's best
+judgment on every open question, and the decisions are in 15.13. This is §10's first two steps again, read off `ledgerThrough` of
 `b2-48-end` with `npx tsx scripts/measure-b-levels.ts --through b2-48-end`, against the fourteen C1
 units, the C1 paper (`lib/exam/spec.ts`, `docs/16-exam.md`) and B2 as built (§14). C1 is the last
 level the state examines and the last level of this course, so the plan also says what comes after
@@ -1478,12 +1479,17 @@ The six steps stay. What is new in each:
 | **How it works** | one pattern, spoken and written side by side | one pattern or register skill, and the same thing said **three** ways: to a friend, to a colleague, in writing |
 | **Practice** | rework, fix, work it out | the same, plus **which room** (15.7) and the read text's questions. Each part's reworks recycle one C1 pattern from an earlier C1 part and one B2 pattern, so the quotative and hedging are still in use at the end. |
 | **Say it** | retell, faster, say along | retell to a different listener (to Mark, to the board), the paper's presentation with a choice of two topics, and say along at real speed with the words hidden from the first round (shadowing) |
-| **Review** | the learner's own sentences | the same, plus the collocations they got wrong |
+| **Review** | the learner's own sentences | the same, plus the collocations, each kept as the lesson's own phrase card (`lessonHeads.ts`) and asked back exactly as the lesson wrote it |
 
 **What makes it fun is in the lessons, and each fun thing practices the part's skill:**
 
 - **puns and riddles** in `c1-isiksus`: `tee` is tea and road, `kuu` is the moon and a month, and an
   Estonian joke that turns on one is worked out before it is explained;
+- **the morning show**, a radio program the family has on in the kitchen, with the same two hosts,
+  **Tõnu** and **Margit**, all year. Every part opens on its segment about that part's subject, and
+  every talk the learner takes notes on (15.7) is one of the show's guests. One show across the level
+  gives the hardest listening in the course two familiar voices and a sense of humor, and it is what
+  an Estonian kitchen sounds like at seven in the morning;
 - **the murder-mystery evening** that ends `c1-meedia`: every guest reports what they heard
   (quotative), and the learner listens for what was meant;
 - **Mark correcting his parents** in `c1-kool`: "Isa, see on ju omastav!" He learns the grammar words
@@ -1550,7 +1556,9 @@ a word of the text or a taught one.
 
 **Which room.** C1's register skill made into practice: one thing said three ways (to a friend, at
 work, in writing). The learner says which fits a given room, then reworks a sentence from one
-register into another. The three versions are the author's, and the rework is marked like any
+register into another, including how a message opens and closes (`Hei!`, `Tere!`, `Lugupeetud`;
+`Kallistades`, `Parimate soovidega`, `Lugupidamisega`), which is the first thing an Estonian reads
+and the first thing a learner gets wrong. The three versions are the author's, and the rework is marked like any
 rework (`markRework`), so nothing here is generated (ADR-005).
 
 **Work it out, further.** B2 worked out a word from a suffix it had explained. C1 has every suffix
@@ -1584,6 +1592,7 @@ below were checked against both earlier cast pages and the lessons, and none is 
 - **Toomas** is the head of Mark's school, and **Piret** is still his teacher.
 - **Tom** becomes team lead when **Kristi** moves on, and hires **Ott**.
 - **Urve** is the city planner at the public hearing.
+- **Tõnu** and **Margit** host the morning show (15.5). They are heard and never met.
 - **Kalju** is the old man at the village fair in Setomaa.
 - **Anna** takes a university evening course for her work, because a job she wants asks for C1, and
   sits the C1 exam in part 8 with a new examiner, **Evi**.
@@ -1624,16 +1633,16 @@ the last part.
 
 A learner who finishes C1 can do each of these, and each part's last role-play or text tests one:
 
-- follow a radio debate, a film and a fast argument among friends, and say what was meant as well as
-  what was said;
-- take notes on a ten-minute talk heard once and write up its ten key ideas;
-- read a contract, a policy page or a page of a novel and answer questions about it;
-- say one thing three ways and pick the right one for the room;
-- give a toast and a condolence, negotiate a price, and disagree with a school, in Estonian;
-- run a meeting, introduce themselves and their work, give the paper's two-minute presentation and
-  hold up their end of its discussion;
-- write a neutral summary of figures, a formal letter and a 220 to 260-word opinion text;
-- work out a word of dialect or an old form from context.
+| They can | Tested in |
+| --- | --- |
+| give a toast and a condolence, and take a joke and give one back | `c1-isiksus` |
+| follow a radio piece, a film and a fast argument among friends, and say what was meant as well as what was said | `c1-meedia` |
+| read an offer or a contract clause and summarize figures neutrally | `c1-kodu` |
+| write a formal letter that holds together, and disagree with a school politely and firmly | `c1-kool` |
+| say one thing three ways for three rooms, introduce themselves and their work, and give the paper's two-minute presentation | `c1-juht` |
+| write the paper's 220 to 260-word opinion text and hold up their end of its discussion | `c1-ühiskond` |
+| take notes on a ten-minute talk heard once, write up its ten key ideas, and work out a word of dialect or an old form from context | `c1-maa` |
+| choose the word a native would, answer questions about a page of a novel, and sit the whole C1 speaking part | `c1-mõte` |
 
 The level's last screen offers the C1 mock exam (`/exam/C1`).
 
@@ -1658,37 +1667,80 @@ There is no C2 level and no C2 lesson, because the state sets no C2 paper and no
 | Risk | What the plan does about it |
 | --- | --- |
 | A ten-minute lecture and a 600-word text make an evening far longer than the fifteen minutes Today promises | `lessonMinutes` counts the notes and the read questions, and the lecture evening drops the retell and the timed answer, so no evening runs past about fifty minutes. The ten minutes come once, in part 7. |
-| The native speaker's reading load grows with longer texts | B2's conversations were 638 lines and 5,455 words, plus 265 lines of read text. C1's will be about half again, plus three lectures. Parts 1 and 7 are read whole and the rest by flagged lines (C1-7), and the parts are written so each can be read the week it lands. |
+| The native speaker's reading load grows with longer texts | B2's conversations were 638 lines and 5,455 words, plus 265 lines of read text. C1's will be about half again, plus three lectures. What is read whole is chosen by where a model's Estonian is weakest (C1-7), and the parts land one a week so each is read the week it lands. |
 | Long texts in machine Russian and Ukrainian are worse than short ones | The translations are machine-written, as at B2, and a fluent reader is listed as owed. A read text and a lecture are translated sentence by sentence, never as a whole, so a wrong sentence is one sentence. |
 | Dialect slips past the checks | Its own glossary (15.7), never the forms list. |
 | Collocations are a judgment no check can make | Each collocation the Words step teaches is the author's and in the native speaker's reading; the review asks it back exactly as written and never a combination the lesson did not show. |
 | A unit word left untaught looks like a hole | It is in the dictionary and the practice rounds, as B1's and B2's were; §15.1 says why. |
 | Nothing at C1 is recorded by a person | As at B2, the plan does not wait on recordings. The native speaker's list (`docs/44-language-reviews.md` §2) gains C1's lines in the order a learner meets them. |
 
-### 15.13 Proposed decisions (for approval)
+### 15.13 Decided
 
-| # | Question | Proposed |
+Settled on 2026-10-31. The operator asked for the plan's best judgment on every open question, and
+named three as the ones that matter most; those carry their reasons below the table.
+
+| # | Question | Decision |
 | --- | --- | --- |
 | C1-1 | The parts and their order | The eight parts in 15.3, in that order, forty-eight core lessons. |
 | C1-2 | Texts asked about | Yes, from part 3, in the paper's three shapes, grading nothing (15.7). |
-| C1-3 | The lecture with notes | Yes: a `notes` Listen kind from part 2, reaching the paper's ten minutes, heard once, in part 7. |
-| C1-4 | Which room | Yes: a practice kind with three authored versions, and a rework marked as any rework. |
+| C1-3 | The lecture with notes | Yes: a `notes` Listen kind from part 2, reaching the paper's ten minutes, heard once, in part 7, every talk a guest on the morning show. |
+| C1-4 | Which room | Yes: a practice kind with three authored versions, openings and closings included, and a rework marked as any rework. |
 | C1-5 | Dialect | Read in a text, checked against its own glossary, and heard only out there; no voice puts on an accent. |
-| C1-6 | Swearing | The mild ones, taught as exclamations with when not to say them; nothing vulgar. |
-| C1-7 | The native speaker reads | Every line of `c1-isiksus` (humor, feeling, toasts) and `c1-maa` (dialect, old forms); flagged lines in the other six, as at B2. |
+| C1-6 | Swearing | Mild words to say, stronger ones named and never shown (below). |
+| C1-7 | What the native speaker reads whole | Parts 1 and 7, every read text and every lecture in all eight parts, and part 8's collocations; flagged lines elsewhere (below). |
 | C1-8 | The forms queue | Into the lessons, twelve a lesson at the foot of the Words step (15.9). |
-| C1-9 | The unit builder | C1 is its last user. It is removed in its own pull request after C1 moves, keeping the units as the dictionary's request list and every practice round. |
+| C1-9 | The unit builder | Removed in its own pull request once C1's lessons have been the course for a week (below). |
 | C1-10 | After C1 | The last lesson looks back and hands over (15.11); no C2. |
 | C1-11 | The cast | The family's third year (15.8), with a cast page first. |
 | C1-12 | Unit words | A source, not a quota (15.1, 15.9), as B1 and B2 were in practice. |
-| C1-13 | The errands | Sized as real practice, a whole show or a meeting rather than a sentence, because they are most of the level's hours (15.2). |
+| C1-13 | The errands | Sized as real practice, a whole show or a meeting rather than a sentence, because they are most of the level's hours (15.2). Each part's finish says in words how much of the week its errand takes. |
+| C1-14 | `tonightsCase` | Left in place until the unit builder goes, then removed with it. Only a unit evening can produce a case reading, so re-aiming it now would be work for code with a week to live. |
+| C1-15 | A learner on a C1 unit part | Restarts C1 at its first lesson, keeping every card and review (`REHOMED_LEVELS`), the A1 to B2 precedent. A learner who chooses "Fluent" in first run opens on C1's first lesson. |
+
+**Swearing (C1-6).** Every learner hears `kurat` in their first week, and a course that pretends
+otherwise leaves them unable to tell an exclamation from an insult, which is the distinction that
+matters at work. So one lesson of `c1-isiksus` teaches the mild ones to say, `kurat`, `pagan`,
+`jumal küll`, `kurat võtaks`, with how strong each one is and when not to say it: in front of a
+child, to a boss, to a stranger. The lesson then says in English that stronger words exist, that a
+learner will recognize them from context, and that nobody expects a foreigner to use them. It does
+not show them. The app is used in classes from the age of thirteen and sits in workplaces, and no
+vulgar word appears in a lesson, a card or a scene. The scene curveballs never use one either.
+
+**What the native speaker reads whole (C1-7).** The B2 rule was the parts made of what a model does
+worst, the spoken register and idiom. At C1 a model is weakest in three places, so all three are
+read whole:
+
+- **feeling, humor and dialect**: parts 1 and 7, as at B2;
+- **the long texts**: every read text and every lecture in all eight parts. They are the longest
+  Estonian in the course, the place a model's Estonian drifts furthest from what a native writes,
+  and the paper's own genres, so a wrong turn there is learned as the genre;
+- **part 8's collocations and near-synonyms**, which are native judgment by definition: no rule says
+  a decision is `langetatud` and a question `tõstatatud` rather than the other way round, only a
+  speaker does.
+
+The conversations, practice lines and role-plays of parts 2 to 6 and 8 are read by flagged lines, as
+at B2. The parts land one a week, so the reading comes a part at a time.
+
+**The unit builder (C1-9).** When C1 moves, nothing in the course is built from units any more, and
+the code that builds a unit evening has no level left to build: the parts in `plan.ts`, the
+rotations, `SCENE_FOR_UNIT` and `EARLIER_SCENES_FOR_UNIT`, the unit forms step, the case rounds and
+`tonightsCase`. Code with no caller still has to be kept passing and read past, and its tests
+describe a course nobody walks, so it goes. Three things decide how:
+
+- **after a week, not in the move.** The move rehomes every C1 learner, and the week is so that the
+  rehome is seen working on real decks before the code it moves them off is gone;
+- **an inventory first.** The pull request opens with a list of every import of the unit-day paths,
+  so nothing the lessons use is cut with them. The `Programme` and `CourseDay` shapes stay: the
+  lessons are built into them;
+- **what stays.** The units stay as the dictionary's request list and the harvest's input, and
+  every practice round stays, since a round reads the deck and the dictionary, not the builder. The
+  practice rotations a learner walks to from Practice are untouched.
 
 ### 15.14 The build
 
 Each step is one pull request, engine and words before any lesson, as at B2.
 
-0. **What B2 left.** `tonightsCase` answers for nothing a learner meets, so it is re-aimed at the
-   evening's pattern or removed. `scripts/lib/lessonPicks.ts` reaches B2. The `asumine` gloss is
+0. **What B2 left.** `scripts/lib/lessonPicks.ts` reaches B2. The `asumine` gloss is
    corrected. The B2 recordings go on the native speaker's list (`docs/44-language-reviews.md` §2).
 1. **The engine**:
    - the C1 patterns and their pages (`PATTERN_PAGE`, `LESSON_PAGES`), with one new page for the
@@ -1707,4 +1759,5 @@ Each step is one pull request, engine and words before any lesson, as at B2.
    restarts C1 at its first lesson (`REHOMED_LEVELS`), the six catalog conversations move to C1
    lessons, every floor that counted C1's unit evenings is rewritten against the lessons, and the
    translations are done.
-6. **The unit builder goes** (C1-9), along with the last lesson and the hand-over (15.11).
+6. **The last lesson and the hand-over** (15.11).
+7. **The unit builder goes** (C1-9), a week after step 5, with `tonightsCase` (C1-14).
