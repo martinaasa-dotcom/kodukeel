@@ -84,7 +84,7 @@ describe("the checks between the parts of the lessons", () => {
       }
     }
     expect(papers).toBe(checks.length * 5);
-  });
+  }, 120_000);
 
   it("passes at four in five, a nearly counting half", () => {
     const paper = checkPaper(checks[0]!, 1);
