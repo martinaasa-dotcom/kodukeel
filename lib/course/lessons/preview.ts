@@ -29,12 +29,14 @@
  */
 import { C1_ISIKSUS_LESSONS, C1_ISIKSUS_PART } from "./c1-isiksus";
 import { C1_MEEDIA_LESSONS, C1_MEEDIA_PART } from "./c1-meedia";
+import { C1_KODU_LESSONS, C1_KODU_PART } from "./c1-kodu";
 import type { LessonSpec, PartOfLessons } from "./types";
 
 const PARTS: readonly (readonly [PartOfLessons, readonly LessonSpec[]])[] = [
   // One line per C1 part, in teaching order: [C1_<PART>_PART, C1_<PART>_LESSONS],
   [C1_ISIKSUS_PART, C1_ISIKSUS_LESSONS],
   [C1_MEEDIA_PART, C1_MEEDIA_LESSONS],
+  [C1_KODU_PART, C1_KODU_LESSONS],
 ];
 
 export const PREVIEW_PARTS: readonly PartOfLessons[] = PARTS.map(([part]) => part);
