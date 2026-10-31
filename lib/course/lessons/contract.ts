@@ -1,5 +1,6 @@
 import { normalisePhrase } from "./ledger";
 import { B2_PATTERNS, type LessonSpec, type PartOfLessons } from "./types";
+import { b2PartAt, b2PatternsAboveMissing } from "./rampB2";
 
 /**
  * WHAT A LEVEL OF LESSONS HAS TO BE, WHICHEVER LEVEL IT IS.
@@ -237,7 +238,11 @@ export function levelContractProblems(lessons: readonly LessonSpec[], parts: rea
 export function b2LevelProblems(lessons: readonly LessonSpec[], parts: readonly PartOfLessons[]): string[] {
   const problems: string[] = [];
   const earlier = new Set<string>();
-  parts.filter((p) => p.level === "B2").forEach((part, i) => {
+  const present = new Set(parts.filter((p) => p.level === "B2").map((p) => p.id));
+  parts.filter((p) => p.level === "B2").forEach((part, n) => {
+    // Placed by B2's fixed order, and crediting the parts above it not written yet (`B2_PART_ORDER`).
+    const i = b2PartAt(part.id, n + 1) - 1;
+    for (const x of b2PatternsAboveMissing(part.id, present)) earlier.add(x);
     const inPart = lessons.filter((l) => l.part === part.id);
     const at = `B2 ${part.id}`;
     const writes = inPart.filter((l) => l.write).length;

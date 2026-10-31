@@ -38,7 +38,7 @@ import { LESSONS as COURSE, LESSON_PARTS as COURSE_PARTS } from "../lib/course/l
 import { PREVIEW_LESSONS, PREVIEW_PARTS } from "../lib/course/lessons/preview";
 import { PLACE_SPELLINGS, estonianOf, lessonProblems, namesOf, wordsOf } from "../lib/course/lessons/ledger";
 import { b2LevelProblems, lessonEnglish, levelContractProblems, untranslated } from "../lib/course/lessons/contract";
-import { b2RampProblems } from "../lib/course/lessons/rampB2";
+import { b2PatternsAboveMissing, b2RampProblems } from "../lib/course/lessons/rampB2";
 import { sceneForLesson } from "../lib/scenes/lessonScenes";
 
 const arg = (name: string) => {
@@ -58,9 +58,13 @@ const ids = new Set(mine.map((l) => l.id));
 const problems: string[] = [];
 
 // 1. The ledger, over the whole course in order, keeping this part's problems and dropping its numbering.
+// A B2 pattern a part above this one will explain, and that part is not written yet, counts as explained (`B2_PART_ORDER`).
+const awaited = b2PatternsAboveMissing(partId, new Set(PARTS.map((p) => p.id)));
 for (const p of lessonProblems(LESSONS)) {
   if (![...ids].some((id) => p.includes(`(${id})`))) continue;
   if (/: numbered \d+ where|: lettered /.test(p)) continue;
+  const early = /asks for the (\w+) pattern before it is explained/.exec(p);
+  if (early && awaited.has(early[1] ?? "")) continue;
   problems.push(`ledger: ${p}`);
 }
 

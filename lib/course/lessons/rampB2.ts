@@ -23,7 +23,40 @@
  * Asked of B2 alone: A1 to B1 are untouched by it. Pure: no React, no Prisma.
  */
 import { FASTER_SECONDS, fasterWindows } from "./faster";
-import type { LessonSpec, PartOfLessons } from "./types";
+import type { B2PatternId, LessonSpec, PartOfLessons } from "./types";
+
+/**
+ * B2'S PARTS IN TEACHING ORDER, AND THE PATTERNS EACH EXPLAINS
+ * (`docs/reviews/b2-cast.md`). The parts are written side by side, so a part
+ * is placed by this list rather than by where it happens to sit among the
+ * parts written so far, and a part above it that is not written yet still
+ * counts as having explained what it will. A part this list does not name is
+ * placed by its position, which is what a synthetic part in a test gets.
+ */
+export const B2_PART_ORDER: readonly { readonly id: string; readonly patterns: readonly B2PatternId[] }[] = [
+  { id: "b2-konekeel", patterns: ["spoken"] },
+  { id: "b2-kaudne", patterns: ["quotative"] },
+  { id: "b2-pere", patterns: ["converb", "supine"] },
+  { id: "b2-tervis", patterns: [] },
+  { id: "b2-too", patterns: ["hedging"] },
+  { id: "b2-riik", patterns: ["nominal"] },
+  { id: "b2-kultuur", patterns: [] },
+  { id: "b2-arutelu", patterns: ["concession"] },
+];
+
+/** A B2 part's place in the level, counted from 1: its place in `B2_PART_ORDER`, or else `fallback`. */
+export function b2PartAt(partId: string, fallback: number): number {
+  const i = B2_PART_ORDER.findIndex((p) => p.id === partId);
+  return i >= 0 ? i + 1 : fallback;
+}
+
+/** The patterns the parts above `partId` will explain and that are not among `present` parts yet. */
+export function b2PatternsAboveMissing(partId: string, present: ReadonlySet<string>): ReadonlySet<string> {
+  const at = B2_PART_ORDER.findIndex((p) => p.id === partId);
+  const out = new Set<string>();
+  for (const p of B2_PART_ORDER.slice(0, Math.max(at, 0))) if (!present.has(p.id)) for (const x of p.patterns) out.add(x);
+  return out;
+}
 
 /** The band a B2 part is in, 1 to 4, by its place in the level counted from 1. */
 export function b2Band(partAt: number): 1 | 2 | 3 | 4 {
@@ -49,7 +82,7 @@ export const B2_PREPARE = 120;
 export function b2RampProblems(lessons: readonly LessonSpec[], parts: readonly PartOfLessons[]): string[] {
   const problems: string[] = [];
   parts.filter((p) => p.level === "B2").forEach((part, i) => {
-    const at = i + 1;
+    const at = b2PartAt(part.id, i + 1);
     const band = b2Band(at);
     for (const lesson of lessons.filter((l) => l.part === part.id && l.level === "B2")) {
       const where = `B2 part ${at} ${part.id}, ${lesson.id}`;
