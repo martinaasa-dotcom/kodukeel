@@ -1321,7 +1321,9 @@ evenings, six conversations. Every floor that counted B2's evenings was measured
 set to what C1 reaches, with the figure in a comment. Two things are worth a look before C1 moves.
 No evening of the course reads a case page as its reading any more, so `tonightsCase` answers for
 nothing a learner meets; and the verbs whose polite imperative no lesson shows wait for C1's forms
-step, every other evening, which leaves about 150 for the ladder's last evening to show at once.
+step, every other evening. At five a night that left 137 of 227 for the ladder's last evening to
+show at once, so C1 shows twelve a night (`formsPerEvening`), spreading them over its nineteen forms
+evenings and leaving eleven for the last.
 
 **What waits on a person.** Every new Estonian line is in `docs/44-language-reviews.md` section 1,
 and `docs/reviews/b2-flags.md` is what to read first: the two parts the native speaker reads whole,

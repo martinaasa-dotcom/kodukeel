@@ -261,6 +261,20 @@ export const WORDS_FOR_LETTERS = 4;
 export const FORMS_PER_EVENING = 5;
 
 /**
+ * C1 SHOWS TWELVE, BECAUSE IT INHERITS THE QUEUE.
+ *
+ * Once B2 became lessons, C1 is the only level the forms step runs on after
+ * B1, and it opens with every verb B2's lessons taught still waiting for its
+ * past or its polite command. At five a night, on every other evening, that
+ * was 90 verbs over nineteen evenings and 137 on the ladder's last, which is
+ * the one evening that may not be a wall of tables. Twelve spreads them over
+ * the evenings C1 has; a C1 learner reads a table of twelve verbs as a list.
+ */
+export function formsPerEvening(level: string): number {
+  return level === "C1" ? 12 : FORMS_PER_EVENING;
+}
+
+/**
  * What each round needs to have been taught before the module deals it.
  *
  * Match and Listening need nothing but words, which is why they stand in for
@@ -673,7 +687,7 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
            however many that is: there is no later evening for it to go to,
            and a scene placed anywhere below moves the every-other-evening
            cadence by one, which is enough to leave more than a handful. */
-        : ledger.showForms(ladderEnd ? Infinity : FORMS_PER_EVENING);
+        : ledger.showForms(ladderEnd ? Infinity : formsPerEvening(spec.level));
       const dealt = onThePage(
         onTheCase(
           rounds(

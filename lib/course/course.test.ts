@@ -15,7 +15,7 @@ import {
   EARLIER_SCENES_FOR_UNIT, PARTS, PROGRAMMES, ROTATION, SCENE_FOR_UNIT, VERB_HEAVY, dayStanding, ordinaryWords, programmeAfter,
   programmeStanding, programmeUnits, slice, wordsThrough, taughtThrough, unitsThrough, activityTitle,
   MEET_STEP, REVIEW_STEP, NEEDS, PAGE_NEEDS, builtOnACase, supportedRounds, supportsRound, taughtFrom, grammarThrough, readingPlan,
-  WORDS_FOR_LETTERS, NO_TAUGHT, rounds, FORMS_STEP, FORMS_PER_EVENING, CASE_ROUNDS, PAGE_ROUND, newWordsIn,
+  WORDS_FOR_LETTERS, NO_TAUGHT, rounds, FORMS_STEP, FORMS_PER_EVENING, formsPerEvening, CASE_ROUNDS, PAGE_ROUND, newWordsIn,
 } from "./index";
 import { LESSON_PARTS } from "./lessons";
 import { HARVESTED } from "@/prisma/data/harvested";
@@ -889,7 +889,7 @@ describe("what a day reads and where it goes", () => {
     let readPast = a1Topics.has("imperfect");
     let imperativeRead = a1Topics.has("imperative");
     const shown = new Set<string>();
-    for (const { day } of DAYS) {
+    for (const { day, programme } of DAYS) {
       if (day.grammar === "imperative") imperativeRead = true;
       if (day.grammar === "imperfect") readPast = true;
       const forms = day.forms ?? [];
@@ -900,7 +900,7 @@ describe("what a day reads and where it goes", () => {
         expect(imperativeRead, day.id).toBe(true);
         // A handful, except on the ladder's last evening, which shows
         // whatever is still waiting because no evening comes after it.
-        if (day !== DAYS.at(-1)!.day) expect(forms.length, day.id).toBeLessThanOrEqual(FORMS_PER_EVENING);
+        if (day !== DAYS.at(-1)!.day) expect(forms.length, day.id).toBeLessThanOrEqual(formsPerEvening(programme.level));
         expect(day.steps.some((s) => s.id === FORMS_STEP), day.id).toBe(true);
         // One round rather than two: the evening is the same fifteen minutes.
         expect(day.practice.length, day.id).toBe(1);
