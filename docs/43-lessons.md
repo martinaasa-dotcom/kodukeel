@@ -1096,13 +1096,22 @@ ledger has not taught but whose parts it has. The learner picks its meaning from
 then is the dictionary entry shown.
 
 This changes the ledger rule that nothing untaught is ever asked, in one narrow way. A word is
-**derivable** when every part of it is a taught spelling and the suffix joining them is one the
-derivation table names. A derivable word may be asked about for its meaning, never asked for its
-form, at most one to a sentence. The word itself comes from the dictionary and is never built by
-the app (ADR-005). The parts come from Vabamorf's analysis with guessing off, which marks the
-boundary inside a compound and is already part of the forms build (`scripts/build-forms.ts`).
-Ekilex's word details, as cached here, record no split. Where the analysis does not mark one, the
-word is not derivable.
+**derivable** when every part of it but the last is a taught spelling, and the last is a taught
+spelling or a suffix the derivation table names (`DERIVATION_SUFFIXES` in
+`lib/course/lessons/workOut.ts`: the four B1 explains, -ja, -mine, -lik and -tu, and the rest of
+the handful the grammar reference's page names). A derivable word may be asked about for its
+meaning, never asked for its form, at most one to a sentence. The word itself has to be a spelling
+the forms list knows, so it is a word somebody wrote down and never one the app built (ADR-005).
+
+**The split is the author's, and the check over it is mechanical.** The plan first read the parts
+off Vabamorf's analysis with guessing off, which marks the boundary inside a compound. That
+analysis runs in the forms build (Python, offline), and the unit suite may not run it, so a check
+resting on it would be a check the suite cannot ask. So each item names its parts beside the word
+(`parts: ["laste", "aia", "koht"]`), and `workOutProblems` holds the split to being honest: the
+parts joined are the word, case aside; every part but the last is in the ledger by that lesson; the
+last is in the ledger or in the suffix table; the word stands in its sentence once and nothing else
+in the sentence is untaught; and `derivation` has been explained. A word inflected past its suffix
+is split with a taught spelling last, or a sentence holding the base shape is chosen.
 
 ### 13.7 The family's second year
 
@@ -1170,7 +1179,7 @@ Settled on 2026-10-31. The operator asked for the plan's best judgment on every 
 | B2-1 | The parts and their order | The eight parts in 13.3, in that order, forty-eight core lessons. |
 | B2-2 | The A2 words B1 never taught | Three lettered B1 extras, built first (13.8). |
 | B2-3 | B1's rules (B-L1 to B-L8) | They hold, with three changes: real texts from the first part; a curveball in every role-play and a switch to English in one per part; and B-L7 widened, so the native speaker reads every line of `b2-kõnekeel` and `b2-kultuur`. A model is weakest on the spoken register and on idiom, and those two parts are made of them. Flagged lines alone stay the rule for the other six. |
-| B2-4 | Work it out | Yes. A derivable word is asked for its meaning only, one to a sentence, with its parts read off Vabamorf (13.6). |
+| B2-4 | Work it out | Yes. A derivable word is asked for its meaning only, one to a sentence, with its parts written by the author and checked mechanically against the ledger and the suffix table (13.6; the plan's Vabamorf split was replaced, 13.12). |
 | B2-5 | Errands | One per part, written as errands in `lib/collections/errands.ts` that name the part's B2 unit and the scene that rehearses it. |
 | B2-6 | The cast | The family's second year (13.7), with a cast page first. |
 | B2-7 | Build order | Below. |
@@ -1190,3 +1199,49 @@ written against a rule that will change under it.
    `lessonScenes.test.ts`.
 6. **B2 becomes the course.** The old B2 units go with their day ids (the A1, A2 and B1 precedent),
    a learner on one restarts B2 at its first lesson, and the translations are done.
+
+### 13.12 The engine, as built
+
+Step 2 of 13.11, built on 2026-10-31 before any B2 lesson, so the eight parts are written against
+rules that hold still. Every field below is in `lib/course/lessons/types.ts`, named field for field
+in the v1 contract (`lib/api/contract.ts`), and checked by the ledger or the contract.
+
+**Where a part is written.** In a file of its own beside the B1 parts, named for the part without
+the marks (`b2-konekeel.ts`, `b2-too.ts`), exporting the part and its lessons the way `b1-uudised.ts`
+does, with one line added to `PARTS` in `lib/course/lessons/preview.ts`, in the teaching order of
+13.3. The order is read: the ramp takes a part's band off its place, and the recycling rule takes
+which B2 patterns came before it. `lib/course/lessons/b2.ts` is the empty skeleton the parts move
+to the day B2 is the course. Then:
+
+```
+npx tsx scripts/check-lesson-part.ts --part b2-kõnekeel
+```
+
+asks every check of that part, step 8 being B2's own.
+
+**The new fields.**
+
+| Field | What it is | What checks it |
+| --- | --- | --- |
+| `patterns`: `quotative`, `converb`, `supine`, `nominal`, `hedging`, `concession`, `spoken` | B2's rules (`B2_PATTERNS`, part of the one list `B_PATTERNS`). Like B1's they build no spelling and gate what Rework may ask; each counts its grammar page as read (`PATTERN_PAGE`: `quotative`, `converb`, `infinitives`, `nominalisation`, `hedging`, `concession`, `register`). `supine` is the -ma word's cases, -mas, -mast, -maks and -mata, each taught by name; the noun's -ta case stays `abessive`. | explained once a level; a rework asks only for one explained by then |
+| `hearing: "half"` | The conversation joined halfway: its first spoken line starts two fifths of the way in and the rest are heard whole (`roomForLine` in `lib/audio/conditions.ts`). | the ramp |
+| `read: { genre, lines: [{ et, en }] }` | A real text read in the Listen step after the transcript (`components/course/ReadText.tsx`), never asked about. Its words need not be taught; the ones the ledger has not taught by tonight are underlined to their dictionary entries (`read.ts`, glossed in `lessonView`). | every spelling in the forms list (check-lesson-part step 3, the lessons test); left out of the taught-word check; its English held to braces and translated; a genre and lines with both languages |
+| `workOut: [{ sentence: { et, en }, word, parts, means, options }]` | A word worked out from its parts in Practice: three English meanings, then the parts and a link to the entry. Grades nothing, like every lesson question. | `workOutProblems` (13.6); the rest of its sentence held to the ledger; the word in the forms list |
+| `retell.hearings: 1 \| 2` | How often the story may be heard; absent is twice. The screen draws one hearing as two stages and takes the play button away once heard. | 1 or 2; the ramp |
+| `faster.seconds: number[]`, `faster.prepare: number` | The race's own windows, one to three, each shorter than the last, 15 to 180 seconds; and seconds to prepare first, 10 to 300, drawn as a clock that can be cut short and never starts a go by itself. A single window is drawn as the exam's talk. | the ledger; the ramp |
+
+**What a B2 part is held to on top of every level's shape.** `b2LevelProblems` in `contract.ts`,
+inside `levelContractProblems` and asked again by step 8 against the parts before: exactly one
+`write` a part, and from the third part on at least one rework whose pattern is a B2 pattern an
+earlier B2 part explained. `b2RampProblems` in `rampB2.ts`, by band of two parts: in parts 1 and 2
+a conversation heard first has no `hearing`, from part 3 it has one, and in parts 5 and 6 it is
+`quick` or `half`; a story is heard twice in parts 1 and 2 and once (`hearings: 1`) from part 3;
+the race runs 90, 60 and 45 seconds, then 60, 45 and 30, then 45, 30 and 20, and in parts 7 and 8
+one go of 60 after `prepare: 120`, which no earlier part uses; and every core lesson but a part's
+last carries a `read`. Both are asked of B2 alone, and of synthetic parts both ways in
+`contract.test.ts` and `ramp.test.ts`, so A1 to B1 do not move.
+
+**Still the authors' rule**, since no field records it: two or three speakers talking to each other,
+a story retold in the past from part 5 or with an opinion added in parts 7 and 8, one role-play a
+part with the `english` curveball, the conversation move of 13.4, and a headline off the news feed,
+which the screen does not draw yet: a `read` is the native speaker's text.

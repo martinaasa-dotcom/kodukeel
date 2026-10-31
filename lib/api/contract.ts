@@ -341,6 +341,8 @@ const LessonPattern = z.enum([
   // B1's rules about choosing, added for the B1 lessons (docs/43-lessons.md §11.3). Within v1 an enum only grows.
   "object", "government", "impersonal", "pluperfect", "relative", "particleVerb",
   "participle", "conditionalPast", "subordinate", "agreement", "derivation",
+  // B2's, added for the B2 lessons (docs/43-lessons.md §13). The same kind of rule as B1's: they build no spelling.
+  "quotative", "converb", "supine", "nominal", "hedging", "concession", "spoken",
 ]);
 
 export const LessonSpecSchema = z.object({
@@ -391,20 +393,33 @@ export const LessonSpecSchema = z.object({
   listenFor: z.array(z.object({
     q: z.string(), options: z.array(z.string()).readonly(), answer: z.number().int(),
   })).readonly().optional().describe("Questions on what was heard, asked before the text is shown, B1 on. Draw the options in the order the web does: shuffled with a seed taken from the question."),
-  hearing: z.enum(["phone", "cafe", "quick"]).optional()
-    .describe("The room the hidden first play of the conversation is heard in (B1 on): a phone line, a café, or sped up. Absent is a quiet room."),
+  hearing: z.enum(["phone", "cafe", "quick", "half"]).optional()
+    .describe("The room the hidden first play of the conversation is heard in (B1 on): a phone line, a café, sped up, or joined halfway (B2: the first line starts two fifths of the way in). Absent is a quiet room."),
   retell: z.object({
     who: z.string(),
     story: z.array(EtEn).readonly(),
     points: z.array(z.object({ en: z.string(), any: z.array(z.string()).readonly() })).readonly(),
+    hearings: z.union([z.literal(1), z.literal(2)]).optional().describe("How many times the story may be heard before it is told back; absent is twice (B2 hears it once from its third part)."),
   }).optional().describe("A short story heard twice and told back aloud, B1 on; a point lights on any of its spellings."),
-  faster: z.object({ ask: EtEn, cue: z.string(), model: EtEn }).optional().describe("One answer said three times, in 90, 60 and 45 seconds at the standard pace (times `timeMultiplier`), B1 on."),
+  faster: z.object({
+    ask: EtEn, cue: z.string(), model: EtEn,
+    seconds: z.array(z.number().int()).readonly().optional()
+      .describe("The windows in seconds at the standard pace, one go each, each shorter than the last; absent is 90, 60 and 45 (B2 shortens them, and its last parts have one go of 60)."),
+    prepare: z.number().int().optional().describe("Seconds to get ready before the first go, a clock that can be cut short and never starts a go by itself (B2's exam talk: 120)."),
+  }).optional().describe("One answer said three times, in 90, 60 and 45 seconds at the standard pace (times `timeMultiplier`), B1 on."),
   write: z.object({
     genre: z.string(), purpose: z.string(),
     model: z.array(EtEn).readonly(), uses: z.array(EtEn).readonly(),
     task: z.string(), least: z.number().int(),
   }).optional().describe("The part's one real text, on its writing evening, B1 on."),
   roleplay: z.object({ scene: z.string(), turns: z.array(LessonPrompt).readonly() }).optional(),
+  read: z.object({
+    genre: z.string(),
+    lines: z.array(EtEn).readonly(),
+  }).optional().describe("A real text read in the Listen step after the transcript and never asked about (B2 on); its words may run ahead of the course, and `LessonResponse.read` carries the dictionary under the ones not yet taught."),
+  workOut: z.array(z.object({
+    sentence: EtEn, word: z.string(), parts: z.array(z.string()).readonly(), means: z.string(), options: z.array(z.string()).readonly(),
+  })).readonly().optional().describe("Words to work out from their parts (B2 on); the practice step carries them as `workOut` items."),
 }).describe(
   "One lesson as the web's lesson screen receives it. Two conventions run through its English, and a " +
   "native screen draws them as the web's `Braced` does: Estonian inside an English sentence is written in " +
@@ -442,6 +457,10 @@ export const PracticeItemSchema = z.discriminatedUnion("kind", [
       .describe("Which person each verb in these sentences is, so a subject pronoun left out or put in is read against the verb beside it."),
     orders: z.array(z.string()).readonly().describe("Other orders of an accepted sentence the dictionary vouches for, marked right."),
   }).describe("A line with one word swapped for another form of it (B1 on); typed back put right."),
+  z.object({
+    kind: z.literal("workOut"), et: z.string(), en: z.string(), word: z.string(),
+    parts: z.array(z.string()).readonly(), options: z.array(z.string()).readonly(), answer: z.string(),
+  }).describe("A sentence with one untaught word whose parts are taught (B2 on): pick its meaning among `options`, then show `word` as its `parts` and the sentence's English, which says the meaning and so waits until after."),
   z.object({ kind: z.literal("hear"), et: z.string(), options: z.array(z.string()).readonly(), answer: z.string() }),
   z.object({ kind: z.literal("pick"), et: z.string(), options: z.array(z.string()).readonly(), answer: z.string() }),
   z.object({
@@ -453,7 +472,7 @@ export const PracticeItemSchema = z.discriminatedUnion("kind", [
   }),
 ]).describe(
   "One question, built on the server; the client never decides what a learner is asked. A kind is added " +
-  "and never removed within v1 (`rework` and `fix` came with B1), so a client skips an item whose kind it " +
+  "and never removed within v1 (`rework` and `fix` came with B1, `workOut` with B2), so a client skips an item whose kind it " +
   "does not know rather than failing the lesson: a lesson with one question fewer is still a lesson.",
 );
 
@@ -479,6 +498,8 @@ export const LessonResponse = z.object({
   }).describe("The part this lesson is in, lesson by lesson, with the ones the learner has done."),
   partAt: z.number().int().min(1).describe("Which part of its level the lesson is in, counted from 1; the say-along fade starts with words hidden from the fourth part."),
   timeMultiplier: z.number().min(1).describe("How many times the standard a timed go runs for this learner (their round pace), for \"Again, faster\"."),
+  read: z.array(z.array(GlossedToken).readonly()).readonly().nullable()
+    .describe("The lesson's text to read (B2 on), a line at a time, with the dictionary under each word the lessons have not taught by now and nothing under the ones they have; null where the lesson has no text."),
   locale: InterfaceLanguage,
   nativePart: z.string().nullable().describe(
     "The one part of the conversation the native speaker recorded whole, which a phone plays in his voice by " +

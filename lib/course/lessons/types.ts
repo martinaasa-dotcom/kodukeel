@@ -141,15 +141,40 @@ export type PatternId =
  * what a lesson may ask: Rework may only ask for a change whose pattern has
  * been explained, and the level contract holds each to being explained once.
  */
-export type BPatternId =
+export type BPatternId = B1PatternId | B2PatternId;
+
+export type B1PatternId =
   | "object" | "government" | "impersonal" | "pluperfect" | "relative" | "particleVerb"
   | "participle" | "conditionalPast" | "subordinate" | "agreement" | "derivation";
 
-/** Every B1 pattern, for a check that walks them all. */
-export const B_PATTERNS: readonly BPatternId[] = [
+/**
+ * B2'S PATTERNS ARE THE SAME KIND OF RULE AS B1'S (docs/43-lessons.md §13.1):
+ * they build no spelling and decide what Rework may ask.
+ *
+ *   quotative   passing on what you heard: {olevat}, {tulnud} said of another
+ *   converb     the -des form, two things at once ({kooli minnes})
+ *   supine      the -ma word in its cases: -mas (in the middle of it), -mast
+ *               (back from it), -maks (in order to) and -mata (without doing
+ *               it). The -ta case of a noun is `abessive` and builds a
+ *               spelling; these do not, since each is taught by name.
+ *   nominal     a -mine or -us noun standing for a clause, the written register
+ *   hedging     probably rather than definitely ({pigem}, {võib-olla})
+ *   concession  granting a point first ({küll ... aga}, {kuigi}, {samas})
+ *   spoken      how people really talk: the particles, the fillers, the reactions
+ */
+export type B2PatternId = "quotative" | "converb" | "supine" | "nominal" | "hedging" | "concession" | "spoken";
+
+/** Every B1 pattern. */
+export const B1_PATTERNS: readonly B1PatternId[] = [
   "object", "government", "impersonal", "pluperfect", "relative", "particleVerb",
   "participle", "conditionalPast", "subordinate", "agreement", "derivation",
 ];
+
+/** Every B2 pattern, which the B2 contract's recycling rule reads (`b2LevelProblems`). */
+export const B2_PATTERNS: readonly B2PatternId[] = ["quotative", "converb", "supine", "nominal", "hedging", "concession", "spoken"];
+
+/** Every B pattern, B1's and B2's, for a check that walks them all: the one list. */
+export const B_PATTERNS: readonly BPatternId[] = [...B1_PATTERNS, ...B2_PATTERNS];
 
 /** A cell of a pattern's table: Estonian or English, never both. */
 export type Cell = { readonly et: string } | { readonly en: string };
@@ -320,6 +345,13 @@ export interface Retell {
   readonly who: Speaker;
   readonly story: readonly { readonly et: string; readonly en: string }[];
   readonly points: readonly { readonly en: string; readonly any: readonly string[] }[];
+  /**
+   * How many times the story may be heard before it is told back: twice, as
+   * B1 hears it, where absent, and once from B2's third part on (§13.5), as a
+   * person tells you something once. The story can still be shown to read
+   * afterwards; what goes is the second hearing.
+   */
+  readonly hearings?: 1 | 2;
 }
 
 /**
@@ -334,6 +366,68 @@ export interface Faster {
   readonly cue: string;
   /** One way to answer, shown after the first go, for somebody who ran dry. */
   readonly model: { readonly et: string; readonly en: string };
+  /**
+   * The windows, in seconds at the standard pace, one go each, in the order
+   * they are taken. Absent is B1's 90, 60 and 45 (`FASTER_SECONDS`). B2
+   * shortens them part by part (§13.5): 60, 45 and 30, then 45, 30 and 20, and
+   * from part 7 the state exam's talk, a single go of 60 after two minutes to
+   * prepare. Each window is shorter than the one before.
+   */
+  readonly seconds?: readonly number[];
+  /**
+   * Seconds to get ready before the first go, at the standard pace: the
+   * exam's two minutes (120). A clock that counts down and can be cut short,
+   * never one that starts the go by itself. Absent is no preparation.
+   */
+  readonly prepare?: number;
+}
+
+/**
+ * A REAL TEXT, READ IN THE LISTEN STEP (B2 on, docs/43-lessons.md §13.6, B-L4).
+ *
+ * A notice in the stairwell, a message from the school, a headline: what the
+ * situation of the part really puts in front of somebody, written by the
+ * native speaker in that genre (ADR-005 amendment 6) and read after the
+ * conversation's transcript. IT IS READ AND NEVER ASKED ABOUT, and that is
+ * what lets its words run ahead of the course: nothing in it has to have been
+ * taught (`ledger.ts` leaves it out of the taught-word check), but every
+ * spelling has to be one the forms list knows, and the words the ledger has
+ * not taught are underlined on the screen to their dictionary entries.
+ */
+export interface ReadText {
+  /** What it is, in English: "a notice in the stairwell". */
+  readonly genre: string;
+  /** The text a sentence (or a line) at a time, with its English. */
+  readonly lines: readonly { readonly et: string; readonly en: string }[];
+}
+
+/**
+ * WORK IT OUT (B2 on, docs/43-lessons.md §13.6).
+ *
+ * At B2, understanding everything does not mean having been taught
+ * everything: it means working a word out from what you know. A sentence
+ * carries one word the ledger has not taught but whose parts it has
+ * (`lasteaia` + `koht`, `ehita` + `ja`), and the learner picks its meaning out
+ * of three before the parts and the word's dictionary entry are shown. It is
+ * asked for its meaning and never for its form.
+ *
+ * The split is the author's and is checked mechanically (`workOutProblems`):
+ * the word is its parts joined, every part but the last is a spelling the
+ * ledger has taught by that lesson, and the last is a taught spelling or a
+ * suffix of `DERIVATION_SUFFIXES`. The word itself is a spelling the forms
+ * list knows, so it is a real word somebody wrote down rather than one the app
+ * built (ADR-005); the rest of the sentence is held to the ledger as usual.
+ */
+export interface WorkOut {
+  readonly sentence: { readonly et: string; readonly en: string };
+  /** The untaught word as it stands in the sentence, once, as a whole word. */
+  readonly word: string;
+  /** How it is built, in order: `["lasteaia", "koht"]`, `["ehita", "ja"]`. */
+  readonly parts: readonly string[];
+  /** What the word means, in English. */
+  readonly means: string;
+  /** Three meanings to choose among, in English; one of them is `means`. */
+  readonly options: readonly string[];
 }
 
 /**
@@ -410,15 +504,21 @@ export interface LessonSpec {
    * `lib/audio/conditions.ts` already makes out of the one clip. Absent is a
    * quiet room. Only the listen-first play takes it; reading the text after,
    * and every line pressed on its own, is clean, since the point is to have
-   * caught it once in the room and then to see what it was.
+   * caught it once in the room and then to see what it was. `half` (B2) is
+   * walking in on a conversation already going: the first line is joined two
+   * fifths of the way in and the rest is heard as it is.
    */
-  readonly hearing?: "phone" | "cafe" | "quick";
+  readonly hearing?: "phone" | "cafe" | "quick" | "half";
   /** A short story to hear twice and tell back aloud (B1 on). */
   readonly retell?: Retell;
   /** One answer said three times, faster each time (B1 on). */
   readonly faster?: Faster;
   /** The part's one real text, on its writing evening (B1 on). */
   readonly write?: WriteTask;
+  /** A real text read in the Listen step after the transcript, and never asked about (B2 on). */
+  readonly read?: ReadText;
+  /** Words to work out from their parts, asked for their meaning in Practice (B2 on). */
+  readonly workOut?: readonly WorkOut[];
   /**
    * A role-play, on a check-in and at the end of a part. `who` is the person
    * the learner talks to, a speaker of the cast: named on the intro and the

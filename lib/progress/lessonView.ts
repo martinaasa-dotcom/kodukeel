@@ -5,7 +5,9 @@ import { acceptedSentences, withOrders, type PracticeItem } from "@/lib/course/l
 import { orderContextFor } from "@/lib/dict/wordOrder";
 import { lessonWordsWorthAsking } from "@/lib/estonian/wordOrder";
 import { sayableName } from "@/lib/course/lessons/ownAnswer";
-import { lessonPlan } from "@/lib/progress/lessonPlan";
+import { lessonPlan, ledgerTonight } from "@/lib/progress/lessonPlan";
+import { glossSentences, type GlossedToken } from "@/lib/dict/glossed";
+import { onlyUntaught, readUntaught } from "@/lib/course/lessons/read";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { checksPassedFor } from "@/lib/progress/checks";
 import { reviewQueue } from "@/lib/progress/dailyQueue";
@@ -50,6 +52,31 @@ export interface LessonView {
   partAt: number;
   /** How many times the standard a timed go runs for this learner (`lib/ux/roundClock.ts`). */
   timeMultiplier: number;
+  /**
+   * The lesson's text to read (B2 on, `LessonSpec.read`), a line at a time,
+   * with the dictionary under each word the lessons have not taught by now
+   * and nothing under the ones they have; null where there is no text.
+   */
+  read: readonly (readonly GlossedToken[])[] | null;
+}
+
+/**
+ * How many distinct words a text to read may ask the dictionary about: a
+ * notice or a school message is a few sentences, so this is the ceiling a
+ * whole page of one would reach, stated so it cannot grow quietly.
+ */
+const READ_WORD_BUDGET = 200;
+
+/**
+ * The dictionary under a lesson's text, the untaught words only. Glossed
+ * whatever the learner's underline setting, as reading mode is: on a text the
+ * course knows runs ahead of them, the underlines are the point.
+ */
+async function readTokens(lesson: LessonSpec): Promise<GlossedToken[][] | null> {
+  if (!lesson.read || lesson.read.lines.length === 0) return null;
+  const untaught = readUntaught(lesson, ledgerTonight(lesson));
+  const glossed = await glossSentences(lesson.read.lines.map((l) => ({ et: l.et, form: null })), READ_WORD_BUDGET);
+  return glossed.map((tokens, i) => onlyUntaught(tokens, untaught[i] ?? new Set()));
 }
 
 /**
@@ -69,7 +96,7 @@ export async function lessonView(
   const lesson = lessonById(lessonId) ?? (allowPreview ? PREVIEW_LESSONS.find((l) => l.id === lessonId) ?? null : null);
   if (!lesson) return null;
   // Every read at once: none of them needs another's answer, and each is a round trip.
-  const [mixups, nameSetting, pace, queue, passed, states] = await Promise.all([
+  const [mixups, nameSetting, pace, queue, passed, states, read] = await Promise.all([
     lesson.fixes?.length
       ? prisma.review.findMany({
         where: { ownerId, reachedSlot: { not: null } },
@@ -84,6 +111,7 @@ export async function lessonView(
     // Whether the part's check is passed is asked whatever the lesson, since knowing which lesson closes a part needs the plan.
     checksPassedFor(ownerId),
     lessonListStates(ownerId),
+    readTokens(lesson),
   ]);
   const { closes, after, ...built } = lessonPlan(lesson, confusions(mixups).map((c) => c.pair));
   /*
@@ -118,5 +146,6 @@ export async function lessonView(
     check: closes ? { id: closes.id, final: closes.final, passed: passed.has(closes.id) } : null,
     partAt: Math.max(1, [...LESSON_PARTS, ...PREVIEW_PARTS].filter((p) => p.level === lesson.level).findIndex((p) => p.id === lesson.part) + 1),
     timeMultiplier: multiplierFor(roundPaceFrom(pace)),
+    read,
   };
 }

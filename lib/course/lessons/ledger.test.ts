@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { EMPTY_LEDGER, estonianIn, lessonProblems, teach, uncovered } from "./ledger";
-import { markRework, practiceFor } from "./practice";
+import { itemEstonian, markRework, practiceFor } from "./practice";
 import { B_PATTERNS, type LessonSpec } from "./types";
 
 const lesson = (over: Partial<LessonSpec>): LessonSpec => ({
@@ -309,5 +309,64 @@ describe("a slip to put right (Fix)", () => {
     expect(markRework("Ma lugeisn raamatut.", item).close).toBe(false);
     // The slip itself still in it is wrong however the rest is spelled.
     expect(markRework("Ma lugeisn raamatu.", item).verdict).toBe("wrong");
+  });
+});
+
+/**
+ * B2'S ADDITIONS TO WHAT A LESSON SHOWS: a text to read, which may run ahead
+ * of the course, and a sentence with one word to work out, which is held to
+ * the ledger but for that word. And the race's own windows.
+ */
+describe("the B2 fields", () => {
+  const derived = [
+    { kind: "phrase" as const, et: "Tere!", en: "Hello!" },
+    { kind: "word" as const, et: "laps", en: "child" },
+    { kind: "form" as const, et: "laste", of: "laps", en: "of the children" },
+    { kind: "word" as const, et: "koht", en: "place" },
+    { kind: "word" as const, et: "on", en: "is" },
+    { kind: "word" as const, et: "hea", en: "good" },
+  ];
+  const b2 = (over: Partial<LessonSpec>) => lesson({ teaches: derived, patterns: ["derivation"], ...over });
+  const work = {
+    sentence: { et: "Lastekoht on hea.", en: "The children's place is good." },
+    word: "Lastekoht", parts: ["laste", "koht"], means: "a place for children",
+    options: ["a place for children", "a school bag", "a teacher"],
+  };
+
+  it("lets a text to read run ahead of the course, and still asks that it says what it is", () => {
+    const read = { genre: "a notice in the stairwell", lines: [{ et: "Homme remonditakse lifti.", en: "The lift is repaired tomorrow." }] };
+    expect(lessonProblems([b2({ read })])).toEqual([]);
+    expect(lessonProblems([b2({ read: { ...read, genre: " " } })]).join(" ")).toMatch(/a text to read says what it is/);
+    expect(lessonProblems([b2({ read: { genre: "x", lines: [] } })]).join(" ")).toMatch(/has no lines/);
+    expect(lessonProblems([b2({ read: { genre: "x", lines: [{ et: "Tere!", en: "" }] } })]).join(" ")).toMatch(/Estonian or English and not both/);
+    // Its English is held to braces like every line of English.
+    expect(lessonProblems([b2({ read: { genre: "x", lines: [{ et: "Tere!", en: "Hi, {kallis}." }] } })]).join(" ")).toMatch(/kallis, not taught/);
+  });
+
+  it("holds a work-it-out sentence to the ledger but for its one word, and the word to its own split", () => {
+    expect(lessonProblems([b2({ workOut: [work] })])).toEqual([]);
+    expect(lessonProblems([b2({ workOut: [{ ...work, sentence: { ...work.sentence, et: "Lastekoht on väga hea." } }] })]).join(" ")).toMatch(/väga/);
+    expect(lessonProblems([b2({ workOut: [{ ...work, parts: ["lapse", "koht"] }] })]).join(" ")).toMatch(/work it out 1: its parts lapse \+ koht are not/);
+    expect(lessonProblems([lesson({ teaches: derived, workOut: [work] })]).join(" ")).toMatch(/before the derivation pattern/);
+  });
+
+  it("holds the race's windows to one to three goes, each shorter than the last, and a sane preparation", () => {
+    const faster = { ask: { et: "Tere!", en: "Hello!" }, cue: "c", model: { et: "Tere!", en: "Hello!" } };
+    expect(lessonProblems([b2({ faster: { ...faster, seconds: [60, 45, 30] } })])).toEqual([]);
+    expect(lessonProblems([b2({ faster: { ...faster, seconds: [60], prepare: 120 } })])).toEqual([]);
+    expect(lessonProblems([b2({ faster: { ...faster, seconds: [45, 60] } })]).join(" ")).toMatch(/not each shorter than the last/);
+    expect(lessonProblems([b2({ faster: { ...faster, seconds: [] } })]).join(" ")).toMatch(/0 goes/);
+    expect(lessonProblems([b2({ faster: { ...faster, seconds: [600] } })]).join(" ")).toMatch(/outside 15 to 180/);
+    expect(lessonProblems([b2({ faster: { ...faster, prepare: 1000 } })]).join(" ")).toMatch(/prepares for 1000 seconds/);
+  });
+
+  it("puts a work-it-out question in practice, its sentence held to the ledger but for the word", () => {
+    const l = b2({ workOut: [work] });
+    const items = practiceFor(l, EMPTY_LEDGER).filter((i) => i.kind === "workOut");
+    expect(items).toHaveLength(1);
+    const item = items[0]!;
+    expect(item.kind === "workOut" && [...item.options].sort()).toEqual([...work.options].sort());
+    expect(item.kind === "workOut" && item.answer).toBe(work.means);
+    expect(itemEstonian(item)).toEqual(["on hea."]);
   });
 });

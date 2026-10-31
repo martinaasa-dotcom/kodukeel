@@ -11,7 +11,7 @@ import { useLocale, useT } from "@/components/Locale";
 import { LessonText } from "@/components/course/LessonText";
 import { Card, SectionTitle } from "@/components/ui";
 import { countOf, fill } from "@/lib/copy/locale";
-import { FASTER_SECONDS, goOf, type Go } from "@/lib/course/lessons/faster";
+import { fasterWindows, goOf, type Go } from "@/lib/course/lessons/faster";
 import type { Faster } from "@/lib/course/lessons/types";
 import { useKeep } from "@/components/course/useKeep";
 
@@ -43,32 +43,47 @@ import { useKeep } from "@/components/course/useKeep";
 export interface FasterKept {
   readonly goes: readonly Go[];
   readonly helped: boolean;
+  /** Whether the preparation before the first go is over, where the go has one (B2's exam talk). */
+  readonly prepared?: boolean;
 }
 
+/*
+  B2 RUNS ITS OWN WINDOWS (`Faster.seconds`): shorter part by part, and from
+  part 7 a single go of a minute after two minutes to prepare, which is the
+  state exam's talk. A preparation clock is advice rather than a limit: it
+  counts down, it can be cut short, and when it reaches nought the go still
+  waits for the learner's press, so nothing here starts timing anybody who has
+  not said they are ready.
+*/
 export function AgainFaster({ faster, voice, typed, multiplier, onDone, kept, onKeep }: { faster: Faster; voice: string | undefined; typed: boolean; multiplier: number; onDone: () => void; kept?: FasterKept; onKeep?: (kept: FasterKept) => void }) {
   const t = useT();
   const locale = useLocale();
   const [goes, setGoes] = useState<readonly Go[]>(kept?.goes ?? []);
   const [helped, setHelped] = useState(kept?.helped ?? false);
-  useKeep(useMemo(() => ({ goes, helped }), [goes, helped]), onKeep);
+  const [prepared, setPrepared] = useState(kept?.prepared ?? (!faster.prepare || (kept?.goes.length ?? 0) > 0));
+  useKeep(useMemo(() => ({ goes, helped, prepared }), [goes, helped, prepared]), onKeep);
   // "Need an idea?" goes once pressed, so the caret goes to the idea it showed.
   const ideaRef = useRef<HTMLDivElement>(null);
   const asking = useRef(false);
   useEffect(() => {
     if (helped && asking.current) { asking.current = false; ideaRef.current?.focus(); }
   }, [helped]);
+  const windows = fasterWindows(faster).map((s) => Math.round(s * multiplier));
   const round = goes.length;
-  const over = round >= FASTER_SECONDS.length;
+  const over = round >= windows.length;
   // The go that held the caret is gone once it ends; after the last one the caret goes to the way on.
   const endRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (over) endRef.current?.querySelector<HTMLButtonElement>("button")?.focus();
   }, [over]);
-  const windows = FASTER_SECONDS.map((s) => Math.round(s * multiplier));
+  const single = windows.length === 1;
+  const hint = over
+    ? windows.length === 3 ? t("three goes") : single ? t("one go") : fill(t("{n} goes"), { n: String(windows.length) })
+    : windows.length === 3 ? fill(t("Go {n} of 3"), { n: String(round + 1) }) : fill(t("Go {n} of {total}"), { n: String(round + 1), total: String(windows.length) });
 
   return (
     <Card>
-      <SectionTitle level={3} hint={over ? t("three goes") : fill(t("Go {n} of 3"), { n: String(round + 1) })}>{t("Again, faster")}</SectionTitle>
+      <SectionTitle level={3} hint={hint}>{single ? t("The exam's talk") : t("Again, faster")}</SectionTitle>
       <div className="mb-4 flex flex-col gap-1.5">
         <div className="inline-flex max-w-full items-start gap-2 self-start rounded-2xl rounded-tl-sm px-4 py-2.5" style={{ background: "var(--raised)" }}>
           <Speak text={faster.ask.et} voice={voice} size={16} />
@@ -79,11 +94,17 @@ export function AgainFaster({ faster, voice, typed, multiplier, onDone, kept, on
         </div>
         <p className="text-lg font-semibold" style={{ color: "var(--ink)" }}><LessonText text={faster.cue} locale={locale} /></p>
         <p className="text-base" style={{ color: "var(--ink-2)" }}>
-          {fill(t("Answer it three times: in {a} seconds, then {b}, then {c}. The same answer, quicker each time."), { a: String(windows[0]), b: String(windows[1]), c: String(windows[2]) })}
+          {windows.length === 3
+            ? fill(t("Answer it three times: in {a} seconds, then {b}, then {c}. The same answer, quicker each time."), { a: String(windows[0]), b: String(windows[1]), c: String(windows[2]) })
+            : single
+              ? fill(t("Answer it once, in {a} seconds, the way the exam asks for it."), { a: String(windows[0]) })
+              : fill(t("Answer it twice: in {a} seconds, then {b}. The same answer, quicker the second time."), { a: String(windows[0]), b: String(windows[1] ?? windows[0]) })}
         </p>
       </div>
 
-      {!over && <OneGo key={round} seconds={windows[round]!} typed={typed} focusStart={round > 0} onGo={(go) => setGoes((all) => [...all, go])} />}
+      {!prepared && faster.prepare
+        ? <Prepare seconds={faster.prepare} onReady={() => setPrepared(true)} />
+        : !over && <OneGo key={round} seconds={windows[round]!} typed={typed} focusStart={round > 0 || Boolean(faster.prepare)} onGo={(go) => setGoes((all) => [...all, go])} />}
 
       {round > 0 && !helped && !over && (
         <Button variant="ghost" size="sm" onClick={() => { asking.current = true; setHelped(true); }}>{t("Need an idea?")}</Button>
@@ -298,6 +319,50 @@ function Goes({ goes }: { goes: readonly Go[] }) {
       <p className={quicker ? "mt-3 text-base font-semibold" : "sr-only"} style={{ color: "var(--ink)" }} role="status">
         {quicker ? fill(t("From {a} to {b} words a minute in one lesson."), { a: String(goes[0]!.perMinute), b: String(goes[goes.length - 1]!.perMinute) }) : null}
       </p>
+    </div>
+  );
+}
+
+/**
+ * TIME TO GET READY, BEFORE THE EXAM'S TALK (B2, `Faster.prepare`).
+ *
+ * The state exam gives two minutes to think before the one-minute talk, so the
+ * lesson does too. It is advice: the clock counts down, "I'm ready" cuts it
+ * short, and at nought the go is still the learner's to start. The figure is
+ * the standard one rather than the learner's pace, since nothing ends here
+ * when it runs out.
+ */
+function Prepare({ seconds, onReady }: { seconds: number; onReady: () => void }) {
+  const t = useT();
+  const locale = useLocale();
+  const [left, setLeft] = useState(seconds);
+  useEffect(() => {
+    const began = Date.now();
+    const id = setInterval(() => {
+      const remaining = Math.max(0, seconds - (Date.now() - began) / 1000);
+      setLeft(remaining);
+      if (remaining <= 0) clearInterval(id);
+    }, 250);
+    return () => clearInterval(id);
+  }, [seconds]);
+  const time = seconds % 60 === 0 ? countOf(locale, seconds / 60, "minute") : countOf(locale, seconds, "second");
+  const angle = `${(left / seconds) * 360}deg`;
+  return (
+    <div className="flex flex-col gap-3 rounded-[var(--r-lg)] border px-4 py-4" style={{ borderColor: "var(--edge)", background: "var(--raised)" }} data-faster-prepare={seconds}>
+      <div className="flex flex-wrap items-center gap-4">
+        <div className="run-clock" data-low="false" style={{ "--clock-left": angle } as CSSProperties} aria-hidden>
+          <span className="font-display text-xl font-bold tabular-nums" style={{ color: "var(--ink)" }}>{Math.ceil(left)}</span>
+        </div>
+        <div className="flex flex-col gap-2">
+          <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>
+            {fill(t("{time} to prepare, as in the exam."), { time })}
+          </p>
+          <p className="text-base" style={{ color: "var(--ink-2)" }} role="status">
+            {left > 0 ? t("Think what you'll say. Nothing starts until you press.") : t("Time to talk. Start when you're ready.")}
+          </p>
+          <Button variant="primary" onClick={onReady}>{t("I'm ready")}</Button>
+        </div>
+      </div>
     </div>
   );
 }

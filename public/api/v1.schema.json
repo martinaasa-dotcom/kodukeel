@@ -2342,7 +2342,14 @@
                     "conditionalPast",
                     "subordinate",
                     "agreement",
-                    "derivation"
+                    "derivation",
+                    "quotative",
+                    "converb",
+                    "supine",
+                    "nominal",
+                    "hedging",
+                    "concession",
+                    "spoken"
                   ]
                 }
               },
@@ -2626,7 +2633,14 @@
                         "conditionalPast",
                         "subordinate",
                         "agreement",
-                        "derivation"
+                        "derivation",
+                        "quotative",
+                        "converb",
+                        "supine",
+                        "nominal",
+                        "hedging",
+                        "concession",
+                        "spoken"
                       ]
                     }
                   },
@@ -2725,12 +2739,13 @@
                 }
               },
               "hearing": {
-                "description": "The room the hidden first play of the conversation is heard in (B1 on): a phone line, a café, or sped up. Absent is a quiet room.",
+                "description": "The room the hidden first play of the conversation is heard in (B1 on): a phone line, a café, sped up, or joined halfway (B2: the first line starts two fifths of the way in). Absent is a quiet room.",
                 "type": "string",
                 "enum": [
                   "phone",
                   "cafe",
-                  "quick"
+                  "quick",
+                  "half"
                 ]
               },
               "retell": {
@@ -2781,6 +2796,19 @@
                         "any"
                       ]
                     }
+                  },
+                  "hearings": {
+                    "description": "How many times the story may be heard before it is told back; absent is twice (B2 hears it once from its third part).",
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "const": 1
+                      },
+                      {
+                        "type": "number",
+                        "const": 2
+                      }
+                    ]
                   }
                 },
                 "required": [
@@ -2825,6 +2853,22 @@
                       "et",
                       "en"
                     ]
+                  },
+                  "seconds": {
+                    "description": "The windows in seconds at the standard pace, one go each, each shorter than the last; absent is 90, 60 and 45 (B2 shortens them, and its last parts have one go of 60).",
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "prepare": {
+                    "description": "Seconds to get ready before the first go, a clock that can be cut short and never starts a go by itself (B2's exam talk: 120).",
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
                   }
                 },
                 "required": [
@@ -2964,6 +3008,90 @@
                   "scene",
                   "turns"
                 ]
+              },
+              "read": {
+                "description": "A real text read in the Listen step after the transcript and never asked about (B2 on); its words may run ahead of the course, and `LessonResponse.read` carries the dictionary under the ones not yet taught.",
+                "type": "object",
+                "properties": {
+                  "genre": {
+                    "type": "string"
+                  },
+                  "lines": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "et": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "et",
+                        "en"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "genre",
+                  "lines"
+                ]
+              },
+              "workOut": {
+                "description": "Words to work out from their parts (B2 on); the practice step carries them as `workOut` items.",
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "sentence": {
+                      "type": "object",
+                      "properties": {
+                        "et": {
+                          "type": "string"
+                        },
+                        "en": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "et",
+                        "en"
+                      ]
+                    },
+                    "word": {
+                      "type": "string"
+                    },
+                    "parts": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "means": {
+                      "type": "string"
+                    },
+                    "options": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "sentence",
+                    "word",
+                    "parts",
+                    "means",
+                    "options"
+                  ]
+                }
               }
             },
             "required": [
@@ -3276,6 +3404,51 @@
                   "properties": {
                     "kind": {
                       "type": "string",
+                      "const": "workOut"
+                    },
+                    "et": {
+                      "type": "string"
+                    },
+                    "en": {
+                      "type": "string"
+                    },
+                    "word": {
+                      "type": "string"
+                    },
+                    "parts": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "options": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "answer": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "et",
+                    "en",
+                    "word",
+                    "parts",
+                    "options",
+                    "answer"
+                  ],
+                  "description": "A sentence with one untaught word whose parts are taught (B2 on): pick its meaning among `options`, then show `word` as its `parts` and the sentence's English, which says the meaning and so waits until after."
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
                       "const": "hear"
                     },
                     "et": {
@@ -3360,7 +3533,7 @@
                   ]
                 }
               ],
-              "description": "One question, built on the server; the client never decides what a learner is asked. A kind is added and never removed within v1 (`rework` and `fix` came with B1), so a client skips an item whose kind it does not know rather than failing the lesson: a lesson with one question fewer is still a lesson."
+              "description": "One question, built on the server; the client never decides what a learner is asked. A kind is added and never removed within v1 (`rework` and `fix` came with B1, `workOut` with B2), so a client skips an item whose kind it does not know rather than failing the lesson: a lesson with one question fewer is still a lesson."
             }
           },
           "review": {
@@ -3657,6 +3830,51 @@
                   "properties": {
                     "kind": {
                       "type": "string",
+                      "const": "workOut"
+                    },
+                    "et": {
+                      "type": "string"
+                    },
+                    "en": {
+                      "type": "string"
+                    },
+                    "word": {
+                      "type": "string"
+                    },
+                    "parts": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "options": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "answer": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "et",
+                    "en",
+                    "word",
+                    "parts",
+                    "options",
+                    "answer"
+                  ],
+                  "description": "A sentence with one untaught word whose parts are taught (B2 on): pick its meaning among `options`, then show `word` as its `parts` and the sentence's English, which says the meaning and so waits until after."
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
                       "const": "hear"
                     },
                     "et": {
@@ -3741,7 +3959,7 @@
                   ]
                 }
               ],
-              "description": "One question, built on the server; the client never decides what a learner is asked. A kind is added and never removed within v1 (`rework` and `fix` came with B1), so a client skips an item whose kind it does not know rather than failing the lesson: a lesson with one question fewer is still a lesson."
+              "description": "One question, built on the server; the client never decides what a learner is asked. A kind is added and never removed within v1 (`rework` and `fix` came with B1, `workOut` with B2), so a client skips an item whose kind it does not know rather than failing the lesson: a lesson with one question fewer is still a lesson."
             }
           },
           "next": {
@@ -3930,6 +4148,113 @@
             "minimum": 1,
             "description": "How many times the standard a timed go runs for this learner (their round pace), for \"Again, faster\"."
           },
+          "read": {
+            "anyOf": [
+              {
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                  "readOnly": true,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "text": {
+                        "type": "string"
+                      },
+                      "word": {
+                        "type": "boolean"
+                      },
+                      "taught": {
+                        "type": "boolean"
+                      },
+                      "entry": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "lexemeId": {
+                                "type": "string"
+                              },
+                              "lemma": {
+                                "type": "string"
+                              },
+                              "gloss": {
+                                "type": "string"
+                              },
+                              "matchedAs": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "reading": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "clause": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "alsoSaid": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "spelling": {
+                                        "type": "string"
+                                      },
+                                      "everyday": {
+                                        "type": "boolean"
+                                      }
+                                    },
+                                    "required": [
+                                      "spelling",
+                                      "everyday"
+                                    ]
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "lexemeId",
+                              "lemma",
+                              "gloss",
+                              "matchedAs",
+                              "reading",
+                              "clause",
+                              "alsoSaid"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "text",
+                      "word",
+                      "taught",
+                      "entry"
+                    ],
+                    "description": "One run of a sentence, with the dictionary entry it was vouched as, if any."
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The lesson's text to read (B2 on), a line at a time, with the dictionary under each word the lessons have not taught by now and nothing under the ones they have; null where the lesson has no text."
+          },
           "locale": {
             "type": "string",
             "enum": [
@@ -3971,6 +4296,7 @@
           "part",
           "partAt",
           "timeMultiplier",
+          "read",
           "locale",
           "nativePart",
           "translations"
@@ -4327,6 +4653,51 @@
                   "properties": {
                     "kind": {
                       "type": "string",
+                      "const": "workOut"
+                    },
+                    "et": {
+                      "type": "string"
+                    },
+                    "en": {
+                      "type": "string"
+                    },
+                    "word": {
+                      "type": "string"
+                    },
+                    "parts": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "options": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "answer": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "et",
+                    "en",
+                    "word",
+                    "parts",
+                    "options",
+                    "answer"
+                  ],
+                  "description": "A sentence with one untaught word whose parts are taught (B2 on): pick its meaning among `options`, then show `word` as its `parts` and the sentence's English, which says the meaning and so waits until after."
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
                       "const": "hear"
                     },
                     "et": {
@@ -4411,7 +4782,7 @@
                   ]
                 }
               ],
-              "description": "One question, built on the server; the client never decides what a learner is asked. A kind is added and never removed within v1 (`rework` and `fix` came with B1), so a client skips an item whose kind it does not know rather than failing the lesson: a lesson with one question fewer is still a lesson."
+              "description": "One question, built on the server; the client never decides what a learner is asked. A kind is added and never removed within v1 (`rework` and `fix` came with B1, `workOut` with B2), so a client skips an item whose kind it does not know rather than failing the lesson: a lesson with one question fewer is still a lesson."
             }
           },
           "needed": {

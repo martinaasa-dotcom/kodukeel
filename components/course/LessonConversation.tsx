@@ -10,7 +10,7 @@ import { fill } from "@/lib/copy/locale";
 import { LessonText } from "@/components/course/LessonText";
 import { useLinePlayer } from "@/components/course/useLinePlayer";
 import { nativePart } from "@/lib/audio/native";
-import type { Condition } from "@/lib/audio/conditions";
+import { roomForLine, type Condition } from "@/lib/audio/conditions";
 import type { Line } from "@/lib/course/lessons/types";
 
 /**
@@ -59,10 +59,13 @@ export function LessonConversation({ lines, cast, english, hidden = false, condi
   const player = useLinePlayer();
   const { playing, active } = player;
   const items = useRef<(HTMLLIElement | null)[]>([]);
+  // Joined halfway (B2's `half`), only the first line is caught partway (`roomForLine`).
+  const firstSpoken = lines.findIndex((l) => l.et);
+  const roomAt = (i: number) => roomForLine(condition, i, firstSpoken);
 
   const playAll = async () => {
     const run = await player.toggle(
-      lines.map((line) => (line.et ? { text: line.et, voice: cast[line.who], pace: prefs.pace, native: line.who === played, condition } : null)),
+      lines.map((line, i) => (line.et ? { text: line.et, voice: cast[line.who], pace: prefs.pace, native: line.who === played, condition: roomAt(i) } : null)),
       {
         gapMs: 300,
         // The line being said comes into view, and slides there only for somebody who has not asked for less movement.
@@ -118,7 +121,7 @@ export function LessonConversation({ lines, cast, english, hidden = false, condi
                 }}
               >
                 <div className="flex items-start gap-2">
-                  <Speak text={line.et} voice={cast[line.who]} native={line.who === played} condition={condition} size={18} label={fill(t("Hear {who} say it"), { who: line.who })} />
+                  <Speak text={line.et} voice={cast[line.who]} native={line.who === played} condition={roomAt(i)} size={18} label={fill(t("Hear {who} say it"), { who: line.who })} />
                   {hidden ? (
                     // How long the line is, as bars that move while it is said: the shape of speech, not its words.
                     <span role="img" className={`voice-bars ${lit ? "voice-bars-live" : ""}`} aria-label={t("A line, not shown yet")} data-hidden-line>
