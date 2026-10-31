@@ -102,6 +102,7 @@ export const SCENE_KINDS: Readonly<Record<string, SceneKind>> = {
   "b1-meister": "around",
   "b1-tagatis": "around",
   "b1-eksam": "people",
+  "b2-eksam": "people",
   "b1-kolleeg": "people",
 };
 
