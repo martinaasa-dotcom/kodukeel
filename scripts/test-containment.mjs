@@ -1244,13 +1244,26 @@ function pressable(rootSelector) {
     if (box.width < 12 || box.height < 12) continue;
     let left = Math.max(box.left, 0), top = Math.max(box.top, 0);
     let right = Math.min(box.right, innerWidth), bottom = Math.min(box.bottom, innerHeight);
+    // A clip with rounded corners hides its corners too: the command palette
+    // clips its list in a panel with a large radius, and a row half scrolled
+    // past the bottom was asked inside the panel's corner.
+    const clips = [];
     for (let at = el.parentElement; at && at !== document.documentElement; at = at.parentElement) {
       const o = getComputedStyle(at);
       if (o.overflowX === "visible" && o.overflowY === "visible") continue;
       const r = at.getBoundingClientRect();
       left = Math.max(left, r.left); top = Math.max(top, r.top);
       right = Math.min(right, r.right); bottom = Math.min(bottom, r.bottom);
+      clips.push({ r, radii: [o.borderTopLeftRadius, o.borderTopRightRadius, o.borderBottomRightRadius, o.borderBottomLeftRadius].map((v) => parseFloat(v) || 0) });
     }
+    const inCorner = (x, y) => clips.some(({ r, radii: [tl, tr, br, bl] }) => {
+      const out = (cx, cy, rad) => Math.hypot(x - cx, y - cy) > rad;
+      if (x < r.left + tl && y < r.top + tl) return out(r.left + tl, r.top + tl, tl);
+      if (x > r.right - tr && y < r.top + tr) return out(r.right - tr, r.top + tr, tr);
+      if (x > r.right - br && y > r.bottom - br) return out(r.right - br, r.bottom - br, br);
+      if (x < r.left + bl && y > r.bottom - bl) return out(r.left + bl, r.bottom - bl, bl);
+      return false;
+    });
     // The points are the control's own middle and edges, taken off its whole
     // box and then dropped where the window or a clip hides them: taken off the
     // visible part, a pill cut by the window's bottom was asked in its rounded
@@ -1258,7 +1271,7 @@ function pressable(rootSelector) {
     const inset = 4;
     const mx = (box.left + box.right) / 2, my = (box.top + box.bottom) / 2;
     const points = [[mx, my], [box.left + inset, my], [box.right - inset, my], [mx, box.top + inset], [mx, box.bottom - inset]]
-      .filter(([x, y]) => x >= left && x <= right && y >= top && y <= bottom);
+      .filter(([x, y]) => x >= left && x <= right && y >= top && y <= bottom && !inCorner(x, y));
     if (points.length === 0) continue;
     const ownChrome = isChrome(el);
     asked += 1;
