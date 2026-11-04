@@ -1240,10 +1240,10 @@ function pressable(rootSelector) {
     if (!el.checkVisibility?.({ visibilityProperty: true, opacityProperty: true })) continue;
     const cs = getComputedStyle(el);
     if (cs.pointerEvents === "none" || cs.display === "inline" || cs.display === "contents") continue;
-    let { left, top, right, bottom } = el.getBoundingClientRect();
-    if (right - left < 12 || bottom - top < 12) continue;
-    left = Math.max(left, 0); top = Math.max(top, 0);
-    right = Math.min(right, innerWidth); bottom = Math.min(bottom, innerHeight);
+    const box = el.getBoundingClientRect();
+    if (box.width < 12 || box.height < 12) continue;
+    let left = Math.max(box.left, 0), top = Math.max(box.top, 0);
+    let right = Math.min(box.right, innerWidth), bottom = Math.min(box.bottom, innerHeight);
     for (let at = el.parentElement; at && at !== document.documentElement; at = at.parentElement) {
       const o = getComputedStyle(at);
       if (o.overflowX === "visible" && o.overflowY === "visible") continue;
@@ -1251,10 +1251,15 @@ function pressable(rootSelector) {
       left = Math.max(left, r.left); top = Math.max(top, r.top);
       right = Math.min(right, r.right); bottom = Math.min(bottom, r.bottom);
     }
-    if (right - left < 12 || bottom - top < 12) continue;
+    // The points are the control's own middle and edges, taken off its whole
+    // box and then dropped where the window or a clip hides them: taken off the
+    // visible part, a pill cut by the window's bottom was asked in its rounded
+    // corner, which is correctly not the pill.
     const inset = 4;
-    const mx = (left + right) / 2, my = (top + bottom) / 2;
-    const points = [[mx, my], [left + inset, my], [right - inset, my], [mx, top + inset], [mx, bottom - inset]];
+    const mx = (box.left + box.right) / 2, my = (box.top + box.bottom) / 2;
+    const points = [[mx, my], [box.left + inset, my], [box.right - inset, my], [mx, box.top + inset], [mx, box.bottom - inset]]
+      .filter(([x, y]) => x >= left && x <= right && y >= top && y <= bottom);
+    if (points.length === 0) continue;
     const ownChrome = isChrome(el);
     asked += 1;
     for (const [x, y] of points) {
