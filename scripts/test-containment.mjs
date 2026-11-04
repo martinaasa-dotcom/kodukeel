@@ -1200,6 +1200,77 @@ function relatives() {
 }
 
 /**
+ * EVERY CONTROL ANSWERS A PRESS ACROSS THE WHOLE OF THE BOX IT IS DRAWN AS.
+ *
+ * Reported off the account menu in the rail: the Settings row lit up end to
+ * end under a pointer and only the words opened Settings. The menu is wider
+ * than the rail, the rail is a `sticky` stacking context, and the part of the
+ * row hanging over the page sat under `main`'s own positioned content, which
+ * is transparent and still takes the click. Nothing in the four questions
+ * above can see it, because nothing is cut, bleeds or overlaps a word: the row
+ * is drawn on top and pressed underneath.
+ *
+ * So every visible control is hit-tested at its middle and at the middle of
+ * each edge, a few pixels in, and the topmost thing there has to be the control,
+ * something inside it, or another control (a star in a card's corner is a
+ * second press on purpose). Points the window or a clipping ancestor hides are
+ * not asked, an inline link is not asked (its box spans lines it does not
+ * cover), and a point under fixed or sticky chrome the control is not part of
+ * is the chrome being in front, which is what chrome is for.
+ */
+function pressable(rootSelector) {
+  const CONTROL = 'a[href], button, summary, [role="button"], [role="menuitem"], [role="tab"], [role="option"], [role="radio"], [role="switch"], [role="checkbox"], label:has(input)';
+  const root = rootSelector ? document.querySelector(rootSelector) : document.body;
+  const out = [];
+  let asked = 0;
+  if (!root) return { asked, missed: 0, say: "no such root" };
+  const describe = (el) => {
+    const text = (el.getAttribute("aria-label") || el.textContent || "").replace(/\s+/g, " ").trim().slice(0, 40);
+    return `${el.tagName.toLowerCase()} "${text}"`;
+  };
+  const isChrome = (el) => {
+    for (let at = el; at && at !== document.body; at = at.parentElement) {
+      const pos = getComputedStyle(at).position;
+      if (pos === "fixed" || pos === "sticky") return at;
+    }
+    return null;
+  };
+  for (const el of root.querySelectorAll(CONTROL)) {
+    if (el.closest('[aria-hidden="true"], [inert]')) continue;
+    if (!el.checkVisibility?.({ visibilityProperty: true, opacityProperty: true })) continue;
+    const cs = getComputedStyle(el);
+    if (cs.pointerEvents === "none" || cs.display === "inline" || cs.display === "contents") continue;
+    let { left, top, right, bottom } = el.getBoundingClientRect();
+    if (right - left < 12 || bottom - top < 12) continue;
+    left = Math.max(left, 0); top = Math.max(top, 0);
+    right = Math.min(right, innerWidth); bottom = Math.min(bottom, innerHeight);
+    for (let at = el.parentElement; at && at !== document.documentElement; at = at.parentElement) {
+      const o = getComputedStyle(at);
+      if (o.overflowX === "visible" && o.overflowY === "visible") continue;
+      const r = at.getBoundingClientRect();
+      left = Math.max(left, r.left); top = Math.max(top, r.top);
+      right = Math.min(right, r.right); bottom = Math.min(bottom, r.bottom);
+    }
+    if (right - left < 12 || bottom - top < 12) continue;
+    const inset = 4;
+    const mx = (left + right) / 2, my = (top + bottom) / 2;
+    const points = [[mx, my], [left + inset, my], [right - inset, my], [mx, top + inset], [mx, bottom - inset]];
+    const ownChrome = isChrome(el);
+    asked += 1;
+    for (const [x, y] of points) {
+      const hit = document.elementFromPoint(x, y);
+      if (!hit || hit === el || el.contains(hit)) continue;
+      if (hit.closest(CONTROL)) continue;
+      const chrome = isChrome(hit);
+      if (chrome && chrome !== ownChrome && !chrome.contains(el)) continue;
+      out.push(`${describe(el)} at ${Math.round(x)},${Math.round(y)} lands on ${describe(hit)}`);
+      break;
+    }
+  }
+  return { asked, missed: out.length, say: out.slice(0, 3).join(" · ") };
+}
+
+/**
  * One pass over whatever a page is showing: the four questions, then the same
  * four with every run of text swapped for one of the same length that cannot
  * break.
@@ -1239,6 +1310,8 @@ async function measure(page, label, atLeast = 25) {
   check(`every mark beside a heading is balanced against it on ${label}`, kin.unbalanced === 0, kin.say.unbalanced);
   check(`a set of labels sits one line each or none of it does, on ${label}`, kin.unevenly === 0, kin.say.unevenly);
   check(`boxes side by side start their words on one line, on ${label}`, kin.misaligned === 0, kin.say.misaligned);
+  const hits = await page.evaluate(pressable, null);
+  check(`every control answers a press across its whole box on ${label}`, hits.missed === 0, hits.say);
   /*
     The middot is on no screen, and this is the half the source check cannot
     reach: a hint or a government string stored in somebody's deck before the
@@ -1416,6 +1489,38 @@ async function creditedToday(ctx, at) {
     await prisma.setting.deleteMany({ where: { ownerId: LOCAL_OWNER, key: { in: keys } } });
     if (before.length) await prisma.setting.createMany({ data: before });
     await prisma.$disconnect();
+  }
+}
+
+/*
+  THE ACCOUNT MENU OPEN, which is where the question above was reported. It
+  hangs over the page from the rail, so it is only there from 768 up, and it is
+  a state no route arrives in.
+*/
+async function accountMenuOpen(ctx, at) {
+  const page = await ctx.newPage();
+  try {
+    await page.goto(`${B}/`, { waitUntil: "domcontentloaded", timeout: 60000 });
+    await ready(page, 30000);
+    const opener = page.locator("[data-account]").first();
+    let open = false;
+    for (let tries = 0; tries < 10 && !open; tries += 1) {
+      await opener.click().catch(() => {});
+      open = (await page.locator("[data-account-menu]").count()) > 0;
+      if (!open) await page.waitForTimeout(500);
+    }
+    if (!open) {
+      check(`the account menu opens ${at}`, false, "pressing the name in the rail drew no menu");
+      return;
+    }
+    const hits = await page.evaluate(pressable, "[data-account-menu]");
+    check(
+      `every row of the account menu answers a press across its whole box ${at}`,
+      hits.missed === 0 && hits.asked >= 2,
+      hits.missed ? hits.say : `${hits.asked} rows asked`,
+    );
+  } finally {
+    await page.close();
   }
 }
 
@@ -1743,6 +1848,7 @@ for (const width of WIDTHS) {
   await openedWelcome(ctx, `at ${width}`);
   await paperBeingSat(ctx, `at ${width}`);
   await creditedToday(ctx, `at ${width}`);
+  if (width >= 768) await accountMenuOpen(ctx, `at ${width}`);
   if (width !== 768) await askedForStates(ctx, `at ${width}`);
   if (width === 360 || width === 1280) await workbookStates(width, `at ${width}`);
   await lessonStepStates(ctx, `at ${width}`);
