@@ -259,6 +259,15 @@ describe("what was heard and what it is read as", () => {
     expect(hearing.repairs.map((r) => r.rule)).toEqual(["hesitation", "hesitation"]);
   });
 
+  it("keeps an interjection the line is waiting for, and still takes out the same mark elsewhere", () => {
+    const line = new Set(["ah,", "tema!", "teda", "on", "ju", "praegu", "igal", "pool."]);
+    const said = reconcile(turn("ah tema teda on ju praegu igal pool"), { known: () => true, expect: line });
+    expect(said.understood).toBe("ah tema teda on ju praegu igal pool");
+    expect(said.repairs).toEqual([]);
+    const pause = reconcile(turn("ah ma lähen poodi"), { known: () => true, expect: new Set(["ma", "lähen", "poodi"]) });
+    expect(pause.understood).toBe("ma lähen poodi");
+  });
+
   it("marks a word the two decodings disagree on, and only that one", () => {
     const hearing = reconcile(turn("Tere ma lähen poodi", "tere! Ma lähen pood"), { known });
     expect(hearing.words.map((w) => w.unsure)).toEqual([false, false, false, true]);

@@ -16,6 +16,22 @@ import { core } from "./reconcile";
  * that falls between the lit word before the gap and the lit word after it.
  */
 
+/**
+ * The key a word is compared on: the folds an English ear makes, and one more
+ * for the interjections a line opens on. `Ah` and `Oh` are a vowel and a
+ * breath, and the recognizer writes the breath or leaves it out as it likes
+ * (`ah`, `aa`, `a`, `ahh`), so they are compared on the vowel alone. Nothing
+ * else is a run of one vowel with an `h` after it, so no word is merged with
+ * another by this.
+ */
+const BREATH = /^([ao])\1*h*$/;
+
+export function wordKey(word: string): string {
+  const c = core(word);
+  const breath = BREATH.exec(c);
+  return breath ? breath[1]! : soundKey(c);
+}
+
 /** The words of a line as they are lit: its tokens as written, and the key each is compared on. */
 export interface LineWord {
   readonly text: string;
@@ -27,12 +43,12 @@ export function lineWords(line: string): LineWord[] {
     .normalize("NFC")
     .split(/\s+/)
     .filter(Boolean)
-    .map((text) => ({ text, key: soundKey(core(text)) }));
+    .map((text) => ({ text, key: wordKey(text) }));
 }
 
 /** For each word of the line, whether it has been heard yet, in order. */
 export function lightUp(line: readonly LineWord[], heard: string): boolean[] {
-  const said = heard.normalize("NFC").split(/\s+/).map((w) => soundKey(core(w))).filter(Boolean);
+  const said = heard.normalize("NFC").split(/\s+/).map(wordKey).filter(Boolean);
   const lit = new Array<boolean>(line.length).fill(false);
   let from = 0;
   for (let i = 0; i < line.length; i++) {
@@ -99,7 +115,7 @@ export function clarityOf(
   const said: { key: string; text: string; heard: string }[] = [];
   for (const w of heard) {
     for (const piece of w.text.normalize("NFC").split(/\s+/).filter(Boolean)) {
-      const key = soundKey(core(piece));
+      const key = wordKey(piece);
       if (key) said.push({ key, text: piece, heard: w.heard });
     }
   }
@@ -117,7 +133,8 @@ export function clarityOf(
     if (at === -1) continue;
     from = at + 1;
     const as = said[at]!.heard;
-    if (core(as) === core(word.text)) clarity[i] = "clear";
+    // An interjection written with or without its breath is the same sound, not a different spelling of it.
+    if (core(as) === core(word.text) || (BREATH.test(core(as)) && BREATH.test(core(word.text)))) clarity[i] = "clear";
     else {
       clarity[i] = "close";
       heardAs[i] = core(as) || as;
@@ -152,7 +169,7 @@ export function shareLit(lit: readonly boolean[]): number {
  */
 export function wordInGap(before: readonly string[], after: readonly string[], heard: string): string | null {
   const said = heard.normalize("NFC").split(/\s+/).filter(Boolean);
-  const keys = said.map((w) => soundKey(core(w)));
+  const keys = said.map(wordKey);
   /*
     Only words count as landmarks. A line's text around a gap carries its
     punctuation as tokens of their own (`.` after a gap at the end, `, kultuur`
@@ -172,8 +189,8 @@ export function wordInGap(before: readonly string[], after: readonly string[], h
   */
   const figure = (w: string | undefined) => w !== undefined && !/\p{L}/u.test(w);
   if (figure(beforeWords[beforeWords.length - 1]) || figure(afterWords[0])) return null;
-  const beforeKeys = beforeWords.map(soundKey).filter(Boolean);
-  const afterKeys = afterWords.map(soundKey).filter(Boolean);
+  const beforeKeys = beforeWords.map(wordKey).filter(Boolean);
+  const afterKeys = afterWords.map(wordKey).filter(Boolean);
   let start = 0;
   if (beforeKeys.length > 0) {
     /*

@@ -78,9 +78,25 @@ export interface ReconcileOptions {
   readonly expect?: ReadonlySet<string>;
 }
 
-/** The marks the model writes for a filled pause: `e`, `ee`, `mhm`, an `e-` glued to a word. */
+/**
+ * The marks the model writes for a filled pause: `e`, `ee`, `mhm`, an `e-` glued to a word.
+ *
+ * `ah` and `oh` are also Estonian words, the interjections a line opens on
+ * ("Ah, tema!"), so one is taken out only where the moment could not hold it:
+ * where `expect` names its spelling it is a word that was said, and it stays.
+ * Taking it out there left the first word of a line dark however clearly a
+ * native speaker said it. Compared on the vowel, since the model writes the
+ * breath or not as it likes (`ah`, `ahh`).
+ */
 const HESITATION = /^(e+|m+h*m*|h+m+|ah+|oh+)$/;
 const GLUED = /^e-(?=\p{L})/u;
+
+/** Whether the moment could hold this hesitation-shaped word: `ahh` is the `Ah,` a line opens on. */
+function expected(word: string, expect: ReadonlySet<string>): boolean {
+  if (expect.has(word)) return true;
+  const vowel = /^([ao])\1*h+$/.exec(word)?.[1];
+  return vowel !== undefined && [...expect].some((e) => new RegExp(`^${vowel}+h+$`).test(e));
+}
 
 /** A word as compared: lower-cased, its edge punctuation off. Diacritics are kept, because they are the spelling. */
 export function core(word: string): string {
@@ -149,7 +165,9 @@ function dress(original: string, replacement: string): string {
 /** What one finished turn was heard as, and read as. */
 export function reconcile(turn: RawTurn, options: ReconcileOptions = {}): Hearing {
   const known = options.known ?? (() => undefined);
-  const expect = options.expect ?? new Set<string>();
+  /* Compared as a word is compared, so a caller that handed in a line's words
+     with their punctuation on ("ah,") is read the same as one that did not. */
+  const expect = new Set([...(options.expect ?? [])].map(core).filter(Boolean));
   const keys = keysOf(expect);
   const heard = turn.greedy.text.trim();
   const greedy = wordsOf(heard);
@@ -166,7 +184,7 @@ export function reconcile(turn: RawTurn, options: ReconcileOptions = {}): Hearin
     }
     const c = core(word);
     if (!c) continue;
-    if (HESITATION.test(c)) {
+    if (HESITATION.test(c) && !expected(c, expect)) {
       repairs.push({ from: word, to: "", rule: "hesitation" });
       continue;
     }

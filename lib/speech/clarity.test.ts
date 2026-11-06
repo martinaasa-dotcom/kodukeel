@@ -19,6 +19,22 @@ describe("how each word of a line came across", () => {
     expect(clarityOf(line, plain("aitäh kõik on hästi")).clarity).toEqual(["clear", "clear", "clear", "clear"]);
   });
 
+  it("lights the interjection a line opens on, as the app hears it said, however the breath is written", () => {
+    // Reported by a native speaker: "Ah, tema!" said clearly twice and the Ah never lit.
+    const line = lineWords("Ah, tema! Teda on ju praegu igal pool.");
+    const said = "ah tema teda on ju praegu igal pool";
+    const hearing = reconcile(turn(said), { known: () => true, expect: new Set(line.map((w) => w.text.toLocaleLowerCase("et"))) });
+    expect(lightUp(line, hearing.understood).every(Boolean)).toBe(true);
+    for (const breath of ["ah", "ahh", "aa", "a"]) {
+      const heard = reconcile(turn(`${breath} tema`), { known: () => true, expect: new Set(["ah,", "tema!"]) });
+      expect(lightUp(lineWords("Ah, tema!"), heard.understood)).toEqual([true, true]);
+      expect(clarityOf(lineWords("Ah, tema!"), heard.words).clarity).toEqual(["clear", "clear"]);
+    }
+    // Only an interjection is folded this way: "Ah" does not light from "aga", nor "ta" from "tah".
+    expect(lightUp(lineWords("Ah"), "aga")).toEqual([false]);
+    expect(lightUp(lineWords("ta"), "tah")).toEqual([false]);
+  });
+
   it("is close where the word lit only through the folds an English ear makes, and says what was heard", () => {
     // `üks` heard as `uks` (the umlaut) and `kuus` as `kus` (the length): both light, neither is the spelling.
     const line = lineWords("üks kuus");
