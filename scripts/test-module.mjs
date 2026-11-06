@@ -313,13 +313,16 @@ try {
       `import { LESSONS } from "./lib/course/lessons"; import { lessonHeads } from "./lib/course/lessonHeads";
        process.stdout.write(JSON.stringify(lessonHeads(LESSONS.find((l) => l.id === ${JSON.stringify(lessonId)}))));`,
     ], { encoding: "utf8" }));
-    const onward = page.getByRole("button", { name: /^(Continue|Skip this step|Finish the lesson)/ }).last();
-    for (let i = 0; i < 6 && (await onward.count()) > 0; i++) {
+    /* A step is several pages now, one task each, so the presses are counted
+       until the lesson says it is done rather than one per step. */
+    const onward = page.getByRole("button", { name: /^(Continue|Skip this step|Finish the lesson|Finish without it)/ }).last();
+    const finished = page.getByRole("heading", { name: "Lesson done" });
+    for (let i = 0; i < 80 && (await finished.count()) === 0 && (await onward.count()) > 0; i++) {
       await onward.click();
-      await page.waitForTimeout(400);
+      await page.waitForTimeout(300);
     }
     await page.getByRole("heading", { name: "Lesson done" }).waitFor({ timeout: 20_000 }).catch(() => {});
-    check("pressing through all six steps ends the lesson", await page.getByRole("heading", { name: "Lesson done" }).count() === 1);
+    check("pressing through every page of all six steps ends the lesson", await page.getByRole("heading", { name: "Lesson done" }).count() === 1);
     let ticked = 0;
     for (let i = 0; i < 40 && ticked === 0; i++) {
       ticked = await prisma.courseStep.count({ where: { ownerId: OWNER, programmeId: "a1.1", dayId: lessonId, stepId: "lesson" } });
