@@ -24,7 +24,10 @@ import { useKeep } from "@/components/course/useKeep";
  * endings the evening was about have to come from memory; the third with the
  * whole line gone and only its English left. A word that was hidden comes
  * back the moment it is heard, which is the reward and the check at once: the
- * line fills itself in as it is said.
+ * line fills itself in as it is said. A word that is on the screen, whether
+ * it was never hidden or "Show the line" brought it back, lights the moment it
+ * is understood, and the count beside the microphone climbs while it listens:
+ * a line shown and said with nothing lighting reads as nobody listening.
  *
  * WHAT LIGHTS A WORD IS THAT IT WAS UNDERSTOOD, never how it sounded
  * (ADR-018, ADR-028), and a word left dark is only dark: "Show the line" is
@@ -130,6 +133,7 @@ function FadeLine({ line, en, hidden, voice, native, who, locale }: {
   // A dash said between two halves of a line is not a word, so it is not counted as one that came across.
   const counted = words.map((w, i) => ({ word: /\p{L}/u.test(w.text), lit: lit[i] ?? false })).filter((w) => w.word);
   const anyHidden = hidden.some(Boolean);
+  const done = counted.every((w) => w.lit) ? t("Every word came across.") : fill(t("{n} of {total} words came across."), { n: counted.filter((w) => w.lit).length, total: counted.length });
 
   return (
     <div className="flex flex-col gap-3 rounded-[var(--r-lg)] border px-4 py-4" style={{ borderColor: "var(--edge)", background: "var(--raised)" }} data-fade-line>
@@ -144,7 +148,7 @@ function FadeLine({ line, en, hidden, voice, native, who, locale }: {
             <span key={`${i}-${w.text}`}>
               {gone
                 ? <span className="fade-word" style={{ minWidth: `${Math.max(2, w.text.length)}ch` }}><span className="sr-only" lang={locale}>{t("a word to say")}</span>{"\u00a0".repeat(Math.max(2, w.text.length))}</span>
-                : hidden[i] ? <span className="fade-word" data-back="true">{w.text}</span> : <span className="read-aloud-word" data-lit={lit[i] ? "true" : "false"}>{w.text}</span>}
+                : <span className="read-aloud-word" data-lit={lit[i] ? "true" : "false"}>{w.text}</span>}
               {i < words.length - 1 ? " " : ""}
             </span>
           );
@@ -158,12 +162,15 @@ function FadeLine({ line, en, hidden, voice, native, who, locale }: {
         {anyHidden && !shown && (
           <Button variant="ghost" size="sm" onClick={() => { showing.current = true; setShown(true); }}><Eye size={14} aria-hidden /> {t("Show the line")}</Button>
         )}
-        {/* Mounted empty and filled, since a status region that arrives holding its words is often not read. */}
-        <p className="text-sm" role="status" style={{ color: "var(--ink-2)" }}>
-          {heard && !speech.listening
-            ? counted.every((w) => w.lit) ? t("Every word came across.") : fill(t("{n} of {total} words came across."), { n: counted.filter((w) => w.lit).length, total: counted.length })
-            : null}
+        {/* While the microphone is open the count climbs as each word is understood, so a learner can see
+            they are being heard; it is drawn only, since a live region read on every word would talk over them.
+            Mounted empty and filled, since a status region that arrives holding its words is often not read. */}
+        <p className="text-sm tabular-nums" aria-hidden style={{ color: "var(--ink-2)" }} data-fade-count>
+          {speech.listening
+            ? fill(t("Heard so far: {n} of {total} words."), { n: counted.filter((w) => w.lit).length, total: counted.length })
+            : heard ? done : null}
         </p>
+        <p className="sr-only" role="status">{heard && !speech.listening ? done : null}</p>
       </div>
     </div>
   );
