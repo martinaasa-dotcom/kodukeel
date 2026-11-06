@@ -72,7 +72,17 @@ async function open(width, height, path) {
     isMobile: width < 768,
   });
   const page = await ctx.newPage();
-  await page.goto(`${B}${path}`, { waitUntil: "networkidle" });
+  /*
+    The page is loaded, then the network is given a few seconds to go quiet,
+    and the checks run either way. Waiting for quiet outright made a page's
+    measurement hostage to whatever it fetches after it has drawn: a round
+    prefetches the next card's clip from TartuNLP, and on 2026-11-06, with that
+    service answering 500 for hours, /learn/new never went quiet on a CI runner
+    and the suite threw at check 117 on every pull request. Nothing measured
+    here depends on a clip arriving.
+  */
+  await page.goto(`${B}${path}`, { waitUntil: "load" });
+  await page.waitForLoadState("networkidle", { timeout: 5_000 }).catch(() => {});
   return { ctx, page };
 }
 

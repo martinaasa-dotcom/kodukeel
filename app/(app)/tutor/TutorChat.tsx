@@ -8,7 +8,8 @@ import { Card } from "@/components/ui";
 import { AnuFace } from "@/components/anu/AnuFace";
 import { useAnuChat, type Msg } from "@/components/anu/useAnuChat";
 import { useStickToBottom } from "@/components/anu/useStickToBottom";
-import { AnuMic } from "@/components/anu/AnuMic";
+import { AnuMic, NOTHING_HEARD, type HeardSoFar } from "@/components/anu/AnuMic";
+import { liveText } from "@/lib/speech/liveText";
 import { AnuFailure, AnuOffline, Bubble, latestReplyIndex, Provenance, SentenceCheck, Starters, sentenceCheckPrompt } from "@/components/anu/AnuParts";
 import { useT } from "@/components/Locale";
 import { filled } from "@/components/Filled";
@@ -34,6 +35,7 @@ export function TutorChat({
   const { messages, streaming, answeredBy, failure, send, online } = useAnuChat(history);
   const latestReply = latestReplyIndex(messages);
   const [input, setInput] = useState(initialQuestion ?? "");
+  const [heardSoFar, setHeardSoFar] = useState<HeardSoFar>(NOTHING_HEARD);
   const [checkOpen, setCheckOpen] = useState(false);
   const [checkEt, setCheckEt] = useState("");
   const [checkEn, setCheckEn] = useState("");
@@ -142,7 +144,8 @@ export function TutorChat({
       <div className="flex flex-col gap-3 md:flex-row md:items-start">
         <div className="flex-1">
           <EstonianInput
-            value={input}
+            value={liveText(input, heardSoFar, "add")}
+            readOnly={heardSoFar.listening}
             onChange={setInput}
             onEnter={() => { if (send(input)) setInput(""); }}
             placeholder={t("Why is it raamatut and not raamatu?")}
@@ -150,7 +153,7 @@ export function TutorChat({
             autoFocus={Boolean(initialQuestion)}
           />
         </div>
-        <AnuMic current={input} onHeard={setInput} shortcut />
+        <AnuMic current={input} onHeard={setInput} onLive={setHeardSoFar} shortcut />
         <Button
           variant="primary"
           size="lg"

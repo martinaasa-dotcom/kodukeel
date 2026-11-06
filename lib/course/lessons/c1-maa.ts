@@ -137,7 +137,7 @@ export const C1_MAA_LESSONS: readonly LessonSpec[] = [
         { et: "Aga kuulata tasub.", en: "But it's worth listening." },
         { et: "Kui talu köögis öeldakse: „Tulõ sisse, kae ringi!“, siis saab ka linnainimene aru, et teda kutsutakse sisse ja palutakse ringi vaadata.", en: "When somebody in a farm kitchen says 'Come in, look around!' in the local language, even a city person understands they're being asked in and told to look around." },
         { et: "Enamik sõnu on tuttavad, ainult häälikud on natuke teistsugused.", en: "Most of the words are familiar; only the sounds are a little different." },
-        { et: "Ja kui mõni sõna jääb päris arusaamatuks, siis tasub julgelt küsida.", en: "And if a word stays completely unclear, it's worth simply asking." },
+        { et: "Ja kui mõni sõna jääb päris arusaamatuks, siis tasub julgelt küsida.", en: "And if a word stays quite unclear, it's worth simply asking." },
         { et: "Võrukad räägivad oma keelest meelsasti ja sageli saab ühest küsimusest pikk jutt.", en: "The people of the south-east like talking about their language, and one question often turns into a long story." },
         { et: "Mida aga Võrumaal teha?", en: "So what is there to do in {Võrumaa}?" },
         { et: "Suvel on siin palju väikeseid sündmusi, mida suurtes linnades ei näe.", en: "In summer there are lots of small events here that you won't see in the big towns." },
@@ -234,7 +234,7 @@ export const C1_MAA_LESSONS: readonly LessonSpec[] = [
         { et: "Koolis ütles õpetaja, et võru keel on lihtsalt murre ja seda pole vaja.", en: "At school the teacher said the language was just a dialect and wasn't needed." },
         { et: "Mina arvan, et see oli vale, sest keel, mida räägitakse kodus, on alati tähtis.", en: "I think that was wrong, because the language spoken at home always matters." },
         { et: "Samas saan ma aru, miks õpetaja nii ütles: sel ajal oli tavaline eesti keel iga lapse jaoks tähtis.", en: "At the same time I understand why the teacher said it: back then ordinary Estonian mattered for every child." },
-        { et: "Nüüd räägivad võru keelt jälle ka noored ja see on minu meelest väga tore.", en: "Now young people speak it again too, and I think that's wonderful." },
+        { et: "Nüüd räägivad võru keelt jälle ka noored ja see on minu meelest väga tore.", en: "Now young people speak it again too, and I think that's really nice." },
       ],
       points: [
         { en: "Her grandmother spoke only the local language at home", any: ["võru keelt", "kodus"] },

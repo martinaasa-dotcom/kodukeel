@@ -303,7 +303,7 @@ try {
     /*
       AND FINISHING IT FINISHES THE EVENING AND FILLS THE DECK.
 
-      Every page of every step, pressed through the way a learner presses them, and then the
+      Six steps, pressed through the way a learner presses them, and then the
       two things nothing short of a browser and a database can say: the
       evening is ticked, and every word the lesson taught has a card behind
       it, so it comes back in Review. A fifth of A1 once had no card at all.
@@ -313,16 +313,16 @@ try {
       `import { LESSONS } from "./lib/course/lessons"; import { lessonHeads } from "./lib/course/lessonHeads";
        process.stdout.write(JSON.stringify(lessonHeads(LESSONS.find((l) => l.id === ${JSON.stringify(lessonId)}))));`,
     ], { encoding: "utf8" }));
-    // A step is a run of pages now, one task each (lib/course/lessons/screens.ts),
-    // so the walk goes on until the lesson says it is done rather than for six presses.
-    const onward = page.getByRole("button", { name: /^(Continue|Skip this step|Finish the lesson)/ }).last();
+    /* A step is several pages now, one task each, so the presses are counted
+       until the lesson says it is done rather than one per step. */
+    const onward = page.getByRole("button", { name: /^(Continue|Skip this step|Finish the lesson|Finish without it)/ }).last();
     const finished = page.getByRole("heading", { name: "Lesson done" });
-    for (let i = 0; i < 40 && (await finished.count()) === 0 && (await onward.count()) > 0; i++) {
+    for (let i = 0; i < 80 && (await finished.count()) === 0 && (await onward.count()) > 0; i++) {
       await onward.click();
-      await page.waitForTimeout(400);
+      await page.waitForTimeout(300);
     }
     await page.getByRole("heading", { name: "Lesson done" }).waitFor({ timeout: 20_000 }).catch(() => {});
-    check("pressing through every step ends the lesson", await page.getByRole("heading", { name: "Lesson done" }).count() === 1);
+    check("pressing through every page of all six steps ends the lesson", await page.getByRole("heading", { name: "Lesson done" }).count() === 1);
     let ticked = 0;
     for (let i = 0; i < 40 && ticked === 0; i++) {
       ticked = await prisma.courseStep.count({ where: { ownerId: OWNER, programmeId: "a1.1", dayId: lessonId, stepId: "lesson" } });

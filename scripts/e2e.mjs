@@ -349,34 +349,36 @@ check("the tutor tab is honest about its key state", needsKey !== connected,
 
 // 8 — Audio really plays through the proxy
 /*
-  A 502 FROM HERE IS EITHER OUR PROXY OR TARTUNLP, AND ONLY ONE OF THEM IS OURS.
-
-  The route says "The speech service couldn't read that out." when TartuNLP
-  answers with anything but a clip, which is the honest answer and is not a
-  fault in this app. On 2026-11-06 the service answered 500 to every request
-  for every voice, and this check failed every run on every branch, reporting
-  "54 bytes", which is that sentence as JSON. So where the route refuses, the
-  service itself is asked the same question: if it refuses too, the proxy is
-  not what is broken and the check is waived naming the service; if it
-  answers and the route still refuses, the proxy is broken and this fails.
+  The proxy answers 502 when TartuNLP answered something other than a clip and
+  503 when it did not answer at all (lib/progress/speakClip.ts). Either is the
+  app reporting a free academic service's bad hour honestly, and it happened:
+  on 2026-11-06 api.tartunlp.ai answered 500 to every request for hours, and
+  every pull request's CI went red here over a fault in nobody's code. So a
+  502 or 503 is put to the service itself, once, and waived only where the
+  service really is refusing: a proxy that fails while the service answers is
+  still a failure, and so is any other status.
 */
 const tts = await page.request.post(`${B}/api/tts`, { data: { text: "tere" } });
 const buf = await tts.body();
-const isWav = tts.ok() && buf.subarray(0, 4).toString() === "RIFF";
-let upstreamDown = null;
-if (!isWav && (tts.status() === 502 || tts.status() === 503)) {
-  const direct = await fetch("https://api.tartunlp.ai/text-to-speech/v2", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ text: "tere.", speaker: "mari" }),
-    signal: AbortSignal.timeout(15_000),
-  }).catch((error) => ({ ok: false, status: String(error?.name ?? error) }));
-  if (!direct.ok) upstreamDown = direct.status;
-}
-if (upstreamDown !== null) {
-  absent(1, `TartuNLP itself answering (it refused this runner directly too: ${upstreamDown}); our route said ${tts.status()}`);
+const upstreamDown = async () => {
+  try {
+    const res = await fetch("https://api.tartunlp.ai/text-to-speech/v2", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ text: "Tere.", speaker: "mari" }),
+      signal: AbortSignal.timeout(20_000),
+    });
+    return res.ok ? null : `TartuNLP answered ${res.status}`;
+  } catch (e) {
+    return `TartuNLP did not answer (${e?.name ?? "error"})`;
+  }
+};
+const down = !tts.ok() && (tts.status() === 502 || tts.status() === 503) ? await upstreamDown() : null;
+if (down) {
+  absent(1, `audio through the proxy: ${down}, so the proxy's ${tts.status()} is the service being down rather than the app`);
 } else {
-  check("Estonian audio comes back as a WAV", isWav, `${tts.status()}, ${buf.length} bytes`);
+  check("Estonian audio comes back as a WAV", tts.ok() && buf.subarray(0, 4).toString() === "RIFF",
+    `${tts.status()}, ${buf.length} bytes`);
 }
 
 // 9 — Adding a word the built-in dictionary does not carry

@@ -38390,7 +38390,7 @@ _lib/copy/i18n/areas/lessonTextB1Rektsioon.ts_
   → А твій начальник?
 - [ ] **19053.** Is that true?  
   → Це правда?
-- [ ] **19054.** No. Actually everything works fine without me too.  
+- [ ] **19054.** No. Actually everything works very well without me too.  
   → Ні. Насправді й без мене все чудово працює.
 - [ ] **19055.** Then we'll go without you: me, Anna and the kids. Peeter's coming with us too.  
   → Тоді ми поїдемо без тебе: я, Анна й діти. Пеетер теж їде з нами.
@@ -44526,8 +44526,8 @@ _lib/copy/i18n/areas/lessonTextB2Pere.ts_
   → Дуже приємно! Я Пірет, восени я буду вчителькою першого класу. А де Марк?
 - [ ] **22111.** He's off playing ball in the gym.  
   → Він у спортзалі, грає в м'яча.
-- [ ] **22112.** Of course! A new gym was built for us last year. The children love it.  
-  → Ну звісно! Торік нам збудували новий спортзал. Діти його обожнюють.
+- [ ] **22112.** Of course! A new gym was built for us last year. The children really like it.  
+  → Ну звісно! Торік нам збудували новий спортзал. Дітям він дуже подобається.
 - [ ] **22113.** I've got one question. In the autumn we'll both be at work until five. Can Mark stay at school after lessons?  
   → У мене одне запитання. Восени ми обоє працюватимемо до п'ятої. Чи може Марк залишатися в школі після уроків?
 - [ ] **22114.** He can. That's what our after-school group is for.  
@@ -50609,8 +50609,8 @@ _lib/copy/i18n/areas/lessonTextB2Konekeel.ts_
   → {Noh} дає секунду подумати або починає питання: {Noh, kuidas läheb?} {Vaata} і {tead} просять послухати: {Vaata, ma käisin eile kontserdil!}
 - [ ] **25140.** {Ju} says you both know it, and turns a sentence into a gentle protest: {Ta ei käi ju kunagi kontserdil}, but he never goes to concerts.  
   → {Ju} каже, що ви обидва це знаєте, і перетворює речення на м'яке заперечення: {Ta ei käi ju kunagi kontserdil}, він же ніколи не ходить на концерти.
-- [ ] **25141.** {Nagu} is like, the way English uses it: {nagu ikka}, same as always. {Muide} is by the way, for a new subject, and {täitsa} is totally: {täitsa veider}.  
-  → {Nagu} – це «ніби», як у розмовній англійській: {nagu ikka}, як завжди. {Muide} – це «до речі», для нової теми, а {täitsa} означає «зовсім»: {täitsa veider}.
+- [ ] **25141.** {Nagu} is like, the way English uses it: {nagu ikka}, same as always. {Muide} is by the way, for a new subject, and {täitsa} is pretty: {täitsa veider}, pretty weird.  
+  → {Nagu} – це «ніби», як у розмовній англійській: {nagu ikka}, як завжди. {Muide} – це «до речі», для нової теми, а {täitsa} означає «досить»: {täitsa veider}, досить дивно.
 - [ ] **25142.** Said  
   → Що сказано
 - [ ] **25143.** I don't remember his name.  
@@ -50639,24 +50639,24 @@ _lib/copy/i18n/areas/lessonTextB2Konekeel.ts_
   → Саме так. І вгадай, кого я там зустріла? Яана!
 - [ ] **25155.** Jaan? But he never goes to concerts.  
   → Яана? Він же ніколи не ходить на концерти.
-- [ ] **25156.** That's just it! It was totally weird.  
-  → Отож бо! Це було зовсім дивно.
+- [ ] **25156.** That's just it! It was pretty weird.  
+  → Отож бо! Це було досить дивно.
 - [ ] **25157.** What's weird about that? A man went to a concert, that's normal.  
   → А що тут дивного? Людина сходила на концерт, це ж нормально.
 - [ ] **25158.** You don't know Jaan. He goes to bed at nine!  
   → Ти не знаєш Яана. Він лягає спати о дев'ятій!
 - [ ] **25159.** That's true. By the way, was the concert any good?  
   → Це правда. До речі, а концерт був хороший?
-- [ ] **25160.** Oh, really cool! Come along next time.  
-  → Ой, дуже класний! Наступного разу ходімо разом.
+- [ ] **25160.** Oh, pretty cool! Come along next time.  
+  → Ой, досить класний! Наступного разу ходімо разом.
 - [ ] **25161.** oh (said)  
   → ой, а (у розмові)
 - [ ] **25162.** you know (how it is)  
   → ну ти знаєш (як це буває)
 - [ ] **25163.** same as always  
   → як завжди
-- [ ] **25164.** quite, totally (said rather than written)  
-  → зовсім, цілком (кажуть, а не пишуть)
+- [ ] **25164.** pretty, quite (said rather than written)  
+  → досить, цілком (кажуть, а не пишуть)
 - [ ] **25165.** everywhere  
   → усюди
 - [ ] **25166.** that's just it, there you go  
@@ -50685,8 +50685,8 @@ _lib/copy/i18n/areas/lessonTextB2Konekeel.ts_
   → ім'я, як додаток
 - [ ] **25178.** he, she sang  
   → він, вона співав (співала)
-- [ ] **25179.** Say you're really good, same as always.  
-  → Скажи, що в тебе все дуже добре, як завжди.
+- [ ] **25179.** Say you're pretty good, same as always.  
+  → Скажи, що в тебе все непогано, як завжди.
 - [ ] **25180.** Pretty good, same as always.  
   → Непогано, як завжди.
 - [ ] **25181.** Say you ran into Jaan at the concert.  
@@ -50695,14 +50695,14 @@ _lib/copy/i18n/areas/lessonTextB2Konekeel.ts_
   → Я зустрів Яана на концерті.
 - [ ] **25183.** Who did you run into yesterday?  
   → Кого ти вчора зустрів?
-- [ ] **25184.** Say it was totally weird.  
-  → Скажи, що це було зовсім дивно.
-- [ ] **25185.** It was totally weird.  
-  → Це було зовсім дивно.
-- [ ] **25186.** Say yes, it was really cool.  
-  → Скажи, що так, було дуже класно.
-- [ ] **25187.** Yes, it was really cool.  
-  → Так, було дуже класно.
+- [ ] **25184.** Say it was pretty weird.  
+  → Скажи, що це було досить дивно.
+- [ ] **25185.** It was pretty weird.  
+  → Це було досить дивно.
+- [ ] **25186.** Say yes, it was pretty cool.  
+  → Скажи, що так, було досить класно.
+- [ ] **25187.** Yes, it was pretty cool.  
+  → Так, було досить класно.
 - [ ] **25188.** Was the concert good?  
   → Концерт був хороший?
 - [ ] **25189.** Say it the short way, as people say it.  
@@ -50747,8 +50747,8 @@ _lib/copy/i18n/areas/lessonTextB2Konekeel.ts_
   → Учора я була на концерті.
 - [ ] **25209.** That young singer who was on the radio was singing there.  
   → Там співав той молодий співак, який був на радіо.
-- [ ] **25210.** The concert was really cool.  
-  → Концерт був дуже класний.
+- [ ] **25210.** The concert was pretty cool.  
+  → Концерт був досить класний.
 - [ ] **25211.** That was weird, because Jaan never goes to concerts.  
   → Це було дивно, бо Яан ніколи не ходить на концерти.
 - [ ] **25212.** Afterwards Jaan and I went to a café together.  
@@ -51507,8 +51507,8 @@ _lib/copy/i18n/areas/lessonTextB2Konekeel.ts_
   → Сідайте за стіл, їжа майже готова.
 - [ ] **25589.** Kati, now tell us how the concert was!  
   → Каті, ну розповідай, як минув концерт!
-- [ ] **25590.** Oh, really cool! And Jaan was there too, and...  
-  → Ой, дуже класно! І Яан там теж був, і...
+- [ ] **25590.** Oh, pretty cool! And Jaan was there too, and...  
+  → Ой, досить класно! І Яан там теж був, і...
 - [ ] **25591.** Mari talks over her.  
   → Марі перебиває її.
 - [ ] **25592.** Jaan at a concert! Now that I don't believe, he goes to bed at nine...  
@@ -51565,10 +51565,10 @@ _lib/copy/i18n/areas/lessonTextB2Konekeel.ts_
   → Ні, дякую. Давай далі естонською, я хочу практикуватися.
 - [ ] **25618.** Want me to speak English?  
   → Хочеш, я говоритиму англійською?
-- [ ] **25619.** Say yes: she ran into him there, and it was totally weird.  
-  → Скажи «так»: вона зустріла його там, і це було зовсім дивно.
-- [ ] **25620.** Yes. She ran into you there, and it was totally weird!  
-  → Так. Вона зустріла тебе там, і це було зовсім дивно!
+- [ ] **25619.** Say yes: she ran into him there, and it was pretty weird.  
+  → Скажи «так»: вона зустріла його там, і це було досить дивно.
+- [ ] **25620.** Yes. She ran into you there, and it was pretty weird!  
+  → Так. Вона зустріла тебе там, і це було досить дивно!
 - [ ] **25621.** OK. Did Kati tell you about the concert?  
   → Добре. Каті розповіла тобі про концерт?
 - [ ] **25622.** Say that's not true: he goes to bed at nine!  
@@ -55949,8 +55949,8 @@ _lib/copy/i18n/areas/lessonTextC1Isiksus.ts_
   → Що кажуть естонці, коли щось іде не так?
 - [ ] **27800.** Prepare for a minute, then talk for one: the mild words and the stronger ones, how strong each is, and where not to say them.  
   → Підготуйся хвилину, потім говори хвилину: м'які слова й сильніші, наскільки сильне кожне і де їх не кажуть.
-- [ ] **27801.** You can say {oi} anywhere. {Pagan} is fine too, you can even say it with a child listening. Everybody says {kurat}, but not in front of a child or to the boss. {Kurat võtaks} is quite angry already. And if it really hurts, I just say: terribly painful!  
-  → Сказати {oi} можна де завгодно. {Pagan} теж годиться, його можна сказати навіть при дитині. Усі кажуть {kurat}, але не при дитині й не начальникові. {Kurat võtaks} уже досить сердито. А якщо дуже боляче, я просто кажу: жахливо боляче!
+- [ ] **27801.** You can say {oi} anywhere. {Pagan} is perfectly fine too, you can even say it with a child listening. Everybody says {kurat}, but not in front of a child or to the boss. {Kurat võtaks} is quite angry already. And if it really hurts, I just say: terribly painful!  
+  → Сказати {oi} можна де завгодно. {Pagan} теж цілком годиться, його можна сказати навіть при дитині. Усі кажуть {kurat}, але не при дитині й не начальникові. {Kurat võtaks} уже досить сердито. А якщо дуже боляче, я просто кажу: жахливо боляче!
 - [ ] **27802.** A question on a parents' forum, and two answers  
   → Запитання на батьківському форумі й дві відповіді
 - [ ] **27803.** Question: Our seven-year-old said {kurat} out loud in class at school yesterday, and the teacher phoned me.  
@@ -66093,7 +66093,7 @@ _lib/copy/i18n/areas/lessonTextC1Uhiskond.ts_
   → Мішки для сміття зазвичай можна попросити в управі району, а сміття вивозять в умовлений час.
 - [ ] **32857.** Bring your neighbors, friends and children along. The children often enjoy it most of all.  
   → Бери із собою сусідів, друзів і дітей. Дітям часто подобається найбільше.
-- [ ] **32858.** Don't plan too much. Two or three hours of work is quite enough.  
+- [ ] **32858.** Don't plan too much. Two or three hours of work is plenty.  
   → Не плануй забагато. Двох-трьох годин роботи цілком досить.
 - [ ] **32859.** And don't forget the most important thing: after the work there has to be soup.  
   → І не забудь найважливішого: після роботи неодмінно має бути суп.
@@ -66820,8 +66820,8 @@ _lib/copy/i18n/areas/lessonTextC1Maa.ts_
   → Я думаю, це було неправильно, бо мова, якою говорять удома, завжди важлива.
 - [ ] **33218.** At the same time I understand why the teacher said it: back then ordinary Estonian mattered for every child.  
   → Водночас я розумію, чому вчителька так казала: тоді звичайна естонська була важлива для кожної дитини.
-- [ ] **33219.** Now young people speak it again too, and I think that's wonderful.  
-  → Тепер нею знову говорить і молодь, і я думаю, це чудово.
+- [ ] **33219.** Now young people speak it again too, and I think that's really nice.  
+  → Тепер нею знову говорить і молодь, і я думаю, це дуже добре.
 - [ ] **33220.** Her grandmother spoke only the local language at home  
   → Її бабуся вдома говорила лише місцевою мовою
 - [ ] **33221.** The teacher said it was just a dialect  
@@ -66874,8 +66874,8 @@ _lib/copy/i18n/areas/lessonTextC1Maa.ts_
   → Коли хтось на хутірській кухні каже місцевою мовою «Заходь, роздивися!», навіть городянин розуміє, що його запрошують увійти й роздивитися.
 - [ ] **33245.** Most of the words are familiar; only the sounds are a little different.  
   → Більшість слів знайомі; лише звуки трохи інші.
-- [ ] **33246.** And if a word stays completely unclear, it's worth simply asking.  
-  → А якщо слово лишається зовсім незрозумілим, варто просто спитати.
+- [ ] **33246.** And if a word stays quite unclear, it's worth simply asking.  
+  → А якщо слово лишається досить незрозумілим, варто просто спитати.
 - [ ] **33247.** The people of the south-east like talking about their language, and one question often turns into a long story.  
   → Люди південного сходу люблять говорити про свою мову, і одне запитання часто перетворюється на довгу розповідь.
 - [ ] **33248.** So what is there to do in {Võrumaa}?  
@@ -72085,7 +72085,7 @@ _lib/copy/i18n/areas/sounds.ts_
   → вогонь
 - [ ] **35843.** a quarrel  
   → сварка
-- [ ] **35844.** a nail  
+- [ ] **35844.** a fingernail  
   → ніготь
 - [ ] **35845.** a sphere  
   → куля

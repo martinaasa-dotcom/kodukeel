@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { Loader2, Mic, Square } from "lucide-react";
+import { Loader2, Mic, MicOff, Square } from "lucide-react";
 import { useT } from "@/components/Locale";
 import { Button } from "@/components/Button";
 import { fill } from "@/lib/copy/locale";
@@ -34,7 +34,14 @@ export interface MicButtonProps {
   readonly label?: string;
   /** Bind the keyboard shortcut. One button per screen does. */
   readonly shortcut?: boolean;
-  /** Show the words so far under the button while listening. Off where the screen shows them in its own box. */
+  /**
+   * Show the words so far under the button while listening. Off by default
+   * wherever there is a box (`fallback` "box"), because a screen with a box
+   * says what is heard goes in it, and the words so far belong there too
+   * (`lib/speech/liveText.ts`): drawn here they sat above the box and jumped
+   * into it at the end of the turn. A screen whose box only receives part of
+   * what is said, or only appears once the microphone has gone, turns it on.
+   */
   readonly showPartial?: boolean;
   readonly size?: "md" | "lg";
   /**
@@ -61,7 +68,14 @@ export const MIC_SHORTCUT = { key: "m", label: "Ctrl M" } as const;
 /** Pressed for longer than this under a finger, a press is talking while held. */
 const HOLD_MS = 350;
 
-export function MicButton({ speech, label, shortcut = false, showPartial = true, size = "md", speaksForItself = false, fallback }: MicButtonProps) {
+/** How long "Microphone off" stands beside the button once a turn has closed. */
+const ENDED_MS = 2200;
+
+/** The level meter's bars, each answering the level by its own share so the row reads as a voice rather than one block. */
+const BAR_WEIGHTS = [0.55, 0.9, 1, 0.75, 0.5] as const;
+
+export function MicButton({ speech, label, shortcut = false, showPartial, size = "md", speaksForItself = false, fallback }: MicButtonProps) {
+  const wordsHere = showPartial ?? fallback === "none";
   const t = useT();
   const [announce, setAnnounce] = useState<ReactNode>("");
   const pressedAt = useRef(0);
@@ -70,6 +84,25 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
   latest.current = speech;
 
   const { offered, phase, listening, thinking, partial, level, clipping, error, hearing, appSpeaking, silent } = speech;
+
+  /* The moment listening ends is said as plainly as the moment it starts: once
+     a turn has closed and been read, "Microphone off" stands beside the button
+     for a couple of seconds, so a learner who looked away knows it is no longer
+     hearing the room rather than having to infer it from an icon changing. */
+  const [ended, setEnded] = useState(false);
+  const wasOpen = useRef(false);
+  useEffect(() => {
+    if (listening || thinking) {
+      wasOpen.current = true;
+      setEnded(false);
+      return;
+    }
+    if (!wasOpen.current) return;
+    wasOpen.current = false;
+    setEnded(true);
+    const id = setTimeout(() => setEnded(false), ENDED_MS);
+    return () => clearTimeout(id);
+  }, [listening, thinking]);
 
   useEffect(() => {
     if ((!hearing && !silent) || speaksForItself) return;
@@ -138,18 +171,18 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
     phase === "downloading" ? downloadingLine(t, speech.progress.done, speech.progress.total)
     : phase === "loading" ? t("Getting ready to listen")
     : thinking ? t("Reading what you said")
-    : listening ? t("Listening. Press again when you are done.")
     // A turn that closed on its own with nothing said says so, rather than the button just going quiet.
-    : silent && !speaksForItself ? t("Nothing was heard.")
+    : !listening && silent && !speaksForItself ? t("Nothing was heard.")
     : null;
+  const showEnded = ended && !listening && !thinking && !busy && !error && !(silent && !speaksForItself);
 
   return (
-    <div className="flex flex-col items-start gap-3">
+    <div className="flex flex-col items-start gap-4" style={{ "--mic-level": String(level) } as CSSProperties}>
       {/* The status line stays beside the button and wraps inside its own
           column, by words: wrapped under the button, it sat inside the level
-          ring and the ring drew over its first words. The gap clears the ring
-          at its widest (`.speech-mic` in globals.css). */}
-      <div className="flex max-w-full items-center gap-4">
+          ring and the ring drew over its first words. The gaps clear the ring
+          and the ripples at their widest (`.speech-mic` in globals.css). */}
+      <div className="flex max-w-full items-center gap-5">
         <button
           type="button"
           className={`speech-mic press relative inline-flex shrink-0 items-center justify-center rounded-full ${dim}`}
@@ -197,7 +230,6 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
             // Holding to talk is not a request for the browser's long-press menu.
             if (pressedAt.current !== 0) e.preventDefault();
           }}
-          style={{ "--mic-level": String(level) } as CSSProperties}
         >
           {busy ? (
             <Loader2 size={big ? 24 : 20} className="animate-spin" aria-hidden />
@@ -207,10 +239,34 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
             <Mic size={big ? 24 : 20} aria-hidden />
           )}
         </button>
-        {status && <p className="min-w-0 flex-1 text-sm" style={{ color: "var(--ink-2)" }}>{status}</p>}
+        {listening ? (
+          /* Listening is a thing on the screen rather than a sentence: a pill
+             with a live dot, the word itself and a meter that moves with the
+             voice coming in, so it reads at a glance from across the room and
+             in words for anybody who does not read color (`.speech-live`). */
+          <div className="min-w-0 flex-1">
+            <p className="speech-live text-sm" data-listening-pill>
+              <span className="speech-live-dot" aria-hidden />
+              <span className="font-semibold">{t("Listening now")}</span>
+              <span className="speech-bars" aria-hidden>
+                {BAR_WEIGHTS.map((w, i) => (
+                  <span key={i} style={{ "--bar": String(w) } as CSSProperties} />
+                ))}
+              </span>
+            </p>
+            <p className="mt-1.5 text-sm" style={{ color: "var(--ink-2)" }}>{t("Press again when you are done.")}</p>
+          </div>
+        ) : showEnded ? (
+          <p className="speech-ended min-w-0 flex-1 text-sm" data-listening-ended>
+            <MicOff size={15} aria-hidden />
+            <span>{t("Microphone off")}</span>
+          </p>
+        ) : (
+          status && <p className="min-w-0 flex-1 text-sm" style={{ color: "var(--ink-2)" }}>{status}</p>
+        )}
       </div>
 
-      {listening && showPartial && partial && (
+      {listening && wordsHere && partial && (
         <p lang="et" className="speech-partial text-md" style={{ color: "var(--ink)" }}>{partial}</p>
       )}
       {listening && clipping && (
