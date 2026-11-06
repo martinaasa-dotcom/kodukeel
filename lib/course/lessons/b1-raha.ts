@@ -271,6 +271,11 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Kellena sa praegu töötad ja kelleks sa tahaksid saada?", en: "What do you work as now, and what would you like to become?" },
       cue: "Say what you work as, what you started as, what you'd like to become, and why.",
       model: { et: "Ma töötan arendajana. Alustasin praktikandina. Kunagi tahaksin saada projektijuhiks, sest mulle meeldib meeskonnaga töötada.", en: "I work as a developer. I started as an intern. One day I'd like to become a project manager, because I like working with a team." },
+      checks: [
+        { en: "What you work as, with -na ({töötan arendajana} here).", any: ["töötan *na", "alustasin *na"] },
+        { en: "What you'd like to become, with -ks ({saada projektijuhiks} here).", any: ["saada *ks", "sai *ks"] },
+        { en: "Why, with {sest}.", any: ["sest"] },
+      ],
     },
   },
   {
@@ -520,6 +525,11 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Mida sa oma palgaga teed?", en: "What do you do with your pay?" },
       cue: "Say what you pay first, what you save for, and why saving is hard.",
       model: { et: "Kõigepealt maksan üüri ja arved. Siis säästan natuke raha, sest suvel tahaksin Saaremaale minna. Aga säästa on raske, sest kulusid on palju.", en: "First I pay the rent and the bills. Then I save a little money, because in the summer I'd like to go to Saaremaa. But saving is hard, because there are a lot of costs." },
+      checks: [
+        { en: "What you pay first, with {maksan} ({maksan üüri} here).", any: ["maksan"] },
+        { en: "What you save for, with {säästan} or {säästa}.", any: ["säästan", "säästa"] },
+        { en: "Why saving is hard, with {sest}.", any: ["sest"] },
+      ],
     },
   },
   {
@@ -792,6 +802,11 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Miks sa tahaksid oma tööaega muuta?", en: "Why would you like to change your working hours?" },
       cue: "Say what you'd like to change and why, then compare two ways it could work.",
       model: { et: "Ma sooviksin töötada neli päeva nädalas, sest reedeti on mul kursus. Ma võiksin töötada kümme tundi päevas või saada väiksemat palka. Kümme tundi on pikk päev, aga see oleks mulle parem.", en: "I'd like to work four days a week, because I have a course on Fridays. I could work ten hours a day or take a smaller salary. Ten hours is a long day, but that would suit me better." },
+      checks: [
+        { en: "What you'd like, in the would form ({Ma sooviksin} here).", any: ["*ksin"] },
+        { en: "Why, with {sest} or {sellepärast}.", any: ["sest", "sellepärast"] },
+        { en: "Two ways it could work, with {või}.", any: ["või"] },
+      ],
     },
   },
   /*
@@ -889,6 +904,11 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Mis su eriala on ja mis tööd sa teed?", en: "What did you study, and what do you do?" },
       cue: "Say what you studied, what your job is now, and what you like about it.",
       model: { et: "Ma õppisin ülikoolis ajalugu, aga nüüd olen ma programmeerija. See on hea amet, sest töö on huvitav ja meil on hea meeskond.", en: "I studied history at university, but now I'm a programmer. It's a good job, because the work's interesting and we've got a good team." },
+      checks: [
+        { en: "What you studied, with {õppisin} ({õppisin ülikoolis} here).", any: ["õppisin"] },
+        { en: "What you do now, with {nüüd}.", any: ["nüüd"] },
+        { en: "What you like about it, with {sest}.", any: ["sest"] },
+      ],
     },
   },
   {

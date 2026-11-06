@@ -588,6 +588,11 @@ export const LESSON_TEXT_B2_PERE: Area = {
     "School and kindergarten in Estonian: a place for each child, a sick day, an email to the teacher, and the parents' evening.": "Школа и детский сад по-эстонски: место для каждого ребёнка, день болезни, письмо учителю и родительское собрание.",
     "She's asking the parents to write a little about their child. And she wrote that textbooks are given out at school, but we buy the exercise books and pencils ourselves.": "Она просит родителей написать немного о своём ребёнке. И написала, что учебники выдают в школе, а тетради и карандаши мы покупаем сами.",
     "to the children, for the children": "детям, для детей",
+    "Busy at it, with -mas ({mängimas} here).": "Чем человек сейчас занят, с -mas (здесь {mängimas}).",
+    "Just back from it, with -mast ({tuleb just ujumast} here).": "Откуда человек только что вернулся, с -mast (здесь {tuleb just ujumast}).",
+    "How old, with -aastane ({kuueaastane} here).": "Сколько лет, с -aastane (здесь {kuueaastane}).",
+    "What they love doing, with {armastab}.": "Что ребёнок любит делать, с {armastab}.",
+    "One thing a teacher should know, with {aga}.": "Что-то, что учитель должен знать, с {aga}.",
   },
   uk: {
     "A place at school": "Місце в школі",
@@ -1168,5 +1173,10 @@ export const LESSON_TEXT_B2_PERE: Area = {
     "He speaks three languages: Ukrainian with me, English with his dad, and Estonian at kindergarten.": "Він говорить трьома мовами: зі мною – українською, з татом – англійською, а в садочку – естонською.",
     "She's asking the parents to write a little about their child. And she wrote that textbooks are given out at school, but we buy the exercise books and pencils ourselves.": "Вона просить батьків написати трохи про свою дитину. І написала, що підручники видають у школі, а зошити й олівці ми купуємо самі.",
     "to the children, for the children": "дітям, для дітей",
+    "Busy at it, with -mas ({mängimas} here).": "Чим людина зараз зайнята, з -mas (тут {mängimas}).",
+    "Just back from it, with -mast ({tuleb just ujumast} here).": "Звідки людина щойно повернулася, з -mast (тут {tuleb just ujumast}).",
+    "How old, with -aastane ({kuueaastane} here).": "Скільки років, з {-aastane} (тут {kuueaastane}).",
+    "What they love doing, with {armastab}.": "Що дитина любить робити, з {armastab}.",
+    "One thing a teacher should know, with {aga}.": "Щось, що вчитель має знати, з {aga}.",
   },
 };

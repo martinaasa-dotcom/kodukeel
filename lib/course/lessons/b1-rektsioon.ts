@@ -140,6 +140,10 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Kellelt sa abi küsid, kui sul on probleem?", en: "Who do you ask for help when you have a problem?" },
       cue: "Say who you ask for help, and who you help yourself.",
       model: { et: "Ma küsin abi ülemuselt. Ta aitab mind alati hea meelega. Ja kui tal on probleem, siis ma aitan teda.", en: "I ask my boss for help. She's always happy to help me. And when she has a problem, I help her." },
+      checks: [
+        { en: "Who you ask for help, with -lt ({ülemuselt} here).", any: ["*lt"] },
+        { en: "{aitama} with the person in the [osastav] (3rd form) ({aitab mind} here).", any: ["aita* mind", "aita* teda", "aita* sind"] },
+      ],
     },
   },
   {
@@ -392,6 +396,11 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Kellega sa tihti räägid, ja millest?", en: "Who do you often talk with, and what about?" },
       cue: "Say who you often talk with, what about, and what you've been thinking about lately.",
       model: { et: "Ma räägin tihti oma naabriga. Me räägime ilmast ja teistest inimestest. Viimasel ajal ma mõtlen palju tööle.", en: "I often talk with my neighbor. We talk about the weather and other people. Lately I've been thinking about work a lot." },
+      checks: [
+        { en: "Who you talk with, with -ga ({naabriga} here).", any: ["*ga"] },
+        { en: "What it's about, with -st ({ilmast} here).", any: ["ilmast", "inimestest", "teistest", "minust", "temast", "sellest"] },
+        { en: "What's on your mind, {mõtlema} with -le ({mõtlen palju tööle} here).", any: ["mõtle* *le", "mõtle* ... *le"] },
+      ],
     },
   },
   {
@@ -643,6 +652,11 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Millest sõltub sinu nädalavahetus?", en: "What does your weekend depend on?" },
       cue: "Say what your weekend depends on, what you're hoping for and what you're afraid of.",
       model: { et: "Minu nädalavahetus sõltub ilmast. Ma loodan ilusale ilmale. Ma kardan ainult vihma.", en: "My weekend depends on the weather. I'm counting on good weather. The only thing I'm afraid of is rain." },
+      checks: [
+        { en: "{sõltuma} with -st ({sõltub ilmast} here).", any: ["sõltub *st", "sõltub ... *st"] },
+        { en: "{lootma} with -le ({loodan ilusale ilmale} here).", any: ["loodan *le", "loodan ... *le"] },
+        { en: "{kartma} with the [osastav] (3rd form) ({kardan vihma} here).", any: ["kardan *"] },
+      ],
     },
   },
   {

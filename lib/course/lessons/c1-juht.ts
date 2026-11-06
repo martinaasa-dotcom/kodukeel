@@ -261,6 +261,10 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
       seconds: GO,
       prepare: PREPARE,
       topics: [{ en: "What makes a good boss" }, { en: "The best boss you've had" }],
+      checks: [
+        { en: "A small word pointing at the one that matters: {just}, {isegi} or {alles}.", any: ["just", "isegi", "alles", "nimelt"] },
+        { en: "What a good leader is, with {kes} ({see, kes kuulab} here).", any: ["kes"] },
+      ],
     },
   },
   {
@@ -487,6 +491,11 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
       seconds: GO,
       prepare: PREPARE,
       topics: [{ en: "Yourself and your work" }, { en: "A job you'd like to have one day" }],
+      checks: [
+        { en: "Where you're from, with {pärit}.", any: ["pärit"] },
+        { en: "What you work as, with -na ({töötan raamatupidajana} here).", any: ["töötan *na", "töötan ... *na"] },
+        { en: "What you're good at, with {tugevus}.", any: ["tugevus"] },
+      ],
     },
   },
   {
@@ -714,6 +723,11 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
       seconds: GO,
       prepare: PREPARE,
       topics: [{ en: "How to tell a colleague something hard" }, { en: "Feedback that once helped you" }],
+      checks: [
+        { en: "What's good, first, with {kiidan}.", any: ["kiidan", "kiitus", "kiita"] },
+        { en: "About the work, not the person, with {mitte} ({tööst, mitte inimesest} here).", any: ["mitte"] },
+        { en: "What happens next, with {kokku} ({lepime kokku} here).", any: ["kokku"] },
+      ],
     },
   },
   {
@@ -1028,6 +1042,11 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
       seconds: GO,
       prepare: PREPARE,
       topics: [{ en: "Saying no at work" }, { en: "A time somebody asked too much of you" }],
+      checks: [
+        { en: "A question that makes your point, with {tõesti} ({kas me tõesti tahame} here).", any: ["tõesti"] },
+        { en: "What you can do instead, with {saame} ({mida me saame teha} here).", any: ["saame"] },
+        { en: "What you'd do first, with {kõigepealt}.", any: ["kõigepealt"] },
+      ],
     },
   },
   {
@@ -1273,6 +1292,11 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
       seconds: GO,
       prepare: PREPARE,
       topics: [{ en: "A change you'd propose at your work" }, { en: "A change you'd propose in your building or your town" }],
+      checks: [
+        { en: "Two options, with {variant} ({kahte varianti} here).", any: ["variant", "variant*", "variand*"] },
+        { en: "An advantage and a drawback, with {aga}.", any: ["aga"] },
+        { en: "Your recommendation, with {just} or {nimelt} ({soovitan just} here).", any: ["just", "nimelt"] },
+      ],
     },
   },
   {
