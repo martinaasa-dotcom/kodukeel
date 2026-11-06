@@ -49,6 +49,7 @@ const KEPT: Readonly<Record<string, { readonly kind: Kind; readonly selectors: r
   "live-dot": { kind: "playing", selectors: [".speech-live-dot::after"], why: "the dot in the Listening pill, which is drawn only while a turn the learner opened is listening" },
   "box-listening": { kind: "playing", selectors: [':where(main, aside, form, [role="dialog"]):has(.speech-mic[data-state="listening"]) :is(.field-lg, textarea):not(:disabled)'], why: "the ring round the answer box while the microphone beside it, opened by the learner, is listening" },
   "edge-breathe": { kind: "playing", selectors: ["html[data-listening] body::before"], why: "the glow at the window's edge while a turn the learner opened is listening" },
+  "edge-breathe-phone": { kind: "playing", selectors: ["html[data-listening] body::before"], why: "the same glow on a phone, a little firmer, while a turn the learner opened is listening" },
   "mark-giddy": { kind: "pointer", selectors: [".mark-play[data-play] .mark-live .mark-giddy"], why: "the mark under a hover or a press" },
   "tilde-tip": { kind: "pointer", selectors: [".mark-play[data-play] .mark-live .mark-tip"], why: "the mark under a hover or a press" },
   "pixel-dance": { kind: "pointer", selectors: [".mark-play[data-play] .mark-live .pixel"], why: "the mark under a hover or a press" },
