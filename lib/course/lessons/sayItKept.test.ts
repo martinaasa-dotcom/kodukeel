@@ -30,10 +30,10 @@ describe("a Say it card starts from what it had kept", () => {
   const withFade = LESSONS.find((l) => l.level === "B1" && fadePlan(l, 0).length > 3)!;
 
   it("brings back the retelling in the box, the plays and the story", () => {
-    const fresh = html(createElement(RetellIt, { retell: withRetell.retell!, voice: undefined, typed: true, onDone: noop }));
+    const fresh = html(createElement(RetellIt, { lessonId: withRetell.id, retell: withRetell.retell!, voice: undefined, typed: true, onDone: noop }));
     expect(fresh).toContain("Hear the story");
     const back = html(createElement(RetellIt, {
-      retell: withRetell.retell!, voice: undefined, typed: true, onDone: noop,
+      lessonId: withRetell.id, retell: withRetell.retell!, voice: undefined, typed: true, onDone: noop,
       kept: { plays: 2, said: withRetell.retell!.story[0]!.et, shown: true },
     }));
     // In the box itself, not only in the story printed under it.
@@ -41,6 +41,16 @@ describe("a Say it card starts from what it had kept", () => {
     expect(back).toContain("Heard 2 times.");
     expect(back).toContain("data-retell-story");
     expect(back).not.toContain("Hear the story");
+  });
+
+  it("brings back the sentences told back, read and listed", () => {
+    const sentence = withRetell.retell!.story[0]!.et;
+    const back = html(createElement(RetellIt, {
+      lessonId: withRetell.id, retell: withRetell.retell!, voice: undefined, typed: true, onDone: noop,
+      kept: { plays: 2, said: sentence, shown: true, checked: [{ sentence, line: withRetell.retell!.story[0]!, grade: "right", differences: [], findings: [] }] },
+    }));
+    expect(back).toContain("data-retell-checked");
+    expect(back).toContain('data-line-check="right"');
   });
 
   it("brings back the goes already taken of Again, faster", () => {

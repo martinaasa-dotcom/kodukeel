@@ -23438,17 +23438,24 @@ check("a control says what it does under a pointer", () => {
 check("a marked answer says so out loud", () => {
   const PAGE_NOT_A_ROUND = "app/(app)/exam/result/[id]/page.tsx";
   /*
+    A list of what was said on a lesson's Say it step, drawn once the step is
+    over and again when a finished lesson is opened: it marks answers given
+    earlier, read as a page is read, and a live region round a whole list would
+    read every sentence out again on each change.
+  */
+  const LIST_AFTER_THE_FACT = "components/course/SaidList.tsx";
+  /*
     A piece drawn inside a region its callers mounted first, since a region that
     arrives holding its words is often not read. It may hold no region of its
     own, and every file that draws it has to have one.
   */
-  const ANNOUNCED_BY_CALLER = "components/course/SentenceFindings.tsx";
+  const ANNOUNCED_BY_CALLER = ["components/course/SentenceFindings.tsx", "components/course/LineFindings.tsx"];
   // How each call of it is read is held by scripts/invariants/findings-are-read-where-they-are-drawn.ts.
   let marking = 0;
   for (const file of [...APP, ...COMPONENTS]) {
     const source = code(file);
     if (!/VERDICT_CLASS|OPTION_CLASS/.test(source)) continue;
-    if (file === PAGE_NOT_A_ROUND || file === ANNOUNCED_BY_CALLER) continue;
+    if (file === PAGE_NOT_A_ROUND || file === LIST_AFTER_THE_FACT || ANNOUNCED_BY_CALLER.includes(file)) continue;
     marking += 1;
     assert.match(
       source,

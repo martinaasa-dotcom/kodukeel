@@ -22,7 +22,10 @@ import { removeWord } from "@/lib/progress/removeWord";
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
 import { visibleLine, visibleProse } from "@/lib/security/visibleText";
 import { glossSentences } from "@/lib/dict/glossed";
-import { checkTypedSentence, checkTypedSentences } from "@/lib/progress/sentenceCheck";
+import { checkAgainstLines, checkTypedSentences, readForCheck } from "@/lib/progress/sentenceCheck";
+import { lineAskFor, retellAsk } from "@/lib/course/lessons/lineAsk";
+import { sayableName } from "@/lib/course/lessons/ownAnswer";
+import { nearestLine, toldSentences } from "@/lib/course/lessons/againstLine";
 import { MAX_READING_CHARS, readingParagraphs } from "@/lib/estonian/readingText";
 import { setTaskDone } from "@/lib/progress/tasks";
 import { keepBest } from "@/lib/progress/personalBest";
@@ -3360,13 +3363,59 @@ export async function checkLessonSentence(lessonIdIn: unknown, whichIn: unknown,
   // Any lesson, the course's or one in preview: every lesson has cards to say, where only some have a writing task.
   const lesson = await lessonOrPreview(lessonIdIn);
   const index = typeof indexIn === "number" && Number.isInteger(indexIn) ? indexIn : -1;
-  const prompts = text(whichIn) === "turns" ? lesson?.roleplay?.turns ?? [] : lesson?.answers ?? [];
+  const which = text(whichIn) === "turns" ? "turns" : "answers";
+  const prompts = which === "turns" ? lesson?.roleplay?.turns ?? [] : lesson?.answers ?? [];
   const prompt = prompts[index];
   if (!lesson || !prompt) return { ok: false as const, error: "That card isn't in this lesson any more." };
   const typed = visibleLine(textIn, MAX_CHECKED_CHARS);
   if (!typed) return { ok: false as const, error: "Type an answer first." };
-  const checked = await checkTypedSentence(typed, prompt.model.et);
-  return { ok: true as const, findings: checked.findings, words: checked.words };
+  // The model with the learner's own name in it, as the card shows it, so their name is never a difference.
+  const name = sayableName(await readSetting(ownerId, SETTING_KEYS.displayName));
+  const [checked] = await checkAgainstLines([{ text: typed, ask: lineAskFor(lesson, which, prompt, name) }]);
+  return { ok: true as const, findings: checked!.findings, words: checked!.words, differences: checked!.differences, grade: checked!.grade };
+}
+
+/** The most sentences of a story told back that are read: a retelling is four or five. */
+const MAX_RETELL_SENTENCES = 12;
+
+/**
+ * A STORY TOLD BACK, READ A SENTENCE AT A TIME (B1 on).
+ *
+ * Each sentence the learner said or typed is read against the language
+ * (`checkSentence`) and against the line of the story it is nearest
+ * (`nearestLine`), told back about whoever told it, so `ma` where the story is
+ * Tom's is named. No model, nothing graded, nothing stored here: what the
+ * learner said is kept with the lesson's answers when the lesson is finished.
+ */
+export async function checkRetell(lessonIdIn: unknown, textIn: unknown) {
+  const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "checkSentence");
+  if (busy) return await sayRefusal(ownerId, busy);
+  const lesson = await lessonOrPreview(lessonIdIn);
+  if (!lesson?.retell) return { ok: false as const, error: "That lesson has no story to tell back." };
+  const said = typeof textIn === "string" ? clip(textIn, MAX_WRITTEN_CHARS) : "";
+  const sentences = toldSentences(said).slice(0, MAX_RETELL_SENTENCES).map((s) => visibleLine(s, MAX_CHECKED_CHARS)).filter((s): s is string => Boolean(s));
+  if (sentences.length === 0) return { ok: true as const, sentences: [] };
+  const story = lesson.retell.story.map((l) => l.et);
+  const read = await readForCheck(sentences, story.join(" "));
+  const items = sentences.map((sentence) => {
+    const at = nearestLine(sentence, story, read.entries);
+    return { sentence, at };
+  });
+  const checked = await checkAgainstLines(items.map(({ sentence, at }) => ({
+    text: sentence,
+    ask: at === null ? { lines: [], ownDetails: false } : retellAsk(lesson, story[at]!),
+  })), read);
+  return {
+    ok: true as const,
+    sentences: items.map(({ sentence, at }, i) => ({
+      sentence,
+      line: at === null ? null : lesson.retell!.story[at]!,
+      findings: checked[i]!.findings,
+      differences: checked[i]!.differences,
+      grade: checked[i]!.grade,
+    })),
+  };
 }
 
 /** The longest text a writing evening reads: a B1 note or letter is well under it. */

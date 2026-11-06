@@ -89,6 +89,12 @@ export const SENTENCE_WITHOUT_ENGLISH: Readonly<Record<string, string>> = {
     "and the exercise. The marking afterwards is `lib/exam/written.ts`'s and is in " +
     "English already.",
 
+  "components/course/RetellIt.tsx":
+    "A story told back (B1 on). The story's own lines print their English beside them, " +
+    "written for the lesson; every other sentence on the card is the learner's own " +
+    "retelling, read back sentence by sentence in English by the dictionary and the " +
+    "comparison with the story line it is nearest (`LineFindings`).",
+
   "components/course/WriteStep.tsx":
     "A writing evening (B1 on). The model text prints its English under each sentence, " +
     "written for the lesson rather than recorded; the frame prints the English of each gap " +
