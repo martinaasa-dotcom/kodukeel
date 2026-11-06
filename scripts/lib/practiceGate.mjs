@@ -10,8 +10,11 @@
   also checks the verdicts on the way; this one checks nothing.
 */
 
-const keyOf = async (quiz) => (await quiz.locator("h2, h3").first().innerText().catch(() => "")) + "|" +
-  (await quiz.innerText().catch(() => "")).replace(/\s+/g, " ").replace(/\d+ of \d+/g, "").slice(0, 160);
+/** Every action is short: a control that is not there is a question answered another way, not a wait. */
+const T = { timeout: 2500 };
+
+const keyOf = async (quiz) => (await quiz.locator("h2, h3").first().innerText({ timeout: 300 }).catch(() => "")) + "|" +
+  (await quiz.innerText({ timeout: 300 }).catch(() => "")).replace(/\s+/g, " ").replace(/\d+ of \d+/g, "").slice(0, 160);
 
 async function round(page, learned) {
   for (let n = 0; n < 60; n++) {
@@ -26,33 +29,34 @@ async function round(page, learned) {
       const left = quiz.locator('ul[aria-label="Estonian"] button');
       for (let i = 0; i < (await left.count()); i++) {
         if (await left.nth(i).isDisabled()) continue;
-        await left.nth(i).click();
+        await left.nth(i).click(T).catch(() => {});
         const right = quiz.locator('ul[aria-label="In English"] button');
         for (let j = 0; j < (await right.count()); j++) {
           if (await right.nth(j).isDisabled()) continue;
-          await right.nth(j).click();
+          await right.nth(j).click(T).catch(() => {});
           await page.waitForTimeout(60);
           if (await left.nth(i).isDisabled()) break;
-          await left.nth(i).click();
+          await left.nth(i).click(T).catch(() => {});
         }
       }
     } else if (await box.count()) {
-      await box.fill(known ?? "vale");
-      await quiz.getByRole("button", { name: /^Check/ }).click().catch(() => {});
+      await box.fill(known ?? "vale", T).catch(() => {});
+      await quiz.getByRole("button", { name: /^Check/ }).click(T).catch(() => {});
     } else {
       const radios = quiz.locator('[role="radio"]:not([disabled])');
-      const pick = known === undefined ? radios.first() : radios.filter({ hasText: known }).first();
-      await pick.click().catch(() => radios.first().click().catch(() => {}));
+      const texts = (await radios.allInnerTexts()).map((t) => t.replace(/^\d+\s*/, "").trim());
+      const at = known === undefined ? 0 : Math.max(0, texts.findIndex((t) => t === known || t.startsWith(known)));
+      await radios.nth(at).click(T).catch(() => {});
     }
     const next = quiz.getByRole("button", { name: /^(Next|Done)/ });
-    await next.waitFor({ timeout: 4000 }).catch(() => {});
+    await next.waitFor(T).catch(() => {});
     if (!(await next.count())) return;
     if (kind !== "match" && !learned.has(key)) {
-      const option = await quiz.locator('[role="radio"].option-right').first().innerText().catch(() => null);
-      const line = option ?? await quiz.locator(".verdict-panel [lang=et]").first().innerText().catch(() => null);
+      const option = await quiz.locator('[role="radio"].option-right').first().innerText({ timeout: 300 }).catch(() => null);
+      const line = option ?? await quiz.locator(".verdict-panel [lang=et]").first().innerText({ timeout: 300 }).catch(() => null);
       if (line) learned.set(key, line.replace(/^\d+\s*/, "").trim());
     }
-    await next.click().catch(() => {});
+    await next.click(T).catch(() => {});
   }
 }
 
@@ -61,7 +65,7 @@ export async function passPractice(page) {
   const learned = new Map();
   await round(page, learned);
   for (let go = 0; go < 6 && (await page.locator('[data-practice-gate="again"]:visible').count()); go++) {
-    await page.getByRole("button", { name: /^Go over the \d+ that slipped/ }).click().catch(() => {});
+    await page.getByRole("button", { name: /^Go over the \d+ that slipped/ }).click(T).catch(() => {});
     await round(page, learned);
   }
 }

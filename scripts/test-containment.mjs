@@ -1604,10 +1604,10 @@ async function lessonStepStates(ctx, at) {
   lessonPicks ??= JSON.parse(execFileSync("npx", ["tsx", "scripts/lib/lessonPicks.ts"], { encoding: "utf8" }));
   const picks = lessonPicks;
   const byRole = Object.fromEntries(picks.map((p) => [p.role, p]));
-  const page = await ctx.newPage();
-  const heading = async () => (await page.locator("#lesson-step").innerText().catch(() => "")).trim();
-  /** Opens a lesson and walks the foot until the step's heading matches. */
+  /** Opens a lesson in a page of its own and walks the foot until the step's heading matches. */
   const openAt = async (id, step) => {
+    const page = await ctx.newPage();
+    const heading = async () => (await page.locator("#lesson-step").innerText().catch(() => "")).trim();
     await page.goto(`${B}/course/lessons/${id}`, { waitUntil: "networkidle", timeout: 60000 });
     const show = page.getByRole("button", { name: /^Show the words now/ });
     if (await show.count()) await show.first().click().catch(() => {});
@@ -1617,12 +1617,22 @@ async function lessonStepStates(ctx, at) {
       await page.getByRole("button", { name: /^(Skip this step|Continue)/ }).last().click().catch(() => {});
       await page.waitForTimeout(300);
     }
-    return step.test(await heading());
+    return { page, reached: step.test(await heading()) };
   };
+  const retell = byRole.retell;
+  const write = byRole.write;
+  const faster = byRole.faster;
+  // All three are walked at once: answering Practice is most of a walk, and three in a row would be most of the shard's clock.
+  const none = { page: null, reached: false };
+  const [atRetell, atWrite, atFaster] = await Promise.all([
+    retell ? openAt(retell.id, /Say it/) : none,
+    write?.write ? openAt(write.id, /Write/) : none,
+    faster ? openAt(faster.id, /Say it/) : none,
+  ]);
 
   // The fade and the retell, on the lesson that ends in a retold story.
-  const retell = byRole.retell;
-  if (retell && await openAt(retell.id, /Say it/)) {
+  if (atRetell.reached) {
+    const page = atRetell.page;
     // Spoken, not typed: the lines only fade when they are said (the typed evening has no fade).
     await page.getByRole("button", { name: /^Say it$/ }).first().click().catch(() => {});
     const say = page.locator("[data-say-it]").first();
@@ -1654,8 +1664,8 @@ async function lessonStepStates(ctx, at) {
   }
 
   // The writing frame, checked, with one gap right and the rest as the lesson holds them.
-  const write = byRole.write;
-  if (write?.write && await openAt(write.id, /Write/)) {
+  if (atWrite.reached) {
+    const page = atWrite.page;
     await page.getByRole("button", { name: /^Fill in the frame/ }).click().catch(() => {});
     const gaps = page.locator("[data-write-frame] input");
     await gaps.first().waitFor({ timeout: 8000 }).catch(() => {});
@@ -1670,8 +1680,8 @@ async function lessonStepStates(ctx, at) {
   }
 
   // The race, with the clock running, and then its three goes side by side.
-  const faster = byRole.faster;
-  if (faster && await openAt(faster.id, /Say it/)) {
+  if (atFaster.reached) {
+    const page = atFaster.page;
     await page.getByRole("button", { name: /Type it instead/ }).first().click().catch(() => {});
     const say = page.locator("[data-say-it]").first();
     for (let n = 0; n < 40 && !(await say.locator("[data-faster-go]").count()); n++) {
@@ -1699,7 +1709,7 @@ async function lessonStepStates(ctx, at) {
   } else {
     check(`a B1 lesson's race ${at}`, false, `${faster?.id ?? "no race lesson"} never reached its Say it step`);
   }
-  await page.close();
+  for (const { page } of [atRetell, atWrite, atFaster]) await page?.close();
 }
 
 /*
