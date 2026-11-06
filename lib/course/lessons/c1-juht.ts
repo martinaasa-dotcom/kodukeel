@@ -209,7 +209,7 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ideaalset juhti ei ole olemas.", en: "There's no such thing as an ideal boss." }, right: "juhti", wrong: "juht", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a no, the thing that isn't there takes the [osastav] (3rd form): {juhti ei ole}, and so does its adjective, {ideaalset}." },
+      { line: { et: "Ideaalset juhti ei ole olemas.", en: "There's no such thing as an ideal boss." }, right: "juhti", wrong: "juht", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a no, the noun that isn't there ({juhti} here) takes the [osastav] (3rd form): {juhti ei ole}, and so does its adjective, {ideaalset}." },
       { line: { et: "Ma usaldan teid ja loodan, et teie usaldate mind.", en: "I trust you, and I hope you trust me." }, right: "mind", wrong: "mina", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Usaldama} takes the person in the [osastav] (3rd form): {usaldate mind}, {usaldan teid}." },
     ],
     workOut: [
@@ -948,7 +948,7 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
     reworks: [
       {
         from: { et: "Me ei anna lubadusi kergelt.", en: "We don't give promises lightly." },
-        ask: "Put {lubadusi} first, to make promises the thing the sentence is about.",
+        ask: "Put {lubadusi} first, to make promises what the sentence is about.",
         to: { et: "Lubadusi me kergelt ei anna.", en: "Promises, we don't give lightly." },
         also: ["Lubadusi ei anna me kergelt."],
         pattern: "emphasis",
@@ -975,7 +975,7 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Lubadusi me kergelt ei anna. Aga selle lubaduse me anname.", en: "We don't give promises lightly. But this one we do." }, right: "Lubadusi", wrong: "Lubadus", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a no, the thing takes the [osastav] (3rd form), here the plural: {lubadusi ei anna}." },
+      { line: { et: "Lubadusi me kergelt ei anna. Aga selle lubaduse me anname.", en: "We don't give promises lightly. But this one we do." }, right: "Lubadusi", wrong: "Lubadus", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a no, the noun ({lubadusi} here) takes the [osastav] (3rd form), here the plural: {lubadusi ei anna}." },
       { line: { et: "Kõike me kahe nädalaga ei jõua.", en: "We can't do everything in two weeks." }, right: "nädalaga", wrong: "nädal", pair: ["COMITATIVE", "NOMINATIVE"], why: "The time it takes to do something is -ga, the [kaasaütlev] (-ga, with): {kahe nädalaga}." },
     ],
     rooms: [

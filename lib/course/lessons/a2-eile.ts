@@ -256,7 +256,7 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
     teaches: [
       { kind: "form", et: "raamatu", of: "raamat", en: "a book, the whole of it; of a book", stem: true },
       { kind: "form", et: "ühe", of: "üks", en: "one, a; of one", stem: true },
-      { kind: "form", et: "seda", of: "see", en: "it, this, as the thing you're doing" },
+      { kind: "form", et: "seda", of: "see", en: "it, this, as in what you're doing" },
       { kind: "form", et: "ostnud", of: "ostma", en: "bought, after {ei}" },
       { kind: "word", et: "iga", en: "every" },
       { kind: "word", et: "lehekülg", en: "page" },
