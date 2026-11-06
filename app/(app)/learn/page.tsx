@@ -4,7 +4,9 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ArrowRight, Check, ChevronRight, Compass, Flag, GraduationCap, Lock } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
 import { courseWordCount, deckSnapshot, pathWithProgress } from "@/lib/progress/summary";
-import { courseLevelFor } from "@/lib/progress/level";
+import { courseStandingFor } from "@/lib/progress/level";
+import { creditedThrough, levelAfter } from "@/lib/course/placement";
+import { HATCH } from "@/components/course/LadderBar";
 import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
 import {
   CHECKPOINTS, LEVELS, LEVEL_INFO, isUnitOpen, nextUnit,
@@ -52,14 +54,14 @@ export default async function LearnPage() {
     promising twelve words waiting, over a round the module then holds back,
     reads as a counting fault rather than as a rule.
   */
-  const [[snapshot, units], placement, counts, programme, locale] = await Promise.all([
+  const [[snapshot, units], standing, counts, programme, locale] = await Promise.all([
     /*
       Each chain waits only on the answer it needs: the path is read off the
       deck, and the counts off where the module has taken the learner. They
       were two batches, so the counts waited on the deck for nothing.
     */
     deckSnapshot(ownerId).then(async (snap) => [snap, await pathWithProgress(ownerId, snap)] as const),
-    courseLevelFor(ownerId),
+    courseStandingFor(ownerId),
     learnerModuleScope(ownerId).then((taught) => learnCounts(ownerId, undefined, taught?.lemmas ?? null)),
     /* Whether a planned course is handing this learner their words, which
        decides what the card says when none are waiting. */
@@ -67,6 +69,25 @@ export default async function LearnPage() {
     localeFor(ownerId),
   ]);
   const t = (english: string) => tr(locale, english);
+  /* The band the copy is pitched at, which is the level they stand at. */
+  const placement = standing?.level ?? "A1";
+
+  /*
+    WHERE THEY ARE IS THE LEVEL THE COURSE IS TEACHING THEM, NOT THE ONE THEY
+    SAID THEY HOLD. Picking B1 in first run means B1 is behind them and the
+    course opens on B2.1, so this page marked B1 "You are here" over a course
+    teaching B2, and A1 to B1 read 0 words known to somebody who had told us
+    they speak B1. The levels up to the one held are credited through
+    `creditedThrough`, the same rule Today's climb reads, so the two screens
+    cannot disagree about what counts as done. Credited is never known: no
+    review is written, the checked count stays the scheduler's own and is
+    printed beside it, and no milestone letter reads this page.
+  */
+  const rank = (level: string) => (LEVELS as readonly string[]).indexOf(level);
+  const through = creditedThrough(standing?.held ?? null, programme?.level ?? null);
+  const working = programme?.level ?? placement;
+  const here = through && rank(working) <= rank(through) ? (levelAfter(through) ?? working) : working;
+  const credited = (level: string) => through !== null && rank(level) <= rank(through);
 
   const doneIds = new Set(units.filter((u) => u.state === "done").map((u) => u.unit.id));
   const startedIds = new Set(units.filter((u) => u.state === "learning").map((u) => u.unit.id));
@@ -105,9 +126,13 @@ export default async function LearnPage() {
       words,
       known,
       pct: words > 0 ? Math.round((known / words) * 100) : 0,
-      finished: lessonsHere ? words > 0 && known === words : rows.length > 0 && rows.every((u) => u.state === "done"),
+      assumed: credited(level),
+      finished: credited(level) || (lessonsHere ? words > 0 && known === words : rows.length > 0 && rows.every((u) => u.state === "done")),
     };
   });
+
+  /* Words counted from the level held: every word of a credited level the scheduler has not graduated yet. */
+  const creditedWords = byLevel.filter((b) => b.assumed).reduce((sum, b) => sum + (b.words - b.known), 0);
 
   const [unitsBefore, unitsAfter] = t("Every word a lesson teaches is in the dictionary, so you can find it by searching too, and anything missing you can {link}. Nothing is locked: you can open any lesson, at any level.").split("{link}");
   return (
@@ -146,16 +171,18 @@ export default async function LearnPage() {
         the explanation are at the foot of the page, where somebody who wants
         them goes looking.
       */}
-      <SectionTitle hint={fill(t("{known} of {total} course words known"), { known: grouped(locale, knownWords), total: grouped(locale, totalWords) })}>{t("The course")}</SectionTitle>
+      <SectionTitle hint={creditedWords > 0
+        ? fill(t("{known} checked and {credited} counted from your level, of {total} course words"), { known: grouped(locale, knownWords), credited: grouped(locale, creditedWords), total: grouped(locale, totalWords) })
+        : fill(t("{known} of {total} course words known"), { known: grouped(locale, knownWords), total: grouped(locale, totalWords) })}>{t("The course")}</SectionTitle>
 
       <div className="flex flex-col gap-3">
-        {byLevel.map(({ level, rows, words, known, pct, finished }) => {
+        {byLevel.map(({ level, rows, words, known, pct, assumed, finished }) => {
           const info = LEVEL_INFO[level];
           const checkpoint = CHECKPOINTS.find((c) => c.level === level);
           // The learner's own level is open on arrival and nothing else is: three
           // levels open at once was a hundred rows before the page ended. A level
           // with work in progress says so on its own closed row.
-          const open = level === placement;
+          const open = level === here;
           const inProgress = rows.filter((u) => u.state === "learning").length;
           const row = (u: (typeof rows)[number]) => {
                 const locked = !isUnitOpen({ unit: u.unit, doneUnitIds: doneIds, placement });
@@ -293,25 +320,39 @@ export default async function LearnPage() {
                     >
                       {t(uiText(placement, info.title, info.titleEn))}
                     </span>
-                    {level === placement && <Chip tone="accent">{t("You are here")}</Chip>}
+                    {level === here && <Chip tone="accent">{t("You are here")}</Chip>}
+                    {assumed && <Chip>{t("Counted from your level")}</Chip>}
                   </span>
                   <span className="mt-0.5 block max-w-[70ch] text-sm" style={{ color: "var(--ink-2)" }}>
                     {t(info.summary)}
                   </span>
                   <span className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
                     <span className="min-w-[140px] max-w-[220px] flex-1">
-                      <Meter
+                      {assumed ? (
+                        /* Hatched is credited and solid is checked, the two
+                           materials Today's climb draws them in. */
+                        <span
+                          className="relative block h-[7px] w-full overflow-hidden rounded-full"
+                          role="img"
+                          aria-label={fill(t("{level}: counted from your level, {known} of {total} words checked"), { level, known: grouped(locale, known), total: grouped(locale, words) })}
+                          style={{ background: HATCH }}
+                        >
+                          <span className="absolute inset-y-0 left-0" style={{ width: `${pct}%`, background: "var(--accent)" }} />
+                        </span>
+                      ) : <Meter
                         pct={pct}
                         label={fill(t("{level}: {known} of {total} words known"), { level, known: grouped(locale, known), total: grouped(locale, words) })}
                         tone="var(--accent)"
                         height={7}
-                      />
+                      />}
                     </span>
                     {/* The counts stay: the `Meter` beside this draws a bar and
                         carries its figures in an `aria-label`, so this line is
                         the only place a sighted reader sees them. */}
                     <span className="tnum text-xs" style={{ color: "var(--ink-3)" }}>
-                      {isLessonLevel(level)
+                      {assumed
+                        ? fill(t("{lessons}, {known}/{total} words checked"), { lessons: countOf(locale, LESSONS.filter((l) => l.level === level).length, "lesson"), known, total: words })
+                        : isLessonLevel(level)
                         ? fill(t("{lessons}, {known}/{total} words"), { lessons: countOf(locale, LESSONS.filter((l) => l.level === level).length, "lesson"), known, total: words })
                         : fill(t(!open && inProgress > 0
                           ? "{units} units, {known}/{total} words, {progress} in progress"
@@ -392,6 +433,11 @@ export default async function LearnPage() {
         <Explain label={t("What counts as known")}>
           {t("A word counts as known once you've got it right on every one of its cards, often enough that it's past the learning stage. One right answer isn't enough.")}
         </Explain>
+        {through && (
+          <Explain label={t("Why some levels count as done")}>
+            {fill(t("You told us you hold {level}, so the levels up to it count as done and their words count as yours. We haven't tested them, so \"checked\" only grows as those words come up in your reviews."), { level: through })}
+          </Explain>
+        )}
         <Explain label={t("Lessons and the dictionary")}>
           {unitsBefore}
           <Link href="/dictionary" className="underline" style={{ color: "var(--accent-deep)" }}>{t("add yourself")}</Link>

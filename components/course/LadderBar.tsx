@@ -70,7 +70,8 @@ import { fill, tr, type Locale } from "@/lib/copy/locale";
  *
  * The angle is what keeps it from reading as a gap in the bar at small widths.
  */
-const HATCH =
+/** What a credited share is drawn in, on the climb and on /learn. */
+export const HATCH =
   "repeating-linear-gradient(115deg, var(--accent-soft) 0 5px, var(--accent) 5px 7px)";
 
 function joinLevels(levels: readonly string[], locale: Locale): string {
