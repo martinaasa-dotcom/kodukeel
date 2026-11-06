@@ -14,7 +14,7 @@
 const T = { timeout: 2500 };
 
 const keyOf = async (quiz) => (await quiz.locator("h2, h3").first().innerText({ timeout: 300 }).catch(() => "")) + "|" +
-  (await quiz.innerText({ timeout: 300 }).catch(() => "")).replace(/\s+/g, " ").replace(/\d+ of \d+/g, "").slice(0, 160);
+  (await quiz.innerText({ timeout: 300 }).catch(() => "")).replace(/\s+/g, " ").replace(/\d+ of \d+|\d+ in a row/g, "").slice(0, 160);
 
 async function round(page, learned) {
   for (let n = 0; n < 60; n++) {
@@ -45,7 +45,9 @@ async function round(page, learned) {
     } else {
       const radios = quiz.locator('[role="radio"]:not([disabled])');
       const texts = (await radios.allInnerTexts()).map((t) => t.replace(/^\d+\s*/, "").trim());
-      const at = known === undefined ? 0 : Math.max(0, texts.findIndex((t) => t === known || t.startsWith(known)));
+      // Exact first: "an apple cake" and "an apple cake, as what you make" can be two of the options.
+      const exact = known === undefined ? -1 : texts.indexOf(known);
+      const at = exact >= 0 ? exact : known === undefined ? 0 : Math.max(0, texts.findIndex((t) => t.startsWith(known)));
       await radios.nth(at).click(T).catch(() => {});
     }
     const next = quiz.getByRole("button", { name: /^(Next|Done)/ });

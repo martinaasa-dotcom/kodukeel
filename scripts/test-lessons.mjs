@@ -124,7 +124,7 @@ const footer = () => page.getByRole("button", { name: /^(Continue|Skip this step
 */
 const learned = new Map();
 const questionKey = async (quiz) => (await quiz.locator("h2, h3").first().innerText({ timeout: 300 }).catch(() => "")) + "|" +
-  (await quiz.innerText({ timeout: 300 }).catch(() => "")).replace(/\s+/g, " ").replace(/\d+ of \d+/g, "").slice(0, 160);
+  (await quiz.innerText({ timeout: 300 }).catch(() => "")).replace(/\s+/g, " ").replace(/\d+ of \d+|\d+ in a row/g, "").slice(0, 160);
 
 async function quizThrough(where, reworks = []) {
   let asked = 0;
@@ -149,7 +149,8 @@ async function quizThrough(where, reworks = []) {
       } else {
         const radios = quiz.locator('[role="radio"]:not([disabled])');
         const texts = (await radios.allInnerTexts()).map((t) => t.replace(/^\d+\s*/, "").trim());
-        await radios.nth(Math.max(0, texts.findIndex((t) => t === known || t.startsWith(known)))).click();
+        const exact = texts.indexOf(known);
+        await radios.nth(exact >= 0 ? exact : Math.max(0, texts.findIndex((t) => t.startsWith(known)))).click();
       }
     } else if (kind === "match") {
       const left = quiz.locator('ul[aria-label="Estonian"] button');

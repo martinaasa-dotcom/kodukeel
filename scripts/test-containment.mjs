@@ -1622,13 +1622,11 @@ async function lessonStepStates(ctx, at) {
   const retell = byRole.retell;
   const write = byRole.write;
   const faster = byRole.faster;
-  // All three are walked at once: answering Practice is most of a walk, and three in a row would be most of the shard's clock.
+  // One after another: walked side by side, a lesson's Practice stopped coming back at all.
   const none = { page: null, reached: false };
-  const [atRetell, atWrite, atFaster] = await Promise.all([
-    retell ? openAt(retell.id, /Say it/) : none,
-    write?.write ? openAt(write.id, /Write/) : none,
-    faster ? openAt(faster.id, /Say it/) : none,
-  ]);
+  const atRetell = retell ? await openAt(retell.id, /Say it/) : none;
+  const atWrite = write?.write ? await openAt(write.id, /Write/) : none;
+  const atFaster = faster ? await openAt(faster.id, /Say it/) : none;
 
   // The fade and the retell, on the lesson that ends in a retold story.
   if (atRetell.reached) {
