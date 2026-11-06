@@ -42,6 +42,7 @@ import { FRONTABLE, combinedSentences, foldedPhrase, sameSentence, spokenPhrase,
 import { personForms, type Person } from "@/lib/estonian/conjugate";
 import { lessonOrders, type OrderContext } from "@/lib/estonian/wordOrder";
 import type { LessonSpec, Room } from "./types";
+import type { FormNames } from "@/lib/estonian/nameForm";
 
 import type { Verdict } from "@/lib/ux/verdict";
 
@@ -64,7 +65,17 @@ export type PracticeItem =
       /** Taught spellings one letter from the answer that the ledger cannot say are the same word or another (`notSlipsFor`). */
       readonly unplaced?: readonly string[];
       /** The one person the answer's English names, where it names one: what a pronoun typed beside it has to be. */
-      readonly person?: Person }
+      readonly person?: Person;
+      /** The dictionary word the answer is a form of, for a taught form (`Taught` kind "form"). */
+      readonly of?: string;
+      /**
+       * Which form the answer is, named the way a class names it, in each
+       * language: `omastav (2nd form)`. Filled where the lesson is read
+       * (`withFormNames`), since naming it needs the dictionary. A question
+       * that asks for a form says which, so "the name, as an object" is not
+       * left for the learner to decode (`lib/estonian/nameForm.ts`).
+       */
+      readonly form?: FormNames }
   /**
    * Pairs to put together, Estonian with English, tapped one then the other.
    * The quick warm-up a lesson's practice opens on, for words said alone.
@@ -470,7 +481,28 @@ function produce(item: Asked, pool: readonly Asked[], taught: Ledger): PracticeI
   if (note.note === NOTE_ONE_WORD) accept.push(...eachWithItsPronoun(item, pool));
   const named = verbForm && wordsOf(item.et).length === 1 ? personsInEnglish(item.en) : [];
   const person = named.length === 1 ? { person: named[0]! } : {};
-  return { kind: "type", en: item.en, answer: item.et, accept, ...note, ...person, ...slipFields(notSlipsFor(accept, taught)) };
+  const of = item.kind === "form" && wordsOf(item.et).length === 1 ? { of: item.of } : {};
+  return { kind: "type", en: item.en, answer: item.et, accept, ...note, ...person, ...of, ...slipFields(notSlipsFor(accept, taught)) };
+}
+
+/**
+ * Every typed question asking for a form, with the form named: `name` is the
+ * dictionary's reading (`nameAcross`), handed in by the caller that can reach
+ * it. A form the dictionary cannot name is left as it was, never guessed.
+ */
+export function withFormNames(
+  items: readonly PracticeItem[], name: (of: string, spelling: string, english: string) => FormNames | null,
+): PracticeItem[] {
+  return items.map((item) => {
+    if (item.kind !== "type" || item.of === undefined) return item;
+    const form = name(item.of, item.answer, item.en);
+    return form ? { ...item, form } : item;
+  });
+}
+
+/** The dictionary words the typed questions ask forms of, for the one read that names them. */
+export function formsAskedOf(items: readonly PracticeItem[]): string[] {
+  return [...new Set(items.flatMap((item) => (item.kind === "type" && item.of !== undefined ? [item.of] : [])))];
 }
 
 /*
@@ -1059,6 +1091,7 @@ export function markRework(typed: string, item: Extract<PracticeItem, { kind: "r
   if (wants.includes(said)) return { verdict: "right", note: NOTES.right, close: false };
   const rest = afterReply(typed, item.accept);
   if (rest !== null) return markRework(rest, item);
+  if (item.kind === "fix" && fixedInPart(said, item)) return { verdict: "right", note: NOTES.right, close: false };
   // The sentence typed back unchanged, however it is reordered or spelled, is not a change.
   const before = item.kind === "fix" ? item.shown : item.from.et;
   const unchanged = sameSentence(before, typed, item.persons);
@@ -1127,6 +1160,34 @@ export function markRework(typed: string, item: Extract<PracticeItem, { kind: "r
 }
 
 const wordCount = (text: string) => (text.match(/[\p{L}\p{N}]+/gu) ?? []).length;
+
+/*
+  A FIX IS ANSWERED BY THE WORD PUT RIGHT. The exercise is about one word, so
+  a learner who types only the part they changed, `keda` or `keda ma seal
+  kohtasin` for `Ja tead, keda ma seal kohtasin? Jaani!`, has done the whole
+  of it, and retyping the rest of the line proves nothing more. What is typed
+  has to be an unbroken run of words of a line that counts, letter for letter,
+  and the run has to cover the place the slip was: `seal kohtasin` on its own
+  is part of the line and fixes nothing. A run still holding the wrong form is
+  never one of these, since every word has to match the corrected line.
+*/
+function fixedInPart(said: string, item: Extract<PracticeItem, { kind: "fix" }>): boolean {
+  const typed = said.split(" ");
+  const shown = spokenPhrase(item.shown).split(" ");
+  return item.accept.some((line) => {
+    const want = spokenPhrase(line).split(" ");
+    // Where the slip was: the words of the line the shown version has in another form.
+    const fixed = want.length === shown.length
+      ? want.flatMap((w, i) => (w !== shown[i] ? [i] : []))
+      : want.flatMap((w, i) => (w === spokenPhrase(item.right) ? [i] : []));
+    if (fixed.length === 0 || typed.length > want.length) return false;
+    for (let start = 0; start + typed.length <= want.length; start++) {
+      const covers = fixed.every((i) => i >= start && i < start + typed.length);
+      if (covers && typed.every((w, j) => w === want[start + j])) return true;
+    }
+    return false;
+  });
+}
 
 /*
   A REPLY WORD IN FRONT IS HOW A PERSON ANSWERS. Asked to say they didn't buy

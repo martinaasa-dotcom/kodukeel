@@ -648,6 +648,9 @@ export interface LessonSpec {
    * walking in on a conversation already going: the first line is joined two
    * fifths of the way in and the rest is heard as it is.
    */
+  // `quick` stays in the type only because the v1 API never narrows a field
+  // (lib/api/contract.ts); no lesson uses it, since nothing is sped up, and
+  // `conditionById` plays it as a quiet room.
   readonly hearing?: "phone" | "cafe" | "quick" | "half";
   /** A short story to hear twice and tell back aloud (B1 on). */
   readonly retell?: Retell;

@@ -519,6 +519,9 @@ export const PracticeItemSchema = z.discriminatedUnion("kind", [
     answer: z.string(),
     accept: z.array(z.string()).readonly().describe("Every spelling that counts, the asked one first."),
     note: z.string().optional(),
+    of: z.string().optional().describe("The dictionary word the answer is a form of, where the question asks for a form."),
+    form: z.object({ en: z.string(), ru: z.string(), uk: z.string() }).optional()
+      .describe("Which form the answer is, named the way a class names it in each language (`omastav (2nd form)`), where the dictionary can say. Shown with `of` under the question."),
   }),
 ]).describe(
   "One question, built on the server; the client never decides what a learner is asked. A kind is added " +

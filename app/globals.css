@@ -6503,11 +6503,7 @@ a:focus-visible .wave-word::after {
   user-select: none;
   line-height: 1.1;
 }
-.fade-word[data-back="true"] {
-  color: var(--ink);
-  border-bottom-color: transparent;
-  animation: pop-in 0.25s ease-out;
-}
+/* A hidden word that comes back is drawn as `.read-aloud-word`, so it lights like the words around it. */
 
 @property --clock-left {
   syntax: "<angle>";

@@ -1339,9 +1339,9 @@ check("the room a clip is heard in is made in one module, and only the rounds th
   // service, which is the rule the slow play states.
   assert.match(
     code("lib/audio/clip.ts"),
-    /base \* \(request\.condition\?\.speed \?\? 1\)/,
+    /base \* Math\.min\(1, request\.condition\?\.speed \?\? 1\)/,
     "the player stopped scaling a condition against the learner's own pace, so \"at speed\" "
-      + "is a fraction of the recording again and a beginner meets it at twice their own",
+      + "is a fraction of the recording again, or a condition can speed a play past it (nothing is sped up)",
   );
   assert.doesNotMatch(code("lib/audio/clip.ts"), /speed:/, "a speed is being sent to the speech service again");
 

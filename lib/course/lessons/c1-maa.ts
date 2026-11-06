@@ -548,7 +548,7 @@ export const C1_MAA_LESSONS: readonly LessonSpec[] = [
       watchOut: "Read these, and never write them: {raamatuis} in a letter or an exam looks like a poem gone wrong. The forms in the second column are the ones to use.",
       examples: [2, 4, 8],
     },
-    hearing: "quick",
+    hearing: "half",
     listenFor: [
       { q: "What does the lead singer do?", options: ["She sings the whole song alone", "She sings a line first, and the choir repeats it", "She plays an instrument", "She reads the words out"], answer: 1 },
       { q: "Where do the words of a leelo come from?", options: ["They are all written in old books", "Some are centuries old, and some the singer makes up on the spot", "The choir writes them before the evening", "They are from the radio"], answer: 1 },
