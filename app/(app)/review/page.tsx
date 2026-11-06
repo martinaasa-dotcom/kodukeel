@@ -212,16 +212,21 @@ export default async function ReviewPage({
     empty it also says when the next card comes back, and whether the course
     rather than the clock is what is holding the rest.
   */
-  const { cards, totalCards, mode, nextDue, waitingOnCourse } = await dailyReview(ownerId, scope, now);
+  const { cards, totalCards, mode, nextDue, waitingOnCourse, dueLater } = await dailyReview(ownerId, scope, now);
 
   return (
-    <BeforeYouStart id={scope ? "closing" : "review"} ready={cards.length > 0} count={{ n: cards.length, noun: "card" }}>
+    <BeforeYouStart
+      id={scope ? "closing" : "review"}
+      ready={cards.length > 0}
+      count={{ n: cards.length, noun: "card", ...(dueLater.n > 0 ? { ofDue: cards.length + dueLater.n, ofDueAtLeast: dueLater.atLeast } : {}) }}
+    >
         <ReviewSession
         cards={cards}
         totalCards={totalCards}
         mode={mode}
         nextDue={nextDue?.line ?? null}
         waitingOnCourse={waitingOnCourse}
+        dueLater={dueLater}
       />
     </BeforeYouStart>
   );

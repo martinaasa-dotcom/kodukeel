@@ -59,6 +59,20 @@ export interface ReviewQueue {
    * count says "60+" rather than passing the cap off as the total.
    */
   dueMore: boolean;
+  /**
+   * EVERY CARD DUE TODAY, NOT ONLY THE ONES THIS SITTING HOLDS.
+   *
+   * A sitting stops at `MAX_SESSION`, and with nothing else to go on Today
+   * printed "60 due" over a deck holding 117, the session ended on "That's
+   * everything that was due", and Today then said 57. A learner who had done
+   * everything they were asked read that as the app not counting their work.
+   * So the pages that build the sitting are read on to the end (to `PAGES`),
+   * gated and made askable exactly like the cards that are shown, and this is
+   * how many there are. Never includes an unseen card: new is not due.
+   */
+  dueTotal: number;
+  /** Whether the reading stopped at `PAGES` with more still due, so `dueTotal` is a floor. */
+  dueTotalMore: boolean;
   /** Unseen cards trickled in after them, in teaching order. */
   fresh: CardRow[];
   /**
@@ -117,7 +131,7 @@ export const reviewQueue = cache(async (
     const cards = spaceSiblings(
       await askableRows(tonight.filter(allowed)), (card) => card.lexemeId,
     ).slice(0, MODULE_SESSION);
-    return { due: [], dueMore: false, fresh: [], cards, taught };
+    return { due: [], dueMore: false, dueTotal: 0, dueTotalMore: false, fresh: [], cards, taught };
   }
 
   /*
@@ -129,7 +143,14 @@ export const reviewQueue = cache(async (
   */
   const dueWindow = MAX_SESSION * 2;
   const dueKept: CardRow[] = [];
-  for (let page = 0; page < PAGES && dueKept.length <= MAX_SESSION; page++) {
+  /*
+    Read on past the sitting, so the count of what is due is a count rather
+    than "the cap and more". A deck within one sitting stops on its first
+    page as before; only a backlog pays for the extra pages, and the pages
+    stop where the deck does.
+  */
+  let dueTotalMore = false;
+  for (let page = 0; page < PAGES; page++) {
     const rows = await prisma.card.findMany({
       where: { AND: [dueWhere(ownerId, now), taughtWhere(taught)] },
       orderBy: [{ due: "asc" }, { id: "asc" }],
@@ -139,6 +160,7 @@ export const reviewQueue = cache(async (
     });
     dueKept.push(...(await askableRows(rows.filter(allowed))));
     if (rows.length < dueWindow) break;
+    if (page === PAGES - 1) dueTotalMore = true;
   }
   const dueWithin = dueKept.slice(0, MAX_SESSION);
   // Read one past the cap above, so this can say whether the cap bit.
@@ -168,7 +190,7 @@ export const reviewQueue = cache(async (
   }
   fresh = inTeachingOrder(fresh);
 
-  return { due, dueMore, fresh, cards: [...due, ...fresh], taught };
+  return { due, dueMore, dueTotal: dueKept.length, dueTotalMore, fresh, cards: [...due, ...fresh], taught };
 });
 
 /**
@@ -280,6 +302,12 @@ export interface DailyReview {
   nextDue: { at: Date; line: string } | null;
   /** Whether unseen cards are waiting on the course rather than on the clock. */
   waitingOnCourse: boolean;
+  /**
+   * What is due beyond this sitting, which the briefing and the finish screen
+   * say, so a capped sitting is never passed off as the whole day's review.
+   * Zero inside the module and wherever one sitting holds everything due.
+   */
+  dueLater: { n: number; atLeast: boolean };
 }
 
 export async function dailyReview(
@@ -337,5 +365,6 @@ export async function dailyReview(
     mode,
     nextDue: next && clock ? { at: next.due, line: nextCardLine(next.due, now, clock, await localeFor(ownerId)) } : null,
     waitingOnCourse: unseenAnywhere > 0,
+    dueLater: { n: Math.max(0, queue.dueTotal - queue.due.length), atLeast: queue.dueTotalMore },
   };
 }

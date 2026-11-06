@@ -11,8 +11,8 @@
  *   parts  heard first          the race                       notes                         text read
  *   1, 2   somewhere            one go of 60 after 60          part 2: 300 words, twice      200 words
  *   3, 4   somewhere            one go of 90 after 120         350 words, once               350 words, matched
- *   5, 6   joined halfway or    one go of 120 after 180,       600 words, once               450 words, a gap
- *          sped up              on one of two topics
+ *   5, 6   joined halfway       one go of 120 after 180,       600 words, once               450 words, a gap
+ *                               on one of two topics
  *   7, 8   somewhere            one go of 120, after 60 (on    part 7: 1,100 words, once     550 words, short answers
  *                               the spot) or after 180 on one
  *                               of two topics (the exam)
@@ -111,8 +111,8 @@ export const C1_NOTES: Readonly<Record<C1Band, { readonly words: number; readonl
   4: { words: 1100, hearings: 1 },
 };
 
-/** Parts 5 and 6: the conversation heard first is joined halfway or sped up. */
-const BAND_3_ROOMS: ReadonlySet<string> = new Set(["half", "quick"]);
+/** Parts 5 and 6: the conversation heard first is joined halfway. Nothing is ever sped up. */
+const BAND_3_ROOMS: ReadonlySet<string> = new Set(["half"]);
 
 /**
  * Everything a C1 part does against the ramp, as sentences naming the lesson.
@@ -131,7 +131,7 @@ export function c1RampProblems(lessons: readonly LessonSpec[], parts: readonly P
       if (lesson.listenFor && lesson.listenFor.length > 0) {
         if (!lesson.hearing) problems.push(`${where}: heard in a quiet room, where every C1 conversation heard first is heard somewhere (\`hearing\`)`);
         else if (band === 3 && !BAND_3_ROOMS.has(lesson.hearing)) {
-          problems.push(`${where}: heard ${lesson.hearing}, where parts 5 and 6 are heard joined halfway or sped up (\`half\` or \`quick\`)`);
+          problems.push(`${where}: heard ${lesson.hearing}, where parts 5 and 6 are heard joined halfway (\`half\`)`);
         }
       }
       if (lesson.retell && (lesson.retell.hearings ?? 2) !== 1) problems.push(`${where}: its story is heard twice, where at C1 it is heard once (\`hearings: 1\`)`);

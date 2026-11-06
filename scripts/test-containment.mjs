@@ -1611,10 +1611,11 @@ async function lessonStepStates(ctx, at) {
     await page.goto(`${B}/course/lessons/${id}`, { waitUntil: "networkidle", timeout: 60000 });
     const show = page.getByRole("button", { name: /^Show the words now/ });
     if (await show.count()) await show.first().click().catch(() => {});
-    for (let n = 0; n < 8 && !step.test(await heading()); n++) {
+    // A step is a page at a time now (`screens.ts`), so Continue is pressed once per page on the way.
+    for (let n = 0; n < 30 && !step.test(await heading()); n++) {
       // Practice has a pass mark and no Skip under it, so it is answered rather than skipped.
       if (/Practice/.test(await heading())) await passPractice(page);
-      await page.getByRole("button", { name: /^(Skip this step|Continue)/ }).last().click().catch(() => {});
+      await page.getByRole("button", { name: /^(Skip this step|Continue)/ }).last().click({ timeout: 5000 }).catch(() => {});
       await page.waitForTimeout(300);
     }
     return { page, reached: step.test(await heading()) };

@@ -112,7 +112,7 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
       watchOut: "{Tegusõna} and {öeldis} are not two words for one thing: {tegusõna} is the kind of word, and {öeldis} is its job in this sentence. In {Mark loeb raamatut}, {loeb} is both.",
       examples: [7, 10, 11, 12],
     },
-    hearing: "quick",
+    hearing: "half",
     listenFor: [
       { q: "What is the morning show talking about?", options: ["Homework in first grade", "A new school building", "School dinners", "The school holidays"], answer: 0 },
       { q: "What does {Tõnu}'s daughter ask him?", options: ["What a predicate is", "How to spell her name", "Where her exercise book is", "Whether she can play outside"], answer: 0 },

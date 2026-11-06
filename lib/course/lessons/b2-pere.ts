@@ -650,7 +650,7 @@ export const B2_PERE_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Jah, tere. Mina olen Tom ja mu poeg Mark tuleb sügisel kooli.", en: "Yes, hello. I'm Tom, and my son Mark is starting school in the autumn." },
       { who: "Piret", et: "Väga meeldiv! Mina olen Piret, sügisel olen esimese klassi õpetaja. Kus Mark on?", en: "Nice to meet you! I'm Piret, I'll be the first-grade teacher in the autumn. Where's Mark?" },
       { who: "Tom", et: "Ta on võimlas palli mängimas.", en: "He's off playing ball in the gym." },
-      { who: "Piret", et: "Muidugi! Eelmisel aastal ehitati meile uus võimla. Lastele meeldib see väga.", en: "Of course! A new gym was built for us last year. The children love it." },
+      { who: "Piret", et: "Muidugi! Eelmisel aastal ehitati meile uus võimla. Lastele meeldib see väga.", en: "Of course! A new gym was built for us last year. The children really like it." },
       { who: "Tom", et: "Mul on üks küsimus. Sügisel oleme mõlemad tööl kella viieni. Kas Mark saab pärast tunde koolis olla?", en: "I've got one question. In the autumn we'll both be at work until five. Can Mark stay at school after lessons?" },
       { who: "Piret", et: "Saab küll. Selleks on meil pikapäevarühm.", en: "He can. That's what our after-school group is for." },
       { who: "Tom", et: "Vabandust, mis on pikapäevarühm?", en: "Sorry, what's an after-school group?" },

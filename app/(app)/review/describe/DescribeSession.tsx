@@ -23,6 +23,7 @@ import { fill, type Locale } from "@/lib/copy/locale";
 import { quoted } from "@/lib/copy/values";
 import { useSpeech, useSpeechConfig } from "@/components/speech/useSpeech";
 import { MicButton } from "@/components/speech/MicButton";
+import { liveText } from "@/lib/speech/liveText";
 import { micInAnswerBox } from "@/components/speech/answerBoxMic";
 import { roundName } from "@/lib/ux/roundNames";
 import { RoundNameText } from "@/components/RoundNameText";
@@ -119,8 +120,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
     onHeard: (hearing) => {
       const said = hearing.understood.trim();
       if (!said || marked) return;
-      const into = texts[focusedBox.current]?.trim() ? texts.findIndex((v) => !v.trim()) : focusedBox.current;
-      const box = into >= 0 ? into : focusedBox.current;
+      const box = boxFor(texts, focusedBox.current);
       setTexts((all) => all.map((v, j) => (j === box ? said : v)));
       setHeardInto(box);
       focusedBox.current = box;
@@ -128,6 +128,8 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
     },
   });
   const micOffered = micInAnswerBox(speech, speechConfig);
+  /* The words so far are drawn in the box the turn will land in, the one the copy names (`liveText`). */
+  const liveBox = speech.listening ? boxFor(texts, focusedBox.current) : -1;
 
   async function submit() {
     if (!prompt || busy || !ready) return;
@@ -313,7 +315,8 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
                       id={`sentence-${i + 1}`}
                       ariaLabel={fill(t("Sentence {n} of {total}"), { n: i + 1, total: SENTENCES_PER_PICTURE })}
                       inputRef={inputs[i]}
-                      value={text}
+                      value={i === liveBox ? liveText(text, speech) : text}
+                      readOnly={speech.listening}
                       autoFocus={i === 0}
                       disabled={!!marked || busy}
                       placeholder={`${i + 1}.`}
@@ -569,4 +572,10 @@ function emphasise(text: string, words: readonly string[]) {
   const parts = text.split(new RegExp(`(${escaped.join("|")})`, "giu"));
   return parts.map((part, i) =>
     words.some((w) => w.toLowerCase() === part.toLowerCase()) ? <strong key={i}>{part}</strong> : part);
+}
+
+/** The box a heard sentence goes into: the one the learner is in, or the next empty one where that is full. */
+function boxFor(texts: readonly string[], focused: number): number {
+  const into = texts[focused]?.trim() ? texts.findIndex((v) => !v.trim()) : focused;
+  return into >= 0 ? into : focused;
 }
