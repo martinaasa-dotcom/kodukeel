@@ -10745,6 +10745,15 @@ what to say instead, `lib/course/lessons/spoken.test.ts` sweeps every line again
 phrase goes in only when it is wrong everywhere; `docs/43-lessons.md` §10 is what to hold a new line
 to. `scripts/invariants/lines-are-everyday-estonian.ts` holds it.
 
+**And a lesson page holds one task, and the next page holds the next** (Martin's call,
+2026-11-04). A step is a sequence of pages from `lib/course/lessons/screens.ts`: on Listen, what
+is new at the level, hearing it with the questions, reading the conversation, the notes and the
+text to read are each a page; Words, How it works and the finished lesson are walked the same way,
+and the finish offers one thing a page with "Not now" beside it. A text stacked under the
+conversation was reported as a wall nobody reads. Add a new block of a lesson as a page in that list,
+never under another; `scripts/invariants/a-lesson-page-holds-one-task.ts` and
+`scripts/test-lessons.mjs` hold it.
+
 **And B1 is a level up in how it is learned, not A2 with harder words.** The same six steps, so it
 reads as one course, and inside them the learner who has the words is asked for the ear, the speed
 and the accuracy (`docs/43-lessons.md` §11.2 and §12). Every B1 lesson is heard before it is read
