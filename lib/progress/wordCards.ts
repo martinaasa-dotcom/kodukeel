@@ -39,3 +39,35 @@ export async function lessonHeads(lesson: LessonSpec): Promise<HeadInfo[]> {
       : [],
   }));
 }
+
+/**
+ * THE STAR ON A PRACTICE QUESTION: each spelling the lesson teaches, mapped to
+ * its headword's dictionary entry and whether this learner has starred it.
+ * Keyed by the spelling in lower case, since that is what a question shows.
+ */
+export async function lessonStars(ownerId: string, lesson: LessonSpec): Promise<Record<string, { id: string; starred: boolean }>> {
+  const headOf = new Map<string, string>();
+  for (const t of lesson.teaches) {
+    const head = t.kind === "form" ? t.of : t.et;
+    headOf.set(t.et.toLocaleLowerCase("et"), head);
+    if (t.kind === "verb") headOf.set(t.first.toLocaleLowerCase("et"), head);
+  }
+  const lemmas = [...new Set(headOf.values())];
+  if (lemmas.length === 0) return {};
+  const rows = await prisma.lexeme.findMany({
+    where: { lemma: { in: lemmas }, ...VOUCHED_ROW },
+    select: { id: true, lemma: true, pos: true, provenance: true, forms: { select: { formType: true } } },
+    orderBy: [{ lemma: "asc" }, { id: "asc" }],
+  });
+  const best = new Map(oneEntryPerLemma(rows, lemmas).map((r) => [r.lemma, r.id]));
+  const starred = new Set(
+    (await prisma.starredWord.findMany({ where: { ownerId, lexemeId: { in: [...best.values()] } }, select: { lexemeId: true } }))
+      .map((s) => s.lexemeId),
+  );
+  const out: Record<string, { id: string; starred: boolean }> = {};
+  for (const [spelling, head] of headOf) {
+    const id = best.get(head);
+    if (id) out[spelling] = { id, starred: starred.has(id) };
+  }
+  return out;
+}
