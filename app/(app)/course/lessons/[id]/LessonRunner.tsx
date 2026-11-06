@@ -9,6 +9,7 @@ import { forgetLessonPlace, loadLessonPlace, saveLessonPlace } from "@/component
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Braced } from "@/components/Braced";
 import { RuleNote } from "@/components/RuleNote";
+import { NoteChunks } from "@/components/NoteChunks";
 import { Speak } from "@/components/Speak";
 import { nativePart } from "@/lib/audio/native";
 import { stopClip } from "@/lib/audio/clip";
@@ -787,13 +788,6 @@ function How({ lesson }: { lesson: LessonSpec }) {
         <RuleNote summary={how.point} watchOut={how.watchOut} />
       </Card>
       {how.sounds && how.sounds.length > 0 && <SoundRows rows={how.sounds} />}
-      {how.notes && how.notes.length > 0 && (
-        <ul className="flex flex-col gap-3">
-          {how.notes.map((note) => (
-            <li key={note} className="text-base leading-relaxed" style={{ color: "var(--ink)" }}><LessonText text={note} locale={locale} /></li>
-          ))}
-        </ul>
-      )}
       {how.table && (
         <div className="overflow-x-auto rounded-[var(--r-lg)] border" style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}>
           <table className="w-full min-w-[320px] text-base" data-lesson-table>
@@ -825,6 +819,9 @@ function How({ lesson }: { lesson: LessonSpec }) {
           </table>
         </div>
       )}
+      {how.notes && how.notes.length > 0 && (
+        <NoteChunks notes={how.notes.map((note) => ({ text: tr(locale, note), lang: lessonTextLang(note, locale) }))} />
+      )}
       {how.listen && how.listen.length > 0 && (
         <section data-lesson-listen>
           <SectionTitle level={3} hint={t("said by a native speaker")}>{t("Hear the difference")}</SectionTitle>
@@ -848,9 +845,9 @@ function How({ lesson }: { lesson: LessonSpec }) {
       {examples.length > 0 && (
         <section>
           <SectionTitle level={3} hint={t("from today's conversation")}>{t("Where you heard it")}</SectionTitle>
-          <ul className="flex flex-col gap-3">
+          <ul className="flex flex-col overflow-hidden rounded-[var(--r-lg)] border" style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}>
             {examples.map((line, i) => (
-              <li key={i} className="flex flex-col gap-0.5">
+              <li key={i} className={`flex flex-col gap-0.5 px-4 py-3 ${i > 0 ? "border-t" : ""}`} style={{ borderColor: "var(--edge)" }}>
                 <span className="flex items-center gap-2">
                   <Speak text={line!.et!} voice={lesson.cast[line!.who]} native={line!.who === nativePart(lesson.conversation)} size={15} />
                   <span lang="et" className="text-lg font-semibold" style={{ color: "var(--ink)" }}>{line!.et}</span>
