@@ -1,5 +1,5 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { Legal, P, S } from "@/components/Legal";
+import { Legal, P, S, Tile, Tiles } from "@/components/Legal";
 import { rich } from "@/components/Rich";
 import { tr } from "@/lib/copy/locale";
 import { localeHref } from "@/lib/copy/publicLocale";
@@ -99,38 +99,38 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
         <P>
           {t("Four suites run in the build on every change, against the real app in a real browser rather than against a component in isolation.")}
         </P>
-        <ul className="space-y-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          <li>
+        <Tiles>
+          <Tile>
             {rich(t("**axe over every route.** {suite} loads every page the app has, not a chosen sample, and runs axe over each one, including its best-practice rules. Two screens are the exception so far, a marked paper and a scanned page, because each needs a row made before it exists; the containment suite below makes both and measures them, and axe does not reach them yet. It runs the whole sweep again in the dark theme, because light and dark are two palettes and a color that clears the bar in one says nothing about the other. It runs it twice more at 390 pixels wide, which is a phone, because a phone here is different markup rather than the same markup narrower: the navigation rail is not drawn at all and a bar with a sheet behind it is drawn instead. That sheet is opened and swept too, since no address reaches it. It counts a one-character run of text as text, which is how a check mark measured at 2.52 against a bar of 4.5 was found. Beyond axe it asserts exactly one main landmark and one heading per screen, a page title that is not the landing page’s, and Estonian marked so a screen reader does not read it with English phonics."), {
               suite: suite("a11y-check.mjs"),
             })}
-          </li>
-          <li>
+          </Tile>
+          <Tile>
             {rich(t("**axe at 768 pixels as well.** {suite} sweeps every route at 768 wide in both themes too, which is where the navigation rail appears and the content column is at its narrowest."), {
               suite: suite("a11y-check.mjs"),
             })}
-          </li>
-          <li>
+          </Tile>
+          <Tile>
             {rich(t("**Contrast measured rather than reasoned about.** {suite} reads the colors the browser actually painted and works out the ratio, in both themes, including states a page does not arrive in such as a row under a pointer."), {
               suite: suite("test-design.mjs"),
             })}
-          </li>
-          <li>
+          </Tile>
+          <Tile>
             {rich(t("**Every target measured against 44px.** {suite} drives the app at 360, 390, 430, 768 and 1280 pixels wide with a coarse pointer, which is the only condition under which that rule is real, and fails on a control below the floor."), {
               suite: suite("test-mobile.mjs"),
             })}
-          </li>
-          <li>
+          </Tile>
+          <Tile>
             {rich(t("**Reflow at 320 pixels.** {suite} opens every route 320 CSS pixels wide, which is what 400% zoom means in a 1280 window, and fails on anything drawn past the edge of the screen outside a scroller of its own, such as a table of forms."), {
               suite: suite("test-mobile.mjs"),
             })}
-          </li>
-          <li>
+          </Tile>
+          <Tile>
             {rich(t("**Text staying inside its box.** {suite} walks every route at 360, 768 and 1280, in both themes, and asks whether anything is cut off, drawn outside its border or drawn on top of something else. Then it asks again with every run of text replaced by unbreakable text of the same length, since Estonian has long words."), {
               suite: suite("test-containment.mjs"),
             })}
-          </li>
-        </ul>
+          </Tile>
+        </Tiles>
         <P>
           {t("Alongside those, the app is built out of real buttons and links with a visible focus ring. Animation is turned off for anybody whose system asks for reduced motion, and no part of it needs a dragging movement. Color is never the only thing carrying a distinction, so a correct answer says so in words as well as in color.")}
         </P>
@@ -155,23 +155,23 @@ export default async function AccessibilityPage({ searchParams }: { searchParams
         <P>
           {t("These were found by reading the code rather than assumed from a template, and each one is a real screen.")}
         </P>
-        <ul className="space-y-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          <li>
+        <Tiles>
+          <Tile>
             {rich(t("**The mock examination parts run to a clock nobody can change** (WCAG 2.2.1, Timing Adjustable), and it closes the part when it goes. The paper is an imitation of a timed state examination and untimed practice of a timed paper measures something else, which is why it is the one clock left fixed, but a candidate who needs extra time in the real examination has no way to ask for it here."))}
-          </li>
-          <li>
+          </Tile>
+          <Tile>
             {rich(t("**The listening, dictation and minimal-pair rounds require hearing** (WCAG 1.2.1). There is no transcript before the answer, because the transcript is the answer, so a text alternative would remove the exercise. The text is shown as soon as the answer is in. Somebody who cannot use audio can use every other round, and the app does not require any of these three to make progress, but three rounds are closed to them."))}
-          </li>
-          <li>
+          </Tile>
+          <Tile>
             {rich(t("**Speaking is heard by a machine** on the device, which says which words came across and never how they sounded. It is new and has not been measured on learners' own voices yet. Every step of the Speaking round can be answered by typing, so a learner with no microphone, or who would rather not use one, still has a way through it."))}
-          </li>
-          <li>
+          </Tile>
+          <Tile>
             {rich(t("**axe is swept at three widths, not at every width.** It runs at 1280, 768 and 390, in both themes. The widths between them, 360 and 430, are measured for targets, overflow and containment and are not swept by axe, so a fault in markup at one of those alone would be found by a person rather than by the build."))}
-          </li>
-          <li>
+          </Tile>
+          <Tile>
             {rich(t("**Screens behind data are less covered.** The automated sweep sees each page as it loads, plus one state a learner has to reach by doing something. A class roster with students in it, an examination part in progress and the puzzle grids in play are all reachable and all less tested than the pages around them."))}
-          </li>
-        </ul>
+          </Tile>
+        </Tiles>
         <P>
           {t("Where a limitation above is ours rather than one the exercise requires, it is on the list to fix. The practice clocks, the phone sweep, the single-key shortcuts, the clips that played whatever their length and the looping motion everywhere were all on this list and are fixed now. The examination clock stays, for the reason beside it.")}
         </P>
