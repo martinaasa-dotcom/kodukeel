@@ -200,10 +200,20 @@ export function Sidebar({ order: stored, name, classes = [], review = null }: {
         it fails by quietly leaving the website drawn around a screen that is
         supposed to be a room (app/globals.css, components/scene/SceneStage.tsx).
       */}
+      {/*
+        `z-40` is what makes the account menu pressable. The menu is wider than
+        the rail and hangs over the page, and a sticky element is a stacking
+        context of its own: at `z-index: auto` every positioned card in `main`
+        comes later in the tree and is stacked above it, transparent where it
+        overhangs and still the thing a click lands on. So the row lit up end to
+        end under a pointer and only the part over the rail opened anything.
+        Above the page's own sticky headers (`z-30` at most), below every
+        dialog and Anu's panel.
+      */}
       <nav
         data-chrome="rail"
         aria-label={t("Main")}
-        className="rail sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r px-4 pb-4 pt-6 md:flex"
+        className="rail sticky top-0 z-40 hidden h-screen w-60 shrink-0 flex-col border-r px-4 pb-4 pt-6 md:flex"
         style={{ borderColor: "var(--rule-soft)" }}
       >
         {/*
@@ -755,6 +765,7 @@ function AccountMenu({ onClose, onEdit, active }: {
     <div
       ref={box}
       role="group"
+      data-account-menu
       aria-label={t("You", "person")}
       className="menu-pop absolute bottom-full left-0 z-50 mb-2 w-72 rounded-[var(--r-lg)] border p-2"
       style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--shadow-lg)" }}
