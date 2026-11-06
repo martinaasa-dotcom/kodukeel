@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { Children, isValidElement, type ReactElement, type ReactNode } from "react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { LanguageSwitcher, TranslationNotice } from "@/components/PublicLanguage";
 import { PUBLIC_LOCALES, tr, type PublicLocale } from "@/lib/copy/locale";
@@ -60,7 +60,7 @@ export function Legal({ title, updated, children, locale = "en", explicit = fals
     somebody might be reading because they have a question about their rights.
   */
   return (
-    <main lang={locale} className="mx-auto max-w-2xl px-5 py-10 md:px-8 md:py-16">
+    <main lang={locale} className="mx-auto max-w-4xl px-5 py-10 md:px-8 md:py-16">
       <PublicHeader locale={locale} path={path} drawnIn={drawnIn} />
       <h1
         className="mt-8 text-3xl font-bold leading-tight tracking-tight"
@@ -72,7 +72,8 @@ export function Legal({ title, updated, children, locale = "en", explicit = fals
         {t("Last updated")} {updatedIn(updated, locale)}
       </p>
       <TranslationNotice locale={locale} legal={legal} className="mt-5" />
-      <div className="mt-8 space-y-8">{children}</div>
+      <Contents label={t("On this page")}>{children}</Contents>
+      <div className="mt-8 space-y-4">{children}</div>
       <PublicFooter locale={locale} explicit={explicit} href={href} />
     </main>
   );
@@ -181,21 +182,207 @@ export async function PublicFooter({ locale, href, short = false }: {
   );
 }
 
+/**
+ * A PUBLIC PAGE IN PIECES, NOT ONE COLUMN OF PROSE.
+ *
+ * These pages are long by nature, a privacy notice has to say everything it
+ * says, and they were drawn as one column of gray paragraphs under small
+ * headings, which was reported as a wall of text that puts a reader off before
+ * they find the one thing they came for. Nothing is cut. Each section is a card
+ * of its own, the page opens on a list of its sections that jumps to each, and
+ * a paragraph that opens on a bold label ("**Your identity.** ...") gets the
+ * label as a heading of its own line, so a reader scans the labels and reads
+ * the paragraph under the one they want.
+ */
+function Contents({ label, children }: { label: string; children: ReactNode }) {
+  const titles = sectionTitles(children);
+  if (titles.length < 3) return null;
+  return (
+    <nav aria-label={label} className="mt-8" data-legal-contents>
+      <p className="label-xs" style={{ color: "var(--ink-3)" }}>{label}</p>
+      <ul className="mt-2.5 flex flex-wrap gap-2">
+        {titles.map(({ title, id }) => (
+          <li key={id}>
+            <a
+              href={`#${id}`}
+              className="pill tap-tint inline-flex min-h-9 items-center rounded-full border px-3.5 text-sm font-semibold"
+              style={{ borderColor: "var(--edge)", background: "var(--surface)", color: "var(--ink-2)" }}
+            >
+              {title}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
+/** Every `S` among the children, however deep in a fragment or a conditional. */
+function sectionTitles(children: ReactNode): { title: string; id: string }[] {
+  const out: { title: string; id: string }[] = [];
+  const walk = (node: ReactNode) => {
+    Children.forEach(node, (child) => {
+      if (!isValidElement(child)) return;
+      const el = child as ReactElement<{ title?: string; id?: string; children?: ReactNode }>;
+      if (el.type === S && typeof el.props.title === "string") {
+        out.push({ title: el.props.title, id: el.props.id ?? sectionId(el.props.title) });
+        return;
+      }
+      walk(el.props.children);
+    });
+  };
+  walk(children);
+  return out;
+}
+
+/** An anchor from a heading, in any script, so the contents can jump to it. */
+export function sectionId(title: string): string {
+  return title.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-+|-+$/g, "") || "section";
+}
+
 export function S({ title, children, id }: { title: string; children: ReactNode; id?: string }) {
   return (
-    <section id={id} className="scroll-mt-6">
-      <h2 className="text-lg font-semibold" style={{ color: "var(--ink)" }}>
+    <section
+      id={id ?? sectionId(title)}
+      className="scroll-mt-6 rounded-[var(--r-xl)] border p-4 md:p-7"
+      style={{ background: "var(--surface)", borderColor: "var(--edge)", boxShadow: "var(--depth-sm)" }}
+    >
+      <h2 className="flex items-center gap-2.5 text-lg font-semibold" style={{ color: "var(--ink)" }}>
+        <span aria-hidden className="h-5 w-1 shrink-0 rounded-full" style={{ background: "var(--accent)" }} />
         {title}
       </h2>
-      <div className="mt-2.5 space-y-3">{children}</div>
+      {/* Labeled paragraphs are tiles, two to a row on a wide screen; anything else spans the row. */}
+      <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 md:[&>*:not([data-legal-lead])]:col-span-2">{children}</div>
     </section>
   );
 }
 
+/**
+ * A paragraph, and where it opens on a bold label the label goes on a line of
+ * its own (`rich` draws `**label.**` as a `strong`, so it is the first element
+ * of the children). Everything else is the paragraph as written.
+ */
 export function P({ children }: { children: ReactNode }) {
+  const lead = leadOf(children);
+  if (lead) {
+    return (
+      <div className={TILE} style={{ background: "var(--raised)" }} data-legal-lead>
+        <LeadBody lead={lead.label} rest={lead.rest} />
+      </div>
+    );
+  }
   return (
     <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
       {children}
     </p>
   );
+}
+
+/** A list of labeled points, drawn as the same tiles as a labeled paragraph. */
+export function Tiles({ children, ...data }: { children: ReactNode; [hook: `data-${string}`]: string | undefined }) {
+  return <ul {...data} className="grid grid-cols-1 gap-3 md:grid-cols-2" data-legal-tiles>{children}</ul>;
+}
+
+/** One point of `Tiles`: a tile where it opens on a bold label, a plain row of the list where it does not. */
+export function Tile({ children }: { children: ReactNode }) {
+  const lead = leadOf(children);
+  return (
+    <li className={`${TILE} md:[&:only-child]:col-span-2`} style={{ background: "var(--raised)" }} data-legal-lead={lead ? "" : undefined}>
+      {lead ? <LeadBody lead={lead.label} rest={lead.rest} /> : <Folded nodes={Children.toArray(children)} />}
+    </li>
+  );
+}
+
+const TILE = "flex min-w-0 flex-col gap-1 rounded-[var(--r-lg)] p-3.5 md:p-4";
+
+/** The bold label a paragraph opens on, and what follows it, or null. */
+function leadOf(children: ReactNode): { label: ReactNode; rest: ReactNode[] } | null {
+  const parts = Children.toArray(children);
+  const first = parts.findIndex((c) => !(typeof c === "string" && c.trim() === "") && !(isValidElement(c) && isEmptyFragment(c)));
+  const lead = first >= 0 ? parts[first] : undefined;
+  if (!isValidElement(lead) || lead.type !== "strong") return null;
+  // Only a label that ends its own sentence: "**Your identity.**", never a bold
+  // opening that the sentence carries on from.
+  if (!/[.:!?]["”»]?\s*$/.test(textOf(lead))) return null;
+  return { label: lead, rest: trimStart(parts.slice(first + 1)) };
+}
+
+/** The label on its own line, the first sentence, and the rest behind "Read more" where it is long. */
+function LeadBody({ lead, rest }: { lead: ReactNode; rest: ReactNode[] }) {
+  return (
+    <>
+      <p className="text-base font-semibold leading-snug" style={{ color: "var(--ink)" }}>{lead}</p>
+      <Folded nodes={rest} />
+    </>
+  );
+}
+
+/** The first sentence on screen and the rest behind "Read more" where the rest is long. */
+function Folded({ nodes }: { nodes: ReactNode[] }) {
+  const [opening, more] = splitFirstSentence(nodes);
+  return (
+    <>
+      <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{opening}</p>
+      {more.length > 0 && (
+        <details className="explain legal-more">
+          <summary>
+            {PUBLIC_LOCALES.map((l) => (
+              <span key={l} data-more-in={l}>{tr(l, "Read more")}</span>
+            ))}
+          </summary>
+          <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{more}</p>
+        </details>
+      )}
+    </>
+  );
+}
+
+function isEmptyFragment(el: ReactElement): boolean {
+  const kids = (el.props as { children?: ReactNode }).children;
+  return typeof kids === "string" && kids.trim() === "";
+}
+
+/** The plain text of a node, for measuring and testing it. */
+function textOf(n: ReactNode): string {
+  if (typeof n === "string" || typeof n === "number") return String(n);
+  if (Array.isArray(n)) return n.map(textOf).join("");
+  if (isValidElement(n)) return Children.toArray((n.props as { children?: ReactNode }).children).map(textOf).join("");
+  return "";
+}
+
+/** Below this, the rest of a tile is short enough to stay on screen. */
+const MORE_AFTER = 160;
+
+/**
+ * A tile's first sentence, and the rest behind "Read more" where the rest is
+ * long enough to be worth folding. Split inside the first plain string that
+ * holds a full stop followed by a space; a bold phrase or a link stays whole.
+ */
+function splitFirstSentence(nodes: ReactNode[]): [ReactNode[], ReactNode[]] {
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i];
+    const text = typeof node === "string" ? node
+      : isValidElement(node) && node.type !== "strong" && node.type !== "code" && typeof (node.props as { children?: ReactNode }).children === "string"
+        ? (node.props as { children: string }).children : null;
+    if (text === null) continue;
+    const m = /[.!?]\s+(?=\S)/.exec(text);
+    if (!m) continue;
+    const cut = m.index + 1;
+    const head = [...nodes.slice(0, i), text.slice(0, cut)];
+    const tail = [text.slice(cut).replace(/^\s+/, ""), ...nodes.slice(i + 1)];
+    if (tail.map(textOf).join("").length < MORE_AFTER) return [nodes, []];
+    return [head, tail];
+  }
+  return [nodes, []];
+}
+
+/** The text after a lifted label, without the space that followed it. */
+function trimStart(nodes: ReactNode[]): ReactNode[] {
+  const [head, ...tail] = nodes;
+  if (isValidElement(head)) {
+    const kids = (head.props as { children?: ReactNode }).children;
+    if (typeof kids === "string") return [kids.replace(/^\s+/, ""), ...tail];
+  }
+  if (typeof head === "string") return [head.replace(/^\s+/, ""), ...tail];
+  return nodes;
 }
