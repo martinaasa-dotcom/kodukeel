@@ -256,6 +256,8 @@ export const UK: Readonly<Record<string, string>> = {
 
   // THE BRIEFING'S OWN CHROME.
   "{count} in this round": "{count} у цьому раунді",
+  "{count} in this round, of {total} due today": "{count} у цьому раунді, із {total} на сьогодні",
+  "{count} in this round, of more than {total} due today": "{count} у цьому раунді, із понад {total} на сьогодні",
   "What you do": "Що треба робити",
 
   // SETTINGS: THE LANGUAGE ITSELF.

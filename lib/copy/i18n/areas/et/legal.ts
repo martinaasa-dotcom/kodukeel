@@ -24,6 +24,8 @@ export const LEGAL_ET: readonly (readonly [en: string, et: string])[] = [
   // THE SHELL OF EVERY PUBLIC POLICY PAGE.
   ["Last updated",
     "Viimati uuendatud"],
+  ["On this page",
+    "Sellel lehel"],
   ["Privacy",
     "Privaatsus"],
   ["Terms",

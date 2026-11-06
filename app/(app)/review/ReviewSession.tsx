@@ -56,6 +56,7 @@ import { useUiText } from "@/components/UiLanguage";
 import { useLocale, useT } from "@/components/Locale";
 import { localiseReadings } from "@/lib/copy/questionReading";
 import { countOf, fill, type Locale } from "@/lib/copy/locale";
+import { AnotherRound } from "@/components/round/AnotherRound";
 import { EndSession, FullEntry, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { type SeenCard } from "@/lib/ux/lookBack";
@@ -427,7 +428,7 @@ interface Done {
 
 export function ReviewSession({
   cards: initialCards, drillCase, drillUnit, drillUnitHref = "/course/lessons", drillScan, totalCards, mode, nextDue,
-  waitingOnCourse = false, title,
+  waitingOnCourse = false, title, dueLater,
 }: {
   cards: ReviewCard[];
   drillCase?: string;
@@ -465,6 +466,14 @@ export function ReviewSession({
    * reason.
    */
   waitingOnCourse?: boolean;
+  /**
+   * What was due beyond this sitting when it was built. A sitting stops at
+   * sixty, and the finish screen said "That's everything that was due" over a
+   * deck with 57 more waiting, which Today then printed. So where more is due
+   * it says how much and offers the next sitting; the daily path alone passes
+   * it, since a drill is never a share of a backlog.
+   */
+  dueLater?: { n: number; atLeast: boolean };
   mode: ReviewMode;
 }) {
   // Snapshotted once on mount, and never updated from later props. gradeCard()
@@ -1485,6 +1494,7 @@ export function ReviewSession({
   );
 
   if (finished) {
+    const later = !drillCase && !drillUnit && !drillScan && dueLater && dueLater.n > 0 ? dueLater : null;
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
     const accuracy = done > 0 ? Math.round((correct / done) * 100) : 0;
     const [drilledBefore, drilledAfter = ""] = t("That\u2019s the {form} drilled. Those cards will still come back on their usual days.").split("{form}");
@@ -1503,7 +1513,11 @@ export function ReviewSession({
                   ? <>{t(uiText("Tubli töö.", "Good work."))} {t("That\u2019s this unit drilled. Its cards will still come back on their usual days.")}</>
                   : drillScan
                     ? <>{t(uiText("Tubli töö.", "Good work."))} {t("That\u2019s the whole page drilled. Its cards will still come back on their usual days.")}</>
-                    : <>{t(uiText("Tubli töö.", "Good work."))} {t("That\u2019s everything that was due. See you tomorrow.")}</>}
+                    : later
+                      ? <>{t(uiText("Tubli töö.", "Good work."))} {fill(t(later.atLeast ? "That\u2019s {done} done, and more than {more} are still due." : "That\u2019s {done} done, and {more} are still due."), {
+                          done: countOf(locale, done, "card"), more: countOf(locale, later.n, "card"),
+                        })}</>
+                      : <>{t(uiText("Tubli töö.", "Good work."))} {t("That\u2019s everything that was due. See you tomorrow.")}</>}
             </p>
           </div>
         </Lettered>
@@ -1527,11 +1541,21 @@ export function ReviewSession({
             })}
           </p>
         )}
-        <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
-          <ButtonLink href="/practice" size="lg"><Zap size={15} aria-hidden /> {t("Play a round")}</ButtonLink>
-          <ButtonLink href="/learn/new" size="lg">{t("Learn new words")}</ButtonLink>
-          <ButtonLink href="/" variant="primary" size="lg">{t("Back to Today")}</ButtonLink>
-        </WayOut>
+        {/* More due is the one case with a better next step than the menu:
+            the next sitting, last in the row because it is the primary. New
+            words are not offered beside a backlog. */}
+        {later ? (
+          <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
+            <ButtonLink href="/" size="lg">{t("Back to Today")}</ButtonLink>
+            <AnotherRound variant="primary" size="lg">{t("Keep going")}</AnotherRound>
+          </WayOut>
+        ) : (
+          <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
+            <ButtonLink href="/practice" size="lg"><Zap size={15} aria-hidden /> {t("Play a round")}</ButtonLink>
+            <ButtonLink href="/learn/new" size="lg">{t("Learn new words")}</ButtonLink>
+            <ButtonLink href="/" variant="primary" size="lg">{t("Back to Today")}</ButtonLink>
+          </WayOut>
+        )}
       </div>
     );
   }
@@ -1838,7 +1862,8 @@ export function ReviewSession({
                 </label>
                 <EstonianInput
                   id="answer"
-                  value={typed}
+                  value={voiceBox.live(typed)}
+                  readOnly={voiceBox.speech.listening}
                   onChange={setTyped}
                   onEnter={() => checkTyped()}
                   ariaLabel={t("Type your answer")}

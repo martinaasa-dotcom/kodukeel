@@ -19,7 +19,9 @@ export const SPEAKING: Area = {
     "Stop listening": "Перестать слушать",
     "Getting ready to listen": "Готовлюсь слушать",
     "Reading what you said": "Разбираю сказанное",
-    "Listening. Press again when you are done.": "Слушаю. Нажми ещё раз, когда закончишь.",
+    "Listening now": "Слушаю",
+    "Press again when you are done.": "Нажми ещё раз, когда закончишь.",
+    "Microphone off": "Микрофон выключен",
     "That is very loud. Hold the microphone a little further away.":
       "Очень громко. Держи микрофон чуть дальше.",
     "Heard: {text}": "Услышано: {text}",
@@ -106,7 +108,9 @@ export const SPEAKING: Area = {
     "Stop listening": "Перестати слухати",
     "Getting ready to listen": "Готуюся слухати",
     "Reading what you said": "Розбираю сказане",
-    "Listening. Press again when you are done.": "Слухаю. Натисни ще раз, коли закінчиш.",
+    "Listening now": "Слухаю",
+    "Press again when you are done.": "Натисни ще раз, коли закінчиш.",
+    "Microphone off": "Мікрофон вимкнено",
     "That is very loud. Hold the microphone a little further away.":
       "Дуже гучно. Тримай мікрофон трохи далі.",
     "Heard: {text}": "Почуто: {text}",
