@@ -11,8 +11,9 @@ import { CaseFormsMock, type MockRow } from "./CaseFormsMock";
 export const metadata = { title: "Case forms mockup" };
 export const dynamic = "force-dynamic";
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ v?: string }> }) {
-  const { v } = await searchParams;
+export default async function Page({ searchParams }: { searchParams: Promise<{ v?: string | string[] }> }) {
+  const raw = (await searchParams).v;
+  const v = Array.isArray(raw) ? raw[0] : raw;
   const lex = await prisma.lexeme.findFirst({
     where: { lemma: "õun", pos: "NOUN" },
     orderBy: { id: "asc" },

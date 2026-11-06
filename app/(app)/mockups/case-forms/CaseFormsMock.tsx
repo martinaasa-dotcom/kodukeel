@@ -44,7 +44,7 @@ const PINS: readonly Pin[] = [
   },
   {
     sentence: "Ma pesin õunad ära.", en: "I washed the apples.", row: "NOMINATIVE", col: "pl", form: "õunad",
-    why: "These are the apples on the counter, a known set, and the washing got finished (ära says so). A known set, all of it, with the job done, goes in the mitmuse nimetav (plural, 1st form): õunad. It looks just like the subject form in \"Õunad on head\", and that's normal.",
+    why: "These are the apples on the counter, a known set, and the washing got finished (ära says so). A known set, all of it, with the job done, goes in the mitmuse nimetav (plural, 1st form): õunad. It is spelled just like the subject in \"Õunad on head\".",
   },
   {
     sentence: "Siin on ainult kolm õuna.", en: "There are only three apples here.", row: "PARTITIVE", col: "sg", form: "õuna",
@@ -77,7 +77,7 @@ export function CaseFormsMock({ rows, variant }: { rows: MockRow[]; variant: "a"
             style={{
               borderColor: "var(--edge)",
               background: variant === t.v ? "var(--accent)" : "var(--surface)",
-              color: variant === t.v ? "var(--on-accent, #fff)" : "var(--ink)",
+              color: variant === t.v ? "var(--on-hue)" : "var(--ink)",
             }}
             aria-current={variant === t.v ? "page" : undefined}
           >
@@ -292,7 +292,7 @@ function OptionB({ rows }: { rows: MockRow[] }) {
                   <button
                     key={o.label}
                     type="button"
-                    className="choice-btn rounded-[var(--r-md)] border px-4 py-2 text-base"
+                    className="choice-btn rounded-[var(--r-sm)] border px-4 py-2 text-base"
                     style={{ borderColor: "var(--edge)", ["--choice-bg" as string]: "var(--surface)" }}
                     onClick={() => { setPath([...path, { q: node.q, a: o.label }]); setNode(o.next); }}
                   >

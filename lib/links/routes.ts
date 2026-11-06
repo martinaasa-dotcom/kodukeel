@@ -108,6 +108,8 @@ export const ROUTES: readonly RouteRow[] = [
   { pattern: "/how-we-know", home: "browser" },
   { pattern: "/impact", home: "browser" },
   { pattern: "/funding", home: "browser" },
+  // A design mockup for the operator to choose from (PR #985); not a learner's screen.
+  { pattern: "/mockups/case-forms", home: "browser" },
   { pattern: "/pilots", home: "browser" },
   { pattern: "/teachers", home: "browser" },
   { pattern: "/state-exam", home: "browser" },
