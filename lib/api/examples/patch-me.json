@@ -5,7 +5,7 @@
   "locale": "en",
   "settings": {
     "level": "A1",
-    "dailyGoal": 20,
+    "dailyGoal": 15,
     "glossLanguage": "en",
     "voice": "mari",
     "speechPace": "auto",
@@ -14,9 +14,9 @@
       "inBoxes": true
     },
     "sceneAnswer": null,
-    "timeZone": null,
+    "timeZone": "UTC",
     "roundPace": "standard",
-    "reminderAt": "19:30",
+    "reminderAt": null,
     "letters": {
       "welcome": true,
       "tonight": true,

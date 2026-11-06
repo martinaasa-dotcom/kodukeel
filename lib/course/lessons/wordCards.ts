@@ -1,4 +1,5 @@
-import { CASES, type CaseKey } from "@/lib/estonian/cases";
+import { CASES } from "@/lib/estonian/cases";
+import type { CaseKey } from "@/lib/estonian/types";
 import type { LessonSpec, Taught } from "./types";
 
 /**
@@ -87,7 +88,8 @@ export interface WordCard {
 
 /** A taught item that is not part of a card: a word, a verb or a phrase on its own. */
 export interface LooseWord {
-  readonly item: Exclude<Taught, { kind: "form" }>;
+  /** Never a form, which belongs to a card; typed as any taught item so the v1 contract can name it with the lesson's own schema. */
+  readonly item: Taught;
   readonly example: Example | null;
   readonly hit: string | null;
 }
@@ -268,7 +270,7 @@ export function wordsLayout(lesson: LessonSpec, heads: readonly HeadInfo[]): Wor
   });
 
   const loose: LooseWord[] = lesson.teaches
-    .filter((t): t is Exclude<Taught, { kind: "form" }> => t.kind !== "form" && !taughtAsWord.has(t.et))
+    .filter((t) => t.kind !== "form" && !taughtAsWord.has(t.et))
     .map((item) => {
       const spellings = item.kind === "verb" ? [item.first, item.et] : [item.et];
       return { item, ...exampleFor(lines, spellings) };

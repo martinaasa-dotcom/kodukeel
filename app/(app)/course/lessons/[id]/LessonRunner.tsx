@@ -114,7 +114,7 @@ const WORKBOOK_NAME = nameOf("/review/workbook") ?? { et: "Töövihik", en: "Wor
 /** Every step not on this list asks nothing, and is finished by being open. */
 const ASKS: ReadonlySet<Step> = new Set(["practise", "write", "say", "review"]);
 
-export function LessonRunner({ lesson, practice, review, next, scene, situation = null, worksheet = null, conversation, place, name, due = 0, check = null, part, timeMultiplier, partAt, read = null, notes = null, forms = [], words = null, stars = {} }: {
+export function LessonRunner({ lesson, practice, review, next, scene, situation = null, worksheet = null, conversation, place, name, due = 0, check = null, part, timeMultiplier, partAt, read = null, notes = null, forms = [], words, stars }: {
   /**
    * The transcript of the lesson's talk taken down as notes (C1), glossed as
    * the text to read is; null where there is none, and then a talk it does
@@ -128,9 +128,9 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
    */
   forms?: readonly VerbExample[];
   /** The Words step's cards, worked out on the server off the dictionary (`wordsLayout`); null draws the plain table. */
-  words?: WordsLayout | null;
+  words: WordsLayout;
   /** The taught words' dictionary entries by spelling, for the star on a Practice question (`lessonStars`). */
-  stars?: Readonly<Record<string, { readonly id: string; readonly starred: boolean }>>;
+  stars: Readonly<Record<string, { readonly id: string; readonly starred: boolean }>>;
   lesson: LessonSpec;
   /**
    * The lesson's text to read (B2 on), a line at a time, with the dictionary
@@ -695,10 +695,10 @@ function rowsOf(items: readonly Taught[]): Taught[][] {
 }
 
 /** Step 2: everything new tonight, in one table, with nothing asked; at C1, the forms table under it. */
-function Words({ lesson, forms, words }: { lesson: LessonSpec; forms: readonly VerbExample[]; words: WordsLayout | null }) {
+function Words({ lesson, forms, words }: { lesson: LessonSpec; forms: readonly VerbExample[]; words: WordsLayout }) {
   return (
     <div className="flex flex-col gap-6">
-      {words && lesson.teaches.length > 0 ? <WordCards layout={words} /> : <NewWords lesson={lesson} />}
+      {lesson.teaches.length > 0 ? <WordCards layout={words} /> : <NewWords lesson={lesson} />}
       {forms.length > 0 && <FormsTable forms={forms} />}
     </div>
   );

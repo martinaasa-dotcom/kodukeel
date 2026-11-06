@@ -526,6 +526,23 @@ export const PracticeItemSchema = z.discriminatedUnion("kind", [
   "does not know rather than failing the lesson: a lesson with one question fewer is still a lesson.",
 );
 
+const WordExample = z.object({ et: z.string(), en: z.string() });
+const WordCellSchema = z.object({
+  et: z.string(),
+  fresh: z.boolean().describe("New in this lesson; otherwise shown for its place in the table."),
+  name: z.string().describe("The case's Estonian name under the form, `osastav` or `mitmuse osastav`; empty for none."),
+  stem: z.boolean().optional(),
+  past: z.boolean().optional(),
+});
+const WordRowSchema = z.object({
+  labels: z.array(z.string()).readonly().describe("The taught items' own English; a screen translates each and joins them."),
+  sg: WordCellSchema.optional(),
+  pl: WordCellSchema.optional(),
+  forms: z.array(WordCellSchema).readonly().optional(),
+  example: WordExample.nullable(),
+  hit: z.string().nullable(),
+});
+
 export const LessonResponse = z.object({
   lesson: LessonSpecSchema,
   practice: z.array(PracticeItemSchema).readonly(),
@@ -564,6 +581,21 @@ export const LessonResponse = z.object({
     })).readonly(),
     inDeck: z.boolean(),
   })).readonly().describe("C1: the verbs whose past and polite command the Words step shows in a table at its foot, heard and read and never asked, every form as the dictionary holds it; empty on every other lesson."),
+  words: z.object({
+    cards: z.array(z.object({
+      head: z.string(),
+      en: z.string().nullable(),
+      dict: z.object({ ru: z.string().nullable(), uk: z.string().nullable() }).nullable()
+        .describe("The dictionary's own Russian and Ukrainian beside a headword the lesson does not gloss itself; null where it does."),
+      fresh: z.boolean().describe("Whether the headword itself is new in this lesson."),
+      kind: z.enum(["noun", "verb", "word"]),
+      plural: z.boolean().describe("Whether any row has a plural, so the card draws a plural column."),
+      rows: z.array(WordRowSchema).readonly(),
+    })).readonly(),
+    loose: z.array(z.object({ item: LessonTaught, example: WordExample.nullable(), hit: z.string().nullable() })).readonly(),
+  }).describe("The Words step laid out as cards: one per word the lesson teaches forms of, a row per case with singular beside plural off the dictionary, and one line of the lesson using each row with its English; the words with no forms follow in `loose`."),
+  stars: z.record(z.string(), z.object({ id: z.string(), starred: z.boolean() }))
+    .describe("Each spelling the lesson teaches, lower-cased, mapped to its headword's dictionary entry and whether the learner has starred it, for the star on a Practice question."),
   locale: InterfaceLanguage,
   nativePart: z.string().nullable().describe(
     "The one part of the conversation the native speaker recorded whole, which a phone plays in his voice by " +

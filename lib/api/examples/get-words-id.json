@@ -1,5 +1,5 @@
 {
-  "id": "6695a810-64bd-445a-b595-2dd52e2df298",
+  "id": "3a8659a4-63ae-4680-b63f-771536f78b69",
   "lemma": "tuba",
   "translation": "room",
   "translationRu": "комната, жилище",
@@ -12,19 +12,19 @@
   "semanticTypes": "koht_hoone",
   "notes": null,
   "definition": "elamiseks kasutatav ruum majas või korteris",
-  "provenance": "SEED",
-  "ekilexWordId": null,
+  "provenance": "EKILEX",
+  "ekilexWordId": 247416,
   "inDeck": false,
   "starred": false,
   "examples": [
     {
-      "et": "Hotellis on sada tuba.",
-      "en": "The hotel has one hundred rooms.",
+      "et": "Koristasin toa ära.",
+      "en": "I cleaned up the room.",
       "source": "EKILEX"
     },
     {
-      "et": "Mitu tuba nende uues korteris on?",
-      "en": "How many rooms are in their new apartment?",
+      "et": "Hotellis on sada tuba.",
+      "en": "The hotel has one hundred rooms.",
       "source": "EKILEX"
     }
   ],
@@ -33,49 +33,49 @@
       "formType": "NOM_SG",
       "value": "tuba",
       "isPrincipal": true,
-      "morphCode": null,
-      "morphName": null,
+      "morphCode": "SgN",
+      "morphName": "ainsuse nimetav",
       "orderIndex": 0
     },
     {
       "formType": "GEN_SG",
       "value": "toa",
       "isPrincipal": true,
-      "morphCode": null,
-      "morphName": null,
-      "orderIndex": 0
+      "morphCode": "SgG",
+      "morphName": "ainsuse omastav",
+      "orderIndex": 1
     },
     {
       "formType": "PART_SG",
       "value": "tuba",
       "isPrincipal": true,
-      "morphCode": null,
-      "morphName": null,
-      "orderIndex": 0
+      "morphCode": "SgP",
+      "morphName": "ainsuse osastav",
+      "orderIndex": 2
     },
     {
       "formType": "ILL_SG_SHORT",
       "value": "tuppa",
       "isPrincipal": true,
-      "morphCode": null,
-      "morphName": null,
-      "orderIndex": 0
+      "morphCode": "SgAdt",
+      "morphName": "ainsuse suunduv e lühike sisseütlev",
+      "orderIndex": 3
     },
     {
-      "formType": "NOM_PL",
-      "value": "toad",
-      "isPrincipal": true,
-      "morphCode": null,
-      "morphName": null,
-      "orderIndex": 0
+      "formType": "EKILEX:SgIll",
+      "value": "toasse",
+      "isPrincipal": false,
+      "morphCode": "SgIll",
+      "morphName": "ainsuse sisseütlev",
+      "orderIndex": 4
     },
     {
-      "formType": "PART_PL",
-      "value": "tube",
-      "isPrincipal": true,
-      "morphCode": null,
-      "morphName": null,
-      "orderIndex": 0
+      "formType": "EKILEX:SgIn",
+      "value": "toas",
+      "isPrincipal": false,
+      "morphCode": "SgIn",
+      "morphName": "ainsuse seesütlev",
+      "orderIndex": 5
     }
   ]
 }

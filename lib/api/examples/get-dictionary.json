@@ -1,13 +1,21 @@
 {
   "hits": [
     {
-      "id": "6695a810-64bd-445a-b595-2dd52e2df298",
+      "id": "3a8659a4-63ae-4680-b63f-771536f78b69",
       "lemma": "tuba",
       "translation": "room",
       "pos": "NOUN",
       "cefr": "A1",
       "gradationNote": "b : ∅",
       "matchedAs": "seesütlev (-s, in) of tuba"
+    },
+    {
+      "id": "603cff61-7187-4d9d-9ffb-2769879e7c7c",
+      "lemma": "toost",
+      "translation": "a toast: a few words said before everybody drinks",
+      "pos": "OTHER",
+      "cefr": "C1",
+      "gradationNote": null
     }
   ],
   "knownAs": [],

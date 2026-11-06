@@ -5,14 +5,25 @@
   "items": [
     {
       "kind": "pick",
-      "et": "Nägemist!",
+      "et": "oled",
       "options": [
-        "Thank you!",
+        "to be",
+        "I am",
+        "you are, to one person you know",
+        "we are"
+      ],
+      "answer": "you are, to one person you know"
+    },
+    {
+      "kind": "hear",
+      "et": "Head aega!",
+      "options": [
         "See you! Bye!",
+        "Thank you!",
         "Goodbye!",
         "Please. Here you are. You're welcome."
       ],
-      "answer": "See you! Bye!"
+      "answer": "Goodbye!"
     },
     {
       "kind": "pick",
@@ -31,29 +42,29 @@
       "options": [
         "your",
         "my",
-        "is",
-        "What's your name?"
+        "What's your name?",
+        "is"
       ],
       "answer": "your"
     },
     {
       "kind": "hear",
-      "et": "Mis su nimi on?",
+      "et": "Tere päevast!",
       "options": [
-        "How do you spell that?",
-        "your",
-        "Nice to meet you!",
-        "What's your name?"
+        "Good afternoon!",
+        "Good evening!",
+        "Hello! Hi!",
+        "Good morning!"
       ],
-      "answer": "What's your name?"
+      "answer": "Good afternoon!"
     },
     {
       "kind": "pick",
       "et": "meie",
       "options": [
-        "you, one person you know",
-        "he, she",
         "we",
+        "he, she",
+        "you, one person you know",
         "you, polite or more than one"
       ],
       "answer": "we"
@@ -64,8 +75,8 @@
       "options": [
         "a Russian",
         "an English person",
-        "an American",
-        "a Ukrainian"
+        "a Ukrainian",
+        "an American"
       ],
       "answer": "a Russian"
     },
@@ -73,10 +84,10 @@
       "kind": "hear",
       "et": "Kas te räägite inglise keelt?",
       "options": [
-        "Do you speak English?",
-        "I don't understand.",
+        "Please say that again.",
         "Slower, please.",
-        "Please say that again."
+        "I don't understand.",
+        "Do you speak English?"
       ],
       "answer": "Do you speak English?"
     },
@@ -84,101 +95,114 @@
       "kind": "pick",
       "et": "nimi",
       "options": [
-        "is",
-        "your",
         "name",
-        "my"
+        "your",
+        "my",
+        "is"
       ],
       "answer": "name"
     },
     {
       "kind": "hear",
-      "et": "Tere päevast!",
+      "et": "Tere õhtust!",
       "options": [
-        "Hello! Hi!",
         "Good morning!",
-        "Good afternoon!",
-        "Good evening!"
-      ],
-      "answer": "Good afternoon!"
-    },
-    {
-      "kind": "hear",
-      "et": "Tere hommikust!",
-      "options": [
-        "Hello! Hi!",
+        "Thank you!",
         "Good evening!",
-        "Good morning!",
         "Good afternoon!"
       ],
-      "answer": "Good morning!"
+      "answer": "Good evening!"
     },
     {
       "kind": "gap",
-      "before": "See ",
-      "after": " minu sõber Jaan.",
-      "en": "That's my friend Jaan. He's a doctor.",
+      "before": "Ei, ta ",
+      "after": " inglane.",
+      "en": "No, he's not English. He's Estonian.",
       "options": [
-        "ole",
         "oleme",
+        "on",
         "pole",
-        "on"
+        "olete"
+      ],
+      "answer": "pole"
+    },
+    {
+      "kind": "gap",
+      "before": "Mis su nimi ",
+      "after": "?",
+      "en": "Hello! My name is Mari. What's your name?",
+      "options": [
+        "on",
+        "olete",
+        "olen",
+        "ole"
       ],
       "answer": "on"
     },
     {
       "kind": "gap",
-      "before": "Ma ",
-      "after": " õpetaja.",
-      "en": "Hello! I'm Mari. I'm a teacher.",
+      "before": "Ei, ma ",
+      "after": " inglane.",
+      "en": "No, I'm English.",
       "options": [
-        "ole",
-        "oled",
         "olen",
-        "oleme"
+        "on",
+        "pole",
+        "oled"
       ],
       "answer": "olen"
     },
     {
       "kind": "gap",
-      "before": "Ei, ma ei ",
-      "after": " eestlane.",
-      "en": "No, I'm not Estonian. I'm English.",
-      "options": [
-        "olete",
-        "olen",
-        "ole",
-        "pole"
-      ],
-      "answer": "ole"
-    },
-    {
-      "kind": "gap",
       "before": "Kas sa ",
       "after": " eestlane?",
-      "en": "Are you Estonian?",
+      "en": "Nice to meet you! Are you Estonian?",
       "options": [
+        "ole",
         "olen",
-        "pole",
         "oled",
-        "on"
+        "pole"
       ],
       "answer": "oled"
     },
     {
       "kind": "type",
-      "en": "okay, not bad",
-      "answer": "normaalselt",
+      "en": "phone",
+      "answer": "telefon",
       "accept": [
-        "normaalselt"
+        "telefon"
       ]
     },
     {
       "kind": "type",
-      "en": "very, really",
-      "answer": "väga",
+      "en": "a little",
+      "answer": "natuke",
       "accept": [
-        "väga"
+        "natuke"
+      ]
+    },
+    {
+      "kind": "type",
+      "en": "this, that, it",
+      "answer": "see",
+      "accept": [
+        "see"
+      ]
+    },
+    {
+      "kind": "type",
+      "en": "Hi! Bye! (between friends)",
+      "answer": "Tsau!",
+      "accept": [
+        "Tsau!"
+      ]
+    },
+    {
+      "kind": "type",
+      "en": "Please say that again.",
+      "answer": "Palun korrake.",
+      "accept": [
+        "Palun korrake."
       ]
     },
     {
@@ -189,31 +213,8 @@
         "oleme",
         "me oleme",
         "meie oleme"
-      ]
-    },
-    {
-      "kind": "type",
-      "en": "Good evening!",
-      "answer": "Tere õhtust!",
-      "accept": [
-        "Tere õhtust!"
-      ]
-    },
-    {
-      "kind": "type",
-      "en": "you are, to one person you know",
-      "answer": "oled",
-      "accept": [
-        "oled"
-      ]
-    },
-    {
-      "kind": "type",
-      "en": "no",
-      "answer": "ei",
-      "accept": [
-        "ei"
-      ]
+      ],
+      "person": "Pl1"
     }
   ],
   "needed": 16,
