@@ -1240,7 +1240,7 @@ inside `levelContractProblems` and asked again by step 8 against the parts befor
 `write` a part, and from the third part on at least one rework whose pattern is a B2 pattern an
 earlier B2 part explained. `b2RampProblems` in `rampB2.ts`, by band of two parts: in parts 1 and 2
 a conversation heard first has no `hearing`, from part 3 it has one, and in parts 5 and 6 it is
-`quick` or `half`; a story is heard twice in parts 1 and 2 and once (`hearings: 1`) from part 3;
+`half` (nothing is sped up); a story is heard twice in parts 1 and 2 and once (`hearings: 1`) from part 3;
 the race runs 90, 60 and 45 seconds, then 60, 45 and 30, then 45, 30 and 20, and in parts 7 and 8
 one go of 60 after `prepare: 120`, which no earlier part uses; and every core lesson but a part's
 last carries a `read`. Both are asked of B2 alone, and of synthetic parts both ways in
@@ -1856,8 +1856,8 @@ C1 part explained; in every part at least one rework whose pattern is a B2 patte
 but a part's last carries a `read`; and from the third part every `read` carries `questions`. A C1
 part's closing conversation admits a curveball, which no lesson field records, so it is asked of its
 scene (`curveballs`), in `lessonScenes.test.ts` and step 7. `c1RampProblems` in `rampC1.ts`, by band
-of two parts: every conversation heard first has a `hearing`, and in parts 5 and 6 it is `half` or
-`quick`; a story is heard once (`hearings: 1`) everywhere, and from part 3 a talk is too; the race is
+of two parts: every conversation heard first has a `hearing`, and in parts 5 and 6 it is `half`
+(nothing is sped up); a story is heard once (`hearings: 1`) everywhere, and from part 3 a talk is too; the race is
 one go of 60 after 60 in parts 1 and 2, of 90 after 120 in parts 3 and 4, of 120 after 180 on a choice
 of two `topics` in parts 5 and 6, and of 120 in parts 7 and 8, after 60 (on the spot) or after 180
 with `topics`, at least one race of the band on the spot; part 2 has a talk of 300 words or more heard

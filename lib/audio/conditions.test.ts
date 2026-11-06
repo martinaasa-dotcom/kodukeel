@@ -105,4 +105,9 @@ describe("a conversation heard in a room", () => {
     expect([0, 1, 2].map((i) => roomForLine(half, i, 1))).toEqual([undefined, half, undefined]);
     expect(roomForLine(undefined, 0, 0)).toBeUndefined();
   });
+
+  it("has no condition that speeds a recording up", () => {
+    expect(CONDITIONS.length).toBeGreaterThan(0);
+    for (const c of CONDITIONS) expect(c.speed).toBeLessThanOrEqual(1);
+  });
 });

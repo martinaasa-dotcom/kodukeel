@@ -402,7 +402,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
     title: "In the news",
     goal: "Follow a news item on the radio, and talk it over: what happened, who was called, and whether anybody was hurt.",
     cast: { Raadio: "albert", Anna: "kylli", Jaan: "meelis", Tom: "kalev" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Raadio", et: "Tere hommikust! Kell on kaheksa.", en: "Good morning! It's eight o'clock.", stage: "The radio, on in the kitchen at breakfast." },
       { who: "Raadio", et: "Öösel oli kesklinnas tulekahju.", en: "There was a fire in the city center last night." },

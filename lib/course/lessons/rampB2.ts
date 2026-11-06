@@ -13,7 +13,7 @@
  *   parts   the conversation is heard    the story    again, faster
  *   1, 2    in a quiet room              twice        90, 60 and 45 seconds
  *   3, 4    somewhere, a room named      once         60, 45 and 30
- *   5, 6    sped up or joined halfway    once         45, 30 and 20
+ *   5, 6    joined halfway               once         45, 30 and 20
  *   7, 8    somewhere, a room named      once         the exam's one minute, after two to prepare
  *
  * and every core lesson but a part's last carries a real text to read. The
@@ -89,8 +89,8 @@ export function b2RampProblems(lessons: readonly LessonSpec[], parts: readonly P
       if (lesson.listenFor && lesson.listenFor.length > 0) {
         if (band === 1 && lesson.hearing) problems.push(`${where}: heard ${lesson.hearing}, where parts 1 and 2 are heard in a quiet room`);
         if (band > 1 && !lesson.hearing) problems.push(`${where}: heard in a quiet room, where from part 3 every conversation is heard somewhere (\`hearing\`)`);
-        if (band === 3 && lesson.hearing && lesson.hearing !== "quick" && lesson.hearing !== "half") {
-          problems.push(`${where}: heard ${lesson.hearing}, where parts 5 and 6 are heard sped up or joined halfway (\`quick\` or \`half\`)`);
+        if (band === 3 && lesson.hearing && lesson.hearing !== "half") {
+          problems.push(`${where}: heard ${lesson.hearing}, where parts 5 and 6 are heard joined halfway (\`half\`)`);
         }
       }
       if (lesson.retell) {

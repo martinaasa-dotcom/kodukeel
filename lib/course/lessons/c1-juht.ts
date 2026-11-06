@@ -14,7 +14,7 @@
  * conversation move is interrupting politely, and taking the floor back when
  * you are interrupted.
  *
- * Every conversation heard first is joined halfway or sped up (`rampC1.ts`,
+ * Every conversation heard first is joined halfway (`rampC1.ts`,
  * band 3); the talk taken down as notes is a guest on the morning show, heard
  * once; every text read is asked a gap. Names used in one lesson only: Kaisa,
  * the client (from B2's `b2-26-probably`), Heiki, the morning show's guest,
@@ -272,7 +272,7 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
     title: "A minute about yourself",
     goal: "Introduce yourself and your work in about a minute, the way a job interview and the C1 speaking exam both open.",
     cast: { Tom: "kalev", Kadri: "vesta", Ott: "indrek", Siim: "albert" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Tom", et: "Tere, Ott! Tulge sisse. Mina olen Tom ja see on Kadri.", en: "Hello, Ott! Come in. I'm Tom, and this is Kadri.", stage: "A small meeting room. Tom's first interview as team lead, with Kadri beside him. The candidate is Ott." },
       { who: "Ott", et: "Tere! Aitäh kutse eest.", en: "Hello! Thank you for the invitation." },
@@ -725,7 +725,7 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
     title: "Sooner, says the client",
     goal: "Turn down what can't be done without a flat no, make your point with a question nobody needs to answer, and offer what you can do.",
     cast: { Kaisa: "mari", Tom: "kalev", Siim: "albert", Kadri: "vesta", Heiki: "meelis" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Kaisa", et: "Tere, Tom! Ütlen kohe otse: meil on rakendust vaja kaks nädalat varem.", en: "Hello, Tom! I'll say it straight away: we need the app two weeks earlier.", stage: "A video call with Kaisa, the client. Tom has Siim and Kadri beside him." },
       { who: "Tom", et: "Kaks nädalat? Mis juhtus?", en: "Two weeks? What's happened?" },
@@ -1284,7 +1284,7 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
     title: "In front of the board",
     goal: "Present a proposal to the board, interrupt politely when you have to, and take the floor back when the director cuts in.",
     cast: { Direktor: "peeter", Finantsjuht: "liivika", Tom: "kalev", Kadri: "vesta" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Direktor", et: "Tom, palun. Teil on viis minutit.", en: "Tom, go ahead. You've got five minutes.", stage: "The board room on Thursday afternoon: the director, the finance director, and Kadri beside Tom. He had three minutes to look over his notes outside." },
       { who: "Tom", et: "Aitäh. Meie probleem on lihtne: testime käsitsi ja see võtab liiga palju aega.", en: "Thank you. Our problem is simple: we test by hand, and it takes too long." },

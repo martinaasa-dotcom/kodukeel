@@ -233,7 +233,7 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
       watchOut: "A notice like this is about you even though you're not in it: {Hüvitise maksmine lõpetatakse} means that you stop getting it.",
       examples: [4, 6, 8],
     },
-    hearing: "quick",
+    hearing: "half",
     listenFor: [
       { q: "What job has Anna found?", options: ["A shop assistant", "A teacher at a kindergarten", "A bookkeeper at a small firm", "A clerk at the unemployment office"], answer: 2 },
       { q: "When does she start work?", options: ["On the first of June", "On the first of July", "Next Monday", "In two weeks"], answer: 1 },
@@ -684,7 +684,7 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
       watchOut: "{Lugupeetud} opens a letter, and {Lugupidamisega} closes it. They're one family, and they don't swap places.",
       examples: [6, 8, 10],
     },
-    hearing: "quick",
+    hearing: "half",
     listenFor: [
       { q: "What does the unemployment office want?", options: ["Anna's new contract", "The benefit for June paid back", "A new application from Anna", "Anna to come to a meeting"], answer: 1 },
       { q: "What's wrong in the decision?", options: ["Anna's name", "The amount", "The date she started work", "Her address"], answer: 2 },

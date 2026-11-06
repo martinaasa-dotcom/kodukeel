@@ -50,12 +50,12 @@ describe("B1's ramp", () => {
     }
   });
 
-  it("hears the conversation in a quiet room in parts 1 and 2, somewhere the story is from part 3, and sped up once a part from part 5", () => {
+  it("hears the conversation in a quiet room in parts 1 and 2, somewhere the story is from part 3, and never sped up", () => {
     for (let n = 1; n <= 7; n++) {
       const rooms = inPart(n).flatMap((l) => (l.hearing ? [l.hearing] : []));
       if (n <= 2) expect(rooms, `part ${n}`).toEqual([]);
       else expect(rooms.some((r) => r === "phone" || r === "cafe"), `part ${n}`).toBe(true);
-      if (n >= 5) expect(rooms.filter((r) => r === "quick").length, `part ${n}`).toBeGreaterThanOrEqual(1);
+      expect(rooms.filter((r) => r === "quick"), `part ${n}`).toEqual([]);
     }
   });
 });
@@ -110,11 +110,11 @@ describe("B2's ramp", () => {
   const broken = (n: number, change: (l: LessonSpec) => LessonSpec) =>
     b2RampProblems(good.map((l) => (l.part === `t${n}` ? change(l) : l)), parts).join(" ");
 
-  it("refuses a room in parts 1 and 2, a quiet room from part 3, and a room other than sped up or joined halfway in parts 5 and 6", () => {
+  it("refuses a room in parts 1 and 2, a quiet room from part 3, and a room other than joined halfway in parts 5 and 6", () => {
     expect(broken(1, (l) => ({ ...l, hearing: "cafe" }))).toMatch(/part 1 t1, t1-a: heard cafe/);
     expect(broken(3, (l) => ({ ...l, hearing: undefined }))).toMatch(/part 3 t3, t3-a: heard in a quiet room/);
     expect(broken(5, (l) => ({ ...l, hearing: "phone" }))).toMatch(/part 5 t5, t5-a: heard phone/);
-    expect(broken(6, (l) => ({ ...l, hearing: "quick" }))).toBe("");
+    expect(broken(6, (l) => ({ ...l, hearing: "half" }))).toBe("");
   });
 
   it("refuses a story heard once in parts 1 and 2, and twice from part 3", () => {
@@ -131,5 +131,12 @@ describe("B2's ramp", () => {
   it("refuses a lesson with no text to read, but not a part's last", () => {
     expect(broken(8, (l) => (l.kind === "partEnd" ? l : { ...l, read: undefined }))).toMatch(/t8-a: carries no text to read/);
     expect(broken(8, (l) => (l.kind === "partEnd" ? { ...l, read } : l))).toBe("");
+  });
+});
+
+describe("no lesson is sped up", () => {
+  it("hears no lesson's conversation through the old sped-up room", () => {
+    expect(LESSONS.length).toBeGreaterThan(0);
+    expect(LESSONS.filter((l) => l.hearing === "quick").map((l) => l.id)).toEqual([]);
   });
 });

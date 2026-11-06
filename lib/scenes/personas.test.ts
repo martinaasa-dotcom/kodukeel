@@ -52,8 +52,8 @@ describe("personas", () => {
     expect(voicesAreReal()).toBe(true);
   });
 
-  it("never talk slower than the recording, so a B2 learner hears them at full speed", () => {
+  it("talk at the recording's own speed, never slower and never sped up", () => {
     expect(PERSONAS.length).toBeGreaterThan(0);
-    for (const p of PERSONAS) expect(p.speed).toBeGreaterThanOrEqual(1);
+    for (const p of PERSONAS) expect(p.speed).toBe(1);
   });
 });

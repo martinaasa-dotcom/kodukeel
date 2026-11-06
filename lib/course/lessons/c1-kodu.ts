@@ -292,7 +292,7 @@ export const C1_KODU_LESSONS: readonly LessonSpec[] = [
       watchOut: "{Ma parandan katuse} is you on the roof. Having it fixed is {Ma lasen katuse parandada}.",
       examples: [2, 9, 14],
     },
-    hearing: "quick",
+    hearing: "half",
     listenFor: [
       { q: "What has the previous owner done to the flat?", options: ["Had it all renovated", "Put in new windows", "Sold the storage room", "Fixed the roof"], answer: 0 },
       { q: "Who asks whether you can haggle over the price?", options: ["Tom", "Anna", "Riho, the other viewer", "Raivo"], answer: 2 },
@@ -735,7 +735,7 @@ export const C1_KODU_LESSONS: readonly LessonSpec[] = [
       watchOut: "{Hoolimata} wants -st and {vaatamata} wants -le, and they mean the same thing: {hoolimata sellest}, {vaatamata sellele}. Don't cross them.",
       examples: [6, 8, 11],
     },
-    hearing: "quick",
+    hearing: "half",
     listenFor: [
       { q: "What does Aivar find on the cellar wall?", options: ["Mold: the wall is damp", "A crack", "Old wiring", "Nothing at all"], answer: 0 },
       { q: "What does he think is the cause?", options: ["The roof lets water through", "The new kitchen", "Too much heating", "A burst pipe"], answer: 0 },

@@ -436,11 +436,12 @@ export async function sceneTurnFor(
     answers one without the other has not answered.
   */
   /*
-    How fast they talk: the persona's own pace, and a fifth faster once the
-    "they speed up" curveball has happened in this run, because a line said
-    after that at the old pace is the curveball not having happened.
+    How fast they talk: the persona's own pace. Never faster than it was
+    said, the "they speed up" curveball included, which is played in the
+    words of the line rather than in the tempo of the clip: nothing in this
+    app is sped up, since a stretched clip is what sounds robotic.
   */
-  const speed = (persona?.speed ?? 1) * (state.hurdles.some((h) => h.id === "faster") ? 1.2 : 1);
+  const speed = Math.min(1, persona?.speed ?? 1);
   const progress = {
     voice,
     speed,

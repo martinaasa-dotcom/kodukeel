@@ -83,7 +83,9 @@ export const PERSONAS: readonly PersonaSpec[] = [
     meet: "They're busy and won't wait long for an answer. Get to the point and you'll get on fine.",
     patience: -1,
     voice: SCENE_VOICE,
-    speed: 1.1,
+    // Busy shows in their patience, not their voice: nothing in this app is
+    // played faster than it was said.
+    speed: 1,
     leans: ["faster", "queue", "english"],
     translates: false,
     acknowledges: false,

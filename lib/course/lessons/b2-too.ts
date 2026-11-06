@@ -164,7 +164,7 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
     title: "Probably, not definitely",
     goal: "Say how sure you are about a date or a plan, without promising what you can't keep.",
     cast: { Tom: "kalev", Marko: "tambet", Siim: "albert", Anna: "kylli", Kaisa: "mari" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Tom", et: "Järgmine teema on uus versioon. Klient tahab seda reedeks. Marko, kas me jõuame?", en: "Next topic is the new version. The client wants it by Friday. Marko, will we make it?", stage: "The Monday meeting. Tom is running it." },
       { who: "Marko", et: "Raske öelda. Ma pole kindel, aga pigem jah.", en: "Hard to say. I'm not sure, but probably yes." },
@@ -310,7 +310,7 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
     title: "Feedback",
     goal: "Ask for feedback, take it well, and give a colleague some, kindly.",
     cast: { Kristi: "liivika", Tom: "kalev", Siim: "albert", Kadri: "vesta", Marko: "tambet" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Kristi", et: "No, kuidas sinu meelest läks?", en: "So, how do you think it went?", stage: "Kristi's office, after Tom's first meeting." },
       { who: "Tom", et: "Ausalt öeldes olin natuke närvis. Kas ma rääkisin liiga kiiresti?", en: "Honestly, I was a bit nervous. Did I talk too fast?" },
@@ -616,7 +616,7 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
     title: "A summary, and what you think",
     goal: "Follow a meeting about money, then write the summary with a comment of your own.",
     cast: { Kristi: "liivika", Marko: "tambet", Tom: "kalev", Anna: "kylli" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Kristi", et: "Kõigepealt head uudised: meie ettevõte oli sel aastal kasumis.", en: "First the good news: our company made a profit this year.", stage: "A meeting about next year's budget." },
       { who: "Marko", et: "Tore! Kas siis palk ka tõuseb?", en: "Great! So is the pay going up too?" },

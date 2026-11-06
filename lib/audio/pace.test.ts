@@ -73,7 +73,8 @@ describe("the ladder", () => {
 describe("what a request plays at", () => {
   const pace = paceFor("A1");
   const clean = CONDITIONS[0]!;
-  const quick = CONDITIONS.find((c) => c.id === "quick")!;
+  // A condition that would speed a play up, which no row in CONDITIONS is.
+  const quick = { ...clean, speed: 1.3 };
 
   it("plays a plain request at this learner's own pace", () => {
     expect(rateFor({ text: "õde", pace })).toBe(pace.normal);
@@ -88,16 +89,13 @@ describe("what a request plays at", () => {
   });
 
   /*
-    A CONDITION IS HARDER THAN USUAL, AND "USUAL" IS A FACT ABOUT THE LISTENER.
-    It used to be a fraction of the recording, so "at speed" was 1.3 for
-    everybody and an A1 learner met one clip in five at more than twice their
-    own pace.
+    NOTHING IS SPED UP. A condition may slow a play and never push it past the
+    learner's own pace, so even a row asking for 1.3 plays at their pace.
   */
-  it("scales a condition against the learner's pace rather than the recording", () => {
+  it("never plays a condition faster than the learner's own pace", () => {
     expect(rateFor({ text: "õde", condition: clean, pace })).toBe(pace.normal);
-    expect(rateFor({ text: "õde", condition: quick, pace })).toBeCloseTo(pace.normal * quick.speed, 6);
-    expect(rateFor({ text: "õde", condition: quick, pace })).toBeLessThan(1);
-    expect(rateFor({ text: "õde", condition: quick, pace })).toBeGreaterThan(pace.normal);
+    expect(rateFor({ text: "õde", condition: quick, pace })).toBe(pace.normal);
+    expect(rateFor({ text: "õde", condition: quick, pace: paceFor("B2") })).toBe(1);
   });
 
   it("gives the slow button the pace's own slow rate, over anything else", () => {
