@@ -56,6 +56,7 @@ const byRole = Object.fromEntries(picks.map((p) => [p.role, p]));
 const prisma = newPrismaClient();
 await requireLocalDatabase(prisma);
 const started = new Date();
+const answersBefore = new Set((await prisma.lessonAnswer.findMany({ where: { ownerId: OWNER }, select: { id: true } })).map((r) => r.id));
 const stepsBefore = new Set((await prisma.courseStep.findMany({ where: { ownerId: OWNER }, select: { id: true } })).map((r) => r.id));
 const cardsBefore = new Set((await prisma.card.findMany({ where: { ownerId: OWNER }, select: { id: true } })).map((r) => r.id));
 // A check sat below writes a pass only if it passes, which a walk answering wrongly on purpose should not; put back either way.
@@ -248,6 +249,12 @@ async function sayThrough(lesson, mode) {
       check(`${where}: retelling the story lights its points as they come across`, lit > 0, `${lit} lit`);
       await say.getByRole("button", { name: /^Show the story/ }).click();
       check(`${where}: and the story is there to check against`, (await say.locator("[data-retell-story]").count()) === 1);
+      // What was told is read sentence by sentence before the way on is offered.
+      await say.getByRole("button", { name: /^Check what I told/ }).click();
+      const read = say.locator("[data-retell-checked] [data-line-check]");
+      await read.first().waitFor({ timeout: 15000 }).catch(() => {});
+      const readCount = await read.count();
+      check(`${where}: checking the retelling reads it sentence by sentence`, readCount > 0, `${readCount} read`);
       await say.getByRole("button", { name: /^Next/ }).click();
       continue;
     }
@@ -552,12 +559,14 @@ try {
   if (ONLY === "spoken") await spokenRace(byRole.faster);
   else if (ONLY === "check") await checkWalk(byRole.check.id, byRole.check.part);
   else if (ONLY === "end") { await unitPagesRedirect(); await courseEnd(); }
+  else if (ONLY === "first") { await walk(byRole.first, { mode: "say" }); await revisit(byRole.first); }
   else if (ONLY) await walk(byRole[ONLY]);
   else await everything();
 } finally {
   // Put the local learner back as they were found, a part of the suite run alone included.
   await prisma.courseStep.deleteMany({ where: { ownerId: OWNER, createdAt: { gte: started }, id: { notIn: [...stepsBefore] } } });
   await prisma.card.deleteMany({ where: { ownerId: OWNER, createdAt: { gte: started }, id: { notIn: [...cardsBefore] } } });
+  await prisma.lessonAnswer.deleteMany({ where: { ownerId: OWNER, id: { notIn: [...answersBefore] } } });
   if (passedBefore) await prisma.setting.update({ where: { ownerId_key: { ownerId: OWNER, key: "checksPassed" } }, data: { value: passedBefore.value } });
   else await prisma.setting.deleteMany({ where: { ownerId: OWNER, key: "checksPassed" } });
   await browser.close();
@@ -568,6 +577,7 @@ done();
 async function everything() {
   const first = await walk(byRole.first, { mode: "say" });
   check("B1's first lesson fades the key lines as they are said", first?.fade === true);
+  await revisit(byRole.first);
   const retell = await walk(byRole.retell);
   check("a retell lesson's Say it ends on the story told back", retell?.retold === true);
   const faster = await walk(byRole.faster);
@@ -706,6 +716,46 @@ async function courseEnd() {
 }
 
 /* A B1 lesson in Russian: its goal in Russian on the screen, and the step headings too. */
+/*
+  A FINISHED LESSON OPENS ON ITS RECAP. Opened again, it is not an empty first
+  step: the finished screen is there, says it was done before, offers to go
+  through it again, and lists what was said on its Say it step, kept on the
+  server (`LessonAnswer`) rather than in the tab.
+*/
+async function revisit(lesson) {
+  const where = `${lesson.id} opened again`;
+  // Kept on the hand-in whether or not the evening was the learner's to tick.
+  // The finished screen is drawn before the hand-in has landed, so the row is waited for.
+  const keptRow = () => prisma.lessonAnswer.findUnique({ where: { ownerId_lessonId: { ownerId: OWNER, lessonId: lesson.id } } });
+  await eventually(async () => (await keptRow()) !== null, { timeoutMs: 10_000 }).catch(() => {});
+  const kept = await keptRow();
+  check(`${where}: what was said on Say it is kept on the server`, (kept?.said?.length ?? 0) > 2, kept ? `${kept.said.length} characters` : "no row");
+  /*
+    The walk opens the lesson ahead of the part the local learner follows, so
+    finishing it ticks nothing (`finishLessonFor`). Tick its evening the way
+    finishing it in play does, which is what "done" reads.
+  */
+  await prisma.courseStep.upsert({
+    where: { ownerId_programmeId_dayId_stepId: { ownerId: OWNER, programmeId: lesson.programmeId, dayId: lesson.dayId, stepId: "lesson" } },
+    update: {},
+    create: { ownerId: OWNER, programmeId: lesson.programmeId, dayId: lesson.dayId, stepId: "lesson" },
+  });
+  await page.goto(`${B}/course/lessons/${lesson.id}`, { waitUntil: "domcontentloaded" });
+  // A finished lesson has no step heading to wait on; the recap held by React is what is waited for.
+  await page.waitForFunction(() => {
+    const el = document.querySelector("[data-lesson-done]");
+    return !!el && Object.keys(el).some((k) => k.startsWith("__react"));
+  }, null, { timeout: 30_000 }).catch(() => {});
+  check(`${where}: opens on the finished screen`, (await page.locator("[data-lesson-done]").count()) === 1);
+  check(`${where}: says it was done before and offers to go through it again`,
+    (await page.locator("[data-lesson-revisit]").getByRole("button", { name: /^Go through it again/ }).count()) === 1);
+  const said = await page.locator("[data-said-list] li").count();
+  check(`${where}: and lists what was said on it`, said > 0, `${said} kept`);
+  await axeHere(`${where}`);
+  // The tick goes again at once, so the walks after this read the course as the learner left it.
+  await prisma.courseStep.deleteMany({ where: { ownerId: OWNER, programmeId: lesson.programmeId, dayId: lesson.dayId, stepId: "lesson", id: { notIn: [...stepsBefore] } } });
+}
+
 async function inRussian(lesson) {
   const where = `${lesson.id} in Russian`;
   const before = await prisma.setting.findUnique({ where: { ownerId_key: { ownerId: OWNER, key: "uiLocale" } } });
@@ -713,9 +763,14 @@ async function inRussian(lesson) {
   try {
     await page.goto(`${B}/course/lessons/${lesson.id}`, { waitUntil: "domcontentloaded" });
     await hydrated(page);
+    // Walked already, the lesson opens on its recap; going through it again is what puts a step heading on the screen.
+    const again = page.locator("[data-lesson-revisit]").getByRole("button");
+    if (await again.count()) await again.first().click();
+    await page.locator("#lesson-step").waitFor({ timeout: 6000 }).catch(() => {});
     const body = await text();
     check(`${where}: the goal is in Russian`, body.includes(lesson.goalRu.slice(0, 30)), body.slice(0, 120));
-    check(`${where}: and the step heading is not English`, !/^Step \d/.test(await stepHeading()), await stepHeading());
+    const heading = await stepHeading();
+    check(`${where}: and the step heading is not English`, heading !== "" && !/^Step \d/.test(heading), heading || "no step heading");
   } finally {
     if (before) await prisma.setting.update({ where: { ownerId_key: { ownerId: OWNER, key: "uiLocale" } }, data: { value: before.value } });
     else await prisma.setting.delete({ where: { ownerId_key: { ownerId: OWNER, key: "uiLocale" } } }).catch(() => {});

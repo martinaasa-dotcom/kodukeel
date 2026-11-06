@@ -188,7 +188,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
   /* Opened again rather than just finished: the recap says so, and there is no confetti. */
   const [revisit, setRevisit] = useState(finishedBefore);
   /* What was said on Say it, for the recap: this time through, or kept from the last. */
-  const [saidList, setSaidList] = useState<readonly SaidResult[]>(keptAnswers?.said ?? []);
+  const [saidList, setSaidList] = useState<readonly SaidResult[]>(finishedBefore ? keptAnswers?.said ?? [] : []);
   const [score, setScore] = useState<{ right: number; total: number } | null>(null);
   const [over, setOver] = useState(() => finishedBefore || (conversation !== null && isCapstone(lesson)));
   /* Whether the finished lesson reached the server: null until it has been tried. */
@@ -223,7 +223,8 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
     microphone), so its place is kept here, and so is what it came to, which
     the finished lesson keeps (`lessonAnswers.ts`).
   */
-  const sayPlace = useRef<SayPlace | null>(keptAnswers ? { mode: keptAnswers.mode, at: 0, over: true, taken: [], kept: {}, saved: keptAnswers.said } : null);
+  /* Only a finished lesson opens on what was said; one read ahead of the course and opened again starts Say it afresh. */
+  const sayPlace = useRef<SayPlace | null>(finishedBefore && keptAnswers ? { mode: keptAnswers.mode, at: 0, over: true, taken: [], kept: {}, saved: keptAnswers.said } : null);
   const keepSayPlace = useCallback((p: SayPlace) => { sayPlace.current = p; }, []);
   /* What Say it came to this time through, to keep with the finished lesson; nothing where the step was skipped. */
   const answersToKeep = (): SavedAnswers | undefined => {
