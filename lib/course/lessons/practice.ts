@@ -1017,6 +1017,7 @@ export function markRework(typed: string, item: Extract<PracticeItem, { kind: "r
   if (wants.includes(said)) return { verdict: "right", note: NOTES.right, close: false };
   const rest = afterReply(typed, item.accept);
   if (rest !== null) return markRework(rest, item);
+  if (item.kind === "fix" && fixedInPart(said, item)) return { verdict: "right", note: NOTES.right, close: false };
   // The sentence typed back unchanged, however it is reordered or spelled, is not a change.
   const before = item.kind === "fix" ? item.shown : item.from.et;
   const unchanged = sameSentence(before, typed, item.persons);
@@ -1085,6 +1086,34 @@ export function markRework(typed: string, item: Extract<PracticeItem, { kind: "r
 }
 
 const wordCount = (text: string) => (text.match(/[\p{L}\p{N}]+/gu) ?? []).length;
+
+/*
+  A FIX IS ANSWERED BY THE WORD PUT RIGHT. The exercise is about one word, so
+  a learner who types only the part they changed, `keda` or `keda ma seal
+  kohtasin` for `Ja tead, keda ma seal kohtasin? Jaani!`, has done the whole
+  of it, and retyping the rest of the line proves nothing more. What is typed
+  has to be an unbroken run of words of a line that counts, letter for letter,
+  and the run has to cover the place the slip was: `seal kohtasin` on its own
+  is part of the line and fixes nothing. A run still holding the wrong form is
+  never one of these, since every word has to match the corrected line.
+*/
+function fixedInPart(said: string, item: Extract<PracticeItem, { kind: "fix" }>): boolean {
+  const typed = said.split(" ");
+  const shown = spokenPhrase(item.shown).split(" ");
+  return item.accept.some((line) => {
+    const want = spokenPhrase(line).split(" ");
+    // Where the slip was: the words of the line the shown version has in another form.
+    const fixed = want.length === shown.length
+      ? want.flatMap((w, i) => (w !== shown[i] ? [i] : []))
+      : want.flatMap((w, i) => (w === spokenPhrase(item.right) ? [i] : []));
+    if (fixed.length === 0 || typed.length > want.length) return false;
+    for (let start = 0; start + typed.length <= want.length; start++) {
+      const covers = fixed.every((i) => i >= start && i < start + typed.length);
+      if (covers && typed.every((w, j) => w === want[start + j])) return true;
+    }
+    return false;
+  });
+}
 
 /*
   A REPLY WORD IN FRONT IS HOW A PERSON ANSWERS. Asked to say they didn't buy
