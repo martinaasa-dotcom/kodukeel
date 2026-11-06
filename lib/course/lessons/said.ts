@@ -36,3 +36,18 @@ export interface SaidResult {
   readonly differences: readonly Difference[];
   readonly findings: readonly Finding[];
 }
+
+/** The order the step asks in: the questions about you, then the story told back, then the role-play's turns. */
+const GROUPS = ["answers", "retell", "turns"] as const;
+
+/**
+ * Everything kept from one time through Say it, in the order it was asked,
+ * from the results keyed by card (`answers:2`, `retell:0`, `turns:1`).
+ */
+export function orderedSaid(results: Readonly<Record<string, SaidResult>> | undefined): SaidResult[] {
+  const rank = (key: string) => {
+    const [group, at] = key.split(":");
+    return GROUPS.indexOf(group as (typeof GROUPS)[number]) * 1000 + Number(at ?? 0);
+  };
+  return Object.entries(results ?? {}).sort(([a], [b]) => rank(a) - rank(b)).map(([, r]) => r);
+}

@@ -941,6 +941,27 @@ model SceneGap {
 /// A row is written once and never edited, like `Review` and `Encounter`. The
 /// unique key is what makes a second press of the same tick a no-op rather
 /// than a second row.
+/// WHAT A LEARNER SAID ON A LESSON'S SAY IT STEP, THE LATEST TIME THROUGH.
+///
+/// A finished lesson opened again showed nothing of what had been said, and
+/// a learner who wanted to see which sentence had a verb in the wrong tense
+/// could not. One row per learner and lesson, replaced when the lesson is
+/// finished again (the operator's call: latest attempt only). It holds the
+/// text the learner typed or that was heard, and what the dictionary found in
+/// it; never the sound, which is never stored anywhere (ADR-028).
+model LessonAnswer {
+  id        String   @id @default(uuid())
+  ownerId   String
+  lessonId  String
+  /// `say` or `type`: how the step was done, which the summary says.
+  mode      String
+  /// JSON: `SaidResult[]` (`lib/course/lessons/said.ts`), in the order asked.
+  said      String
+  updatedAt DateTime @updatedAt
+
+  @@unique([ownerId, lessonId])
+}
+
 model CourseStep {
   id          String   @id @default(uuid())
   ownerId     String

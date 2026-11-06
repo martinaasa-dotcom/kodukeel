@@ -36,6 +36,9 @@ import { SayIt, type SayPlace } from "./SayIt";
 import { lessonSceneHref, type ConversationReturn } from "@/lib/scenes/lessonReturn";
 import { nameOf } from "@/lib/ux/roundNames";
 import { worksheetLink, type LessonWorksheet } from "@/lib/course/lessonWorksheet";
+import { orderedSaid, type SaidResult } from "@/lib/course/lessons/said";
+import type { SavedAnswers } from "@/lib/progress/lessonAnswers";
+import { SaidList } from "@/components/course/SaidList";
 import { ReadText } from "@/components/course/ReadText";
 import { NotesTalk } from "@/components/course/NotesTalk";
 import type { GlossedToken } from "@/lib/dict/glossed";
@@ -111,7 +114,14 @@ const WORKBOOK_NAME = nameOf("/review/workbook") ?? { et: "Töövihik", en: "Wor
 /** Every step not on this list asks nothing, and is finished by being open. */
 const ASKS: ReadonlySet<Step> = new Set(["practise", "write", "say", "review"]);
 
-export function LessonRunner({ lesson, practice, review, next, scene, situation = null, worksheet = null, conversation, place, name, due = 0, check = null, part, timeMultiplier, partAt, read = null, notes = null, forms = [] }: {
+export function LessonRunner({ lesson, practice, review, next, scene, situation = null, worksheet = null, conversation, place, name, due = 0, check = null, part, timeMultiplier, partAt, read = null, notes = null, forms = [], finishedBefore = false, keptAnswers = null }: {
+  /**
+   * The lesson was finished before: it opens on its recap, every step ticked
+   * and open again, with no confetti, which is for the first time only.
+   */
+  finishedBefore?: boolean;
+  /** What was said on Say it the last time through, kept on the server (`lessonAnswers.ts`). */
+  keptAnswers?: SavedAnswers | null;
   /**
    * The transcript of the lesson's talk taken down as notes (C1), glossed as
    * the text to read is; null where there is none, and then a talk it does
@@ -168,10 +178,19 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
   const moduleNext = useModuleNext();
   const [at, setAt] = useState(0);
   const news = levelNewsFor(lesson);
-  const [finished, setFinished] = useState<ReadonlySet<Step>>(new Set());
-  const [reached, setReached] = useState(0);
+  const capstoneAtStart = isCapstone(lesson);
+  const stepsAtStart: readonly Step[] = lesson.write
+    ? capstoneAtStart ? CAPSTONE_WRITING_STEPS : WRITING_STEPS
+    : capstoneAtStart ? CAPSTONE_STEPS : STEPS;
+  // A lesson finished before is finished: every step ticked and open, so going back into one shows it done.
+  const [finished, setFinished] = useState<ReadonlySet<Step>>(() => new Set(finishedBefore ? stepsAtStart : []));
+  const [reached, setReached] = useState(finishedBefore ? stepsAtStart.length - 1 : 0);
+  /* Opened again rather than just finished: the recap says so, and there is no confetti. */
+  const [revisit, setRevisit] = useState(finishedBefore);
+  /* What was said on Say it, for the recap: this time through, or kept from the last. */
+  const [saidList, setSaidList] = useState<readonly SaidResult[]>(keptAnswers?.said ?? []);
   const [score, setScore] = useState<{ right: number; total: number } | null>(null);
-  const [over, setOver] = useState(() => conversation !== null && isCapstone(lesson));
+  const [over, setOver] = useState(() => finishedBefore || (conversation !== null && isCapstone(lesson)));
   /* Whether the finished lesson reached the server: null until it has been tried. */
   const [saved, setSaved] = useState<boolean | null>(null);
   /* What a failed save said: the server's own refusal where it gave one, and only a press that never arrived reads as the connection. */
@@ -181,10 +200,8 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
   const [saving, startSaving] = useTransition();
   const heading = useRef<HTMLHeadingElement>(null);
   const moved = useRef(false);
-  const capstone = isCapstone(lesson);
-  const steps: readonly Step[] = lesson.write
-    ? capstone ? CAPSTONE_WRITING_STEPS : WRITING_STEPS
-    : capstone ? CAPSTONE_STEPS : STEPS;
+  const capstone = capstoneAtStart;
+  const steps = stepsAtStart;
   const step = steps[at]!;
   const titleOf = (s: Step) => (capstone && s === "say" ? "Conversation" : STEP_TITLE[s]);
 
@@ -201,9 +218,22 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
     heading.current?.focus();
   }, [saved]);
 
+  /*
+    SAY IT IS THE ONE STEP THAT GOES WHEN THE LEARNER STEPS AWAY (it holds a
+    microphone), so its place is kept here, and so is what it came to, which
+    the finished lesson keeps (`lessonAnswers.ts`).
+  */
+  const sayPlace = useRef<SayPlace | null>(keptAnswers ? { mode: keptAnswers.mode, at: 0, over: true, taken: [], kept: {}, saved: keptAnswers.said } : null);
+  const keepSayPlace = useCallback((p: SayPlace) => { sayPlace.current = p; }, []);
+  /* What Say it came to this time through, to keep with the finished lesson; nothing where the step was skipped. */
+  const answersToKeep = (): SavedAnswers | undefined => {
+    const p = sayPlace.current;
+    const said = orderedSaid(p?.kept.results);
+    return p?.mode && said.length > 0 ? { mode: p.mode, said } : undefined;
+  };
   const finish = (s: Step) => setFinished((prev) => new Set(prev).add(s));
   const save = () => startSaving(async () => {
-    const result = await finishLesson(lesson.id).catch(() => null);
+    const result = await finishLesson(lesson.id, answersToKeep()).catch(() => null);
     setSaved(Boolean(result?.ok));
     setSaveError(result && !result.ok ? result.error : NOT_REACHED);
     setRecorded(result?.ok ? result.recorded : null);
@@ -235,15 +265,28 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
   /*
     SAY IT IS THE EXCEPTION, and goes when the learner steps away: it holds a
     microphone and lines that play one after another, and only its going
-    closes those. Its place is kept here instead (`SayPlace`).
+    closes those. Its place is kept above instead (`SayPlace`).
+
+    Going through a finished lesson again starts it from the top, with what
+    was said last time still kept until it is replaced.
   */
-  const sayPlace = useRef<SayPlace | null>(null);
-  const keepSayPlace = useCallback((p: SayPlace) => { sayPlace.current = p; }, []);
+  const again = () => {
+    moved.current = true;
+    setRevisit(false);
+    setFinished(new Set());
+    setReached(0);
+    setAt(0);
+    setSaved(null);
+    sayPlace.current = null;
+    setOver(false);
+  };
 
   const go = (n: number) => {
     moved.current = true;
     stopClip();
     if (n >= steps.length) {
+      const fresh = orderedSaid(sayPlace.current?.kept.results);
+      if (fresh.length > 0) setSaidList(fresh);
       setOver(true);
       save();
     } else {
@@ -312,7 +355,8 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
             heading, because finishing a part is a thing a person tells
             somebody.
           */}
-          <Confetti count={partEnd ? 80 : 40} />
+          {/* Confetti is for the first time a lesson is finished, never for opening it again or going through it again. */}
+          {!finishedBefore && <Confetti count={partEnd ? 80 : 40} />}
           <section aria-labelledby="lesson-done" className="mx-auto w-full max-w-2xl" data-lesson-done>
             <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
               <Mascot size={68} mood="cheer" className="float mx-auto" />
@@ -331,6 +375,19 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
                 <LessonText text={lesson.goal} locale={locale} />
               </p>
             </div>
+
+            {/*
+              OPENED AGAIN. A finished lesson used to open on step 1 with
+              nothing filled in, and the recap was gone for good. It opens
+              here instead, every step ticked and open from the list above,
+              and going through it again is one press.
+            */}
+            {revisit && (
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-[var(--r-xl)] border px-5 py-4" style={{ background: "var(--surface)", borderColor: "var(--edge)" }} data-lesson-revisit>
+                <p className="max-w-[44ch] text-base" style={{ color: "var(--ink-2)" }}>{t("You finished this lesson before. Every step is still here to look back at.")}</p>
+                <Button onClick={again}>{t("Go through it again")}</Button>
+              </div>
+            )}
 
             {/* The part, lesson by lesson, with this one lit. */}
             <div className="mt-6 rounded-[var(--r-xl)] border px-5 py-4" style={{ background: "var(--surface)", borderColor: "var(--edge)" }} data-part-track>
@@ -383,6 +440,14 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
                     </li>
                   ))}
                 </ul>
+              </div>
+            )}
+
+            {/* What was said on Say it, sentence by sentence, with what was found in each (`SaidList`). */}
+            {saidList.length > 0 && (
+              <div className="mt-4 rounded-[var(--r-xl)] border px-5 py-4 text-left" style={{ background: "var(--surface)", borderColor: "var(--edge)" }} data-lesson-said>
+                <p className="mb-3 text-base font-semibold" style={{ color: "var(--ink)" }}>{t("What you said, one sentence at a time")}</p>
+                <SaidList results={saidList} about={lesson.retell?.who} />
               </div>
             )}
 

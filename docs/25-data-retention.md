@@ -43,6 +43,7 @@ check.
 | Named shelves and what is filed on them (`Deck`, `DeckWord`) | Until removed by the learner, or the account is deleted. A label over the one row above (`Card`) rather than a copy of it: deleting a shelf never touches the cards, reviews or mastery of the words that were on it | Either | The deck's own delete cascades its `DeckWord` rows; `deleteMyAccount` for both |
 | Words put aside (`Deferral`) | Until the learner brings the word back, or the account is deleted. A wait that ends by itself, because the learner reached the band, leaves the row and stamps `wokenAt` | Bringing it back, or erasure | `undoDeferral` and `wakeForLevel` in `lib/progress/deferrals.ts`; `deleteMyAccount` |
 | Ticked course steps (`CourseStep`) | Until the account is deleted. Append-only | Erasure | `deleteMyAccount` |
+| What was said on a lesson's Say it step (`LessonAnswer`): the text typed or heard and what the dictionary found in it, never the sound | The latest time through each lesson, replaced when the lesson is finished again, until the account is deleted | Finishing the lesson again, or erasure | `keepAnswers` in `lib/progress/lessonAnswers.ts`; `deleteMyAccount` |
 | Badges (`Achievement`) | Until the account is deleted | Erasure | `deleteMyAccount` |
 | Level checks (`Assessment`) | Until the account is deleted. Append-only | Erasure | `deleteMyAccount` |
 | Mock exam sittings (`ExamAttempt`), including the composition | Until the account is deleted. Append-only | Erasure | `deleteMyAccount` |

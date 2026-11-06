@@ -359,6 +359,8 @@ export const LESSONS_AREA: Area = {
     "Check what I told": "Проверить мой рассказ",
     "Not answered.": "Без ответа.",
     "That lesson has no story to tell back.": "В этом уроке нет истории для пересказа.",
+    "You finished this lesson before. Every step is still here to look back at.": "Ты уже закончил (закончила) этот урок. Все шаги на месте, их можно посмотреть ещё раз.",
+    "Go through it again": "Пройти ещё раз",
   },
   uk: {
     /* The A1 lessons' own titles and goals, and their parts' lines, now that they are the course. */
@@ -706,6 +708,8 @@ export const LESSONS_AREA: Area = {
     "Check what I told": "Перевірити мою розповідь",
     "Not answered.": "Без відповіді.",
     "That lesson has no story to tell back.": "У цьому уроці немає історії для переказу.",
+    "You finished this lesson before. Every step is still here to look back at.": "Ти вже закінчив (закінчила) цей урок. Усі кроки на місці, їх можна переглянути ще раз.",
+    "Go through it again": "Пройти ще раз",
   },
   counted: {
     "lesson": { en: ["lesson", "lessons"], ru: ["урок", "урока", "уроков"], uk: ["урок", "уроки", "уроків"] },

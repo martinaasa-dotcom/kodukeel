@@ -26,7 +26,7 @@ import { VERDICT_CLASS } from "@/lib/ux/verdict";
 import { checkLessonSentence } from "@/app/actions";
 import { LineFindings } from "@/components/course/LineFindings";
 import { SaidList } from "@/components/course/SaidList";
-import type { LineResult, SaidResult } from "@/lib/course/lessons/said";
+import { orderedSaid, type LineResult, type SaidResult } from "@/lib/course/lessons/said";
 import { SayAlongFade, type FadeKept } from "@/components/course/SayAlongFade";
 import { RetellIt, type RetellKept, type ToldSentence } from "@/components/course/RetellIt";
 import { AgainFaster, type FasterKept } from "@/components/course/AgainFaster";
@@ -114,6 +114,8 @@ export interface SayPlace {
   readonly over: boolean;
   readonly taken: readonly { readonly ask: string; readonly said: string; readonly shown: boolean }[];
   readonly kept: CardsKept;
+  /** What was said the last time the lesson was finished, for a lesson opened again (`lessonAnswers.ts`). */
+  readonly saved?: readonly SaidResult[];
 }
 
 /** What each card had done, by card: one of each B1 card, and an answer's text by its place in its list. */
@@ -137,7 +139,7 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier
   const [over, setOver] = useState(place?.over ?? false);
   const [taken, setTaken] = useState<readonly Taken[]>(place?.taken ?? []);
   const [kept, setKept] = useState<CardsKept>(place?.kept ?? {});
-  useEffect(() => { onPlace({ mode, at, over, taken, kept }); }, [mode, at, over, taken, kept, onPlace]);
+  useEffect(() => { onPlace({ mode, at, over, taken, kept, saved: place?.saved }); }, [mode, at, over, taken, kept, onPlace, place?.saved]);
   const keepRetell = useCallback((retell: RetellKept) => setKept((k) => ({ ...k, retell })), []);
   const keepFaster = useCallback((faster: FasterKept) => setKept((k) => ({ ...k, faster })), []);
   const keepFade = useCallback((fade: FadeKept) => setKept((k) => ({ ...k, fade })), []);
@@ -264,14 +266,12 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier
   }
 
   /*
-    EVERYTHING SAID, IN THE ORDER IT WAS ASKED, for the list the step ends on.
-    The answers by their cards, then the story told back sentence by sentence.
+    EVERYTHING SAID, IN THE ORDER IT WAS ASKED, for the list the step ends on:
+    this time through, or where the lesson is opened again after it was
+    finished, what was kept from the last time (`SayPlace.saved`).
   */
-  const said: SaidResult[] = [
-    ...cards.flatMap((c) => (c.kind === "answer" && kept.results?.[answerKey(c)] ? [kept.results[answerKey(c)]!] : [])),
-    ...Object.entries(kept.results ?? {}).filter(([key]) => key.startsWith("retell:"))
-      .sort(([a], [b]) => Number(a.slice(7)) - Number(b.slice(7))).map(([, r]) => r),
-  ];
+  const fresh = orderedSaid(kept.results);
+  const said: readonly SaidResult[] = fresh.length > 0 ? fresh : place?.saved ?? [];
 
   if (over) {
     return (

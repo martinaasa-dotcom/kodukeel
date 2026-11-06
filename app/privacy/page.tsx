@@ -135,6 +135,9 @@ export default async function PrivacyPage({ searchParams }: { searchParams: Publ
           {rich(t("**Your mock exams.** A sat paper is kept whole: the level, your score, and the marked paper itself, question by question, with what was expected and what you gave. That includes **the composition you wrote**, kept in your own words. A paper you abandon is never saved to your account. You mark the spoken part yourself, and nothing you record leaves your device."))}
         </P>
         <P>
+          {rich(t("**What you said in a lesson.** When you finish a lesson, what you said or typed on its Say it step is kept, the latest time through, so you can open the lesson again and see it: each sentence, and what the dictionary found in it. Going through the lesson again replaces it. The sound of your voice is never stored, only the words that came out of it."))}
+        </P>
+        <P>
           {rich(t("**Your conversations in Situations.** Each one you finish is kept whole: who was behind the desk, what was on the role card, what went wrong on purpose, every turn, and where each of the other side's lines came from. **Nothing in a transcript is about you.** You play a patient, a tenant, a customer, with a card of invented facts and a document number that is fiction, and you are never asked for your own. The words a conversation needed and you did not have are kept as a list, so they can be handed back. A conversation you walk out of is kept as one you walked out of; one you abandon by closing the tab is kept on your device only, and goes nowhere until you finish it."))}
         </P>
         <P>
