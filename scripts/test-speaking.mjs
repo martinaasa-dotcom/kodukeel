@@ -135,6 +135,9 @@ try {
     const heard = await page.waitForFunction(() => {
       const box = document.querySelector("#speaking-answer");
       const text = document.querySelector("[data-speaking-step]")?.textContent ?? "";
+      // The box shows the partial while the turn is open, so a filled box is
+      // only an answer once the app has stopped listening.
+      if (/Listening now/.test(text)) return false;
       return (box && box.value.trim().length > 0) || /Heard, and right/.test(text);
     }, null, { timeout: 60_000 }).then(() => true, () => false);
     const after = await stage.innerText();
@@ -255,6 +258,7 @@ try {
       await mic.first().click();
       await page.waitForFunction(() => {
         const box = document.querySelector("#answer");
+        if (/Listening now/.test(document.querySelector("main")?.textContent ?? "")) return false;
         return (box && box.value.trim().length > 0) || document.querySelector("main [class*='verdict']");
       }, null, { timeout: 60_000 }).catch(() => undefined);
       const checkIt = page.getByRole("button", { name: /Check it/ });
