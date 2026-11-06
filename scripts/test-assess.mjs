@@ -94,6 +94,18 @@ const CASE_NAMES = [
   sitting that climbed would have run out of steps before the result screen and
   reported it as the paper not ending.
 */
+/*
+  A press that can miss, because the screen can change under it. A listening
+  question starts its clip on arrival, and where the speech service refuses,
+  the runner abandons the section (`onNoAudio`), so the question being answered
+  is replaced by the next section. When the refusal arrives late, as it did on
+  2026-11-06 with TartuNLP answering 500 for hours, it lands between the driver
+  seeing a button and clicking it, and the click waited out Playwright's thirty
+  seconds for a button that had correctly gone, then threw in the app's name.
+  A miss is false and the loop reads the screen again, which is what it is for.
+*/
+const press = (locator) => locator.click({ timeout: 5_000 }).then(() => true, () => false);
+
 for (let step = 0; step < 200; step++) {
   if ((await page.getByText("Skill by skill").count()) > 0) break;
 
@@ -116,18 +128,19 @@ for (let step = 0; step < 200; step++) {
     await page.getByRole("button", { name: /^Check$/ }).click();
     await page.waitForTimeout(150);
     const next = page.getByRole("button", { name: /Next question/ });
-    if (await next.count()) { asked++; await next.click(); await page.waitForTimeout(120); }
+    if (await next.count() && await press(next)) { asked++; await page.waitForTimeout(120); }
     continue;
   }
 
   // Dictation, where there is audio to write down.
   const heard = page.getByLabel("What you heard");
   if (await heard.count()) {
-    await heard.fill("Ma olen toas");
-    await page.getByRole("button", { name: /^Check$/ }).click();
+    // Dictation is listening, so it can be abandoned under the driver too.
+    const filled = await heard.fill("Ma olen toas", { timeout: 5_000 }).then(() => true, () => false);
+    if (!filled || !(await press(page.getByRole("button", { name: /^Check$/ })))) continue;
     await page.waitForTimeout(150);
     const next = page.getByRole("button", { name: /Next question/ });
-    if (await next.count()) { asked++; await next.click(); await page.waitForTimeout(120); }
+    if (await next.count() && await press(next)) { asked++; await page.waitForTimeout(120); }
     continue;
   }
 
@@ -140,7 +153,7 @@ for (let step = 0; step < 200; step++) {
   const selfRating = page.getByRole("button", { name: /Fairly sure/ });
   if (await selfRating.count()) {
     saidNotScored ||= (await page.getByText(/never moves your level|part isn.t scored/i).count()) > 0;
-    await selfRating.click();
+    await press(selfRating);
     await page.waitForTimeout(150);
     continue;
   }
@@ -189,19 +202,19 @@ for (let step = 0; step < 200; step++) {
       const idk = page.getByRole("button", { name: /I don.t know/ });
       sawUnsureButton = (await idk.count()) > 0 && (await idk.first().isEnabled());
       if (sawUnsureButton) {
-        await idk.first().click();
+        if (!(await press(idk.first()))) { triedUnsure = false; continue; }
         await page.waitForTimeout(150);
         unsureSaidNotSure = (await page.getByText("Not sure", { exact: true }).count()) > 0;
         unsureShowedAnswer = (await page.locator("main .choice-btn svg.lucide-check").count()) > 0;
         const nextAfter = page.getByRole("button", { name: /Next question/ });
-        if (await nextAfter.count()) { asked++; await nextAfter.click(); await page.waitForTimeout(120); }
+        if (await nextAfter.count() && await press(nextAfter)) { asked++; await page.waitForTimeout(120); }
         continue;
       }
     }
-    await choice.first().click();
+    if (!(await press(choice.first()))) continue;
     await page.waitForTimeout(150);
     const next = page.getByRole("button", { name: /Next question/ });
-    if (await next.count()) { asked++; await next.click(); await page.waitForTimeout(120); }
+    if (await next.count() && await press(next)) { asked++; await page.waitForTimeout(120); }
     continue;
   }
 
@@ -214,7 +227,7 @@ for (let step = 0; step < 200; step++) {
     only when the options are genuinely unpressable.
   */
   const noAudio = page.getByRole("button", { name: /The audio won.t play/ });
-  if (await noAudio.count()) { await noAudio.first().click(); await page.waitForTimeout(200); continue; }
+  if (await noAudio.count()) { await press(noAudio.first()); await page.waitForTimeout(200); continue; }
   break;
 }
 
