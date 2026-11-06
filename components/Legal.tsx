@@ -205,7 +205,7 @@ function Contents({ label, children }: { label: string; children: ReactNode }) {
           <li key={id}>
             <a
               href={`#${id}`}
-              className="pill tap-tint inline-flex min-h-9 items-center rounded-full border px-3.5 text-sm font-semibold"
+              className="pill tap-tint inline-flex min-h-11 items-center rounded-full border px-3.5 text-sm font-semibold"
               style={{ borderColor: "var(--edge)", background: "var(--surface)", color: "var(--ink-2)" }}
             >
               {title}
@@ -311,7 +311,7 @@ function leadOf(children: ReactNode): { label: ReactNode; rest: ReactNode[] } | 
 function LeadBody({ lead, rest }: { lead: ReactNode; rest: ReactNode[] }) {
   return (
     <>
-      <p className="text-base font-semibold leading-snug" style={{ color: "var(--ink)" }}>{lead}</p>
+      <p className="text-base font-semibold leading-snug [&_strong]:font-semibold" style={{ color: "var(--ink)" }}>{lead}</p>
       <Folded nodes={rest} />
     </>
   );
