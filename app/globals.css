@@ -3688,6 +3688,23 @@
   }
 
   /*
+    "Read more" on a public page's tile (components/Legal.tsx). The page is a
+    server component that knows its language only from the `lang` on its
+    `main`, so the label is drawn in each of the four and the one the page is
+    in is shown; the others are `display: none`, so a screen reader reads one.
+  */
+  .legal-more [data-more-in] { display: none; }
+  .legal-more:lang(en) [data-more-in="en"],
+  .legal-more:lang(ru) [data-more-in="ru"],
+  .legal-more:lang(uk) [data-more-in="uk"],
+  .legal-more:lang(et) [data-more-in="et"] { display: inline; }
+  .legal-more > summary { font-size: var(--text-sm); font-weight: 600; color: var(--accent-deep); }
+  /* A labeled tile with no tile on either side takes the whole row rather than half of it beside nothing. */
+  @media (min-width: 768px) {
+    [data-legal-lead]:not(:has(+ [data-legal-lead])):not([data-legal-lead] + [data-legal-lead]) { grid-column: 1 / -1; }
+  }
+
+  /*
     THE PANEL AN EXPLANATION OPENS INTO. It was loose gray paragraphs under the
     summary, with nothing to say where the explanation ended and the screen
     resumed, so a reader could not tell how much there was before reading all
