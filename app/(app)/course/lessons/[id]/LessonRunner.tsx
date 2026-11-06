@@ -19,6 +19,7 @@ import { LessonConversation } from "@/components/course/LessonConversation";
 import { Confetti } from "@/components/Confetti";
 import { Mascot } from "@/components/brand";
 import { fill, tr } from "@/lib/copy/locale";
+import { verbFormName } from "@/lib/estonian/verbNames";
 import type { LessonSpec, PracticeItem, Taught } from "@/lib/course/lessons";
 import { lessonLabel } from "@/lib/course/lessons/label";
 import { LEVELS, levelIndex } from "@/lib/collections/syllabus/types";
@@ -730,48 +731,50 @@ function NewWords({ lesson }: { lesson: LessonSpec }) {
     );
   }
   return (
-    <div className="overflow-x-auto rounded-[var(--r-lg)] border" style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}>
-      <table className="w-full min-w-[320px] text-base" data-lesson-words>
-        <thead>
-          <tr style={{ color: "var(--ink-3)" }}>
-            <th scope="col" className="label-xs px-4 py-3 text-left">{t("Estonian")}</th>
-            <th scope="col" className="label-xs px-4 py-3 text-left">{t("In English")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rowsOf(lesson.teaches).map((row) => {
-            const kind = kindOf(row[0]!, t);
-            return (
-              <tr key={row[0]!.et} className="border-t" style={{ borderColor: "var(--edge)" }}>
-                <td className="px-4 py-3 align-top">
-                  <span className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                    {row.flatMap((item) => (item.kind === "verb" ? [item.et, item.first] : [item.et])).map((et) => (
-                      <span key={et} className="flex items-center gap-2">
-                        <Speak text={et} size={15} />
-                        <span lang="et" className="font-bold" style={{ color: "var(--ink)" }}>{et}</span>
-                      </span>
-                    ))}
-                  </span>
-                  {kind && <span className="mt-0.5 block text-sm" style={{ color: "var(--ink-3)" }}><Braced text={kind} /></span>}
-                </td>
-                <td className="px-4 py-3 align-top" style={{ color: "var(--ink-2)" }}>
-                  <LessonText text={row[0]!.en} locale={locale} />
-                  {row[0]!.kind === "verb" && (
-                    <span className="mt-0.5 block"><span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{row[0]!.first}</span>: <LessonText text={row[0]!.firstEn} locale={locale} /></span>
-                  )}
-                  {/* B1: a verb is learned with the case it wants, so the Words table says it. */}
-                  {(row[0]!.kind === "verb" || row[0]!.kind === "word") && row[0]!.asks && (
-                    <span className="mt-1 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-sm font-semibold" style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }} data-asks>
-                      <LessonText text={row[0]!.asks} locale={locale} />
-                    </span>
-                  )}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+    <ul className="flex flex-col overflow-hidden rounded-[var(--r-lg)] border" style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }} data-lesson-words>
+      {rowsOf(lesson.teaches).map((row, i) => {
+        const first = row[0]!;
+        /*
+          ONE WORD PER LINE, AND NEVER SIDE BY SIDE. Each spelling is its own
+          small block: the word with its speaker, what the word is under it,
+          and what it means under that. A verb is two such blocks, the -ma form
+          and the I form, each with its own meaning, so nothing in a row is
+          read across and nothing has to be matched to a column. Neighbors that
+          mean one thing (mina, ma) share the meaning, printed once under them.
+        */
+        const entries = row.flatMap((item) =>
+          item.kind === "verb"
+            ? [
+                { et: item.et, label: verbFormName("MA", locale), en: item.en },
+                { et: item.first, label: verbFormName("PRESENT", locale, "ma"), en: item.firstEn },
+              ]
+            : [{ et: item.et, label: kindOf(item, t), en: item.en }],
+        );
+        const shared = first.kind !== "verb" && row.length > 1;
+        return (
+          <li key={first.et} className={`flex flex-col gap-4 px-5 py-4 ${i > 0 ? "border-t" : ""}`} style={{ borderColor: "var(--edge)" }}>
+            {entries.map((entry, n) => (
+              <div key={entry.et} className="flex min-w-0 flex-col gap-1">
+                <span className="flex items-center gap-3">
+                  <Speak text={entry.et} size={15} />
+                  <span lang="et" className="text-lg font-bold" style={{ color: "var(--ink)" }}>{entry.et}</span>
+                </span>
+                {entry.label && <span className="text-sm" style={{ color: "var(--ink-3)" }}><Braced text={entry.label} /></span>}
+                {(!shared || n === entries.length - 1) && (
+                  <span style={{ color: "var(--ink-2)" }}><LessonText text={entry.en} locale={locale} /></span>
+                )}
+              </div>
+            ))}
+            {/* B1: a verb is learned with the case it wants, so the Words step says it. */}
+            {(first.kind === "verb" || first.kind === "word") && first.asks && (
+              <span className="inline-flex items-center gap-1.5 self-start rounded-full px-2.5 py-0.5 text-sm font-semibold" style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }} data-asks>
+                <LessonText text={first.asks} locale={locale} />
+              </span>
+            )}
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
