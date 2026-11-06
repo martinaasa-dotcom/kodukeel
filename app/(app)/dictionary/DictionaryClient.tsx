@@ -44,6 +44,7 @@ import { Headlines } from "@/components/Headlines";
 import { Explain } from "@/components/Explain";
 import { useSpeech, useSpeechConfig } from "@/components/speech/useSpeech";
 import { MicButton } from "@/components/speech/MicButton";
+import { liveText } from "@/lib/speech/liveText";
 import { micInAnswerBox } from "@/components/speech/answerBoxMic";
 import { FitText } from "@/components/FitText";
 import { useLocale, useT } from "@/components/Locale";
@@ -271,7 +272,8 @@ export function DictionaryClient({
               the answer box's weight for something that is not one.
             */}
             <EstonianInput
-              value={query}
+              value={liveText(query, speech)}
+              readOnly={speech.listening}
               onChange={setQuery}
               onEnter={() => go(query)}
               placeholder={t("Estonian or English, like tuba or room")}
@@ -284,7 +286,7 @@ export function DictionaryClient({
           </Button>
         </div>
         {searchAloud && (
-          <MicButton speech={speech} label={t("Say the word to look it up")} shortcut showPartial={false} fallback="box" />
+          <MicButton speech={speech} label={t("Say the word to look it up")} shortcut fallback="box" />
         )}
         {!initialQuery && suggestions.words.length > 0 && (
           <div className="flex flex-col gap-2">

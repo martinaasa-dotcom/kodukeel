@@ -299,7 +299,8 @@ function OneGo({ seconds, typed, focusStart, onGo }: { seconds: number; typed: b
           {!armed ? (
             <Button variant="primary" onClick={start}>{mic ? t("Start, and speak") : t("Start, and type")}</Button>
           ) : mic ? (
-            <MicButton speech={speech} label={t("Speaking")} fallback="box" />
+            // The box appears only once the microphone has gone, so the words so far are drawn here while it listens.
+            <MicButton speech={speech} label={t("Speaking")} showPartial fallback="box" />
           ) : (
             // The one thing left to press on a typed go, so it is the loud one.
             <Button variant="primary" onClick={() => finish(text, seconds - left)}>{t("Done")}</Button>

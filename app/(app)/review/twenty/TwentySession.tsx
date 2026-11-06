@@ -27,6 +27,7 @@ import { countOf, fill, type Locale } from "@/lib/copy/locale";
 import type { ShownMeaning } from "@/lib/collections/glossLanguage";
 import { useSpeech, useSpeechConfig } from "@/components/speech/useSpeech";
 import { MicButton } from "@/components/speech/MicButton";
+import { liveText } from "@/lib/speech/liveText";
 import { micInAnswerBox } from "@/components/speech/answerBoxMic";
 import { SendRing } from "@/components/scene/SceneSpeech";
 import { useAudioPrefs } from "@/components/AudioPrefs";
@@ -380,7 +381,8 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
             <input
               ref={field}
               id="question"
-              value={text}
+              value={liveText(text, speech)}
+              readOnly={speech.listening}
               lang="et"
               autoFocus
               autoComplete="off"
@@ -394,7 +396,7 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
             <div className="under-field"><DiacriticBar /></div>
             {micOffered && (
               <div className="mt-3 flex flex-wrap items-center gap-3">
-                <MicButton speech={speech} label={t("Ask your question out loud")} shortcut showPartial fallback="box" />
+                <MicButton speech={speech} label={t("Ask your question out loud")} shortcut fallback="box" />
               </div>
             )}
             {suggestions.length > 0 && (

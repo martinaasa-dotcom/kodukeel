@@ -12,7 +12,8 @@ import { useAnuChat } from "./useAnuChat";
 import { useStickToBottom } from "./useStickToBottom";
 import { readScreen } from "./readScreen";
 import { useModalFocus } from "@/components/useModalFocus";
-import { AnuMic } from "./AnuMic";
+import { AnuMic, NOTHING_HEARD, type HeardSoFar } from "./AnuMic";
+import { liveText } from "@/lib/speech/liveText";
 import { useT } from "@/components/Locale";
 import { AnuFailure, Bubble, CheckStarter, latestReplyIndex, Provenance, SentenceCheck, Starters, sentenceCheckPrompt, AnuOffline } from "./AnuParts";
 
@@ -49,6 +50,7 @@ export function AnuPanel({
     useAnuChat([], () => readScreen(path.current));
   const latestReply = latestReplyIndex(messages);
   const [input, setInput] = useState("");
+  const [heardSoFar, setHeardSoFar] = useState<HeardSoFar>(NOTHING_HEARD);
   const [checkOpen, setCheckOpen] = useState(false);
   const [checkEt, setCheckEt] = useState("");
   const [checkEn, setCheckEn] = useState("");
@@ -299,7 +301,8 @@ export function AnuPanel({
             <div className="flex-1">
               <EstonianInput
                 compact
-                value={input}
+                value={liveText(input, heardSoFar, "add")}
+                readOnly={heardSoFar.listening}
                 onChange={setInput}
                 onEnter={() => { if (send(input)) setInput(""); }}
                 placeholder={t("What does this mean?")}
@@ -307,7 +310,7 @@ export function AnuPanel({
                 inputRef={boxRef}
               />
             </div>
-            <AnuMic current={input} onHeard={setInput} />
+            <AnuMic current={input} onHeard={setInput} onLive={setHeardSoFar} />
             <Button
               variant="primary"
               onClick={() => { if (send(input)) setInput(""); }}

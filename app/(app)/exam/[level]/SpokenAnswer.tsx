@@ -66,7 +66,8 @@ export function SpokenAnswer({ targetSeconds, ideas, onSpoken }: {
   return (
     <div className="flex flex-col items-start gap-3" data-spoken-answer>
       <div className="flex flex-wrap items-center gap-3">
-        <MicButton speech={speech} label={t("Speak your answer")} shortcut showPartial={false} fallback="box" />
+        {/* No box on this part: the way on without a microphone is speaking with nobody listening, so the error says that rather than "keep typing". */}
+        <MicButton speech={speech} label={t("Speak your answer")} shortcut showPartial={false} fallback="none" />
         {speech.listening && (
           <span
             className="tnum text-sm font-semibold"

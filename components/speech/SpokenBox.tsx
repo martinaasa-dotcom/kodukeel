@@ -6,6 +6,7 @@ import { useT } from "@/components/Locale";
 import { cardVerdict, repairedInAnswer, type SpokenVerdict } from "@/lib/speech/verdict";
 import { core, type Hearing } from "@/lib/speech/reconcile";
 import { keptAsHeard } from "@/lib/speech/edits";
+import { liveText } from "@/lib/speech/liveText";
 import { MicButton } from "./MicButton";
 import { useSpeech, useSpeechConfig, type Speech } from "./useSpeech";
 
@@ -48,6 +49,12 @@ export interface SpokenBox {
   saidAsIs(text: string): boolean;
   /** A new question: forget what was heard. */
   reset(): void;
+  /**
+   * What the box shows: its own text, or the words so far while the
+   * microphone listens, since the screen says what is heard goes in the box
+   * (`lib/speech/liveText.ts`). The box is read-only while `speech.listening`.
+   */
+  live(text: string): string;
 }
 
 export interface SpokenBoxOptions {
@@ -105,9 +112,10 @@ export function useSpokenBox({ accepted, always = false, judge, onGood, onFill, 
     setFilled("");
     speech.cancel();
   }, [speech]);
+  const live = useCallback((text: string) => liveText(text, speech), [speech]);
   return useMemo(
-    () => ({ speech, shown, spoken, hearing, carriesRepair, saidAsIs, reset }),
-    [speech, shown, spoken, hearing, carriesRepair, saidAsIs, reset],
+    () => ({ speech, shown, spoken, hearing, carriesRepair, saidAsIs, reset, live }),
+    [speech, shown, spoken, hearing, carriesRepair, saidAsIs, reset, live],
   );
 }
 

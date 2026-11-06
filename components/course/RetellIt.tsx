@@ -6,6 +6,7 @@ import { Button } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { MicButton } from "@/components/speech/MicButton";
 import { useSpeech } from "@/components/speech/useSpeech";
+import { liveText } from "@/lib/speech/liveText";
 import { useAudioPrefs } from "@/components/AudioPrefs";
 import { useLocale, useT } from "@/components/Locale";
 import { LessonText } from "@/components/course/LessonText";
@@ -69,7 +70,7 @@ export function RetellIt({ retell, voice, typed, onDone, kept, onKeep }: { retel
     maxSeconds: 90,
     onHeard: (h) => setSaid((before) => (before ? `${before} ${h.understood}` : h.understood)),
   });
-  const live = speech.listening ? `${said} ${speech.partial}` : said;
+  const live = liveText(said, speech, "add");
   const lit = pointsHeard(retell, live);
   // Announced off what has been said, not the words still arriving, so a point is not read out lighting and going out mid-sentence.
   const settledCount = useMemo(() => pointsHeard(retell, said).filter(Boolean).length, [retell, said]);

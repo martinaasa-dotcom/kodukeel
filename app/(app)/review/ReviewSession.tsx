@@ -1838,7 +1838,8 @@ export function ReviewSession({
                 </label>
                 <EstonianInput
                   id="answer"
-                  value={typed}
+                  value={voiceBox.live(typed)}
+                  readOnly={voiceBox.speech.listening}
                   onChange={setTyped}
                   onEnter={() => checkTyped()}
                   ariaLabel={t("Type your answer")}

@@ -397,7 +397,8 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
             {shape === "build" ? (
               <textarea
                 id="answer"
-                value={typed}
+                value={voiceBoxValue.live(typed)}
+                readOnly={voiceBoxValue.speech.listening}
                 lang="et"
                 rows={3}
                 maxLength={MAX_SENTENCE_CHARS}
@@ -412,7 +413,8 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
             ) : (
               <input
                 id="answer"
-                value={typed}
+                value={voiceBoxValue.live(typed)}
+                readOnly={voiceBoxValue.speech.listening}
                 lang="et"
                 autoFocus
                 autoComplete="off"

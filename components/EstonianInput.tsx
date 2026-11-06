@@ -43,7 +43,7 @@ import { DiacriticBar } from "@/components/DiacriticBar";
  */
 export function EstonianInput({
   value, onChange, placeholder, autoFocus, onEnter, id, ariaLabel, large, compact, inputRef, bar = true,
-  disabled, look,
+  disabled, readOnly, look,
 }: {
   value: string;
   onChange: (next: string) => void;
@@ -56,6 +56,12 @@ export function EstonianInput({
   compact?: boolean;
   inputRef?: RefObject<HTMLInputElement | null>;
   disabled?: boolean;
+  /**
+   * While the microphone is filling the box, typing into it would be drawn
+   * over by the words being heard and then replaced by the finished turn, so
+   * the box takes no typing until the turn ends (`lib/speech/liveText.ts`).
+   */
+  readOnly?: boolean;
   /**
    * `false` where several of these sit in one table and one bar under the
    * table serves them all, since the shared bar types into whatever has
@@ -79,6 +85,7 @@ export function EstonianInput({
         autoFocus={autoFocus}
         placeholder={placeholder}
         disabled={disabled}
+        readOnly={readOnly}
         // This box is where a form is recalled, so nothing may finish it for the
         // learner: not the browser's history of earlier answers (which listed
         // `palavikus`, `palvik` and `palavik` under a typed "p"), not the spell
