@@ -348,22 +348,37 @@ check("the tutor tab is honest about its key state", needsKey !== connected,
   needsKey ? "no key — shows setup guidance" : "key set — shows the provider");
 
 // 8 — Audio really plays through the proxy
+/*
+  The proxy answers 502 when TartuNLP answered something other than a clip and
+  503 when it did not answer at all (lib/progress/speakClip.ts). Either is the
+  app reporting a free academic service's bad hour honestly, and it happened:
+  on 2026-11-06 api.tartunlp.ai answered 500 to every request for hours, and
+  every pull request's CI went red here over a fault in nobody's code. So a
+  502 or 503 is put to the service itself, once, and waived only where the
+  service really is refusing: a proxy that fails while the service answers is
+  still a failure, and so is any other status.
+*/
 const tts = await page.request.post(`${B}/api/tts`, { data: { text: "tere" } });
 const buf = await tts.body();
-/*
-  A 502 or 503 carrying the route's own upstream sentence is TartuNLP not
-  answering (lib/progress/speakClip.ts, `upstreamFailed`), which is a fact
-  about a service the University of Tartu runs rather than about this app:
-  it was down for most of 2026-11-06 and failed every shard that asked.
-  Waived with the reason on screen; any other failure still fails.
-*/
-const upstreamDown = [502, 503].includes(tts.status())
-  && /speech service/i.test(buf.toString("utf8"));
-if (upstreamDown) {
-  absent(1, `TartuNLP did not answer (HTTP ${tts.status()}), so there was no audio to check`);
+const upstreamDown = async () => {
+  try {
+    const res = await fetch("https://api.tartunlp.ai/text-to-speech/v2", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ text: "Tere.", speaker: "mari" }),
+      signal: AbortSignal.timeout(20_000),
+    });
+    return res.ok ? null : `TartuNLP answered ${res.status}`;
+  } catch (e) {
+    return `TartuNLP did not answer (${e?.name ?? "error"})`;
+  }
+};
+const down = !tts.ok() && (tts.status() === 502 || tts.status() === 503) ? await upstreamDown() : null;
+if (down) {
+  absent(1, `audio through the proxy: ${down}, so the proxy's ${tts.status()} is the service being down rather than the app`);
 } else {
   check("Estonian audio comes back as a WAV", tts.ok() && buf.subarray(0, 4).toString() === "RIFF",
-    `${buf.length} bytes`);
+    `${tts.status()}, ${buf.length} bytes`);
 }
 
 // 9 — Adding a word the built-in dictionary does not carry
