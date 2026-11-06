@@ -211,10 +211,24 @@ export async function fetchClip(request: ClipRequest): Promise<HeldClip> {
   // speaker button that removes itself. A clip asked for by id has no other
   // voice that says the same thing, so it fails as itself.
   let res = take ? await fetch(nativeUrl(take.id)).catch(() => null) : await synthetic();
-  if (take && !request.nativeId && (!res || !res.ok)) res = await synthetic();
-  if (!res || !res.ok) throw new Error(String(res?.status ?? "offline"));
+  if (take && !request.nativeId && (!res || !res.ok)) { discard(res); res = await synthetic(); }
+  if (!res || !res.ok) { discard(res); throw new Error(String(res?.status ?? "offline")); }
   const fetched = await res.blob();
   return { url: rememberClip(key, fetched), blob: cachedBlob(key) ?? fetched };
+}
+
+/**
+ * A refused clip's body, read off and thrown away.
+ *
+ * A response nobody reads is a response the browser holds open: on
+ * 2026-11-06 TartuNLP answered every request with a 500 for hours, the route
+ * passed that on as a 502 with a sentence in it, and this module read the
+ * status and left the sentence where it was. Each refusal then stayed an open
+ * request for as long as the page did, which is a socket held for nothing and
+ * a page that never goes quiet.
+ */
+function discard(res: Response | null): void {
+  void res?.body?.cancel().catch(() => undefined);
 }
 
 /**

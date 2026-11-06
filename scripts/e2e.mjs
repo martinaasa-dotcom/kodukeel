@@ -350,8 +350,34 @@ check("the tutor tab is honest about its key state", needsKey !== connected,
 // 8 — Audio really plays through the proxy
 const tts = await page.request.post(`${B}/api/tts`, { data: { text: "tere" } });
 const buf = await tts.body();
-check("Estonian audio comes back as a WAV", tts.ok() && buf.subarray(0, 4).toString() === "RIFF",
-  `${buf.length} bytes`);
+const isWav = tts.ok() && buf.subarray(0, 4).toString() === "RIFF";
+/*
+  WHEN THE SPEECH SERVICE ITSELF IS DOWN, THIS IS NOT A FAULT IN THE ROUTE.
+
+  The route answers a failed upstream with a 502 or 503 and a sentence, which
+  is the right answer, and on 2026-11-06 TartuNLP answered every request with a
+  500 for hours: this check failed every run, in the app's name, about a
+  service somebody else runs. So a route that did not return audio asks
+  TartuNLP the same question directly, and only a TartuNLP that answers with
+  audio while the route does not is a failure here. The waiver names the
+  status, so it says what lifts it rather than hiding the check.
+*/
+let upstreamDown = null;
+if (!isWav && (tts.status() === 502 || tts.status() === 503)) {
+  const direct = await fetch("https://api.tartunlp.ai/text-to-speech/v2", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ text: "tere.", speaker: "mari" }),
+    signal: AbortSignal.timeout(20_000),
+  }).catch(() => null);
+  const head = direct?.ok ? Buffer.from(await direct.arrayBuffer()).subarray(0, 4).toString() : "";
+  if (head !== "RIFF") upstreamDown = direct ? `HTTP ${direct.status}` : "no answer";
+}
+if (upstreamDown) {
+  absent(1, `TartuNLP to answer, and it returned ${upstreamDown} itself (the route said so with ${tts.status()})`);
+} else {
+  check("Estonian audio comes back as a WAV", isWav, `${buf.length} bytes, HTTP ${tts.status()}`);
+}
 
 // 9 — Adding a word the built-in dictionary does not carry
 const word = `proovisona${Date.now()}`;
