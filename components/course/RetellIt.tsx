@@ -14,7 +14,7 @@ import { fill } from "@/lib/copy/locale";
 import { useLinePlayer } from "@/components/course/useLinePlayer";
 import { useKeep } from "@/components/course/useKeep";
 import { StepPills } from "@/components/course/StepPills";
-import { pointsHeard } from "@/lib/course/lessons/retell";
+import { pointsHeard, retellListensOn, retellMayStop, RETELL_DONE_QUIET_MS } from "@/lib/course/lessons/retell";
 import type { Retell } from "@/lib/course/lessons/types";
 
 /**
@@ -29,9 +29,18 @@ import type { Retell } from "@/lib/course/lessons/types";
  *
  * NOTHING IS SCORED (ADR-018, ADR-028). A point left dark is only dark, and
  * the story is printed at the end so the learner can see what they left out.
- * Said in as many goes as it takes: each go is added to what was said before,
- * so a learner who stops to think is not made to start again. On a typed
- * evening the box takes it instead.
+ * On a typed evening the box takes it instead.
+ *
+ * ONE PRESS, THE WHOLE STORY. The microphone is held open for the telling
+ * rather than closed on the first pause: a learner moving from one point to
+ * the next stops to think, and a turn that closed there made them press it
+ * again for every point. The points light from what is heard so far, while
+ * they are still talking, and go dark again if the recognizer changes its
+ * mind, so the list is the cue to move on. Only two things close it: the
+ * learner's own press, or every point lit and then a pause
+ * (`retellMayStop`). A turn that reaches the engine's length cap with a point
+ * still dark is opened again at once (`retellListensOn`). Each turn is still
+ * added to what was said before, so pressing it again carries on.
  *
  * Stepping away to reread the conversation and coming back finds the box, the
  * plays and the story as they were (`kept`, `useKeep`).
@@ -63,14 +72,35 @@ export function RetellIt({ retell, voice, typed, onDone, kept, onKeep }: { retel
     () => new Set(retell.story.flatMap((l) => l.et.toLocaleLowerCase("et").split(/[^\p{L}]+/u)).filter(Boolean)),
     [retell],
   );
+  const saidRef = useRef(said);
+  saidRef.current = said;
+  // The hook's object changes with every level reading, so the handlers reach it through a ref rather than depend on it.
+  const speechRef = useRef<{ start(): Promise<void>; stop(): void } | null>(null);
   const speech = useSpeech({
-    endpoint: true,
+    // Held open for the whole story: no pause between points closes it (see the header).
+    endpoint: false,
     expect,
-    maxSeconds: 90,
-    onHeard: (h) => setSaid((before) => (before ? `${before} ${h.understood}` : h.understood)),
+    maxSeconds: 180,
+    onHeard: (h, _raw, why) => {
+      const next = saidRef.current ? `${saidRef.current} ${h.understood}` : h.understood;
+      saidRef.current = next;
+      setSaid(next);
+      if (retellListensOn(why, pointsHeard(retell, next))) void speechRef.current?.start();
+    },
   });
-  const live = speech.listening ? `${said} ${speech.partial}` : said;
+  speechRef.current = speech;
+  const live = speech.listening ? `${said} ${speech.partial}`.trim() : said;
   const lit = pointsHeard(retell, live);
+  const allLit = lit.length > 0 && lit.every(Boolean);
+  // Every point lit, the microphone closes itself once the words stop arriving.
+  // Each new piece of the transcript restarts the wait, so somebody still adding a sentence is not cut off.
+  useEffect(() => {
+    if (!speech.listening || !allLit) return;
+    const timer = setTimeout(() => {
+      if (retellMayStop(pointsHeard(retell, `${saidRef.current} ${speech.partial}`), RETELL_DONE_QUIET_MS)) speechRef.current?.stop();
+    }, RETELL_DONE_QUIET_MS);
+    return () => clearTimeout(timer);
+  }, [speech.listening, speech.partial, allLit, retell]);
   // Announced off what has been said, not the words still arriving, so a point is not read out lighting and going out mid-sentence.
   const settledCount = useMemo(() => pointsHeard(retell, said).filter(Boolean).length, [retell, said]);
   const mic = !typed && speech.offered;
@@ -123,7 +153,7 @@ export function RetellIt({ retell, voice, typed, onDone, kept, onKeep }: { retel
       {mic && (
         <div className="mb-3 flex flex-wrap items-center gap-3">
           <MicButton speech={speech} label={said ? t("Say more") : t("Start telling it")} fallback="box" />
-          <span className="text-sm" style={{ color: "var(--ink-3)" }}>{t("Stop and start as often as you like. It all adds up.")}</span>
+          <span className="text-sm" style={{ color: "var(--ink-3)" }}>{t("Keep talking through every point. Press it to stop, or pause once they're all lit.")}</span>
         </div>
       )}
       <textarea
@@ -150,8 +180,9 @@ export function RetellIt({ retell, voice, typed, onDone, kept, onKeep }: { retel
           </li>
         ))}
       </ul>
-      <p className="mt-3 text-base font-semibold" style={{ color: "var(--ink)" }} role="status">
-        {fill(t("{n} of {total} points came across."), { n: String(settledCount), total: String(retell.points.length) })}
+      {/* While the learner talks the count follows the list they are watching; it is read out only once a turn settles. */}
+      <p className="mt-3 text-base font-semibold" style={{ color: "var(--ink)" }} aria-live={speech.listening ? "off" : "polite"}>
+        {fill(t("{n} of {total} points came across."), { n: String(speech.listening ? lit.filter(Boolean).length : settledCount), total: String(retell.points.length) })}
       </p>
 
       {shown && (

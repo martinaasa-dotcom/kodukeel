@@ -282,13 +282,16 @@ async function knownSpellings(words: readonly string[]): Promise<((word: string)
   }
 }
 
+/** Why a turn closed, as the engine reports it (lib/speech/engine.ts). */
+export type TurnEnd = "pressed" | "silence" | "nothing-said" | "too-long";
+
 export interface UseSpeechOptions {
   /** Close the turn by itself on the silence after speech, and after a long wait for any. */
   readonly endpoint?: boolean;
   /** The spellings the moment could hold, lower-cased, for the dictionary's repairs. */
   readonly expect?: ReadonlySet<string>;
-  /** Called once a turn has been heard and reconciled. */
-  readonly onHeard?: (hearing: Hearing, raw: RawTurn) => void;
+  /** Called once a turn has been heard and reconciled, with why it closed: a press, the silence after speech, or the length cap. */
+  readonly onHeard?: (hearing: Hearing, raw: RawTurn, why: TurnEnd) => void;
   /** Called when a turn closed with nothing said, so a call can show the button again. */
   readonly onNothing?: () => void;
   /** The longest a turn may run, in seconds, where it is longer than one ordinary turn (the exam's spoken part). */
@@ -462,7 +465,7 @@ export function useSpeech(options: UseSpeechOptions = {}): Speech {
               setThinking(false);
               setHearing(heard);
               setPartial("");
-              latest.current.onHeard?.(heard, raw);
+              latest.current.onHeard?.(heard, raw, event.why);
             })();
             return;
           }
