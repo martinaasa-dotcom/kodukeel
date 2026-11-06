@@ -509,7 +509,7 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
     title: "History on the radio",
     goal: "Follow a short history item on the radio, and keep somebody talking about what they remember.",
     cast: { Raadio: "albert", Kati: "vesta", Tom: "kalev" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Raadio", et: "... ja nii algas 1988. aasta suvel laulev revolutsioon.", en: "...and so, in the summer of 1988, the Singing Revolution began.", stage: "In the car. Tom is driving Kati to choir practice, and turns the radio on in the middle of a history program." },
       { who: "Raadio", et: "Igal õhtul tuli lauluväljakule tuhandeid inimesi. Nad laulsid laule, mida oli aastaid keelatud laulda.", en: "Every evening thousands of people came to the song festival grounds. They sang songs that had been forbidden for years." },
@@ -832,7 +832,7 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
     title: "One minute on a topic",
     goal: "Give the exam's one-minute talk after two minutes to get ready, answer the follow-up question, and keep the other person talking.",
     cast: { Priit: "indrek", Tom: "kalev" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Priit", et: "Tere, Tom! Täna teeme läbi eksami esimese osa.", en: "Hi, Tom! Today we're going through the first part of the exam.", stage: "Tom's Estonian course, on a Friday. The teacher, Priit, plays the examiner." },
       { who: "Priit", et: "Saate teema ja kaks minutit aega. Siis räägite minut aega.", en: "You get a topic and two minutes. Then you talk for a minute." },
