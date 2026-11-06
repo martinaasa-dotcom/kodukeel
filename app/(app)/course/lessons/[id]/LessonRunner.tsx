@@ -37,6 +37,8 @@ import { lessonSceneHref, type ConversationReturn } from "@/lib/scenes/lessonRet
 import { nameOf } from "@/lib/ux/roundNames";
 import { worksheetLink, type LessonWorksheet } from "@/lib/course/lessonWorksheet";
 import { ReadText } from "@/components/course/ReadText";
+import { WordCards } from "@/components/course/WordCards";
+import type { WordsLayout } from "@/lib/course/lessons/wordCards";
 import { NotesTalk } from "@/components/course/NotesTalk";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import type { VerbExample } from "@/lib/progress/verbExamples";
@@ -111,7 +113,7 @@ const WORKBOOK_NAME = nameOf("/review/workbook") ?? { et: "Töövihik", en: "Wor
 /** Every step not on this list asks nothing, and is finished by being open. */
 const ASKS: ReadonlySet<Step> = new Set(["practise", "write", "say", "review"]);
 
-export function LessonRunner({ lesson, practice, review, next, scene, situation = null, worksheet = null, conversation, place, name, due = 0, check = null, part, timeMultiplier, partAt, read = null, notes = null, forms = [] }: {
+export function LessonRunner({ lesson, practice, review, next, scene, situation = null, worksheet = null, conversation, place, name, due = 0, check = null, part, timeMultiplier, partAt, read = null, notes = null, forms = [], words = null }: {
   /**
    * The transcript of the lesson's talk taken down as notes (C1), glossed as
    * the text to read is; null where there is none, and then a talk it does
@@ -124,6 +126,8 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
    * empty on every other lesson.
    */
   forms?: readonly VerbExample[];
+  /** The Words step's cards, worked out on the server off the dictionary (`wordsLayout`); null draws the plain table. */
+  words?: WordsLayout | null;
   lesson: LessonSpec;
   /**
    * The lesson's text to read (B2 on), a line at a time, with the dictionary
@@ -557,7 +561,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
             {fill(t("Step {n} of {total}: {step}"), { n: String(at + 1), total: String(steps.length), step: t(titleOf(step)) })}
           </h2>
           {step === "listen" && <Listen lesson={lesson} read={read} notes={notes} heard={heard} heardOnReload={heardOnReload} onHeard={() => setHeard(true)} />}
-          {step === "words" && <Words lesson={lesson} forms={forms} />}
+          {step === "words" && <Words lesson={lesson} forms={forms} words={words} />}
           {step === "how" && <How lesson={lesson} />}
           {kept("practise") && <div hidden={step !== "practise"}><Quiz key="practise" level={3} items={practice} onFinished={(result) => { setScore((first) => first ?? result); finish("practise"); }} /></div>}
           {step === "write" && lesson.write && <WriteStep lesson={lesson} onDone={() => { finish("write"); go(at + 1); }} />}
@@ -687,10 +691,10 @@ function rowsOf(items: readonly Taught[]): Taught[][] {
 }
 
 /** Step 2: everything new tonight, in one table, with nothing asked; at C1, the forms table under it. */
-function Words({ lesson, forms }: { lesson: LessonSpec; forms: readonly VerbExample[] }) {
+function Words({ lesson, forms, words }: { lesson: LessonSpec; forms: readonly VerbExample[]; words: WordsLayout | null }) {
   return (
     <div className="flex flex-col gap-6">
-      <NewWords lesson={lesson} />
+      {words && lesson.teaches.length > 0 ? <WordCards layout={words} /> : <NewWords lesson={lesson} />}
       {forms.length > 0 && <FormsTable forms={forms} />}
     </div>
   );

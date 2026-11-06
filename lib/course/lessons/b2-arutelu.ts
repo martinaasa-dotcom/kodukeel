@@ -68,7 +68,7 @@ export const B2_ARUTELU_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "osakaal", en: "a share, a proportion" },
       { kind: "form", et: "väheneb", of: "vähenema", en: "it gets smaller, it goes down: a figure is an it" },
       { kind: "form", et: "suureneb", of: "suurenema", en: "it gets bigger, it goes up" },
-      { kind: "form", et: "autode", of: "auto", en: "of the cars: the [mitmuse omastav] (2nd form, plural)" },
+      { kind: "form", et: "autode", of: "auto", en: "of the cars: the [mitmuse omastav] (plural)" },
       { kind: "form", et: "sõitjaid", of: "sõitja", en: "people riding, travelers, some of them" },
       { kind: "word", et: "võrra", en: "by, by how much: {kahe protsendi võrra}, by two percent" },
       { kind: "word", et: "parkimine", en: "parking" },

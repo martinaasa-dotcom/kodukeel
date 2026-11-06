@@ -931,8 +931,8 @@ function Entry({ entry, ownership, tutorReady, glossLanguage }: {
           {(!form("GEN_PL") || !form("NOM_PL")) && (
             <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
               {!form("GEN_PL")
-                ? t("Most plural forms are built on the mitmuse omastav (2nd form, plural), and we don't have it for this word. So we've left a gap rather than guess one.")
-                : t("We don't have the mitmuse nimetav (1st form, plural) for this word, and it isn't an ending we can work out. So we've left a gap rather than guess one.")}
+                ? t("Most plural forms are built on the mitmuse omastav (plural), and we don't have it for this word. So we've left a gap rather than guess one.")
+                : t("We don't have the mitmuse nimetav (plural) for this word, and it isn't an ending we can work out. So we've left a gap rather than guess one.")}
             </p>
           )}
           {/* Only on a pronoun, and only where the entry has not been enriched.

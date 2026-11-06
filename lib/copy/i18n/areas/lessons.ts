@@ -14,6 +14,9 @@ import type { Area } from "../area";
  */
 export const LESSONS_AREA: Area = {
   ru: {
+    "New today. Press any form to hear it.": "Новое сегодня. Нажми на любую форму, чтобы её услышать.",
+    "the endings go on it": "к ней добавляются окончания",
+    "More new words": "Ещё новые слова",
     /* The A1 lessons' own titles and goals, and their parts' lines, now that they are the course. */
     "First words": "Первые слова",
     "Where you live": "Где ты живёшь",
@@ -316,6 +319,9 @@ export const LESSONS_AREA: Area = {
     "Say the conversation along with the screen, then answer a few questions about yourself out loud. A word lights up when it's understood, even said with an accent, so play yourself back beside the recording to hear how it sounded.": "Проговори разговор вместе с экраном, а потом ответь вслух на несколько вопросов о себе. Слово подсвечивается, когда его поняли, даже с акцентом, поэтому сравни свою запись с оригиналом, чтобы услышать, как это прозвучало.",
   },
   uk: {
+    "New today. Press any form to hear it.": "Нове сьогодні. Натисни будь-яку форму, щоб її почути.",
+    "the endings go on it": "до неї додаються закінчення",
+    "More new words": "Ще нові слова",
     /* The A1 lessons' own titles and goals, and their parts' lines, now that they are the course. */
     "First words": "Перші слова",
     "Where you live": "Де ти живеш",

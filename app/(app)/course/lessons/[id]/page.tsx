@@ -6,6 +6,8 @@ import { conversationFrom } from "@/lib/scenes/lessonReturn";
 import { LessonRunner } from "./LessonRunner";
 import { lessonView } from "@/lib/progress/lessonView";
 import { isAdmin } from "@/lib/auth/admin";
+import { lessonHeads } from "@/lib/progress/wordCards";
+import { wordsLayout } from "@/lib/course/lessons/wordCards";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const lesson = lessonById((await params).id);
@@ -29,6 +31,8 @@ export default async function LessonPage({ params, searchParams }: { params: Pro
   // Built in `lessonView`, which `GET /api/v1/lessons/{id}` answers with too; only a reviewer here opens a lesson in preview.
   const view = await lessonView(ownerId, id, new Date(), reviewer);
   if (!view) notFound();
+  // The Words step's cards: which case and number each taught spelling is, off the dictionary (web only; v1 serves the lesson as it stands).
+  const words = wordsLayout(view.lesson, await lessonHeads(view.lesson));
   return (
     <LessonRunner
       lesson={view.lesson}
@@ -50,6 +54,7 @@ export default async function LessonPage({ params, searchParams }: { params: Pro
       read={view.read}
       notes={view.notes}
       forms={view.forms}
+      words={words}
     />
   );
 }

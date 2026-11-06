@@ -6067,10 +6067,10 @@ _lib/copy/i18n/areas/reference.ts_
   → Однина
 - [ ] **3000.** Plural  
   → Множина
-- [ ] **3001.** Most plural forms are built on the mitmuse omastav (2nd form, plural), and we don't have it for this word. So we've left a gap rather than guess one.  
-  → Більшість форм множини утворюються від mitmuse omastav (2-га форма, мн.), а її для цього слова в нас немає. Тому ми залишили пропуск, щоб не вгадувати.
-- [ ] **3002.** We don't have the mitmuse nimetav (1st form, plural) for this word, and it isn't an ending we can work out. So we've left a gap rather than guess one.  
-  → У нас немає mitmuse nimetav (1-ша форма, мн.) для цього слова, а вивести її за закінченням не можна. Тому ми залишили пропуск, щоб не вгадувати.
+- [ ] **3001.** Most plural forms are built on the mitmuse omastav (plural), and we don't have it for this word. So we've left a gap rather than guess one.  
+  → Більшість форм множини утворюються від mitmuse omastav (мн.), а її для цього слова в нас немає. Тому ми залишили пропуск, щоб не вгадувати.
+- [ ] **3002.** We don't have the mitmuse nimetav (plural) for this word, and it isn't an ending we can work out. So we've left a gap rather than guess one.  
+  → У нас немає mitmuse nimetav (мн.) для цього слова, а вивести її за закінченням не можна. Тому ми залишили пропуск, щоб не вгадувати.
 - [ ] **3003.** Why these are the long forms  
   → Чому тут довгі форми
 - [ ] **3004.** Pronouns have short forms too, and those are the ones you'll hear most. A dictionary lists the long ones first, so that's what you see here. Both are right.  
@@ -6397,8 +6397,8 @@ _lib/copy/i18n/areas/reference.ts_
   → Не лише закінчення
 - [ ] **3165.** Grouped by the kind of word they're about, in the order a course would teach them.  
   → Згруповано за типом слів, у тому порядку, в якому їх проходять на курсі.
-- [ ] **3166.** The singular endings go on the omastav (2nd form), and the plural ones on the mitmuse omastav (2nd form, plural). If the dictionary has no mitmuse omastav for a word, its table shows a gap rather than a guess.  
-  → Закінчення однини додаються до omastav (2-га форма), а закінчення множини до mitmuse omastav (2-га форма, мн.). Якщо в словнику немає mitmuse omastav для слова, у його таблиці буде пропуск, а не здогадка.
+- [ ] **3166.** The singular endings go on the omastav (2nd form), and the plural ones on the mitmuse omastav (plural). If the dictionary has no mitmuse omastav for a word, its table shows a gap rather than a guess.  
+  → Закінчення однини додаються до omastav (2-га форма), а закінчення множини до mitmuse omastav (мн.). Якщо в словнику немає mitmuse omastav для слова, у його таблиці буде пропуск, а не здогадка.
 - [ ] **3167.** Still stuck on one? {ask} and she'll explain the rule behind a sentence you wrote.  
   → Усе ще не виходить? {ask}: вона пояснить правило на прикладі твого речення.
 - [ ] **3168.** All endings  
@@ -11575,8 +11575,8 @@ _lib/copy/i18n/areas/progress.ts_
   → Ти правильно ставиш {case} ({asks}) у {weak}% випадків, а решту відмінків у {overall}%. Найбільше допоможе короткий раунд лише на цей відмінок.
 - [ ] **5742.** You get these right, just slowly  
   → Ти відповідаєш на них правильно, просто повільно
-- [ ] **5743.** You get {strong}% right on words whose plural follows the pattern, but {weak}% on words with a mitmuse omastav (2nd form, plural) of their own. Those have to be learned by heart.  
-  → Ти правильно відповідаєш у {strong}% випадків на слова, у яких множина за правилом, але лише в {weak}% на слова зі своєю власною mitmuse omastav (2-га форма, мн.). Їх доводиться вчити напам'ять.
+- [ ] **5743.** You get {strong}% right on words whose plural follows the pattern, but {weak}% on words with a mitmuse omastav (plural) of their own. Those have to be learned by heart.  
+  → Ти правильно відповідаєш у {strong}% випадків на слова, у яких множина за правилом, але лише в {weak}% на слова зі своєю власною mitmuse omastav (мн.). Їх доводиться вчити напам'ять.
 - [ ] **5744.** You haven't answered any case cards yet. They come with the units that put endings on nouns, in  
   → Відповідей на відмінкові картки в тебе поки немає. Вони з'являються з розділами, де іменники отримують закінчення, у
 - [ ] **5745.** You haven't practiced any of these {total} words yet. Start with the unit they come from.  
@@ -46146,8 +46146,8 @@ _lib/copy/i18n/areas/lessonTextB2Arutelu.ts_
   → велосипед, колесо
 - [ ] **22916.** a bike's: the \[omastav\] (2nd form); {rattaga}, by bike  
   → велосипеда: \[omastav\] (2-га форма); {rattaga}, велосипедом
-- [ ] **22917.** cars, some of them: the \[mitmuse osastav\] (3rd form, plural)  
-  → машин, якусь кількість: \[mitmuse osastav\] (3-тя форма, множина)
+- [ ] **22917.** cars, some of them: the \[mitmuse osastav\] (plural)  
+  → машин, якусь кількість: \[mitmuse osastav\] (множина)
 - [ ] **22918.** according to the figures, the data: {linna andmetel}  
   → за даними: {linna andmetel}, за даними міста
 - [ ] **22919.** a percent  
@@ -46164,8 +46164,8 @@ _lib/copy/i18n/areas/lessonTextB2Arutelu.ts_
   → зменшується, знижується: цифра – це «воно»
 - [ ] **22925.** it gets bigger, it goes up  
   → збільшується, зростає
-- [ ] **22926.** of the cars: the \[mitmuse omastav\] (2nd form, plural)  
-  → машин: \[mitmuse omastav\] (2-га форма, множина)
+- [ ] **22926.** of the cars: the \[mitmuse omastav\] (plural)  
+  → машин: \[mitmuse omastav\] (множина)
 - [ ] **22927.** people riding, travelers, some of them  
   → тих, хто їде, пасажирів, якусь кількість
 - [ ] **22928.** by, by how much: {kahe protsendi võrra}, by two percent  
@@ -46724,8 +46724,8 @@ _lib/copy/i18n/areas/lessonTextB2Arutelu.ts_
   → по-перше
 - [ ] **23205.** second, secondly  
   → по-друге
-- [ ] **23206.** shops: the \[mitmuse nimetav\] (1st form, plural)  
-  → крамниці: \[mitmuse nimetav\] (1-ша форма, множина)
+- [ ] **23206.** shops: the \[mitmuse nimetav\] (plural)  
+  → крамниці: \[mitmuse nimetav\] (множина)
 - [ ] **23207.** so, for that reason: the written {sellepärast}  
   → тому, з цієї причини: письмове {sellepärast}
 - [ ] **23208.** a conclusion  
