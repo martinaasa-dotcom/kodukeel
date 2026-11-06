@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { playClip, stopClip, untilQuiet, type ClipRequest } from "@/lib/audio/clip";
+import { holdSpeaking, playClip, stopClip, untilQuiet, type ClipRequest } from "@/lib/audio/clip";
 
 /** What a play of every line came to, or null where the press was a Stop. */
 export interface LinesPlayed {
@@ -40,21 +40,27 @@ export function useLinePlayer() {
     stop.current = false;
     running.current = true;
     setPlaying(true);
+    // The whole run is the app speaking, gaps included, or the microphone opens between two lines.
+    const release = holdSpeaking();
     let heard = 0;
-    for (let i = 0; i < lines.length; i++) {
-      if (stop.current) break;
-      const line = lines[i];
-      if (!line) continue;
-      setActive(i);
-      onLine?.(i);
-      try {
-        if ((await playClip(line)) === "played") heard += 1;
-        await untilQuiet(20_000);
-      } catch {
-        // Passed over rather than ending the run.
+    try {
+      for (let i = 0; i < lines.length; i++) {
+        if (stop.current) break;
+        const line = lines[i];
+        if (!line) continue;
+        setActive(i);
+        onLine?.(i);
+        try {
+          if ((await playClip(line)) === "played") heard += 1;
+          await untilQuiet(20_000);
+        } catch {
+          // Passed over rather than ending the run.
+        }
+        if (stop.current) break;
+        await new Promise((r) => setTimeout(r, gapMs));
       }
-      if (stop.current) break;
-      await new Promise((r) => setTimeout(r, gapMs));
+    } finally {
+      release();
     }
     running.current = false;
     setActive(null);
