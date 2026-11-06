@@ -544,7 +544,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { who: "Mari", et: "Aga ülemus?", en: "And your boss?" },
       { who: "Tom", et: "Ta on hea ülemus, aga ta kardab, et ilma minuta ei tööta midagi.", en: "She's a good boss, but she's afraid nothing works without me." },
       { who: "Mari", et: "Kas see on tõsi?", en: "Is that true?" },
-      { who: "Tom", et: "Ei. Tegelikult töötab kõik väga hästi ka ilma minuta.", en: "No. Actually everything works fine without me too." },
+      { who: "Tom", et: "Ei. Tegelikult töötab kõik väga hästi ka ilma minuta.", en: "No. Actually everything works very well without me too." },
       { who: "Mari", et: "Siis räägi temaga homme! Ma usun sinusse, sa saad hakkama.", en: "Then talk to her tomorrow! I believe in you, you'll manage." },
       { who: "Tom", et: "Aga kui ta ütleb, et see pole võimalik?", en: "But what if she says it isn't possible?" },
       { who: "Mari", et: "Siis sõidame ilma sinuta: mina, Anna ja lapsed. Peeter tuleb ka meiega.", en: "Then we'll go without you: me, Anna and the kids. Peeter's coming with us too." },
