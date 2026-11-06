@@ -453,7 +453,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Läks põlema} is caught fire: the thing goes into burning.",
+        "{Läks põlema} is caught fire: literally, it went into burning.",
         "The news says {sai vigastada}, was injured. Talking it over, people say {sai haiget}: {Kas keegi sai haiget?}",
         "{Õnneks} is luckily: {Õnneks ei saanud keegi vigastada}.",
       ],

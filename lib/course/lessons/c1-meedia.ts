@@ -636,7 +636,7 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
         "A film says a lot by not saying it. {No küll sa oled tark} said to somebody who has just done something stupid means the opposite: listen for what the scene makes of the words.",
         "When a line refers to something you don't know, ask: to a friend {Millele sa viitad?}, at work {Vabandust, millele te viitate?}.",
       ],
-      watchOut: "{Arusaamatu} is about the thing, not you: {nali oli mulle arusaamatu}, the joke went over my head. Don't say {ma olen arusaamatu}, which would mean nobody can understand you.",
+      watchOut: "{Arusaamatu} is about the noun ({nali} here), not you: {nali oli mulle arusaamatu}, the joke went over my head. Don't say {ma olen arusaamatu}, which would mean nobody can understand you.",
       examples: [3, 5, 10],
     },
     hearing: "cafe",

@@ -3373,6 +3373,16 @@ and a check everybody waives is a check nobody reads. The emoji rule is drawn th
 arrow in "Estonian to English", the return key in a keyboard hint and the tick on the week strip
 are typographic glyphs doing a job, and only the pictographic kind is banned.
 
+**Grammar copy names the part of speech, never "the thing" or "the word".** "After {ei}, the thing is
+always in the osastav" left a reader asking which word the thing was. The operator's rule, site wide:
+a grammar explanation says "the noun" or "the pronoun", and where the line already shows the word, names
+it in braces with the Estonian already in that line, "the noun ({võtit} here)", "the pronoun ({mida}
+here)"; with no example in the line it is "the noun" alone, and in `lib/estonian/grammar.ts`, which holds
+no Estonian, always that. Ordinary English that is not about a word's role ("Say what the thing is or
+does") stays. `scripts/invariants/grammar-says-the-noun.ts` reads every lesson grammar field and
+`grammar.ts`, with a written exemption list checked both ways, and `VOICE_RULES` hands the same rule to
+Anu, the graders and the conversation note.
+
 **One tell is not brochure, and that is the point of it.** `paradigm` is the linguist's word for
 the thing a class calls the forms of a word, the case endings, or just the table. Nobody learning
 Estonian in Tallinn has met it, so a screen that uses it stops the reader while they work out which

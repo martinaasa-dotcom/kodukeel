@@ -465,7 +465,7 @@ export const B2_ARUTELU_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "argument", en: "an argument, a reason for" },
       { kind: "form", et: "argumente", of: "argument", en: "arguments, some of them" },
       { kind: "word", et: "vastuväide", en: "a counter-argument, an objection" },
-      { kind: "form", et: "vastuväidet", of: "vastuväide", en: "a counter-argument, as the thing you need: the [osastav] (3rd form)" },
+      { kind: "form", et: "vastuväidet", of: "vastuväide", en: "a counter-argument, as what you need: the [osastav] (3rd form)" },
       { kind: "form", et: "vastuväiteta", of: "vastuväide", en: "without a counter-argument" },
       { kind: "word", et: "esiteks", en: "first, firstly" },
       { kind: "word", et: "teiseks", en: "second, secondly" },

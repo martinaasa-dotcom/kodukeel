@@ -145,7 +145,7 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Aga ma pole kunagi koosolekut juhtinud.", en: "But I've never run a meeting." }, right: "koosolekut", wrong: "koosolek", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a no, the thing takes the [osastav] (3rd form): {pole koosolekut juhtinud}." },
+      { line: { et: "Aga ma pole kunagi koosolekut juhtinud.", en: "But I've never run a meeting." }, right: "koosolekut", wrong: "koosolek", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a no, the noun ({koosolekut} here) takes the [osastav] (3rd form): {pole koosolekut juhtinud}." },
       { line: { et: "Ei sega. Tule sisse. Tom hakkab meie koosolekuid juhtima.", en: "Not at all. Come in. Tom's going to run our meetings." }, right: "juhtima", wrong: "juhtida", pair: ["Sup", "Inf"], why: "{Hakkama} takes the [ma-tegevusnimi] (-ma): {hakkab juhtima}." },
     ],
     faster: {
@@ -495,7 +495,7 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "majandusolukord", en: "the economic situation" },
     ],
     how: {
-      point: "Say what you're responsible for with {vastutama} and {eest}: the thing comes first, in the [omastav] (2nd form), {Ma vastutan rakenduse eest}.",
+      point: "Say what you're responsible for with {vastutama} and {eest}: the noun ({rakenduse} here) comes first, in the [omastav] (2nd form), {Ma vastutan rakenduse eest}.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -512,7 +512,7 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
         "{Kuidas kellelgi} is a short answer people use all the time: it depends who you ask.",
         "The words of a job ad: {ametikoht}, a post; {kandidaat}, a candidate; {värbamine}, hiring; {edutamine}, a promotion; and {juhend}, the instructions a newcomer is given.",
       ],
-      watchOut: "{Eest} comes after the thing, never before it: {rakenduse eest}, not {eest rakenduse}.",
+      watchOut: "{Eest} comes after the noun, never before it: {rakenduse eest}, not {eest rakenduse}.",
       examples: [3, 5, 8, 11],
     },
     listenFor: [

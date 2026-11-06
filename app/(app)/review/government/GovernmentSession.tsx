@@ -333,7 +333,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
             )}
             <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
               {question.experiencer
-                ? fill(t("Here the person goes in the {case}, and the thing itself is the subject."), { case: question.answerEt })
+                ? fill(t("Here the person goes in the {case}, and the noun itself is the subject."), { case: question.answerEt })
                 : questionIn(locale, question.answerQuestion)
                   ? fill(t("{verb} takes the {case}, the one that asks {question}. English gives you no hint here, so learn the two together."), {
                     verb: question.lemma, case: question.answerEt, question: questionIn(locale, question.answerQuestion) ?? "",

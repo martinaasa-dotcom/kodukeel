@@ -477,7 +477,7 @@ export const C1_KODU_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "kolmandik", en: "a third" },
     ],
     how: {
-      point: "A loan offer is B2's officialese at full strength: a -mine noun does the verb's work, and the thing it is done to stands in front of it in the [omastav] (2nd form). Read {Laenu tasumine toimub igakuiselt}, and say {Laenu makstakse iga kuu tagasi}.",
+      point: "A loan offer is B2's officialese at full strength: a -mine noun does the verb's work, and the noun it is done to ({Laenu} here) stands in front of it in the [omastav] (2nd form). Read {Laenu tasumine toimub igakuiselt}, and say {Laenu makstakse iga kuu tagasi}.",
       table: {
         head: ["The offer writes", "You say", "In English"],
         rows: [

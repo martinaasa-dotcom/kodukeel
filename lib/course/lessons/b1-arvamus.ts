@@ -413,7 +413,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "{Saab} with the [da-tegevusnimi] (-da) is you can, anybody can: {saab tasuta helistada}.",
-        "After a number, the thing is in the [osastav] (3rd form) and stays one: {kakskümmend sõnumit}.",
+        "After a number, the noun ({sõnumit} here) is in the [osastav] (3rd form) and stays one: {kakskümmend sõnumit}.",
         "{Sotsiaalmeedia} takes the endings any noun does: you use {sotsiaalmeediat}, and you read things {sotsiaalmeedias}, on social media.",
       ],
       watchOut: "{Ma ei teadnud, et...} is I didn't know that: after {ei} the past is the [nud-kesksõna] (-nud, done), and {et} with its comma brings in what you didn't know.",
@@ -647,7 +647,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Olema vastu} is to be against, with the thing in the [omastav] (2nd form) in front: {plaani vastu}.",
+        "{Olema vastu} is to be against, with the noun ({plaani} here) in the [omastav] (2nd form) in front: {plaani vastu}.",
         "{Kus} and {mis} let one sentence carry two facts: {koht, kus lapsed mängivad}.",
         "{Asemele} wants the [omastav] (2nd form) too: {pargi asemele}, in place of the park. And to say what you think in public is {oma arvamust avaldada}.",
       ],

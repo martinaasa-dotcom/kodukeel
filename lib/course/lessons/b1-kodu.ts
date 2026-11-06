@@ -301,7 +301,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "A notice names the thing in -mine: {suitsetamine}, smoking, {sorteerimine}, sorting. It's the verb made into a noun.",
+        "A notice names the action in -mine: {suitsetamine}, smoking, {sorteerimine}, sorting. It's the verb made into a noun.",
         "{Palume} is we ask, a notice's polite please. {Vabandust paluma} is to apologize.",
         "{Lubama} is to allow, and also to promise: {Ma luban} is I promise.",
       ],

@@ -148,7 +148,7 @@ export const CASE_NOTES: readonly CaseNote[] = [
       "When something happens",
     ],
     watchOut:
-      "There's no verb for \"have\". The owner takes this ending and the thing they own becomes the subject, so the sentence feels inside out at first.",
+      "There's no verb for \"have\". The owner takes this ending and the noun for what they own becomes the subject, so the sentence feels inside out at first.",
     englishHook: "On the table. The owner takes this ending to say \"I have a cat\".",
   },
   {
@@ -317,7 +317,7 @@ export const TOPIC_NOTES: readonly TopicNote[] = [
       "Being sleepy or hungry, or having to do something, works the same way",
     ],
     watchOut:
-      "You'll reach for a \"have\" that isn't there. Put -l on the owner, then \"is\", then the thing. That whole pattern is how Estonian says \"I have a car\".",
+      "You'll reach for a \"have\" that isn't there. Put -l on the owner, then \"is\", then the noun. That whole pattern is how Estonian says \"I have a car\".",
   },
   {
     id: "present-tense",
@@ -574,7 +574,7 @@ export const TOPIC_NOTES: readonly TopicNote[] = [
   {
     id: "numerals",
     title: "Numbers and what follows them",
-    summary: "Counting is easy, until you notice the thing you're counting stays singular.",
+    summary: "Counting is easy, until you notice the noun you're counting stays singular.",
     points: [
       "From two up, the noun takes the singular \"some of it\" form",
       "Numbers take endings too, when the noun after them does",
@@ -610,7 +610,7 @@ export const TOPIC_NOTES: readonly TopicNote[] = [
   },
   {
     id: "nominalisation",
-    title: "Turning a clause into a thing",
+    title: "Turning a clause into a noun",
     summary: "A whole clause squeezed into one noun. It's what makes formal Estonian so dense.",
     marker: "-mine",
     points: [

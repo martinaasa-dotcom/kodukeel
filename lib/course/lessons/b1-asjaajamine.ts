@@ -273,7 +273,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
     ],
     fixes: [
       { line: { et: "Ilma teie passita ma ei saa avaldust vastu võtta.", en: "Without your passport I can't accept the application." }, right: "avaldust", wrong: "avalduse", pair: ["PARTITIVE", "GENITIVE"], why: "After {ei}, the [osastav] (3rd form): {avaldust}." },
-      { line: { et: "Siin on avaldus ja foto. Kõik blanketid on täidetud!", en: "Here's the application and the photo. All the forms are filled in!" }, right: "avaldus", wrong: "avalduse", pair: ["NOMINATIVE", "GENITIVE"], why: "After {siin on}, the thing simply is: the [nimetav] (1st form), {avaldus}." },
+      { line: { et: "Siin on avaldus ja foto. Kõik blanketid on täidetud!", en: "Here's the application and the photo. All the forms are filled in!" }, right: "avaldus", wrong: "avalduse", pair: ["NOMINATIVE", "GENITIVE"], why: "After {siin on}, the noun ({avaldus} here) simply is: the [nimetav] (1st form)." },
     ],
     faster: {
       ask: { et: "Mis dokumendid teil kaasas on?", en: "What documents do you have with you?" },

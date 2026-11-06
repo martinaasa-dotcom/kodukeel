@@ -333,7 +333,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
         "{Võiksin} is may I, could I, and {saaksid} is could you. Both are fine with the boss and with anybody else.",
         "Asking for something takes the [osastav] (3rd form): {paluda uut arvutit}. The boss ordering the whole thing is the [omastav] (2nd form): {Ma tellin sulle uue}.",
         "{Küll} after a yes makes it warm and sure: {Võid küll}, sure you can.",
-        "{Paluma} can also take who you ask in -lt and the thing in the [osastav] (3rd form): {Ma palusin juhilt uut arvutit}.",
+        "{Paluma} can also take who you ask in -lt and the noun ({arvutit} here) in the [osastav] (3rd form): {Ma palusin juhilt uut arvutit}.",
       ],
       watchOut: "To your boss, {Ma tahan} sounds blunt. {Ma tahaksin} is the polite way to ask.",
       examples: [2, 6, 7, 10],
@@ -571,7 +571,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "kolleege", of: "kolleeg", en: "colleagues, some of them" },
     ],
     how: {
-      point: "You met this in A2, and a work schedule is full of it: after a number, the thing you count is in the [osastav] (3rd form), and only one of it: {kuus päeva}, {kuusteist tundi}, {kaks tükki}. A word in front agrees: {kaks vaba päeva}.",
+      point: "You met this in A2, and a work schedule is full of it: after a number, the noun you count is in the [osastav] (3rd form), and only one of it: {kuus päeva}, {kuusteist tundi}, {kaks tükki}. A word in front agrees: {kaks vaba päeva}.",
       table: {
         head: ["Estonian", "In English"],
         rows: [

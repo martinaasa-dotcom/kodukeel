@@ -270,7 +270,7 @@ export const B2_KONEKEEL_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Seda ma küll ei usu!", en: "Now that I don't believe!" }, right: "Seda", wrong: "See", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a no, the thing takes the [osastav] (3rd form), {seda}, even when it comes first." },
+      { line: { et: "Seda ma küll ei usu!", en: "Now that I don't believe!" }, right: "Seda", wrong: "See", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a no, the pronoun ({seda} here) takes the [osastav] (3rd form), even when it comes first." },
       { line: { et: "Uues kohas on tal rohkem vaba aega.", en: "In the new place he'll have more free time." }, right: "aega", wrong: "aeg", pair: ["PARTITIVE", "NOMINATIVE"], why: "After {rohkem}, the [osastav] (3rd form): {rohkem aega}." },
     ],
     faster: {
