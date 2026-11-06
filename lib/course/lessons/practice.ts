@@ -695,21 +695,63 @@ export function everyTypedQuestion(lesson: LessonSpec, before: Ledger): Practice
 }
 
 /**
- * Step 6: older words, matched and picked out, and a line from an older
- * conversation with a gap in it. Empty on the first lesson.
+ * STEP 6: TONIGHT, ONCE MORE, ASKED THE OTHER WAY ROUND.
+ *
+ * The step went over older words, drawn from the last few lessons, and a
+ * learner on B1's first lesson was asked `ammu`, `õhtu` and `kindel` with no
+ * idea where they came from: words A2 taught, correctly chosen and nothing to
+ * do with the evening. Older words come back on their own schedule in the
+ * review queue the deck builds from every finished lesson, so the step was
+ * doing worse a job the home page already does. The operator's call: the
+ * step is a recap of tonight itself.
+ *
+ * Asked so it is not Practice again. Practice leans on picking from options;
+ * the recap makes the learner produce tonight's words from their English,
+ * after Say it, which is the gap that makes remembering stick, and puts back
+ * a word taken out of tonight's own conversation, which is where a form is
+ * chosen for what the sentence says (`raamatu` or `raamatut` in front of
+ * `läbi`). A word too long to type is picked out instead.
+ *
+ * ON A CHECK-IN AND A PART'S LAST LESSON IT IS THE WHOLE PART. Those evenings
+ * are about putting a part together, so the step goes over every lesson of
+ * the part so far: its words matched and picked out, and a gap from one of
+ * its conversations. Empty on the first lesson of the course.
  */
 export function reviewFor(lesson: LessonSpec, before: Ledger, history: readonly LessonSpec[] = []): PracticeItem[] {
   const random = rng(seedFrom(`review:${lesson.id}`));
-  const older = before.items.map((d) => d.item).filter((item) => !meaningShows(item));
-  if (older.length === 0) return [];
-  // The newest older lessons are likeliest to need it, so they are drawn from first.
-  const recent = [...older].reverse().slice(0, REVIEW_ITEMS * 3);
-  const picked = shuffle(recent, random).slice(0, REVIEW_ITEMS);
+  if (lesson.kind === "checkin" || lesson.kind === "partEnd") return partReview(lesson, before, history, random);
+  const after = teach(before, lesson.teaches, lessonRank(lesson), lesson.patterns);
+  const subjects = onePerMeaning(practiceSubjects(lesson, before)).filter((item) => !meaningShows(item));
+  if (subjects.length === 0) return [];
+  const tonight = lesson.teaches.flatMap(unfold);
+  const pool = poolFor(tonight, before);
+  const order = shuffle(subjects, random);
+  const typed = order.filter((item) => wordsOf(item.et).length <= TYPE_UP_TO_WORDS).slice(0, RECAP_TYPED);
+  const typedSet = new Set(typed);
+  const picked = order.filter((item) => !typedSet.has(item)).slice(0, Math.max(0, RECAP_ITEMS - RECAP_GAPS - typed.length))
+    .map((item) => recognise(item, [...nearestFirst(item, tonight), ...pool], random));
+  const gaps = gapsFrom(linesOf([lesson]), after, random, RECAP_GAPS);
+  return [...typed.map((item) => produce(item, pool, after)), ...picked, ...gaps];
+}
+
+/** How many questions tonight's recap asks, and how many of them are typed or a gap in tonight's conversation. */
+export const RECAP_ITEMS = 6;
+const RECAP_TYPED = 4;
+const RECAP_GAPS = 2;
+
+/** A check-in's or a part's last lesson's review: every lesson of the part so far, tonight's included. */
+function partReview(lesson: LessonSpec, before: Ledger, history: readonly LessonSpec[], random: () => number): PracticeItem[] {
+  const ofPart = [...history.filter((l) => l.part === lesson.part), lesson];
+  const ranks = new Set(ofPart.map(lessonRank));
+  const after = teach(before, lesson.teaches, lessonRank(lesson), lesson.patterns);
+  const items = after.items.filter((d) => ranks.has(d.lesson)).map((d) => d.item).filter((item) => !meaningShows(item));
+  if (items.length === 0) return [];
+  const picked = shuffle(onePerMeaning(items), random).slice(0, REVIEW_ITEMS);
   const match = matchFrom(picked, random);
   const matched = new Set(match?.kind === "match" ? match.pairs.map((p) => p.et) : []);
-  const rest = picked.filter((item) => !matched.has(item.et))
-    .map((item) => recognise(item, neighboursFirst(item, before, [...older].reverse()), random));
-  const gaps = gapsFrom(linesOf(history.slice(-CHECKIN_REACH)), before, random, 1);
+  const pool = [...after.items].reverse().map((d) => d.item);
+  const rest = picked.filter((item) => !matched.has(item.et)).map((item) => recognise(item, neighboursFirst(item, after, pool), random));
+  const gaps = gapsFrom(linesOf(ofPart), after, random, 1);
   return [...(match ? [match] : []), ...rest, ...gaps];
 }
 

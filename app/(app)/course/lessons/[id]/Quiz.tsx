@@ -137,7 +137,7 @@ export function Quiz({ items, onFinished, onAnswer, summary = true, review = fal
           <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>
             {all
               ? t("Every one. Carry on when you're ready.")
-              : review ? t("The ones that slipped come round again in a later review.") : t("Earlier words come back in the review at the end of each lesson.")}
+              : review ? t("The ones that slipped come round again in a later review.") : t("Today's words come back once more in the review at the end of the lesson.")}
           </p>
           {best >= 3 && (
             <p className="mt-2 inline-flex items-center gap-1.5 text-base font-semibold" style={{ color: "var(--accent-deep)" }}>
