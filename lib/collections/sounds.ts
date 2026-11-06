@@ -52,10 +52,10 @@ export const VOWELS: readonly SoundNote[] = [
   { clip: "sound-i", glyph: "i" },
   { clip: "sound-o", glyph: "o" },
   { clip: "sound-u", glyph: "u" },
-  { clip: "sound-ou", glyph: "õ", note: "an o said with the lips spread, not rounded" },
+  { clip: "sound-ou", glyph: "õ", note: "close to the u in fun, said further back with the lips spread" },
   { clip: "sound-ae", glyph: "ä", note: "the a in cat" },
-  { clip: "sound-oe", glyph: "ö", note: "an e said with rounded lips" },
-  { clip: "sound-ue", glyph: "ü", note: "an i said with rounded lips" },
+  { clip: "sound-oe", glyph: "ö", note: "the ir in bird, said without the r and with rounded lips" },
+  { clip: "sound-ue", glyph: "ü", note: "the ee in see, said with rounded lips" },
 ];
 
 /** The four letters the page opens on. */

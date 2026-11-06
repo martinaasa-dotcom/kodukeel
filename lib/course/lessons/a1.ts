@@ -77,10 +77,10 @@ const TERE_LESSONS: readonly LessonSpec[] = [
         "Between friends, {Tsau!} is both hi and bye. The dictionary spells it with a š, tšau, but almost everybody writes tsau.",
       ],
       sounds: [
-        { sound: "sound-ou", glyph: "õ", like: "an o said with the lips spread, not rounded", word: "stress-ouhtust", mark: "õ", en: "evening, as in good evening" },
+        { sound: "sound-ou", glyph: "õ", like: "close to the u in fun, said further back with the lips spread", word: "stress-ouhtust", mark: "õ", en: "evening, as in good evening" },
         { sound: "sound-ae", glyph: "ä", like: "the a in cat", word: "word-aitaeh", mark: "ä", en: "thank you" },
-        { sound: "sound-oe", glyph: "ö", like: "an e said with rounded lips", word: "vowel-oeoe", mark: "öö", en: "night" },
-        { sound: "sound-ue", glyph: "ü", like: "an i said with rounded lips", word: "number-ueks", mark: "ü", en: "one" },
+        { sound: "sound-oe", glyph: "ö", like: "the ir in bird, said without the r and with rounded lips", word: "vowel-oeoe", mark: "öö", en: "night" },
+        { sound: "sound-ue", glyph: "ü", like: "the ee in see, said with rounded lips", word: "number-ueks", mark: "ü", en: "one" },
         { sound: "sound-mm", glyph: "mm", like: "a double letter is a long sound: hold the m", word: "stress-hommikust", mark: "mm", en: "morning, as in good morning" },
         { sound: "sound-h", glyph: "h", like: "always said, even at the end of a word", word: "word-aitaeh", mark: "h", en: "thank you" },
       ],

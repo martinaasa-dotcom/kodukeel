@@ -100,7 +100,7 @@
         {
           "sound": "sound-ou",
           "glyph": "õ",
-          "like": "an o said with the lips spread, not rounded",
+          "like": "close to the u in fun, said further back with the lips spread",
           "word": "stress-ouhtust",
           "mark": "õ",
           "en": "evening, as in good evening"
@@ -116,7 +116,7 @@
         {
           "sound": "sound-oe",
           "glyph": "ö",
-          "like": "an e said with rounded lips",
+          "like": "the ir in bird, said without the r and with rounded lips",
           "word": "vowel-oeoe",
           "mark": "öö",
           "en": "night"
@@ -124,7 +124,7 @@
         {
           "sound": "sound-ue",
           "glyph": "ü",
-          "like": "an i said with rounded lips",
+          "like": "the ee in see, said with rounded lips",
           "word": "number-ueks",
           "mark": "ü",
           "en": "one"
@@ -427,13 +427,13 @@
     "See you! Bye!": "Увидимся! Пока!",
     "Estonian is said the way it is written: one letter is one sound, and every letter is said.": "Эстонский читается так, как пишется: одна буква означает один звук, и произносится каждая буква.",
     "{Palun} does three jobs: please, here you are, and you're welcome.": "У {Palun} три значения: «пожалуйста», «вот, возьмите» и «не за что».",
-    "an o said with the lips spread, not rounded": "o, произнесённое с растянутыми, а не округлёнными губами",
+    "close to the u in fun, said further back with the lips spread": "близко к u в слове fun, но глубже и с растянутыми губами",
     "evening, as in good evening": "вечер, как в «добрый вечер»",
     "the a in cat": "a в слове cat",
     "thank you": "спасибо",
-    "an e said with rounded lips": "э, сказанное с округлёнными губами",
+    "the ir in bird, said without the r and with rounded lips": "ir в слове bird, но без r и с округлёнными губами",
     "night": "ночь",
-    "an i said with rounded lips": "и, сказанное с округлёнными губами",
+    "the ee in see, said with rounded lips": "ee в слове see, произнесённое с округлёнными губами",
     "one": "один",
     "a double letter is a long sound: hold the m": "двойная буква означает долгий звук: потяните m",
     "morning, as in good morning": "утро, как в «доброе утро»",
