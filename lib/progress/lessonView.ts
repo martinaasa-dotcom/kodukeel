@@ -1,7 +1,9 @@
 import { lessonById, lessonLabel, LESSON_PARTS, LESSONS, type LessonSpec } from "@/lib/course/lessons";
 import { PREVIEW_LESSONS, PREVIEW_PARTS } from "@/lib/course/lessons/preview";
 import { lessonListStates } from "@/lib/progress/course";
-import { acceptedSentences, withOrders, type PracticeItem } from "@/lib/course/lessons/practice";
+import { acceptedSentences, formsAskedOf, withFormNames, withOrders, type PracticeItem } from "@/lib/course/lessons/practice";
+import { nameAcross, type EntryForms } from "@/lib/estonian/nameForm";
+import { oneEntryPerLemma, VOUCHED_ROW } from "@/lib/dict/search";
 import { orderContextFor } from "@/lib/dict/wordOrder";
 import { lessonWordsWorthAsking } from "@/lib/estonian/wordOrder";
 import { sayableName } from "@/lib/course/lessons/ownAnswer";
@@ -160,8 +162,32 @@ export async function lessonView(
     words are verbs is the dictionary's to say and the lesson marks in the
     browser. One read, bounded by the sentences the lesson counts.
   */
-  const dict = await orderContextFor(acceptedSentences([...built.practice, ...built.review]), lessonWordsWorthAsking);
-  const plan = { ...built, practice: withOrders(built.practice, dict), review: withOrders(built.review, dict) };
+  const asked = formsAskedOf([...built.practice, ...built.review]);
+  const [dict, entries] = await Promise.all([
+    orderContextFor(acceptedSentences([...built.practice, ...built.review]), lessonWordsWorthAsking),
+    asked.length === 0 ? Promise.resolve([]) : prisma.lexeme.findMany({
+      where: { lemma: { in: asked }, ...VOUCHED_ROW },
+      select: { id: true, lemma: true, pos: true, provenance: true, forms: { select: { value: true, formType: true, morphCode: true } } },
+      orderBy: { id: "asc" },
+    }),
+  ]);
+  /*
+    WHICH FORM EACH TYPED QUESTION ASKS FOR, named off the dictionary's own
+    forms, so "the name, as an object" says `osastav (3rd form)` under it
+    rather than leaving the learner to work out which ending is wanted. Only
+    an entry the seed or Ekilex vouches for may name a form, and one entry per
+    headword, by the rule the dictionary leads with.
+  */
+  const byLemma = new Map<string, EntryForms>(oneEntryPerLemma(entries, asked).map((e) => [e.lemma, e]));
+  const name = (of: string, spelling: string, english: string) => {
+    const entry = byLemma.get(of);
+    return entry ? nameAcross([entry], spelling, english) : null;
+  };
+  const plan = {
+    ...built,
+    practice: withFormNames(withOrders(built.practice, dict), name),
+    review: withFormNames(withOrders(built.review, dict), name),
+  };
   /*
     THE PART THIS LESSON IS IN, lesson by lesson, so the screen can say "4 of
     8 in First words" and the finish can light the one just done. A lesson

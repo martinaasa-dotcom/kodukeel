@@ -4027,6 +4027,30 @@
                     },
                     "note": {
                       "type": "string"
+                    },
+                    "of": {
+                      "description": "The dictionary word the answer is a form of, where the question asks for a form.",
+                      "type": "string"
+                    },
+                    "form": {
+                      "description": "Which form the answer is, named the way a class names it in each language (`omastav (2nd form)`), where the dictionary can say. Shown with `of` under the question.",
+                      "type": "object",
+                      "properties": {
+                        "en": {
+                          "type": "string"
+                        },
+                        "ru": {
+                          "type": "string"
+                        },
+                        "uk": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "en",
+                        "ru",
+                        "uk"
+                      ]
                     }
                   },
                   "required": [
@@ -4516,6 +4540,30 @@
                     },
                     "note": {
                       "type": "string"
+                    },
+                    "of": {
+                      "description": "The dictionary word the answer is a form of, where the question asks for a form.",
+                      "type": "string"
+                    },
+                    "form": {
+                      "description": "Which form the answer is, named the way a class names it in each language (`omastav (2nd form)`), where the dictionary can say. Shown with `of` under the question.",
+                      "type": "object",
+                      "properties": {
+                        "en": {
+                          "type": "string"
+                        },
+                        "ru": {
+                          "type": "string"
+                        },
+                        "uk": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "en",
+                        "ru",
+                        "uk"
+                      ]
                     }
                   },
                   "required": [
@@ -5573,6 +5621,30 @@
                     },
                     "note": {
                       "type": "string"
+                    },
+                    "of": {
+                      "description": "The dictionary word the answer is a form of, where the question asks for a form.",
+                      "type": "string"
+                    },
+                    "form": {
+                      "description": "Which form the answer is, named the way a class names it in each language (`omastav (2nd form)`), where the dictionary can say. Shown with `of` under the question.",
+                      "type": "object",
+                      "properties": {
+                        "en": {
+                          "type": "string"
+                        },
+                        "ru": {
+                          "type": "string"
+                        },
+                        "uk": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "en",
+                        "ru",
+                        "uk"
+                      ]
                     }
                   },
                   "required": [

@@ -42,6 +42,7 @@ import { FRONTABLE, combinedSentences, foldedPhrase, sameSentence, spokenPhrase,
 import { personForms, type Person } from "@/lib/estonian/conjugate";
 import { lessonOrders, type OrderContext } from "@/lib/estonian/wordOrder";
 import type { LessonSpec, Room } from "./types";
+import type { FormNames } from "@/lib/estonian/nameForm";
 
 import type { Verdict } from "@/lib/ux/verdict";
 
@@ -64,7 +65,17 @@ export type PracticeItem =
       /** Taught spellings one letter from the answer that the ledger cannot say are the same word or another (`notSlipsFor`). */
       readonly unplaced?: readonly string[];
       /** The one person the answer's English names, where it names one: what a pronoun typed beside it has to be. */
-      readonly person?: Person }
+      readonly person?: Person;
+      /** The dictionary word the answer is a form of, for a taught form (`Taught` kind "form"). */
+      readonly of?: string;
+      /**
+       * Which form the answer is, named the way a class names it, in each
+       * language: `omastav (2nd form)`. Filled where the lesson is read
+       * (`withFormNames`), since naming it needs the dictionary. A question
+       * that asks for a form says which, so "the name, as an object" is not
+       * left for the learner to decode (`lib/estonian/nameForm.ts`).
+       */
+      readonly form?: FormNames }
   /**
    * Pairs to put together, Estonian with English, tapped one then the other.
    * The quick warm-up a lesson's practice opens on, for words said alone.
@@ -470,7 +481,28 @@ function produce(item: Asked, pool: readonly Asked[], taught: Ledger): PracticeI
   if (note.note === NOTE_ONE_WORD) accept.push(...eachWithItsPronoun(item, pool));
   const named = verbForm && wordsOf(item.et).length === 1 ? personsInEnglish(item.en) : [];
   const person = named.length === 1 ? { person: named[0]! } : {};
-  return { kind: "type", en: item.en, answer: item.et, accept, ...note, ...person, ...slipFields(notSlipsFor(accept, taught)) };
+  const of = item.kind === "form" && wordsOf(item.et).length === 1 ? { of: item.of } : {};
+  return { kind: "type", en: item.en, answer: item.et, accept, ...note, ...person, ...of, ...slipFields(notSlipsFor(accept, taught)) };
+}
+
+/**
+ * Every typed question asking for a form, with the form named: `name` is the
+ * dictionary's reading (`nameAcross`), handed in by the caller that can reach
+ * it. A form the dictionary cannot name is left as it was, never guessed.
+ */
+export function withFormNames(
+  items: readonly PracticeItem[], name: (of: string, spelling: string, english: string) => FormNames | null,
+): PracticeItem[] {
+  return items.map((item) => {
+    if (item.kind !== "type" || item.of === undefined) return item;
+    const form = name(item.of, item.answer, item.en);
+    return form ? { ...item, form } : item;
+  });
+}
+
+/** The dictionary words the typed questions ask forms of, for the one read that names them. */
+export function formsAskedOf(items: readonly PracticeItem[]): string[] {
+  return [...new Set(items.flatMap((item) => (item.kind === "type" && item.of !== undefined ? [item.of] : [])))];
 }
 
 /*
