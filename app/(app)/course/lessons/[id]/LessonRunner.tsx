@@ -9,6 +9,7 @@ import { forgetLessonPlace, loadLessonPlace, saveLessonPlace } from "@/component
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Braced } from "@/components/Braced";
 import { RuleNote } from "@/components/RuleNote";
+import { NoteChunks } from "@/components/NoteChunks";
 import { Speak } from "@/components/Speak";
 import { nativePart } from "@/lib/audio/native";
 import { stopClip } from "@/lib/audio/clip";
@@ -991,11 +992,7 @@ function How({ lesson, screen }: { lesson: LessonSpec; screen: LessonScreen }) {
         <RuleNote summary={how.point} watchOut={how.watchOut} />
       </Card>
       {how.notes && how.notes.length > 0 && (
-        <ul className="flex flex-col gap-3">
-          {how.notes.map((note) => (
-            <li key={note} className="text-base leading-relaxed" style={{ color: "var(--ink)" }}><LessonText text={note} locale={locale} /></li>
-          ))}
-        </ul>
+        <NoteChunks notes={how.notes.map((note) => ({ text: tr(locale, note), lang: lessonTextLang(note, locale) }))} />
       )}
       {how.table && (
         <div className="overflow-x-auto rounded-[var(--r-lg)] border" style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}>
