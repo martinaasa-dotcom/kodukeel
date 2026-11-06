@@ -106,7 +106,7 @@ export function FormGrid({ rows, plural, columns = true }: { rows: readonly Grid
       )}
       <div className="flex flex-col gap-2">
         {rows.map((r) => (
-          <div key={r.key} className="rounded-[var(--r-md)] px-4 py-3" style={{ background: "var(--raised)" }} data-form-row>
+          <div key={r.key} className="rounded-[var(--r-sm)] px-4 py-3" style={{ background: "var(--raised)" }} data-form-row>
             <div className={`grid grid-cols-1 items-center gap-x-4 gap-y-2 ${FORM_GRID_COLUMNS}`}>
               <div>
                 <p className="text-base font-semibold leading-snug" style={{ color: "var(--ink)" }}>{r.label}</p>

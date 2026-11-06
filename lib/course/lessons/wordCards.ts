@@ -167,7 +167,7 @@ export function rowLabel(texts: readonly string[]): string {
     const t = tails[0]!;
     return t.charAt(0).toLocaleUpperCase() + t.slice(1);
   }
-  return unique.join(" / ");
+  return unique.join("; ");
 }
 
 type FormItem = Extract<Taught, { kind: "form" }>;

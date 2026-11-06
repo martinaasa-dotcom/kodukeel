@@ -87,7 +87,7 @@ describe("every lesson's Words step", () => {
 describe("rowLabel", () => {
   it("keeps one label as it is and joins two that differ", () => {
     expect(rowLabel(["the keys"])).toBe("the keys");
-    expect(rowLabel(["of the key", "of the keys"])).toBe("of the key / of the keys");
+    expect(rowLabel(["of the key", "of the keys"])).toBe("of the key; of the keys");
     expect(rowLabel(["a sock, after a no", "socks, after a no"])).toBe("After a no");
   });
 });

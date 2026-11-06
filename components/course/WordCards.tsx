@@ -5,6 +5,7 @@ import { Speak } from "@/components/Speak";
 import { Card } from "@/components/ui";
 import { useLocale, useT } from "@/components/Locale";
 import { LessonText } from "@/components/course/LessonText";
+import { EstonianSentence } from "@/components/EstonianSentence";
 import { Braced } from "@/components/Braced";
 import { fill, tr, type Locale } from "@/lib/copy/locale";
 import { rowLabel, type Example, type WordCard, type WordRow, type WordsLayout } from "@/lib/course/lessons/wordCards";
@@ -31,39 +32,19 @@ export function WordCards({ layout }: { layout: WordsLayout }) {
   );
 }
 
-/** The lesson's own sentence under a row, the form marked, the English under it. */
+/**
+ * The lesson's own sentence under a row, through the one drawing of a sentence
+ * (`EstonianSentence`): the form marked, the speaker, and the English, which
+ * is the lesson's own line put into the learner's language. No call is spent:
+ * every line here carries its English already.
+ */
 function Sentence({ example, hit }: { example: Example | null; hit: string | null }) {
   const locale = useLocale();
   if (!example) return null;
   return (
-    <div data-lesson-example>
-      <p lang="et" className="flex items-center gap-2 text-base leading-snug" style={{ color: "var(--ink)" }}>
-        <span><Marked sentence={example.et} form={hit} /></span>
-        <Speak text={example.et} size={14} />
-      </p>
-      <p className="text-sm leading-snug" style={{ color: "var(--ink-3)" }}><LessonText text={example.en} locale={locale} /></p>
+    <div data-lesson-example className="text-base">
+      <EstonianSentence et={example.et} en={tr(locale, example.en)} lexemeId={null} canTranslate={false} form={hit} ask="never" />
     </div>
-  );
-}
-
-function Marked({ sentence, form }: { sentence: string; form: string | null }) {
-  if (!form) return <>{sentence}</>;
-  const lower = sentence.toLocaleLowerCase("et");
-  const f = form.toLocaleLowerCase("et");
-  let at = -1;
-  for (let from = 0; ; from = at + 1) {
-    at = lower.indexOf(f, from);
-    if (at < 0) return <>{sentence}</>;
-    const before = at === 0 ? "" : lower[at - 1]!;
-    const after = lower[at + f.length] ?? "";
-    if (!/\p{L}/u.test(before) && !/\p{L}/u.test(after)) break;
-  }
-  return (
-    <>
-      {sentence.slice(0, at)}
-      <strong className="font-semibold" style={{ color: "var(--accent-deep)" }}>{sentence.slice(at, at + form.length)}</strong>
-      {sentence.slice(at + form.length)}
-    </>
   );
 }
 
