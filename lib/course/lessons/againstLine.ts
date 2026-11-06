@@ -265,24 +265,28 @@ export function againstLine(typed: string, ask: LineAsk, entries: readonly Check
   const subs = substitutesFrom(entries.filter((e) => glosses.has(e.lemma)).map((e) => ({ lemma: e.lemma.toLocaleLowerCase("et"), pos: e.pos, gloss: glosses.get(e.lemma)! })));
   const byLemma = new Map(entries.map((e) => [e.lemma.toLocaleLowerCase("et"), e] as const));
   const typedNorm = words(typed).join(" ");
-  let best: AgainstLine | null = null;
+  /*
+    THE LINE IT IS NEAREST, counting the learner's words that stand for nothing
+    in it as well as the differences. A short alternative (`Esimesel juulil.`)
+    otherwise beat the whole line for any sentence that contains it, and the
+    verb in the wrong tense in front of it was read as an extra word, which is
+    never a fault, and passed.
+  */
+  let best: { read: AgainstLine; cost: number } | null = null;
   for (const line of ask.lines) {
-    if (words(line).join(" ") === typedNorm) return { differences: [], against: line };
-    const diff = compareOne(typed, line, ask, index, subs, byLemma, glosses);
-    if (!best || weight(diff) < weight(best.differences)) best = { differences: diff, against: line };
+    // The line word for word is right, except on a story told back, where the teller's own words are in the wrong person.
+    if (!ask.aboutThem && words(line).join(" ") === typedNorm) return { differences: [], against: line };
+    const { differences, extra } = compareOne(typed, line, ask, index, subs, byLemma, glosses);
+    const cost = differences.filter((d) => d.kind !== "synonym").length + extra;
+    if (!best || cost < best.cost) best = { read: { differences, against: line }, cost };
   }
-  return best ?? { differences: [], against: ask.lines[0] ?? "" };
-}
-
-/** How far a reading is from right: a synonym costs nothing. */
-function weight(diffs: readonly Difference[]): number {
-  return diffs.filter((d) => d.kind !== "synonym").length;
+  return best?.read ?? { differences: [], against: ask.lines[0] ?? "" };
 }
 
 function compareOne(
   typed: string, line: string, ask: LineAsk,
   index: Map<string, Reading[]>, subs: Map<string, string[]>, byLemma: Map<string, CheckEntry>, glosses: Glosses,
-): Difference[] {
+): { differences: Difference[]; extra: number } {
   const out: Difference[] = [];
   let mine = tokens(typed);
   let theirs = tokens(line);
@@ -363,7 +367,7 @@ function compareOne(
   const restMine = mine.filter((m) => !usedMine.has(m.at));
   for (const t of theirs.filter((x) => !usedTheirs.has(x.at))) {
     const tLemma = readings(t.word)[0]?.lemma;
-    const own = ask.ownDetails && ownDetail(t, byLemma.get(tLemma ?? ""), ask);
+    const own = ask.ownDetails && ownDetail(t, byLemma.get(tLemma ?? ""));
     const partnerAt = restMine.findIndex((m) => !usedMine.has(m.at) && (kind(m.word) === kind(t.word) || own));
     if (partnerAt >= 0) {
       const m = restMine[partnerAt]!;
@@ -376,12 +380,14 @@ function compareOne(
       out.push({ kind: "swap", word: m.word, right: t.word, meant: meaningOf(t.word, tLemma), yoursMeant: meaningOf(m.word) });
       continue;
     }
-    if (droppable(t.word, mine, readings)) continue;
-    // A detail of the learner's own, or of a story they told back in fewer words, is theirs to leave out.
-    if (own || ask.aboutThem) continue;
+    if (droppable(t.word)) continue;
+    // A detail of the learner's own may be changed, never left out; a story told back in fewer words is theirs to shorten.
+    if (ask.aboutThem) continue;
     out.push({ kind: "missing", right: t.word, meant: meaningOf(t.word, tLemma) });
   }
-  return out;
+  // The learner's words that stand for nothing in the line: never a fault, but what says which line they were saying.
+  const extra = mine.filter((m) => !usedMine.has(m.at) && !droppable(m.word)).length;
+  return { differences: out, extra };
 }
 
 /** A verb in a tense and person, where the dictionary holds it: the form a story told back needs. */
@@ -393,20 +399,24 @@ function personOf(entry: CheckEntry | undefined, slot: SlotRead): string | null 
 }
 
 /** A word of the line the learner may change to make it true for them. */
-function ownDetail(t: Token, entry: CheckEntry | undefined, ask: LineAsk): boolean {
+function ownDetail(t: Token, entry: CheckEntry | undefined): boolean {
   if (/^\d/.test(t.word) || t.capital) return true;
   if (!entry) return false;
   if (isNumber(entry.semanticTypes) || isTime(entry.semanticTypes)) return true;
-  if (entry.pos === "NOUN" || entry.pos === "ADJECTIVE") return true;
-  return !ask.taught?.has(t.word) && entry.pos === "PHRASE";
+  return entry.pos === "NOUN" || entry.pos === "ADJECTIVE";
 }
 
-/** A word the learner may leave out: a subject the verb already says, or a small word that changes nothing. */
-function droppable(word: string, mine: readonly Token[], readings: (w: string) => Reading[]): boolean {
-  if (DROPPABLE.has(word)) return true;
-  const person = SUBJECTS[word];
-  if (!person) return false;
-  return mine.some((m) => readings(m.word).some((r) => r.slot.person === person));
+/**
+ * A word the learner may leave out: a small word that changes nothing, or a
+ * pronoun. Estonian drops a subject whenever the verb says who (`Lugesin`),
+ * after a no as freely (`Ei tea`), and a possessive one where whose it is
+ * goes without saying (`Ettevõte teeb`). A pronoun that changes who it is
+ * about is named where it stands for another (`person`), and a verb in
+ * another person is named on the verb, so a pronoun left out is never the
+ * fault itself.
+ */
+function droppable(word: string): boolean {
+  return DROPPABLE.has(word) || SUBJECTS[word] !== undefined;
 }
 
 /** A different noun of the learner's own, read for the case the line puts its noun in. */
