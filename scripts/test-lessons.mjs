@@ -123,8 +123,8 @@ const footer = () => page.getByRole("button", { name: /^(Continue|Skip this step
   with what the screen showed, the way a learner who read the correction does.
 */
 const learned = new Map();
-const questionKey = async (quiz) => (await quiz.locator("h2, h3").first().innerText().catch(() => "")) + "|" +
-  (await quiz.innerText().catch(() => "")).replace(/\s+/g, " ").replace(/\d+ of \d+/g, "").slice(0, 160);
+const questionKey = async (quiz) => (await quiz.locator("h2, h3").first().innerText({ timeout: 300 }).catch(() => "")) + "|" +
+  (await quiz.innerText({ timeout: 300 }).catch(() => "")).replace(/\s+/g, " ").replace(/\d+ of \d+/g, "").slice(0, 160);
 
 async function quizThrough(where, reworks = []) {
   let asked = 0;
@@ -147,7 +147,9 @@ async function quizThrough(where, reworks = []) {
         await box.fill(known);
         await quiz.getByRole("button", { name: /^Check/ }).click();
       } else {
-        await quiz.locator('[role="radio"]:not([disabled])').filter({ hasText: known }).first().click();
+        const radios = quiz.locator('[role="radio"]:not([disabled])');
+        const texts = (await radios.allInnerTexts()).map((t) => t.replace(/^\d+\s*/, "").trim());
+        await radios.nth(Math.max(0, texts.findIndex((t) => t === known || t.startsWith(known)))).click();
       }
     } else if (kind === "match") {
       const left = quiz.locator('ul[aria-label="Estonian"] button');
@@ -194,8 +196,8 @@ async function quizThrough(where, reworks = []) {
     if (!(await next.count())) return asked;
     // Remember what the screen marked right, for the go over the ones that slipped.
     if (kind !== "match" && !learned.has(key)) {
-      const option = await quiz.locator('[role="radio"].option-right').first().innerText().catch(() => null);
-      const line = option ?? await quiz.locator(".verdict-panel [lang=et]").first().innerText().catch(() => null);
+      const option = await quiz.locator('[role="radio"].option-right').first().innerText({ timeout: 300 }).catch(() => null);
+      const line = option ?? await quiz.locator(".verdict-panel [lang=et]").first().innerText({ timeout: 300 }).catch(() => null);
       if (line) learned.set(key, line.replace(/^\d+\s*/, "").trim());
     }
     const other = quiz.locator("button:not([disabled])").filter({ hasNotText: /^(Next|Done)/ });

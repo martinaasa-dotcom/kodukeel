@@ -5,6 +5,7 @@ import { newPrismaClient } from "./lib/db.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 import { requireLocalDatabase } from "./lib/local-db.mjs";
 import { startRound } from "./lib/briefing.mjs";
+import { passPractice } from "./lib/practiceGate.mjs";
 
 /**
  * TODAY'S MODULE, WALKED, AND THE FOUR THINGS ONLY A BROWSER CAN SAY.
@@ -314,7 +315,9 @@ try {
        process.stdout.write(JSON.stringify(lessonHeads(LESSONS.find((l) => l.id === ${JSON.stringify(lessonId)}))));`,
     ], { encoding: "utf8" }));
     const onward = page.getByRole("button", { name: /^(Continue|Skip this step|Finish the lesson)/ }).last();
-    for (let i = 0; i < 6 && (await onward.count()) > 0; i++) {
+    for (let i = 0; i < 8 && (await onward.count()) > 0; i++) {
+      // Practice has a pass mark and no way past it until it is reached, so it is answered.
+      if (/Practice/.test(await page.locator("#lesson-step").innerText({ timeout: 2000 }).catch(() => ""))) await passPractice(page);
       await onward.click();
       await page.waitForTimeout(400);
     }
