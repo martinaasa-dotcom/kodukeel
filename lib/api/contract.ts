@@ -433,6 +433,13 @@ export const LessonSpecSchema = z.object({
     prepare: z.number().int().optional().describe("Seconds to get ready before the first go, a clock that can be cut short and never starts a go by itself (B2's exam talk: 120)."),
     topics: z.array(z.object({ en: z.string() })).readonly().optional()
       .describe("Two topics to choose between before the preparation starts (C1, the exam's presentation); the go runs on the one chosen."),
+    checks: z.array(z.object({
+      en: z.string(),
+      any: z.array(z.string()).readonly(),
+      atLeast: z.number().int().optional(),
+      near: z.array(z.string()).readonly().optional(),
+    })).readonly()
+      .describe("Today's pattern, two or three checks read off each go's transcript by string matching alone: met where a spelling in `any` stands in what was said as whole words, case aside (a word may carry a star at one end for an ending or a beginning, at least two letters more at the front, and `...` stands for up to four words between two parts), `atLeast` times. Where unmet, `near` spellings found in the transcript are named as they stood. Mirrors lib/course/lessons/fasterChecks.ts."),
   }).optional().describe("One answer said three times, in 90, 60 and 45 seconds at the standard pace (times `timeMultiplier`), B1 on."),
   write: z.object({
     genre: z.string(), purpose: z.string(),

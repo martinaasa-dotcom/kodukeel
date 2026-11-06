@@ -129,6 +129,11 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Milline su korter on?", en: "What's your apartment like?" },
       cue: "Say what your apartment is like, and how it compares with the last place you lived in.",
       model: { et: "Mu korter on väike, aga remonditud. Köök on uus. Vana korter oli suurem, aga see ei olnud remonditud.", en: "My apartment is small, but it's been fixed up. The kitchen is new. My old apartment was bigger, but it hadn't been fixed up." },
+      checks: [
+        { en: "What was done to it, with a -tud word ({remonditud} here).", any: ["*tud"] },
+        { en: "How it compares, with the -m form ({suurem} here).", any: ["*em", "*am", "*im"] },
+        { en: "The old place, with {oli} ({vana korter oli suurem} here).", any: ["oli", "ei olnud"] },
+      ],
     },
   },
   {
@@ -358,6 +363,11 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Mis on sinu majas keelatud ja mis on lubatud?", en: "What isn't allowed in your building, and what is?" },
       cue: "Say what's allowed in your building and what isn't, and which rule you like best, and why.",
       model: { et: "Meie majas on suitsetamine keelatud, aga koerad on lubatud. Prügi sorteerimine on kohustuslik. Mulle meeldib kõige rohkem öörahu, sest öösel peab vaikne olema.", en: "In our building smoking isn't allowed, but dogs are. Sorting the trash is a must. The rule I like best is the quiet hours, because it has to be quiet at night." },
+      checks: [
+        { en: "What isn't allowed, with {keelatud}.", any: ["keelatud"] },
+        { en: "What is, with {lubatud} or {kohustuslik}.", any: ["lubatud", "kohustuslik"] },
+        { en: "The rule you like best, and why, with {sest}.", any: ["sest"] },
+      ],
     },
   },
   {
@@ -593,6 +603,11 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Mis sinu üürilepingus kirjas on?", en: "What does your rental contract say?" },
       cue: "Say what your contract says about the rent, the deposit and the notice, and whether you think it's fair.",
       model: { et: "Minu üür on 700 eurot kuus. Tagatisraha on ühe kuu üür. Kui ma välja kolin, pean kaks kuud ette teatama. Ma arvan, et kaks kuud on liiga pikk aeg.", en: "My rent is 700 euros a month. The deposit is one month's rent. If I move out, I have to give two months' notice. I think two months is too long." },
+      checks: [
+        { en: "The rent, with {üür}.", any: ["üür"] },
+        { en: "The deposit, {tagatisraha}.", any: ["tagatisraha"] },
+        { en: "The notice, with {ette} ({kaks kuud ette teatama} here).", any: ["ette"] },
+      ],
     },
   },
   {

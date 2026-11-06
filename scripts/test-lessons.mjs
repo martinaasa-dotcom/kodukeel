@@ -46,7 +46,7 @@ const { check, absent, done } = suite("The lessons, walked", {
     Then, since every level is lessons, the workbook page on each finish (seven),
     the three unit pages landing on the lessons, and the end of the course (nine).
   */
-  floor: 214,
+  floor: 216,
 });
 // `--only=<role>` walks one lesson (or `spoken`, the race out loud, or `end`, the unit redirects and the end of the course) for working on it; it reports under the floor by design.
 
@@ -254,15 +254,23 @@ async function sayThrough(lesson, mode) {
     if (await say.locator("[data-faster-go]").count() || await say.locator("[data-faster-goes]").count()) {
       faster = true;
       let handed = 0;
+      let patterned = 0;
       for (let go = 0; go < 3; go++) {
         await say.getByRole("button", { name: /^Start, and type/ }).click();
         await say.getByLabel("Your answer, in Estonian").fill(lesson.faster);
         await say.getByRole("button", { name: /^Done$/ }).click();
-        // The go whose Done was pressed is gone; the caret is on the next go's Start, or on Next after the last.
-        const want = go < 2 ? /^Start, and type/ : /^Next/;
-        if (await eventually(() => page.evaluate((w) => new RegExp(w).test(document.activeElement?.textContent?.trim() ?? ""), want.source), { timeoutMs: 3000 }).catch(() => false)) handed += 1;
+        // The go whose Done was pressed is gone; the caret is on what was heard, so it is read before the next go, or on Next after the last.
+        const landed = go < 2
+          ? await eventually(() => page.evaluate(() => Boolean(document.activeElement?.closest("[data-faster-heard]"))), { timeoutMs: 3000 }).catch(() => false)
+          : await eventually(() => page.evaluate(() => /^Next/.test(document.activeElement?.textContent?.trim() ?? "")), { timeoutMs: 3000 }).catch(() => false);
+        if (landed) handed += 1;
+        // The model answer typed in meets every check of today's pattern, read off what was typed.
+        const marks = await say.locator("[data-faster-heard] [data-faster-checks] li").evaluateAll((lis) => lis.map((li) => li.getAttribute("data-met")));
+        if (marks.length >= 2 && marks.length <= 3 && marks.every((m) => m === "true")) patterned += 1;
       }
-      check(`${where}: after each go the caret is on the way on`, handed === 3, `${handed} of 3`);
+      check(`${where}: after each go the caret is on what was heard, then on the way on`, handed === 3, `${handed} of 3`);
+      check(`${where}: after each go today's pattern is checked, and the model answer meets it`, patterned === 3, `${patterned} of 3`);
+      check(`${where}: what was typed is printed back under what we heard`, (await say.locator("[data-faster-said]").count()) === 1);
       const goes = await say.locator("[data-faster-goes] li").count();
       if (SHOTS) await shoot(`${where} faster`);
       check(`${where}: three goes at the answer are drawn side by side`, goes === 3, `${goes}`);

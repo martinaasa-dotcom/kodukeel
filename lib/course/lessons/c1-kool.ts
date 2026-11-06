@@ -444,6 +444,11 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
       model: { et: "Jah, saan neljapäeval tulla, kuid pean kell kaks ära minema, sest siis pean lasteaeda jõudma. Niisiis saan kella kaheni abiks olla. Ühtlasi saan bussis lapsi aidata.", en: "Yes, I can come on Thursday, but I have to leave at two, because then I have to get to the kindergarten. So I can help until two. I can also help the children on the bus." },
       seconds: [90],
       prepare: 120,
+      checks: [
+        { en: "You can come, but, with {kuid}.", any: ["kuid", "aga"] },
+        { en: "Why you have to leave, with {sest}.", any: ["sest"] },
+        { en: "A signpost, {niisiis} or {ühtlasi}.", any: ["niisiis", "ühtlasi", "järelikult", "seejuures"] },
+      ],
     },
   },
   {
@@ -877,6 +882,11 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
       model: { et: "Kõigepealt tuleb last kuulata ja mitte kohe öelda, kes on süüdi. Siis võib ühe klassikaaslase külla kutsuda, sest kodus on lihtsam sõbraks saada. Kui see ei aita ja olukord kestab üle paari nädala, tuleb õpetajaga rääkida. Niisiis ei pea kohe kooli helistama.", en: "First you should listen to the child and not say straight away who's to blame. Then you can invite one classmate over, because it's easier to make friends at home. If that doesn't help and the situation lasts more than a couple of weeks, you should talk to the teacher. So you don't have to phone the school straight away." },
       seconds: [90],
       prepare: 120,
+      checks: [
+        { en: "In order, with {kõigepealt} and {siis}.", any: ["kõigepealt", "siis"], atLeast: 2 },
+        { en: "When to talk to the school, with {kui} ({kui see ei aita} here).", any: ["kui"] },
+        { en: "Tied together with {niisiis}.", any: ["niisiis"] },
+      ],
     },
   },
   {
@@ -1110,6 +1120,11 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
       model: { et: "Kirjutasin Teile, sest meie poeg jääb juba mitu nädalat vahetundides kõrvale. Esiteks rääkisime õpetajaga ja lisaks kutsusime ühe klassikaaslase külla, kuid koolis ei ole midagi muutunud. Seetõttu sooviksime kohtuda Teie ja kooli psühholoogiga, et koos lahendus leida.", en: "I wrote to you because our son has been left out at break for several weeks. First we talked to the teacher, and then we invited a classmate over, but nothing has changed at school. So we would like to meet you and the school psychologist, to find a solution together." },
       seconds: [90],
       prepare: 120,
+      checks: [
+        { en: "What happened, with {kõrvale} ({jääb kõrvale} here).", any: ["kõrvale"] },
+        { en: "Two signposts, {Esiteks}, {Lisaks} or {Seetõttu}.", any: ["esiteks", "lisaks", "seetõttu", "ühtlasi", "niisiis"], atLeast: 2 },
+        { en: "What you'd like, in the would form ({sooviksime} here).", any: ["*ksime", "*ksin"] },
+      ],
     },
   },
   {

@@ -252,6 +252,10 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Mida sa eile teha ei jõudnud?", en: "What didn't you get round to yesterday?" },
       cue: "Say three things you didn't do, buy or find yesterday.",
       model: { et: "Kööki ma ei koristanud, leiba ei ostnud ja võtmeid ei leidnud!", en: "I didn't clean the kitchen, didn't buy bread and couldn't find my keys!" },
+      checks: [
+        { en: "Three things you didn't do, each with {ei} and a -nud word ({ei ostnud} here).", any: ["ei *nud"], atLeast: 3 },
+        { en: "After {ei}, the noun in the [osastav] (3rd form) ({leiba}, {võtmeid} here).", any: ["leiba", "võtmeid", "võtit", "kööki", "sokki"], near: ["võtmed", "võtme", "sokk", "soki"] },
+      ],
     },
   },
   {
@@ -500,6 +504,10 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Mis sa teed, kui kedagi ootad?", en: "What do you do when you're waiting for somebody?" },
       cue: "Say what you do while you wait: what you watch, what you listen to.",
       model: { et: "Vaatan inimesi ja kuulan muusikat. Vahel joon kohvi. Ja vaatan tihti kella!", en: "I watch people and listen to music. Sometimes I have a coffee. And I keep checking the time!" },
+      checks: [
+        { en: "What you watch or listen to, in the [osastav] (3rd form) ({inimesi}, {muusikat} here).", any: ["inimesi", "muusikat", "kella", "kohvi", "koeri", "sind", "teda"] },
+        { en: "Two things you do, each with its own verb ({vaatan}, {kuulan} here).", any: ["vaatan", "kuulan", "joon", "ootan", "otsin"], atLeast: 2 },
+      ],
     },
   },
   {
@@ -744,6 +752,11 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Mis su korteris katki on?", en: "What's broken in your apartment?" },
       cue: "Say what's broken, what you fixed yourself, and what still doesn't work.",
       model: { et: "Köögis ei põle lamp. Kraani parandasin ma ise ära. Aga aken ei lähe ikka kinni.", en: "The kitchen light isn't working. I fixed the tap myself. But the window still won't close." },
+      checks: [
+        { en: "What doesn't work, with {ei} ({ei põle} here).", any: ["ei *"] },
+        { en: "What you fixed yourself, with {ära} at the end ({parandasin ma ise ära} here).", any: ["ära"] },
+        { en: "{ikka} for still ({ei lähe ikka kinni} here).", any: ["ikka"] },
+      ],
     },
     write: {
       genre: "A note to the handyman",

@@ -323,6 +323,10 @@ export const B2_PERE_LESSONS: readonly LessonSpec[] = [
       cue: "Say where two people in your family are and what they're busy with, with -mas, and who's just back from something.",
       model: { et: "Mu mees on tööl ja poeg on õues mängimas. Tütar tuleb just ujumast.", en: "My husband's at work and my son's out playing. My daughter's just back from swimming." },
       seconds: [60, 45, 30],
+      checks: [
+        { en: "Busy at it, with -mas ({mängimas} here).", any: ["*mas"] },
+        { en: "Just back from it, with -mast ({tuleb just ujumast} here).", any: ["*mast"] },
+      ],
     },
   },
   {
@@ -624,6 +628,11 @@ export const B2_PERE_LESSONS: readonly LessonSpec[] = [
       cue: "Say how old they are, what they love doing, and one thing about them a teacher should know.",
       model: { et: "Mu poeg on kuueaastane. Ta armastab jalgpalli mängida ja joonistada. Alguses on ta häbelik, aga hiljem räägib kõigiga.", en: "My son is six. He loves playing football and drawing. He's shy at first, but later he talks to everybody." },
       seconds: [60, 45, 30],
+      checks: [
+        { en: "How old, with -aastane ({kuueaastane} here).", any: ["*aastane"] },
+        { en: "What they love doing, with {armastab}.", any: ["armastab"] },
+        { en: "One thing a teacher should know, with {aga}.", any: ["aga"] },
+      ],
     },
   },
   {

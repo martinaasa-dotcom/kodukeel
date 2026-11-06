@@ -277,6 +277,11 @@ export const B2_KONEKEEL_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Mis sul head uudist on?", en: "What good news have you got?" },
       cue: "Tell a friend some good news of yours, and say how you felt about it.",
       model: { et: "Tead mis? Ma sain uue töö! Ma olen lausa õnnelik, sest uues kohas on rohkem vaba aega.", en: "Guess what? I got a new job! I'm over the moon, because in the new place there's more free time." },
+      checks: [
+        { en: "Open on {Tead mis?}", any: ["tead mis"] },
+        { en: "How you felt, with {lausa} ({lausa õnnelik} here).", any: ["lausa"] },
+        { en: "Why, with {sest}.", any: ["sest"] },
+      ],
     },
   },
   {
@@ -560,6 +565,11 @@ export const B2_KONEKEEL_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Mida sa sel nädalavahetusel teed?", en: "What are you doing this weekend?" },
       cue: "Say what you're doing this weekend, who with, and what you're bringing.",
       model: { et: "Reedel lähen Liisile külla. Seal on õhtusöök ja ma viin veini kaasa. Laupäeval puhkan kodus.", en: "On Friday I'm going over to Liis's. There's a dinner and I'm bringing wine. On Saturday I'm resting at home." },
+      checks: [
+        { en: "When, with -l ({reedel}, {laupäeval} here).", any: ["*päeval", "reedel"] },
+        { en: "What you're doing, the verb on its own ({lähen}, {puhkan} here).", any: ["lähen", "puhkan", "tulen"] },
+        { en: "What you're bringing, with {kaasa}.", any: ["kaasa"] },
+      ],
     },
   },
   {
@@ -687,6 +697,11 @@ export const B2_KONEKEEL_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Mida sa ütled, kui keegi läheb inglise keelele üle?", en: "What do you say when somebody switches to English?" },
       cue: "Say what you'd answer, why you want to carry on in Estonian, and what would help you.",
       model: { et: "Ma ütlen: räägime eesti keeles edasi, palun. Ma tahan harjutada. Kui on raske, siis räägi lihtsalt aeglasemalt.", en: "I say: let's carry on in Estonian, please. I want to practice. If it's hard, then just speak slower." },
+      checks: [
+        { en: "Ask to carry on in Estonian: {Räägime eesti keeles edasi}.", any: ["eesti keeles edasi"] },
+        { en: "Why, with {harjutada} ({ma tahan harjutada} here).", any: ["harjutada", "harjutama"] },
+        { en: "What helps, with {aeglasemalt}.", any: ["aeglasemalt"] },
+      ],
     },
   },
   {
