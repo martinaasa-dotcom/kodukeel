@@ -23,8 +23,8 @@ export const b2Ohtusook: ScenePicks = {
     { et: "Räägime eesti keeles edasi.", en: "Let's carry on in Estonian." },
   ],
   concert: [
-    { et: "Jah. Ta kohtas seal sind ja see oli täitsa veider!", en: "Yes. She ran into you there, and it was totally weird!" },
-    { et: "Jah, see oli täitsa veider!", en: "Yes, it was totally weird!" },
+    { et: "Jah. Ta kohtas seal sind ja see oli täitsa veider!", en: "Yes. She ran into you there, and it was pretty weird!" },
+    { et: "Jah, see oli täitsa veider!", en: "Yes, it was pretty weird!" },
   ],
   true: [
     { et: "See pole tõsi! Sa lähed kell üheksa magama!", en: "That's not true! You go to bed at nine!" },

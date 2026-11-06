@@ -137,7 +137,7 @@ export const C1_MAA_LESSONS: readonly LessonSpec[] = [
         { et: "Aga kuulata tasub.", en: "But it's worth listening." },
         { et: "Kui talu köögis öeldakse: „Tulõ sisse, kae ringi!“, siis saab ka linnainimene aru, et teda kutsutakse sisse ja palutakse ringi vaadata.", en: "When somebody in a farm kitchen says 'Come in, look around!' in the local language, even a city person understands they're being asked in and told to look around." },
         { et: "Enamik sõnu on tuttavad, ainult häälikud on natuke teistsugused.", en: "Most of the words are familiar; only the sounds are a little different." },
-        { et: "Ja kui mõni sõna jääb päris arusaamatuks, siis tasub julgelt küsida.", en: "And if a word stays completely unclear, it's worth simply asking." },
+        { et: "Ja kui mõni sõna jääb päris arusaamatuks, siis tasub julgelt küsida.", en: "And if a word stays quite unclear, it's worth simply asking." },
         { et: "Võrukad räägivad oma keelest meelsasti ja sageli saab ühest küsimusest pikk jutt.", en: "The people of the south-east like talking about their language, and one question often turns into a long story." },
         { et: "Mida aga Võrumaal teha?", en: "So what is there to do in {Võrumaa}?" },
         { et: "Suvel on siin palju väikeseid sündmusi, mida suurtes linnades ei näe.", en: "In summer there are lots of small events here that you won't see in the big towns." },

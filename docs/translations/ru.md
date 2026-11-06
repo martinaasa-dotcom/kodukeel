@@ -50496,8 +50496,8 @@ _lib/copy/i18n/areas/lessonTextB2Konekeel.ts_
   → {Noh} даёт секунду подумать или начинает вопрос: {Noh, kuidas läheb?} {Vaata} и {tead} просят собеседника послушать: {Vaata, ma käisin eile kontserdil!}
 - [ ] **25086.** {Ju} says you both know it, and turns a sentence into a gentle protest: {Ta ei käi ju kunagi kontserdil}, but he never goes to concerts.  
   → {Ju} говорит, что вы оба это знаете, и превращает фразу в мягкое возражение: {Ta ei käi ju kunagi kontserdil}, он же никогда не ходит на концерты.
-- [ ] **25087.** {Nagu} is like, the way English uses it: {nagu ikka}, same as always. {Muide} is by the way, for a new subject, and {täitsa} is totally: {täitsa veider}.  
-  → {Nagu} – это «как бы», как в разговорном английском: {nagu ikka}, как всегда. {Muide} – это «кстати», для новой темы, а {täitsa} значит «совсем»: {täitsa veider}.
+- [ ] **25087.** {Nagu} is like, the way English uses it: {nagu ikka}, same as always. {Muide} is by the way, for a new subject, and {täitsa} is pretty: {täitsa veider}, pretty weird.  
+  → {Nagu} – это «как бы», как в разговорном английском: {nagu ikka}, как всегда. {Muide} – это «кстати», для новой темы, а {täitsa} значит «довольно»: {täitsa veider}, довольно странно.
 - [ ] **25088.** Said  
   → Устно
 - [ ] **25089.** I don't remember his name.  
@@ -50526,24 +50526,24 @@ _lib/copy/i18n/areas/lessonTextB2Konekeel.ts_
   → Вот именно. И угадай, кого я там встретила? Яана!
 - [ ] **25101.** Jaan? But he never goes to concerts.  
   → Яана? Он же никогда не ходит на концерты.
-- [ ] **25102.** That's just it! It was totally weird.  
-  → Вот именно! Это было очень странно.
+- [ ] **25102.** That's just it! It was pretty weird.  
+  → Вот именно! Это было довольно странно.
 - [ ] **25103.** What's weird about that? A man went to a concert, that's normal.  
   → А что тут странного? Человек сходил на концерт, это же нормально.
 - [ ] **25104.** You don't know Jaan. He goes to bed at nine!  
   → Ты не знаешь Яана. Он ложится спать в девять!
 - [ ] **25105.** That's true. By the way, was the concert any good?  
   → Это правда. Кстати, а концерт-то был хороший?
-- [ ] **25106.** Oh, really cool! Come along next time.  
-  → Ой, очень классный! В следующий раз пойдём со мной.
+- [ ] **25106.** Oh, pretty cool! Come along next time.  
+  → Ой, довольно классный! В следующий раз пойдём со мной.
 - [ ] **25107.** oh (said)  
   → ой, а (в разговоре)
 - [ ] **25108.** you know (how it is)  
   → ну ты знаешь (как это бывает)
 - [ ] **25109.** same as always  
   → как всегда
-- [ ] **25110.** quite, totally (said rather than written)  
-  → совсем, вполне (говорят, а не пишут)
+- [ ] **25110.** pretty, quite (said rather than written)  
+  → довольно, вполне (говорят, а не пишут)
 - [ ] **25111.** everywhere  
   → везде
 - [ ] **25112.** that's just it, there you go  
@@ -50572,8 +50572,8 @@ _lib/copy/i18n/areas/lessonTextB2Konekeel.ts_
   → имя, как дополнение
 - [ ] **25124.** he, she sang  
   → он, она пел(а)
-- [ ] **25125.** Say you're really good, same as always.  
-  → Скажи, что у тебя всё очень хорошо, как всегда.
+- [ ] **25125.** Say you're pretty good, same as always.  
+  → Скажи, что у тебя всё неплохо, как всегда.
 - [ ] **25126.** Pretty good, same as always.  
   → Неплохо, как всегда.
 - [ ] **25127.** Say you ran into Jaan at the concert.  
@@ -50582,14 +50582,14 @@ _lib/copy/i18n/areas/lessonTextB2Konekeel.ts_
   → Я встретил Яана на концерте.
 - [ ] **25129.** Who did you run into yesterday?  
   → Кого ты вчера встретил?
-- [ ] **25130.** Say it was totally weird.  
-  → Скажи, что это было очень странно.
-- [ ] **25131.** It was totally weird.  
-  → Это было очень странно.
-- [ ] **25132.** Say yes, it was really cool.  
-  → Скажи, что да, было очень классно.
-- [ ] **25133.** Yes, it was really cool.  
-  → Да, было очень классно.
+- [ ] **25130.** Say it was pretty weird.  
+  → Скажи, что это было довольно странно.
+- [ ] **25131.** It was pretty weird.  
+  → Это было довольно странно.
+- [ ] **25132.** Say yes, it was pretty cool.  
+  → Скажи, что да, было довольно классно.
+- [ ] **25133.** Yes, it was pretty cool.  
+  → Да, было довольно классно.
 - [ ] **25134.** Was the concert good?  
   → Концерт был хороший?
 - [ ] **25135.** Say it the short way, as people say it.  
@@ -50634,8 +50634,8 @@ _lib/copy/i18n/areas/lessonTextB2Konekeel.ts_
   → Вчера я была на концерте.
 - [ ] **25155.** That young singer who was on the radio was singing there.  
   → Там пел тот молодой певец, который был на радио.
-- [ ] **25156.** The concert was really cool.  
-  → Концерт был очень классный.
+- [ ] **25156.** The concert was pretty cool.  
+  → Концерт был довольно классный.
 - [ ] **25157.** That was weird, because Jaan never goes to concerts.  
   → Это было странно, потому что Яан никогда не ходит на концерты.
 - [ ] **25158.** Afterwards Jaan and I went to a café together.  
@@ -51394,8 +51394,8 @@ _lib/copy/i18n/areas/lessonTextB2Konekeel.ts_
   → Садитесь за стол, еда почти готова.
 - [ ] **25535.** Kati, now tell us how the concert was!  
   → Кати, ну рассказывай, как прошёл концерт!
-- [ ] **25536.** Oh, really cool! And Jaan was there too, and...  
-  → Ой, очень классно! И Яан там тоже был, и...
+- [ ] **25536.** Oh, pretty cool! And Jaan was there too, and...  
+  → Ой, довольно классно! И Яан там тоже был, и...
 - [ ] **25537.** Mari talks over her.  
   → Мари перебивает её.
 - [ ] **25538.** Jaan at a concert! Now that I don't believe, he goes to bed at nine...  
@@ -51452,10 +51452,10 @@ _lib/copy/i18n/areas/lessonTextB2Konekeel.ts_
   → Нет, спасибо. Давай дальше по-эстонски, я хочу практиковаться.
 - [ ] **25564.** Want me to speak English?  
   → Хочешь, я буду говорить по-английски?
-- [ ] **25565.** Say yes: she ran into him there, and it was totally weird.  
-  → Скажи «да»: она встретила его там, и это было очень странно.
-- [ ] **25566.** Yes. She ran into you there, and it was totally weird!  
-  → Да. Она встретила тебя там, и это было очень странно!
+- [ ] **25565.** Say yes: she ran into him there, and it was pretty weird.  
+  → Скажи «да»: она встретила его там, и это было довольно странно.
+- [ ] **25566.** Yes. She ran into you there, and it was pretty weird!  
+  → Да. Она встретила тебя там, и это было довольно странно!
 - [ ] **25567.** OK. Did Kati tell you about the concert?  
   → Хорошо. Кати рассказала тебе про концерт?
 - [ ] **25568.** Say that's not true: he goes to bed at nine!  
@@ -66759,8 +66759,8 @@ _lib/copy/i18n/areas/lessonTextC1Maa.ts_
   → Когда на хуторской кухне на местном языке говорят: «Заходи, осмотрись!», даже горожанин понимает, что его зовут в дом и предлагают осмотреться.
 - [ ] **33190.** Most of the words are familiar; only the sounds are a little different.  
   → Большинство слов знакомы, только звуки немного другие.
-- [ ] **33191.** And if a word stays completely unclear, it's worth simply asking.  
-  → А если какое-то слово совсем непонятно, стоит просто спросить.
+- [ ] **33191.** And if a word stays quite unclear, it's worth simply asking.  
+  → А если какое-то слово довольно непонятно, стоит просто спросить.
 - [ ] **33192.** The people of the south-east like talking about their language, and one question often turns into a long story.  
   → Жители юго-востока охотно говорят о своём языке, и часто из одного вопроса получается долгий разговор.
 - [ ] **33193.** So what is there to do in {Võrumaa}?  
@@ -71970,7 +71970,7 @@ _lib/copy/i18n/areas/sounds.ts_
   → огонь
 - [ ] **35788.** a quarrel  
   → ссора
-- [ ] **35789.** a nail  
+- [ ] **35789.** a fingernail  
   → ноготь
 - [ ] **35790.** a sphere  
   → шар
