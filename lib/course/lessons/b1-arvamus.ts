@@ -35,7 +35,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
     title: "Because, although, so that",
     goal: "Give a reason, a but and a what for in one sentence, and decide something out loud.",
     cast: { Tom: "kalev", Mari: "mari" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Tom", et: "Mari, mu auto on jälle katki.", en: "Mari, my car's broken again." },
       { who: "Mari", et: "Jälle? See on ju väga vana.", en: "Again? But it's really old." },

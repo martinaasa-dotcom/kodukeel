@@ -73,7 +73,8 @@ describe("the ladder", () => {
 describe("what a request plays at", () => {
   const pace = paceFor("A1");
   const clean = CONDITIONS[0]!;
-  const quick = CONDITIONS.find((c) => c.id === "quick")!;
+  // A condition that would speed a play up, which no row in CONDITIONS is.
+  const quick = { ...clean, speed: 1.3 };
 
   it("plays a plain request at this learner's own pace", () => {
     expect(rateFor({ text: "õde", pace })).toBe(pace.normal);
@@ -88,16 +89,13 @@ describe("what a request plays at", () => {
   });
 
   /*
-    A CONDITION IS HARDER THAN USUAL, AND "USUAL" IS A FACT ABOUT THE LISTENER.
-    It used to be a fraction of the recording, so "at speed" was 1.3 for
-    everybody and an A1 learner met one clip in five at more than twice their
-    own pace.
+    NOTHING IS SPED UP. A condition may slow a play and never push it past the
+    learner's own pace, so even a row asking for 1.3 plays at their pace.
   */
-  it("scales a condition against the learner's pace rather than the recording", () => {
+  it("never plays a condition faster than the learner's own pace", () => {
     expect(rateFor({ text: "õde", condition: clean, pace })).toBe(pace.normal);
-    expect(rateFor({ text: "õde", condition: quick, pace })).toBeCloseTo(pace.normal * quick.speed, 6);
-    expect(rateFor({ text: "õde", condition: quick, pace })).toBeLessThan(1);
-    expect(rateFor({ text: "õde", condition: quick, pace })).toBeGreaterThan(pace.normal);
+    expect(rateFor({ text: "õde", condition: quick, pace })).toBe(pace.normal);
+    expect(rateFor({ text: "õde", condition: quick, pace: paceFor("B2") })).toBe(1);
   });
 
   it("gives the slow button the pace's own slow rate, over anything else", () => {
@@ -121,3 +119,23 @@ describe("what a request plays at", () => {
     expect(slow).toBeGreaterThanOrEqual(SLOWEST);
   });
 });
+
+describe("full speed stays full speed", () => {
+  it("a struggling reading does not lean B2 or C1 below the recording's own pace", () => {
+    expect(paceFor("B2", -1).normal).toBe(1);
+    expect(paceFor("C1", -1).normal).toBe(1);
+    expect(paceFrom(null, "B2", -1).normal).toBe(1);
+  });
+
+  it("still leans the levels below, and still lets B1 up to full speed", () => {
+    expect(paceFor("B1", -1).normal).toBeLessThan(paceFor("B1").normal);
+    expect(paceFor("B1", 1).normal).toBe(1);
+  });
+
+  it("only the slow button slows a B2 play", () => {
+    const b2 = paceFor("B2", -1);
+    expect(rateFor({ text: "Tere!", pace: b2 })).toBe(1);
+    expect(rateFor({ text: "Tere!", pace: b2, slow: true })).toBeLessThan(1);
+  });
+});
+

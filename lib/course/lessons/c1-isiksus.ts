@@ -49,7 +49,7 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
     title: "Good news",
     goal: "Congratulate a friend on a baby and on an exam, the way friends do and the way a card does.",
     cast: { Anna: "kylli", Tom: "kalev", Margit: "mari", "Tõnu": "indrek", Liis: "liivika", Helgi: "vesta", Mihkel: "meelis", Sofia: "kylli" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Anna", et: "Tom, sulle tuli kiri! Vist eksami tulemus.", en: "Tom, there's a letter for you! The exam result, I think.", stage: "A Saturday morning in October, three weeks after the B2 exam. The morning show is on the radio in the kitchen, and Anna comes in with the post." },
       { who: "Tom", et: "Anna siia. Ma ei julge vaadata... Ei, vaatan ikka. Ma sain...", en: "Give it here. I don't dare look... No, I'll look. I got..." },
@@ -525,7 +525,7 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
     title: "Kurat!",
     goal: "Know how strong an Estonian exclamation is, and which one is all right in front of a child, a boss or a stranger.",
     cast: { Jaan: "meelis", Anna: "kylli", Tom: "kalev", Liis: "liivika", Mark: "tambet", Mihkel: "albert", Sofia: "mari" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Jaan", et: "Tulge sisse! Oi, kui palju asju te tõite!", en: "Come in! Oh, look how much stuff you've brought!", stage: "A Saturday in November. Tom and Anna bring Sofia's old baby things round to Liis and Jaan's. Mark has come too, and Mihkel is asleep in the other room." },
       { who: "Anna", et: "Sofia vanad riided ja vanker. Tom, ettevaatust, see kast on jube raske...", en: "Sofia's old clothes and the pram. Tom, careful, that box is really heavy..." },
@@ -688,7 +688,7 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
     faster: {
       ask: { et: "Mida eestlased ütlevad, kui midagi läheb valesti?", en: "What do Estonians say when something goes wrong?" },
       cue: "Prepare for a minute, then talk for one: the mild words and the stronger ones, how strong each is, and where not to say them.",
-      model: { et: "„Oi“ võib öelda igal pool. „Pagan“ on ka täiesti okei, seda võib öelda isegi lapse kuuldes. „Kurat“ ütlevad kõik, aga mitte lapse ees ega ülemusele. „Kurat võtaks“ on juba päris vihane. Ja kui on väga valus, siis ütlen ma lihtsalt: hirmus valus!", en: "You can say {oi} anywhere. {Pagan} is fine too, you can even say it with a child listening. Everybody says {kurat}, but not in front of a child or to the boss. {Kurat võtaks} is quite angry already. And if it really hurts, I just say: terribly painful!" },
+      model: { et: "„Oi“ võib öelda igal pool. „Pagan“ on ka täiesti okei, seda võib öelda isegi lapse kuuldes. „Kurat“ ütlevad kõik, aga mitte lapse ees ega ülemusele. „Kurat võtaks“ on juba päris vihane. Ja kui on väga valus, siis ütlen ma lihtsalt: hirmus valus!", en: "You can say {oi} anywhere. {Pagan} is perfectly fine too, you can even say it with a child listening. Everybody says {kurat}, but not in front of a child or to the boss. {Kurat võtaks} is quite angry already. And if it really hurts, I just say: terribly painful!" },
       seconds: [60],
       prepare: 60,
     },

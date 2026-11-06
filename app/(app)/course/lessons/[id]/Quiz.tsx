@@ -352,12 +352,27 @@ export function Quiz({ items, onFinished, onAnswer, summary = true, review = fal
         {item.kind === "type" && (
           <div className="mt-2 flex flex-col gap-3">
             <p className="text-xl font-bold" style={{ color: "var(--ink)" }}><LessonText text={item.en} locale={locale} /></p>
+            {/* The form the question asks for, so "the name, as an object" says which ending it wants (`lib/estonian/nameForm.ts`). */}
+            {item.form && item.of && (
+              <p className="text-base" style={{ color: "var(--ink-2)" }} data-form-asked>
+                {fillNodes(t("Write {word} in the {form}."), {
+                  word: <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{item.of}</span>,
+                  form: <span className="font-semibold" style={{ color: "var(--ink)" }}>{item.form[locale]}</span>,
+                })}
+              </p>
+            )}
             {item.note && <p className="text-base" style={{ color: "var(--ink-2)" }}>{t(item.note)}</p>}
             <TypedBox boxRef={boxRef} label={t("Your answer, in Estonian")} answer={item.answer} typed={typed} setTyped={setTyped} mark={mark} onCheck={check}>
               {mark && (
                 <p>
                   {t(mark.note)}{" "}
-                  {mark.verdict !== "right" && fillNodes(t("It's {answer}."), { answer: <span lang="et" className="font-bold">{item.answer}</span> })}
+                  {mark.verdict !== "right" && (item.form && item.of
+                    ? fillNodes(t("It's {answer}, the {form} of {word}."), {
+                      answer: <span lang="et" className="font-bold">{item.answer}</span>,
+                      form: item.form[locale],
+                      word: <span lang="et">{item.of}</span>,
+                    })
+                    : fillNodes(t("It's {answer}."), { answer: <span lang="et" className="font-bold">{item.answer}</span> }))}
                 </p>
               )}
             </TypedBox>

@@ -244,7 +244,7 @@ export const C1_UHISKOND_LESSONS: readonly LessonSpec[] = [
     title: "Having your say",
     goal: "Comment on a public consultation in the order the officials expect: what the plan proposes, what is good in it, and what you would change and why.",
     cast: { Helgi: "vesta", Anna: "kylli", Tom: "kalev" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Helgi", et: "Nii, vaatame. See on siis detailplaneering ehk linna plaan teie tänava jaoks.", en: "Right, let's have a look. So this is the detailed plan, the city's plan for your street.", stage: "Saturday afternoon. Helgi has come over to see the new apartment, and the city's plan is open on Anna's laptop." },
       { who: "Anna", et: "Siin on kirjas, et plaan on kaks nädalat avalikul väljapanekul. Mida see...", en: "It says here the plan is on public display for two weeks. What does that..." },
@@ -627,7 +627,7 @@ export const C1_UHISKOND_LESSONS: readonly LessonSpec[] = [
     title: "A day of volunteering",
     goal: "Take part in a volunteer day, take down a talk about it as notes, and argue a question of right and wrong from both sides: whose job is it, and what do we owe the place we live?",
     cast: { Anna: "kylli", Liis: "liivika", Tom: "kalev", Jaan: "meelis", Kaarel: "tambet", Mihkel: "peeter", Mark: "albert" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Anna", et: "Liis, Jaan, tere! Tore, et tulite! Ja Mihkel ka!", en: "Liis, Jaan, hi! Great you came! And Mihkel too!", stage: "A Saturday in May, the volunteer day. The park at the end of the street. Liis has Mihkel in a sling, and there's a table with bags and gloves." },
       { who: "Liis", et: "Muidugi tulime. Talgud on talgud. Kus kotid on?", en: "Of course we came. A volunteer day's a volunteer day. Where are the bags?" },
@@ -744,7 +744,7 @@ export const C1_UHISKOND_LESSONS: readonly LessonSpec[] = [
         { et: "Siis pange talgud talgupäeva kodulehele kirja, et ka teised saaksid teiega liituda.", en: "Then put your volunteer day on the volunteer day's website, so that others can join you." },
         { et: "Linnaosa valitsuselt saab tavaliselt küsida prügikotte ja kokkulepitud ajal viiakse prügi ka ära.", en: "You can usually ask the district government for rubbish bags, and the rubbish is taken away at an agreed time." },
         { et: "Kutsuge kaasa naabrid, sõbrad ja lapsed. Lastele meeldib talgutel sageli kõige rohkem.", en: "Bring your neighbors, friends and children along. The children often enjoy it most of all." },
-        { et: "Ärge planeerige liiga palju. Kaks või kolm tundi tööd on täiesti piisav.", en: "Don't plan too much. Two or three hours of work is quite enough." },
+        { et: "Ärge planeerige liiga palju. Kaks või kolm tundi tööd on täiesti piisav.", en: "Don't plan too much. Two or three hours of work is plenty." },
         { et: "Ja ärge unustage kõige tähtsamat: pärast tööd peab olema supp.", en: "And don't forget the most important thing: after the work there has to be soup." },
         { et: "Talgud ilma ühise söömiseta ei ole päris talgud. See reegel on sama vana kui talgud ise.", en: "A volunteer day without eating together isn't a real volunteer day. That rule is as old as volunteer days themselves." },
         { et: "Pärast ühiselt söödud suppi on inimesed tavaliselt valmis järgmisel aastal uuesti tulema.", en: "After a soup eaten together, people are usually ready to come again next year." },

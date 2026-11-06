@@ -316,7 +316,7 @@ export const B2_ARUTELU_LESSONS: readonly LessonSpec[] = [
     title: "Which is better",
     goal: "Compare two options so the difference is clear: how many times cheaper, much more convenient, the best of all, and the more, the better.",
     cast: { Kadri: "vesta", Tom: "kalev", Kristi: "liivika" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Kadri", et: "Tom, kas sa nägid Kristi kirja? Ta tahab, et me valiksime eesti keele kursuse.", en: "Tom, did you see Kristi's email? She wants us to choose an Estonian course.", stage: "The office kitchen on a Monday morning. Kadri talks fast; she has a meeting in five minutes." },
       { who: "Tom", et: "Nägin. Kaks võimalust: õhtune kursus linnas või õpetaja, kes tuleb kontorisse.", en: "I did. Two options: an evening course in town, or a teacher who comes to the office." },
@@ -593,7 +593,7 @@ export const B2_ARUTELU_LESSONS: readonly LessonSpec[] = [
     title: "What the study found",
     goal: "Say what a study found and how, and give your view on it: who was asked, what the figures show, and what follows.",
     cast: { Diktor: "albert", Kati: "vesta", Tom: "kalev" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Diktor", et: "Tartu Ülikooli teadlased uurisid, kui palju eestlased loevad.", en: "Scientists at the University of Tartu have studied how much Estonians read.", stage: "Kati's kitchen, with the radio on. Tom has come round for coffee." },
       { who: "Diktor", et: "Uuringust selgus, et noored loevad raamatuid oluliselt vähem kui kümme aastat tagasi.", en: "The study found that young people read significantly fewer books than ten years ago." },
@@ -738,7 +738,7 @@ export const B2_ARUTELU_LESSONS: readonly LessonSpec[] = [
     title: "The B2 speaking exam",
     goal: "Get through the B2 speaking exam: a one-minute talk after two minutes to prepare, then a debate where you disagree politely and decide together.",
     cast: { Kersti: "mari", Tom: "kalev" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Kersti", et: "Tere! Mina olen Kersti. Palun istuge.", en: "Hello! I'm Kersti. Please sit down.", stage: "The B2 speaking exam. Tom has never met the examiner." },
       { who: "Tom", et: "Tere! Mina olen Tom.", en: "Hello! I'm Tom." },

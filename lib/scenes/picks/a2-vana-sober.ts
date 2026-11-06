@@ -16,7 +16,7 @@ export const a2VanaSober: ScenePicks = {
   ],
   liked: [
     { et: "Ma arvan, et see on Eesti kõige ilusam linn.", en: "I think it's the prettiest town in Estonia." },
-    { et: "Väga meeldis!", en: "I loved it!" },
+    { et: "Väga meeldis!", en: "I really liked it!" },
   ],
   plans: [
     { et: "Suvel kavatsen Saaremaale minna.", en: "In the summer I plan to go to Saaremaa." },
