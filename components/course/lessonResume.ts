@@ -19,6 +19,8 @@ export interface LessonPlace {
   readonly reached: number;
   readonly finished: readonly string[];
   readonly heard: boolean;
+  /** Which page of the step was on (`lib/course/lessons/screens.ts`); 0 for a place kept before steps had pages. */
+  readonly screen: number;
 }
 
 /* 2: the step list is kept beside the place, so a deploy that changes a lesson's steps starts it over rather than opening a different step at the same number. */
@@ -33,7 +35,7 @@ export function loadLessonPlace(lessonId: string, steps: readonly string[], now 
   try {
     const raw = window.sessionStorage.getItem(keyFor(lessonId));
     if (!raw) return null;
-    const p = JSON.parse(raw) as { v?: number; at?: unknown; reached?: unknown; finished?: unknown; heard?: unknown; savedAt?: unknown; steps?: unknown };
+    const p = JSON.parse(raw) as { v?: number; at?: unknown; reached?: unknown; finished?: unknown; heard?: unknown; screen?: unknown; savedAt?: unknown; steps?: unknown };
     const sameSteps = Array.isArray(p.steps) && p.steps.length === steps.length && p.steps.every((s, i) => s === steps[i]);
     if (p.v !== VERSION || typeof p.savedAt !== "number" || now - p.savedAt > MAX_AGE_MS || !sameSteps) {
       window.sessionStorage.removeItem(keyFor(lessonId));
@@ -44,7 +46,8 @@ export function loadLessonPlace(lessonId: string, steps: readonly string[], now 
     const reached = step(p.reached);
     if (at === null || reached === null) return null;
     const finished = Array.isArray(p.finished) ? p.finished.filter((s): s is string => typeof s === "string" && steps.includes(s)) : [];
-    return { at, reached: Math.max(at, reached), finished, heard: p.heard === true };
+    const screen = typeof p.screen === "number" && Number.isInteger(p.screen) && p.screen >= 0 ? p.screen : 0;
+    return { at, reached: Math.max(at, reached), finished, heard: p.heard === true, screen };
   } catch {
     return null;
   }
