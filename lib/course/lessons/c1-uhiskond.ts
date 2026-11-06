@@ -744,7 +744,7 @@ export const C1_UHISKOND_LESSONS: readonly LessonSpec[] = [
         { et: "Siis pange talgud talgupäeva kodulehele kirja, et ka teised saaksid teiega liituda.", en: "Then put your volunteer day on the volunteer day's website, so that others can join you." },
         { et: "Linnaosa valitsuselt saab tavaliselt küsida prügikotte ja kokkulepitud ajal viiakse prügi ka ära.", en: "You can usually ask the district government for rubbish bags, and the rubbish is taken away at an agreed time." },
         { et: "Kutsuge kaasa naabrid, sõbrad ja lapsed. Lastele meeldib talgutel sageli kõige rohkem.", en: "Bring your neighbors, friends and children along. The children often enjoy it most of all." },
-        { et: "Ärge planeerige liiga palju. Kaks või kolm tundi tööd on täiesti piisav.", en: "Don't plan too much. Two or three hours of work is quite enough." },
+        { et: "Ärge planeerige liiga palju. Kaks või kolm tundi tööd on täiesti piisav.", en: "Don't plan too much. Two or three hours of work is plenty." },
         { et: "Ja ärge unustage kõige tähtsamat: pärast tööd peab olema supp.", en: "And don't forget the most important thing: after the work there has to be soup." },
         { et: "Talgud ilma ühise söömiseta ei ole päris talgud. See reegel on sama vana kui talgud ise.", en: "A volunteer day without eating together isn't a real volunteer day. That rule is as old as volunteer days themselves." },
         { et: "Pärast ühiselt söödud suppi on inimesed tavaliselt valmis järgmisel aastal uuesti tulema.", en: "After a soup eaten together, people are usually ready to come again next year." },

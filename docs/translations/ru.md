@@ -55836,8 +55836,8 @@ _lib/copy/i18n/areas/lessonTextC1Isiksus.ts_
   → Что говорят эстонцы, когда что-то идёт не так?
 - [ ] **27746.** Prepare for a minute, then talk for one: the mild words and the stronger ones, how strong each is, and where not to say them.  
   → Подготовься минуту, потом говори минуту: мягкие слова и посильнее, насколько сильно каждое и где их лучше не говорить.
-- [ ] **27747.** You can say {oi} anywhere. {Pagan} is fine too, you can even say it with a child listening. Everybody says {kurat}, but not in front of a child or to the boss. {Kurat võtaks} is quite angry already. And if it really hurts, I just say: terribly painful!  
-  → Сказать {oi} можно где угодно. {Pagan} тоже годится, его можно сказать даже при ребёнке. Все говорят {kurat}, но не при ребёнке и не начальнику. {Kurat võtaks} уже довольно сердито. А если очень больно, я просто говорю: ужасно больно!
+- [ ] **27747.** You can say {oi} anywhere. {Pagan} is perfectly fine too, you can even say it with a child listening. Everybody says {kurat}, but not in front of a child or to the boss. {Kurat võtaks} is quite angry already. And if it really hurts, I just say: terribly painful!  
+  → Сказать {oi} можно где угодно. {Pagan} тоже вполне годится, его можно сказать даже при ребёнке. Все говорят {kurat}, но не при ребёнке и не начальнику. {Kurat võtaks} уже довольно сердито. А если очень больно, я просто говорю: ужасно больно!
 - [ ] **27748.** A question on a parents' forum, and two answers  
   → Вопрос на родительском форуме и два ответа
 - [ ] **27749.** Question: Our seven-year-old said {kurat} out loud in class at school yesterday, and the teacher phoned me.  
@@ -65978,7 +65978,7 @@ _lib/copy/i18n/areas/lessonTextC1Uhiskond.ts_
   → Мешки для мусора обычно можно попросить в управе района, а мусор вывозят в условленное время.
 - [ ] **32802.** Bring your neighbors, friends and children along. The children often enjoy it most of all.  
   → Бери с собой соседей, друзей и детей. Детям часто нравится больше всех.
-- [ ] **32803.** Don't plan too much. Two or three hours of work is quite enough.  
+- [ ] **32803.** Don't plan too much. Two or three hours of work is plenty.  
   → Не планируй слишком много. Двух-трёх часов работы вполне достаточно.
 - [ ] **32804.** And don't forget the most important thing: after the work there has to be soup.  
   → И не забудь самое важное: после работы обязательно должен быть суп.
