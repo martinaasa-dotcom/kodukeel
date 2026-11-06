@@ -1323,7 +1323,8 @@ export function LearnSession({
               {phase === "ask" && <AnswerMic box={spoken} />}
               <div className="w-full max-w-sm text-left">
                 <EstonianInput
-                  value={typed}
+                  value={spoken.live(typed)}
+                  readOnly={spoken.speech.listening}
                   onChange={setTyped}
                   onEnter={phase === "feedback" ? carryOn : answerGap}
                   inputRef={answerBox}

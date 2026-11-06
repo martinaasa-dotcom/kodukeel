@@ -16,6 +16,7 @@ import { useQueueGrades } from "@/components/round/useGrade";
 import { useFeedbackSound } from "@/components/AudioPrefs";
 import { useSpeech } from "@/components/speech/useSpeech";
 import { MicButton } from "@/components/speech/MicButton";
+import { liveText } from "@/lib/speech/liveText";
 import { ClockFace } from "@/components/speech/ClockFace";
 import { recordNumberGrades } from "@/app/actions";
 import { VERDICT_CLASS, type Verdict } from "@/lib/ux/verdict";
@@ -297,7 +298,8 @@ function Card({ entry, onSettled, onNext, takeCaret }: {
             <MicButton speech={speech} label={t("Say it out loud")} shortcut size="lg" fallback="box" />
             <div className="w-full text-left">
               <EstonianInput
-                value={text}
+                value={liveText(text, speech)}
+                readOnly={speech.listening}
                 onChange={(next) => {
                   setText(next);
                 }}

@@ -6,6 +6,7 @@ import { Button } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { MicButton } from "@/components/speech/MicButton";
 import { useSpeech } from "@/components/speech/useSpeech";
+import { liveText } from "@/lib/speech/liveText";
 import { useAudioPrefs } from "@/components/AudioPrefs";
 import { useLocale, useT } from "@/components/Locale";
 import { LessonText } from "@/components/course/LessonText";
@@ -89,7 +90,7 @@ export function RetellIt({ retell, voice, typed, onDone, kept, onKeep }: { retel
     },
   });
   speechRef.current = speech;
-  const live = speech.listening ? `${said} ${speech.partial}`.trim() : said;
+  const live = liveText(said, speech, "add");
   const lit = pointsHeard(retell, live);
   const allLit = lit.length > 0 && lit.every(Boolean);
   // Every point lit, the microphone closes itself once the words stop arriving.

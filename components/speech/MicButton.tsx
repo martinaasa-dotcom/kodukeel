@@ -34,7 +34,14 @@ export interface MicButtonProps {
   readonly label?: string;
   /** Bind the keyboard shortcut. One button per screen does. */
   readonly shortcut?: boolean;
-  /** Show the words so far under the button while listening. Off where the screen shows them in its own box. */
+  /**
+   * Show the words so far under the button while listening. Off by default
+   * wherever there is a box (`fallback` "box"), because a screen with a box
+   * says what is heard goes in it, and the words so far belong there too
+   * (`lib/speech/liveText.ts`): drawn here they sat above the box and jumped
+   * into it at the end of the turn. A screen whose box only receives part of
+   * what is said, or only appears once the microphone has gone, turns it on.
+   */
   readonly showPartial?: boolean;
   readonly size?: "md" | "lg";
   /**
@@ -67,7 +74,8 @@ const ENDED_MS = 2200;
 /** The level meter's bars, each answering the level by its own share so the row reads as a voice rather than one block. */
 const BAR_WEIGHTS = [0.55, 0.9, 1, 0.75, 0.5] as const;
 
-export function MicButton({ speech, label, shortcut = false, showPartial = true, size = "md", speaksForItself = false, fallback }: MicButtonProps) {
+export function MicButton({ speech, label, shortcut = false, showPartial, size = "md", speaksForItself = false, fallback }: MicButtonProps) {
+  const wordsHere = showPartial ?? fallback === "none";
   const t = useT();
   const [announce, setAnnounce] = useState<ReactNode>("");
   const pressedAt = useRef(0);
@@ -258,7 +266,7 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
         )}
       </div>
 
-      {listening && showPartial && partial && (
+      {listening && wordsHere && partial && (
         <p lang="et" className="speech-partial text-md" style={{ color: "var(--ink)" }}>{partial}</p>
       )}
       {listening && clipping && (

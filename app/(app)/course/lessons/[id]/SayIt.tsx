@@ -9,6 +9,7 @@ import { nativePart } from "@/lib/audio/native";
 import { MicButton } from "@/components/speech/MicButton";
 import { ReadAloud } from "@/components/speech/ReadAloud";
 import { useSpeech, useSpeechConfig } from "@/components/speech/useSpeech";
+import { liveText } from "@/lib/speech/liveText";
 import { useFeedbackSound } from "@/components/AudioPrefs";
 import { useLocale, useT } from "@/components/Locale";
 import { LessonText } from "@/components/course/LessonText";
@@ -484,8 +485,8 @@ function AnswerCard({ lessonId, card, mode, voice, name, onNext, last, typed, on
         <input
           lang="et"
           className="field w-full"
-          value={text}
-          readOnly={shown}
+          value={liveText(text, speech)}
+          readOnly={shown || speech.listening}
           aria-label={mic ? t("What you said, in Estonian") : t("Your answer, in Estonian")}
           autoComplete="off"
           autoCapitalize="off"
