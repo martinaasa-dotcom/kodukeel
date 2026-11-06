@@ -201,17 +201,18 @@ export default async function GrammarHubPage({ searchParams }: { searchParams: P
                 <SoundKey key={clip} clip={clip} glyph={glyph} size="sm" />
               ))}
             </span>
-            <span className="flex min-w-0 flex-[1_1_16rem] flex-col gap-0.5">
-              <Link
-                href="/grammar/sounds"
-                className="text-lg font-bold after:absolute after:inset-0 after:content-['']"
-                style={{ color: "var(--ink)" }}
-              >
-                {t("How Estonian sounds")}
-              </Link>
-              <span className="text-md" style={{ color: "var(--ink-2)" }}>{t("Every sound, said by a native speaker. Press a letter and hear it.")}</span>
-            </span>
-            <ArrowRight size={18} aria-hidden style={{ color: "var(--accent-deep)" }} />
+            {/* The link holds its own words and arrow, so its stretched hit area
+                sits over what is inside it rather than over a neighbor. */}
+            <Link
+              href="/grammar/sounds"
+              className="flex min-w-0 flex-[1_1_16rem] items-center gap-4 after:absolute after:inset-0 after:content-['']"
+            >
+              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span className="text-lg font-bold" style={{ color: "var(--ink)" }}>{t("How Estonian sounds")}</span>
+                <span className="text-md" style={{ color: "var(--ink-2)" }}>{t("Every sound, said by a native speaker. Press a letter and hear it.")}</span>
+              </span>
+              <ArrowRight size={18} aria-hidden style={{ color: "var(--accent-deep)" }} />
+            </Link>
           </div>
         )}
 
