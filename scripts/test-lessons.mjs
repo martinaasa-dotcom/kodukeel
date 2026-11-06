@@ -116,6 +116,16 @@ const stepHeading = async () => (await page.locator("#lesson-step").innerText().
 const footer = () => page.getByRole("button", { name: /^(Continue|Skip this step|Finish the lesson|Finish without it)/ }).last();
 
 /** Answers one practice or review round to its end, whatever it asks. Returns how many questions it took. */
+/*
+  WHAT THE SCREEN SAID THE RIGHT ANSWER WAS, per question. Practice has a pass
+  mark (`lib/course/lessons/gate.ts`) and this driver answers wrong on purpose,
+  so the questions that slipped come back; the second time round it answers
+  with what the screen showed, the way a learner who read the correction does.
+*/
+const learned = new Map();
+const questionKey = async (quiz) => (await quiz.locator("h2, h3").first().innerText().catch(() => "")) + "|" +
+  (await quiz.innerText().catch(() => "")).replace(/\s+/g, " ").replace(/\d+ of \d+/g, "").slice(0, 160);
+
 async function quizThrough(where, reworks = []) {
   let asked = 0;
   // One rework a round is answered right, off the line the lesson says it should become, so a right verdict is seen too.
@@ -129,7 +139,17 @@ async function quizThrough(where, reworks = []) {
     if (!(await quiz.count())) return asked;
     const kind = await quiz.getAttribute("data-quiz-kind");
     asked += 1;
-    if (kind === "match") {
+    const key = await questionKey(quiz);
+    const known = learned.get(key);
+    if (known !== undefined && kind !== "match") {
+      const box = quiz.locator("input[lang=et]");
+      if (await box.count()) {
+        await box.fill(known);
+        await quiz.getByRole("button", { name: /^Check/ }).click();
+      } else {
+        await quiz.locator('[role="radio"]:not([disabled])').filter({ hasText: known }).first().click();
+      }
+    } else if (kind === "match") {
       const left = quiz.locator('ul[aria-label="Estonian"] button');
       for (let i = 0; i < (await left.count()); i++) {
         if (await left.nth(i).isDisabled()) continue;
@@ -172,6 +192,12 @@ async function quizThrough(where, reworks = []) {
     const next = quiz.getByRole("button", { name: /^(Next|Done)/ });
     await next.waitFor({ timeout: 4000 }).catch(() => {});
     if (!(await next.count())) return asked;
+    // Remember what the screen marked right, for the go over the ones that slipped.
+    if (kind !== "match" && !learned.has(key)) {
+      const option = await quiz.locator('[role="radio"].option-right').first().innerText().catch(() => null);
+      const line = option ?? await quiz.locator(".verdict-panel [lang=et]").first().innerText().catch(() => null);
+      if (line) learned.set(key, line.replace(/^\d+\s*/, "").trim());
+    }
     const other = quiz.locator("button:not([disabled])").filter({ hasNotText: /^(Next|Done)/ });
     if (!keyed && (await other.count())) {
       keyed = true;
@@ -409,7 +435,13 @@ async function walk(lesson, { mode = "type" } = {}) {
     const heading = await stepHeading();
     await axeHere(`${where} ${heading.replace(/^Step \d+ of \d+: /, "")}`);
     if (/Practice/.test(heading)) {
-      const asked = await quizThrough(`${where} practice`, lesson.reworks ?? []);
+      let asked = await quizThrough(`${where} practice`, lesson.reworks ?? []);
+      // Under the pass mark the step offers the ones that slipped and nothing else; go over them until it is passed.
+      for (let go = 0; go < 6 && (await page.locator('[data-practice-gate="again"]:visible').count()); go++) {
+        check(`${where}: under the pass mark Practice offers no way past it`, (await page.getByRole("button", { name: /^Skip this step/ }).count()) === 0);
+        await page.getByRole("button", { name: /^Go over the \d+ that slipped/ }).click();
+        asked += await quizThrough(`${where} practice again`, lesson.reworks ?? []);
+      }
       check(`${where}: practice runs to its end`, (await page.locator('[data-lesson-quiz="done"]:visible').count()) === 1, `${asked} asked`);
     } else if (/Write/.test(heading) && lesson.write) {
       await writeThrough(lesson);

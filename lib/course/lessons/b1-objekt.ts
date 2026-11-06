@@ -316,7 +316,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "The plural [osastav] (3rd form) says some, or a lot, without counting: {õunu}, {mune}, {nõusid}.",
-        "The plural [nimetav] (1st form) on the noun a verb acts on ({õunad} here) means all of them, these ones: {Ma pesin õunad ära}. It's spelled just like {Õunad olid head}.",
+        "When the verb acts on all of them, the noun is in the [mitmuse nimetav] (plural) ({õunad} here): {Ma pesin õunad ära}, I washed the apples, these ones. It's spelled just like {Õunad olid head}.",
         "{Osa} is a part, some of it: {Ainult osa}. {Terve} is whole: {terve kilo}.",
       ],
       watchOut: "English says it in the verb: I was eating apples, I ate the apples up. Estonian says it in the ending: {Ma sõin õunad ära} means they're gone, every one.",
