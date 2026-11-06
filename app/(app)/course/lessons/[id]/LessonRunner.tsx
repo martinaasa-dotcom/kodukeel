@@ -481,12 +481,11 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
               </div>
             )}
             {/*
-              A WORKSHEET PAGE ON WHAT THE LESSONS HAVE TAUGHT, FROM B1 ON.
-              B1 dealt the worksheet while it was built from units, and lost
-              it when every evening became one lesson. It is offered here, in
-              the module as well, since it is grammar practice on tonight's
-              words rather than a way out of the evening; the page is held to
-              what the lessons have taught so far (`lessonWorksheet.ts`).
+              A WORKSHEET PAGE OF THIS LESSON'S OWN, FROM B1 ON. It is offered
+              here, in the module as well, since it is grammar practice on
+              tonight's words rather than a way out of the evening. The page is
+              set from this lesson's words and its own sentences first
+              (`lessonWorksheet.ts`); the general page stays on Practice.
             */}
             {worksheet && (
               <div className="mt-4 rounded-[var(--r-xl)] border px-5 py-4 text-left" style={{ background: "var(--surface)", borderColor: "var(--edge)" }} data-lesson-worksheet={worksheet.theme ?? "any"}>
@@ -494,7 +493,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
                   <span lang="et">{WORKBOOK_NAME.et}</span> ({t(WORKBOOK_NAME.en)})
                 </p>
                 <p className="mt-1 max-w-[56ch] text-base" style={{ color: "var(--ink-2)" }}>
-                  {t("A page of sentences, each with a word to put in the form it needs. Only words you've learned so far.")}
+                  {t("A page of this lesson's sentences and words, each with a word to put in the form it needs.")}
                 </p>
                 <div className="mt-3"><ButtonLink href={worksheetLink(worksheet)}>{t("Fill in a page")} <ArrowRight size={15} aria-hidden /></ButtonLink></div>
               </div>
