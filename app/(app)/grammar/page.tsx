@@ -13,7 +13,7 @@ import { exceptionScale } from "@/lib/progress/exceptions";
 import { familyStandings } from "@/lib/progress/exceptionStanding";
 import { FAMILY_ORDER } from "@/lib/games/exceptionPaths";
 import { Card, Chip, Meter, Page, Stack } from "@/components/ui";
-import { SoundKey } from "@/components/sounds/Native";
+import { SoundsCard } from "@/components/sounds/SoundsCard";
 import { localeFor } from "@/lib/progress/locale";
 import { fill, grouped, tr } from "@/lib/copy/locale";
 
@@ -186,34 +186,10 @@ export default async function GrammarHubPage({ searchParams }: { searchParams: P
         </ol>
 
         {viewer && (
-          <div
-            className="lift relative flex flex-wrap items-center gap-4 rounded-[var(--r-lg)] border p-5"
-            style={{ borderColor: "var(--edge)", background: "var(--surface)", boxShadow: "var(--depth-sm)" }}
-            data-sounds-link
-          >
-            <span className="relative z-10 flex shrink-0 gap-1.5">
-              {[
-                { clip: "sound-ou", glyph: "õ" },
-                { clip: "sound-ae", glyph: "ä" },
-                { clip: "sound-oe", glyph: "ö" },
-                { clip: "sound-ue", glyph: "ü" },
-              ].map(({ clip, glyph }) => (
-                <SoundKey key={clip} clip={clip} glyph={glyph} size="sm" />
-              ))}
-            </span>
-            {/* The link holds its own words and arrow, so its stretched hit area
-                sits over what is inside it rather than over a neighbor. */}
-            <Link
-              href="/grammar/sounds"
-              className="flex min-w-0 flex-[1_1_16rem] items-center gap-4 after:absolute after:inset-0 after:content-['']"
-            >
-              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                <span className="text-lg font-bold" style={{ color: "var(--ink)" }}>{t("How Estonian sounds")}</span>
-                <span className="text-md" style={{ color: "var(--ink-2)" }}>{t("Every sound, said by a native speaker. Press a letter and hear it.")}</span>
-              </span>
-              <ArrowRight size={18} aria-hidden style={{ color: "var(--accent-deep)" }} />
-            </Link>
-          </div>
+          <SoundsCard
+            title={t("How Estonian sounds")}
+            blurb={t("Every sound, said by a native speaker. Press a letter and hear it.")}
+          />
         )}
 
         <Card>
