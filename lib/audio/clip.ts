@@ -174,7 +174,9 @@ export function rateFor(request: ClipRequest): number {
   const pace = request.pace ?? DEFAULT_PACE;
   const base = request.rate !== undefined ? Math.min(request.rate, pace.normal) : pace.normal;
   if (request.slow) return Math.max(SLOWEST, base * SLOW_OF_NORMAL);
-  return base * (request.condition?.speed ?? 1);
+  // Never faster than the learner's own pace: nothing in this app is sped up,
+  // so a condition may only ever slow a play down, never push it past 1.
+  return base * Math.min(1, request.condition?.speed ?? 1);
 }
 
 /** A clip in hand: the url an element plays and the bytes behind it. */

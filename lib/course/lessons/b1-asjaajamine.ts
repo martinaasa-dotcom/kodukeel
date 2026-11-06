@@ -342,7 +342,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       watchOut: "{Kinni panema} is to block a card, not to put it somewhere: the small word {kinni} carries the meaning, and {panema} only does the doing.",
       examples: [0, 3, 7],
     },
-    hearing: "quick",
+    hearing: "half",
     listenFor: [
       { q: "Which happened first?", options: ["Anna saw the wallet under the computer", "Tom called the bank", "Tom called the bank back", "Tom found the wallet on the bus"], answer: 1 },
       { q: "Who says the card is the most important thing?", options: ["Anna", "Tom", "The bank", "Nobody"], answer: 0 },

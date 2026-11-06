@@ -264,7 +264,7 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
       watchOut: "When the radio says a study {näitab seost}, nobody has shown that one thing causes the other. Don't pass it on as {Telefon on süüdi}.",
       examples: [4, 6, 9],
     },
-    hearing: "quick",
+    hearing: "half",
     listenFor: [
       { q: "Who is today's guest?", options: ["A sleep researcher", "A doctor from a hospital", "A teacher", "A radio journalist"], answer: 0 },
       { q: "What does the study show about phones in bed?", options: ["A link, not a cause", "That phones cause bad sleep", "Nothing at all", "That young people sleep the most"], answer: 0 },

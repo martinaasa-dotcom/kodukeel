@@ -1157,7 +1157,7 @@ export const C1_MOTE_LESSONS: readonly LessonSpec[] = [
     title: "The C1 speaking exam",
     goal: "Sit the C1 speaking exam: a minute about yourself and your work, a two-minute presentation on one of two topics after three minutes to prepare, and the discussion.",
     cast: { Evi: "mari", Tom: "kalev", Olga: "liivika" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Evi", et: "Tere! Mina olen Evi ja minu kolleeg kuulab ja hindab. Palun istuge.", en: "Hello! I'm Evi, and my colleague is here to listen and assess. Please sit down.", stage: "The C1 speaking exam, a few weeks later. Two candidates, Tom and Olga, and an examiner neither of them has met." },
       { who: "Evi", et: "Kõigepealt tutvume. Tom, palun rääkige natuke endast ja oma tööst.", en: "First let's get to know each other. Tom, please tell us a little about yourself and your work." },

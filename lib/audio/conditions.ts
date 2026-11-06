@@ -101,7 +101,7 @@ export function hearingFrom(value: string | null | undefined): Hearing {
   return value === "off" ? "off" : "on";
 }
 
-export type ConditionId = "clean" | "quick" | "cafe" | "phone" | "half";
+export type ConditionId = "clean" | "cafe" | "phone" | "half";
 
 export interface Condition {
   readonly id: ConditionId;
@@ -135,13 +135,12 @@ export interface Condition {
 /**
  * The conditions, in the order they open.
  *
- * `quick` is the one clip played faster with the pitch held, which is the
- * same stretch a slow play uses the other way (`lib/audio/stretch.ts`), so
- * the voice stays where it is and only the tempo changes, and the consonants
- * keep their length in that direction too. It is not asked of the service: a
- * speech model asked for a tempo holds every phoneme on repeated frames and
- * buzzes. 1.3 is brisk, not a caricature; the state examination's listening
- * texts are read at about that pace and a receptionist is faster.
+ * NOTHING IS SPED UP. There used to be a `quick` room, the clip played at
+ * 1.3 through the stretch, and the operator's call is that no recording in
+ * this app plays faster than it was said: a stretched clip is what learners
+ * hear as robotic, and a room is harder by what is around the voice, never by
+ * the voice itself. `rateFor` holds that for any condition (a condition's
+ * speed may only ever slow a play, and none of these does).
  *
  * `cafe` is filtered noise at a level where the voice still leads. `phone`
  * keeps the 300 to 3400 Hz band a landline keeps, which is enough to lose the
@@ -154,7 +153,6 @@ export interface Condition {
  */
 export const CONDITIONS: readonly Condition[] = [
   { id: "clean", name: "A quiet room", said: "in a quiet room", speed: 1, noise: null, band: null, skip: 0 },
-  { id: "quick", name: "Sped up", said: "sped up", speed: 1.3, noise: null, band: null, skip: 0 },
   { id: "cafe", name: "In a café", said: "over café noise", speed: 1, noise: { level: 0.16, lowpassHz: 1400 }, band: null, skip: 0 },
   { id: "phone", name: "On the phone", said: "down a phone line", speed: 1, noise: null, band: { lowHz: 300, highHz: 3400 }, skip: 0 },
   { id: "half", name: "Joined halfway", said: "starting halfway through", speed: 1, noise: null, band: null, skip: 0.4 },
@@ -180,7 +178,6 @@ export function conditionById(id: string | null | undefined): Condition {
  */
 export const OPENS_AT: Readonly<Record<ConditionId, number>> = {
   clean: 0,
-  quick: 6,
   cafe: 9,
   phone: 12,
   half: 15,
@@ -213,7 +210,7 @@ export function removesWords(condition: Condition): boolean {
  * THE ROOM ONE LINE OF A CONVERSATION IS HEARD IN, where the whole of it is
  * heard in `condition` (a lesson's `hearing`, B1 on).
  *
- * A room that only colors the sound (a phone line, a café, sped up) is every
+ * A room that only colors the sound (a phone line, a café) is every
  * line. A room that removes words is walking in on a conversation already
  * going: the first spoken line is caught partway and every line after it is
  * heard whole, since somebody who walks into a kitchen misses the start of
