@@ -154,6 +154,9 @@ async function populate(ownerId: string, lexemeId: string) {
   await prisma.courseStep.create({
     data: { ownerId, programmeId: "itest", dayId: "d1", stepId: "meet" },
   });
+  await prisma.lessonAnswer.create({
+    data: { ownerId, lessonId: "b1-01-done", mode: "type", said: "[]" },
+  });
   await prisma.emailSend.create({ data: { ownerId, kind: "evening", dayKey: "2026-09-01" } });
   // The endpoint is unique across the table, so each owner gets its own.
   await prisma.pushSubscription.create({
