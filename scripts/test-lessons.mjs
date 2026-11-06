@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { passPractice } from "./lib/practiceGate.mjs";
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -638,7 +639,8 @@ async function spokenRace(lesson) {
     await hydrated(p);
     await p.getByRole("button", { name: /^Show the words now/ }).click();
     for (let n = 0; n < 30 && !/Say it/.test(await p.locator("#lesson-step").innerText()); n++) {
-      await p.getByRole("button", { name: /^(Skip this step|Continue)/ }).last().click();
+      if (/Practice/.test(await p.locator("#lesson-step").innerText())) await passPractice(p);
+      await p.getByRole("button", { name: /^(Skip this step|Continue)/ }).last().click({ timeout: 5000 });
       await p.waitForTimeout(300);
     }
     await p.getByRole("button", { name: /^Say it$/ }).last().click();

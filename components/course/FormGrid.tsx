@@ -54,7 +54,7 @@ export function FormChip({ cell }: { cell: GridCell }) {
   return (
     <Speak
       text={cell.et}
-      label={fill(t("Hear {word}"), { word: cell.et })}
+      label={fill(t("Hear {word}"), { word: cell.who ? `${cell.et} ${cell.who}` : cell.et })}
       className="tap-tint inline-flex max-w-full items-center gap-2 whitespace-nowrap rounded-full px-3 py-1.5"
       style={{
         background: cell.fresh ? "var(--accent-soft)" : "var(--surface)",
