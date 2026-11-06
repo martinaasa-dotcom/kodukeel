@@ -137,7 +137,7 @@
     "@prisma/client": "7.10.1",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.118.0",
-    "lucide-react": "^1.60.0",
+    "lucide-react": "^1.61.0",
     "next": "^16.4.3",
     "qrcode-generator": "2.0.4",
     "react": "^19.3.1",
