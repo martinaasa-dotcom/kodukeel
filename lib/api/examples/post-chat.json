@@ -1,5 +1,5 @@
 {
-  "runId": "359f85eb-d9a6-47be-84a9-3e7fc617705e",
+  "runId": "1fa196e6-b2f3-4337-a4c3-36cbc0a8c14f",
   "briefing": {
     "you": "You've got ten minutes before your bus and you'd like something to drink. Your card says what you feel like.",
     "props": [
@@ -18,7 +18,7 @@
         ]
       }
     ],
-    "persona": "They're busy and won't wait long for an answer. Get to the point and you'll get on fine."
+    "persona": "They're in no hurry at all, and they'll want every last detail from you. Get comfortable."
   },
   "plays": 0,
   "composed": true

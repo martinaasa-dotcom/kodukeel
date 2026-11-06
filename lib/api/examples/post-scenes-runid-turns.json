@@ -1,6 +1,6 @@
 {
   "voice": "tambet",
-  "speed": 1.1,
+  "speed": 0.95,
   "response": "answer",
   "beatId": "order",
   "goal": "Tell them what you'd like to drink.",
@@ -32,14 +32,10 @@
   ],
   "hurdle": null,
   "queued": false,
-  "composer": {
-    "label": "Google Gemini",
-    "model": "gemini-3.8-flash",
-    "primary": false
-  },
+  "composer": null,
   "lines": [
     {
-      "text": "Mida te soovite?",
+      "text": "Palun, mida te soovite tellida?",
       "provenance": "scripted"
     }
   ]
