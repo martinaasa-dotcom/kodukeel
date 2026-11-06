@@ -167,7 +167,13 @@ function paceById(id: SpeechPaceId, chosen: boolean): Pace {
  * reading of their answers does not overrule a thing they said.
  */
 export function paceFor(level: Level, tilt: Tilt = 0): Pace {
-  return paceById(PACE_FOR_LEVEL[tiltedLevel(level, tilt)], false);
+  // FULL SPEED IS NOT LEANED DOWN. From B2 the learner is claiming to follow
+  // ordinary speech, and a struggling reading leaning them to B1's 0.85 put
+  // every voice in every conversation through the stretch, which is what a
+  // learner reported as people sounding robotic. At B2 and up, nothing is
+  // slower than the recording unless the learner presses the slow button.
+  const lean = PACE_FOR_LEVEL[level] === "natural" && tilt < 0 ? 0 : tilt;
+  return paceById(PACE_FOR_LEVEL[tiltedLevel(level, lean)], false);
 }
 
 /**

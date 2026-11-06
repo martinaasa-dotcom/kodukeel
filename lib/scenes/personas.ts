@@ -94,7 +94,11 @@ export const PERSONAS: readonly PersonaSpec[] = [
     meet: "They're in no hurry at all, and they'll want every last detail from you. Get comfortable.",
     patience: 1,
     voice: SCENE_VOICE,
-    speed: 0.95,
+    // Not slower than the recording: a persona's own rate is a ceiling on the
+    // learner's pace (`rateFor`), so 0.95 stretched every line this person said
+    // to a B2 learner, who should hear Estonian at its own speed unless they
+    // press the slow button. "In no hurry" is their patience, not their voice.
+    speed: 1,
     leans: ["missing-document", "wrong-price", "small-talk"],
     translates: true,
     acknowledges: true,

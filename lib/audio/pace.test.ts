@@ -121,3 +121,23 @@ describe("what a request plays at", () => {
     expect(slow).toBeGreaterThanOrEqual(SLOWEST);
   });
 });
+
+describe("full speed stays full speed", () => {
+  it("a struggling reading does not lean B2 or C1 below the recording's own pace", () => {
+    expect(paceFor("B2", -1).normal).toBe(1);
+    expect(paceFor("C1", -1).normal).toBe(1);
+    expect(paceFrom(null, "B2", -1).normal).toBe(1);
+  });
+
+  it("still leans the levels below, and still lets B1 up to full speed", () => {
+    expect(paceFor("B1", -1).normal).toBeLessThan(paceFor("B1").normal);
+    expect(paceFor("B1", 1).normal).toBe(1);
+  });
+
+  it("only the slow button slows a B2 play", () => {
+    const b2 = paceFor("B2", -1);
+    expect(rateFor({ text: "Tere!", pace: b2 })).toBe(1);
+    expect(rateFor({ text: "Tere!", pace: b2, slow: true })).toBeLessThan(1);
+  });
+});
+
