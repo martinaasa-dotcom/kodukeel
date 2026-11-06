@@ -1,5 +1,6 @@
 "use client";
 
+import { markListening } from "./listeningMark";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import type { EngineError, RawTurn, TranscribedPiece } from "@/lib/speech/engine";
 import { reconcile, core, type Hearing } from "@/lib/speech/reconcile";
@@ -539,6 +540,14 @@ export function useSpeech(options: UseSpeechOptions = {}): Speech {
   useEffect(() => {
     if (appSpeaking && listening) cancel();
   }, [appSpeaking, listening, cancel]);
+
+  /* While a turn is open the whole page says so (`listeningMark.ts`): a glow
+     at the window's edge and a ring round the answer box, on every screen
+     that listens, whether or not it draws the one microphone. */
+  useEffect(() => {
+    if (!listening) return;
+    return markListening();
+  }, [listening]);
 
   // A device that ran the check slower than real time keeps its typed app, and says why in Settings.
   const tooSlow = model.phase === "error" && model.error === "too-slow";
