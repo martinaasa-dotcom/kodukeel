@@ -3,7 +3,7 @@
 import { EnterKeyCap } from "@/components/KeyCaps";
 import { useSingleKeys } from "@/components/SingleKeys";
 import { mayActOnKey } from "@/lib/ux/shortcuts";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, Ear, X } from "lucide-react";
 import { Button } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
@@ -143,6 +143,28 @@ function FullSentence({ full, answer }: { full: string; answer: string }) {
 
 // ── Multiple choice, read or heard ───────────────────────────────────────────
 
+/**
+ * A CLIP THAT FAILS AFTER THE ANSWER DOES NOT TAKE THE ANSWER AWAY.
+ *
+ * Pressing play unlocks the options straight away, so a learner can pick one
+ * while the clip is still on its way. When the speech service then refuses,
+ * `onNoAudio` abandons the listening section, and doing that to a question
+ * already answered replaced the marked answer and its "Next question" under
+ * the learner's cursor. The answer stands; the next heard question meets the
+ * same refusal and skips the section from there. `test-assess.mjs` failed on
+ * exactly this whenever TartuNLP was down: its click on "Next question" landed
+ * on a button that had just been removed.
+ */
+function whenUnanswered(
+  answered: { readonly current: boolean },
+  setSilent: (silent: boolean) => void,
+  onNoAudio: () => void,
+): void {
+  if (answered.current) return;
+  setSilent(true);
+  onNoAudio();
+}
+
 export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
   item: ChoiceItem;
   onAnswer: (answer: Answer) => void;
@@ -153,11 +175,14 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
   const [picked, setPicked] = useState<number | null>(null);
   const [played, setPlayed] = useState(!item.heard);
   const [silent, setSilent] = useState(false);
+  const answered = useRef(false);
 
   const choose = (index: number) => {
     if (picked !== null) return;
+    answered.current = true;
     setPicked(index);
   };
+  const noAudio = () => whenUnanswered(answered, setSilent, onNoAudio);
 
   const singleKeys = useSingleKeys();
   useEffect(() => {
@@ -194,7 +219,7 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
             onPlay={() => setPlayed(true)}
             className="flex h-16 w-16 items-center justify-center rounded-full"
             style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
-            onUnavailable={() => { setSilent(true); onNoAudio(); }}
+            onUnavailable={noAudio}
           />
           <Speak
             text={item.et}
@@ -203,7 +228,7 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
             size={18}
             className="flex h-12 w-12 items-center justify-center rounded-full"
             style={{ background: "var(--raised)", color: "var(--ink-2)" }}
-            onUnavailable={() => { setSilent(true); onNoAudio(); }}
+            onUnavailable={noAudio}
           />
           <span className="text-sm" style={{ color: "var(--ink-3)" }}>
             {t(played ? "Pick the meaning" : "Play it, then pick the meaning")}
@@ -317,8 +342,14 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
 }) {
   const t = useT();
   const [typed, setTyped] = useState("");
-  const [mark, setMark] = useState<ReturnType<typeof gradeDictation> | null>(null);
+  const [mark, setMarkState] = useState<ReturnType<typeof gradeDictation> | null>(null);
   const [silent, setSilent] = useState(false);
+  const answered = useRef(false);
+  const setMark = (next: ReturnType<typeof gradeDictation>) => {
+    answered.current = true;
+    setMarkState(next);
+  };
+  const noAudio = () => whenUnanswered(answered, setSilent, onNoAudio);
 
   return (
     <div>
@@ -332,7 +363,7 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
           size={26}
           className="flex h-16 w-16 items-center justify-center rounded-full"
           style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
-          onUnavailable={() => { setSilent(true); onNoAudio(); }}
+          onUnavailable={noAudio}
         />
         <Speak
           text={item.et}
@@ -341,7 +372,7 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
           size={18}
           className="flex h-12 w-12 items-center justify-center rounded-full"
           style={{ background: "var(--raised)", color: "var(--ink-2)" }}
-          onUnavailable={() => { setSilent(true); onNoAudio(); }}
+          onUnavailable={noAudio}
         />
         <span className="text-sm" style={{ color: "var(--ink-3)" }}>
           <Ear size={14} className="mr-1.5 inline" aria-hidden />
