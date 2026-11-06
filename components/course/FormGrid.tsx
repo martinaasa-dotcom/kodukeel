@@ -63,6 +63,7 @@ export function FormChip({ cell }: { cell: GridCell }) {
     >
       <Volume2 size={14} aria-hidden style={{ color: cell.fresh ? "var(--accent-deep)" : "var(--ink-3)" }} />
       <span lang="et" className="text-base font-semibold" style={{ color: cell.fresh ? "var(--accent-deep)" : "var(--ink)" }}>{cell.et}</span>
+      {cell.who && " "}
       {cell.who && <span className="text-sm font-normal" style={{ color: "var(--ink-3)" }}>{cell.who}</span>}
     </Speak>
   );
