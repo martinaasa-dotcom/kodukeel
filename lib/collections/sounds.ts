@@ -52,7 +52,7 @@ export const VOWELS: readonly SoundNote[] = [
   { clip: "sound-i", glyph: "i" },
   { clip: "sound-o", glyph: "o" },
   { clip: "sound-u", glyph: "u" },
-  { clip: "sound-ou", glyph: "õ", note: "close to the u in fun, said further back with the lips spread" },
+  { clip: "sound-ou", glyph: "õ", note: "the oo in book, said with relaxed lips" },
   { clip: "sound-ae", glyph: "ä", note: "the a in cat" },
   { clip: "sound-oe", glyph: "ö", note: "the ir in bird, said without the r and with rounded lips" },
   { clip: "sound-ue", glyph: "ü", note: "the u in cute" },

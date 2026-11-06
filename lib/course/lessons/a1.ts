@@ -77,7 +77,7 @@ const TERE_LESSONS: readonly LessonSpec[] = [
         "Between friends, {Tsau!} is both hi and bye. The dictionary spells it with a š, tšau, but almost everybody writes tsau.",
       ],
       sounds: [
-        { sound: "sound-ou", glyph: "õ", like: "close to the u in fun, said further back with the lips spread", word: "stress-ouhtust", mark: "õ", en: "evening, as in good evening" },
+        { sound: "sound-ou", glyph: "õ", like: "the oo in book, said with relaxed lips", word: "stress-ouhtust", mark: "õ", en: "evening, as in good evening" },
         { sound: "sound-ae", glyph: "ä", like: "the a in cat", word: "word-aitaeh", mark: "ä", en: "thank you" },
         { sound: "sound-oe", glyph: "ö", like: "the ir in bird, said without the r and with rounded lips", word: "vowel-oeoe", mark: "öö", en: "night" },
         { sound: "sound-ue", glyph: "ü", like: "the u in cute", word: "number-ueks", mark: "ü", en: "one" },
