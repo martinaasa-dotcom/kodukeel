@@ -67,6 +67,7 @@ import { startRound } from "./lib/briefing.mjs";
 import { cutOffWrites, walkWorkbook } from "./lib/workbook.mjs";
 import { newPrismaClient } from "./lib/db.mjs";
 import { fitsAnyWord, survey, wholeWords } from "./lib/containment.mjs";
+import { passPractice } from "./lib/practiceGate.mjs";
 import { requireLocalDatabase, resolveDatabaseUrl } from "./lib/local-db.mjs";
 
 const B = baseUrl();
@@ -1611,6 +1612,8 @@ async function lessonStepStates(ctx, at) {
     const show = page.getByRole("button", { name: /^Show the words now/ });
     if (await show.count()) await show.first().click().catch(() => {});
     for (let n = 0; n < 8 && !step.test(await heading()); n++) {
+      // Practice has a pass mark and no Skip under it, so it is answered rather than skipped.
+      if (/Practice/.test(await heading())) await passPractice(page);
       await page.getByRole("button", { name: /^(Skip this step|Continue)/ }).last().click().catch(() => {});
       await page.waitForTimeout(300);
     }
