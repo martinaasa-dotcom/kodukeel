@@ -65,6 +65,14 @@ export const CARD_SOURCES = [
     reached (`reviewable`), because a learner can read their own sentence.
   */
   "WRITTEN",
+  /*
+    A level the learner is credited with on /learn, added in one press to have
+    its words asked (`addPassedLevelWords`). In neither list below: the words
+    are the course's, so they are not ones the learner went and got one at a
+    time, and the module may not hold them back, because the learner holds
+    the level and asked for exactly these.
+  */
+  "PASSED_LEVEL",
 ] as const;
 
 export type CardSource = (typeof CARD_SOURCES)[number];

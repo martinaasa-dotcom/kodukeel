@@ -109,6 +109,7 @@ import { createAbsent, resolveLexemes, restoreLexemes, restoreOwned } from "@/li
 import { errandById, outcomeFrom } from "@/lib/collections/errands";
 import { type RatingValue } from "@/lib/srs/scheduler";
 import { undoGradeFor, type SchedulingSnapshot } from "@/lib/srs/undo";
+import { creditedFor, isCredited, levelLessonWords } from "@/lib/progress/credited";
 import { addCardsFor as addWordCards, addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
 import {
   defaultProgramme, LESSON_STEP, MODULE_HOME, continueHref, dayById, focusedSteps, lessonDayFor, levelHeldOnHandOff,
@@ -2353,6 +2354,39 @@ export async function addCommonWords(group: string) {
   );
 
   revalidatePath("/dictionary/common");
+  revalidatePath("/words");
+  revalidatePath("/");
+  return { ok: true as const, added, words };
+}
+
+/**
+ * THE WORDS OF A LEVEL THE LEARNER HOLDS, INTO THE DECK ON A PRESS.
+ *
+ * /learn counts the levels up to the one somebody holds as done without
+ * testing them (`creditedFor`). This is the way to have them tested: every
+ * word that level's lessons teach, a recognition card and a production card
+ * each, under `PASSED_LEVEL`, which the module does not hold back. New cards,
+ * so the scheduler introduces them at the daily pace like any other, and the
+ * "checked" count on /learn grows as they graduate. Nothing is marked known.
+ *
+ * Only a level this learner is credited with, worked out again here rather
+ * than trusted, since the argument is JSON off the wire.
+ */
+export async function addPassedLevelWords(level: string) {
+  const ownerId = await requireUserId();
+  const busy = await throttleShared(ownerId, "addPassedLevelWords");
+  if (busy) return await sayRefusal(ownerId, busy);
+  const { through } = await creditedFor(ownerId);
+  if (typeof level !== "string" || !isCredited(through, level)) {
+    return { ok: false as const, error: "That level isn't counted as yours yet." };
+  }
+
+  const { added, words } = await addPlanToDeck(
+    ownerId,
+    planLemmas(levelLessonWords(level), ["RECOGNITION", "PRODUCTION"]),
+    "PASSED_LEVEL",
+  );
+
   revalidatePath("/words");
   revalidatePath("/");
   return { ok: true as const, added, words };

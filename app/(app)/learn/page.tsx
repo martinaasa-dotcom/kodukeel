@@ -4,8 +4,8 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ArrowRight, Check, ChevronRight, Compass, Flag, GraduationCap, Lock } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
 import { courseWordCount, deckSnapshot, pathWithProgress } from "@/lib/progress/summary";
-import { courseStandingFor } from "@/lib/progress/level";
-import { creditedThrough, levelAfter } from "@/lib/course/placement";
+import { creditedFor, isCredited, levelLessonWords } from "@/lib/progress/credited";
+import { AddLevelWords } from "./AddLevelWords";
 import { HATCH } from "@/components/course/LadderBar";
 import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
 import {
@@ -21,7 +21,6 @@ import { learnerModuleScope } from "@/lib/progress/moduleScope";
 import { programmeFor } from "@/lib/progress/course";
 import { LEARN_BATCH } from "@/lib/learn/ladder";
 import { Explain } from "@/components/Explain";
-import { PROGRAMMES } from "@/lib/course";
 import { LESSONS, LESSON_LEVELS, LESSON_PARTS, isLessonLevel } from "@/lib/course/lessons";
 import { LessonText } from "@/components/course/LessonText";
 
@@ -54,14 +53,14 @@ export default async function LearnPage() {
     promising twelve words waiting, over a round the module then holds back,
     reads as a counting fault rather than as a rule.
   */
-  const [[snapshot, units], standing, counts, programme, locale] = await Promise.all([
+  const [[snapshot, units], creditedNow, counts, programme, locale] = await Promise.all([
     /*
       Each chain waits only on the answer it needs: the path is read off the
       deck, and the counts off where the module has taken the learner. They
       were two batches, so the counts waited on the deck for nothing.
     */
     deckSnapshot(ownerId).then(async (snap) => [snap, await pathWithProgress(ownerId, snap)] as const),
-    courseStandingFor(ownerId),
+    creditedFor(ownerId),
     learnerModuleScope(ownerId).then((taught) => learnCounts(ownerId, undefined, taught?.lemmas ?? null)),
     /* Whether a planned course is handing this learner their words, which
        decides what the card says when none are waiting. */
@@ -69,25 +68,18 @@ export default async function LearnPage() {
     localeFor(ownerId),
   ]);
   const t = (english: string) => tr(locale, english);
-  /* The band the copy is pitched at, which is the level they stand at. */
-  const placement = standing?.level ?? "A1";
-
   /*
     WHERE THEY ARE IS THE LEVEL THE COURSE IS TEACHING THEM, NOT THE ONE THEY
     SAID THEY HOLD. Picking B1 in first run means B1 is behind them and the
     course opens on B2.1, so this page marked B1 "You are here" over a course
     teaching B2, and A1 to B1 read 0 words known to somebody who had told us
-    they speak B1. The levels up to the one held are credited through
-    `creditedThrough`, the same rule Today's climb reads, so the two screens
-    cannot disagree about what counts as done. Credited is never known: no
-    review is written, the checked count stays the scheduler's own and is
-    printed beside it, and no milestone letter reads this page.
+    they speak B1. The levels up to the one held are credited (`creditedFor`,
+    the rule Today's climb reads). Credited is never known: no review is
+    written, the checked count stays the scheduler's own and is printed beside
+    it, and no milestone letter reads this page.
   */
-  const rank = (level: string) => (LEVELS as readonly string[]).indexOf(level);
-  const through = creditedThrough(standing?.held ?? null, programme?.level ?? null);
-  const working = programme?.level ?? placement;
-  const here = through && rank(working) <= rank(through) ? (levelAfter(through) ?? working) : working;
-  const credited = (level: string) => through !== null && rank(level) <= rank(through);
+  const { through, here, placement } = creditedNow;
+  const credited = (level: string) => isCredited(through, level);
 
   const doneIds = new Set(units.filter((u) => u.state === "done").map((u) => u.unit.id));
   const startedIds = new Set(units.filter((u) => u.state === "learning").map((u) => u.unit.id));
@@ -107,9 +99,7 @@ export default async function LearnPage() {
     the lessons' parts rather than the units it was once cut from. Their
     words are the lessons' own, counted the same way.
   */
-  const lessonWordsOf = (level: string) =>
-    [...new Set(PROGRAMMES.filter((p) => p.level === level).flatMap((p) => p.days.flatMap((d) => d.words)))];
-  const lessonWords = new Map([...LESSON_LEVELS].map((level) => [level, lessonWordsOf(level)]));
+  const lessonWords = new Map([...LESSON_LEVELS].map((level) => [level, levelLessonWords(level)]));
   const knownOf = (words: readonly string[]) => words.filter((w) => snapshot.knownLemmas.has(w)).length;
   const unitWords = countWords(units.filter((u) => !isLessonLevel(u.unit.level)));
   const allLessonWords = [...lessonWords.values()].flat();
@@ -363,6 +353,11 @@ export default async function LearnPage() {
               </summary>
 
               <ol className="flex flex-col border-t px-2 py-2 sm:px-3" style={{ borderColor: "var(--rule)" }}>
+                {assumed && (
+                  <li className="px-3 pb-3 pt-2">
+                    <AddLevelWords level={level} />
+                  </li>
+                )}
                 {LESSON_PARTS.filter((part) => part.level === level).map((part) => (
                   <li key={part.id} className="flex items-center gap-3 rounded-[var(--r-sm)] px-3 py-2.5">
                     <Link href={`/course/lessons#${part.id}`} className="group flex min-w-0 flex-1 items-center gap-3">
@@ -435,7 +430,7 @@ export default async function LearnPage() {
         </Explain>
         {through && (
           <Explain label={t("Why some levels count as done")}>
-            {fill(t("You told us you hold {level}, so the levels up to it count as done and their words count as yours. We haven't tested them, so \"checked\" only grows as those words come up in your reviews."), { level: through })}
+            {fill(t("You told us you hold {level}, so the levels up to it count as done and their words count as yours. We haven't tested them, so \"checked\" only grows as those words come up in your reviews. Add a level's words to practice to have them asked."), { level: through })}
           </Explain>
         )}
         <Explain label={t("Lessons and the dictionary")}>
