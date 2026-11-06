@@ -39,7 +39,7 @@ describe("the lessons, A1 and on", () => {
 
   it("let a sound's example word run ahead of the course only with its meaning beside it", () => {
     const first = A1_LESSONS[0]!;
-    const row = (en?: string) => ({ ...first, how: { ...first.how, sounds: [{ sound: "sound-ue", glyph: "ü", like: "the ee in see, said with rounded lips", word: "number-ueks", mark: "ü", ...(en ? { en } : {}) }] } });
+    const row = (en?: string) => ({ ...first, how: { ...first.how, sounds: [{ sound: "sound-ue", glyph: "ü", like: "the u in cute", word: "number-ueks", mark: "ü", ...(en ? { en } : {}) }] } });
     expect(lessonProblems([row("one")])).toEqual([]);
     expect(lessonProblems([row()]).join(" ")).toMatch(/üks/);
     // The meaning is English and is held to the English rule like any other.
