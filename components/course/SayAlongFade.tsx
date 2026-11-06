@@ -134,8 +134,8 @@ function FadeProgress({ plan, at, results }: { plan: readonly FadePass[]; at: nu
                   {state === "done" ? <Check size={14} strokeWidth={3} /> : pass}
                 </span>
                 <span className="sr-only">{fill(t("Round {n} of 3"), { n: String(pass) })}: {names[pass]}{done && allCame ? `, ${t("every word came across")}` : ""}</span>
-                {/* A phone has a third of a card per round, so it names the current round once under the strip instead. */}
-                <span className="hidden whitespace-nowrap text-sm font-semibold sm:inline" style={{ color: current ? "var(--ink)" : "var(--ink-3)" }} aria-hidden>{names[pass]}</span>
+                {/* Under 1280 a round has too little of the card for its name (measured at 768 with the rail beside it), so the current round is named once under the strip instead. */}
+                <span className="hidden whitespace-nowrap text-sm font-semibold xl:inline" style={{ color: current ? "var(--ink)" : "var(--ink-3)" }} aria-hidden>{names[pass]}</span>
               </div>
               <div className="flex gap-1" aria-hidden>
                 {lines.map(({ i }) => (
@@ -146,7 +146,7 @@ function FadeProgress({ plan, at, results }: { plan: readonly FadePass[]; at: nu
           );
         })}
       </ol>
-      <p className="text-sm font-semibold sm:hidden" style={{ color: "var(--ink)" }} aria-hidden>{fill(t("Round {n} of 3"), { n: String(step.pass) })}: {names[step.pass]}</p>
+      <p className="text-sm font-semibold xl:hidden" style={{ color: "var(--ink)" }} aria-hidden>{fill(t("Round {n} of 3"), { n: String(step.pass) })}: {names[step.pass]}</p>
     </div>
   );
 }
