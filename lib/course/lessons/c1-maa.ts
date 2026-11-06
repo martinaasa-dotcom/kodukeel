@@ -234,7 +234,7 @@ export const C1_MAA_LESSONS: readonly LessonSpec[] = [
         { et: "Koolis ütles õpetaja, et võru keel on lihtsalt murre ja seda pole vaja.", en: "At school the teacher said the language was just a dialect and wasn't needed." },
         { et: "Mina arvan, et see oli vale, sest keel, mida räägitakse kodus, on alati tähtis.", en: "I think that was wrong, because the language spoken at home always matters." },
         { et: "Samas saan ma aru, miks õpetaja nii ütles: sel ajal oli tavaline eesti keel iga lapse jaoks tähtis.", en: "At the same time I understand why the teacher said it: back then ordinary Estonian mattered for every child." },
-        { et: "Nüüd räägivad võru keelt jälle ka noored ja see on minu meelest väga tore.", en: "Now young people speak it again too, and I think that's wonderful." },
+        { et: "Nüüd räägivad võru keelt jälle ka noored ja see on minu meelest väga tore.", en: "Now young people speak it again too, and I think that's really nice." },
       ],
       points: [
         { en: "Her grandmother spoke only the local language at home", any: ["võru keelt", "kodus"] },

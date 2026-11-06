@@ -38273,7 +38273,7 @@ _lib/copy/i18n/areas/lessonTextB1Rektsioon.ts_
   → А твой начальник?
 - [ ] **18997.** Is that true?  
   → Это правда?
-- [ ] **18998.** No. Actually everything works fine without me too.  
+- [ ] **18998.** No. Actually everything works very well without me too.  
   → Нет. На самом деле и без меня всё прекрасно работает.
 - [ ] **18999.** Then we'll go without you: me, Anna and the kids. Peeter's coming with us too.  
   → Тогда мы поедем без тебя: я, Анна и дети. Пеэтер тоже едет с нами.
@@ -44417,8 +44417,8 @@ _lib/copy/i18n/areas/lessonTextB2Pere.ts_
   → Очень приятно! Я Пирет, осенью я буду учительницей первого класса. А где Марк?
 - [ ] **22059.** He's off playing ball in the gym.  
   → Он в спортзале, играет в мяч.
-- [ ] **22060.** Of course! A new gym was built for us last year. The children love it.  
-  → Ну конечно! В прошлом году нам построили новый спортзал. Дети его обожают.
+- [ ] **22060.** Of course! A new gym was built for us last year. The children really like it.  
+  → Ну конечно! В прошлом году нам построили новый спортзал. Детям он очень нравится.
 - [ ] **22061.** I've got one question. In the autumn we'll both be at work until five. Can Mark stay at school after lessons?  
   → У меня один вопрос. Осенью мы оба будем работать до пяти. Может ли Марк оставаться в школе после уроков?
 - [ ] **22062.** He can. That's what our after-school group is for.  
@@ -66705,8 +66705,8 @@ _lib/copy/i18n/areas/lessonTextC1Maa.ts_
   → Я думаю, это было неправильно, потому что язык, на котором говорят дома, всегда важен.
 - [ ] **33163.** At the same time I understand why the teacher said it: back then ordinary Estonian mattered for every child.  
   → В то же время я понимаю, почему учитель так говорил: тогда обычный эстонский был важен для каждого ребёнка.
-- [ ] **33164.** Now young people speak it again too, and I think that's wonderful.  
-  → Теперь на нём снова говорит и молодёжь, и, по-моему, это замечательно.
+- [ ] **33164.** Now young people speak it again too, and I think that's really nice.  
+  → Теперь на нём снова говорит и молодёжь, и, по-моему, это очень здорово.
 - [ ] **33165.** Her grandmother spoke only the local language at home  
   → Её бабушка дома говорила только на местном языке
 - [ ] **33166.** The teacher said it was just a dialect  

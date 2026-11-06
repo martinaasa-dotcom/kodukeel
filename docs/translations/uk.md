@@ -38390,7 +38390,7 @@ _lib/copy/i18n/areas/lessonTextB1Rektsioon.ts_
   → А твій начальник?
 - [ ] **19053.** Is that true?  
   → Це правда?
-- [ ] **19054.** No. Actually everything works fine without me too.  
+- [ ] **19054.** No. Actually everything works very well without me too.  
   → Ні. Насправді й без мене все чудово працює.
 - [ ] **19055.** Then we'll go without you: me, Anna and the kids. Peeter's coming with us too.  
   → Тоді ми поїдемо без тебе: я, Анна й діти. Пеетер теж їде з нами.
@@ -44526,8 +44526,8 @@ _lib/copy/i18n/areas/lessonTextB2Pere.ts_
   → Дуже приємно! Я Пірет, восени я буду вчителькою першого класу. А де Марк?
 - [ ] **22111.** He's off playing ball in the gym.  
   → Він у спортзалі, грає в м'яча.
-- [ ] **22112.** Of course! A new gym was built for us last year. The children love it.  
-  → Ну звісно! Торік нам збудували новий спортзал. Діти його обожнюють.
+- [ ] **22112.** Of course! A new gym was built for us last year. The children really like it.  
+  → Ну звісно! Торік нам збудували новий спортзал. Дітям він дуже подобається.
 - [ ] **22113.** I've got one question. In the autumn we'll both be at work until five. Can Mark stay at school after lessons?  
   → У мене одне запитання. Восени ми обоє працюватимемо до п'ятої. Чи може Марк залишатися в школі після уроків?
 - [ ] **22114.** He can. That's what our after-school group is for.  
@@ -66820,8 +66820,8 @@ _lib/copy/i18n/areas/lessonTextC1Maa.ts_
   → Я думаю, це було неправильно, бо мова, якою говорять удома, завжди важлива.
 - [ ] **33218.** At the same time I understand why the teacher said it: back then ordinary Estonian mattered for every child.  
   → Водночас я розумію, чому вчителька так казала: тоді звичайна естонська була важлива для кожної дитини.
-- [ ] **33219.** Now young people speak it again too, and I think that's wonderful.  
-  → Тепер нею знову говорить і молодь, і я думаю, це чудово.
+- [ ] **33219.** Now young people speak it again too, and I think that's really nice.  
+  → Тепер нею знову говорить і молодь, і я думаю, це дуже добре.
 - [ ] **33220.** Her grandmother spoke only the local language at home  
   → Її бабуся вдома говорила лише місцевою мовою
 - [ ] **33221.** The teacher said it was just a dialect  
