@@ -264,3 +264,20 @@ describe("a reply word in front of an answer (coordinator)", () => {
     expect(markRework("Nii. Täitsin blanketi ära.", accepting("Nii. Ma täitsin blanketi ära."))).toMatchObject({ verdict: "right", note: NOTES.pronoun });
   });
 });
+
+describe("a fix answered by the part put right", () => {
+  const item = () => fix("b2-01", 1);
+  it("takes the corrected word on its own, or a run of the line holding it", () => {
+    expect(markRework("keda ma seal kohtasin", item())).toMatchObject({ verdict: "right", note: NOTES.right });
+    expect(markRework("keda", item())).toMatchObject({ verdict: "right", note: NOTES.right });
+    expect(markRework("Ja tead, keda", item()).verdict).toBe("right");
+    expect(markRework("Ja tead, keda ma seal kohtasin? Jaani!", item()).verdict).toBe("right");
+  });
+  it("refuses a run still holding the slip, or one that skips the place it was", () => {
+    expect(markRework("kes ma seal kohtasin", item()).verdict).toBe("wrong");
+    expect(markRework("kes", item()).verdict).toBe("wrong");
+    expect(markRework("seal kohtasin", item()).verdict).toBe("wrong");
+    expect(markRework("keda ma siin kohtasin", item()).verdict).toBe("wrong");
+    expect(markRework("keda ma kohtasin", item()).verdict).toBe("wrong");
+  });
+});
