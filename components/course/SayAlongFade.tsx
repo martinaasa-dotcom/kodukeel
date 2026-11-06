@@ -25,10 +25,7 @@ import { VERDICT_CLASS } from "@/lib/ux/verdict";
  * endings the evening was about have to come from memory; the third with the
  * whole line gone and only its English left. A word that was hidden comes
  * back the moment it is heard, which is the reward and the check at once: the
- * line fills itself in as it is said. A word that is on the screen, whether
- * it was never hidden or "Show the line" brought it back, lights the moment it
- * is understood, and the count beside the microphone climbs while it listens:
- * a line shown and said with nothing lighting reads as nobody listening.
+ * line fills itself in as it is said.
  *
  * WHAT LIGHTS A WORD IS THAT IT WAS UNDERSTOOD, never how it sounded
  * (ADR-018, ADR-028), and a word left dark is only dark: "Show the line" is
@@ -137,8 +134,8 @@ function FadeProgress({ plan, at, results }: { plan: readonly FadePass[]; at: nu
                   {state === "done" ? <Check size={14} strokeWidth={3} /> : pass}
                 </span>
                 <span className="sr-only">{fill(t("Round {n} of 3"), { n: String(pass) })}: {names[pass]}{done && allCame ? `, ${t("every word came across")}` : ""}</span>
-                {/* A phone or a narrow column has a third of a card per round, so it names the current round once under the strip instead. */}
-                <span className="hidden whitespace-nowrap text-sm font-semibold lg:inline" style={{ color: current ? "var(--ink)" : "var(--ink-3)" }} aria-hidden>{names[pass]}</span>
+                {/* Under 1280 a round has too little of the card for its name (measured at 768 with the rail beside it), so the current round is named once under the strip instead. */}
+                <span className="hidden whitespace-nowrap text-sm font-semibold xl:inline" style={{ color: current ? "var(--ink)" : "var(--ink-3)" }} aria-hidden>{names[pass]}</span>
               </div>
               <div className="flex gap-1" aria-hidden>
                 {lines.map(({ i }) => (
@@ -149,7 +146,7 @@ function FadeProgress({ plan, at, results }: { plan: readonly FadePass[]; at: nu
           );
         })}
       </ol>
-      <p className="text-sm font-semibold lg:hidden" style={{ color: "var(--ink)" }} aria-hidden>{fill(t("Round {n} of 3"), { n: String(step.pass) })}: {names[step.pass]}</p>
+      <p className="text-sm font-semibold xl:hidden" style={{ color: "var(--ink)" }} aria-hidden>{fill(t("Round {n} of 3"), { n: String(step.pass) })}: {names[step.pass]}</p>
     </div>
   );
 }
@@ -201,7 +198,7 @@ function FadeLine({ line, en, hidden, voice, native, who, locale, onResult }: {
             <span key={`${i}-${w.text}`}>
               {gone
                 ? <span className="fade-word" style={{ minWidth: `${Math.max(2, w.text.length)}ch` }}><span className="sr-only" lang={locale}>{t("a word to say")}</span>{"\u00a0".repeat(Math.max(2, w.text.length))}</span>
-                : <span className="read-aloud-word" data-lit={lit[i] ? "true" : "false"} data-missed={result === "some" && !lit[i] && /\p{L}/u.test(w.text) ? "true" : undefined}>{w.text}</span>}
+                : hidden[i] ? <span className="fade-word" data-back="true">{w.text}</span> : <span className="read-aloud-word" data-lit={lit[i] ? "true" : "false"} data-missed={result === "some" && !lit[i] && /\p{L}/u.test(w.text) ? "true" : undefined}>{w.text}</span>}
               {i < words.length - 1 ? " " : ""}
             </span>
           );
@@ -214,13 +211,6 @@ function FadeLine({ line, en, hidden, voice, native, who, locale, onResult }: {
           : <p className="text-sm" style={{ color: "var(--ink-3)" }}>{t("Say it out loud anyway. Nobody's listening but you.")}</p>}
         {anyHidden && !shown && (
           <Button variant="ghost" size="sm" onClick={() => { showing.current = true; setShown(true); }}><Eye size={14} aria-hidden /> {t("Show the line")}</Button>
-        )}
-        {/* While the microphone is open the count climbs as each word is understood, so a learner can see
-            they are being heard; it is drawn only, since a live region read on every word would talk over them. */}
-        {speech.listening && (
-          <p className="text-sm tabular-nums" aria-hidden style={{ color: "var(--ink-2)" }} data-fade-count>
-            {fill(t("Heard so far: {n} of {total} words."), { n: cameAcross, total: counted.length })}
-          </p>
         )}
       </div>
       {/* Mounted empty and filled, since a status region that arrives holding its words is often not read. */}
