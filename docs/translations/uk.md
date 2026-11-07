@@ -40978,7 +40978,7 @@ _lib/copy/i18n/areas/lessonTextB1Kodu.ts_
   → Ой! Вибач!
 - [ ] **20342.** No, I'm the one who should apologize. I work late in the evening and listen to music.  
   → Ні, це мені треба перепросити. Я працюю допізна і слухаю музику.
-- [ ] **20343.** Never mind. But a bit quieter at night, please!  
+- [ ] **20343.** Never mind. But quieter at night, please!  
   → Нічого страшного. Але вночі, будь ласка, тихіше!
 - [ ] **20344.** I promise! And look: dogs are allowed in the building.  
   → Обіцяю! І дивись: собаки в будинку дозволені.
@@ -41038,7 +41038,7 @@ _lib/copy/i18n/areas/lessonTextB1Kodu.ts_
   → Пообіцяй.
 - [ ] **20372.** I promise.  
   → Обіцяю.
-- [ ] **20373.** A bit quieter at night, please!  
+- [ ] **20373.** Quieter at night, please!  
   → Уночі, будь ласка, тихіше!
 - [ ] **20374.** It's broken again  
   → Знову зламалося
