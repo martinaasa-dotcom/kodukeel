@@ -23,6 +23,7 @@
  */
 
 import type { LessonSpec, PartOfLessons } from "./types";
+import { OFFICE_NOUN_STEPS, PAPER_STEPS } from "./why-b2-riik";
 
 export const B2_RIIK_PART: PartOfLessons = {
   id: "b2-riik",
@@ -78,7 +79,7 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
     ],
     patterns: ["nominal"],
     how: {
-      point: "Officialese turns a verb into a noun and lets the noun do the work: {tagastamine} is the paying back, so {Tagastamine toimub} only means {Raha makstakse tagasi}. Find the verb inside the -mine word, and say it with the verb.",
+      point: "Officialese turns a verb into a noun and lets the noun carry the meaning: {tagastamine} is the paying back, so {Tagastamine toimub} only says {Raha makstakse tagasi}, the money is paid back. When you read one, find the verb inside the -mine word; when you speak, say it with the verb.",
       table: {
         head: ["The office writes", "You say", "In English"],
         rows: [
@@ -89,12 +90,21 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "-mine is the doing: {menetlema} is to process and {menetlemine} the processing; {tagastama} is to give back and {tagastamine} the giving back.",
-        "What the doing is done to goes in front, in the [omastav] (2nd form): {tulumaksu tagastamine}, {deklaratsiooni menetlemine}.",
-        "{Toimub} after a -mine word only says it happens. The meaning is all in the noun.",
+        "What the doing is done to goes in front of the -mine word, in the [omastav] (2nd form), which here does the work of English \"of\": {tulumaksu tagastamine} is the refund of income tax, {deklaratsiooni menetlemine} the processing of the return.",
+        "{Toimub} after a -mine word only says that something happens. All the meaning is in the noun, which is why such a sentence sounds empty when you put it into English word for word.",
         "Read the long noun, and when you speak, use the verb: {Raha makstakse tagasi}, {Nad vaatasid deklaratsiooni läbi}.",
       ],
-      watchOut: "Don't build your own sentences round a -mine word with {toimub}: it is how an office writes, not how anybody talks. Say {Raha makstakse tagasi}.",
+      watchOut: "Don't build your own sentences round a -mine word and {toimub}. It is how an office writes, and said out loud it sounds like somebody reading a form. Say {Raha makstakse tagasi}.",
       examples: [0, 2, 8],
+      why: {
+        word: "tulumaks",
+        en: "income tax",
+        steps: OFFICE_NOUN_STEPS,
+        lines: [
+          { line: 2, form: "Tulumaksu", lands: { case: "GENITIVE", plural: false }, why: "{Tagastamine}, the refund, comes straight after it and says what is done to the tax: it is paid back. What a -mine word does something to goes in front of it in the [omastav] (2nd form), the form for \"of\": {tulumaksu tagastamine}, the refund of income tax." },
+          { line: 6, form: "tulumaksu", lands: { case: "PARTITIVE", plural: false }, why: "Same spelling, different reason. Here {palju}, a lot, measures the tax: you paid too much of it. An amount word puts what it measures in the [osastav] (3rd form), and for {tulumaks} that form is spelled {tulumaksu} too." },
+        ],
+      },
     },
     hearing: "half",
     listenFor: [
@@ -150,8 +160,8 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Just. „Tagastamine toimub“ tähendab lihtsalt, et raha makstakse tagasi. Kolme päeva pärast on see teie kontol.", en: "Exactly. 'The refund will take place' just means the money is paid back. In three days it's in your account." }, right: "makstakse", wrong: "maksab", pair: ["IndPrIps", "IndPrSg3"], why: "Nobody is named, so the [umbisikuline] (-takse, people do): {raha makstakse tagasi}. {Maksab} would need somebody who pays." },
-      { line: { et: "Näita. Oi, see on ju hea uudis! Te maksite eelmisel aastal liiga palju tulumaksu.", en: "Show me. Oh, but that's good news! You paid too much income tax last year." }, right: "tulumaksu", wrong: "tulumaks", pair: ["PARTITIVE", "NOMINATIVE"], why: "After {palju}, the [osastav] (3rd form): {palju tulumaksu}." },
+      { line: { et: "Just. „Tagastamine toimub“ tähendab lihtsalt, et raha makstakse tagasi. Kolme päeva pärast on see teie kontol.", en: "Exactly. 'The refund will take place' just means the money is paid back. In three days it's in your account." }, right: "makstakse", wrong: "maksab", pair: ["IndPrIps", "IndPrSg3"], why: "The sentence names nobody who pays, only that the money comes back, so the verb takes the [umbisikuline] (-takse, people do): {raha makstakse tagasi}. {Maksab} would need somebody in front of it doing the paying, as in {Maksuamet maksab raha tagasi}." },
+      { line: { et: "Näita. Oi, see on ju hea uudis! Te maksite eelmisel aastal liiga palju tulumaksu.", en: "Show me. Oh, but that's good news! You paid too much income tax last year." }, right: "tulumaksu", wrong: "tulumaks", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Palju}, a lot, is an amount word, and an amount word puts what it measures in the [osastav] (3rd form): {palju tulumaksu}, a lot of income tax. The plain {tulumaks} would be the tax as one whole thing, which is not what {palju} measures." },
     ],
     workOut: [
       {
@@ -216,7 +226,7 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "päeva", of: "päev", en: "of the day; {päevast}, from the day", stem: true },
     ],
     how: {
-      point: "A notice tells you what will happen to you without saying who does it: {Hüvitise maksmine lõpetatakse}. Said to you plainly, that is {Te ei saa enam hüvitist}.",
+      point: "A notice tells you what will happen to you without saying who does it: {Hüvitise maksmine lõpetatakse}, the paying of the benefit is stopped. Said to you plainly, that means {Te ei saa enam hüvitist}, you won't get the benefit anymore.",
       table: {
         head: ["The office says", "To you, plainly", "In English"],
         rows: [
@@ -226,12 +236,24 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "The [umbisikuline] (-takse, people do) names nobody, and the -mine word says what is done: {maksmine lõpetatakse}, the paying is stopped.",
+        "The [umbisikuline] (-takse, people do) names nobody, and the -mine word says what is being done: {maksmine lõpetatakse}, the paying is stopped. The office is the one stopping it, but the sentence leaves the office out.",
         "In the past the same form ends in -ti: {maksti}, it was paid.",
         "To answer an office, turn it round to yourself: {Kas ma saan juuni eest veel hüvitist?}",
+        "Watch {hüvitis} change its ending with its job in the sentence: {hüvitise maksmine} in front of a -mine word, {ei saa hüvitist} after a no, and {makstakse hüvitis välja} when the whole of it is paid and nobody is named.",
       ],
       watchOut: "A notice like this is about you even though you're not in it: {Hüvitise maksmine lõpetatakse} means that you stop getting it.",
       examples: [4, 6, 8],
+      why: {
+        word: "hüvitis",
+        en: "benefit, compensation",
+        steps: OFFICE_NOUN_STEPS,
+        lines: [
+          { line: 5, form: "hüvitisest", lands: { case: "ELATIVE", plural: false }, why: "Anna asks what happens to the benefit: {Mis saab hüvitisest?} Asking what becomes of something, {mis saab}, puts that thing in the [seestütlev] (-st, out of), as if asking what will come out of it: {hüvitisest}." },
+          { line: 6, form: "Hüvitise", lands: { case: "GENITIVE", plural: false }, why: "{Maksmine}, the paying, comes straight after it and says what is done to the benefit. What a -mine word does something to goes in front of it in the [omastav] (2nd form), the form for \"of\": {hüvitise maksmine}, the paying of the benefit." },
+          { line: 7, form: "hüvitist", lands: { case: "PARTITIVE", plural: false }, why: "{Saama}, to get, does something to the benefit, and there is an {ei} in front of it: Anna won't get it. A no always puts the thing in the [osastav] (3rd form), however whole it is: {ei saa hüvitist}." },
+          { line: 8, form: "hüvitis", lands: { case: "NOMINATIVE", plural: false }, why: "The benefit for June is paid out, all of it, and {välja} says the job gets done. {Makstakse} names nobody as the payer. When nobody is named and the whole thing gets done, it keeps its plain form, the [nimetav] (1st form): {hüvitis}." },
+        ],
+      },
     },
     hearing: "quick",
     listenFor: [
@@ -288,8 +310,8 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Just nii. Aga juuni eest makstakse hüvitis teile veel välja.", en: "That's right. But you'll still be paid the benefit for June." }, right: "hüvitis", wrong: "hüvitist", pair: ["NOMINATIVE", "PARTITIVE"], why: "The whole benefit is paid out, and the [umbisikuline] (-takse, people do) keeps a whole thing in the [nimetav] (1st form): {makstakse hüvitis välja}." },
-      { line: { et: "Ehk siis kui ma tööle lähen, ei saa ma enam hüvitist?", en: "So once I start work, I don't get the benefit anymore?" }, right: "hüvitist", wrong: "hüvitise", pair: ["PARTITIVE", "GENITIVE"], why: "After {ei}, the [osastav] (3rd form): {ei saa hüvitist}." },
+      { line: { et: "Just nii. Aga juuni eest makstakse hüvitis teile veel välja.", en: "That's right. But you'll still be paid the benefit for June." }, right: "hüvitis", wrong: "hüvitist", pair: ["NOMINATIVE", "PARTITIVE"], why: "The whole benefit for June is paid out, and {välja} says the job gets done. The verb is the [umbisikuline] (-takse, people do), so nobody is named as the payer, and then a whole thing that gets done keeps the [nimetav] (1st form): {makstakse hüvitis välja}. {Hüvitist} would mean only some of it, or a no." },
+      { line: { et: "Ehk siis kui ma tööle lähen, ei saa ma enam hüvitist?", en: "So once I start work, I don't get the benefit anymore?" }, right: "hüvitist", wrong: "hüvitise", pair: ["PARTITIVE", "GENITIVE"], why: "There is an {ei} in the sentence: Anna won't get it. A no always puts the thing in the [osastav] (3rd form), however whole it is: {ei saa hüvitist}. {Hüvitise} is for a yes, the whole benefit got." },
     ],
     retell: {
       who: "Anna",
@@ -366,7 +388,7 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "nimetatakse", of: "nimetama", en: "is called, people call it" },
     ],
     how: {
-      point: "A contract builds its words out of ones you know: {tööandja} is who gives the work, {töötaja} who does it, and {töötasu} what it pays. At work you just say {palk}.",
+      point: "A contract builds its long words out of ones you know: {tööandja} is the one who gives the work, {töötaja} the one who does it, and {töötasu} what the work pays. Nobody at work says {töötasu}, though; they say {palk}.",
       table: {
         head: ["The word", "Built from", "In English"],
         rows: [
@@ -377,7 +399,7 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "-ja on a verb is who does it, as in B1: {töötama} gives {töötaja}. Put {töö} in front of a word that gives, and you get who gives the work: {tööandja}.",
+        "-ja on a verb makes the one who does it, as in B1: {töötama}, to work, gives {töötaja}, the one who works. Put {töö}, work, in front of the word for the one who gives, and you get the one who gives the work: {tööandja}.",
         "{Töö} stands in front of half the words in a contract: {tööleping}, {töötasu}, {tööandja}. Take it off, and what is left says what the word is.",
         "And the contract names nobody when it can: {Töötasu makstakse kord kuus}, the pay is paid once a month.",
       ],
@@ -440,8 +462,8 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Nii. Palka makstakse kord kuus, viiendal kuupäeval. Mis on teie pangakonto number?", en: "Right. The pay goes out once a month, on the fifth. What's your bank account number?" }, right: "makstakse", wrong: "maksti", pair: ["IndPrIps", "IndIpfIps"], why: "It's how the pay is paid from now on, so the present: {makstakse}. {Maksti} was paid, once, before." },
-      { line: { et: "Hästi. Ma registreerisin teid juba töötamise registris. Nii näeb ka töötukassa, et te töötate.", en: "Good. I've already registered you in the employment register. That way the unemployment office sees that you're working too." }, right: "registreerisin", wrong: "registreeris", pair: ["IndIpfSg1", "IndIpfSg3"], why: "Kaido did it himself, so {ma registreerisin}." },
+      { line: { et: "Nii. Palka makstakse kord kuus, viiendal kuupäeval. Mis on teie pangakonto number?", en: "Right. The pay goes out once a month, on the fifth. What's your bank account number?" }, right: "makstakse", wrong: "maksti", pair: ["IndPrIps", "IndIpfIps"], why: "Kaido is saying how the pay works from now on, every month, so the verb is in the present: {makstakse}, is paid. {Maksti} is the past, was paid, and a contract's rule for the months ahead is never said in the past." },
+      { line: { et: "Hästi. Ma registreerisin teid juba töötamise registris. Nii näeb ka töötukassa, et te töötate.", en: "Good. I've already registered you in the employment register. That way the unemployment office sees that you're working too." }, right: "registreerisin", wrong: "registreeris", pair: ["IndIpfSg1", "IndIpfSg3"], why: "Kaido did it himself and says so with {ma}, so the verb ends in -n for I: {ma registreerisin}, I registered. {Registreeris}, with no -n, would be he or she registered." },
     ],
     workOut: [
       {
@@ -508,7 +530,7 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "ämbri", of: "ämber", en: "a bucket, as an object" },
     ],
     how: {
-      point: "A notice says you must with {tuleb} and the [da-tegevusnimi] (-da), and names nobody: {Kahjust tuleb teatada}. Plainly, that is {Me peame kindlustusele helistama}.",
+      point: "A notice says you must with {tuleb} and the [da-tegevusnimi] (-da), and names nobody: {Kahjust tuleb teatada}, the damage has to be reported. Said plainly, about yourselves, that is {Me peame kindlustusele helistama}, we have to call the insurance.",
       table: {
         head: ["The insurer writes", "You say", "In English"],
         rows: [
@@ -519,7 +541,7 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "{Tuleb} with the [da-tegevusnimi] (-da) is an office's must, with nobody in it: {kahjust tuleb teatada}, the damage has to be reported.",
-        "{Teatama} asks for what you report in -st: {kahjust teatama}, to report the damage.",
+        "{Teatama}, to report, wants what you report with -st, the [seestütlev] (-st, out of): {kahjust teatama}, to report the damage. Nothing in the meaning tells you so; it is the verb's own choice, so learn {teatama} and -st as one piece.",
         "One family: {hüvitama} is to make good, {hüvitis} is what you get, and {hüvitatakse} is it is made good.",
       ],
       watchOut: "{Kahju} is damage and also a pity: {Mul on kahju} is I'm sorry, {Kahju on suur} is the damage is big.",
@@ -579,8 +601,8 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Selge. Ja kui kiiresti hüvitis tuleb?", en: "Got it. And how soon does the compensation come?" }, right: "hüvitis", wrong: "hüvitise", pair: ["NOMINATIVE", "GENITIVE"], why: "The compensation is what comes: the one who does the coming is in the [nimetav] (1st form), {hüvitis}." },
-      { line: { et: "Ma teen kohe pilte. Anna, kas sa helistad kindlustusele?", en: "I'll take pictures right now. Anna, will you call the insurance?" }, right: "kindlustusele", wrong: "kindlustuses", pair: ["ALLATIVE", "INESSIVE"], why: "{Helistama} wants who you call in -le: {helistan kindlustusele}." },
+      { line: { et: "Selge. Ja kui kiiresti hüvitis tuleb?", en: "Got it. And how soon does the compensation come?" }, right: "hüvitis", wrong: "hüvitise", pair: ["NOMINATIVE", "GENITIVE"], why: "Anna asks when the compensation comes, so {hüvitis} is the one doing what the verb says: it comes. The one doing the verb is in the [nimetav] (1st form): {hüvitis}. {Hüvitise} is the form for a whole thing that somebody pays or gets, and here nobody pays it out, it comes by itself." },
+      { line: { et: "Ma teen kohe pilte. Anna, kas sa helistad kindlustusele?", en: "I'll take pictures right now. Anna, will you call the insurance?" }, right: "kindlustusele", wrong: "kindlustuses", pair: ["ALLATIVE", "INESSIVE"], why: "{Helistama}, to call, wants who you call with -le, the [alaleütlev] (-le, onto/to): {helistan kindlustusele}, I call the insurance. English calls somebody directly; Estonian calls to them. {Kindlustuses} would say where something is, in the insurance, not who you call." },
     ],
     workOut: [
       {
@@ -663,7 +685,7 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
       { kind: "verb", et: "vabandama", first: "vabandan", en: "to apologize; {Vabandame!}, we're sorry", firstEn: "I apologize" },
     ],
     how: {
-      point: "A semi-formal letter to an office has a shape: who it's to, what it's about, what's wrong, how you can show it, and what you ask. And it says things with nouns: {seoses otsusega}, about the decision.",
+      point: "A semi-formal letter to an office has a fixed shape: who it is to, what it is about, what is wrong, how you can show it, and what you ask for. And it says things with nouns: {seoses otsusega}, in connection with the decision, where a friend would say about.",
       table: {
         head: ["The part", "Estonian", "In English"],
         rows: [
@@ -676,13 +698,23 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Pöördun Teie poole} is the office's I'm writing to you, and {seoses} takes what it's about in the [kaasaütlev] (-ga, with): {seoses otsusega}.",
+        "{Pöördun Teie poole} is the office way to say I am writing to you. {Seoses} decides the ending of the word after it: it always takes the [kaasaütlev] (-ga, with), so it is {seoses otsusega}.",
         "{Palun} with the [da-tegevusnimi] (-da) is the formal request, as in B1's application: {Palun otsus üle vaadata}.",
         "In a letter to an office, {Teie} is written with a capital.",
         "Say what is wrong, not whose fault it is: {Otsuses on märgitud vale kuupäev}, not {Te tegite vea}.",
       ],
       watchOut: "{Lugupeetud} opens a letter, and {Lugupidamisega} closes it. They're one family, and they don't swap places.",
       examples: [6, 8, 10],
+      why: {
+        word: "otsus",
+        en: "decision",
+        steps: PAPER_STEPS,
+        lines: [
+          { line: 6, form: "otsusega", lands: { case: "COMITATIVE", plural: false }, why: "{Seoses}, in connection with, comes right before it, and {seoses} always wants the [kaasaütlev] (-ga, with): {seoses otsusega}. Nothing else in the sentence decides it; the word in front does." },
+          { line: 2, form: "Otsuses", lands: { case: "INESSIVE", plural: false }, why: "Anna is saying what is written in the decision, so the decision is the place where the words are. Being inside something takes the [seesütlev] (-s, in): {otsuses on kirjas}, it says in the decision." },
+          { line: 10, form: "otsus", lands: { case: "NOMINATIVE", plural: false }, why: "Anna asks the office to review the decision, the whole of it, and {üle vaadata} is a job that gets done. {Palun} with a -da verb names nobody as the one doing it, and a whole thing done with nobody named keeps the [nimetav] (1st form): {Palun otsus üle vaadata}." },
+        ],
+      },
     },
     hearing: "quick",
     listenFor: [
@@ -738,8 +770,8 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Pöördun Teie poole seoses otsusega.", en: "I'm writing to you about the decision." }, right: "otsusega", wrong: "otsuse", pair: ["COMITATIVE", "GENITIVE"], why: "{Seoses} takes the [kaasaütlev] (-ga, with): {seoses otsusega}.", also: ["Ma pöördun Teie poole seoses otsusega."] },
-      { line: { et: "Otsuses on kirjas, et ma asusin tööle esimesel juunil. See kuupäev on vale!", en: "The decision says I started work on the first of June. That date is wrong!" }, right: "Otsuses", wrong: "Otsusest", pair: ["INESSIVE", "ELATIVE"], why: "What a paper says is in it: {otsuses on kirjas}." },
+      { line: { et: "Pöördun Teie poole seoses otsusega.", en: "I'm writing to you about the decision." }, right: "otsusega", wrong: "otsuse", pair: ["COMITATIVE", "GENITIVE"], why: "{Seoses}, in connection with, always wants the [kaasaütlev] (-ga, with) after it: {seoses otsusega}. You can't work that out from the meaning, so learn {seoses} and -ga together. {Otsuse} would leave {seoses} without the ending it needs.", also: ["Ma pöördun Teie poole seoses otsusega."] },
+      { line: { et: "Otsuses on kirjas, et ma asusin tööle esimesel juunil. See kuupäev on vale!", en: "The decision says I started work on the first of June. That date is wrong!" }, right: "Otsuses", wrong: "Otsusest", pair: ["INESSIVE", "ELATIVE"], why: "What a paper says is written in it, so Estonian puts the paper in the [seesütlev] (-s, in): {otsuses on kirjas}, it says in the decision. English lets the paper speak, the decision says; Estonian says it is written in the decision. {Otsusest} would be out of it, like taking something from it." },
     ],
     workOut: [
       {
@@ -815,7 +847,7 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
     ],
     teaches: [],
     how: {
-      point: "A whole call to an office, made of this part: say what the letter says, what's actually true, what proves it, and what you want. And when a word won't come, say it another way.",
+      point: "A whole call to an office, made of this part: say what the letter says, what is actually true, what proves it, and what you want. And when a word won't come, describe the thing another way and keep going.",
       notes: [
         "Say what the paper says first, then what's true: {Otsuses on kirjas, et...} and then {Aga tegelikult...}.",
         "Missing a word? Say what the thing is or does: the paper you signed with your employer, for the contract. The person on the phone fills the word in.",
@@ -823,6 +855,16 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
       ],
       watchOut: "An office says {teie}, and so do you, from {Tere} to {Aitäh}. Even when they made the mistake.",
       examples: [1, 5, 7, 9],
+      why: {
+        word: "otsus",
+        en: "decision",
+        steps: PAPER_STEPS,
+        lines: [
+          { line: 1, form: "otsuse", lands: { case: "GENITIVE", plural: false }, why: "Anna got the decision, the whole of it, and {ma sain} names her as the one who got it. Somebody named, a yes, and the whole thing got: that is the [omastav] (2nd form), {otsuse}. The {pole} later in the line belongs to the answer that hasn't come, not to the decision." },
+          { line: 4, form: "otsuses", lands: { case: "INESSIVE", plural: false }, why: "Maarika asks what is wrong in the decision, so the decision is the place where the mistake is. Being inside something takes the [seesütlev] (-s, in): {selles otsuses}, in this decision." },
+          { line: 9, form: "Otsus", lands: { case: "NOMINATIVE", plural: false }, why: "The decision is canceled, all of it, and {tühistatakse} names nobody who cancels it. With nobody named and the whole thing done, it keeps the [nimetav] (1st form): {Otsus tühistatakse}. The {Ei pea} in front is a different sentence, the answer to Anna's question. Later in the same line, {te saate uue otsuse} names who gets the new one, you, so there it is {otsuse}." },
+        ],
+      },
     },
     hearing: "half",
     listenFor: [
