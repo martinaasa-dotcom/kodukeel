@@ -15,6 +15,7 @@
  */
 
 import type { LessonSpec, PartOfLessons } from "./types";
+import { BEFORE_AFTER_STEPS, ROLE_STEPS } from "./why-raha";
 
 export const B1_RAHA_PART: PartOfLessons = {
   id: "b1-raha",
@@ -69,7 +70,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
     ],
     patterns: ["conditionalPast"],
     how: {
-      point: "Would have done is two words: a form of {olema} that says would, and the [nud-kesksõna] (-nud, done) of the verb: {Ma oleksin varem alustanud}.",
+      point: "To say what you would have done, Estonian uses two words. The first is a would form of {olema}, and its ending says who: {oleksin}, I would. The second is the verb's [nud-kesksõna] (-nud, done), which never changes: {alustanud}, started. Together: {Ma oleksin varem alustanud}, I would have started earlier.",
       table: {
         head: ["Who", "Would have done", "In English"],
         rows: [
@@ -82,12 +83,12 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "The -nud word never changes. Only the {olema} part says who: {ma oleksin teinud}, {nad oleksid teinud}.",
-        "The no is {ei oleks} for everybody: {Ma ei oleks jalgpalli vaadanud}.",
+        "Only the {olema} part changes for who it is, so that's the part to get right: {ma oleksin teinud}, {nad oleksid teinud}. The -nud word stays the same for everybody.",
+        "To say you wouldn't have, put {ei} in front and use {oleks}, whoever it is. The person ending drops after {ei}, as it does in every no: {Ma ei oleks jalgpalli vaadanud}.",
         "In everyday speech {oleks} goes with every person, so you'll hear {Ma oleks varem alustanud}, and the no shortens to {poleks}: {Ma poleks jalgpalli vaadanud}. In writing, keep {oleksin}.",
-        "Should have is {oleksin pidanud} and the [ma-tegevusnimi] (-ma): {Ma oleksin pidanud kalendrit vaatama}.",
+        "Should have is the same pattern with {pidama}, to have to: {oleksin pidanud}, I would have had to. The verb after it goes in the [ma-tegevusnimi] (-ma), because that's the form {pidama} always takes: {Ma oleksin pidanud kalendrit vaatama}.",
       ],
-      watchOut: "English says if I had known. Estonian says if I would have known, so both halves of the sentence take {oleksin}: {Kui ma oleksin teadnud, oleksin ma tulnud}.",
+      watchOut: "English changes the verb in the if half: if I had known, I would have come. Estonian doesn't. The if half takes the would form too, so both halves have {oleksin}: {Kui ma oleksin teadnud, oleksin ma tulnud}.",
       examples: [3, 5, 6],
     },
     listenFor: [
@@ -133,8 +134,8 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ma oleksin nädalavahetusel töötanud.", en: "I'd have worked at the weekend." }, right: "oleksin", wrong: "oleksid", pair: ["KndPrSg1", "KndPrSg2"], why: "It's me, so {oleksin}. {Oleksid} is you." },
-      { line: { et: "Iga õhtu jalgpalli? Sa oleksid pidanud mind kuulama. Ma ju ütlesin sulle esmaspäeval!", en: "Football every evening? You should have listened to me. I told you on Monday!" }, right: "oleksid", wrong: "oleksin", pair: ["KndPrSg2", "KndPrSg1"], why: "Kadri means Tom, so {oleksid}, you. {Oleksin} is I." },
+      { line: { et: "Ma oleksin nädalavahetusel töötanud.", en: "I'd have worked at the weekend." }, right: "oleksin", wrong: "oleksid", pair: ["KndPrSg1", "KndPrSg2"], why: "Tom is talking about himself, and the ending on {olema} is what says who. -n is I, so {oleksin}. {Oleksid}, with -d, would mean you." },
+      { line: { et: "Iga õhtu jalgpalli? Sa oleksid pidanud mind kuulama. Ma ju ütlesin sulle esmaspäeval!", en: "Football every evening? You should have listened to me. I told you on Monday!" }, right: "oleksid", wrong: "oleksin", pair: ["KndPrSg2", "KndPrSg1"], why: "Kadri is talking to Tom, and {sa} is right there in the sentence, so the ending is -d for you: {oleksid}. {Oleksin}, with -n, would mean she should have listened herself." },
     ],
     retell: {
       who: "Tom",
@@ -201,7 +202,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "hea", of: "hea", en: "of a good one", stem: true },
     ],
     how: {
-      point: "You met -na and -ks in A2, and work is where you'll use them most. What you are for now takes -na, [olev] (-na, as): {Ta töötab arendajana}. What you turn into takes -ks, [saav] (-ks, becoming): {Kokk sai arendajaks}.",
+      point: "When you say what somebody works as, the job takes an ending, and there are two to choose from. A role somebody has, working or starting as it, takes -na, the [olev] (-na, as): {Ta töötab arendajana}. A role somebody moves into, becoming it or being chosen for it, takes -ks, the [saav] (-ks, becoming): {Kokk sai arendajaks}.",
       table: {
         head: ["Estonian", "In English", "Which ending"],
         rows: [
@@ -212,13 +213,23 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Saama} with -ks is to become: {sai juhiks}. {Valiti} means was chosen, and it takes -ks too: {valiti juhiks}. Learn {valiti} as one word for now; lesson 30 shows how it's made.",
-        "A word in front takes the ending too: {heaks arendajaks}, a good developer. With -na it doesn't: {Ta töötab hea arendajana}. Lesson 23 shows why.",
-        "{Temast sai juht} says the same and you'll hear it as often: who becomes takes -st, what they become stays as it is.",
-        "The questions are {kellena?}, as what, and {kelleks?}, into what.",
+        "{Saama} with -ks means to become: {sai juhiks}, became the boss. Being chosen is moving into a role too, so {valiti}, was chosen, takes -ks as well: {valiti juhiks}. Learn {valiti} as one word for now; lesson 30 shows how it's made.",
+        "A describing word in front takes -ks as well: {heaks arendajaks}, a good developer. With -na it doesn't, and stays in the [omastav] (2nd form): {Ta töötab hea arendajana}. Lesson 23 shows why.",
+        "You'll hear {Temast sai juht} as often, and it means the same. Here the person takes -st, the [seestütlev] (-st, out of), and the job stays in its plain form: word for word, a boss came out of him.",
+        "The questions have the same endings as their answers: {kellena?} asks as what, and {kelleks?} asks into what.",
       ],
-      watchOut: "English says works as a developer and became a developer with the same bare word. Estonian adds an ending, and it's a different one: -na for being, -ks for becoming.",
-      examples: [1, 4, 9],
+      watchOut: "English uses the same bare word in works as a developer and became a developer. Estonian adds an ending, and a different one each time: -na while you're in the role, -ks for the move into it. After {olema} there's no ending at all: {Nüüd olen ma projektijuht}.",
+      examples: [9],
+      why: {
+        word: "arendaja",
+        en: "developer",
+        steps: ROLE_STEPS,
+        lines: [
+          { line: 1, form: "arendajaks", lands: { case: "TRANSLATIVE", plural: false }, why: "Siim is an intern today and wants to become a good developer: a role he doesn't have yet and is moving into. Becoming takes -ks, the [saav] (-ks, becoming): {arendajaks}. The word in front, {heaks}, takes -ks too." },
+          { line: 2, form: "arendajana", lands: { case: "ESSIVE", plural: false }, why: "Marko already is a developer, and {töötab} says that's the work he does. Working as something is having that role, so it takes -na, the [olev] (-na, as): {arendajana}." },
+          { line: 4, form: "arendajaks", lands: { case: "TRANSLATIVE", plural: false }, why: "Marko used to be a cook and now he's a developer: {sai} says he changed from one to the other. A change into a role takes -ks: {arendajaks}." },
+        ],
+      },
     },
     listenFor: [
       { q: "What did Marko do before he became a developer?", options: ["He was a teacher", "He was an intern", "He sold cars", "He was a cook"], answer: 3 },
@@ -263,9 +274,9 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ta töötab meil arendajana.", en: "He works here as a developer." }, right: "arendajana", wrong: "arendajaks", pair: ["ESSIVE", "TRANSLATIVE"], why: "Working as something is being it, not becoming it: -na." },
-      { line: { et: "Nii et kokk sai arendajaks!", en: "So a cook became a developer!" }, right: "arendajaks", wrong: "arendajana", pair: ["TRANSLATIVE", "ESSIVE"], why: "Became takes -ks." },
-      { line: { et: "Mina alustasin siin ka praktikandina.", en: "I started here as an intern too." }, right: "praktikandina", wrong: "praktikandiks", pair: ["ESSIVE", "TRANSLATIVE"], why: "Started as is being something at the start: -na." },
+      { line: { et: "Ta töötab meil arendajana.", en: "He works here as a developer." }, right: "arendajana", wrong: "arendajaks", pair: ["ESSIVE", "TRANSLATIVE"], why: "Marko is a developer now and has been for two years. Working as something means having that role, not moving into it, so it takes -na: {arendajana}." },
+      { line: { et: "Nii et kokk sai arendajaks!", en: "So a cook became a developer!" }, right: "arendajaks", wrong: "arendajana", pair: ["TRANSLATIVE", "ESSIVE"], why: "A cook turned into a developer: that's a change, a move into a new role, so it takes -ks: {arendajaks}. {Sai} with -ks is how Estonian says became." },
+      { line: { et: "Mina alustasin siin ka praktikandina.", en: "I started here as an intern too." }, right: "praktikandina", wrong: "praktikandiks", pair: ["ESSIVE", "TRANSLATIVE"], why: "Kristi is saying what she was when she started, the role she had then, not something she turned into. A role you have takes -na, even in the past: {praktikandina}." },
     ],
     faster: {
       ask: { et: "Kellena sa praegu töötad ja kelleks sa tahaksid saada?", en: "What do you work as now, and what would you like to become?" },
@@ -319,7 +330,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "arvete", of: "arve", en: "of the bills" },
     ],
     how: {
-      point: "The [tingiv kõneviis] (-ks, would) makes a request soft: {Kas ma võiksin...?} is could I...?, {Kas sa saaksid...?} is could you...?, and {Ma tahaksin paluda...} is I'd like to ask for...",
+      point: "A request sounds polite when the verb is in the [tingiv kõneviis] (-ks, would), because you're asking what could happen rather than saying what will: {Kas ma võiksin...?} is could I...?, {Kas sa saaksid...?} is could you...?, and {Ma tahaksin paluda...} is I'd like to ask for...",
       table: {
         head: ["Estonian", "In English", "What it's for"],
         rows: [
@@ -331,11 +342,11 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "{Võiksin} is may I, could I, and {saaksid} is could you. Both are fine with the boss and with anybody else.",
-        "Asking for something takes the [osastav] (3rd form): {paluda uut arvutit}. The boss ordering the whole thing is the [omastav] (2nd form): {Ma tellin sulle uue}.",
+        "{Paluma}, to ask for, always takes the thing you ask for in the [osastav] (3rd form): {paluda uut arvutit}. When Kristi orders one, it's a whole computer and the job will be done, so it takes the [omastav] (2nd form): {Ma tellin sulle uue}.",
         "{Küll} after a yes makes it warm and sure: {Võid küll}, sure you can.",
-        "{Paluma} can also take who you ask in -lt and the thing in the [osastav] (3rd form): {Ma palusin juhilt uut arvutit}.",
+        "The person you ask goes in -lt, because you get it from them, and the thing stays in the [osastav] (3rd form): {Ma palusin juhilt uut arvutit}.",
       ],
-      watchOut: "To your boss, {Ma tahan} sounds blunt. {Ma tahaksin} is the polite way to ask.",
+      watchOut: "To your boss, {Ma tahan}, I want, sounds blunt, like a demand. {Ma tahaksin}, I would like, is the polite way to ask.",
       examples: [2, 6, 7, 10],
     },
     listenFor: [
@@ -381,8 +392,8 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ma tahaksin paluda uut arvutit.", en: "I'd like to ask for a new computer." }, right: "arvutit", wrong: "arvuti", pair: ["PARTITIVE", "NOMINATIVE"], why: "Asking for something takes the [osastav] (3rd form): {arvutit}." },
-      { line: { et: "Võid küll. Aga kas sa saaksid mind siis ühes asjas aidata?", en: "Sure you can. But could you help me with something, then?" }, right: "saaksid", wrong: "saaksin", pair: ["KndPrSg2", "KndPrSg1"], why: "Kristi is asking Tom, so {sa saaksid}. {Saaksin} is I could." },
+      { line: { et: "Ma tahaksin paluda uut arvutit.", en: "I'd like to ask for a new computer." }, right: "arvutit", wrong: "arvuti", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Paluma}, to ask for, always takes the [osastav] (3rd form) of what you ask for, so it's {uut arvutit}. {Arvuti} is the plain form, for naming it." },
+      { line: { et: "Võid küll. Aga kas sa saaksid mind siis ühes asjas aidata?", en: "Sure you can. But could you help me with something, then?" }, right: "saaksid", wrong: "saaksin", pair: ["KndPrSg2", "KndPrSg1"], why: "Kristi is asking Tom, and {sa} is in the sentence, so the ending is -d for you: {saaksid}. {Saaksin}, with -n, would mean I could." },
     ],
     retell: {
       who: "Tom",
@@ -452,7 +463,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       { kind: "verb", et: "kulutama", first: "kulutan", en: "to spend", firstEn: "I spend" },
     ],
     how: {
-      point: "Before and after a thing are {enne} and {pärast} with the [osastav] (3rd form) behind them: {palk enne makse}, {palk pärast makse}.",
+      point: "To say before or after something, put {enne} or {pärast} in front of it. The word after them always goes in the [osastav] (3rd form), whatever it is: {palk enne makse}, pay before tax, {palk pärast makse}, pay after tax. Taxes here are more than one, so {makse} is the plural [osastav] (3rd form).",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -463,13 +474,22 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Maks} is a tax and {maksma} is to pay, the same root. More than one tax is {maksud}, and after {enne} or {pärast} it's {makse või maksusid}, and both are right.",
+        "{Maks} is a tax and {maksma} is to pay: the two come from the same root.",
         "{Üle jääma} is to be left over: {mis üle jääb}, whatever is left.",
         "{Arve} is a bill at home and an invoice at work. {Arved} is more than one.",
-        "{Ma maksan üüri ja arved} has two objects in two forms. Rent takes the [osastav] (3rd form), {üüri maksma}, since it's an amount you keep paying, while {arved} means all of them.",
+        "{Ma maksan üüri ja arved} pays two things, in two different forms. Rent is something you keep paying month after month, so it takes the [osastav] (3rd form): {üüri}. The bills are a known set, this month's, and you pay every one of them, so they take the plural [nimetav] (1st form): {arved}.",
       ],
       watchOut: "{Palk} is your pay. Money in general is {raha}: {Mul ei ole raha}.",
-      examples: [3, 7, 9],
+      examples: [7, 9],
+      why: {
+        word: "maks",
+        en: "tax",
+        steps: BEFORE_AFTER_STEPS,
+        lines: [
+          { line: 3, form: "makse", lands: { case: "PARTITIVE", plural: true }, why: "{Enne} and {pärast}, before and after, always take the [osastav] (3rd form) of the word that follows them. Anna means income tax and the pension fund together, more than one tax, so it's the plural [osastav] (3rd form): {makse}." },
+          { line: 4, form: "maksud", lands: { case: "NOMINATIVE", plural: true }, why: "No {enne} or {pärast} here, and nobody does anything to the taxes. Tom only wants to know what they are, and a word that names what something is stays in its plain form. There's more than one tax, so it's the plural [nimetav] (1st form): {maksud}." },
+        ],
+      },
     },
     listenFor: [
       { q: "Why is Tom surprised?", options: ["His pay came a week early", "He was paid twice this month", "His pay is smaller than the contract says", "His bank card doesn't work in the shop any more"], answer: 2 },
@@ -513,8 +533,8 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Lepingus on ju palk enne makse.", en: "The contract has the pay before tax." }, right: "makse", wrong: "maksud", pair: ["PARTITIVE", "NOMINATIVE"], why: "After {enne}, the [osastav] (3rd form): {enne makse}." },
-      { line: { et: "Ma maksan üüri ja arved.", en: "I pay the rent and the bills." }, right: "arved", wrong: "arvete", pair: ["NOMINATIVE", "GENITIVE"], why: "All the bills, paid and done, so {arved}." },
+      { line: { et: "Lepingus on ju palk enne makse.", en: "The contract has the pay before tax." }, right: "makse", wrong: "maksud", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Enne}, before, always takes the [osastav] (3rd form) of the word after it. The taxes are more than one, so it's the plural [osastav] (3rd form): {enne makse}. {Maksud} is the plain form, for naming them." },
+      { line: { et: "Ma maksan üüri ja arved.", en: "I pay the rent and the bills." }, right: "arved", wrong: "arvete", pair: ["NOMINATIVE", "GENITIVE"], why: "The bills are a known set, all of this month's, and you pay every one of them. A known set with the whole job done takes the plural [nimetav] (1st form): {arved}. {Arvete} is the plural [omastav] (2nd form), which means of the bills." },
     ],
     faster: {
       ask: { et: "Mida sa oma palgaga teed?", en: "What do you do with your pay?" },
@@ -571,7 +591,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "kolleege", of: "kolleeg", en: "colleagues, some of them" },
     ],
     how: {
-      point: "You met this in A2, and a work schedule is full of it: after a number, the thing you count is in the [osastav] (3rd form), and only one of it: {kuus päeva}, {kuusteist tundi}, {kaks tükki}. A word in front agrees: {kaks vaba päeva}.",
+      point: "After a number from two up, the thing you count goes in the singular [osastav] (3rd form): {kuus päeva}, six days, {kuusteist tundi}, sixteen hours. The number already says how many, so the word itself stays singular. A describing word in front does the same: {kaks vaba päeva}, two days off.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -585,9 +605,9 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
         "{Vahetus} is a shift, and the {graafik} is the schedule that says who works when.",
         "{Ületunde} is overtime, hours past your normal time. A day off is a {vaba päev}, and a longer break is {puhkus}: {puhkusele minema}, to go on vacation.",
         "{Järjest} is in a row: {kaks vaba päeva järjest}.",
-        "After a number the noun is in the [osastav] (3rd form) only while the number is in its plain form. With an ending on the number, the noun takes the same ending: {kahe päeva pärast}. And {üks} takes the plain form: {üks vaba päev}.",
+        "There are two exceptions. After {üks}, one, the word stays in its plain form, as in English: {üks vaba päev}. And when the number itself has an ending, the word takes that same ending instead of the [osastav] (3rd form): {kahe päeva pärast}, in two days.",
       ],
-      watchOut: "English counts in the plural: six days. Estonian counts in the singular, in the [osastav] (3rd form): {kuus päeva}, never the plural.",
+      watchOut: "English puts the counted word in the plural: six days. Estonian never does after a number. The word stays singular, in the [osastav] (3rd form): {kuus päeva}.",
       examples: [3, 5, 6],
     },
     listenFor: [
@@ -633,9 +653,9 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Siis on sul kaks vaba päeva järjest.", en: "Then you'll have two days off in a row." }, right: "päeva", wrong: "päev", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a number, the [osastav] (3rd form): {kaks vaba päeva}." },
-      { line: { et: "Kaks tükki! Aga ma pean ikka juhilt luba küsima.", en: "Two pieces! But I still have to ask the boss for permission." }, right: "juhilt", wrong: "juhile", pair: ["ABLATIVE", "ALLATIVE"], why: "You ask something from somebody, so -lt: {juhilt}.", also: ["Kaks tükki! Aga ma pean ikka juhi käest luba küsima."] },
-      { line: { et: "Liis, kuule, kas sa saaksid laupäeval mu vahetuse üle võtta?", en: "Liis, listen, could you take my shift on Saturday?" }, right: "vahetuse", wrong: "vahetus", pair: ["GENITIVE", "NOMINATIVE"], why: "It's a question, not a command, so the whole shift takes the [omastav] (2nd form): {vahetuse}. The [nimetav] (1st form), {vahetus}, is for a command." },
+      { line: { et: "Siis on sul kaks vaba päeva järjest.", en: "Then you'll have two days off in a row." }, right: "päeva", wrong: "päev", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a number from two up, the counted word goes in the singular [osastav] (3rd form), and {vaba} in front of it does the same: {kaks vaba päeva}. The plain form {päev} is for one: {üks vaba päev}." },
+      { line: { et: "Kaks tükki! Aga ma pean ikka juhilt luba küsima.", en: "Two pieces! But I still have to ask the boss for permission." }, right: "juhilt", wrong: "juhile", pair: ["ABLATIVE", "ALLATIVE"], why: "In Estonian you ask something from somebody, so the person you ask takes -lt, the [alaltütlev] (-lt, off): {juhilt}. {Juhile}, with -le, would be giving something to the boss.", also: ["Kaks tükki! Aga ma pean ikka juhi käest luba küsima."] },
+      { line: { et: "Liis, kuule, kas sa saaksid laupäeval mu vahetuse üle võtta?", en: "Liis, listen, could you take my shift on Saturday?" }, right: "vahetuse", wrong: "vahetus", pair: ["GENITIVE", "NOMINATIVE"], why: "Mari wants Liis to take over the whole shift, so the job is a whole one, and she's asking, not giving an order. A whole thing like that takes the [omastav] (2nd form): {vahetuse}. The [nimetav] (1st form), {vahetus}, is what a command would use." },
     ],
     retell: {
       who: "Mari",
@@ -710,7 +730,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "{Pakkuma} is to offer and also to suggest: {Ma pakuksin, et...} is I'd suggest that...",
-        "Monday to Thursday is {esmaspäevast neljapäevani}: -st for from, -ni for until.",
+        "Monday to Thursday is {esmaspäevast neljapäevani}. The day it starts from takes -st, the [seestütlev] (-st, out of), and the day it goes up to takes -ni, the [rajav] (-ni, until).",
         "{Reedeti} is on Fridays, every Friday. {Alates} is starting from: {alates järgmisest kuust}.",
       ],
       watchOut: "{Ma ei taha} in an email to your boss sounds like a refusal. Say what you'd like instead: {Ma sooviksin}.",
@@ -759,8 +779,8 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ma pakuksin, et töötan esmaspäevast neljapäevani kümme tundi päevas.", en: "I'd suggest that I work ten hours a day, Monday to Thursday." }, right: "neljapäevani", wrong: "neljapäevast", pair: ["TERMINATIVE", "ELATIVE"], why: "Until is -ni. From is -st, at the start." },
-      { line: { et: "Kui see ei sobi, võiksin töötada ka neli päeva nädalas väiksema palgaga.", en: "If that doesn't work, I could also work four days a week for a smaller salary." }, right: "palgaga", wrong: "palgast", pair: ["COMITATIVE", "ELATIVE"], why: "For a smaller salary is with it: -ga." },
+      { line: { et: "Ma pakuksin, et töötan esmaspäevast neljapäevani kümme tundi päevas.", en: "I'd suggest that I work ten hours a day, Monday to Thursday." }, right: "neljapäevani", wrong: "neljapäevast", pair: ["TERMINATIVE", "ELATIVE"], why: "Tom works up to Thursday and stops there, so Thursday takes -ni, the [rajav] (-ni, until): {neljapäevani}. -st, as in {esmaspäevast}, is for the day it starts from." },
+      { line: { et: "Kui see ei sobi, võiksin töötada ka neli päeva nädalas väiksema palgaga.", en: "If that doesn't work, I could also work four days a week for a smaller salary." }, right: "palgaga", wrong: "palgast", pair: ["COMITATIVE", "ELATIVE"], why: "Estonian says you work with a salary, not for one, so it takes -ga, the [kaasaütlev] (-ga, with): {väiksema palgaga}. The describing word in front, {väiksema}, stays in the [omastav] (2nd form), as it always does before -ga." },
     ],
     write: {
       genre: "An email asking to change your hours",
@@ -854,7 +874,7 @@ export const B1_RAHA_LESSONS: readonly LessonSpec[] = [
       { kind: "verb", et: "koguma", first: "kogun", en: "to collect; with {raha}, to save up", firstEn: "I collect" },
     ],
     how: {
-      point: "A price goes up by itself with {tõusma}: {Hind tõuseb}, {Kõik hinnad tõusevad}. You agree with somebody with {nõustuma} and -ga, and back them up with {toetama} and the [osastav] (3rd form): {Ma toetan sind}.",
+      point: "{Tõusma} is to go up on its own, with nobody doing it: {Hind tõuseb}, {Kõik hinnad tõusevad}. {Nõustuma}, to agree, takes the person you agree with in -ga, the [kaasaütlev] (-ga, with). {Toetama}, to back somebody up, takes them in the [osastav] (3rd form): {Ma toetan sind}.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
