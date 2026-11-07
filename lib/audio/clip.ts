@@ -213,30 +213,21 @@ export async function fetchClip(request: ClipRequest): Promise<HeldClip> {
   // speaker button that removes itself. A clip asked for by id has no other
   // voice that says the same thing, so it fails as itself.
   let res = take ? await fetch(nativeUrl(take.id)).catch(() => null) : await synthetic();
-  if (take && !request.nativeId && (!res || !res.ok)) {
-    discard(res);
-    res = await synthetic();
-  }
-  if (!res || !res.ok) {
-    discard(res);
-    throw new Error(String(res?.status ?? "offline"));
-  }
+  if (take && !request.nativeId && (!res || !res.ok)) { discard(res); res = await synthetic(); }
+  if (!res || !res.ok) { discard(res); throw new Error(String(res?.status ?? "offline")); }
   const fetched = await res.blob();
   return { url: rememberClip(key, fetched), blob: cachedBlob(key) ?? fetched };
 }
 
 /**
- * A REFUSED CLIP'S BODY IS READ OFF THE WIRE, NOT LEFT ON IT.
+ * A refused clip's body, read off and thrown away.
  *
- * A clip the service refused (a 502 while TartuNLP was answering 500 to
- * everything, a 429, a 404 recording) used to throw on `!res.ok` without
- * touching the body, and Chromium does not finish a fetch whose body nobody
- * consumes: the request stays open, holding one of the six connections a
- * browser allows a host, for as long as the page lives. Six refused clips and
- * every later request to the app waits behind them. It is also why every
- * `networkidle` wait in the browser suites ran out on /learn/new, whose first
- * meeting autoplays a word. Cancelling the stream frees the connection and
- * costs nothing, since an error body is never read here.
+ * A response nobody reads is a response the browser holds open: on
+ * 2026-11-06 TartuNLP answered every request with a 500 for hours, the route
+ * passed that on as a 502 with a sentence in it, and this module read the
+ * status and left the sentence where it was. Each refusal then stayed an open
+ * request for as long as the page did, which is a socket held for nothing and
+ * a page that never goes quiet.
  */
 function discard(res: Response | null): void {
   void res?.body?.cancel().catch(() => undefined);
@@ -766,10 +757,7 @@ export async function playHeard(request: ClipRequest): Promise<PlayOutcome> {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ text: request.text, ...(request.voice ? { voice: request.voice } : {}) }),
     });
-    if (!res.ok) {
-      discard(res);
-      throw new Error(String(res.status));
-    }
+    if (!res.ok) { discard(res); throw new Error(String(res.status)); }
     const fetched = await res.blob();
     const rate = rateFor(request);
     let blob: Blob = fetched;
