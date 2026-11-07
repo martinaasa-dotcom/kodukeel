@@ -93,7 +93,7 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
     ],
     patterns: ["jussive"],
     how: {
-      point: "A wish for somebody who isn't the one you're talking to ends in -gu: {Kasvagu suureks!}, may he grow up big. It's the [käskiv kõneviis, ta] (command): one ending for him, her and them, and it is what a card, a cheer and a toast are made of.",
+      point: "When you wish something for somebody who isn't the person you're talking to, the verb ends in -gu: {Kasvagu suureks!}, may he grow up big. An ordinary command won't do, because a command is said to the one who has to do it, and nobody can tell a baby to grow. This is the [käskiv kõneviis, ta] (command): one ending for him, her and them, and it's what a card, a cheer and a toast are made of.",
       table: {
         head: ["Estonian", "In English", "Built from"],
         rows: [
@@ -104,11 +104,11 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "It's built like the polite command, with -gu or -ku where that has -ge or -ke: {tehke} gives {tehku}. For most verbs that is the -ma taken off and -gu put on: {kasvama}, {kasvagu}. And {olema} is short: {olgu}.",
-        "It's the same for one person and for many: {Kasvagu poiss suureks!}, {Kasvagu lapsed suureks!}",
-        "Said to a friend it's short: {Palju õnne!} On a card it's the -gu form: {Olgu ta alati terve!} And in a card or a message from somebody older, {perelisa puhul}, for the new arrival.",
+        "It's built like the polite command, with -gu or -ku where that has -ge or -ke: {tehke} gives {tehku}. For most verbs you take the -ma off and put -gu on: {kasvama}, {kasvagu}. And {olema} is short: {olgu}.",
+        "It's the same for one person and for many, because the ending says the wish is about them, not who they are: {Kasvagu poiss suureks!}, {Kasvagu lapsed suureks!}",
+        "Which you say depends on where you are. To a friend's face it's short: {Palju õnne!} On a card you add a wish in the -gu form: {Olgu ta alati terve!} And a card or a message from somebody older often says what it's for: {perelisa puhul}, on the new arrival.",
       ],
-      watchOut: "{Las ta magab} lets him sleep, as at B2. {Magagu ta!} wishes it: may he sleep. A card and a toast say the second.",
+      watchOut: "{Las ta magab} and {Magagu ta!} look alike and do different jobs. {Las ta magab}, from B2, lets him sleep: leave him be. {Magagu ta!} wishes it: may he sleep. A card and a toast are wishes, so they say the second.",
       examples: [4, 8, 11, 13],
     },
     listenFor: [
@@ -171,8 +171,8 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Helgi kirjutas juba ka: „Palju õnne perelisa puhul! Kasvagu poiss suureks ja olgu ta alati terve!“", en: "Helgi's already written too: 'Congratulations on the new arrival! May the boy grow up big, and may he always be healthy!'" }, right: "suureks", wrong: "suur", pair: ["TRANSLATIVE", "NOMINATIVE"], why: "Growing up into something takes the [saav] (-ks, becoming): {kasvagu suureks}." },
-      { line: { et: "Nii lihtne? Minu vanaema kirjutas igale kaardile...", en: "Just that? My grandmother wrote on every card..." }, right: "kaardile", wrong: "kaardil", pair: ["ALLATIVE", "ADESSIVE"], why: "You write onto a card, so the [alaleütlev] (-le, onto/to): {kaardile kirjutama}. {Kaardil} is what is already on it." },
+      { line: { et: "Helgi kirjutas juba ka: „Palju õnne perelisa puhul! Kasvagu poiss suureks ja olgu ta alati terve!“", en: "Helgi's already written too: 'Congratulations on the new arrival! May the boy grow up big, and may he always be healthy!'" }, right: "suureks", wrong: "suur", pair: ["TRANSLATIVE", "NOMINATIVE"], why: "You grow up into something, and what a person turns into takes the [saav] (-ks, becoming): {kasvagu suureks}, may he grow up big. {Suur} on its own would only say what he is, not what he grows into." },
+      { line: { et: "Nii lihtne? Minu vanaema kirjutas igale kaardile...", en: "Just that? My grandmother wrote on every card..." }, right: "kaardile", wrong: "kaardil", pair: ["ALLATIVE", "ADESSIVE"], why: "Writing on a card puts the words onto it, and onto takes the [alaleütlev] (-le, onto/to): {kaardile kirjutama}. {Kaardil}, the [alalütlev] (-l, on/at/has), is for what is already there once it's written." },
     ],
     workOut: [
       {
@@ -254,7 +254,7 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "peiedeks", of: "peied", en: "for the wake, the meal after a funeral" },
     ],
     how: {
-      point: "There's very little to say when somebody has died, and it's said briefly: {Mul on nii kahju}, I'm so sorry, then {Meie siiras kaastunne}, and then you stop. In a card the -gu form wishes the dead well: {Puhaku ta rahus}.",
+      point: "There's very little to say when somebody has died, and Estonians say it briefly: {Mul on nii kahju}, I'm so sorry, then {Meie siiras kaastunne}, our sincere condolences, and then you stop and let the other person talk. In a card the -gu form wishes the one who has died well: {Puhaku ta rahus}, may he rest in peace.",
       table: {
         head: ["Estonian", "In English", "Where"],
         rows: [
@@ -266,12 +266,12 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Puhaku} is the -gu form of {puhkama}, to rest: a wish for the one who has died, said about them. On the ribbon of a wreath it's often said to them instead: {Puhka rahus}.",
-        "In a card, short is kind: two lines and your names. Don't explain the death, and don't say it was for the best.",
-        "The -gu form also passes on what somebody asked: {Helgi ütles, et Tom tulgu kell kaksteist}, Helgi said Tom should come at twelve.",
-        "Flowers for a funeral come in an even number, two, four or six. An odd number is for a birthday, and for a funeral it is the one mistake people notice.",
+        "{Puhaku} is the -gu form of {puhkama}, to rest: a wish for the one who has died, so it talks about them rather than to them. On the ribbon of a wreath it's often said to them instead, as a plain command: {Puhka rahus}.",
+        "In a card, short is kind: two lines and your names. The family knows what happened, so don't explain the death, and don't say it was for the best.",
+        "The -gu form also passes on what somebody asked of a third person: {Helgi ütles, et Tom tulgu kell kaksteist}, Helgi said Tom should come at twelve. Helgi is the one who wants it, and Tom, who isn't there to hear it, is the one who should do it.",
+        "Flowers for a funeral come in an even number, two, four or six, and an odd number is for a birthday. Mixing the two up is the one mistake people at a funeral notice.",
       ],
-      watchOut: "{Mul on kahju} is the right thing to say, and it's enough. Leave out {Ta oli ju vana} and every other reason it isn't so bad: that's for the family to say, if anybody says it.",
+      watchOut: "{Mul on kahju} is the right thing to say, and it's enough. Leave out {Ta oli ju vana} and every other reason it isn't so bad: from a friend it sounds as if the loss doesn't count. That's for the family to say, if anybody says it.",
       examples: [3, 4, 11, 15],
     },
     listenFor: [
@@ -329,8 +329,8 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Mida me nüüd tegema peame? Kas me läheme matustele?", en: "What should we do now? Do we go to the funeral?" }, right: "matustele", wrong: "matustel", pair: ["ALLATIVE", "ADESSIVE"], why: "You go to it, so the [alaleütlev] (-le, onto/to): {matustele minema}. {Matustel} is being there." },
-      { line: { et: "Kui Helgi kutsub, siis jah. Ja kirjutage talle kaart. Lihtsalt: „Siiras kaastunne. Mõtleme sinule.“", en: "If Helgi invites you, then yes. And write her a card. Just: 'Sincere condolences. We're thinking of you.'" }, right: "kaart", wrong: "kaardi", pair: ["NOMINATIVE", "GENITIVE"], why: "A whole thing after a command stays in the [nimetav] (1st form): {kirjutage kaart}." },
+      { line: { et: "Mida me nüüd tegema peame? Kas me läheme matustele?", en: "What should we do now? Do we go to the funeral?" }, right: "matustele", wrong: "matustel", pair: ["ALLATIVE", "ADESSIVE"], why: "Tom is asking about going there, and going toward an event takes the [alaleütlev] (-le, onto/to): {matustele minema}, to go to the funeral. {Matustel}, the [alalütlev] (-l, on/at/has), is being there once you've arrived." },
+      { line: { et: "Kui Helgi kutsub, siis jah. Ja kirjutage talle kaart. Lihtsalt: „Siiras kaastunne. Mõtleme sinule.“", en: "If Helgi invites you, then yes. And write her a card. Just: 'Sincere condolences. We're thinking of you.'" }, right: "kaart", wrong: "kaardi", pair: ["NOMINATIVE", "GENITIVE"], why: "Mari is telling them to write a card, and the object of a command stays in the [nimetav] (1st form): {kirjutage kaart}. The command already says the job is to be done, so the ending doesn't have to. Said about a card that was written, it would be the [omastav] (2nd form): {kaardi}." },
     ],
     workOut: [
       {
@@ -426,7 +426,7 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
     ],
     patterns: ["stance"],
     how: {
-      point: "{Justkui} and {otsekui} mean as if, and what comes after them isn't true, so it takes the [tingiv kõneviis] (-ks, would): {Sa vaatasid mind, justkui ma oleksin hulluks läinud}. Plain {nagu} only compares two things that are both true.",
+      point: "{Justkui} and {otsekui} both mean as if, and they say that what follows isn't true: Mari hasn't gone mad. Something that isn't real takes the [tingiv kõneviis] (-ks, would), so: {Sa vaatasid mind, justkui ma oleksin hulluks läinud}. Plain {nagu} only compares two things that are both true: {Sa räägid nagu eestlane}, you talk the way an Estonian does.",
       table: {
         head: ["Estonian", "In English", "What it says"],
         rows: [
@@ -436,12 +436,12 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Justkui} and {otsekui} say the same thing. {Justkui} is what you hear, {otsekui} what you read. Both are followed by the [tingiv kõneviis] (-ks, would), because what comes after them didn't happen.",
-        "For something past it's {oleks} and the [nud-kesksõna] (-nud, done), as at B1: {justkui ma oleksin hulluks läinud}.",
-        "Spoken, people often just say {nagu oleks}: {Ta vaatas mind, nagu oleksin hulluks läinud}. It means the same.",
-        "A pun turns on one word with two meanings: {tee} is tea and a road, {kuu} is the moon and a month. Find the meaning the sentence wants, then the other one, and the other one is the joke.",
+        "{Justkui} and {otsekui} mean the same. {Justkui} is the one you hear, {otsekui} the one you read. Both are followed by the [tingiv kõneviis] (-ks, would), because what comes after them didn't happen.",
+        "When the thing that didn't happen would be in the past, it's {oleks} and the [nud-kesksõna] (-nud, done), as at B1: {justkui ma oleksin hulluks läinud}, as if I had gone mad.",
+        "In speech people often say {nagu oleks} instead: {Ta vaatas mind, nagu oleksin hulluks läinud}. The would form after {nagu} carries the as if on its own, so it means the same.",
+        "A pun turns on one word with two meanings: {tee} is tea and a road, {kuu} is the moon and a month. Find the meaning the sentence wants, then the other one, and the other one is the joke. Mari's tea is {libe}, slippery, and only a road can be that.",
       ],
-      watchOut: "After {justkui} and {otsekui}, never the plain past: not {justkui ma olin hull}, but {justkui ma oleksin hull}.",
+      watchOut: "After {justkui} and {otsekui}, never the plain past. {Justkui ma olin hull} would say I really was mad, which is the opposite of what as if means. It has to be {justkui ma oleksin hull}.",
       examples: [0, 5, 6, 10],
     },
     listenFor: [
@@ -496,8 +496,8 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Sa vaatasid mind, justkui ma oleksin hulluks läinud.", en: "You looked at me as if I'd gone mad." }, right: "oleksin", wrong: "olin", pair: ["KndPrSg1", "IndIpfSg1"], why: "After {justkui}, the [tingiv kõneviis] (-ks, would), because it didn't happen: {justkui ma oleksin hulluks läinud}." },
-      { line: { et: "Mina saan naljast aru alles siis, kui keegi seletab. Ja siis pole see enam naljakas.", en: "I only get a joke once somebody explains it. And then it isn't funny anymore." }, right: "naljast", wrong: "nalja", pair: ["ELATIVE", "PARTITIVE"], why: "You understand out of something: {aru saama} takes the [seestütlev] (-st, out of), {naljast aru saama}." },
+      { line: { et: "Sa vaatasid mind, justkui ma oleksin hulluks läinud.", en: "You looked at me as if I'd gone mad." }, right: "oleksin", wrong: "olin", pair: ["KndPrSg1", "IndIpfSg1"], why: "{Justkui} says that what follows didn't happen, and something that didn't happen takes the [tingiv kõneviis] (-ks, would): {justkui ma oleksin hulluks läinud}. {Olin} would say Mari really did go mad." },
+      { line: { et: "Mina saan naljast aru alles siis, kui keegi seletab. Ja siis pole see enam naljakas.", en: "I only get a joke once somebody explains it. And then it isn't funny anymore." }, right: "naljast", wrong: "nalja", pair: ["ELATIVE", "PARTITIVE"], why: "{Aru saama}, to understand, puts what you understand in the [seestütlev] (-st, out of): {naljast aru saama}, to get a joke. It's a fact about this verb rather than a rule you can work out, so learn the two together. {Nalja} would make the joke an object, and {aru saama} doesn't take one." },
     ],
     workOut: [
       {
@@ -573,7 +573,7 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "järele", en: "{järele mõtlema}, to think it over first" },
     ],
     how: {
-      point: "An exclamation is strong or mild, and that decides where you can say it. {Pagan} is fine almost anywhere, {kurat} is fine among friends and nowhere near a child or a boss, and {kurat võtaks} is real annoyance.",
+      point: "An exclamation is strong or mild, and how strong it is decides who may hear it. {Pagan} is fine almost anywhere, even with a child listening. {Kurat} is fine among friends and nowhere near a child or a boss. {Kurat võtaks} is real annoyance, said when you mean it.",
       table: {
         head: ["Estonian", "How strong", "Where"],
         rows: [
@@ -585,11 +585,11 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Hirmus} and {jube} are terrible and dreadful, and spoken they also just mean very: {hirmus valus}, terribly painful; {jube raske}, really heavy. That is how most people turn the strength up without swearing.",
+        "{Hirmus} and {jube} are terrible and dreadful, and in speech they also mean no more than very: {hirmus valus}, terribly painful; {jube raske}, really heavy. That's how most people turn the strength up without swearing at all.",
         "{Kiruma} is to swear: a parent says {Ära kiru!}",
-        "There are stronger words than these, and an Estonian calls each of them {ropp sõna}. You'll know them from the tone when you hear them. This course doesn't show them, nobody expects a foreigner to use them, and you lose nothing by not saying them.",
+        "There are stronger words than these, and an Estonian calls each of them a {ropp sõna}, a rude word. You'll know them from the tone when you hear them. This course doesn't show them: nobody expects a foreigner to use them, and you lose nothing by leaving them out.",
       ],
-      watchOut: "{Kurat} is said at a thing, not at a person. At a box on your foot it's ordinary; said to somebody, it's rude. At work, in front of a child or to anybody older, say {pagan}, or just {oi}.",
+      watchOut: "{Kurat} is said at a thing, never at a person. At a box on your foot it's ordinary, because the box is what you're cross with. Said to somebody, it's aimed at them, and that's rude. At work, in front of a child or to anybody older, say {pagan}, or {oi}.",
       examples: [2, 3, 7, 11],
     },
     listenFor: [
@@ -641,8 +641,8 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "No nüüd on tal uus sõna. Homme ütleb ta selle koolis.", en: "Well, now he's got a new word. Tomorrow he'll say it at school." }, right: "koolis", wrong: "kooli", pair: ["INESSIVE", "ILLATIVE"], why: "Where he'll say it is in the school, so the [seesütlev] (-s, in): {koolis}. {Kooli} is where you go." },
-      { line: { et: "Ei ole. Kõik ütlevad seda. Aga mitte lapse ees ega ülemusele.", en: "No. Everybody says it. But not in front of a child, or to your boss." }, right: "ülemusele", wrong: "ülemuse", pair: ["ALLATIVE", "GENITIVE"], why: "You say a thing to somebody: the [alaleütlev] (-le, onto/to), {ülemusele ütlema}." },
+      { line: { et: "No nüüd on tal uus sõna. Homme ütleb ta selle koolis.", en: "Well, now he's got a new word. Tomorrow he'll say it at school." }, right: "koolis", wrong: "kooli", pair: ["INESSIVE", "ILLATIVE"], why: "Jaan means the place Mark will be when he says it, inside the school, so the [seesütlev] (-s, in): {koolis}, at school. {Kooli}, into the school, is where you go, and nobody is going anywhere in this sentence." },
+      { line: { et: "Ei ole. Kõik ütlevad seda. Aga mitte lapse ees ega ülemusele.", en: "No. Everybody says it. But not in front of a child, or to your boss." }, right: "ülemusele", wrong: "ülemuse", pair: ["ALLATIVE", "GENITIVE"], why: "You say a thing to somebody, and the person it goes to takes the [alaleütlev] (-le, onto/to): {ülemusele ütlema}, to say to your boss. {Ülemuse} is the [omastav] (2nd form), the one in {lapse ees}: it needs a word after it, and on its own it doesn't say who hears you." },
     ],
     workOut: [
       {
@@ -740,7 +740,7 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "viisime", of: "viima", en: "we took: {viisime lille}, we took flowers" },
     ],
     how: {
-      point: "How sure you are is a word of its own, and each says where the sureness comes from: {küllap} is your own warm guess, {arvatavasti} is what's likely, and {nähtavasti} is what you can see. And a feeling has shades: {kurb}, {nukker}, {kurvameelne} and {pettunud} are four different ways of being sad.",
+      point: "How sure you are has words of its own, and each one says where the sureness comes from: {küllap} is your own warm guess, {arvatavasti} is what's likely, and {nähtavasti} is what you can see for yourself. A feeling has shades too: {kurb}, {nukker}, {kurvameelne} and {pettunud} are four different ways of being sad, and picking the right one is how you say exactly how you feel.",
       table: {
         head: ["Estonian", "In English", "Where the sureness comes from"],
         rows: [
@@ -751,11 +751,11 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "{Kurb} is plain sad. {Nukker} is low and gray, the way November is. {Kurvameelne} is wistful, a quiet sadness that stays. {Pettunud} is disappointed: you hoped for something, and it didn't come.",
-        "B2's {vist} and {ilmselt} are still the everyday words. {Küllap} is warmer, and {arvatavasti} and {nähtavasti} are a shade more written.",
+        "B2's {vist} and {ilmselt} are still the everyday words. {Küllap} is warmer, because it guesses kindly, and {arvatavasti} and {nähtavasti} are a shade more written.",
         "{Küllap} often puts the verb straight after it: {Küllap igatseb ta sind ka}. {Küllap ta igatseb} is said too.",
-        "Two feelings can sit in one sentence, with {aga}: {Olen nukker, aga ka tänulik}.",
+        "Two feelings can sit in one sentence, joined with {aga}: {Olen nukker, aga ka tänulik}. The second doesn't cancel the first: both are true at once.",
       ],
-      watchOut: "{Nähtavasti} needs something to go on: a face, a voice, a coat that's gone. If you're only guessing, say {küllap} or {arvatavasti}.",
+      watchOut: "{Nähtavasti} needs something to go on: a face, a voice, a coat that's gone. Tom can say it because Anna has been quiet all week. If you're only guessing, say {küllap} or {arvatavasti}.",
       examples: [3, 6, 7, 12],
     },
     listenFor: [
@@ -811,8 +811,8 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Nähtavasti mitte väga hästi. Sa oled terve nädal vaikne olnud.", en: "Not very well, by the look of it. You've been quiet all week." }, right: "nädal", wrong: "nädala", pair: ["NOMINATIVE", "GENITIVE"], why: "How long it lasted, the whole of it: {terve nädal}, in the [nimetav] (1st form)." },
-      { line: { et: "Kirjuta Liisile. Ta on kodus ega tea veel midagi Helgi vennast. Kirjuta talle mõlemad: see, mis on hea, ja see, mis on raske.", en: "Write to Liis. She's at home and doesn't know about Helgi's brother yet. Write her both: what's good, and what's hard." }, right: "vennast", wrong: "venna", pair: ["ELATIVE", "GENITIVE"], why: "What you know or say about something takes the [seestütlev] (-st, out of): {midagi Helgi vennast}." },
+      { line: { et: "Nähtavasti mitte väga hästi. Sa oled terve nädal vaikne olnud.", en: "Not very well, by the look of it. You've been quiet all week." }, right: "nädal", wrong: "nädala", pair: ["NOMINATIVE", "GENITIVE"], why: "{Terve nädal} says how long it lasted, all of it, and a stretch of time said this way goes in the [nimetav] (1st form): {terve nädal}, all week. {Nädala}, the [omastav] (2nd form), would only say whose, and on its own it doesn't say how long." },
+      { line: { et: "Kirjuta Liisile. Ta on kodus ega tea veel midagi Helgi vennast. Kirjuta talle mõlemad: see, mis on hea, ja see, mis on raske.", en: "Write to Liis. She's at home and doesn't know about Helgi's brother yet. Write her both: what's good, and what's hard." }, right: "vennast", wrong: "venna", pair: ["ELATIVE", "GENITIVE"], why: "What you know or say about somebody takes the [seestütlev] (-st, out of): {midagi Helgi vennast}, anything about Helgi's brother. {Helgi} already says whose brother it is, so the ending that says about goes on {vend}. {Venna}, the [omastav] (2nd form), would only say whose again." },
     ],
     workOut: [
       {
@@ -908,12 +908,12 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
     how: {
       point: "A whole family party, made of this part: congratulate with the -gu form, keep it in Estonian when somebody switches, say a hard thing kindly, give the toast, and take a joke and give one back.",
       notes: [
-        "Bad news at a happy party is said short and gently, with the reason and something kind after it: {Tema vend suri hiljuti. Aga ta saatis teile kaardi.}",
-        "A toast has a shape: {Head sõbrad!}, then {Tõstame klaasid}, then two or three wishes in the -gu form, then {Terviseks!}",
+        "Bad news at a happy party is said short and gently: what happened, and then something kind, so the party can go on: {Tema vend suri hiljuti. Aga ta saatis teile kaardi.}",
+        "A toast has a shape: {Head sõbrad!} to get everybody's attention, then {Tõstame klaasid}, then two or three wishes in the -gu form, then {Terviseks!}",
         "When somebody makes a joke, the friendly answer is one of your own on the same thing: Jaan's boss sleeps in meetings, so yours cries when there's no coffee.",
         "In the role-play one question is new. Answer it as yourself, with the word that fits exactly.",
       ],
-      watchOut: "Among friends at a party it's {sina}, and the host's brother is a friend for the evening: Madis says {sa} to Tom straight away.",
+      watchOut: "Among friends at a party it's {sina}, the friendly you, and the host's brother counts as a friend for the evening: Madis says {sa} to Tom straight away, though they've only just met.",
       examples: [1, 5, 8, 11, 13],
     },
     listenFor: [
