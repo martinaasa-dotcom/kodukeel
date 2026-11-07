@@ -989,6 +989,31 @@
     padding-block: clamp(1.25rem, 4vh, 2.25rem);
   }
   .round-pad { padding-block: clamp(1.25rem, 3.5vh, 2rem); }
+
+  /*
+    THE TOP OF A ROUND CARD IS ONE QUIET LINE, NOT A ROW OF BADGES.
+
+    Every round opened on a hairline with a colored pill above it naming the
+    task, and a second and third pill beside it, so the first thing on the
+    card was furniture about the card rather than the thing to do. A learner
+    reported the whole layout as cluttered and they were right. Inside
+    `.round-head` a chip is drawn as plain words: the task's name in the
+    secondary ink, anything beside it quieter still, no pill and no capitals,
+    and no rule under it, so the question below is what the eye lands on. The
+    `!important` is there because a chip paints its tone inline, and an
+    inline style otherwise beats every class; it reaches only these headers.
+  */
+  .round-head [data-chip] {
+    background: none !important;
+    color: var(--ink-3) !important;
+    padding: 0;
+    text-transform: none;
+    letter-spacing: normal;
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+  .round-head [data-chip="accent"] { color: var(--ink-2) !important; }
+
   /* `--fit-max` too, since the word is drawn through `FitText`, which fits a
      long word under that size rather than letting it break. */
   .round-word { --fit-max: var(--text-3xl); font-size: var(--fit-max); line-height: 1.1; }

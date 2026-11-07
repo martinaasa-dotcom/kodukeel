@@ -1069,7 +1069,7 @@ export function LearnSession({
         className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
       >
-        <div className="flex flex-wrap items-center gap-2 border-b px-5 py-3.5" style={{ borderColor: "var(--rule-soft)" }}>
+        <div className="round-head flex flex-wrap items-center gap-x-4 gap-y-1 px-5 pt-4">
           <Chip tone="accent">
             {/* With no sentence to put it in, the top rung asks for the word
                 itself from its meaning, which is what the chip says. */}

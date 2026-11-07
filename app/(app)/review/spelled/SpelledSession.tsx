@@ -193,7 +193,7 @@ function Line({ word, onSettled, onNext }: {
       className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border"
       style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
     >
-      <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
+      <div className="round-head flex flex-wrap items-center gap-x-4 gap-y-1 px-6 pt-4">
         <Chip tone="accent"><Phone size={12} aria-hidden /> Tähthaaval</Chip>
         <span className="ml-auto text-xs" style={{ color: "var(--ink-3)" }}>
           {fill(t("{n} letters"), { n: letters.length })}

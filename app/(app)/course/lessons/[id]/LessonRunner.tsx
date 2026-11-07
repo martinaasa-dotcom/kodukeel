@@ -705,7 +705,10 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
 
         <section aria-labelledby="lesson-step">
           <h2 id="lesson-step" ref={heading} tabIndex={-1} className="mb-4 text-xl font-bold scroll-mt-24" style={{ color: "var(--ink)" }}>
-            {fill(t("Step {n} of {total}: {step}"), { n: String(at + 1), total: String(steps.length), step: t(titleOf(step)) })}
+            {/* The pills above already say where in the lesson this is, so the
+                heading names the step and a reader is told the count alone. */}
+            <span className="sr-only">{fill(t("Step {n} of {total}"), { n: String(at + 1), total: String(steps.length) })}: </span>
+            {t(titleOf(step))}
           </h2>
           {/*
             HOW FAR THROUGH THE STEP, where it has more than one page: a page
@@ -719,7 +722,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
                   <span key={sc} style={{ width: 18, height: 6, borderRadius: 9999, background: i <= si ? "var(--accent)" : "color-mix(in srgb, var(--ink) 12%, transparent)" }} />
                 ))}
               </span>
-              {fill(t("Page {n} of {total}"), { n: String(si + 1), total: String(screens.length) })}
+              <span className="sr-only">{fill(t("Page {n} of {total}"), { n: String(si + 1), total: String(screens.length) })}</span>
             </p>
           )}
           <div ref={screenRef} data-lesson-screen={current}>

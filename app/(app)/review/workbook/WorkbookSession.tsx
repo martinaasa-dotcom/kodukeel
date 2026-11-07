@@ -581,7 +581,7 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
         data-workbook-exercise={at + 1}
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
       >
-        <header className="flex flex-wrap items-center gap-2 border-b px-5 py-3 sm:px-6" style={{ borderColor: "var(--rule-soft)" }}>
+        <header className="round-head flex flex-wrap items-center gap-x-4 gap-y-1 px-5 pt-4 sm:px-6">
           <Chip tone="accent">
             {exercises.length > 1
               ? fill(t("Exercise {n} of {total}"), { n: at + 1, total: exercises.length })
@@ -1102,7 +1102,7 @@ function Finished({
           className="rounded-xl border"
           style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
         >
-          <header className="flex flex-wrap items-center gap-2 border-b px-5 py-3 sm:px-6" style={{ borderColor: "var(--rule-soft)" }}>
+          <header className="round-head flex flex-wrap items-center gap-x-4 gap-y-1 px-5 pt-4 sm:px-6">
             <BookOpen size={16} style={{ color: "var(--accent-deep)" }} aria-hidden />
             <h2 className="text-base font-semibold" style={{ color: "var(--ink)" }}>
               {exercises.length > 1 ? fill(t("Exercise {n}, corrected"), { n: n + 1 }) : t("Your page, corrected")}

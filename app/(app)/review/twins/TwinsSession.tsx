@@ -202,7 +202,7 @@ export function TwinsSession({ questions: initialQuestions, canTranslate, focusT
       {look.panel ? <LookBackCard {...look.panel} /> : (
         <div className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border"
           style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}>
-          <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
+          <div className="round-head flex flex-wrap items-center gap-x-4 gap-y-1 px-6 pt-4">
             <Chip tone="accent"><Scale size={12} aria-hidden /> Kaksikud</Chip>
             <Chip>{focusTitle ?? t(KIND_COPY[q.kind].short)}</Chip>
             {/* The count and the star travel together, so on a phone the star

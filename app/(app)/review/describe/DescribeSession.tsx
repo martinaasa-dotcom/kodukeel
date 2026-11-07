@@ -221,7 +221,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
         className="rounded-xl border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
       >
-        <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
+        <div className="round-head flex flex-wrap items-center gap-x-4 gap-y-1 px-6 pt-4">
           <Chip tone="accent">{t(prompt.title)}</Chip>
           <span className="tnum ml-auto text-xs" style={{ color: "var(--ink-3)" }}>
             {fill(t("Picture {n} of {total}"), { n: index + 1, total: prompts.length })}

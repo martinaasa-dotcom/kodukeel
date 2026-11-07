@@ -280,7 +280,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
         className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
       >
-        <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
+        <div className="round-head flex flex-wrap items-center gap-x-4 gap-y-1 px-6 pt-4">
           <Chip tone="accent"><Ear size={12} aria-hidden /> {t("Write what you hear")}</Chip>
           {/* Only once the answer is in. This is a word *from the sentence being
               dictated*, so printing it above the box hands over part of what the

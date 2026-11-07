@@ -379,7 +379,7 @@ function ApartCard({
   return (
     <div ref={card} className="rounded-xl border" style={CARD_STYLE}>
       <p className="sr-only" aria-live="polite">{answered ? verdict : ""}</p>
-      <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
+      <div className="round-head flex flex-wrap items-center gap-x-4 gap-y-1 px-6 pt-4">
         <Chip tone="accent">{t("Take it apart")}</Chip>
         <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>
           {fill(t("{n} of {total}"), { n: index + 1, total })}
@@ -516,7 +516,7 @@ function NameCard({ question, picked, revealed, streak, onChoose, onNext }: {
   return (
     <div className="rounded-xl border" style={CARD_STYLE}>
       <p className="sr-only" aria-live="polite">{revealed ? `${right ? t("Right.") : t("Not quite.")} ${line}` : ""}</p>
-      <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
+      <div className="round-head flex flex-wrap items-center gap-x-4 gap-y-1 px-6 pt-4">
         <Chip tone="accent">{t("Name it")}</Chip>
         <Streak n={streak} />
       </div>
@@ -592,7 +592,7 @@ function FriendCard({ question, index, total, picked, revealed, streak, isLast, 
   return (
     <div className="rounded-xl border" style={CARD_STYLE}>
       <p className="sr-only" aria-live="polite">{revealed ? verdict : ""}</p>
-      <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
+      <div className="round-head flex flex-wrap items-center gap-x-4 gap-y-1 px-6 pt-4">
         <Chip tone="accent">{t(friendLabel(question))}</Chip>
         <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>
           {fill(t("{n} of {total}"), { n: index + 1, total })}

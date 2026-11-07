@@ -135,7 +135,7 @@ export function EndingsSession({ cards }: { cards: readonly EndingsCard[] }) {
 function Shell({ step, children, foot }: { step: string; children: React.ReactNode; foot: React.ReactNode }) {
   return (
     <div className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border" style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}>
-      <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
+      <div className="round-head flex flex-wrap items-center gap-x-4 gap-y-1 px-6 pt-4">
         <Chip tone="accent"><Hash size={12} aria-hidden /> Arvud</Chip>
         <span className="ml-auto text-sm" style={{ color: "var(--ink-3)" }}>{step}</span>
       </div>

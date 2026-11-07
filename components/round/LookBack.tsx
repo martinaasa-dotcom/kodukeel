@@ -291,7 +291,7 @@ export function LookBackCard({ card, position, newest, hasEarlier, hasLater, onB
       className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border outline-none"
       style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
     >
-      <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
+      <div className="round-head flex flex-wrap items-center gap-x-4 gap-y-1 px-6 pt-4">
         <Chip tone="neutral">{t(card.label)}</Chip>
         {/* Counting from the card the learner was on, so the one that just
             went is "1 back" rather than "0 back", which reads as a fault. */}
