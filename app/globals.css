@@ -5898,13 +5898,15 @@ a:focus-visible .wave-word::after {
 }
 .speech-mic[data-state="listening"]:not(:disabled)::before {
   opacity: 1;
-  scale: 1;
+  /* The orb itself swells a little with the voice, and the halo behind it more. */
+  scale: calc(1 + var(--mic-level, 0) * 0.08);
+  transition: opacity 260ms ease-out, scale 120ms ease-out;
   animation: orb-turn 6s linear infinite;
 }
 .speech-mic[data-state="listening"]:not(:disabled)::after {
-  opacity: calc(0.5 + var(--mic-level, 0) * 0.45);
-  scale: calc(1.05 + var(--mic-level, 0) * 0.3);
-  transition: opacity 120ms linear, scale 120ms linear;
+  opacity: calc(0.45 + var(--mic-level, 0) * 0.55);
+  scale: calc(1.02 + var(--mic-level, 0) * 0.45);
+  transition: opacity 120ms ease-out, scale 120ms ease-out;
   animation: orb-turn-back 9s linear infinite;
 }
 @keyframes orb-turn {
@@ -5987,6 +5989,27 @@ a:focus-visible .wave-word::after {
   angle (`--glow-turn`), so it needs to know nothing about the box's own
   ground and repaints only the box.
 */
+/*
+  THE VOICE, SMOOTHED. The meter reports twenty times a second, and every
+  light that answers it (the orb, its halo, a box, a card, the window's edge)
+  reads one of these two numbers. Registered as numbers, they can be
+  transitioned, so the light glides with the voice rather than stepping with
+  each report: quick to rise, a little slower to fall, the way a voice
+  meter on a phone settles.
+*/
+@property --mic-level {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+@property --listen-level {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+.mic-voice {
+  transition: --mic-level 140ms cubic-bezier(0.22, 1, 0.36, 1);
+}
 @property --glow-turn {
   syntax: "<angle>";
   inherits: false;
@@ -6026,7 +6049,7 @@ a:focus-visible .wave-word::after {
     calc(cos(var(--glow-turn) + 270deg) * var(--glow-reach)) calc(sin(var(--glow-turn) + 270deg) * var(--glow-reach) * 0.7) var(--glow-blur) -6px color-mix(in srgb, var(--butter) 55%, transparent),
     inset calc(cos(var(--glow-turn) + 180deg) * 14px) calc(sin(var(--glow-turn) + 180deg) * 10px) 46px -22px color-mix(in srgb, var(--blush) 30%, transparent),
     inset calc(cos(var(--glow-turn)) * 14px) calc(sin(var(--glow-turn)) * 10px) 46px -22px color-mix(in srgb, var(--sky) 30%, transparent) !important;
-  transition: border-color 300ms ease-out;
+  transition: border-color 300ms ease-out, --mic-level 140ms cubic-bezier(0.22, 1, 0.36, 1);
   animation: box-glow 6s linear infinite;
 }
 @keyframes box-glow {
@@ -6054,17 +6077,22 @@ a:focus-visible .wave-word::after {
   contain: strict;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 480ms ease-out, visibility 0s linear 480ms;
+  transition: opacity 480ms ease-out, visibility 0s linear 480ms, --listen-level 160ms cubic-bezier(0.22, 1, 0.36, 1);
   --band: 64px;
   --band-voice: 150;
   --wash: 0.78;
 }
 /* The night ground swallows light, so the dark theme carries a little more of it. */
-html[data-theme="dark"] .listen-glow { --wash: 1; }
+html[data-theme="dark"] .listen-glow {
+  --wash: 1;
+  /* On the night ground thin color reads as murk rather than light, so the band is tighter and stays saturated where it shows. */
+  --band: 48px;
+  --band-voice: 120;
+}
 html[data-listening] .listen-glow {
   opacity: 1;
   visibility: visible;
-  transition: opacity 420ms ease-out, visibility 0s;
+  transition: opacity 420ms ease-out, visibility 0s, --listen-level 160ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 /*
   ALIVE WHILE QUIET. With nobody speaking the edge breathes, slowly and not
@@ -6111,7 +6139,6 @@ html[data-listening] .listen-glow-voice .listen-glow-light {
 .listen-glow-voice {
   --band: calc(var(--band-voice) * 1px);
   opacity: calc(var(--listen-level, 0) * 0.85);
-  transition: opacity 110ms cubic-bezier(0.22, 1, 0.36, 1);
   -webkit-mask-image:
     linear-gradient(to right, rgb(0 0 0 / 1) calc(var(--band) * 0), rgb(0 0 0 / 0.82) calc(var(--band) * 0.12), rgb(0 0 0 / 0.55) calc(var(--band) * 0.28), rgb(0 0 0 / 0.3) calc(var(--band) * 0.46), rgb(0 0 0 / 0.13) calc(var(--band) * 0.66), rgb(0 0 0 / 0.04) calc(var(--band) * 0.84), rgb(0 0 0 / 0) calc(var(--band) * 1), rgb(0 0 0 / 0) calc(100% - var(--band) * 1), rgb(0 0 0 / 0.04) calc(100% - var(--band) * 0.84), rgb(0 0 0 / 0.13) calc(100% - var(--band) * 0.66), rgb(0 0 0 / 0.3) calc(100% - var(--band) * 0.46), rgb(0 0 0 / 0.55) calc(100% - var(--band) * 0.28), rgb(0 0 0 / 0.82) calc(100% - var(--band) * 0.12), rgb(0 0 0 / 1) calc(100% - var(--band) * 0)),
     linear-gradient(to bottom, rgb(0 0 0 / 1) calc(var(--band) * 0), rgb(0 0 0 / 0.82) calc(var(--band) * 0.12), rgb(0 0 0 / 0.55) calc(var(--band) * 0.28), rgb(0 0 0 / 0.3) calc(var(--band) * 0.46), rgb(0 0 0 / 0.13) calc(var(--band) * 0.66), rgb(0 0 0 / 0.04) calc(var(--band) * 0.84), rgb(0 0 0 / 0) calc(var(--band) * 1), rgb(0 0 0 / 0) calc(100% - var(--band) * 1), rgb(0 0 0 / 0.04) calc(100% - var(--band) * 0.84), rgb(0 0 0 / 0.13) calc(100% - var(--band) * 0.66), rgb(0 0 0 / 0.3) calc(100% - var(--band) * 0.46), rgb(0 0 0 / 0.55) calc(100% - var(--band) * 0.28), rgb(0 0 0 / 0.82) calc(100% - var(--band) * 0.12), rgb(0 0 0 / 1) calc(100% - var(--band) * 0));
@@ -6122,7 +6149,6 @@ html[data-listening] .listen-glow-voice .listen-glow-light {
 .listen-glow-rim {
   padding: 4px;
   opacity: calc(0.8 + var(--listen-level, 0) * 0.2);
-  transition: opacity 90ms linear;
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);

@@ -114,14 +114,24 @@ export function MicButton({ speech, label, shortcut = false, showPartial, size =
     card alone: there the box is what lights.
   */
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const cardRef = useRef<HTMLElement | null>(null);
   const inBox = children !== undefined;
   useEffect(() => {
     if (!listening || inBox) return;
     const card = cardAround(buttonRef.current);
     if (!card) return;
+    cardRef.current = card;
     card.dataset.micCard = "on";
-    return () => { delete card.dataset.micCard; };
+    return () => {
+      delete card.dataset.micCard;
+      card.style.removeProperty("--mic-level");
+      cardRef.current = null;
+    };
   }, [listening, inBox]);
+  // The card sits above the button, so it cannot inherit the level: it is written on it, one property on one element.
+  useEffect(() => {
+    cardRef.current?.style.setProperty("--mic-level", String(voiceEnergy(speech.level)));
+  }, [speech.level]);
 
   const wasOpen = useRef(false);
   useEffect(() => {
@@ -285,7 +295,7 @@ export function MicButton({ speech, label, shortcut = false, showPartial, size =
      glow round the box breathes with the voice. */
   if (inField) {
     return (
-      <div className="flex w-full flex-col gap-2" style={{ "--mic-level": String(voiceEnergy(level)) } as CSSProperties}>
+      <div className="mic-voice flex w-full flex-col gap-2" style={{ "--mic-level": String(voiceEnergy(level)) } as CSSProperties}>
         {children(button)}
         {status && <p className="text-sm" style={{ color: "var(--ink-2)" }}>{status}</p>}
         {notes}
@@ -294,7 +304,7 @@ export function MicButton({ speech, label, shortcut = false, showPartial, size =
   }
 
   return (
-    <div className="flex flex-col items-start gap-4" style={{ "--mic-level": String(voiceEnergy(level)) } as CSSProperties}>
+    <div className="mic-voice flex flex-col items-start gap-4" style={{ "--mic-level": String(voiceEnergy(level)) } as CSSProperties}>
       {/* The status line stays beside the button and wraps inside its own
           column, by words: wrapped under the button, it sat inside the halo.
           The gaps clear the halo at its widest (`.speech-mic` in globals.css). */}
