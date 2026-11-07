@@ -120,7 +120,8 @@ try {
     ).then(() => true, () => false);
     const status = await page.locator("[data-speaking-step] [role=status]").first().innerText().catch(() => "");
     check("the line says how many of its words were heard", counted, status);
-    check("what was heard can be heard back while online", (await page.locator("[data-hear-heard]").count()) > 0);
+    // "Hear what was heard" went: the comparison plays the turn itself, so a second button for it was clutter.
+    check("a turn ends in one quiet block, with no separate read-back of what was heard", (await page.locator("[data-turn-result]").count()) === 1 && (await page.locator("[data-hear-heard]").count()) === 0);
     // The comparison draws the learner's own turn, so the length of what they said is there to read beside the native line.
     const yourBars = await page.locator('[data-compare-voices] [data-row="you"] .compare-bar').count();
     check("the comparison draws your own turn as bars beside the native voice", yourBars > 0, `${yourBars} bars`);
@@ -221,7 +222,7 @@ try {
     check("meeting a word offers Your turn", true);
     await yourTurn.first().click();
     const outcome = await page.waitForFunction(
-      () => /Heard\. That's the word|wasn't heard as the word this time/.test(document.querySelector("main")?.textContent ?? ""),
+      () => /That's the word|Understood\.|wasn't heard as the word this time/.test(document.querySelector("main")?.textContent ?? ""),
       null,
       { timeout: 60_000 },
     ).then(() => true, () => false);

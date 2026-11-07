@@ -223,10 +223,8 @@ function FadeLine({ line, en, hidden, voice, native, who, locale, onResult }: {
         {result === "some" && (
           <p className={`verdict-panel ${VERDICT_CLASS.nearly} flex items-start gap-2`}>
             <RotateCcw size={18} className="mt-0.5" aria-hidden />
-            <span>
-              <span className="font-semibold">{fill(t("{n} of {total} words came across."), { n: cameAcross, total: counted.length })}</span>{" "}
-              {t("The underlined ones weren't heard. Say it again, or carry on.")}
-            </span>
+            {/* The underline on the line says which; the panel only counts. */}
+            <span className="font-semibold">{fill(t("{n} of {total} words came across."), { n: cameAcross, total: counted.length })}</span>
           </p>
         )}
       </div>

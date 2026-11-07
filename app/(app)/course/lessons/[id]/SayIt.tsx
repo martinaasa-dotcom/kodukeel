@@ -386,8 +386,7 @@ function SayTheLines({ lesson, onNext }: { lesson: LessonSpec; onNext: () => voi
               <span className="label-xs" style={{ color: "var(--ink-3)" }}>{line.who}</span>
               <Speak text={line.et!} voice={lesson.cast[line.who]} native={line.who === played} size={16} label={fill(t("Hear {who} say it"), { who: line.who })} />
             </div>
-            {/* The comparison says what it is for once, on the first line, rather than under every line of the list. */}
-            <ReadAloud line={line.et!} voice={lesson.cast[line.who]} native={line.who === played} compareHint={i === 0} />
+            <ReadAloud line={line.et!} voice={lesson.cast[line.who]} native={line.who === played} />
             <p className="text-sm" style={{ color: "var(--ink-2)" }}><LessonText text={line.en ?? ""} locale={locale} /></p>
           </li>
         ))}

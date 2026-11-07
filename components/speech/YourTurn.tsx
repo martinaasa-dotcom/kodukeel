@@ -7,9 +7,8 @@ import { playClip } from "@/lib/audio/clip";
 import { clarityOf, lineWords, lightUp, litAttr, shareLit, type LineClarity } from "@/lib/speech/lightUp";
 import { core } from "@/lib/speech/reconcile";
 import { saidIt } from "@/lib/speech/verdict";
-import { CompareVoices } from "./CompareVoices";
-import { HeardAs } from "./HeardAs";
 import { MicButton } from "./MicButton";
+import { TurnResult } from "./TurnResult";
 import { useSpeech } from "./useSpeech";
 
 /**
@@ -66,18 +65,18 @@ export function YourTurn({ text }: { text: string }) {
         ))}
       </p>
       <MicButton speech={speech} label={t("Say it yourself")} shortcut showPartial={false} fallback="none" />
-      {outcome && (
-        <p className="text-sm" style={{ color: "var(--ink-2)" }} role="status">
-          {outcome === "heard"
-            ? clarity?.clarity.includes("close") ? t("Understood.") : t("Understood. That's the word.")
-            : t("That wasn't heard as the word this time. Here it is again; say it once more if you like.")}
-        </p>
-      )}
+      {/* What came of the turn is the one quiet block every speaking screen ends on. A word not
+          heard as itself was played again by `onHeard`, so the block says nothing about it beyond that. */}
       {outcome && !speech.listening && !speech.thinking && (
-        <div className="turn-after flex flex-col items-center gap-3 text-center">
-          {outcome === "heard" && clarity && <HeardAs line={words} clarity={clarity} />}
-          {!speech.silent && <CompareVoices audio={speech.audio} text={text} hint={outcome === "heard"} align="center" />}
-        </div>
+        <TurnResult
+          words={words}
+          lit={lit}
+          clarity={outcome === "heard" ? clarity : null}
+          understood={outcome === "heard" ? "" : understood}
+          audio={speech.audio}
+          text={text}
+          silent={speech.silent}
+        />
       )}
     </div>
   );

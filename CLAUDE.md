@@ -11900,6 +11900,15 @@ time scale that light as each plays, so a turn said slower is a longer row: leng
 means with and what an eye can check. `docs/41-fifth-batch.md` section 8c; asserted in
 `scripts/invariants/the-sound-is-for-the-ear.ts`.
 
+**And what came of a turn is one quiet block, `TurnResult`.** The Speaking round ended a turn with
+a count, a "Heard:" line, a "Hear what was heard" button, a titled comparison card and a sentence
+saying the ear checks the sound: five things saying one, reported as cluttered, and the read-back
+duplicated the comparison, which already plays the turn. Every screen that lights a line as it is
+said now ends on `components/speech/TurnResult.tsx`: one visible line saying only what the lit line
+cannot (every word understood, or what was heard instead), the count read to a screen reader,
+`HeardAs`, and `CompareVoices` drawn as a borderless pill whose title is its accessible name. The
+round's card header is three step dots and the step's name, with no chip and no second count.
+
 The level check has a speaking section for the same reason it has the other three, and it obeys the
 same rule: it collects the learner's own rating, reports it as theirs, and contributes **nothing**
 to the level. `SCORED_SKILLS` in `lib/assessment/score.ts` names the three that count, and
