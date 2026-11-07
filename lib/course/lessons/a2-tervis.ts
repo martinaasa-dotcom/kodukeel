@@ -65,7 +65,7 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
       { kind: "verb", et: "puhkama", first: "puhkan", en: "to rest", firstEn: "I rest" },
     ],
     how: {
-      point: "More than one is the [omastav] (2nd form) with -d on it: {käe} and then {käed}, {jala} and then {jalad}. It's the same stem the endings of part one go on.",
+      point: "To say more than one, start from the [omastav] (2nd form) and add -d: {käe} becomes {käed}, {jala} becomes {jalad}. You can't start from the word you look up, because it often changes before an ending goes on: {käsi} is {käe} first. The [omastav] (2nd form) is the stem the endings of part one go on, and -d goes on it the same way.",
       table: {
         head: ["One", "Its stem", "More than one"],
         rows: [
@@ -76,11 +76,11 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "When more than one thing hurts, the verb says so too: {Mul valutab pea}, but {Mul valutavad jalad}.",
+        "The thing that hurts is what the sentence is about, so it's in its plain form: {pea} for one, {jalad} for more than one. The verb changes with it: {Mul valutab pea}, my head hurts, but {Mul valutavad jalad}, my legs hurt, with -vad because there's more than one.",
         "{Käsi} is a hand and an arm, and {jalg} a foot and a leg. Estonian doesn't split them.",
         "{Sa pead puhkama} is you need to rest: {pidama} and then the [ma-tegevusnimi] (-ma), as in A1.",
       ],
-      watchOut: "Don't guess the plural from the word you look up. {Hammas} is {hambad}, never hammasd: find the stem first, then add -d.",
+      watchOut: "Don't build the plural from the word you look up. {Hammas} becomes {hamba} before any ending, so more than one is {hambad}, never hammasd. Find the [omastav] (2nd form) first, then add -d.",
       examples: [1, 4, 5],
     },
     answers: [
@@ -137,10 +137,10 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "An appointment is time: {aega}, the [osastav] (3rd form) of {aeg} you met in part three. {Arsti juurde} is to the doctor, with {juurde} from part two.",
+        "An appointment is time, {aeg}. You're asking for some time, not for a counted amount of it, so it goes in the [osastav] (3rd form), as in part three: {aega}. The same goes for {Kas pärastlõunal on aega?}, is there any time in the afternoon? {Perearsti juurde} is to the family doctor: {juurde} from part two comes after its word, and the word goes in the [omastav] (2nd form).",
         "{Millal see algas?} is when did it start, the question every doctor asks. {Algas} is the past of {algama}, learned by name like the verbs of part three.",
         "{Sobib} is the word for a time that works: {Kas homme sobib?} And no is {ei sobi}.",
-        "{Köha} and {nohu} are what you have, so they go after {mul on}, like {palavik} in A1. A sore throat is said with the verb: {kurk valutab}.",
+        "{Köha} and {nohu} are things you have, so they come after {mul on}, like {palavik} in A1: {Mul on köha}. A sore throat is said the other way, with the throat as the thing that hurts: {kurk valutab}.",
       ],
       watchOut: "{Tahaksin} asks; {tahan} demands. To a receptionist, use {tahaksin}.",
       examples: [1, 6, 7],
@@ -190,7 +190,7 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "kaardi", of: "kaart", en: "of the card", stem: true },
     ],
     how: {
-      point: "Without is -ta on the stem: {retsepti} and then {retseptita}. It's [ilmaütlev] (-ta, without), and {ilma} in front is allowed too: {ilma retseptita}.",
+      point: "To say without something, put -ta on its [omastav] (2nd form): {retsepti} becomes {retseptita}, without a prescription. This is the [ilmaütlev] (-ta, without). You can put {ilma} in front as well, {ilma retseptita}, and it means the same.",
       table: {
         head: ["Stem", "Without it"],
         rows: [
@@ -202,8 +202,9 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "{Kohv piimata} is coffee without milk, and {ilma piimata} says the same a little more firmly.",
-        "Medicine is against an illness: {köha vastu}, {nohu vastu}. The illness comes first, in its [omastav] (2nd form).",
-        "{Kolm korda päevas} is three times a day. {Päevas} is a day, the way a dose is counted.",
+        "Medicine is against an illness: {köha vastu}, {nohu vastu}. {Vastu} comes after the illness, and the illness goes in its [omastav] (2nd form), the way a word does before {juurde}. You can't see the ending here, because {köha} and {nohu} look the same in both forms.",
+        "{Kolm korda päevas} is three times a day. After the number {kolm}, the word goes in the [osastav] (3rd form): {korda}. {Päevas} is {päev} in the [seesütlev] (-s, in): three times in a day, which is how a dose is counted.",
+        "One is the exception: after {üks}, the word keeps its plain form, {üks tablett}, one tablet, the same as with no number at all.",
       ],
       watchOut: "{Võtke} is the polite take!, said to you by the pharmacist. You say {Ma võtan need}: I'll take them.",
       examples: [1, 2, 3],
@@ -261,7 +262,8 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "How you feel goes after {olen}: {Ma olen väsinud}, {Ma olen rõõmus}. It works like {Ma olen haige} in A1.",
+        "How you feel comes after {olen}, in its plain form: {Ma olen väsinud}, {Ma olen rõõmus}. It works like {Ma olen haige} in A1.",
+        "{Palju muret} is a lot of worries. After {palju}, a lot of, the word goes in the [osastav] (3rd form), because {palju} gives an amount without counting it: {muret}.",
         "{Mis sul on?} is what's wrong, said to a friend. It's the {sina} side of {Mis teil viga on?}",
         "{Rõõmus} is cheerful, for today. {Õnnelik} is happy in your life, and is a bigger word.",
       ],
@@ -318,6 +320,7 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
         "Careful: {pidama} takes the [ma-tegevusnimi] (-ma) ({pean olema}), while {võima} and {tohtima} take the [da-tegevusnimi] (-da) ({võin minna}).",
         "{Ei tohi} is mustn't, the strongest no a doctor gives. {Ei pea} is only don't have to.",
         "{Ärge} is {ära} to two people or politely, and the command after it is the polite one too: {Ärge minge!}",
+        "{Palju teed} is a lot of tea: after {palju} the word goes in the [osastav] (3rd form), as in {palju muret}. After a number it's the [osastav] (3rd form) too: {kolm päeva}.",
       ],
       watchOut: "{Doktor} is what you call the doctor to their face. The doctor is {arst}.",
       examples: [2, 3, 4],
