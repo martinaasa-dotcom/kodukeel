@@ -39,10 +39,7 @@ export function SentenceFindings({ findings }: {
   announced: "region" | "summary";
 }) {
   const t = useT();
-  const locale = useLocale();
-  const et = (word: string) => <b lang="et">{word}</b>;
-  const part = casePlainName({ key: "PARTITIVE" }, locale);
-  const gen = casePlainName({ key: "GENITIVE" }, locale);
+  const line = useFindingLine();
 
   if (findings.length === 0) {
     return (
@@ -52,7 +49,28 @@ export function SentenceFindings({ findings }: {
     );
   }
 
-  const line = (f: Finding): ReactNode => {
+  return (
+    <div className={`verdict-panel ${VERDICT_CLASS.nearly}`} data-sentence-check="findings">
+      <p className="font-semibold">{findings.length === 1 ? t("One thing to fix") : t("A few things to fix")}</p>
+      <ul className="mt-1 flex flex-col gap-1">
+        {findings.map((f, i) => <li key={i}>{line(f)}</li>)}
+      </ul>
+    </div>
+  );
+}
+
+/**
+ * One finding as the sentence a learner reads: the word, what was wrong in
+ * plain words, and the right form in bold. Shared with `LineFindings`, which
+ * draws these under its own reading of the sentence.
+ */
+export function useFindingLine(): (f: Finding) => ReactNode {
+  const t = useT();
+  const locale = useLocale();
+  const et = (word: string) => <b lang="et">{word}</b>;
+  const part = casePlainName({ key: "PARTITIVE" }, locale);
+  const gen = casePlainName({ key: "GENITIVE" }, locale);
+  return (f: Finding): ReactNode => {
     switch (f.kind) {
       case "spelling":
         if (f.suggestion && f.diacritics) return fillNodes(t("{word} needs its marks: {right}."), { word: et(f.word), right: et(f.suggestion) });
@@ -112,13 +130,4 @@ export function SentenceFindings({ findings }: {
         return fillNodes(t("{word} is the plain form, which is for whoever does the action. Here it needs an ending."), { word: et(f.word) });
     }
   };
-
-  return (
-    <div className={`verdict-panel ${VERDICT_CLASS.nearly}`} data-sentence-check="findings">
-      <p className="font-semibold">{findings.length === 1 ? t("One thing to fix") : t("A few things to fix")}</p>
-      <ul className="mt-1 flex flex-col gap-1">
-        {findings.map((f, i) => <li key={i}>{line(f)}</li>)}
-      </ul>
-    </div>
-  );
 }

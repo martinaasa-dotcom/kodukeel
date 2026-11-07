@@ -78,17 +78,19 @@ export function screensOf(step: LessonStepId, lesson: Pick<LessonSpec, "conversa
 
 /**
  * THE END OF A LESSON IS A SEQUENCE TOO. The finished page held the
- * celebration, the words said once more, the conversation, a worksheet, a
+ * celebration, the words said once more, what was said on Say it, the conversation, a worksheet, a
  * situation out there, the cards waiting in Review, the check and the next
  * lesson, eight things on one page and seven buttons. Each is a screen of its
  * own now, in the order they matter, with "Not now" stepping past an offer and
  * the way on as the last screen.
  */
-export type FinishScreen = "done" | "again" | "conversation" | "check" | "worksheet" | "situation" | "review" | "next";
+export type FinishScreen = "done" | "again" | "said" | "conversation" | "check" | "worksheet" | "situation" | "review" | "next";
 
 export interface FinishFacts {
   /** Words the lesson taught, to say once more. */
   readonly taught: number;
+  /** Sentences said on Say it, this time through or kept from the last (`SaidList`). */
+  readonly said: boolean;
   /** The lesson has a conversation of its own not yet had. */
   readonly conversation: boolean;
   /** The check that closes the part, not passed yet. */
@@ -103,6 +105,7 @@ export interface FinishFacts {
 export function finishScreens(facts: FinishFacts): FinishScreen[] {
   const out: FinishScreen[] = ["done"];
   if (facts.taught > 0) out.push("again");
+  if (facts.said) out.push("said");
   if (facts.conversation) out.push("conversation");
   if (facts.check) out.push("check");
   if (facts.worksheet) out.push("worksheet");

@@ -158,6 +158,7 @@ export async function deleteAccountFor(ownerId: string, confirmation: unknown): 
       // reading of how many people said a thing, and this person is leaving.
       await tx.deferral.deleteMany({ where: { ownerId } });
       await tx.courseStep.deleteMany({ where: { ownerId } });
+      await tx.lessonAnswer.deleteMany({ where: { ownerId } });
       /*
         Every record that this deployment wrote to them went above, before the
         settings: it is the row that decides whether they are written to again,

@@ -70,7 +70,7 @@ export function lessonPlan(
     scene: sceneForLesson(lesson.id)?.id ?? null,
     situation: situationOf(lesson.id),
     // From A2, a worksheet page on the finish; a lesson in preview is on no evening and offers none.
-    worksheet: placed ? worksheetFor(placed.day) : null,
+    worksheet: placed ? worksheetFor(placed.day, lesson.id) : null,
     place: { at: ofLevel.indexOf(lesson) + 1, of: ofLevel.length },
     closes,
   };

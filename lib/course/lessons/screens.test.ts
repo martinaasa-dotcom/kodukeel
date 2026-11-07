@@ -65,10 +65,10 @@ describe("a lesson step is a page at a time", () => {
   });
 
   it("ends a lesson one page at a time, with the way on last", () => {
-    const all = finishScreens({ taught: 5, conversation: true, check: true, worksheet: true, situation: true, due: 3 });
+    const all = finishScreens({ taught: 5, said: true, conversation: true, check: true, worksheet: true, situation: true, due: 3 });
     expect(all[0]).toBe("done");
     expect(all[all.length - 1]).toBe("next");
-    expect(all).toEqual(["done", "again", "conversation", "check", "worksheet", "situation", "review", "next"]);
-    expect(finishScreens({ taught: 0, conversation: false, check: false, worksheet: false, situation: false, due: 0 })).toEqual(["done", "next"]);
+    expect(all).toEqual(["done", "again", "said", "conversation", "check", "worksheet", "situation", "review", "next"]);
+    expect(finishScreens({ taught: 0, said: false, conversation: false, check: false, worksheet: false, situation: false, due: 0 })).toEqual(["done", "next"]);
   });
 });

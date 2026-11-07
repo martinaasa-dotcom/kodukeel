@@ -4678,6 +4678,13 @@
                       "string",
                       "null"
                     ]
+                  },
+                  "lesson": {
+                    "description": "The lesson whose words and sentences the page is set from, or null for the general page (`/review/workbook?lesson=`).",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   }
                 },
                 "required": [
@@ -4688,7 +4695,7 @@
                 "type": "null"
               }
             ],
-            "description": "A worksheet page on what the lessons have taught, offered on the finish (A2 on), or null."
+            "description": "A worksheet page on the lesson's own words and sentences, offered on the finish (A2 on), or null."
           },
           "place": {
             "type": "object",
