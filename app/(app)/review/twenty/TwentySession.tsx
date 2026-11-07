@@ -26,7 +26,7 @@ import { Meaning } from "@/components/Meaning";
 import { countOf, fill, type Locale } from "@/lib/copy/locale";
 import type { ShownMeaning } from "@/lib/collections/glossLanguage";
 import { useSpeech, useSpeechConfig } from "@/components/speech/useSpeech";
-import { MicButton } from "@/components/speech/MicButton";
+import { MicButton, MicSlot } from "@/components/speech/MicButton";
 import { liveText } from "@/lib/speech/liveText";
 import { micInAnswerBox } from "@/components/speech/answerBoxMic";
 import { SendRing } from "@/components/scene/SceneSpeech";
@@ -378,27 +378,31 @@ export function TwentySession({ secret, lexemeId, meaning, glosses, equivalents,
         {!over && !offer && (
           <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
             <label htmlFor="question" className="label-xs">{t("Your question")}</label>
-            <input
-              ref={field}
-              id="question"
-              value={liveText(text, speech)}
-              readOnly={speech.listening}
-              lang="et"
-              autoFocus
-              autoComplete="off"
-              autoCapitalize="sentences"
-              spellCheck={false}
-              onChange={(e) => { setText(e.target.value); handsFree.current = false; }}
-              onKeyDown={(e) => { if (isAdvanceKey(e)) { e.preventDefault(); e.stopPropagation(); void submit(); } }}
-              className="field-lg mt-2 w-full text-lg"
-              style={{ borderColor: "var(--rule)", background: "var(--raised)", color: "var(--ink)" }}
-            />
-            <div className="under-field"><DiacriticBar /></div>
-            {micOffered && (
-              <div className="mt-3 flex flex-wrap items-center gap-3">
-                <MicButton speech={speech} label={t("Ask your question out loud")} shortcut fallback="box" />
-              </div>
-            )}
+            {/* The microphone sits inside the question box, at its end (`MicSlot`). */}
+            <MicButton speech={speech} label={t("Ask your question out loud")} shortcut fallback="box" when={micOffered}>
+              {(mic) => (
+              <>
+                <MicSlot mic={mic}>
+          <input
+            ref={field}
+            id="question"
+            value={liveText(text, speech)}
+            readOnly={speech.listening}
+            lang="et"
+            autoFocus
+            autoComplete="off"
+            autoCapitalize="sentences"
+            spellCheck={false}
+            onChange={(e) => { setText(e.target.value); handsFree.current = false; }}
+            onKeyDown={(e) => { if (isAdvanceKey(e)) { e.preventDefault(); e.stopPropagation(); void submit(); } }}
+            className="field-lg mt-2 w-full text-lg"
+            style={{ borderColor: "var(--rule)", background: "var(--raised)", color: "var(--ink)" }}
+          />
+                </MicSlot>
+                <div className="under-field"><DiacriticBar /></div>
+              </>
+              )}
+            </MicButton>
             {suggestions.length > 0 && (
               <TryThese suggestions={suggestions} opening={turns.length === 0} onPick={idea} />
             )}

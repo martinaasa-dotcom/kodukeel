@@ -271,23 +271,25 @@ export function DictionaryClient({
               roomier padding, at the 19px "lead" step) rather than borrowing
               the answer box's weight for something that is not one.
             */}
-            <EstonianInput
-              value={liveText(query, speech)}
-              readOnly={speech.listening}
-              onChange={setQuery}
-              onEnter={() => go(query)}
-              placeholder={t("Estonian or English, like tuba or room")}
-              ariaLabel={t("Search the dictionary")}
-              autoFocus={!initialQuery}
-            />
+            <MicButton speech={speech} label={t("Say the word to look it up")} shortcut fallback="box" when={searchAloud}>
+              {(mic) => (
+                <EstonianInput
+                  value={liveText(query, speech)}
+                  readOnly={speech.listening}
+                  onChange={setQuery}
+                  onEnter={() => go(query)}
+                  placeholder={t("Estonian or English, like tuba or room")}
+                  ariaLabel={t("Search the dictionary")}
+                  autoFocus={!initialQuery}
+                  mic={mic}
+                />
+              )}
+            </MicButton>
           </div>
           <Button variant="primary" onClick={() => go(query)} disabled={pending} className="shrink-0 py-3" aria-label={t("Search")}>
             <Search size={16} aria-hidden /> <span className="hidden sm:inline">{t("Search")}</span>
           </Button>
         </div>
-        {searchAloud && (
-          <MicButton speech={speech} label={t("Say the word to look it up")} shortcut fallback="box" />
-        )}
         {!initialQuery && suggestions.words.length > 0 && (
           <div className="flex flex-col gap-2">
             <p id="try-these" className="label-xs" style={{ color: "var(--ink-3)" }}>

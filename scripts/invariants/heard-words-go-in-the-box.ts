@@ -40,7 +40,7 @@ const BOX_IS_THE_CALLERS: Readonly<Record<string, RegExp>> = {
   "components/anu/AnuMic.tsx": /onLive\(listening \? \{ listening, partial \}/,
 };
 
-const MIC_BESIDE_BOX = /<MicButton\b[^>]*fallback="box"[^>]*\/>/g;
+const MIC_BESIDE_BOX = /<MicButton\b[^>]*fallback="box"[^>]*>/g;
 
 export default function heardWordsGoInTheBox({ check, code, sourceFiles }: InvariantKit) {
   const files = [...sourceFiles("app"), ...sourceFiles("components")].filter((f) => f.endsWith(".tsx"));
@@ -89,9 +89,9 @@ export default function heardWordsGoInTheBox({ check, code, sourceFiles }: Invar
     assert.match(code("components/scene/SceneSpeech.tsx"), /writeInto\(box\?\.current \?\? null, speech\.partial\)/, "the conversation no longer writes the words so far into its box");
   });
 
-  check("the lesson's Say it card puts what it hears where its copy says", () => {
+  check("the lesson's Say it card puts what it hears in the box its microphone sits in", () => {
     const say = code("app/(app)/course/lessons/[id]/SayIt.tsx");
-    assert.match(say, /What's heard goes in the box, for you to change\./, "the copy this check is about has changed");
-    assert.match(say, /value=\{liveText\(text, speech\)\}/, "Say it says what is heard goes in the box and draws it elsewhere");
+    assert.match(say, /<MicSlot mic=\{micButton\}>/, "Say it's microphone no longer sits in its box");
+    assert.match(say, /value=\{liveText\(text, speech\)\}/, "Say it draws what is heard somewhere other than its box");
   });
 }

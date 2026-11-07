@@ -1855,21 +1855,25 @@ export function ReviewSession({
               {firstTry && (
                 <p className="max-w-sm text-sm" style={{ color: "var(--ink-2)" }}>{t(FIRST_TRY_NOTE)}</p>
               )}
-              {sayable && <AnswerMic box={voiceBox} />}
               <div className="mt-2 w-full max-w-sm text-left">
                 <label htmlFor="answer" className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
                   {t("Type the answer")}
                 </label>
-                <EstonianInput
-                  id="answer"
-                  value={voiceBox.live(typed)}
-                  readOnly={voiceBox.speech.listening}
-                  onChange={setTyped}
-                  onEnter={() => checkTyped()}
-                  ariaLabel={t("Type your answer")}
-                  autoFocus
-                  large
-                />
+                <AnswerMic box={voiceBox} when={sayable}>
+                  {(mic) => (
+                    <EstonianInput
+                      id="answer"
+                      value={voiceBox.live(typed)}
+                      readOnly={voiceBox.speech.listening}
+                      onChange={setTyped}
+                      onEnter={() => checkTyped()}
+                      ariaLabel={t("Type your answer")}
+                      autoFocus
+                      large
+                      mic={mic}
+                    />
+                  )}
+                </AnswerMic>
               </div>
               <HintLadder
                 ladder={ladder}

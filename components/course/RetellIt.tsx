@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Check, Circle, Pause, Play } from "lucide-react";
 import { Button } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
-import { MicButton } from "@/components/speech/MicButton";
+import { MicButton, MicSlot } from "@/components/speech/MicButton";
 import { useSpeech } from "@/components/speech/useSpeech";
 import { liveText } from "@/lib/speech/liveText";
 import { useAudioPrefs } from "@/components/AudioPrefs";
@@ -202,20 +202,24 @@ export function RetellIt({ lessonId, retell, voice, typed, onDone, kept, onKeep,
 
       <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("Tell it back in your own words")}</p>
       {mic && (
-        <div className="mb-3 flex flex-wrap items-center gap-3">
-          <MicButton speech={speech} label={said ? t("Say more") : t("Start telling it")} fallback="box" />
-          <span className="text-sm" style={{ color: "var(--ink-3)" }}>{t("Keep talking through every point. Press it to stop, or pause once they're all lit.")}</span>
-        </div>
+        <p className="mb-2 text-sm" style={{ color: "var(--ink-3)" }}>{t("Keep talking through every point. Press it to stop, or pause once they're all lit.")}</p>
       )}
-      <textarea
-        lang="et"
-        className="field min-h-[96px] w-full"
-        value={live}
-        readOnly={speech.listening}
-        aria-label={t("What you told, in Estonian")}
-        onChange={(e) => { setSaid(e.target.value); setChecked(null); }}
-        spellCheck={false}
-      />
+      {/* The microphone sits in the box's bottom corner, where the next words go. */}
+      <MicButton speech={speech} label={said ? t("Say more") : t("Start telling it")} fallback="box" when={mic}>
+        {(micButton) => (
+          <MicSlot mic={micButton} multiline>
+            <textarea
+              lang="et"
+              className="field min-h-[96px] w-full"
+              value={live}
+              readOnly={speech.listening}
+              aria-label={t("What you told, in Estonian")}
+              onChange={(e) => { setSaid(e.target.value); setChecked(null); }}
+              spellCheck={false}
+            />
+          </MicSlot>
+        )}
+      </MicButton>
       <div className="under-field"><DiacriticBar /></div>
 
       {/* Not a live region: the points light as words arrive, and what is announced is the settled count under them. */}

@@ -5811,6 +5811,7 @@ a:focus-visible .wave-word::after {
   which the compositor does alone, and the halo's blur is rasterized once.
 */
 .speech-mic {
+  position: relative;
   isolation: isolate;
   background: var(--accent-soft);
   color: var(--accent-deep);
@@ -5897,9 +5898,68 @@ a:focus-visible .wave-word::after {
 }
 
 /*
+  THE MICROPHONE INSIDE A BOX (`MicSlot`, components/speech/MicButton.tsx).
+  It sits at the box's right-hand end, inside the border, and the box gains
+  just enough room at that end for it, so speaking and typing share one row
+  and the screen spends no height on the control. At rest it is only the
+  glyph, in the accent's ink with no plate, which is how dictation sits in a
+  message field; a pointer brings up the tint. Pressed, it becomes the same
+  orb as anywhere else, with a tighter halo so the light stays round the
+  button rather than over the words. A box of several lines keeps it in the
+  bottom corner, where the next words go.
+*/
+.mic-slot {
+  position: relative;
+}
+.mic-slot:has(> .speech-mic) > :is(input, textarea) {
+  padding-right: 3.6rem;
+}
+.mic-slot > .speech-mic {
+  position: absolute;
+  right: 0.4rem;
+  top: 0;
+  bottom: 0;
+  margin-block: auto;
+}
+.mic-slot[data-multiline] > .speech-mic {
+  top: auto;
+  bottom: 0.4rem;
+  margin-block: 0;
+}
+/* In a conversation's message pill the microphone takes the send button's round seat until there is something to send (SceneSession's `composer`). */
+.scene-compose .speech-mic {
+  position: absolute;
+  top: 0.375rem;
+  right: 0.375rem;
+}
+.speech-mic[data-place="field"] {
+  background: transparent;
+  border-color: transparent;
+}
+@media (hover: hover) {
+  .speech-mic[data-place="field"]:hover:not(:disabled):not([data-state="listening"]) {
+    background: var(--accent-soft);
+    box-shadow: none;
+  }
+}
+.speech-mic[data-place="field"]:disabled {
+  background: transparent;
+  border-color: transparent;
+}
+.speech-mic[data-place="field"]::after {
+  inset: 4px;
+  filter: blur(7px);
+}
+.speech-mic[data-place="field"][data-state="listening"]:not(:disabled)::after {
+  scale: calc(1 + var(--mic-level, 0) * 0.22);
+}
+
+/*
   THE BOX THE WORDS WILL LAND IN. The nearest screen part holding an open
   microphone lights its answer box with the same four lights, as a soft glow
-  that travels slowly round its edge rather than a ring that pulses. The glow
+  that travels slowly round its edge rather than a ring that pulses, and
+  reaches a little further out while the voice is loud (`--mic-level`, set on
+  the box's wrapper when the microphone sits in the box). The glow
   is four shadows a quarter turn apart, moved round the box by one registered
   angle (`--glow-turn`), so it needs to know nothing about the box's own
   ground and repaints only the box.
@@ -5909,13 +5969,20 @@ a:focus-visible .wave-word::after {
   inherits: false;
   initial-value: 0deg;
 }
-:where(main, aside, form, [role="dialog"]):has(.speech-mic[data-state="listening"]) :is(.field-lg, textarea):not(:disabled) {
-  border-color: color-mix(in srgb, var(--accent) 45%, var(--edge));
+:where(main, aside, form, [role="dialog"]):has(.speech-mic[data-state="listening"]) :is(.field-lg, textarea):not(:disabled),
+.mic-slot:has(> .speech-mic[data-state="listening"]) > :is(input, textarea):not(:disabled) {
+  --glow-reach: calc(6px + var(--mic-level, 0) * 7px);
+  --glow-blur: calc(16px + var(--mic-level, 0) * 12px);
+  /* Important because most answer boxes paint their border and shadow inline
+     (EstonianInput, the rounds' own fields), and an inline style beats any
+     rule: without it the glow reached the conversation's pill and no other
+     box. The motion is the animated angle, which `!important` does not stop. */
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--edge)) !important;
   box-shadow:
-    calc(cos(var(--glow-turn)) * 7px) calc(sin(var(--glow-turn)) * 5px) 18px -3px color-mix(in srgb, var(--blush) 55%, transparent),
-    calc(cos(var(--glow-turn) + 90deg) * 7px) calc(sin(var(--glow-turn) + 90deg) * 5px) 18px -3px color-mix(in srgb, var(--accent) 55%, transparent),
-    calc(cos(var(--glow-turn) + 180deg) * 7px) calc(sin(var(--glow-turn) + 180deg) * 5px) 18px -3px color-mix(in srgb, var(--sky) 55%, transparent),
-    calc(cos(var(--glow-turn) + 270deg) * 7px) calc(sin(var(--glow-turn) + 270deg) * 5px) 18px -3px color-mix(in srgb, var(--butter) 60%, transparent);
+    calc(cos(var(--glow-turn)) * var(--glow-reach)) calc(sin(var(--glow-turn)) * var(--glow-reach) * 0.7) var(--glow-blur) -3px color-mix(in srgb, var(--blush) 55%, transparent),
+    calc(cos(var(--glow-turn) + 90deg) * var(--glow-reach)) calc(sin(var(--glow-turn) + 90deg) * var(--glow-reach) * 0.7) var(--glow-blur) -3px color-mix(in srgb, var(--accent) 55%, transparent),
+    calc(cos(var(--glow-turn) + 180deg) * var(--glow-reach)) calc(sin(var(--glow-turn) + 180deg) * var(--glow-reach) * 0.7) var(--glow-blur) -3px color-mix(in srgb, var(--sky) 55%, transparent),
+    calc(cos(var(--glow-turn) + 270deg) * var(--glow-reach)) calc(sin(var(--glow-turn) + 270deg) * var(--glow-reach) * 0.7) var(--glow-blur) -3px color-mix(in srgb, var(--butter) 60%, transparent) !important;
   animation: box-glow 5s linear infinite;
 }
 @keyframes box-glow {
@@ -5988,6 +6055,29 @@ html[data-listening] .listen-glow {
 }
 html[data-listening] .listen-glow-light {
   animation: glow-drift 9s linear infinite;
+}
+/*
+  The swell: a second light inside the wash, turning the other way and more
+  slowly, made of separate pools of color with clear space between them.
+  Where a pool passes over the first light the edge brightens and the color
+  deepens, and where it has gone the edge settles back, so the light seems to
+  well up and ebb at shifting points round the screen rather than run round
+  it on a rail. Still one `rotate`, so still the compositor's.
+*/
+.listen-glow-swell {
+  opacity: 0.75;
+  background: conic-gradient(from 40deg,
+    transparent 0deg, color-mix(in srgb, var(--blush) 85%, transparent) 30deg, transparent 75deg,
+    transparent 110deg, color-mix(in srgb, var(--sky) 85%, transparent) 150deg, transparent 195deg,
+    transparent 225deg, color-mix(in srgb, var(--butter) 80%, transparent) 260deg, transparent 300deg,
+    color-mix(in srgb, var(--accent) 80%, transparent) 330deg, transparent 360deg);
+}
+html[data-listening] .listen-glow-swell {
+  animation: glow-swell 14s linear infinite;
+}
+@keyframes glow-swell {
+  from { rotate: 360deg; }
+  to { rotate: 0deg; }
 }
 @keyframes glow-drift {
   from { rotate: 0deg; }
@@ -6062,7 +6152,9 @@ html[data-listening] .listen-glow-light {
   .speech-mic[data-state="listening"]:not(:disabled)::before,
   .speech-mic[data-state="listening"]:not(:disabled)::after,
   html[data-listening] .listen-glow-light { animation: none; }
-  :where(main, aside, form, [role="dialog"]):has(.speech-mic[data-state="listening"]) :is(.field-lg, textarea):not(:disabled) { animation: none; }
+  :where(main, aside, form, [role="dialog"]):has(.speech-mic[data-state="listening"]) :is(.field-lg, textarea):not(:disabled),
+  .mic-slot:has(> .speech-mic[data-state="listening"]) > :is(input, textarea):not(:disabled) { animation: none; }
+  html[data-listening] .listen-glow-swell { animation: none; }
   .read-aloud-word[data-lit="true"], .read-aloud-word[data-lit="close"], .turn-after { animation: none; }
   .speech-partial { animation: none; }
 }
