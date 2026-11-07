@@ -127,7 +127,6 @@ export const PARALLEL_REVIEW: Readonly<Record<string, ParallelDecision>> = {
       "makse",
       "Makse kuupäeva saate valida ise, näiteks kohe pärast palgapäeva.",
       "Makse on alguses umbes tuhat eurot.",
-      "makse või maksusid",
       "Me maksame ju makse ja linn peaks selle eest maksma.",
       "Me maksame makse just selleks, et linn hoolitseks ühiste kohtade eest.",
       "palk enne makse",

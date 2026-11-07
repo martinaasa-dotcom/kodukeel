@@ -821,7 +821,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "julge", en: "brave" },
     ],
     how: {
-      point: "A doctor's advice is the command to one person, which is the I form without its -n: {kordan} gives {Korda kümme korda}, and {olen} gives {Ole ettevaatlik!}. What a thing is good for takes the [alaleütlev] (-le, onto/to): {Sport on südamele hea}, good for the heart.",
+      point: "A doctor's advice is the command to one person, which is the [olevik] (I form) without its -n: {kordan} gives {Korda kümme korda}, and {olen} gives {Ole ettevaatlik!}. What a thing is good for takes the [alaleütlev] (-le, onto/to): {Sport on südamele hea}, good for the heart.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
