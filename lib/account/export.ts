@@ -105,6 +105,7 @@ export async function backupFor(ownerId: string) {
     prisma.deckWord.findMany({ where: { ownerId }, select: { lexemeId: true } }),
     prisma.deferral.findMany({ where: { ownerId }, select: { lexemeId: true } }),
     prisma.sceneGap.findMany({ where: { ownerId }, select: { lexemeId: true } }),
+    prisma.wordCheck.findMany({ where: { ownerId }, select: { lexemeId: true } }),
   ]);
   /*
     AND THE WORDS THEY WROTE INTO, WHICH NONE OF THOSE ROWS POINT AT.
@@ -129,7 +130,7 @@ export async function backupFor(ownerId: string) {
     lexemes, cards, reviews, tasks, studyEvents, scans,
     settings, messages, assessments, stars, achievements,
     examAttempts, classrooms, classroomMembers, suggestions, sceneRuns, sceneGaps, encounters,
-    decks, deckWords, deferrals, courseSteps, lessonAnswers, emailSends, pushSubscriptions, nativePushDevices,
+    decks, deckWords, deferrals, courseSteps, lessonAnswers, emailSends, pushSubscriptions, nativePushDevices, wordChecks,
   ] = await Promise.all([
     prisma.lexeme.findMany({ where: { id: { in: [...mine] } }, include: { forms: true } }),
     prisma.card.findMany({ where: { ownerId } }),
@@ -201,6 +202,9 @@ export async function backupFor(ownerId: string) {
     // Firebase gave each, the platform and the app build. Never restored, for
     // the browsers' reason, and because a token names one Firebase project.
     prisma.nativePushDevice.findMany({ where: { ownerId }, orderBy: [{ createdAt: "asc" }, { id: "asc" }] }),
+    // What they got right and wrong when they checked themselves on a common-word
+    // list. Their own answers, kept so the next check leads with the misses.
+    prisma.wordCheck.findMany({ where: { ownerId }, orderBy: [{ checkedAt: "asc" }, { id: "asc" }] }),
   ]);
 
   /*
@@ -245,11 +249,12 @@ export async function backupFor(ownerId: string) {
       emailSends: emailSends.length,
       pushSubscriptions: pushSubscriptions.length,
       nativePushDevices: nativePushDevices.length,
+      wordChecks: wordChecks.length,
     },
     lexemes: lexemesOut, cards, reviews, tasks, studyEvents, scans,
     settings, messages, assessments, stars, achievements,
     examAttempts, classrooms, classroomMembers, suggestions: suggestionsOut, sceneRuns, sceneGaps, encounters,
-    decks, deckWords, deferrals, courseSteps, lessonAnswers, emailSends, pushSubscriptions, nativePushDevices,
+    decks, deckWords, deferrals, courseSteps, lessonAnswers, emailSends, pushSubscriptions, nativePushDevices, wordChecks,
   };
 
   return payload;

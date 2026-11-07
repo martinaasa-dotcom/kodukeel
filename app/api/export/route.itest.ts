@@ -82,10 +82,10 @@ describe("/api/export", () => {
         model.fields.some((f) => f.name === "lexemeId" && f.kind === "scalar"))
       .map((model) => model.name)
       .sort();
-    // The tables `app/api/export/route.ts` asks for the entries it carries.
+    // The tables `lib/account/export.ts` asks for the entries it carries.
     // A new one belongs there first and here second.
     expect(naming).toEqual(
-      ["Card", "DeckWord", "Deferral", "Review", "SceneGap", "StarredWord", "Suggestion"],
+      ["Card", "DeckWord", "Deferral", "Review", "SceneGap", "StarredWord", "Suggestion", "WordCheck"],
     );
   });
 });

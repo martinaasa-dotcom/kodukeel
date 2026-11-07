@@ -164,6 +164,8 @@ const ROUTES = [
   */
   "/review/common",
   "/review/common/noun",
+  // The check-yourself round over one list: its start screen, which is where it opens.
+  "/review/common/noun/check",
   "/review/describe",
   "/review/map",
   "/review/twins",

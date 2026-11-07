@@ -145,6 +145,7 @@ async function populate(ownerId: string, lexemeId: string) {
   });
   await prisma.sceneGap.create({ data: { ownerId, runId: run.id, lemma: LEMMA, kind: "ASKED" } });
   await prisma.encounter.create({ data: { ownerId, outcome: "UNDERSTOOD" } });
+  await prisma.wordCheck.create({ data: { ownerId, lexemeId, direction: "EN_ET", outcome: "MISSED" } });
   await prisma.deferral.create({
     data: {
       ownerId, lexemeId, lemma: LEMMA, reason: "DAYS",

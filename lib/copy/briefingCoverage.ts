@@ -48,6 +48,11 @@ export const OPENS_WITHOUT_BRIEFING: Readonly<Record<string, string>> = {
     "Today's chat is a conversation and opens on the same briefing every conversation does: " +
     "who the other side is, the words it is about, and the dials for how they talk and how " +
     "they are heard. A second screen in front of it would say the same thing twice.",
+  "app/(app)/review/common/[group]/check/page.tsx":
+    "Check yourself opens on its own start screen, where the two choices are the explanation: " +
+    "the direction card says what is shown and what is typed, with an example, and the word " +
+    "choices say which words and how they went last time. The operator asked for the two " +
+    "boxes of explanation above them to go, because the screen read as too long with them.",
   "app/(app)/exam/[level]/page.tsx":
     "The mock examination opens on a briefing that names the official paper each part stands " +
     "in for, says which parts the state does not examine, and states the conditions it is " +

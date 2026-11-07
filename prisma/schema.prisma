@@ -645,6 +645,26 @@ model Encounter {
   @@index([ownerId, createdAt])
 }
 
+/// One answer in a check-yourself round over a common-word list.
+///
+/// What a learner got right and wrong when they tested themselves, so the next
+/// check leads with the words that need work. Stored because nothing else holds
+/// it: the check works on words that are not in the deck, and a word with no
+/// card writes no `Review`. Append-only, like `Review` and `Encounter`; where a
+/// word stands is read off its newest row per direction.
+model WordCheck {
+  id        String   @id @default(uuid())
+  ownerId   String
+  lexemeId  String
+  /// EN_ET (English shown, Estonian typed) | ET_EN (Estonian shown, English typed)
+  direction String
+  /// RIGHT | NEARLY | MISSED, as the server marked it
+  outcome   String
+  checkedAt DateTime @default(now())
+
+  @@index([ownerId, lexemeId, direction, checkedAt])
+}
+
 /// A word one learner said was too complicated, and when it comes back.
 ///
 /// The one row in this app that records a judgment about a *card* rather than

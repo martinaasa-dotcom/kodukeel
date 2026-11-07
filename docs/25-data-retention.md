@@ -50,6 +50,7 @@ check.
 | Confirmed word lists off a photograph (`Scan`) | Until the account is deleted | Erasure | `deleteMyAccount` |
 | Conversation runs (`SceneRun`) and the words they needed (`SceneGap`) | Until the account is deleted. Append-only | Erasure | `deleteMyAccount` |
 | Reports of real conversations (`Encounter`) | Until the account is deleted. Append-only | Erasure | `deleteMyAccount` |
+| Answers in a check-yourself round (`WordCheck`) | Until the account is deleted. Append-only, one row per answer: the word, the direction and whether it was right, nearly or missed, never what was typed | Erasure | `deleteMyAccount` |
 | Where a learner is in the planned module (`CourseStep`) | Until the account is deleted. Append-only, and one row per step a learner ticked: the program, the day and the step, never an answer. Which day they are on is derived from it rather than stored | Erasure | `deleteMyAccount` |
 | Words put aside (`Deferral`) | Until the account is deleted. One row per learner per word, updated rather than appended when they say it again, and a wait ended early is stamped rather than removed | Erasure | `deleteMyAccount` |
 | Reports of something wrong (`Suggestion`) | Until the account is deleted, whatever the review status | Erasure | `deleteMyAccount` |

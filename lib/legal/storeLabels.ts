@@ -123,6 +123,7 @@ export const TABLE_SOURCES: Readonly<Record<string, Source>> = {
   ExamAttempt: { types: ["content"], linked: true, why: "a mock exam paper the learner sat, the composition they wrote included" },
   SceneRun: { types: ["content"], linked: true, why: "the learner's typed side of a practice conversation; the role card is fiction" },
   SceneGap: { types: ["interaction"], linked: true, why: "the words a conversation found the learner needed" },
+  WordCheck: { types: ["interaction"], linked: true, why: "which words the learner got right and wrong checking themselves on a common-word list" },
   Encounter: { types: ["content"], linked: true, why: "whether the learner spoke Estonian to anybody yesterday, as they reported it" },
   Message: { types: ["messages"], linked: true, why: "what the learner types to Anu, the tutor, and her replies, kept for a day" },
   Task: { types: ["content"], linked: true, why: "work a teacher set, and the learner's own notes on it" },
