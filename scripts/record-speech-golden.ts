@@ -40,7 +40,9 @@ async function main(): Promise<void> {
       // The live microphone's own press asks for the download; the file path needs it too.
       await page.evaluate(() => (document.querySelector("[data-bench-status]") as HTMLElement | null)?.scrollIntoView());
       await page.getByRole("button", { name: "Say something" }).first().click();
-      await page.getByRole("button", { name: /^Download/ }).click();
+      // Where the model is fetched in the background there is no button to press.
+      const download = page.getByRole("button", { name: /^Download/ });
+      if (await download.waitFor({ timeout: 5_000 }).then(() => true, () => false)) await download.click();
       await page.waitForFunction(() => document.querySelector("[data-bench-phase]")?.textContent === "ready", null, { timeout: 300_000 });
       // That press also opened the microphone, which has nothing to hear here.
       await page.getByRole("button", { name: "Stop listening" }).click().catch(() => undefined);

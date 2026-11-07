@@ -268,7 +268,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Üleval? Helgi, see olen ju mina!", en: "Upstairs? Helgi, that's me!" },
       { who: "Helgi", et: "Oi! Vabandust!", en: "Oh! Sorry!" },
       { who: "Tom", et: "Ei, mina pean vabandust paluma. Ma töötan õhtul hilja ja kuulan muusikat.", en: "No, I'm the one who should apologize. I work late in the evening and listen to music." },
-      { who: "Helgi", et: "Pole viga. Aga öösel palun vaiksemalt!", en: "Never mind. But a bit quieter at night, please!" },
+      { who: "Helgi", et: "Pole viga. Aga öösel palun vaiksemalt!", en: "Never mind. But quieter at night, please!" },
       { who: "Tom", et: "Ma luban! Ja vaata: koerad on majas lubatud.", en: "I promise! And look: dogs are allowed in the building." },
       { who: "Helgi", et: "Tore! Mu koer on väga vaikne.", en: "Good! My dog is very quiet." },
       { who: "Tom", et: "Jah, palju vaiksem kui mina. Ja viimane reegel: prügi sorteerimine on kohustuslik.", en: "Yes, much quieter than me. And the last rule: sorting the trash is a must." },
@@ -323,7 +323,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { ask: { et: "Kas sa suitsetad?", en: "Do you smoke?" }, cue: "Say no, you don't smoke at all.", model: { et: "Ei, ma ei suitseta üldse.", en: "No, I don't smoke at all." } },
       { cue: "Say smoking is not allowed in the building.", model: { et: "Majas on suitsetamine keelatud.", en: "Smoking in the building is not allowed." } },
       { cue: "Say dogs are allowed.", model: { et: "Koerad on lubatud.", en: "Dogs are allowed." } },
-      { ask: { et: "Öösel palun vaiksemalt!", en: "A bit quieter at night, please!" }, cue: "Promise.", model: { et: "Ma luban.", en: "I promise." } },
+      { ask: { et: "Öösel palun vaiksemalt!", en: "Quieter at night, please!" }, cue: "Promise.", model: { et: "Ma luban.", en: "I promise." } },
     ],
     reworks: [
       {

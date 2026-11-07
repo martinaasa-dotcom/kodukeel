@@ -40865,8 +40865,8 @@ _lib/copy/i18n/areas/lessonTextB1Kodu.ts_
   → Ой! Извини!
 - [ ] **20288.** No, I'm the one who should apologize. I work late in the evening and listen to music.  
   → Нет, это мне надо извиниться. Я работаю допоздна и слушаю музыку.
-- [ ] **20289.** Never mind. But a bit quieter at night, please!  
-  → Ничего страшного. Но ночью, пожалуйста, потише!
+- [ ] **20289.** Never mind. But quieter at night, please!  
+  → Ничего страшного. Но ночью, пожалуйста, тише!
 - [ ] **20290.** I promise! And look: dogs are allowed in the building.  
   → Обещаю! И смотри: собаки в доме разрешены.
 - [ ] **20291.** Good! My dog is very quiet.  
@@ -40925,8 +40925,8 @@ _lib/copy/i18n/areas/lessonTextB1Kodu.ts_
   → Пообещай.
 - [ ] **20318.** I promise.  
   → Обещаю.
-- [ ] **20319.** A bit quieter at night, please!  
-  → Ночью, пожалуйста, потише!
+- [ ] **20319.** Quieter at night, please!  
+  → Ночью, пожалуйста, тише!
 - [ ] **20320.** It's broken again  
   → Опять сломалось
 - [ ] **20321.** Tell the landlord what's wrong, and what has to be done about it.  
