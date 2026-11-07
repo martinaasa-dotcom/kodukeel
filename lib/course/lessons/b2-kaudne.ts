@@ -18,6 +18,7 @@
  */
 
 import type { LessonSpec, PartOfLessons } from "./types";
+import { COMMAND_STEPS, SOURCE_STEPS } from "./why-b2-kaudne";
 
 export const B2_KAUDNE_PART: PartOfLessons = {
   id: "b2-kaudne",
@@ -73,7 +74,7 @@ export const B2_KAUDNE_LESSONS: readonly LessonSpec[] = [
     ],
     patterns: ["quotative"],
     how: {
-      point: "To pass on what you heard without vouching for it, Estonian changes the verb: the [kaudne kõneviis] (-vat, reportedly). {Pood läheb kinni} says the shop is closing; {Pood minevat kinni} says that's what people say.",
+      point: "To pass on something you heard without vouching for it, Estonian changes the verb rather than adding a word: the [kaudne kõneviis] (-vat, reportedly). {Pood läheb kinni} states that the shop is closing. {Pood minevat kinni} says that's what people are saying, and that the claim isn't yours.",
       table: {
         head: ["You know it", "You heard it", "In English"],
         rows: [
@@ -84,12 +85,12 @@ export const B2_KAUDNE_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Take the [ma-tegevusnimi] (-ma) and put -vat where -ma was: {tulema}, {tulevat}; {olema}, {olevat}; {tahtma}, {tahtvat}.",
-        "It stays the same for every person: {ta olevat}, {nad olevat}. Only the subject says who.",
-        "What somebody did, passed on, is {olevat} with the [nud-kesksõna] (-nud, done): {Ta olevat müüjaga rääkinud}.",
-        "Spoken, people just as often say {kuulsin, et} or {räägitakse, et} with the ordinary verb. The -vat form is shorter, and it says you're not the one vouching for it.",
+        "To make it, take the [ma-tegevusnimi] (-ma) and put -vat where -ma was: {tulema}, {tulevat}; {olema}, {olevat}; {tahtma}, {tahtvat}.",
+        "The form is the same for every person, so the subject has to say who: {ta olevat}, {nad olevat}.",
+        "For something somebody did, passed on, use {olevat} with the [nud-kesksõna] (-nud, done): {Ta olevat müüjaga rääkinud}, she's talked to the shop assistant, apparently.",
+        "In speech people say {kuulsin, et} or {räägitakse, et} with the ordinary verb just as often. The -vat form is shorter, and it keeps you out of it: you're passing the news on, not standing behind it.",
       ],
-      watchOut: "English needs a word like apparently. Estonian has only the ending, so {Pood minevat kinni} is easy to read straight past and take as a fact.",
+      watchOut: "English needs an extra word, apparently or they say. Estonian has only the ending, so {Pood minevat kinni} is easy to read straight past and take as a fact. Look at the end of the verb.",
       examples: [2, 4, 6, 10],
     },
     listenFor: [
@@ -211,7 +212,7 @@ export const B2_KAUDNE_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "käia", of: "käima", en: "to go, after a verb like {jõudma}" },
     ],
     how: {
-      point: "The news names its source first, in the [omastav] (2nd form) with {sõnul}: {valitsuse sõnul}, according to the government. A report, an office or the police takes {teatel}: {politsei teatel}.",
+      point: "The news names its source with {sõnul}, according to, and the source goes in front of it in the [omastav] (2nd form): {valitsuse sõnul}, according to the government. It's the same form as in {sõbra kott}, because the words belong to the source. For a report, an office or the police, the news uses {teatel} the same way: {politsei teatel}.",
       table: {
         head: ["Said", "As the news says it", "In English"],
         rows: [
@@ -221,13 +222,23 @@ export const B2_KAUDNE_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "For what you think yourself it's {minu arvates}, from A2, not {sõnul}.",
-        "The news often adds -vat on top, to make doubly sure it isn't vouching: {Valitsuse sõnul vajavat töötajad vaba päeva}.",
-        "Spoken, people just say who said it: {Raadios öeldi, et}, {Ajakirjanik ütles, et}.",
+        "For your own view it's {minu arvates}, in my opinion, from A2. {Sõnul} is for somebody else's words.",
+        "The news often adds the -vat form on top, to make doubly sure it isn't vouching for the claim itself: {Valitsuse sõnul vajavat töötajad vaba päeva}.",
+        "In speech people name who said it instead: {Raadios öeldi, et}, {Ajakirjanik ütles, et}.",
+        "{Enamik}, most, picks out part of a bigger group, so what comes after it is an open amount and goes in the plural [osastav] (3rd form): {enamik inimesi}, most people.",
         "Words of the news come in families: {seadus}, {seaduse}, {seadusest}; {ühiskond}, where every {kodanik} has an {õigus}, a right.",
       ],
-      watchOut: "The one who said it goes in the [omastav] (2nd form): {valitsuse sõnul}, never {valitsus sõnul}.",
+      watchOut: "English says according to the government and leaves the government plain. Estonian marks the source: it's {valitsuse sõnul}, in the [omastav] (2nd form), never {valitsus sõnul}.",
       examples: [4, 6, 8],
+      why: {
+        word: "valitsus",
+        en: "government",
+        steps: SOURCE_STEPS,
+        lines: [
+          { line: 2, form: "Valitsus", lands: { case: "NOMINATIVE", plural: false }, why: "Here the government is the one doing something: {Valitsus tahab}, the government wants. The one that wants, says or does a thing is the subject, and the subject stays in its [nimetav] (1st form): {valitsus}." },
+          { line: 4, form: "Valitsuse", lands: { case: "GENITIVE", plural: false }, why: "Now the government isn't doing anything in the sentence. It's the source, and {sõnul} after it means according to. {Sõnul} needs to know whose words they are, so the word in front of it takes the [omastav] (2nd form), the form that says whose: {valitsuse}." },
+        ],
+      },
     },
     listenFor: [
       { q: "What does the government want?", options: ["Shops open every evening", "Big shops closed on Sundays", "Higher pay for shop workers", "A new shop on every corner"], answer: 1 },
@@ -274,8 +285,8 @@ export const B2_KAUDNE_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Valitsuse sõnul vajavat ka poetöötajad vaba päeva.", en: "According to the government, shop workers need a day off too." }, right: "Valitsuse", wrong: "Valitsus", pair: ["GENITIVE", "NOMINATIVE"], why: "Before {sõnul} it's the [omastav] (2nd form): {valitsuse sõnul}." },
-      { line: { et: "Tema sõnul on enamik inimesi selle vastu.", en: "According to him, most people are against it." }, right: "inimesi", wrong: "inimesed", pair: ["PARTITIVE", "NOMINATIVE"], why: "After {enamik} the noun is in the [osastav] (3rd form), plural: {enamik inimesi}." },
+      { line: { et: "Valitsuse sõnul vajavat ka poetöötajad vaba päeva.", en: "According to the government, shop workers need a day off too." }, right: "Valitsuse", wrong: "Valitsus", pair: ["GENITIVE", "NOMINATIVE"], why: "{Sõnul}, according to, always needs to know whose words it means: the government's. So the word in front of it goes in the [omastav] (2nd form), {valitsuse}, the same form that says whose a thing is. {Valitsus} is for when the government itself does something." },
+      { line: { et: "Tema sõnul on enamik inimesi selle vastu.", en: "According to him, most people are against it." }, right: "inimesi", wrong: "inimesed", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Enamik}, most, picks out part of a bigger group, so the people after it are an open amount and go in the plural [osastav] (3rd form): {enamik inimesi}. {Inimesed} is the plain plural, for when the people are the subject: {mida inimesed arvavad?}" },
     ],
     workOut: [
       {
@@ -332,7 +343,7 @@ export const B2_KAUDNE_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "väide", en: "claim" },
     ],
     how: {
-      point: "A question passed on keeps its question word, and takes {kas} where it had none: {Kas te tulete?} becomes {Ta küsis, kas me tuleme}; {Mis kell see on?} becomes {Ma küsisin, mis kell see on}.",
+      point: "When you pass on a question, keep its question word, and add {kas} where it had none. {Kas te tulete?} becomes {Ta küsis, kas me tuleme}, she asked whether we're coming, and {Mis kell see on?} becomes {Ma küsisin, mis kell see on}. {Kas} is what tells your listener it was a yes or no question.",
       table: {
         head: ["She asked", "You pass it on", "In English"],
         rows: [
@@ -343,13 +354,13 @@ export const B2_KAUDNE_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "The person changes to who it's about now: Helgi said {te tulete} to you, and you tell Anna {me tuleme}.",
-        "The words keep the order of the question itself, where English turns it round: whether we're coming is {kas me tuleme}.",
-        "Passed on, it's a sentence rather than a question, so it ends in a full stop.",
+        "Change the person to fit who's talking now. Helgi said {te tulete}, you're coming, to you; telling Anna, you're one of the people coming, so it's {me tuleme}.",
+        "The words keep the order the question had. English turns it round, from are we coming to whether we're coming, but Estonian leaves it as it was: {kas me tuleme}.",
+        "Passed on, it's no longer a question but a sentence about one, so it ends in a full stop.",
         "To check you've understood somebody, start with {Kas ma saan õigesti aru, et}: {Kas ma saan õigesti aru, et sa lubasid?}",
         "A claim you're not so sure of: {Helgi väitis, et}, she claimed, and {See on ainult väide}, that's only what somebody claims.",
       ],
-      watchOut: "{Kas} stays even where the question you heard had none: {Tulete reedel?} passed on is {ta küsis, kas me tuleme reedel}.",
+      watchOut: "{Kas} goes in even when the question you heard didn't have it. People often ask without it, {Tulete reedel?}, but passed on it's {ta küsis, kas me tuleme reedel}. Without {kas}, your listener can't tell it was a question.",
       examples: [3, 5, 7, 9],
     },
     listenFor: [
@@ -401,8 +412,8 @@ export const B2_KAUDNE_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Kõigepealt küsis ta, kas me tuleme reedel koosolekule.", en: "First she asked whether we're coming to the meeting on Friday." }, right: "tuleme", wrong: "tulete", pair: ["IndPrPl1", "IndPrPl2"], why: "You're telling Anna about the two of you, so {me tuleme}, not what Helgi said to you, {te tulete}." },
-      { line: { et: "Ta küsis, kas ma saaksin aidata.", en: "She asked whether I could help." }, right: "saaksin", wrong: "saaksid", pair: ["KndPrSg1", "KndPrSg2"], why: "She asked about you, so you say it about yourself: {kas ma saaksin}." },
+      { line: { et: "Kõigepealt küsis ta, kas me tuleme reedel koosolekule.", en: "First she asked whether we're coming to the meeting on Friday." }, right: "tuleme", wrong: "tulete", pair: ["IndPrPl1", "IndPrPl2"], why: "You're telling Anna about the two of you, so you say we: {me tuleme}. {Te tulete} was right while Helgi was speaking to you, and stops being right once you're the one passing it on." },
+      { line: { et: "Ta küsis, kas ma saaksin aidata.", en: "She asked whether I could help." }, right: "saaksin", wrong: "saaksid", pair: ["KndPrSg1", "KndPrSg2"], why: "Helgi asked about you, so now that you're telling it, it's about yourself: {kas ma saaksin}, whether I could. {Saaksid} would be the person you're talking to." },
     ],
     workOut: [
       {
@@ -475,7 +486,7 @@ export const B2_KAUDNE_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "paluti", of: "paluma", en: "was asked" },
     ],
     how: {
-      point: "A request passed on is {palus, et} with the [tingiv kõneviis] (-ks, would): {Palun tooge laps} becomes {Ta palus, et me tooksime lapse}. Or the short way, {palus} with whom it was asked of and the [da-tegevusnimi] (-da): {Ta palus meid raha ümbrikusse panna}.",
+      point: "To pass on a request, use {palus, et}, she asked that, and put the verb in the [tingiv kõneviis] (-ks, would): {Palun tooge laps} becomes {Ta palus, et me tooksime lapse}. There's a shorter way too: {palus}, the people asked, and the [da-tegevusnimi] (-da): {Ta palus meid raha ümbrikusse panna}.",
       table: {
         head: ["She said", "You pass it on", "In English"],
         rows: [
@@ -486,12 +497,20 @@ export const B2_KAUDNE_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "A command passed on doesn't stay a command: {tooge} becomes {et me tooksime}, the would form.",
-        "The whole object of a command is in the [nimetav] (1st form), {tooge laps}; passed on with {et}, it's back in the [omastav] (2nd form), {et me tooksime lapse}.",
-        "Spoken, people often put it with {pidama}: {Ta ütles, et me peame raha tooma}. It's what you'll hear most.",
+        "A command passed on doesn't stay a command. It becomes something she'd like done, so {tooge} turns into {et me tooksime}, the would form.",
+        "The object changes with it. In a command, the whole thing you're told to bring is in the [nimetav] (1st form): {tooge laps}. Passed on with {et}, it's an ordinary sentence about a job to be done in full, so it takes the [omastav] (2nd form): {et me tooksime lapse}.",
+        "In speech you'll often hear {pidama} instead: {Ta ütles, et me peame raha tooma}, she said we have to bring money. It's what you'll hear most.",
       ],
-      watchOut: "After {palus, et} comes the would form, never the command again: {et me tooksime}, not {et me tooge}.",
+      watchOut: "After {palus, et} comes the would form, never the command a second time: {et me tooksime}, not {et me tooge}. The command was hers; you're only reporting it.",
       examples: [4, 6, 8],
+      why: {
+        word: "laps",
+        en: "child",
+        steps: COMMAND_STEPS,
+        lines: [
+          { line: 4, form: "laps", lands: { case: "NOMINATIVE", plural: false }, why: "Signe is telling Tom straight out to bring the child: {tooge} is a command. In a command, the whole thing you're told to bring goes in the [nimetav] (1st form): {laps}. When Tom passes it on later, it becomes {et me tooksime lapse}, with {lapse} in the [omastav] (2nd form)." },
+        ],
+      },
     },
     listenFor: [
       { q: "Where are the children going on Thursday?", options: ["To the zoo", "To the theater", "To the swimming pool", "To a museum"], answer: 1 },
@@ -544,8 +563,8 @@ export const B2_KAUDNE_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ta palus, et me tooksime lapse kella kaheksaks.", en: "She asked us to bring our child in by eight." }, right: "tooksime", wrong: "toome", pair: ["KndPrPl1", "IndPrPl1"], why: "A request passed on takes the would form: {et me tooksime}." },
-      { line: { et: "Ta palus, et me paneksime talle sooja jope selga.", en: "She asked us to put a warm jacket on her." }, right: "paneksime", wrong: "paneme", pair: ["KndPrPl1", "IndPrPl1"], why: "After {palus, et}, the would form again: {et me paneksime}." },
+      { line: { et: "Ta palus, et me tooksime lapse kella kaheksaks.", en: "She asked us to bring our child in by eight." }, right: "tooksime", wrong: "toome", pair: ["KndPrPl1", "IndPrPl1"], why: "{Et} after {palus} turns her command into a wish, and a wish takes the would form: {et me tooksime}. {Toome} is a plain statement, we bring, which loses the asking." },
+      { line: { et: "Ta palus, et me paneksime talle sooja jope selga.", en: "She asked us to put a warm jacket on her." }, right: "paneksime", wrong: "paneme", pair: ["KndPrPl1", "IndPrPl1"], why: "The same move as before: after {palus, et}, the request is reported as a wish, so the verb takes the would form, {et me paneksime}. The jacket changes too, from {soe jope} in her command to {sooja jope} once it's passed on." },
     ],
     faster: {
       ask: { et: "Mida sind viimati teha paluti?", en: "What were you last asked to do?" },
@@ -589,7 +608,7 @@ export const B2_KAUDNE_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "Aitäh kirja eest!", en: "Thank you for your letter!" },
     ],
     how: {
-      point: "A letter to a friend says {sina}, opens with {Tere} and the name, and closes with something warm, {Kallistusi!}. The news in it is passed on the way this part has taught: {olevat}, {rääkis, et}, {küsis, kas}, {palus, et}.",
+      point: "A letter to a friend uses {sina}, the friendly you, from start to finish. It opens with {Tere} and the name, and closes with something warm, like {Kallistusi!}. Any news in it is passed on the way this part has taught: {olevat}, {rääkis, et}, {küsis, kas}, {palus, et}.",
       table: {
         head: ["To an office", "To a friend", "In English"],
         rows: [
@@ -600,11 +619,11 @@ export const B2_KAUDNE_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Start with what the letter answers: {Aitäh kirja eest!}",
-        "News you only heard takes -vat, or says where it came from: {Mari rääkis, et}.",
+        "Start by thanking them for the letter you're answering: {Aitäh kirja eest!}",
+        "News you only heard takes the -vat form, or names where it came from: {Mari rääkis, et}. That way your friend knows the claim isn't yours.",
         "End with a question, so your friend has something to write back about: {Kuidas sul läheb?}",
       ],
-      watchOut: "To a friend it's {sina} the whole way through: {Tule meile külla}, never {tulge}. One {teie} in a letter to a friend reads as cold.",
+      watchOut: "To a friend it's {sina} the whole way through: {Tule meile külla}, never {tulge}. A single {teie} in a letter to a friend reads as cold, as if you'd suddenly stepped back.",
       examples: [3, 6, 8, 9],
     },
     listenFor: [
@@ -694,13 +713,14 @@ export const B2_KAUDNE_LESSONS: readonly LessonSpec[] = [
     ],
     teaches: [],
     how: {
-      point: "An evening of passing things on, made of what this part has taught: what you were told with -vat, what was asked with {küsis, kas}, and what you were asked to do with {palus, et}.",
+      point: "An evening of passing things on, made of what this part has taught: news you heard, with -vat; a question somebody asked, with {küsis, kas}; and something you were asked to do, with {palus, et}.",
       notes: [
-        "Told and not vouched for: {Teater olevat nüüd reedel}. A request: {Ta palus, et me tooksime lapse}. A question: {Ta küsis, kas sina saaksid kaasa tulla}.",
+        "Told and not vouched for: {Teater olevat nüüd reedel}. A request: {Ta palus, et me tooksime lapse}, with {lapse} in the [omastav] (2nd form) now that the command is passed on. A question: {Ta küsis, kas sina saaksid kaasa tulla}.",
+        "{Mitu last}, several children, works like a number: the word after {mitu} goes in the singular [osastav] (3rd form), {last}.",
         "When something doesn't add up, check before you answer: {Kas ma saan õigesti aru, et}.",
         "At the end Anna asks you about the kindergarten herself, and one of her questions isn't in the conversation above.",
       ],
-      watchOut: "You're telling Anna, so a question Signe asked about her takes {sina}: {Ta küsis, kas sina saaksid kaasa tulla}.",
+      watchOut: "You're telling Anna, so a question Signe asked about her is put to Anna as {sina}, you: {Ta küsis, kas sina saaksid kaasa tulla}.",
       examples: [3, 7, 9, 11],
     },
     listenFor: [

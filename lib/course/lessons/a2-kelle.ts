@@ -19,6 +19,7 @@
  */
 
 import type { LessonSpec, PartOfLessons } from "./types";
+import { PLACE_STEPS, TIME_STEPS, WHOSE_STEPS } from "./why-a2-kelle";
 
 export const A2_KELLE_PART: PartOfLessons = {
   id: "a2-kelle",
@@ -59,7 +60,7 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "naise", of: "naine", en: "a woman's, a wife's", stem: true },
     ],
     how: {
-      point: "The [omastav] (2nd form) says whose: {sõbra kott}, a friend's bag. It goes in front, like 's in English.",
+      point: "To say whose something is, put the owner in the [omastav] (2nd form) and set it in front of the thing, the way English adds 's: {sõbra kott}, a friend's bag. The thing itself stays in its plain [nimetav] (1st form): {kott}.",
       table: {
         head: ["[nimetav] (1st form)", "[omastav] (2nd form), whose", "In English"],
         rows: [
@@ -72,13 +73,21 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "You've said it since A1: {minu}, {sinu} and {nende} are the [omastav] (2nd form) of {mina}, {sina} and {nemad}.",
-        "A name does it too. {Jaan} becomes {Jaani telefon} and {Peeter} becomes {Peetri}, and a name ending in a vowel stays as it is: {Mari telefon}.",
-        "{Kelle?} asks whose: {Kelle kott see on?}",
-        "{Minu oma} means mine: {See raamat on minu oma}.",
+        "You've been saying this since A1. {Minu}, {sinu} and {nende}, my, your and their, are the [omastav] (2nd form) of {mina}, {sina} and {nemad}. {Mu} is the short {minu}.",
+        "A name says whose in the same way. {Jaan} becomes {Jaani telefon}, and {Peeter} becomes {Peetri}. A name that ends in a vowel looks the same either way: {Mari telefon}.",
+        "{Kelle?} is the question for whose. It's the [omastav] (2nd form) of {kes}, who: {Kelle kott see on?}",
+        "{Oma} after the owner stands in for the thing, so you don't have to name it twice: {See raamat on minu oma}, this book is mine.",
       ],
-      watchOut: "The [omastav] (2nd form) isn't always the word with a letter on the end: {sõber} is {sõbra}, {laps} is {lapse}, {mees} is {mehe}. Learn it with the word.",
+      watchOut: "The [omastav] (2nd form) isn't always the [nimetav] (1st form) with a letter added. The middle of the word can change too: {sõber} gives {sõbra}, {laps} gives {lapse}, {mees} gives {mehe}. You can't safely guess it, so learn each word with its [omastav] (2nd form).",
       examples: [0, 1, 3, 5],
+      why: {
+        word: "vend",
+        en: "brother",
+        steps: WHOSE_STEPS,
+        lines: [
+          { line: 5, form: "venna", lands: { case: "GENITIVE", plural: false }, why: "Tom isn't talking about his brother himself. He's saying whose the key is: his brother's. A word that says whose something is goes in the [omastav] (2nd form), so {vend} becomes {venna}. {Oma} after it stands in for the key, so Tom doesn't have to say {võti} again." },
+        ],
+      },
     },
     answers: [
       { ask: { et: "Kelle telefon see on?", en: "Whose phone is this?" }, cue: "Say it's yours.", model: { et: "See on minu oma.", en: "It's mine." } },
@@ -119,7 +128,7 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "ukse", of: "uks", en: "of the door", stem: true },
     ],
     how: {
-      point: "The [omastav] (2nd form) also says which one: {korteri võti}, the apartment key; {köögi aken}, the kitchen window. And every ending you know is built on it.",
+      point: "The [omastav] (2nd form) also says which one. {Korteri võti} is the apartment key, the key that belongs to the apartment, and {köögi aken} is the kitchen window. Where English sets two nouns side by side, Estonian puts the first in its [omastav] (2nd form).",
       table: {
         head: ["[nimetav] (1st form)", "[omastav] (2nd form)", "With -s, in it"],
         rows: [
@@ -131,12 +140,21 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Look down the last column. {Toas} is {toa} with -s on it, and {köögis} is {köögi} with -s: the endings go on the [omastav] (2nd form), never on the first.",
-        "That's why a word is learned with its [omastav] (2nd form). It's the key to every other form of it.",
-        "Estonian often makes one word of the two: {vannituba} is a bath's room, {telefoninumber} a phone's number.",
+        "This form matters far beyond whose and which. Look down the last column: {toas}, in the room, is {toa} with -s on the end, and {köögis} is {köögi} with -s. The endings go on the [omastav] (2nd form), not on the [nimetav] (1st form).",
+        "That's why a word is learned together with its [omastav] (2nd form). Once you have {toa}, you can build most of the other forms of {tuba} from it.",
+        "Estonian often makes one word of the two: {vannituba}, the bathroom, is a bath's room, and {telefoninumber} is a phone's number.",
       ],
-      watchOut: "A word can change inside: {tuba} is {toa}, {köök} is {köögi}, {aken} is {akna}. Don't guess the [omastav] (2nd form); learn it with the word.",
+      watchOut: "The middle of a word can change in the [omastav] (2nd form): {tuba} becomes {toa}, {köök} becomes {köögi}, {aken} becomes {akna}. There's no rule you can trust here, so learn the [omastav] (2nd form) with the word.",
       examples: [0, 2, 4, 5],
+      why: {
+        word: "korter",
+        en: "apartment",
+        steps: WHOSE_STEPS,
+        lines: [
+          { line: 0, form: "korteri", lands: { case: "GENITIVE", plural: false }, why: "Liis isn't handing Tom an apartment. She's handing him a key, and {korteri} says which key: the one for the apartment. A word in front of another word that says which one or whose goes in the [omastav] (2nd form): {korteri}." },
+          { line: 5, form: "korter", lands: { case: "NOMINATIVE", plural: false }, why: "Here Tom is talking about the apartment itself: {Ilus korter!}, a lovely apartment. It isn't saying which one of anything else, so it stays in its plain [nimetav] (1st form): {korter}." },
+        ],
+      },
     },
     answers: [
       { cue: "Say this is the apartment key.", model: { et: "See on korteri võti.", en: "This is the apartment key." } },
@@ -178,7 +196,7 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "kapi", of: "kapp", en: "of the cupboard", stem: true },
     ],
     how: {
-      point: "Where a thing is comes after the [omastav] (2nd form): {laua peal}, on the table. English puts the small word first; Estonian puts it last.",
+      point: "To say where a thing is, Estonian puts a small place word after the noun, and the noun goes in its [omastav] (2nd form): {laua peal}, on the table, {voodi all}, under the bed. English puts the small word first; Estonian puts it last.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -192,12 +210,21 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Koti sees} and {kotis} both mean in the bag. The ending is shorter, and the word after says it more exactly.",
-        "{Juures} also means at somebody's place: {sõbra juures}, at a friend's.",
+        "It works like whose. The place word says where, and the noun in front of it says whose place that is, so it takes the same [omastav] (2nd form): {laua}, {koti}, {ukse}.",
+        "{Koti sees} and {kotis} both mean in the bag. The ending -s is quicker; {sees} says it a little more exactly, right inside.",
+        "{Juures} is at or by, and with a person it means at their place: {sõbra juures}, at a friend's.",
         "{Siin see on!}, here it is, is what you say when you find something.",
       ],
-      watchOut: "The small word comes after: {laua peal}, never the other way around.",
+      watchOut: "The small word always comes after the noun: {laua peal}, never the other way around. And the noun in front of it is in the [omastav] (2nd form), so it's {laua}, not {laud}.",
       examples: [1, 3, 6],
+      why: {
+        word: "laud",
+        en: "table",
+        steps: PLACE_STEPS,
+        lines: [
+          { line: 1, form: "laua", lands: { case: "GENITIVE", plural: false }, why: "Mari is asking where the key is, and {peal}, on, comes right after the table. A noun with a place word after it goes in the [omastav] (2nd form), so {laud} becomes {laua}. The same happens in {voodi all} and {koti sees}." },
+        ],
+      },
     },
     answers: [
       { ask: { et: "Kus on telefon?", en: "Where's the phone?" }, cue: "Say it's on the table.", model: { et: "Laua peal.", en: "On the table." } },
@@ -239,7 +266,7 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "kümne", of: "kümme", en: "of ten", stem: true },
     ],
     how: {
-      point: "{Enne} and {pärast} put a time on things: {enne tööd}, before work; {pärast tööd}, after work. The word after them is in its [osastav] (3rd form).",
+      point: "{Enne} means before and {pärast} means after. Put either one in front of a word, and that word goes in its [osastav] (3rd form): {enne tööd}, before work, {pärast sööki}, after the meal.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -252,12 +279,20 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Tunni pärast} means in an hour, from now. With a length of time, {pärast} comes after, and the words in front are in their [omastav] (2nd form): {kümne minuti pärast}.",
+        "{Pärast} can also come after a length of time, and then it means in that much time from now: {tunni pärast}, in an hour. In that spot the words in front of it go in their [omastav] (2nd form), the way a noun does before {peal}: {kümne minuti pärast}, in ten minutes.",
         "{Tööd} and {sööki} are the same [osastav] (3rd form) you met with {kohvi} in A1.",
-        "{Vaatame filmi} means \"we'll watch a film\": the present does for the future, as in A1.",
+        "{Vaatame filmi} means \"we'll watch a film\". As in A1, the present does the job of the future when it's clear you mean later.",
       ],
-      watchOut: "{Pärast tööd} is after work, and {tunni pärast} is in an hour: where {pärast} stands changes what it means.",
+      watchOut: "Where {pärast} stands changes what it means. In front, {pärast tööd} is after work, with the [osastav] (3rd form). Behind, {tunni pärast} is in an hour, with the [omastav] (2nd form).",
       examples: [1, 3, 4],
+      why: {
+        word: "töö",
+        en: "work",
+        steps: TIME_STEPS,
+        lines: [
+          { line: 1, form: "tööd", lands: { case: "PARTITIVE", plural: false }, why: "{Pärast} comes in front of {töö}, so it means after: after work. A word after {enne} or {pärast} goes in its [osastav] (3rd form): {tööd}. Later in the same line {pärast} comes after {kümne minuti}, and there it means in ten minutes, with those words in their [omastav] (2nd form)." },
+        ],
+      },
     },
     answers: [
       { ask: { et: "Millal sa tuled?", en: "When are you coming?" }, cue: "Say after work.", model: { et: "Pärast tööd.", en: "After work." } },
@@ -305,7 +340,7 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "lilled", of: "lill", en: "flowers" },
     ],
     how: {
-      point: "First, second, third: {esimene}, {teine}, {kolmas}. A date is one of these and the month: {neljas mai}, the fourth of May.",
+      point: "First, second, third: {esimene}, {teine}, {kolmas}. A date in Estonian is one of these with the month after it, and nothing in between: {neljas mai}, the fourth of May.",
       table: {
         head: ["", "Estonian"],
         rows: [
@@ -322,11 +357,12 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "From the fourth on, the number gets an -s: {viis}, {viies}; {kuus}, {kuues}; {kümme}, {kümnes}. The first three you learn as words.",
-        "{Mitmes täna on?} is how people ask the date. {Mis kuupäev täna on?} asks the same, a little more formally.",
-        "{Osta} is the command of {ostma}, from lesson 46 of A1: {ostan}, {osta}.",
+        "From the fourth on, the number changes a little and ends in -s: {viis} gives {viies}, {kuus} gives {kuues}, {kümme} gives {kümnes}. The first three are words of their own, so learn them as they are.",
+        "{Mitmes täna on?} is how people usually ask the date: it asks which day in the row today is. {Mis kuupäev täna on?} asks the same, a little more formally.",
+        "{Osta} is the command of {ostma}, from A1: {ostan}, I buy, and {osta!}, buy!",
+        "{Osta lilli!} is buy some flowers: not particular flowers, just some, so they go in the plural [osastav] (3rd form), {lilli}. In {Lilled on alati hea kingitus} the flowers are what the sentence is about, so it's the plain plural, {lilled}.",
       ],
-      watchOut: "{Teine} is second, not two: two is {kaks}.",
+      watchOut: "{Teine} is second, not two: two is {kaks}. {Teine} also means other, so you'll meet it a lot.",
       examples: [0, 1, 3],
     },
     answers: [
@@ -371,7 +407,7 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "Palun kirjutage siia alla.", en: "Please sign here." },
     ],
     how: {
-      point: "At a desk, a question is often just the word: {Teie aadress?} means \"your address?\", and the answer can be just the address.",
+      point: "At a desk, people often ask with the word alone: {Teie aadress?}, your address? You can answer the same way, with the address alone. Neither side needs a full sentence.",
       table: {
         head: ["On a form", "In English"],
         rows: [
@@ -384,11 +420,12 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "An address is the street, then the number, then the apartment: {Pikk tänav kaks, korter neli}.",
-        "{Palun kirjutage siia alla} asks you to sign: to write your name at the bottom. You'll see it on every form.",
-        "{Ma soovin} is a polite \"I'd like\", the {soovin} of the café in A1.",
+        "An address goes street, then house number, then apartment: {Pikk tänav kaks, korter neli}.",
+        "{Palun kirjutage siia alla} asks you to sign, to write your name down here at the bottom. You'll see it on every form.",
+        "{Ma soovin} is a polite \"I'd like\", the {soovin} you used at the café in A1.",
+        "{Raamatukogukaarti} is in the [osastav] (3rd form) because of {soovin}. A verb for wanting puts what you want in the [osastav] (3rd form), the way you asked for coffee in A1.",
       ],
-      watchOut: "{Perekonnanimi} is the family name, your surname. {Eesnimi} is the one in front, your first name.",
+      watchOut: "{Perekonnanimi} is your family's name, the surname. {Eesnimi} is the name in front of it, your first name: {ees} is in front.",
       examples: [2, 4, 7],
     },
     answers: [
@@ -421,8 +458,9 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
     how: {
       point: "A whole visit to a desk, made only of what this part has taught.",
       notes: [
-        "{Minu naise oma} is my wife's: the [omastav] (2nd form) says whose, and {oma} says it's theirs.",
-        "{Teie oma} is yours, said politely, and {kelle telefon} asks whose.",
+        "{Minu naise oma} is my wife's. {Naise} is in the [omastav] (2nd form) because it says whose the book is, and {oma} stands in for the book.",
+        "{Teie oma} is yours, said politely to somebody you don't know well, and {kelle telefon} asks whose phone.",
+        "{Kott tooli peal} is the bag on the chair. {Tooli} is in the [omastav] (2nd form) because the place word {peal} comes after it.",
         "At the end, Liis is at the desk and you're the one asking for a card. Answer as yourself, one turn at a time.",
       ],
       watchOut: "{Suur aitäh!} is a big thank you, for when somebody has done you a real favor, or you them.",
