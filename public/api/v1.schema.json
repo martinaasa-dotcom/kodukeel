@@ -4688,7 +4688,7 @@
                 "type": "null"
               }
             ],
-            "description": "A worksheet page on what the lessons have taught, offered on the finish (B1 on), or null."
+            "description": "A worksheet page on what the lessons have taught, offered on the finish (A2 on), or null."
           },
           "place": {
             "type": "object",

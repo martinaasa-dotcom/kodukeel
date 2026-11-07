@@ -152,7 +152,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
   scene: string | null;
   /** A conversation out there the lesson rehearses, from the catalog (`lessonSituations.ts`). */
   situation?: { id: string; title: string } | null;
-  /** From B1, the worksheet page the finished lesson offers (`lib/course/lessonWorksheet.ts`), or null. */
+  /** From A2, the worksheet page the finished lesson offers (`lib/course/lessonWorksheet.ts`), or null. */
   worksheet?: LessonWorksheet | null;
   /**
    * Back from the lesson's own conversation: `done` from its debrief, `left`
@@ -535,9 +535,9 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
             "var(--butter-soft)",
           )}
           {/*
-            A WORKSHEET PAGE ON WHAT THE LESSONS HAVE TAUGHT, FROM B1 ON.
-            B1 dealt the worksheet while it was built from units, and lost
-            it when every evening became one lesson. It is offered here, in
+            A WORKSHEET PAGE ON WHAT THE LESSONS HAVE TAUGHT, FROM A2 ON.
+            A2 and B1 dealt the worksheet while they were built from units,
+            and lost it when every evening became one lesson. It is offered here, in
             the module as well, since it is grammar practice on today's
             words rather than a way out of the evening; the page is held to
             what the lessons have taught so far (`lessonWorksheet.ts`).
@@ -550,7 +550,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
           )}
           {/*
             AND ONE STEP FURTHER OUT, WHERE THE LESSON REHEARSES AN ERRAND
-            (B1 on, `lessonSituations.ts`): the same situation with somebody
+            (A1 on, `lessonSituations.ts`): the same situation with somebody
             who talks the way people do at that counter, in Situations. Not
             inside a module, where the one way on is the next step and every
             other door stands down; the situations board and Today count it

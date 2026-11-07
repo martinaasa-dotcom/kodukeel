@@ -46,7 +46,7 @@ export interface LessonView {
   scene: string | null;
   /** A conversation out there the lesson rehearses, from the catalog, offered on its finish (`lessonSituations.ts`). */
   situation: { id: string; title: string } | null;
-  /** From B1, a worksheet page on what the lessons have taught, offered on the finish (`lessonWorksheet.ts`); a lesson in preview is on no evening and offers none. */
+  /** From A2, a worksheet page on what the lessons have taught, offered on the finish (`lessonWorksheet.ts`); a lesson in preview is on no evening and offers none. */
   worksheet: LessonWorksheet | null;
   place: { at: number; of: number };
   name: string | null;

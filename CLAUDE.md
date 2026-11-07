@@ -10785,10 +10785,17 @@ learner's own recorded slip (`fixes`); Say it opens on saying lines along as mor
 or one answer given three times faster (`faster`); and a part's writing evening writes one real text,
 read by the dictionary first and by Anu behind `verify.ts`, with a sentence written right kept as a
 `WRITTEN` card. `lessonEnglish` collects all of that English, so the translation check covers it.
-Twenty-one lessons offer the catalog conversation they rehearse on their finish
-(`lessonSituations.ts`), which is where the conversations that opened on old B1 evenings went, along with eight of A2's
-errands (the other three are offered by B2 lessons since B2 moved),
+Nineteen B1 lessons offer the catalog conversation they rehearse on their finish
+(`lessonSituations.ts`), which is where the conversations that opened on old B1 evenings went, along with A2's
+errands whose words A2 does not teach yet (the rest are offered by B2 lessons since B2 moved),
 and the board and Today count one as reached once its lesson is done (`situationsOfferedThrough`).
+**And A1 and A2 do what B1 does wherever it fits** (the operator's ask, 2026-11-07): the five catalog
+conversations whose every asked word A1 or A2 has taught are offered by the A1 or A2 lesson that
+rehearses them (the shop for milk on `a1-31-where-to`, the library card, the weekend, calling a shop
+and making plans), and every A2 lesson ends on a worksheet page (`WORKSHEET_FROM`, at the
+beginner's page size), which A1 does not, since it asks for no case and no gap. The B-level steps
+inside a lesson (listen first, rework, fix, fade, retell, faster, write) stay B1 and up, each a
+decision of `docs/43-lessons.md` §11.0.
 **B1 is one family's year and a name is one person** (`docs/reviews/b1-cast.md`): read it before
 writing a line that names anybody. Each part asks more than the one before (its ramp table, whose
 retell, writing, room and fade rows are checked by `ramp.test.ts` and `fade.test.ts`, the rest

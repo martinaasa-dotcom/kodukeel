@@ -596,13 +596,13 @@ async function walk(lesson, { mode = "type" } = {}) {
     check(`${where}: the finish screen offers no conversation, since the lesson rehearses none`, !situationOffer, situationOffer?.name ?? "");
   }
   /*
-    And from B1 the finish screen offers a page of the workbook on what the
+    And from A2 the finish screen offers a page of the workbook on what the
     lessons have taught, which is the worksheet a learner is offered now that
-    no unit prints one (`lessonWorksheet.ts`); A2 offers none.
+    no unit prints one (`lessonWorksheet.ts`); A1 offers none.
   */
   const sheet = offered["[data-lesson-worksheet]"];
-  if (lesson.level === "A2") {
-    check(`${where}: the finish screen offers no worksheet below B1`, !sheet, sheet?.href ?? "");
+  if (lesson.level === "A1") {
+    check(`${where}: the finish screen offers no worksheet at A1`, !sheet, sheet?.href ?? "");
   } else {
     check(`${where}: the finish screen offers a workbook page on what the lessons taught`, /^\/review\/workbook/.test(sheet?.href ?? ""), `opening ${sheet?.href ?? "nothing"}`);
   }
