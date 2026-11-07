@@ -64,7 +64,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
         "To build it, take the [olevik] (I form), drop the -n, and add -ksin, -ksid, -ks, -ksime, -ksite or -ksid for the person: {võtan} loses its -n and becomes {võtaksin}, I would take, or {võtaks}, he or she would take.",
         "{Kas me võiksime...?} is could we...?, the softest way to ask for something. A waiter asks you {Kas te sooviksite...?}, would you like...?",
         "To be has it too: {See oleks tore} is that would be nice.",
-        "{Lauda} and {õlut} are in the [osastav] (3rd form), for two different reasons. Wishing and wanting, {soovin} and {tahan}, always put what you want in that form, so a table you would like is {lauda}. And a drink you order is an amount of it, some beer, not one particular glass, so it is {õlut}.",
+        "{Lauda} and {õlut} are in the [osastav] (3rd form), for two different reasons. Wishing and wanting, {soovin} and {tahan}, usually put what you want in that form, so a table you would like is {lauda}. And a drink you order is an amount of it, some beer, not one particular glass, so it is {õlut}.",
       ],
       watchOut: "{Tahaksin} is not I wanted. I wanted is the past, which you met in part three, and it is about before. {Tahaksin} is about now: I would like.",
       examples: [1, 3, 5],

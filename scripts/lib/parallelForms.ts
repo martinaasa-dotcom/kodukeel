@@ -107,6 +107,7 @@ export const PARALLEL_REVIEW: Readonly<Record<string, ParallelDecision>> = {
       "Linn ei istuta igasse hoovi lilli ega korralda pargis naabrite piknikku.",
       "Ma ei kuulnud. Aga Peeter on viimasel ajal väga rõõmus. Ja eile ostis ta lilli!",
       "Mari ütles, et matustele viiakse paarisarv lilli, nagu meil kodus.",
+      "Osta lilli!",
       "Osta lilli! Lilled on alati hea kingitus.",
       "Ta ütles, et keegi ei olnud talle kolmkümmend aastat lilli toonud.",
     ],

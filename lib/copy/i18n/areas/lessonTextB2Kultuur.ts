@@ -1373,7 +1373,7 @@ export const LESSON_TEXT_B2_KULTUUR: Area = {
     "Something is being done to it": "З цим щось роблять",
     "Does the sentence name who did it? Or is nobody named, as in a command or with a verb ending in -ti or -takse?": "Речення називає, хто це зробив? Чи ніхто не названий, як у наказі або з дієсловом на -ti чи -takse?",
     "Yes, it says who did it": "Так, сказано, хто це зробив",
-    "Nobody is named": "Ніхто не названий",
+    "Nobody is named": "Нікого не названо",
     "Was the job done to the whole thing?": "Роботу зроблено над усією річчю?",
     "No, it's still going on, or only some of it": "Ні, робота ще триває, або лише над частиною",
   },
