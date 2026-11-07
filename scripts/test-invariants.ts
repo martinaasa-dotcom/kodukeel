@@ -3163,6 +3163,10 @@ const MEASURES_RATHER_THAN_PRACTISES: string[] = [
   // Sõnamäng: a compound read for fun is not a card either, for the same reason, and the false friends are asked
   // as a joke about what a word looks like rather than as a recall the scheduler could use.
   "app/(app)/review/wordplay/WordplaySession.tsx",
+  // Number endings: a tap between the two or three forms the screen prints recalls none of them on its own, so a
+  // grade would be a recall that did not happen. A miss puts the number's own words in the deck instead
+  // (`keepMissedNumbers`), which is the operator's rule for a game.
+  "app/(app)/review/numbers/EndingsSession.tsx",
   // Tähthaaval: what is practiced is hearing the letters' Estonian names, which no card holds, and a word
   // written wrong because two names sound close has not been forgotten, so a lapse on its card would be false.
   "app/(app)/review/spelled/SpelledSession.tsx",
@@ -22487,6 +22491,8 @@ check("every round that puts one word up carries the favorite button", () => {
       "a page of sentences at once, each about a different word, with no one card to put a corner on",
     [join("app", "(app)", "review", "numbers", "NumbersSession.tsx")]:
       "a price, a clock time or a number, said in several number words at once, with no one entry the round is about",
+    [join("app", "(app)", "review", "numbers", "EndingsSession.tsx")]:
+      "one number in many sentences, its forms several words long, with no one entry the round is about; a miss puts the number's words in the deck itself",
     [join("app", "(app)", "learn", "checkpoint", "[level]", "CheckpointSession.tsx")]:
       "a measurement rather than a round: it withholds every answer until the "
       + "end on purpose, and its questions carry no entry to keep",

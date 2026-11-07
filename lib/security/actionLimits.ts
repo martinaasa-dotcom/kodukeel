@@ -71,6 +71,12 @@ export const ACTION_LIMITS = {
    */
   addCommonWords: { perMinute: 12 },
   /**
+   * The words of the numbers a number-endings round missed, into the deck: one
+   * bulk build of a dozen numbers' words at most, once a round. A round takes a
+   * few minutes, so six a minute is never met by anybody playing.
+   */
+  keepMissedNumbers: { perMinute: 6 },
+  /**
    * The evening's words into the deck, which is the same bulk build on a day's
    * words. A press per evening, and a module a learner walks through quickly
    * is still a handful of presses a minute at most.

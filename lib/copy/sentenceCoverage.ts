@@ -78,6 +78,12 @@ export const SENTENCE_WITHOUT_ENGLISH: Readonly<Record<string, string>> = {
     "is in and the mark is taken: that is where it explains the form rather than " +
     "handing it over.",
 
+  "app/(app)/review/numbers/EndingsSession.tsx":
+    "The number endings mode's sentences are frames typed for it rather than sentences a " +
+    "lexicographer recorded (ADR-005 amendment 8), so there is no dictionary entry to hang " +
+    "a translation on. Each frame carries its own English, drawn above the sentence on " +
+    "every card and beside it after the answer.",
+
   "app/(app)/review/cloze/ClozeSession.tsx":
     "The learner's own pasted passage, which this app decodes and drops and never " +
     "stores, exactly as the scanner treats a photograph. `translateExample` refuses " +

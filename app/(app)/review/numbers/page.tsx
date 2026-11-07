@@ -6,7 +6,11 @@ import { recentLemmas } from "@/lib/course/scope";
 import { BeforeYouStart } from "@/components/round/Briefing";
 import { CLOCK_LEMMA } from "@/lib/scenes/props";
 import { EURO_LEMMA, dealRound, itemKey, numberLemmas, shown, spokenAs } from "@/lib/games/numbers";
+import { dealEndings } from "@/lib/games/numberEndings";
+import { MODULE_PARAM } from "@/lib/course/focus";
 import { NumbersSession, type NumbersItem } from "./NumbersSession";
+import { EndingsSession } from "./EndingsSession";
+import { NumbersModes } from "./NumbersModes";
 
 export async function generateMetadata() {
   return roundTitleFor("/review/numbers");
@@ -39,7 +43,30 @@ export default async function NumbersPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const ownerId = await requireUserId();
-  const scope = await practiceScope(ownerId, await searchParams);
+  const params = await searchParams;
+  const scope = await practiceScope(ownerId, params);
+  // A step of the module opens the round it dealt and offers no other door (CLAUDE.md, "a step is a room").
+  const inModule = typeof params[MODULE_PARAM] === "string";
+
+  /*
+    THE SECOND MODE: ONE NUMBER, MANY JOBS (lib/games/numberEndings.ts).
+    Its sentences are frames whose every word the forms list holds and its
+    numbers are built by a rule checked against the same list (ADR-005
+    amendment 8), so it asks nothing a learner has not got the words for
+    beyond the numbers themselves. A learner the module still holds below
+    the numbers, who has not met them, gets the say-it mode's empty state.
+  */
+  if (params.mode === "endings" && !inModule) {
+    const cards = scope && dealRoundEmpty(scope) ? [] : dealEndings(Math.random);
+    return (
+      <>
+        <NumbersModes active="endings" />
+        <BeforeYouStart id="numberEndings" ready={cards.length > 0} count={{ n: cards.length, noun: "question" }}>
+          <EndingsSession cards={cards} />
+        </BeforeYouStart>
+      </>
+    );
+  }
   const taught = scope ? new Set(scope.lemmas) : null;
   // Inside the module the round leads with today's words, kind by kind, like every round it deals.
   const items = dealRound(Math.random, taught, undefined, scope ? new Set(recentLemmas(scope)) : new Set());
@@ -61,8 +88,20 @@ export default async function NumbersPage({
   const round: NumbersItem[] = items.map((item) => ({ key: itemKey(item), item, shown: shown(item), spoken: spokenAs(item) }));
 
   return (
-    <BeforeYouStart id="numbers" ready={round.length > 0} count={{ n: round.length, noun: "question" }}>
-      <NumbersSession items={round} cardFor={cardFor} />
-    </BeforeYouStart>
+    <>
+      {!inModule && <NumbersModes active="say" />}
+      <BeforeYouStart id="numbers" ready={round.length > 0} count={{ n: round.length, noun: "question" }}>
+        <NumbersSession items={round} cardFor={cardFor} />
+      </BeforeYouStart>
+    </>
   );
+}
+
+/**
+ * Whether a learner the module holds has met no number yet, which keeps the
+ * endings mode closed for them the way the say-it mode is: a round of number
+ * forms for somebody who has not been taught `kaks` asks what was not taught.
+ */
+function dealRoundEmpty(scope: { lemmas: readonly string[] }): boolean {
+  return !scope.lemmas.includes("kaks");
 }

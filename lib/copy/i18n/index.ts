@@ -27,6 +27,7 @@ import { EXAM } from "./areas/exam";
 import { HEROES } from "./areas/heroes";
 import { SAYINGS } from "./areas/sayings";
 import { TWINS } from "./areas/twins";
+import { NUMBER_ENDINGS } from "./areas/numberEndings";
 import { FIRST_DAY } from "./areas/firstDay";
 import { WORKBOOK } from "./areas/workbook";
 import { GAMES_AREA } from "./areas/games";
@@ -106,6 +107,7 @@ export const AREAS: readonly (readonly [name: string, area: Area])[] = [
   ["heroes", HEROES],
   ["sayings", SAYINGS],
   ["twins", TWINS],
+  ["numberEndings", NUMBER_ENDINGS],
   ["workbook", WORKBOOK],
   ["games", GAMES_AREA],
   ["wordplay", WORDPLAY],

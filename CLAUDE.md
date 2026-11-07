@@ -4204,6 +4204,19 @@ own: `lib/collections/demoWords.ts` is the one list of which words the card asks
 it falls back to when the database is unreachable, and an invariant checks that copy against the
 built dictionary character for character.
 
+**A number in the form its sentence needs is built by rule, and the rule is checked against the
+language before it ships.** The Numbers round has a second mode, one number in many jobs
+(`lib/games/numberEndings.ts`): `seitseteist` at seventeen, `seitsmeteistkümne` with seventeen friends,
+`seitsmeteistkümnendal` on the 17th floor, and a year said in full (`tuhande üheksasaja üheksakümne
+teisel aastal`, the operator's reading). `lib/estonian/numerals.ts` builds the forms from nine units and
+four pieces under the three rules a course states, and `numerals.test.ts` asks the forms list whether
+every word of every form of every number from 1 to 2100 is a form of the right headword, so a form no
+source holds is a failing test (ADR-005 amendment 8). The sentences around the numbers are a closed list
+of frames, every word held to the same list, and the operator asked for machine checks rather than a
+reading. `npm run measure:endings` has the speech service read them and the app's recognizer write them
+back, and `SILENT_JOBS` is held to what it finds. A miss puts the number's own dictionary words in the
+deck (`keepMissedNumbers`), never a built form.
+
 **Never store derived case forms.** Only principal parts are persisted (five per lexeme). The ten
 regular cases
 are computed from the genitive stem at render time. Storing them creates a second source of truth
