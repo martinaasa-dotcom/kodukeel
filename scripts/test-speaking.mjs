@@ -132,10 +132,12 @@ try {
 
     // Answered aloud: what was heard goes into the box, or it was the word and is graded.
     await page.getByRole("button", { name: "Answer out loud" }).click();
+    // The words so far are in the box while they are said, so a filled box is a heard turn only once the microphone has closed.
     const heard = await page.waitForFunction(() => {
       const box = document.querySelector("#speaking-answer");
       const text = document.querySelector("[data-speaking-step]")?.textContent ?? "";
-      return (box && box.value.trim().length > 0) || /Heard, and right/.test(text);
+      const open = document.querySelector('.speech-mic[data-state="listening"], .speech-mic[data-state="busy"]');
+      return (!open && box && box.value.trim().length > 0) || /Heard, and right/.test(text);
     }, null, { timeout: 60_000 }).then(() => true, () => false);
     const after = await stage.innerText();
     check(
@@ -255,7 +257,8 @@ try {
       await mic.first().click();
       await page.waitForFunction(() => {
         const box = document.querySelector("#answer");
-        return (box && box.value.trim().length > 0) || document.querySelector("main [class*='verdict']");
+        const open = document.querySelector('.speech-mic[data-state="listening"], .speech-mic[data-state="busy"]');
+        return (!open && box && box.value.trim().length > 0) || document.querySelector("main [class*='verdict']");
       }, null, { timeout: 60_000 }).catch(() => undefined);
       const checkIt = page.getByRole("button", { name: /Check it/ });
       if (await checkIt.isEnabled().catch(() => false)) await checkIt.click();

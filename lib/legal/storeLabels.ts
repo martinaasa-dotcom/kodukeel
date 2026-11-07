@@ -117,6 +117,7 @@ export const TABLE_SOURCES: Readonly<Record<string, Source>> = {
   DeckWord: { types: ["interaction"], linked: true, why: "which words the learner put in each deck" },
   Deferral: { types: ["interaction"], linked: true, why: "the words the learner put aside for later" },
   CourseStep: { types: ["interaction"], linked: true, why: "which steps of the course the learner finished" },
+  LessonAnswer: { types: ["content"], linked: true, why: "what the learner typed or said on a lesson's Say it step, the latest time through, and what the dictionary found in it" },
   Achievement: { types: ["interaction"], linked: true, why: "the streak shields the learner earned" },
   Assessment: { types: ["interaction"], linked: true, why: "a level check the learner sat, and its answers" },
   ExamAttempt: { types: ["content"], linked: true, why: "a mock exam paper the learner sat, the composition they wrote included" },

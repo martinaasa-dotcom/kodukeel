@@ -150,7 +150,7 @@ export default async function PracticePage() {
               text={t("Each word comes back just before you'd forget it.")}
               cardsLabel={t("Where your cards stand")}
               cards={[
-                { figure: review.dueMore ? `${review.due.length}+` : String(review.due.length), label: t("Due now"), icon: "Clock" },
+                { figure: review.dueTotalMore ? `${review.dueTotal}+` : String(review.dueTotal), label: t("Due now"), icon: "Clock" },
                 { figure: String(review.fresh.length), label: t("New to meet"), icon: "Sparkles" },
                 { figure: String(unfinished), label: t("To work on"), icon: "Target" },
               ]}

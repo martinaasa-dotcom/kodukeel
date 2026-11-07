@@ -233,6 +233,11 @@ export const C1_UHISKOND_LESSONS: readonly LessonSpec[] = [
       model: { et: "Linn tahab meie tänava ümber ehitada. Autodele jääb üks sõidurada, juurde tulevad rattatee, laiem kõnnitee ja puud, aga parkimiskohti jääb neljakümne võrra vähem. Iseenesest on see hea plaan. Tänaval on kool ja autod sõidavad seal praegu liiga kiiresti. Teisalt sõidavad paljud inimesed autoga tööle ja neil on vaja kohta, kuhu auto panna. Õigupoolest sõidab enamik meie majast tööle bussiga. Kokkuvõttes on plaanil nii eeliseid kui ka puudusi, aga minu meelest on laste ohutus tähtsam kui parkimine.", en: "The city wants to rebuild our street. Cars are left with one lane, and there'll be a bike path, a wider pavement and trees, but forty parking places fewer. In itself it's a good plan. There's a school on the street, and the cars there go far too fast at the moment. On the other hand, many people drive to work and need somewhere to put the car. In fact most of our building goes to work by bus. All in all the plan has both advantages and drawbacks, but in my view the children's safety matters more than parking." },
       seconds: [120],
       prepare: 180,
+      checks: [
+        { en: "Grant a point, with {iseenesest}.", any: ["iseenesest"] },
+        { en: "Turn to the other side, with {teisalt}.", any: ["teisalt"] },
+        { en: "Weigh it all up, with {kokkuvõttes}.", any: ["kokkuvõttes"] },
+      ],
     },
   },
   {
@@ -244,7 +249,7 @@ export const C1_UHISKOND_LESSONS: readonly LessonSpec[] = [
     title: "Having your say",
     goal: "Comment on a public consultation in the order the officials expect: what the plan proposes, what is good in it, and what you would change and why.",
     cast: { Helgi: "vesta", Anna: "kylli", Tom: "kalev" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Helgi", et: "Nii, vaatame. See on siis detailplaneering ehk linna plaan teie tänava jaoks.", en: "Right, let's have a look. So this is the detailed plan, the city's plan for your street.", stage: "Saturday afternoon. Helgi has come over to see the new apartment, and the city's plan is open on Anna's laptop." },
       { who: "Anna", et: "Siin on kirjas, et plaan on kaks nädalat avalikul väljapanekul. Mida see...", en: "It says here the plan is on public display for two weeks. What does that..." },
@@ -616,6 +621,11 @@ export const C1_UHISKOND_LESSONS: readonly LessonSpec[] = [
       model: { et: "Ma küsiksin kandidaadilt, kas ta hääletaks peatänava plaani poolt või vastu. See on minu jaoks tähtis, sest ma elan selle tänava ääres. Iseenesest on hea, et linn tahab tänava ohutumaks teha. Teisalt jääb parkimiskohti vähem ja uus parkla valmib aasta hiljem. Seetõttu küsiksin ka, kus inimesed selle aasta jooksul pargivad. Kui kandidaat ei vasta küsimusele otse, ma tema poolt ei hääleta. Kokkuvõttes tahan teada, mida ta lubab ja kas ta oma lubadusi peab.", en: "I'd ask the candidate whether they'd vote for the plan for the main street or against it. It matters to me, because I live on that street. In itself it's good that the city wants to make the street safer. On the other hand there'll be fewer parking places, and the new car park will be ready a year later. So I'd also ask where people are meant to park in that year. If the candidate doesn't answer the question directly, I won't vote for them. All in all, I want to know what they promise and whether they keep their promises." },
       seconds: [120],
       prepare: 180,
+      checks: [
+        { en: "Grant the other side its case, with {iseenesest}.", any: ["iseenesest"] },
+        { en: "Then say why you still disagree, with {teisalt}.", any: ["teisalt"] },
+        { en: "Close, with {kokkuvõttes} or {seetõttu}.", any: ["kokkuvõttes", "seetõttu"] },
+      ],
     },
   },
   {
@@ -627,7 +637,7 @@ export const C1_UHISKOND_LESSONS: readonly LessonSpec[] = [
     title: "A day of volunteering",
     goal: "Take part in a volunteer day, take down a talk about it as notes, and argue a question of right and wrong from both sides: whose job is it, and what do we owe the place we live?",
     cast: { Anna: "kylli", Liis: "liivika", Tom: "kalev", Jaan: "meelis", Kaarel: "tambet", Mihkel: "peeter", Mark: "albert" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Anna", et: "Liis, Jaan, tere! Tore, et tulite! Ja Mihkel ka!", en: "Liis, Jaan, hi! Great you came! And Mihkel too!", stage: "A Saturday in May, the volunteer day. The park at the end of the street. Liis has Mihkel in a sling, and there's a table with bags and gloves." },
       { who: "Liis", et: "Muidugi tulime. Talgud on talgud. Kus kotid on?", en: "Of course we came. A volunteer day's a volunteer day. Where are the bags?" },
@@ -744,7 +754,7 @@ export const C1_UHISKOND_LESSONS: readonly LessonSpec[] = [
         { et: "Siis pange talgud talgupäeva kodulehele kirja, et ka teised saaksid teiega liituda.", en: "Then put your volunteer day on the volunteer day's website, so that others can join you." },
         { et: "Linnaosa valitsuselt saab tavaliselt küsida prügikotte ja kokkulepitud ajal viiakse prügi ka ära.", en: "You can usually ask the district government for rubbish bags, and the rubbish is taken away at an agreed time." },
         { et: "Kutsuge kaasa naabrid, sõbrad ja lapsed. Lastele meeldib talgutel sageli kõige rohkem.", en: "Bring your neighbors, friends and children along. The children often enjoy it most of all." },
-        { et: "Ärge planeerige liiga palju. Kaks või kolm tundi tööd on täiesti piisav.", en: "Don't plan too much. Two or three hours of work is quite enough." },
+        { et: "Ärge planeerige liiga palju. Kaks või kolm tundi tööd on täiesti piisav.", en: "Don't plan too much. Two or three hours of work is plenty." },
         { et: "Ja ärge unustage kõige tähtsamat: pärast tööd peab olema supp.", en: "And don't forget the most important thing: after the work there has to be soup." },
         { et: "Talgud ilma ühise söömiseta ei ole päris talgud. See reegel on sama vana kui talgud ise.", en: "A volunteer day without eating together isn't a real volunteer day. That rule is as old as volunteer days themselves." },
         { et: "Pärast ühiselt söödud suppi on inimesed tavaliselt valmis järgmisel aastal uuesti tulema.", en: "After a soup eaten together, people are usually ready to come again next year." },

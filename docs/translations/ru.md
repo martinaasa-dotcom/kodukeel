@@ -6059,10 +6059,10 @@ _lib/copy/i18n/areas/reference.ts_
   → Единственное число
 - [ ] **2996.** Plural  
   → Множественное число
-- [ ] **2997.** Most plural forms are built on the mitmuse omastav (2nd form, plural), and we don't have it for this word. So we've left a gap rather than guess one.  
-  → Большинство форм множественного числа строятся на mitmuse omastav (2-я форма, мн. ч.), а её для этого слова у нас нет. Поэтому мы оставили пропуск, а не стали гадать.
-- [ ] **2998.** We don't have the mitmuse nimetav (1st form, plural) for this word, and it isn't an ending we can work out. So we've left a gap rather than guess one.  
-  → У нас нет mitmuse nimetav (1-я форма, мн. ч.) для этого слова, а вывести её по окончанию нельзя. Поэтому мы оставили пропуск, а не стали гадать.
+- [ ] **2997.** Most plural forms are built on the mitmuse omastav (plural), and we don't have it for this word. So we've left a gap rather than guess one.  
+  → Большинство форм множественного числа строятся на mitmuse omastav (мн. ч.), а её для этого слова у нас нет. Поэтому мы оставили пропуск, а не стали гадать.
+- [ ] **2998.** We don't have the mitmuse nimetav (plural) for this word, and it isn't an ending we can work out. So we've left a gap rather than guess one.  
+  → У нас нет mitmuse nimetav (мн. ч.) для этого слова, а вывести её по окончанию нельзя. Поэтому мы оставили пропуск, а не стали гадать.
 - [ ] **2999.** Why these are the long forms  
   → Почему здесь длинные формы
 - [ ] **3000.** Pronouns have short forms too, and those are the ones you'll hear most. A dictionary lists the long ones first, so that's what you see here. Both are right.  
@@ -6389,8 +6389,8 @@ _lib/copy/i18n/areas/reference.ts_
   → Не только окончания
 - [ ] **3161.** Grouped by the kind of word they're about, in the order a course would teach them.  
   → Сгруппировано по типу слов, в том порядке, в каком их проходят на курсе.
-- [ ] **3162.** The singular endings go on the omastav (2nd form), and the plural ones on the mitmuse omastav (2nd form, plural). If the dictionary has no mitmuse omastav for a word, its table shows a gap rather than a guess.  
-  → Окончания единственного числа добавляются к omastav (2-я форма), а окончания множественного к mitmuse omastav (2-я форма, мн. ч.). Если в словаре нет mitmuse omastav для слова, в его таблице будет пропуск, а не догадка.
+- [ ] **3162.** The singular endings go on the omastav (2nd form), and the plural ones on the mitmuse omastav (plural). If the dictionary has no mitmuse omastav for a word, its table shows a gap rather than a guess.  
+  → Окончания единственного числа добавляются к omastav (2-я форма), а окончания множественного к mitmuse omastav (мн. ч.). Если в словаре нет mitmuse omastav для слова, в его таблице будет пропуск, а не догадка.
 - [ ] **3163.** Still stuck on one? {ask} and she'll explain the rule behind a sentence you wrote.  
   → Всё ещё не получается? {ask}: она объяснит правило на примере твоего предложения.
 - [ ] **3164.** All endings  
@@ -11557,8 +11557,8 @@ _lib/copy/i18n/areas/progress.ts_
   → Ты правильно ставишь {case} ({asks}) в {weak}% случаев, а остальные падежи в {overall}%. Больше всего поможет короткий раунд только на этот падеж.
 - [ ] **5733.** You get these right, just slowly  
   → Ты отвечаешь на них верно, просто медленно
-- [ ] **5734.** You get {strong}% right on words whose plural follows the pattern, but {weak}% on words with a mitmuse omastav (2nd form, plural) of their own. Those have to be learned by heart.  
-  → Ты верно отвечаешь в {strong}% случаев на слова, у которых множественное число по правилу, но только в {weak}% на слова со своей собственной mitmuse omastav (2-я форма, мн. ч.). Их приходится учить наизусть.
+- [ ] **5734.** You get {strong}% right on words whose plural follows the pattern, but {weak}% on words with a mitmuse omastav (plural) of their own. Those have to be learned by heart.  
+  → Ты верно отвечаешь в {strong}% случаев на слова, у которых множественное число по правилу, но только в {weak}% на слова со своей собственной mitmuse omastav (мн. ч.). Их приходится учить наизусть.
 - [ ] **5735.** You haven't answered any case cards yet. They come with the units that put endings on nouns, in  
   → Ответов на падежные карточки у тебя пока нет. Они появляются с разделами, где существительные получают окончания, в
 - [ ] **5736.** You haven't practiced any of these {total} words yet. Start with the unit they come from.  
@@ -38273,7 +38273,7 @@ _lib/copy/i18n/areas/lessonTextB1Rektsioon.ts_
   → А твой начальник?
 - [ ] **18997.** Is that true?  
   → Это правда?
-- [ ] **18998.** No. Actually everything works fine without me too.  
+- [ ] **18998.** No. Actually everything works very well without me too.  
   → Нет. На самом деле и без меня всё прекрасно работает.
 - [ ] **18999.** Then we'll go without you: me, Anna and the kids. Peeter's coming with us too.  
   → Тогда мы поедем без тебя: я, Анна и дети. Пеэтер тоже едет с нами.
@@ -44417,8 +44417,8 @@ _lib/copy/i18n/areas/lessonTextB2Pere.ts_
   → Очень приятно! Я Пирет, осенью я буду учительницей первого класса. А где Марк?
 - [ ] **22059.** He's off playing ball in the gym.  
   → Он в спортзале, играет в мяч.
-- [ ] **22060.** Of course! A new gym was built for us last year. The children love it.  
-  → Ну конечно! В прошлом году нам построили новый спортзал. Дети его обожают.
+- [ ] **22060.** Of course! A new gym was built for us last year. The children really like it.  
+  → Ну конечно! В прошлом году нам построили новый спортзал. Детям он очень нравится.
 - [ ] **22061.** I've got one question. In the autumn we'll both be at work until five. Can Mark stay at school after lessons?  
   → У меня один вопрос. Осенью мы оба будем работать до пяти. Может ли Марк оставаться в школе после уроков?
 - [ ] **22062.** He can. That's what our after-school group is for.  
@@ -46033,8 +46033,8 @@ _lib/copy/i18n/areas/lessonTextB2Arutelu.ts_
   → велосипед, колесо
 - [ ] **22862.** a bike's: the \[omastav\] (2nd form); {rattaga}, by bike  
   → велосипеда: \[omastav\] (2-я форма); {rattaga}, на велосипеде
-- [ ] **22863.** cars, some of them: the \[mitmuse osastav\] (3rd form, plural)  
-  → машин, сколько-то: \[mitmuse osastav\] (3-я форма, множественное)
+- [ ] **22863.** cars, some of them: the \[mitmuse osastav\] (plural)  
+  → машин, сколько-то: \[mitmuse osastav\] (множественное)
 - [ ] **22864.** according to the figures, the data: {linna andmetel}  
   → по данным: {linna andmetel}, по данным города
 - [ ] **22865.** a percent  
@@ -46051,8 +46051,8 @@ _lib/copy/i18n/areas/lessonTextB2Arutelu.ts_
   → уменьшается, снижается: цифра – это «она»
 - [ ] **22871.** it gets bigger, it goes up  
   → увеличивается, растёт
-- [ ] **22872.** of the cars: the \[mitmuse omastav\] (2nd form, plural)  
-  → машин: \[mitmuse omastav\] (2-я форма, множественное)
+- [ ] **22872.** of the cars: the \[mitmuse omastav\] (plural)  
+  → машин: \[mitmuse omastav\] (множественное)
 - [ ] **22873.** people riding, travelers, some of them  
   → тех, кто едет, пассажиров, сколько-то
 - [ ] **22874.** by, by how much: {kahe protsendi võrra}, by two percent  
@@ -46611,8 +46611,8 @@ _lib/copy/i18n/areas/lessonTextB2Arutelu.ts_
   → во-первых
 - [ ] **23151.** second, secondly  
   → во-вторых
-- [ ] **23152.** shops: the \[mitmuse nimetav\] (1st form, plural)  
-  → магазины: \[mitmuse nimetav\] (1-я форма, множественное)
+- [ ] **23152.** shops: the \[mitmuse nimetav\] (plural)  
+  → магазины: \[mitmuse nimetav\] (множественное)
 - [ ] **23153.** so, for that reason: the written {sellepärast}  
   → поэтому, по этой причине: письменное {sellepärast}
 - [ ] **23154.** a conclusion  
@@ -50496,8 +50496,8 @@ _lib/copy/i18n/areas/lessonTextB2Konekeel.ts_
   → {Noh} даёт секунду подумать или начинает вопрос: {Noh, kuidas läheb?} {Vaata} и {tead} просят собеседника послушать: {Vaata, ma käisin eile kontserdil!}
 - [ ] **25086.** {Ju} says you both know it, and turns a sentence into a gentle protest: {Ta ei käi ju kunagi kontserdil}, but he never goes to concerts.  
   → {Ju} говорит, что вы оба это знаете, и превращает фразу в мягкое возражение: {Ta ei käi ju kunagi kontserdil}, он же никогда не ходит на концерты.
-- [ ] **25087.** {Nagu} is like, the way English uses it: {nagu ikka}, same as always. {Muide} is by the way, for a new subject, and {täitsa} is totally: {täitsa veider}.  
-  → {Nagu} – это «как бы», как в разговорном английском: {nagu ikka}, как всегда. {Muide} – это «кстати», для новой темы, а {täitsa} значит «совсем»: {täitsa veider}.
+- [ ] **25087.** {Nagu} is like, the way English uses it: {nagu ikka}, same as always. {Muide} is by the way, for a new subject, and {täitsa} is pretty: {täitsa veider}, pretty weird.  
+  → {Nagu} – это «как бы», как в разговорном английском: {nagu ikka}, как всегда. {Muide} – это «кстати», для новой темы, а {täitsa} значит «довольно»: {täitsa veider}, довольно странно.
 - [ ] **25088.** Said  
   → Устно
 - [ ] **25089.** I don't remember his name.  
@@ -50526,24 +50526,24 @@ _lib/copy/i18n/areas/lessonTextB2Konekeel.ts_
   → Вот именно. И угадай, кого я там встретила? Яана!
 - [ ] **25101.** Jaan? But he never goes to concerts.  
   → Яана? Он же никогда не ходит на концерты.
-- [ ] **25102.** That's just it! It was totally weird.  
-  → Вот именно! Это было очень странно.
+- [ ] **25102.** That's just it! It was pretty weird.  
+  → Вот именно! Это было довольно странно.
 - [ ] **25103.** What's weird about that? A man went to a concert, that's normal.  
   → А что тут странного? Человек сходил на концерт, это же нормально.
 - [ ] **25104.** You don't know Jaan. He goes to bed at nine!  
   → Ты не знаешь Яана. Он ложится спать в девять!
 - [ ] **25105.** That's true. By the way, was the concert any good?  
   → Это правда. Кстати, а концерт-то был хороший?
-- [ ] **25106.** Oh, really cool! Come along next time.  
-  → Ой, очень классный! В следующий раз пойдём со мной.
+- [ ] **25106.** Oh, pretty cool! Come along next time.  
+  → Ой, довольно классный! В следующий раз пойдём со мной.
 - [ ] **25107.** oh (said)  
   → ой, а (в разговоре)
 - [ ] **25108.** you know (how it is)  
   → ну ты знаешь (как это бывает)
 - [ ] **25109.** same as always  
   → как всегда
-- [ ] **25110.** quite, totally (said rather than written)  
-  → совсем, вполне (говорят, а не пишут)
+- [ ] **25110.** pretty, quite (said rather than written)  
+  → довольно, вполне (говорят, а не пишут)
 - [ ] **25111.** everywhere  
   → везде
 - [ ] **25112.** that's just it, there you go  
@@ -50572,8 +50572,8 @@ _lib/copy/i18n/areas/lessonTextB2Konekeel.ts_
   → имя, как дополнение
 - [ ] **25124.** he, she sang  
   → он, она пел(а)
-- [ ] **25125.** Say you're really good, same as always.  
-  → Скажи, что у тебя всё очень хорошо, как всегда.
+- [ ] **25125.** Say you're pretty good, same as always.  
+  → Скажи, что у тебя всё неплохо, как всегда.
 - [ ] **25126.** Pretty good, same as always.  
   → Неплохо, как всегда.
 - [ ] **25127.** Say you ran into Jaan at the concert.  
@@ -50582,14 +50582,14 @@ _lib/copy/i18n/areas/lessonTextB2Konekeel.ts_
   → Я встретил Яана на концерте.
 - [ ] **25129.** Who did you run into yesterday?  
   → Кого ты вчера встретил?
-- [ ] **25130.** Say it was totally weird.  
-  → Скажи, что это было очень странно.
-- [ ] **25131.** It was totally weird.  
-  → Это было очень странно.
-- [ ] **25132.** Say yes, it was really cool.  
-  → Скажи, что да, было очень классно.
-- [ ] **25133.** Yes, it was really cool.  
-  → Да, было очень классно.
+- [ ] **25130.** Say it was pretty weird.  
+  → Скажи, что это было довольно странно.
+- [ ] **25131.** It was pretty weird.  
+  → Это было довольно странно.
+- [ ] **25132.** Say yes, it was pretty cool.  
+  → Скажи, что да, было довольно классно.
+- [ ] **25133.** Yes, it was pretty cool.  
+  → Да, было довольно классно.
 - [ ] **25134.** Was the concert good?  
   → Концерт был хороший?
 - [ ] **25135.** Say it the short way, as people say it.  
@@ -50634,8 +50634,8 @@ _lib/copy/i18n/areas/lessonTextB2Konekeel.ts_
   → Вчера я была на концерте.
 - [ ] **25155.** That young singer who was on the radio was singing there.  
   → Там пел тот молодой певец, который был на радио.
-- [ ] **25156.** The concert was really cool.  
-  → Концерт был очень классный.
+- [ ] **25156.** The concert was pretty cool.  
+  → Концерт был довольно классный.
 - [ ] **25157.** That was weird, because Jaan never goes to concerts.  
   → Это было странно, потому что Яан никогда не ходит на концерты.
 - [ ] **25158.** Afterwards Jaan and I went to a café together.  
@@ -51394,8 +51394,8 @@ _lib/copy/i18n/areas/lessonTextB2Konekeel.ts_
   → Садитесь за стол, еда почти готова.
 - [ ] **25535.** Kati, now tell us how the concert was!  
   → Кати, ну рассказывай, как прошёл концерт!
-- [ ] **25536.** Oh, really cool! And Jaan was there too, and...  
-  → Ой, очень классно! И Яан там тоже был, и...
+- [ ] **25536.** Oh, pretty cool! And Jaan was there too, and...  
+  → Ой, довольно классно! И Яан там тоже был, и...
 - [ ] **25537.** Mari talks over her.  
   → Мари перебивает её.
 - [ ] **25538.** Jaan at a concert! Now that I don't believe, he goes to bed at nine...  
@@ -51452,10 +51452,10 @@ _lib/copy/i18n/areas/lessonTextB2Konekeel.ts_
   → Нет, спасибо. Давай дальше по-эстонски, я хочу практиковаться.
 - [ ] **25564.** Want me to speak English?  
   → Хочешь, я буду говорить по-английски?
-- [ ] **25565.** Say yes: she ran into him there, and it was totally weird.  
-  → Скажи «да»: она встретила его там, и это было очень странно.
-- [ ] **25566.** Yes. She ran into you there, and it was totally weird!  
-  → Да. Она встретила тебя там, и это было очень странно!
+- [ ] **25565.** Say yes: she ran into him there, and it was pretty weird.  
+  → Скажи «да»: она встретила его там, и это было довольно странно.
+- [ ] **25566.** Yes. She ran into you there, and it was pretty weird!  
+  → Да. Она встретила тебя там, и это было довольно странно!
 - [ ] **25567.** OK. Did Kati tell you about the concert?  
   → Хорошо. Кати рассказала тебе про концерт?
 - [ ] **25568.** Say that's not true: he goes to bed at nine!  
@@ -55836,8 +55836,8 @@ _lib/copy/i18n/areas/lessonTextC1Isiksus.ts_
   → Что говорят эстонцы, когда что-то идёт не так?
 - [ ] **27746.** Prepare for a minute, then talk for one: the mild words and the stronger ones, how strong each is, and where not to say them.  
   → Подготовься минуту, потом говори минуту: мягкие слова и посильнее, насколько сильно каждое и где их лучше не говорить.
-- [ ] **27747.** You can say {oi} anywhere. {Pagan} is fine too, you can even say it with a child listening. Everybody says {kurat}, but not in front of a child or to the boss. {Kurat võtaks} is quite angry already. And if it really hurts, I just say: terribly painful!  
-  → Сказать {oi} можно где угодно. {Pagan} тоже годится, его можно сказать даже при ребёнке. Все говорят {kurat}, но не при ребёнке и не начальнику. {Kurat võtaks} уже довольно сердито. А если очень больно, я просто говорю: ужасно больно!
+- [ ] **27747.** You can say {oi} anywhere. {Pagan} is perfectly fine too, you can even say it with a child listening. Everybody says {kurat}, but not in front of a child or to the boss. {Kurat võtaks} is quite angry already. And if it really hurts, I just say: terribly painful!  
+  → Сказать {oi} можно где угодно. {Pagan} тоже вполне годится, его можно сказать даже при ребёнке. Все говорят {kurat}, но не при ребёнке и не начальнику. {Kurat võtaks} уже довольно сердито. А если очень больно, я просто говорю: ужасно больно!
 - [ ] **27748.** A question on a parents' forum, and two answers  
   → Вопрос на родительском форуме и два ответа
 - [ ] **27749.** Question: Our seven-year-old said {kurat} out loud in class at school yesterday, and the teacher phoned me.  
@@ -65978,7 +65978,7 @@ _lib/copy/i18n/areas/lessonTextC1Uhiskond.ts_
   → Мешки для мусора обычно можно попросить в управе района, а мусор вывозят в условленное время.
 - [ ] **32802.** Bring your neighbors, friends and children along. The children often enjoy it most of all.  
   → Бери с собой соседей, друзей и детей. Детям часто нравится больше всех.
-- [ ] **32803.** Don't plan too much. Two or three hours of work is quite enough.  
+- [ ] **32803.** Don't plan too much. Two or three hours of work is plenty.  
   → Не планируй слишком много. Двух-трёх часов работы вполне достаточно.
 - [ ] **32804.** And don't forget the most important thing: after the work there has to be soup.  
   → И не забудь самое важное: после работы обязательно должен быть суп.
@@ -66705,8 +66705,8 @@ _lib/copy/i18n/areas/lessonTextC1Maa.ts_
   → Я думаю, это было неправильно, потому что язык, на котором говорят дома, всегда важен.
 - [ ] **33163.** At the same time I understand why the teacher said it: back then ordinary Estonian mattered for every child.  
   → В то же время я понимаю, почему учитель так говорил: тогда обычный эстонский был важен для каждого ребёнка.
-- [ ] **33164.** Now young people speak it again too, and I think that's wonderful.  
-  → Теперь на нём снова говорит и молодёжь, и, по-моему, это замечательно.
+- [ ] **33164.** Now young people speak it again too, and I think that's really nice.  
+  → Теперь на нём снова говорит и молодёжь, и, по-моему, это очень здорово.
 - [ ] **33165.** Her grandmother spoke only the local language at home  
   → Её бабушка дома говорила только на местном языке
 - [ ] **33166.** The teacher said it was just a dialect  
@@ -66759,8 +66759,8 @@ _lib/copy/i18n/areas/lessonTextC1Maa.ts_
   → Когда на хуторской кухне на местном языке говорят: «Заходи, осмотрись!», даже горожанин понимает, что его зовут в дом и предлагают осмотреться.
 - [ ] **33190.** Most of the words are familiar; only the sounds are a little different.  
   → Большинство слов знакомы, только звуки немного другие.
-- [ ] **33191.** And if a word stays completely unclear, it's worth simply asking.  
-  → А если какое-то слово совсем непонятно, стоит просто спросить.
+- [ ] **33191.** And if a word stays quite unclear, it's worth simply asking.  
+  → А если какое-то слово довольно непонятно, стоит просто спросить.
 - [ ] **33192.** The people of the south-east like talking about their language, and one question often turns into a long story.  
   → Жители юго-востока охотно говорят о своём языке, и часто из одного вопроса получается долгий разговор.
 - [ ] **33193.** So what is there to do in {Võrumaa}?  
@@ -71970,7 +71970,7 @@ _lib/copy/i18n/areas/sounds.ts_
   → огонь
 - [ ] **35788.** a quarrel  
   → ссора
-- [ ] **35789.** a nail  
+- [ ] **35789.** a fingernail  
   → ноготь
 - [ ] **35790.** a sphere  
   → шар

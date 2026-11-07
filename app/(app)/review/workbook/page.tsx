@@ -34,6 +34,11 @@ import { Empty, Page } from "@/components/ui";
 import { BeforeYouStart } from "@/components/round/Briefing";
 import { WorkbookSession, type WorkbookExercise } from "./WorkbookSession";
 import { roundPageTitle } from "@/lib/ux/roundNames";
+import { lessonById } from "@/lib/course/lessons";
+import { lessonSentences, lessonWorksheetLemmas } from "@/lib/course/lessonWorksheet";
+import { headwordsOfExactForm } from "@/lib/dict/forms";
+import { words } from "@/lib/scenes/lexicon";
+import type { Example } from "@/lib/dict/examples";
 
 export async function generateMetadata() {
   return roundTitleFor("/review/workbook");
@@ -167,6 +172,23 @@ export default async function WorkbookPage({
     learnerDayClock(ownerId),
   ]);
   const opened = focusFrom(params) !== null;
+  /*
+    A PAGE OF ONE LESSON'S OWN, offered on that lesson's finish
+    (`lib/course/lessonWorksheet.ts`): its words, and its own sentences first,
+    topped up with the dictionary's sentences for the same words. Without a
+    lesson the page is the general one, which is what Practice opens.
+  */
+  const lesson = typeof params.lesson === "string" ? lessonById(params.lesson) ?? null : null;
+  const lessonExamples: Example[] = lesson ? lessonSentences(lesson).map((l) => ({ ...l, source: "AUTHORED" as const })) : [];
+  /*
+    The words it asks about: what the lesson teaches first, then every other
+    word its own sentences use, by the headword the forms list says each
+    spelling is. A lesson teaches a handful of words, and a page of those
+    alone was three lines for a quarter of the lessons; with the words its
+    sentences carry, every lesson from B1 fills a page (measured over the
+    shipped dictionary, about half of it cut from the lesson's own sentences).
+  */
+  const lessonLemmas = lesson ? await wordsOfLesson(lesson, lessonExamples) : null;
   const requested = parseTheme(typeof params.theme === "string" ? params.theme : null);
   const taught = scope ? new Set(scope.lemmas) : null;
 
@@ -184,7 +206,7 @@ export default async function WorkbookPage({
     prisma.card.findMany({
       where: {
         ownerId, suspended: false, lexemeId: { not: null },
-        ...(taught ? { lexeme: { lemma: { in: [...taught] } } } : {}),
+        ...(lessonLemmas ? { lexeme: { lemma: { in: lessonLemmas } } } : taught ? { lexeme: { lemma: { in: [...taught] } } } : {}),
       },
       select: cardSelect,
       // The words that will not stick first, then the most overdue, because a
@@ -196,8 +218,11 @@ export default async function WorkbookPage({
       where: {
         ...VOUCHED_ROW,
         pos: { in: ["NOUN", "ADJECTIVE", "VERB"] },
-        cefr: { in: [...bandsAround(level)] },
-        ...(taught ? { lemma: { in: scope ? recentLemmas(scope, 400) : [] } } : {}),
+        // A lesson's page reads that lesson's words whatever their band; the general page reads around the learner's.
+        ...(lessonLemmas ? { lemma: { in: lessonLemmas } } : {
+          cefr: { in: [...bandsAround(level)] },
+          ...(taught ? { lemma: { in: scope ? recentLemmas(scope, 400) : [] } } : {}),
+        }),
       },
       select: { id: true, lemma: true },
       // Ordered because it is cut; shuffled below so a second page is not the first.
@@ -240,7 +265,11 @@ export default async function WorkbookPage({
     ? byRecency(scope, own, (id) => ownLemma.get(id))
     : [...own.slice(0, 20), ...shuffle(own.slice(20))];
   const ownSet = new Set(own);
-  const candidateIds = [...new Set([
+  // A lesson's page asks its words in the lesson's order: the words it teaches, then the rest of its sentences'.
+  const lessonRank = new Map((lessonLemmas ?? []).map((l, i) => [l, i] as const));
+  const candidateIds = lessonLemmas ? [...topUp, ...ownRows]
+    .sort((a, b) => (lessonRank.get(a.lemma) ?? Infinity) - (lessonRank.get(b.lemma) ?? Infinity))
+    .map((r) => r.id).filter((id, i, all) => all.indexOf(id) === i) : [...new Set([
     ...ownOrdered.slice(0, OWN_WORDS),
     ...pronouns.filter((p) => !taught || taught.has(p.lemma)).map((p) => p.id),
     ...shuffle(topUp.filter((r) => !ownSet.has(r.id))).slice(0, TOP_UP).map((r) => r.id),
@@ -308,7 +337,31 @@ export default async function WorkbookPage({
     }
     return out;
   };
-  const items: SheetItem[] = linesOf(await lexemesFor(candidateIds), candidateIds);
+  /*
+    A LESSON'S OWN SENTENCES FIRST. Each word's lines are cut from the
+    lesson's sentences where one carries a form of it, and the dictionary's
+    fill the slots they do not. They are not held to the reach the dictionary's
+    are (`withinReach`), since a lesson's sentence names its own people and is
+    one the learner has just read with its English; they are still marked
+    against the dictionary's forms like any other line.
+  */
+  const linesOfLesson = (rows: Awaited<ReturnType<typeof lexemesFor>>, order: readonly string[]): SheetItem[] => {
+    const plain = linesOf(rows, order);
+    if (!lesson) return plain;
+    const byId = new Map(rows.map((l) => [l.id, l]));
+    const own: SheetItem[] = [];
+    for (const id of order) {
+      const l = byId.get(id);
+      if (!l) continue;
+      own.push(...linesFor({
+        lexemeId: l.id, lemma: l.lemma, translation: l.translation, pos: l.pos, semanticTypes: l.semanticTypes, forms: l.forms,
+        examples: lessonExamples,
+      }, { ...gates, sentenceOk: () => true }, new Set(), null));
+    }
+    const taken = new Set(own.map((i) => i.id));
+    return [...own, ...plain.filter((i) => !taken.has(i.id))];
+  };
+  const items: SheetItem[] = linesOfLesson(await lexemesFor(candidateIds), candidateIds);
 
   const weakest = caseAccuracy(caseRows, 3).filter((c) => c.accuracy < WEAK_BELOW).map((c) => c.grammCase);
   /*
@@ -323,11 +376,26 @@ export default async function WorkbookPage({
   const plans: ExercisePlan[] = opened
     ? [{ lines: IN_MODULE[level] ?? 8, kind: "write" }]
     : [{ lines: FIRST[level] ?? 10, kind: firstKind }, { lines: SECOND, kind: secondKind }];
-  const { themes: prefer, urgent } = themeOrder({
+  const ordered = themeOrder({
     requested, tonight: tonightsCase(scope), weakest, themeOk, turn: (opened ? 0 : dayOrdinal(clock.dayKey())) + round,
     fills: (theme) => canFill(items, theme, plans[0]!.lines, plans[0]!.kind),
   });
-  let sheet = composeSheet(items, prefer, plans, urgent);
+  /*
+    A LESSON'S PAGE IS THE LESSON. It is a handful of words, so a page on one
+    case would be three lines: it leads with the lesson's own point where that
+    fills a page, and is otherwise every form the lesson's words carry, mixed,
+    as long as it has words for, then a page of words to choose, as the
+    general page has.
+  */
+  const lessonWords = new Set(items.map((i) => i.lexemeId)).size;
+  const lessonPlans: ExercisePlan[] = [
+    { lines: Math.max(MIN_LINES, Math.min(FIRST[level] ?? 10, lessonWords - 1)), kind: "write" },
+    { lines: SECOND, kind: "box" },
+  ];
+  const { themes: prefer, urgent } = lesson
+    ? { themes: [...(requested && canFill(items, requested, lessonPlans[0]!.lines) ? [requested] : []), "mixed" as const], urgent: 1 }
+    : ordered;
+  let sheet = composeSheet(items, prefer, lesson ? lessonPlans : plans, urgent);
 
   /*
     A PAGE ON THE CASE THEY NEED IS FILLED FROM FURTHER AFIELD. The first
@@ -346,7 +414,7 @@ export default async function WorkbookPage({
     const first = sheet.exercises[0];
     return !first || first.theme !== lead || first.lines.length < fill;
   };
-  if (lead && leadShort()) {
+  if (lead && !lesson && leadShort()) {
     const tried = new Set(candidateIds);
     const spare = shuffle(topUp.filter((r) => !tried.has(r.id))).map((r) => r.id);
     for (let at = 0; at < spare.length && leadShort(); at += LEAD_CHUNK) {
@@ -358,6 +426,18 @@ export default async function WorkbookPage({
     }
   }
 
+  if (sheet.exercises.length === 0 && lesson) {
+    const locale = await localeFor(ownerId);
+    return (
+      <Page {...roundPageTitle("/review/workbook", (english) => tr(locale, english))} lead={tr(locale, "A course book's exercise, set from one lesson's words and sentences.")}>
+        <Empty
+          title={tr(locale, "This lesson's words don't fill a page yet")}
+          body={tr(locale, "Its sentences don't hold enough forms to ask about. The general page uses every word you've learned.")}
+          action={<ButtonLink href="/review/workbook" variant="primary">{tr(locale, "Open the general page")}</ButtonLink>}
+        />
+      </Page>
+    );
+  }
   if (sheet.exercises.length === 0) {
     const locale = await localeFor(ownerId);
     return (
@@ -409,4 +489,11 @@ export default async function WorkbookPage({
       />
     </BeforeYouStart>
   );
+}
+
+/** A lesson's words: the ones it teaches, then the headwords of every other word its sentences use, once each. */
+async function wordsOfLesson(lesson: NonNullable<ReturnType<typeof lessonById>>, sentences: readonly Example[]): Promise<string[]> {
+  const spellings = [...new Set(sentences.flatMap((s) => words(s.et)))];
+  const owners = await Promise.all(spellings.map((w) => headwordsOfExactForm(w)));
+  return [...new Set([...lessonWorksheetLemmas(lesson), ...owners.flat()])];
 }

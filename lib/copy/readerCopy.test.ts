@@ -92,6 +92,17 @@ const ALLOWED = new Map<string, { rules: Rule[]; only?: string[]; why: string }>
     },
   ],
   [
+    "lib/games/sonadShare.ts",
+    {
+      rules: ["emoji"],
+      why:
+        "Builds the text a finished Sõnad board is shared as: a grid of colored circles, one per " +
+        "letter, which is the board without its letters and is what a word game sent to a friend " +
+        "looks like. The circles are the grid, never a picture in a sentence of copy. Excused for " +
+        "the emoji rule only.",
+    },
+  ],
+  [
     "lib/games/map.ts",
     {
       rules: ["emoji"],

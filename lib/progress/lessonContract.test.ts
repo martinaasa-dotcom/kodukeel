@@ -35,7 +35,8 @@ const specAgrees: Same<z.infer<typeof LessonSpecSchema>, LessonSpec> = true;
 const itemAgrees: Same<z.infer<typeof PracticeItemSchema>, PracticeItem> = true;
 const resultAgrees: Same<z.infer<typeof CheckResultSchema>, CheckResult> = true;
 const viewAgrees: Same<Omit<z.infer<typeof LessonResponse>, "locale" | "translations" | "nativePart">, LessonView> = true;
-const runnerAgrees: Same<LessonView, Required<Omit<ComponentProps<typeof LessonRunner>, "conversation">>> = true;
+// The website reads two things beside the view: whether the lesson was finished before, and what was said on it then (`lessonAnswers.ts`).
+const runnerAgrees: Same<LessonView, Required<Omit<ComponentProps<typeof LessonRunner>, "conversation" | "finishedBefore" | "keptAnswers">>> = true;
 const paperAgrees: Same<z.infer<typeof CheckResponse>["items"], ComponentProps<typeof CheckRunner>["items"]> = true;
 
 describe("the v1 lesson contract", () => {

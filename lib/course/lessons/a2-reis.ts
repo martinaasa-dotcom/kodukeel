@@ -391,7 +391,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
         "The seller asks the questions in a fixed order: where, when, one way or round trip, when you're coming back.",
         "At the end, the seller speaks to you. Answer as yourself, one turn at a time.",
       ],
-      watchOut: "{Kas homme on bussi?} is is there a bus tomorrow: when you ask whether there is any at all, the thing often takes the [osastav] (3rd form) after {kas on}.",
+      watchOut: "{Kas homme on bussi?} is is there a bus tomorrow: when you ask whether there is any at all, the noun ({bussi} here) often takes the [osastav] (3rd form) after {kas on}.",
       examples: [1, 3, 5],
     },
     answers: [

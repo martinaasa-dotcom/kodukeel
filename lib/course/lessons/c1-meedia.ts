@@ -200,6 +200,11 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
       model: { et: "Valitsus arutab eelnõud, mis keelaks koolis telefoni kasutada. Kehtiva seaduse järgi otsustab iga kool ise. Lahendamata on aga küsimus, kes seda kontrollib.", en: "The government is discussing a bill that would ban using phones at school. Under the law in force, each school decides for itself. What's still unsolved, though, is who checks it." },
       seconds: [60],
       prepare: 60,
+      checks: [
+        { en: "A thing described by what's happening to it ({kehtiva seaduse}, {lahendamata} here).", any: ["kehtiv", "kehtiva", "arutatav", "*mata"] },
+        { en: "The bill, {eelnõu}.", any: ["eelnõu", "eelnõud"] },
+        { en: "What's still unsolved, with {küsimus}.", any: ["küsimus", "küsimuse", "küsimust"] },
+      ],
     },
   },
   {
@@ -264,7 +269,7 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
       watchOut: "When the radio says a study {näitab seost}, nobody has shown that one thing causes the other. Don't pass it on as {Telefon on süüdi}.",
       examples: [4, 6, 9],
     },
-    hearing: "quick",
+    hearing: "half",
     listenFor: [
       { q: "Who is today's guest?", options: ["A sleep researcher", "A doctor from a hospital", "A teacher", "A radio journalist"], answer: 0 },
       { q: "What does the study show about phones in bed?", options: ["A link, not a cause", "That phones cause bad sleep", "Nothing at all", "That young people sleep the most"], answer: 0 },
@@ -573,6 +578,11 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
       model: { et: "Firma müüdavat maha ja kontor viidavat linnast välja. Juht olevat telefonis öelnud, et kõik hakkab muutuma. Mina arvan, et see on lihtsalt kuulujutt, aga tõde tuleb nagunii välja.", en: "The firm is supposedly being sold and the office moving out of town. The boss is supposed to have said on the phone that everything's going to change. I think it's just a rumor, but the truth comes out anyway." },
       seconds: [60],
       prepare: 60,
+      checks: [
+        { en: "Passed on, with -tavat or -davat ({müüdavat}, {viidavat} here).", any: ["*avat"], near: ["müüakse"] },
+        { en: "What somebody said, with {olevat} ({Juht olevat öelnud} here).", any: ["olevat"] },
+        { en: "What you think, with {arvan}.", any: ["arvan"] },
+      ],
     },
   },
   {
@@ -636,7 +646,7 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
         "A film says a lot by not saying it. {No küll sa oled tark} said to somebody who has just done something stupid means the opposite: listen for what the scene makes of the words.",
         "When a line refers to something you don't know, ask: to a friend {Millele sa viitad?}, at work {Vabandust, millele te viitate?}.",
       ],
-      watchOut: "{Arusaamatu} is about the thing, not you: {nali oli mulle arusaamatu}, the joke went over my head. Don't say {ma olen arusaamatu}, which would mean nobody can understand you.",
+      watchOut: "{Arusaamatu} is about the noun ({nali} here), not you: {nali oli mulle arusaamatu}, the joke went over my head. Don't say {ma olen arusaamatu}, which would mean nobody can understand you.",
       examples: [3, 5, 10],
     },
     hearing: "cafe",
@@ -949,6 +959,11 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
       model: { et: "Saates oli külaliseks teadlane Liina, kes uurib und. Uuringu järgi magavad eestlased veidi alla seitsme tunni ja noored kõige vähem. Kõige tähtsam oli see, et uuring näitab seost, mitte põhjust. Lõpuks andis ta kolm soovitust. Minu meelest oli see väga huvitav.", en: "The guest on the program was the scientist Liina, who studies sleep. According to the study, Estonians sleep a little under seven hours and the young the least. The most important thing was that the study shows a link, not a cause. At the end she gave three pieces of advice. I thought it was really interesting." },
       seconds: [60],
       prepare: 60,
+      checks: [
+        { en: "Who said it, with {sõnul} or {järgi} ({uuringu järgi} here).", any: ["sõnul", "järgi"] },
+        { en: "The points in order, with {kõige tähtsam} or {lõpuks}.", any: ["kõige tähtsam", "lõpuks"] },
+        { en: "Your own view last, with {minu meelest}.", any: ["minu meelest"] },
+      ],
     },
   },
   {

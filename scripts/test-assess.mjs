@@ -94,6 +94,13 @@ const CASE_NAMES = [
   sitting that climbed would have run out of steps before the result screen and
   reported it as the paper not ending.
 */
+/*
+  Every press in the loop is given five seconds and then let go, because the
+  loop reads the screen afresh on every pass. On a slow CI runner a question
+  can be redrawn under a press (the same paper re-rendered), and a press that
+  waits out Playwright's thirty seconds on a detached node throws the whole
+  suite away over a frame; the next pass finds the new node and presses that.
+*/
 for (let step = 0; step < 200; step++) {
   if ((await page.getByText("Skill by skill").count()) > 0) break;
 
@@ -101,7 +108,7 @@ for (let step = 0; step < 200; step++) {
   const startSection = page.getByRole("button", { name: /^Start this section$/ });
   if (await startSection.count()) {
     if ((await page.getByText("Speaking", { exact: true }).count()) > 0) sawSpeaking = true;
-    await startSection.first().click();
+    await startSection.first().click({ timeout: 5000 }).catch(() => {});
     await page.waitForTimeout(120);
     continue;
   }
@@ -113,21 +120,24 @@ for (let step = 0; step < 200; step++) {
     sawWriting = true;
     sawWritingGap ||= (await page.locator("main .sr-only", { hasText: "blank" }).count()) > 0;
     await missing.fill("toas");
-    await page.getByRole("button", { name: /^Check$/ }).click();
+    await page.getByRole("button", { name: /^Check$/ }).click({ timeout: 5000 }).catch(() => {});
     await page.waitForTimeout(150);
     const next = page.getByRole("button", { name: /Next question/ });
-    if (await next.count()) { asked++; await next.click(); await page.waitForTimeout(120); }
+    if (await next.count()) { asked++; await next.click({ timeout: 5000 }).catch(() => {}); await page.waitForTimeout(120); }
     continue;
   }
 
   // Dictation, where there is audio to write down.
   const heard = page.getByLabel("What you heard");
   if (await heard.count()) {
-    await heard.fill("Ma olen toas");
-    await page.getByRole("button", { name: /^Check$/ }).click();
+    /* Dictation is listening, so a refused clip abandons it while the driver
+       types, and a fill with no timeout waits out thirty seconds for a box
+       that has correctly gone. The loop reads the screen again instead. */
+    if (!(await heard.fill("Ma olen toas", { timeout: 5000 }).then(() => true, () => false))) continue;
+    await page.getByRole("button", { name: /^Check$/ }).click({ timeout: 5000 }).catch(() => {});
     await page.waitForTimeout(150);
     const next = page.getByRole("button", { name: /Next question/ });
-    if (await next.count()) { asked++; await next.click(); await page.waitForTimeout(120); }
+    if (await next.count()) { asked++; await next.click({ timeout: 5000 }).catch(() => {}); await page.waitForTimeout(120); }
     continue;
   }
 
@@ -140,7 +150,7 @@ for (let step = 0; step < 200; step++) {
   const selfRating = page.getByRole("button", { name: /Fairly sure/ });
   if (await selfRating.count()) {
     saidNotScored ||= (await page.getByText(/never moves your level|part isn.t scored/i).count()) > 0;
-    await selfRating.click();
+    await selfRating.click({ timeout: 5000 }).catch(() => {});
     await page.waitForTimeout(150);
     continue;
   }
@@ -189,19 +199,19 @@ for (let step = 0; step < 200; step++) {
       const idk = page.getByRole("button", { name: /I don.t know/ });
       sawUnsureButton = (await idk.count()) > 0 && (await idk.first().isEnabled());
       if (sawUnsureButton) {
-        await idk.first().click();
+        await idk.first().click({ timeout: 5000 }).catch(() => {});
         await page.waitForTimeout(150);
         unsureSaidNotSure = (await page.getByText("Not sure", { exact: true }).count()) > 0;
         unsureShowedAnswer = (await page.locator("main .choice-btn svg.lucide-check").count()) > 0;
         const nextAfter = page.getByRole("button", { name: /Next question/ });
-        if (await nextAfter.count()) { asked++; await nextAfter.click(); await page.waitForTimeout(120); }
+        if (await nextAfter.count()) { asked++; await nextAfter.click({ timeout: 5000 }).catch(() => {}); await page.waitForTimeout(120); }
         continue;
       }
     }
-    await choice.first().click();
+    await choice.first().click({ timeout: 5000 }).catch(() => {});
     await page.waitForTimeout(150);
     const next = page.getByRole("button", { name: /Next question/ });
-    if (await next.count()) { asked++; await next.click(); await page.waitForTimeout(120); }
+    if (await next.count()) { asked++; await next.click({ timeout: 5000 }).catch(() => {}); await page.waitForTimeout(120); }
     continue;
   }
 
@@ -214,7 +224,7 @@ for (let step = 0; step < 200; step++) {
     only when the options are genuinely unpressable.
   */
   const noAudio = page.getByRole("button", { name: /The audio won.t play/ });
-  if (await noAudio.count()) { await noAudio.first().click(); await page.waitForTimeout(200); continue; }
+  if (await noAudio.count()) { await noAudio.first().click({ timeout: 5000 }).catch(() => {}); await page.waitForTimeout(200); continue; }
   break;
 }
 

@@ -38,6 +38,8 @@ import { TalkItOver } from "@/components/course/TalkItOver";
 import { chatAffordable, chatFits, chattedAbout, planChat } from "@/lib/progress/chat";
 import { finishedEvening } from "@/lib/progress/chatDay";
 import { recapWords } from "@/lib/course/recap";
+import { moduleDoneFigures } from "@/lib/progress/moduleDone";
+import { ModuleProgress } from "@/components/course/ModuleProgress";
 
 export async function generateMetadata() {
   return titleFor("Today's module");
@@ -355,6 +357,7 @@ export default async function CoursePage({
   */
   if (reading.finishedToday && !startNow) {
     const justDone = dayById(programme, programme.days[day.index - 2]?.id ?? "");
+    const progressFigures = await moduleDoneFigures(ownerId, programme.level, clock, now);
     return (
       <Page
         eyebrow={
@@ -476,12 +479,23 @@ export default async function CoursePage({
 
           <CourseFit offer={fit.offer} tilt={fit.tilt} snoozed={fit.snoozed} effects={fit.effects} locale={locale} />
 
-          <Card>
-            <SectionTitle hint={fill(t("{done} of {total}"), { done: reading.daysDone, total })}>{t("Where you are")}</SectionTitle>
-            <div className="mt-3">
-              <Meter pct={Math.round((reading.daysDone / total) * 100)} label={t(programme.subtitle)} />
-            </div>
-          </Card>
+          {/*
+            WHERE THE LEARNER STANDS, IN THE UNITS THEY THINK IN. This was a
+            card reading "1 of 6" over a thin bar, reported as meaningless: it
+            counted evenings in one part. What replaced it is the level, the
+            goal, today's gain, the words and what is ahead
+            (`components/course/ModuleProgress.tsx`).
+          */}
+          <ModuleProgress
+            figures={progressFigures}
+            programme={programme}
+            programmes={PROGRAMMES}
+            daysDone={reading.daysDone}
+            learnerLevel={level}
+            partLabel={fill(t("{part}, evening {done} of {total}"), { part: programme.id.toUpperCase(), done: reading.daysDone, total })}
+            zone={clock.zone}
+            locale={locale}
+          />
         </Stack>
       </Page>
     );

@@ -71,6 +71,13 @@ export const ACTION_LIMITS = {
    */
   addCommonWords: { perMinute: 12 },
   /**
+   * A whole level the learner is credited with, two cards a word, in one
+   * press (`addPassedLevelWords`). Up to about five hundred words through
+   * `addPlanToDeck` under the deck lock; there are at most four such levels,
+   * so six a minute is never met by anybody pressing on purpose.
+   */
+  addPassedLevelWords: { perMinute: 6 },
+  /**
    * The evening's words into the deck, which is the same bulk build on a day's
    * words. A press per evening, and a module a learner walks through quickly
    * is still a handful of presses a minute at most.

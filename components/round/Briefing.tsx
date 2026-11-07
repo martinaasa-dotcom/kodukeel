@@ -46,7 +46,17 @@ export function BeforeYouStart({ id, ready = true, count, children }: {
    * rather than written into the copy, because it is a fact about this
    * learner's deck tonight and the table is the same for everybody.
    */
-  count?: { n: number; noun: string } | null;
+  count?: {
+    n: number;
+    noun: string;
+    /**
+     * Where this round is one sitting of a longer backlog, how much is due in
+     * all, so sixty out of 117 is never read as the whole day's review.
+     */
+    ofDue?: number;
+    /** Whether `ofDue` is a floor because the count stopped reading. */
+    ofDueAtLeast?: boolean;
+  } | null;
   children: ReactNode;
 }) {
   const brief = briefingFor(id);
@@ -121,7 +131,11 @@ export function BeforeYouStart({ id, ready = true, count, children }: {
         </h1>
         {count && count.n > 0 && (
           <p className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
-            {fill(t("{count} in this round"), { count: countOf(locale, count.n, count.noun) })}
+            {count.ofDue && count.ofDue > count.n
+              ? fill(t(count.ofDueAtLeast ? "{count} in this round, of more than {total} due today" : "{count} in this round, of {total} due today"), {
+                  count: countOf(locale, count.n, count.noun), total: count.ofDue,
+                })
+              : fill(t("{count} in this round"), { count: countOf(locale, count.n, count.noun) })}
           </p>
         )}
         <BriefingSteps what={t(brief.what)} you={t(brief.you)} className="round-brief-gap" />

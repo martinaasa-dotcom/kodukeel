@@ -80,8 +80,8 @@ export const TWINS: Area = {
       "Если встречаешь кого-то случайно, человек стоит как прямое дополнение. Если встречаешься по договорённости, то встречаешься с ним.",
     "No shared root here, but the same split: seeing just happens, looking is on purpose.":
       "Общего корня здесь нет, но разделение то же: видим мы невольно, а смотрим намеренно.",
-    "Nothing after it: the thing begins by itself. An object after it: you begin something. Another verb after it: you start doing that.":
-      "Ничего после глагола: что-то начинается само. Дополнение после глагола: ты что-то начинаешь. Другой глагол после него: ты начинаешь это делать.",
+    "Nothing after it: the noun before it begins by itself. An object after it: you begin something. Another verb after it: you start doing that.":
+      "Ничего после глагола: существительное перед ним начинается само. Дополнение после глагола: ты что-то начинаешь. Другой глагол после него: ты начинаешь это делать.",
     "Facts and answers take the first. People, places and feelings take the second.":
       "Первое слово используют для фактов и ответов, второе для людей, мест и чувств.",
     "The first sets off in one direction, to somewhere. The second is going there and back, so a visit says where you were, and it is also walking, a habit, or something under way, like repairs or a meeting.":
@@ -330,8 +330,8 @@ export const TWINS: Area = {
       "Якщо зустрічаєш когось випадково, людина стоїть як прямий додаток. Якщо зустрічаєшся за домовленістю, то зустрічаєшся з нею.",
     "No shared root here, but the same split: seeing just happens, looking is on purpose.":
       "Спільного кореня тут нема, але поділ той самий: бачимо ми мимоволі, а дивимося навмисно.",
-    "Nothing after it: the thing begins by itself. An object after it: you begin something. Another verb after it: you start doing that.":
-      "Нічого після дієслова: щось починається само. Додаток після дієслова: ти щось починаєш. Інше дієслово після нього: ти починаєш це робити.",
+    "Nothing after it: the noun before it begins by itself. An object after it: you begin something. Another verb after it: you start doing that.":
+      "Нічого після дієслова: іменник перед ним починається сам. Додаток після дієслова: ти щось починаєш. Інше дієслово після нього: ти починаєш це робити.",
     "Facts and answers take the first. People, places and feelings take the second.":
       "Перше слово вживають для фактів і відповідей, друге для людей, місць і почуттів.",
     "The first sets off in one direction, to somewhere. The second is going there and back, so a visit says where you were, and it is also walking, a habit, or something under way, like repairs or a meeting.":

@@ -130,7 +130,7 @@ export async function backupFor(ownerId: string) {
     lexemes, cards, reviews, tasks, studyEvents, scans,
     settings, messages, assessments, stars, achievements,
     examAttempts, classrooms, classroomMembers, suggestions, sceneRuns, sceneGaps, encounters,
-    decks, deckWords, deferrals, courseSteps, emailSends, pushSubscriptions, nativePushDevices, wordChecks,
+    decks, deckWords, deferrals, courseSteps, lessonAnswers, emailSends, pushSubscriptions, nativePushDevices, wordChecks,
   ] = await Promise.all([
     prisma.lexeme.findMany({ where: { id: { in: [...mine] } }, include: { forms: true } }),
     prisma.card.findMany({ where: { ownerId } }),
@@ -185,6 +185,8 @@ export async function backupFor(ownerId: string) {
     // of every day's steps are read off the review log and are deliberately
     // not in here, and these are the ones that are not.
     prisma.courseStep.findMany({ where: { ownerId }, orderBy: { createdAt: "asc" } }),
+    // What they said on each lesson's Say it, the latest time through: their own words, and what was found in them.
+    prisma.lessonAnswer.findMany({ where: { ownerId }, orderBy: { lessonId: "asc" } }),
     // Which letters we sent them and when. A record of contact rather than of
     // work, and theirs for that reason: it is the only place that says this
     // deployment wrote to them, and it holds nothing about whether they opened
@@ -243,6 +245,7 @@ export async function backupFor(ownerId: string) {
       decks: decks.length, deckWords: deckWords.length,
       deferrals: deferrals.length,
       courseSteps: courseSteps.length,
+      lessonAnswers: lessonAnswers.length,
       emailSends: emailSends.length,
       pushSubscriptions: pushSubscriptions.length,
       nativePushDevices: nativePushDevices.length,
@@ -251,7 +254,7 @@ export async function backupFor(ownerId: string) {
     lexemes: lexemesOut, cards, reviews, tasks, studyEvents, scans,
     settings, messages, assessments, stars, achievements,
     examAttempts, classrooms, classroomMembers, suggestions: suggestionsOut, sceneRuns, sceneGaps, encounters,
-    decks, deckWords, deferrals, courseSteps, emailSends, pushSubscriptions, nativePushDevices, wordChecks,
+    decks, deckWords, deferrals, courseSteps, lessonAnswers, emailSends, pushSubscriptions, nativePushDevices, wordChecks,
   };
 
   return payload;

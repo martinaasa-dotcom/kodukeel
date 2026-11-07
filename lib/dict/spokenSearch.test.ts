@@ -51,13 +51,17 @@ describe("a spelling heard rather than read", () => {
   });
 
   it("offers it first wherever no other entry sounds the same", () => {
+    // Each entry's sound key is counted once and each search is made once: worked
+    // out per word, this test ran past its 20-second limit on a busy CI runner.
+    const alike = new Map<string, number>();
+    for (const e of ENTRIES) alike.set(soundKey(e.lemma), (alike.get(soundKey(e.lemma)) ?? 0) + 1);
     let asked = 0;
     for (const { lemma, heard } of MISHEARD) {
-      const alike = ENTRIES.filter((e) => soundKey(e.lemma) === soundKey(lemma)).length;
-      if (alike > 1) continue;
-      if (nearbyEntries(heard, ENTRIES).some((n) => n.why === "english")) continue;
+      if ((alike.get(soundKey(lemma)) ?? 0) > 1) continue;
+      const offered = nearbyEntries(heard, ENTRIES);
+      if (offered.some((n) => n.why === "english")) continue;
       asked++;
-      expect(nearbyEntries(heard, ENTRIES)[0]?.lemma).toBe(lemma);
+      expect(offered[0]?.lemma).toBe(lemma);
     }
     expect(asked).toBeGreaterThan(100);
   });
