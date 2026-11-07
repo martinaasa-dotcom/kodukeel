@@ -88,9 +88,12 @@ export function WhyThisForm({ lesson, why, table }: { lesson: LessonSpec; why: W
           <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{said.et}</span>
         </p>
         <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>
-          <LessonText text={said.en ?? ""} locale={locale} />{" "}
-          {t("Why")} <span lang="et" className="font-semibold" style={{ color: "var(--accent-deep)" }}>{pick.form}</span>?
+          <LessonText text={said.en ?? ""} locale={locale} />
         </p>
+        {/* The question the walk answers, on its own line and set as a heading, so it is the first thing read. */}
+        <h4 className="mt-4 text-xl font-semibold" style={{ color: "var(--ink)" }} data-why-ask>
+          {t("Why")} <span lang="et" style={{ color: "var(--accent-deep)" }}>{pick.form}</span>?
+        </h4>
         {path.length > 0 && (
           <ol className="mt-4 flex flex-col gap-2">
             {path.map((s) => (
