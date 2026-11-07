@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { ArrowRight, Timer } from "lucide-react";
+import { ArrowRight, Check, Timer, X } from "lucide-react";
 import { Button } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { Speak } from "@/components/Speak";
@@ -12,6 +12,7 @@ import { LessonText } from "@/components/course/LessonText";
 import { Card, SectionTitle } from "@/components/ui";
 import { countOf, fill } from "@/lib/copy/locale";
 import { fasterWindows, goOf, type Go } from "@/lib/course/lessons/faster";
+import { readChecks } from "@/lib/course/lessons/fasterChecks";
 import type { Faster } from "@/lib/course/lessons/types";
 import { useKeep } from "@/components/course/useKeep";
 
@@ -47,6 +48,8 @@ export interface FasterKept {
   readonly prepared?: boolean;
   /** Which of two topics was chosen, by index, where the race offers a choice (C1's presentation). */
   readonly topic?: number;
+  /** Anu's note on the first go, once it has been asked for: null where none came, so it is not asked again. */
+  readonly note?: string | null;
 }
 
 /*
@@ -57,7 +60,7 @@ export interface FasterKept {
   waits for the learner's press, so nothing here starts timing anybody who has
   not said they are ready.
 */
-export function AgainFaster({ faster, voice, typed, multiplier, onDone, kept, onKeep }: { faster: Faster; voice: string | undefined; typed: boolean; multiplier: number; onDone: () => void; kept?: FasterKept; onKeep?: (kept: FasterKept) => void }) {
+export function AgainFaster({ lessonId, faster, voice, typed, multiplier, onDone, kept, onKeep }: { lessonId: string; faster: Faster; voice: string | undefined; typed: boolean; multiplier: number; onDone: () => void; kept?: FasterKept; onKeep?: (kept: FasterKept) => void }) {
   const t = useT();
   const locale = useLocale();
   const [goes, setGoes] = useState<readonly Go[]>(kept?.goes ?? []);
@@ -71,7 +74,36 @@ export function AgainFaster({ faster, voice, typed, multiplier, onDone, kept, on
   const topics = faster.topics ?? [];
   const [topic, setTopic] = useState<number | null>(kept?.topic ?? null);
   const choosing = topics.length > 0 && topic === null && !prepared;
-  useKeep(useMemo(() => ({ goes, helped, prepared, ...(topic !== null ? { topic } : {}) }), [goes, helped, prepared, topic]), onKeep);
+  /*
+    ANU'S NOTE, AFTER THE FIRST GO ONLY (`/api/course/faster/note`). Asked
+    once the first go's checklist is on the screen, so the checklist draws at
+    once and the note arrives beside it, before the second go is started.
+    Undefined is not asked yet, "waiting" is in flight, null is a real answer
+    (no model, the allowance spent, a note that reached for Estonian nobody
+    said): then the checklist stands alone and nothing apologizes for it.
+  */
+  const [note, setNote] = useState<string | null | "waiting" | undefined>(kept?.note);
+  const first = goes[0];
+  useEffect(() => {
+    if (note !== undefined || !first || !/\p{L}/u.test(first.said)) return;
+    let live = true;
+    setNote("waiting");
+    fetch("/api/course/faster/note", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ lessonId, said: first.said, spoken: first.spoken }),
+    })
+      .then((res) => (res.ok ? res.json() as Promise<{ note: { comment: string } | null }> : { note: null }))
+      .then((data) => { if (live) setNote(data.note?.comment ?? null); })
+      .catch(() => { if (live) setNote(null); });
+    return () => { live = false; };
+    // One note, asked once, about the first go: the state it sets is what stops a second ask.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [first, lessonId]);
+  const keptNote = note === "waiting" ? undefined : note;
+  useKeep(useMemo(() => ({ goes, helped, prepared, ...(topic !== null ? { topic } : {}), ...(keptNote !== undefined ? { note: keptNote } : {}) }), [goes, helped, prepared, topic, keptNote]), onKeep);
+  // A go just taken hands the caret to what was heard; a go restored from before does not.
+  const justWent = useRef(false);
   // "Need an idea?" goes once pressed, so the caret goes to the idea it showed.
   const ideaRef = useRef<HTMLDivElement>(null);
   const asking = useRef(false);
@@ -121,7 +153,13 @@ export function AgainFaster({ faster, voice, typed, multiplier, onDone, kept, on
         ? <TopicChoice topics={topics} onChoose={setTopic} />
         : !prepared && faster.prepare
           ? <Prepare seconds={faster.prepare} onReady={() => setPrepared(true)} />
-          : !over && <OneGo key={round} seconds={windows[round]!} typed={typed} focusStart={round > 0 || Boolean(faster.prepare)} onGo={(go) => setGoes((all) => [...all, go])} />}
+          : !over && (
+            <>
+              {round > 0 && <GoFeedback key={`heard-${round}`} go={goes[round - 1]!} n={round} faster={faster} note={round === 1 ? note : undefined} focus={justWent.current} />}
+              <OneGo key={round} seconds={windows[round]!} typed={typed} focusStart={round === 0 && Boolean(faster.prepare)} onGo={(go) => { justWent.current = true; setGoes((all) => [...all, go]); }} />
+            </>
+          )}
+      {over && goes.length > 0 && <GoFeedback key="last" go={goes[goes.length - 1]!} n={goes.length} faster={faster} note={goes.length === 1 ? note : undefined} focus={false} />}
 
       {round > 0 && !helped && !over && (
         <Button variant="ghost" size="sm" onClick={() => { asking.current = true; setHelped(true); }}>{t("Need an idea?")}</Button>
@@ -198,7 +236,7 @@ function OneGo({ seconds, typed, focusStart, onGo }: { seconds: number; typed: b
   const finish = (said: string, took: number) => {
     if (done.current) return;
     done.current = true;
-    onGo(goOf(said, took, seconds));
+    onGo(goOf(said, took, seconds, live.current.mic));
   };
 
   /*
@@ -402,5 +440,69 @@ function Prepare({ seconds, onReady }: { seconds: number; onReady: () => void })
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * WHAT CAME ACROSS IN ONE GO, AND TODAY'S PATTERN UNDER IT (`Faster.checks`).
+ *
+ * Drawn after every go and before the next is started, so the learner can
+ * change something in the next one. The transcript is printed as it was
+ * written down, and a spoken one says plainly that an ending may be the
+ * recognizer's mistake: what is read here is words, never a sound (ADR-018).
+ * Each check is a tick or a cross with what it asks in words beside it, and a
+ * cross names what was heard only with the transcript's own spellings
+ * (`readChecks`). After the first go Anu's note follows, where one came.
+ */
+function GoFeedback({ go, n, faster, note, focus }: { go: Go; n: number; faster: Faster; note: string | null | "waiting" | undefined; focus: boolean }) {
+  const t = useT();
+  const locale = useLocale();
+  const readings = useMemo(() => readChecks(faster.checks, go.said), [faster.checks, go.said]);
+  const headRef = useRef<HTMLParagraphElement>(null);
+  useEffect(() => { if (focus) headRef.current?.focus(); }, [focus]);
+  const met = readings.filter((r) => r.met).length;
+  return (
+    <section className="mb-4 flex flex-col gap-3 rounded-[var(--r-lg)] border px-4 py-4" style={{ borderColor: "var(--edge)", background: "var(--surface)" }} data-faster-heard={n}>
+      <p ref={headRef} tabIndex={-1} className="label-xs outline-none" style={{ color: "var(--ink-3)" }}>{fill(t("What we heard, go {n}"), { n: String(n) })}</p>
+      {go.said
+        ? <p lang="et" className="text-base" style={{ color: "var(--ink)" }} data-faster-said>{go.said}</p>
+        : <p className="text-base" style={{ color: "var(--ink-2)" }}>{t("Nothing came across this time.")}</p>}
+      {go.spoken && go.said && (
+        <p className="text-sm" style={{ color: "var(--ink-2)" }}>{t("This is what the recognizer heard, so an ending may be its mistake, not yours. Play yourself back to check.")}</p>
+      )}
+      <div>
+        <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("Today's pattern")}</p>
+        <ul className="flex flex-col gap-2" data-faster-checks>
+          {faster.checks.map((check, i) => {
+            const reading = readings[i]!;
+            return (
+              <li key={check.en} className="flex items-start gap-2 rounded-[var(--r)] px-3 py-2" style={{ background: reading.met ? "var(--sky-soft)" : "var(--raised)" }} data-met={reading.met ? "true" : "false"}>
+                <span className="inline-flex h-6 w-4 shrink-0 items-center justify-center" aria-hidden>
+                  {reading.met ? <Check size={16} style={{ color: "var(--sky-ink)" }} /> : <X size={15} style={{ color: "var(--ink-3)" }} />}
+                </span>
+                <span className="flex min-w-0 flex-col gap-0.5">
+                  <span className="text-base" style={{ color: reading.met ? "var(--sky-ink)" : "var(--ink-2)" }}><LessonText text={check.en} locale={locale} /></span>
+                  {!reading.met && reading.heard.length > 0 && (
+                    <span className="text-sm" style={{ color: "var(--ink-2)" }}>
+                      {t("We heard")} <span lang="et" className="font-semibold">{reading.heard.join(", ")}</span>
+                    </span>
+                  )}
+                </span>
+                <span className="sr-only">{reading.met ? t("came across") : t("not yet")}</span>
+              </li>
+            );
+          })}
+        </ul>
+        <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
+          {fill(t("{n} of {total} came across."), { n: String(met), total: String(faster.checks.length) })}
+        </p>
+      </div>
+      {typeof note === "string" && note !== "waiting" && (
+        <div className="explain-panel" data-faster-note>
+          <p className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>{t("A note from Anu")}</p>
+          <p className="text-base" style={{ color: "var(--ink)" }}>{note}</p>
+        </div>
+      )}
+    </section>
   );
 }

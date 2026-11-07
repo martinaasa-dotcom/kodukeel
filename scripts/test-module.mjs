@@ -5,6 +5,7 @@ import { newPrismaClient } from "./lib/db.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 import { requireLocalDatabase } from "./lib/local-db.mjs";
 import { startRound } from "./lib/briefing.mjs";
+import { passPractice } from "./lib/practiceGate.mjs";
 
 /**
  * TODAY'S MODULE, WALKED, AND THE FOUR THINGS ONLY A BROWSER CAN SAY.
@@ -317,8 +318,12 @@ try {
        until the lesson says it is done rather than one per step. */
     const onward = page.getByRole("button", { name: /^(Continue|Skip this step|Finish the lesson|Finish without it)/ }).last();
     const finished = page.getByRole("heading", { name: "Lesson done" });
-    for (let i = 0; i < 80 && (await finished.count()) === 0 && (await onward.count()) > 0; i++) {
-      await onward.click();
+    for (let i = 0; i < 80 && (await finished.count()) === 0; i++) {
+      // Practice has a pass mark and no way past it until it is reached, so it is answered;
+      // its footer is not drawn until then, so a missing way on is not yet the end.
+      if (/Practice/.test(await page.locator("#lesson-step").innerText({ timeout: 2000 }).catch(() => ""))) await passPractice(page);
+      if (!(await onward.count())) break;
+      await onward.click({ timeout: 5000 });
       await page.waitForTimeout(300);
     }
     await page.getByRole("heading", { name: "Lesson done" }).waitFor({ timeout: 20_000 }).catch(() => {});

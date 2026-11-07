@@ -204,7 +204,7 @@ export const TWIN_GROUPS: readonly TwinGroup[] = [
     v("hakkama", "to start doing"),
   ], {
     tell:
-      "Nothing after it: the thing begins by itself. An object after it: you begin something. " +
+      "Nothing after it: the noun before it begins by itself. An object after it: you begin something. " +
       "Another verb after it: you start doing that.",
     overlap: [
       { words: ["algama", "hakkama"], when: /\b(start|begin|began|begun)/i },

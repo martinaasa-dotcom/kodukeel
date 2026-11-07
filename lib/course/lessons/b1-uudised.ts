@@ -262,6 +262,10 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Mis on sinu linnas kõige ilusam maja? Miks?", en: "What's the most beautiful building in your town? Why?" },
       cue: "Name the building you like best, say when it was built, and give two reasons you like it.",
       model: { et: "Mulle meeldib raekoda, sest see on vana ja ilus. See ehitati väga ammu. Ja eelmisel aastal avati seal uus kohvik, kus on hea kohv.", en: "I like the town hall, because it's old and beautiful. It was built a very long time ago. And last year a new café opened there, where the coffee is good." },
+      checks: [
+        { en: "When it was built, with -ti and nobody named ({ehitati} here).", any: ["*ati", "*eti", "renoveeriti", "leiti", "viidi"] },
+        { en: "Two reasons you like it, with {sest} and {ja}.", any: ["sest", "ja"], atLeast: 2 },
+      ],
     },
   },
   {
@@ -453,7 +457,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Läks põlema} is caught fire: the thing goes into burning.",
+        "{Läks põlema} is caught fire: literally, it went into burning.",
         "The news says {sai vigastada}, was injured. Talking it over, people say {sai haiget}: {Kas keegi sai haiget?}",
         "{Õnneks} is luckily: {Õnneks ei saanud keegi vigastada}.",
       ],
@@ -509,6 +513,10 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Kas sa loed uudiseid? Miks?", en: "Do you read the news? Why?" },
       cue: "Say whether you follow the news, and give two reasons, with {sest} and {ja}.",
       model: { et: "Jah, igal hommikul, sest ma tahan teada, mis linnas toimub. Ja nii õpin ma ka eesti keelt.", en: "Yes, every morning, because I want to know what's going on in town. And that way I learn Estonian too." },
+      checks: [
+        { en: "A reason with {sest}.", any: ["sest"] },
+        { en: "A second one, joined with {ja}.", any: ["ja"] },
+      ],
     },
   },
   {
@@ -783,6 +791,11 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Mida tuleb sinu majas parandada? Miks?", en: "What needs fixing in your building? Why?" },
       cue: "Say what you think needs fixing where you live, and give two reasons.",
       model: { et: "Minu arvates tuleb keldris torud välja vahetada, sest need on väga vanad. Ja kui toru jälle katki läheb, on keldris jälle vett põlvini.", en: "In my opinion the pipes in the cellar have to be replaced, because they're very old. And if a pipe bursts again, the water in the cellar will be knee-deep again." },
+      checks: [
+        { en: "What has to be done, {tuleb} with the -da word ({tuleb torud välja vahetada} here).", any: ["tuleb *da", "tuleb ... *da", "tuleb *ta", "tuleb ... *ta"] },
+        { en: "A reason with {sest}.", any: ["sest"] },
+        { en: "What happens if not, with {kui}.", any: ["kui"] },
+      ],
     },
   },
   /*
@@ -877,6 +890,10 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Mida sa viimati ajalehest lugesid?", en: "What did you last read in the paper?" },
       cue: "Say what you read or heard in the news, when, and what you thought of it.",
       model: { et: "Üleeile lugesin ajalehest artiklit. Seal oli kirjas, et hinnad tõusevad jälle. See ei ole hea uudis.", en: "The day before yesterday I read an article in the paper. It said prices are going up again. That isn't good news." },
+      checks: [
+        { en: "Where you read it, with -st ({lugesin ajalehest} here).", any: ["lugesin *st", "ajalehest"] },
+        { en: "What it said, with {et} ({oli kirjas, et} here).", any: ["et"] },
+      ],
     },
   },
   {

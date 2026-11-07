@@ -55,6 +55,8 @@ export default async function LessonPage({ params, searchParams }: { params: Pro
       forms={view.forms}
       finishedBefore={done}
       keptAnswers={saved}
+      words={view.words}
+      stars={view.stars}
     />
   );
 }

@@ -250,6 +250,11 @@ export const C1_MAA_LESSONS: readonly LessonSpec[] = [
       model: { et: "Lõuna-Eestis on teistsugune loodus ja seal on väga vaikne. Ja seal räägitakse oma keelt, võru keelt. Ära karda, kohalikud räägivad hea meelega ka tavalist eesti keelt. Ja kui sa sõna ei tea, arva ära ja küsi lühidalt vahele.", en: "Southern Estonia has different countryside, and it's very quiet there. And they speak their own language there. Relax, the locals are glad to speak ordinary Estonian too. And if you don't know a word, guess, and ask briefly in between." },
       seconds: [120],
       prepare: 60,
+      checks: [
+        { en: "Two reasons, joined with {ja}.", any: ["ja"], atLeast: 2 },
+        { en: "The language there, {võru keelt}.", any: ["võru"] },
+        { en: "What a visitor can do, with {vahele} ({küsi lühidalt vahele} here).", any: ["vahele"] },
+      ],
     },
   },
   {
@@ -478,6 +483,11 @@ export const C1_MAA_LESSONS: readonly LessonSpec[] = [
       model: { et: "Räägitakse, et kunagi ammu olevat siin olnud küla. Inimesed olid muutunud ahneks. Ühel ööl olevat küla maa alla vajunud ja hommikul oli seal ainult raba. Vanad inimesed ütlesid, et vaiksel õhtul kuuleb vee all kella helisemas.", en: "They say that long, long ago there was a village here. The people had grown greedy. One night the village sank under the ground, they say, and in the morning there was only bog. Old people used to say that on a quiet evening you can hear a bell under the water." },
       seconds: [120],
       prepare: 180,
+      checks: [
+        { en: "Told, not claimed, with {räägitakse, et} or {olevat}.", any: ["räägitakse", "olevat"] },
+        { en: "What had happened before, {olid} with a -nud word ({olid muutunud} here).", any: ["olid *nud", "oli *nud", "olid ... *nud"] },
+        { en: "The plain past to finish, with {oli} ({hommikul oli seal ainult raba} here).", any: ["oli"] },
+      ],
     },
   },
   {
@@ -699,6 +709,11 @@ export const C1_MAA_LESSONS: readonly LessonSpec[] = [
       model: { et: "Leelo on vana seto laul, mida lauldakse mitmel häälel. Eeslaulja laulab rea ette ja koor kordab seda. Osa sõnu on sajandeid vanad, osa teeb eeslaulja seal samas. Kui sa sõnu ei oska, kuula meloodiat ja laula julgelt kaasa.", en: "A leelo is an old Seto song sung in several voices. The lead singer sings a line first, and the choir repeats it. Some of the words are centuries old, and some the lead singer makes up on the spot. If you don't know the words, listen to the tune and sing along without fear." },
       seconds: [120],
       prepare: 60,
+      checks: [
+        { en: "Who leads, {eeslaulja}.", any: ["eeslaulja"] },
+        { en: "How the choir answers, with {kordab} ({koor kordab} here).", any: ["kordab"] },
+        { en: "If you don't know the words, with {kaasa} ({laula julgelt kaasa} here).", any: ["kaasa"] },
+      ],
     },
   },
   {

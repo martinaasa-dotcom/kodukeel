@@ -414,14 +414,25 @@ export function caseNameWithNumber(spec: Pick<CaseSpec, "key">, number: "ainsus"
   if (number === "ainsus") return casePlainName(spec, locale);
   const named = CASES.find((c) => c.key === spec.key);
   const et = named?.et ?? spec.key.toLowerCase();
+  /*
+    "1st, 2nd, 3rd form" are the three SINGULAR forms a learner memorizes
+    (`võti`, `võtme`, `võtit`), so on a plural the ordinal claims the form is
+    one of those three when it is from the other column. A plural of those
+    three is named by its number alone: "mitmuse nimetav (plural)". The other
+    cases keep their ending, which is true of the plural too.
+  */
+  if (ORDINAL_CASES.has(spec.key)) return `mitmuse ${et} (${QUALIFIERS[locale].mitmus})`;
   return `mitmuse ${et} (${caseHint(spec, locale)}, ${QUALIFIERS[locale].mitmus})`;
 }
+
+/** The three cases whose hint is an ordinal ("1st form"), which only the singular may wear. */
+const ORDINAL_CASES: ReadonlySet<CaseSpec["key"]> = new Set(["NOMINATIVE", "GENITIVE", "PARTITIVE"]);
 
 /**
  * The name a screen prints for a case given by its Estonian name, or null for
  * a string that names none. A table of forms heads a row with the number as
  * well (`omastav ainsus`, `mitmuse omastav`, `lühike sisseütlev`), and the
- * number is said the way a class says it: "mitmuse omastav (2nd form, plural)".
+ * number is said the way a class says it: "mitmuse omastav (plural)".
  */
 export function plainNameForEt(et: string, locale: Locale = "en"): string | null {
   const words = et.trim().toLowerCase().split(/\s+/);

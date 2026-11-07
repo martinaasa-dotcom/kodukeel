@@ -2908,12 +2908,49 @@
                         "en"
                       ]
                     }
+                  },
+                  "checks": {
+                    "readOnly": true,
+                    "description": "Today's pattern, two or three checks read off each go's transcript by string matching alone: met where a spelling in `any` stands in what was said as whole words, case aside (a word may carry a star at one end for an ending or a beginning, at least two letters more at the front, and `...` stands for up to four words between two parts), `atLeast` times. Where unmet, `near` spellings found in the transcript are named as they stood. Mirrors lib/course/lessons/fasterChecks.ts.",
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "en": {
+                          "type": "string"
+                        },
+                        "any": {
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "atLeast": {
+                          "type": "integer",
+                          "minimum": -9007199254740991,
+                          "maximum": 9007199254740991
+                        },
+                        "near": {
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "en",
+                        "any"
+                      ]
+                    }
                   }
                 },
                 "required": [
                   "ask",
                   "cue",
-                  "model"
+                  "model",
+                  "checks"
                 ]
               },
               "write": {
@@ -5046,6 +5083,391 @@
               ]
             }
           },
+          "words": {
+            "type": "object",
+            "properties": {
+              "cards": {
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "head": {
+                      "type": "string"
+                    },
+                    "en": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "dict": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "ru": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "uk": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "ru",
+                            "uk"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "The dictionary's own Russian and Ukrainian beside a headword the lesson does not gloss itself; null where it does."
+                    },
+                    "fresh": {
+                      "type": "boolean",
+                      "description": "Whether the headword itself is new in this lesson."
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "noun",
+                        "verb",
+                        "word"
+                      ]
+                    },
+                    "plural": {
+                      "type": "boolean",
+                      "description": "Whether any row has a plural, so the card draws a plural column."
+                    },
+                    "rows": {
+                      "readOnly": true,
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "labels": {
+                            "readOnly": true,
+                            "description": "The taught items' own English; a screen translates each and joins them.",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "sg": {
+                            "type": "object",
+                            "properties": {
+                              "et": {
+                                "type": "string"
+                              },
+                              "fresh": {
+                                "type": "boolean",
+                                "description": "New in this lesson; otherwise shown for its place in the table."
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "The case's Estonian name under the form, `osastav` or `mitmuse osastav`; empty for none."
+                              },
+                              "stem": {
+                                "type": "boolean"
+                              },
+                              "past": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "et",
+                              "fresh",
+                              "name"
+                            ]
+                          },
+                          "pl": {
+                            "type": "object",
+                            "properties": {
+                              "et": {
+                                "type": "string"
+                              },
+                              "fresh": {
+                                "type": "boolean",
+                                "description": "New in this lesson; otherwise shown for its place in the table."
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "The case's Estonian name under the form, `osastav` or `mitmuse osastav`; empty for none."
+                              },
+                              "stem": {
+                                "type": "boolean"
+                              },
+                              "past": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "et",
+                              "fresh",
+                              "name"
+                            ]
+                          },
+                          "forms": {
+                            "readOnly": true,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "et": {
+                                  "type": "string"
+                                },
+                                "fresh": {
+                                  "type": "boolean",
+                                  "description": "New in this lesson; otherwise shown for its place in the table."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "The case's Estonian name under the form, `osastav` or `mitmuse osastav`; empty for none."
+                                },
+                                "stem": {
+                                  "type": "boolean"
+                                },
+                                "past": {
+                                  "type": "boolean"
+                                }
+                              },
+                              "required": [
+                                "et",
+                                "fresh",
+                                "name"
+                              ]
+                            }
+                          },
+                          "example": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "et": {
+                                    "type": "string"
+                                  },
+                                  "en": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "et",
+                                  "en"
+                                ]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "hit": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "labels",
+                          "example",
+                          "hit"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "head",
+                    "en",
+                    "dict",
+                    "fresh",
+                    "kind",
+                    "plural",
+                    "rows"
+                  ]
+                }
+              },
+              "loose": {
+                "readOnly": true,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "item": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "word"
+                            },
+                            "et": {
+                              "type": "string"
+                            },
+                            "en": {
+                              "type": "string"
+                            },
+                            "asks": {
+                              "description": "What the word asks for after it, B1 on.",
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "et",
+                            "en"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "form"
+                            },
+                            "et": {
+                              "type": "string"
+                            },
+                            "of": {
+                              "type": "string"
+                            },
+                            "en": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "et",
+                            "of",
+                            "en"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "phrase"
+                            },
+                            "et": {
+                              "type": "string"
+                            },
+                            "en": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "et",
+                            "en"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "verb"
+                            },
+                            "et": {
+                              "type": "string"
+                            },
+                            "first": {
+                              "type": "string"
+                            },
+                            "en": {
+                              "type": "string"
+                            },
+                            "firstEn": {
+                              "type": "string"
+                            },
+                            "asks": {
+                              "description": "What the verb asks for after it, B1 on.",
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "et",
+                            "first",
+                            "en",
+                            "firstEn"
+                          ]
+                        }
+                      ]
+                    },
+                    "example": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "et": {
+                              "type": "string"
+                            },
+                            "en": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "et",
+                            "en"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "hit": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "item",
+                    "example",
+                    "hit"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "cards",
+              "loose"
+            ],
+            "description": "The Words step laid out as cards: one per word the lesson teaches forms of, a row per case with singular beside plural off the dictionary, and one line of the lesson using each row with its English; the words with no forms follow in `loose`."
+          },
+          "stars": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "starred": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "id",
+                "starred"
+              ]
+            },
+            "description": "Each spelling the lesson teaches, lower-cased, mapped to its headword's dictionary entry and whether the learner has starred it, for the star on a Practice question."
+          },
           "locale": {
             "type": "string",
             "enum": [
@@ -5090,6 +5512,8 @@
           "read",
           "notes",
           "forms",
+          "words",
+          "stars",
           "locale",
           "nativePart",
           "translations"

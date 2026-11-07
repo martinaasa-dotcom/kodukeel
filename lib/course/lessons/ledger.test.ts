@@ -352,7 +352,7 @@ describe("the B2 fields", () => {
   });
 
   it("holds the race's windows to one to three goes, each shorter than the last, and a sane preparation", () => {
-    const faster = { ask: { et: "Tere!", en: "Hello!" }, cue: "c", model: { et: "Tere!", en: "Hello!" } };
+    const faster = { ask: { et: "Tere!", en: "Hello!" }, cue: "c", model: { et: "Tere!", en: "Hello!" }, checks: [{ en: "A hello.", any: ["tere"] }, { en: "A greeting.", any: ["tere"] }] };
     expect(lessonProblems([b2({ faster: { ...faster, seconds: [60, 45, 30] } })])).toEqual([]);
     expect(lessonProblems([b2({ faster: { ...faster, seconds: [60], prepare: 120 } })])).toEqual([]);
     expect(lessonProblems([b2({ faster: { ...faster, seconds: [45, 60] } })]).join(" ")).toMatch(/not each shorter than the last/);
@@ -472,7 +472,7 @@ describe("the C1 fields", () => {
   });
 
   it("offers two topics only before a preparation, and asks of a question on what was heard that there is something to hear", () => {
-    const faster = { ask: { et: "Tere!", en: "Hello!" }, cue: "c", model: { et: "Tere!", en: "Hello!" }, seconds: [120], prepare: 180 };
+    const faster = { ask: { et: "Tere!", en: "Hello!" }, cue: "c", model: { et: "Tere!", en: "Hello!" }, checks: [{ en: "A hello.", any: ["tere"] }, { en: "A greeting.", any: ["tere"] }], seconds: [120], prepare: 180 };
     expect(at({ faster: { ...faster, topics: [{ en: "Your town" }, { en: "Your work" }] } })).toBe("");
     expect(at({ faster: { ...faster, topics: [{ en: "Your town" }] } })).toMatch(/offers 1 topics/);
     expect(at({ faster: { ...faster, prepare: undefined, topics: [{ en: "Your town" }, { en: "Your work" }] } })).toMatch(/topics with no time to prepare/);

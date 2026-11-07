@@ -71,7 +71,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
     ],
     patterns: ["government"],
     how: {
-      point: "A verb decides the case of the word after it, and you learn the two together: {aitama} wants somebody in the [osastav] (3rd form) and the thing in the [kaasaütlev] (-ga, with), {Aita mind sellega!}",
+      point: "A verb decides the case of the word after it, and you learn the two together: {aitama} wants somebody in the [osastav] (3rd form) and the pronoun ({sellega} here) in the [kaasaütlev] (-ga, with), {Aita mind sellega!}",
       table: {
         head: ["The verb", "What it asks", "Example"],
         rows: [
@@ -134,12 +134,16 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
     fixes: [
       { line: { et: "Siis ma kahjuks ei saa sind aidata.", en: "Then I'm afraid I can't help you." }, right: "sind", wrong: "sulle", pair: ["PARTITIVE", "ALLATIVE"], why: "{Aitama} wants the one helped in the [osastav] (3rd form): {sind}." },
       { line: { et: "Miks sa minult abi ei küsinud?", en: "Why didn't you ask me for help?" }, right: "minult", wrong: "mind", pair: ["ABLATIVE", "PARTITIVE"], why: "You ask from somebody: {minult}, in the [alaltütlev] (-lt, off).", also: ["Miks sa minu käest abi ei küsinud?"] },
-      { line: { et: "Aita mind sellega!", en: "Help me with it!" }, right: "sellega", wrong: "seda", pair: ["COMITATIVE", "PARTITIVE"], why: "You help somebody with something: the one helped is {mind}, and the thing takes the [kaasaütlev] (-ga, with), {sellega}." },
+      { line: { et: "Aita mind sellega!", en: "Help me with it!" }, right: "sellega", wrong: "seda", pair: ["COMITATIVE", "PARTITIVE"], why: "You help somebody with something: the one helped is {mind}, and the pronoun ({sellega} here) takes the [kaasaütlev] (-ga, with)." },
     ],
     faster: {
       ask: { et: "Kellelt sa abi küsid, kui sul on probleem?", en: "Who do you ask for help when you have a problem?" },
       cue: "Say who you ask for help, and who you help yourself.",
       model: { et: "Ma küsin abi ülemuselt. Ta aitab mind alati hea meelega. Ja kui tal on probleem, siis ma aitan teda.", en: "I ask my boss for help. She's always happy to help me. And when she has a problem, I help her." },
+      checks: [
+        { en: "Who you ask for help, with -lt ({ülemuselt} here).", any: ["*lt"] },
+        { en: "{aitama} with the person in the [osastav] (3rd form) ({aitab mind} here).", any: ["aita* mind", "aita* teda", "aita* sind"] },
+      ],
     },
   },
   {
@@ -192,7 +196,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "kuna", en: "since, because" },
     ],
     how: {
-      point: "{Mind huvitab muusika} puts the one who's into something in the [osastav] (3rd form). {Huvituma} and {huvitatud} want the thing in the [seestütlev] (-st, out of). {Meeldima} and {tunduma} want the person in the [alaleütlev] (-le, onto/to): {Mulle meeldib}, {Mulle tundub}.",
+      point: "{Mind huvitab muusika} puts the one who's into something in the [osastav] (3rd form). {Huvituma} and {huvitatud} want the noun in the [seestütlev] (-st, out of). {Meeldima} and {tunduma} want the person in the [alaleütlev] (-le, onto/to): {Mulle meeldib}, {Mulle tundub}.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -206,7 +210,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       notes: [
         "{Mind huvitab muusika} is how you'll hear it said: the music is what interests, and the one who's into it takes the [osastav] (3rd form), {mind}, {sind}, {teda}. Ask with {Mis sind huvitab?}",
         "{Huvituma} and {huvitatud} are the more formal way, for a letter or an interview, and they are interested out of: {Ma huvitun muusikast}. Ask for it with {millest?}",
-        "{Meeldima} turns the sentence around: the one who likes takes the [alaleütlev] (-le, onto/to), {mulle}, {talle}, and the thing liked comes after the verb.",
+        "{Meeldima} turns the sentence around: the one who likes takes the [alaleütlev] (-le, onto/to), {mulle}, {talle}, and the noun for what's liked comes after the verb.",
         "{Mulle tundub} is it seems to me, which is how Estonian says I think when it's a feeling rather than a fact.",
       ],
       watchOut: "In English you're interested in something, so {spordis} is tempting. It's {spordist}, out of, every time.",
@@ -392,6 +396,11 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Kellega sa tihti räägid, ja millest?", en: "Who do you often talk with, and what about?" },
       cue: "Say who you often talk with, what about, and what you've been thinking about lately.",
       model: { et: "Ma räägin tihti oma naabriga. Me räägime ilmast ja teistest inimestest. Viimasel ajal ma mõtlen palju tööle.", en: "I often talk with my neighbor. We talk about the weather and other people. Lately I've been thinking about work a lot." },
+      checks: [
+        { en: "Who you talk with, with -ga ({naabriga} here).", any: ["*ga"] },
+        { en: "What it's about, with -st ({ilmast} here).", any: ["ilmast", "inimestest", "teistest", "minust", "temast", "sellest"] },
+        { en: "What's on your mind, {mõtlema} with -le ({mõtlen palju tööle} here).", any: ["mõtle* *le", "mõtle* ... *le"] },
+      ],
     },
   },
   {
@@ -643,6 +652,11 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Millest sõltub sinu nädalavahetus?", en: "What does your weekend depend on?" },
       cue: "Say what your weekend depends on, what you're hoping for and what you're afraid of.",
       model: { et: "Minu nädalavahetus sõltub ilmast. Ma loodan ilusale ilmale. Ma kardan ainult vihma.", en: "My weekend depends on the weather. I'm counting on good weather. The only thing I'm afraid of is rain." },
+      checks: [
+        { en: "{sõltuma} with -st ({sõltub ilmast} here).", any: ["sõltub *st", "sõltub ... *st"] },
+        { en: "{lootma} with -le ({loodan ilusale ilmale} here).", any: ["loodan *le", "loodan ... *le"] },
+        { en: "{kartma} with the [osastav] (3rd form) ({kardan vihma} here).", any: ["kardan *"] },
+      ],
     },
   },
   {
@@ -702,7 +716,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
         "A favor is softest in the would form: {Kas sa saaksid...?}, {Kas ma võiksin...?}",
         "A verb keeps its case after another verb: {Ta tahab sinuga tutvuda}, {Kas sa saaksid mind aidata?}",
       ],
-      watchOut: "Thanks for something is {aitäh} with {eest} after the thing: {Aitäh kutse eest!} The thing takes the [omastav] (2nd form) before {eest}.",
+      watchOut: "Thanks for something is {aitäh} with {eest} after the noun ({kutse} here): {Aitäh kutse eest!} The noun takes the [omastav] (2nd form) before {eest}.",
       examples: [1, 4, 6],
     },
     listenFor: [
@@ -819,7 +833,7 @@ export const B1_REKTSIOON_LESSONS: readonly LessonSpec[] = [
     how: {
       point: "A first day at work, made of the whole part: each verb with the case it asks for, {aitama} with the [osastav] (3rd form) and the [kaasaütlev] (-ga, with), {tutvuma} with the [kaasaütlev] (-ga, with), {küsima} with the [alaltütlev] (-lt, off).",
       notes: [
-        "{Arvutiga aitan sind mina} puts the thing first and the helper last, which is how Estonian says it's me who helps with that.",
+        "{Arvutiga aitan sind mina} puts the noun ({Arvutiga} here) first and the helper last, which is how Estonian says it's me who helps with that.",
         "{Tutvuma} keeps its case after {pead}: {Sa pead Katiga tutvuma}.",
         "At the end, a new colleague asks you one thing Kadri didn't: who to ask when you're not there.",
       ],

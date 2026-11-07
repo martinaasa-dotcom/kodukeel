@@ -757,7 +757,7 @@ export async function playHeard(request: ClipRequest): Promise<PlayOutcome> {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ text: request.text, ...(request.voice ? { voice: request.voice } : {}) }),
     });
-    if (!res.ok) throw new Error(String(res.status));
+    if (!res.ok) { discard(res); throw new Error(String(res.status)); }
     const fetched = await res.blob();
     const rate = rateFor(request);
     let blob: Blob = fetched;

@@ -221,6 +221,11 @@ export const C1_KODU_LESSONS: readonly LessonSpec[] = [
       model: { et: "Minu arvates on parem osta. Arvestades, kui palju me üüri maksame, oleks oma kodu pikas plaanis odavam. Võrreldes eelmise aastaga on hinnad küll kõrgemad, aga oodata ei maksa, sest pankade prognoosi järgi hinnad ei lange.", en: "I think it's better to buy. Given how much rent we pay, a home of our own would be cheaper in the long run. Prices are higher than last year, it's true, but there's no point waiting, because by the banks' forecast prices won't fall." },
       seconds: [90],
       prepare: 120,
+      checks: [
+        { en: "{võrreldes} with -ga ({võrreldes eelmise aastaga} here).", any: ["võrreldes *ga", "võrreldes ... *ga"] },
+        { en: "{arvestades}, with a thing or a whole clause.", any: ["arvestades"] },
+        { en: "Which you'd choose, with {osta} ({parem osta} here).", any: ["osta"] },
+      ],
     },
   },
   {
@@ -477,7 +482,7 @@ export const C1_KODU_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "kolmandik", en: "a third" },
     ],
     how: {
-      point: "A loan offer is B2's officialese at full strength: a -mine noun does the verb's work, and the thing it is done to stands in front of it in the [omastav] (2nd form). Read {Laenu tasumine toimub igakuiselt}, and say {Laenu makstakse iga kuu tagasi}.",
+      point: "A loan offer is B2's officialese at full strength: a -mine noun does the verb's work, and the noun it is done to ({Laenu} here) stands in front of it in the [omastav] (2nd form). Read {Laenu tasumine toimub igakuiselt}, and say {Laenu makstakse iga kuu tagasi}.",
       table: {
         head: ["The offer writes", "You say", "In English"],
         rows: [
@@ -1101,6 +1106,11 @@ export const C1_KODU_LESSONS: readonly LessonSpec[] = [
       model: { et: "Tabelis on hinnad kolmes piirkonnas. Kõige rohkem maksab korter kesklinnas, kus kahetoaline maksab keskmiselt 210 000 eurot. Äärelinnas on hinnad märgatavalt madalamad. Võrreldes eelmise aastaga on hinnad tõusnud kõigis kolmes piirkonnas, kõige rohkem kesklinnas.", en: "The table has the prices in three areas. A flat costs most in the center, where a two-room one costs 210,000 euros on average. In the outskirts prices are noticeably lower. Compared with last year prices have risen in all three areas, most of all in the center." },
       seconds: [90],
       prepare: 120,
+      checks: [
+        { en: "The highest and the lowest, with {kõige} ({kõige rohkem} here).", any: ["kõige"] },
+        { en: "One figure set against another, with {võrreldes}.", any: ["võrreldes"] },
+        { en: "How prices changed, with {tõusnud} or {tõusid}.", any: ["tõusnud", "tõusid"] },
+      ],
     },
   },
   {
