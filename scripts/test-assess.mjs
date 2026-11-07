@@ -130,7 +130,10 @@ for (let step = 0; step < 200; step++) {
   // Dictation, where there is audio to write down.
   const heard = page.getByLabel("What you heard");
   if (await heard.count()) {
-    await heard.fill("Ma olen toas");
+    /* Dictation is listening, so a refused clip abandons it while the driver
+       types, and a fill with no timeout waits out thirty seconds for a box
+       that has correctly gone. The loop reads the screen again instead. */
+    if (!(await heard.fill("Ma olen toas", { timeout: 5000 }).then(() => true, () => false))) continue;
     await page.getByRole("button", { name: /^Check$/ }).click({ timeout: 5000 }).catch(() => {});
     await page.waitForTimeout(150);
     const next = page.getByRole("button", { name: /Next question/ });
