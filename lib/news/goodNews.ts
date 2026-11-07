@@ -30,72 +30,91 @@
 import type { NewsItem } from "./headlines";
 
 /*
-  Bad news, as stems matched anywhere inside the folded headline and summary,
-  so a compound (`liiklusõnnetus`, `droonirünnak`) is caught by its part. A
-  stem may catch an innocent word as well; that is the side this errs on. It
-  reaches past what is sad into what is merely not a smile: business, the
-  economy, politics, health and the weather are refused whole, because a
-  headline about a bank's profit or a minister's plan is never the one that
-  cheers somebody up, and every one of those was a pick on a year of ERR's
-  headlines before they were listed. A space stands for a word's edge.
+  Bad news, as stems matched inside the folded text, so a compound
+  (`liiklusõnnetus`, `droonirünnak`) is caught by its part. A stem may catch
+  an innocent word as well; that is the side this errs on. A space stands for
+  a word's edge.
+
+  TWO LISTS, BECAUSE A SUMMARY EXPLAINS. `HARM` is something that hurt
+  somebody or something: death, violence, war, an accident, an illness, an
+  animal story gone wrong, a loss, a closure. It is read over the headline
+  and the summary both, so a happy headline with an accident in its second
+  sentence is still refused. `OFF_TOPIC` is what is merely not a smile:
+  business, the economy, politics, the weather, a price, and the soft words
+  (`keeruline`, `raske`, `probleem`) a science summary uses about its own
+  method. It is read over the headline alone. Read over the summary as well,
+  it refused every science story ERR ran on 2026-11-07, because a summary
+  explaining a bat's record mentions Europe and one explaining an ant study
+  says the thing is hard to study. What a story is about is the headline's
+  to say; the summary may only veto it for harm.
 */
-const BAD = [
+const HARM = [
   // death, violence, crime
-  "surm", "surn", "suri ", "surid", "hukk", "tapp", "tapet", "mõrv", "vägist", "rünn", "kuritegu",
-  "kurite", "kurjateg", "varas", "vargus", "varast", "pettu", "petis", "kelm", "korrupt",
-  "altkäemaks", "kohus", "kohtu", "süüdi", "süüdist", "vangi", "vangl", "karist", "trahv",
-  "arreteer", "kahtlust", "politsei", "relv", "tulista", "lask", "rööv", "pussita", "peks",
+  "surm", "surn", "suri ", "surid", "hukk", "tapp", "tapet", "mõrv", "vägist", "rünn", "ründ",
+  "kuritegu", "kurite", "kurjateg", "varas", "varga", "vargus", "varast", "pettu", "petis", "kelm",
+  "korrupt", "altkäemaks", "kohus", "kohtu", "süüdi", "süüdist", "vangi", "vangl", "karist",
+  "trahv", "arreteer", "kahtlust", "politsei", "relv", "tulista", "lask", "rööv", "pussi", "peks",
   "ohver", "kannatan", "salasigar", "tolli", "kinni pid", "pidasid kinni", "smugel", "narko",
-  "joobe",
-  // war, military, foreign politics
-  "sõda", "sõja", "agress", "terror", "plahvat", "pomm", "raket", "droon", "okupat", "vene",
-  "putin", "ukrain", "gaza", "iisrael", "hamas", "iraan", "kaitse", "nato", "väge", "väed",
-  "armee", "sõdur", "vastupanu", "mobilis", "sanktsio", "hiina", "trump", "usa ",
+  "joobe", "laip", "laiba", " haud ", " hauda", " haua", "põgene", "nuga", "noa ", "piina",
+  "kiusa", "väärkoht",
+  // war and its places
+  "sõda", "sõja", "agress", "terror", "plahvat", "pomm", "raket", "droon", "okupat", " vene",
+  " putin", " ukrain", " gaza", " iisrael", " hamas", " iraan", " nato", "kaitseväg", "väge",
+  "väed", "armee", "sõdur", "mobilis", "sanktsio", "diktaator",
   // accidents and disasters
   "õnnetu", "avarii", "kokkupõr", "tulekahj", "põle", "uppu", "torm", "üleujut", "tulv", "põud",
-  "maavärin", "orkaan", "evakuee", "pääst", "rike", "rikke", "häiri", "katki", "kahjust", "purune",
-  "lammut",
+  "maavärin", "orkaan", "evakuee", "pääst", "rike", "rikke", "katki", "kahjust", "purune",
+  "lammut", "varing", "reost", "nafta", "alla aja", "alla aeti", "otsa sõit",
   // illness and health
-  "haig", "vigast", "haav", "kriis", "katk", "epideem", "pandeem", "viirus", "gripp", "nakk",
-  "vähk", "vähi", "enesetap", "sõltuv", "alkohol", "operatsio", "opereer", "diagnoos", "ravi",
-  "tervis", "sinivetik", "toksil", "mürk", "arst", "kiirabi", "surev", "puue",
+  "haig", "vigast", "haav", "epideem", "pandeem", "viirus", "gripp", "nakk", "nakat", "vähk",
+  "vähi", "enesetap", "sõltuvus", "sõltlas", "alkohol", "operatsio", "opereer", "diagnoos",
+  "ravi", "sinivetik", "toksil", "mürk", "kiirabi", "surev", "puue", "dement", "rasvum",
+  "depress", "maruta", "puuk",
+  // an animal story gone wrong
+  "murdis", "murrab", "tungi", "jaht", "jahi", "küti", "salaküt", "hammust", "kahjur", "invasiiv",
+  "võõrliik", "hävi", "suremi", "väljasur", "välja sur", "kõhnu", "hülja", "lõks", "tapa", "kvoot",
+  "pestits", "kahane", "vähene", "langus", "hääbu", "nälg", "oht", "ohu",
+  // dread, sorrow and loss
+  "hirm", "kurb", "lein", "kaotus", "kaota", "kadun", "kadus", "kannat", "valu", "üksild",
+  "ärev", "katastroof", "kriis", "katk", "hullus", "huligaan", "kadalipp", "ellujää", "abivaja",
+  "naeruvää", "hädas",
+  // farewells and memorials
+  "memoriam", "elust lahk", "matus", "mälest", "igavikku", "lahkunu", "hüvast",
+  // plans that fell through, closures, people leaving
+  " ära ", "sulgu", "lükkub", "lükatakse", "lükati", "edasi lükk", "edasilük", "lükka", "tühista",
+  "jääb ära", "jäi ära", "suletakse", "suleti", "sulgeb", "sulge", "tagasi astu", "astus tagasi",
+  "vallandat", "koonda", "pankrot", "streik", "protest", "meeleavald", "meelt aval", "skandaal",
+  // sport results that are somebody's loss
+  "pudene", "alistu", "kukkus välja", "jäi alla", "kaotu", "alla jäi", "viik", "nullile",
+  "loovuta", "võiduta", "doping", "keelu",
+];
+
+const OFF_TOPIC = [
+  // the other side of the world's politics, named rather than fought
+  " hiina", " trump", " usa ", " usa-", "kaitse",
   // money, business and the economy
-  "pankrot", "koonda", "kahjum", "kärbe", "kärbi", "inflats", "hind", "hinna", "hinn", "kallin",
-  "maks", "võlg", "vaesus", "vaene", "töötu", "streik", "majandus", "eksport", "import", "kasum",
-  "käive", "investee", "tehing", "pank", "panga", "börs", "aktsia", "laen", "intress", "palk",
-  "pension", "eelarve", "raha", "eur ", "euro", "miljon", "miljard", "protsent", "kulu", "firma",
-  "ettevõt", "kontsern", "osta", "müü", "turul", "turu ", "konkurents", "energ", "elektri",
-  "gaasi", "kütte", "tasu",
+  "kahjum", "kärbe", "kärbi", "inflats", " hind ", " hinda ", " hinnad", "hinnatõus", "hinna tõus",
+  "hinnaga", "kallin", "maks", "võlg", "vaesus", "vaene", "vaese", "töötu", "majandus", "eksport",
+  "import", "kasum", "käive", "investee", "tehing", "pank", "panga", "börs", "aktsia", "laen",
+  "intress", "palk", "pension", "eelarve", "raha", "eur ", "euro", "miljon", "miljard",
+  "protsent", "kulu", "firma", "ettevõt", "kontsern", "osta", "müü", "turul", "turu ",
+  "konkurents", "energ", "elektri", "gaasi", "kütte", "tasu", "megavat", "akupark", "tolli",
   // politics, the state and argument
   "valitsus", "minist", "riigikogu", "parlament", "senat", "erakond", "partei", "valimis",
   "umbusald", "president", "peaminist", "linnapea", "volikogu", "seadus", "eelnõu", "keeld",
-  "keela", "määrus", "järelevalve", "menetlus", "uurima", "uurib", "skandaal", "tüli", "vaidl",
-  "vaidle", "süüdista", "kriitik", "kritiseer", "protest", "meelt aval", "meeleavald", "populist",
-  "kurd", "rikutakse", "nõua", "nõud", "hoiatus", "poliitik", "ametnik", "ministeer", "küsitlus",
-  "toetus",
-  // dread, sorrow, decline and trouble
-  "hirm", "oht", "ohu", "hoiat", "mure", "kurb", "lein", "kaotus", "kaota", "kadun", "kadus",
-  "puudu", "probleem", "raske", "halb", "halv", "kahju", "kannat", "valu", "nälg", "üksild",
-  "stress", "ärev", "depress", "katastroof", "kahane", "vähene", "vähem", "langus", "langes",
-  "hääbu", "murend", "rasvum", "kadu", "madal", "kehv", "keeruli", "segadus", "valesti", "virel",
-  "ebamugav", "eelarvamus", "lõhe", "ilmajäet", "mäsu", "hullus", "huligaan", "kadalipp",
-  "ellujää", "abivaja", "kliima", "soojene", "osoonia", "auk", "eba",
-  // farewells and memorials
-  "memoriam", "elust lahk", "matus", "mälest", "igavikku", "lahkunu", "viimane", "hüvast",
-  // plans that fell through, closures, people leaving
-  " ära ", "sulgu", "lükkub", "lükatakse", "lükati", "edasi lükk", "tühista", "jääb ära", "jäi ära", "suletakse",
-  "suleti", "sulgeb", "sulge", "lõpetab", "tagasi astu", "astus tagasi", "juhatus", "lahkub",
-  "lahkus", "vallandat", "vaese", "naeruvää", "hädas", "peata", "peatub", "peatas",
+  "keela", "määrus", "järelevalve", "menetlus", "uurima", "uurib", "tüli", "vaidl", "vaidle",
+  "süüdista", "kriitik", "kritiseer", "populist", "kurd", "rikutakse", "nõua", "nõud",
+  "hoiatus", "hoiat", "poliitik", "ametnik", "ministeer", "küsitlus", "toetus", "juhatus",
+  "lahkub", "lahkus", "peata", "peatub", "peatas", "lõpetab",
+  // health as a subject, and the soft words a summary uses about its method
+  "tervis", " arst", "stress", "mure", "probleem", "raske", "halb", "halv", "kahju", "puudu",
+  "keeruli", "segadus", "valesti", "virel", "ebamugav", "eelarvamus", "lõhe", "ilmajäet", "mäsu",
+  "madal", "kehv", "kadu", "vähem", "vähe ", "langes", "murend", "kliima", "soojene", "osoonia",
+  " auk", "eba", "risk", "neela", "kuum", "viimane",
   // weather reports
-  "temperatuur", "sünoptik", "kraadi", "veetase", "sadu", "sajab", "tuul", "külm", "kuumalaine",
-  "pakane",
-  // sport results that are somebody's loss
-  "pudene", "alistu", "kukkus välja", "jäi alla", "kaotu", "alla jäi", "viik", "nullile", "loovuta", "võiduta",
-  "doping", "keelu",
-  // endings and delays
-  "lõpe", "lõpp", "edasilük", "lükka", " vaid ", "juhuks",
-  // business plant and power, and a word nobody smiles at
-  "megavat", "akupark", "diktaator",
+  "temperatuur", "sünoptik", "kraadi", "veetase", "sadu", "sajab", "tuul", "külm", "pakane",
+  // endings, delays and hedges
+  "lõpe", "lõpp", " vaid ", "juhuks",
 ];
 
 /*
@@ -110,36 +129,105 @@ const INNOCENT = ["auhin", "aukoh", "auto", "maastik", "maaliline"];
   the word starts there, which is what keeps `avati` (opened) from being found
   inside `megavatine`; a noun is matched anywhere, so a compound
   (`filmifestival`, `fotonäitus`) still counts.
+
+  WHICH KIND OF GOOD, SO THE CARD IS NOT EIGHT GALLERIES. The first version
+  had one list and it was a culture desk's: what an opening, a premiere and a
+  prize sound like. On 2026-11-07 every one of the eighteen picks off ERR's
+  three feeds was a gallery, a festival or a concert, while the science feed
+  that morning carried a bat in Piusa setting a world record for its age, a
+  Tartu robot butterfly growing a new sense organ and a raven deciding twice
+  as fast as an ape, and not one of its fifty items got through. So each kind
+  of good news has its own words, a pick says which kind it is, and
+  `lib/dict/goodNews.ts` deals the card across the kinds rather than in the
+  feeds' order. The bad-news list above is unchanged in force and read first
+  for every kind: a wider net for good news is never a looser one for bad.
 */
-const GOOD = [
-  // something opened or was finished (a leading _ means the word starts here)
-  " avati", " avatakse", " taasavati", " taasavatakse", " avas ", " avasid", " avab uksed",
-  " valmis ", " valmisid",
-  // an award or a win
-  " pälvis", " võitis", " võitsid", " võidutse", " tunnustati", "auhin", "preemi", " parimaks",
-  " valiti aasta", "aastaks valiti", "tiitli", "kuldmedal", "medali",
+export type GoodKind = "nature" | "science" | "achievement" | "culture" | "together";
+
+/** Every kind, in the order a pick is classified: the most particular first. */
+export const GOOD_KINDS: readonly GoodKind[] = ["nature", "science", "achievement", "culture", "together"];
+
+const KIND_STEMS: Record<GoodKind, readonly string[]> = {
+  // a birth, a return, a species doing well (the animal itself is read below)
+  nature: [
+    " sündis", " sündisid", " poegi", " talled", " tibud", " kutsikad", " pesitse", " naasis",
+    " naasid", " taastus", " taastub", " paljune", " õitse", " õitses",
+  ],
+  // a finding, a first, a thing made to work
+  science: [
+    " avastasid", " avastati", " avastas", " leidsid", " töötasid välja", " arendasid",
+    " kasvatas", " lahendasid", " lahendas", "läbimurre", " saladus", "mõistatus", " esmakordselt",
+    " esimest korda", " õnnestus", " aitab ", " aitavad ", " suudab", " suudavad", " oskab",
+    " oskavad", " parandab", " pikendab",
+  ],
+  // an award, a win, a record
+  achievement: [
+    " pälvis", " võitis", " võitsid", " võidutse", " tunnustati", "auhin", "preemi", " parimaks",
+    " aasta parim", " valiti aasta", " valis aasta", "aastaks valiti", "tiitli", "kuldmedal",
+    "medali", " püstitas",
+  ],
   // a premiere, a show, a festival
-  " esilinastu", " teleesilinastu", " esietendu", " tõi lavale", " jõuab lavale", "festival",
-  "laulupidu", "laulupeo", "tantsupidu", "tantsupeo", "kontsert", "näitus", " esines", " esineb",
-  // births and young animals
-  " sündis", " sündisid", " poegi", " talled", " tibud", " kutsikad",
-  // a celebration
-  " tähista", "sünnipäev", "juubel", "pidu ", "peoga",
-  // a discovery
-  " avastasid", " avastati", " avastas",
-  // kindness and joy
-  " kinki", " annetas", "rõõm", " edukalt",
+  culture: [
+    " esilinastu", " teleesilinastu", " esietendu", " tõi lavale", " jõuab lavale", "festival",
+    "laulupidu", "laulupeo", "tantsupidu", "tantsupeo", "kontsert", "näitus", " esines", " esineb",
+  ],
+  // something opened, a celebration, a kindness
+  together: [
+    " avati", " avatakse", " taasavati", " taasavatakse", " avas ", " avasid", " avab uksed",
+    " avavad uksed", " valmis ", " valmisid", " tähista", "sünnipäev", "juubel", "pidu ", "peoga",
+    " kinki", " annetas", "rõõm", " edukalt",
+  ],
+};
+
+/*
+  An animal, matched where its word starts so `karu` is never `karusell`, and
+  anywhere for the compounds Estonian makes of them (`robotliblikas`,
+  `mustvares`, `hülgepoeg`). An animal is not good news on its own: a wolf
+  that killed sheep is an animal headline. What clears one is a word from
+  `KIND_STEMS` or a fact told about what it can do, below, and the bad-news
+  list carries the ways an animal story goes wrong (`murd`, `ründ`, `jaht`,
+  `hammust`, `maruta`, `hukk`).
+*/
+const ANIMALS = [
+  "nahkhiir", "nahkhiire", "hüljes", "hülge", "delfiin", "vaala", " vaal ", "kotka", "kotkas",
+  "toonekur", " kurg", " kure", "ilves", "mesilas", "kimalas", "liblika", "liblikas", "sipelga",
+  "sipelgas", " konn", "kilpkonn", " siil", " orav", "rebas", "rebane", "hirv", "põtra", "põdra",
+  "põder", "karupoeg", " karu ", " karud", " hunt", " hundi", " hunte", " koer", "kutsika",
+  "kassipoeg", " kass ", " kassid", "loomaaed", "loomaaia", "pingviin", "elevant", "kaelkirjak",
+  " lõvi", "tiiger", "tiigri", " ahv", "papagoi", "öökull", " kakk", " luik", " luige", " lind",
+  " linnu", " lindu", "vares", "rähn", "varblane", " kala ", " kalad", "forell", "mardikas",
+  "putuk", "dinosaur", "vaalhai", " liigi", " liike", " liiki", " loom", " looma",
 ];
+
+/*
+  What an animal can do, said as a fact: `Mustvares teeb otsuseid kiiremini`,
+  `Mesilasperel on ühine immuunsüsteem`. These read as good news only beside
+  an animal; on a person or a party they are an argument.
+*/
+const ANIMAL_FACTS = [
+  " teeb ", " teevad ", " tunneb ", " tunnevad ", " mäletab", " mäletavad", " kasutab",
+  " kasutavad", " laulab", " laulavad", " suhtleb", " suhtlevad", " mängib", " mängivad",
+  " on ühine", " on oma", " rohkem", " kasvas", " kasvab", " nähti", " märgati", " pildistati",
+];
+
+/*
+  A study reported under its own label (`Uuring: ...`, `Doktoritöö: ...`) is a
+  report rather than somebody's opinion, so that label comes off before the
+  colon rule reads the headline. Every other colon is still a quote.
+*/
+const STUDY_LABEL = /^(?:uuring|doktoritöö|magistritöö|teadlased|leid)\s*:\s*/iu;
 
 /*
   Two happy events the list cannot say as one stem. New species, which ERR
   writes with the count in between (`45 uut pahksääsklaste liiki`), read only
   in the forms of `liik` so that `liiga`, a league, is never one. And an award
   of the year (`Aasta betoonehitis`, `Tänavune aasta kodanik`), but not any
-  headline that mentions a year.
+  headline that mentions a year. And a tradition reaching a round number
+  (`toimub 20. korda galeriide öö`).
 */
 const NEW_SPECIES = / uu[est] (?:.* )?(?:liik|liiki|liigi|liigid|liike) /u;
 const OF_THE_YEAR = /^ aasta | tänavu\S* aasta /u;
+const NTH_TIME = / toimu(?:b|s) \d+\. korda /u;
 
 /*
   "TODAY" MEANS THE LAST FEW DAYS, NOT THE LAST FEW WEEKS. A culture feed runs
@@ -165,17 +253,23 @@ function folded(text: string): string {
   return ` ${flat.replace(/\s+/g, " ").trim()} `;
 }
 
-/** The headline and its summary, with the innocent words taken out, which is what the bad list reads. */
-function textOf(item: NewsItem): string {
-  let text = folded(`${item.title} ${item.description}`);
-  for (const word of INNOCENT) text = text.replaceAll(word, " ");
-  return text;
+/** Text with the innocent words taken out, which is what the bad lists read. */
+function cleaned(text: string): string {
+  let out = folded(text);
+  for (const word of INNOCENT) out = out.replaceAll(word, " ");
+  return out;
 }
 
-/** The bad-news stem this item carries, or null. */
+/**
+ * The bad-news stem this item carries, or null: harm anywhere in the headline
+ * and its summary, and anything off topic in the headline itself.
+ */
 export function badStem(item: NewsItem): string | null {
-  const text = textOf(item);
-  return BAD.find((stem) => text.includes(stem)) ?? null;
+  const whole = cleaned(`${item.title} ${item.description}`);
+  const harm = HARM.find((stem) => whole.includes(stem));
+  if (harm) return harm;
+  const head = cleaned(item.title);
+  return OFF_TOPIC.find((stem) => head.includes(stem)) ?? null;
 }
 
 /*
@@ -189,14 +283,32 @@ export function badStem(item: NewsItem): string | null {
 const NOT_A_REPORT = /[:?|]|^(?:arvustus|otse|kell \d|kultuuriportaal soovitab)\b/iu;
 const NEGATION = / (?:ei|pole|polnud|mitte|ära) /u;
 
-/** Whether this item may be offered as good news: no bad stem, a report, and a happy event in the headline. */
-export function plainlyGood(item: NewsItem): boolean {
-  if (badStem(item) !== null) return false;
-  const head = shownTitle(item.title);
-  if (NOT_A_REPORT.test(head)) return false;
+/**
+ * Which kind of good news this item is, or null where it is not plainly good:
+ * no bad stem anywhere in it, a report rather than a quote, a question or a
+ * negation, and a happy event in the headline itself.
+ */
+export function goodKind(item: NewsItem): GoodKind | null {
+  if (badStem(item) !== null) return null;
+  const head = shownTitle(item.title).replace(STUDY_LABEL, "");
+  if (NOT_A_REPORT.test(head)) return null;
   const title = folded(head);
-  if (NEGATION.test(title)) return false;
-  return GOOD.some((stem) => title.includes(stem)) || NEW_SPECIES.test(title) || OF_THE_YEAR.test(title);
+  if (NEGATION.test(title)) return null;
+  const has = (kind: GoodKind) => KIND_STEMS[kind].some((stem) => title.includes(stem));
+  const animal = ANIMALS.some((stem) => title.includes(stem));
+  if (NEW_SPECIES.test(title)) return "nature";
+  if (animal && (has("nature") || has("science") || has("achievement") || ANIMAL_FACTS.some((s) => title.includes(s)))) return "nature";
+  if (has("nature") && !has("culture")) return "nature";
+  if (has("science")) return "science";
+  if (has("achievement") || OF_THE_YEAR.test(title)) return "achievement";
+  if (has("culture")) return "culture";
+  if (has("together") || NTH_TIME.test(title)) return "together";
+  return null;
+}
+
+/** Whether this item may be offered as good news at all. */
+export function plainlyGood(item: NewsItem): boolean {
+  return goodKind(item) !== null;
 }
 
 /*
@@ -211,4 +323,21 @@ const MEDIA_LABEL = /^(?:galerii|video|pildid|fotod|otse|vaata|vaata täispikkus
 export function shownTitle(title: string): string {
   const shown = title.replace(MEDIA_LABEL, "");
   return shown.length > 0 ? shown.charAt(0).toLocaleUpperCase("et") + shown.slice(1) : title;
+}
+
+/**
+ * The picks in turn by kind: one of each before a second of any, the kinds
+ * taken in `GOOD_KINDS` order starting `day` places along, and within a kind
+ * the order they were handed in. Nothing is dropped, only reordered.
+ */
+export function dealAcrossKinds<T>(picks: readonly T[], kindOf: (pick: T) => GoodKind, day: number): T[] {
+  const n = GOOD_KINDS.length;
+  const start = ((day % n) + n) % n;
+  const turn = [...GOOD_KINDS.slice(start), ...GOOD_KINDS.slice(0, start)];
+  const queues = turn.map((kind) => picks.filter((pick) => kindOf(pick) === kind));
+  const out: T[] = [];
+  for (let round = 0; out.length < picks.length; round++) {
+    for (const queue of queues) if (queue[round] !== undefined) out.push(queue[round]!);
+  }
+  return out;
 }
