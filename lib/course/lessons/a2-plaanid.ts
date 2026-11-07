@@ -12,6 +12,8 @@
  */
 
 import type { LessonSpec, PartOfLessons } from "./types";
+import { PLACE_STEPS } from "./why-a2-plaanid";
+import { ONE_THING_STEPS } from "./why-asjaajamine";
 
 export const A2_PLAANID_PART: PartOfLessons = {
   id: "a2-plaanid",
@@ -49,7 +51,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "puhkust", of: "puhkus", en: "time off, as some of it" },
     ],
     how: {
-      point: "Going to do is {hakkama} and the [ma-tegevusnimi] (-ma): {Ma hakkan töötama}, I'm starting to work. Planning to is {kavatsema} and the [da-tegevusnimi] (-da): {Ma kavatsen minna}.",
+      point: "To say what you're starting to do, use {hakkama}, to start, and put the verb after it in the [ma-tegevusnimi] (-ma): {Ma hakkan töötama}, I'm starting work. To say what you plan, use {kavatsema}, to plan, and put the verb after it in the [da-tegevusnimi] (-da): {Ma kavatsen minna}, I plan to go.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -59,11 +61,11 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Estonian has no will. The present does most of it: {Homme ma lähen}, I'll go tomorrow. {Hakkan} is for starting something new.",
-        "{Hakkama} takes the [ma-tegevusnimi] (-ma), like {pidama}. {Kavatsema} takes the [da-tegevusnimi] (-da), like {tahtma}.",
-        "{Sinu tundi} is to your class: {tund} is an hour and a lesson both.",
+        "Estonian has no word for will. To talk about the future it uses the present: {Homme ma lähen}, I'll go tomorrow. {Hakkan} is for when you start something new, like a job or a class.",
+        "Which form comes after depends on the first verb, so learn each verb with its partner. {Hakkama} takes the [ma-tegevusnimi] (-ma), the same as {pidama}. {Kavatsema} takes the [da-tegevusnimi] (-da), the same as {tahtma}.",
+        "{Sinu tundi} means to your class. {Tund} is both an hour and a lesson, and Tom is going into it, so it takes the [lühike sisseütlev] (short into): {tundi}. {Sinu}, your, stays as it is.",
       ],
-      watchOut: "{Ma hakkan minema} is I'm about to leave. It's the [ma-tegevusnimi] (-ma) after {hakkama}, every time.",
+      watchOut: "{Ma hakkan minema} means I'm about to leave, I'm getting going. After {hakkama} the verb is always in the [ma-tegevusnimi] (-ma), so it's {minema}, never {minna}.",
       examples: [1, 3, 4],
     },
     answers: [
@@ -101,7 +103,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "See on tõsi.", en: "That's true." },
     ],
     how: {
-      point: "What you think comes after {Ma arvan, et}, with a comma before {et}. Why comes after {sest}, with a comma too.",
+      point: "To say what you think, start with {Ma arvan, et}, I think that, and put a comma before {et}. To give your reason, add {sest}, because, with a comma before it too: {Tartu on parem, sest see on väiksem}.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -112,11 +114,11 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Agree is {olema nõus}, to be in agreement: {Ma olen nõus}. Disagreeing is {ei ole}, and in speech often {pole}: {Ma pole nõus}.",
-        "{Sul on õigus} is you're right: you have the right of it, with {sul} like {sul on}.",
-        "Inside a sentence, {et} and {sest} take a comma in front of them. Estonian is strict about it.",
+        "To agree is {olema nõus}, to be in agreement: {Ma olen nõus}, I agree. To disagree, make it a no with {ei ole}. In speech that usually shortens to {pole}: {Ma pole nõus}, I don't agree.",
+        "{Sul on õigus} means you're right. Word for word it's you have the right of it, built the same way as {sul on}, you have.",
+        "When {et} or {sest} joins two parts of a sentence, it always has a comma in front of it. English often leaves the comma out, but Estonian is strict about it.",
       ],
-      watchOut: "English can drop that. Estonian can't: {Ma arvan, et...}, every time.",
+      watchOut: "English can leave out that: I think Tartu is better. Estonian can't leave out {et}. After {Ma arvan} it's {Ma arvan, et...}, every time.",
       examples: [1, 2, 3],
     },
     answers: [
@@ -159,7 +161,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       { kind: "verb", et: "muutma", first: "muudan", en: "to change", firstEn: "I change" },
     ],
     how: {
-      point: "Every verb here works the way you know: learn the [olevik] (I form) and the rest follow. No is {ei} and the word without -n: {Ma ei leia}.",
+      point: "Every verb here works the way you know: learn the [olevik] (I form), and the forms for the other people follow from it. To make a no, put {ei} in front and take the -n off: {leian}, I find, becomes {Ma ei leia}, I can't find.",
       table: {
         head: ["I", "No", "In English"],
         rows: [
@@ -170,12 +172,22 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Ma arvan, et...} is I think that, and {Ma usun, et...} is I believe that. Both go before a whole sentence.",
-        "{Mõtlema} is thinking something over, where {arvama} is what you think of it.",
-        "{Otsima} and {vajama} always take the [osastav] (3rd form): {Ma otsin telefoni}. {Leidma} takes the [omastav] (2nd form) for a whole thing found, the way {Ma ostsin raamatu} does, but after {ei} it takes the [osastav] (3rd form): {Ma ei leia seda}.",
+        "{Ma arvan, et...} is I think that, and {Ma usun, et...} is I believe that. A whole sentence comes after either one, with a comma before {et}.",
+        "{Mõtlema} is thinking something over, turning it around in your head. {Arvama} is what you think of it, your opinion.",
+        "Some verbs decide the ending of the thing after them. Looking for something and needing it are never finished, so {otsima} and {vajama} always take the [osastav] (3rd form): {Ma otsin telefoni}. Finding is done the moment you have the whole thing, so {leidma} takes the [omastav] (2nd form), the way {Ma ostsin raamatu} does. But in a no every verb takes the [osastav] (3rd form): {Ma ei leia seda}.",
       ],
-      watchOut: "{Otsima} is look for and {leidma} is find: {Ma otsin, aga ma ei leia}, I'm looking, but I can't find it.",
+      watchOut: "{Otsima} is to look for, and {leidma} is to find, the moment you have it. So you can do one without the other: {Ma otsin, aga ma ei leia}, I'm looking, but I can't find it.",
       examples: [1, 2, 4],
+      why: {
+        word: "see",
+        en: "this, it",
+        steps: ONE_THING_STEPS,
+        lines: [
+          { line: 1, form: "seda", lands: { case: "PARTITIVE", plural: false }, why: "{Seda} is the phone: it. Tom is the one doing something to it, finding it, but he says no: {Ei leia}, I can't find. In a no, the thing always goes in the [osastav] (3rd form): {seda}." },
+          { line: 3, form: "seda", lands: { case: "PARTITIVE", plural: false }, why: "Here the phone is what the sentence is about: is it in the kitchen? Tom says it isn't there, {pole}. When a sentence says something isn't there, that thing goes in the [osastav] (3rd form) too: {seda}." },
+          { line: 5, form: "see", lands: { case: "NOMINATIVE", plural: false }, why: "Now the phone is found, and the sentence says it's here. Something that is there, and is what the sentence is about, stays in its plain form, the [nimetav] (1st form): {see}." },
+        ],
+      },
     },
     answers: [
       { ask: { et: "Mis sa otsid?", en: "What are you looking for?" }, cue: "Say you're looking for your phone.", model: { et: "Ma otsin oma telefoni.", en: "I'm looking for my phone." } },
@@ -207,7 +219,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "kaasa", en: "along, with you" },
     ],
     how: {
-      point: "If is {kui}, at the start, with a comma after its half: {Kui ilm on ilus, lähme randa}. Then is {siis}.",
+      point: "To say if, start with {kui} and put a comma after the if half: {Kui ilm on ilus, lähme randa}, if the weather's nice, let's go to the beach. To say then, use {siis}: {Siis jääme koju}.",
       table: {
         head: ["If", "Then"],
         rows: [
@@ -217,11 +229,11 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Kui} is the same word as in {kui palju} and {suurem kui}. At the start of a sentence it means if or when.",
-        "Both halves are in the present: {Kui sajab, jääme koju}. Estonian doesn't need will for the second half.",
-        "{Võtan kaasa} is I'll bring along: {kaasa} goes at the end.",
+        "{Kui} is the same word you know from {kui palju}, how much, and {suurem kui}, bigger than. At the start of a sentence it means if or when.",
+        "Both halves stay in the present: {Kui sajab, jääme koju}, if it rains, we'll stay at home. Estonian has no word for will, so the present does that job in the second half too.",
+        "{Võtan kaasa} means I'll bring it along. {Kaasa}, along, goes at the end, after the thing you bring: {Ma võtan ujumisriided kaasa}.",
       ],
-      watchOut: "{Randa} is to the beach, a short form of its own, like {koju} for home. Learn it as it is.",
+      watchOut: "{Randa} is to the beach, the [lühike sisseütlev] (short into) of {rand}, like {koju}, home. No rule gives you the short form, so learn it together with the word.",
       examples: [1, 2, 3],
     },
     answers: [
@@ -264,7 +276,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       { kind: "verb", et: "tundma", first: "tunnen", en: "to know, to recognize, to feel", firstEn: "I know" },
     ],
     how: {
-      point: "Going to do something is -ma after a verb of going: {Lähme seeni korjama}, we're going mushrooming. It's the same -ma as after {pean}.",
+      point: "To say you're going somewhere to do something, put the second verb in the [ma-tegevusnimi] (-ma) after the verb of going: {Lähme seeni korjama}, we're going to pick mushrooms. It's the same -ma form that comes after {pean}.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -275,12 +287,21 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Metsa} is into the forest, the short form, like {randa} and {koju}: {lähme metsa}.",
-        "{Seeni}, {marju} and {mustikaid} are the [osastav] (3rd form), more than one: some of them, an open amount. That's how you say what you pick and what there is.",
-        "{Tundma} is to know a person or a thing well enough to recognize it: {Ma ei tunne seeni}. To know a fact is {teadma}.",
+        "{Metsa} is into the forest, the [lühike sisseütlev] (short into), like {randa} and {koju}: {lähme metsa}. It's spelled the same as two other forms of {mets}, so the sentence tells you which one it is: going somewhere means into.",
+        "{Seeni}, {marju} and {mustikaid} are all more than one, and nobody says how many: you pick some mushrooms, and there are some berries. More than one with no set amount goes in the plural [osastav] (3rd form). That's how you say what you pick and what there is.",
+        "{Tundma} is to know a person or a thing well enough to recognize it: {Ma ei tunne seeni}, I can't tell one mushroom from another. To know a fact is {teadma}.",
       ],
       watchOut: "Estonians pick in the forest the way others go shopping: going mushrooming is a whole outing, and part of autumn.",
       examples: [0, 2, 5],
+      why: {
+        word: "mets",
+        en: "forest",
+        steps: PLACE_STEPS,
+        lines: [
+          { line: 0, form: "metsa", lands: { case: "ILLATIVE", plural: false }, why: "Mari is saying where they're going: into the forest. Going into a place takes the into form, and for {mets} people use the short one, the [lühike sisseütlev] (short into): {metsa}. The [omastav] (2nd form) and the [osastav] (3rd form) are spelled {metsa} too, so it's the sentence that tells you this one means into." },
+          { line: 1, form: "mets", lands: { case: "NOMINATIVE", plural: false }, why: "Tom is asking where the forest is. Here the forest is what the sentence is about, the thing that is somewhere, so it stays in its plain form, the [nimetav] (1st form): {mets}." },
+        ],
+      },
     },
     answers: [
       { ask: { et: "Kas tuled kaasa?", en: "Are you coming along?" }, cue: "Say you'd love to, and ask where the forest is.", model: { et: "Hea meelega! Kus see mets on?", en: "I'd love to! Where's the forest?" } },
@@ -325,7 +346,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "selline", en: "such, this kind of" },
     ],
     how: {
-      point: "Most of these small words don't change, and they go right before the word they're about: {Ma töötan isegi laupäeval}, I work even on Saturday.",
+      point: "Most of these small words never change their ending, and they go right before the word they're about: {Ma töötan isegi laupäeval}, I work even on Saturday. {Isegi} sits before {laupäeval} because Saturday is the surprising part.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -336,11 +357,11 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Ei} goes with a verb and {mitte} with anything else: {Ma ei tööta}, but {mitte nii tihti}, not so often.",
-        "{Enam} after {ei} or {pole} is not anymore: {Ma ei ela enam Tallinnas}, {Mul pole enam aega}.",
-        "{Keegi} is somebody, and with {ei} it's nobody: {Keegi ei tea}, nobody knows.",
+        "Estonian has two words for not. {Ei} goes with a verb: {Ma ei tööta}, I don't work. {Mitte} goes with anything that isn't a verb: {mitte nii tihti}, not so often.",
+        "{Enam} with {ei} or {pole} means not anymore: {Ma ei ela enam Tallinnas}, I don't live in Tallinn anymore, and {Mul pole enam aega}, I don't have the time anymore.",
+        "{Keegi} on its own is somebody. With {ei} it becomes nobody: {Keegi ei tea}, nobody knows. English puts the no into nobody, and Estonian puts it in {ei}.",
       ],
-      watchOut: "{Vist} is the word for a guess. {Ta on vist kodus} is she's probably at home, and you'd say it when you're not sure.",
+      watchOut: "{Vist} is the word you use for a guess, when you're not sure. {Ta on vist kodus} means she's probably at home: you think so, but you haven't checked.",
       examples: [1, 3, 4],
     },
     answers: [
@@ -377,7 +398,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "öelge", of: "ütlema", en: "tell!, say!, polite" },
     ],
     how: {
-      point: "On the phone, a polite ask usually takes the would form: {Kas ma võiksin...?}, {Kas ma saaksin...?} It's part six's politeness on the line.",
+      point: "On the phone, a polite question usually uses the would form: {Kas ma saaksin...?} or {Kas ma võiksin...?}, could I...? It's the same politeness you met in part six, now on the phone.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -388,11 +409,11 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Answering the phone, you say your name and {kuuleb}: {Liis kuuleb}, Liis speaking (literally, Liis hears).",
-        "Speak to somebody is with somebody: {Mariga rääkida}, part two's -ga.",
-        "{Talle} is to him or to her. Estonian has one word for both.",
+        "When you answer the phone, say your name and {kuuleb}: {Liis kuuleb}, Liis speaking. Word for word, it's Liis hears.",
+        "In Estonian you speak with somebody rather than to them, so the person takes -ga, the [kaasaütlev] (-ga, with) from part two: {Mariga rääkida}, to speak with Mari.",
+        "{Talle} is to him or to her. Estonian has one word, {tema}, for both he and she, so it has one word for to him and to her as well.",
       ],
-      watchOut: "{Sõnum} is also the everyday word for a text: {Ma saadan talle sõnumi}, I'll text her. A message you leave is the whole of it, {sõnumi}, never some of one.",
+      watchOut: "{Sõnum} is also the everyday word for a text: {Ma saadan talle sõnumi}, I'll text her. A message is one whole thing you leave or send, so it takes the [omastav] (2nd form), {sõnumi}. The [osastav] (3rd form) would sound as if you left part of one.",
       examples: [1, 3, 5],
     },
     answers: [
@@ -438,7 +459,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "õhtu", en: "evening" },
     ],
     how: {
-      point: "After {on} or {oli} a describing word stays as it is: {Film oli naljakas}. Before a noun it goes first: {viimane õhtu}, the last evening.",
+      point: "After {on} or {oli}, is or was, a describing word stays in its plain form: {Film oli naljakas}, the film was funny. When it describes a noun, it goes in front of the noun: {viimane õhtu}, the last evening.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -450,10 +471,10 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "{Päris} before a describing word is pretty, quite: {päris rumal}, pretty silly.",
-        "{Kindlasti} is definitely, and {kindel} is sure: {Ma olen kindel}, I'm sure.",
-        "{Lõbus} is fun and {naljakas} is funny: a party is {lõbus}, a joke is {naljakas}.",
+        "{Kindel} means sure: {Ma olen kindel}, I'm sure. {Kindlasti}, definitely, is made from it.",
+        "{Lõbus} is fun and {naljakas} is funny. A party is {lõbus}, because you have a good time. A joke is {naljakas}, because it makes you laugh.",
       ],
-      watchOut: "{Viimane} is the last of all, and {eelmine} is the one before this one: {eelmine nädal}, last week.",
+      watchOut: "{Viimane} is the last of all, with nothing after it. {Eelmine} is the one just before this one: {eelmine nädal}, last week, the week before this one.",
       examples: [1, 3, 5],
     },
     answers: [
@@ -488,7 +509,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "ammu", en: "for ages, long ago" },
     ],
     how: {
-      point: "A time that works {sobib}, for somebody in -le: {Kas sulle sobib?}, does it suit you? To settle it you say {Lepime kokku}, and the answer is {Kokku lepitud!}",
+      point: "To ask if a time works, use {sobib}, it suits, and put the person it suits in -le: {Kas sulle sobib?}, does it suit you? To settle the plan, say {Lepime kokku}, let's agree, and the answer is {Kokku lepitud!}, agreed!",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -500,11 +521,11 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Kokku saama} is to meet up, together: {Millal me kokku saame?}",
-        "Who it suits takes -le: {sulle}, {mulle}, {teile}. Part four's {sobib}, now with the person.",
-        "A place is part two: {kohvikus}, {kiriku kõrval}.",
+        "{Kokku saama} means to meet up, word for word to get together: {Millal me kokku saame?}, when should we meet?",
+        "Word for word, Estonian says a time suits to somebody, so the person takes -le, the [alaleütlev] (-le, onto/to): {sulle}, {mulle}, {teile}. It's {sobib} from part four, now with the person it suits.",
+        "The day takes -l, the [alalütlev] (-l, on/at/has): {reedel}, on Friday. The place takes the endings from part two: {kohvikus}, at the café, and {kiriku kõrval}, next to the church.",
       ],
-      watchOut: "{Lepime kokku} puts the plan on the table. The one who agrees answers {Kokku lepitud!}, it's agreed.",
+      watchOut: "{Lepime kokku}, let's agree, is what the one with the plan says. The one who says yes to it answers {Kokku lepitud!}, it's agreed.",
       examples: [1, 2, 5, 6],
     },
     answers: [
