@@ -1,7 +1,7 @@
 {
-  "engine": "web: sherpa-onnx 1.13.8, single-threaded WebAssembly in a worker",
+  "engine": "web: sherpa-onnx 2.0.1, single-threaded WebAssembly in a worker",
   "model": "TalTechNLP/streaming-zipformer.et-en@7edbacc1d13a4bc8fba21307753569e8334938a0",
-  "recorded": "2026-10-17",
+  "recorded": "2026-11-07",
   "clips": [
     {
       "file": "public/asr/check.wav",

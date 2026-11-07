@@ -6,7 +6,7 @@
  * WHAT IT WRITES, AND WHY EACH IS HERE RATHER THAN IN A PAGE.
  *
  *   sherpa-onnx.js, sherpa-onnx.wasm, sherpa-onnx-asr.js
- *       The sherpa-onnx WebAssembly runtime, release 1.13.8 (Apache 2.0), taken
+ *       The sherpa-onnx WebAssembly runtime, release 2.0.1 (Apache 2.0), taken
  *       from the npm package this repository pins and checked byte for byte
  *       against the hashes below before anything is done with it.
  *   speech-worker.js, capture-worklet.js
@@ -42,11 +42,11 @@ const OUT = "public/asr/runtime";
 
 /** The release, and every file taken from it, pinned. */
 export const RUNTIME = {
-  version: "1.13.8",
+  version: "2.0.1",
   files: {
-    "sherpa-onnx-wasm-nodejs.js": "2c34f48ed8906a63cbdc24496b539e655f9383b3c49b3bda70b461d7157f2106",
-    "sherpa-onnx-wasm-nodejs.wasm": "a802c2e20151126789e24792b76cfc3ab9d9bda60bcd5c6a514f06eb35131a1a",
-    "sherpa-onnx-asr.js": "d51ae8e8b756ee5e53423ffada0c9702973f154f561aca7984fe0b12f4060178",
+    "sherpa-onnx-wasm-nodejs.js": "51be1e6f24df5f9a0564a8701b0987349708ff5c40e04d1e9b1ebe270894868c",
+    "sherpa-onnx-wasm-nodejs.wasm": "9b2851acd37eee1a04207fdfcb70adaff99963b8fda55f6a9dd7bcabd0ecd1e3",
+    "sherpa-onnx-asr.js": "fff0b2059f4e203d8d3c9fc4af997d146e724236c081b9f5af1e5df05c5a421b",
   },
 };
 
