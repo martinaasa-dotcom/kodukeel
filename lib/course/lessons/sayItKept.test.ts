@@ -30,10 +30,10 @@ describe("a Say it card starts from what it had kept", () => {
   const withFade = LESSONS.find((l) => l.level === "B1" && fadePlan(l, 0).length > 3)!;
 
   it("brings back the retelling in the box, the plays and the story", () => {
-    const fresh = html(createElement(RetellIt, { retell: withRetell.retell!, voice: undefined, typed: true, onDone: noop }));
+    const fresh = html(createElement(RetellIt, { lessonId: withRetell.id, retell: withRetell.retell!, voice: undefined, typed: true, onDone: noop }));
     expect(fresh).toContain("Hear the story");
     const back = html(createElement(RetellIt, {
-      retell: withRetell.retell!, voice: undefined, typed: true, onDone: noop,
+      lessonId: withRetell.id, retell: withRetell.retell!, voice: undefined, typed: true, onDone: noop,
       kept: { plays: 2, said: withRetell.retell!.story[0]!.et, shown: true },
     }));
     // In the box itself, not only in the story printed under it.
@@ -43,15 +43,37 @@ describe("a Say it card starts from what it had kept", () => {
     expect(back).not.toContain("Hear the story");
   });
 
+  it("brings back the sentences told back, read and listed", () => {
+    const sentence = withRetell.retell!.story[0]!.et;
+    const back = html(createElement(RetellIt, {
+      lessonId: withRetell.id, retell: withRetell.retell!, voice: undefined, typed: true, onDone: noop,
+      kept: { plays: 2, said: sentence, shown: true, checked: [{ sentence, line: withRetell.retell!.story[0]!, grade: "right", differences: [], findings: [] }] },
+    }));
+    expect(back).toContain("data-retell-checked");
+    expect(back).toContain('data-line-check="right"');
+  });
+
   it("brings back the goes already taken of Again, faster", () => {
     const back = html(createElement(AgainFaster, {
-      faster: withFaster.faster!, voice: undefined, typed: true, multiplier: 1, onDone: noop,
-      kept: { goes: [{ window: 90, words: 14, perMinute: 31 }, { window: 60, words: 15, perMinute: 47 }], helped: false },
+      lessonId: withFaster.id, faster: withFaster.faster!, voice: undefined, typed: true, multiplier: 1, onDone: noop,
+      kept: {
+        goes: [
+          { window: 90, words: 14, perMinute: 31, said: withFaster.faster!.model.et, spoken: false },
+          { window: 60, words: 15, perMinute: 47, said: withFaster.faster!.model.et, spoken: false },
+        ],
+        helped: false,
+        note: null,
+      },
     }));
     expect(back).toContain("data-faster-goes");
     expect(back).toContain("Go 3 of 3");
     expect(back).toContain("From 31 to 47 words a minute in one lesson.");
-    const fresh = html(createElement(AgainFaster, { faster: withFaster.faster!, voice: undefined, typed: true, multiplier: 1, onDone: noop }));
+    // What the last go said comes back with it, and today's pattern under it, all met by the model answer.
+    expect(back).toContain("data-faster-heard=\"2\"");
+    expect(back).toContain(escape(withFaster.faster!.model.et));
+    expect(back).not.toContain("data-met=\"false\"");
+    expect(back.match(/data-met="true"/g)?.length).toBe(withFaster.faster!.checks.length);
+    const fresh = html(createElement(AgainFaster, { lessonId: withFaster.id, faster: withFaster.faster!, voice: undefined, typed: true, multiplier: 1, onDone: noop }));
     expect(fresh).toContain("Go 1 of 3");
   });
 

@@ -191,6 +191,11 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
       model: { et: "Jaaniõhtul tehakse lõket ja käiakse saunas. Kes üle lõkke hüppab, sel läheb terve aasta hästi. Öösel võib minna metsa sõnajalaõit otsima. Ilm on tihti vihmane, aga see on meil juba traditsioon. Minu arvates on see aasta kõige ilusam öö, sest öö on nii valge.", en: "On Midsummer Eve people light a bonfire and go to the sauna. Whoever jumps over the fire has a good year. At night you can go into the woods to look for the fern flower. The weather's often rainy, but that's a tradition by now. In my opinion it's the most beautiful night of the year, because the night is so light." },
       seconds: [60],
       prepare: 120,
+      checks: [
+        { en: "What people do, with -kse and nobody named ({tehakse}, {käiakse} here).", any: ["*kse"], atLeast: 2 },
+        { en: "What you think, with {minu arvates}.", any: ["minu arvates"] },
+        { en: "A reason, with {sest}.", any: ["sest"] },
+      ],
     },
   },
   {
@@ -346,6 +351,11 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
       model: { et: "Kõige suurem pidu, kus ma olen käinud, oli laulupidu. Seal oli rohkem kui sada tuhat inimest ja kõik laulsid koos. Me jõudsime kohale liiga hilja, sest buss oli täis. Kui me kohale jõudsime, olid lapsed juba ära laulnud. Aga õhtul kuulsime, kuidas kõik koorid koos laulsid. Minu arvates oli see väga ilus, sest isegi mina nutsin.", en: "The biggest celebration I've been to was the song festival. There were more than a hundred thousand people there and everybody sang together. We got there too late, because the bus was full. When we got there, the children had already sung. But in the evening we heard all the choirs sing together. I thought it was very beautiful, because even I cried." },
       seconds: [60],
       prepare: 120,
+      checks: [
+        { en: "What had already happened, {olid} or {oli} with a -nud word ({olid lapsed juba ära laulnud} here).", any: ["olid ... *nud", "oli ... *nud"] },
+        { en: "The story in the simple past ({jõudsime}, {laulsid} here).", any: ["*sime", "*sid", "*sin"] },
+        { en: "A reason, with {sest}.", any: ["sest"] },
+      ],
     },
   },
   {
@@ -463,7 +473,7 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ja mida ma selle vihaga teen?", en: "And what do I do with this birch whisk?" }, right: "vihaga", wrong: "viha", pair: ["COMITATIVE", "GENITIVE"], why: "Tom is asking what to do with the whisk, the thing he'd be using. Something you do a thing with takes -ga, the [kaasaütlev] (-ga, with): {vihaga}. The bare {viha}, the [omastav] (2nd form), leaves out the with." },
+      { line: { et: "Ja mida ma selle vihaga teen?", en: "And what do I do with this birch whisk?" }, right: "vihaga", wrong: "viha", pair: ["COMITATIVE", "GENITIVE"], why: "Tom is asking what to do with the whisk, the noun he'd be using. Something you do a thing with takes -ga, the [kaasaütlev] (-ga, with): {vihaga}. The bare {viha}, the [omastav] (2nd form), leaves out the with." },
       { line: { et: "Kaks eestlast istuvad saunas.", en: "Two Estonians are sitting in the sauna." }, right: "eestlast", wrong: "eestlased", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a number, Estonian counts in the singular and puts the noun in the [osastav] (3rd form): {kaks eestlast}, two Estonian, word for word. The number already says how many, so the noun doesn't need the plural. One is the exception: after {üks} the noun stays in its plain form." },
       { line: { et: "Kohe tuleme! Tom, aga enne hüppame veel järve.", en: "Coming! Tom, but first we jump in the lake." }, right: "järve", wrong: "järves", pair: ["ILLATIVE", "INESSIVE"], why: "Jaan and Tom are about to jump into the lake, so it's a movement into it. For {järv} the into form people say is the short one, the [lühike sisseütlev] (short into): {järve}. {Järves}, the [seesütlev] (-s, in), is for once you're in the water." },
     ],
@@ -499,6 +509,11 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
       model: { et: "Kõigepealt viskad leili. Siis vihtled ennast ja istud, kuni on liiga kuum. Saunas ei räägita palju. Pärast hüppad järve, kui see on lähedal. Esimest korda oli mul väga kuum, aga see oli mõnus. Minu arvates on saun parim asi Eestis, sest pärast on keha ja pea puhtad.", en: "First you throw water on the stones. Then you whisk yourself and sit until it's too hot. People don't talk much in the sauna. Afterwards you jump in the lake, if it's close by. The first time I was very hot, but it was nice. I think the sauna is the best thing in Estonia, because afterwards your body and your head are clean." },
       seconds: [60],
       prepare: 120,
+      checks: [
+        { en: "The steam, {leili} ({viskad leili} here).", any: ["leili", "leil"] },
+        { en: "What comes when, with {kõigepealt}, {siis} and {pärast}.", any: ["kõigepealt", "siis", "pärast"], atLeast: 2 },
+        { en: "What you think, with {minu arvates}.", any: ["minu arvates"] },
+      ],
     },
   },
   {
@@ -510,7 +525,7 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
     title: "History on the radio",
     goal: "Follow a short history item on the radio, and keep somebody talking about what they remember.",
     cast: { Raadio: "albert", Kati: "vesta", Tom: "kalev" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Raadio", et: "... ja nii algas 1988. aasta suvel laulev revolutsioon.", en: "...and so, in the summer of 1988, the Singing Revolution began.", stage: "In the car. Tom is driving Kati to choir practice, and turns the radio on in the middle of a history program." },
       { who: "Raadio", et: "Igal õhtul tuli lauluväljakule tuhandeid inimesi. Nad laulsid laule, mida oli aastaid keelatud laulda.", en: "Every evening thousands of people came to the song festival grounds. They sang songs that had been forbidden for years." },
@@ -668,6 +683,11 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
       model: { et: "Eesti oli juba enne sõda iseseisev. Pärast sõda tuli okupatsioon. 1988. aastal algas laulev revolutsioon: igal õhtul tuli lauluväljakule tuhandeid inimesi, et koos laulda. Aasta hiljem seisid kaks miljonit inimest käest kinni ühes ketis. 1991. aastal taastas Eesti oma iseseisvuse. Minu arvates on see väga ilus lugu, sest kõik juhtus laulude abil.", en: "Estonia was already independent before the war. After the war came the occupation. In 1988 the Singing Revolution began: every evening thousands of people came to the song festival grounds to sing together. A year later two million people stood hand in hand in one chain. In 1991 Estonia restored its independence. I think it's a very beautiful story, because it all happened with the help of songs." },
       seconds: [60],
       prepare: 120,
+      checks: [
+        { en: "What had been true before, with {oli juba} ({Eesti oli juba enne sõda iseseisev} here).", any: ["oli juba"] },
+        { en: "When, with {aastal} ({1991. aastal} here).", any: ["aastal"] },
+        { en: "What you think, with {minu arvates}.", any: ["minu arvates"] },
+      ],
     },
   },
   {
@@ -779,7 +799,7 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ma jooksin koju tagasi. Kui ma kooli juurde tagasi jõudsin, oli kõik juba alanud.", en: "I ran back home. When I got back to the school, everything had already started." }, right: "oli", wrong: "olin", pair: ["IndIpfSg3", "IndIpfSg1"], why: "The thing that had started is {kõik}, everything, which here is one whole and takes the he, she, it form of the verb: {kõik oli}. {Olin}, with -n, would mean I had started, but it was the school day that had begun, not Tom." },
+      { line: { et: "Ma jooksin koju tagasi. Kui ma kooli juurde tagasi jõudsin, oli kõik juba alanud.", en: "I ran back home. When I got back to the school, everything had already started." }, right: "oli", wrong: "olin", pair: ["IndIpfSg3", "IndIpfSg1"], why: "The noun that had started is {kõik}, everything, which here is one whole and takes the he, she, it form of the verb: {kõik oli}. {Olin}, with -n, would mean I had started, but it was the school day that had begun, not Tom." },
       { line: { et: "Need andis ta lõpuks koristajale. Ta arvas, et see on kooli direktor.", en: "In the end he gave them to the cleaner. He thought she was the head of the school." }, right: "koristajale", wrong: "koristaja", pair: ["ALLATIVE", "NOMINATIVE"], why: "Mark gave the flowers to the cleaner, so she is the one receiving them. Somebody you give something to takes -le, the [alaleütlev] (-le, onto/to): {koristajale}. The plain {koristaja} would make her the one doing the giving." },
       { line: { et: "Üldse mitte. Ta oli vahepeal ühe poisiga sõbraks saanud ja nad naersid koos.", en: "Not at all. In the meantime he'd made friends with a boy and they were laughing together." }, right: "sõbraks", wrong: "sõbra", pair: ["TRANSLATIVE", "GENITIVE"], why: "Mark wasn't the boy's friend that morning and was by the afternoon: he became one. Becoming something takes -ks, the [saav] (-ks, becoming), with {saama}: {sõbraks saanud}. {Sõbra} is the [omastav] (2nd form), a friend's, which says nothing about becoming." },
     ],
@@ -831,6 +851,11 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
       model: { et: "Mu poeg läks sel aastal esimest korda kooli. Me olime lilled eelmisel õhtul ära ostnud, aga hommikul unustasime need koju. Ma jooksin tagasi, aga kui ma kooli juurde jõudsin, oli kõik juba alanud. Poeg andis lilled lõpuks koristajale, sest ta arvas, et see on direktor. Minu arvates oli see väga naljakas, sest koristaja oli nii õnnelik.", en: "This year my son started school. We'd bought the flowers the evening before, but in the morning we left them at home. I ran back, but when I got to the school, everything had already started. In the end my son gave the flowers to the cleaner, because he thought she was the head. I thought it was very funny, because the cleaner was so happy." },
       seconds: [60],
       prepare: 120,
+      checks: [
+        { en: "What had happened before, {olime} or {oli} with a -nud word ({olime lilled ära ostnud} here).", any: ["olime ... *nud", "oli ... *nud"] },
+        { en: "How it ended, with {lõpuks}.", any: ["lõpuks"] },
+        { en: "What you think now, with {minu arvates}.", any: ["minu arvates"] },
+      ],
     },
   },
   {
@@ -842,7 +867,7 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
     title: "One minute on a topic",
     goal: "Give the exam's one-minute talk after two minutes to get ready, answer the follow-up question, and keep the other person talking.",
     cast: { Priit: "indrek", Tom: "kalev" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Priit", et: "Tere, Tom! Täna teeme läbi eksami esimese osa.", en: "Hi, Tom! Today we're going through the first part of the exam.", stage: "Tom's Estonian course, on a Friday. The teacher, Priit, plays the examiner." },
       { who: "Priit", et: "Saate teema ja kaks minutit aega. Siis räägite minut aega.", en: "You get a topic and two minutes. Then you talk for a minute." },

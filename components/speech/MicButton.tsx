@@ -17,8 +17,11 @@ import { keepUnits } from "@/lib/copy/values";
  * One button, one look and one set of states for every screen that listens,
  * so no screen invents its own. Press to talk, press again (or pause) to
  * stop; under a coarse pointer, holding it is talking and letting go ends the
- * turn. While it listens it shows a level ring, the words so far and a warning
- * before the sound clips. It is disabled while the app itself is speaking, so
+ * turn. Listening is the button itself rather than words beside it: it turns
+ * into a slowly turning orb of the brand's four lights around a stop square,
+ * with a halo that swells with the voice, while the edge of the window lights
+ * the same way (`ListeningGlow.tsx`). It still shows the words so far and a
+ * warning before the sound clips. It is disabled while the app itself is speaking, so
  * it never hears its own voice (D14).
  *
  * Every state the engine can be in has words, and every error has the typed
@@ -34,7 +37,14 @@ export interface MicButtonProps {
   readonly label?: string;
   /** Bind the keyboard shortcut. One button per screen does. */
   readonly shortcut?: boolean;
-  /** Show the words so far under the button while listening. Off where the screen shows them in its own box. */
+  /**
+   * Show the words so far under the button while listening. Off by default
+   * wherever there is a box (`fallback` "box"), because a screen with a box
+   * says what is heard goes in it, and the words so far belong there too
+   * (`lib/speech/liveText.ts`): drawn here they sat above the box and jumped
+   * into it at the end of the turn. A screen whose box only receives part of
+   * what is said, or only appears once the microphone has gone, turns it on.
+   */
   readonly showPartial?: boolean;
   readonly size?: "md" | "lg";
   /**
@@ -50,6 +60,23 @@ export interface MicButtonProps {
    * along there is not, and the way on is to say it anyway.
    */
   readonly fallback: MicFallback;
+  /**
+   * Draw the microphone inside an answer box rather than in a row of its
+   * own. The caller is handed the button and puts it in the box, through
+   * `MicSlot` or `EstonianInput`'s `mic`; what the button has to say (getting
+   * ready, nothing heard, an error) goes under the box. Where speaking and
+   * typing share one box this is the shape, because a whole row for a
+   * 44px control above or below the box is room the screen never gets back.
+   * The caller is handed `null` where the screen offers no microphone, so the
+   * box is drawn either way.
+   */
+  readonly children?: (mic: ReactNode) => ReactNode;
+  /**
+   * The screen's own reason not to offer the microphone right now (a
+   * setting, a card that is not said, an answer already marked). With
+   * `children` the box is still drawn, without the button.
+   */
+  readonly when?: boolean;
 }
 
 /** What a learner does where the microphone will not: type in the box beside it, or say it anyway. */
@@ -61,7 +88,8 @@ export const MIC_SHORTCUT = { key: "m", label: "Ctrl M" } as const;
 /** Pressed for longer than this under a finger, a press is talking while held. */
 const HOLD_MS = 350;
 
-export function MicButton({ speech, label, shortcut = false, showPartial = true, size = "md", speaksForItself = false, fallback }: MicButtonProps) {
+export function MicButton({ speech, label, shortcut = false, showPartial, size = "md", speaksForItself = false, fallback, children, when = true }: MicButtonProps) {
+  const wordsHere = showPartial ?? fallback === "none";
   const t = useT();
   const [announce, setAnnounce] = useState<ReactNode>("");
   const pressedAt = useRef(0);
@@ -70,6 +98,17 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
   latest.current = speech;
 
   const { offered, phase, listening, thinking, partial, level, clipping, error, hearing, appSpeaking, silent } = speech;
+
+  /* Both moments are said to a screen reader, since the orb is a picture:
+     "Listening now" as a turn opens and "Microphone off" as it closes. A
+     sighted reader has the button changing shape and the light at the edge
+     of the window, which is why no pill of words sits beside it. */
+  const wasOpen = useRef(false);
+  useEffect(() => {
+    if (listening === wasOpen.current) return;
+    wasOpen.current = listening;
+    setAnnounce(listening ? t("Listening now") : t("Microphone off"));
+  }, [listening, t]);
 
   useEffect(() => {
     if ((!hearing && !silent) || speaksForItself) return;
@@ -107,7 +146,7 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
 
   // The shortcut: a tap starts or stops; held, it is push-to-talk and letting go ends the turn.
   useEffect(() => {
-    if (!shortcut || !offered) return;
+    if (!shortcut || !offered || !when) return;
     const down = (e: KeyboardEvent) => {
       if (!e.ctrlKey || e.altKey || e.metaKey || e.key.toLowerCase() !== MIC_SHORTCUT.key || e.repeat) return;
       e.preventDefault();
@@ -126,91 +165,88 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
       window.removeEventListener("keyup", up);
     };
     // `press` reads the latest speech through a ref, so it is not a dependency.
-  }, [shortcut, offered]);
+  }, [shortcut, offered, when]);
 
-  if (!offered) return null;
+  /* With a box, the same wrapper either way, so the box is never remounted
+     (and its caret lost) when the microphone comes or goes. */
+  if (!offered || !when) return children ? <div className="flex w-full flex-col gap-2">{children(null)}</div> : null;
 
+  const inField = children !== undefined;
   const big = size === "lg";
-  const dim = big ? "h-14 w-14" : "h-11 w-11";
+  const dim = inField ? (big ? "h-12 w-12" : "h-11 w-11") : big ? "h-14 w-14" : "h-11 w-11";
   const busy = phase === "loading" || phase === "downloading" || thinking;
 
   const status: string | null =
     phase === "downloading" ? downloadingLine(t, speech.progress.done, speech.progress.total)
     : phase === "loading" ? t("Getting ready to listen")
     : thinking ? t("Reading what you said")
-    : listening ? t("Listening. Press again when you are done.")
     // A turn that closed on its own with nothing said says so, rather than the button just going quiet.
-    : silent && !speaksForItself ? t("Nothing was heard.")
+    : !listening && silent && !speaksForItself ? t("Nothing was heard.")
     : null;
 
-  return (
-    <div className="flex flex-col items-start gap-3">
-      {/* The status line stays beside the button and wraps inside its own
-          column, by words: wrapped under the button, it sat inside the level
-          ring and the ring drew over its first words. The gap clears the ring
-          at its widest (`.speech-mic` in globals.css). */}
-      <div className="flex max-w-full items-center gap-4">
-        <button
-          type="button"
-          className={`speech-mic press relative inline-flex shrink-0 items-center justify-center rounded-full ${dim}`}
-          data-state={listening ? "listening" : busy ? "busy" : "idle"}
-          aria-label={listening ? t("Stop listening") : label ?? t("Say it out loud")}
-          aria-keyshortcuts={shortcut ? "Control+M" : undefined}
-          title={shortcut ? `${label ?? t("Say it out loud")} (${MIC_SHORTCUT.label})` : undefined}
-          disabled={appSpeaking && !listening}
-          aria-busy={busy || undefined}
-          onClick={() => {
-            if (held.current) {
-              held.current = false;
-              return;
-            }
-            press();
-          }}
-          onPointerDown={(e) => {
-            if (e.pointerType !== "touch") return;
-            /* A long press a browser kept for itself (a context menu, a
-               scroll) can end with no click, which would leave `held` set and
-               eat the next ordinary tap. Every press starts clean. */
-            held.current = false;
-            pressedAt.current = Date.now();
-            const at = pressedAt.current;
-            setTimeout(() => {
-              // Still down after the hold: talk while held.
-              if (pressedAt.current === at && !latest.current.listening && latest.current.phase === "ready") {
-                held.current = true;
-                void latest.current.start();
-              }
-            }, HOLD_MS);
-          }}
-          onPointerUp={() => {
-            const wasHeld = held.current && Date.now() - pressedAt.current > HOLD_MS;
-            pressedAt.current = 0;
-            if (wasHeld && latest.current.listening) latest.current.stop();
-          }}
-          onPointerCancel={() => {
-            // The browser took the finger mid-hold: the turn ends with what was said, as letting go does.
-            if (held.current && latest.current.listening) latest.current.stop();
-            held.current = false;
-            pressedAt.current = 0;
-          }}
-          onContextMenu={(e) => {
-            // Holding to talk is not a request for the browser's long-press menu.
-            if (pressedAt.current !== 0) e.preventDefault();
-          }}
-          style={{ "--mic-level": String(level) } as CSSProperties}
-        >
-          {busy ? (
-            <Loader2 size={big ? 24 : 20} className="animate-spin" aria-hidden />
-          ) : listening ? (
-            <Square size={big ? 20 : 16} fill="currentColor" aria-hidden />
-          ) : (
-            <Mic size={big ? 24 : 20} aria-hidden />
-          )}
-        </button>
-        {status && <p className="min-w-0 flex-1 text-sm" style={{ color: "var(--ink-2)" }}>{status}</p>}
-      </div>
+  const button = (
+    <button
+      type="button"
+      className={`speech-mic press inline-flex shrink-0 items-center justify-center rounded-full ${dim}`}
+      data-state={listening ? "listening" : busy ? "busy" : "idle"}
+      data-place={inField ? "field" : undefined}
+      aria-label={listening ? t("Stop listening") : label ?? t("Say it out loud")}
+      aria-keyshortcuts={shortcut ? "Control+M" : undefined}
+      title={shortcut ? `${label ?? t("Say it out loud")} (${MIC_SHORTCUT.label})` : undefined}
+      disabled={appSpeaking && !listening}
+      aria-busy={busy || undefined}
+      onClick={() => {
+        if (held.current) {
+          held.current = false;
+          return;
+        }
+        press();
+      }}
+      onPointerDown={(e) => {
+        if (e.pointerType !== "touch") return;
+        /* A long press a browser kept for itself (a context menu, a
+           scroll) can end with no click, which would leave `held` set and
+           eat the next ordinary tap. Every press starts clean. */
+        held.current = false;
+        pressedAt.current = Date.now();
+        const at = pressedAt.current;
+        setTimeout(() => {
+          // Still down after the hold: talk while held.
+          if (pressedAt.current === at && !latest.current.listening && latest.current.phase === "ready") {
+            held.current = true;
+            void latest.current.start();
+          }
+        }, HOLD_MS);
+      }}
+      onPointerUp={() => {
+        const wasHeld = held.current && Date.now() - pressedAt.current > HOLD_MS;
+        pressedAt.current = 0;
+        if (wasHeld && latest.current.listening) latest.current.stop();
+      }}
+      onPointerCancel={() => {
+        // The browser took the finger mid-hold: the turn ends with what was said, as letting go does.
+        if (held.current && latest.current.listening) latest.current.stop();
+        held.current = false;
+        pressedAt.current = 0;
+      }}
+      onContextMenu={(e) => {
+        // Holding to talk is not a request for the browser's long-press menu.
+        if (pressedAt.current !== 0) e.preventDefault();
+      }}
+    >
+      {busy ? (
+        <Loader2 size={big ? 24 : 20} className="animate-spin" aria-hidden />
+      ) : listening ? (
+        <Square size={big ? 20 : 16} fill="currentColor" aria-hidden />
+      ) : (
+        <Mic size={big ? 24 : 20} aria-hidden />
+      )}
+    </button>
+  );
 
-      {listening && showPartial && partial && (
+  const notes = (
+    <>
+      {listening && wordsHere && partial && (
         <p lang="et" className="speech-partial text-md" style={{ color: "var(--ink)" }}>{partial}</p>
       )}
       {listening && clipping && (
@@ -220,6 +256,32 @@ export function MicButton({ speech, label, shortcut = false, showPartial = true,
       {error && !speaksForItself && <MicError error={error} fallback={fallback} onRetry={error === "download-failed" || error === "hash-failed" ? () => void speech.download() : null} />}
 
       <p className="sr-only" role="status" aria-live="polite">{announce}</p>
+    </>
+  );
+
+  /* Inside the box: the box is the control's row, and the words it has to
+     say go under it. `--mic-level` is set on the box's own wrapper so the
+     glow round the box breathes with the voice. */
+  if (inField) {
+    return (
+      <div className="flex w-full flex-col gap-2" style={{ "--mic-level": String(level) } as CSSProperties}>
+        {children(button)}
+        {status && <p className="text-sm" style={{ color: "var(--ink-2)" }}>{status}</p>}
+        {notes}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col items-start gap-4" style={{ "--mic-level": String(level) } as CSSProperties}>
+      {/* The status line stays beside the button and wraps inside its own
+          column, by words: wrapped under the button, it sat inside the halo.
+          The gaps clear the halo at its widest (`.speech-mic` in globals.css). */}
+      <div className="flex max-w-full items-center gap-5">
+        {button}
+        {status && <p className="min-w-0 flex-1 text-sm" style={{ color: "var(--ink-2)" }}>{status}</p>}
+      </div>
+      {notes}
     </div>
   );
 }
@@ -258,6 +320,23 @@ export function MicError({ error, fallback, onRetry }: { readonly error: EngineE
       <p role="status" className="sr-only">{said}</p>
       <p className="text-sm" style={{ color: "var(--ink-2)" }} aria-hidden>{line[error]}</p>
       {onRetry && <Button variant="secondary" size="sm" onClick={onRetry}>{t("Try again")}</Button>}
+    </div>
+  );
+}
+
+/**
+ * WHERE A MICROPHONE SITS IN A BOX: at the right-hand end, inside the
+ * border, the way dictation sits in a phone's message field. The box keeps
+ * its height and gains room at its end for the button (`.mic-slot` in
+ * `app/globals.css`); a box of more than one line keeps it in the bottom
+ * corner, where the next words go. With no microphone the box is as it was.
+ */
+export function MicSlot({ mic, multiline = false, children }: { readonly mic: ReactNode; readonly multiline?: boolean; readonly children: ReactNode }) {
+  // Always the one wrapper, with or without a microphone, so the box keeps its place in the tree.
+  return (
+    <div className="mic-slot" data-multiline={multiline || undefined}>
+      {children}
+      {mic}
     </div>
   );
 }

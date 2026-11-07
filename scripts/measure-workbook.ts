@@ -176,7 +176,7 @@ if (show) {
 }
 
 /*
-  THE PAGE A FINISHED B1 LESSON OFFERS (`lib/course/lessonWorksheet.ts`). The
+  THE PAGE A FINISHED LESSON OFFERS, FROM A2 (`lib/course/lessonWorksheet.ts`). The
   worksheet a lesson's finish screen opens is the page walked to from Practice:
   two exercises, ten lines written and six from a word box, held to what the
   lessons have taught through that evening and led by the lesson's own theme
@@ -184,8 +184,11 @@ if (show) {
   exercise gets and which theme leads, since a card offering a page that comes
   back short is a card offering nothing.
 */
-console.log("\nB1 lessons: the page each finish screen offers, lines written + lines from the box");
-const FIRST_B1 = 10;
+console.log("\nA2 to C1 lessons: the page each finish screen offers, lines written + lines from the box");
+/** The page's own sizes and kinds per level, as `app/(app)/review/workbook/page.tsx` sets them. */
+const FIRST: Record<string, number> = { A1: 6, A2: 8, B1: 10, B2: 10, C1: 10 };
+const FIRST_KIND: Record<string, "write" | "choose" | "box"> = { A1: "choose", A2: "write" };
+const SECOND_KIND: Record<string, "write" | "choose" | "box"> = { A1: "write", A2: "box" };
 const SECOND = 6;
 const short: string[] = [];
 let offered = 0;
@@ -205,8 +208,8 @@ for (const programme of PROGRAMMES) {
     };
     const at = Math.max(0, BANDS.indexOf(programme.level));
     const items: SheetItem[] = [];
-    for (const lemma of scope.lemmas) for (const r of byLemma.get(lemma) ?? []) items.push(...linesFor(wordOf(r, false), gates, new Set(), { reach, limit: at }));
-    const plans = [{ lines: FIRST_B1, kind: "write" as const }, { lines: SECOND, kind: "box" as const }];
+    for (const lemma of scope.lemmas) for (const r of byLemma.get(lemma) ?? []) items.push(...linesFor(wordOf(r, at <= 1), gates, new Set(), { reach, limit: at }));
+    const plans = [{ lines: FIRST[programme.level] ?? 10, kind: FIRST_KIND[programme.level] ?? "write" }, { lines: SECOND, kind: SECOND_KIND[programme.level] ?? "box" }];
     const requested = (offer.theme as Theme | null) ?? null;
     const order = themeOrder({ requested, tonight: tonightsCase(scope), fills: (t) => canFill(items, t, plans[0]!.lines, plans[0]!.kind) });
     const sheet = composeSheet(items, order.themes, plans, order.urgent);

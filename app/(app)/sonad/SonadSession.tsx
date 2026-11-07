@@ -23,6 +23,8 @@ import { WordLink } from "@/components/course/WordLink";
 import { useModuleFocus } from "@/components/course/moduleFocus";
 import { Speak } from "@/components/Speak";
 import { EMPTY, HUE, LEGEND, RING, SPOKEN } from "@/components/sonad/look";
+import { ShareResult } from "@/components/sonad/ShareResult";
+import type { Level } from "@/lib/collections/syllabus/types";
 
 /**
  * SÕNAD'S BOARD.
@@ -82,9 +84,11 @@ import { EMPTY, HUE, LEGEND, RING, SPOKEN } from "@/components/sonad/look";
  * adding a token to a design system sideways.
  */
 
-export function SonadSession({ puzzle, day, guessable }: {
+export function SonadSession({ puzzle, day, level, guessable }: {
   puzzle: Puzzle;
   day: string;
+  /** The learner's level, which the word was drawn at and the share names. */
+  level: Level;
   /** Every Estonian word of this length, so a guess is checked without a call. */
   guessable: string[];
 }) {
@@ -338,7 +342,7 @@ export function SonadSession({ puzzle, day, guessable }: {
         )}
       </div>
       {over ? (
-        <Finish puzzle={puzzle} outcome={outcome} at={at} kept={kept} onKeep={() => setKept(true)} />
+        <Finish puzzle={puzzle} outcome={outcome} at={at} kept={kept} onKeep={() => setKept(true)} day={day} level={level} guesses={guesses} />
       ) : (
         <Keys
           marks={marks}
@@ -532,8 +536,11 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
   );
 }
 
-function Finish({ puzzle, outcome, at, kept, onKeep }: {
+function Finish({ puzzle, outcome, at, kept, onKeep, day, level, guesses }: {
   puzzle: Puzzle;
+  day: string;
+  level: Level;
+  guesses: readonly string[];
   outcome: "won" | "lost";
   at: number | null;
   kept: boolean;
@@ -612,6 +619,7 @@ function Finish({ puzzle, outcome, at, kept, onKeep }: {
       <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>
         {t("There's a new word tomorrow morning.")}
       </p>
+      <ShareResult day={day} level={level} guesses={guesses} answer={puzzle.answer} />
     </Card>
   );
 }

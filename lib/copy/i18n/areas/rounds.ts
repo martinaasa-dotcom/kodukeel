@@ -345,7 +345,7 @@ export const ROUNDS: Area = {
     "new to you": "новое для тебя",
     "Which question comes after it?": "Какой вопрос идёт после него?",
     "Ruled out by a hint.": "Исключено подсказкой.",
-    "Here the person goes in the {case}, and the thing itself is the subject.": "Здесь человек стоит в падеже {case}, а подлежащим будет сам предмет.",
+    "Here the person goes in the {case}, and the noun itself is the subject.": "Здесь человек стоит в падеже {case}, а подлежащим будет само существительное.",
     "{verb} takes the {case}, the one that asks {question}. English gives you no hint here, so learn the two together.": "{verb} требует падежа {case}, того, что отвечает на вопрос «{question}». Догадаться тут не получится, так что запоминай их вместе.",
     "{verb} takes the {case}. English gives you no hint here, so learn the two together.": "{verb} требует падежа {case}. Догадаться тут не получится, так что запоминай их вместе.",
     "It can also take {cases}, for another part of the sentence or in another sense.": "Он может требовать и {cases}, для другой части предложения или в другом значении.",
@@ -636,6 +636,7 @@ export const ROUNDS: Area = {
     "Keep this word": "Сохранить слово",
     "It's in your deck, so today's game counted as practice.": "Оно есть в твоей колоде, так что сегодняшняя игра засчитана как тренировка.",
     "There's a new word tomorrow morning.": "Новое слово появится завтра утром.",
+    "Share your result": "Поделиться результатом",
     "somebody": "человек",
     "an animal": "животное",
     "a plant": "растение",
@@ -1041,52 +1042,52 @@ export const ROUNDS: Area = {
       "Больше одного",
     "Everything mixed":
       "Всё вперемешку",
-    "The thing you like is the one doing the liking here, so it keeps its dictionary form.":
-      "Здесь то, что тебе нравится, само «совершает» действие, поэтому остаётся в словарной форме.",
+    "The noun for what you like is the one doing the liking here, so it keeps its dictionary form.":
+      "Здесь существительное, обозначающее то, что тебе нравится, само «совершает» действие, поэтому остаётся в словарной форме.",
     "Something you are after takes the “some of it” ending.":
       "То, чего ты хочешь, получает окончание «часть чего-то».",
     "It is simply there, so it keeps its dictionary form.":
       "Оно просто есть, поэтому остаётся в словарной форме.",
-    "After a no, the thing that isn't there takes the “some of it” ending, even though it keeps its dictionary form after “mul on”.":
-      "После «нет» то, чего нет, получает окончание «часть чего-то», хотя после «mul on» оно остаётся в словарной форме.",
-    "Needing is wanting, so the thing takes the “some of it” ending.":
-      "Нуждаться значит хотеть, поэтому слово получает окончание «часть чего-то».",
+    "After a no, the noun that isn't there takes the “some of it” ending, even though it keeps its dictionary form after “mul on”.":
+      "После «нет» отсутствующее существительное получает окончание «часть чего-то», хотя после «mul on» оно остаётся в словарной форме.",
+    "Needing is wanting, so the noun takes the “some of it” ending.":
+      "Нуждаться значит хотеть, поэтому существительное получает окончание «часть чего-то».",
     "Looking for something is reaching for it, so it takes the “some of it” ending.":
       "Искать что-то значит тянуться к нему, поэтому слово получает окончание «часть чего-то».",
-    "A wish is wanting, politely, so the thing takes the “some of it” ending.":
-      "Желать значит вежливо хотеть, поэтому слово получает окончание «часть чего-то».",
-    "A polite “would” is still wanting, so the thing takes the “some of it” ending.":
-      "Вежливое «бы» всё равно означает «хочу», поэтому слово получает окончание «часть чего-то».",
+    "A wish is wanting, politely, so the noun takes the “some of it” ending.":
+      "Желать значит вежливо хотеть, поэтому существительное получает окончание «часть чего-то».",
+    "A polite “would” is still wanting, so the noun takes the “some of it” ending.":
+      "Вежливое «бы» всё равно означает «хочу», поэтому существительное получает окончание «часть чего-то».",
     "Waiting for something is reaching for it too, so it takes the “some of it” ending.":
       "Ждать чего-то тоже значит тянуться к нему, поэтому слово получает окончание «часть чего-то».",
-    "Like “mulle meeldib”, the thing is the one doing the work: it tastes good to you, so it keeps its dictionary form.":
-      "Как и в «mulle meeldib», действие совершает сама вещь: это она тебе по вкусу, поэтому остаётся в словарной форме.",
-    "Having is being there, for whoever has it, so the thing keeps its dictionary form.":
-      "Иметь значит, что вещь просто есть у того, кто её имеет, поэтому она остаётся в словарной форме.",
-    "After a no, the thing takes the “some of it” ending.":
-      "После «нет» слово получает окончание «часть чего-то».",
-    "“Pole” is “ei ole” squeezed into one word, so it does what a no does: the thing takes the “some of it” ending.":
-      "В «pole» слились в одно слово «ei ole», поэтому оно действует как отрицание: слово получает окончание «часть чего-то».",
+    "Like “mulle meeldib”, the noun is the one doing the work: it tastes good to you, so it keeps its dictionary form.":
+      "Как и в «mulle meeldib», действие совершает само существительное: это она тебе по вкусу, поэтому остаётся в словарной форме.",
+    "Having is being there, for whoever has it, so the noun keeps its dictionary form.":
+      "Иметь значит, что что-то просто есть у того, кто это имеет, поэтому существительное остаётся в словарной форме.",
+    "After a no, the noun takes the “some of it” ending.":
+      "После «нет» существительное получает окончание «часть чего-то».",
+    "“Pole” is “ei ole” squeezed into one word, so it does what a no does: the noun takes the “some of it” ending.":
+      "В «pole» слились в одно слово «ei ole», поэтому оно действует как отрицание: существительное получает окончание «часть чего-то».",
     "The odd one out. A no usually brings the ending, but this thing is the one doing the liking, so it still keeps its dictionary form.":
       "Исключение. Обычно после «нет» появляется окончание, но здесь вещь сама «нравится», поэтому остаётся в словарной форме.",
-    "Wanting in the past is still wanting, so the thing takes the “some of it” ending.":
-      "Хотеть в прошлом всё равно значит хотеть, поэтому слово получает окончание «часть чего-то».",
+    "Wanting in the past is still wanting, so the noun takes the “some of it” ending.":
+      "Хотеть в прошлом всё равно значит хотеть, поэтому существительное получает окончание «часть чего-то».",
     "Past or not, a no brings the “some of it” ending.":
       "В прошлом или нет, после «нет» будет окончание «часть чего-то».",
     "It was simply there, so it keeps its dictionary form.":
       "Оно просто было, поэтому остаётся в словарной форме.",
-    "The thing is still the one doing the liking, so it keeps its dictionary form.":
-      "Вещь по-прежнему сама «нравится», поэтому остаётся в словарной форме.",
-    "More than one thing is doing the liking, so the verb becomes “meeldivad” and the things keep their plural dictionary form.":
-      "Нравится больше одной вещи, поэтому глагол становится «meeldivad», а вещи остаются в словарной форме множественного числа.",
+    "The noun is still the one doing the liking, so it keeps its dictionary form.":
+      "Существительное по-прежнему само «нравится», поэтому остаётся в словарной форме.",
+    "More than one thing is doing the liking, so the verb becomes “meeldivad” and the nouns keep their plural dictionary form.":
+      "Нравится больше одной вещи, поэтому глагол становится «meeldivad», а существительные остаются в словарной форме множественного числа.",
     "Things you are after take the “some of them” ending.":
       "То, чего ты хочешь, получает окончание «часть чего-то» во множественном числе.",
     "They are simply there, so they keep their plural dictionary form.":
       "Они просто есть, поэтому остаются в словарной форме множественного числа.",
-    "After a no, the things take the “some of them” ending.":
-      "После «нет» слова получают окончание «часть чего-то» во множественном числе.",
-    "The odd one out again: the things are doing the liking, so they keep their plural dictionary form, and the verb is the same “meeldi” whatever their number.":
-      "Снова исключение: вещи сами «нравятся», поэтому остаются в словарной форме множественного числа, а глагол остаётся «meeldi» при любом их числе.",
+    "After a no, the nouns take the “some of them” ending.":
+      "После «нет» существительные получают окончание «часть чего-то» во множественном числе.",
+    "The odd one out again: the nouns are doing the liking, so they keep their plural dictionary form, and the verb is the same “meeldi” whatever their number.":
+      "Снова исключение: существительные сами «нравятся», поэтому остаются в словарной форме множественного числа, а глагол остаётся «meeldi» при любом их числе.",
   },
   uk: {
     "From your reading": "З прочитаного",
@@ -1425,7 +1426,7 @@ export const ROUNDS: Area = {
     "new to you": "нове для тебе",
     "Which question comes after it?": "Яке питання йде після нього?",
     "Ruled out by a hint.": "Викреслено підказкою.",
-    "Here the person goes in the {case}, and the thing itself is the subject.": "Тут людина стоїть у відмінку {case}, а підметом буде сам предмет.",
+    "Here the person goes in the {case}, and the noun itself is the subject.": "Тут людина стоїть у відмінку {case}, а підметом буде сам іменник.",
     "{verb} takes the {case}, the one that asks {question}. English gives you no hint here, so learn the two together.": "{verb} вимагає відмінка {case}, того, що відповідає на питання «{question}». Українське керування тут не завжди підкаже, тож запам'ятовуй їх разом.",
     "{verb} takes the {case}. English gives you no hint here, so learn the two together.": "{verb} вимагає відмінка {case}. Українське керування тут не завжди підкаже, тож запам'ятовуй їх разом.",
     "It can also take {cases}, for another part of the sentence or in another sense.": "Воно може вимагати й {cases}, для іншої частини речення або в іншому значенні.",
@@ -1715,6 +1716,7 @@ export const ROUNDS: Area = {
     "Keep this word": "Зберегти слово",
     "It's in your deck, so today's game counted as practice.": "Воно є у твоїй колоді, тож сьогоднішню гру зараховано як тренування.",
     "There's a new word tomorrow morning.": "Нове слово з'явиться завтра вранці.",
+    "Share your result": "Поділитися результатом",
     "somebody": "людина",
     "an animal": "тварина",
     "a plant": "рослина",
@@ -2121,52 +2123,52 @@ export const ROUNDS: Area = {
       "Більше одного",
     "Everything mixed":
       "Усе впереміш",
-    "The thing you like is the one doing the liking here, so it keeps its dictionary form.":
-      "Тут те, що тобі подобається, саме «виконує» дію, тому лишається в словниковій формі.",
+    "The noun for what you like is the one doing the liking here, so it keeps its dictionary form.":
+      "Тут іменник, що означає те, що тобі подобається, саме «виконує» дію, тому лишається в словниковій формі.",
     "Something you are after takes the “some of it” ending.":
       "Те, чого ти хочеш, отримує закінчення «частина чогось».",
     "It is simply there, so it keeps its dictionary form.":
       "Воно просто є, тому лишається в словниковій формі.",
-    "After a no, the thing that isn't there takes the “some of it” ending, even though it keeps its dictionary form after “mul on”.":
-      "Після «ні» те, чого немає, отримує закінчення «частина чогось», хоча після «mul on» воно лишається в словниковій формі.",
-    "Needing is wanting, so the thing takes the “some of it” ending.":
-      "Потребувати означає хотіти, тому слово отримує закінчення «частина чогось».",
+    "After a no, the noun that isn't there takes the “some of it” ending, even though it keeps its dictionary form after “mul on”.":
+      "Після «ні» відсутній іменник отримує закінчення «частина чогось», хоча після «mul on» воно лишається в словниковій формі.",
+    "Needing is wanting, so the noun takes the “some of it” ending.":
+      "Потребувати означає хотіти, тому іменник отримує закінчення «частина чогось».",
     "Looking for something is reaching for it, so it takes the “some of it” ending.":
       "Шукати щось означає тягтися до нього, тому слово отримує закінчення «частина чогось».",
-    "A wish is wanting, politely, so the thing takes the “some of it” ending.":
-      "Бажати означає ввічливо хотіти, тому слово отримує закінчення «частина чогось».",
-    "A polite “would” is still wanting, so the thing takes the “some of it” ending.":
-      "Ввічливе «б» однаково означає «хочу», тому слово отримує закінчення «частина чогось».",
+    "A wish is wanting, politely, so the noun takes the “some of it” ending.":
+      "Бажати означає ввічливо хотіти, тому іменник отримує закінчення «частина чогось».",
+    "A polite “would” is still wanting, so the noun takes the “some of it” ending.":
+      "Ввічливе «б» однаково означає «хочу», тому іменник отримує закінчення «частина чогось».",
     "Waiting for something is reaching for it too, so it takes the “some of it” ending.":
       "Чекати на щось теж означає тягтися до нього, тому слово отримує закінчення «частина чогось».",
-    "Like “mulle meeldib”, the thing is the one doing the work: it tastes good to you, so it keeps its dictionary form.":
-      "Як і в «mulle meeldib», дію виконує сама річ: це вона тобі до смаку, тому лишається в словниковій формі.",
-    "Having is being there, for whoever has it, so the thing keeps its dictionary form.":
-      "Мати означає, що річ просто є в того, хто її має, тому вона лишається в словниковій формі.",
-    "After a no, the thing takes the “some of it” ending.":
-      "Після «ні» слово отримує закінчення «частина чогось».",
-    "“Pole” is “ei ole” squeezed into one word, so it does what a no does: the thing takes the “some of it” ending.":
-      "У «pole» злилися в одне слово «ei ole», тому воно діє як заперечення: слово отримує закінчення «частина чогось».",
+    "Like “mulle meeldib”, the noun is the one doing the work: it tastes good to you, so it keeps its dictionary form.":
+      "Як і в «mulle meeldib», дію виконує сам іменник: це вона тобі до смаку, тому лишається в словниковій формі.",
+    "Having is being there, for whoever has it, so the noun keeps its dictionary form.":
+      "Мати означає, що щось просто є в того, хто це має, тому іменник лишається в словниковій формі.",
+    "After a no, the noun takes the “some of it” ending.":
+      "Після «ні» іменник отримує закінчення «частина чогось».",
+    "“Pole” is “ei ole” squeezed into one word, so it does what a no does: the noun takes the “some of it” ending.":
+      "У «pole» злилися в одне слово «ei ole», тому воно діє як заперечення: іменник отримує закінчення «частина чогось».",
     "The odd one out. A no usually brings the ending, but this thing is the one doing the liking, so it still keeps its dictionary form.":
       "Виняток. Зазвичай після «ні» з'являється закінчення, але тут річ сама «подобається», тому лишається в словниковій формі.",
-    "Wanting in the past is still wanting, so the thing takes the “some of it” ending.":
-      "Хотіти в минулому однаково означає хотіти, тому слово отримує закінчення «частина чогось».",
+    "Wanting in the past is still wanting, so the noun takes the “some of it” ending.":
+      "Хотіти в минулому однаково означає хотіти, тому іменник отримує закінчення «частина чогось».",
     "Past or not, a no brings the “some of it” ending.":
       "У минулому чи ні, після «ні» буде закінчення «частина чогось».",
     "It was simply there, so it keeps its dictionary form.":
       "Воно просто було, тому лишається в словниковій формі.",
-    "The thing is still the one doing the liking, so it keeps its dictionary form.":
-      "Річ і далі сама «подобається», тому лишається в словниковій формі.",
-    "More than one thing is doing the liking, so the verb becomes “meeldivad” and the things keep their plural dictionary form.":
-      "Подобається більше однієї речі, тому дієслово стає «meeldivad», а речі лишаються в словниковій формі множини.",
+    "The noun is still the one doing the liking, so it keeps its dictionary form.":
+      "Іменник і далі сам «подобається», тому лишається в словниковій формі.",
+    "More than one thing is doing the liking, so the verb becomes “meeldivad” and the nouns keep their plural dictionary form.":
+      "Подобається більше однієї речі, тому дієслово стає «meeldivad», а іменники лишаються в словниковій формі множини.",
     "Things you are after take the “some of them” ending.":
       "Те, чого ти хочеш, отримує закінчення «частина чогось» у множині.",
     "They are simply there, so they keep their plural dictionary form.":
       "Вони просто є, тому лишаються в словниковій формі множини.",
-    "After a no, the things take the “some of them” ending.":
-      "Після «ні» слова отримують закінчення «частина чогось» у множині.",
-    "The odd one out again: the things are doing the liking, so they keep their plural dictionary form, and the verb is the same “meeldi” whatever their number.":
-      "Знову виняток: речі самі «подобаються», тому лишаються в словниковій формі множини, а дієслово лишається «meeldi» за будь-якої їх кількості.",
+    "After a no, the nouns take the “some of them” ending.":
+      "Після «ні» іменники отримують закінчення «частина чогось» у множині.",
+    "The odd one out again: the nouns are doing the liking, so they keep their plural dictionary form, and the verb is the same “meeldi” whatever their number.":
+      "Знову виняток: іменники самі «подобаються», тому лишаються в словниковій формі множини, а дієслово лишається «meeldi» за будь-якої їх кількості.",
   },
   counted: {
     "second": { en: ["second", "seconds"], ru: ["секунда", "секунды", "секунд"], uk: ["секунда", "секунди", "секунд"] },

@@ -103,7 +103,7 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "piima", of: "piim", en: "milk, some milk" },
       { kind: "form", et: "saia", of: "sai", en: "a bun, some bread" },
       { kind: "form", et: "kooki", of: "kook", en: "cake, some cake" },
-      { kind: "form", et: "mida", of: "mis", en: "what, as the thing you do or want" },
+      { kind: "form", et: "mida", of: "mis", en: "what, as in what you do or want" },
       { kind: "word", et: "vist", en: "probably, I think" },
     ],
     how: {
@@ -123,7 +123,7 @@ export const A1_SOOK_LESSONS: readonly LessonSpec[] = [
       notes: [
         "A noun has three forms you learn by heart: the 1st is the dictionary form, {kohv}, and the 3rd is the \"some of it\" form, {kohvi}. The 2nd, which says whose, you met in lesson 16.",
         "Think of it as \"some of it\": {Ma joon kohvi} means \"I'm drinking coffee\", some coffee, not all the coffee there is.",
-        "You've been saying this ending since lesson 11: {eesti keelt}, {raamatut}, {kaks aastat}. And {Mida sa teed?}: {mida} is {mis} with the same ending, because it's the thing you do.",
+        "You've been saying this ending since lesson 11: {eesti keelt}, {raamatut}, {kaks aastat}. And {Mida sa teed?}: the pronoun {mida} is {mis} with the same ending, because it stands for what you do.",
         "A no takes it too: {piima pole}, there's no milk. So does asking whether there's any: {Kas meil on piima?}",
       ],
       watchOut: "The [osastav] (3rd form) is learned with each noun, the way a verb's forms are, and some change a lot: {vesi} becomes {vett}.",

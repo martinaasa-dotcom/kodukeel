@@ -83,7 +83,7 @@ export const C1_MOTE_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "kokaraamatut", of: "kokaraamat", en: "a cookbook, as an object" },
           ],
     how: {
-      point: "English has one 'leave' where Estonian has two, and what decides is whether somebody is doing it. The author leaves the ending open: somebody acts on a thing, so it's {jätma}, {autor jätab lõpu lahtiseks}. The ending stays open: nobody acts, the thing stays that way by itself, so it's {jääma}, {lõpp jääb lahtiseks}.",
+      point: "English has one 'leave' where Estonian has two, and what decides is whether somebody is doing it. The author leaves the ending open: somebody acts on a thing, so it's {jätma}, {autor jätab lõpu lahtiseks}. The ending stays open: nobody acts, the noun stays that way by itself, so it's {jääma}, {lõpp jääb lahtiseks}.",
       table: {
         head: ["Who does it", "Estonian", "In English"],
         rows: [
@@ -104,7 +104,7 @@ export const C1_MOTE_LESSONS: readonly LessonSpec[] = [
         en: "an ending",
         steps: ENDING_STEPS,
         lines: [
-          { line: 2, form: "lõpp", lands: { case: "NOMINATIVE", plural: false }, why: "The ending is what does the pleasing: Estonian makes the thing you like the subject of {meeldib}, so it stays in the plain [nimetav] (1st form), {selline lõpp meeldib}. The person who likes it goes in the [alaleütlev] (-le, onto/to): {teile}." },
+          { line: 2, form: "lõpp", lands: { case: "NOMINATIVE", plural: false }, why: "The ending is what does the pleasing: Estonian makes the noun you like the subject of {meeldib}, so it stays in the plain [nimetav] (1st form), {selline lõpp meeldib}. The person who likes it goes in the [alaleütlev] (-le, onto/to): {teile}." },
           { line: 4, form: "lõpp", lands: { case: "NOMINATIVE", plural: false }, why: "Here the ending is what Tom is talking about, and what he says of it is that it's clear. Nobody does anything to it, the sentence only says what it is, so it stays in the plain [nimetav] (1st form): {lõpp on täiesti selge}." },
           { line: 7, form: "lõpu", lands: { case: "GENITIVE", plural: false }, why: "Now somebody acts on the ending: the author leaves it open. That makes it the object of {jätab}, and it's one whole ending, not part of it and not a no, so it goes in the [omastav] (2nd form): {jätab lõpu lahtiseks}. Said with {jääma}, nobody acts on it, and it's back to {lõpp}: {lõpp jääb lahtiseks}." },
           { line: 11, form: "lõpu", lands: { case: "GENITIVE", plural: false }, why: "Every reader finds their own ending in the book, and finds the whole of it: {loeb sealt välja oma lõpu}. The ending is what the reader does something to, one whole ending with the job done, so it's the [omastav] (2nd form) again. Put a no in front, and it would change to the [osastav] (3rd form)." },
@@ -135,7 +135,7 @@ export const C1_MOTE_LESSONS: readonly LessonSpec[] = [
         { et: "Puude vahelt paistis ainult pool maja: hall katus ja köögiaken, mille taga ta oli viiskümmend talve igal hommikul kohvi joonud.", en: "Only half the house showed between the trees: the gray roof and the kitchen window she had drunk her coffee behind every morning for fifty winters." },
         { et: "Kass oli naabrinaise juures.", en: "The cat was at the neighbor's." },
         { et: "Naabrinaine oli lubanud, et vaatab maja järele, nii kaua kui vaja.", en: "The neighbor had promised to keep an eye on the house for as long as it took." },
-        { et: "„Kui sa tagasi tuled, on kõik nii, nagu oli,“ oli ta öelnud ja teda kõvasti kallistanud.", en: "'When you come back, everything will be just as it was,' she had said, and hugged Elsa hard." },
+        { et: "„Kui sa tagasi tuled, on kõik nii, nagu oli,“ oli ta öelnud ja teda kõvasti kallistanud.", en: "'When you come back, everything will be just as it was,' she had said, and hugged Elsa tight." },
         { et: "Elsa ei olnud talle midagi vastanud.", en: "Elsa hadn't answered her." },
         { et: "Ta ei teadnud, mida vastata, ja ta ei tahtnud lubada midagi, mida ta ei suudaks pidada.", en: "She didn't know what to say, and she didn't want to promise anything she couldn't keep." },
         { et: "Lilli oli ta eile õhtul viimast korda kastnud, kuigi teadis, et seda pole enam vaja.", en: "She had watered the flowers for the last time the evening before, though she knew there was no need anymore." },
@@ -442,6 +442,11 @@ export const C1_MOTE_LESSONS: readonly LessonSpec[] = [
       model: { et: "Jah, ma ütleksin, aga mitte kõike korraga. Kõigepealt räägiksin sellest, mis oli hea. Valetada ma ei tahaks, sest siis saadab ta käsikirja kirjastusele ja saab sealt kirja, et see neile ei sobi. Anna ütles küll, et see on tema unistus. Aga just sellepärast peaks ta teadma, mida parandada.", en: "Yes, I would, but not everything at once. First I'd talk about what was good. I wouldn't want to lie, because then they'd send the manuscript to a publisher and get a letter saying it's not for them. Anna said, granted, that it's their dream. But that's exactly why they should know what to fix." },
       seconds: [120],
       prepare: 60,
+      checks: [
+        { en: "What you'd do, in the would form ({ma ütleksin} here).", any: ["*ksin"] },
+        { en: "Grant the other side a point, with {küll} ({Anna ütles küll} here).", any: ["küll"] },
+        { en: "What you still keep, with {aga}.", any: ["aga", "siiski"] },
+      ],
     },
   },
   {
@@ -906,6 +911,11 @@ export const C1_MOTE_LESSONS: readonly LessonSpec[] = [
       model: { et: "Viimati lugesin romaani „Viimane buss“. Peategelane on vana naine, kes peab otsustama, kas ta jääb koju või sõidab poja juurde. Rohkem ma ei reeda. Autor kirjutab lühidalt ja rahulikult. Alguses ei toimu peaaegu midagi, aga minu meelest on see raamatu tugev külg, sest vaikus on seal sama tähtis kui sõnad. Nõrk külg on see, et vahel kordab autor ennast liiga palju. Soovitan seda kõigile, kes ei karda vaikust.", en: "The last thing I read was the novel 'The Last Bus'. The main character is an old woman who has to decide whether to stay at home or go to her son's. I won't give away any more. The author writes briefly and calmly. At the beginning almost nothing happens, but to my mind that's the book's strong side, because silence matters as much as words in it. The weak side is that sometimes the author repeats himself too much. I recommend it to anybody who isn't afraid of silence." },
       seconds: [120],
       prepare: 60,
+      checks: [
+        { en: "How it's written, with {kirjutab} ({autor kirjutab} here).", any: ["kirjutab"] },
+        { en: "A reason for each opinion, with {sest} or {kuna}.", any: ["sest", "kuna"] },
+        { en: "Who it's for, with {soovitan} ({soovitan seda} here).", any: ["soovitan"] },
+      ],
     },
   },
   {
@@ -1179,7 +1189,7 @@ export const C1_MOTE_LESSONS: readonly LessonSpec[] = [
     title: "The C1 speaking exam",
     goal: "Sit the C1 speaking exam: a minute about yourself and your work, a two-minute presentation on one of two topics after three minutes to prepare, and the discussion.",
     cast: { Evi: "mari", Tom: "kalev", Olga: "liivika" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Evi", et: "Tere! Mina olen Evi ja minu kolleeg kuulab ja hindab. Palun istuge.", en: "Hello! I'm Evi, and my colleague is here to listen and assess. Please sit down.", stage: "The C1 speaking exam, a few weeks later. Two candidates, Tom and Olga, and an examiner neither of them has met." },
       { who: "Evi", et: "Kõigepealt tutvume. Tom, palun rääkige natuke endast ja oma tööst.", en: "First let's get to know each other. Tom, please tell us a little about yourself and your work." },
@@ -1386,6 +1396,11 @@ export const C1_MOTE_LESSONS: readonly LessonSpec[] = [
       model: { et: "Ma räägin sellest, kas raamatut on tänapäeval veel vaja. Minu meelest on küll ja mul on selleks kaks põhjust. Esiteks loeb inimene paberil paremini kui ekraanilt. Kui ma loen telefonist uudiseid, loen ma tihti ainult esimese lause, aga raamatu loen ma lõpuni. Teiseks paneb hea raamat mõtlema. Meie klubis lugesime hiljuti romaani, mille lõpp jäi lahtiseks, ja vaidlesime selle üle terve õhtu. Telefonist lugedes ma nii kaua ei mõtle, sest seal tuleb kohe midagi uut. Muidugi on ekraanil ka oma hea külg: see on kerge ja alati käepärast. Aga kokkuvõttes arvan ma, et raamat ei kao veel niipea kuhugi.", en: "I'm going to talk about whether we still need books today. To my mind we do, and I have two reasons for it. First, people read better on paper than off a screen. When I read the news on my phone I often read only the first sentence, but a book I read to the end. Second, a good book makes you think. At our club we recently read a novel whose ending was left open, and we argued about it all evening. When I read on my phone I don't think that long, because something new comes along straight away. Of course a screen has its good side too: it's light and always to hand. But all in all I think books won't disappear any time soon." },
 seconds: [120],
       prepare: 180,
+      checks: [
+        { en: "Your topic, with {sellest} ({Ma räägin sellest} here).", any: ["sellest"] },
+        { en: "Two points, {Esiteks} and {Teiseks}.", any: ["esiteks", "teiseks"], atLeast: 2 },
+        { en: "The other side and a close, {muidugi} and {kokkuvõttes}.", any: ["muidugi", "kokkuvõttes"], atLeast: 2 },
+      ],
     },
   },
   {

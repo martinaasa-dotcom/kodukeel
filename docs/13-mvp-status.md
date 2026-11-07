@@ -3382,6 +3382,12 @@ thing, or take the page down with it:
 pull request away and the test is the only gate on it. The keyless rule is blunter than the model
 and will sometimes miss a good story, which is the side it is built to err on.
 
+**Fifty more, drier and darker, on 2026-11-07, and the twelve weakest out.** The operator asked
+for jokes whose answer surprises, and then to drop the bad ones for them: the goldfish asleep for three days belly up, the grandfather who reads the death notices
+because they are the only news of his friends, the cat already in the washing machine, the train
+that left Tartu at eight. Every word passed the forms list in `jokes.test.ts`; none has had the
+native speaker's reading yet, and `jokes.ts` marks where they start.
+
 **The first read of the jokes cut two and corrected eleven lines.** Two did not work in
 Estonian: the smacked brother, whose punchline does not follow from its setup, and the skating
 pun, which rests on English "hardest" meaning both difficult and not soft where `kõva` means only
@@ -4183,3 +4189,30 @@ had refused as not what people say are ordinary Estonian and are no longer refus
 brought into a lesson before any lesson taught them are taught where they first appear, and a compound
 or a `-gi` form the forms list does not store is read as the words it is built from. Nothing waits on a
 reader now; the recordings still do (`docs/44-language-reviews.md` §2).
+
+## 80. The seventy-fourth pass: good news that is not always a gallery
+
+The operator reported the good-news card as galleries every morning. Measured on ERR's three feeds
+on 2026-11-07: the old rule offered eighteen headlines and every one was an opening, a festival or a
+concert, while not one of the science feed's fifty items got through, among them a bat in Piusa
+setting a world record for its age, a Tartu robot butterfly growing a new sense organ and a raven
+deciding faster than an ape. Still no model decides (§58).
+
+**Five kinds of good news, each with its own words.** `goodKind` in `lib/news/goodNews.ts` says
+whether a headline is nature, science, an achievement, culture or something done together. An
+animal counts only with something good said about it (a birth, a record, a finding, or a fact about
+what it can do), and the bad-news list gained the ways an animal story goes wrong (`murd`, `ründ`,
+`jaht`, `hammust`, `maruta`, `hukk`). A study under its own label (`Uuring:`) is a report rather
+than an opinion.
+
+**Harm is refused anywhere; a topic only in the headline.** The bad list is two now. `HARM` (death,
+violence, war, accidents, illness, loss, closures) is read over the headline and the summary.
+`OFF_TOPIC` (money, politics, weather, and the soft words a science summary uses about its method)
+is read over the headline alone, because summaries mentioning Europe or saying a thing is hard to
+study had refused every science story. A price stem no longer catches `hinnata` (to estimate), nor
+`usa` the end of `Piusa`. Every fixture of the year's slipped headlines is still refused.
+
+**The card is dealt across the kinds.** `dealAcrossKinds` takes one of each kind before a second of
+any, and which kind leads turns by one each day. On the same morning the picks are a bat's record, a
+raven, a robot butterfly, an ant study, a Roman cup's secret, three prizes, a premiere and a new tram
+line, beside the exhibitions.

@@ -133,7 +133,7 @@ are worth the top model (a wrong case explanation is actively harmful to a learn
 means the multi-thousand-token grammar prompt is paid for once per session rather than per turn.
 Details and cost model in `06-anu-tutor.md`.
 
-**ADR-005: Retrieve morphology, never generate it. (AMENDED, six times, below.)**
+**ADR-005: Retrieve morphology, never generate it. (AMENDED, eight times, below.)**
 *Context:* an LLM will happily produce a plausible, wrong partitive plural. *Decision:* authoritative
 forms come from Ekilex only; AI output is tagged `provenance: AI` and requires explicit confirmation
 before entering a card's answer field. *Consequences:* the dictionary is bounded by Ekilex coverage;
@@ -259,6 +259,19 @@ or by the author's next pass, never by the flagging model; an unflagged line is 
 machine wrote and a person has not read word by word, which `docs/44-language-reviews.md` says
 rather than hides.
 
+*Amendment 6, extended to the worksheet: a lesson's own page may be cut from that lesson's
+sentences.* The worksheet a finished lesson offered was the general page, set from attested
+sentences across every word taught so far, and a learner reported it as random beside the lesson
+they had just done (2026-11-06; the operator approved the change). *Decision:* `?lesson=` on
+`/review/workbook` sets the page from that lesson's words, the ones it teaches and then the rest
+of its sentences' (`lib/course/lessonWorksheet.ts`), and cuts lines from the lesson's own
+conversation, reworks, fixes and story first, which are this amendment's lines, read by the native
+speaker; the dictionary's attested sentences for the same words fill what they do not. A gap is
+still hidden only where exactly one slot claims the spelling, and still marked against the
+dictionary's own forms. *Consequences:* nothing new is written, the general page and every
+measurement keep their attested-only rule, and `lib/games/` still imports neither the lessons nor
+`lib/dict/authored.ts`: the page hands the sentences in as examples.
+
 *Amendment 7: the public pages may be read in Estonian, and that Estonian is prose about the app,
 never Estonian that teaches.* A reviewer at the Institute or a ministry reads what the app is,
 what it costs and what it keeps, and reads it more carefully in Estonian (decision D16 in
@@ -281,6 +294,29 @@ language and never written into a line. *Consequences:* a learner is never offer
 the language they are learning (`scripts/invariants/the-app-is-never-in-estonian.ts`), the voice
 and dash rules hold the Estonian lines as they hold every other (`lib/copy/publicPagesEt.test.ts`),
 and whether a line is natural Estonian is the person's reading, exactly as for amendments 4 to 6.
+
+*Amendment 8: a number in the form its sentence needs is built by rule, and every form the rule
+can make is checked against the forms list before it ships.* The operator asked for a game on
+number endings (`17` is `seitseteist` at seventeen, `seitsmeteistkümne` with seventeen friends and
+`seitsmeteistkümnendal` on the 17th floor; "in 1992" is `tuhande üheksasaja üheksakümne teisel
+aastal`), and no dictionary records a form per number per case. *Decision:*
+`lib/estonian/numerals.ts` builds them from nine units, `kümme` and four pieces that never change
+(`teist`, `kümmend`, `sada`, `tuhat`), under the three rules a course states: every word of a
+cardinal takes the case, only the last word takes the last four cases, and an ordinal is its last
+group made "-th" with every group before it in the genitive. That is amendment 1's license (a
+deterministic rule over a closed table) and it is held to something stronger than a derivation
+usually is: `numerals.test.ts` builds every number from 1 to 2100 in every form the module makes
+and fails on any word the forms list (Ekilex and Vabamorf, guessing off) does not hold as a form of
+the headword it is meant to be, so a form no source vouches for is a failing test rather than a
+form a learner meets. The operator confirmed the two readings no table could settle, that a year is
+said in full and that "17. mail" is `seitsmeteistkümnendal mail`, and asked for the rest to be
+checked by machine rather than read. The sentences around the numbers in
+`lib/games/numberEndings.ts` are a short closed list of frames typed for the mode, on the standing
+amendment 4 gave written sentences, every word of which `numberEndings.test.ts` asks of the same
+forms list. *Consequences:* the forms reach the number endings mode and nothing else: no card answer,
+no exam, no scene. A miss puts the number's own dictionary words in the deck, never a built form.
+The same forms are now also sent to the speech service as words, which the say-it mode declined to
+do (D10) only because nothing vouched for them.
 
 **ADR-006: Generic importer instead of a Speakly integration.**
 *Context:* Speakly has no public API and no verifiable export (audit A3). *Decision:* one

@@ -99,7 +99,7 @@ export const LESSON_TEXT_A2_KUHU: Area = {
       "Мари говорит, где она сейчас, значит вопрос {kus?}. Рынок берёт внешние окончания, поэтому «быть там» это -l на [omastav] (2-я форма): {turul}, на рынке.",
     "Tom asks how to get there, so the question is {kuhu?}, where to. For a market that's -le: {turule}, to the market. One word, three questions, three endings: {turul}, {turule}, {turult}.":
       "Том спрашивает, как туда попасть, значит вопрос {kuhu?}, куда. Для рынка это -le: {turule}, на рынок. Одно слово, три вопроса, три окончания: {turul}, {turule}, {turult}.",
-    "This sentence is about the market itself and where it stands, so {turg} is the thing the sentence is about. It stays in the [nimetav] (1st form), the form you'd look up. The place is said by {kiriku taga}, behind the church.":
+    "This sentence is about the market itself and where it stands, so {turg} is the noun the sentence is about. It stays in the [nimetav] (1st form), the form you'd look up. The place is said by {kiriku taga}, behind the church.":
       "Это предложение о самом рынке и о том, где он стоит, поэтому {turg} то, о чём предложение. Оно остаётся в [nimetav] (1-я форма), словарной форме. Место выражает {kiriku taga}, за церковью.",
     "The place is said by {kõrval}, next to. The word in front of {kõrval} only says next to what, so it goes in the [omastav] (2nd form) with no ending: {turu kõrval}, next to the market. {Kiriku taga} and {panga ees} work the same way.":
       "Место выражает {kõrval}, рядом. Слово перед {kõrval} только говорит, рядом с чем, поэтому стоит в [omastav] (2-я форма) без окончания: {turu kõrval}, рядом с рынком. {Kiriku taga} и {panga ees} устроены так же.",
@@ -205,7 +205,7 @@ export const LESSON_TEXT_A2_KUHU: Area = {
       "Марі каже, де вона зараз, отже питання {kus?}. Ринок бере зовнішні закінчення, тож «бути там» це -l на [omastav] (2-га форма): {turul}, на ринку.",
     "Tom asks how to get there, so the question is {kuhu?}, where to. For a market that's -le: {turule}, to the market. One word, three questions, three endings: {turul}, {turule}, {turult}.":
       "Том питає, як туди дістатися, отже питання {kuhu?}, куди. Для ринку це -le: {turule}, на ринок. Одне слово, три питання, три закінчення: {turul}, {turule}, {turult}.",
-    "This sentence is about the market itself and where it stands, so {turg} is the thing the sentence is about. It stays in the [nimetav] (1st form), the form you'd look up. The place is said by {kiriku taga}, behind the church.":
+    "This sentence is about the market itself and where it stands, so {turg} is the noun the sentence is about. It stays in the [nimetav] (1st form), the form you'd look up. The place is said by {kiriku taga}, behind the church.":
       "Це речення про сам ринок і про те, де він стоїть, тож {turg} те, про що речення. Воно лишається в [nimetav] (1-ша форма), словниковій формі. Місце передає {kiriku taga}, за церквою.",
     "The place is said by {kõrval}, next to. The word in front of {kõrval} only says next to what, so it goes in the [omastav] (2nd form) with no ending: {turu kõrval}, next to the market. {Kiriku taga} and {panga ees} work the same way.":
       "Місце передає {kõrval}, поруч. Слово перед {kõrval} лише каже, поруч із чим, тож стоїть у [omastav] (2-га форма) без закінчення: {turu kõrval}, поруч із ринком. {Kiriku taga} і {panga ees} влаштовані так само.",

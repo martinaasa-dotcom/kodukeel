@@ -301,6 +301,10 @@ export const B2_KAUDNE_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Mida sa viimati raadiost kuulsid?", en: "What did you last hear on the radio?" },
       cue: "Say what you heard, who said it, and what you think of it.",
       model: { et: "Hommikul kuulsin raadiost, et valitsus tahab uut seadust. Valitsuse sõnul on see hea. Minu arvates on see alles plaan.", en: "This morning I heard on the radio that the government wants a new law. According to the government, it's a good thing. In my opinion it's only a plan so far." },
+      checks: [
+        { en: "Who said it, in the [omastav] (2nd form) with {sõnul} or {teatel} ({valitsuse sõnul} here).", any: ["* sõnul", "* teatel"] },
+        { en: "What you think of it, with {minu arvates}.", any: ["minu arvates"] },
+      ],
     },
   },
   {
@@ -570,6 +574,11 @@ export const B2_KAUDNE_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Mida sind viimati teha paluti?", en: "What were you last asked to do?" },
       cue: "Say who asked you to do something lately, what they asked, and whether you did it.",
       model: { et: "Eile palus naaber, et ma aitaksin teda lund lükata. Ma ütlesin, et aitan laupäeval. Ja laupäeval ma aitasin.", en: "Yesterday my neighbor asked me to help her clear the snow. I said I'd help on Saturday. And on Saturday I did." },
+      checks: [
+        { en: "Who asked, with {palus}.", any: ["palus", "paluti"] },
+        { en: "What they asked, in the would form ({aitaksin} here).", any: ["*ksin", "*ksime", "*ksid"] },
+        { en: "Joined with {et} ({palus naaber, et} here).", any: ["et"] },
+      ],
     },
   },
   {
@@ -684,6 +693,10 @@ export const B2_KAUDNE_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Mis su majas uut on?", en: "What's new in your building?" },
       cue: "Tell a friend two things you've heard about your building or your street, and say where you heard them.",
       model: { et: "Kuulsin, et meie majja kolisid uued naabrid. Nad olevat Soomest. Ja Helgi rääkis, et poes tehakse remonti.", en: "I heard new neighbors have moved into our building. They're from Finland, apparently. And Helgi said the shop's being done up." },
+      checks: [
+        { en: "Passed on, with {olevat} ({Nad olevat Soomest} here).", any: ["*vat"] },
+        { en: "Where you heard it, with {kuulsin, et} or {rääkis, et}.", any: ["kuulsin", "rääkis"] },
+      ],
     },
   },
   {

@@ -190,6 +190,14 @@ export const BRIEFINGS = {
     you: "Say each one in Estonian, or type it in words or digits. You'll hear the right answer after.",
     action: "Start",
   },
+  numberEndings: {
+    title: "One number, many jobs",
+    what:
+      "A number changes its ending with its job: 17 years old, 17 friends, the 17th floor. First " +
+      "one number in six sentences, then a year built part by part, then sentences read aloud.",
+    you: "Pick the right form for each sentence, then write down the numbers you hear, with a dot when it means \"-th\". Nothing is timed.",
+    action: "Start",
+  },
   listening: {
     title: "Hear a word, pick what it means",
     what:

@@ -75,7 +75,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "It goes where any describing word goes: after {on}, to say what state the thing is in, {Korter on remonditud}, or in front of the noun, {remonditud korter}.",
+        "It goes where any describing word goes: after {on}, to say what state the noun is in, {Korter on remonditud}, or in front of the noun, {remonditud korter}.",
         "{Avatud} and {suletud} are what a sign says. Talking, people say {lahti} and {kinni}: {Uks on kinni}.",
       ],
       watchOut: "Don't give a -tud word the noun's ending. An ordinary describing word takes it, as the next lesson shows, but a -tud word keeps its one shape: {suletud uksega}, with -ga on the door alone.",
@@ -130,6 +130,11 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Milline su korter on?", en: "What's your apartment like?" },
       cue: "Say what your apartment is like, and how it compares with the last place you lived in.",
       model: { et: "Mu korter on väike, aga remonditud. Köök on uus. Vana korter oli suurem, aga see ei olnud remonditud.", en: "My apartment is small, but it's been fixed up. The kitchen is new. My old apartment was bigger, but it hadn't been fixed up." },
+      checks: [
+        { en: "What was done to it, with a -tud word ({remonditud} here).", any: ["*tud"] },
+        { en: "How it compares, with the -m form ({suurem} here).", any: ["*em", "*am", "*im"] },
+        { en: "The old place, with {oli} ({vana korter oli suurem} here).", any: ["oli", "ei olnud"] },
+      ],
     },
   },
   {
@@ -273,7 +278,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Üleval? Helgi, see olen ju mina!", en: "Upstairs? Helgi, that's me!" },
       { who: "Helgi", et: "Oi! Vabandust!", en: "Oh! Sorry!" },
       { who: "Tom", et: "Ei, mina pean vabandust paluma. Ma töötan õhtul hilja ja kuulan muusikat.", en: "No, I'm the one who should apologize. I work late in the evening and listen to music." },
-      { who: "Helgi", et: "Pole viga. Aga öösel palun vaiksemalt!", en: "Never mind. But a bit quieter at night, please!" },
+      { who: "Helgi", et: "Pole viga. Aga öösel palun vaiksemalt!", en: "Never mind. But quieter at night, please!" },
       { who: "Tom", et: "Ma luban! Ja vaata: koerad on majas lubatud.", en: "I promise! And look: dogs are allowed in the building." },
       { who: "Helgi", et: "Tore! Mu koer on väga vaikne.", en: "Good! My dog is very quiet." },
       { who: "Tom", et: "Jah, palju vaiksem kui mina. Ja viimane reegel: prügi sorteerimine on kohustuslik.", en: "Yes, much quieter than me. And the last rule: sorting the trash is a must." },
@@ -328,7 +333,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { ask: { et: "Kas sa suitsetad?", en: "Do you smoke?" }, cue: "Say no, you don't smoke at all.", model: { et: "Ei, ma ei suitseta üldse.", en: "No, I don't smoke at all." } },
       { cue: "Say smoking is not allowed in the building.", model: { et: "Majas on suitsetamine keelatud.", en: "Smoking in the building is not allowed." } },
       { cue: "Say dogs are allowed.", model: { et: "Koerad on lubatud.", en: "Dogs are allowed." } },
-      { ask: { et: "Öösel palun vaiksemalt!", en: "A bit quieter at night, please!" }, cue: "Promise.", model: { et: "Ma luban.", en: "I promise." } },
+      { ask: { et: "Öösel palun vaiksemalt!", en: "Quieter at night, please!" }, cue: "Promise.", model: { et: "Ma luban.", en: "I promise." } },
     ],
     reworks: [
       {
@@ -368,6 +373,11 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Mis on sinu majas keelatud ja mis on lubatud?", en: "What isn't allowed in your building, and what is?" },
       cue: "Say what's allowed in your building and what isn't, and which rule you like best, and why.",
       model: { et: "Meie majas on suitsetamine keelatud, aga koerad on lubatud. Prügi sorteerimine on kohustuslik. Mulle meeldib kõige rohkem öörahu, sest öösel peab vaikne olema.", en: "In our building smoking isn't allowed, but dogs are. Sorting the trash is a must. The rule I like best is the quiet hours, because it has to be quiet at night." },
+      checks: [
+        { en: "What isn't allowed, with {keelatud}.", any: ["keelatud"] },
+        { en: "What is, with {lubatud} or {kohustuslik}.", any: ["lubatud", "kohustuslik"] },
+        { en: "The rule you like best, and why, with {sest}.", any: ["sest"] },
+      ],
     },
   },
   {
@@ -410,7 +420,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "vahetas", of: "vahetama", en: "he changed, she changed" },
     ],
     how: {
-      point: "To say what's wrong, name the thing and say what it's doing or what state it's in, in one short sentence: {Kraan lekib}, {Valamu on ummistunud}, {Lamp ei tööta}. Then say what has to happen with {tuleb} and the [da-tegevusnimi] (-da): {Toru tuleb vahetada}, the pipe has to be changed.",
+      point: "To say what's wrong, name the noun and say what it's doing or what state it's in, in one short sentence: {Kraan lekib}, {Valamu on ummistunud}, {Lamp ei tööta}. Then say what has to happen with {tuleb} and the [da-tegevusnimi] (-da): {Toru tuleb vahetada}, the pipe has to be changed.",
       table: {
         head: ["What's wrong", "In English"],
         rows: [
@@ -481,7 +491,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Aga mul pole uut pirni.", en: "But I don't have a new bulb." }, right: "pirni", wrong: "pirn", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Pole} is a no: Tom hasn't got a bulb. A no always puts the thing in the [osastav] (3rd form), because there's no whole bulb to point to: {mul pole uut pirni}, with the describing word {uut} in it too." },
+      { line: { et: "Aga mul pole uut pirni.", en: "But I don't have a new bulb." }, right: "pirni", wrong: "pirn", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Pole} is a no: Tom hasn't got a bulb. A no always puts the noun in the [osastav] (3rd form), because there's no whole bulb to point to: {mul pole uut pirni}, with the describing word {uut} in it too." },
       { line: { et: "Võimalik, et toru tuleb välja vahetada. Ma saadan homme meistri.", en: "The pipe may need replacing. I'll send a repairman tomorrow." }, right: "meistri", wrong: "meister", pair: ["GENITIVE", "NOMINATIVE"], why: "Urmas says what he will do himself, {ma saadan}, and he means one whole handyman, sent and arriving: the job will get done. A whole thing with the job done goes in the [omastav] (2nd form): {meistri}. The [nimetav] (1st form) {meister} is for when nobody is named as the one doing it, in a command or after {tuleb}, like {toru} just before." },
     ],
     retell: {
@@ -613,6 +623,11 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Mis sinu üürilepingus kirjas on?", en: "What does your rental contract say?" },
       cue: "Say what your contract says about the rent, the deposit and the notice, and whether you think it's fair.",
       model: { et: "Minu üür on 700 eurot kuus. Tagatisraha on ühe kuu üür. Kui ma välja kolin, pean kaks kuud ette teatama. Ma arvan, et kaks kuud on liiga pikk aeg.", en: "My rent is 700 euros a month. The deposit is one month's rent. If I move out, I have to give two months' notice. I think two months is too long." },
+      checks: [
+        { en: "The rent, with {üür}.", any: ["üür"] },
+        { en: "The deposit, {tagatisraha}.", any: ["tagatisraha"] },
+        { en: "The notice, with {ette} ({kaks kuud ette teatama} here).", any: ["ette"] },
+      ],
     },
   },
   {
@@ -723,7 +738,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ma ootan teie vastust.", en: "I look forward to your answer." }, right: "vastust", wrong: "vastus", pair: ["PARTITIVE", "NOMINATIVE"], why: "Waiting goes on until the answer comes and is never a job done to the answer, so the thing you wait for is always in the [osastav] (3rd form): {Ma ootan teie vastust}." },
+      { line: { et: "Ma ootan teie vastust.", en: "I look forward to your answer." }, right: "vastust", wrong: "vastus", pair: ["PARTITIVE", "NOMINATIVE"], why: "Waiting goes on until the answer comes and is never a job done to the answer, so the noun you wait for is always in the [osastav] (3rd form): {Ma ootan teie vastust}." },
       { line: { et: "Palun saatke meister hiljemalt reedeks.", en: "Please send a handyman by Friday at the latest." }, right: "meister", wrong: "meistri", pair: ["NOMINATIVE", "GENITIVE"], why: "{Saatke} is a command, a polite one, and {palun} doesn't change that. In a command nobody is named as the one doing it, so the whole thing goes in the [nimetav] (1st form): {saatke meister}." },
       { line: { et: "Tom, miks sa tööl mütsi kannad?", en: "Tom, why are you wearing a hat at work?" }, right: "mütsi", wrong: "müts", pair: ["PARTITIVE", "NOMINATIVE"], why: "Wearing a hat goes on, and is never a job that gets done, so the hat is in the [osastav] (3rd form): {mütsi}, whether you wear it for a minute or all week." },
     ],

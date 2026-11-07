@@ -51,4 +51,9 @@ describe("personas", () => {
   it("only speak in voices the speech route accepts", () => {
     expect(voicesAreReal()).toBe(true);
   });
+
+  it("talk at the recording's own speed, never slower and never sped up", () => {
+    expect(PERSONAS.length).toBeGreaterThan(0);
+    for (const p of PERSONAS) expect(p.speed).toBe(1);
+  });
 });

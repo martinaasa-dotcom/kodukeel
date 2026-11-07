@@ -66,6 +66,8 @@ export const TODAY: Area = {
     "Или выучить {words}",
   "Or review {cards} that are due":
     "Или повторить: {cards}",
+  "Or review {cards}":
+    "Или повторить: {cards}",
   "Start reviewing":
     "Начать повторение",
   "Start {unit}":
@@ -1040,6 +1042,8 @@ export const TODAY: Area = {
     "Повторить карточки",
   "({cards} due, if you'd rather practice what you know)":
     "(пора повторить: {cards}, если хочется потренировать то, что уже знаешь)",
+  "(more than {cards} due, if you'd rather practice what you know)":
+    "(пора повторить больше, чем {cards}, если хочется потренировать то, что уже знаешь)",
   "Review done for today":
     "Повторение на сегодня готово",
   "({cards} reviewed, nothing else due)":
@@ -1159,6 +1163,8 @@ export const TODAY: Area = {
   "Or learn {words}":
     "Або вивчити {words}",
   "Or review {cards} that are due":
+    "Або повторити: {cards}",
+  "Or review {cards}":
     "Або повторити: {cards}",
   "Start reviewing":
     "Почати повторення",
@@ -2158,6 +2164,8 @@ export const TODAY: Area = {
     "Повторити картки",
   "({cards} due, if you'd rather practice what you know)":
     "(час повторити: {cards}, якщо хочеться потренувати те, що вже знаєш)",
+  "(more than {cards} due, if you'd rather practice what you know)":
+    "(час повторити понад {cards}, якщо хочеться потренувати те, що вже знаєш)",
   "Review done for today":
     "Повторення на сьогодні готове",
   "({cards} reviewed, nothing else due)":

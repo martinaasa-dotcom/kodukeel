@@ -132,7 +132,7 @@ export const C1_KODU_LESSONS: readonly LessonSpec[] = [
         { et: "Samas ütlevad paljud noored pered, et sissemakse kogumine võtab aastaid.", en: "At the same time, many young families say that saving up a deposit takes years.", section: 3 },
         { et: "Pangad nõuavad tavaliselt, et ostja maksaks ise vähemalt kümme protsenti korteri hinnast.", en: "Banks usually require the buyer to pay at least ten percent of the flat's price themselves.", section: 3 },
         { et: "Üürihinnad on samal ajal tõusnud veelgi kiiremini, mistõttu tundub oma kodu ostmine paljudele mõistlikum.", en: "Rents have meanwhile risen even faster, which is why buying a home of their own seems more sensible to many.", section: 3 },
-        { et: "Kui üür ja laenu kuumakse on peaaegu sama suured, eelistavad paljud maksta pigem pangale kui üürileandjale.", en: "When the rent and the monthly loan payment are about the same, many would rather pay the bank than a landlord.", section: 3 },
+        { et: "Kui üür ja laenu kuumakse on peaaegu sama suured, eelistavad paljud maksta pigem pangale kui üürileandjale.", en: "When the rent and the monthly loan payment are almost the same, many would rather pay the bank than a landlord.", section: 3 },
         { et: "Eesti Panga hinnangul on madalamad intressid toonud turule rohkem ostjaid.", en: "In the view of the Bank of Estonia, lower interest rates have brought more buyers onto the market.", section: 3 },
         { et: "Samal ajal on laenumaksetega hätta jäänud inimesi vähem kui paar aastat tagasi.", en: "At the same time, fewer people have fallen behind with loan payments than a couple of years ago.", section: 3 },
         { et: "Kas hinnad sel aastal langevad?", en: "Will prices fall this year?", section: 4 },
@@ -221,6 +221,11 @@ export const C1_KODU_LESSONS: readonly LessonSpec[] = [
       model: { et: "Minu arvates on parem osta. Arvestades, kui palju me üüri maksame, oleks oma kodu pikas plaanis odavam. Võrreldes eelmise aastaga on hinnad küll kõrgemad, aga oodata ei maksa, sest pankade prognoosi järgi hinnad ei lange.", en: "I think it's better to buy. Given how much rent we pay, a home of our own would be cheaper in the long run. Prices are higher than last year, it's true, but there's no point waiting, because by the banks' forecast prices won't fall." },
       seconds: [90],
       prepare: 120,
+      checks: [
+        { en: "{võrreldes} with -ga ({võrreldes eelmise aastaga} here).", any: ["võrreldes *ga", "võrreldes ... *ga"] },
+        { en: "{arvestades}, with a thing or a whole clause.", any: ["arvestades"] },
+        { en: "Which you'd choose, with {osta} ({parem osta} here).", any: ["osta"] },
+      ],
     },
   },
   {
@@ -292,7 +297,7 @@ export const C1_KODU_LESSONS: readonly LessonSpec[] = [
       watchOut: "{Ma parandan katuse} is you on the roof. Having it fixed is {Ma lasen katuse parandada}.",
       examples: [2, 9, 14],
     },
-    hearing: "quick",
+    hearing: "half",
     listenFor: [
       { q: "What has the previous owner done to the flat?", options: ["Had it all renovated", "Put in new windows", "Sold the storage room", "Fixed the roof"], answer: 0 },
       { q: "Who asks whether you can haggle over the price?", options: ["Tom", "Anna", "Riho, the other viewer", "Raivo"], answer: 2 },
@@ -477,7 +482,7 @@ export const C1_KODU_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "kolmandik", en: "a third" },
     ],
     how: {
-      point: "A loan offer is B2's officialese at full strength: a -mine noun does the verb's work, and the thing it is done to stands in front of it in the [omastav] (2nd form). Read {Laenu tasumine toimub igakuiselt}, and say {Laenu makstakse iga kuu tagasi}.",
+      point: "A loan offer is B2's officialese at full strength: a -mine noun does the verb's work, and the noun it is done to ({Laenu} here) stands in front of it in the [omastav] (2nd form). Read {Laenu tasumine toimub igakuiselt}, and say {Laenu makstakse iga kuu tagasi}.",
       table: {
         head: ["The offer writes", "You say", "In English"],
         rows: [
@@ -515,7 +520,7 @@ export const C1_KODU_LESSONS: readonly LessonSpec[] = [
         { et: "Noortele peredele ja esimese kodu ostjatele on olemas ka riiklik käendus, mille puhul piisab väiksemast sissemaksest.", en: "For young families and first-time buyers there is also a state guarantee, with which a smaller deposit is enough." },
         { et: "Teiseks intress. Eestis on peaaegu kõik kodulaenud ujuva intressiga.", en: "Second, the interest. In Estonia nearly all home loans have a floating rate." },
         { et: "See tähendab, et intress koosneb kahest osast: Euriborist, mis muutub, ja panga marginaalist, mis jääb samaks.", en: "That means the interest is made up of two parts: Euribor, which changes, and the bank's margin, which stays the same." },
-        { et: "Kui Euribor tõuseb, tõuseb ka teie igakuine makse. Mõni aasta tagasi kogesid seda paljud pered üsna valusalt.", en: "When Euribor goes up, so does your monthly payment. A few years ago many families found that out quite painfully." },
+        { et: "Kui Euribor tõuseb, tõuseb ka teie igakuine makse. Mõni aasta tagasi kogesid seda paljud pered üsna valusalt.", en: "When Euribor goes up, so does your monthly payment. A few years ago many families found that out pretty painfully." },
         { et: "Mõnes pangas saab intressi ka mõneks aastaks fikseerida, kuid see on tavaliselt kallim.", en: "At some banks you can also fix the interest for a few years, but it usually costs more." },
         { et: "Seepärast soovitan arvestada, et makse võib tulevikus olla vähemalt paarsada eurot suurem kui praegu.", en: "So I suggest allowing for the payment being at least a couple of hundred euros higher in the future than it is now." },
         { et: "Kolmandaks laenuperiood. Mida pikem on periood, seda väiksem on kuumakse, aga seda rohkem maksate kokku intressi.", en: "Third, the length of the loan. The longer it runs, the smaller the monthly payment, but the more interest you pay in all." },
@@ -735,7 +740,7 @@ export const C1_KODU_LESSONS: readonly LessonSpec[] = [
       watchOut: "{Hoolimata} wants -st and {vaatamata} wants -le, and they mean the same thing: {hoolimata sellest}, {vaatamata sellele}. Don't cross them.",
       examples: [6, 8, 11],
     },
-    hearing: "quick",
+    hearing: "half",
     listenFor: [
       { q: "What does Aivar find on the cellar wall?", options: ["Mold: the wall is damp", "A crack", "Old wiring", "Nothing at all"], answer: 0 },
       { q: "What does he think is the cause?", options: ["The roof lets water through", "The new kitchen", "Too much heating", "A burst pipe"], answer: 0 },
@@ -1101,6 +1106,11 @@ export const C1_KODU_LESSONS: readonly LessonSpec[] = [
       model: { et: "Tabelis on hinnad kolmes piirkonnas. Kõige rohkem maksab korter kesklinnas, kus kahetoaline maksab keskmiselt 210 000 eurot. Äärelinnas on hinnad märgatavalt madalamad. Võrreldes eelmise aastaga on hinnad tõusnud kõigis kolmes piirkonnas, kõige rohkem kesklinnas.", en: "The table has the prices in three areas. A flat costs most in the center, where a two-room one costs 210,000 euros on average. In the outskirts prices are noticeably lower. Compared with last year prices have risen in all three areas, most of all in the center." },
       seconds: [90],
       prepare: 120,
+      checks: [
+        { en: "The highest and the lowest, with {kõige} ({kõige rohkem} here).", any: ["kõige"] },
+        { en: "One figure set against another, with {võrreldes}.", any: ["võrreldes"] },
+        { en: "How prices changed, with {tõusnud} or {tõusid}.", any: ["tõusnud", "tõusid"] },
+      ],
     },
   },
   {

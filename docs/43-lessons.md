@@ -51,10 +51,22 @@ Every lesson has the same six steps, in this order, so a learner always knows wh
 | 3 | **How it works** | One pattern, in English, in the box `components/RuleNote.tsx` already draws: the point, the table, a "watch out". Examples are lines from tonight's conversation or earlier ones. A lesson with no new pattern says what tonight's words have in common instead. | 2 |
 | 4 | **Practice** | Recognize first (pick, match, listen), then produce (type, or say). Every item is built only from what this lesson and earlier lessons taught. | 5 |
 | 5 | **Say it** | Optional, and the headline of the evening (section 2). | 4 |
-| 6 | **Review** | Yesterday's and older words that are due, held to what has been taught. | 2 |
+| 6 | **Review** | Today's own words once more, asked the other way round from Practice: typed from their English, and put back into today's conversation. On a check-in and a part's last lesson, the whole part. Older words come back on their own schedule in the review queue (2026-11-06, operator's call). | 2 |
 
 That is eighteen minutes with speaking and fourteen without. The fifteen-minute rule in
 `course.test.ts` becomes a range of twelve to twenty, which is section 6's first decision.
+
+**One page holds one task (2026-11-04, Martin's call).** A step is a sequence of pages, and each
+page does one thing: hear the conversation and answer, read it, read the text, meet the new words,
+read the idea, hear the sounds, spell your name, see where the idea was in the conversation. The
+reported fault was a B2 Listen step that put a whole text to read under the conversation the
+learner had just answered questions on, which read as one more wall of words and was scrolled past.
+`lib/course/lessons/screens.ts` is the one list of a step's pages and of the finished lesson's
+(the celebration, the words said once more, then each offer with its own "Not now", the way on
+last), "Continue" walks them, and the step list at the top is unchanged. Practice, Write, Say it
+and Review were already one card at a time, so each is one page.
+`scripts/invariants/a-lesson-page-holds-one-task.ts` holds the runner to the list, and
+`scripts/test-lessons.mjs` walks every page and fails on one showing two tasks.
 
 **Teaching comes before testing, always.** Steps 1 to 3 ask nothing and grade nothing. A learner
 who presses through them in a minute is allowed to; a learner who wants to read every line twice is
@@ -509,7 +521,9 @@ ledger compares the headword a form is of, not the letters alone.
 with them, the way A1's went, and a learner on one restarts A2 at its first lesson. The A2 units
 stay as the dictionary's request list. The eleven catalog conversations that opened on an A2 unit
 open on a free evening of B1 or early B2 instead (`EARLIER_SCENES_FOR_UNIT`), the first evening
-before a unit's last with no page to read, so no evening carries two. The checks follow the lessons:
+before a unit's last with no page to read, so no evening carries two. (Since 2026-11-07 the five of
+them whose every asked word A1 or A2 has taught are offered by the A1 or A2 lesson that rehearses
+them instead, as B1's are, and every A2 lesson ends on a worksheet page, as B1's do; see §12.) The checks follow the lessons:
 a check closes each A2 part and the last one covers the whole level, as A1's do, and the reference
 pages A2 explains (the genitive, gradation, the perfect, the conditional, comparison and the rest,
 `LESSON_PAGES`) count as read. 265 written sentences no longer passed the checker against the new
@@ -870,7 +884,7 @@ your own, have it read by the dictionary (`checkLessonText`, sentence by sentenc
 `verify.ts`, and redraft; a sentence written right can be kept as a review card (`WRITTEN`). The
 Words step names what each new verb asks for (`asks`). Each part ends in a role-play played live
 (`lib/scenes/specs/b1-*.ts`), and every scene is played keyless as seven kinds of learner in
-`lessonScenes.test.ts`, at B1's pitch. Twenty-one lessons offer a catalog conversation on their
+`lessonScenes.test.ts`, at B1's pitch. Nineteen lessons (twenty-one until two moved to A2, below) offer a catalog conversation on their
 finish (`lessonSituations.ts`). Where a lesson is about the same errand it is that lesson: the payday
 lesson offers the bank, the leak the landlord, the speaking exam the B1 exam conversation. B1 has no
 lesson about a bus stop, a restaurant, a clothes shop or a pharmacy, so those four sit on lessons
@@ -912,6 +926,18 @@ written and six from the box. Two lessons whose rule has a theme (the would form
 lead with something else, because the dictionary holds recorded sentences of taught words in that
 form for one word each, and the page will not set a short page while another fills. The v1 lesson
 view carries the offer as `worksheet`, so a native app can make it too.
+
+**And A2 has what B1 has wherever it fits** (2026-11-07). Every A2 lesson ends on a worksheet page
+too, at the beginner's size (eight lines written and six from the box, the written sentences first),
+and `npm run measure:workbook` sets every one of the sixty-one a full page; A1 does not, since an A1
+evening asks for no case and no gap and its first twenty lessons have no sentence of taught words to
+cut a line from. And five catalog conversations whose every asked word A1 or A2 has taught moved
+from the B and C lessons that offered them to the A1 or A2 lesson that rehearses them: the shop for
+milk on `a1-31-where-to` (the same phone call), the library card on `a2-07-library`, how was your
+weekend on `a2-52-forest`, calling a shop on `a2-53-message`, and making plans on `a2-54-arrange`.
+The café, the pharmacy, the bus ticket, the restaurant and the way still ask a word the lessons
+teach later, and stay where those words are. The steps inside a B lesson (listen first, rework, fix,
+fade, retell, faster, write) stay B1 and up, as §11.0 decided.
 
 **One year, one cast, and a level that ramps.** B1 is one family's year (`docs/reviews/b1-cast.md`):
 a name is one person from A1 to B1, the move in part 4 is the move every later part lives with, and
@@ -1240,7 +1266,7 @@ inside `levelContractProblems` and asked again by step 8 against the parts befor
 `write` a part, and from the third part on at least one rework whose pattern is a B2 pattern an
 earlier B2 part explained. `b2RampProblems` in `rampB2.ts`, by band of two parts: in parts 1 and 2
 a conversation heard first has no `hearing`, from part 3 it has one, and in parts 5 and 6 it is
-`quick` or `half`; a story is heard twice in parts 1 and 2 and once (`hearings: 1`) from part 3;
+`half` (nothing is sped up); a story is heard twice in parts 1 and 2 and once (`hearings: 1`) from part 3;
 the race runs 90, 60 and 45 seconds, then 60, 45 and 30, then 45, 30 and 20, and in parts 7 and 8
 one go of 60 after `prepare: 120`, which no earlier part uses; and every core lesson but a part's
 last carries a `read`. Both are asked of B2 alone, and of synthetic parts both ways in
@@ -1856,8 +1882,8 @@ C1 part explained; in every part at least one rework whose pattern is a B2 patte
 but a part's last carries a `read`; and from the third part every `read` carries `questions`. A C1
 part's closing conversation admits a curveball, which no lesson field records, so it is asked of its
 scene (`curveballs`), in `lessonScenes.test.ts` and step 7. `c1RampProblems` in `rampC1.ts`, by band
-of two parts: every conversation heard first has a `hearing`, and in parts 5 and 6 it is `half` or
-`quick`; a story is heard once (`hearings: 1`) everywhere, and from part 3 a talk is too; the race is
+of two parts: every conversation heard first has a `hearing`, and in parts 5 and 6 it is `half`
+(nothing is sped up); a story is heard once (`hearings: 1`) everywhere, and from part 3 a talk is too; the race is
 one go of 60 after 60 in parts 1 and 2, of 90 after 120 in parts 3 and 4, of 120 after 180 on a choice
 of two `topics` in parts 5 and 6, and of 120 in parts 7 and 8, after 60 (on the spot) or after 180
 with `topics`, at least one race of the band on the spot; part 2 has a talk of 300 words or more heard

@@ -1,7 +1,9 @@
 import { lessonById, lessonLabel, LESSON_PARTS, LESSONS, type LessonSpec } from "@/lib/course/lessons";
 import { PREVIEW_LESSONS, PREVIEW_PARTS } from "@/lib/course/lessons/preview";
 import { lessonListStates } from "@/lib/progress/course";
-import { acceptedSentences, withOrders, type PracticeItem } from "@/lib/course/lessons/practice";
+import { acceptedSentences, formsAskedOf, withFormNames, withOrders, type PracticeItem } from "@/lib/course/lessons/practice";
+import { nameAcross, type EntryForms } from "@/lib/estonian/nameForm";
+import { oneEntryPerLemma, VOUCHED_ROW } from "@/lib/dict/search";
 import { orderContextFor } from "@/lib/dict/wordOrder";
 import { lessonWordsWorthAsking } from "@/lib/estonian/wordOrder";
 import { sayableName } from "@/lib/course/lessons/ownAnswer";
@@ -20,7 +22,9 @@ import { verbExamples, type VerbExample } from "@/lib/progress/verbExamples";
 import { buildCaseTable, shownForms, stemsFrom } from "@/lib/estonian/derive";
 import { CASES } from "@/lib/estonian/cases";
 import type { CaseKey } from "@/lib/estonian/types";
-import { bySubstance, VOUCHED_ROW } from "@/lib/dict/search";
+import { bySubstance } from "@/lib/dict/search";
+import { lessonHeads, lessonStars } from "@/lib/progress/wordCards";
+import { wordsLayout, type WordsLayout } from "@/lib/course/lessons/wordCards";
 
 /**
  * How far back a lesson looks for the learner's own mix-ups: the newest
@@ -46,7 +50,7 @@ export interface LessonView {
   scene: string | null;
   /** A conversation out there the lesson rehearses, from the catalog, offered on its finish (`lessonSituations.ts`). */
   situation: { id: string; title: string } | null;
-  /** From B1, a worksheet page on what the lessons have taught, offered on the finish (`lessonWorksheet.ts`); a lesson in preview is on no evening and offers none. */
+  /** From A2, a worksheet page on what the lessons have taught, offered on the finish (`lessonWorksheet.ts`); a lesson in preview is on no evening and offers none. */
   worksheet: LessonWorksheet | null;
   place: { at: number; of: number };
   name: string | null;
@@ -79,6 +83,10 @@ export interface LessonView {
   forms: readonly VerbExample[];
   /** The table a "Why this form?" step lands in (`caseFormsFor`); null where the lesson has none. */
   caseForms: CaseForms | null;
+  /** The Words step as cards, which case and number each taught spelling is read off the dictionary (`wordsLayout`). */
+  words: WordsLayout;
+  /** Each taught spelling's dictionary entry and whether the learner starred it, for the star on a Practice question. */
+  stars: Readonly<Record<string, { readonly id: string; readonly starred: boolean }>>;
 }
 
 /**
@@ -177,7 +185,7 @@ export async function lessonView(
   const lesson = lessonById(lessonId) ?? (allowPreview ? PREVIEW_LESSONS.find((l) => l.id === lessonId) ?? null : null);
   if (!lesson) return null;
   // Every read at once: none of them needs another's answer, and each is a round trip.
-  const [mixups, nameSetting, pace, queue, passed, states, read, notes, forms, caseForms] = await Promise.all([
+  const [mixups, nameSetting, pace, queue, passed, states, read, notes, forms, heads, stars, caseForms] = await Promise.all([
     lesson.fixes?.length
       ? prisma.review.findMany({
         where: { ownerId, reachedSlot: { not: null } },
@@ -195,6 +203,8 @@ export async function lessonView(
     readTokens(lesson),
     notesTokens(lesson),
     formsTable(ownerId, lesson),
+    lessonHeads(lesson),
+    lessonStars(ownerId, lesson),
     caseFormsFor(lesson),
   ]);
   const { closes, after, ...built } = lessonPlan(lesson, confusions(mixups).map((c) => c.pair));
@@ -204,8 +214,32 @@ export async function lessonView(
     words are verbs is the dictionary's to say and the lesson marks in the
     browser. One read, bounded by the sentences the lesson counts.
   */
-  const dict = await orderContextFor(acceptedSentences([...built.practice, ...built.review]), lessonWordsWorthAsking);
-  const plan = { ...built, practice: withOrders(built.practice, dict), review: withOrders(built.review, dict) };
+  const asked = formsAskedOf([...built.practice, ...built.review]);
+  const [dict, entries] = await Promise.all([
+    orderContextFor(acceptedSentences([...built.practice, ...built.review]), lessonWordsWorthAsking),
+    asked.length === 0 ? Promise.resolve([]) : prisma.lexeme.findMany({
+      where: { lemma: { in: asked }, ...VOUCHED_ROW },
+      select: { id: true, lemma: true, pos: true, provenance: true, forms: { select: { value: true, formType: true, morphCode: true } } },
+      orderBy: { id: "asc" },
+    }),
+  ]);
+  /*
+    WHICH FORM EACH TYPED QUESTION ASKS FOR, named off the dictionary's own
+    forms, so "the name, as an object" says `osastav (3rd form)` under it
+    rather than leaving the learner to work out which ending is wanted. Only
+    an entry the seed or Ekilex vouches for may name a form, and one entry per
+    headword, by the rule the dictionary leads with.
+  */
+  const byLemma = new Map<string, EntryForms>(oneEntryPerLemma(entries, asked).map((e) => [e.lemma, e]));
+  const name = (of: string, spelling: string, english: string) => {
+    const entry = byLemma.get(of);
+    return entry ? nameAcross([entry], spelling, english) : null;
+  };
+  const plan = {
+    ...built,
+    practice: withFormNames(withOrders(built.practice, dict), name),
+    review: withFormNames(withOrders(built.review, dict), name),
+  };
   /*
     THE PART THIS LESSON IS IN, lesson by lesson, so the screen can say "4 of
     8 in First words" and the finish can light the one just done. A lesson
@@ -234,5 +268,7 @@ export async function lessonView(
     notes,
     forms,
     caseForms,
+    words: wordsLayout(lesson, heads),
+    stars,
   };
 }

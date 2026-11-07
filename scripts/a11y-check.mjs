@@ -143,7 +143,7 @@ const ROUTES = [
   "/privacy?lang=et", "/trust?lang=et", "/funding?lang=et", "/partners?lang=et", "/curriculum?lang=et", "/accessibility?lang=et",
   "/teachers?lang=et", "/state-exam?lang=et", "/help?lang=et", "/how-we-know?lang=et", "/pilots?lang=et",
   "/welcome", "/sign-in", "/start", "/suggestions", "/admin/suggestions", "/admin/errors", "/admin/speech", "/dev/asr",
-  "/course", "/course/learn", "/course/forms", "/course/chat", "/course/lessons", "/course/lessons/a1-04-persons", "/course/lessons/b1-06-note", "/course/check/check-a1.1", "/review/letters", "/review/workbook", "/review/numbers", "/review/sayings", "/review/wordplay", "/review/lookups",
+  "/course", "/course/learn", "/course/forms", "/course/chat", "/course/lessons", "/course/lessons/a1-04-persons", "/course/lessons/b1-06-note", "/course/check/check-a1.1", "/review/letters", "/review/workbook", "/review/numbers", "/review/numbers?mode=endings", "/review/sayings", "/review/wordplay", "/review/lookups",
   "/exam/A1", "/grammar/topic/object", "/learn/checkpoint/A1",
   "/course/lessons/c1-01-news", "/course/lessons/c1-20-comma",
   "/review", "/review/write", "/review/government", "/review/openers", "/review/twenty", "/review/conjugation", "/review/cloze", "/review/clinic",
@@ -172,7 +172,7 @@ const ROUTES = [
     are asked and not how the screen is built, so the other three would be the
     same eight checks over the same markup.
   */
-  "/review/common", "/review/common/noun",
+  "/review/common", "/review/common/noun", "/review/common/noun/check",
   /*
     And the conversations, which is the third time this list has been caught by
     the fault its own header names. A scene is a whole session rendered from one

@@ -94,8 +94,8 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "-v marks the thing that does the verb itself: {kehtima}, to be in force, gives {kehtiv}, the one in force. Ask who does the verb: the law itself applies, so it's {kehtiv seadus}.",
-        "-tav marks the thing the verb is done to, and it's built on the [umbisikuline] (-takse, people do): {arutatakse}, people are discussing it, gives {arutatav}, the one being discussed. The bill doesn't discuss anything, people discuss it, so it's {arutatav eelnõu}.",
+        "-v marks the noun that does the verb itself: {kehtima}, to be in force, gives {kehtiv}, the one in force. Ask who does the verb: the law itself applies, so it's {kehtiv seadus}.",
+        "-tav marks the noun the verb is done to, and it's built on the [umbisikuline] (-takse, people do): {arutatakse}, people are discussing it, gives {arutatav}, the one being discussed. The bill doesn't discuss anything, people discuss it, so it's {arutatav eelnõu}.",
         "-mata marks what hasn't been done yet, the same -mata as in {tegemata}, not done: {lahendamata}, not solved. Unlike the other two, it never changes its ending, whatever the noun after it does.",
         "The same thing three ways, from plain to formal: to a friend {Seda alles arutatakse}, at work {See on alles eelnõu}, and in writing {arutatav eelnõu}. In speech the one-word version sounds like somebody reading the news aloud.",
       ],
@@ -201,6 +201,11 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
       model: { et: "Valitsus arutab eelnõud, mis keelaks koolis telefoni kasutada. Kehtiva seaduse järgi otsustab iga kool ise. Lahendamata on aga küsimus, kes seda kontrollib.", en: "The government is discussing a bill that would ban using phones at school. Under the law in force, each school decides for itself. What's still unsolved, though, is who checks it." },
       seconds: [60],
       prepare: 60,
+      checks: [
+        { en: "A thing described by what's happening to it ({kehtiva seaduse}, {lahendamata} here).", any: ["kehtiv", "kehtiva", "arutatav", "*mata"] },
+        { en: "The bill, {eelnõu}.", any: ["eelnõu", "eelnõud"] },
+        { en: "What's still unsolved, with {küsimus}.", any: ["küsimus", "küsimuse", "küsimust"] },
+      ],
     },
   },
   {
@@ -265,7 +270,7 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
       watchOut: "When the radio says a study {näitab seost}, the two things turn up together, and nobody has shown that one causes the other. Pass it on as {Telefon on süüdi}, and you've turned a link into a cause the researcher never claimed.",
       examples: [4, 6, 9],
     },
-    hearing: "quick",
+    hearing: "half",
     listenFor: [
       { q: "Who is today's guest?", options: ["A sleep researcher", "A doctor from a hospital", "A teacher", "A radio journalist"], answer: 0 },
       { q: "What does the study show about phones in bed?", options: ["A link, not a cause", "That phones cause bad sleep", "Nothing at all", "That young people sleep the most"], answer: 0 },
@@ -538,7 +543,7 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "...kuulujutt, jah. Aga igas kuulujutus on natuke tõtt.", en: "...rumor, yes. But there's a bit of truth in every rumor." }, right: "tõtt", wrong: "tõde", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Natuke}, a bit, is an amount, and you mean some of the truth, not all of it. After an amount word like that, the thing goes in the [osastav] (3rd form): {natuke tõtt}. {Tõde} is the truth as a whole, the subject of its sentence: {Tõde tuleb nagunii välja}." },
+      { line: { et: "...kuulujutt, jah. Aga igas kuulujutus on natuke tõtt.", en: "...rumor, yes. But there's a bit of truth in every rumor." }, right: "tõtt", wrong: "tõde", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Natuke}, a bit, is an amount, and you mean some of the truth, not all of it. After an amount word like that, the noun goes in the [osastav] (3rd form): {natuke tõtt}. {Tõde} is the truth as a whole, the subject of its sentence: {Tõde tuleb nagunii välja}." },
       { line: { et: "...kuulujutt, jah. Aga igas kuulujutus on natuke tõtt.", en: "...rumor, yes. But there's a bit of truth in every rumor." }, right: "igas", wrong: "iga", pair: ["INESSIVE", "NOMINATIVE"], why: "{Iga}, every, works like an adjective, so it takes the same ending as the noun after it. The truth is inside the rumor, so {kuulujutt} takes the [seesütlev] (-s, in), {kuulujutus}, and {iga} follows it: {igas kuulujutus}." },
     ],
     workOut: [
@@ -574,6 +579,11 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
       model: { et: "Firma müüdavat maha ja kontor viidavat linnast välja. Juht olevat telefonis öelnud, et kõik hakkab muutuma. Mina arvan, et see on lihtsalt kuulujutt, aga tõde tuleb nagunii välja.", en: "The firm is supposedly being sold and the office moving out of town. The boss is supposed to have said on the phone that everything's going to change. I think it's just a rumor, but the truth comes out anyway." },
       seconds: [60],
       prepare: 60,
+      checks: [
+        { en: "Passed on, with -tavat or -davat ({müüdavat}, {viidavat} here).", any: ["*avat"], near: ["müüakse"] },
+        { en: "What somebody said, with {olevat} ({Juht olevat öelnud} here).", any: ["olevat"] },
+        { en: "What you think, with {arvan}.", any: ["arvan"] },
+      ],
     },
   },
   {
@@ -635,9 +645,9 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
       notes: [
         "{Arusaadav} is built on {aru saama}, to understand: {lõpp oli arusaadav}, the ending was easy to follow. It describes the ending, not the people watching it.",
         "A film says a lot by not saying it. {No küll sa oled tark}, said to somebody who has just done something stupid, means the opposite. Listen for what the scene makes of the words, not only for the words.",
-        "When a line refers to something you don't know, ask: to a friend {Millele sa viitad?}, at work {Vabandust, millele te viitate?}. {Viitama} asks {millele?}, so the thing referred to takes the [alaleütlev] (-le, onto/to), the way Mari answers: {Kolhoosile}.",
+        "When a line refers to something you don't know, ask: to a friend {Millele sa viitad?}, at work {Vabandust, millele te viitate?}. {Viitama} asks {millele?}, so the noun referred to takes the [alaleütlev] (-le, onto/to), the way Mari answers: {Kolhoosile}.",
       ],
-      watchOut: "{Arusaamatu} describes the thing, not the person trying to follow it: {nali oli mulle arusaamatu}, the joke went over my head, with {mulle}, to me, saying who couldn't follow. Don't say {ma olen arusaamatu}, which would mean nobody can understand you.",
+      watchOut: "{Arusaamatu} describes the noun, not the person trying to follow it: {nali oli mulle arusaamatu}, the joke went over my head, with {mulle}, to me, saying who couldn't follow. Don't say {ma olen arusaamatu}, which would mean nobody can understand you.",
       examples: [3, 5, 10],
       why: {
         word: "kolhoos",
@@ -645,7 +655,7 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
         steps: REFERRED_OR_WHERE_STEPS,
         lines: [
           { line: 7, form: "kolhoosis", lands: { case: "INESSIVE", plural: false }, why: "The grandfather is saying how things were on the collective farm, so the word answers {kus?}, where. Being in a place takes the [seesütlev] (-s, in): {kolhoosis}. {Nagu}, like, doesn't change anything: the word keeps the form it would have without it." },
-          { line: 8, form: "Kolhoosile", lands: { case: "ALLATIVE", plural: false }, why: "Now Mari is answering Tom's {Millele ta viitas?}, what was he referring to? {Viitama} asks {millele?}, onto what, so the thing referred to goes in the [alaleütlev] (-le, onto/to): {kolhoosile}. She answers in the form the question asked for." },
+          { line: 8, form: "Kolhoosile", lands: { case: "ALLATIVE", plural: false }, why: "Now Mari is answering Tom's {Millele ta viitas?}, what was he referring to? {Viitama} asks {millele?}, onto what, so the noun referred to goes in the [alaleütlev] (-le, onto/to): {kolhoosile}. She answers in the form the question asked for." },
         ],
       },
     },
@@ -959,6 +969,11 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
       model: { et: "Saates oli külaliseks teadlane Liina, kes uurib und. Uuringu järgi magavad eestlased veidi alla seitsme tunni ja noored kõige vähem. Kõige tähtsam oli see, et uuring näitab seost, mitte põhjust. Lõpuks andis ta kolm soovitust. Minu meelest oli see väga huvitav.", en: "The guest on the program was the scientist Liina, who studies sleep. According to the study, Estonians sleep a little under seven hours and the young the least. The most important thing was that the study shows a link, not a cause. At the end she gave three pieces of advice. I thought it was really interesting." },
       seconds: [60],
       prepare: 60,
+      checks: [
+        { en: "Who said it, with {sõnul} or {järgi} ({uuringu järgi} here).", any: ["sõnul", "järgi"] },
+        { en: "The points in order, with {kõige tähtsam} or {lõpuks}.", any: ["kõige tähtsam", "lõpuks"] },
+        { en: "Your own view last, with {minu meelest}.", any: ["minu meelest"] },
+      ],
     },
   },
   {
@@ -993,7 +1008,7 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
         "When a line points at something you weren't there for, say so first, then ask: {Ma ei olnud siin. Millele te viitate?}",
         "In the role-play one answer is new, and somebody says the opposite of what they told you before. Tell them so.",
       ],
-      watchOut: "{Millele sa viitad?} asks what somebody is referring to, the thing they point at. {Mida sa mõtled?} asks what they mean by their own words. When a reference went past you, the first is the one to ask.",
+      watchOut: "{Millele sa viitad?} asks what somebody is referring to, the noun they point at. {Mida sa mõtled?} asks what they mean by their own words. When a reference went past you, the first is the one to ask.",
       examples: [2, 4, 7],
     },
     hearing: "cafe",

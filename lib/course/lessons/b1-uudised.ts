@@ -86,7 +86,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
         "English has to pick somebody to say it about: people, you, they, or a passive like \"is spoken\". Estonian picks nobody, so all of those come out as this one form.",
         "Learn each verb's form as it stands: {tehakse}, {tuuakse}, {süüakse}. They're in the Words step, one by one.",
         "Signs talk this way too, because a sign is meant for everybody: {Siin ei suitsetata}, no smoking here.",
-        "Nobody named changes the thing too, when the whole of it gets done. With somebody named, a whole thing takes the [omastav] (2nd form): {Me sööme koogi ära}. With nobody named, it takes the [nimetav] (1st form): {Kook süüakse ära}. Some of it, an open amount, is the [osastav] (3rd form) either way: {Sünnipäeval tuuakse tööle kooki}.",
+        "Nobody named changes the noun too, when the whole of it gets done. With somebody named, a whole thing takes the [omastav] (2nd form): {Me sööme koogi ära}. With nobody named, it takes the [nimetav] (1st form): {Kook süüakse ära}. Some of it, an open amount, is the [osastav] (3rd form) either way: {Sünnipäeval tuuakse tööle kooki}.",
       ],
       watchOut: "Never put {nad} or {me} in front of it: {räägitakse} already says people speak, so a person beside it says it twice. To say who, use the ordinary form instead: {Me räägime eesti keelt}.",
       examples: [2, 3, 7, 9],
@@ -263,6 +263,10 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Mis on sinu linnas kõige ilusam maja? Miks?", en: "What's the most beautiful building in your town? Why?" },
       cue: "Name the building you like best, say when it was built, and give two reasons you like it.",
       model: { et: "Mulle meeldib raekoda, sest see on vana ja ilus. See ehitati väga ammu. Ja eelmisel aastal avati seal uus kohvik, kus on hea kohv.", en: "I like the town hall, because it's old and beautiful. It was built a very long time ago. And last year a new café opened there, where the coffee is good." },
+      checks: [
+        { en: "When it was built, with -ti and nobody named ({ehitati} here).", any: ["*ati", "*eti", "renoveeriti", "leiti", "viidi"] },
+        { en: "Two reasons you like it, with {sest} and {ja}.", any: ["sest", "ja"], atLeast: 2 },
+      ],
     },
   },
   {
@@ -403,7 +407,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
     title: "In the news",
     goal: "Follow a news item on the radio, and talk it over: what happened, who was called, and whether anybody was hurt.",
     cast: { Raadio: "albert", Anna: "kylli", Jaan: "meelis", Tom: "kalev" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Raadio", et: "Tere hommikust! Kell on kaheksa.", en: "Good morning! It's eight o'clock.", stage: "The radio, on in the kitchen at breakfast." },
       { who: "Raadio", et: "Öösel oli kesklinnas tulekahju.", en: "There was a fire in the city center last night." },
@@ -454,7 +458,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Läks põlema} is caught fire: the thing goes into burning.",
+        "{Läks põlema} is caught fire: literally, it went into burning.",
         "The news says {sai vigastada}, was injured, which sounds official. Talking it over at home, people say {sai haiget}: {Kas keegi sai haiget?}",
         "{Õnneks} is luckily: {Õnneks ei saanud keegi vigastada}.",
       ],
@@ -510,6 +514,10 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Kas sa loed uudiseid? Miks?", en: "Do you read the news? Why?" },
       cue: "Say whether you follow the news, and give two reasons, with {sest} and {ja}.",
       model: { et: "Jah, igal hommikul, sest ma tahan teada, mis linnas toimub. Ja nii õpin ma ka eesti keelt.", en: "Yes, every morning, because I want to know what's going on in town. And that way I learn Estonian too." },
+      checks: [
+        { en: "A reason with {sest}.", any: ["sest"] },
+        { en: "A second one, joined with {ja}.", any: ["ja"] },
+      ],
     },
   },
   {
@@ -569,7 +577,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "{Lepime kokku} from A2 is let's agree; {lepiti kokku} is it was agreed. The small word stays after the verb.",
-        "As in lesson 29, nobody named changes the thing too, when the whole of it gets done. With somebody named, a whole thing takes the [omastav] (2nd form): {Kadri saatis protokolli}. With nobody named, it takes the [nimetav] (1st form): {Protokoll saadeti kõigile}.",
+        "As in lesson 29, nobody named changes the noun too, when the whole of it gets done. With somebody named, a whole thing takes the [omastav] (2nd form): {Kadri saatis protokolli}. With nobody named, it takes the [nimetav] (1st form): {Protokoll saadeti kõigile}.",
         "A comma always comes before {et}. In {nii et}, so, and {selleks et}, so that, it comes before the first word: {Ma olin arsti juures, nii et ma ei olnud koosolekul}. And {selleks, et} with the comma in the middle is right too: {Ma tulin selleks, et aidata}.",
       ],
       watchOut: "Talking something over never finishes it, the way sending finishes the minutes. So {arutama} on its own takes the [osastav] (3rd form): {arutati projekti}, never {projekt}. Add {läbi}, talked through to the end, and the job is done, so the whole object: {Arutati projekt läbi}.",
@@ -802,6 +810,11 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Mida tuleb sinu majas parandada? Miks?", en: "What needs fixing in your building? Why?" },
       cue: "Say what you think needs fixing where you live, and give two reasons.",
       model: { et: "Minu arvates tuleb keldris torud välja vahetada, sest need on väga vanad. Ja kui toru jälle katki läheb, on keldris jälle vett põlvini.", en: "In my opinion the pipes in the cellar have to be replaced, because they're very old. And if a pipe bursts again, the water in the cellar will be knee-deep again." },
+      checks: [
+        { en: "What has to be done, {tuleb} with the -da word ({tuleb torud välja vahetada} here).", any: ["tuleb *da", "tuleb ... *da", "tuleb *ta", "tuleb ... *ta"] },
+        { en: "A reason with {sest}.", any: ["sest"] },
+        { en: "What happens if not, with {kui}.", any: ["kui"] },
+      ],
     },
   },
   /*
@@ -905,6 +918,10 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Mida sa viimati ajalehest lugesid?", en: "What did you last read in the paper?" },
       cue: "Say what you read or heard in the news, when, and what you thought of it.",
       model: { et: "Üleeile lugesin ajalehest artiklit. Seal oli kirjas, et hinnad tõusevad jälle. See ei ole hea uudis.", en: "The day before yesterday I read an article in the paper. It said prices are going up again. That isn't good news." },
+      checks: [
+        { en: "Where you read it, with -st ({lugesin ajalehest} here).", any: ["lugesin *st", "ajalehest"] },
+        { en: "What it said, with {et} ({oli kirjas, et} here).", any: ["et"] },
+      ],
     },
   },
   {

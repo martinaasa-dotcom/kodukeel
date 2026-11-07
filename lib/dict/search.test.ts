@@ -106,8 +106,8 @@ describe("rankCandidates — inflected forms", () => {
     ["toas", "tuba", /seesütlev \(-s, in\)/],
     ["raamatuga", "raamat", /kaasaütlev \(-ga, with\)/],
     ["tubadega", "tuba", /mitmuse kaasaütlev \(-ga, with, plural\)/],
-    ["raamatud", "raamat", /mitmuse nimetav \(1st form, plural\)/],
-    ["need", "see", /mitmuse nimetav \(1st form, plural\)/],
+    ["raamatud", "raamat", /mitmuse nimetav \(plural\)/],
+    ["need", "see", /mitmuse nimetav \(plural\)/],
   ])("finds %s as a form of %s", (query, lemma, why) => {
     expect(top(query)?.lemma).toBe(lemma);
     expect(top(query)?.matchedAs).toMatch(why);

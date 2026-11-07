@@ -170,7 +170,7 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "Olgu.", en: "OK, fine, all right then." },
     ],
     how: {
-      point: "When a job is done to the whole of something, the thing takes the whole-object form from part three. One thing goes in the [omastav] (2nd form): {Ma koristan elutoa}, I'll clean the living room, all of it. More than one goes in the plural [nimetav] (1st form): {Mina pesen nõud}, the dishes, every one.",
+      point: "When a job is done to the whole of something, the noun takes the whole-object form from part three. One thing goes in the [omastav] (2nd form): {Ma koristan elutoa}, I'll clean the living room, all of it. More than one goes in the plural [nimetav] (1st form): {Mina pesen nõud}, the dishes, every one.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -287,7 +287,7 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "paar", en: "a pair; a couple of" },
     ],
     how: {
-      point: "To say you have something, use {mul on}, and the thing stays in its plain form: {Mul on küsimus}, I have a question. To say you don't, use {mul pole} or {mul ei ole}, and the thing goes in the [osastav] (3rd form): {Mul pole ideed}. When you don't have something, it always takes the [osastav] (3rd form).",
+      point: "To say you have something, use {mul on}, and the noun stays in its plain form: {Mul on küsimus}, I have a question. To say you don't, use {mul pole} or {mul ei ole}, and the noun goes in the [osastav] (3rd form): {Mul pole ideed}. When you don't have something, it always takes the [osastav] (3rd form).",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -309,7 +309,7 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
         en: "idea",
         steps: HAVE_STEPS,
         lines: [
-          { line: 2, form: "ideed", lands: { case: "PARTITIVE", plural: false }, why: "Liis doesn't have one: {mul pole}. When you say you don't have something, the thing goes in the [osastav] (3rd form), so {idee} becomes {ideed}." },
+          { line: 2, form: "ideed", lands: { case: "PARTITIVE", plural: false }, why: "Liis doesn't have one: {mul pole}. When you say you don't have something, the noun goes in the [osastav] (3rd form), so {idee} becomes {ideed}." },
           { line: 3, form: "idee", lands: { case: "NOMINATIVE", plural: false }, why: "Tom does have one: {Mul on}. When you have something, it stays in its plain form, the [nimetav] (1st form): {idee}. The {üks} in front doesn't change that. After {üks} a word keeps its plain form, {üks idee}, an idea." },
         ],
       },

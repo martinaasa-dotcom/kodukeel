@@ -8,7 +8,8 @@ describe("again, faster", () => {
   });
 
   it("counts words and reckons a minute on the time spoken", () => {
-    expect(goOf("Ma parandasin auto ära.", 30, 90)).toEqual({ window: 90, words: 4, perMinute: 8 });
+    expect(goOf("Ma parandasin auto ära.", 30, 90)).toEqual({ window: 90, words: 4, perMinute: 8, said: "Ma parandasin auto ära.", spoken: false });
+    expect(goOf(" ma tulen ", 10, 60, true)).toMatchObject({ said: "ma tulen", spoken: true });
     expect(goOf("", 0, 60).perMinute).toBe(0);
     // A word said in a second is not sixty words a minute.
     expect(goOf("Jah", 1, 45).perMinute).toBe(12);

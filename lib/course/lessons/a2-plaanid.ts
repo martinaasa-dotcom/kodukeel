@@ -174,7 +174,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       notes: [
         "{Ma arvan, et...} is I think that, and {Ma usun, et...} is I believe that. A whole sentence comes after either one, with a comma before {et}.",
         "{Mõtlema} is thinking something over, turning it around in your head. {Arvama} is what you think of it, your opinion.",
-        "Some verbs decide the ending of the thing after them. Looking for something and needing it are never finished, so {otsima} and {vajama} always take the [osastav] (3rd form): {Ma otsin telefoni}. Finding is done the moment you have the whole thing, so {leidma} takes the [omastav] (2nd form), the way {Ma ostsin raamatu} does. But in a no every verb takes the [osastav] (3rd form): {Ma ei leia seda}.",
+        "Some verbs decide the ending of the noun after them. Looking for something and needing it are never finished, so {otsima} and {vajama} always take the [osastav] (3rd form): {Ma otsin telefoni}. Finding is done the moment you have the whole thing, so {leidma} takes the [omastav] (2nd form), the way {Ma ostsin raamatu} does. But in a no every verb takes the [osastav] (3rd form): {Ma ei leia seda}.",
       ],
       watchOut: "{Otsima} is to look for, and {leidma} is to find, the moment you have it. So you can do one without the other: {Ma otsin, aga ma ei leia}, I'm looking, but I can't find it.",
       examples: [1, 2, 4],
@@ -183,7 +183,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
         en: "this, it",
         steps: ONE_THING_STEPS,
         lines: [
-          { line: 1, form: "seda", lands: { case: "PARTITIVE", plural: false }, why: "{Seda} is the phone: it. Tom is the one doing something to it, finding it, but he says no: {Ei leia}, I can't find. In a no, the thing always goes in the [osastav] (3rd form): {seda}." },
+          { line: 1, form: "seda", lands: { case: "PARTITIVE", plural: false }, why: "{Seda} is the phone: it. Tom is the one doing something to it, finding it, but he says no: {Ei leia}, I can't find. In a no, the noun always goes in the [osastav] (3rd form): {seda}." },
           { line: 3, form: "seda", lands: { case: "PARTITIVE", plural: false }, why: "Here the phone is what the sentence is about: is it in the kitchen? Tom says it isn't there, {pole}. When a sentence says something isn't there, that thing goes in the [osastav] (3rd form) too: {seda}." },
           { line: 5, form: "see", lands: { case: "NOMINATIVE", plural: false }, why: "Now the phone is found, and the sentence says it's here. Something that is there, and is what the sentence is about, stays in its plain form, the [nimetav] (1st form): {see}." },
         ],
@@ -231,7 +231,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       notes: [
         "{Kui} is the same word you know from {kui palju}, how much, and {suurem kui}, bigger than. At the start of a sentence it means if or when.",
         "Both halves stay in the present: {Kui sajab, jääme koju}, if it rains, we'll stay at home. Estonian has no word for will, so the present does that job in the second half too.",
-        "{Võtan kaasa} means I'll bring it along. {Kaasa}, along, goes at the end, after the thing you bring: {Ma võtan ujumisriided kaasa}.",
+        "{Võtan kaasa} means I'll bring it along. {Kaasa}, along, goes at the end, after the noun you bring: {Ma võtan ujumisriided kaasa}.",
       ],
       watchOut: "{Randa} is to the beach, the [lühike sisseütlev] (short into) of {rand}, like {koju}, home. No rule gives you the short form, so learn it together with the word.",
       examples: [1, 2, 3],
@@ -299,7 +299,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
         steps: PLACE_STEPS,
         lines: [
           { line: 0, form: "metsa", lands: { case: "ILLATIVE", plural: false }, why: "Mari is saying where they're going: into the forest. Going into a place takes the into form, and for {mets} people use the short one, the [lühike sisseütlev] (short into): {metsa}. The [omastav] (2nd form) and the [osastav] (3rd form) are spelled {metsa} too, so it's the sentence that tells you this one means into." },
-          { line: 1, form: "mets", lands: { case: "NOMINATIVE", plural: false }, why: "Tom is asking where the forest is. Here the forest is what the sentence is about, the thing that is somewhere, so it stays in its plain form, the [nimetav] (1st form): {mets}." },
+          { line: 1, form: "mets", lands: { case: "NOMINATIVE", plural: false }, why: "Tom is asking where the forest is. Here the forest is what the sentence is about, the noun that is somewhere, so it stays in its plain form, the [nimetav] (1st form): {mets}." },
         ],
       },
     },
@@ -340,7 +340,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "uuesti", en: "again, once more" },
       { kind: "word", et: "keegi", en: "somebody; nobody, after {ei}" },
       { kind: "word", et: "vaid", en: "only" },
-      { kind: "word", et: "päris", en: "quite; real" },
+      { kind: "word", et: "päris", en: "pretty; real" },
       { kind: "word", et: "eriti", en: "especially" },
       { kind: "word", et: "vahepeal", en: "in the meantime, since then" },
       { kind: "word", et: "selline", en: "such, this kind of" },

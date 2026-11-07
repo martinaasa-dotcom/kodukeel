@@ -177,6 +177,11 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
       cue: "Say plainly what the tax board wrote, what it means for you, and when the money comes.",
       model: { et: "Maksuamet kirjutas, et nad vaatasid meie deklaratsiooni läbi. Me maksime eelmisel aastal liiga palju tulumaksu. Nüüd makstakse see tagasi ja kolme päeva pärast on raha meie kontol.", en: "The tax board wrote that they've been through our return. We paid too much income tax last year. Now it's being paid back, and in three days the money will be in our account." },
       seconds: [45, 30, 20],
+      checks: [
+        { en: "Said with the verb, not the -mine word ({makstakse see tagasi} here).", any: ["makstakse"], near: ["tagastamine"] },
+        { en: "When the money comes, with {pärast} ({kolme päeva pärast} here).", any: ["pärast"] },
+        { en: "Who wrote, with {Maksuamet}.", any: ["maksuamet"] },
+      ],
     },
   },
   {
@@ -250,12 +255,12 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
         lines: [
           { line: 5, form: "hüvitisest", lands: { case: "ELATIVE", plural: false }, why: "Anna asks what happens to the benefit: {Mis saab hüvitisest?} Asking what becomes of something, {mis saab}, puts that thing in the [seestütlev] (-st, out of), as if asking what will come out of it: {hüvitisest}." },
           { line: 6, form: "Hüvitise", lands: { case: "GENITIVE", plural: false }, why: "{Maksmine}, the paying, comes straight after it and says what is done to the benefit. What a -mine word does something to goes in front of it in the [omastav] (2nd form), the form for \"of\": {hüvitise maksmine}, the paying of the benefit." },
-          { line: 7, form: "hüvitist", lands: { case: "PARTITIVE", plural: false }, why: "{Saama}, to get, does something to the benefit, and there is an {ei} in front of it: Anna won't get it. A no always puts the thing in the [osastav] (3rd form), however whole it is: {ei saa hüvitist}." },
+          { line: 7, form: "hüvitist", lands: { case: "PARTITIVE", plural: false }, why: "{Saama}, to get, does something to the benefit, and there is an {ei} in front of it: Anna won't get it. A no always puts the noun in the [osastav] (3rd form), however whole it is: {ei saa hüvitist}." },
           { line: 8, form: "hüvitis", lands: { case: "NOMINATIVE", plural: false }, why: "The benefit for June is paid out, all of it, and {välja} says the job gets done. {Makstakse} names nobody as the payer. When nobody is named and the whole thing gets done, it keeps its plain form, the [nimetav] (1st form): {hüvitis}." },
         ],
       },
     },
-    hearing: "quick",
+    hearing: "half",
     listenFor: [
       { q: "What job has Anna found?", options: ["A shop assistant", "A teacher at a kindergarten", "A bookkeeper at a small firm", "A clerk at the unemployment office"], answer: 2 },
       { q: "When does she start work?", options: ["On the first of June", "On the first of July", "Next Monday", "In two weeks"], answer: 1 },
@@ -311,7 +316,7 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
     ],
     fixes: [
       { line: { et: "Just nii. Aga juuni eest makstakse hüvitis teile veel välja.", en: "That's right. But you'll still be paid the benefit for June." }, right: "hüvitis", wrong: "hüvitist", pair: ["NOMINATIVE", "PARTITIVE"], why: "The whole benefit for June is paid out, and {välja} says the job gets done. The verb is the [umbisikuline] (-takse, people do), so nobody is named as the payer, and then a whole thing that gets done keeps the [nimetav] (1st form): {makstakse hüvitis välja}. {Hüvitist} would mean only some of it, or a no." },
-      { line: { et: "Ehk siis kui ma tööle lähen, ei saa ma enam hüvitist?", en: "So once I start work, I don't get the benefit anymore?" }, right: "hüvitist", wrong: "hüvitise", pair: ["PARTITIVE", "GENITIVE"], why: "There is an {ei} in the sentence: Anna won't get it. A no always puts the thing in the [osastav] (3rd form), however whole it is: {ei saa hüvitist}. {Hüvitise} is for a yes, the whole benefit got." },
+      { line: { et: "Ehk siis kui ma tööle lähen, ei saa ma enam hüvitist?", en: "So once I start work, I don't get the benefit anymore?" }, right: "hüvitist", wrong: "hüvitise", pair: ["PARTITIVE", "GENITIVE"], why: "There is an {ei} in the sentence: Anna won't get it. A no always puts the noun in the [osastav] (3rd form), however whole it is: {ei saa hüvitist}. {Hüvitise} is for a yes, the whole benefit got." },
     ],
     retell: {
       who: "Anna",
@@ -479,6 +484,11 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
       cue: "Say who the two sides of the contract are, what the pay is called in it, and when and how it is paid.",
       model: { et: "Tööandja on väike firma ja töötaja olen mina. Lepingus nimetatakse palka töötasuks. Töötasu makstakse kord kuus, viiendal kuupäeval, minu pangakontole.", en: "The employer is a small firm, and the employee is me. In the contract the pay is called remuneration. The pay is paid once a month, on the fifth, into my bank account." },
       seconds: [45, 30, 20],
+      checks: [
+        { en: "The two sides, {tööandja} and {töötaja}.", any: ["tööandja", "töötaja"], atLeast: 2 },
+        { en: "The pay, {töötasu}.", any: ["töötasu", "töötasuks"] },
+        { en: "When it's paid, with {makstakse} ({makstakse kord kuus} here).", any: ["makstakse"] },
+      ],
     },
   },
   {
@@ -716,7 +726,7 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
         ],
       },
     },
-    hearing: "quick",
+    hearing: "half",
     listenFor: [
       { q: "What does the unemployment office want?", options: ["Anna's new contract", "The benefit for June paid back", "A new application from Anna", "Anna to come to a meeting"], answer: 1 },
       { q: "What's wrong in the decision?", options: ["Anna's name", "The amount", "The date she started work", "Her address"], answer: 2 },
@@ -819,6 +829,11 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
       cue: "Say what the decision says, what's actually true, what proves it, and what you want the office to do.",
       model: { et: "Otsuses on kirjas, et ma asusin tööle esimesel juunil. Tegelikult asusin ma tööle alles esimesel juulil. Seda tõendab minu tööleping. Palun otsus üle vaadata ja parandada.", en: "The decision says I started work on the first of June. In fact I only started work on the first of July. My employment contract proves it. Please review the decision and correct it." },
       seconds: [45, 30, 20],
+      checks: [
+        { en: "What's actually true, with {tegelikult}.", any: ["tegelikult"] },
+        { en: "What proves it, with {tõendab}.", any: ["tõendab"] },
+        { en: "What you ask for, with {palun}.", any: ["palun"] },
+      ],
     },
   },
   {
@@ -847,7 +862,7 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
     ],
     teaches: [],
     how: {
-      point: "A whole call to an office, made of this part: say what the letter says, what is actually true, what proves it, and what you want. And when a word won't come, describe the thing another way and keep going.",
+      point: "A whole call to an office, made of this part: say what the letter says, what is actually true, what proves it, and what you want. And when a word won't come, describe the noun another way and keep going.",
       notes: [
         "Say what the paper says first, then what's true: {Otsuses on kirjas, et...} and then {Aga tegelikult...}.",
         "Missing a word? Say what the thing is or does: the paper you signed with your employer, for the contract. The person on the phone fills the word in.",

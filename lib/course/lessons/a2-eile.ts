@@ -257,7 +257,7 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
     teaches: [
       { kind: "form", et: "raamatu", of: "raamat", en: "a book, the whole of it; of a book", stem: true },
       { kind: "form", et: "ühe", of: "üks", en: "one, a; of one", stem: true },
-      { kind: "form", et: "seda", of: "see", en: "it, this, as the thing you're doing" },
+      { kind: "form", et: "seda", of: "see", en: "it, this, as in what you're doing" },
       { kind: "form", et: "ostnud", of: "ostma", en: "bought, after {ei}" },
       { kind: "word", et: "iga", en: "every" },
       { kind: "word", et: "lehekülg", en: "page" },
@@ -265,7 +265,7 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "tubli", en: "good, well done (said to a person)" },
     ],
     how: {
-      point: "The thing you do something to changes its ending to say how much of it you mean. If the job is done with the whole thing, it takes the [omastav] (2nd form): {Ma ostsin raamatu}, the book is bought. If the job is still going on, or you mean some of something you can't count, it takes the [osastav] (3rd form): {Ma loen raamatut}, I haven't finished it; {Ma ostsin piima}, some milk.",
+      point: "The noun you do something to changes its ending to say how much of it you mean. If the job is done with the whole thing, it takes the [omastav] (2nd form): {Ma ostsin raamatu}, the book is bought. If the job is still going on, or you mean some of something you can't count, it takes the [osastav] (3rd form): {Ma loen raamatut}, I haven't finished it; {Ma ostsin piima}, some milk.",
       table: {
         head: ["Estonian", "In English", "Why"],
         rows: [

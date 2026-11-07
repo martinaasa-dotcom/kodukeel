@@ -19,6 +19,12 @@ import type { InvariantKit } from "../lib/invariantKit";
  * Tags are read whole, braces balanced, so a `=>` inside a prop does not end
  * one early, and every `<SentenceFindings` tag is counted, so a call that
  * stopped matching the pattern cannot pass by not being seen.
+ *
+ * `LineFindings`, the same findings under the reading against the card's line,
+ * is held the same way, with one more answer: `list`, a list of everything
+ * said on a step, drawn after the step is over and read as a page is read
+ * (`SaidList`), which may not be a live region, since a region holding every
+ * sentence of a step reads the whole list out again on every change.
  */
 interface Tag { readonly name: string; readonly text: string; readonly at: number; readonly closing: boolean; readonly selfClosing: boolean }
 
@@ -62,9 +68,11 @@ function ancestors(all: readonly Tag[], index: number): Tag[] {
 const LIVE = /\brole="status"|\baria-live=/;
 
 export default function findingsAreReadWhereTheyAreDrawn({ check, APP, COMPONENTS, code }: InvariantKit) {
+  lineFindingsAreReadWhereTheyAreDrawn({ check, APP, COMPONENTS, code });
   check("what the dictionary found is read where it is drawn, once", () => {
     const callers = [...APP, ...COMPONENTS].filter((f) => f !== "components/course/SentenceFindings.tsx" && /<SentenceFindings\b/.test(code(f)));
-    assert.ok(callers.length >= 2, `only ${callers.length} files draw SentenceFindings, so the check stopped seeing them`);
+    // The writing step draws it; the Say it cards draw `LineFindings` instead, which the check below holds.
+    assert.ok(callers.length >= 1, `only ${callers.length} files draw SentenceFindings, so the check stopped seeing them`);
     let calls = 0;
     let regions = 0;
     let summaries = 0;
@@ -86,6 +94,32 @@ export default function findingsAreReadWhereTheyAreDrawn({ check, APP, COMPONENT
         }
       }
     }
-    assert.ok(calls >= 2 && regions >= 1 && summaries >= 1, `${calls} calls, ${regions} through a region and ${summaries} through a summary: the check stopped seeing one kind`);
+    assert.ok(calls >= 1 && summaries >= 1, `${calls} calls, ${regions} through a region and ${summaries} through a summary: the check stopped seeing one kind`);
+  });
+}
+
+/** The same rule for the reading against the card's line, which has a third way of being read. */
+function lineFindingsAreReadWhereTheyAreDrawn({ check, APP, COMPONENTS, code }: Pick<InvariantKit, "check" | "APP" | "COMPONENTS" | "code">) {
+  check("what the comparison with the line found is read where it is drawn, once", () => {
+    const callers = [...APP, ...COMPONENTS].filter((f) => f !== "components/course/LineFindings.tsx" && /<LineFindings\b/.test(code(f)));
+    assert.ok(callers.length >= 3, `only ${callers.length} files draw LineFindings, so the check stopped seeing them`);
+    let regions = 0;
+    let lists = 0;
+    for (const file of callers) {
+      const all = tags(code(file));
+      for (const tag of all.filter((t) => t.name === "LineFindings" && !t.closing)) {
+        const how = tag.text.match(/\bannounced="(region|list)"/)?.[1];
+        assert.ok(how, `${file}: a LineFindings without announced="region" or "list"`);
+        const live = ancestors(all, tag.at).some((a) => LIVE.test(a.text));
+        if (how === "region") {
+          regions += 1;
+          assert.ok(live, `${file}: LineFindings says a region reads it, and no element round it is a live region`);
+        } else {
+          lists += 1;
+          assert.ok(!live, `${file}: LineFindings is drawn in a list and inside a live region, so the whole list is read again on every change`);
+        }
+      }
+    }
+    assert.ok(regions >= 2 && lists >= 1, `${regions} through a region and ${lists} in a list: the check stopped seeing one kind`);
   });
 }

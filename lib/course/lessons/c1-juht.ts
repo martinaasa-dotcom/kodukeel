@@ -14,7 +14,7 @@
  * conversation move is interrupting politely, and taking the floor back when
  * you are interrupted.
  *
- * Every conversation heard first is joined halfway or sped up (`rampC1.ts`,
+ * Every conversation heard first is joined halfway (`rampC1.ts`,
  * band 3); the talk taken down as notes is a guest on the morning show, heard
  * once; every text read is asked a gap. Names used in one lesson only: Kaisa,
  * the client (from B2's `b2-26-probably`), Heiki, the morning show's guest,
@@ -262,6 +262,10 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
       seconds: GO,
       prepare: PREPARE,
       topics: [{ en: "What makes a good boss" }, { en: "The best boss you've had" }],
+      checks: [
+        { en: "A small word pointing at the one that matters: {just}, {isegi} or {alles}.", any: ["just", "isegi", "alles", "nimelt"] },
+        { en: "What a good leader is, with {kes} ({see, kes kuulab} here).", any: ["kes"] },
+      ],
     },
   },
   {
@@ -273,7 +277,7 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
     title: "A minute about yourself",
     goal: "Introduce yourself and your work in about a minute, the way a job interview and the C1 speaking exam both open.",
     cast: { Tom: "kalev", Kadri: "vesta", Ott: "indrek", Siim: "albert" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Tom", et: "Tere, Ott! Tulge sisse. Mina olen Tom ja see on Kadri.", en: "Hello, Ott! Come in. I'm Tom, and this is Kadri.", stage: "A small meeting room. Tom's first interview as team lead, with Kadri beside him. The candidate is Ott." },
       { who: "Ott", et: "Tere! Aitäh kutse eest.", en: "Hello! Thank you for the invitation." },
@@ -488,6 +492,11 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
       seconds: GO,
       prepare: PREPARE,
       topics: [{ en: "Yourself and your work" }, { en: "A job you'd like to have one day" }],
+      checks: [
+        { en: "Where you're from, with {pärit}.", any: ["pärit"] },
+        { en: "What you work as, with -na ({töötan raamatupidajana} here).", any: ["töötan *na", "töötan ... *na"] },
+        { en: "What you're good at, with {tugevus}.", any: ["tugevus"] },
+      ],
     },
   },
   {
@@ -715,6 +724,11 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
       seconds: GO,
       prepare: PREPARE,
       topics: [{ en: "How to tell a colleague something hard" }, { en: "Feedback that once helped you" }],
+      checks: [
+        { en: "What's good, first, with {kiidan}.", any: ["kiidan", "kiitus", "kiita"] },
+        { en: "About the work, not the person, with {mitte} ({tööst, mitte inimesest} here).", any: ["mitte"] },
+        { en: "What happens next, with {kokku} ({lepime kokku} here).", any: ["kokku"] },
+      ],
     },
   },
   {
@@ -726,7 +740,7 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
     title: "Sooner, says the client",
     goal: "Turn down what can't be done without a flat no, make your point with a question nobody needs to answer, and offer what you can do.",
     cast: { Kaisa: "mari", Tom: "kalev", Siim: "albert", Kadri: "vesta", Heiki: "meelis" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Kaisa", et: "Tere, Tom! Ütlen kohe otse: meil on rakendust vaja kaks nädalat varem.", en: "Hello, Tom! I'll say it straight away: we need the app two weeks earlier.", stage: "A video call with Kaisa, the client. Tom has Siim and Kadri beside him." },
       { who: "Tom", et: "Kaks nädalat? Mis juhtus?", en: "Two weeks? What's happened?" },
@@ -794,7 +808,7 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
         en: "promise",
         steps: PLURAL_OBJECT_STEPS,
         lines: [
-          { line: 10, form: "lubadusi", lands: { case: "PARTITIVE", plural: true }, why: "Tom is talking about promises in general: more than one, and no set number of them, an open amount. That alone puts them in the plural [osastav] (3rd form). The sentence is a no as well, {ei anna}, and after a no the thing is in the [osastav] (3rd form) whatever the amount, so every road leads to {lubadusi}." },
+          { line: 10, form: "lubadusi", lands: { case: "PARTITIVE", plural: true }, why: "Tom is talking about promises in general: more than one, and no set number of them, an open amount. That alone puts them in the plural [osastav] (3rd form). The sentence is a no as well, {ei anna}, and after a no the noun is in the [osastav] (3rd form) whatever the amount, so every road leads to {lubadusi}." },
           { line: 10, form: "lubaduse", lands: { case: "GENITIVE", plural: false }, why: "Now it's one promise, this one, and the sentence is a yes: {me anname}, we give it, and it gets given whole. One whole thing with the job done takes the [omastav] (2nd form): {lubaduse}. {Selle}, this, goes with it into the same form." },
         ],
       },
@@ -958,7 +972,7 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
     reworks: [
       {
         from: { et: "Me ei anna lubadusi kergelt.", en: "We don't give promises lightly." },
-        ask: "Put {lubadusi} first, to make promises the thing the sentence is about.",
+        ask: "Put {lubadusi} first, to make promises what the sentence is about.",
         to: { et: "Lubadusi me kergelt ei anna.", en: "Promises, we don't give lightly." },
         also: ["Lubadusi ei anna me kergelt."],
         pattern: "emphasis",
@@ -985,7 +999,7 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Lubadusi me kergelt ei anna. Aga selle lubaduse me anname.", en: "We don't give promises lightly. But this one we do." }, right: "Lubadusi", wrong: "Lubadus", pair: ["PARTITIVE", "NOMINATIVE"], why: "Two things send it into the [osastav] (3rd form). The sentence is a no, {ei anna}, and after a no the thing given is always in the [osastav] (3rd form). And Tom means promises in general, more than one and no set number, so it's the plural: {lubadusi}. In the yes right after it, one whole promise gets given, so it's {selle lubaduse}, the [omastav] (2nd form)." },
+      { line: { et: "Lubadusi me kergelt ei anna. Aga selle lubaduse me anname.", en: "We don't give promises lightly. But this one we do." }, right: "Lubadusi", wrong: "Lubadus", pair: ["PARTITIVE", "NOMINATIVE"], why: "Two things send it into the [osastav] (3rd form). The sentence is a no, {ei anna}, and after a no the noun given is always in the [osastav] (3rd form). And Tom means promises in general, more than one and no set number, so it's the plural: {lubadusi}. In the yes right after it, one whole promise gets given, so it's {selle lubaduse}, the [omastav] (2nd form)." },
       { line: { et: "Kõike me kahe nädalaga ei jõua.", en: "We can't do everything in two weeks." }, right: "nädalaga", wrong: "nädal", pair: ["COMITATIVE", "NOMINATIVE"], why: "The time a job gets done in takes the [kaasaütlev] (-ga, with): {kahe nädalaga}, in two weeks. Only the last word of the phrase carries the -ga. The number in front of it goes into the [omastav] (2nd form), {kahe}, not {kaks}." },
     ],
     rooms: [
@@ -1038,6 +1052,11 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
       seconds: GO,
       prepare: PREPARE,
       topics: [{ en: "Saying no at work" }, { en: "A time somebody asked too much of you" }],
+      checks: [
+        { en: "A question that makes your point, with {tõesti} ({kas me tõesti tahame} here).", any: ["tõesti"] },
+        { en: "What you can do instead, with {saame} ({mida me saame teha} here).", any: ["saame"] },
+        { en: "What you'd do first, with {kõigepealt}.", any: ["kõigepealt"] },
+      ],
     },
   },
   {
@@ -1213,7 +1232,7 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ja mis on puudus? Igal variandil on mõni puudus.", en: "And what's the drawback? Every option has some drawback." }, right: "variandil", wrong: "variant", pair: ["ADESSIVE", "NOMINATIVE"], why: "Estonian has no verb for to have. It says the thing is at its owner: the owner takes the [alalütlev] (-l, on/at/has), and {on} follows: {igal variandil on}, every option has. {Iga}, every, matches its noun and takes the same -l: {igal}." },
+      { line: { et: "Ja mis on puudus? Igal variandil on mõni puudus.", en: "And what's the drawback? Every option has some drawback." }, right: "variandil", wrong: "variant", pair: ["ADESSIVE", "NOMINATIVE"], why: "Estonian has no verb for to have. It says the noun is at its owner: the owner takes the [alalütlev] (-l, on/at/has), and {on} follows: {igal variandil on}, every option has. {Iga}, every, matches its noun and takes the same -l: {igal}." },
       { line: { et: "Kaalusime kahte varianti: teist testijat või automaatseid teste.", en: "We weighed up two options: a second tester, or automated tests." }, right: "varianti", wrong: "variant", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a number from two up, the counted thing goes into the singular [osastav] (3rd form), never the plural: {varianti}. Here the number moves too, to {kahte}, because the two options are the object of {kaalusime}, and weighing things up is not a job that gets finished, so its object is in the [osastav] (3rd form). The rule is for two and up: after {üks} the noun is in whatever form the sentence would give a single noun." },
     ],
     workOut: [
@@ -1283,6 +1302,11 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
       seconds: GO,
       prepare: PREPARE,
       topics: [{ en: "A change you'd propose at your work" }, { en: "A change you'd propose in your building or your town" }],
+      checks: [
+        { en: "Two options, with {variant} ({kahte varianti} here).", any: ["variant", "variant*", "variand*"] },
+        { en: "An advantage and a drawback, with {aga}.", any: ["aga"] },
+        { en: "Your recommendation, with {just} or {nimelt} ({soovitan just} here).", any: ["just", "nimelt"] },
+      ],
     },
   },
   {
@@ -1294,7 +1318,7 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
     title: "In front of the board",
     goal: "Present a proposal to the board, interrupt politely when you have to, and take the floor back when the director cuts in.",
     cast: { Direktor: "peeter", Finantsjuht: "liivika", Tom: "kalev", Kadri: "vesta" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Direktor", et: "Tom, palun. Teil on viis minutit.", en: "Tom, go ahead. You've got five minutes.", stage: "The board room on Thursday afternoon: the director, the finance director, and Kadri beside Tom. He had three minutes to look over his notes outside." },
       { who: "Tom", et: "Aitäh. Meie probleem on lihtne: testime käsitsi ja see võtab liiga palju aega.", en: "Thank you. Our problem is simple: we test by hand, and it takes too long." },

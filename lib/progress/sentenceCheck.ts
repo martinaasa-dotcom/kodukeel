@@ -4,7 +4,8 @@ import { VOUCHED_ROW } from "@/lib/dict/search";
 import { ESTONIAN_WORD } from "@/lib/estonian/cloze";
 import { CEFR_LEVELS } from "@/lib/estonian/types";
 import { COLD_SHARDS_PER_REQUEST } from "@/lib/progress/speechForms";
-import { ALWAYS_READ, checkSentence, type CheckEntry, type SentenceCheck } from "@/lib/course/lessons/sentenceCheck";
+import { ALWAYS_READ, checkSentence, type CheckEntry, type CheckReads, type SentenceCheck } from "@/lib/course/lessons/sentenceCheck";
+import { againstLine, gradeOf, type AgainstLine, type Grade, type LineAsk } from "@/lib/course/lessons/againstLine";
 
 /** Distinct words read from the sentence and the sample together; a typed answer holds far fewer. */
 const MAX_WORDS = 40;
@@ -57,6 +58,25 @@ const MAX_LEMMAS = 1_500;
  */
 export async function checkTypedSentences(texts: readonly string[], sample: string, cap = MAX_TEXT_WORDS): Promise<SentenceCheck[]> {
   if (texts.length === 0) return [];
+  const { entries, exact, reads } = await readForCheck(texts, sample, cap);
+  return texts.map((text) => checkSentence(text, entries, (word) => exact.has(word), sample, reads));
+}
+
+/** What one read of the dictionary hands the checks: the rows, the spellings that are words, and what the forms list says. */
+export interface CheckRead {
+  readonly entries: readonly CheckEntry[];
+  readonly exact: ReadonlySet<string>;
+  readonly reads: CheckReads;
+  /** Each row's English gloss, by lemma as stored: the dictionary's own. */
+  readonly glosses: ReadonlyMap<string, string>;
+}
+
+/**
+ * The read itself, for the checks above and for the comparison with the
+ * card's line (`checkAgainstLine`), which needs the same rows: every spelling
+ * the learner wrote and every spelling of the line.
+ */
+export async function readForCheck(texts: readonly string[], sample: string, cap = MAX_TEXT_WORDS): Promise<CheckRead> {
   /*
     The sentences' own words first, so the cap never drops a word somebody
     wrote for one the model holds; and a clitic `-gi` or `-ki` is read off
@@ -149,7 +169,7 @@ export async function checkTypedSentences(texts: readonly string[], sample: stri
   const rows = await prisma.lexeme.findMany({
     where: { lemma: { in: asked }, ...VOUCHED_ROW },
     select: {
-      lemma: true, pos: true, cefr: true, government: true, semanticTypes: true,
+      lemma: true, pos: true, cefr: true, government: true, semanticTypes: true, translation: true,
       // Ordered, since the first row of a form type is the principal part kept below: Ekilex lists the primary first.
       forms: { select: { formType: true, value: true }, orderBy: [{ orderIndex: "asc" }, { id: "asc" }] },
     },
@@ -169,10 +189,47 @@ export async function checkTypedSentences(texts: readonly string[], sample: stri
     };
   });
 
-  return texts.map((text) => checkSentence(text, entries, (word) => exact.has(word), sample, {
-    claims: (word) => claims.get(word),
-    compound: (word) => compound.has(word),
-    near: (word) => nearBy.get(word),
-    band: (lemma) => bands.get(lemma),
-  }));
+  const glosses = new Map<string, string>();
+  for (const row of rows) if (!glosses.has(row.lemma)) glosses.set(row.lemma, row.translation);
+  return {
+    entries, exact, glosses,
+    reads: {
+      claims: (word) => claims.get(word),
+      compound: (word) => compound.has(word),
+      near: (word) => nearBy.get(word),
+      band: (lemma) => bands.get(lemma),
+    },
+  };
+}
+
+/** A typed sentence read both ways: against the language, and against the line the card asked for. */
+export interface LineCheck extends SentenceCheck {
+  readonly differences: AgainstLine["differences"];
+  readonly grade: Grade;
+}
+
+/**
+ * IS IT ESTONIAN, AND IS IT WHAT WAS ASKED, IN ONE READ.
+ *
+ * The dictionary's check says whether the sentence is Estonian; the
+ * comparison says whether it is the sentence the card asked for, in tense,
+ * person, ending and words (`againstLine`). One read of the dictionary serves
+ * both, over every spelling of the learner's sentences and of every line the
+ * card accepts. Several sentences at once, since a story told back is read a
+ * sentence at a time, each against the line of the story it is nearest.
+ */
+export async function checkAgainstLines(
+  items: readonly { readonly text: string; readonly ask: LineAsk }[],
+  /** A read already made over these sentences and their lines, which a caller that needed it first hands on. */
+  already?: CheckRead,
+): Promise<LineCheck[]> {
+  if (items.length === 0) return [];
+  const texts = items.map((i) => i.text);
+  const lines = [...new Set(items.flatMap((i) => i.ask.lines))];
+  const read = already ?? await readForCheck(texts, lines.join(" "));
+  return items.map(({ text, ask }) => {
+    const checked = checkSentence(text, read.entries, (word) => read.exact.has(word), ask.lines[0] ?? "", read.reads);
+    const { differences } = againstLine(text, ask, read.entries, read.glosses);
+    return { ...checked, differences, grade: gradeOf(differences, checked.findings, checked.words) };
+  });
 }

@@ -28,6 +28,7 @@ const EXEMPT: Record<string, string> = {
   "app/(app)/review/speaking/SpeakingSession.tsx": "a speech round, polished on its own pass",
   "app/(app)/review/describe/DescribeSession.tsx": "a speech round, polished on its own pass",
   "app/(app)/review/numbers/NumbersSession.tsx": "a speech round, polished on its own pass",
+  "app/(app)/review/ReviewSession.tsx": "the daily review is not a round of a game: it offers the next sitting only where more is due, and ends on Today when nothing is",
 };
 
 const SWITCHED = [

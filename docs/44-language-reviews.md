@@ -5224,7 +5224,7 @@ Peeter to `NATIVE_PARTS` once his lines are in.
 | R4125 | Word (word) | osakaal | a share, a proportion | |
 | R4126 | Word (form) | väheneb | it gets smaller, it goes down: a figure is an it | |
 | R4127 | Word (form) | suureneb | it gets bigger, it goes up | |
-| R4128 | Word (form) | autode | of the cars: the [mitmuse omastav] (2nd form, plural) | |
+| R4128 | Word (form) | autode | of the cars: the [mitmuse omastav] (plural) | |
 | R4129 | Word (form) | sõitjaid | people riding, travelers, some of them | |
 | R4130 | Word (word) | võrra | by, by how much: {kahe protsendi võrra}, by two percent | |
 | R4131 | Word (word) | parkimine | parking | |

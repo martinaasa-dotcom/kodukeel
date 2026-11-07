@@ -18,7 +18,9 @@
  * Vabamorf, guessing off), or a name the test lets through by name, and every
  * English line carries no Estonian letter. What no machine can check is
  * whether a joke is funny and whether anybody would say it that way, which is
- * the person's reading. All 188 were read on 2026-10-25 and nine corrected.
+ * the person's reading. 188 were read on 2026-10-25 and nine corrected; on
+ * 2026-11-07 the twelve weakest of those went and 50 drier and darker ones
+ * came in, which wait for the same reading.
  *
  * WHERE THEY MAY GO, AND WHERE THEY MAY NOT. On the card on Today and nowhere
  * else. Never a card answer, an exam item, a marking target, a scene line or a
@@ -241,10 +243,6 @@ export const JOKES: readonly Joke[] = [
     ["Juku: Teie ei tunne mu isa.", "Juku: You don't know my dad."],
   ],
   [
-    ["Õpetaja: Juku, mida sa suvel tegid?", "Teacher: Juku, what did you do in the summer?"],
-    ["Juku: Kasvasin viis sentimeetrit.", "Juku: I grew five centimeters."],
-  ],
-  [
     ["Ema: Juku, miks sa hüppad?", "Mom: Juku, why are you jumping?"],
     ["Juku: Ma võtsin rohtu ja unustasin enne pudelit loksutada.", "Juku: I took my medicine and forgot to shake the bottle first."],
   ],
@@ -422,17 +420,9 @@ export const JOKES: readonly Joke[] = [
     ["Juku: Ükskõik millal, isegi jaanipäeval.", "Juku: Any time at all, even on Midsummer Day."],
   ],
   [
-    ["Ema: Juku, vii koer jalutama!", "Mom: Juku, take the dog for a walk!"],
-    ["Juku: Ta oskab ise ka jalutada.", "Juku: He can walk by himself."],
-  ],
-  [
     ["Juku: Ema, ma koristasin oma toa ära!", "Juku: Mom, I've tidied my room!"],
     ["Ema: Tubli! Aga kus kõik asjad on?", "Mom: Well done! But where is everything?"],
     ["Juku: Voodi all.", "Juku: Under the bed."],
-  ],
-  [
-    ["Õpetaja: Juku, mis kell on?", "Teacher: Juku, what time is it?"],
-    ["Juku: Kõhu järgi on lõunaaeg.", "Juku: Going by my stomach, it's lunchtime."],
   ],
   [
     ["Juku: Doktor, kui ma käe niimoodi üles tõstan, siis see valutab.", "Juku: Doctor, when I lift my arm like this, it hurts."],
@@ -556,10 +546,6 @@ export const JOKES: readonly Joke[] = [
     ["Isa: See on koht, kus eestlased lõpuks rääkima hakkavad.", "Dad: It's the place where Estonians finally start talking."],
   ],
   [
-    ["Õpetaja: Juku, mitu jalga on ämblikul?", "Teacher: Juku, how many legs does a spider have?"],
-    ["Juku: Liiga palju.", "Juku: Too many."],
-  ],
-  [
     ["Õpetaja: Juku, ühe maja ehitamiseks kulub kaks kuud. Kui kaua kulub kahe maja ehitamiseks?", "Teacher: Juku, it takes two months to build one house. How long does it take to build two?"],
     ["Juku: Ka kaks kuud, kui mõlemat korraga ehitada.", "Juku: Two months as well, if you build them both at once."],
   ],
@@ -591,10 +577,6 @@ export const JOKES: readonly Joke[] = [
     ["Vanaisa: Kasvasin suureks.", "Grandpa: I grew up."],
   ],
   [
-    ["Isa: Juku, kes sõi kõik kommid ära?", "Dad: Juku, who ate all the sweets?"],
-    ["Juku: Mina ainult vaatasin. Need kadusid ise.", "Juku: I was only watching. They disappeared by themselves."],
-  ],
-  [
     ["Juku: Ema, mul on üks hea ja üks halb uudis.", "Juku: Mom, I've got some good news and some bad news."],
     ["Ema: Alusta heast.", "Mom: Start with the good."],
     ["Juku: Ma sain matemaatikas viie!", "Juku: I got a five in math, top marks!"],
@@ -606,10 +588,6 @@ export const JOKES: readonly Joke[] = [
     ["Juku: Ei tea, ma ei olnud siis veel sündinud.", "Juku: I don't know, I hadn't been born yet."],
     ["Õpetaja: Eesti sai iseseisvaks!", "Teacher: Estonia became independent!"],
     ["Juku: Näete, ilma minuta saadi ka hakkama.", "Juku: See, they managed without me as well."],
-  ],
-  [
-    ["Õpetaja: Juku, miks su koolikott on tühi?", "Teacher: Juku, why is your schoolbag empty?"],
-    ["Juku: Nii on seda kergem kanda.", "Juku: It's easier to carry like that."],
   ],
   [
     ["Juku: Doktor, ma unustan kõik ära.", "Juku: Doctor, I forget everything."],
@@ -647,16 +625,6 @@ export const JOKES: readonly Joke[] = [
     ["Juku: Mis ta seal tühjal karjamaal ikka teeb.", "Juku: Well, what would she be doing in an empty pasture?"],
   ],
   [
-    ["Juku: Ema, kas ma tohin kommi?", "Juku: Mom, can I have a sweet?"],
-    ["Ema: Pärast õhtusööki.", "Mom: After dinner."],
-    ["Juku: Siis anna mulle õhtusöök kohe.", "Juku: Then give me dinner right now."],
-  ],
-  [
-    ["Juku: Vanaema, miks sul nii palju kortse on?", "Juku: Grandma, why have you got so many wrinkles?"],
-    ["Vanaema: Iga korts on ühe naeratuse jälg.", "Grandma: Every wrinkle is where a smile has been."],
-    ["Juku: Siis sa oled väga palju naernud.", "Juku: Then you've laughed an awful lot."],
-  ],
-  [
     ["Juku: Ema, kus ma sündisin?", "Juku: Mom, where was I born?"],
     ["Ema: Tallinnas.", "Mom: In Tallinn."],
     ["Juku: Aga sina?", "Juku: And you?"],
@@ -668,11 +636,6 @@ export const JOKES: readonly Joke[] = [
   [
     ["Õpetaja: Juku, miks sa ütled, et sinu koer on tark?", "Teacher: Juku, why do you say your dog is clever?"],
     ["Juku: Kui ma kodutööd teen, läheb ta teise tuppa.", "Juku: When I do my homework, he goes into another room."],
-  ],
-  [
-    ["Juku: Isa, mitu korda päevas peab hambaid pesema?", "Juku: Dad, how many times a day do you have to brush your teeth?"],
-    ["Isa: Kaks korda.", "Dad: Twice."],
-    ["Juku: Ma pesin eile kaks korda, nii et täna ei pea.", "Juku: I brushed them twice yesterday, so I don't have to today."],
   ],
   [
     ["Ema: Juku, kas sa sõid õuna ära?", "Mom: Juku, did you eat the apple?"],
@@ -687,10 +650,6 @@ export const JOKES: readonly Joke[] = [
   [
     ["Õpetaja: Juku, kes kirjutas „Kalevipoja“?", "Teacher: Juku, who wrote Kalevipoeg?"],
     ["Juku: Mitte mina, ausalt!", "Juku: It wasn't me, honestly!"],
-  ],
-  [
-    ["Ema: Juku, miks vannitoa põrand märg on?", "Mom: Juku, why is the bathroom floor wet?"],
-    ["Juku: Ma katsetasin, kas mu paat ujub.", "Juku: I was testing whether my boat floats."],
   ],
   [
     ["Juku: Ema, kui palju ma väärt olen?", "Juku: Mom, how much am I worth?"],
@@ -798,12 +757,6 @@ export const JOKES: readonly Joke[] = [
     ["Juku: Pole vaja.", "Juku: No need."],
   ],
   [
-    ["Õpetaja: Juku, kus sa elad?", "Teacher: Juku, where do you live?"],
-    ["Juku: Kodus.", "Juku: At home."],
-    ["Õpetaja: Ja kus su kodu on?", "Teacher: And where is your home?"],
-    ["Juku: Seal, kus ema on.", "Juku: Wherever Mom is."],
-  ],
-  [
     ["Õpetaja: Juku, miks sa redeli kooli tõid?", "Teacher: Juku, why did you bring a ladder to school?"],
     ["Juku: Te ütlesite, et pärast seda kooli lähme kõrgkooli.", "Juku: You said that after this school we go to a higher one."],
   ],
@@ -905,10 +858,6 @@ export const JOKES: readonly Joke[] = [
     ["Juku: See on Eesti november.", "Juku: It's November in Estonia."],
   ],
   [
-    ["Õpetaja: Juku, too näide kahest asjast, mis ei saa kunagi kokku.", "Teacher: Juku, give an example of two things that never meet."],
-    ["Juku: Mina ja kodutöö.", "Juku: Me and homework."],
-  ],
-  [
     ["Juku: Ema, kas ma võin minna Mari juurde?", "Juku: Mom, can I go round to Mari's?"],
     ["Ema: Kas su tuba on korras?", "Mom: Is your room tidy?"],
     ["Juku: Mari tuba on korras.", "Juku: Mari's room is tidy."],
@@ -926,6 +875,228 @@ export const JOKES: readonly Joke[] = [
     ["Juku: Ma mõtlesin ühe nalja peale.", "Juku: I thought of a joke."],
     ["Õpetaja: Räägi siis meile ka!", "Teacher: Then tell us too!"],
     ["Juku: See oli teie kohta.", "Juku: It was about you."],
+  ],
+  // Added 2026-11-07 (with the twelve at the end of the list), drier and darker, waiting for the native speaker's reading.
+  [
+    ["Juku: Vanaisa, miks sa ajalehes ainult surmateateid loed?", "Juku: Grandpa, why do you only read the death notices in the paper?"],
+    ["Vanaisa: Seal on ainsad uudised minu sõpradest.", "Grandpa: It's the only news there is about my friends."],
+  ],
+  [
+    ["Juku: Isa, kas kalad magavad?", "Juku: Dad, do fish sleep?"],
+    ["Isa: Magavad küll.", "Dad: They do."],
+    ["Juku: Siis magab minu kuldkala juba kolmandat päeva, kõht ülespoole.", "Juku: Then my goldfish has been asleep for three days now, belly up."],
+  ],
+  [
+    ["Õpetaja: Juku, kes on optimist?", "Teacher: Juku, what is an optimist?"],
+    ["Juku: Inimene, kes jätab novembris pesu õue kuivama.", "Juku: Somebody who hangs the washing out to dry in November."],
+  ],
+  [
+    ["Juku: Ema, kas on tõsi, et maailm saab homme otsa?", "Juku: Mom, is it true the world is ending tomorrow?"],
+    ["Ema: Ei ole, ära karda.", "Mom: No, don't be scared."],
+    ["Juku: Kahju. Ma ei õppinud homseks kontrolltööks.", "Juku: Shame. I didn't study for tomorrow's test."],
+  ],
+  [
+    ["Arst: Ära karda, see ei tee üldse haiget.", "Doctor: Don't be scared, this won't hurt at all."],
+    ["Juku: Teile kindlasti mitte.", "Juku: Not for you, I'm sure."],
+  ],
+  [
+    ["Õpetaja: Juku, mis on metsas kõige ohtlikum?", "Teacher: Juku, what's the most dangerous thing in the forest?"],
+    ["Juku: Seen, mida keegi ei tunne.", "Juku: A mushroom nobody recognizes."],
+  ],
+  [
+    ["Õpetaja: Juku, miks eestlased nii vähe räägivad?", "Teacher: Juku, why do Estonians talk so little?"],
+    ["Juku: Et talvel soojus suust välja ei läheks.", "Juku: So the warmth doesn't get out through their mouths in winter."],
+  ],
+  [
+    ["Turist: Kas Eestis on midagi huvitavat vaadata?", "Tourist: Is there anything interesting to see in Estonia?"],
+    ["Juku: On küll. Turistid.", "Juku: There is. Tourists."],
+  ],
+  [
+    ["Õpetaja: Juku, kas sa tahad suureks saades olla nagu su isa?", "Teacher: Juku, when you grow up, do you want to be like your dad?"],
+    ["Juku: Ei, ma tahan olla välja puhanud.", "Juku: No, I want to be well rested."],
+  ],
+  [
+    ["Ema: Juku, sa oled täna nii vaikne. Kas midagi juhtus?", "Mom: Juku, you're so quiet today. Did something happen?"],
+    ["Juku: Ei juhtunud. Aga ära mine praegu kööki.", "Juku: No. But don't go in the kitchen just now."],
+  ],
+  [
+    ["Õpetaja: Juku, mis vahe on vihmal ja lumel?", "Teacher: Juku, what's the difference between rain and snow?"],
+    ["Juku: Vihma ei pea rookima.", "Juku: You don't have to shovel rain."],
+  ],
+  [
+    ["Õpetaja: Juku, miks sa oma nime töö peale ei kirjutanud?", "Teacher: Juku, why didn't you write your name on your test?"],
+    ["Juku: Ma ei olnud kindel, et tahan seda tööd omaks võtta.", "Juku: I wasn't sure I wanted to own up to it."],
+  ],
+  [
+    ["Juku: Ema, miks pruut on valges kleidis?", "Juku: Mom, why is the bride in a white dress?"],
+    ["Ema: Sest valge on rõõmu värv.", "Mom: Because white is the color of joy."],
+    ["Juku: Aga miks peigmees siis mustas on?", "Juku: Then why is the groom in black?"],
+  ],
+  [
+    ["Juku: Vanaisa, miks sa surma ei karda?", "Juku: Grandpa, why aren't you afraid of dying?"],
+    ["Vanaisa: Ma olen vanaemaga nelikümmend aastat koos elanud. Mind ei hirmuta enam miski.", "Grandpa: I've lived with your grandma for forty years. Nothing scares me any more."],
+  ],
+  [
+    ["Õpetaja: Juku, kirjelda oma perekonda ühe sõnaga.", "Teacher: Juku, describe your family in one word."],
+    ["Juku: Kas ühe sõnaga või ausalt?", "Juku: In one word, or honestly?"],
+  ],
+  [
+    ["Juku: Isa, kas inimesed jäävad talveunne?", "Juku: Dad, do people hibernate?"],
+    ["Isa: Eestis jäävad. Nad lihtsalt käivad vahepeal tööl.", "Dad: In Estonia they do. They just go to work in between."],
+  ],
+  [
+    ["Õpetaja: Juku, mis on vaikus?", "Teacher: Juku, what is silence?"],
+    ["Juku: See, kui ema, isa ja koer magavad korraga.", "Juku: When Mom, Dad and the dog are all asleep at once."],
+  ],
+  [
+    ["Õpetaja: Juku, nimeta üks asi, mida sina oskad, aga mina enam ei oska.", "Teacher: Juku, name one thing you can do that I can't any more."],
+    ["Juku: Kasvada.", "Juku: Grow."],
+  ],
+  [
+    ["Õpetaja: Kirjutage kirjand teemal „Kui ma oleksin direktor“.", "Teacher: Write an essay on “If I were the principal”."],
+    ["Juku ei kirjuta midagi.", "Juku doesn't write anything."],
+    ["Õpetaja: Juku, miks sa ei kirjuta?", "Teacher: Juku, why aren't you writing?"],
+    ["Juku: Ma ootan sekretäri.", "Juku: I'm waiting for my secretary."],
+  ],
+  [
+    ["Mari: Juku, kas sa armastad mind?", "Mari: Juku, do you love me?"],
+    ["Juku: Jah.", "Juku: Yes."],
+    ["Mari: Kui palju?", "Mari: How much?"],
+    ["Juku: Rohkem kui matemaatikat.", "Juku: More than math."],
+    ["Mari: See pole ju üldse palju.", "Mari: That's not much at all."],
+  ],
+  [
+    ["Juku: Ema, kas jõuluvana on päriselt olemas?", "Juku: Mom, is Santa real?"],
+    ["Ema: Miks sa küsid?", "Mom: Why do you ask?"],
+    ["Juku: Tal on täpselt sama käekiri nagu isal.", "Juku: He's got exactly the same handwriting as Dad."],
+  ],
+  [
+    ["Õpetaja: Juku, miks sa matemaatikatunnis aknast välja vaatad?", "Teacher: Juku, why are you looking out of the window in the math lesson?"],
+    ["Juku: Ootan seda rongi, mis väljus Tartust kell kaheksa kiirusega sada kilomeetrit tunnis.", "Juku: I'm waiting for the train that left Tartu at eight at a hundred kilometers an hour."],
+  ],
+  [
+    ["Ema: Juku, miks sa terve tordi ära sõid?", "Mom: Juku, why did you eat the whole cake?"],
+    ["Juku: Sa ütlesid ju, et tükki ei tohi võtta.", "Juku: You said I mustn't take a piece."],
+  ],
+  [
+    ["Õpetaja: Juku, mis on maailmas kõige kiirem?", "Teacher: Juku, what's the fastest thing in the world?"],
+    ["Juku: Eesti suvi.", "Juku: The Estonian summer."],
+  ],
+  [
+    ["Õpetaja: Juku, tee lause sõnadega „esiteks“ ja „teiseks“.", "Teacher: Juku, make a sentence with the words “firstly” and “secondly”."],
+    ["Juku: Esiteks ma ei tahtnud ja teiseks ma ei teinud.", "Juku: Firstly I didn't want to, and secondly I didn't."],
+  ],
+  [
+    ["Ema: Juku, kas sa oled kunagi midagi kahetsenud?", "Mom: Juku, have you ever regretted anything?"],
+    ["Juku: Jah. Kui ma ütlesin „ei, aitäh“ ja siis toodi kook lauale.", "Juku: Yes. When I said “no, thank you” and then the cake came out."],
+  ],
+  [
+    ["Õpetaja: Juku, mida sa teed, kui leiad tänavalt sada eurot?", "Teacher: Juku, what do you do if you find a hundred euros in the street?"],
+    ["Juku: Otsin edasi.", "Juku: Keep looking."],
+  ],
+  [
+    ["Turist: Vabandust, kus on lähim pood?", "Tourist: Excuse me, where's the nearest shop?"],
+    ["Juku: Kas see peab ka lahti olema?", "Juku: Does it have to be open?"],
+  ],
+  [
+    ["Juku: Isa, miks uus naaber meid alati tervitab?", "Juku: Dad, why does the new neighbor always say hello to us?"],
+    ["Isa: Ta on alles uus. Küll ta õpib.", "Dad: He's still new. He'll learn."],
+  ],
+  [
+    ["Õpetaja: Juku, mis on põrgu?", "Teacher: Juku, what is hell?"],
+    ["Juku: Koht, kus on aasta läbi soe.", "Juku: A place where it's warm all year round."],
+    ["Õpetaja: Kas sa tahaksid sinna sattuda?", "Teacher: Would you like to end up there?"],
+    ["Juku: Novembris küll.", "Juku: In November, yes."],
+  ],
+  [
+    ["Juku: Doktor, mu vend arvab, et ta on kana.", "Juku: Doctor, my brother thinks he's a chicken."],
+    ["Arst: Miks sa teda ravile ei too?", "Doctor: Why don't you bring him in for treatment?"],
+    ["Juku: Meil on munasid vaja.", "Juku: We need the eggs."],
+  ],
+  [
+    ["Õpetaja: Juku, mis on koolis kõige parem?", "Teacher: Juku, what's the best thing about school?"],
+    ["Juku: Tee koju.", "Juku: The way home."],
+  ],
+  [
+    ["Juku: Ema, kas ma võin kassi pesumasinasse panna?", "Juku: Mom, can I put the cat in the washing machine?"],
+    ["Ema: Ei tohi!", "Mom: You may not!"],
+    ["Juku: Hea küll. Ma võtan ta siis välja.", "Juku: All right. I'll take him out, then."],
+  ],
+  [
+    ["Õpetaja: Juku, mis juhtub pärast surma?", "Teacher: Juku, what happens after you die?"],
+    ["Juku: Siis tulevad kõik sugulased korraga külla.", "Juku: Then all the relatives come to visit at once."],
+  ],
+  [
+    ["Õpetaja: Juku, kas sa saad aru, et sa oled klassi kõige halvem õpilane?", "Teacher: Juku, do you realize you're the worst pupil in the class?"],
+    ["Juku: Keegi peab ju olema.", "Juku: Somebody has to be."],
+  ],
+  [
+    ["Õpetaja: Juku, su isa teenib tunnis kümme eurot ja töötab kaheksa tundi. Mis siis saab?", "Teacher: Juku, your dad earns ten euros an hour and works eight hours. What happens then?"],
+    ["Juku: Siis ta tuleb koju ja ütleb, et elu on raske.", "Juku: Then he comes home and says life is hard."],
+  ],
+  [
+    ["Vanaema: Juku, kui sa suureks saad, kas sa hoolitsed minu eest?", "Grandma: Juku, when you're grown up, will you look after me?"],
+    ["Juku: Muidugi. Ma valin sulle kõige parema hooldekodu.", "Juku: Of course. I'll pick you the best care home there is."],
+  ],
+  [
+    ["Ema: Juku, miks sa kassiga nii viisakalt räägid?", "Mom: Juku, why are you so polite to the cat?"],
+    ["Juku: Ta käitub nii, nagu kogu maja oleks tema oma.", "Juku: He acts as if the whole house were his."],
+  ],
+  [
+    ["Juku: Isa, mis on pension?", "Juku: Dad, what's a pension?"],
+    ["Isa: Raha, mida sa saad siis, kui oled liiga vana, et seda kulutada.", "Dad: Money you get once you're too old to spend it."],
+  ],
+  [
+    ["Õpetaja: Juku, sul on kolm õuna ja Mari tahab ühte võtta. Mitu sulle jääb?", "Teacher: Juku, you have three apples and Mari wants to take one. How many are you left with?"],
+    ["Juku: Kolm. Mari teab, et ta ei tohi.", "Juku: Three. Mari knows better."],
+  ],
+  [
+    ["Juku: Ema, miks sa isaga abiellusid?", "Juku: Mom, why did you marry Dad?"],
+    ["Ema: Ah, sina mõtled ka selle peale?", "Mom: Oh, so you've been wondering too?"],
+  ],
+  [
+    ["Õpetaja: Juku, mis on pimedus?", "Teacher: Juku, what is darkness?"],
+    ["Juku: See, kui elektriarve jääb maksmata.", "Juku: What you get when the electricity bill goes unpaid."],
+  ],
+  [
+    ["Õpetaja: Juku, miks sa kontrolltöö ajal naeratad?", "Teacher: Juku, why are you smiling during the test?"],
+    ["Juku: Ma ei tea ühtegi vastust, aga ma ei taha teid kurvaks teha.", "Juku: I don't know a single answer, but I don't want to make you sad."],
+  ],
+  [
+    ["Juku: Isa, kas kartulid tunnevad valu?", "Juku: Dad, can potatoes feel pain?"],
+    ["Isa: Ei tunne.", "Dad: No."],
+    ["Juku: Miks neil siis silmad on?", "Juku: Then why do they have eyes?"],
+  ],
+  [
+    ["Juku: Ema, kas ma võin õue jalgpalli mängima minna?", "Juku: Mom, can I go out and play football?"],
+    ["Ema: Õues sajab ju vihma!", "Mom: But it's raining outside!"],
+    ["Juku: Pall on veekindel.", "Juku: The ball is waterproof."],
+  ],
+  [
+    ["Juku: Doktor, ma ei saa öösel magada.", "Juku: Doctor, I can't sleep at night."],
+    ["Arst: Maga siis päeval.", "Doctor: Then sleep in the day."],
+    ["Juku: Ma juba magan. Koolis.", "Juku: I already do. At school."],
+  ],
+  [
+    ["Õpetaja: Juku, kumb on parem, raha või tarkus?", "Teacher: Juku, which is better, money or wisdom?"],
+    ["Juku: Raha.", "Juku: Money."],
+    ["Õpetaja: Mina valiksin tarkuse.", "Teacher: I'd choose wisdom."],
+    ["Juku: Igaüks valib selle, mida tal ei ole.", "Juku: Everybody chooses what they haven't got."],
+  ],
+  [
+    ["Juku: Vanaisa, kas sa oled kunagi midagi varastanud?", "Juku: Grandpa, have you ever stolen anything?"],
+    ["Vanaisa: Ükskord. Ma varastasin vanaema südame.", "Grandpa: Once. I stole your grandma's heart."],
+    ["Juku: Kas ta tahab seda tagasi?", "Juku: Does she want it back?"],
+  ],
+  [
+    ["Õpetaja: Juku, kas sa usud imedesse?", "Teacher: Juku, do you believe in miracles?"],
+    ["Juku: Jah. Ma sain eile matemaatikas viie.", "Juku: Yes. I got top marks in math yesterday."],
+  ],
+  [
+    ["Turist: Kui kaua läheb bussiga Tartusse?", "Tourist: How long does it take to Tartu by bus?"],
+    ["Juku: Kaks ja pool tundi.", "Juku: Two and a half hours."],
+    ["Turist: Aga jalgsi?", "Tourist: And on foot?"],
+    ["Juku: Pühapäeval umbes sama kaua.", "Juku: On a Sunday, about the same."],
   ],
 ];
 

@@ -410,14 +410,14 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
         "The seller asks the questions in a fixed order: where, when, one way or round trip, when you're coming back.",
         "At the end, the seller speaks to you. Answer as yourself, one turn at a time.",
       ],
-      watchOut: "When you ask whether there is any at all, the thing usually goes in the [osastav] (3rd form): {Kas homme hommikul on bussi?} You're asking about any bus, not one you already know. Once it's a particular bus, it's back in its plain form: {Buss väljub teiselt perroonilt}.",
+      watchOut: "When you ask whether there is any at all, the noun usually goes in the [osastav] (3rd form): {Kas homme hommikul on bussi?} You're asking about any bus, not one you already know. Once it's a particular bus, it's back in its plain form: {Buss väljub teiselt perroonilt}.",
       examples: [1, 3, 5],
       why: {
         word: "buss",
         en: "bus",
         steps: ANY_AT_ALL_STEPS,
         lines: [
-          { line: 1, form: "bussi", lands: { case: "PARTITIVE", plural: false }, why: "Tom doesn't have a bus in mind yet. He's asking whether there is a bus at all tomorrow morning, any bus. A question like that usually puts the thing in the [osastav] (3rd form): {bussi}. Saying there isn't one always does." },
+          { line: 1, form: "bussi", lands: { case: "PARTITIVE", plural: false }, why: "Tom doesn't have a bus in mind yet. He's asking whether there is a bus at all tomorrow morning, any bus. A question like that usually puts the noun in the [osastav] (3rd form): {bussi}. Saying there isn't one always does." },
           { line: 6, form: "buss", lands: { case: "NOMINATIVE", plural: false }, why: "Now it's a particular bus, the one Tom is buying a ticket for, and the sentence says what it does: it leaves from platform two. The one doing something stays in its plain form, the [nimetav] (1st form): {buss}." },
         ],
       },

@@ -1934,6 +1934,40 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
       </details>
   );
 
+  /*
+    The message pill, handed the microphone where speaking is how the turn is
+    answered: the round button at its end is the microphone while there is
+    nothing to send and the send arrow once there is (see the call below).
+  */
+  const composer = (micButton: ReactNode) => (
+        <div className="scene-compose">
+        <EstonianInput
+          value={draft}
+          onChange={(next) => { setDraft(next); if (!next) setPending(null); }}
+          onEnter={say}
+          inputRef={box}
+          disabled={moving}
+          ariaLabel={t("What you say")}
+          placeholder={moving ? t("Just a moment…") : speaking && mic.offered ? t("Your words appear here") : t("Say it in Estonian")}
+          look="scene-field"
+        />
+        {/*
+          Alone in its row, so the one action a learner takes every turn is the
+          loud one and nothing sits between it and the box. The three quieter
+          controls are a row of their own underneath, which also keeps Leave
+          away from the button being pressed twenty times a conversation.
+        */}
+        {micButton && (mic.listening || mic.thinking || !draft.trim()) && ring !== "box" ? micButton : (
+        <Button onClick={say} disabled={busy || moving || !draft.trim()} variant="primary" className="scene-send">
+          {ring === "box"
+            ? <SendRing onDone={ringDone} onStop={() => setRing(null)} announce={false} />
+            : <ArrowUp size={20} strokeWidth={2.4} aria-hidden />}
+          <span className="sr-only">{t("Say it")}</span>
+        </Button>
+        )}
+        </div>
+  );
+
   return (
     <SceneStage
       sceneId={scene.id}
@@ -2697,7 +2731,14 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
                 learner touches the screen first, which leaves them in the box
                 to change. Typing it is the box alone, exactly as before.
               */}
-              {speaking && (
+              {/*
+                THE MICROPHONE LIVES IN THE PILL. Where speaking is how this
+                conversation is answered, the round button at the pill's end is
+                the microphone while there is nothing to send and the send arrow
+                once there is, the way a phone's message field does it: one
+                button, in one place, that is always the next thing to press.
+              */}
+              {speaking ? (
                 <SceneMic
                   key="mic"
                   box={box}
@@ -2707,34 +2748,11 @@ export function SceneSession({ scene, minutes, unit, learnerLevel, openAt, answe
                   cue={turnCue}
                   closed={busy || moving}
                   label={t("Say your answer")}
-                  size="lg"
                   onState={setMic}
-                />
-              )}
-              <div className="scene-compose">
-              <EstonianInput
-                value={draft}
-                onChange={(next) => { setDraft(next); if (!next) setPending(null); }}
-                onEnter={say}
-                inputRef={box}
-                disabled={moving}
-                ariaLabel={t("What you say")}
-                placeholder={moving ? t("Just a moment…") : speaking && mic.offered ? t("Your words appear here") : t("Say it in Estonian")}
-                look="scene-field"
-              />
-              {/*
-                Alone in its row, so the one action a learner takes every turn is the
-                loud one and nothing sits between it and the box. The three quieter
-                controls are a row of their own underneath, which also keeps Leave
-                away from the button being pressed twenty times a conversation.
-              */}
-              <Button onClick={say} disabled={busy || moving || !draft.trim()} variant="primary" className="scene-send">
-                {ring === "box"
-                  ? <SendRing onDone={ringDone} onStop={() => setRing(null)} announce={false} />
-                  : <ArrowUp size={20} strokeWidth={2.4} aria-hidden />}
-                <span className="sr-only">{t("Say it")}</span>
-              </Button>
-              </div>
+                >
+                  {(micButton) => composer(micButton)}
+                </SceneMic>
+              ) : composer(null)}
               {ring === "box" && (
                 <p role="status" className="text-sm" style={{ color: "var(--ink-2)" }}>
                   {t("This goes in a moment. Press anywhere or any key to stop it and change the words.")}

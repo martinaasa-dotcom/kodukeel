@@ -153,11 +153,14 @@ export async function deleteAccountFor(ownerId: string, confirmation: unknown): 
       await tx.sceneRun.deleteMany({ where: { ownerId } });
       // And every real conversation they reported having outside the app.
       await tx.encounter.deleteMany({ where: { ownerId } });
+      // And what they got right and wrong checking themselves on a common-word list.
+      await tx.wordCheck.deleteMany({ where: { ownerId } });
       // And every word they put aside. What the deployment counted from it
       // goes with the row, which is the right way round: the count is a
       // reading of how many people said a thing, and this person is leaving.
       await tx.deferral.deleteMany({ where: { ownerId } });
       await tx.courseStep.deleteMany({ where: { ownerId } });
+      await tx.lessonAnswer.deleteMany({ where: { ownerId } });
       /*
         Every record that this deployment wrote to them went above, before the
         settings: it is the row that decides whether they are written to again,

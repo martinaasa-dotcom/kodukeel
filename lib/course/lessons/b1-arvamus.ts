@@ -36,7 +36,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
     title: "Because, although, so that",
     goal: "Give a reason, a but and a what for in one sentence, and decide something out loud.",
     cast: { Tom: "kalev", Mari: "mari" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Tom", et: "Mari, mu auto on jälle katki.", en: "Mari, my car's broken again." },
       { who: "Mari", et: "Jälle? See on ju väga vana.", en: "Again? But it's really old." },
@@ -139,6 +139,10 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Kas linnas on autot vaja? Miks?", en: "Do you need a car in the city? Why?" },
       cue: "Give your view: a reason with {kuna}, and what speaks against it with {kuigi}.",
       model: { et: "Ma ei tahaks linnas autot. Kuna buss on odavam, jääb mul rohkem raha üle. Ja kuigi auto on mugav, käin ma linnas hea meelega jala.", en: "I wouldn't want a car in the city. Since the bus is cheaper, I have more money left. And although a car is comfortable, I'm happy to walk in the city." },
+      checks: [
+        { en: "A reason with {kuna}.", any: ["kuna"] },
+        { en: "What speaks against it, with {kuigi}.", any: ["kuigi"] },
+      ],
     },
   },
   {
@@ -364,6 +368,11 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Kus on sinu meelest parem filmi vaadata, kinos või kodus?", en: "Where do you think it's better to watch a film, at the cinema or at home?" },
       cue: "Say which you'd rather: a reason with {kuna}, and what speaks against it with {kuigi}.",
       model: { et: "Minu meelest on kodus parem, kuna seal saab diivanil vaadata ja see on tasuta. Kuigi kino on lõbus, jään ma seal magama.", en: "If you ask me, home is better, since you can watch on the sofa and it's free. Although the cinema is fun, I fall asleep there." },
+      checks: [
+        { en: "How you see it, with {minu meelest} or {mulle tundub}.", any: ["minu meelest", "mulle tundub", "ma ei usu"] },
+        { en: "A reason with {kuna}.", any: ["kuna"] },
+        { en: "The other side, with {kuigi}.", any: ["kuigi"] },
+      ],
     },
   },
   {
@@ -425,7 +434,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "{Saab} with the [da-tegevusnimi] (-da) says a thing can be done, by you or anybody: {saab tasuta helistada}, you can call for free. Nobody in particular does it, so there's no {ma} or {sa} in it.",
-        "After a number, the thing goes in the singular [osastav] (3rd form): {kakskümmend sõnumit}, twenty messages. The number already says how many, so the word itself stays singular. After {üks} it stays in its plain form: {üks sõnum}.",
+        "After a number, the noun goes in the singular [osastav] (3rd form): {kakskümmend sõnumit}, twenty messages. The number already says how many, so the word itself stays singular. After {üks} it stays in its plain form: {üks sõnum}.",
         "{Sotsiaalmeedia} takes the endings any noun does. You use {sotsiaalmeediat}, in the [osastav] (3rd form), because that's what {kasutama} takes, and you read things {sotsiaalmeedias}, on social media.",
       ],
       watchOut: "{Ma ei teadnud, et...} is I didn't know that. A no in the past doesn't use the past of the verb: after {ei} comes the [nud-kesksõna] (-nud, done), the same for every person. Then {et}, after its comma, brings in what you didn't know.",
@@ -473,8 +482,8 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Oi! Siin on kakskümmend sõnumit!", en: "Oh! There are twenty messages here!" }, right: "sõnumit", wrong: "sõnum", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a number, the thing goes in the singular [osastav] (3rd form): {kakskümmend sõnumit}. The number already says how many, so the word doesn't turn plural. Only after {üks} does it stay plain." },
-      { line: { et: "Muidugi! Vana telefoni juhtmega, terve öö. Aga ekraan on ikka must.", en: "Of course! With the old phone's cable, all night. But the screen's still black." }, right: "juhtmega", wrong: "juhet", pair: ["COMITATIVE", "PARTITIVE"], why: "She charged the phone with the cable, the thing she used, and with is the [kaasaütlev] (-ga, with): {juhtmega}. {Juhet} is the cable as the thing wanted or done to, as in {uus telefon tahab uut juhet}." },
+      { line: { et: "Oi! Siin on kakskümmend sõnumit!", en: "Oh! There are twenty messages here!" }, right: "sõnumit", wrong: "sõnum", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a number, the noun goes in the singular [osastav] (3rd form): {kakskümmend sõnumit}. The number already says how many, so the word doesn't turn plural. Only after {üks} does it stay plain." },
+      { line: { et: "Muidugi! Vana telefoni juhtmega, terve öö. Aga ekraan on ikka must.", en: "Of course! With the old phone's cable, all night. But the screen's still black." }, right: "juhtmega", wrong: "juhet", pair: ["COMITATIVE", "PARTITIVE"], why: "She charged the phone with the cable, the noun she used, and with is the [kaasaütlev] (-ga, with): {juhtmega}. {Juhet} is the cable as the noun wanted or done to, as in {uus telefon tahab uut juhet}." },
     ],
     retell: {
       who: "Tom",
@@ -604,6 +613,11 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Kas prügi sorteerimine on sinu meelest oluline? Miks?", en: "Do you think sorting trash matters? Why?" },
       cue: "Give your view: a reason with {kuna}, and what speaks against it with {kuigi}.",
       model: { et: "Jah, minu meelest on see oluline, kuna nii me hoiame loodust. Ja kuigi see on palju tööd, on see kasulik: eile leidsin ma prügi seest oma võtmed!", en: "Yes, I think it matters, since that way we look after nature. And although it's a lot of work, it pays: yesterday I found my keys in the trash!" },
+      checks: [
+        { en: "Your view, with {minu meelest}.", any: ["minu meelest"] },
+        { en: "A reason with {kuna}.", any: ["kuna"] },
+        { en: "What speaks against it, with {kuigi}.", any: ["kuigi"] },
+      ],
     },
   },
   {
@@ -855,6 +869,11 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Kas sport on sulle tähtis?", en: "Does exercise matter to you?" },
       cue: "Say what exercise you do, why it's good for you, and what you're careful about.",
       model: { et: "Ma jooksen pargis, sest seal on õhk puhas. Sport on südamele hea ja keha vajab seda. Aga ma olen ettevaatlik, sest mu selg on nõrk.", en: "I run in the park, because the air's clean there. Exercise is good for the heart, and the body needs it. But I'm careful, because my back's weak." },
+      checks: [
+        { en: "What it's good for, with -le ({südamele hea} here).", any: ["*le hea", "*le ... hea"] },
+        { en: "Why, with {sest}.", any: ["sest"] },
+        { en: "What you're careful about, {ettevaatlik}.", any: ["ettevaatlik"] },
+      ],
     },
   },
   {

@@ -1339,9 +1339,9 @@ check("the room a clip is heard in is made in one module, and only the rounds th
   // service, which is the rule the slow play states.
   assert.match(
     code("lib/audio/clip.ts"),
-    /base \* \(request\.condition\?\.speed \?\? 1\)/,
+    /base \* Math\.min\(1, request\.condition\?\.speed \?\? 1\)/,
     "the player stopped scaling a condition against the learner's own pace, so \"at speed\" "
-      + "is a fraction of the recording again and a beginner meets it at twice their own",
+      + "is a fraction of the recording again, or a condition can speed a play past it (nothing is sped up)",
   );
   assert.doesNotMatch(code("lib/audio/clip.ts"), /speed:/, "a speed is being sent to the speech service again");
 
@@ -3163,6 +3163,10 @@ const MEASURES_RATHER_THAN_PRACTISES: string[] = [
   // Sõnamäng: a compound read for fun is not a card either, for the same reason, and the false friends are asked
   // as a joke about what a word looks like rather than as a recall the scheduler could use.
   "app/(app)/review/wordplay/WordplaySession.tsx",
+  // Number endings: a tap between the two or three forms the screen prints recalls none of them on its own, so a
+  // grade would be a recall that did not happen. A miss puts the number's own words in the deck instead
+  // (`keepMissedNumbers`), which is the operator's rule for a game.
+  "app/(app)/review/numbers/EndingsSession.tsx",
   // Tähthaaval: what is practiced is hearing the letters' Estonian names, which no card holds, and a word
   // written wrong because two names sound close has not been forgotten, so a lapse on its card would be false.
   "app/(app)/review/spelled/SpelledSession.tsx",
@@ -11878,6 +11882,13 @@ check("only the harvest, the seed and the screens name a Russian or Ukrainian me
     */
     join("lib", "progress", "learn.ts"),
     join("app", "(app)", "learn", "[unitId]", "lesson", "page.tsx"),
+    /*
+      And a lesson's Words cards, which print a headword's Russian or Ukrainian
+      beside it where the lesson itself does not gloss the word tonight: read
+      in `lib/progress/wordCards.ts` and passed on as plain data. It writes
+      neither column and reaches no model.
+    */
+    join("lib", "progress", "wordCards.ts"),
     /*
       And then every surface that shows a meaning as a meaning, because a
       learner who reads Ukrainian better than English was meeting the
@@ -22487,6 +22498,8 @@ check("every round that puts one word up carries the favorite button", () => {
       "a page of sentences at once, each about a different word, with no one card to put a corner on",
     [join("app", "(app)", "review", "numbers", "NumbersSession.tsx")]:
       "a price, a clock time or a number, said in several number words at once, with no one entry the round is about",
+    [join("app", "(app)", "review", "numbers", "EndingsSession.tsx")]:
+      "one number in many sentences, its forms several words long, with no one entry the round is about; a miss puts the number's words in the deck itself",
     [join("app", "(app)", "learn", "checkpoint", "[level]", "CheckpointSession.tsx")]:
       "a measurement rather than a round: it withholds every answer until the "
       + "end on purpose, and its questions carry no entry to keep",
@@ -23438,17 +23451,24 @@ check("a control says what it does under a pointer", () => {
 check("a marked answer says so out loud", () => {
   const PAGE_NOT_A_ROUND = "app/(app)/exam/result/[id]/page.tsx";
   /*
+    A list of what was said on a lesson's Say it step, drawn once the step is
+    over and again when a finished lesson is opened: it marks answers given
+    earlier, read as a page is read, and a live region round a whole list would
+    read every sentence out again on each change.
+  */
+  const LIST_AFTER_THE_FACT = "components/course/SaidList.tsx";
+  /*
     A piece drawn inside a region its callers mounted first, since a region that
     arrives holding its words is often not read. It may hold no region of its
     own, and every file that draws it has to have one.
   */
-  const ANNOUNCED_BY_CALLER = "components/course/SentenceFindings.tsx";
+  const ANNOUNCED_BY_CALLER = ["components/course/SentenceFindings.tsx", "components/course/LineFindings.tsx"];
   // How each call of it is read is held by scripts/invariants/findings-are-read-where-they-are-drawn.ts.
   let marking = 0;
   for (const file of [...APP, ...COMPONENTS]) {
     const source = code(file);
     if (!/VERDICT_CLASS|OPTION_CLASS/.test(source)) continue;
-    if (file === PAGE_NOT_A_ROUND || file === ANNOUNCED_BY_CALLER) continue;
+    if (file === PAGE_NOT_A_ROUND || file === LIST_AFTER_THE_FACT || ANNOUNCED_BY_CALLER.includes(file)) continue;
     marking += 1;
     assert.match(
       source,

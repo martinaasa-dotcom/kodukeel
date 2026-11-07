@@ -64,7 +64,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
     ],
     patterns: ["object"],
     how: {
-      point: "Estonian says whether a job got done in the ending of the thing you worked on. If you finished the job with the whole thing, it takes the [omastav] (2nd form), and a small word after the verb often says so too: {Ma lugesin raamatu läbi}, I read the book to the end. If you were still on it and didn't say it got finished, it takes the [osastav] (3rd form): {Ma parandasin autot}, I was working on the car.",
+      point: "Estonian says whether a job got done in the ending of the noun you worked on. If you finished the job with the whole thing, it takes the [omastav] (2nd form), and a small word after the verb often says so too: {Ma lugesin raamatu läbi}, I read the book to the end. If you were still on it and didn't say it got finished, it takes the [osastav] (3rd form): {Ma parandasin autot}, I was working on the car.",
       table: {
         head: ["Estonian", "In English", "Why"],
         rows: [
@@ -76,9 +76,9 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "A2 showed this with buying and reading. From B1 on it's the rule for every verb that does something to a thing: fixing, cleaning, washing, reading.",
-        "English shows the difference in the verb: I was reading the book, I read the book through. Estonian keeps the verb as it is and changes the ending of the thing: {raamatut} while you're still reading it, {raamatu} once you've read all of it.",
-        "{Läbi} and {ära} after the verb say the job is finished, so the thing with them is the whole thing, in the [omastav] (2nd form). {Lõpuni}, to the end, says the same in a word of its own, and {lõpuni ei jõudnud} says you didn't get there.",
-        "A no settles it the other way. After {ei} nothing got done, so the thing is always in the [osastav] (3rd form), even when you mean the whole kitchen: {Ma ei koristanud kööki}. The next lesson is about that.",
+        "English shows the difference in the verb: I was reading the book, I read the book through. Estonian keeps the verb as it is and changes the ending of the noun: {raamatut} while you're still reading it, {raamatu} once you've read all of it.",
+        "{Läbi} and {ära} after the verb say the job is finished, so the noun with them is the whole thing, in the [omastav] (2nd form). {Lõpuni}, to the end, says the same in a word of its own, and {lõpuni ei jõudnud} says you didn't get there.",
+        "A no settles it the other way. After {ei} nothing got done, so the noun is always in the [osastav] (3rd form), even when you mean the whole kitchen: {Ma ei koristanud kööki}. The next lesson is about that.",
         "They're two of the small words that sit after a verb and change what it says. This part meets a few more, one at a time, and lesson 43 puts them side by side.",
       ],
       watchOut: "Before a verb, {ära} means don't, as you met it in A1. After the verb it says the job is done, as in {Kas sa parandasid auto ära?} It's one word with two jobs, and where it stands tells you which.",
@@ -132,7 +132,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
     fixes: [
       { line: { et: "Aga ma lugesin raamatu läbi!", en: "But I read the book to the end!" }, right: "raamatu", wrong: "raamatut", pair: ["GENITIVE", "PARTITIVE"], why: "Tom read the book to the end, and {läbi} after the verb says so. The whole book with the job done takes the [omastav] (2nd form): {raamatu}. While he was still reading it, it would be {raamatut}." },
       { line: { et: "Kas sa parandasid auto ära?", en: "Did you fix the car?" }, right: "auto", wrong: "autot", pair: ["GENITIVE", "PARTITIVE"], why: "{Ära} after the verb says the job got done, so Anna is asking about the whole car, fixed. That takes the [omastav] (2nd form): {auto}, not {autot}." },
-      { line: { et: "Ma ei koristanud kööki.", en: "I didn't clean the kitchen." }, right: "kööki", wrong: "köögi", pair: ["GENITIVE", "PARTITIVE"], why: "With {ei}, nothing got done, so the thing goes in the [osastav] (3rd form) every time, even when you mean the whole kitchen: {kööki}." },
+      { line: { et: "Ma ei koristanud kööki.", en: "I didn't clean the kitchen." }, right: "kööki", wrong: "köögi", pair: ["GENITIVE", "PARTITIVE"], why: "With {ei}, nothing got done, so the noun goes in the [osastav] (3rd form) every time, even when you mean the whole kitchen: {kööki}." },
     ],
     listenFor: [
       { q: "What was Tom doing in the morning?", options: ["Reading a book", "Cleaning the kitchen", "Working on the car", "Buying a car"], answer: 2 },
@@ -196,7 +196,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "küljes", en: "on, hanging on (a door, a wall)" },
     ],
     how: {
-      point: "A no means nothing got done, so the thing after it always takes the [osastav] (3rd form), even when you mean one particular thing: {Ma leidsin võtme}, I found the key, but {Ma ei leidnud võtit}, I didn't find the key. The same goes for more than one: {võtmed} becomes {võtmeid}.",
+      point: "A no means nothing got done, so the noun after it always takes the [osastav] (3rd form), even when you mean one particular thing: {Ma leidsin võtme}, I found the key, but {Ma ei leidnud võtit}, I didn't find the key. The same goes for more than one: {võtmed} becomes {võtmeid}.",
       table: {
         head: ["It happened", "It didn't"],
         rows: [
@@ -212,14 +212,14 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
         "{Ühtegi} makes the no stronger: {Ma ei leidnud ühtegi sokki}, I didn't find a single sock.",
         "Without a no, a thing you found is the whole thing, and {üks} takes the same ending as the word with it: {Leidsin ainult ühe vana soki}, I found one old sock.",
       ],
-      watchOut: "In English the no doesn't touch the thing: I found the key, I didn't find the key. In Estonian it does. After {ei}, it's {võtit}, never {võtme}.",
+      watchOut: "In English the no doesn't touch the noun: I found the key, I didn't find the key. In Estonian it does. After {ei}, it's {võtit}, never {võtme}.",
       examples: [0, 2, 4],
       why: {
         word: "võti",
         en: "key",
         steps: OBJECT_STEPS,
         lines: [
-          { line: 0, form: "võtmeid", lands: { case: "PARTITIVE", plural: true }, why: "Tom means his own keys, more than one, the bunch he always carries. But he can't find them: {ei} is a no, and after a no the thing goes in the [osastav] (3rd form) every time. So the plural [osastav] (3rd form): {võtmeid}. Once somebody has found them, it's {Mari leidis võtmed}." },
+          { line: 0, form: "võtmeid", lands: { case: "PARTITIVE", plural: true }, why: "Tom means his own keys, more than one, the bunch he always carries. But he can't find them: {ei} is a no, and after a no the noun goes in the [osastav] (3rd form) every time. So the plural [osastav] (3rd form): {võtmeid}. Once somebody has found them, it's {Mari leidis võtmed}." },
           { line: 2, form: "võtit", lands: { case: "PARTITIVE", plural: false }, why: "One key now: {ühtegi} is not a single one. {Pole} is the short form of {ei ole}, there isn't, so this is a no too, and a no takes the [osastav] (3rd form): {võtit}. Had he found one, it would be {Ma leidsin võtme}." },
         ],
       },
@@ -274,6 +274,10 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Mida sa eile teha ei jõudnud?", en: "What didn't you get round to yesterday?" },
       cue: "Say three things you didn't do, buy or find yesterday.",
       model: { et: "Kööki ma ei koristanud, leiba ei ostnud ja võtmeid ei leidnud!", en: "I didn't clean the kitchen, didn't buy bread and couldn't find my keys!" },
+      checks: [
+        { en: "Three things you didn't do, each with {ei} and a -nud word ({ei ostnud} here).", any: ["ei *nud"], atLeast: 3 },
+        { en: "After {ei}, the noun in the [osastav] (3rd form) ({leiba}, {võtmeid} here).", any: ["leiba", "võtmeid", "võtit", "kööki", "sokki"], near: ["võtmed", "võtme", "sokk", "soki"] },
+      ],
     },
   },
   {
@@ -306,7 +310,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "õuna", of: "õun", en: "apples, after a number" },
       { kind: "word", et: "kilo", en: "a kilo" },
       { kind: "word", et: "õunakook", en: "an apple cake" },
-      { kind: "form", et: "õunakooki", of: "õunakook", en: "an apple cake, as the thing to make" },
+      { kind: "form", et: "õunakooki", of: "õunakook", en: "an apple cake, as what you make" },
       { kind: "form", et: "koogi", of: "kook", en: "of the cake", stem: true },
       { kind: "form", et: "pesin", of: "pesema", en: "I washed", past: true },
       { kind: "form", et: "tahtsin", of: "tahtma", en: "I wanted", past: true },
@@ -451,7 +455,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "koeri", of: "koer", en: "dogs, as what you're scared of" },
     ],
     how: {
-      point: "Some verbs describe something that keeps going, with no point where the job is finished: waiting, looking for, watching, listening, loving, being scared of. Since nothing gets done to the thing, what comes after them is in the [osastav] (3rd form), whether it's a yes or a no: {Ma ootan sind}, {Ma otsin sind}, {Ma kardan koeri}.",
+      point: "Some verbs describe something that keeps going, with no point where the job is finished: waiting, looking for, watching, listening, loving, being scared of. Since nothing gets done to the noun, what comes after them is in the [osastav] (3rd form), whether it's a yes or a no: {Ma ootan sind}, {Ma otsin sind}, {Ma kardan koeri}.",
       table: {
         head: ["The verb", "With its thing", "In English"],
         rows: [
@@ -465,7 +469,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "Waiting, looking for, fearing and loving have no end point in the past either, so the [osastav] (3rd form) stays: {Ma ootasin sind}, I was waiting for you.",
-        "Watching and listening usually take the [osastav] (3rd form) as well, because you're in the middle of it. Add {ära} or {läbi} and the job is finished, so the thing takes the [omastav] (2nd form): {Vaatasin filmi ära}, I watched the film to the end.",
+        "Watching and listening usually take the [osastav] (3rd form) as well, because you're in the middle of it. Add {ära} or {läbi} and the job is finished, so the noun takes the [omastav] (2nd form): {Vaatasin filmi ära}, I watched the film to the end.",
         "{Ära} and {üles} after the verb can finish some of them, and then the whole thing follows: {Ma ootan su ära}, I'll wait until you're here, and {Otsisin võtmed üles}, I looked for the keys and found them.",
         "English adds a little word: wait for, look for, listen to, scared of. Estonian adds nothing but the ending.",
         "{Sind} is the [osastav] (3rd form) of {sina}, {teda} of {tema} and {mind} of {mina}. You'll hear them after all of these verbs.",
@@ -532,6 +536,10 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Mis sa teed, kui kedagi ootad?", en: "What do you do when you're waiting for somebody?" },
       cue: "Say what you do while you wait: what you watch, what you listen to.",
       model: { et: "Vaatan inimesi ja kuulan muusikat. Vahel joon kohvi. Ja vaatan tihti kella!", en: "I watch people and listen to music. Sometimes I have a coffee. And I keep checking the time!" },
+      checks: [
+        { en: "What you watch or listen to, in the [osastav] (3rd form) ({inimesi}, {muusikat} here).", any: ["inimesi", "muusikat", "kella", "kohvi", "koeri", "sind", "teda"] },
+        { en: "Two things you do, each with its own verb ({vaatan}, {kuulan} here).", any: ["vaatan", "kuulan", "joon", "ootan", "otsin"], atLeast: 2 },
+      ],
     },
   },
   {
@@ -541,7 +549,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
     part: "b1-objekt",
     kind: "lesson",
     title: "Do it! Don't!",
-    goal: "Tell somebody to do a job, or not to, with the thing in the right form.",
+    goal: "Tell somebody to do a job, or not to, with the noun in the right form.",
     cast: { Kati: "vesta", Tom: "kalev" },
     conversation: [
       { who: "Kati", et: "Tom, too see kast siia!", en: "Tom, bring that box here!", stage: "Kati is moving into a new apartment, and Tom is helping, the way she helped him move." },
@@ -580,7 +588,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "tuppa", of: "tuba", en: "into the room, inside" },
     ],
     how: {
-      point: "A command tells somebody to do the whole job, and the thing it's about stays in its plain dictionary form, the [nimetav] (1st form): {Too kast siia!}, {Tee uks lahti!} But {ära} in front of the verb means don't, which is a no, so the thing goes in the [osastav] (3rd form): {Ära too diivanit!}",
+      point: "A command tells somebody to do the whole job, and the noun it's about stays in its plain dictionary form, the [nimetav] (1st form): {Too kast siia!}, {Tee uks lahti!} But {ära} in front of the verb means don't, which is a no, so the noun goes in the [osastav] (3rd form): {Ära too diivanit!}",
       table: {
         head: ["Do it", "Don't"],
         rows: [
@@ -603,8 +611,8 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
         steps: OBJECT_STEPS,
         lines: [
           { line: 3, form: "diivani", lands: { case: "GENITIVE", plural: false }, why: "Tom offers to bring the sofa: {toon} is I'll bring, a job that will get done with the whole sofa. It isn't a command, because Tom is saying what he'll do himself, so it takes the [omastav] (2nd form): {diivani}." },
-          { line: 4, form: "diivanit", lands: { case: "PARTITIVE", plural: false }, why: "{Ära} in front of the verb means don't, so this is a no. After a no the thing always goes in the [osastav] (3rd form), even in a command: {diivanit}." },
-          { line: 6, form: "diivan", lands: { case: "NOMINATIVE", plural: false }, why: "Now it's a command to do the whole job: bring the sofa. A command keeps the thing in its plain dictionary form, the [nimetav] (1st form): {diivan}. Kati says it the same way at the end: {Vii diivan kohe tagasi!}" },
+          { line: 4, form: "diivanit", lands: { case: "PARTITIVE", plural: false }, why: "{Ära} in front of the verb means don't, so this is a no. After a no the noun always goes in the [osastav] (3rd form), even in a command: {diivanit}." },
+          { line: 6, form: "diivan", lands: { case: "NOMINATIVE", plural: false }, why: "Now it's a command to do the whole job: bring the sofa. A command keeps the noun in its plain dictionary form, the [nimetav] (1st form): {diivan}. Kati says it the same way at the end: {Vii diivan kohe tagasi!}" },
         ],
       },
     },
@@ -645,7 +653,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Tom, too see kast siia!", en: "Tom, bring that box here!" }, right: "kast", wrong: "kasti", pair: ["NOMINATIVE", "GENITIVE"], why: "Kati is telling Tom to do the whole job, bring the box. A command keeps the thing in its plain dictionary form, the [nimetav] (1st form): {kast}. {Kasti} is for saying it yourself: {Ma toon kasti}." },
+      { line: { et: "Tom, too see kast siia!", en: "Tom, bring that box here!" }, right: "kast", wrong: "kasti", pair: ["NOMINATIVE", "GENITIVE"], why: "Kati is telling Tom to do the whole job, bring the box. A command keeps the noun in its plain dictionary form, the [nimetav] (1st form): {kast}. {Kasti} is for saying it yourself: {Ma toon kasti}." },
       { line: { et: "Ei, ära too diivanit veel!", en: "No, don't bring the sofa yet!" }, right: "diivanit", wrong: "diivan", pair: ["NOMINATIVE", "PARTITIVE"], why: "{Ära} in front of the verb is a no, don't bring it, so the sofa goes in the [osastav] (3rd form), as after {ei}: {diivanit}." },
       { line: { et: "Nüüd too diivan, aga ära lõhu ust!", en: "Now bring the sofa, but don't break the door!" }, right: "ust", wrong: "uks", pair: ["NOMINATIVE", "PARTITIVE"], why: "{Ära lõhu} is don't break, a no, so the door goes in the [osastav] (3rd form): {ust}, not the plain {uks}." },
     ],
@@ -696,7 +704,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
     ],
     teaches: [
       { kind: "word", et: "sedel", en: "a note, a slip of paper you leave somebody" },
-      { kind: "form", et: "sedelit", of: "sedel", en: "the note, as the thing you read" },
+      { kind: "form", et: "sedelit", of: "sedel", en: "the note, as what you read" },
       { kind: "form", et: "tehtud", of: "tegema", en: "done, finished" },
       { kind: "form", et: "kraani", of: "kraan", en: "the tap, as the job done" },
       { kind: "word", et: "dušš", en: "a shower" },
@@ -705,7 +713,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "korterit", of: "korter", en: "the apartment, after a no" },
       { kind: "verb", et: "põlema", first: "põlen", en: "to burn; of a light, to be on", firstEn: "I burn" },
       { kind: "word", et: "pirn", en: "a light bulb; a pear" },
-      { kind: "form", et: "pirni", of: "pirn", en: "a bulb, as the thing bought" },
+      { kind: "form", et: "pirni", of: "pirn", en: "a bulb, as what was bought" },
       { kind: "verb", et: "vahetama", first: "vahetan", en: "to change, to swap", firstEn: "I change" },
       { kind: "form", et: "elektrit", of: "elekter", en: "electricity, as what you're scared of" },
       { kind: "form", et: "selles", of: "see", en: "in this" },
@@ -729,12 +737,12 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Put the thing first when it's what the note is about: {Kraani parandasin ma ise ära}. Moving it to the front doesn't change its ending: the job is still done, so it's still the [omastav] (2nd form).",
+        "Put the noun first when it's what the note is about: {Kraani parandasin ma ise ära}. Moving it to the front doesn't change its ending: the job is still done, so it's still the [omastav] (2nd form).",
         "To a tradesman you don't know, use {teie}: {palun parandage}, {helistage mulle}.",
         "{Ikka} with a no means still not: {ei lähe ikka kinni}, still won't close.",
         "{Pirn on läbi} is the bulb's gone: after {on}, {läbi} means worn out or burnt out, not through.",
       ],
-      watchOut: "A polite request is still a command, so the thing stays in the [nimetav] (1st form): {Palun parandage dušš ära}, not {duši}. {Palun} makes it polite, but it doesn't change the ending.",
+      watchOut: "A polite request is still a command, so the noun stays in the [nimetav] (1st form): {Palun parandage dušš ära}, not {duši}. {Palun} makes it polite, but it doesn't change the ending.",
       examples: [2, 4, 7],
     },
     answers: [
@@ -774,7 +782,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Palun parandage dušš ära.", en: "Please fix the shower." }, right: "dušš", wrong: "duši", pair: ["NOMINATIVE", "GENITIVE"], why: "{Parandage} is a command, even with {palun} in front to make it polite, and a command keeps the thing in the [nimetav] (1st form): {dušš}. {Duši} is the form for a job you say you'll do yourself." },
+      { line: { et: "Palun parandage dušš ära.", en: "Please fix the shower." }, right: "dušš", wrong: "duši", pair: ["NOMINATIVE", "GENITIVE"], why: "{Parandage} is a command, even with {palun} in front to make it polite, and a command keeps the noun in the [nimetav] (1st form): {dušš}. {Duši} is the form for a job you say you'll do yourself." },
       { line: { et: "Meister ei tunne ju korterit.", en: "The handyman doesn't know the apartment." }, right: "korterit", wrong: "korteri", pair: ["GENITIVE", "PARTITIVE"], why: "{Ei tunne} is a no, the handyman doesn't know it, and a no takes the [osastav] (3rd form) every time: {korterit}." },
     ],
     listenFor: [
@@ -786,6 +794,11 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Mis su korteris katki on?", en: "What's broken in your apartment?" },
       cue: "Say what's broken, what you fixed yourself, and what still doesn't work.",
       model: { et: "Köögis ei põle lamp. Kraani parandasin ma ise ära. Aga aken ei lähe ikka kinni.", en: "The kitchen light isn't working. I fixed the tap myself. But the window still won't close." },
+      checks: [
+        { en: "What doesn't work, with {ei} ({ei põle} here).", any: ["ei *"] },
+        { en: "What you fixed yourself, with {ära} at the end ({parandasin ma ise ära} here).", any: ["ära"] },
+        { en: "{ikka} for still ({ei lähe ikka kinni} here).", any: ["ikka"] },
+      ],
     },
     write: {
       genre: "A note to the handyman",
@@ -851,7 +864,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "The thing often comes first when it's what you're talking about: {Akent ma täna ei paranda}. Its place decides nothing: the same questions choose the ending wherever the word stands.",
+        "The noun often comes first when it's what you're talking about: {Akent ma täna ei paranda}. Its place decides nothing: the same questions choose the ending wherever the word stands.",
         "With a stranger, use {teie} the whole way: {tulge sisse}, {Kraani te parandasite ise ära?}",
       ],
       watchOut: "A question about a job that will get done still takes the whole thing: {Millal te akna ära parandate?}, not {akent}. Tom isn't saying no, he's asking when, and {ära} says the window will be fixed and finished.",
@@ -861,7 +874,7 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
         en: "window",
         steps: OBJECT_STEPS,
         lines: [
-          { line: 6, form: "akent", lands: { case: "PARTITIVE", plural: false }, why: "Rein says he won't fix it today: {ei paranda} is a no. After a no the thing goes in the [osastav] (3rd form), even though he means this very window and will fix it later: {akent}. Putting the word first doesn't change that." },
+          { line: 6, form: "akent", lands: { case: "PARTITIVE", plural: false }, why: "Rein says he won't fix it today: {ei paranda} is a no. After a no the noun goes in the [osastav] (3rd form), even though he means this very window and will fix it later: {akent}. Putting the word first doesn't change that." },
           { line: 7, form: "akna", lands: { case: "GENITIVE", plural: false }, why: "Tom asks when the window will be fixed. It isn't a no, and {ära} says the job will be finished with the whole window. One whole thing with the job done takes the [omastav] (2nd form): {akna}. A question asks about the job, it doesn't undo it." },
         ],
       },

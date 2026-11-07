@@ -43,12 +43,14 @@ check.
 | Named shelves and what is filed on them (`Deck`, `DeckWord`) | Until removed by the learner, or the account is deleted. A label over the one row above (`Card`) rather than a copy of it: deleting a shelf never touches the cards, reviews or mastery of the words that were on it | Either | The deck's own delete cascades its `DeckWord` rows; `deleteMyAccount` for both |
 | Words put aside (`Deferral`) | Until the learner brings the word back, or the account is deleted. A wait that ends by itself, because the learner reached the band, leaves the row and stamps `wokenAt` | Bringing it back, or erasure | `undoDeferral` and `wakeForLevel` in `lib/progress/deferrals.ts`; `deleteMyAccount` |
 | Ticked course steps (`CourseStep`) | Until the account is deleted. Append-only | Erasure | `deleteMyAccount` |
+| What was said on a lesson's Say it step (`LessonAnswer`): the text typed or heard and what the dictionary found in it, never the sound | The latest time through each lesson, replaced when the lesson is finished again, until the account is deleted | Finishing the lesson again, or erasure | `keepAnswers` in `lib/progress/lessonAnswers.ts`; `deleteMyAccount` |
 | Badges (`Achievement`) | Until the account is deleted | Erasure | `deleteMyAccount` |
 | Level checks (`Assessment`) | Until the account is deleted. Append-only | Erasure | `deleteMyAccount` |
 | Mock exam sittings (`ExamAttempt`), including the composition | Until the account is deleted. Append-only | Erasure | `deleteMyAccount` |
 | Confirmed word lists off a photograph (`Scan`) | Until the account is deleted | Erasure | `deleteMyAccount` |
 | Conversation runs (`SceneRun`) and the words they needed (`SceneGap`) | Until the account is deleted. Append-only | Erasure | `deleteMyAccount` |
 | Reports of real conversations (`Encounter`) | Until the account is deleted. Append-only | Erasure | `deleteMyAccount` |
+| Answers in a check-yourself round (`WordCheck`) | Until the account is deleted. Append-only, one row per answer: the word, the direction and whether it was right, nearly or missed, never what was typed | Erasure | `deleteMyAccount` |
 | Where a learner is in the planned module (`CourseStep`) | Until the account is deleted. Append-only, and one row per step a learner ticked: the program, the day and the step, never an answer. Which day they are on is derived from it rather than stored | Erasure | `deleteMyAccount` |
 | Words put aside (`Deferral`) | Until the account is deleted. One row per learner per word, updated rather than appended when they say it again, and a wait ended early is stamped rather than removed | Erasure | `deleteMyAccount` |
 | Reports of something wrong (`Suggestion`) | Until the account is deleted, whatever the review status | Erasure | `deleteMyAccount` |

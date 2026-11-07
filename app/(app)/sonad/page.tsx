@@ -60,7 +60,7 @@ export default async function SonadPage() {
         )}
       >
         {puzzle ? (
-          <SonadSession puzzle={puzzle} day={day} guessable={guessable} />
+          <SonadSession puzzle={puzzle} day={day} level={level} guessable={guessable} />
         ) : (
           /*
             A dictionary with nothing of the right length at this level, which on

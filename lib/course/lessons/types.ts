@@ -479,6 +479,34 @@ export interface Faster {
    * chosen. Only with a preparation, and exactly two.
    */
   readonly topics?: readonly { readonly en: string }[];
+  /**
+   * TODAY'S PATTERN, CHECKED AFTER EVERY GO (`lib/course/lessons/fasterChecks.ts`):
+   * two or three things the evening's point asks of an answer, each read off
+   * the go's transcript by string matching and nothing else, so a tick is a
+   * fact about the words that came across and never about the sound
+   * (ADR-018). The model answer passes every one of them, asserted.
+   */
+  readonly checks: readonly FasterCheck[];
+}
+
+/**
+ * ONE THING TODAY'S POINT ASKS OF AN ANSWER, DECIDABLE ON THE TRANSCRIPT.
+ *
+ * `any` is a list of spellings, one of which has to stand in what was said as
+ * whole words, case aside, the way a retell point is lit. A word may carry a
+ * star at one end to stand for a word with that ending or that beginning
+ * (`*nud`, `ei *nud`), which is an ending rather than a form, so nothing here
+ * writes Estonian; every whole spelling is held to the ledger like a line of
+ * the lesson. `atLeast` asks for that many (three things with `ei *nud`).
+ * `near`, where present, is what a miss usually sounds like: the cross under
+ * an unmet check names those words as they stood in the transcript, and never
+ * anything else.
+ */
+export interface FasterCheck {
+  readonly en: string;
+  readonly any: readonly string[];
+  readonly atLeast?: number;
+  readonly near?: readonly string[];
 }
 
 /**
@@ -693,6 +721,9 @@ export interface LessonSpec {
    * walking in on a conversation already going: the first line is joined two
    * fifths of the way in and the rest is heard as it is.
    */
+  // `quick` stays in the type only because the v1 API never narrows a field
+  // (lib/api/contract.ts); no lesson uses it, since nothing is sped up, and
+  // `conditionById` plays it as a quiet room.
   readonly hearing?: "phone" | "cafe" | "quick" | "half";
   /** A short story to hear twice and tell back aloud (B1 on). */
   readonly retell?: Retell;

@@ -60,7 +60,7 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "naise", of: "naine", en: "a woman's, a wife's", stem: true },
     ],
     how: {
-      point: "To say whose something is, put the owner in the [omastav] (2nd form) and set it in front of the thing, the way English adds 's: {sõbra kott}, a friend's bag. The thing itself stays in its plain [nimetav] (1st form): {kott}.",
+      point: "To say whose something is, put the owner in the [omastav] (2nd form) and set it in front of the noun, the way English adds 's: {sõbra kott}, a friend's bag. The noun itself stays in its plain [nimetav] (1st form): {kott}.",
       table: {
         head: ["[nimetav] (1st form)", "[omastav] (2nd form), whose", "In English"],
         rows: [
@@ -76,7 +76,7 @@ export const A2_KELLE_LESSONS: readonly LessonSpec[] = [
         "You've been saying this since A1. {Minu}, {sinu} and {nende}, my, your and their, are the [omastav] (2nd form) of {mina}, {sina} and {nemad}. {Mu} is the short {minu}.",
         "A name says whose in the same way. {Jaan} becomes {Jaani telefon}, and {Peeter} becomes {Peetri}. A name that ends in a vowel looks the same either way: {Mari telefon}.",
         "{Kelle?} is the question for whose. It's the [omastav] (2nd form) of {kes}, who: {Kelle kott see on?}",
-        "{Oma} after the owner stands in for the thing, so you don't have to name it twice: {See raamat on minu oma}, this book is mine.",
+        "{Oma} after the owner stands in for the noun, so you don't have to name it twice: {See raamat on minu oma}, this book is mine.",
       ],
       watchOut: "The [omastav] (2nd form) isn't always the [nimetav] (1st form) with a letter added. The middle of the word can change too: {sõber} gives {sõbra}, {laps} gives {lapse}, {mees} gives {mehe}. You can't safely guess it, so learn each word with its [omastav] (2nd form).",
       examples: [0, 1, 3, 5],

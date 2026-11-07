@@ -293,13 +293,18 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ilma teie passita ma ei saa avaldust vastu võtta.", en: "Without your passport I can't accept the application." }, right: "avaldust", wrong: "avalduse", pair: ["PARTITIVE", "GENITIVE"], why: "Tiina says she can't accept it: {ei saa} is a no. A no always takes the [osastav] (3rd form), however whole and particular the thing is: {avaldust}. Without the no, it would be {avalduse}: {Ametnik võtab avalduse vastu}." },
+      { line: { et: "Ilma teie passita ma ei saa avaldust vastu võtta.", en: "Without your passport I can't accept the application." }, right: "avaldust", wrong: "avalduse", pair: ["PARTITIVE", "GENITIVE"], why: "Tiina says she can't accept it: {ei saa} is a no. A no always takes the [osastav] (3rd form), however whole and particular the noun is: {avaldust}. Without the no, it would be {avalduse}: {Ametnik võtab avalduse vastu}." },
       { line: { et: "Siin on avaldus ja foto. Kõik blanketid on täidetud!", en: "Here's the application and the photo. All the forms are filled in!" }, right: "avaldus", wrong: "avalduse", pair: ["NOMINATIVE", "GENITIVE"], why: "{Siin on} only says the application is here. Nobody is doing anything to it, so it's what the sentence is about, and that takes the plain form, the [nimetav] (1st form): {avaldus}." },
     ],
     faster: {
       ask: { et: "Mis dokumendid teil kaasas on?", en: "What documents do you have with you?" },
       cue: "Say what you've brought and what's missing, why you're applying, and what you'll do next.",
       model: { et: "Mul on kaasas avaldus ja foto, aga pass on kodus. Ma taotlen elamisluba, sest ma töötan Tallinnas. Homme tulen hommikul kell üheksa ja toon passi.", en: "I have the application and a photo with me, but my passport's at home. I'm applying for a residence permit, because I work in Tallinn. Tomorrow I'll come at nine in the morning and bring the passport." },
+      checks: [
+        { en: "What you've brought, with {kaasas}.", any: ["kaasas"] },
+        { en: "{taotlema} with what you apply for in the [osastav] (3rd form) ({taotlen elamisluba} here).", any: ["taotlen *"] },
+        { en: "What you'll do next, with {homme}.", any: ["homme"] },
+      ],
     },
   },
   {
@@ -373,7 +378,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
         ],
       },
     },
-    hearing: "quick",
+    hearing: "half",
     listenFor: [
       { q: "Which happened first?", options: ["Anna saw the wallet under the computer", "Tom called the bank", "Tom called the bank back", "Tom found the wallet on the bus"], answer: 1 },
       { q: "Who says the card is the most important thing?", options: ["Anna", "Tom", "The bank", "Nobody"], answer: 0 },
@@ -558,13 +563,18 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
     ],
     fixes: [
       { line: { et: "Muidugi töötan!", en: "Of course I work!" }, right: "töötan", wrong: "töötab", pair: ["IndPrSg1", "IndPrSg3"], why: "There's no {ma} in {Muidugi töötan}, but the ending says who: -n is I. Tom is talking about himself, so it's {töötan}. {Töötab} would be about somebody else." },
-      { line: { et: "Mari, kas aitaksid mind? Täidan ujumiskursuse blanketti.", en: "Mari, would you help me? I'm filling in the form for a swimming course." }, right: "blanketti", wrong: "blanketi", pair: ["PARTITIVE", "GENITIVE"], why: "Tom is in the middle of filling it in, so the job isn't done yet. While a job is still going on, the thing takes the [osastav] (3rd form): {blanketti}. The [omastav] (2nd form), {blanketi}, would say the whole form is done." },
+      { line: { et: "Mari, kas aitaksid mind? Täidan ujumiskursuse blanketti.", en: "Mari, would you help me? I'm filling in the form for a swimming course." }, right: "blanketti", wrong: "blanketi", pair: ["PARTITIVE", "GENITIVE"], why: "Tom is in the middle of filling it in, so the job isn't done yet. While a job is still going on, the noun takes the [osastav] (3rd form): {blanketti}. The [omastav] (2nd form), {blanketi}, would say the whole form is done." },
       { line: { et: "Siis kirjutan: ujumise õppimine.", en: "Then I'll write: learning to swim." }, right: "ujumise", wrong: "ujumine", pair: ["GENITIVE", "NOMINATIVE"], why: "{Õppimine} is the main word, and {ujumine} says what is being learned. A word that says what or whose goes in front of the main word, in the [omastav] (2nd form): {ujumise õppimine}, the learning of swimming." },
     ],
     faster: {
       ask: { et: "Milline inimene sa oled?", en: "What sort of person are you?" },
       cue: "Describe yourself and a friend with this lesson's words: what you each do, what you like and why, and how you're different.",
       model: { et: "Ma olen programmeerija, aga mu sõber on ehitaja. Mulle meeldib jalutamine, sest siis ma ei mõtle tööle. Mu sõbrale meeldib rohkem lugemine. Ma arvan, et me oleme mõlemad sõbralikud.", en: "I'm a programmer, but my friend is a builder. I like walking, because then I don't think about work. My friend likes reading more. I think we're both friendly." },
+      checks: [
+        { en: "Who does it, a -ja word ({ehitaja} here).", any: ["*ja"] },
+        { en: "The doing, a -mine word ({jalutamine} here).", any: ["*mine"] },
+        { en: "What you're like, a -lik word ({sõbralik} here).", any: ["*lik", "*likud"] },
+      ],
     },
   },
   {
@@ -855,6 +865,11 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Miks teil on parkimisluba vaja?", en: "Why do you need a parking permit?" },
       cue: "Say where you live and why you need the car, compare the car with the bus, and say why you need the permit.",
       model: { et: "Me kolisime siia mõni kuu tagasi koos naise ja kahe lapsega. Mul on autot iga päev vaja, sest ma viin hommikul lapsed lasteaeda ja õhtul käime poes. Tööle sõidan ma bussiga, aga lasteaeda on bussiga väga pikk sõit. Ja õhtul ei ole maja juures vabu parkimiskohti.", en: "We moved here a few months ago, with my wife and our two children. I need the car every day, because I take the children to kindergarten in the morning and we go shopping in the evening. I go to work by bus, but the kindergarten is a very long trip by bus. And in the evening there are no free parking spaces by the building." },
+      checks: [
+        { en: "Why you need the car, with {sest}.", any: ["sest"] },
+        { en: "The car against the bus, with {bussiga}.", any: ["bussiga"] },
+        { en: "What you need, with {vaja} ({autot iga päev vaja} here).", any: ["vaja"] },
+      ],
     },
   },
   {

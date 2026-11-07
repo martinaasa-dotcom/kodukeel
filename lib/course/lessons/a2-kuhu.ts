@@ -492,7 +492,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
         lines: [
           { line: 2, form: "turul", lands: { case: "ADESSIVE", plural: false }, why: "Mari says where she is right now, so the question is {kus?}. A market takes the outside endings, so being there is -l on the [omastav] (2nd form): {turul}, at the market." },
           { line: 3, form: "turule", lands: { case: "ALLATIVE", plural: false }, why: "Tom asks how to get there, so the question is {kuhu?}, where to. For a market that's -le: {turule}, to the market. One word, three questions, three endings: {turul}, {turule}, {turult}." },
-          { line: 4, form: "turg", lands: { case: "NOMINATIVE", plural: false }, why: "This sentence is about the market itself and where it stands, so {turg} is the thing the sentence is about. It stays in the [nimetav] (1st form), the form you'd look up. The place is said by {kiriku taga}, behind the church." },
+          { line: 4, form: "turg", lands: { case: "NOMINATIVE", plural: false }, why: "This sentence is about the market itself and where it stands, so {turg} is the noun the sentence is about. It stays in the [nimetav] (1st form), the form you'd look up. The place is said by {kiriku taga}, behind the church." },
           { line: 6, form: "turu", lands: { case: "GENITIVE", plural: false }, why: "The place is said by {kõrval}, next to. The word in front of {kõrval} only says next to what, so it goes in the [omastav] (2nd form) with no ending: {turu kõrval}, next to the market. {Kiriku taga} and {panga ees} work the same way." },
         ],
       },

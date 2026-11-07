@@ -76,7 +76,7 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "The thing that hurts is what the sentence is about, so it's in its plain form: {pea} for one, {jalad} for more than one. The verb changes with it: {Mul valutab pea}, my head hurts, but {Mul valutavad jalad}, my legs hurt, with -vad because there's more than one.",
+        "The noun that hurts is what the sentence is about, so it's in its plain form: {pea} for one, {jalad} for more than one. The verb changes with it: {Mul valutab pea}, my head hurts, but {Mul valutavad jalad}, my legs hurt, with -vad because there's more than one.",
         "{Käsi} is a hand and an arm, and {jalg} a foot and a leg. Estonian doesn't split them.",
         "{Sa pead puhkama} is you need to rest: {pidama} and then the [ma-tegevusnimi] (-ma), as in A1.",
       ],
@@ -140,7 +140,7 @@ export const A2_TERVIS_LESSONS: readonly LessonSpec[] = [
         "An appointment is time, {aeg}. You're asking for some time, not for a counted amount of it, so it goes in the [osastav] (3rd form), as in part three: {aega}. The same goes for {Kas pärastlõunal on aega?}, is there any time in the afternoon? {Perearsti juurde} is to the family doctor: {juurde} from part two comes after its word, and the word goes in the [omastav] (2nd form).",
         "{Millal see algas?} is when did it start, the question every doctor asks. {Algas} is the past of {algama}, learned by name like the verbs of part three.",
         "{Sobib} is the word for a time that works: {Kas homme sobib?} And no is {ei sobi}.",
-        "{Köha} and {nohu} are things you have, so they come after {mul on}, like {palavik} in A1: {Mul on köha}. A sore throat is said the other way, with the throat as the thing that hurts: {kurk valutab}.",
+        "{Köha} and {nohu} are things you have, so they come after {mul on}, like {palavik} in A1: {Mul on köha}. A sore throat is said the other way, with the throat as the noun that hurts: {kurk valutab}.",
       ],
       watchOut: "{Tahaksin} asks; {tahan} demands. To a receptionist, use {tahaksin}.",
       examples: [1, 6, 7],
