@@ -458,7 +458,7 @@ export const B2_TERVIS_LESSONS: readonly LessonSpec[] = [
       { who: "Anna", et: "Natuke joob. Aga ta on väga loid ja nutab kogu aeg.", en: "She drinks a little. But she's very listless and cries all the time." },
       { who: "Nõustaja", et: "Kuidas ta hingab?", en: "How is she breathing?" },
       { who: "Anna", et: "Tom, vaata, kuidas ta hingab!", en: "Tom, look at how she's breathing!" },
-      { who: "Tom", et: "Kiiresti hingab. Ja ta on päris kahvatu.", en: "She's breathing fast. And she's quite pale." },
+      { who: "Tom", et: "Kiiresti hingab. Ja ta on päris kahvatu.", en: "She's breathing fast. And she's pretty pale." },
       { who: "Nõustaja", et: "Siis minge lapsega kohe lastehaiglasse, EMOsse.", en: "Then take the child to the children's hospital straight away, to the emergency department." },
       { who: "Anna", et: "Kas me peaksime kiirabi kutsuma?", en: "Should we call an ambulance?" },
       { who: "Nõustaja", et: "Kui saate ise sõita, minge ise. Kui laps muutub väga uniseks, helistage kohe 112.", en: "If you can drive yourselves, go yourselves. If the child gets very drowsy, ring 112 at once." },

@@ -123,7 +123,7 @@ export const C1_MOTE_LESSONS: readonly LessonSpec[] = [
         { et: "Puude vahelt paistis ainult pool maja: hall katus ja köögiaken, mille taga ta oli viiskümmend talve igal hommikul kohvi joonud.", en: "Only half the house showed between the trees: the gray roof and the kitchen window she had drunk her coffee behind every morning for fifty winters." },
         { et: "Kass oli naabrinaise juures.", en: "The cat was at the neighbor's." },
         { et: "Naabrinaine oli lubanud, et vaatab maja järele, nii kaua kui vaja.", en: "The neighbor had promised to keep an eye on the house for as long as it took." },
-        { et: "„Kui sa tagasi tuled, on kõik nii, nagu oli,“ oli ta öelnud ja teda kõvasti kallistanud.", en: "'When you come back, everything will be just as it was,' she had said, and hugged Elsa hard." },
+        { et: "„Kui sa tagasi tuled, on kõik nii, nagu oli,“ oli ta öelnud ja teda kõvasti kallistanud.", en: "'When you come back, everything will be just as it was,' she had said, and hugged Elsa tight." },
         { et: "Elsa ei olnud talle midagi vastanud.", en: "Elsa hadn't answered her." },
         { et: "Ta ei teadnud, mida vastata, ja ta ei tahtnud lubada midagi, mida ta ei suudaks pidada.", en: "She didn't know what to say, and she didn't want to promise anything she couldn't keep." },
         { et: "Lilli oli ta eile õhtul viimast korda kastnud, kuigi teadis, et seda pole enam vaja.", en: "She had watered the flowers for the last time the evening before, though she knew there was no need anymore." },

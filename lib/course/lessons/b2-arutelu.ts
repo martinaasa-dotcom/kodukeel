@@ -46,7 +46,7 @@ export const B2_ARUTELU_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Ei usu. Ma näen hommikul ainult autosid.", en: "I don't believe it. In the morning I only see cars." },
       { who: "Liis", et: "Aga linna andmetel sõidab tööle rattaga juba kümme protsenti inimestest.", en: "But according to the city's figures, ten percent of people already cycle to work." },
       { who: "Tom", et: "Kümme protsenti? See pole ju palju.", en: "Ten percent? That's not a lot." },
-      { who: "Liis", et: "Viis aastat tagasi oli see neli protsenti. See on päris suur tõus.", en: "Five years ago it was four percent. That's quite a big rise." },
+      { who: "Liis", et: "Viis aastat tagasi oli see neli protsenti. See on päris suur tõus.", en: "Five years ago it was four percent. That's a pretty big rise." },
       { who: "Tom", et: "Aga autosid on ikka palju rohkem.", en: "But there are still far more cars." },
       { who: "Liis", et: "Muidugi. Autoga sõidab tööle umbes pool inimestest. Aga autode osakaal väheneb iga aastaga.", en: "Of course. About half of people drive to work. But the share of cars is getting smaller every year." },
       { who: "Tom", et: "Ja buss? Meile on ju sõit tasuta.", en: "And the bus? It's free for us, after all." },
@@ -87,7 +87,7 @@ export const B2_ARUTELU_LESSONS: readonly LessonSpec[] = [
           [{ et: "Kümme protsenti inimestest." }, { en: "Ten percent of people." }, { en: "a share of a whole" }],
           [{ et: "Autode osakaal väheneb." }, { en: "The share of cars is getting smaller." }, { en: "which way it goes" }],
           [{ et: "Bussiga sõitjaid on kahe protsendi võrra rohkem." }, { en: "There are two percent more people on the buses." }, { en: "by how much" }],
-          [{ et: "See on päris suur tõus." }, { en: "That's quite a big rise." }, { en: "the change itself, as a noun" }],
+          [{ et: "See on päris suur tõus." }, { en: "That's a pretty big rise." }, { en: "the change itself, as a noun" }],
         ],
       },
       notes: [
@@ -139,7 +139,7 @@ export const B2_ARUTELU_LESSONS: readonly LessonSpec[] = [
     ],
     fixes: [
       { line: { et: "Muidugi. Autoga sõidab tööle umbes pool inimestest. Aga autode osakaal väheneb iga aastaga.", en: "Of course. About half of people drive to work. But the share of cars is getting smaller every year." }, right: "inimestest", wrong: "inimesed", pair: ["ELATIVE", "NOMINATIVE"], why: "Half out of all of them: the whole takes the [seestütlev] (-st, out of), {pool inimestest}." },
-      { line: { et: "Viis aastat tagasi oli see neli protsenti. See on päris suur tõus.", en: "Five years ago it was four percent. That's quite a big rise." }, right: "protsenti", wrong: "protsent", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a number, the [osastav] (3rd form): {neli protsenti}." },
+      { line: { et: "Viis aastat tagasi oli see neli protsenti. See on päris suur tõus.", en: "Five years ago it was four percent. That's a pretty big rise." }, right: "protsenti", wrong: "protsent", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a number, the [osastav] (3rd form): {neli protsenti}." },
     ],
     workOut: [
       {
@@ -620,7 +620,7 @@ export const B2_ARUTELU_LESSONS: readonly LessonSpec[] = [
       { who: "Kati", et: "Minu meelest mitte. Raamat paneb mõtlema, telefon mitte.", en: "Not to me. A book makes you think, a phone doesn't." },
       { who: "Tom", et: "Aga kuidas nad seda mõõtsid? Kui suur oli valim?", en: "But how did they measure it? How big was the sample?" },
       { who: "Kati", et: "Seda nad ei öelnud. Vist paar tuhat inimest.", en: "They didn't say. A couple of thousand people, I think." },
-      { who: "Tom", et: "Paar tuhat on päris hea valim. Siis on tulemus vist õige.", en: "A couple of thousand is quite a good sample. Then the result's probably right." },
+      { who: "Tom", et: "Paar tuhat on päris hea valim. Siis on tulemus vist õige.", en: "A couple of thousand is a pretty good sample. Then the result's probably right." },
       { who: "Kati", et: "Ja mis on sinu järeldus?", en: "And what's your conclusion?" },
       { who: "Tom", et: "Et noortele tuleb raamatuid pakkuda seal, kus nad on. Näiteks telefonis!", en: "That books should be offered to young people where they are. On the phone, for example!" },
       { who: "Kati", et: "Sa oled ikka võimatu, Tom.", en: "You really are impossible, Tom." },

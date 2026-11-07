@@ -319,7 +319,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "uuesti", en: "again, once more" },
       { kind: "word", et: "keegi", en: "somebody; nobody, after {ei}" },
       { kind: "word", et: "vaid", en: "only" },
-      { kind: "word", et: "päris", en: "quite; real" },
+      { kind: "word", et: "päris", en: "pretty; real" },
       { kind: "word", et: "eriti", en: "especially" },
       { kind: "word", et: "vahepeal", en: "in the meantime, since then" },
       { kind: "word", et: "selline", en: "such, this kind of" },

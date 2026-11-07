@@ -648,9 +648,9 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
         pattern: "spoken",
       },
       {
-        from: { et: "Liis ütles, et kast on jube raske.", en: "Liis said the box is terribly heavy." },
+        from: { et: "Liis ütles, et kast on jube raske.", en: "Liis said the box is really heavy." },
         ask: "Pass it on without saying who told you, with {olevat}.",
-        to: { et: "Kast olevat jube raske.", en: "The box is terribly heavy, apparently." },
+        to: { et: "Kast olevat jube raske.", en: "The box is really heavy, apparently." },
         pattern: "quotative",
       },
     ],
@@ -702,7 +702,7 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
     faster: {
       ask: { et: "Mida eestlased ütlevad, kui midagi läheb valesti?", en: "What do Estonians say when something goes wrong?" },
       cue: "Prepare for a minute, then talk for one: the mild words and the stronger ones, how strong each is, and where not to say them.",
-      model: { et: "„Oi“ võib öelda igal pool. „Pagan“ on ka täiesti okei, seda võib öelda isegi lapse kuuldes. „Kurat“ ütlevad kõik, aga mitte lapse ees ega ülemusele. „Kurat võtaks“ on juba päris vihane. Ja kui on väga valus, siis ütlen ma lihtsalt: hirmus valus!", en: "You can say {oi} anywhere. {Pagan} is perfectly fine too, you can even say it with a child listening. Everybody says {kurat}, but not in front of a child or to the boss. {Kurat võtaks} is quite angry already. And if it really hurts, I just say: terribly painful!" },
+      model: { et: "„Oi“ võib öelda igal pool. „Pagan“ on ka täiesti okei, seda võib öelda isegi lapse kuuldes. „Kurat“ ütlevad kõik, aga mitte lapse ees ega ülemusele. „Kurat võtaks“ on juba päris vihane. Ja kui on väga valus, siis ütlen ma lihtsalt: hirmus valus!", en: "You can say {oi} anywhere. {Pagan} is perfectly fine too, you can even say it with a child listening. Everybody says {kurat}, but not in front of a child or to the boss. {Kurat võtaks} is pretty angry already. And if it really hurts, I just say: terribly painful!" },
       seconds: [60],
       prepare: 60,
       checks: [
