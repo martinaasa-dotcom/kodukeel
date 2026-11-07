@@ -55,3 +55,23 @@ describe("the worksheet a finished lesson offers", () => {
     expect(offersWorksheet("C1")).toBe(true);
   });
 });
+
+describe("a page of one lesson's own", () => {
+  it("links to the lesson's page, with its theme where it has one", async () => {
+    const { worksheetLink } = await import("./lessonWorksheet");
+    expect(worksheetLink({ theme: "case:PARTITIVE", lesson: "b1-01-done" })).toBe("/review/workbook?lesson=b1-01-done&theme=case%3APARTITIVE");
+    expect(worksheetLink({ theme: null, lesson: "b1-01-done" })).toBe("/review/workbook?lesson=b1-01-done");
+    expect(worksheetLink({ theme: null })).toBe("/review/workbook");
+  });
+
+  it("asks the lesson's own words and reads its own sentences, each with its English", async () => {
+    const { lessonSentences, lessonWorksheetLemmas } = await import("./lessonWorksheet");
+    const { lessonById } = await import("./lessons");
+    const lesson = lessonById("b1-01-done")!;
+    expect(lessonWorksheetLemmas(lesson)).toEqual(expect.arrayContaining(["raamat", "auto", "parandama", "koristama", "köök", "läbi"]));
+    const sentences = lessonSentences(lesson);
+    expect(sentences.map((s) => s.et)).toEqual(expect.arrayContaining(["Aga ma lugesin raamatu läbi!", "Ma ei koristanud kööki."]));
+    for (const s of sentences) expect(s.en.length).toBeGreaterThan(0);
+    expect(new Set(sentences.map((s) => s.et)).size).toBe(sentences.length);
+  });
+});

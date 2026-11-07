@@ -79,6 +79,7 @@
     "measure:scenes": "tsx scripts/measure-scenes.ts",
     "measure:parallel": "tsx scripts/measure-parallel.ts",
     "measure:sentence-check": "tsx scripts/measure-sentence-check.ts",
+    "measure:grader": "tsx scripts/measure-grader.ts",
     "measure:speech": "tsx scripts/measure-speech.ts",
     "measure:numbers": "tsx scripts/measure-number-speech.ts",
     "measure:placement": "tsx scripts/measure-placement.ts",

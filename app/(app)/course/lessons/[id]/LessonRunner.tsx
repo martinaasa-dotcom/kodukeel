@@ -40,6 +40,9 @@ import { SayIt, type SayPlace } from "./SayIt";
 import { lessonSceneHref, type ConversationReturn } from "@/lib/scenes/lessonReturn";
 import { nameOf } from "@/lib/ux/roundNames";
 import { worksheetLink, type LessonWorksheet } from "@/lib/course/lessonWorksheet";
+import { orderedSaid, type SaidResult } from "@/lib/course/lessons/said";
+import type { SavedAnswers } from "@/lib/progress/lessonAnswers";
+import { SaidList } from "@/components/course/SaidList";
 import { ReadText } from "@/components/course/ReadText";
 import { WordCards } from "@/components/course/WordCards";
 import type { WordsLayout } from "@/lib/course/lessons/wordCards";
@@ -117,7 +120,14 @@ const WORKBOOK_NAME = nameOf("/review/workbook") ?? { et: "Töövihik", en: "Wor
 /** Every step not on this list asks nothing, and is finished by being open. */
 const ASKS: ReadonlySet<Step> = new Set(["practise", "write", "say", "review"]);
 
-export function LessonRunner({ lesson, practice, review, next, scene, situation = null, worksheet = null, conversation, place, name, due = 0, check = null, part, timeMultiplier, partAt, read = null, notes = null, forms = [], words, stars }: {
+export function LessonRunner({ lesson, practice, review, next, scene, situation = null, worksheet = null, conversation, place, name, due = 0, check = null, part, timeMultiplier, partAt, read = null, notes = null, forms = [], finishedBefore = false, keptAnswers = null, words, stars }: {
+  /**
+   * The lesson was finished before: it opens on its recap, every step ticked
+   * and open again, with no confetti, which is for the first time only.
+   */
+  finishedBefore?: boolean;
+  /** What was said on Say it the last time through, kept on the server (`lessonAnswers.ts`). */
+  keptAnswers?: SavedAnswers | null;
   /**
    * The transcript of the lesson's talk taken down as notes (C1), glossed as
    * the text to read is; null where there is none, and then a talk it does
@@ -180,10 +190,19 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
   /* Which screen of the step is on (`screens.ts`): a step is a sequence of pages, one thing to do on each. */
   const [screen, setScreen] = useState(0);
   const news = levelNewsFor(lesson);
-  const [finished, setFinished] = useState<ReadonlySet<Step>>(new Set());
-  const [reached, setReached] = useState(0);
+  const capstoneAtStart = isCapstone(lesson);
+  const stepsAtStart: readonly Step[] = lesson.write
+    ? capstoneAtStart ? CAPSTONE_WRITING_STEPS : WRITING_STEPS
+    : capstoneAtStart ? CAPSTONE_STEPS : STEPS;
+  // A lesson finished before is finished: every step ticked and open, so going back into one shows it done.
+  const [finished, setFinished] = useState<ReadonlySet<Step>>(() => new Set(finishedBefore ? stepsAtStart : []));
+  const [reached, setReached] = useState(finishedBefore ? stepsAtStart.length - 1 : 0);
+  /* Opened again rather than just finished: the recap says so, and there is no confetti. */
+  const [revisit, setRevisit] = useState(finishedBefore);
+  /* What was said on Say it, for the recap: this time through, or kept from the last. */
+  const [saidList, setSaidList] = useState<readonly SaidResult[]>(finishedBefore ? keptAnswers?.said ?? [] : []);
   const [score, setScore] = useState<{ right: number; total: number } | null>(null);
-  const [over, setOver] = useState(() => conversation !== null && isCapstone(lesson));
+  const [over, setOver] = useState(() => finishedBefore || (conversation !== null && isCapstone(lesson)));
   /* Which page of the finished lesson is on (`finishScreens`). */
   const [finishAt, setFinishAt] = useState(0);
   /* Whether the finished lesson reached the server: null until it has been tried. */
@@ -195,10 +214,8 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
   const [saving, startSaving] = useTransition();
   const heading = useRef<HTMLHeadingElement>(null);
   const moved = useRef(false);
-  const capstone = isCapstone(lesson);
-  const steps: readonly Step[] = lesson.write
-    ? capstone ? CAPSTONE_WRITING_STEPS : WRITING_STEPS
-    : capstone ? CAPSTONE_STEPS : STEPS;
+  const capstone = capstoneAtStart;
+  const steps = stepsAtStart;
   const step = steps[at]!;
   const titleOf = (s: Step) => (capstone && s === "say" ? "Conversation" : STEP_TITLE[s]);
 
@@ -210,9 +227,23 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
     heading.current?.focus();
   }, [saved]);
 
+  /*
+    SAY IT IS THE ONE STEP THAT GOES WHEN THE LEARNER STEPS AWAY (it holds a
+    microphone), so its place is kept here, and so is what it came to, which
+    the finished lesson keeps (`lessonAnswers.ts`).
+  */
+  /* Only a finished lesson opens on what was said; one read ahead of the course and opened again starts Say it afresh. */
+  const sayPlace = useRef<SayPlace | null>(finishedBefore && keptAnswers ? { mode: keptAnswers.mode, at: 0, over: true, taken: [], kept: {}, saved: keptAnswers.said } : null);
+  const keepSayPlace = useCallback((p: SayPlace) => { sayPlace.current = p; }, []);
+  /* What Say it came to this time through, to keep with the finished lesson; nothing where the step was skipped. */
+  const answersToKeep = (): SavedAnswers | undefined => {
+    const p = sayPlace.current;
+    const said = orderedSaid(p?.kept.results);
+    return p?.mode && said.length > 0 ? { mode: p.mode, said } : undefined;
+  };
   const finish = (s: Step) => setFinished((prev) => new Set(prev).add(s));
   const save = () => startSaving(async () => {
-    const result = await finishLesson(lesson.id).catch(() => null);
+    const result = await finishLesson(lesson.id, answersToKeep()).catch(() => null);
     setSaved(Boolean(result?.ok));
     setSaveError(result && !result.ok ? result.error : NOT_REACHED);
     setRecorded(result?.ok ? result.recorded : null);
@@ -244,10 +275,22 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
   /*
     SAY IT IS THE EXCEPTION, and goes when the learner steps away: it holds a
     microphone and lines that play one after another, and only its going
-    closes those. Its place is kept here instead (`SayPlace`).
+    closes those. Its place is kept above instead (`SayPlace`).
+
+    Going through a finished lesson again starts it from the top, with what
+    was said last time still kept until it is replaced.
   */
-  const sayPlace = useRef<SayPlace | null>(null);
-  const keepSayPlace = useCallback((p: SayPlace) => { sayPlace.current = p; }, []);
+  const again = () => {
+    moved.current = true;
+    setRevisit(false);
+    setFinished(new Set());
+    setReached(0);
+    setAt(0);
+    setSaved(null);
+    sayPlace.current = null;
+    setFinishAt(0);
+    setOver(false);
+  };
 
   /*
     A step is pressed open on its first screen, and Back from a step's first
@@ -258,6 +301,8 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
     moved.current = true;
     stopClip();
     if (n >= steps.length) {
+      const fresh = orderedSaid(sayPlace.current?.kept.results);
+      if (fresh.length > 0) setSaidList(fresh);
       setOver(true);
       save();
     } else {
@@ -366,6 +411,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
     */
     const finishes = finishScreens({
       taught: taught.length,
+      said: saidList.length > 0,
       conversation: Boolean(scene) && !conversationDone,
       check: Boolean(check && !check.passed),
       worksheet: worksheet !== null,
@@ -415,7 +461,8 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
                 heading, because finishing a part is a thing a person tells
                 somebody.
               */}
-              <Confetti count={partEnd ? 80 : 40} />
+              {/* Confetti is for the first time a lesson is finished, never for opening it again or going through it again. */}
+              {!finishedBefore && <Confetti count={partEnd ? 80 : 40} />}
               <section aria-labelledby="lesson-done" className="mx-auto w-full max-w-2xl" data-lesson-done>
                 <div className="night pop-in rounded-[var(--r-xl)] border px-6 py-10 text-center md:py-12">
                   <Mascot size={68} mood="cheer" className="float mx-auto" />
@@ -435,44 +482,57 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
                   </p>
                 </div>
 
-            {/* The part, lesson by lesson, with this one lit. */}
-            <div className="mt-6 rounded-[var(--r-xl)] border px-5 py-4" style={{ background: "var(--surface)", borderColor: "var(--edge)" }} data-part-track>
-              <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>
-                {fill(t("{n} of {total} in"), { n: String(inPart + 1), total: String(part.lessons.length) })}{" "}
-                <LessonText text={part.title} locale={locale} />
-              </p>
-              <ol className="mt-3 flex flex-wrap gap-1.5" aria-label={t("The lessons of this part")}>
-                {part.lessons.map((l, i) => {
-                  const here = i === inPart;
-                  const past = here || l.done;
-                  return (
-                    <li
-                      key={l.id}
-                      className={here ? "pop-in" : undefined}
-                      // In the reader's language, its marks dropped since a tooltip draws none.
-                      title={`${l.label}. ${tr(locale, l.title).replace(/[{}[\]]/g, "")}`}
-                      style={{
-                        width: 28, height: 10, borderRadius: 9999,
-                        background: past ? "var(--accent)" : "color-mix(in srgb, var(--ink) 10%, transparent)",
-                        boxShadow: here ? "0 0 0 3px var(--accent-soft)" : undefined,
-                      }}
-                    >
-                      <span className="sr-only">{l.label}. <LessonText text={l.title} locale={locale} />: {past ? t("Done") : t("Ahead")}</span>
-                    </li>
-                  );
-                })}
-              </ol>
-            </div>
+                {/*
+                  OPENED AGAIN. A finished lesson used to open on step 1 with
+                  nothing filled in, and the recap was gone for good. It opens
+                  here instead, every step ticked and open from the list above,
+                  and going through it again is one press.
+                */}
+                {revisit && (
+                  <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-[var(--r-xl)] border px-5 py-4" style={{ background: "var(--surface)", borderColor: "var(--edge)" }} data-lesson-revisit>
+                    <p className="max-w-[44ch] text-base" style={{ color: "var(--ink-2)" }}>{t("You finished this lesson before. Every step is still here to look back at.")}</p>
+                    <Button onClick={again}>{t("Go through it again")}</Button>
+                  </div>
+                )}
 
-            <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-3">
-              {lesson.teaches.length > 0
-                ? <StatTile value={lesson.teaches.length} label={t("new to say")} tone="accent" />
-                : <StatTile value={wordsUsed(lesson)} label={t("words put to use")} tone="accent" />}
-              <StatTile value={lesson.conversation.filter((l) => l.et).length} label={t("lines heard")} tone="accent" />
-              {score
-                ? <StatTile value={`${score.right}/${score.total}`} label={t("right first time")} tone="accent" />
-                : <StatTile value={lessonLabel(lesson)} label={fill(t("{level} lesson"), { level: lesson.level })} hint={fill(t("of {total}"), { total: String(place.of) })} tone="accent" />}
-            </div>
+                {/* The part, lesson by lesson, with this one lit. */}
+                <div className="mt-6 rounded-[var(--r-xl)] border px-5 py-4" style={{ background: "var(--surface)", borderColor: "var(--edge)" }} data-part-track>
+                  <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>
+                    {fill(t("{n} of {total} in"), { n: String(inPart + 1), total: String(part.lessons.length) })}{" "}
+                    <LessonText text={part.title} locale={locale} />
+                  </p>
+                  <ol className="mt-3 flex flex-wrap gap-1.5" aria-label={t("The lessons of this part")}>
+                    {part.lessons.map((l, i) => {
+                      const here = i === inPart;
+                      const past = here || l.done;
+                      return (
+                        <li
+                          key={l.id}
+                          className={here ? "pop-in" : undefined}
+                          // In the reader's language, its marks dropped since a tooltip draws none.
+                          title={`${l.label}. ${tr(locale, l.title).replace(/[{}[\]]/g, "")}`}
+                          style={{
+                            width: 28, height: 10, borderRadius: 9999,
+                            background: past ? "var(--accent)" : "color-mix(in srgb, var(--ink) 10%, transparent)",
+                            boxShadow: here ? "0 0 0 3px var(--accent-soft)" : undefined,
+                          }}
+                        >
+                          <span className="sr-only">{l.label}. <LessonText text={l.title} locale={locale} />: {past ? t("Done") : t("Ahead")}</span>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                </div>
+
+                <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-3">
+                  {lesson.teaches.length > 0
+                    ? <StatTile value={lesson.teaches.length} label={t("new to say")} tone="accent" />
+                    : <StatTile value={wordsUsed(lesson)} label={t("words put to use")} tone="accent" />}
+                  <StatTile value={lesson.conversation.filter((l) => l.et).length} label={t("lines heard")} tone="accent" />
+                  {score
+                    ? <StatTile value={`${score.right}/${score.total}`} label={t("right first time")} tone="accent" />
+                    : <StatTile value={lessonLabel(lesson)} label={fill(t("{level} lesson"), { level: lesson.level })} hint={fill(t("of {total}"), { total: String(place.of) })} tone="accent" />}
+                </div>
 
                 {recorded === false && (
                   <Note tone="neutral" className="mt-4">
@@ -499,6 +559,17 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
                   </li>
                 ))}
               </ul>
+              <div className="mt-6 flex justify-end">
+                <Button variant="primary" onClick={onward}>{t("Continue")} <ArrowRight size={15} aria-hidden /></Button>
+              </div>
+            </section>
+          )}
+
+          {/* What was said on Say it, sentence by sentence, with what was found in each (`SaidList`). */}
+          {here === "said" && (
+            <section aria-labelledby="lesson-finish" className="mx-auto w-full max-w-2xl rounded-[var(--r-xl)] border px-5 py-6 text-left" style={{ background: "var(--surface)", borderColor: "var(--edge)" }} data-lesson-said>
+              <h2 id="lesson-finish" ref={heading} tabIndex={-1} className="font-display text-xl font-bold outline-none" style={{ color: "var(--ink)" }}>{t("What you said, one sentence at a time")}</h2>
+              <div className="mt-4"><SaidList results={saidList} about={lesson.retell?.who} /></div>
               <div className="mt-6 flex justify-end">
                 <Button variant="primary" onClick={onward}>{t("Continue")} <ArrowRight size={15} aria-hidden /></Button>
               </div>
@@ -535,17 +606,16 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
             "var(--butter-soft)",
           )}
           {/*
-            A WORKSHEET PAGE ON WHAT THE LESSONS HAVE TAUGHT, FROM B1 ON.
-            B1 dealt the worksheet while it was built from units, and lost
-            it when every evening became one lesson. It is offered here, in
-            the module as well, since it is grammar practice on today's
-            words rather than a way out of the evening; the page is held to
-            what the lessons have taught so far (`lessonWorksheet.ts`).
+            A WORKSHEET PAGE OF THIS LESSON'S OWN, FROM B1 ON. It is offered
+            here, in the module as well, since it is grammar practice on
+            today's words rather than a way out of the evening. The page is
+            set from this lesson's words and its own sentences first
+            (`lessonWorksheet.ts`); the general page stays on Practice.
           */}
           {here === "worksheet" && worksheet && offer(
             "worksheet", { "data-lesson-worksheet": worksheet.theme ?? "any" },
             <><span lang="et">{WORKBOOK_NAME.et}</span> ({t(WORKBOOK_NAME.en)})</>,
-            t("A page of sentences, each with a word to put in the form it needs. Only words you've learned so far."),
+            t("A page of this lesson's sentences and words, each with a word to put in the form it needs."),
             <ButtonLink href={worksheetLink(worksheet)} variant="primary">{t("Fill in a page")} <ArrowRight size={15} aria-hidden /></ButtonLink>,
           )}
           {/*

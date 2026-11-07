@@ -51,7 +51,7 @@ Every lesson has the same six steps, in this order, so a learner always knows wh
 | 3 | **How it works** | One pattern, in English, in the box `components/RuleNote.tsx` already draws: the point, the table, a "watch out". Examples are lines from tonight's conversation or earlier ones. A lesson with no new pattern says what tonight's words have in common instead. | 2 |
 | 4 | **Practice** | Recognize first (pick, match, listen), then produce (type, or say). Every item is built only from what this lesson and earlier lessons taught. | 5 |
 | 5 | **Say it** | Optional, and the headline of the evening (section 2). | 4 |
-| 6 | **Review** | Yesterday's and older words that are due, held to what has been taught. | 2 |
+| 6 | **Review** | Today's own words once more, asked the other way round from Practice: typed from their English, and put back into today's conversation. On a check-in and a part's last lesson, the whole part. Older words come back on their own schedule in the review queue (2026-11-06, operator's call). | 2 |
 
 That is eighteen minutes with speaking and fourteen without. The fifteen-minute rule in
 `course.test.ts` becomes a range of twelve to twenty, which is section 6's first decision.

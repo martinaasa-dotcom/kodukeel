@@ -17,6 +17,11 @@ import { useKeep } from "@/components/course/useKeep";
 import { StepPills } from "@/components/course/StepPills";
 import { pointsHeard, retellListensOn, retellMayStop, RETELL_DONE_QUIET_MS } from "@/lib/course/lessons/retell";
 import type { Retell } from "@/lib/course/lessons/types";
+import type { Difference, Grade } from "@/lib/course/lessons/againstLine";
+import type { Finding } from "@/lib/course/lessons/sentenceCheck";
+import { checkRetell } from "@/app/actions";
+import { LineFindings } from "@/components/course/LineFindings";
+import { NOT_REACHED } from "@/lib/copy/values";
 
 /**
  * RETELL IT (B1 on, docs/43-lessons.md §11.2, Talk).
@@ -50,9 +55,24 @@ export interface RetellKept {
   readonly plays: number;
   readonly said: string;
   readonly shown: boolean;
+  /** What each sentence told back came to, once checked, or null before. */
+  readonly checked?: readonly ToldSentence[] | null;
 }
 
-export function RetellIt({ retell, voice, typed, onDone, kept, onKeep }: { retell: Retell; voice: string | undefined; typed: boolean; onDone: () => void; kept?: RetellKept; onKeep?: (kept: RetellKept) => void }) {
+/** One sentence told back, read against the story line it is nearest and against the language. */
+export interface ToldSentence {
+  readonly sentence: string;
+  readonly line: { readonly et: string; readonly en: string } | null;
+  readonly grade: Grade;
+  readonly differences: readonly Difference[];
+  readonly findings: readonly Finding[];
+}
+
+export function RetellIt({ lessonId, retell, voice, typed, onDone, kept, onKeep, onChecked }: {
+  lessonId: string; retell: Retell; voice: string | undefined; typed: boolean; onDone: () => void; kept?: RetellKept; onKeep?: (kept: RetellKept) => void;
+  /** Where the sentences' readings go once checked, for the list at the end of the step. */
+  onChecked?: (sentences: readonly ToldSentence[]) => void;
+}) {
   const t = useT();
   const locale = useLocale();
   const prefs = useAudioPrefs();
@@ -62,7 +82,34 @@ export function RetellIt({ retell, voice, typed, onDone, kept, onKeep }: { retel
   const [unheard, setUnheard] = useState(false);
   const [said, setSaid] = useState(kept?.said ?? "");
   const [shown, setShown] = useState(kept?.shown ?? false);
-  useKeep(useMemo(() => ({ plays, said, shown }), [plays, said, shown]), onKeep);
+  const [checked, setChecked] = useState<readonly ToldSentence[] | null>(kept?.checked ?? null);
+  const [checking, setChecking] = useState(false);
+  const [failed, setFailed] = useState<string | null>(null);
+  useKeep(useMemo(() => ({ plays, said, shown, checked }), [plays, said, shown, checked]), onKeep);
+  const resultsRef = useRef<HTMLDivElement>(null);
+  /*
+    CHECKED SENTENCE BY SENTENCE, AND THE LEARNER PRESSES ON. The retelling
+    used to light its points and stop there, so a story told back with the
+    verbs in the wrong person and the endings off was a story "told". Each
+    sentence is read against the story line it is nearest, told back about
+    whoever told it, and against the language (`checkRetell`), and the list
+    stays on the screen until Next is pressed. Nothing is graded.
+  */
+  const check = () => {
+    setChecking(true);
+    setFailed(null);
+    // The story is printed with the readings, and the caret goes to the readings rather than to it.
+    setShown(true);
+    void checkRetell(lessonId, said)
+      .then((r) => {
+        if (!r.ok) { setFailed(r.error); return; }
+        setChecked(r.sentences);
+        onChecked?.(r.sentences);
+        requestAnimationFrame(() => resultsRef.current?.focus());
+      })
+      .catch(() => setFailed(NOT_REACHED))
+      .finally(() => setChecking(false));
+  };
   // The button that showed the story is gone, so the caret goes to the story it showed.
   const storyRef = useRef<HTMLDivElement>(null);
   const showing = useRef(false);
@@ -82,10 +129,13 @@ export function RetellIt({ retell, voice, typed, onDone, kept, onKeep }: { retel
     endpoint: false,
     expect,
     maxSeconds: 180,
+    // Each go is a sentence of its own, so it is joined with a stop and read on its own (`toldSentences`).
     onHeard: (h, _raw, why) => {
-      const next = saidRef.current ? `${saidRef.current} ${h.understood}` : h.understood;
+      const before = saidRef.current;
+      const next = before ? `${/[.!?]\s*$/.test(before) ? before.trimEnd() : `${before.trimEnd()}.`} ${h.understood}` : h.understood;
       saidRef.current = next;
       setSaid(next);
+      setChecked(null);
       if (retellListensOn(why, pointsHeard(retell, next))) void speechRef.current?.start();
     },
   });
@@ -163,7 +213,7 @@ export function RetellIt({ retell, voice, typed, onDone, kept, onKeep }: { retel
         value={live}
         readOnly={speech.listening}
         aria-label={t("What you told, in Estonian")}
-        onChange={(e) => setSaid(e.target.value)}
+        onChange={(e) => { setSaid(e.target.value); setChecked(null); }}
         spellCheck={false}
       />
       <div className="under-field"><DiacriticBar /></div>
@@ -197,9 +247,37 @@ export function RetellIt({ retell, voice, typed, onDone, kept, onKeep }: { retel
           ))}
         </div>
       )}
+      {/* Mounted empty and filled, so the readings are announced when they land. */}
+      <div role="status" aria-live="polite">
+        {failed && <p className="mt-4 text-base" style={{ color: "var(--ink-2)" }}>{t(failed)}</p>}
+        {checked !== null && (
+          <div ref={resultsRef} tabIndex={-1} className="mt-5 flex flex-col gap-4 outline-none" data-retell-checked>
+            <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("What you told, sentence by sentence")}</p>
+            {checked.length === 0 && <p className="text-base" style={{ color: "var(--ink-2)" }}>{t("Nothing to read yet: tell the story back first.")}</p>}
+            <ol className="flex flex-col gap-4">
+              {checked.map((s, i) => (
+                <li key={i} className="flex flex-col gap-2">
+                  <p lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>{s.sentence}</p>
+                  <LineFindings grade={s.grade} differences={s.differences} findings={s.findings} about={retell.who} announced="region" />
+                  {s.line && s.grade !== "right" && (
+                    <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+                      {t("In the story:")} <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{s.line.et}</span>{" "}
+                      <LessonText text={s.line.en} locale={locale} />
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
+      </div>
       <div className="mt-5 flex flex-wrap justify-end gap-3">
         {!shown && <Button variant="ghost" onClick={() => { showing.current = true; setShown(true); }}>{t("Show the story")}</Button>}
-        <Button variant={hearFirst ? "secondary" : "primary"} onClick={onDone}>{t("Next")} <ArrowRight size={15} aria-hidden /></Button>
+        {said.trim() !== "" && checked === null ? (
+          <Button variant="primary" onClick={check} disabled={checking || speech.listening}>{checking ? t("Reading it…") : t("Check what I told")}</Button>
+        ) : (
+          <Button variant={hearFirst ? "secondary" : "primary"} onClick={onDone}>{t("Next")} <ArrowRight size={15} aria-hidden /></Button>
+        )}
       </div>
     </Card>
   );
