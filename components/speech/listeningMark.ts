@@ -40,5 +40,17 @@ export function markListening(): () => void {
 export function setListeningLevel(level: number): void {
   if (typeof document === "undefined") return;
   const glow = document.querySelector<HTMLElement>("[data-listen-glow]");
-  glow?.style.setProperty("--listen-level", String(Math.max(0, Math.min(1, level))));
+  glow?.style.setProperty("--listen-level", String(voiceEnergy(level)));
+}
+
+/**
+ * How much voice is in a level, nought to one. The meter reads 60 dB of
+ * range, so a quiet room sits near 0.15 and ordinary speech near 0.6; what
+ * the light answers is the speech, so the room maps to nothing and a voice
+ * at speaking volume to most of the way, and the glow visibly breathes with
+ * the words rather than hovering at a third whatever happens.
+ */
+export function voiceEnergy(level: number): number {
+  const v = (level - 0.28) / 0.45;
+  return Math.max(0, Math.min(1, v));
 }
