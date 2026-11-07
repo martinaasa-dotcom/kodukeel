@@ -1,5 +1,5 @@
 import type { Locale } from "@/lib/copy/locale";
-import { OPENER_WORDS } from "@/lib/estonian/openers";
+import { OPENER_VERBS, OPENER_WORDS } from "@/lib/estonian/openers";
 
 /**
  * LAUSE ALGUS IN RUSSIAN AND UKRAINIAN: THE WHOLE SENTENCE, NOT A TEMPLATE
@@ -71,6 +71,40 @@ const NOUNS: Readonly<Record<Lang, Readonly<Record<string, NounForms>>>> = {
     ticket: { nom: "квиток", acc: "квиток", gen: "квитка", nomPl: "квитки", accPl: "квитки", genPl: "квитків", gender: "m" },
     banana: { nom: "банан", acc: "банан", gen: "банана", nomPl: "банани", accPl: "банани", genPl: "бананів", gender: "m" },
     bus: { nom: "автобус", acc: "автобус", gen: "автобуса", nomPl: "автобуси", accPl: "автобуси", genPl: "автобусів", gender: "m" },
+  },
+};
+
+/**
+ * The verb lane's verbs, keyed on their English (`OpenerVerbSpec.base`), as the
+ * infinitive each sentence below takes. Imperfective throughout, so "I'll
+ * start" and "I love" read the way a native says them.
+ */
+const VERBS: Readonly<Record<Lang, Readonly<Record<string, string>>>> = {
+  ru: {
+    go: "пойти", sleep: "спать", read: "читать", eat: "есть", drink: "пить", swim: "плавать",
+    write: "писать", dance: "танцевать", sing: "петь", work: "работать", study: "учиться",
+    play: "играть", drive: "водить машину", talk: "разговаривать",
+  },
+  uk: {
+    go: "піти", sleep: "спати", read: "читати", eat: "їсти", drink: "пити", swim: "плавати",
+    write: "писати", dance: "танцювати", sing: "співати", work: "працювати", study: "вчитися",
+    play: "грати", drive: "водити машину", talk: "розмовляти",
+  },
+};
+
+/** The verb lane's sentences: `{inf}` is the verb. */
+const VERB_SENTENCES: Readonly<Record<Lang, Readonly<Record<string, string>>>> = {
+  ru: {
+    "v-want": "Я хочу {inf}.", "v-like": "Мне нравится {inf}.", "v-must": "Мне надо {inf}.",
+    "v-off": "Я иду {inf}.", "v-can": "Я умею {inf}.", "v-may": "Я могу {inf}.",
+    "v-need": "Мне нужно {inf}.", "v-love": "Я люблю {inf}.", "v-start": "Я начну {inf}.",
+    "v-learn": "Я учусь {inf}.", "v-come": "Я приду {inf}.",
+  },
+  uk: {
+    "v-want": "Я хочу {inf}.", "v-like": "Мені подобається {inf}.", "v-must": "Мені треба {inf}.",
+    "v-off": "Я йду {inf}.", "v-can": "Я вмію {inf}.", "v-may": "Я можу {inf}.",
+    "v-need": "Мені потрібно {inf}.", "v-love": "Я люблю {inf}.", "v-start": "Я почну {inf}.",
+    "v-learn": "Я вчуся {inf}.", "v-come": "Я прийду {inf}.",
   },
 };
 
@@ -165,6 +199,12 @@ const AGREES: Readonly<Record<Lang, Readonly<Record<"need" | "was" | "liked", Re
  */
 export function openerSentence(locale: Locale, openerId: string, lemma: string, english: string): string {
   if (locale === "en") return english;
+  const verb = OPENER_VERBS.find((v) => v.lemma === lemma);
+  if (verb) {
+    const inf = VERBS[locale][verb.base];
+    const template = VERB_SENTENCES[locale][openerId];
+    return inf && template ? template.replace("{inf}", inf) : english;
+  }
   const word = OPENER_WORDS.find((w) => w.lemma === lemma);
   const noun = word ? NOUNS[locale][word.en] : undefined;
   const template = SENTENCES[locale][openerId];
@@ -181,4 +221,4 @@ export function openerSentence(locale: Locale, openerId: string, lemma: string, 
 }
 
 /** Every opener and every word this file can say, so a test can hold it whole. */
-export const OPENER_SENTENCE_KEYS = { sentences: SENTENCES, nouns: NOUNS } as const;
+export const OPENER_SENTENCE_KEYS = { sentences: SENTENCES, nouns: NOUNS, verbSentences: VERB_SENTENCES, verbs: VERBS } as const;

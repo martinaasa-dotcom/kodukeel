@@ -16,7 +16,7 @@ import { DiacriticBar } from "@/components/DiacriticBar";
 import { WayOut } from "@/components/round/RoundExit";
 import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
-import { familyTitle, markPick, MIXED_STAGE, markTyped, type OpenerMark, type OpenerQuestion } from "@/lib/estonian/openers";
+import { familyTitle, markPick, mixedOf, markTyped, type OpenerMark, type OpenerQuestion, type Track } from "@/lib/estonian/openers";
 import { OPTION_CLASS, optionState, VERDICT_CLASS, verdictOfRating } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { rich } from "@/components/round/rich";
@@ -49,8 +49,12 @@ interface StageLine {
  * It does not grade a hint, because it has none: the opener is the cue, and a
  * wrong answer says which opener the form belongs to.
  */
-export function OpenersSession({ questions: initialQuestions, mode, stage: initialStage, reading: initialReading }: {
+export function OpenersSession({ questions: initialQuestions, mode, stage: initialStage, reading: initialReading, track, lanes }: {
   questions: OpenerCard[];
+  /** Which lane: a noun after the opener, or a second verb. */
+  track: Track;
+  /** Both lanes, so the finish screen can offer the other one. */
+  lanes: { id: Track; title: string }[];
   mode: "pick" | "type";
   stage: { n: number; title: string; line: string };
   reading: StageLine[];
@@ -170,7 +174,7 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
           {t("That’s the round done")}
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-          {stage.n >= MIXED_STAGE
+          {stage.n >= mixedOf(track)
             ? fill(t("{n} sentences, each on a different word."), { n: questions.length })
             : fill(t("One word, {n} ways to start a sentence."), { n: questions.length })}{" "}
           {t("The next round uses different words, so you learn the openers and not the words.")}
@@ -210,11 +214,14 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
           </p>
         )}
         <WayOut className="mt-8 flex flex-wrap gap-3">
-          {afterThis && <ButtonLink href={`/review/openers?stage=${afterThis.n}`}>{fill(t("Try stage {n}"), { n: afterThis.n })}</ButtonLink>}
+          {afterThis && <ButtonLink href={`/review/openers?lane=${track}&stage=${afterThis.n}`}>{fill(t("Try stage {n}"), { n: afterThis.n })}</ButtonLink>}
           {/* The same address would keep this session mounted with its frozen
               questions, so the press asks for a round by number: a new address
               to fetch and a new key to remount on. */}
-          <Button variant="primary" onClick={() => router.push(`/review/openers?round=${Date.now()}`)}>
+          {lanes.filter((l) => l.id !== track).map((l) => (
+            <ButtonLink key={l.id} href={`/review/openers?lane=${l.id}`}>{t(l.title)}</ButtonLink>
+          ))}
+          <Button variant="primary" onClick={() => router.push(`/review/openers?lane=${track}&round=${Date.now()}`)}>
             {t("Another round")}
           </Button>
         </WayOut>
@@ -258,8 +265,16 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
         </div>
 
         <div className="round-pad px-6">
-          <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-            {mode === "pick" ? t("Which ending goes at the end?") : t("Type the word with the ending this start needs.")}
+          {/*
+            The word being changed leads, bold and in the accent: it is the one
+            thing that stays the same while the start of the sentence changes,
+            and a learner who has to hunt for it at the foot of the card has
+            lost the round's whole point before choosing.
+          */}
+          <p className="text-base" style={{ color: "var(--ink-2)" }} data-opener-word>
+            {rich(mode === "pick" ? t("Which form of {word} goes at the end?") : t("Type {word} with the ending this start needs."), {
+              word: <strong lang="et" className="text-lg font-bold" style={{ color: "var(--accent-deep)" }}>{question.lemma}</strong>,
+            })}
           </p>
 
           {/* The start of the sentence is the whole cue, so it leads and it is big. */}
@@ -269,13 +284,10 @@ export function OpenersSession({ questions: initialQuestions, mode, stage: initi
               className="inline-block min-w-[3.2em] border-b-4 text-center"
               style={{ borderColor: revealed ? "var(--accent)" : "var(--ink-3)", color: "var(--accent-deep)" }}
             >
-              {shown || " "}
+              {shown || " "}
             </span>
           </p>
           <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>{openerSentence(locale, question.id, question.lemma, question.en)}</p>
-          <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>
-            {rich(t("The word is {word}."), { word: <span lang="et">{question.lemma}</span> })}
-          </p>
         </div>
 
         <div className="px-4 pb-4">

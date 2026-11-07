@@ -1,4 +1,4 @@
-import { openerBySlot, STAGES, MIXED_STAGE } from "@/lib/estonian/openers";
+import { mixedOf, openerBySlot, stagesOf, trackOf, type Track } from "@/lib/estonian/openers";
 
 /**
  * WHERE A LEARNER STANDS ON THE OPENERS, READ OFF THEIR OWN ANSWERS.
@@ -60,9 +60,16 @@ function right(rating: number): boolean {
  * The reading, from answers newest first. `maxStage` caps what is offered at
  * all, so a level that does not reach a stage is never told it is next.
  */
-export function readOpeners(answers: readonly OpenerAnswer[], maxStage = MIXED_STAGE): OpenersReading {
+export function readOpeners(
+  answers: readonly OpenerAnswer[], maxStage?: number, track: Track = "noun",
+): OpenersReading {
+  const MIXED_STAGE = mixedOf(track);
+  const STAGES = stagesOf(track);
+  const cap = maxStage ?? MIXED_STAGE;
+  // Each lane is read on its own answers: a settled noun stage says nothing about verbs.
+  const onTrack = answers.filter((a) => { const o = openerBySlot(a.slot); return o && trackOf(o) === track; });
   const byStage = new Map<number, OpenerAnswer[]>();
-  for (const a of answers) {
+  for (const a of onTrack) {
     const stage = openerBySlot(a.slot)?.stage;
     if (!stage) continue;
     const list = byStage.get(stage) ?? [];
@@ -70,7 +77,7 @@ export function readOpeners(answers: readonly OpenerAnswer[], maxStage = MIXED_S
     byStage.set(stage, list);
   }
   // The mixed stage is settled by everything: it asks all of them.
-  byStage.set(MIXED_STAGE, answers.filter((a) => openerBySlot(a.slot)));
+  byStage.set(MIXED_STAGE, onTrack);
 
   /*
     A stage is open when the one before it is open and either settled or one the
@@ -89,7 +96,7 @@ export function readOpeners(answers: readonly OpenerAnswer[], maxStage = MIXED_S
     const settled = share !== null && share >= SETTLED_SHARE && days >= SETTLED_DAYS;
     const answered = byStage.get(s.n)?.length ?? 0;
     const reached = s.n < MIXED_STAGE && answered > 0;
-    const open = s.n <= maxStage && previousOpen && (previousSettled || reached || s.n === 1);
+    const open = s.n <= cap && previousOpen && (previousSettled || reached || s.n === 1);
     previousOpen = open;
     previousSettled = settled;
     return { n: s.n, title: s.title, line: s.line, answers: answered, share, days, settled, open };

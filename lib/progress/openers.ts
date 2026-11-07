@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/db";
+import { oneEntryPerLemma } from "@/lib/dict/search";
 import { learnerDayClock } from "@/lib/progress/dayClock";
+import type { Track } from "@/lib/estonian/openers";
 import { readOpeners, type OpenerAnswer, type OpenersReading } from "@/lib/stats/openers";
-import { OPENER_SLOTS, OPENER_WORDS, type OpenerWord } from "@/lib/estonian/openers";
+import { OPENER_SLOTS, OPENER_VERBS, OPENER_WORDS, type OpenerWord } from "@/lib/estonian/openers";
 
 /**
  * How far a learner has got on the openers, read off their own answers.
@@ -9,7 +11,7 @@ import { OPENER_SLOTS, OPENER_WORDS, type OpenerWord } from "@/lib/estonian/open
  * The newest four hundred, ordered, because the reading only looks at the last
  * `WINDOW` of each stage and an uncut read of the log would grow for ever.
  */
-export async function openersReadingFor(ownerId: string, maxStage?: number): Promise<OpenersReading> {
+export async function openersReadingFor(ownerId: string, maxStage?: number, track: Track = "noun"): Promise<OpenersReading> {
   const [rows, clock] = await Promise.all([
     prisma.review.findMany({
       where: { ownerId, slot: { in: [...OPENER_SLOTS] } },
@@ -21,7 +23,7 @@ export async function openersReadingFor(ownerId: string, maxStage?: number): Pro
   ]);
   const answers: OpenerAnswer[] = rows.flatMap((r) =>
     r.slot ? [{ slot: r.slot, rating: r.rating, day: clock.dayKey(r.reviewedAt) }] : []);
-  return readOpeners(answers, maxStage);
+  return readOpeners(answers, maxStage, track);
 }
 
 /**
@@ -61,6 +63,47 @@ export async function openerWords(): Promise<OpenerWord[]> {
       part,
       nomPl: first("NOM_PL"),
       partPl: first("PART_PL"),
+    }];
+  });
+}
+
+/**
+ * The verbs a verb opener may be followed by, with their two infinitives, both
+ * stored principal parts. A verb the dictionary does not hold, or holds without
+ * its -da form, is simply absent.
+ */
+export async function openerVerbs(): Promise<OpenerWord[]> {
+  const rows = await prisma.lexeme.findMany({
+    where: { pos: "VERB", lemma: { in: OPENER_VERBS.map((v) => v.lemma) } },
+    select: {
+      id: true,
+      lemma: true,
+      pos: true,
+      provenance: true,
+      forms: {
+        where: { formType: { in: ["INF_MA", "INF_DA"] } },
+        select: { formType: true, value: true },
+        orderBy: { id: "asc" },
+      },
+    },
+    orderBy: [{ lemma: "asc" }, { id: "asc" }],
+  });
+  const specs = new Map(OPENER_VERBS.map((v) => [v.lemma, v]));
+  // A verb typed in by hand beside the seeded one is the same lemma twice: the dictionary's rule picks one.
+  return oneEntryPerLemma(rows, OPENER_VERBS.map((v) => v.lemma)).flatMap((row) => {
+    const spec = specs.get(row.lemma);
+    if (!spec) return [];
+    const first = (type: string) => row.forms.find((f) => f.formType === type)?.value ?? null;
+    const da = first("INF_DA");
+    if (!da) return [];
+    return [{
+      kind: "verb" as const,
+      lemma: spec.lemma, en: spec.base, a: spec.to, the: spec.ing, pl: spec.ing,
+      lexemeId: row.id,
+      nom: first("INF_MA") ?? row.lemma,
+      part: da,
+      nomPl: null,
+      partPl: null,
     }];
   });
 }
