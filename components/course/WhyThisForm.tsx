@@ -25,6 +25,8 @@ import type { CaseForms } from "@/lib/progress/lessonView";
  * would. It grades nothing and writes nothing (the answer is on the screen),
  * and every Estonian form in the table is the dictionary's (`caseForms`).
  */
+const BASIC: readonly string[] = ["NOMINATIVE", "GENITIVE", "PARTITIVE"];
+
 const SINGULAR = { en: "singular", ru: "ед. ч.", uk: "одн." } as const;
 
 export function WhyThisForm({ lesson, why, table }: { lesson: LessonSpec; why: WhyForm; table: CaseForms | null }) {
@@ -34,6 +36,13 @@ export function WhyThisForm({ lesson, why, table }: { lesson: LessonSpec; why: W
   const [path, setPath] = useState<{ q: string; a: string }[]>([]);
   const [stepId, setStepId] = useState<string | null>(why.steps[0]?.id ?? null);
   const [landed, setLanded] = useState<WhySlot | null>(null);
+  /*
+    The plural column only where the word has a plural in all three basic
+    cases. A pronoun does not decline that way (`mina` has no plural of its own,
+    and `meie` is a word of its own), so a column of one stray form and two gaps
+    would teach something false about it.
+  */
+  const showPlural = !!table && table.rows.filter((r) => BASIC.includes(r.case)).every((r) => r.pl.length > 0);
   const pick = why.lines[at]!;
   const said = lesson.conversation[pick.line]!;
   const step = why.steps.find((s) => s.id === stepId) ?? null;
@@ -151,7 +160,7 @@ export function WhyThisForm({ lesson, why, table }: { lesson: LessonSpec; why: W
                 <tr style={{ color: "var(--ink-3)" }}>
                   <th scope="col" className="label-xs px-4 py-3 text-left">{t("Case")}</th>
                   <th scope="col" className="label-xs px-4 py-3 text-left">{t("ainsus (one)")}</th>
-                  <th scope="col" className="label-xs px-4 py-3 text-left">{t("mitmus (more than one)")}</th>
+                  {showPlural && <th scope="col" className="label-xs px-4 py-3 text-left">{t("mitmus (more than one)")}</th>}
                 </tr>
               </thead>
               <tbody>
@@ -167,7 +176,7 @@ export function WhyThisForm({ lesson, why, table }: { lesson: LessonSpec; why: W
                           </span>
                         </span>
                       </th>
-                      {([false, true] as const).map((plural) => {
+                      {(showPlural ? [false, true] as const : [false] as const).map((plural) => {
                         const forms = plural ? r.pl : r.sg;
                         const lit = !!landed && landed.case === r.case && landed.plural === plural;
                         return (
