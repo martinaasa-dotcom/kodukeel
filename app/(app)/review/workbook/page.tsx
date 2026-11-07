@@ -1,5 +1,6 @@
 import { localeFor, roundTitleFor } from "@/lib/progress/locale";
-import { tr } from "@/lib/copy/locale";
+import { fill as fillIn, tr } from "@/lib/copy/locale";
+import { lessonLabel } from "@/lib/course/lessons/label";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { courseLevelFor } from "@/lib/progress/level";
@@ -478,9 +479,20 @@ export default async function WorkbookPage({
   });
   const lineCount = exercises.reduce((n, e) => n + e.lines.length, 0);
 
+  /*
+    A LESSON'S PAGE SAYS WHOSE IT IS. Its lines are cut from that lesson's own
+    sentences, and with the general page's heading over it a tester read it
+    as the Practice page the finish screen had sent them back to.
+  */
+  const reader = lesson ? await localeFor(ownerId) : null;
+  const from = lesson && reader
+    ? fillIn(tr(reader, "Lesson {n}: {title}"), { n: lessonLabel(lesson), title: tr(reader, lesson.title) })
+    : null;
+
   return (
-    <BeforeYouStart id="workbook" ready count={{ n: lineCount, noun: "sentence" }}>
+    <BeforeYouStart id="workbook" ready count={{ n: lineCount, noun: "sentence" }} from={from}>
       <WorkbookSession
+        from={from}
         exercises={exercises}
         missed={requested && !exercises.some((e) => e.theme === requested) ? requested : null}
         themes={fillable.slice(0, THEME_CHOICES)}

@@ -196,7 +196,7 @@ const verdictOf = (outcome: Outcome | undefined, mark: LineMark | undefined): Ve
  * one thing worth saying about the page, which is the slot they kept reaching
  * for instead of the one wanted, where that happened twice.
  */
-export function WorkbookSession({ exercises: initial, missed, themes, canTranslate, doneKey = null, practice = false, onBack }: {
+export function WorkbookSession({ exercises: initial, missed, themes, canTranslate, doneKey = null, practice = false, onBack, from = null }: {
   exercises: WorkbookExercise[];
   /**
    * A theme somebody asked for by name that their words cannot fill a page of
@@ -221,6 +221,8 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
   practice?: boolean;
   /** Back to the corrected page this practice came from. */
   onBack?: () => void;
+  /** The lesson this page is set from, named over the page, or null for the general page. */
+  from?: string | null;
 }) {
   const t = useT();
   const sound = useFeedbackSound();
@@ -529,6 +531,7 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
         themes={themes}
         canTranslate={canTranslate}
         practice
+        from={from}
         onBack={() => { setRedo(null); window.scrollTo({ top: 0 }); }}
       />
     );
@@ -562,6 +565,9 @@ export function WorkbookSession({ exercises: initial, missed, themes, canTransla
   return (
     <div className="mx-auto flex max-w-3xl flex-col px-4 py-6 sm:px-5 md:px-10 md:py-10">
       <h1 className="sr-only">Töövihik</h1>
+      {from && (
+        <p className="mb-3 text-sm font-semibold" style={{ color: "var(--ink-2)" }} data-workbook-from="">{from}</p>
+      )}
       <RoundProgress
         done={settledCount}
         total={total}

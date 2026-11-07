@@ -28,7 +28,7 @@ import { FreshRound } from "@/components/round/FreshRound";
  * screen saying what is about to happen in front of a screen saying nothing
  * is about to happen is the app talking to itself.
  */
-export function BeforeYouStart({ id, ready = true, count, children }: {
+export function BeforeYouStart({ id, ready = true, count, from = null, children }: {
   /**
    * Which round, by the key `BRIEFINGS` holds it under. The union rather
    * than a string, so a key nobody wrote is a compile error: a briefing that
@@ -57,6 +57,8 @@ export function BeforeYouStart({ id, ready = true, count, children }: {
     /** Whether `ofDue` is a floor because the count stopped reading. */
     ofDueAtLeast?: boolean;
   } | null;
+  /** Where this round's material comes from, said under the title: a lesson's own worksheet names its lesson. */
+  from?: string | null;
   children: ReactNode;
 }) {
   const brief = briefingFor(id);
@@ -129,6 +131,9 @@ export function BeforeYouStart({ id, ready = true, count, children }: {
         <h1 className="round-brief-title round-brief-gap font-display font-bold tracking-tight" style={{ color: "var(--ink)", textWrap: "balance" }}>
           {t(brief.title)}
         </h1>
+        {from && (
+          <p className="mt-1.5 text-base font-semibold" style={{ color: "var(--ink-2)" }} data-briefing-from="">{from}</p>
+        )}
         {count && count.n > 0 && (
           <p className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
             {count.ofDue && count.ofDue > count.n
