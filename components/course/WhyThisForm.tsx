@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, RotateCcw } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 
 import { useLocale, useT } from "@/components/Locale";
 import { LessonText } from "@/components/course/LessonText";
@@ -83,73 +83,103 @@ export function WhyThisForm({ lesson, why, table }: { lesson: LessonSpec; why: W
         </div>
       )}
       <Card>
-        <p className="flex items-center gap-2 text-xl">
-          <Speak text={said.et ?? ""} voice={lesson.cast[said.who]} size={16} />
-          <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{said.et}</span>
-        </p>
-        <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>
-          <LessonText text={said.en ?? ""} locale={locale} />
-        </p>
-        {/* The question the walk answers, on its own line and set as a heading, so it is the first thing read. */}
-        <h4 className="mt-4 text-xl font-semibold" style={{ color: "var(--ink)" }} data-why-ask>
-          {t("Why")} <span lang="et" style={{ color: "var(--accent-deep)" }}>{pick.form}</span>?
-        </h4>
-        {path.length > 0 && (
-          <ol className="mt-4 flex flex-col gap-2">
-            {path.map((s) => (
-              <li key={s.q} className="text-base" style={{ color: "var(--ink-2)" }}>
-                <LessonText text={s.q} locale={locale} />{" "}
-                <span className="font-semibold" style={{ color: "var(--ink)" }}><LessonText text={s.a} locale={locale} /></span>
-              </li>
-            ))}
-          </ol>
-        )}
-        {!landed && step && (
-          <div className="mt-4 flex flex-col gap-2">
-            <p className="text-lg font-semibold" style={{ color: "var(--ink)" }}><LessonText text={step.q} locale={locale} /></p>
-            <div className="flex flex-wrap gap-2">
-              {step.answers.map((o) => (
-                <button
-                  key={o.a}
-                  type="button"
-                  className="choice-btn rounded-[var(--r-sm)] border px-4 py-2 text-left text-base"
-                  style={{ borderColor: "var(--edge)", ["--choice-bg" as string]: "var(--surface)" }}
-                  onClick={() => {
-                    setPath([...path, { q: step.q, a: o.a }]);
-                    if (o.lands) setLanded(o.lands);
-                    else setStepId(o.next ?? null);
-                  }}
-                >
-                  <LessonText text={o.a} locale={locale} />
-                </button>
-              ))}
-            </div>
+        <div className="flex flex-col gap-6">
+          {/* The line, Estonian over its English, read as one thing. */}
+          <div className="flex flex-col gap-1.5">
+            <p className="flex items-center gap-2 text-xl leading-snug">
+              <Speak text={said.et ?? ""} voice={lesson.cast[said.who]} size={16} />
+              <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{said.et}</span>
+            </p>
+            <p className="text-base" style={{ color: "var(--ink-3)" }}>
+              <LessonText text={said.en ?? ""} locale={locale} />
+            </p>
           </div>
-        )}
-        <div aria-live="polite">
-          {landed && (
-            <div className="mt-4 flex flex-col gap-2">
-              <p className="flex items-start gap-2 text-lg font-semibold" style={{ color: right ? "var(--accent-deep)" : "var(--ink)" }}>
-                <ArrowRight size={18} className="mt-1" aria-hidden />
-                <span>
-                  {right
-                    ? fill(t("That's the form: {form}, the {name}."), { form: pick.form, name: nameOf(landed) })
-                    : t("Those answers point to a different form. Look at the sentence again.")}
-                </span>
-              </p>
-              {right && (
-                <p className="text-base leading-relaxed" style={{ color: "var(--ink)" }}><LessonText text={pick.why} locale={locale} /></p>
+          <div className="border-t" style={{ borderColor: "var(--edge)" }} aria-hidden />
+          {/* The question the walk answers, on its own line and set as a heading, so it is the first thing read. */}
+          <h4 className="text-xl font-semibold leading-snug" style={{ color: "var(--ink)" }} data-why-ask>
+            {t("Why")} <span lang="et" style={{ color: "var(--accent-deep)" }}>{pick.form}</span>?
+          </h4>
+          {/*
+            The walk as a numbered trail: a question answered steps back into
+            small, quiet type with its answer under it, so the one still to
+            answer is the only large thing on the card.
+          */}
+          {(path.length > 0 || (!landed && step)) && (
+            <ol className="flex flex-col gap-4">
+              {path.map((s, i) => (
+                <li key={s.q} className="flex items-start gap-3">
+                  <StepNumber n={i + 1} />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-sm" style={{ color: "var(--ink-3)" }}><LessonText text={s.q} locale={locale} /></span>
+                    <span className="text-base font-semibold" style={{ color: "var(--ink)" }}><LessonText text={s.a} locale={locale} /></span>
+                  </div>
+                </li>
+              ))}
+              {!landed && step && (
+                <li className="flex items-start gap-3">
+                  <StepNumber n={path.length + 1} current />
+                  <div className="flex flex-col gap-3">
+                    <p className="text-lg font-semibold leading-snug" style={{ color: "var(--ink)" }}><LessonText text={step.q} locale={locale} /></p>
+                    <div className="flex flex-wrap gap-2">
+                      {step.answers.map((o) => (
+                        <button
+                          key={o.a}
+                          type="button"
+                          className="choice-btn rounded-[var(--r-sm)] border px-4 py-2.5 text-left text-base"
+                          style={{ borderColor: "var(--edge)", ["--choice-bg" as string]: "var(--surface)" }}
+                          onClick={() => {
+                            setPath([...path, { q: step.q, a: o.a }]);
+                            if (o.lands) setLanded(o.lands);
+                            else setStepId(o.next ?? null);
+                          }}
+                        >
+                          <LessonText text={o.a} locale={locale} />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </li>
               )}
-              <button
-                type="button"
-                className="tap-tint inline-flex items-center gap-1.5 self-start rounded-md px-2 py-1 text-base"
-                style={{ color: "var(--accent-deep)" }}
-                onClick={() => reset()}
-              >
-                <RotateCcw size={16} aria-hidden /> {t("Start again")}
-              </button>
-            </div>
+            </ol>
           )}
+          <div aria-live="polite">
+            {landed && (
+              <div className="flex flex-col gap-3">
+                {/* Where the answers led, in a panel of its own: the form, its name under it, then why. */}
+                <div
+                  className="flex flex-col gap-3 rounded-[var(--r-lg)] p-5"
+                  style={{ background: right ? "var(--accent-soft)" : "var(--raised)" }}
+                  data-why-result
+                >
+                  {right ? (
+                    <>
+                      <div className="flex flex-col gap-1">
+                        <p className="text-lg font-semibold leading-snug" style={{ color: "var(--accent-deep)" }}>
+                          {fill(t("That's the form: {form}."), { form: pick.form })}
+                        </p>
+                        <p lang="et" className="text-base" style={{ color: "var(--ink-2)" }}>{nameOf(landed)}</p>
+                      </div>
+                      <p className="max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink)" }}>
+                        <LessonText text={pick.why} locale={locale} />
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>
+                      {t("Those answers point to a different form. Look at the sentence again.")}
+                    </p>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  className="tap-tint inline-flex items-center gap-1.5 self-start rounded-md px-2 py-1 text-sm"
+                  style={{ color: "var(--accent-deep)" }}
+                  onClick={() => reset()}
+                >
+                  <RotateCcw size={14} aria-hidden /> {t("Start again")}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </Card>
       {table && (
@@ -192,9 +222,10 @@ export function WhyThisForm({ lesson, why, table }: { lesson: LessonSpec; why: W
                               >
                                 {forms.map((form, i) => (
                                   <span key={form} className="inline-flex items-center gap-1.5">
-                                    {i > 0 && <span aria-hidden style={{ color: "var(--ink-3)" }}>/</span>}
                                     <Speak text={form} size={14} />
                                     <span lang="et" className="font-semibold" style={{ color: lit ? "var(--accent-deep)" : "var(--ink)" }}>{form}</span>
+                                    {/* The slash ends a spelling rather than starting the next, so a narrow cell wraps after it. */}
+                                    {i < forms.length - 1 && <span aria-hidden style={{ color: "var(--ink-3)" }}>/</span>}
                                   </span>
                                 ))}
                               </span>
@@ -213,5 +244,20 @@ export function WhyThisForm({ lesson, why, table }: { lesson: LessonSpec; why: W
         </div>
       )}
     </section>
+  );
+}
+
+/** A step's number in the trail: filled for the one being asked, quiet for the ones answered. */
+function StepNumber({ n, current = false }: { n: number; current?: boolean }) {
+  return (
+    <span
+      aria-hidden
+      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-semibold"
+      style={current
+        ? { background: "var(--accent)", color: "var(--on-hue)" }
+        : { background: "var(--accent-soft)", color: "var(--accent-deep)" }}
+    >
+      {n}
+    </span>
   );
 }
