@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { passPractice } from "./lib/practiceGate.mjs";
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -46,7 +47,7 @@ const { check, absent, done } = suite("The lessons, walked", {
     Then, since every level is lessons, the workbook page on each finish (seven),
     the three unit pages landing on the lessons, and the end of the course (nine).
   */
-  floor: 214,
+  floor: 216,
 });
 // `--only=<role>` walks one lesson (or `spoken`, the race out loud, or `end`, the unit redirects and the end of the course) for working on it; it reports under the floor by design.
 
@@ -56,6 +57,7 @@ const byRole = Object.fromEntries(picks.map((p) => [p.role, p]));
 const prisma = newPrismaClient();
 await requireLocalDatabase(prisma);
 const started = new Date();
+const answersBefore = new Set((await prisma.lessonAnswer.findMany({ where: { ownerId: OWNER }, select: { id: true } })).map((r) => r.id));
 const stepsBefore = new Set((await prisma.courseStep.findMany({ where: { ownerId: OWNER }, select: { id: true } })).map((r) => r.id));
 const cardsBefore = new Set((await prisma.card.findMany({ where: { ownerId: OWNER }, select: { id: true } })).map((r) => r.id));
 // A check sat below writes a pass only if it passes, which a walk answering wrongly on purpose should not; put back either way.
@@ -112,10 +114,44 @@ page.on("console", (m) => { if (m.type() === "error" && !/Failed to load resourc
 const main = () => page.locator("main");
 const text = async () => (await main().innerText()).replace(/\s+/g, " ");
 const stepHeading = async () => (await page.locator("#lesson-step").innerText().catch(() => "")).trim();
+/** Which page of the step is on (`lib/course/lessons/screens.ts`), and how far through the step it is. */
+const screenOn = async () => (await page.locator("[data-lesson-screen]").getAttribute("data-lesson-screen").catch(() => null)) ?? "";
+const pageCount = async () => (await page.locator("[data-lesson-screen-count]").first().getAttribute("data-lesson-screen-count").catch(() => null)) ?? "1/1";
+/*
+  ONE TASK A PAGE (Martin's call, 2026-11-04). The things a learner can be
+  asked to do on a lesson page, by the hook each draws; a page showing two of
+  them is the stacked page that was reported, the text to read under the
+  conversation it followed. Visible only: a quiz the learner left stays
+  mounted, hidden.
+*/
+const TASKS = [
+  "[data-level-new]", "[data-listen-first]", '[data-lesson-screen="conversation"]', "[data-lesson-read]",
+  "[data-lesson-notes-screen]", "[data-lesson-words]", "[data-lesson-forms]", "[data-lesson-sounds]",
+  "[data-lesson-listen]", "[data-lesson-spell]", "[data-lesson-quiz]", "[data-say-it]", "[data-write-step]",
+  "[data-lesson-done]", "[data-lesson-words-done]", "[data-lesson-said]", "[data-lesson-scene-done]", "[data-lesson-check]",
+  "[data-lesson-worksheet]", "[data-lesson-situation]", "[data-lesson-due]", "[data-lesson-next]",
+];
+async function tasksShown() {
+  const shown = [];
+  for (const sel of TASKS) {
+    if (await page.locator(`${sel}:visible`).count()) shown.push(sel);
+  }
+  return shown;
+}
 /** The button at the foot of the screen that moves to the next step. */
 const footer = () => page.getByRole("button", { name: /^(Continue|Skip this step|Finish the lesson|Finish without it)/ }).last();
 
 /** Answers one practice or review round to its end, whatever it asks. Returns how many questions it took. */
+/*
+  WHAT THE SCREEN SAID THE RIGHT ANSWER WAS, per question. Practice has a pass
+  mark (`lib/course/lessons/gate.ts`) and this driver answers wrong on purpose,
+  so the questions that slipped come back; the second time round it answers
+  with what the screen showed, the way a learner who read the correction does.
+*/
+const learned = new Map();
+const questionKey = async (quiz) => (await quiz.locator("h2, h3").first().innerText({ timeout: 300 }).catch(() => "")) + "|" +
+  (await quiz.innerText({ timeout: 300 }).catch(() => "")).replace(/\s+/g, " ").replace(/\d+ of \d+|\d+ in a row/g, "").slice(0, 160);
+
 async function quizThrough(where, reworks = []) {
   let asked = 0;
   // One rework a round is answered right, off the line the lesson says it should become, so a right verdict is seen too.
@@ -129,7 +165,20 @@ async function quizThrough(where, reworks = []) {
     if (!(await quiz.count())) return asked;
     const kind = await quiz.getAttribute("data-quiz-kind");
     asked += 1;
-    if (kind === "match") {
+    const key = await questionKey(quiz);
+    const known = learned.get(key);
+    if (known !== undefined && kind !== "match") {
+      const box = quiz.locator("input[lang=et]");
+      if (await box.count()) {
+        await box.fill(known);
+        await quiz.getByRole("button", { name: /^Check/ }).click();
+      } else {
+        const radios = quiz.locator('[role="radio"]:not([disabled])');
+        const texts = (await radios.allInnerTexts()).map((t) => t.replace(/^\d+\s*/, "").trim());
+        const exact = texts.indexOf(known);
+        await radios.nth(exact >= 0 ? exact : Math.max(0, texts.findIndex((t) => t.startsWith(known)))).click();
+      }
+    } else if (kind === "match") {
       const left = quiz.locator('ul[aria-label="Estonian"] button');
       for (let i = 0; i < (await left.count()); i++) {
         if (await left.nth(i).isDisabled()) continue;
@@ -172,6 +221,12 @@ async function quizThrough(where, reworks = []) {
     const next = quiz.getByRole("button", { name: /^(Next|Done)/ });
     await next.waitFor({ timeout: 4000 }).catch(() => {});
     if (!(await next.count())) return asked;
+    // Remember what the screen marked right, for the go over the ones that slipped.
+    if (kind !== "match" && !learned.has(key)) {
+      const option = await quiz.locator('[role="radio"].option-right').first().innerText({ timeout: 300 }).catch(() => null);
+      const line = option ?? await quiz.locator(".verdict-panel [lang=et]").first().innerText({ timeout: 300 }).catch(() => null);
+      if (line) learned.set(key, line.replace(/^\d+\s*/, "").trim());
+    }
     const other = quiz.locator("button:not([disabled])").filter({ hasNotText: /^(Next|Done)/ });
     if (!keyed && (await other.count())) {
       keyed = true;
@@ -248,21 +303,35 @@ async function sayThrough(lesson, mode) {
       check(`${where}: retelling the story lights its points as they come across`, lit > 0, `${lit} lit`);
       await say.getByRole("button", { name: /^Show the story/ }).click();
       check(`${where}: and the story is there to check against`, (await say.locator("[data-retell-story]").count()) === 1);
+      // What was told is read sentence by sentence before the way on is offered.
+      await say.getByRole("button", { name: /^Check what I told/ }).click();
+      const read = say.locator("[data-retell-checked] [data-line-check]");
+      await read.first().waitFor({ timeout: 15000 }).catch(() => {});
+      const readCount = await read.count();
+      check(`${where}: checking the retelling reads it sentence by sentence`, readCount > 0, `${readCount} read`);
       await say.getByRole("button", { name: /^Next/ }).click();
       continue;
     }
     if (await say.locator("[data-faster-go]").count() || await say.locator("[data-faster-goes]").count()) {
       faster = true;
       let handed = 0;
+      let patterned = 0;
       for (let go = 0; go < 3; go++) {
         await say.getByRole("button", { name: /^Start, and type/ }).click();
         await say.getByLabel("Your answer, in Estonian").fill(lesson.faster);
         await say.getByRole("button", { name: /^Done$/ }).click();
-        // The go whose Done was pressed is gone; the caret is on the next go's Start, or on Next after the last.
-        const want = go < 2 ? /^Start, and type/ : /^Next/;
-        if (await eventually(() => page.evaluate((w) => new RegExp(w).test(document.activeElement?.textContent?.trim() ?? ""), want.source), { timeoutMs: 3000 }).catch(() => false)) handed += 1;
+        // The go whose Done was pressed is gone; the caret is on what was heard, so it is read before the next go, or on Next after the last.
+        const landed = go < 2
+          ? await eventually(() => page.evaluate(() => Boolean(document.activeElement?.closest("[data-faster-heard]"))), { timeoutMs: 3000 }).catch(() => false)
+          : await eventually(() => page.evaluate(() => /^Next/.test(document.activeElement?.textContent?.trim() ?? "")), { timeoutMs: 3000 }).catch(() => false);
+        if (landed) handed += 1;
+        // The model answer typed in meets every check of today's pattern, read off what was typed.
+        const marks = await say.locator("[data-faster-heard] [data-faster-checks] li").evaluateAll((lis) => lis.map((li) => li.getAttribute("data-met")));
+        if (marks.length >= 2 && marks.length <= 3 && marks.every((m) => m === "true")) patterned += 1;
       }
-      check(`${where}: after each go the caret is on the way on`, handed === 3, `${handed} of 3`);
+      check(`${where}: after each go the caret is on what was heard, then on the way on`, handed === 3, `${handed} of 3`);
+      check(`${where}: after each go today's pattern is checked, and the model answer meets it`, patterned === 3, `${patterned} of 3`);
+      check(`${where}: what was typed is printed back under what we heard`, (await say.locator("[data-faster-said]").count()) === 1);
       const goes = await say.locator("[data-faster-goes] li").count();
       if (SHOTS) await shoot(`${where} faster`);
       check(`${where}: three goes at the answer are drawn side by side`, goes === 3, `${goes}`);
@@ -393,15 +462,43 @@ async function walk(lesson, { mode = "type" } = {}) {
   check(`${where}: opens on its first step`, (await stepHeading()).startsWith("Step 1"), await stepHeading());
   check(`${where}: says what is new at the level on the level's first lesson only`,
     (await page.locator("[data-level-new]").count()) === (lesson.first && ["B1", "B2"].includes(lesson.level) ? 1 : 0));
+  /* What is new at the level is a page of its own, the first: nothing else is asked on it. */
+  if (await page.locator("[data-level-new]").count()) {
+    check(`${where}: what is new at the level is a page of its own`, JSON.stringify(await tasksShown()) === JSON.stringify(["[data-level-new]"]), (await tasksShown()).join(", "));
+    await footer().click();
+    await eventually(async () => (await screenOn()) !== "news", { timeoutMs: 4000 }).catch(() => {});
+  }
   if (lesson.gists > 0) await listenFirst(lesson);
   else check(`${where}: below B1 the conversation is read from the start`, (await page.locator("[data-listen-first]").count()) === 0);
   let said = null;
-  for (let n = 0; n < 12; n++) {
+  // Every page of every step: Continue walks a step's pages before it opens the next step.
+  let pages = 0;
+  let readSeen = false;
+  for (let n = 0; n < 60; n++) {
     if (await page.locator("[data-lesson-done]").count()) break;
     const heading = await stepHeading();
-    await axeHere(`${where} ${heading.replace(/^Step \d+ of \d+: /, "")}`);
+    const on = await screenOn();
+    pages += 1;
+    const tasks = await tasksShown();
+    check(`${where} ${heading.replace(/^Step \d+ of \d+: /, "")} (${on}): the page holds one task`, tasks.length <= 1, tasks.join(", "));
+    /* The reported page: the text to read is not under the conversation, and comes on a page of its own after it. */
+    if (on === "conversation" && lesson.read) {
+      check(`${where}: the conversation's page carries no text to read under it`, (await page.locator("[data-lesson-read]:visible").count()) === 0);
+    }
+    if (on === "read") {
+      readSeen = true;
+      check(`${where}: the text to read has a page of its own, with its heading on it`,
+        (await page.locator("[data-lesson-read]:visible h3").count()) === 1 && (await page.locator('[data-lesson-screen="read"] [data-lesson-conversation], [data-lesson-screen="read"] [data-gists]').count()) === 0);
+    }
+    await axeHere(`${where} ${heading.replace(/^Step \d+ of \d+: /, "")} ${on}`);
     if (/Practice/.test(heading)) {
-      const asked = await quizThrough(`${where} practice`, lesson.reworks ?? []);
+      let asked = await quizThrough(`${where} practice`, lesson.reworks ?? []);
+      // Under the pass mark the step offers the ones that slipped and nothing else; go over them until it is passed.
+      for (let go = 0; go < 6 && (await page.locator('[data-practice-gate="again"]:visible').count()); go++) {
+        check(`${where}: under the pass mark Practice offers no way past it`, (await page.getByRole("button", { name: /^Skip this step/ }).count()) === 0);
+        await page.getByRole("button", { name: /^Go over the \d+ that slipped/ }).click();
+        asked += await quizThrough(`${where} practice again`, lesson.reworks ?? []);
+      }
       check(`${where}: practice runs to its end`, (await page.locator('[data-lesson-quiz="done"]:visible').count()) === 1, `${asked} asked`);
     } else if (/Write/.test(heading) && lesson.write) {
       await writeThrough(lesson);
@@ -423,7 +520,8 @@ async function walk(lesson, { mode = "type" } = {}) {
       never left on the page between steps.
     */
     if (n === 1 && !last && lesson.role === "first") {
-      const was = await stepHeading();
+      const was = `${await stepHeading()} ${on} ${await pageCount()}`;
+      const sameStep = Number((await pageCount()).split("/")[0]) < Number((await pageCount()).split("/")[1]);
       let reached = false;
       for (let tab = 0; tab < 120 && !reached; tab++) {
         await page.keyboard.press("Tab");
@@ -432,10 +530,15 @@ async function walk(lesson, { mode = "type" } = {}) {
       check(`${where}: the way on is reached with Tab`, reached);
       if (reached) await page.keyboard.press("Enter");
       else await footer().click();
-      await eventually(async () => (await stepHeading()) !== was, { timeoutMs: 6000 }).catch(() => {});
-      check(`${where}: and pressed with Enter it opens the next step`, (await stepHeading()) !== was, `${was} -> ${await stepHeading()}`);
-      const onHeading = await eventually(() => page.evaluate(() => document.activeElement?.id === "lesson-step"), { timeoutMs: 3000 }).catch(() => false);
-      check(`${where}: with the caret on the step's heading`, onHeading === true, await page.evaluate(() => document.activeElement?.tagName ?? "none"));
+      const now = async () => `${await stepHeading()} ${await screenOn()} ${await pageCount()}`;
+      await eventually(async () => (await now()) !== was, { timeoutMs: 6000 }).catch(() => {});
+      check(`${where}: and pressed with Enter it opens the next page`, (await now()) !== was, `${was} -> ${await now()}`);
+      /* Within a step the caret goes to the new page's own heading; opening a step, to the step's. */
+      const onHeading = await eventually(() => page.evaluate((within) => {
+        const el = document.activeElement;
+        return within ? el?.tagName === "H3" && !!el.closest("[data-lesson-screen]") : el?.id === "lesson-step";
+      }, sameStep), { timeoutMs: 3000 }).catch(() => false);
+      check(`${where}: with the caret on the new page's heading`, onHeading === true, await page.evaluate(() => `${document.activeElement?.tagName ?? "none"} ${document.activeElement?.textContent?.slice(0, 40) ?? ""}`));
       await page.waitForTimeout(150);
       continue;
     }
@@ -444,15 +547,44 @@ async function walk(lesson, { mode = "type" } = {}) {
     await page.waitForTimeout(150);
     // Once a lesson: a reload picks it up on the step it was on, not on step 1.
     if (n === 0 && lesson.role === "first") {
-      const was = await stepHeading();
+      const here = async () => `${await stepHeading()} ${await screenOn()}`;
+      const was = await here();
       await page.reload({ waitUntil: "domcontentloaded" });
       await hydrated(page);
-      await eventually(async () => (await stepHeading()) === was, { timeoutMs: 6000 }).catch(() => {});
-      check(`${where}: a reload keeps the step it was on`, (await stepHeading()) === was, `${await stepHeading()} after ${was}`);
+      await eventually(async () => (await here()) === was, { timeoutMs: 6000 }).catch(() => {});
+      check(`${where}: a reload keeps the step and the page it was on`, (await here()) === was, `${await here()} after ${was}`);
     }
   }
+  if (lesson.read) check(`${where}: the text to read was reached as a page of its own`, readSeen);
+  check(`${where}: a step with more than one thing in it is walked a page at a time`, pages > 6, `${pages} pages`);
   await page.locator("[data-lesson-done]").waitFor({ timeout: 15_000 }).catch(() => {});
   check(`${where}: ends on the finished screen`, (await page.locator("[data-lesson-done]").count()) === 1);
+  /*
+    THE END, A PAGE AT A TIME. Each offer is a page of its own with its one
+    loud button and "Not now"; the way on is the last page. The walk steps
+    through them, noting what each offered, and the checks below read that.
+  */
+  const offered = {};
+  for (let n = 0; n < 12; n++) {
+    const tasks = await tasksShown();
+    check(`${where} finished, page ${n + 1}: holds one thing`, tasks.length === 1, tasks.join(", "));
+    if (await page.locator("[data-lesson-next]").count()) break;
+    for (const sel of ["[data-lesson-situation]", "[data-lesson-worksheet]"]) {
+      const el = page.locator(sel);
+      if (await el.count()) {
+        offered[sel] = {
+          name: await el.first().getAttribute(sel.slice(1, -1)),
+          href: await el.first().getByRole("link").getAttribute("href").catch(() => null),
+          label: (await el.first().getByRole("link").innerText().catch(() => "")).trim(),
+        };
+      }
+    }
+    const on = page.getByRole("button", { name: /^(Continue|Not now)/ }).last();
+    if (!(await on.count())) break;
+    await on.click();
+    await page.waitForTimeout(150);
+  }
+  check(`${where}: the finished lesson ends on its way on`, (await page.locator("[data-lesson-next]").count()) === 1);
   /*
     And the finish screen points at the conversation the lesson rehearsed, read
     off `LESSON_SITUATIONS` through the picks rather than typed here: the card
@@ -460,29 +592,26 @@ async function walk(lesson, { mode = "type" } = {}) {
     draws no card. The walk opens a lesson outside a module, where the offer
     is drawn.
   */
-  const offers = page.locator("[data-lesson-situation]");
+  const situationOffer = offered["[data-lesson-situation]"];
   if (lesson.situation) {
-    const named = await offers.first().getAttribute("data-lesson-situation").catch(() => null);
-    const href = await offers.first().getByRole("link", { name: /^Open the conversation/ }).getAttribute("href").catch(() => null);
     check(
       `${where}: the finish screen offers the conversation it rehearsed`,
-      (await offers.count()) === 1 && named === lesson.situation && href === `/situations/${lesson.situation}`,
-      `${await offers.count()} offers, naming ${named ?? "nothing"} and opening ${href ?? "nothing"}, where the lesson rehearses ${lesson.situation}`,
+      situationOffer?.name === lesson.situation && situationOffer?.href === `/situations/${lesson.situation}` && /^Open the conversation/.test(situationOffer?.label ?? ""),
+      `naming ${situationOffer?.name ?? "nothing"} and opening ${situationOffer?.href ?? "nothing"}, where the lesson rehearses ${lesson.situation}`,
     );
   } else {
-    check(`${where}: the finish screen offers no conversation, since the lesson rehearses none`, (await offers.count()) === 0, `${await offers.count()} offers`);
+    check(`${where}: the finish screen offers no conversation, since the lesson rehearses none`, !situationOffer, situationOffer?.name ?? "");
   }
   /*
     And from B1 the finish screen offers a page of the workbook on what the
     lessons have taught, which is the worksheet a learner is offered now that
     no unit prints one (`lessonWorksheet.ts`); A2 offers none.
   */
-  const sheet = page.locator("[data-lesson-worksheet]");
+  const sheet = offered["[data-lesson-worksheet]"];
   if (lesson.level === "A2") {
-    check(`${where}: the finish screen offers no worksheet below B1`, (await sheet.count()) === 0, `${await sheet.count()} offered`);
+    check(`${where}: the finish screen offers no worksheet below B1`, !sheet, sheet?.href ?? "");
   } else {
-    const opens = await sheet.first().getByRole("link").getAttribute("href").catch(() => null);
-    check(`${where}: the finish screen offers a workbook page on what the lessons taught`, (await sheet.count()) === 1 && /^\/review\/workbook/.test(opens ?? ""), `${await sheet.count()} offered, opening ${opens ?? "nothing"}`);
+    check(`${where}: the finish screen offers a workbook page on what the lessons taught`, /^\/review\/workbook/.test(sheet?.href ?? ""), `opening ${sheet?.href ?? "nothing"}`);
   }
   if (SHOTS) await shoot(`${where} finished`);
   return said;
@@ -516,8 +645,9 @@ async function spokenRace(lesson) {
     await p.goto(`${B}/course/lessons/${lesson.id}`, { waitUntil: "domcontentloaded" });
     await hydrated(p);
     await p.getByRole("button", { name: /^Show the words now/ }).click();
-    for (let n = 0; n < 6 && !/Say it/.test(await p.locator("#lesson-step").innerText()); n++) {
-      await p.getByRole("button", { name: /^(Skip this step|Continue)/ }).last().click();
+    for (let n = 0; n < 30 && !/Say it/.test(await p.locator("#lesson-step").innerText()); n++) {
+      if (/Practice/.test(await p.locator("#lesson-step").innerText())) await passPractice(p);
+      await p.getByRole("button", { name: /^(Skip this step|Continue)/ }).last().click({ timeout: 5000 });
       await p.waitForTimeout(300);
     }
     await p.getByRole("button", { name: /^Say it$/ }).last().click();
@@ -552,12 +682,14 @@ try {
   if (ONLY === "spoken") await spokenRace(byRole.faster);
   else if (ONLY === "check") await checkWalk(byRole.check.id, byRole.check.part);
   else if (ONLY === "end") { await unitPagesRedirect(); await courseEnd(); }
+  else if (ONLY === "first") { await walk(byRole.first, { mode: "say" }); await revisit(byRole.first); }
   else if (ONLY) await walk(byRole[ONLY]);
   else await everything();
 } finally {
   // Put the local learner back as they were found, a part of the suite run alone included.
   await prisma.courseStep.deleteMany({ where: { ownerId: OWNER, createdAt: { gte: started }, id: { notIn: [...stepsBefore] } } });
   await prisma.card.deleteMany({ where: { ownerId: OWNER, createdAt: { gte: started }, id: { notIn: [...cardsBefore] } } });
+  await prisma.lessonAnswer.deleteMany({ where: { ownerId: OWNER, id: { notIn: [...answersBefore] } } });
   if (passedBefore) await prisma.setting.update({ where: { ownerId_key: { ownerId: OWNER, key: "checksPassed" } }, data: { value: passedBefore.value } });
   else await prisma.setting.deleteMany({ where: { ownerId: OWNER, key: "checksPassed" } });
   await browser.close();
@@ -568,6 +700,7 @@ done();
 async function everything() {
   const first = await walk(byRole.first, { mode: "say" });
   check("B1's first lesson fades the key lines as they are said", first?.fade === true);
+  await revisit(byRole.first);
   const retell = await walk(byRole.retell);
   check("a retell lesson's Say it ends on the story told back", retell?.retold === true);
   const faster = await walk(byRole.faster);
@@ -706,6 +839,51 @@ async function courseEnd() {
 }
 
 /* A B1 lesson in Russian: its goal in Russian on the screen, and the step headings too. */
+/*
+  A FINISHED LESSON OPENS ON ITS RECAP. Opened again, it is not an empty first
+  step: the finished screen is there, says it was done before, offers to go
+  through it again, and lists what was said on its Say it step, kept on the
+  server (`LessonAnswer`) rather than in the tab.
+*/
+async function revisit(lesson) {
+  const where = `${lesson.id} opened again`;
+  // Kept on the hand-in whether or not the evening was the learner's to tick.
+  // The finished screen is drawn before the hand-in has landed, so the row is waited for.
+  const keptRow = () => prisma.lessonAnswer.findUnique({ where: { ownerId_lessonId: { ownerId: OWNER, lessonId: lesson.id } } });
+  await eventually(async () => (await keptRow()) !== null, { timeoutMs: 10_000 }).catch(() => {});
+  const kept = await keptRow();
+  check(`${where}: what was said on Say it is kept on the server`, (kept?.said?.length ?? 0) > 2, kept ? `${kept.said.length} characters` : "no row");
+  /*
+    The walk opens the lesson ahead of the part the local learner follows, so
+    finishing it ticks nothing (`finishLessonFor`). Tick its evening the way
+    finishing it in play does, which is what "done" reads.
+  */
+  await prisma.courseStep.upsert({
+    where: { ownerId_programmeId_dayId_stepId: { ownerId: OWNER, programmeId: lesson.programmeId, dayId: lesson.dayId, stepId: "lesson" } },
+    update: {},
+    create: { ownerId: OWNER, programmeId: lesson.programmeId, dayId: lesson.dayId, stepId: "lesson" },
+  });
+  await page.goto(`${B}/course/lessons/${lesson.id}`, { waitUntil: "domcontentloaded" });
+  // A finished lesson has no step heading to wait on; the recap held by React is what is waited for.
+  await page.waitForFunction(() => {
+    const el = document.querySelector("[data-lesson-done]");
+    return !!el && Object.keys(el).some((k) => k.startsWith("__react"));
+  }, null, { timeout: 30_000 }).catch(() => {});
+  check(`${where}: opens on the finished screen`, (await page.locator("[data-lesson-done]").count()) === 1);
+  check(`${where}: says it was done before and offers to go through it again`,
+    (await page.locator("[data-lesson-revisit]").getByRole("button", { name: /^Go through it again/ }).count()) === 1);
+  // What was said is a page of its own after the words said once more (`finishScreens`).
+  for (let n = 0; n < 6 && !(await page.locator("[data-lesson-said]").count()) && !(await page.locator("[data-lesson-next]").count()); n++) {
+    await page.getByRole("button", { name: /^(Continue|Not now)/ }).last().click();
+    await page.waitForTimeout(150);
+  }
+  const said = await page.locator("[data-lesson-said] [data-said-list] li").count();
+  check(`${where}: and lists what was said on it`, said > 0, `${said} kept`);
+  await axeHere(`${where}`);
+  // The tick goes again at once, so the walks after this read the course as the learner left it.
+  await prisma.courseStep.deleteMany({ where: { ownerId: OWNER, programmeId: lesson.programmeId, dayId: lesson.dayId, stepId: "lesson", id: { notIn: [...stepsBefore] } } });
+}
+
 async function inRussian(lesson) {
   const where = `${lesson.id} in Russian`;
   const before = await prisma.setting.findUnique({ where: { ownerId_key: { ownerId: OWNER, key: "uiLocale" } } });
@@ -713,9 +891,14 @@ async function inRussian(lesson) {
   try {
     await page.goto(`${B}/course/lessons/${lesson.id}`, { waitUntil: "domcontentloaded" });
     await hydrated(page);
+    // Walked already, the lesson opens on its recap; going through it again is what puts a step heading on the screen.
+    const again = page.locator("[data-lesson-revisit]").getByRole("button");
+    if (await again.count()) await again.first().click();
+    await page.locator("#lesson-step").waitFor({ timeout: 6000 }).catch(() => {});
     const body = await text();
     check(`${where}: the goal is in Russian`, body.includes(lesson.goalRu.slice(0, 30)), body.slice(0, 120));
-    check(`${where}: and the step heading is not English`, !/^Step \d/.test(await stepHeading()), await stepHeading());
+    const heading = await stepHeading();
+    check(`${where}: and the step heading is not English`, heading !== "" && !/^Step \d/.test(heading), heading || "no step heading");
   } finally {
     if (before) await prisma.setting.update({ where: { ownerId_key: { ownerId: OWNER, key: "uiLocale" } }, data: { value: before.value } });
     else await prisma.setting.delete({ where: { ownerId_key: { ownerId: OWNER, key: "uiLocale" } } }).catch(() => {});

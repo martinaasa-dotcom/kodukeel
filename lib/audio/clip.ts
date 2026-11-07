@@ -174,7 +174,9 @@ export function rateFor(request: ClipRequest): number {
   const pace = request.pace ?? DEFAULT_PACE;
   const base = request.rate !== undefined ? Math.min(request.rate, pace.normal) : pace.normal;
   if (request.slow) return Math.max(SLOWEST, base * SLOW_OF_NORMAL);
-  return base * (request.condition?.speed ?? 1);
+  // Never faster than the learner's own pace: nothing in this app is sped up,
+  // so a condition may only ever slow a play down, never push it past 1.
+  return base * Math.min(1, request.condition?.speed ?? 1);
 }
 
 /** A clip in hand: the url an element plays and the bytes behind it. */
@@ -211,10 +213,24 @@ export async function fetchClip(request: ClipRequest): Promise<HeldClip> {
   // speaker button that removes itself. A clip asked for by id has no other
   // voice that says the same thing, so it fails as itself.
   let res = take ? await fetch(nativeUrl(take.id)).catch(() => null) : await synthetic();
-  if (take && !request.nativeId && (!res || !res.ok)) res = await synthetic();
-  if (!res || !res.ok) throw new Error(String(res?.status ?? "offline"));
+  if (take && !request.nativeId && (!res || !res.ok)) { discard(res); res = await synthetic(); }
+  if (!res || !res.ok) { discard(res); throw new Error(String(res?.status ?? "offline")); }
   const fetched = await res.blob();
   return { url: rememberClip(key, fetched), blob: cachedBlob(key) ?? fetched };
+}
+
+/**
+ * A refused clip's body, read off and thrown away.
+ *
+ * A response nobody reads is a response the browser holds open: on
+ * 2026-11-06 TartuNLP answered every request with a 500 for hours, the route
+ * passed that on as a 502 with a sentence in it, and this module read the
+ * status and left the sentence where it was. Each refusal then stayed an open
+ * request for as long as the page did, which is a socket held for nothing and
+ * a page that never goes quiet.
+ */
+function discard(res: Response | null): void {
+  void res?.body?.cancel().catch(() => undefined);
 }
 
 /**
@@ -354,19 +370,27 @@ export function mayAutoplay(seconds: number | null): boolean {
   it ended is what the caller's cap is for.
 */
 let inFlight = 0;
+let held = 0;
 let onQuiet: Array<() => void> = [];
 const speakingListeners = new Set<(speaking: boolean) => void>();
 
+function announceSpeaking(wasSpeaking: boolean): void {
+  const now = isSpeaking();
+  if (now !== wasSpeaking) for (const listener of speakingListeners) listener(now);
+}
+
 function beginSpeech(): () => void {
+  const was = isSpeaking();
   inFlight += 1;
-  if (inFlight === 1) for (const listener of speakingListeners) listener(true);
+  announceSpeaking(was);
   let ended = false;
   return () => {
     if (ended) return;
     ended = true;
+    const before = isSpeaking();
     inFlight -= 1;
     if (inFlight > 0) return;
-    for (const listener of speakingListeners) listener(false);
+    announceSpeaking(before);
     const waiting = onQuiet;
     onQuiet = [];
     for (const resume of waiting) resume();
@@ -380,7 +404,30 @@ function beginSpeech(): () => void {
  * this, and a call-mode turn opens the microphone when it goes quiet.
  */
 export function isSpeaking(): boolean {
-  return inFlight > 0;
+  return inFlight > 0 || held > 0;
+}
+
+/**
+ * Holds the app as speaking across a run of lines, the gaps between them
+ * included, and returns the way to let go. A story told line by line is one
+ * thing being said: read off the clips alone, the app fell quiet for the
+ * quarter second between two lines, the microphone came back on, and it lit
+ * up after every line of a retell (`components/course/useLinePlayer.ts`).
+ * It moves `isSpeaking` and its listeners and never `untilQuiet`, which a run
+ * awaits between its own lines and would otherwise wait on itself.
+ */
+export function holdSpeaking(): () => void {
+  const was = isSpeaking();
+  held += 1;
+  announceSpeaking(was);
+  let released = false;
+  return () => {
+    if (released) return;
+    released = true;
+    const before = isSpeaking();
+    held -= 1;
+    announceSpeaking(before);
+  };
 }
 
 export function onSpeakingChange(listener: (speaking: boolean) => void): () => void {
@@ -710,7 +757,7 @@ export async function playHeard(request: ClipRequest): Promise<PlayOutcome> {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ text: request.text, ...(request.voice ? { voice: request.voice } : {}) }),
     });
-    if (!res.ok) throw new Error(String(res.status));
+    if (!res.ok) { discard(res); throw new Error(String(res.status)); }
     const fetched = await res.blob();
     const rate = rateFor(request);
     let blob: Blob = fetched;

@@ -167,6 +167,11 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
       cue: "Say plainly what the tax board wrote, what it means for you, and when the money comes.",
       model: { et: "Maksuamet kirjutas, et nad vaatasid meie deklaratsiooni läbi. Me maksime eelmisel aastal liiga palju tulumaksu. Nüüd makstakse see tagasi ja kolme päeva pärast on raha meie kontol.", en: "The tax board wrote that they've been through our return. We paid too much income tax last year. Now it's being paid back, and in three days the money will be in our account." },
       seconds: [45, 30, 20],
+      checks: [
+        { en: "Said with the verb, not the -mine word ({makstakse see tagasi} here).", any: ["makstakse"], near: ["tagastamine"] },
+        { en: "When the money comes, with {pärast} ({kolme päeva pärast} here).", any: ["pärast"] },
+        { en: "Who wrote, with {Maksuamet}.", any: ["maksuamet"] },
+      ],
     },
   },
   {
@@ -233,7 +238,7 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
       watchOut: "A notice like this is about you even though you're not in it: {Hüvitise maksmine lõpetatakse} means that you stop getting it.",
       examples: [4, 6, 8],
     },
-    hearing: "quick",
+    hearing: "half",
     listenFor: [
       { q: "What job has Anna found?", options: ["A shop assistant", "A teacher at a kindergarten", "A bookkeeper at a small firm", "A clerk at the unemployment office"], answer: 2 },
       { q: "When does she start work?", options: ["On the first of June", "On the first of July", "Next Monday", "In two weeks"], answer: 1 },
@@ -457,6 +462,11 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
       cue: "Say who the two sides of the contract are, what the pay is called in it, and when and how it is paid.",
       model: { et: "Tööandja on väike firma ja töötaja olen mina. Lepingus nimetatakse palka töötasuks. Töötasu makstakse kord kuus, viiendal kuupäeval, minu pangakontole.", en: "The employer is a small firm, and the employee is me. In the contract the pay is called remuneration. The pay is paid once a month, on the fifth, into my bank account." },
       seconds: [45, 30, 20],
+      checks: [
+        { en: "The two sides, {tööandja} and {töötaja}.", any: ["tööandja", "töötaja"], atLeast: 2 },
+        { en: "The pay, {töötasu}.", any: ["töötasu", "töötasuks"] },
+        { en: "When it's paid, with {makstakse} ({makstakse kord kuus} here).", any: ["makstakse"] },
+      ],
     },
   },
   {
@@ -684,7 +694,7 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
       watchOut: "{Lugupeetud} opens a letter, and {Lugupidamisega} closes it. They're one family, and they don't swap places.",
       examples: [6, 8, 10],
     },
-    hearing: "quick",
+    hearing: "half",
     listenFor: [
       { q: "What does the unemployment office want?", options: ["Anna's new contract", "The benefit for June paid back", "A new application from Anna", "Anna to come to a meeting"], answer: 1 },
       { q: "What's wrong in the decision?", options: ["Anna's name", "The amount", "The date she started work", "Her address"], answer: 2 },
@@ -787,6 +797,11 @@ export const B2_RIIK_LESSONS: readonly LessonSpec[] = [
       cue: "Say what the decision says, what's actually true, what proves it, and what you want the office to do.",
       model: { et: "Otsuses on kirjas, et ma asusin tööle esimesel juunil. Tegelikult asusin ma tööle alles esimesel juulil. Seda tõendab minu tööleping. Palun otsus üle vaadata ja parandada.", en: "The decision says I started work on the first of June. In fact I only started work on the first of July. My employment contract proves it. Please review the decision and correct it." },
       seconds: [45, 30, 20],
+      checks: [
+        { en: "What's actually true, with {tegelikult}.", any: ["tegelikult"] },
+        { en: "What proves it, with {tõendab}.", any: ["tõendab"] },
+        { en: "What you ask for, with {palun}.", any: ["palun"] },
+      ],
     },
   },
   {

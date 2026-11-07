@@ -22,7 +22,10 @@ import { removeWord } from "@/lib/progress/removeWord";
 import { checkSharedRateLimit } from "@/lib/usage/sharedLimit";
 import { visibleLine, visibleProse } from "@/lib/security/visibleText";
 import { glossSentences } from "@/lib/dict/glossed";
-import { checkTypedSentence, checkTypedSentences } from "@/lib/progress/sentenceCheck";
+import { checkAgainstLines, checkTypedSentences, readForCheck } from "@/lib/progress/sentenceCheck";
+import { lineAskFor, retellAsk } from "@/lib/course/lessons/lineAsk";
+import { sayableName } from "@/lib/course/lessons/ownAnswer";
+import { nearestLine, toldSentences } from "@/lib/course/lessons/againstLine";
 import { MAX_READING_CHARS, readingParagraphs } from "@/lib/estonian/readingText";
 import { setTaskDone } from "@/lib/progress/tasks";
 import { keepBest } from "@/lib/progress/personalBest";
@@ -109,6 +112,7 @@ import { createAbsent, resolveLexemes, restoreLexemes, restoreOwned } from "@/li
 import { errandById, outcomeFrom } from "@/lib/collections/errands";
 import { type RatingValue } from "@/lib/srs/scheduler";
 import { undoGradeFor, type SchedulingSnapshot } from "@/lib/srs/undo";
+import { creditedFor, isCredited, levelLessonWords } from "@/lib/progress/credited";
 import { addCardsFor as addWordCards, addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
 import {
   defaultProgramme, LESSON_STEP, MODULE_HOME, continueHref, dayById, focusedSteps, lessonDayFor, levelHeldOnHandOff,
@@ -121,6 +125,7 @@ import { doneKeyFrom, doneToday, withDone } from "@/lib/ux/workbookDone";
 import { notePlayed } from "@/lib/progress/gamesPlayed";
 import { adaptOfferFor, SNOOZE_DAYS } from "@/lib/progress/adapt";
 import { clip } from "@/lib/copy/clip";
+import { keepAnswers, readAnswers } from "@/lib/progress/lessonAnswers";
 
 import { DEFAULT_SOURCE } from "@/lib/srs/sources";
 import { ratingFor, SONAD_GUESSES } from "@/lib/games/sonad";
@@ -2359,6 +2364,39 @@ export async function addCommonWords(group: string) {
 }
 
 /**
+ * THE WORDS OF A LEVEL THE LEARNER HOLDS, INTO THE DECK ON A PRESS.
+ *
+ * /learn counts the levels up to the one somebody holds as done without
+ * testing them (`creditedFor`). This is the way to have them tested: every
+ * word that level's lessons teach, a recognition card and a production card
+ * each, under `PASSED_LEVEL`, which the module does not hold back. New cards,
+ * so the scheduler introduces them at the daily pace like any other, and the
+ * "checked" count on /learn grows as they graduate. Nothing is marked known.
+ *
+ * Only a level this learner is credited with, worked out again here rather
+ * than trusted, since the argument is JSON off the wire.
+ */
+export async function addPassedLevelWords(level: string) {
+  const ownerId = await requireUserId();
+  const busy = await throttleShared(ownerId, "addPassedLevelWords");
+  if (busy) return await sayRefusal(ownerId, busy);
+  const { through } = await creditedFor(ownerId);
+  if (typeof level !== "string" || !isCredited(through, level)) {
+    return { ok: false as const, error: "That level isn't counted as yours yet." };
+  }
+
+  const { added, words } = await addPlanToDeck(
+    ownerId,
+    planLemmas(levelLessonWords(level), ["RECOGNITION", "PRODUCTION"]),
+    "PASSED_LEVEL",
+  );
+
+  revalidatePath("/words");
+  revalidatePath("/");
+  return { ok: true as const, added, words };
+}
+
+/**
  * THE NEXT BATCH OF ONE LIST, BUILT OUT INTO EVERY CARD ITS WORDS SUPPORT.
  *
  * `addCommonWords` above is the browsing screen's button: a hundred words, a
@@ -3360,13 +3398,59 @@ export async function checkLessonSentence(lessonIdIn: unknown, whichIn: unknown,
   // Any lesson, the course's or one in preview: every lesson has cards to say, where only some have a writing task.
   const lesson = await lessonOrPreview(lessonIdIn);
   const index = typeof indexIn === "number" && Number.isInteger(indexIn) ? indexIn : -1;
-  const prompts = text(whichIn) === "turns" ? lesson?.roleplay?.turns ?? [] : lesson?.answers ?? [];
+  const which = text(whichIn) === "turns" ? "turns" : "answers";
+  const prompts = which === "turns" ? lesson?.roleplay?.turns ?? [] : lesson?.answers ?? [];
   const prompt = prompts[index];
   if (!lesson || !prompt) return { ok: false as const, error: "That card isn't in this lesson any more." };
   const typed = visibleLine(textIn, MAX_CHECKED_CHARS);
   if (!typed) return { ok: false as const, error: "Type an answer first." };
-  const checked = await checkTypedSentence(typed, prompt.model.et);
-  return { ok: true as const, findings: checked.findings, words: checked.words };
+  // The model with the learner's own name in it, as the card shows it, so their name is never a difference.
+  const name = sayableName(await readSetting(ownerId, SETTING_KEYS.displayName));
+  const [checked] = await checkAgainstLines([{ text: typed, ask: lineAskFor(lesson, which, prompt, name) }]);
+  return { ok: true as const, findings: checked!.findings, words: checked!.words, differences: checked!.differences, grade: checked!.grade };
+}
+
+/** The most sentences of a story told back that are read: a retelling is four or five. */
+const MAX_RETELL_SENTENCES = 12;
+
+/**
+ * A STORY TOLD BACK, READ A SENTENCE AT A TIME (B1 on).
+ *
+ * Each sentence the learner said or typed is read against the language
+ * (`checkSentence`) and against the line of the story it is nearest
+ * (`nearestLine`), told back about whoever told it, so `ma` where the story is
+ * Tom's is named. No model, nothing graded, nothing stored here: what the
+ * learner said is kept with the lesson's answers when the lesson is finished.
+ */
+export async function checkRetell(lessonIdIn: unknown, textIn: unknown) {
+  const ownerId = await requireUserId();
+  const busy = throttleAction(ownerId, "checkSentence");
+  if (busy) return await sayRefusal(ownerId, busy);
+  const lesson = await lessonOrPreview(lessonIdIn);
+  if (!lesson?.retell) return { ok: false as const, error: "That lesson has no story to tell back." };
+  const said = typeof textIn === "string" ? clip(textIn, MAX_WRITTEN_CHARS) : "";
+  const sentences = toldSentences(said).slice(0, MAX_RETELL_SENTENCES).map((s) => visibleLine(s, MAX_CHECKED_CHARS)).filter((s): s is string => Boolean(s));
+  if (sentences.length === 0) return { ok: true as const, sentences: [] };
+  const story = lesson.retell.story.map((l) => l.et);
+  const read = await readForCheck(sentences, story.join(" "));
+  const items = sentences.map((sentence) => {
+    const at = nearestLine(sentence, story, read.entries);
+    return { sentence, at };
+  });
+  const checked = await checkAgainstLines(items.map(({ sentence, at }) => ({
+    text: sentence,
+    ask: at === null ? { lines: [], ownDetails: false } : retellAsk(lesson, story[at]!),
+  })), read);
+  return {
+    ok: true as const,
+    sentences: items.map(({ sentence, at }, i) => ({
+      sentence,
+      line: at === null ? null : lesson.retell!.story[at]!,
+      findings: checked[i]!.findings,
+      differences: checked[i]!.differences,
+      grade: checked[i]!.grade,
+    })),
+  };
 }
 
 /** The longest text a writing evening reads: a B1 note or letter is well under it. */
@@ -3666,6 +3750,8 @@ const BackupSchema = z.object({
   /** Words put aside. Optional, like every key added after the format was set. */
   deferrals: z.array(z.record(z.string(), z.unknown())).optional(),
   courseSteps: z.array(z.record(z.string(), z.unknown())).optional(),
+  /** What was said on each lesson's Say it, the latest time through. Optional, like every key added after the format was set. */
+  lessonAnswers: z.array(z.record(z.string(), z.unknown())).optional(),
   /**
    * A learner's own named shelves. Optional for the reason `scans` is: a file
    * written before this existed has no such key and must still restore.
@@ -3763,6 +3849,23 @@ function backupTicks(backup: { courseSteps?: readonly Record<string, unknown>[] 
     dayId: String(raw.dayId ?? ""),
     createdAt: typeof raw.createdAt === "string" ? raw.createdAt : null,
   }));
+}
+/**
+ * A backup's kept lesson answers, read before the restore's transaction opens:
+ * one row per lesson the course still has, through the shape the finish
+ * screen sends (`readAnswers`), and nothing a file could put anything else in.
+ */
+function restorableAnswers(rows: readonly Record<string, unknown>[] | undefined, ownerId: string): Array<Record<string, unknown>> {
+  const out: Array<Record<string, unknown>> = [];
+  for (const raw of rows ?? []) {
+    const lessonId = String(raw.lessonId ?? "");
+    if (!lessonDayFor(lessonId) || out.some((r) => r.lessonId === lessonId)) continue;
+    let parsed: unknown = null;
+    try { parsed = typeof raw.said === "string" ? JSON.parse(raw.said) : null; } catch { parsed = null; }
+    const answers = readAnswers({ mode: raw.mode, said: parsed });
+    if (answers) out.push({ ownerId, lessonId, mode: answers.mode, said: JSON.stringify(answers.said) });
+  }
+  return out;
 }
 /** The longest setting a backup may write. The longest real one is a list of ids. */
 const MAX_RESTORED_SETTING = 4000;
@@ -4159,6 +4262,17 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
       );
 
       /*
+        WHAT WAS SAID ON A LESSON, for a lesson the course still has, read
+        through the same shape the finish screen sends (`readAnswers`), so a
+        file cannot put anything else into the row. One per lesson, and a row
+        already here is kept: it is the newer of the two.
+      */
+      await createAbsent(
+        restorableAnswers(backup.lessonAnswers, ownerId),
+        (chunk) => tx.lessonAnswer.createMany({ data: chunk as never, skipDuplicates: true }),
+      );
+
+      /*
         A star points at a dictionary entry with a real foreign key, and a
         merge onto a database that does not hold that entry would abort the
         whole transaction over a bookmark. The backup carries the dictionary,
@@ -4443,7 +4557,7 @@ export async function submitCheck(checkId: string, attempt: number, responses: (
  * evening records nothing, is `finishLessonFor` in lib/progress/lessons.ts,
  * which `POST /api/v1/lessons/{id}/finish` calls too, behind the same throttle.
  */
-export async function finishLesson(lessonId: string) {
+export async function finishLesson(lessonId: string, answersIn?: unknown) {
   lessonId = text(lessonId);
   const ownerId = await requireUserId();
   if (!lessonDayFor(lessonId)) return { ok: false as const, error: "That lesson isn't part of the course." };
@@ -4451,6 +4565,14 @@ export async function finishLesson(lessonId: string) {
   if (busy) return await sayRefusal(ownerId, busy);
   const result = await finishLessonFor(ownerId, lessonId);
   if (!result.ok) return { ok: false as const, error: result.error };
+  /*
+    WHAT WAS SAID ON SAY IT, KEPT so the lesson opened again shows it
+    (`lessonAnswers.ts`): the latest time through, replacing the last. A
+    payload that does not read is dropped rather than refused, since the
+    lesson itself is finished either way.
+  */
+  const answers = readAnswers(answersIn);
+  if (answers && answers.said.length > 0) await keepAnswers(ownerId, lessonId, answers);
   revalidatePath("/course");
   revalidatePath("/");
   revalidatePath("/words");

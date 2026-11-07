@@ -323,6 +323,10 @@ export const B2_PERE_LESSONS: readonly LessonSpec[] = [
       cue: "Say where two people in your family are and what they're busy with, with -mas, and who's just back from something.",
       model: { et: "Mu mees on tööl ja poeg on õues mängimas. Tütar tuleb just ujumast.", en: "My husband's at work and my son's out playing. My daughter's just back from swimming." },
       seconds: [60, 45, 30],
+      checks: [
+        { en: "Busy at it, with -mas ({mängimas} here).", any: ["*mas"] },
+        { en: "Just back from it, with -mast ({tuleb just ujumast} here).", any: ["*mast"] },
+      ],
     },
   },
   {
@@ -624,6 +628,11 @@ export const B2_PERE_LESSONS: readonly LessonSpec[] = [
       cue: "Say how old they are, what they love doing, and one thing about them a teacher should know.",
       model: { et: "Mu poeg on kuueaastane. Ta armastab jalgpalli mängida ja joonistada. Alguses on ta häbelik, aga hiljem räägib kõigiga.", en: "My son is six. He loves playing football and drawing. He's shy at first, but later he talks to everybody." },
       seconds: [60, 45, 30],
+      checks: [
+        { en: "How old, with -aastane ({kuueaastane} here).", any: ["*aastane"] },
+        { en: "What they love doing, with {armastab}.", any: ["armastab"] },
+        { en: "One thing a teacher should know, with {aga}.", any: ["aga"] },
+      ],
     },
   },
   {
@@ -641,7 +650,7 @@ export const B2_PERE_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Jah, tere. Mina olen Tom ja mu poeg Mark tuleb sügisel kooli.", en: "Yes, hello. I'm Tom, and my son Mark is starting school in the autumn." },
       { who: "Piret", et: "Väga meeldiv! Mina olen Piret, sügisel olen esimese klassi õpetaja. Kus Mark on?", en: "Nice to meet you! I'm Piret, I'll be the first-grade teacher in the autumn. Where's Mark?" },
       { who: "Tom", et: "Ta on võimlas palli mängimas.", en: "He's off playing ball in the gym." },
-      { who: "Piret", et: "Muidugi! Eelmisel aastal ehitati meile uus võimla. Lastele meeldib see väga.", en: "Of course! A new gym was built for us last year. The children love it." },
+      { who: "Piret", et: "Muidugi! Eelmisel aastal ehitati meile uus võimla. Lastele meeldib see väga.", en: "Of course! A new gym was built for us last year. The children really like it." },
       { who: "Tom", et: "Mul on üks küsimus. Sügisel oleme mõlemad tööl kella viieni. Kas Mark saab pärast tunde koolis olla?", en: "I've got one question. In the autumn we'll both be at work until five. Can Mark stay at school after lessons?" },
       { who: "Piret", et: "Saab küll. Selleks on meil pikapäevarühm.", en: "He can. That's what our after-school group is for." },
       { who: "Tom", et: "Vabandust, mis on pikapäevarühm?", en: "Sorry, what's an after-school group?" },

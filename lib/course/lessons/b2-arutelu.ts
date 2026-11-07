@@ -68,7 +68,7 @@ export const B2_ARUTELU_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "osakaal", en: "a share, a proportion" },
       { kind: "form", et: "väheneb", of: "vähenema", en: "it gets smaller, it goes down: a figure is an it" },
       { kind: "form", et: "suureneb", of: "suurenema", en: "it gets bigger, it goes up" },
-      { kind: "form", et: "autode", of: "auto", en: "of the cars: the [mitmuse omastav] (2nd form, plural)" },
+      { kind: "form", et: "autode", of: "auto", en: "of the cars: the [mitmuse omastav] (plural)" },
       { kind: "form", et: "sõitjaid", of: "sõitja", en: "people riding, travelers, some of them" },
       { kind: "word", et: "võrra", en: "by, by how much: {kahe protsendi võrra}, by two percent" },
       { kind: "word", et: "parkimine", en: "parking" },
@@ -156,6 +156,11 @@ export const B2_ARUTELU_LESSONS: readonly LessonSpec[] = [
       model: { et: "Minu linnas sõidab umbes pool inimestest tööle autoga, aga üha rohkem inimesi sõidab rattaga või bussiga. Kesklinnas on parkimine kallis, nii et paljud jätavad auto koju. Autode osakaal väheneb ja rattureid on iga aastaga rohkem. Talvel on rattureid muidugi vähem.", en: "In my town about half of people drive to work, but more and more cycle or take the bus. Parking in the center is expensive, so a lot of people leave the car at home. The share of cars is getting smaller and there are more cyclists every year. In winter there are fewer cyclists, of course." },
       seconds: [60],
       prepare: 120,
+      checks: [
+        { en: "A share of the whole, with -st ({pool inimestest} here).", any: ["pool *st"] },
+        { en: "Which way it goes, with {väheneb} or {suureneb}.", any: ["väheneb", "suureneb"] },
+        { en: "More or fewer, with {rohkem} or {vähem}.", any: ["rohkem", "vähem"] },
+      ],
     },
   },
   {
@@ -316,7 +321,7 @@ export const B2_ARUTELU_LESSONS: readonly LessonSpec[] = [
     title: "Which is better",
     goal: "Compare two options so the difference is clear: how many times cheaper, much more convenient, the best of all, and the more, the better.",
     cast: { Kadri: "vesta", Tom: "kalev", Kristi: "liivika" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Kadri", et: "Tom, kas sa nägid Kristi kirja? Ta tahab, et me valiksime eesti keele kursuse.", en: "Tom, did you see Kristi's email? She wants us to choose an Estonian course.", stage: "The office kitchen on a Monday morning. Kadri talks fast; she has a meeting in five minutes." },
       { who: "Tom", et: "Nägin. Kaks võimalust: õhtune kursus linnas või õpetaja, kes tuleb kontorisse.", en: "I did. Two options: an evening course in town, or a teacher who comes to the office." },
@@ -430,6 +435,11 @@ export const B2_ARUTELU_LESSONS: readonly LessonSpec[] = [
       model: { et: "Kursusel on kindlasti toredam, sest seal on õpetaja ja kolleegid. Ise õppida on küll palju odavam, aga minu jaoks on see raske. Mida rohkem ma räägin, seda kiiremini ma õpin ja kursusel räägin ma rohkem. Kursus on kallim, aga see on seda väärt. Nii et mina valiksin pigem kursuse.", en: "A course is definitely more fun, because there's a teacher and there are colleagues. On your own it's much cheaper, granted, but for me it's hard. The more I talk, the faster I learn, and on a course I talk more. A course costs more, but it's worth it. So I'd rather choose a course." },
       seconds: [60],
       prepare: 120,
+      checks: [
+        { en: "Two comparisons, with the -m form ({odavam}, {toredam} here).", any: ["*am", "*em", "*im"], atLeast: 2 },
+        { en: "One grows with the other, {mida ... seda}.", any: ["mida ... seda"] },
+        { en: "Which you'd choose, with {pigem} or {valiksin}.", any: ["pigem", "valiksin"] },
+      ],
     },
   },
   {
@@ -465,7 +475,7 @@ export const B2_ARUTELU_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "argument", en: "an argument, a reason for" },
       { kind: "form", et: "argumente", of: "argument", en: "arguments, some of them" },
       { kind: "word", et: "vastuväide", en: "a counter-argument, an objection" },
-      { kind: "form", et: "vastuväidet", of: "vastuväide", en: "a counter-argument, as the thing you need: the [osastav] (3rd form)" },
+      { kind: "form", et: "vastuväidet", of: "vastuväide", en: "a counter-argument, as what you need: the [osastav] (3rd form)" },
       { kind: "form", et: "vastuväiteta", of: "vastuväide", en: "without a counter-argument" },
       { kind: "word", et: "esiteks", en: "first, firstly" },
       { kind: "word", et: "teiseks", en: "second, secondly" },
@@ -582,6 +592,11 @@ export const B2_ARUTELU_LESSONS: readonly LessonSpec[] = [
       model: { et: "Minu seisukoht on, et kesklinnas peaks olema vähem autosid. Esiteks oleks seal palju vaiksem. Teiseks oleks õhk parem. Vastuväide on see, et poed jäävad tühjaks. See on küll võimalik, aga mujal on läinud just vastupidi. Seetõttu ei ole see minu meelest suur probleem. Minu järeldus on lihtne: vähem autosid, parem linn.", en: "My position is that there should be fewer cars in the center. First, it would be much quieter there. Second, the air would be better. The counter-argument is that the shops will end up empty. That's possible, granted, but elsewhere it's gone just the other way. So in my view it isn't a big problem. My conclusion is simple: fewer cars, a better city." },
       seconds: [60],
       prepare: 120,
+      checks: [
+        { en: "Your position, {Minu seisukoht on, et}.", any: ["minu seisukoht"] },
+        { en: "Two arguments, {Esiteks} and {Teiseks}.", any: ["esiteks", "teiseks"], atLeast: 2 },
+        { en: "The case against and the end, {Vastuväide} and {Seetõttu} or {Minu järeldus}.", any: ["vastuväide", "seetõttu", "järeldus"], atLeast: 2 },
+      ],
     },
   },
   {
@@ -593,7 +608,7 @@ export const B2_ARUTELU_LESSONS: readonly LessonSpec[] = [
     title: "What the study found",
     goal: "Say what a study found and how, and give your view on it: who was asked, what the figures show, and what follows.",
     cast: { Diktor: "albert", Kati: "vesta", Tom: "kalev" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Diktor", et: "Tartu Ülikooli teadlased uurisid, kui palju eestlased loevad.", en: "Scientists at the University of Tartu have studied how much Estonians read.", stage: "Kati's kitchen, with the radio on. Tom has come round for coffee." },
       { who: "Diktor", et: "Uuringust selgus, et noored loevad raamatuid oluliselt vähem kui kümme aastat tagasi.", en: "The study found that young people read significantly fewer books than ten years ago." },
@@ -738,7 +753,7 @@ export const B2_ARUTELU_LESSONS: readonly LessonSpec[] = [
     title: "The B2 speaking exam",
     goal: "Get through the B2 speaking exam: a one-minute talk after two minutes to prepare, then a debate where you disagree politely and decide together.",
     cast: { Kersti: "mari", Tom: "kalev" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Kersti", et: "Tere! Mina olen Kersti. Palun istuge.", en: "Hello! I'm Kersti. Please sit down.", stage: "The B2 speaking exam. Tom has never met the examiner." },
       { who: "Tom", et: "Tere! Mina olen Tom.", en: "Hello! I'm Tom." },

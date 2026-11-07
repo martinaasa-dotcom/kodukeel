@@ -109,6 +109,10 @@ export const WORKBOOK: Area = {
     // The page with nothing to set.
     "A course book's exercise, set from your own words.": "Упражнение из учебника, составленное из твоих слов.",
     "No page to set yet": "Пока не из чего составить страницу",
+    "A course book's exercise, set from one lesson's words and sentences.": "Упражнение из учебника, составленное из слов и предложений одного урока.",
+    "This lesson's words don't fill a page yet": "Слов этого урока пока не хватает на страницу",
+    "Its sentences don't hold enough forms to ask about. The general page uses every word you've learned.": "В его предложениях пока мало форм, о которых можно спросить. Общая страница берёт все слова, которые ты выучил (выучила).",
+    "Open the general page": "Открыть общую страницу",
     "It needs words you've met with real sentences behind them. Meet a few more and come back.": "Нужны знакомые тебе слова, за которыми стоят настоящие предложения. Выучи ещё несколько и возвращайся.",
 
     // The briefing.
@@ -223,6 +227,10 @@ export const WORKBOOK: Area = {
 
     "A course book's exercise, set from your own words.": "Вправа з підручника, складена з твоїх слів.",
     "No page to set yet": "Поки немає з чого скласти сторінку",
+    "A course book's exercise, set from one lesson's words and sentences.": "Вправа з підручника, складена зі слів і речень одного уроку.",
+    "This lesson's words don't fill a page yet": "Слів цього уроку поки не вистачає на сторінку",
+    "Its sentences don't hold enough forms to ask about. The general page uses every word you've learned.": "У його реченнях поки мало форм, про які можна запитати. Загальна сторінка бере всі слова, які ти вивчив (вивчила).",
+    "Open the general page": "Відкрити загальну сторінку",
     "It needs words you've met with real sentences behind them. Meet a few more and come back.": "Потрібні знайомі тобі слова, за якими стоять справжні речення. Вивчи ще кілька й повертайся.",
 
     "A page from your workbook": "Сторінка з твого робочого зошита",

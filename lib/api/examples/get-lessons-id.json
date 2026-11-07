@@ -89,18 +89,24 @@
         "kind": "phrase",
         "et": "Nägemist!",
         "en": "See you! Bye!"
+      },
+      {
+        "kind": "phrase",
+        "et": "Tsau!",
+        "en": "Hi! Bye! (between friends)"
       }
     ],
     "how": {
       "point": "Estonian is said the way it is written: one letter is one sound, and every letter is said.",
       "notes": [
-        "{Palun} does three jobs: please, here you are, and you're welcome."
+        "{Palun} does three jobs: please, here you are, and you're welcome.",
+        "Between friends, {Tsau!} is both hi and bye. The dictionary spells it with a š, tšau, but almost everybody writes tsau."
       ],
       "sounds": [
         {
           "sound": "sound-ou",
           "glyph": "õ",
-          "like": "an o said with the lips spread, not rounded",
+          "like": "the oo in book, said with relaxed lips",
           "word": "stress-ouhtust",
           "mark": "õ",
           "en": "evening, as in good evening"
@@ -116,7 +122,7 @@
         {
           "sound": "sound-oe",
           "glyph": "ö",
-          "like": "an e said with rounded lips",
+          "like": "the ir in bird, said without the r and with rounded lips",
           "word": "vowel-oeoe",
           "mark": "öö",
           "en": "night"
@@ -124,7 +130,7 @@
         {
           "sound": "sound-ue",
           "glyph": "ü",
-          "like": "an i said with rounded lips",
+          "like": "the u in cute",
           "word": "number-ueks",
           "mark": "ü",
           "en": "one"
@@ -197,15 +203,25 @@
   },
   "practice": [
     {
-      "kind": "pick",
-      "et": "Tere!",
-      "options": [
-        "Good afternoon!",
-        "Good evening!",
-        "Hello! Hi!",
-        "Good morning!"
-      ],
-      "answer": "Hello! Hi!"
+      "kind": "match",
+      "pairs": [
+        {
+          "et": "Nägemist!",
+          "en": "See you! Bye!"
+        },
+        {
+          "et": "Tsau!",
+          "en": "Hi! Bye! (between friends)"
+        },
+        {
+          "et": "Tere!",
+          "en": "Hello! Hi!"
+        },
+        {
+          "et": "Aitäh!",
+          "en": "Thank you!"
+        }
+      ]
     },
     {
       "kind": "hear",
@@ -242,22 +258,11 @@
     },
     {
       "kind": "pick",
-      "et": "Aitäh!",
-      "options": [
-        "Good afternoon!",
-        "Good evening!",
-        "Please. Here you are. You're welcome.",
-        "Thank you!"
-      ],
-      "answer": "Thank you!"
-    },
-    {
-      "kind": "pick",
       "et": "Palun!",
       "options": [
+        "Good evening!",
         "Thank you!",
         "Goodbye!",
-        "Good evening!",
         "Please. Here you are. You're welcome."
       ],
       "answer": "Please. Here you are. You're welcome."
@@ -266,38 +271,27 @@
       "kind": "hear",
       "et": "Head aega!",
       "options": [
-        "Goodbye!",
-        "See you! Bye!",
         "Please. Here you are. You're welcome.",
-        "Thank you!"
+        "See you! Bye!",
+        "Thank you!",
+        "Goodbye!"
       ],
       "answer": "Goodbye!"
     },
     {
-      "kind": "pick",
-      "et": "Nägemist!",
-      "options": [
-        "Thank you!",
-        "Goodbye!",
-        "Please. Here you are. You're welcome.",
-        "See you! Bye!"
-      ],
-      "answer": "See you! Bye!"
-    },
-    {
       "kind": "type",
-      "en": "Good evening!",
-      "answer": "Tere õhtust!",
+      "en": "Hi! Bye! (between friends)",
+      "answer": "Tsau!",
       "accept": [
-        "Tere õhtust!"
+        "Tsau!"
       ]
     },
     {
       "kind": "type",
-      "en": "See you! Bye!",
-      "answer": "Nägemist!",
+      "en": "Good afternoon!",
+      "answer": "Tere päevast!",
       "accept": [
-        "Nägemist!"
+        "Tere päevast!"
       ]
     },
     {
@@ -310,10 +304,18 @@
     },
     {
       "kind": "type",
-      "en": "Please. Here you are. You're welcome.",
-      "answer": "Palun!",
+      "en": "Good evening!",
+      "answer": "Tere õhtust!",
       "accept": [
-        "Palun!"
+        "Tere õhtust!"
+      ]
+    },
+    {
+      "kind": "type",
+      "en": "Hello! Hi!",
+      "answer": "Tere!",
+      "accept": [
+        "Tere!"
       ]
     },
     {
@@ -322,14 +324,6 @@
       "answer": "Aitäh!",
       "accept": [
         "Aitäh!"
-      ]
-    },
-    {
-      "kind": "type",
-      "en": "Good afternoon!",
-      "answer": "Tere päevast!",
-      "accept": [
-        "Tere päevast!"
       ]
     }
   ],
@@ -398,20 +392,159 @@
       }
     ]
   },
+  "name": null,
+  "due": 0,
+  "check": null,
   "partAt": 1,
   "timeMultiplier": 1,
   "read": null,
   "notes": null,
   "forms": [],
-  "name": null,
-  "due": 33,
-  "check": null,
+  "words": {
+    "cards": [],
+    "loose": [
+      {
+        "item": {
+          "kind": "phrase",
+          "et": "Tere!",
+          "en": "Hello! Hi!"
+        },
+        "example": {
+          "et": "Tere, tere!",
+          "en": "Hi there!"
+        },
+        "hit": "Tere!"
+      },
+      {
+        "item": {
+          "kind": "phrase",
+          "et": "Tere hommikust!",
+          "en": "Good morning!"
+        },
+        "example": {
+          "et": "Tere hommikust!",
+          "en": "Good morning!"
+        },
+        "hit": "Tere hommikust!"
+      },
+      {
+        "item": {
+          "kind": "phrase",
+          "et": "Tere päevast!",
+          "en": "Good afternoon!"
+        },
+        "example": null,
+        "hit": null
+      },
+      {
+        "item": {
+          "kind": "phrase",
+          "et": "Tere õhtust!",
+          "en": "Good evening!"
+        },
+        "example": {
+          "et": "Tere õhtust!",
+          "en": "Good evening!"
+        },
+        "hit": "Tere õhtust!"
+      },
+      {
+        "item": {
+          "kind": "phrase",
+          "et": "Aitäh!",
+          "en": "Thank you!"
+        },
+        "example": {
+          "et": "Aitäh!",
+          "en": "Thank you!"
+        },
+        "hit": "Aitäh!"
+      },
+      {
+        "item": {
+          "kind": "phrase",
+          "et": "Palun!",
+          "en": "Please. Here you are. You're welcome."
+        },
+        "example": {
+          "et": "Palun!",
+          "en": "You're welcome!"
+        },
+        "hit": "Palun!"
+      },
+      {
+        "item": {
+          "kind": "phrase",
+          "et": "Head aega!",
+          "en": "Goodbye!"
+        },
+        "example": {
+          "et": "Head aega!",
+          "en": "Goodbye!"
+        },
+        "hit": "Head aega!"
+      },
+      {
+        "item": {
+          "kind": "phrase",
+          "et": "Nägemist!",
+          "en": "See you! Bye!"
+        },
+        "example": {
+          "et": "Nägemist!",
+          "en": "Bye, see you!"
+        },
+        "hit": "Nägemist!"
+      },
+      {
+        "item": {
+          "kind": "phrase",
+          "et": "Tsau!",
+          "en": "Hi! Bye! (between friends)"
+        },
+        "example": null,
+        "hit": null
+      }
+    ]
+  },
+  "stars": {
+    "tere!": {
+      "id": "13633bd6-3003-4e02-a8ad-9dc8efb5fbfe",
+      "starred": false
+    },
+    "tere hommikust!": {
+      "id": "b558eb08-5e6a-4b6a-865f-2fea36c61548",
+      "starred": false
+    },
+    "tere päevast!": {
+      "id": "b542fe35-e30f-43cb-9ec9-1e48df365329",
+      "starred": false
+    },
+    "tere õhtust!": {
+      "id": "68ce33f1-9b71-4a74-8171-54f15af81bee",
+      "starred": false
+    },
+    "aitäh!": {
+      "id": "7adceda7-0c0a-4961-a31a-6ccabb41afe5",
+      "starred": false
+    },
+    "head aega!": {
+      "id": "cd718ba9-50f6-4523-b9d0-355faf7b35a6",
+      "starred": false
+    },
+    "nägemist!": {
+      "id": "cf55c927-6275-4421-9836-ee3004ac3311",
+      "starred": false
+    }
+  },
   "locale": "ru",
   "nativePart": "Jaan",
   "translations": {
     "Hello and thank you": "Привет и спасибо",
     "Say hello, thank you and goodbye, at any time of day.": "Здороваться, благодарить и прощаться в любое время дня.",
+    "Mari": "Мари",
     "Good morning!": "Доброе утро!",
+    "Jaan": "Яан",
     "Hi there!": "Привет!",
     "Here you are.": "Вот, пожалуйста.",
     "She hands him a coffee.": "Она протягивает ему кофе.",
@@ -425,26 +558,28 @@
     "Good evening!": "Добрый вечер!",
     "Please. Here you are. You're welcome.": "Пожалуйста. Вот, возьмите. Не за что.",
     "See you! Bye!": "Увидимся! Пока!",
+    "Hi! Bye! (between friends)": "Привет! Пока! (между друзьями)",
     "Estonian is said the way it is written: one letter is one sound, and every letter is said.": "Эстонский читается так, как пишется: одна буква означает один звук, и произносится каждая буква.",
     "{Palun} does three jobs: please, here you are, and you're welcome.": "У {Palun} три значения: «пожалуйста», «вот, возьмите» и «не за что».",
-    "an o said with the lips spread, not rounded": "o, произнесённое с растянутыми, а не округлёнными губами",
+    "Between friends, {Tsau!} is both hi and bye. The dictionary spells it with a š, tšau, but almost everybody writes tsau.": "Между друзьями {Tsau!} значит и «привет», и «пока». В словаре пишется с š, tšau, но почти все пишут tsau.",
+    "the oo in book, said with relaxed lips": "ы, как в слове «мы»",
     "evening, as in good evening": "вечер, как в «добрый вечер»",
     "the a in cat": "a в слове cat",
     "thank you": "спасибо",
-    "an e said with rounded lips": "э, сказанное с округлёнными губами",
+    "the ir in bird, said without the r and with rounded lips": "ir в слове bird, но без r и с округлёнными губами",
     "night": "ночь",
-    "an i said with rounded lips": "и, сказанное с округлёнными губами",
+    "the u in cute": "u в слове cute",
     "one": "один",
-    "a double letter is a long sound: hold the m": "двойная буква означает долгий звук: потяните m",
+    "a double letter is a long sound: hold the m": "двойная буква означает долгий звук: потяни m",
     "morning, as in good morning": "утро, как в «доброе утро»",
     "always said, even at the end of a word": "произносится всегда, даже в конце слова",
-    "Don't drop the h at the end of {aitäh}. Every letter is said, the last one too.": "Не проглатывайте h в конце {aitäh}. Произносится каждая буква, и последняя тоже.",
+    "Don't drop the h at the end of {aitäh}. Every letter is said, the last one too.": "Не проглатывай h в конце {aitäh}. Произносится каждая буква, и последняя тоже.",
     "Hello!": "Здравствуйте!",
-    "Say hello back.": "Поздоровайтесь в ответ.",
-    "They thank you. Say you're welcome.": "Вас благодарят. Ответьте «пожалуйста».",
-    "It's evening. Greet somebody.": "Сейчас вечер. Поздоровайтесь с кем-нибудь.",
-    "Say goodbye back.": "Попрощайтесь в ответ.",
+    "Say hello back.": "Поздоровайся в ответ.",
+    "They thank you. Say you're welcome.": "Тебя благодарят. Ответь «пожалуйста».",
+    "It's evening. Greet somebody.": "Сейчас вечер. Поздоровайся с кем-нибудь.",
+    "Say goodbye back.": "Попрощайся в ответ.",
     "See you!": "Увидимся!",
-    "When you're stuck": "Когда вы не понимаете"
+    "When you're stuck": "Когда ты не понимаешь"
   }
 }

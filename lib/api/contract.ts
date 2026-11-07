@@ -433,6 +433,13 @@ export const LessonSpecSchema = z.object({
     prepare: z.number().int().optional().describe("Seconds to get ready before the first go, a clock that can be cut short and never starts a go by itself (B2's exam talk: 120)."),
     topics: z.array(z.object({ en: z.string() })).readonly().optional()
       .describe("Two topics to choose between before the preparation starts (C1, the exam's presentation); the go runs on the one chosen."),
+    checks: z.array(z.object({
+      en: z.string(),
+      any: z.array(z.string()).readonly(),
+      atLeast: z.number().int().optional(),
+      near: z.array(z.string()).readonly().optional(),
+    })).readonly()
+      .describe("Today's pattern, two or three checks read off each go's transcript by string matching alone: met where a spelling in `any` stands in what was said as whole words, case aside (a word may carry a star at one end for an ending or a beginning, at least two letters more at the front, and `...` stands for up to four words between two parts), `atLeast` times. Where unmet, `near` spellings found in the transcript are named as they stood. Mirrors lib/course/lessons/fasterChecks.ts."),
   }).optional().describe("One answer said three times, in 90, 60 and 45 seconds at the standard pace (times `timeMultiplier`), B1 on."),
   write: z.object({
     genre: z.string(), purpose: z.string(),
@@ -519,12 +526,32 @@ export const PracticeItemSchema = z.discriminatedUnion("kind", [
     answer: z.string(),
     accept: z.array(z.string()).readonly().describe("Every spelling that counts, the asked one first."),
     note: z.string().optional(),
+    of: z.string().optional().describe("The dictionary word the answer is a form of, where the question asks for a form."),
+    form: z.object({ en: z.string(), ru: z.string(), uk: z.string() }).optional()
+      .describe("Which form the answer is, named the way a class names it in each language (`omastav (2nd form)`), where the dictionary can say. Shown with `of` under the question."),
   }),
 ]).describe(
   "One question, built on the server; the client never decides what a learner is asked. A kind is added " +
   "and never removed within v1 (`rework` and `fix` came with B1, `workOut` with B2, `room` with C1), so a client skips an item whose kind it " +
   "does not know rather than failing the lesson: a lesson with one question fewer is still a lesson.",
 );
+
+const WordExample = z.object({ et: z.string(), en: z.string() });
+const WordCellSchema = z.object({
+  et: z.string(),
+  fresh: z.boolean().describe("New in this lesson; otherwise shown for its place in the table."),
+  name: z.string().describe("The case's Estonian name under the form, `osastav` or `mitmuse osastav`; empty for none."),
+  stem: z.boolean().optional(),
+  past: z.boolean().optional(),
+});
+const WordRowSchema = z.object({
+  labels: z.array(z.string()).readonly().describe("The taught items' own English; a screen translates each and joins them."),
+  sg: WordCellSchema.optional(),
+  pl: WordCellSchema.optional(),
+  forms: z.array(WordCellSchema).readonly().optional(),
+  example: WordExample.nullable(),
+  hit: z.string().nullable(),
+});
 
 export const LessonResponse = z.object({
   lesson: LessonSpecSchema,
@@ -536,7 +563,8 @@ export const LessonResponse = z.object({
     .describe("A conversation from the situations catalog that the lesson rehearses, offered on its finish (B1 on)."),
   worksheet: z.object({
     theme: z.string().nullable().describe("The theme the page leads with, a case as `case:` and its key or a tense such as `conditional`, or null for the page to choose."),
-  }).nullable().describe("A worksheet page on what the lessons have taught, offered on the finish (B1 on), or null."),
+    lesson: z.string().nullable().optional().describe("The lesson whose words and sentences the page is set from, or null for the general page (`/review/workbook?lesson=`)."),
+  }).nullable().describe("A worksheet page on the lesson's own words and sentences, offered on the finish (B1 on), or null."),
   place: z.object({ at: z.number().int(), of: z.number().int() }),
   name: z.string().nullable().describe("The learner's own first name, for a model answer about them."),
   due: z.number().int().min(0).describe("Cards due in the learner's reviews now."),
@@ -564,6 +592,21 @@ export const LessonResponse = z.object({
     })).readonly(),
     inDeck: z.boolean(),
   })).readonly().describe("C1: the verbs whose past and polite command the Words step shows in a table at its foot, heard and read and never asked, every form as the dictionary holds it; empty on every other lesson."),
+  words: z.object({
+    cards: z.array(z.object({
+      head: z.string(),
+      en: z.string().nullable(),
+      dict: z.object({ ru: z.string().nullable(), uk: z.string().nullable() }).nullable()
+        .describe("The dictionary's own Russian and Ukrainian beside a headword the lesson does not gloss itself; null where it does."),
+      fresh: z.boolean().describe("Whether the headword itself is new in this lesson."),
+      kind: z.enum(["noun", "verb", "word"]),
+      plural: z.boolean().describe("Whether any row has a plural, so the card draws a plural column."),
+      rows: z.array(WordRowSchema).readonly(),
+    })).readonly(),
+    loose: z.array(z.object({ item: LessonTaught, example: WordExample.nullable(), hit: z.string().nullable() })).readonly(),
+  }).describe("The Words step laid out as cards: one per word the lesson teaches forms of, a row per case with singular beside plural off the dictionary, and one line of the lesson using each row with its English; the words with no forms follow in `loose`."),
+  stars: z.record(z.string(), z.object({ id: z.string(), starred: z.boolean() }))
+    .describe("Each spelling the lesson teaches, lower-cased, mapped to its headword's dictionary entry and whether the learner has starred it, for the star on a Practice question."),
   locale: InterfaceLanguage,
   nativePart: z.string().nullable().describe(
     "The one part of the conversation the native speaker recorded whole, which a phone plays in his voice by " +

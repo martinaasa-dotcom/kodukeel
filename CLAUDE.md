@@ -3373,6 +3373,16 @@ and a check everybody waives is a check nobody reads. The emoji rule is drawn th
 arrow in "Estonian to English", the return key in a keyboard hint and the tick on the week strip
 are typographic glyphs doing a job, and only the pictographic kind is banned.
 
+**Grammar copy names the part of speech, never "the thing" or "the word".** "After {ei}, the thing is
+always in the osastav" left a reader asking which word the thing was. The operator's rule, site wide:
+a grammar explanation says "the noun" or "the pronoun", and where the line already shows the word, names
+it in braces with the Estonian already in that line, "the noun ({võtit} here)", "the pronoun ({mida}
+here)"; with no example in the line it is "the noun" alone, and in `lib/estonian/grammar.ts`, which holds
+no Estonian, always that. Ordinary English that is not about a word's role ("Say what the thing is or
+does") stays. `scripts/invariants/grammar-says-the-noun.ts` reads every lesson grammar field and
+`grammar.ts`, with a written exemption list checked both ways, and `VOICE_RULES` hands the same rule to
+Anu, the graders and the conversation note.
+
 **One tell is not brochure, and that is the point of it.** `paradigm` is the linguist's word for
 the thing a class calls the forms of a word, the case endings, or just the table. Nobody learning
 Estonian in Tallinn has met it, so a screen that uses it stops the reader while they work out which
@@ -4613,6 +4623,14 @@ disambiguator was measured as a third and left out: on the 640 lines read it cau
 rules do not and refused eleven good lines, most of them a command at the start of a sentence.
 Ranking a case's lines by whether the English carries the case's preposition was measured too and
 left out, since `Leidsin sahtlist vana foto` says "in the drawer".
+
+**And a finished lesson offers a page of its own.** The worksheet on a lesson's finish screen
+was the general page and was reported as random beside the lesson just done, so `?lesson=` sets
+it from that lesson: the words it teaches, then the rest of its sentences', with lines cut from
+the lesson's own conversation, reworks, fixes and story first and the dictionary's sentences for
+the same words behind them (ADR-005 amendment 6, extended). Measured over the shipped dictionary,
+every lesson from B1 fills a ten-line page and about half of it is the lesson's own sentences. The
+general page is unchanged and stays on Practice.
 
 **The themes take turns, and the one the learner needs is filled from further afield.** With the
 pronouns and the present at the head of a fixed order, a learner whose cases were all doing well
@@ -10733,6 +10751,18 @@ scene keyless as seven kinds of beginner, at its own lesson's level, and fails o
 not taught, which is how the engine's own `või`, `aga` and `selge` were caught. A word a card deals must
 be a dictionary entry, or no answer can meet it.
 
+**A lesson's Words step is one card per word, and Practice has a pass mark (operator's calls,
+2026-11-06, off B1 lesson 2).** Four forms of `võti` were four unrelated rows saying "a form of võti"
+beside "keys, after a no", and nothing showed why. `wordsLayout` in `lib/course/lessons/wordCards.ts`
+groups a lesson's forms by headword: a row per case, singular beside plural read off the dictionary
+(`lessonHeads`, `buildCaseTable`), the case's Estonian name under each form, and one line of the lesson
+using the row with its English, never a grammar-table row, which has none. `components/course/FormGrid.tsx`
+is the one drawing of a word's forms, for every step that shows them. A plural of the three memorized
+forms is "mitmuse nimetav (plural)", never "(1st form, plural)": the ordinals are the singular's
+(`caseNameWithNumber`). And Practice is passed at `PASS_MARK`, 70 percent counted the first time,
+with the questions that slipped coming back until the total reaches it, at every level; the step has
+no Skip until then (`PracticeGate`), which amends "nobody is held in a room" for this one step.
+
 **And every line is what an ordinary Estonian would say, not merely what is correct.** The operator
 read `Kõik? Tubli!` about a book read to the end, where anybody says `Terve raamatu?`, and asked for
 every lesson, scene, pick and written sentence to be how people really talk: the everyday word, the
@@ -10744,6 +10774,15 @@ what to say instead, `lib/course/lessons/spoken.test.ts` sweeps every line again
 `npm run check:lines` and `npm run check:authored` refuse the same while a line is being written. A
 phrase goes in only when it is wrong everywhere; `docs/43-lessons.md` §10 is what to hold a new line
 to. `scripts/invariants/lines-are-everyday-estonian.ts` holds it.
+
+**And a lesson page holds one task, and the next page holds the next** (Martin's call,
+2026-11-04). A step is a sequence of pages from `lib/course/lessons/screens.ts`: on Listen, what
+is new at the level, hearing it with the questions, reading the conversation, the notes and the
+text to read are each a page; Words, How it works and the finished lesson are walked the same way,
+and the finish offers one thing a page with "Not now" beside it. A text stacked under the
+conversation was reported as a wall nobody reads. Add a new block of a lesson as a page in that list,
+never under another; `scripts/invariants/a-lesson-page-holds-one-task.ts` and
+`scripts/test-lessons.mjs` hold it.
 
 **And B1 is a level up in how it is learned, not A2 with harder words.** The same six steps, so it
 reads as one course, and inside them the learner who has the words is asked for the ear, the speed
@@ -10791,6 +10830,25 @@ offer the C1 check, and a pass draws the course-finished screen (`CourseFinished
 `lib/copy/finale.ts`), which `/course` stays afterwards. **C1 is the family's third year**
 (`docs/reviews/c1-cast.md`), and the lines to read first are in `docs/reviews/c1-flags.md`,
 `c1-isiksus` and `c1-maa` whole. Old C1 learners restart at its first lesson (`REHOMED_LEVELS`).
+
+**A Say it answer is read against the line the card asked for, not only against the language.**
+`Ma koristan kööki` for "I was cleaning the kitchen" was painted "No mistakes found", because the
+dictionary check asks only whether a sentence is Estonian. `lib/course/lessons/againstLine.ts`
+lines a sentence up with the card's line by the word each spelling belongs to and names a form in
+another tense, person, case or number, a no added or left out, a different word, a missing word
+and a pronoun that changes who it is about; a synonym is right and said so, a dropped subject
+pronoun is never a fault, and a card about the learner lets their own nouns, names and numbers
+stand while still reading the case. Four grades, never a score: right, understood but not what
+was asked, understood with a slip, hard to understand. The retell is read sentence by sentence
+against the story line each is nearest, in the third person, and the step ends on a list of
+everything said (`SaidList`), kept per lesson, latest attempt only (`LessonAnswer`), and shown on
+the recap a finished lesson now reopens on. No model, nothing written in Estonian, nothing graded.
+`npm run measure:grader` is the number to watch: 0 of 1,930 accepted answers read as different,
+and every kind of break named 98.6% to 100% of the time.
+
+**And a lesson's Review is that lesson once more** (operator's call, 2026-11-06): today's words
+typed from their English and put back into today's conversation, never older words, which come
+back when due in the review queue. A check-in and a part's last lesson review the whole part.
 
 ## Conventions
 

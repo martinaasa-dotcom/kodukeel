@@ -259,6 +259,19 @@ or by the author's next pass, never by the flagging model; an unflagged line is 
 machine wrote and a person has not read word by word, which `docs/44-language-reviews.md` says
 rather than hides.
 
+*Amendment 6, extended to the worksheet: a lesson's own page may be cut from that lesson's
+sentences.* The worksheet a finished lesson offered was the general page, set from attested
+sentences across every word taught so far, and a learner reported it as random beside the lesson
+they had just done (2026-11-06; the operator approved the change). *Decision:* `?lesson=` on
+`/review/workbook` sets the page from that lesson's words, the ones it teaches and then the rest
+of its sentences' (`lib/course/lessonWorksheet.ts`), and cuts lines from the lesson's own
+conversation, reworks, fixes and story first, which are this amendment's lines, read by the native
+speaker; the dictionary's attested sentences for the same words fill what they do not. A gap is
+still hidden only where exactly one slot claims the spelling, and still marked against the
+dictionary's own forms. *Consequences:* nothing new is written, the general page and every
+measurement keep their attested-only rule, and `lib/games/` still imports neither the lessons nor
+`lib/dict/authored.ts`: the page hands the sentences in as examples.
+
 *Amendment 7: the public pages may be read in Estonian, and that Estonian is prose about the app,
 never Estonian that teaches.* A reviewer at the Institute or a ministry reads what the app is,
 what it costs and what it keeps, and reads it more carefully in Estonian (decision D16 in

@@ -51,10 +51,22 @@ Every lesson has the same six steps, in this order, so a learner always knows wh
 | 3 | **How it works** | One pattern, in English, in the box `components/RuleNote.tsx` already draws: the point, the table, a "watch out". Examples are lines from tonight's conversation or earlier ones. A lesson with no new pattern says what tonight's words have in common instead. | 2 |
 | 4 | **Practice** | Recognize first (pick, match, listen), then produce (type, or say). Every item is built only from what this lesson and earlier lessons taught. | 5 |
 | 5 | **Say it** | Optional, and the headline of the evening (section 2). | 4 |
-| 6 | **Review** | Yesterday's and older words that are due, held to what has been taught. | 2 |
+| 6 | **Review** | Today's own words once more, asked the other way round from Practice: typed from their English, and put back into today's conversation. On a check-in and a part's last lesson, the whole part. Older words come back on their own schedule in the review queue (2026-11-06, operator's call). | 2 |
 
 That is eighteen minutes with speaking and fourteen without. The fifteen-minute rule in
 `course.test.ts` becomes a range of twelve to twenty, which is section 6's first decision.
+
+**One page holds one task (2026-11-04, Martin's call).** A step is a sequence of pages, and each
+page does one thing: hear the conversation and answer, read it, read the text, meet the new words,
+read the idea, hear the sounds, spell your name, see where the idea was in the conversation. The
+reported fault was a B2 Listen step that put a whole text to read under the conversation the
+learner had just answered questions on, which read as one more wall of words and was scrolled past.
+`lib/course/lessons/screens.ts` is the one list of a step's pages and of the finished lesson's
+(the celebration, the words said once more, then each offer with its own "Not now", the way on
+last), "Continue" walks them, and the step list at the top is unchanged. Practice, Write, Say it
+and Review were already one card at a time, so each is one page.
+`scripts/invariants/a-lesson-page-holds-one-task.ts` holds the runner to the list, and
+`scripts/test-lessons.mjs` walks every page and fails on one showing two tasks.
 
 **Teaching comes before testing, always.** Steps 1 to 3 ask nothing and grade nothing. A learner
 who presses through them in a minute is allowed to; a learner who wants to read every line twice is
@@ -1240,7 +1252,7 @@ inside `levelContractProblems` and asked again by step 8 against the parts befor
 `write` a part, and from the third part on at least one rework whose pattern is a B2 pattern an
 earlier B2 part explained. `b2RampProblems` in `rampB2.ts`, by band of two parts: in parts 1 and 2
 a conversation heard first has no `hearing`, from part 3 it has one, and in parts 5 and 6 it is
-`quick` or `half`; a story is heard twice in parts 1 and 2 and once (`hearings: 1`) from part 3;
+`half` (nothing is sped up); a story is heard twice in parts 1 and 2 and once (`hearings: 1`) from part 3;
 the race runs 90, 60 and 45 seconds, then 60, 45 and 30, then 45, 30 and 20, and in parts 7 and 8
 one go of 60 after `prepare: 120`, which no earlier part uses; and every core lesson but a part's
 last carries a `read`. Both are asked of B2 alone, and of synthetic parts both ways in
@@ -1856,8 +1868,8 @@ C1 part explained; in every part at least one rework whose pattern is a B2 patte
 but a part's last carries a `read`; and from the third part every `read` carries `questions`. A C1
 part's closing conversation admits a curveball, which no lesson field records, so it is asked of its
 scene (`curveballs`), in `lessonScenes.test.ts` and step 7. `c1RampProblems` in `rampC1.ts`, by band
-of two parts: every conversation heard first has a `hearing`, and in parts 5 and 6 it is `half` or
-`quick`; a story is heard once (`hearings: 1`) everywhere, and from part 3 a talk is too; the race is
+of two parts: every conversation heard first has a `hearing`, and in parts 5 and 6 it is `half`
+(nothing is sped up); a story is heard once (`hearings: 1`) everywhere, and from part 3 a talk is too; the race is
 one go of 60 after 60 in parts 1 and 2, of 90 after 120 in parts 3 and 4, of 120 after 180 on a choice
 of two `topics` in parts 5 and 6, and of 120 in parts 7 and 8, after 60 (on the spot) or after 180
 with `topics`, at least one race of the band on the spot; part 2 has a talk of 300 words or more heard

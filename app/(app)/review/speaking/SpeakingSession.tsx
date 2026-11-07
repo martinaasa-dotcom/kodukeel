@@ -468,7 +468,7 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
 
           {step === "meaning" && (
             <div className="flex w-full max-w-sm flex-col items-center gap-3">
-              {!check && <MicButton speech={box.speech} label={t("Answer out loud")} shortcut showPartial size="lg" fallback="box" />}
+              {!check && <MicButton speech={box.speech} label={t("Answer out loud")} shortcut size="lg" fallback="box" />}
               {/* Once marked, the box holds the answer that was marked; "Show me" marked nothing, so there is no box to keep. */}
               {!(check && !typed.trim()) && (
               <div className="w-full text-left">
@@ -477,7 +477,8 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
                 </label>
                 <EstonianInput
                   id="speaking-answer"
-                  value={typed}
+                  value={box.live(typed)}
+                  readOnly={box.speech.listening}
                   onChange={(text) => { if (!check) setTyped(text); }}
                   onEnter={checkTyped}
                   ariaLabel={t("Your answer")}

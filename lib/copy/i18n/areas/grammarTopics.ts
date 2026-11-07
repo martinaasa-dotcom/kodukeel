@@ -78,9 +78,9 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["Being sleepy or hungry, or having to do something, works the same way",
     "Так же устроены «мне хочется спать», «я голоден» и «мне надо что-то сделать»",
     "Так само влаштовані «мені хочеться спати», «я голодний» і «мені треба щось зробити»"],
-  ["You'll reach for a \"have\" that isn't there. Put -l on the owner, then \"is\", then the thing. That whole pattern is how Estonian says \"I have a car\".",
-    "Глагола «иметь» здесь нет. Владелец получает -l, потом идёт «есть», потом сама вещь, как в русском «у меня есть машина», так что конструкция тебе уже знакома.",
-    "Дієслова «мати» тут немає. Власник отримує -l, потім іде «є», потім сама річ, точнісінько як в українському «у мене є машина». А от звичного «я маю» естонська не знає."],
+  ["You'll reach for a \"have\" that isn't there. Put -l on the owner, then \"is\", then the noun. That whole pattern is how Estonian says \"I have a car\".",
+    "Глагола «иметь» здесь нет. Владелец получает -l, потом идёт «есть», потом существительное, как в русском «у меня есть машина», так что конструкция тебе уже знакома.",
+    "Дієслова «мати» тут немає. Власник отримує -l, потім іде «є», потім іменник, точнісінько як в українському «у мене є машина». А от звичного «я маю» естонська не знає."],
 
   // present-tense
   ["Talking about now",
@@ -488,9 +488,9 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
   ["Numbers and what follows them",
     "Числа и то, что после них",
     "Числа й те, що після них"],
-  ["Counting is easy, until you notice the thing you're counting stays singular.",
-    "Считать легко, пока не заметишь, что то, что считаешь, остаётся в единственном числе.",
-    "Рахувати легко, поки не помітиш, що те, що рахуєш, лишається в однині."],
+  ["Counting is easy, until you notice the noun you're counting stays singular.",
+    "Считать легко, пока не заметишь, что существительное, которое считаешь, остаётся в единственном числе.",
+    "Рахувати легко, поки не помітиш, що іменник, який рахуєш, лишається в однині."],
   ["From two up, the noun takes the singular \"some of it\" form",
     "Начиная с двух, существительное стоит в форме «часть чего-то» единственного числа",
     "Починаючи з двох, іменник стоїть у формі «частина чогось» однини"],
@@ -545,7 +545,7 @@ const LINES: readonly (readonly [en: string, ru: string, uk: string])[] = [
     "Шість закінчень роблять тисячі слів зрозумілими без словника, і на рівні B2 ніщо не дає результату швидше. Пастка в тому, щоб вважати, що зміст завжди дорівнює сумі частин."],
 
   // nominalization
-  ["Turning a clause into a thing",
+  ["Turning a clause into a noun",
     "Предложение, свёрнутое в существительное",
     "Речення, згорнуте в іменник"],
   ["A whole clause squeezed into one noun. It's what makes formal Estonian so dense.",

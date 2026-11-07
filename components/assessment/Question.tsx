@@ -180,12 +180,18 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
 
       {item.heard ? (
         /*
-          A click anywhere in this group counts as having played it, which is
-          what unlocks the options. The alternative was a separate "I have
-          played it" button, and a learner who does not notice it is a learner
-          staring at four options they cannot press.
+          THE OPTIONS UNLOCK WHEN THE AUDIO STARTS, NOT WHEN A BUTTON IS PRESSED.
+
+          A click anywhere in this group used to count as having played it, so
+          the options unlocked before the clip had arrived. Where the speech
+          service then sent nothing, `onUnavailable` skipped the section a
+          moment later, and an answer picked in that gap was taken off the
+          screen under the learner's hand: the "Next question" it had just
+          drawn was gone before it could be pressed. Either speed starting is
+          a play, and a play that cannot start skips the section with nothing
+          pressable in between.
         */
-        <div className="mt-5 flex flex-wrap items-center gap-3" onClick={() => setPlayed(true)}>
+        <div className="mt-5 flex flex-wrap items-center gap-3">
           <Speak
             text={item.et}
             label={t("Play the Estonian")}
@@ -203,6 +209,7 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
             size={18}
             className="flex h-12 w-12 items-center justify-center rounded-full"
             style={{ background: "var(--raised)", color: "var(--ink-2)" }}
+            onPlay={() => setPlayed(true)}
             onUnavailable={() => { setSilent(true); onNoAudio(); }}
           />
           <span className="text-sm" style={{ color: "var(--ink-3)" }}>

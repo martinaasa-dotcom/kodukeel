@@ -35,7 +35,7 @@ import { startRound } from "./lib/briefing.mjs";
 
 const B = baseUrl();
 const OWNER = "local-single-user";
-const { check, absent, done } = suite("Voice rounds", { floor: 22 });
+const { check, absent, done } = suite("Voice rounds", { floor: 23 });
 
 const FAKE_MIC = (clip) => [
   "--use-fake-ui-for-media-stream",
@@ -45,6 +45,14 @@ const FAKE_MIC = (clip) => [
 
 /** Whether a control turns up within a few seconds. `isVisible` answers at once and never waits. */
 const shows = (locator, timeout = 10_000) => locator.first().waitFor({ state: "visible", timeout }).then(() => true, () => false);
+
+/**
+ * A microphone still listening or still reading what it heard. The words so far
+ * are drawn in the box while it listens (`lib/speech/liveText.ts`), so a box
+ * with something in it is no longer a turn that has ended: a check about what
+ * was heard waits for this to be gone as well.
+ */
+const TURN_OPEN = '.speech-mic[data-state="listening"], .speech-mic[data-state="busy"]';
 
 /** Press a microphone, downloading the model first if this device has not. */
 async function pressMic(page, name) {
@@ -60,15 +68,15 @@ async function downloadThroughNumbers(page) {
   if (!(await shows(page.getByRole("button", { name: "Say it out loud" })))) return false;
   await pressMic(page, "Say it out loud");
   await page.waitForFunction(
-    () => document.querySelector("#number-answer")?.value.trim() || document.querySelector("[data-numbers-verdict]"),
-    null, { timeout: 240_000 },
+    (open) => document.querySelector("[data-numbers-verdict]") || (!document.querySelector(open) && document.querySelector("#number-answer")?.value.trim()),
+    TURN_OPEN, { timeout: 240_000 },
   ).catch(() => undefined);
   return true;
 }
 
 const response = await fetch(`${B}/asr/model/7edbacc1d13a4bc8fba21307753569e8334938a0/tokens.txt`).catch(() => null);
 if (!response?.ok) {
-  absent(22, "this server has no speech model to serve: run npm run asr:fetch before the build");
+  absent(23, "this server has no speech model to serve: run npm run asr:fetch before the build");
   done();
   process.exit(process.exitCode ?? 0);
 }
@@ -102,8 +110,8 @@ try {
         check("the numbers round offers its microphone before anything is downloaded (D6)", micBefore > 0, `${micBefore} microphones`);
         await pressMic(page, "Say it out loud");
         await page.waitForFunction(
-          () => document.querySelector("#number-answer")?.value.trim() || document.querySelector("[data-numbers-verdict]"),
-          null, { timeout: 240_000 },
+          (open) => document.querySelector("[data-numbers-verdict]") || (!document.querySelector(open) && document.querySelector("#number-answer")?.value.trim()),
+          TURN_OPEN, { timeout: 240_000 },
         ).catch(() => undefined);
         /*
           A number heard right and as it is spelled is marked in the same
@@ -143,17 +151,29 @@ try {
       const ask = page.getByRole("button", { name: "Ask your question out loud" });
       if (await shows(ask)) {
         await ask.first().click();
-        await page.waitForFunction(() => document.querySelector("#question")?.value.trim() !== "", null, { timeout: 60_000 }).catch(() => undefined);
+        /* The words go in the box while they are said, not above it, and the box takes no typing until the turn ends. */
+        const live = await page.waitForFunction(
+          () => {
+            const box = document.querySelector("#question");
+            return document.querySelector('.speech-mic[data-state="listening"]') && box?.value.trim() ? `${box.value}${box.readOnly ? " (read-only)" : ""}` : false;
+          },
+          null, { timeout: 60_000 },
+        ).then((h) => h.jsonValue(), () => "");
+        check("the words so far are in the box while it listens, not above it", /read-only/.test(String(live)) && (await page.locator("main .speech-partial").count()) === 0, String(live));
+        await page.waitForFunction((open) => !document.querySelector(open) && document.querySelector("#question")?.value.trim() !== "", TURN_OPEN, { timeout: 60_000 }).catch(() => undefined);
         const question = await page.locator("#question").inputValue().catch(() => "");
         check("20 küsimust puts the question heard into the box", question.trim() !== "", question);
-        const counting = await shows(page.locator("[data-send-ring]"), 2000);
+        /* The box fills while the turn is still open (the partial is drawn live),
+           so the ring is waited for until the turn has closed, not for two
+           seconds after the first letters landed. */
+        const counting = await shows(page.locator("[data-send-ring]"), 20_000);
         check("and counts down before asking it (D20)", counting);
         await page.waitForFunction(() => document.querySelectorAll('[aria-label="Your questions"] li').length > 0, null, { timeout: 15_000 }).catch(() => undefined);
         const asked = await page.locator('[aria-label="Your questions"] li').count();
         check("then asks it on its own, as though typed", asked > 0, `${asked} turns`);
       } else {
         check("20 küsimust draws a microphone once the model is on the device", false);
-        absent(2, "20 küsimust drew no microphone, which the check above already reports");
+        absent(3, "20 küsimust drew no microphone, which the check above already reports");
       }
 
       // Say what you see: a sentence said goes into a box.
@@ -162,7 +182,7 @@ try {
       const sayIt = page.getByRole("button", { name: "Say a sentence" });
       if (await shows(sayIt)) {
         await sayIt.first().click();
-        await page.waitForFunction(() => [...document.querySelectorAll("main ol input")].some((i) => i.value.trim() !== ""), null, { timeout: 60_000 }).catch(() => undefined);
+        await page.waitForFunction((open) => !document.querySelector(open) && [...document.querySelectorAll("main ol input")].some((i) => i.value.trim() !== ""), TURN_OPEN, { timeout: 60_000 }).catch(() => undefined);
         const filled = await page.$$eval("main ol input", (inputs) => inputs.filter((i) => i.value.trim() !== "").length);
         check("Say what you see puts a sentence said into a box", filled === 1, `${filled} boxes filled`);
       } else {

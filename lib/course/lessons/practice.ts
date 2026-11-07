@@ -42,6 +42,7 @@ import { FRONTABLE, combinedSentences, foldedPhrase, sameSentence, spokenPhrase,
 import { personForms, type Person } from "@/lib/estonian/conjugate";
 import { lessonOrders, type OrderContext } from "@/lib/estonian/wordOrder";
 import type { LessonSpec, Room } from "./types";
+import type { FormNames } from "@/lib/estonian/nameForm";
 
 import type { Verdict } from "@/lib/ux/verdict";
 
@@ -64,7 +65,17 @@ export type PracticeItem =
       /** Taught spellings one letter from the answer that the ledger cannot say are the same word or another (`notSlipsFor`). */
       readonly unplaced?: readonly string[];
       /** The one person the answer's English names, where it names one: what a pronoun typed beside it has to be. */
-      readonly person?: Person }
+      readonly person?: Person;
+      /** The dictionary word the answer is a form of, for a taught form (`Taught` kind "form"). */
+      readonly of?: string;
+      /**
+       * Which form the answer is, named the way a class names it, in each
+       * language: `omastav (2nd form)`. Filled where the lesson is read
+       * (`withFormNames`), since naming it needs the dictionary. A question
+       * that asks for a form says which, so "the name, as an object" is not
+       * left for the learner to decode (`lib/estonian/nameForm.ts`).
+       */
+      readonly form?: FormNames }
   /**
    * Pairs to put together, Estonian with English, tapped one then the other.
    * The quick warm-up a lesson's practice opens on, for words said alone.
@@ -470,7 +481,28 @@ function produce(item: Asked, pool: readonly Asked[], taught: Ledger): PracticeI
   if (note.note === NOTE_ONE_WORD) accept.push(...eachWithItsPronoun(item, pool));
   const named = verbForm && wordsOf(item.et).length === 1 ? personsInEnglish(item.en) : [];
   const person = named.length === 1 ? { person: named[0]! } : {};
-  return { kind: "type", en: item.en, answer: item.et, accept, ...note, ...person, ...slipFields(notSlipsFor(accept, taught)) };
+  const of = item.kind === "form" && wordsOf(item.et).length === 1 ? { of: item.of } : {};
+  return { kind: "type", en: item.en, answer: item.et, accept, ...note, ...person, ...of, ...slipFields(notSlipsFor(accept, taught)) };
+}
+
+/**
+ * Every typed question asking for a form, with the form named: `name` is the
+ * dictionary's reading (`nameAcross`), handed in by the caller that can reach
+ * it. A form the dictionary cannot name is left as it was, never guessed.
+ */
+export function withFormNames(
+  items: readonly PracticeItem[], name: (of: string, spelling: string, english: string) => FormNames | null,
+): PracticeItem[] {
+  return items.map((item) => {
+    if (item.kind !== "type" || item.of === undefined) return item;
+    const form = name(item.of, item.answer, item.en);
+    return form ? { ...item, form } : item;
+  });
+}
+
+/** The dictionary words the typed questions ask forms of, for the one read that names them. */
+export function formsAskedOf(items: readonly PracticeItem[]): string[] {
+  return [...new Set(items.flatMap((item) => (item.kind === "type" && item.of !== undefined ? [item.of] : [])))];
 }
 
 /*
@@ -695,21 +727,63 @@ export function everyTypedQuestion(lesson: LessonSpec, before: Ledger): Practice
 }
 
 /**
- * Step 6: older words, matched and picked out, and a line from an older
- * conversation with a gap in it. Empty on the first lesson.
+ * STEP 6: TONIGHT, ONCE MORE, ASKED THE OTHER WAY ROUND.
+ *
+ * The step went over older words, drawn from the last few lessons, and a
+ * learner on B1's first lesson was asked `ammu`, `õhtu` and `kindel` with no
+ * idea where they came from: words A2 taught, correctly chosen and nothing to
+ * do with the evening. Older words come back on their own schedule in the
+ * review queue the deck builds from every finished lesson, so the step was
+ * doing worse a job the home page already does. The operator's call: the
+ * step is a recap of tonight itself.
+ *
+ * Asked so it is not Practice again. Practice leans on picking from options;
+ * the recap makes the learner produce tonight's words from their English,
+ * after Say it, which is the gap that makes remembering stick, and puts back
+ * a word taken out of tonight's own conversation, which is where a form is
+ * chosen for what the sentence says (`raamatu` or `raamatut` in front of
+ * `läbi`). A word too long to type is picked out instead.
+ *
+ * ON A CHECK-IN AND A PART'S LAST LESSON IT IS THE WHOLE PART. Those evenings
+ * are about putting a part together, so the step goes over every lesson of
+ * the part so far: its words matched and picked out, and a gap from one of
+ * its conversations. Empty on the first lesson of the course.
  */
 export function reviewFor(lesson: LessonSpec, before: Ledger, history: readonly LessonSpec[] = []): PracticeItem[] {
   const random = rng(seedFrom(`review:${lesson.id}`));
-  const older = before.items.map((d) => d.item).filter((item) => !meaningShows(item));
-  if (older.length === 0) return [];
-  // The newest older lessons are likeliest to need it, so they are drawn from first.
-  const recent = [...older].reverse().slice(0, REVIEW_ITEMS * 3);
-  const picked = shuffle(recent, random).slice(0, REVIEW_ITEMS);
+  if (lesson.kind === "checkin" || lesson.kind === "partEnd") return partReview(lesson, before, history, random);
+  const after = teach(before, lesson.teaches, lessonRank(lesson), lesson.patterns);
+  const subjects = onePerMeaning(practiceSubjects(lesson, before)).filter((item) => !meaningShows(item));
+  if (subjects.length === 0) return [];
+  const tonight = lesson.teaches.flatMap(unfold);
+  const pool = poolFor(tonight, before);
+  const order = shuffle(subjects, random);
+  const typed = order.filter((item) => wordsOf(item.et).length <= TYPE_UP_TO_WORDS).slice(0, RECAP_TYPED);
+  const typedSet = new Set(typed);
+  const picked = order.filter((item) => !typedSet.has(item)).slice(0, Math.max(0, RECAP_ITEMS - RECAP_GAPS - typed.length))
+    .map((item) => recognise(item, [...nearestFirst(item, tonight), ...pool], random));
+  const gaps = gapsFrom(linesOf([lesson]), after, random, RECAP_GAPS);
+  return [...typed.map((item) => produce(item, pool, after)), ...picked, ...gaps];
+}
+
+/** How many questions tonight's recap asks, and how many of them are typed or a gap in tonight's conversation. */
+export const RECAP_ITEMS = 6;
+const RECAP_TYPED = 4;
+const RECAP_GAPS = 2;
+
+/** A check-in's or a part's last lesson's review: every lesson of the part so far, tonight's included. */
+function partReview(lesson: LessonSpec, before: Ledger, history: readonly LessonSpec[], random: () => number): PracticeItem[] {
+  const ofPart = [...history.filter((l) => l.part === lesson.part), lesson];
+  const ranks = new Set(ofPart.map(lessonRank));
+  const after = teach(before, lesson.teaches, lessonRank(lesson), lesson.patterns);
+  const items = after.items.filter((d) => ranks.has(d.lesson)).map((d) => d.item).filter((item) => !meaningShows(item));
+  if (items.length === 0) return [];
+  const picked = shuffle(onePerMeaning(items), random).slice(0, REVIEW_ITEMS);
   const match = matchFrom(picked, random);
   const matched = new Set(match?.kind === "match" ? match.pairs.map((p) => p.et) : []);
-  const rest = picked.filter((item) => !matched.has(item.et))
-    .map((item) => recognise(item, neighboursFirst(item, before, [...older].reverse()), random));
-  const gaps = gapsFrom(linesOf(history.slice(-CHECKIN_REACH)), before, random, 1);
+  const pool = [...after.items].reverse().map((d) => d.item);
+  const rest = picked.filter((item) => !matched.has(item.et)).map((item) => recognise(item, neighboursFirst(item, after, pool), random));
+  const gaps = gapsFrom(linesOf(ofPart), after, random, 1);
   return [...(match ? [match] : []), ...rest, ...gaps];
 }
 
@@ -1017,6 +1091,7 @@ export function markRework(typed: string, item: Extract<PracticeItem, { kind: "r
   if (wants.includes(said)) return { verdict: "right", note: NOTES.right, close: false };
   const rest = afterReply(typed, item.accept);
   if (rest !== null) return markRework(rest, item);
+  if (item.kind === "fix" && fixedInPart(said, item)) return { verdict: "right", note: NOTES.right, close: false };
   // The sentence typed back unchanged, however it is reordered or spelled, is not a change.
   const before = item.kind === "fix" ? item.shown : item.from.et;
   const unchanged = sameSentence(before, typed, item.persons);
@@ -1085,6 +1160,34 @@ export function markRework(typed: string, item: Extract<PracticeItem, { kind: "r
 }
 
 const wordCount = (text: string) => (text.match(/[\p{L}\p{N}]+/gu) ?? []).length;
+
+/*
+  A FIX IS ANSWERED BY THE WORD PUT RIGHT. The exercise is about one word, so
+  a learner who types only the part they changed, `keda` or `keda ma seal
+  kohtasin` for `Ja tead, keda ma seal kohtasin? Jaani!`, has done the whole
+  of it, and retyping the rest of the line proves nothing more. What is typed
+  has to be an unbroken run of words of a line that counts, letter for letter,
+  and the run has to cover the place the slip was: `seal kohtasin` on its own
+  is part of the line and fixes nothing. A run still holding the wrong form is
+  never one of these, since every word has to match the corrected line.
+*/
+function fixedInPart(said: string, item: Extract<PracticeItem, { kind: "fix" }>): boolean {
+  const typed = said.split(" ");
+  const shown = spokenPhrase(item.shown).split(" ");
+  return item.accept.some((line) => {
+    const want = spokenPhrase(line).split(" ");
+    // Where the slip was: the words of the line the shown version has in another form.
+    const fixed = want.length === shown.length
+      ? want.flatMap((w, i) => (w !== shown[i] ? [i] : []))
+      : want.flatMap((w, i) => (w === spokenPhrase(item.right) ? [i] : []));
+    if (fixed.length === 0 || typed.length > want.length) return false;
+    for (let start = 0; start + typed.length <= want.length; start++) {
+      const covers = fixed.every((i) => i >= start && i < start + typed.length);
+      if (covers && typed.every((w, j) => w === want[start + j])) return true;
+    }
+    return false;
+  });
+}
 
 /*
   A REPLY WORD IN FRONT IS HOW A PERSON ANSWERS. Asked to say they didn't buy

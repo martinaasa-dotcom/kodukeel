@@ -107,10 +107,10 @@ describe("C1's ramp", () => {
   const broken = (n: number, change: (l: LessonSpec) => LessonSpec, ps = parts) =>
     c1RampProblems(good.map((l) => (l.part === `t${n}` ? change(l) : l)), ps).join(" ");
 
-  it("refuses a conversation heard first in a quiet room, anywhere, and a room other than joined halfway or sped up in parts 5 and 6", () => {
+  it("refuses a conversation heard first in a quiet room, anywhere, and a room other than joined halfway in parts 5 and 6", () => {
     expect(broken(1, (l) => ({ ...l, hearing: undefined }))).toMatch(/part 1 t1, t1-a: heard in a quiet room/);
     expect(broken(5, (l) => ({ ...l, hearing: "cafe" }))).toMatch(/part 5 t5, t5-a: heard cafe/);
-    expect(broken(6, (l) => ({ ...l, hearing: "quick" }))).toBe("");
+    expect(broken(6, (l) => ({ ...l, hearing: "half" }))).toBe("");
   });
 
   it("refuses a story heard twice", () => {

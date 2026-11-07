@@ -758,6 +758,14 @@ export const REFUSED_SENTENCES: readonly RefusedSentence[] = [
     et: "Eks elu näita.",
     why: "Eks elu näita is not Estonian (the saying is Eks elu näitab), so it cannot be an imperative exercise. Refused on a read of the workbook lines, and accepted by the native speaker who develops this app.",
   },
+  {
+    et: "Kaup on koos.",
+    why:
+      "An idiom where kaup means a deal (it's a deal), shown under the gloss goods. " +
+      "Goods is by far the commoner sense and the one the course teaches, so a learner " +
+      "meeting the word reads the sentence as contradicting the meaning above it. " +
+      "Reported and refused by the native speaker who develops this app.",
+  },
 ];
 
 /**

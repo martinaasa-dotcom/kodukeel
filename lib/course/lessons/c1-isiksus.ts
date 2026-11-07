@@ -49,7 +49,7 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
     title: "Good news",
     goal: "Congratulate a friend on a baby and on an exam, the way friends do and the way a card does.",
     cast: { Anna: "kylli", Tom: "kalev", Margit: "mari", "Tõnu": "indrek", Liis: "liivika", Helgi: "vesta", Mihkel: "meelis", Sofia: "kylli" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Anna", et: "Tom, sulle tuli kiri! Vist eksami tulemus.", en: "Tom, there's a letter for you! The exam result, I think.", stage: "A Saturday morning in October, three weeks after the B2 exam. The morning show is on the radio in the kitchen, and Anna comes in with the post." },
       { who: "Tom", et: "Anna siia. Ma ei julge vaadata... Ei, vaatan ikka. Ma sain...", en: "Give it here. I don't dare look... No, I'll look. I got..." },
@@ -200,6 +200,11 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
       model: { et: "Mul on täna head uudised. Kõigepealt tuli kiri: ma sain eksamist läbi! Siis kirjutas Liis grupis, et Mihkel sündis eile õhtul. Ema ja poeg tunnevad end hästi. Me kirjutasime neile: palju õnne, olgu Mihkel terve ja magagu öösiti!", en: "I've got good news today. First a letter came: I passed the exam! Then Liis wrote in the group that Mihkel was born last night. Mother and son are doing well. We wrote back: congratulations, may Mihkel be healthy, and may he sleep at night!" },
       seconds: [60],
       prepare: 60,
+      checks: [
+        { en: "A wish with -gu ({olgu}, {magagu} here).", any: ["*agu", "olgu", "tehku", "elagu"] },
+        { en: "Wish them well, with {palju õnne}.", any: ["palju õnne"] },
+        { en: "Who wrote, with {kirjutas} or {kirjutasime}.", any: ["kirjutas", "kirjutasime"] },
+      ],
     },
   },
   {
@@ -378,6 +383,11 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
       model: { et: "Kõigepealt ütlen ma: mul on nii kahju. Siis: meie siiras kaastunne. Rohkem pole vaja öelda. Kaardile kirjutan paar rida: siiras kaastunne, mõtleme sinule või puhaku ta rahus. Matustele viin paarisarv lilli, kaks või neli, sest paaritu arv on sünnipäevaks.", en: "First I say: I'm so sorry. Then: our sincere condolences. You don't need to say any more. In the card I write a couple of lines: sincere condolences, we're thinking of you, or may he rest in peace. I take an even number of flowers to the funeral, two or four, because an odd number is for a birthday." },
       seconds: [60],
       prepare: 60,
+      checks: [
+        { en: "Face to face, {mul on nii kahju}.", any: ["nii kahju"] },
+        { en: "In writing, {siiras kaastunne}.", any: ["kaastunne"] },
+        { en: "In a card, the -gu form ({puhaku ta rahus} here).", any: ["puhaku"] },
+      ],
     },
   },
   {
@@ -514,6 +524,10 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
       model: { et: "Mari andis mulle teed ja ütles: ole ettevaatlik, tee on täna väga libe. Ma vaatasin teda, justkui ta oleks hulluks läinud. Siis sain aru: tee on ka tänav ja täna on väljas libe. Ja mul oli talle oma nali: mitu kuud on aastas? Ainult üks, sest taevas on ainult üks kuu!", en: "Mari gave me some tea and said: be careful, the tea is very slippery today. I looked at her as if she'd gone mad. Then I got it: {tee} is also a road, and today it's slippery outside. And I had a joke of my own for her: how many months are there in a year? Only one, because there's only one moon in the sky!" },
       seconds: [60],
       prepare: 60,
+      checks: [
+        { en: "As if, with {justkui} or {otsekui}.", any: ["justkui", "otsekui"], near: ["nagu"] },
+        { en: "The would form after it ({oleks hulluks läinud} here).", any: ["oleks", "oleksin"] },
+      ],
     },
   },
   {
@@ -525,7 +539,7 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
     title: "Kurat!",
     goal: "Know how strong an Estonian exclamation is, and which one is all right in front of a child, a boss or a stranger.",
     cast: { Jaan: "meelis", Anna: "kylli", Tom: "kalev", Liis: "liivika", Mark: "tambet", Mihkel: "albert", Sofia: "mari" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Jaan", et: "Tulge sisse! Oi, kui palju asju te tõite!", en: "Come in! Oh, look how much stuff you've brought!", stage: "A Saturday in November. Tom and Anna bring Sofia's old baby things round to Liis and Jaan's. Mark has come too, and Mihkel is asleep in the other room." },
       { who: "Anna", et: "Sofia vanad riided ja vanker. Tom, ettevaatust, see kast on jube raske...", en: "Sofia's old clothes and the pram. Tom, careful, that box is really heavy..." },
@@ -688,9 +702,14 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
     faster: {
       ask: { et: "Mida eestlased ütlevad, kui midagi läheb valesti?", en: "What do Estonians say when something goes wrong?" },
       cue: "Prepare for a minute, then talk for one: the mild words and the stronger ones, how strong each is, and where not to say them.",
-      model: { et: "„Oi“ võib öelda igal pool. „Pagan“ on ka täiesti okei, seda võib öelda isegi lapse kuuldes. „Kurat“ ütlevad kõik, aga mitte lapse ees ega ülemusele. „Kurat võtaks“ on juba päris vihane. Ja kui on väga valus, siis ütlen ma lihtsalt: hirmus valus!", en: "You can say {oi} anywhere. {Pagan} is fine too, you can even say it with a child listening. Everybody says {kurat}, but not in front of a child or to the boss. {Kurat võtaks} is quite angry already. And if it really hurts, I just say: terribly painful!" },
+      model: { et: "„Oi“ võib öelda igal pool. „Pagan“ on ka täiesti okei, seda võib öelda isegi lapse kuuldes. „Kurat“ ütlevad kõik, aga mitte lapse ees ega ülemusele. „Kurat võtaks“ on juba päris vihane. Ja kui on väga valus, siis ütlen ma lihtsalt: hirmus valus!", en: "You can say {oi} anywhere. {Pagan} is perfectly fine too, you can even say it with a child listening. Everybody says {kurat}, but not in front of a child or to the boss. {Kurat võtaks} is quite angry already. And if it really hurts, I just say: terribly painful!" },
       seconds: [60],
       prepare: 60,
+      checks: [
+        { en: "The mild words, {pagan} or {oi}.", any: ["pagan", "oi"] },
+        { en: "The stronger one, {kurat}.", any: ["kurat"] },
+        { en: "Where not to say it, with {mitte} ({mitte lapse ees} here).", any: ["mitte"] },
+      ],
     },
   },
   {
@@ -874,6 +893,11 @@ export const C1_ISIKSUS_LESSONS: readonly LessonSpec[] = [
       model: { et: "Ausalt öeldes olen ma viimasel ajal natuke nukker. Mitte kurb, pigem nukker, sest novembris on ilm nii hall. Ma igatsen ka oma ema, me pole kaks aastat kohtunud. Küllap läheb kevadel paremaks. Aga ma olen ka tänulik, sest mul on hea töö ja head sõbrad.", en: "Honestly, I've been a bit low lately. Not sad, low more like, because the weather is so gray in November. I miss my mother too: we haven't seen each other for two years. No doubt it'll get better in the spring. But I'm grateful too, because I've got a good job and good friends." },
       seconds: [60],
       prepare: 60,
+      checks: [
+        { en: "The word that fits exactly: {nukker}, {kurvameelne} or {pettunud}.", any: ["nukker", "kurvameelne", "pettunud", "kurb", "üllatunud"] },
+        { en: "How sure you are, with {küllap}, {arvatavasti} or {nähtavasti}.", any: ["küllap", "arvatavasti", "nähtavasti"] },
+        { en: "What you're grateful for, with {tänulik}.", any: ["tänulik"] },
+      ],
     },
   },
   {

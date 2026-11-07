@@ -298,6 +298,11 @@ export const B2_TERVIS_LESSONS: readonly LessonSpec[] = [
       cue: "Say how you book a doctor at home, how long you wait, and what you think of it.",
       model: { et: "Kodumaal helistan tavaliselt arstile ja saan aja kahe päeva pärast. Siin pean vahel nädal aega ootama, aga arst saab ka telefoni teel aidata. See on mugav.", en: "At home I usually ring the doctor and get an appointment two days later. Here I sometimes have to wait a week, but the doctor can also help over the phone. That's handy." },
       seconds: [60, 45, 30],
+      checks: [
+        { en: "How you book, with {helistan} ({helistan arstile} here).", any: ["helistan"] },
+        { en: "How long you wait, with {pärast} or {ootama}.", any: ["pärast", "ootama"] },
+        { en: "At home and here, with {kodumaal} and {siin}.", any: ["kodumaal", "siin"], atLeast: 2 },
+      ],
     },
   },
   {
@@ -427,6 +432,11 @@ export const B2_TERVIS_LESSONS: readonly LessonSpec[] = [
       cue: "Say what you usually do when you're ill: what you take, whether you go to work, and when you see a doctor.",
       model: { et: "Kui ma olen haige, joon palju teed ja puhkan. Tööle ma siis ei lähe. Kui palavik kestab üle kolme päeva, helistan arstile.", en: "When I'm ill, I drink lots of tea and rest. I don't go to work then. If a temperature lasts more than three days, I ring the doctor." },
       seconds: [60, 45, 30],
+      checks: [
+        { en: "When, with {kui} ({kui ma olen haige} here).", any: ["kui"] },
+        { en: "Whether you go to work, with {tööle}.", any: ["tööle"] },
+        { en: "When you see a doctor, with {arstile} ({helistan arstile} here).", any: ["arstile"] },
+      ],
     },
   },
   {
@@ -723,6 +733,11 @@ export const B2_TERVIS_LESSONS: readonly LessonSpec[] = [
       cue: "Say what you do when you can't sleep, and what helps.",
       model: { et: "Kui ma ei saa magada, siis ma ei vaata telefoni. Ma loen natuke raamatut või lähen enne magamaminekut jalutama. Tavaliselt see aitab.", en: "When I can't sleep, I don't look at my phone. I read a bit of a book, or I go for a walk before bed. Usually that helps." },
       seconds: [60, 45, 30],
+      checks: [
+        { en: "When, with {kui} ({kui ma ei saa magada} here).", any: ["kui"] },
+        { en: "Two things you do, with {või}.", any: ["või"] },
+        { en: "What helps, with {aitab} ({see aitab} here).", any: ["aitab"] },
+      ],
     },
   },
   {

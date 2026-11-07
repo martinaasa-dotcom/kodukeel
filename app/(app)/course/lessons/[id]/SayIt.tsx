@@ -9,6 +9,7 @@ import { nativePart } from "@/lib/audio/native";
 import { MicButton } from "@/components/speech/MicButton";
 import { ReadAloud } from "@/components/speech/ReadAloud";
 import { useSpeech, useSpeechConfig } from "@/components/speech/useSpeech";
+import { liveText } from "@/lib/speech/liveText";
 import { useFeedbackSound } from "@/components/AudioPrefs";
 import { useLocale, useT } from "@/components/Locale";
 import { LessonText } from "@/components/course/LessonText";
@@ -18,18 +19,20 @@ import { fill } from "@/lib/copy/locale";
 // imports every lesson the course has into this one lesson's browser bundle.
 import { NOTES, markOwnAnswer, normalisePhrase, type TypedMark } from "@/lib/course/lessons/practice";
 import { hasStandIn, personal } from "@/lib/course/lessons/ownAnswer";
+import { ownDetailsFor } from "@/lib/course/lessons/lineAsk";
 import { wordsOf } from "@/lib/course/lessons/ledger";
 import { otherSideOf } from "@/lib/course/lessons/otherSide";
 import type { LessonSpec, Prompt } from "@/lib/course/lessons/types";
 import { VERDICT_CLASS } from "@/lib/ux/verdict";
 import { checkLessonSentence } from "@/app/actions";
-import { SentenceFindings } from "@/components/course/SentenceFindings";
+import { LineFindings } from "@/components/course/LineFindings";
+import { SaidList } from "@/components/course/SaidList";
+import { orderedSaid, type LineResult, type SaidResult } from "@/lib/course/lessons/said";
 import { SayAlongFade, type FadeKept } from "@/components/course/SayAlongFade";
-import { RetellIt, type RetellKept } from "@/components/course/RetellIt";
+import { RetellIt, type RetellKept, type ToldSentence } from "@/components/course/RetellIt";
 import { AgainFaster, type FasterKept } from "@/components/course/AgainFaster";
 import { useKeep } from "@/components/course/useKeep";
 import { saysItLonger } from "@/lib/course/lessons/limits";
-import type { Finding } from "@/lib/course/lessons/sentenceCheck";
 
 /**
  * SAY IT: THE HEADLINE OF THE EVENING, AND OPTIONAL (docs/43-lessons.md §2).
@@ -112,6 +115,8 @@ export interface SayPlace {
   readonly over: boolean;
   readonly taken: readonly { readonly ask: string; readonly said: string; readonly shown: boolean }[];
   readonly kept: CardsKept;
+  /** What was said the last time the lesson was finished, for a lesson opened again (`lessonAnswers.ts`). */
+  readonly saved?: readonly SaidResult[];
 }
 
 /** What each card had done, by card: one of each B1 card, and an answer's text by its place in its list. */
@@ -120,7 +125,10 @@ export interface CardsKept {
   readonly faster?: FasterKept;
   readonly fade?: FadeKept;
   readonly answers?: Readonly<Record<string, string>>;
+  /** What each answer and each sentence told back came to, for the list at the end of the step (`SaidResult`). */
+  readonly results?: Readonly<Record<string, SaidResult>>;
 }
+
 
 /** The key an answer card's text is kept under: which list it came from, and where in it. */
 export const answerKey = (card: { readonly which: "answers" | "turns"; readonly index: number }) => `${card.which}:${card.index}`;
@@ -132,11 +140,21 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier
   const [over, setOver] = useState(place?.over ?? false);
   const [taken, setTaken] = useState<readonly Taken[]>(place?.taken ?? []);
   const [kept, setKept] = useState<CardsKept>(place?.kept ?? {});
-  useEffect(() => { onPlace({ mode, at, over, taken, kept }); }, [mode, at, over, taken, kept, onPlace]);
+  useEffect(() => { onPlace({ mode, at, over, taken, kept, saved: place?.saved }); }, [mode, at, over, taken, kept, onPlace, place?.saved]);
   const keepRetell = useCallback((retell: RetellKept) => setKept((k) => ({ ...k, retell })), []);
   const keepFaster = useCallback((faster: FasterKept) => setKept((k) => ({ ...k, faster })), []);
   const keepFade = useCallback((fade: FadeKept) => setKept((k) => ({ ...k, fade })), []);
   const keepAnswer = useCallback((key: string, text: string) => setKept((k) => ({ ...k, answers: { ...k.answers, [key]: text } })), []);
+  const keepResult = useCallback((key: string, result: SaidResult) => setKept((k) => ({ ...k, results: { ...k.results, [key]: result } })), []);
+  // A story told back is several sentences, each its own line in the list, and a second check replaces the first.
+  const keepTold = useCallback((sentences: readonly ToldSentence[]) => setKept((k) => {
+    const others = Object.fromEntries(Object.entries(k.results ?? {}).filter(([key]) => !key.startsWith("retell:")));
+    const told = Object.fromEntries(sentences.map((s, i): [string, SaidResult] => [`retell:${i}`, {
+      kind: "retell", label: t("Retell it"), cue: s.line?.en ?? "", said: s.sentence, model: s.line?.et ?? null, modelEn: s.line?.en ?? null,
+      grade: s.grade, note: null, differences: s.differences, findings: s.findings,
+    }]));
+    return { ...k, results: { ...others, ...told } };
+  }), [t]);
   /*
     Each card replaces the one whose button was just pressed, and so does the
     end. A card that put the caret somewhere of its own on arrival keeps it
@@ -166,8 +184,21 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier
     shownAt.current = at;
     focusLead();
   }, [at]);
+  /*
+    The end replaces the card whose button was pressed. Where it has something
+    to say the caret goes to it; where it says nothing (a spoken evening with
+    no conversation to offer) the end draws nothing, and the caret goes on to
+    the step's own way forward, the first control after it on the page.
+  */
+  const endRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (over) doneRef.current?.focus();
+    if (!over) return;
+    if (doneRef.current) { doneRef.current.focus(); return; }
+    const end = endRef.current;
+    if (!end) return;
+    const after = [...document.querySelectorAll<HTMLElement>("main button, main a[href]")]
+      .find((el) => !el.hasAttribute("disabled") && Boolean(end.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING));
+    after?.focus();
   }, [over]);
   // Choosing to say or type replaces the two buttons, so the caret goes to the first card rather than the page.
   useEffect(() => {
@@ -194,7 +225,7 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier
       kind: "answer", prompt, label: fill(t("Role-play, {n} of {total}"), { n: String(i + 1), total: String(lesson.roleplay!.turns.length) }),
       scene: i === 0 ? lesson.roleplay!.scene : undefined,
       // And one about themselves says so, since their name and country are theirs.
-      aboutYou: /yourself|your own|your name|about you/i.test(prompt.cue) || hasStandIn(prompt.model.et),
+      aboutYou: ownDetailsFor("turns", prompt),
       which: "turns", index: i,
     }));
     // The capstone is the conversation alone: the questions about yourself were the practice.
@@ -248,23 +279,39 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier
     );
   }
 
+  /*
+    EVERYTHING SAID, IN THE ORDER IT WAS ASKED, for the list the step ends on:
+    this time through, or where the lesson is opened again after it was
+    finished, what was kept from the last time (`SayPlace.saved`).
+  */
+  const fresh = orderedSaid(kept.results);
+  const said: readonly SaidResult[] = fresh.length > 0 ? fresh : place?.saved ?? [];
+
   if (over) {
+    /*
+      A spoken evening ends on nothing to say about itself: the step's own
+      Continue is the way on. A typed one says to try it aloud tomorrow, the
+      capstone says the conversation was held, and a role-play's live scene is
+      offered either way.
+    */
+    const closing = capstone
+      ? t("You held the whole conversation.")
+      : mode === "say" ? null : t("Done. Tomorrow, try it out loud if you're somewhere you can.");
+    if (!closing && !(scene && sceneHref)) return <div ref={endRef} data-say-it="done" />;
     return (
-      <div data-say-it="done">
+      <div ref={endRef} data-say-it="done">
         <Card tone="sky">
-          <p ref={doneRef} tabIndex={-1} className="text-lg font-semibold outline-none" style={{ color: "var(--ink)" }}>
-            {capstone
-              ? t("You held the whole conversation.")
-              : mode === "say" ? t("You said today's Estonian out loud.") : t("Done. Tomorrow, try it out loud if you're somewhere you can.")}
-          </p>
+          {closing && (
+            <p ref={doneRef} tabIndex={-1} className="text-lg font-semibold outline-none" style={{ color: "var(--ink)" }}>{closing}</p>
+          )}
           {capstone && taken.length > 0 && (
             <div className="mt-4">
               <Thread taken={taken} who={opener} voice={voice} title={t("Your conversation")} />
             </div>
           )}
           {scene && sceneHref && (
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-3" data-lesson-scene={scene}>
-              <p className="max-w-[48ch] text-base" style={{ color: "var(--ink-2)" }}>
+            <div className={`${closing ? "mt-4 " : ""}flex flex-wrap items-center justify-between gap-3`} data-lesson-scene={scene}>
+              <p ref={closing ? undefined : doneRef} tabIndex={closing ? undefined : -1} className="max-w-[48ch] text-base outline-none" style={{ color: "var(--ink-2)" }}>
                 {capstone
                   ? fill(t("That one followed a script. Now have it for real: {who} answers whatever you say, in words you've been taught."), { who: opener })
                   : t("In the role-play they answer whatever you say, in words you've been taught.")}
@@ -273,6 +320,15 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier
             </div>
           )}
         </Card>
+        {/* Its own card, not inside the sky one: a list with things to fix in it is not a right answer. */}
+        {said.length > 0 && (
+          <div className="mt-4">
+            <Card>
+              <SectionTitle level={3}>{t("What you said, one sentence at a time")}</SectionTitle>
+              <div data-said-summary><SaidList results={said} about={lesson.retell?.who} /></div>
+            </Card>
+          </div>
+        )}
       </div>
     );
   }
@@ -303,11 +359,11 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier
       ) : card.kind === "fade" ? (
         <SayAlongFade lesson={lesson} partAt={partAt} onDone={() => next()} kept={kept.fade} onKeep={keepFade} />
       ) : card.kind === "retell" ? (
-        <RetellIt retell={lesson.retell!} voice={lesson.cast[lesson.retell!.who]} typed={mode === "type"} onDone={() => next()} kept={kept.retell} onKeep={keepRetell} />
+        <RetellIt lessonId={lesson.id} retell={lesson.retell!} voice={lesson.cast[lesson.retell!.who]} typed={mode === "type"} onDone={() => next()} kept={kept.retell} onKeep={keepRetell} onChecked={keepTold} />
       ) : card.kind === "faster" ? (
-        <AgainFaster faster={lesson.faster!} voice={side.voiceOf(side.askerOf(lesson.faster!.ask.et))} typed={mode === "type"} multiplier={timeMultiplier} onDone={() => next()} kept={kept.faster} onKeep={keepFaster} />
+        <AgainFaster lessonId={lesson.id} faster={lesson.faster!} voice={side.voiceOf(side.askerOf(lesson.faster!.ask.et))} typed={mode === "type"} multiplier={timeMultiplier} onDone={() => next()} kept={kept.faster} onKeep={keepFaster} />
       ) : (
-        <AnswerCard key={at} lessonId={lesson.id} card={card} mode={mode} voice={voiceOfAsk(card)} name={name} onNext={next} last={at >= cards.length - 1} typed={kept.answers?.[answerKey(card)] ?? ""} onType={keepAnswer} />
+        <AnswerCard key={at} lessonId={lesson.id} card={card} mode={mode} voice={voiceOfAsk(card)} name={name} onNext={next} last={at >= cards.length - 1} typed={kept.answers?.[answerKey(card)] ?? ""} onType={keepAnswer} onResult={keepResult} />
       )}
       </div>
     </div>
@@ -367,7 +423,7 @@ function SayTheLines({ lesson, onNext }: { lesson: LessonSpec; onNext: () => voi
  * Nothing is graded either way (ADR-028). A spoken answer that is the model,
  * a slip of it or their line back checks itself the moment it is heard.
  */
-function AnswerCard({ lessonId, card, mode, voice, name, onNext, last, typed, onType }: {
+function AnswerCard({ lessonId, card, mode, voice, name, onNext, last, typed, onType, onResult }: {
   lessonId: string;
   card: Extract<SayCard, { kind: "answer" }>;
   mode: Mode;
@@ -378,6 +434,8 @@ function AnswerCard({ lessonId, card, mode, voice, name, onNext, last, typed, on
   /** What was in the box when Say it last stepped away, and where to report it (`CardsKept.answers`). */
   typed: string;
   onType: (key: string, text: string) => void;
+  /** Where what this card came to is kept, for the list at the end of the step. */
+  onResult: (key: string, result: SaidResult) => void;
 }) {
   const t = useT();
   const locale = useLocale();
@@ -390,8 +448,8 @@ function AnswerCard({ lessonId, card, mode, voice, name, onNext, last, typed, on
   const key = answerKey(card);
   useKeep(text, useCallback((value: string) => onType(key, value), [onType, key]));
   const [mark, setMark] = useState<TypedMark | null>(null);
-  // What the dictionary found in an answer that is not the sample, or null until it answers.
-  const [found, setFound] = useState<readonly Finding[] | null>(null);
+  // What the dictionary found in an answer that is not the sample, read against the language and against the line, or null until it answers.
+  const [found, setFound] = useState<LineResult | null>(null);
   const nextRef = useRef<HTMLButtonElement>(null);
   const expect = useMemo(() => new Set(wordsOf(model.et).map((w) => w.low)), [model.et]);
   const said = normalisePhrase(text);
@@ -407,6 +465,11 @@ function AnswerCard({ lessonId, card, mode, voice, name, onNext, last, typed, on
     if (m && m.verdict !== "wrong") sound("right");
     setMark(m);
     setShown(true);
+    const base: SaidResult = {
+      kind: "answer", label: card.label, cue: prompt.cue, said: value.trim(), model: model.et, modelEn: prompt.model.en,
+      grade: m === null ? null : m.verdict === "right" ? "right" : null, note: m?.note ?? null, differences: [], findings: [],
+    };
+    onResult(key, base);
     /*
       AN ANSWER THAT IS NOT THE SAMPLE IS READ BY THE DICTIONARY, so a
       different sentence is told whether it is Estonian rather than only that
@@ -416,7 +479,12 @@ function AnswerCard({ lessonId, card, mode, voice, name, onNext, last, typed, on
     */
     if (m && (m.verdict === "wrong" || m.note === NOTES.letterOut) && !isEcho(value)) {
       void checkLessonSentence(lessonId, card.which, card.index, value)
-        .then((result) => { if (result.ok) setFound(result.findings); })
+        .then((result) => {
+          if (!result.ok) return;
+          const read: LineResult = { grade: result.grade, differences: result.differences, findings: result.findings };
+          setFound(read);
+          onResult(key, { ...base, ...read });
+        })
         .catch(() => null);
     }
     requestAnimationFrame(() => nextRef.current?.focus());
@@ -484,8 +552,8 @@ function AnswerCard({ lessonId, card, mode, voice, name, onNext, last, typed, on
         <input
           lang="et"
           className="field w-full"
-          value={text}
-          readOnly={shown}
+          value={liveText(text, speech)}
+          readOnly={shown || speech.listening}
           aria-label={mic ? t("What you said, in Estonian") : t("Your answer, in Estonian")}
           autoComplete="off"
           autoCapitalize="off"
@@ -503,7 +571,7 @@ function AnswerCard({ lessonId, card, mode, voice, name, onNext, last, typed, on
 
       {/* Mounted empty and filled: the dictionary's reading lands a moment after the verdict, often after the caret has gone to Next. */}
       <div role="status" aria-live="polite" className={shown && found !== null ? "mt-4" : undefined}>
-        {shown && found !== null && <SentenceFindings findings={found} announced="region" />}
+        {shown && found !== null && <LineFindings grade={found.grade} differences={found.differences} findings={found.findings} announced="region" />}
       </div>
       <div className="mt-4 flex flex-col gap-3" role="status" aria-live="polite">
         {shown && mark !== null && mark.verdict !== "wrong" && (
