@@ -162,7 +162,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
   scene: string | null;
   /** A conversation out there the lesson rehearses, from the catalog (`lessonSituations.ts`). */
   situation?: { id: string; title: string } | null;
-  /** From B1, the worksheet page the finished lesson offers (`lib/course/lessonWorksheet.ts`), or null. */
+  /** From A2, the worksheet page the finished lesson offers (`lib/course/lessonWorksheet.ts`), or null. */
   worksheet?: LessonWorksheet | null;
   /**
    * Back from the lesson's own conversation: `done` from its debrief, `left`
@@ -606,7 +606,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
             "var(--butter-soft)",
           )}
           {/*
-            A WORKSHEET PAGE OF THIS LESSON'S OWN, FROM B1 ON. It is offered
+            A WORKSHEET PAGE OF THIS LESSON'S OWN, FROM A2 ON. It is offered
             here, in the module as well, since it is grammar practice on
             today's words rather than a way out of the evening. The page is
             set from this lesson's words and its own sentences first
@@ -620,7 +620,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
           )}
           {/*
             AND ONE STEP FURTHER OUT, WHERE THE LESSON REHEARSES AN ERRAND
-            (B1 on, `lessonSituations.ts`): the same situation with somebody
+            (A1 on, `lessonSituations.ts`): the same situation with somebody
             who talks the way people do at that counter, in Situations. Not
             inside a module, where the one way on is the next step and every
             other door stands down; the situations board and Today count it

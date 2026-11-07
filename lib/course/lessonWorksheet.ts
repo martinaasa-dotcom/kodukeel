@@ -1,5 +1,5 @@
 /**
- * A WORKSHEET PAGE AFTER EVERY B1 LESSON.
+ * A WORKSHEET PAGE AFTER EVERY LESSON FROM A2 ON.
  *
  * B1 had the worksheet (Töövihik, `lib/games/workbook.ts`) on its rotation
  * while it was built from units: a page of recorded sentences, each with a
@@ -23,6 +23,15 @@
  * explain no one rule, and there the page chooses the way it always does,
  * the learner's own weakest case first (`themeOrder`).
  *
+ * AND FROM A2, WHERE THE CASES ARRIVE. The old A2 dealt the worksheet on its
+ * rotation too, and lost it the same way when A2 became lessons, so it comes
+ * back on the same terms: an offer on the finish, held to what the lessons
+ * have taught, at the beginner's page size (eight lines written and six from
+ * the box, `app/(app)/review/workbook/page.tsx`), with the sentences written
+ * for a beginner first. `npm run measure:workbook` sets every A2 lesson a full
+ * page. A1 does not get one: an A1 evening asks for no case and no gap, and
+ * the first twenty lessons have no sentence of taught words to cut a line from.
+ *
  * Pure: no React, no Prisma, no clock.
  */
 
@@ -32,7 +41,7 @@ import type { CourseDay } from "./types";
 import type { LessonSpec } from "./lessons/types";
 
 /** The first level whose lessons end on a worksheet. */
-export const WORKSHEET_FROM: Level = "B1";
+export const WORKSHEET_FROM: Level = "A2";
 
 /** The worksheet's own route. */
 export const WORKSHEET_HREF = "/review/workbook";
@@ -79,7 +88,7 @@ export interface LessonWorksheet {
   lesson?: string | null;
 }
 
-/** The worksheet a lesson evening offers on its finish, or null below B1: a page of that lesson's own. */
+/** The worksheet a lesson evening offers on its finish, or null below A2: a page of that lesson's own. */
 export function worksheetFor(day: Pick<CourseDay, "level" | "cases" | "topics">, lessonId: string | null = null): LessonWorksheet | null {
   return offersWorksheet(day.level) ? { theme: worksheetTheme(day), lesson: lessonId } : null;
 }

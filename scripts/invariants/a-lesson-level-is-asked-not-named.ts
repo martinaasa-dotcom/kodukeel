@@ -25,7 +25,6 @@ const EXEMPT: Readonly<Record<string, string>> = {
   "lib/collections/pictures.ts": "how many pictures a beginner's scene shows, which is about reading ease and not about lessons",
   "app/(app)/review/workbook/page.tsx": "the sentences written for a beginner are for A1 and A2 (ADR-005 amendment 4), a rule about who they were written for, not about lessons",
   "lib/dict/examples.test.ts": "the first-meeting sentences of the beginner's vocabulary, A1 and A2 by the dictionary's band, not by lessons",
-  "lib/course/lessonWorksheet.test.ts": "a worksheet follows a lesson from B1 up (`WORKSHEET_FROM`), a rule about practice inside the lesson below it, not about which levels are lessons",
   "lib/progress/twins.ts": "a pair of words near a beginner's band, A1 and A2 by the dictionary, not by lessons",
   "lib/scenes/curveballs.ts": "a curveball marked `from` waits for a conversation pitched at B2 or above, a rule about how hard the other side is, not about lessons",
 };

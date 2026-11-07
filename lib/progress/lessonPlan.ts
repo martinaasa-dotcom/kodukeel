@@ -69,7 +69,7 @@ export function lessonPlan(
     after: next ? { id: next.id, title: next.title, crossesPart: next.part !== lesson.part } : null,
     scene: sceneForLesson(lesson.id)?.id ?? null,
     situation: situationOf(lesson.id),
-    // From B1, a worksheet page on the finish; a lesson in preview is on no evening and offers none.
+    // From A2, a worksheet page on the finish; a lesson in preview is on no evening and offers none.
     worksheet: placed ? worksheetFor(placed.day, lesson.id) : null,
     place: { at: ofLevel.indexOf(lesson) + 1, of: ofLevel.length },
     closes,
