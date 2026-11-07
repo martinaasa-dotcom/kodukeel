@@ -133,6 +133,8 @@ import type { DayKey } from "@/lib/time/day";
 import { FREQUENCY_GROUPS, type FrequencyGroup } from "@/lib/collections/frequency";
 import { lemmasIn, nextCommonBatch } from "@/lib/progress/common";
 import { COMMON_BATCH, readPart } from "@/lib/collections/commonGroups";
+import { STORED_DIRECTION, checkDirectionFrom, checkOutcome, checkOutcomeFrom, type CheckOutcome } from "@/lib/games/commonCheck";
+import { checkAnswer } from "@/lib/estonian/answer";
 import { MAX_STARTER_UNITS } from "@/lib/collections/starter";
 
 import { applyGradeBatch, type ReplayItem } from "@/lib/srs/replay";
@@ -3170,7 +3172,7 @@ export async function toggleTask(id: string, done?: boolean) {
  * refused rather than written. Far above a real term of classes, reminders
  * and a few years of answers about the day; far below a loop.
  */
-const OWN_ROWS = { studyEvent: 300, task: 2000, encounterPerDay: 4 } as const;
+const OWN_ROWS = { studyEvent: 300, task: 2000, encounterPerDay: 4, wordCheck: 20000 } as const;
 
 export async function addStudyEvent(input: {
   title: string;
@@ -3680,6 +3682,8 @@ const BackupSchema = z.object({
   sceneRuns: z.array(z.record(z.string(), z.unknown())).optional(),
   sceneGaps: z.array(z.record(z.string(), z.unknown())).optional(),
   encounters: z.array(z.record(z.string(), z.unknown())).optional(),
+  /** Answers from the check-yourself round. Optional: older files have none. */
+  wordChecks: z.array(z.record(z.string(), z.unknown())).optional(),
   /** Words put aside. Optional, like every key added after the format was set. */
   deferrals: z.array(z.record(z.string(), z.unknown())).optional(),
   courseSteps: z.array(z.record(z.string(), z.unknown())).optional(),
@@ -3871,7 +3875,7 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
       */
       const wordOf = await resolveLexemes(tx, live, [
         ...backup.cards, ...backup.reviews, ...(backup.stars ?? []), ...(backup.deckWords ?? []),
-        ...(backup.sceneGaps ?? []), ...(backup.deferrals ?? []),
+        ...(backup.sceneGaps ?? []), ...(backup.deferrals ?? []), ...(backup.wordChecks ?? []),
       ].map((row) => row.lexemeId));
 
       // Cards/tasks are always attributed to the person restoring them, regardless
@@ -4119,6 +4123,29 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
           }];
         }),
         (chunk) => tx.encounter.createMany({ data: chunk as never, skipDuplicates: true }),
+      );
+
+      /*
+        Answers from the check-yourself round, held to what the live path
+        writes: one of the two directions, one of the three outcomes, a word
+        this deployment holds and a time that has passed. Append-only, so a
+        replace keeps what is here and the file only adds.
+      */
+      await createAbsent(
+        (backup.wordChecks ?? []).slice(0, OWN_ROWS.wordCheck).flatMap((raw) => {
+          const data = revive(raw, ["checkedAt"]);
+          const lexemeId = wordOf(data.lexemeId);
+          const direction = checkDirectionFrom(data.direction);
+          const outcome = checkOutcomeFrom(data.outcome);
+          if (!lexemeId || !direction || !outcome) return [];
+          const at = data.checkedAt instanceof Date && !Number.isNaN(data.checkedAt.getTime()) && data.checkedAt <= restoredAt
+            ? data.checkedAt : restoredAt;
+          return [{
+            id: typeof data.id === "string" ? data.id.slice(0, 64) : undefined,
+            ownerId, lexemeId, direction, outcome, checkedAt: at,
+          }];
+        }),
+        (chunk) => tx.wordCheck.createMany({ data: chunk as never, skipDuplicates: true }),
       );
 
       /*
@@ -4651,6 +4678,46 @@ export async function snoozeCourseMove() {
  * still a thing this table can hold, and it is checked against the table
  * exactly as before, because it arrives off the wire.
  */
+/**
+ * ONE ANSWER IN A CHECK-YOURSELF ROUND, MARKED HERE AND WRITTEN DOWN.
+ *
+ * The round marks in the browser so the answer is instant; this marks it again
+ * against the dictionary with the same `checkAnswer`, and what is stored is
+ * this marking, so a hand-made request cannot record a word as known without
+ * typing it. The browser's count of earlier misses can only lower an outcome
+ * (`checkOutcome`). The word has to be on the named list, which is checked
+ * against the list itself rather than trusted.
+ *
+ * Written per answer rather than at the end, because a round of fifty is long
+ * and somebody who stops at twenty has still told us about twenty words. The
+ * next check reads the newest row per word and direction and leads with the
+ * misses (`needsWorkFirst`). Nothing here grades a card: that is `gradeCard`,
+ * called by the round for a word already in the deck.
+ */
+export async function recordCommonCheck(group: string, lexemeId: string, direction: string, typed: string, missesBefore: number) {
+  const ownerId = await requireUserId();
+  const id = text(lexemeId);
+  const stored = checkDirectionFrom(direction);
+  if (!FREQUENCY_GROUPS.includes(group as FrequencyGroup) || !id || !stored) {
+    return { ok: false as const, error: "That isn't one of the answers." };
+  }
+  const busy = throttleAction(ownerId, "recordCommonCheck");
+  if (busy) return await sayRefusal(ownerId, busy);
+  const word = await prisma.lexeme.findUnique({ where: { id }, select: { lemma: true, translation: true } });
+  if (!word || !lemmasIn(group as FrequencyGroup).includes(word.lemma)) {
+    return { ok: false as const, error: "We couldn't find that word on the list." };
+  }
+  const toEnglish = stored === STORED_DIRECTION["et-en"];
+  const said = text(typed).slice(0, 200);
+  const verdict = said.trim() === ""
+    ? "wrong"
+    : checkAnswer(said, toEnglish ? word.translation : word.lemma, toEnglish ? "en" : "et").verdict;
+  const misses = typeof missesBefore === "number" && Number.isFinite(missesBefore) ? Math.max(0, Math.floor(missesBefore)) : 0;
+  const outcome: CheckOutcome = checkOutcome(verdict, misses);
+  await prisma.wordCheck.create({ data: { ownerId, lexemeId: id, direction: stored, outcome } });
+  return { ok: true as const, outcome };
+}
+
 export async function recordEncounter(errandId: string | null, outcome: string) {
   const ownerId = await requireUserId();
   const named = errandId === null || errandId === undefined ? null : errandById(text(errandId));

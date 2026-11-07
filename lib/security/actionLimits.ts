@@ -237,6 +237,13 @@ export const ACTION_LIMITS = {
    * app/actions.ts). Thirty a minute is a busy person setting a term up.
    */
   personalWrite: { perMinute: 30 },
+  /**
+   * One answer in a check-yourself round, marked on the server and written as
+   * a row. A learner pressing "I don't know" through a list moves quickly, so
+   * the bound is a person at full speed through a hundred words, and a loop
+   * meets it in its first second.
+   */
+  recordCommonCheck: { perMinute: 90 },
 } as const;
 
 export type ActionLimit = keyof typeof ACTION_LIMITS;

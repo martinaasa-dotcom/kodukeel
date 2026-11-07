@@ -1,13 +1,15 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
-import { COMMON_BATCH, COMMON_PARTS, groupBySlug, partLemmas, readPart } from "@/lib/collections/commonGroups";
+import { groupBySlug } from "@/lib/collections/commonGroups";
 import { commonSections } from "@/lib/progress/common";
 import { starredAmong } from "@/lib/progress/stars";
 import { localeFor } from "@/lib/progress/locale";
 import { tr } from "@/lib/copy/locale";
 import { FreshRound } from "@/components/round/FreshRound";
-import { CheckSession, type CheckPart, type CheckWord } from "./CheckSession";
+import { checkKey, lastChecks } from "@/lib/progress/commonChecks";
+import { checkRangeFrom } from "@/lib/games/commonCheck";
+import { CheckSession, type CheckWord } from "./CheckSession";
 
 export async function generateMetadata({ params }: { params: Promise<{ group: string }> }) {
   const group = groupBySlug((await params).group);
@@ -37,10 +39,14 @@ export const dynamic = "force-dynamic";
  * shown, through `gradeCard` like every round (ADR-016). A word that is not in
  * the deck writes nothing, and the end of the round offers to keep the ones
  * that did not come out right.
+ *
+ * Every answer is also written down (`recordCommonCheck`, one `WordCheck` row
+ * each), and where each word stood last time is read back here, so the next
+ * check leads with the misses and can offer just those.
  */
 export default async function CommonCheckPage({ params, searchParams }: {
   params: Promise<{ group: string }>;
-  searchParams: Promise<{ dir?: string | string[]; part?: string | string[] }>;
+  searchParams: Promise<{ dir?: string | string[]; words?: string | string[] }>;
 }) {
   const [{ group: slug }, query] = await Promise.all([params, searchParams]);
   const group = groupBySlug(slug);
@@ -53,44 +59,43 @@ export default async function CommonCheckPage({ params, searchParams }: {
   /*
     The two cards a direction can grade, read once for the whole list. Ordered,
     because a learner can hold two cards of one type for a word and the round
-    has to grade the same one every time.
+    has to grade the same one every time. And where each word stood the last
+    time it was checked, in each direction.
   */
-  const [cards, starred] = await Promise.all([
+  const [cards, starred, last] = await Promise.all([
     ids.length === 0 ? [] : prisma.card.findMany({
       where: { ownerId, suspended: false, lexemeId: { in: ids }, cardType: { in: ["RECOGNITION", "PRODUCTION"] } },
       select: { id: true, lexemeId: true, cardType: true },
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
     }),
     starredAmong(ownerId, ids),
+    lastChecks(ownerId, ids),
   ]);
   const cardOf = (lexemeId: string, type: "RECOGNITION" | "PRODUCTION") =>
     cards.find((c) => c.lexemeId === lexemeId && c.cardType === type)?.id ?? null;
 
-  const parts: CheckPart[] = Array.from({ length: COMMON_PARTS }, (_, i) => partLemmas(entries, i + 1))
-    .map((words, i) => ({
-      n: i + 1,
-      first: i * COMMON_BATCH + 1,
-      last: i * COMMON_BATCH + words.length,
-      words: words.map((e): CheckWord => ({
-        lexemeId: e.lexemeId,
-        lemma: e.lemma,
-        translation: e.translation,
-        inDeck: e.inDeck,
-        starred: starred.has(e.lexemeId),
-        recognitionCard: cardOf(e.lexemeId, "RECOGNITION"),
-        productionCard: cardOf(e.lexemeId, "PRODUCTION"),
-      })),
-    }))
-    .filter((p) => p.words.length > 0);
+  const words: CheckWord[] = entries.map((e) => ({
+    lexemeId: e.lexemeId,
+    lemma: e.lemma,
+    translation: e.translation,
+    inDeck: e.inDeck,
+    starred: starred.has(e.lexemeId),
+    recognitionCard: cardOf(e.lexemeId, "RECOGNITION"),
+    productionCard: cardOf(e.lexemeId, "PRODUCTION"),
+    last: {
+      EN_ET: last.get(checkKey(e.lexemeId, "EN_ET")) ?? null,
+      ET_EN: last.get(checkKey(e.lexemeId, "ET_EN")) ?? null,
+    },
+  }));
 
   return (
     <FreshRound>
       <CheckSession
         title={group.title}
         group={group.key}
-        parts={parts}
+        words={words}
         direction={query.dir === "et-en" ? "et-en" : "en-et"}
-        part={query.part === "all" ? "all" : readPart(query.part) ?? 1}
+        range={checkRangeFrom(query.words)}
       />
     </FreshRound>
   );

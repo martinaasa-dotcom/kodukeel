@@ -7,7 +7,7 @@ import { useLocale, useT } from "@/components/Locale";
 import { countOf, fill } from "@/lib/copy/locale";
 import { Button } from "@/components/Button";
 import { Chip, KeyCap } from "@/components/ui";
-import { ChoiceCard, ChoiceChip, ChoiceGroup } from "@/components/Choice";
+import { ChoiceCard, ChoiceGroup } from "@/components/Choice";
 import { EstonianInput } from "@/components/EstonianInput";
 import { FitText } from "@/components/FitText";
 import { Speak } from "@/components/Speak";
@@ -21,14 +21,17 @@ import { HintLadder } from "@/components/round/HintLadder";
 import { useHints } from "@/components/round/useHints";
 import { useGrade } from "@/components/round/useGrade";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
-import { addCommonWords } from "@/app/actions";
+import { addCommonWords, recordCommonCheck } from "@/app/actions";
 import { NOT_REACHED } from "@/lib/copy/values";
 import { acceptedForms, checkAnswer, noteIn } from "@/lib/estonian/answer";
 import { hintLadder } from "@/lib/questions/hints";
 import { VERDICT_CLASS, verdictOfCheck, type Verdict } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { shuffle } from "@/lib/random/shuffle";
-import { checkRating, CHECK_TRIES, type CheckDirection } from "@/lib/games/commonCheck";
+import {
+  CHECK_TRIES, STORED_DIRECTION, checkRating, needsWorkFirst, toGoOver, wordsIn,
+  type CheckDirection, type CheckRange, type LastCheck,
+} from "@/lib/games/commonCheck";
 
 export interface CheckWord {
   lexemeId: string;
@@ -39,13 +42,8 @@ export interface CheckWord {
   /** The card each direction grades, where the learner holds one. */
   recognitionCard: string | null;
   productionCard: string | null;
-}
-
-export interface CheckPart {
-  n: number;
-  first: number;
-  last: number;
-  words: CheckWord[];
+  /** Where the word stood the last time it was checked, in each direction. */
+  last: { EN_ET: LastCheck | null; ET_EN: LastCheck | null };
 }
 
 interface Outcome {
@@ -53,23 +51,32 @@ interface Outcome {
   verdict: Verdict;
 }
 
+/** Where a word stood last time in a direction, for the functions that order and count. */
+const lastIn = (direction: CheckDirection) => (w: CheckWord) => w.last[STORED_DIRECTION[direction]] ?? undefined;
+
 /**
  * CHECK YOURSELF, PLAYED. Three screens: the start, where the direction and the
- * part are picked; one word at a time, typed; and the score, with the words
+ * words are picked; one word at a time, typed; and the score, with the words
  * that did not come out right and the offer to keep them.
+ *
+ * Whatever range is picked, the words that need work come first
+ * (`needsWorkFirst`): missed last time, then nearly, then never checked, then
+ * the ones that were right, the longest ago first. Where there are words to go
+ * over, "just those" is offered and chosen, because it is the quickest way
+ * back to them.
  *
  * A miss is one more go rather than the answer, because a learner checking
  * what they know often has the word and slipped, and the second go is where
  * the hint ladder opens (`hintsOpen`). A second miss shows every answer that
  * counts. What the word earns is `checkRating`, capped by any hint taken.
  */
-export function CheckSession({ title, group, parts, direction: firstDirection, part: firstPart }: {
+export function CheckSession({ title, group, words: list, direction: firstDirection, range: firstRange }: {
   title: string;
   group: string;
-  parts: CheckPart[];
+  words: CheckWord[];
   /** What the address asked for, so "Check again" starts where this round started. */
   direction: CheckDirection;
-  part: number | "all";
+  range: CheckRange | null;
 }) {
   const t = useT();
   const locale = useLocale();
@@ -77,8 +84,11 @@ export function CheckSession({ title, group, parts, direction: firstDirection, p
   const pathname = usePathname();
   const params = useSearchParams();
   const [direction, setDirection] = useState<CheckDirection>(firstDirection);
-  const [partN, setPartN] = useState<number | "all">(
-    firstPart === "all" || parts.some((p) => p.n === firstPart) ? firstPart : parts[0]?.n ?? 1,
+  const goOver = (dir: CheckDirection) => list.filter((w) => toGoOver(lastIn(dir)(w))).length;
+  /* The missed ones, where there are any in this direction; otherwise the most common. */
+  const fallback = (dir: CheckDirection): CheckRange => (goOver(dir) > 0 ? "missed" : "most");
+  const [range, setRange] = useState<CheckRange>(
+    firstRange && (firstRange !== "missed" || goOver(firstDirection) > 0) ? firstRange : fallback(firstDirection),
   );
   const [words, setWords] = useState<CheckWord[] | null>(null);
   const [index, setIndex] = useState(0);
@@ -88,20 +98,26 @@ export function CheckSession({ title, group, parts, direction: firstDirection, p
   /*
     The choice is written into the address rather than kept on the device, so
     "Check again", which is the same page one round on, opens on the same
-    direction and the same words, and nothing is stored anywhere.
+    direction and the same words, and nothing is stored on the device.
   */
-  const remember = (dir: CheckDirection, part: number | "all") => {
-    const next = new URLSearchParams(params?.toString() ?? "");
-    next.set("dir", dir);
-    next.set("part", String(part));
-    router.replace(`${pathname}?${next.toString()}`, { scroll: false });
+  const remember = (dir: CheckDirection, next: CheckRange) => {
+    const query = new URLSearchParams(params?.toString() ?? "");
+    query.set("dir", dir);
+    query.set("words", next);
+    router.replace(`${pathname}?${query.toString()}`, { scroll: false });
   };
-  const choose = (next: CheckDirection) => { setDirection(next); remember(next, partN); };
-  const pickPart = (next: number | "all") => { setPartN(next); remember(direction, next); };
+  const choose = (dir: CheckDirection) => {
+    // "Just the ones to go over" is about one direction; another may have none.
+    const next = range === "missed" && goOver(dir) === 0 ? "most" : range;
+    setDirection(dir);
+    setRange(next);
+    remember(dir, next);
+  };
+  const pick = (next: CheckRange) => { setRange(next); remember(direction, next); };
 
   const start = () => {
-    const pool = partN === "all" ? parts.flatMap((p) => p.words) : parts.find((p) => p.n === partN)?.words ?? [];
-    setWords(shuffle(pool));
+    const last = lastIn(direction);
+    setWords(needsWorkFirst(shuffle(wordsIn(range, list, last)), last));
     setIndex(0);
     setOutcomes([]);
   };
@@ -127,16 +143,30 @@ export function CheckSession({ title, group, parts, direction: firstDirection, p
   }, [look, word, toEnglish, t]);
 
   const listName = t(title).toLowerCase();
-  const total = parts.reduce((s, p) => s + p.words.length, 0);
 
   if (!words) {
+    const last = lastIn(direction);
+    const missed = goOver(direction);
+    /* What one range came to last time, in this direction, or that it is new. */
+    const standing = (r: Exclude<CheckRange, "missed">) => {
+      const inRange = wordsIn(r, list, last);
+      const checked = inRange.filter((w) => last(w));
+      if (checked.length === 0) return t("Not checked yet");
+      const right = checked.filter((w) => !toGoOver(last(w))).length;
+      return fill(t("Last time: {right} right, {over} to go over"), { right, over: checked.length - right });
+    };
+    const options: { key: Exclude<CheckRange, "missed">; title: string }[] = [
+      { key: "most", title: t("The 50 most common") },
+      { key: "next", title: t("The next 50") },
+      { key: "all", title: fill(t("All {n}"), { n: list.length }) },
+    ];
     return (
       <RoundStart
         icon={<ListChecks size={26} aria-hidden />}
         title={fill(t("Check yourself: {list}"), { list: listName })}
         hue="accent"
         actions={
-          <Button variant="primary" size="lg" className="px-10" onClick={start} disabled={total === 0}>
+          <Button variant="primary" size="lg" className="px-10" onClick={start} disabled={wordsIn(range, list, last).length === 0}>
             {t("Start")}
           </Button>
         }
@@ -157,17 +187,18 @@ export function CheckSession({ title, group, parts, direction: firstDirection, p
               detail={<>{t("You see")} <b lang="et">tahtma</b>, {t("you type")} <b>{t("to want")}</b></>}
             />
           </ChoiceGroup>
-          <ChoiceGroup label={t("Which words?")}>
-            {parts.map((p) => (
-              <ChoiceChip key={p.n} selected={partN === p.n} onSelect={() => pickPart(p.n)}>
-                {fill(t("{first} to {last}"), { first: p.first, last: p.last })}
-              </ChoiceChip>
-            ))}
-            {parts.length > 1 && (
-              <ChoiceChip selected={partN === "all"} onSelect={() => pickPart("all")}>
-                {fill(t("All {n}"), { n: total })}
-              </ChoiceChip>
+          <ChoiceGroup label={t("Which words?")} className="grid gap-2">
+            {missed > 0 && (
+              <ChoiceCard
+                selected={range === "missed"}
+                onSelect={() => pick("missed")}
+                title={fill(t("Just the {n} to go over"), { n: missed })}
+                detail={t("The ones you missed or nearly got last time")}
+              />
             )}
+            {options.map((o) => (
+              <ChoiceCard key={o.key} selected={range === o.key} onSelect={() => pick(o.key)} title={o.title} detail={standing(o.key)} />
+            ))}
           </ChoiceGroup>
         </div>
       </RoundStart>
@@ -184,7 +215,7 @@ export function CheckSession({ title, group, parts, direction: firstDirection, p
       <RoundProgress done={index} total={words.length} left={words.length - index} label={t("Session progress")} />
       {look.panel && <LookBackCard {...look.panel} />}
       <div hidden={look.looking}>
-        <Question key={`${index}:${word.lexemeId}`} word={word} toEnglish={toEnglish} locale={locale} onSettled={settle} onNext={next} />
+        <Question key={`${index}:${word.lexemeId}`} word={word} group={group} toEnglish={toEnglish} locale={locale} onSettled={settle} onNext={next} />
       </div>
       {look.seen.length > 0 && (
         <div className="mt-4 flex justify-center">
@@ -195,8 +226,9 @@ export function CheckSession({ title, group, parts, direction: firstDirection, p
   );
 }
 
-function Question({ word, toEnglish, locale, onSettled, onNext }: {
+function Question({ word, group, toEnglish, locale, onSettled, onNext }: {
   word: CheckWord;
+  group: string;
   toEnglish: boolean;
   locale: ReturnType<typeof useLocale>;
   onSettled: (o: Outcome) => void;
@@ -241,11 +273,17 @@ function Question({ word, toEnglish, locale, onSettled, onNext }: {
       ? fill(t("Not this time. It's {answer}."), { answer: accepted.join(", ") })
       : fill(t("Right. {answer}."), { answer: accepted[0] ?? expected }));
     onSettled({ word, verdict });
+    /*
+      Written down for the next check, marked again on the server from what was
+      typed. A write that fails costs this one word its place at the front next
+      time and nothing else, so the round carries on regardless.
+    */
+    void recordCommonCheck(group, word.lexemeId, STORED_DIRECTION[toEnglish ? "et-en" : "en-et"], said, misses).catch(() => null);
     if (cardId) {
       const rating = Math.min(earned, hints.ceiling) as 1 | 2 | 3;
       void grade(cardId, rating, Date.now() - shownAt.current, toEnglish ? "RECOGNITION" : "PRODUCTION");
     }
-  }, [sound, t, accepted, expected, onSettled, word, cardId, hints.ceiling, grade, toEnglish]);
+  }, [sound, t, accepted, expected, onSettled, word, cardId, hints.ceiling, grade, toEnglish, group, misses]);
 
   const mark = useCallback(() => {
     if (result || typed.trim() === "") return;
