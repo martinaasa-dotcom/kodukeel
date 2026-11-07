@@ -3382,6 +3382,12 @@ thing, or take the page down with it:
 pull request away and the test is the only gate on it. The keyless rule is blunter than the model
 and will sometimes miss a good story, which is the side it is built to err on.
 
+**Fifty more, drier and darker, on 2026-11-07, and the twelve weakest out.** The operator asked
+for jokes whose answer surprises, and then to drop the bad ones for them: the goldfish asleep for three days belly up, the grandfather who reads the death notices
+because they are the only news of his friends, the cat already in the washing machine, the train
+that left Tartu at eight. Every word passed the forms list in `jokes.test.ts`; none has had the
+native speaker's reading yet, and `jokes.ts` marks where they start.
+
 **The first read of the jokes cut two and corrected eleven lines.** Two did not work in
 Estonian: the smacked brother, whose punchline does not follow from its setup, and the skating
 pun, which rests on English "hardest" meaning both difficult and not soft where `kõva` means only
