@@ -1,8 +1,8 @@
 import { requireUserId } from "@/lib/auth/session";
 import { courseLevelFor } from "@/lib/progress/level";
-import { openersReadingFor, openerWords } from "@/lib/progress/openers";
+import { openersReadingFor, openerVerbs, openerWords } from "@/lib/progress/openers";
 import { starredAmong } from "@/lib/progress/stars";
-import { buildRound, MIXED_STAGE, STAGES } from "@/lib/estonian/openers";
+import { buildRound, mixedOf, readTrack, ROUND_SIZE, stagesOf, TRACKS } from "@/lib/estonian/openers";
 import { shuffle } from "@/lib/random/shuffle";
 import { firstParams } from "@/lib/ux/queryParam";
 import { ButtonLink } from "@/components/Button";
@@ -46,7 +46,13 @@ export default async function OpenersPage({
   const t = (english: string) => tr(locale, english);
   const params = firstParams(await searchParams);
 
-  const maxStage = level === "A1" ? 0 : level === "A2" ? 2 : MIXED_STAGE;
+  /*
+    Two lanes (`?lane=verb`): a noun after the opener, or a second verb. The
+    verb lane is the -ma and -da choice, which is first-month grammar, so A2
+    has all of it; the noun lane keeps its own ceiling.
+  */
+  const track = readTrack(params.lane);
+  const maxStage = level === "A1" ? 0 : track === "verb" ? mixedOf("verb") : level === "A2" ? 2 : mixedOf("noun");
 
   if (maxStage === 0) {
     return (
@@ -60,7 +66,10 @@ export default async function OpenersPage({
     );
   }
 
-  const [reading, words] = await Promise.all([openersReadingFor(ownerId, maxStage), openerWords()]);
+  const [reading, words] = await Promise.all([
+    openersReadingFor(ownerId, maxStage, track),
+    track === "verb" ? openerVerbs() : openerWords(),
+  ]);
   const asked = Number(params.stage);
   const stage = Number.isInteger(asked) && reading.stages.find((s) => s.n === asked)?.open
     ? asked
@@ -74,7 +83,7 @@ export default async function OpenersPage({
   */
   const typed = reading.stages.find((s) => s.n === stage)?.settled === true;
 
-  const questions = buildRound(stage, words, shuffle);
+  const questions = buildRound(stage, words, shuffle, ROUND_SIZE, track);
   if (questions.length === 0) {
     return (
       <Page {...roundPageTitle("/review/openers", t)} lead={t("The start of the sentence picks the ending.")}>
@@ -88,12 +97,14 @@ export default async function OpenersPage({
   }
 
   const starred = await starredAmong(ownerId, [...new Set(questions.map((q) => q.lexemeId))]);
-  const stageSpec = STAGES.find((s) => s.n === stage);
+  const stageSpec = stagesOf(track).find((s) => s.n === stage);
 
   return (
     <BeforeYouStart id="openers" count={{ n: questions.length, noun: "sentence" }}>
       <OpenersSession
-        key={`${stage}:${params.round ?? ""}`}
+        key={`${track}:${stage}:${params.round ?? ""}`}
+        track={track}
+        lanes={TRACKS.map((l) => ({ id: l.id, title: l.title }))}
         questions={questions.map((q) => ({ ...q, starred: starred.has(q.lexemeId) }))}
         mode={typed ? "type" : "pick"}
         stage={{ n: stage, title: stageSpec?.title ?? "", line: stageSpec?.line ?? "" }}

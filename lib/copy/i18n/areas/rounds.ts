@@ -1006,6 +1006,38 @@ export const ROUNDS: Area = {
       "Попробовать этап {n}",
     "Stage {n}":
       "Этап {n}",
+    "Which form of {word} goes at the end?":
+      "Какая форма {word} будет в конце?",
+    "Type {word} with the ending this start needs.":
+      "Впиши {word} с окончанием, которого требует это начало.",
+    "Before a noun":
+      "Перед существительным",
+    "Before a verb":
+      "Перед глаголом",
+    "Doing something":
+      "Делать что-то",
+    "After “tahan” the second verb takes its da-tegevusnimi (-da), the one a dictionary lists second.":
+      "После «tahan» второй глагол ставится в форму на -da, ту, что в словаре стоит второй.",
+    "What you like doing takes the da-tegevusnimi (-da).":
+      "То, что тебе нравится делать, ставится в форму на -da.",
+    "“Pean” is followed by the ma-tegevusnimi (-ma), the one the dictionary leads with.":
+      "После «pean» идёт форма на -ma, та, с которой начинается словарная статья.",
+    "Going somewhere to do something takes the ma-tegevusnimi (-ma).":
+      "Идти куда-то, чтобы что-то сделать: форма на -ma.",
+    "Knowing how to do something takes the da-tegevusnimi (-da).":
+      "Уметь что-то делать: форма на -da.",
+    "Being allowed to, or able to, takes the da-tegevusnimi (-da).":
+      "Можно или могу: форма на -da.",
+    "Needing to do something takes the da-tegevusnimi (-da).":
+      "Нужно что-то сделать: форма на -da.",
+    "Like liking, loving to do something takes the da-tegevusnimi (-da).":
+      "Как и «нравится», «люблю делать» требует формы на -da.",
+    "Starting something takes the ma-tegevusnimi (-ma).":
+      "Начать что-то: форма на -ma.",
+    "Learning to do something takes the ma-tegevusnimi (-ma).":
+      "Учиться что-то делать: форма на -ma.",
+    "Coming somewhere to do something takes the ma-tegevusnimi (-ma), like going.":
+      "Прийти куда-то, чтобы что-то сделать: форма на -ma, как и с «идти».",
     "Which ending goes at the end?":
       "Какое окончание будет в конце?",
     "Type the word with the ending this start needs.":
@@ -2087,6 +2119,38 @@ export const ROUNDS: Area = {
       "Спробувати етап {n}",
     "Stage {n}":
       "Етап {n}",
+    "Which form of {word} goes at the end?":
+      "Яка форма {word} буде в кінці?",
+    "Type {word} with the ending this start needs.":
+      "Впиши {word} із закінченням, якого вимагає цей початок.",
+    "Before a noun":
+      "Перед іменником",
+    "Before a verb":
+      "Перед дієсловом",
+    "Doing something":
+      "Робити щось",
+    "After “tahan” the second verb takes its da-tegevusnimi (-da), the one a dictionary lists second.":
+      "Після «tahan» друге дієслово ставиться у форму на -da, ту, що в словнику стоїть другою.",
+    "What you like doing takes the da-tegevusnimi (-da).":
+      "Те, що тобі подобається робити, ставиться у форму на -da.",
+    "“Pean” is followed by the ma-tegevusnimi (-ma), the one the dictionary leads with.":
+      "Після «pean» іде форма на -ma, та, з якої починається словникова стаття.",
+    "Going somewhere to do something takes the ma-tegevusnimi (-ma).":
+      "Іти кудись, щоб щось зробити: форма на -ma.",
+    "Knowing how to do something takes the da-tegevusnimi (-da).":
+      "Уміти щось робити: форма на -da.",
+    "Being allowed to, or able to, takes the da-tegevusnimi (-da).":
+      "Можна або можу: форма на -da.",
+    "Needing to do something takes the da-tegevusnimi (-da).":
+      "Треба щось зробити: форма на -da.",
+    "Like liking, loving to do something takes the da-tegevusnimi (-da).":
+      "Як і «подобається», «люблю робити» вимагає форми на -da.",
+    "Starting something takes the ma-tegevusnimi (-ma).":
+      "Почати щось: форма на -ma.",
+    "Learning to do something takes the ma-tegevusnimi (-ma).":
+      "Учитися щось робити: форма на -ma.",
+    "Coming somewhere to do something takes the ma-tegevusnimi (-ma), like going.":
+      "Прийти кудись, щоб щось зробити: форма на -ma, як і з «іти».",
     "Which ending goes at the end?":
       "Яке закінчення буде в кінці?",
     "Type the word with the ending this start needs.":

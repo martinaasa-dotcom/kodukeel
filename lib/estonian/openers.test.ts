@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildRound, englishFor, formsFor, markPick, markTyped, MIXED_STAGE, OPENER_SLOTS, OPENER_WORDS,
   OPENERS, openersIn, openerSlot, STAGES, suits, wantingInstead, type OpenerWord,
+  OPENER_VERBS, trackOf, VERB_MIXED_STAGE, VERB_STAGES, WORDS_PER_ROUND,
 } from "./openers";
 import { isKnownSlot, slotLabel } from "@/lib/srs/slots";
 
@@ -33,7 +34,9 @@ describe("the openers table", () => {
 
   it("gives every stage something to ask, and no stage is the mixed one", () => {
     for (const s of STAGES.filter((s) => s.n < MIXED_STAGE)) expect(openersIn(s.n).length).toBeGreaterThanOrEqual(4);
-    expect(openersIn(MIXED_STAGE).length).toBe(OPENERS.length);
+    expect(openersIn(MIXED_STAGE).length).toBe(OPENERS.filter((o) => trackOf(o) === "noun").length);
+    for (const s of VERB_STAGES.filter((s) => s.n < VERB_MIXED_STAGE)) expect(openersIn(s.n, "verb").length).toBeGreaterThanOrEqual(4);
+    expect(openersIn(VERB_MIXED_STAGE, "verb").length).toBe(OPENERS.filter((o) => trackOf(o) === "verb").length);
   });
 
   it("names no case anywhere a learner reads", () => {
@@ -63,7 +66,7 @@ describe("the words", () => {
   });
 
   it("restrict an opener only to words the table holds", () => {
-    const lemmas = new Set(OPENER_WORDS.map((w) => w.lemma));
+    const lemmas = new Set([...OPENER_WORDS.map((w) => w.lemma), ...OPENER_VERBS.map((v) => v.lemma)]);
     for (const o of OPENERS) for (const l of o.only ?? []) expect(lemmas.has(l), `${o.id} names ${l}`).toBe(true);
   });
 });
@@ -209,7 +212,9 @@ describe("the copy a learner reads", () => {
 
   it("gives an explanation that agrees with the ending the opener wants", () => {
     for (const o of OPENERS) {
-      if (o.ending === "plain") expect(o.why, o.id).toMatch(/dictionary form/);
+      if (o.ending === "ma") expect(o.why, o.id).toMatch(/ma-tegevusnimi \(-ma\)/);
+      else if (o.ending === "da") expect(o.why, o.id).toMatch(/da-tegevusnimi \(-da\)/);
+      else if (o.ending === "plain") expect(o.why, o.id).toMatch(/dictionary form/);
       else expect(o.why, o.id).toMatch(/some of (it|them)/);
     }
   });
@@ -235,5 +240,56 @@ describe("the copy a learner reads", () => {
       expect(text, o.id).not.toMatch(/['"]/);
       expect(text, o.id).not.toMatch(/[\u2013\u2014]/);
     }
+  });
+});
+
+/** The verbs as the seed stores them: both infinitives are stored principal parts. */
+const verbs: OpenerWord[] = OPENER_VERBS.flatMap((spec) => {
+  const entry = shipped.find((e) => e.lemma === spec.lemma && e.pos === "VERB");
+  if (!entry) return [];
+  const f = (t: string) => entry.forms.find((x) => x.formType === t)?.value ?? null;
+  const da = f("INF_DA");
+  if (!da) return [];
+  return [{
+    kind: "verb" as const, lemma: spec.lemma, en: spec.base, a: spec.to, the: spec.ing, pl: spec.ing,
+    lexemeId: spec.lemma, nom: f("INF_MA") ?? spec.lemma, part: da, nomPl: null, partPl: null,
+  }];
+});
+
+describe("the verb lane", () => {
+  it("finds both infinitives of nearly every verb it names in the shipped dictionary", () => {
+    expect(verbs.length).toBeGreaterThanOrEqual(OPENER_VERBS.length - 2);
+  });
+
+  it("answers -ma openers with the -ma form and -da openers with the -da form, never a noun", () => {
+    let asked = 0;
+    for (const s of VERB_STAGES) {
+      const round = buildRound(s.n, [...verbs, ...words], keep, 8, "verb");
+      expect(round.length, `verb stage ${s.n}`).toBe(8);
+      for (const q of round) {
+        const w = verbs.find((v) => v.lemma === q.lemma)!;
+        expect(w, q.lemma).toBeTruthy();
+        expect(q.answer).toBe(q.ending === "ma" ? w.nom : w.part);
+        expect(q.other).toBe(q.ending === "ma" ? w.part : w.nom);
+        asked++;
+      }
+    }
+    expect(asked).toBeGreaterThan(0);
+  });
+
+  it("builds a stage round on two verbs, and never puts a verb after a noun opener", () => {
+    const round = buildRound(1, verbs, keep, 8, "verb");
+    expect(new Set(round.map((q) => q.lemma)).size).toBe(WORDS_PER_ROUND.verb);
+    for (const s of STAGES) expect(buildRound(s.n, verbs, keep).length, `noun stage ${s.n}`).toBe(0);
+  });
+
+  it("points a wrong verb form at a verb opener", () => {
+    let checked = 0;
+    for (const o of OPENERS.filter((o) => trackOf(o) === "verb")) {
+      const other = wantingInstead(o, o.stage);
+      expect(other && trackOf(other), o.id).toBe("verb");
+      checked++;
+    }
+    expect(checked).toBeGreaterThan(0);
   });
 });

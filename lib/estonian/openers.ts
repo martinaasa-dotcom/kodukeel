@@ -38,7 +38,20 @@
 import { checkAnswer } from "./answer";
 
 /** Which of two forms a sentence start asks for. */
-export type Ending = "plain" | "partial";
+export type Ending = "plain" | "partial" | "ma" | "da";
+
+/** What follows the opener: a noun, or a second verb (`Ma tahan minna`, `Ma pean minema`). */
+export type WordKind = "noun" | "verb";
+
+/** The ending an opener of the other choice would want. */
+export function oppositeEnding(e: Ending): Ending {
+  return e === "plain" ? "partial" : e === "partial" ? "plain" : e === "ma" ? "da" : "ma";
+}
+
+/** Whether an ending is a verb's (the two infinitives) rather than a noun's. */
+export function isVerbEnding(e: Ending): boolean {
+  return e === "ma" || e === "da";
+}
 
 export type Quantity = "sg" | "pl";
 
@@ -57,6 +70,7 @@ export const FAMILIES: readonly Family[] = [
   { id: "having", title: "Having and being there" },
   { id: "no", title: "Saying no" },
   { id: "past", title: "In the past" },
+  { id: "doing", title: "Doing something" },
 ];
 
 /** What a family is called on a screen. */
@@ -76,7 +90,8 @@ export interface OpenerSpec {
   ending: Ending;
   /**
    * The whole sentence in English. `{a}` is the word with its article, `{the}`
-   * the same with "the", `{en}` the bare noun and `{pl}` its plural.
+   * the same with "the", `{en}` the bare noun and `{pl}` its plural. Before a
+   * verb, `{to}` is "to swim", `{ing}` "swimming" and `{base}` "swim".
    */
   en: string;
   /** What the opener does, in the words a person would use. No case names. */
@@ -170,6 +185,50 @@ export const OPENERS: readonly OpenerSpec[] = [
   { id: "pl-notlike", family: "no", stage: 5, number: "pl", text: "Mulle ei meeldi", ending: "plain",
     en: "I don’t like {pl}.",
     why: "The odd one out again: the nouns are doing the liking, so they keep their plural dictionary form, and the verb is the same “meeldi” whatever their number." },
+
+  /*
+    The verb lane (`VERB_STAGES`): what follows is a second verb, and the opener
+    decides which of its two dictionary forms. Both are stored principal parts
+    (INF_MA and INF_DA), so the round never builds one. Its stages are counted
+    on their own ladder, beside the noun one rather than after it, because the
+    -ma and -da choice is first-month grammar and the noun ladder reaches its
+    plurals at B1.
+  */
+  { id: "v-want", family: "doing", stage: 1, number: "sg", text: "Ma tahan", ending: "da",
+    en: "I want {to}.",
+    why: "After “tahan” the second verb takes its da-tegevusnimi (-da), the one a dictionary lists second." },
+  { id: "v-like", family: "doing", stage: 1, number: "sg", text: "Mulle meeldib", ending: "da",
+    en: "I like {ing}.",
+    why: "What you like doing takes the da-tegevusnimi (-da).",
+    only: ["magama", "lugema", "sööma", "ujuma", "kirjutama", "tantsima", "laulma", "töötama", "õppima", "mängima", "sõitma", "rääkima"] },
+  { id: "v-must", family: "doing", stage: 1, number: "sg", text: "Ma pean", ending: "ma",
+    en: "I have {to}.",
+    why: "“Pean” is followed by the ma-tegevusnimi (-ma), the one the dictionary leads with." },
+  { id: "v-off", family: "doing", stage: 1, number: "sg", text: "Ma lähen", ending: "ma",
+    en: "I’m off to {base}.",
+    why: "Going somewhere to do something takes the ma-tegevusnimi (-ma).",
+    only: ["magama", "sööma", "ujuma", "tantsima", "laulma", "mängima", "töötama", "õppima"] },
+
+  { id: "v-can", family: "doing", stage: 2, number: "sg", text: "Ma oskan", ending: "da",
+    en: "I know how {to}.",
+    why: "Knowing how to do something takes the da-tegevusnimi (-da).",
+    only: ["lugema", "kirjutama", "ujuma", "tantsima", "laulma", "mängima", "sõitma", "rääkima"] },
+  { id: "v-may", family: "doing", stage: 2, number: "sg", text: "Ma võin", ending: "da",
+    en: "I can {base}.", why: "Being allowed to, or able to, takes the da-tegevusnimi (-da)." },
+  { id: "v-need", family: "doing", stage: 2, number: "sg", text: "Mul on vaja", ending: "da",
+    en: "I need {to}.", why: "Needing to do something takes the da-tegevusnimi (-da)." },
+  { id: "v-love", family: "doing", stage: 2, number: "sg", text: "Ma armastan", ending: "da",
+    en: "I love {ing}.", why: "Like liking, loving to do something takes the da-tegevusnimi (-da).",
+    only: ["lugema", "ujuma", "tantsima", "laulma", "mängima", "sõitma", "magama", "sööma"] },
+  { id: "v-start", family: "doing", stage: 2, number: "sg", text: "Ma hakkan", ending: "ma",
+    en: "I’ll start {ing}.", why: "Starting something takes the ma-tegevusnimi (-ma).",
+    only: ["lugema", "kirjutama", "sööma", "töötama", "õppima", "tantsima", "laulma", "mängima", "rääkima"] },
+  { id: "v-learn", family: "doing", stage: 2, number: "sg", text: "Ma õpin", ending: "ma",
+    en: "I’m learning {to}.", why: "Learning to do something takes the ma-tegevusnimi (-ma).",
+    only: ["lugema", "kirjutama", "ujuma", "tantsima", "laulma", "mängima", "sõitma", "rääkima"] },
+  { id: "v-come", family: "doing", stage: 2, number: "sg", text: "Ma tulen", ending: "ma",
+    en: "I’m coming {to}.", why: "Coming somewhere to do something takes the ma-tegevusnimi (-ma), like going.",
+    only: ["sööma", "mängima", "tantsima", "laulma", "ujuma"] },
 ];
 
 export interface Stage {
@@ -190,6 +249,44 @@ export const STAGES: readonly Stage[] = [
 
 /** The last stage that is a stage of its own; the one after it mixes them all. */
 export const MIXED_STAGE = 6;
+
+/**
+ * Which ladder: the start of a sentence followed by a noun, or by a second
+ * verb. Each has its own stages, counted from 1, and is read on its own.
+ */
+export type Track = "noun" | "verb";
+
+export const TRACKS: readonly { id: Track; title: string }[] = [
+  { id: "noun", title: "Before a noun" },
+  { id: "verb", title: "Before a verb" },
+];
+
+/** The verb lane's stages. */
+export const VERB_STAGES: readonly Stage[] = [
+  { n: 1, title: "Four openers", line: "Want, like, have to and go off to: the next verb ends in -ma or -da." },
+  { n: 2, title: "More verbs", line: "Know how, may, need, love, start, learn and come." },
+  { n: 3, title: "Everything mixed", line: "Any opener, any verb, no order." },
+];
+
+export const VERB_MIXED_STAGE = 3;
+
+export function stagesOf(track: Track): readonly Stage[] {
+  return track === "verb" ? VERB_STAGES : STAGES;
+}
+
+export function mixedOf(track: Track): number {
+  return track === "verb" ? VERB_MIXED_STAGE : MIXED_STAGE;
+}
+
+/** Which lane an opener is on. */
+export function trackOf(opener: Pick<OpenerSpec, "ending">): Track {
+  return isVerbEnding(opener.ending) ? "verb" : "noun";
+}
+
+/** A query parameter read as a lane: anything but "verb" is the noun lane. */
+export function readTrack(raw: unknown): Track {
+  return raw === "verb" ? "verb" : "noun";
+}
 
 const SLOT_PREFIX = "OP_";
 
@@ -241,8 +338,43 @@ export const OPENER_WORDS: readonly OpenerWordSpec[] = [
   { lemma: "buss", en: "bus", a: "a bus", the: "the bus", pl: "buses" },
 ];
 
-/** A word as the dictionary holds it: the four stored forms a round needs. */
+/**
+ * The verbs a verb opener may be followed by, each a request against the
+ * dictionary. The English is authored: `to` and `ing` are the two shapes an
+ * English sentence needs, since no rule here inflects an English verb.
+ */
+export interface OpenerVerbSpec {
+  lemma: string;
+  base: string;
+  to: string;
+  ing: string;
+}
+
+export const OPENER_VERBS: readonly OpenerVerbSpec[] = [
+  { lemma: "minema", base: "go", to: "to go", ing: "going" },
+  { lemma: "magama", base: "sleep", to: "to sleep", ing: "sleeping" },
+  { lemma: "lugema", base: "read", to: "to read", ing: "reading" },
+  { lemma: "sööma", base: "eat", to: "to eat", ing: "eating" },
+  { lemma: "jooma", base: "drink", to: "to drink", ing: "drinking" },
+  { lemma: "ujuma", base: "swim", to: "to swim", ing: "swimming" },
+  { lemma: "kirjutama", base: "write", to: "to write", ing: "writing" },
+  { lemma: "tantsima", base: "dance", to: "to dance", ing: "dancing" },
+  { lemma: "laulma", base: "sing", to: "to sing", ing: "singing" },
+  { lemma: "töötama", base: "work", to: "to work", ing: "working" },
+  { lemma: "õppima", base: "study", to: "to study", ing: "studying" },
+  { lemma: "mängima", base: "play", to: "to play", ing: "playing" },
+  { lemma: "sõitma", base: "drive", to: "to drive", ing: "driving" },
+  { lemma: "rääkima", base: "talk", to: "to talk", ing: "talking" },
+];
+
+/**
+ * A word as the dictionary holds it: the stored forms a round needs. For a
+ * noun, its plain and "some of it" forms; for a verb (`kind: "verb"`), `nom` is
+ * the ma-tegevusnimi (-ma) and `part` the da-tegevusnimi (-da), both principal parts, and the English
+ * fields carry `base` in `en`, `to` in `a` and `ing` in `the`.
+ */
 export interface OpenerWord extends OpenerWordSpec {
+  kind?: WordKind;
   lexemeId: string;
   nom: string;
   part: string;
@@ -250,9 +382,20 @@ export interface OpenerWord extends OpenerWordSpec {
   partPl: string | null;
 }
 
+/** What follows an opener. */
+export function kindOf(opener: Pick<OpenerSpec, "ending">): WordKind {
+  return isVerbEnding(opener.ending) ? "verb" : "noun";
+}
+
 /** The form that follows an opener, and the form that would follow its opposite. */
 export function formsFor(word: OpenerWord, opener: Pick<OpenerSpec, "ending" | "number">):
   { answer: string; other: string } | null {
+  if (isVerbEnding(opener.ending)) {
+    if ((word.kind ?? "noun") !== "verb" || !word.nom || !word.part) return null;
+    if (word.nom.toLowerCase() === word.part.toLowerCase()) return null;
+    return opener.ending === "ma" ? { answer: word.nom, other: word.part } : { answer: word.part, other: word.nom };
+  }
+  if ((word.kind ?? "noun") !== "noun") return null;
   const pl = opener.number === "pl";
   const plain = pl ? word.nomPl : word.nom;
   const partial = pl ? word.partPl : word.part;
@@ -265,7 +408,8 @@ export function formsFor(word: OpenerWord, opener: Pick<OpenerSpec, "ending" | "
 }
 
 /** Whether a word can carry an opener at all. */
-export function suits(word: Pick<OpenerWordSpec, "lemma">, opener: OpenerSpec): boolean {
+export function suits(word: Pick<OpenerWord, "lemma" | "kind">, opener: OpenerSpec): boolean {
+  if ((word.kind ?? "noun") !== kindOf(opener)) return false;
   return !opener.only || opener.only.includes(word.lemma);
 }
 
@@ -275,7 +419,10 @@ export function englishFor(word: OpenerWordSpec, opener: OpenerSpec): string {
     .replace("{a}", word.a)
     .replace("{the}", word.the)
     .replace("{en}", word.en)
-    .replace("{pl}", word.pl);
+    .replace("{pl}", word.pl)
+    .replace("{to}", word.a)
+    .replace("{ing}", word.the)
+    .replace("{base}", word.en);
 }
 
 export interface OpenerQuestion {
@@ -307,8 +454,9 @@ export interface OpenerQuestion {
 type Shuffle = <T>(items: readonly T[]) => T[];
 
 /** The openers a stage asks about. The last stage asks all of them. */
-export function openersIn(stage: number): OpenerSpec[] {
-  return stage >= MIXED_STAGE ? [...OPENERS] : OPENERS.filter((o) => o.stage === stage);
+export function openersIn(stage: number, track: Track = "noun"): OpenerSpec[] {
+  const mine = OPENERS.filter((o) => trackOf(o) === track);
+  return stage >= mixedOf(track) ? mine : mine.filter((o) => o.stage === stage);
 }
 
 /**
@@ -316,9 +464,10 @@ export function openersIn(stage: number): OpenerSpec[] {
  * number, so a wrong answer can say where it would have been right.
  */
 export function wantingInstead(opener: OpenerSpec, stage: number): OpenerSpec | null {
-  const wanted: Ending = opener.ending === "plain" ? "partial" : "plain";
+  const wanted: Ending = oppositeEnding(opener.ending);
   const pool = OPENERS.filter((o) =>
     o.id !== opener.id && o.ending === wanted && o.number === opener.number && o.stage <= Math.max(stage, 1));
+  // (The opposite of -ma is -da, so a verb opener only ever points at another verb opener.)
   // The one the learner most likely meant is the one in the same family.
   return pool.find((o) => o.family === opener.family) ?? pool[0] ?? null;
 }
@@ -358,14 +507,18 @@ export const ROUND_SIZE = 8;
  * the word does not, and that is what makes the pattern visible. The mixed
  * stage is the exception and draws a fresh word for each question, since by
  * then the learner is meant to know the pattern rather than the word.
+ *
+ * The verb lane takes two words to a round (`WORDS_PER_ROUND`): its stages
+ * hold four to seven openers, so one verb would make a round of four, and two
+ * verbs under one opener is the same pattern seen twice.
  */
 export function buildRound(
-  stage: number, words: readonly OpenerWord[], order: Shuffle, size = ROUND_SIZE,
+  stage: number, words: readonly OpenerWord[], order: Shuffle, size = ROUND_SIZE, track: Track = "noun",
 ): OpenerQuestion[] {
-  const openers = openersIn(stage);
+  const openers = openersIn(stage, track);
   if (openers.length === 0 || words.length === 0) return [];
 
-  if (stage >= MIXED_STAGE) {
+  if (stage >= mixedOf(track)) {
     const out: OpenerQuestion[] = [];
     for (const opener of order(openers)) {
       for (const word of order(words)) {
@@ -378,20 +531,29 @@ export function buildRound(
     return out;
   }
 
-  // The word that suits the most openers of this stage, drawn at random among
+  // The words that suit the most openers of this stage, drawn at random among
   // the best, so a round is full wherever the dictionary can fill it.
-  const scored = order(words).map((word) => ({
-    word,
-    n: openers.filter((o) => suits(word, o) && formsFor(word, o)).length,
-  }));
-  const best = Math.max(...scored.map((s) => s.n));
-  const pick = scored.find((s) => s.n === best)?.word;
-  if (!pick || best === 0) return [];
-  return order(openers)
+  const scored = order(words)
+    .map((word) => ({ word, n: openers.filter((o) => suits(word, o) && formsFor(word, o)).length }))
+    .filter((s) => s.n > 0)
+    .sort((a, b) => b.n - a.n);
+  const picks = scored.slice(0, WORDS_PER_ROUND[track]).map((s) => s.word);
+  if (picks.length === 0) return [];
+  const each = Math.ceil(size / picks.length);
+  const perWord = picks.map((pick) => order(openers)
     .filter((o) => suits(pick, o))
     .flatMap((o) => { const q = questionFor(o, pick, stage, order); return q ? [q] : []; })
-    .slice(0, size);
+    .slice(0, each));
+  // Taken in turn, so the same word does not come twice running where it need not.
+  const out: OpenerQuestion[] = [];
+  for (let i = 0; out.length < size && perWord.some((list) => i < list.length); i += 1) {
+    for (const list of perWord) { const q = list[i]; if (q && out.length < size) out.push(q); }
+  }
+  return out;
 }
+
+/** How many words a round of each lane is built on. */
+export const WORDS_PER_ROUND: Readonly<Record<Track, number>> = { noun: 1, verb: 2 };
 
 export interface OpenerMark {
   right: boolean;
