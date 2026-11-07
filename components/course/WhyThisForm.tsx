@@ -77,6 +77,10 @@ export function WhyThisForm({ lesson, why, table }: { lesson: LessonSpec; why: W
                 style={{ borderColor: i === at ? "var(--accent)" : "var(--edge)", ["--choice-bg" as string]: i === at ? "var(--accent-soft)" : "var(--surface)" }}
               >
                 <span lang="et" className="font-semibold">{line?.et}</span>
+                {/* Two forms out of one sentence would be two identical buttons, so each says which it is about. */}
+                {why.lines.filter((o) => o.line === l.line).length > 1 && (
+                  <span lang="et" className="ml-1.5" style={{ color: "var(--accent-deep)" }}>({l.form})</span>
+                )}
               </button>
             );
           })}
