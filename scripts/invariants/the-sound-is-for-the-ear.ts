@@ -21,6 +21,12 @@ import type { InvariantKit } from "../lib/invariantKit";
  *   - the sentence under the line says "understood", never "heard", since a
  *     word heard as spelled can still have been said with an accent.
  *
+ * All three now live in one block, `TurnResult`, which every such screen ends
+ * a turn with, so a screen is held to drawing it, and the block to the three.
+ * A screen that kept a read-back of the heard words beside it ("Hear what
+ * was heard") was drawing the comparison's own turn a second time, and that
+ * button is refused.
+ *
  * And the comparison is a playback and nothing more: it reaches no Server
  * Action and no grade, so a press can never write a row.
  */
@@ -35,11 +41,15 @@ export default function theSoundIsForTheEar({ check, code }: InvariantKit) {
     for (const file of LIGHTING) {
       const src = code(file);
       assert.match(src, /\bclarityOf\(/, `${file} lights a line without asking how each word came across`);
-      assert.match(src, /<HeardAs\b/, `${file} never says what a word was heard as`);
-      assert.match(src, /<CompareVoices\b/, `${file} never offers the learner's own turn beside the native line`);
+      assert.match(src, /<TurnResult\b/, `${file} ends a turn without the one block that says what came of it`);
       assert.match(src, /keepAudio:\s*true/, `${file} draws the comparison without keeping the turn's audio, so it never appears`);
-      assert.doesNotMatch(src, /t\("Every word was heard\."\)|words were heard\."\)/, `${file} says a lit line was "heard", which a learner reads as said right`);
+      assert.doesNotMatch(src, /Hear what was heard|data-hear-heard/, `${file} reads the heard words back beside the comparison, which already plays the turn`);
     }
+    const block = code("components/speech/TurnResult.tsx");
+    assert.match(block, /<HeardAs\b/, "TurnResult never says what a word was heard as");
+    assert.match(block, /<CompareVoices\b/, "TurnResult never offers the learner's own turn beside the native line");
+    assert.doesNotMatch(block, /t\("Every word was heard\."\)|words were heard\."\)/, "TurnResult says a lit line was \"heard\", which a learner reads as said right");
+    assert.match(block, /role="status"/, "TurnResult no longer announces how many words came across");
   });
 
   check("the comparison plays and writes nothing", () => {
@@ -59,7 +69,7 @@ export default function theSoundIsForTheEar({ check, code }: InvariantKit) {
     assert.match(src, /playRecording\(\{ samples: turn\b/, "CompareVoices plays something other than the turn it draws");
     // A drawing of loudness: no verdict hue may color a bar.
     const css = code("app/globals.css");
-    const block = css.slice(css.indexOf(".compare-voices {"), css.indexOf(".compare-hint"));
+    const block = css.slice(css.indexOf(".compare-voices {"), css.indexOf("@keyframes compare-bar-heard"));
     assert.ok(block.length > 0, "the comparison's styles are not where this check reads them");
     assert.doesNotMatch(block, /--(sky|blush|butter|good|again|hard)(-ink|-soft)?\b/, "a bar in the comparison wears a verdict hue");
   });

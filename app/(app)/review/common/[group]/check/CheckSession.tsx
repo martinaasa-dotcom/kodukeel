@@ -327,7 +327,7 @@ function Question({ word, group, toEnglish, locale, onSettled, onNext }: {
       className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border"
       style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
     >
-      <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
+      <div className="round-head flex flex-wrap items-center gap-x-4 gap-y-1 px-6 pt-4">
         <Chip tone="accent">{toEnglish ? t("Estonian to English") : t("English to Estonian")}</Chip>
         {/* After the answer, since the label names the word being asked for. */}
         {result && <span className="ml-auto"><StarWord lexemeId={word.lexemeId} starred={word.starred} label={word.lemma} /></span>}

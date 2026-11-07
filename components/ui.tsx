@@ -263,6 +263,7 @@ export function Chip({ children, tone = "neutral", title, caseSensitive }: {
   return (
     <span
       title={title}
+      data-chip={tone}
       className="label-xs inline-flex max-w-full flex-wrap items-center gap-x-1.5 gap-y-0.5 whitespace-normal rounded-full px-2.5 py-1"
       style={{ background: bg, color: fg, textTransform: caseSensitive ? "none" : undefined }}
     >

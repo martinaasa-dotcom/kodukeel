@@ -254,8 +254,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
       >
         <div
-          className="flex flex-wrap items-center gap-2 border-b px-6 py-3"
-          style={{ borderColor: "var(--rule-soft)" }}
+          className="round-head flex flex-wrap items-center gap-x-4 gap-y-1 px-6 pt-4"
         >
           <Chip tone="accent">{t(rungLine(task))}</Chip>
           {/*

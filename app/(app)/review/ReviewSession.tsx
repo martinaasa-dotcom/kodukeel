@@ -1665,7 +1665,7 @@ export function ReviewSession({
         className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
       >
-        <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
+        <div className="round-head flex flex-wrap items-center gap-x-4 gap-y-1 px-6 pt-4">
           {/* Two chips at the most, and both about this card. What narrowed the
               session is said once, above, rather than on every card of it. */}
           <Chip tone="accent">{t(typeLabel(card))}</Chip>

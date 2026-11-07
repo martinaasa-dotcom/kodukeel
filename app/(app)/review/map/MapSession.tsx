@@ -285,7 +285,7 @@ export function MapSession({ questions: initialQuestions, canTranslate }: {
       {look.panel ? <LookBackCard {...look.panel} /> : (
         <div className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border"
           style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}>
-          <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
+          <div className="round-head flex flex-wrap items-center gap-x-4 gap-y-1 px-6 pt-4">
             <Chip tone="accent"><MapIcon size={12} aria-hidden /> <span lang="et">{roundName("/review/map").et}</span></Chip>
             <Chip>{!mq ? t("Place") : mq.rung === 1 ? t("Picture") : mq.rung === 2 ? t("Question") : t("Type it")}</Chip>
             <span className="ml-auto text-xs" style={{ color: "var(--ink-3)" }}>{fill(t("{n} right"), { n: right })}</span>

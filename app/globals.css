@@ -989,6 +989,31 @@
     padding-block: clamp(1.25rem, 4vh, 2.25rem);
   }
   .round-pad { padding-block: clamp(1.25rem, 3.5vh, 2rem); }
+
+  /*
+    THE TOP OF A ROUND CARD IS ONE QUIET LINE, NOT A ROW OF BADGES.
+
+    Every round opened on a hairline with a colored pill above it naming the
+    task, and a second and third pill beside it, so the first thing on the
+    card was furniture about the card rather than the thing to do. A learner
+    reported the whole layout as cluttered and they were right. Inside
+    `.round-head` a chip is drawn as plain words: the task's name in the
+    secondary ink, anything beside it quieter still, no pill and no capitals,
+    and no rule under it, so the question below is what the eye lands on. The
+    `!important` is there because a chip paints its tone inline, and an
+    inline style otherwise beats every class; it reaches only these headers.
+  */
+  .round-head [data-chip] {
+    background: none !important;
+    color: var(--ink-3) !important;
+    padding: 0;
+    text-transform: none;
+    letter-spacing: normal;
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+  .round-head [data-chip="accent"] { color: var(--ink-2) !important; }
+
   /* `--fit-max` too, since the word is drawn through `FitText`, which fits a
      long word under that size rather than letting it break. */
   .round-word { --fit-max: var(--text-3xl); font-size: var(--fit-max); line-height: 1.1; }
@@ -6217,8 +6242,8 @@ html[data-listening] .listen-glow-swell {
 }
 
 /*
-  YOU, THEN THEM (`components/speech/CompareVoices.tsx`). One control: the
-  play disc, what a press does, and the two voices drawn as rows of bars on one
+  YOU, THEN THEM (`components/speech/CompareVoices.tsx`). One quiet pill on
+  the raised ground, no border and no shadow: the play disc and the two voices drawn as rows of bars on one
   clock, so a turn said slower is a longer row. The bars are loudness and
   nothing else, so they take the ink of the row and the accent while that voice
   plays: never a verdict hue, because nothing here knows how a sound came out.
@@ -6236,32 +6261,30 @@ html[data-listening] .listen-glow-swell {
   display: flex;
   width: fit-content;
   align-items: center;
-  gap: 0.875rem;
+  gap: 0.75rem;
   max-width: 100%;
-  padding: 0.75rem 1.125rem 0.75rem 0.75rem;
-  border: 1px solid var(--rule);
-  border-radius: var(--r-lg);
-  background: var(--surface);
-  box-shadow: var(--shadow-sm);
+  padding: 0.375rem 1rem 0.375rem 0.375rem;
+  border: 0;
+  border-radius: 9999px;
+  background: var(--raised);
   color: var(--ink);
   text-align: start;
-  transition-property: border-color, box-shadow, transform;
+  transition-property: background-color, box-shadow;
   transition-duration: 200ms;
 }
 @media (hover: hover) {
-  .compare-btn:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .compare-btn:hover { background: var(--accent-soft); }
 }
 .compare-voices:not([data-playing="idle"]) .compare-btn {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-soft);
+  background: var(--accent-soft);
 }
 .compare-play {
   display: flex;
   flex: none;
   align-items: center;
   justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
+  width: 2.25rem;
+  height: 2.25rem;
   border-radius: 50%;
   background: var(--accent);
   color: var(--accent-ink);
@@ -6275,16 +6298,11 @@ html[data-listening] .listen-glow-swell {
   flex-direction: column;
   gap: 0.5rem;
 }
-.compare-label {
-  font-size: var(--text-sm);
-  font-weight: 600;
-  line-height: 1.3;
-}
 .compare-rows {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  gap: 0.375rem 0.75rem;
+  gap: 0.125rem 0.625rem;
 }
 .compare-row { display: contents; }
 .compare-who {
@@ -6298,7 +6316,7 @@ html[data-listening] .listen-glow-swell {
   display: flex;
   min-width: 0;
   max-width: 100%;
-  height: 1.375rem;
+  height: 1rem;
   align-items: center;
   gap: 2px;
 }
@@ -6333,19 +6351,13 @@ html[data-listening] .listen-glow-swell {
   0%, 100% { box-shadow: 0 0 0 0 var(--accent-soft); }
   50% { box-shadow: 0 0 0 6px var(--accent-soft); }
 }
-.compare-hint {
-  font-size: var(--text-sm);
-  color: var(--ink-3);
-}
-/* On a phone the disc steps down so the two rows keep the width. */
+/* On a phone the pill tightens so the two rows keep the width. */
 @media (max-width: 420px) {
-  .compare-btn { gap: 0.625rem; padding: 0.625rem 0.875rem 0.625rem 0.625rem; }
-  .compare-play { width: 2.5rem; height: 2.5rem; }
+  .compare-btn { gap: 0.5rem; padding-inline-end: 0.75rem; }
   .compare-rows { column-gap: 0.5rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   .compare-btn { transition: none; }
-  .compare-btn:hover { transform: none; }
   .compare-voices:not([data-playing="idle"]) .compare-play { animation: none; }
   .compare-voices[data-playing="you"] [data-row="you"] .compare-bar,
   .compare-voices[data-playing="them"] [data-row="them"] .compare-bar { animation: none; background: var(--accent); }

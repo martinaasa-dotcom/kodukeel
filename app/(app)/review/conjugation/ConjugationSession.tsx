@@ -415,7 +415,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
         className="rounded-xl border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
       >
-        <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
+        <div className="round-head flex flex-wrap items-center gap-x-4 gap-y-1 px-6 pt-4">
           <Chip tone="accent"><Repeat size={12} aria-hidden /> <span lang="et">{group.et}</span></Chip>
           {question.cefr && <Chip>{question.cefr}</Chip>}
           {!question.inDeck && <Chip tone="good">{t("new to you")}</Chip>}

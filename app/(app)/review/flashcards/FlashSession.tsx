@@ -371,8 +371,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
       >
         <div
-          className="flex items-center gap-2 border-b px-6 py-3"
-          style={{ borderColor: "var(--rule-soft)" }}
+          className="round-head flex items-center gap-x-4 gap-y-1 px-6 pt-4"
         >
           {/* The chips wrap among themselves and the star keeps its corner:
               on a phone the whole row wrapped and left the star alone on a

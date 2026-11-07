@@ -2,11 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { useT } from "@/components/Locale";
-import { fill } from "@/lib/copy/locale";
 import { clarityOf, lineWords, lightUp, litAttr, shareLit } from "@/lib/speech/lightUp";
-import { CompareVoices } from "./CompareVoices";
-import { HeardAs } from "./HeardAs";
 import { MicButton } from "./MicButton";
+import { TurnResult } from "./TurnResult";
 import { useSpeech } from "./useSpeech";
 import type { Hearing } from "@/lib/speech/reconcile";
 
@@ -28,6 +26,9 @@ import type { Hearing } from "@/lib/speech/reconcile";
  * more, and the sound is handed to the one judge that can hear it: once a
  * turn is over, `CompareVoices` plays it back and then the native line.
  *
+ * What came of a turn is `TurnResult`, the one quiet block every such
+ * screen ends a turn with.
+ *
  * Shared by the conversation's "hear them first", the Speaking round, the
  * errand rehearsal and the scanner's "around me" (VB-4, VB-5, VB-8, VB-13).
  */
@@ -42,11 +43,9 @@ export interface ReadAloudProps {
   readonly voice?: string;
   /** Whether the native speaker's recording may stand in for that voice (`nativePart`); yes where no voice is named. */
   readonly native?: boolean;
-  /** Say beside the comparison that the app checks the words and the ear the sound: once on a screen, not on every line. */
-  readonly compareHint?: boolean;
 }
 
-export function ReadAloud({ line, label, onHeard, shortcut = false, voice, native, compareHint = true }: ReadAloudProps) {
+export function ReadAloud({ line, label, onHeard, shortcut = false, voice, native }: ReadAloudProps) {
   const t = useT();
   const words = useMemo(() => lineWords(line), [line]);
   const expect = useMemo(() => new Set(words.map((w) => w.text.toLocaleLowerCase("et"))), [words]);
@@ -64,11 +63,6 @@ export function ReadAloud({ line, label, onHeard, shortcut = false, voice, nativ
   // While listening the partial text lights the line as it comes; after, the reconciled reading does.
   const lit = lightUp(words, speech.listening ? speech.partial : heard);
   const clarity = useMemo(() => (reading ? clarityOf(words, reading.words) : null), [words, reading]);
-  const share = shareLit(lit);
-  const all = words.length > 0 && share === 1;
-  // A dash standing on its own is not a word anybody says, so the count is of words.
-  const spoken = words.filter((w) => w.key);
-  const litWords = words.filter((w, i) => w.key && lit[i]).length;
 
   return (
     <div className="flex flex-col gap-3">
@@ -80,22 +74,20 @@ export function ReadAloud({ line, label, onHeard, shortcut = false, voice, nativ
           </span>
         ))}
       </p>
-      {speech.offered && (
-        <div className="flex flex-wrap items-center gap-3">
-          <MicButton speech={speech} label={label ?? t("Say it along")} shortcut={shortcut} showPartial={false} fallback="none" />
-          {!speech.listening && heard && (
-            <p className="text-sm" style={{ color: "var(--ink-2)" }} role="status">
-              {all ? t("Every word was understood.") : fill(t("{n} of {total} words were understood."), { n: litWords, total: spoken.length })}
-            </p>
-          )}
-        </div>
-      )}
-      {/* What came of the turn, once it is over: the words heard as another spelling, then both voices. */}
+      {speech.offered && <MicButton speech={speech} label={label ?? t("Say it along")} shortcut={shortcut} showPartial={false} fallback="none" />}
       {speech.offered && heard && !speech.listening && !speech.thinking && (
-        <div className="turn-after flex flex-col gap-3">
-          {clarity && <HeardAs line={words} clarity={clarity} />}
-          {!speech.silent && <CompareVoices audio={speech.audio} text={line} voice={voice} native={native} hint={compareHint} />}
-        </div>
+        <TurnResult
+          words={words}
+          lit={lit}
+          clarity={clarity}
+          understood={heard}
+          audio={speech.audio}
+          text={line}
+          silent={speech.silent}
+          voice={voice}
+          native={native}
+          align="start"
+        />
       )}
     </div>
   );

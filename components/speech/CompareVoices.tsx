@@ -30,6 +30,12 @@ import { SPEECH_SETTINGS } from "@/lib/speech/settings";
  * count as the app speaking, so the microphone stays closed while either
  * plays (D14). Nothing is scored, written or graded.
  *
+ * AND IT IS ONE QUIET PILL, NOT A CARD. It used to carry a title and a
+ * sentence under it ("the app checks the words, your ear checks the
+ * sound"), which a learner read as a wall of words round the one thing to
+ * press. The play disc and the two rows of bars are the whole of it now; the
+ * title is the button's accessible name and its tooltip.
+ *
  * AND BOTH VOICES ARE DRAWN, ON ONE CLOCK. Each is a row of bars, one per
  * slice of time at one scale for the pair (`lib/audio/waveBars.ts`), so a
  * turn said slower is a longer row and a held vowel is a wider hump: Estonian
@@ -40,7 +46,7 @@ import { SPEECH_SETTINGS } from "@/lib/speech/settings";
  * row is read off the very clip that plays, at the pace it plays at; a clip
  * that cannot be had (offline, the service down) leaves that row as a line.
  */
-export function CompareVoices({ audio, text, voice, native: mayBeNative, hint = false, align = "start" }: {
+export function CompareVoices({ audio, text, voice, native: mayBeNative, align = "start" }: {
   /** The turn's audio at 16 kHz, or null before anything has been said. */
   readonly audio: Float32Array | null;
   /** The Estonian line the native recording says. */
@@ -54,9 +60,7 @@ export function CompareVoices({ audio, text, voice, native: mayBeNative, hint = 
    * beside a person saying the line is the comparison worth having.
    */
   readonly native?: boolean;
-  /** Say once, under the button, that the app checks the words and the ear checks the sound. */
-  readonly hint?: boolean;
-  /** Where the card and its hint sit: against the line's edge, or under a centered card's middle. */
+  /** Where the pill sits: against the line's edge, or under a centered card's middle. */
   readonly align?: "start" | "center";
 }) {
   const t = useT();
@@ -142,19 +146,24 @@ export function CompareVoices({ audio, text, voice, native: mayBeNative, hint = 
 
   return (
     <div className="compare-voices" data-compare-voices data-align={align} data-playing={playing ?? "idle"}>
-      <button type="button" onClick={() => void press()} aria-pressed={playing !== null} className="compare-btn press">
+      <button
+        type="button"
+        onClick={() => void press()}
+        aria-pressed={playing !== null}
+        aria-label={t("Hear yourself, then them")}
+        title={t("Hear yourself, then them")}
+        className="compare-btn press"
+      >
         <span className="compare-play" aria-hidden>
-          {playing ? <Square size={14} fill="currentColor" /> : <Play size={16} fill="currentColor" />}
+          {playing ? <Square size={12} fill="currentColor" /> : <Play size={14} fill="currentColor" />}
         </span>
         <span className="compare-body">
-          <span className="compare-label">{t("Hear yourself, then them")}</span>
           <span className="compare-rows" aria-hidden>
             <Wave who="you" label={t("Your voice")} bars={rows.you} lead={RECORDING_LEAD_S} />
             <Wave who="them" label={t("Native voice")} bars={rows.them} lead={0} />
           </span>
         </span>
       </button>
-      {hint && <p className="compare-hint">{t("The app checks the words. Your ear checks the sound.")}</p>}
       <span className="sr-only" role="status">
         {playing === "you" ? t("Playing your recording.") : playing === "them" ? t("Playing the native recording.") : ""}
       </span>

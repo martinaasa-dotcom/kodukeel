@@ -4,10 +4,10 @@ import { EnterKeyCap } from "@/components/KeyCaps";
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { AnotherRound } from "@/components/round/AnotherRound";
 import { useGrade } from "@/components/round/useGrade";
-import { Headphones, Mic, Pause, Play, Volume2 } from "lucide-react";
+import { Headphones, Pause, Play } from "lucide-react";
 import { Button, ButtonLink } from "@/components/Button";
 import { Recorder } from "@/components/Recorder";
-import { Chip, Empty, Page, StatTile } from "@/components/ui";
+import { Empty, Page, StatTile } from "@/components/ui";
 import { Mascot } from "@/components/brand";
 import { SpeakPair } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
@@ -15,11 +15,10 @@ import { EstonianInput } from "@/components/EstonianInput";
 import { GapMeaning } from "@/components/GapMeaning";
 import { useResumeCard } from "@/components/useResumeCard";
 import { useAudioPrefs } from "@/components/AudioPrefs";
-import { useOffline } from "@/components/OfflineProvider";
 import { MicButton, MicError } from "@/components/speech/MicButton";
 import { useSpeech } from "@/components/speech/useSpeech";
 import { CompareVoices } from "@/components/speech/CompareVoices";
-import { HeardAs } from "@/components/speech/HeardAs";
+import { TurnResult } from "@/components/speech/TurnResult";
 import { useSpokenBox } from "@/components/speech/SpokenBox";
 import { inEditable, isAdvanceKey, isPlayKey } from "@/lib/ux/advanceKey";
 import { VERDICT_CLASS, verdictOfCheck } from "@/lib/ux/verdict";
@@ -28,11 +27,10 @@ import { RoundProgress } from "@/components/round/RoundProgress";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { useLocale, useT } from "@/components/Locale";
 import { fill } from "@/lib/copy/locale";
-import { fillNodes } from "@/components/fillNodes";
 import { gapMeaning } from "@/lib/copy/gapMeaning";
-import { clarityOf, lineWords, lightUp, litAttr, shareLit } from "@/lib/speech/lightUp";
+import { clarityOf, lineWords, lightUp, litAttr } from "@/lib/speech/lightUp";
 import { core, type Hearing } from "@/lib/speech/reconcile";
-import { playClip, playHeard, untilQuiet } from "@/lib/audio/clip";
+import { playClip, untilQuiet } from "@/lib/audio/clip";
 import { noteIn, type AnswerCheck } from "@/lib/estonian/answer";
 import type { EngineError } from "@/lib/speech/engine";
 import {
@@ -71,7 +69,6 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
   const t = useT();
   const locale = useLocale();
   const { voice, pace } = useAudioPrefs();
-  const { online } = useOffline();
   const [items] = useState(initialItems);
   const { initialIndex, remember: rememberCard } = useResumeCard(initialItems.map((c) => ({ id: c.key })));
   const [index, setIndex] = useState(initialIndex);
@@ -381,7 +378,6 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
   }
 
   const litFlags = lightUp(words, step === "meaning" ? "" : shadow.listening ? shadow.partial : lit?.understood ?? "");
-  const share = shareLit(litFlags);
   // How each word came across once the turn is over: heard as spelled, or understood as another spelling.
   const clarity = step !== "meaning" && lit && !shadow.listening ? clarityOf(words, lit.words) : null;
   const showLine = step === "along" || revealed || (step === "back" && handsFree && !!lit);
@@ -400,28 +396,18 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
         data-speaking-step={step}
       >
-        <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
-          <Chip tone="accent"><Mic size={12} aria-hidden /> {t(STEP_TITLE[step])}</Chip>
-          <span className="text-sm tnum" style={{ color: "var(--ink-3)" }}>
-            {fill(t("Step {n} of {total}"), { n: steps.indexOf(step) + 1, total: steps.length })}
-          </span>
+        {/* The step says itself once: three dots for where you are, and its name. No chip, no second count. */}
+        <div className="flex items-center gap-3 px-6 pt-5">
+          <StepDots at={steps.indexOf(step)} total={steps.length} />
+          <p className="text-sm font-semibold" style={{ color: "var(--ink-2)" }}>{t(STEP_TITLE[step])}</p>
+          <span className="sr-only">{fill(t("Step {n} of {total}"), { n: steps.indexOf(step) + 1, total: steps.length })}</span>
           <div className="ml-auto flex items-center gap-1">
-            <FullEntry lemma={item.lemma} icon={false} />
+            <FullEntry lemma={item.lemma} />
             {item.lexemeId && <StarWord lexemeId={item.lexemeId} starred={item.starred} label={item.lemma} />}
           </div>
         </div>
 
         <div className="round-stage flex flex-col items-center justify-center gap-5 px-6 text-center">
-          {step === "along" && (
-            <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Listen, then say it with the words in front of you")}</p>
-          )}
-          {step === "back" && (
-            <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Listen, then say it back")}</p>
-          )}
-          {step === "meaning" && (
-            <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("Say this in Estonian")}</p>
-          )}
-
           {step === "meaning" && meaning && !check && <GapMeaning meaning={meaning} className="text-2xl font-bold leading-snug tracking-tight" />}
           {step === "meaning" && (!meaning || check) && (
             <p lang="en" className="text-2xl font-bold leading-snug tracking-tight" style={{ color: "var(--ink)" }}>
@@ -446,24 +432,19 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
           )}
 
           {step !== "meaning" && !handsFree && (
-            <div className="flex flex-col items-center gap-2">
-              <MicButton speech={shadow} label={step === "along" ? t("Say it along") : t("Say it back")} shortcut showPartial={false} size="lg" fallback="none" />
-              {/* What came across, in the words it came across in: the lit line says which of its own
-                  words were heard, and this says what was heard instead where they were not. */}
-              {lit && share < 1 && lit.understood.trim() && (
-                <p className="text-sm" style={{ color: "var(--ink-2)" }} data-heard-line>
-                  {fillNodes(t("Heard: {text}"), { text: <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{lit.understood}</span> })}
-                </p>
-              )}
-              <p className="text-sm" style={{ color: "var(--ink-2)" }} role="status">
-                {lit
-                  ? words.length === 1
-                    ? share === 1 ? (clarity?.clarity.includes("close") ? t("Understood.") : t("Understood. That's the word.")) : t("That wasn't heard as the word this time. Say it again whenever you like.")
-                    : share === 1 ? t("Every word was understood.") : fill(t("{n} of {total} words were understood."), { n: litFlags.filter(Boolean).length, total: words.length })
-                  : ""}
-              </p>
-              {clarity && <HeardAs line={words} clarity={clarity} />}
-            </div>
+            <MicButton speech={shadow} label={step === "along" ? t("Say it along") : t("Say it back")} shortcut showPartial={false} size="lg" fallback="none" />
+          )}
+          {/* What came of the turn: one quiet block, the same on every screen that lights a line as it is said. */}
+          {step !== "meaning" && !handsFree && lit && !shadow.listening && !shadow.thinking && (
+            <TurnResult
+              words={words}
+              lit={litFlags}
+              clarity={clarity}
+              understood={lit.understood}
+              audio={shadow.audio}
+              text={item.et}
+              silent={shadow.silent}
+            />
           )}
 
           {step === "meaning" && (
@@ -522,23 +503,11 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
             )}
           </div>
 
-          {/* Hear what came across, and hear yourself beside them: presses, never automatic.
-              On a shadow step the native line is already on the screen, so it can follow the
-              learner's own turn at once. On the recall it follows only once the answer is
-              shown, because before that the native voice would say the answer. */}
-          {!handsFree && (
-            <div className="flex flex-col items-center gap-3">
-              {heardText(step, lit, box.hearing?.heard ?? null) && online && (
-                <HearItHeard text={heardText(step, lit, box.hearing?.heard ?? null)!} voice={voice} pace={pace} />
-              )}
-              {step !== "meaning" && lit && !shadow.listening && !shadow.thinking && !shadow.silent && (
-                <CompareVoices audio={shadow.audio} text={item.et} hint={index === 0 && step === "along"} align="center" />
-              )}
-              {step === "meaning" && (check
-                ? <CompareVoices audio={box.speech.audio} text={item.et} align="center" />
-                : <Recorder audio={box.speech.audio} />)}
-            </div>
-          )}
+          {/* The recall's own comparison follows only once the answer is shown, because before that
+              the native voice would say the answer. */}
+          {!handsFree && step === "meaning" && (check
+            ? <CompareVoices audio={box.speech.audio} text={item.et} align="center" />
+            : <Recorder audio={box.speech.audio} />)}
 
           {handsFree && (
             <HandsFreePanel
@@ -597,6 +566,21 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
   );
 }
 
+/** Where the line is in its three steps: a dot each, the one you are on drawn long. */
+function StepDots({ at, total }: { at: number; total: number }) {
+  return (
+    <span className="flex items-center gap-1" aria-hidden data-step-dots>
+      {Array.from({ length: total }, (_, i) => (
+        <span
+          key={i}
+          className="h-1.5 rounded-full transition-all duration-300"
+          style={{ width: i === at ? "1.25rem" : "0.375rem", background: i <= at ? "var(--accent)" : "var(--rule)" }}
+        />
+      ))}
+    </span>
+  );
+}
+
 /** How long hands-free waits after a line before the next, so it does not run on top of the learner. */
 const HANDS_FREE_PAUSE_MS = 1200;
 
@@ -605,12 +589,6 @@ const STEP_TITLE: Record<SpeakingStep, string> = {
   back: "Say it back",
   meaning: "Say it from the meaning",
 };
-
-/** The text a read-back plays: `heard`, the model's own words, never the repaired reading. */
-function heardText(step: SpeakingStep, lit: { heard: string } | null, boxHeard: string | null): string | null {
-  const text = step === "meaning" ? boxHeard : lit?.heard ?? null;
-  return text && text.trim() ? text.trim() : null;
-}
 
 function gradedLine(
   t: (english: string) => string, graded: "good" | "hard" | "shown" | "none" | null, check: AnswerCheck, spoken: boolean,
@@ -623,32 +601,6 @@ function gradedLine(
   if (verdictOfCheck(check) === "nearly") return t("Nearly. Nothing is written down for this one.");
   // The box is closed now, so the line does not invite another try it cannot take.
   return t("Not this time. Nothing is written down for a miss here.");
-}
-
-/** The read-back of what was heard, in a native voice. Drawn only with a network. */
-function HearItHeard({ text, voice, pace }: { text: string; voice: string; pace: ReturnType<typeof useAudioPrefs>["pace"] }) {
-  const t = useT();
-  const [busy, setBusy] = useState(false);
-  const [failed, setFailed] = useState(false);
-  if (failed) return null;
-  return (
-    <button
-      type="button"
-      className="press inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-ui hover:-translate-y-px"
-      style={{ borderColor: "var(--rule)", background: "var(--raised)", color: "var(--ink-2)" }}
-      disabled={busy}
-      aria-busy={busy || undefined}
-      onClick={() => {
-        setBusy(true);
-        void playHeard({ text, voice, pace })
-          .catch(() => setFailed(true))
-          .finally(() => setBusy(false));
-      }}
-      data-hear-heard
-    >
-      <Volume2 size={14} aria-hidden /> {t("Hear what was heard")}
-    </button>
-  );
 }
 
 /** Hands-free's own panel: the whole of it is the pause, and it says what it cannot do. */

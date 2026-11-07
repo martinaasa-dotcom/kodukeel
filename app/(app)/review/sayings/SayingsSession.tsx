@@ -336,7 +336,7 @@ export function SayingsSession({ plan: initial, canTranslate }: {
           className="rounded-xl border"
           style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
         >
-          <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
+          <div className="round-head flex flex-wrap items-center gap-x-4 gap-y-1 px-6 pt-4">
             <Chip tone="accent">{t("Match")}</Chip>
             <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>
               {fill(t("{n} of {total} matched"), { n: matched.size, total })}
@@ -509,7 +509,7 @@ function UnpackCard({
       style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
     >
       <p className="sr-only" aria-live="polite">{answered ? verdict : ""}</p>
-      <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
+      <div className="round-head flex flex-wrap items-center gap-x-4 gap-y-1 px-6 pt-4">
         <Chip tone="accent">{t("Saying")}</Chip>
         <span className="tnum text-sm" style={{ color: "var(--ink-3)" }}>
           {fill(t("{n} of {total}"), { n: index + 1, total })}
@@ -666,7 +666,7 @@ function FitCard({ question, picked, revealed, streak, isLast, onChoose, onNext 
       style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
     >
       <p className="sr-only" aria-live="polite">{revealed ? verdict : ""}</p>
-      <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
+      <div className="round-head flex flex-wrap items-center gap-x-4 gap-y-1 px-6 pt-4">
         <Chip tone="accent">{t("What would you say?")}</Chip>
         <Streak n={streak} />
       </div>
@@ -747,7 +747,7 @@ function FillCard({ question, picked, revealed, streak, isLast, canTranslate, on
     >
       {/* Mounted with the card and filled when the answer is in, so the verdict is read out. */}
       <p className="sr-only" aria-live="polite">{revealed ? verdict : ""}</p>
-      <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
+      <div className="round-head flex flex-wrap items-center gap-x-4 gap-y-1 px-6 pt-4">
         <Chip tone="accent">{t("Fill the gap")}</Chip>
         <Streak n={streak} />
       </div>
