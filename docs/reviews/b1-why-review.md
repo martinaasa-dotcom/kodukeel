@@ -137,3 +137,39 @@ each lesson.
 - B2: {kohtama} puts the person in the [osastav]; {lauda} in {Istuge lauda} is the short into-form.
 - B2: {juhtima} takes the [osastav] even in a yes because it goes on.
 - B2 14 and A2 34: a few points about the -mata form and the [ilmaütlev] (-ta).
+
+# C1
+
+Every How it works step says why, and a "Why this form?" step where the point is a case choice. Most C1 lessons are
+about style, register and argument, so most got rewritten English only. No new sentence was written.
+
+## Lessons with a "Why this form?" step
+
+| Lesson | Word | Lines walked |
+|---|---|---|
+| C1 10 | kolhoos | kolhoosis, Kolhoosile |
+| C1 13 | aasta | aastal, aastaga |
+| C1 16 | see | Selle (asemel), sellest (hoolimata) |
+| C1 19 | see | see, selle |
+| C1 22 | keegi | keegi, kedagi |
+| C1 28 | lubadus | Lubadusi, lubaduse (one sentence) |
+| C1 33 | plaan | plaani (toetab), plaani (poolt) |
+| C1 43 | lõpp | lõpp, lõpp, lõpu, lõpu |
+| C1 45 | otsus | otsuse, otsusega, otsust |
+
+## Grammar claims to check
+
+- C1 13: with -ga, -na, -ni and -ta only the last word takes the ending ({selle hinnaga}); with -le an adjective takes
+  it too ({uuele köögile}).
+- C1 14: after {laskma} the object keeps the form it would have after the verb of the job.
+- C1 19, 33, 44 and others: {parandama}, {toetama}, {usaldama}, {veenma}, {põhjendama}, {kiusama}, {kuulama} take the
+  [osastav] because the action never finishes with its object.
+- C1 20: {vaja} usually takes what you need in the [osastav] (softened from "always").
+- C1 32: after {on raske} with a -da verb the object usually goes in the [osastav] (softened); a whole object with
+  nobody named never takes the [omastav].
+- C1 38 and 39: the [enneminevik] explained; the old -i- plural ({raamatuis} = {raamatutes}); lesson 39's point no
+  longer contradicts its own note about the short into-form.
+- C1 45: {otsust saab teha} is in the [osastav] because it is about decisions in general; {võtame näiteks otsuse} is one
+  decision taken whole.
+- C1 30s: {Kirjutan kokkuvõtte} as a present meaning "I'll write", with a whole object in the [omastav]; {alla} takes
+  the [omastav] ({alla seitsme}).
