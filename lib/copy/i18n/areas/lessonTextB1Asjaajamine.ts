@@ -12,6 +12,9 @@ import type { Area } from "../area";
  */
 export const LESSON_TEXT_B1_ASJAAJAMINE: Area = {
   ru: {
+    "Does the sentence say there isn't one, or it isn't there?": "Предложение говорит, что этого нет или что этого здесь нет?",
+    "Yes, there isn't one": "Да, этого нет",
+    "No, it's there": "Нет, это есть",
     "Most important now: get your card blocked right away!": "Сейчас главное: сразу заблокируй карту!",
     "Getting things done": "Дела и бумаги",
     "{mida?} something, in the [osastav] (3rd form): {Ma taotlen elamisluba}": "{mida?} что-то, в [osastav] (3-я форма): {Ma taotlen elamisluba}",
@@ -928,6 +931,9 @@ export const LESSON_TEXT_B1_ASJAAJAMINE: Area = {
     "No, it's still going on": "Нет, это ещё в процессе",
   },
   uk: {
+    "Does the sentence say there isn't one, or it isn't there?": "Речення каже, що цього немає або що цього тут немає?",
+    "Yes, there isn't one": "Так, цього немає",
+    "No, it's there": "Ні, це є",
     "Most important now: get your card blocked right away!": "Зараз головне: одразу заблокуй картку!",
     "Getting things done": "Справи й папери",
     "{mida?} something, in the [osastav] (3rd form): {Ma taotlen elamisluba}": "{mida?} щось, у [osastav] (3-тя форма): {Ma taotlen elamisluba}",

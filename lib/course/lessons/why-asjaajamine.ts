@@ -6,8 +6,9 @@
  * about, the thing a command is about, the thing a job got done to, and the
  * thing a no is about. These questions sort them in an order a learner can
  * answer from the sentence alone: a number first, because it decides the
- * ending whatever comes after, then what the word is doing in the sentence,
- * then a no, then a command, then whether the job is done. English only, with
+ * ending whatever comes after, then what the word is doing in the sentence (with
+ * "there isn't one" asked of the thing a sentence is about, since that takes the
+ * osastav too), then a no, then a command, then whether the job is done. English only, with
  * no Estonian of their own, the same rule `why.ts` keeps for the shared trees.
  */
 import type { WhyStep } from "./types";
@@ -25,8 +26,16 @@ export const ONE_THING_STEPS: readonly WhyStep[] = [
     id: "role",
     q: "Is it what the sentence is about, the thing that is somewhere or is some way? Or is somebody doing something to it?",
     answers: [
-      { a: "It's what the sentence is about", lands: { case: "NOMINATIVE", plural: false } },
+      { a: "It's what the sentence is about", next: "none" },
       { a: "Somebody is doing something to it", next: "no" },
+    ],
+  },
+  {
+    id: "none",
+    q: "Does the sentence say there isn't one, or it isn't there?",
+    answers: [
+      { a: "Yes, there isn't one", lands: { case: "PARTITIVE", plural: false } },
+      { a: "No, it's there", lands: { case: "NOMINATIVE", plural: false } },
     ],
   },
   {
