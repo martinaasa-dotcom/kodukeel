@@ -2338,7 +2338,7 @@ export async function completeOnboarding(input: {
  * skipped under the same lock every other deck write takes, so pressing twice
  * costs nothing and loses no scheduling.
  */
-export async function addCommonWords(group: string) {
+export async function addCommonWords(group: string, only?: unknown) {
   const ownerId = await requireUserId();
   const busy = await throttleShared(ownerId, "addCommonWords");
   if (busy) return await sayRefusal(ownerId, busy);
@@ -2346,9 +2346,26 @@ export async function addCommonWords(group: string) {
     return { ok: false as const, error: "We couldn't find that word list." };
   }
 
+  /*
+    THE WORDS A CHECK MISSED, AND NOTHING ELSE.
+
+    The check-yourself round ends by offering to keep the words the learner
+    did not get right. What it sends is read only as a filter over the list's
+    own lemmas, so a request naming a word off the list adds nothing: the
+    group is still what decides what this can reach.
+  */
+  const list = lemmasIn(group as FrequencyGroup);
+  const wanted = Array.isArray(only)
+    ? new Set(only.filter((w): w is string => typeof w === "string"))
+    : null;
+  const lemmas = wanted ? list.filter((w) => wanted.has(w)) : list;
+  if (wanted && lemmas.length === 0) {
+    return { ok: false as const, error: "We couldn't find those words on the list." };
+  }
+
   const { added, words } = await addPlanToDeck(
     ownerId,
-    planLemmas(lemmasIn(group as FrequencyGroup), ["RECOGNITION", "PRODUCTION"]),
+    planLemmas(lemmas, ["RECOGNITION", "PRODUCTION"]),
     "FREQUENCY",
   );
 
