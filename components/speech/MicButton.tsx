@@ -9,6 +9,7 @@ import { fillNodes } from "@/components/TemplateNodes";
 import { megabytes } from "@/lib/speech/model";
 import type { EngineError } from "@/lib/speech/engine";
 import type { Speech } from "./useSpeech";
+import { voiceEnergy } from "./listeningMark";
 import { keepUnits } from "@/lib/copy/values";
 
 /**
@@ -103,6 +104,25 @@ export function MicButton({ speech, label, shortcut = false, showPartial, size =
      "Listening now" as a turn opens and "Microphone off" as it closes. A
      sighted reader has the button changing shape and the light at the edge
      of the window, which is why no pill of words sits beside it. */
+  /*
+    THE CARD LIGHTS WITH IT. While a turn is open, the card the microphone sits
+    in (the nearest ancestor drawn as a card: a border and a rounded corner of
+    a card's size) is marked `data-mic-card`, and the stylesheet sends the same
+    light round it that travels round an answer box. Found rather than declared,
+    because every round draws its own card and a prop threaded through all of
+    them is the one a new round forgets. A microphone inside a box leaves the
+    card alone: there the box is what lights.
+  */
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const inBox = children !== undefined;
+  useEffect(() => {
+    if (!listening || inBox) return;
+    const card = cardAround(buttonRef.current);
+    if (!card) return;
+    card.dataset.micCard = "on";
+    return () => { delete card.dataset.micCard; };
+  }, [listening, inBox]);
+
   const wasOpen = useRef(false);
   useEffect(() => {
     if (listening === wasOpen.current) return;
@@ -186,6 +206,7 @@ export function MicButton({ speech, label, shortcut = false, showPartial, size =
 
   const button = (
     <button
+      ref={buttonRef}
       type="button"
       className={`speech-mic press inline-flex shrink-0 items-center justify-center rounded-full ${dim}`}
       data-state={listening ? "listening" : busy ? "busy" : "idle"}
@@ -264,7 +285,7 @@ export function MicButton({ speech, label, shortcut = false, showPartial, size =
      glow round the box breathes with the voice. */
   if (inField) {
     return (
-      <div className="flex w-full flex-col gap-2" style={{ "--mic-level": String(level) } as CSSProperties}>
+      <div className="flex w-full flex-col gap-2" style={{ "--mic-level": String(voiceEnergy(level)) } as CSSProperties}>
         {children(button)}
         {status && <p className="text-sm" style={{ color: "var(--ink-2)" }}>{status}</p>}
         {notes}
@@ -273,7 +294,7 @@ export function MicButton({ speech, label, shortcut = false, showPartial, size =
   }
 
   return (
-    <div className="flex flex-col items-start gap-4" style={{ "--mic-level": String(level) } as CSSProperties}>
+    <div className="flex flex-col items-start gap-4" style={{ "--mic-level": String(voiceEnergy(level)) } as CSSProperties}>
       {/* The status line stays beside the button and wraps inside its own
           column, by words: wrapped under the button, it sat inside the halo.
           The gaps clear the halo at its widest (`.speech-mic` in globals.css). */}
@@ -284,6 +305,17 @@ export function MicButton({ speech, label, shortcut = false, showPartial, size =
       {notes}
     </div>
   );
+}
+
+/** The nearest ancestor drawn as a card: a visible border and a corner of 14px or more, inside the page's main column. */
+function cardAround(from: HTMLElement | null): HTMLElement | null {
+  let node = from?.parentElement ?? null;
+  while (node && node !== document.body && node.tagName !== "MAIN") {
+    const style = getComputedStyle(node);
+    if (parseFloat(style.borderTopWidth) > 0 && parseFloat(style.borderTopLeftRadius) >= 14) return node;
+    node = node.parentElement;
+  }
+  return null;
 }
 
 function downloadingLine(t: (english: string) => string, done: number, total: number): string {
