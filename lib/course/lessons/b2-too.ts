@@ -147,7 +147,7 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
     ],
     fixes: [
       { line: { et: "Aga ma pole kunagi koosolekut juhtinud.", en: "But I've never run a meeting." }, right: "koosolekut", wrong: "koosolek", pair: ["PARTITIVE", "NOMINATIVE"], why: "Two things here each call for the [osastav] (3rd form). The sentence is a no, {pole}, and after a no the thing is always in the [osastav] (3rd form). And {juhtima} is a verb for something that goes on, running or leading, so its object takes the [osastav] (3rd form) even in a yes: {hakkab meie koosolekuid juhtima}." },
-      { line: { et: "Ei sega. Tule sisse. Tom hakkab meie koosolekuid juhtima.", en: "Not at all. Come in. Tom's going to run our meetings." }, right: "juhtima", wrong: "juhtida", pair: ["Sup", "Inf"], why: "{Hakkama}, to start doing something, is followed by the [ma-tegevusnimi] (-ma): {hakkab juhtima}. A handful of verbs take the -ma form after them, mostly ones about starting, going or having to. Verbs of wanting and being able, like {tahtma} and {võima}, take the [da-tegevusnimi] (-da) instead." },
+      { line: { et: "Ei sega. Tule sisse. Tom hakkab meie koosolekuid juhtima.", en: "Not at all. Come in. Tom's going to run our meetings." }, right: "juhtima", wrong: "juhtida", pair: ["Sup", "Inf"], why: "{Hakkama}, to start doing something, is followed by the [ma-tegevusnimi] (-ma): {hakkab juhtima}. A handful of verbs take the [ma-tegevusnimi] (-ma) after them, mostly ones about starting, going or having to. Verbs of wanting and being able, like {tahtma} and {võima}, take the [da-tegevusnimi] (-da) instead." },
     ],
     faster: {
       ask: { et: "Kuidas sa koosolekut alustaksid?", en: "How would you open a meeting?" },

@@ -293,7 +293,7 @@ export const B2_TERVIS_LESSONS: readonly LessonSpec[] = [
     ],
     fixes: [
       { line: { et: "Arst saab teile täna tagasi helistada.", en: "The doctor can ring you back today." }, right: "teile", wrong: "teid", pair: ["ALLATIVE", "PARTITIVE"], why: "In Estonian you ring to somebody: {helistama} puts the person in the [alaleütlev] (-le, onto/to), {teile}, to you. {Teid} is the [osastav] (3rd form), the form for somebody you see, as in {Kui ta tahab teid näha}." },
-      { line: { et: "Kas te saaksite korrata?", en: "Could you say that again?" }, right: "korrata", wrong: "kordama", pair: ["Inf", "Sup"], why: "{Saaksite}, could you, is a form of {saama}, and {saama} takes the [da-tegevusnimi] (-da) after it: {saaksite korrata}. {Kordama} is the -ma form the dictionary lists, and it goes after verbs like {pidama} instead." },
+      { line: { et: "Kas te saaksite korrata?", en: "Could you say that again?" }, right: "korrata", wrong: "kordama", pair: ["Inf", "Sup"], why: "{Saaksite}, could you, is a form of {saama}, and {saama} takes the [da-tegevusnimi] (-da) after it: {saaksite korrata}. {Kordama} is the [ma-tegevusnimi] (-ma) the dictionary lists, and it goes after verbs like {pidama} instead." },
     ],
     workOut: [
       {
@@ -556,7 +556,7 @@ export const B2_TERVIS_LESSONS: readonly LessonSpec[] = [
     ],
     fixes: [
       { line: { et: "Minu tütrel on kõrge palavik.", en: "My daughter has a high temperature." }, right: "tütrel", wrong: "tütar", pair: ["ADESSIVE", "NOMINATIVE"], why: "Estonian doesn't usually say have with a verb. It says the thing is on somebody: the one who has it goes in the [alalütlev] (-l, on/at/has), {tütrel}, and then comes {on}. So {Minu tütrel on kõrge palavik} is my daughter has a high temperature." },
-      { line: { et: "Kas me peaksime kiirabi kutsuma?", en: "Should we call an ambulance?" }, right: "kutsuma", wrong: "kutsuda", pair: ["Sup", "Inf"], why: "{Peaksime}, should we, is a form of {pidama}, and {pidama} takes the [ma-tegevusnimi] (-ma) after it: {peaksime kutsuma}. The -da form {kutsuda} goes after verbs like {saama} and {võima}." },
+      { line: { et: "Kas me peaksime kiirabi kutsuma?", en: "Should we call an ambulance?" }, right: "kutsuma", wrong: "kutsuda", pair: ["Sup", "Inf"], why: "{Peaksime}, should we, is a form of {pidama}, and {pidama} takes the [ma-tegevusnimi] (-ma) after it: {peaksime kutsuma}. The [da-tegevusnimi] (-da) {kutsuda} goes after verbs like {saama} and {võima}." },
     ],
     workOut: [
       {
@@ -700,8 +700,8 @@ export const B2_TERVIS_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ma ei saa tööl keskenduda.", en: "I can't concentrate at work." }, right: "keskenduda", wrong: "keskenduma", pair: ["Inf", "Sup"], why: "{Saama}, can, takes the [da-tegevusnimi] (-da) after it, so it's {ei saa keskenduda}. {Keskenduma} is the -ma form the dictionary lists, and it goes after verbs like {pidama}." },
-      { line: { et: "Ma pole juba kuu aega korralikult maganud.", en: "I haven't slept properly for a month." }, right: "maganud", wrong: "magama", pair: ["PtsPtPs", "Sup"], why: "To say you haven't done something for a while, Estonian uses {pole}, has not, and the [nud-kesksõna] (-nud, done): {pole maganud}, haven't slept. {Magama} is the -ma form, which goes after a verb like {pidama}, not after {pole}." },
+      { line: { et: "Ma ei saa tööl keskenduda.", en: "I can't concentrate at work." }, right: "keskenduda", wrong: "keskenduma", pair: ["Inf", "Sup"], why: "{Saama}, can, takes the [da-tegevusnimi] (-da) after it, so it's {ei saa keskenduda}. {Keskenduma} is the [ma-tegevusnimi] (-ma) the dictionary lists, and it goes after verbs like {pidama}." },
+      { line: { et: "Ma pole juba kuu aega korralikult maganud.", en: "I haven't slept properly for a month." }, right: "maganud", wrong: "magama", pair: ["PtsPtPs", "Sup"], why: "To say you haven't done something for a while, Estonian uses {pole}, has not, and the [nud-kesksõna] (-nud, done): {pole maganud}, haven't slept. {Magama} is the [ma-tegevusnimi] (-ma), which goes after a verb like {pidama}, not after {pole}." },
     ],
     workOut: [
       {

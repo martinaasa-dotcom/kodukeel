@@ -276,7 +276,7 @@ export const A2_PLAANID_LESSONS: readonly LessonSpec[] = [
       { kind: "verb", et: "tundma", first: "tunnen", en: "to know, to recognize, to feel", firstEn: "I know" },
     ],
     how: {
-      point: "To say you're going somewhere to do something, put the second verb in the [ma-tegevusnimi] (-ma) after the verb of going: {Lähme seeni korjama}, we're going to pick mushrooms. It's the same -ma form that comes after {pean}.",
+      point: "To say you're going somewhere to do something, put the second verb in the [ma-tegevusnimi] (-ma) after the verb of going: {Lähme seeni korjama}, we're going to pick mushrooms. It's the same [ma-tegevusnimi] (-ma) that comes after {pean}.",
       table: {
         head: ["Estonian", "In English"],
         rows: [

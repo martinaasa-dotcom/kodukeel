@@ -142,7 +142,7 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "magas", of: "magama", en: "he, she slept" },
     ],
     how: {
-      point: "The verbs you use most often don't follow the -sin pattern. Their past is learned with the verb, like a word of its own: {minema}, to go, and {läksin}, I went; {tulema}, to come, and {tulin}, I came. Once you have the I form, the other persons follow it as usual: {läksid}, {läksime}.",
+      point: "The verbs you use most often don't follow the -sin pattern. Their past is learned with the verb, like a word of its own: {minema}, to go, and {läksin}, I went; {tulema}, to come, and {tulin}, I came. Once you have the form for I, {läksin}, the other persons follow it as usual: {läksid}, {läksime}.",
       table: {
         head: ["", "I", "He, she"],
         rows: [
