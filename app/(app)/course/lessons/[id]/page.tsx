@@ -6,6 +6,7 @@ import { conversationFrom } from "@/lib/scenes/lessonReturn";
 import { LessonRunner } from "./LessonRunner";
 import { lessonView } from "@/lib/progress/lessonView";
 import { isAdmin } from "@/lib/auth/admin";
+import { answersFor } from "@/lib/progress/lessonAnswers";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const lesson = lessonById((await params).id);
@@ -27,8 +28,10 @@ export const dynamic = "force-dynamic";
 export default async function LessonPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ conversation?: string | string[] }> }) {
   const [ownerId, { id }, query, reviewer] = await Promise.all([requireUserId(), params, searchParams, isAdmin()]);
   // Built in `lessonView`, which `GET /api/v1/lessons/{id}` answers with too; only a reviewer here opens a lesson in preview.
-  const view = await lessonView(ownerId, id, new Date(), reviewer);
+  const [view, saved] = await Promise.all([lessonView(ownerId, id, new Date(), reviewer), answersFor(ownerId, id)]);
   if (!view) notFound();
+  // A finished lesson opens on its recap, with what was said kept from the last time through.
+  const done = view.part.lessons.some((l) => l.id === view.lesson.id && l.done);
   return (
     <LessonRunner
       lesson={view.lesson}
@@ -50,6 +53,10 @@ export default async function LessonPage({ params, searchParams }: { params: Pro
       read={view.read}
       notes={view.notes}
       forms={view.forms}
+      finishedBefore={done}
+      keptAnswers={saved}
+      words={view.words}
+      stars={view.stars}
     />
   );
 }

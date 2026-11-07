@@ -6067,10 +6067,10 @@ _lib/copy/i18n/areas/reference.ts_
   → Однина
 - [ ] **3000.** Plural  
   → Множина
-- [ ] **3001.** Most plural forms are built on the mitmuse omastav (2nd form, plural), and we don't have it for this word. So we've left a gap rather than guess one.  
-  → Більшість форм множини утворюються від mitmuse omastav (2-га форма, мн.), а її для цього слова в нас немає. Тому ми залишили пропуск, щоб не вгадувати.
-- [ ] **3002.** We don't have the mitmuse nimetav (1st form, plural) for this word, and it isn't an ending we can work out. So we've left a gap rather than guess one.  
-  → У нас немає mitmuse nimetav (1-ша форма, мн.) для цього слова, а вивести її за закінченням не можна. Тому ми залишили пропуск, щоб не вгадувати.
+- [ ] **3001.** Most plural forms are built on the mitmuse omastav (plural), and we don't have it for this word. So we've left a gap rather than guess one.  
+  → Більшість форм множини утворюються від mitmuse omastav (мн.), а її для цього слова в нас немає. Тому ми залишили пропуск, щоб не вгадувати.
+- [ ] **3002.** We don't have the mitmuse nimetav (plural) for this word, and it isn't an ending we can work out. So we've left a gap rather than guess one.  
+  → У нас немає mitmuse nimetav (мн.) для цього слова, а вивести її за закінченням не можна. Тому ми залишили пропуск, щоб не вгадувати.
 - [ ] **3003.** Why these are the long forms  
   → Чому тут довгі форми
 - [ ] **3004.** Pronouns have short forms too, and those are the ones you'll hear most. A dictionary lists the long ones first, so that's what you see here. Both are right.  
@@ -6397,8 +6397,8 @@ _lib/copy/i18n/areas/reference.ts_
   → Не лише закінчення
 - [ ] **3165.** Grouped by the kind of word they're about, in the order a course would teach them.  
   → Згруповано за типом слів, у тому порядку, в якому їх проходять на курсі.
-- [ ] **3166.** The singular endings go on the omastav (2nd form), and the plural ones on the mitmuse omastav (2nd form, plural). If the dictionary has no mitmuse omastav for a word, its table shows a gap rather than a guess.  
-  → Закінчення однини додаються до omastav (2-га форма), а закінчення множини до mitmuse omastav (2-га форма, мн.). Якщо в словнику немає mitmuse omastav для слова, у його таблиці буде пропуск, а не здогадка.
+- [ ] **3166.** The singular endings go on the omastav (2nd form), and the plural ones on the mitmuse omastav (plural). If the dictionary has no mitmuse omastav for a word, its table shows a gap rather than a guess.  
+  → Закінчення однини додаються до omastav (2-га форма), а закінчення множини до mitmuse omastav (мн.). Якщо в словнику немає mitmuse omastav для слова, у його таблиці буде пропуск, а не здогадка.
 - [ ] **3167.** Still stuck on one? {ask} and she'll explain the rule behind a sentence you wrote.  
   → Усе ще не виходить? {ask}: вона пояснить правило на прикладі твого речення.
 - [ ] **3168.** All endings  
@@ -11575,8 +11575,8 @@ _lib/copy/i18n/areas/progress.ts_
   → Ти правильно ставиш {case} ({asks}) у {weak}% випадків, а решту відмінків у {overall}%. Найбільше допоможе короткий раунд лише на цей відмінок.
 - [ ] **5742.** You get these right, just slowly  
   → Ти відповідаєш на них правильно, просто повільно
-- [ ] **5743.** You get {strong}% right on words whose plural follows the pattern, but {weak}% on words with a mitmuse omastav (2nd form, plural) of their own. Those have to be learned by heart.  
-  → Ти правильно відповідаєш у {strong}% випадків на слова, у яких множина за правилом, але лише в {weak}% на слова зі своєю власною mitmuse omastav (2-га форма, мн.). Їх доводиться вчити напам'ять.
+- [ ] **5743.** You get {strong}% right on words whose plural follows the pattern, but {weak}% on words with a mitmuse omastav (plural) of their own. Those have to be learned by heart.  
+  → Ти правильно відповідаєш у {strong}% випадків на слова, у яких множина за правилом, але лише в {weak}% на слова зі своєю власною mitmuse omastav (мн.). Їх доводиться вчити напам'ять.
 - [ ] **5744.** You haven't answered any case cards yet. They come with the units that put endings on nouns, in  
   → Відповідей на відмінкові картки в тебе поки немає. Вони з'являються з розділами, де іменники отримують закінчення, у
 - [ ] **5745.** You haven't practiced any of these {total} words yet. Start with the unit they come from.  
@@ -35447,7 +35447,7 @@ _lib/copy/i18n/areas/lessonText.ts_
   → знову, ще раз
 - [ ] **17594.** somebody; nobody, after {ei}  
   → хтось; ніхто, після {ei}
-- [ ] **17595.** quite; real  
+- [ ] **17595.** pretty; real  
   → досить; справжній
 - [ ] **17596.** maybe; suddenly  
   → може; раптом
@@ -38390,7 +38390,7 @@ _lib/copy/i18n/areas/lessonTextB1Rektsioon.ts_
   → А твій начальник?
 - [ ] **19053.** Is that true?  
   → Це правда?
-- [ ] **19054.** No. Actually everything works fine without me too.  
+- [ ] **19054.** No. Actually everything works very well without me too.  
   → Ні. Насправді й без мене все чудово працює.
 - [ ] **19055.** Then we'll go without you: me, Anna and the kids. Peeter's coming with us too.  
   → Тоді ми поїдемо без тебе: я, Анна й діти. Пеетер теж їде з нами.
@@ -40978,7 +40978,7 @@ _lib/copy/i18n/areas/lessonTextB1Kodu.ts_
   → Ой! Вибач!
 - [ ] **20342.** No, I'm the one who should apologize. I work late in the evening and listen to music.  
   → Ні, це мені треба перепросити. Я працюю допізна і слухаю музику.
-- [ ] **20343.** Never mind. But a bit quieter at night, please!  
+- [ ] **20343.** Never mind. But quieter at night, please!  
   → Нічого страшного. Але вночі, будь ласка, тихіше!
 - [ ] **20344.** I promise! And look: dogs are allowed in the building.  
   → Обіцяю! І дивись: собаки в будинку дозволені.
@@ -41038,7 +41038,7 @@ _lib/copy/i18n/areas/lessonTextB1Kodu.ts_
   → Пообіцяй.
 - [ ] **20372.** I promise.  
   → Обіцяю.
-- [ ] **20373.** A bit quieter at night, please!  
+- [ ] **20373.** Quieter at night, please!  
   → Уночі, будь ласка, тихіше!
 - [ ] **20374.** It's broken again  
   → Знову зламалося
@@ -44526,8 +44526,8 @@ _lib/copy/i18n/areas/lessonTextB2Pere.ts_
   → Дуже приємно! Я Пірет, восени я буду вчителькою першого класу. А де Марк?
 - [ ] **22111.** He's off playing ball in the gym.  
   → Він у спортзалі, грає в м'яча.
-- [ ] **22112.** Of course! A new gym was built for us last year. The children love it.  
-  → Ну звісно! Торік нам збудували новий спортзал. Діти його обожнюють.
+- [ ] **22112.** Of course! A new gym was built for us last year. The children really like it.  
+  → Ну звісно! Торік нам збудували новий спортзал. Дітям він дуже подобається.
 - [ ] **22113.** I've got one question. In the autumn we'll both be at work until five. Can Mark stay at school after lessons?  
   → У мене одне запитання. Восени ми обоє працюватимемо до п'ятої. Чи може Марк залишатися в школі після уроків?
 - [ ] **22114.** He can. That's what our after-school group is for.  
@@ -45857,7 +45857,7 @@ _lib/copy/i18n/areas/lessonTextB2Too.ts_
   → Тепер йому треба все записати.
 - [ ] **22774.** Say how your company or your work is doing: one good thing and one worry, with {tõenäoliselt} or {pigem}.  
   → Скажи, як справи у твоєї фірми чи на твоїй роботі: одне добре й одна турбота, з {tõenäoliselt} або {pigem}.
-- [ ] **22775.** Our company's doing quite well. Clients are spending less, but the demand is there. Next year will probably be hard.  
+- [ ] **22775.** Our company's doing fairly well. Clients are spending less, but the demand is there. Next year will probably be hard.  
   → У нашої фірми справи радше добрі. Клієнти витрачають менше, але попит є. Наступний рік, найімовірніше, буде важким.
 - [ ] **22776.** A meeting summary with your own comment  
   → Підсумки наради з власним коментарем
@@ -46108,7 +46108,7 @@ _lib/copy/i18n/areas/lessonTextB2Arutelu.ts_
   → Пасажирів автобусів на два відсотки більше.
 - [ ] **22897.** by how much  
   → на скільки
-- [ ] **22898.** That's quite a big rise.  
+- [ ] **22898.** That's a pretty big rise.  
   → Це досить велике зростання.
 - [ ] **22899.** the change itself, as a noun  
   → сама зміна, іменником
@@ -46122,7 +46122,7 @@ _lib/copy/i18n/areas/lessonTextB2Arutelu.ts_
   → Але, за даними міста, на роботу велосипедом їздять уже десять відсотків людей.
 - [ ] **22904.** Ten percent? That's not a lot.  
   → Десять відсотків? Це ж небагато.
-- [ ] **22905.** Five years ago it was four percent. That's quite a big rise.  
+- [ ] **22905.** Five years ago it was four percent. That's a pretty big rise.  
   → П'ять років тому було чотири відсотки. Це досить велике зростання.
 - [ ] **22906.** But there are still far more cars.  
   → Але машин усе одно набагато більше.
@@ -46146,8 +46146,8 @@ _lib/copy/i18n/areas/lessonTextB2Arutelu.ts_
   → велосипед, колесо
 - [ ] **22916.** a bike's: the \[omastav\] (2nd form); {rattaga}, by bike  
   → велосипеда: \[omastav\] (2-га форма); {rattaga}, велосипедом
-- [ ] **22917.** cars, some of them: the \[mitmuse osastav\] (3rd form, plural)  
-  → машин, якусь кількість: \[mitmuse osastav\] (3-тя форма, множина)
+- [ ] **22917.** cars, some of them: the \[mitmuse osastav\] (plural)  
+  → машин, якусь кількість: \[mitmuse osastav\] (множина)
 - [ ] **22918.** according to the figures, the data: {linna andmetel}  
   → за даними: {linna andmetel}, за даними міста
 - [ ] **22919.** a percent  
@@ -46164,8 +46164,8 @@ _lib/copy/i18n/areas/lessonTextB2Arutelu.ts_
   → зменшується, знижується: цифра – це «воно»
 - [ ] **22925.** it gets bigger, it goes up  
   → збільшується, зростає
-- [ ] **22926.** of the cars: the \[mitmuse omastav\] (2nd form, plural)  
-  → машин: \[mitmuse omastav\] (2-га форма, множина)
+- [ ] **22926.** of the cars: the \[mitmuse omastav\] (plural)  
+  → машин: \[mitmuse omastav\] (множина)
 - [ ] **22927.** people riding, travelers, some of them  
   → тих, хто їде, пасажирів, якусь кількість
 - [ ] **22928.** by, by how much: {kahe protsendi võrra}, by two percent  
@@ -46724,8 +46724,8 @@ _lib/copy/i18n/areas/lessonTextB2Arutelu.ts_
   → по-перше
 - [ ] **23205.** second, secondly  
   → по-друге
-- [ ] **23206.** shops: the \[mitmuse nimetav\] (1st form, plural)  
-  → крамниці: \[mitmuse nimetav\] (1-ша форма, множина)
+- [ ] **23206.** shops: the \[mitmuse nimetav\] (plural)  
+  → крамниці: \[mitmuse nimetav\] (множина)
 - [ ] **23207.** so, for that reason: the written {sellepärast}  
   → тому, з цієї причини: письмове {sellepärast}
 - [ ] **23208.** a conclusion  
@@ -46922,7 +46922,7 @@ _lib/copy/i18n/areas/lessonTextB2Arutelu.ts_
   → Але як вони це вимірювали? Яка була вибірка?
 - [ ] **23304.** They didn't say. A couple of thousand people, I think.  
   → Цього вони не сказали. Пару тисяч людей, здається.
-- [ ] **23305.** A couple of thousand is quite a good sample. Then the result's probably right.  
+- [ ] **23305.** A couple of thousand is a pretty good sample. Then the result's probably right.  
   → Пара тисяч – це досить добра вибірка. Тоді результат, мабуть, правильний.
 - [ ] **23306.** And what's your conclusion?  
   → А який у тебе висновок?
@@ -50609,8 +50609,8 @@ _lib/copy/i18n/areas/lessonTextB2Konekeel.ts_
   → {Noh} дає секунду подумати або починає питання: {Noh, kuidas läheb?} {Vaata} і {tead} просять послухати: {Vaata, ma käisin eile kontserdil!}
 - [ ] **25140.** {Ju} says you both know it, and turns a sentence into a gentle protest: {Ta ei käi ju kunagi kontserdil}, but he never goes to concerts.  
   → {Ju} каже, що ви обидва це знаєте, і перетворює речення на м'яке заперечення: {Ta ei käi ju kunagi kontserdil}, він же ніколи не ходить на концерти.
-- [ ] **25141.** {Nagu} is like, the way English uses it: {nagu ikka}, same as always. {Muide} is by the way, for a new subject, and {täitsa} is totally: {täitsa veider}.  
-  → {Nagu} – це «ніби», як у розмовній англійській: {nagu ikka}, як завжди. {Muide} – це «до речі», для нової теми, а {täitsa} означає «зовсім»: {täitsa veider}.
+- [ ] **25141.** {Nagu} is like, the way English uses it: {nagu ikka}, same as always. {Muide} is by the way, for a new subject, and {täitsa} is pretty: {täitsa veider}, pretty weird.  
+  → {Nagu} – це «ніби», як у розмовній англійській: {nagu ikka}, як завжди. {Muide} – це «до речі», для нової теми, а {täitsa} означає «досить»: {täitsa veider}, досить дивно.
 - [ ] **25142.** Said  
   → Що сказано
 - [ ] **25143.** I don't remember his name.  
@@ -50639,24 +50639,24 @@ _lib/copy/i18n/areas/lessonTextB2Konekeel.ts_
   → Саме так. І вгадай, кого я там зустріла? Яана!
 - [ ] **25155.** Jaan? But he never goes to concerts.  
   → Яана? Він же ніколи не ходить на концерти.
-- [ ] **25156.** That's just it! It was totally weird.  
-  → Отож бо! Це було зовсім дивно.
+- [ ] **25156.** That's just it! It was pretty weird.  
+  → Отож бо! Це було досить дивно.
 - [ ] **25157.** What's weird about that? A man went to a concert, that's normal.  
   → А що тут дивного? Людина сходила на концерт, це ж нормально.
 - [ ] **25158.** You don't know Jaan. He goes to bed at nine!  
   → Ти не знаєш Яана. Він лягає спати о дев'ятій!
 - [ ] **25159.** That's true. By the way, was the concert any good?  
   → Це правда. До речі, а концерт був хороший?
-- [ ] **25160.** Oh, really cool! Come along next time.  
-  → Ой, дуже класний! Наступного разу ходімо разом.
+- [ ] **25160.** Oh, pretty cool! Come along next time.  
+  → Ой, досить класний! Наступного разу ходімо разом.
 - [ ] **25161.** oh (said)  
   → ой, а (у розмові)
 - [ ] **25162.** you know (how it is)  
   → ну ти знаєш (як це буває)
 - [ ] **25163.** same as always  
   → як завжди
-- [ ] **25164.** quite, totally (said rather than written)  
-  → зовсім, цілком (кажуть, а не пишуть)
+- [ ] **25164.** pretty, quite (said rather than written)  
+  → досить, цілком (кажуть, а не пишуть)
 - [ ] **25165.** everywhere  
   → усюди
 - [ ] **25166.** that's just it, there you go  
@@ -50685,8 +50685,8 @@ _lib/copy/i18n/areas/lessonTextB2Konekeel.ts_
   → ім'я, як додаток
 - [ ] **25178.** he, she sang  
   → він, вона співав (співала)
-- [ ] **25179.** Say you're really good, same as always.  
-  → Скажи, що в тебе все дуже добре, як завжди.
+- [ ] **25179.** Say you're pretty good, same as always.  
+  → Скажи, що в тебе все непогано, як завжди.
 - [ ] **25180.** Pretty good, same as always.  
   → Непогано, як завжди.
 - [ ] **25181.** Say you ran into Jaan at the concert.  
@@ -50695,14 +50695,14 @@ _lib/copy/i18n/areas/lessonTextB2Konekeel.ts_
   → Я зустрів Яана на концерті.
 - [ ] **25183.** Who did you run into yesterday?  
   → Кого ти вчора зустрів?
-- [ ] **25184.** Say it was totally weird.  
-  → Скажи, що це було зовсім дивно.
-- [ ] **25185.** It was totally weird.  
-  → Це було зовсім дивно.
-- [ ] **25186.** Say yes, it was really cool.  
-  → Скажи, що так, було дуже класно.
-- [ ] **25187.** Yes, it was really cool.  
-  → Так, було дуже класно.
+- [ ] **25184.** Say it was pretty weird.  
+  → Скажи, що це було досить дивно.
+- [ ] **25185.** It was pretty weird.  
+  → Це було досить дивно.
+- [ ] **25186.** Say yes, it was pretty cool.  
+  → Скажи, що так, було досить класно.
+- [ ] **25187.** Yes, it was pretty cool.  
+  → Так, було досить класно.
 - [ ] **25188.** Was the concert good?  
   → Концерт був хороший?
 - [ ] **25189.** Say it the short way, as people say it.  
@@ -50747,8 +50747,8 @@ _lib/copy/i18n/areas/lessonTextB2Konekeel.ts_
   → Учора я була на концерті.
 - [ ] **25209.** That young singer who was on the radio was singing there.  
   → Там співав той молодий співак, який був на радіо.
-- [ ] **25210.** The concert was really cool.  
-  → Концерт був дуже класний.
+- [ ] **25210.** The concert was pretty cool.  
+  → Концерт був досить класний.
 - [ ] **25211.** That was weird, because Jaan never goes to concerts.  
   → Це було дивно, бо Яан ніколи не ходить на концерти.
 - [ ] **25212.** Afterwards Jaan and I went to a café together.  
@@ -51507,8 +51507,8 @@ _lib/copy/i18n/areas/lessonTextB2Konekeel.ts_
   → Сідайте за стіл, їжа майже готова.
 - [ ] **25589.** Kati, now tell us how the concert was!  
   → Каті, ну розповідай, як минув концерт!
-- [ ] **25590.** Oh, really cool! And Jaan was there too, and...  
-  → Ой, дуже класно! І Яан там теж був, і...
+- [ ] **25590.** Oh, pretty cool! And Jaan was there too, and...  
+  → Ой, досить класно! І Яан там теж був, і...
 - [ ] **25591.** Mari talks over her.  
   → Марі перебиває її.
 - [ ] **25592.** Jaan at a concert! Now that I don't believe, he goes to bed at nine...  
@@ -51565,10 +51565,10 @@ _lib/copy/i18n/areas/lessonTextB2Konekeel.ts_
   → Ні, дякую. Давай далі естонською, я хочу практикуватися.
 - [ ] **25618.** Want me to speak English?  
   → Хочеш, я говоритиму англійською?
-- [ ] **25619.** Say yes: she ran into him there, and it was totally weird.  
-  → Скажи «так»: вона зустріла його там, і це було зовсім дивно.
-- [ ] **25620.** Yes. She ran into you there, and it was totally weird!  
-  → Так. Вона зустріла тебе там, і це було зовсім дивно!
+- [ ] **25619.** Say yes: she ran into him there, and it was pretty weird.  
+  → Скажи «так»: вона зустріла його там, і це було досить дивно.
+- [ ] **25620.** Yes. She ran into you there, and it was pretty weird!  
+  → Так. Вона зустріла тебе там, і це було досить дивно!
 - [ ] **25621.** OK. Did Kati tell you about the concert?  
   → Добре. Каті розповіла тобі про концерт?
 - [ ] **25622.** Say that's not true: he goes to bed at nine!  
@@ -52242,7 +52242,7 @@ _lib/copy/i18n/areas/lessonTextB2Tervis.ts_
   → Як вона дихає?
 - [ ] **25954.** Tom, look at how she's breathing!  
   → Томе, подивися, як вона дихає!
-- [ ] **25955.** She's breathing fast. And she's quite pale.  
+- [ ] **25955.** She's breathing fast. And she's pretty pale.  
   → Дихає часто. І вона досить бліда.
 - [ ] **25956.** Then take the child to the children's hospital straight away, to the emergency department.  
   → Тоді одразу везіть дитину до дитячої лікарні, у приймальне відділення.
@@ -55871,10 +55871,10 @@ _lib/copy/i18n/areas/lessonTextC1Isiksus.ts_
   → Скажи по-розмовному, з {hirmus}.
 - [ ] **27761.** It hurts terribly.  
   → Мені жахливо боляче.
-- [ ] **27762.** Liis said the box is terribly heavy.  
-  → Лійс сказала, що ящик жахливо важкий.
-- [ ] **27763.** The box is terribly heavy, apparently.  
-  → Ящик, кажуть, жахливо важкий.
+- [ ] **27762.** Liis said the box is really heavy.  
+  → Лійс сказала, що ящик страшенно важкий.
+- [ ] **27763.** The box is really heavy, apparently.  
+  → Ящик, кажуть, страшенно важкий.
 - [ ] **27764.** Where he'll say it is in the school, so the \[seesütlev\] (-s, in): {koolis}. {Kooli} is where you go.  
   → Скаже він це в школі, тому \[seesütlev\] (-s, у (де)): {koolis}. {Kooli} – це куди йдуть.
 - [ ] **27765.** You say a thing to somebody: the \[alaleütlev\] (-le, onto/to), {ülemusele ütlema}.  
@@ -55949,8 +55949,8 @@ _lib/copy/i18n/areas/lessonTextC1Isiksus.ts_
   → Що кажуть естонці, коли щось іде не так?
 - [ ] **27800.** Prepare for a minute, then talk for one: the mild words and the stronger ones, how strong each is, and where not to say them.  
   → Підготуйся хвилину, потім говори хвилину: м'які слова й сильніші, наскільки сильне кожне і де їх не кажуть.
-- [ ] **27801.** You can say {oi} anywhere. {Pagan} is fine too, you can even say it with a child listening. Everybody says {kurat}, but not in front of a child or to the boss. {Kurat võtaks} is quite angry already. And if it really hurts, I just say: terribly painful!  
-  → Сказати {oi} можна де завгодно. {Pagan} теж годиться, його можна сказати навіть при дитині. Усі кажуть {kurat}, але не при дитині й не начальникові. {Kurat võtaks} уже досить сердито. А якщо дуже боляче, я просто кажу: жахливо боляче!
+- [ ] **27801.** You can say {oi} anywhere. {Pagan} is perfectly fine too, you can even say it with a child listening. Everybody says {kurat}, but not in front of a child or to the boss. {Kurat võtaks} is pretty angry already. And if it really hurts, I just say: terribly painful!  
+  → Сказати {oi} можна де завгодно. {Pagan} теж цілком годиться, його можна сказати навіть при дитині. Усі кажуть {kurat}, але не при дитині й не начальникові. {Kurat võtaks} уже досить сердито. А якщо дуже боляче, я просто кажу: жахливо боляче!
 - [ ] **27802.** A question on a parents' forum, and two answers  
   → Запитання на батьківському форумі й дві відповіді
 - [ ] **27803.** Question: Our seven-year-old said {kurat} out loud in class at school yesterday, and the teacher phoned me.  
@@ -61349,7 +61349,7 @@ _lib/copy/i18n/areas/lessonTextC1Kodu.ts_
   → Банки зазвичай вимагають, щоб покупець сам сплатив не менше десяти відсотків ціни квартири.
 - [ ] **30490.** Rents have meanwhile risen even faster, which is why buying a home of their own seems more sensible to many.  
   → Оренда тим часом дорожчала ще швидше, тому купівля власного житла багатьом здається розумнішою.
-- [ ] **30491.** When the rent and the monthly loan payment are about the same, many would rather pay the bank than a landlord.  
+- [ ] **30491.** When the rent and the monthly loan payment are almost the same, many would rather pay the bank than a landlord.  
   → Коли оренда і щомісячний платіж за кредитом майже однакові, багато хто воліє платити радше банку, ніж орендодавцеві.
 - [ ] **30492.** In the view of the Bank of Estonia, lower interest rates have brought more buyers onto the market.  
   → За оцінкою Банку Естонії, нижчі ставки привели на ринок більше покупців.
@@ -61987,7 +61987,7 @@ _lib/copy/i18n/areas/lessonTextC1Kodu.ts_
   → По-друге, відсотки. В Естонії майже всі житлові кредити з плаваючою ставкою.
 - [ ] **30809.** That means the interest is made up of two parts: Euribor, which changes, and the bank's margin, which stays the same.  
   → Це означає, що відсоткова ставка складається з двох частин: Euribor, який змінюється, і маржі банку, яка лишається незмінною.
-- [ ] **30810.** When Euribor goes up, so does your monthly payment. A few years ago many families found that out quite painfully.  
+- [ ] **30810.** When Euribor goes up, so does your monthly payment. A few years ago many families found that out pretty painfully.  
   → Коли Euribor зростає, зростає і ваш щомісячний платіж. Кілька років тому багато сімей дізналися про це досить болісно.
 - [ ] **30811.** At some banks you can also fix the interest for a few years, but it usually costs more.  
   → У деяких банках відсоткову ставку можна й зафіксувати на кілька років, але зазвичай це коштує дорожче.
@@ -66093,7 +66093,7 @@ _lib/copy/i18n/areas/lessonTextC1Uhiskond.ts_
   → Мішки для сміття зазвичай можна попросити в управі району, а сміття вивозять в умовлений час.
 - [ ] **32857.** Bring your neighbors, friends and children along. The children often enjoy it most of all.  
   → Бери із собою сусідів, друзів і дітей. Дітям часто подобається найбільше.
-- [ ] **32858.** Don't plan too much. Two or three hours of work is quite enough.  
+- [ ] **32858.** Don't plan too much. Two or three hours of work is plenty.  
   → Не плануй забагато. Двох-трьох годин роботи цілком досить.
 - [ ] **32859.** And don't forget the most important thing: after the work there has to be soup.  
   → І не забудь найважливішого: після роботи неодмінно має бути суп.
@@ -66820,8 +66820,8 @@ _lib/copy/i18n/areas/lessonTextC1Maa.ts_
   → Я думаю, це було неправильно, бо мова, якою говорять удома, завжди важлива.
 - [ ] **33218.** At the same time I understand why the teacher said it: back then ordinary Estonian mattered for every child.  
   → Водночас я розумію, чому вчителька так казала: тоді звичайна естонська була важлива для кожної дитини.
-- [ ] **33219.** Now young people speak it again too, and I think that's wonderful.  
-  → Тепер нею знову говорить і молодь, і я думаю, це чудово.
+- [ ] **33219.** Now young people speak it again too, and I think that's really nice.  
+  → Тепер нею знову говорить і молодь, і я думаю, це дуже добре.
 - [ ] **33220.** Her grandmother spoke only the local language at home  
   → Її бабуся вдома говорила лише місцевою мовою
 - [ ] **33221.** The teacher said it was just a dialect  
@@ -66874,8 +66874,8 @@ _lib/copy/i18n/areas/lessonTextC1Maa.ts_
   → Коли хтось на хутірській кухні каже місцевою мовою «Заходь, роздивися!», навіть городянин розуміє, що його запрошують увійти й роздивитися.
 - [ ] **33245.** Most of the words are familiar; only the sounds are a little different.  
   → Більшість слів знайомі; лише звуки трохи інші.
-- [ ] **33246.** And if a word stays completely unclear, it's worth simply asking.  
-  → А якщо слово лишається зовсім незрозумілим, варто просто спитати.
+- [ ] **33246.** And if a word stays quite unclear, it's worth simply asking.  
+  → А якщо слово лишається досить незрозумілим, варто просто спитати.
 - [ ] **33247.** The people of the south-east like talking about their language, and one question often turns into a long story.  
   → Люди південного сходу люблять говорити про свою мову, і одне запитання часто перетворюється на довгу розповідь.
 - [ ] **33248.** So what is there to do in {Võrumaa}?  
@@ -68911,7 +68911,7 @@ _lib/copy/i18n/areas/lessonTextC1Mote.ts_
   → Кішка була в сусідки.
 - [ ] **34261.** The neighbor had promised to keep an eye on the house for as long as it took.  
   → Сусідка обіцяла наглядати за будинком, скільки буде треба.
-- [ ] **34262.** 'When you come back, everything will be just as it was,' she had said, and hugged Elsa hard.  
+- [ ] **34262.** 'When you come back, everything will be just as it was,' she had said, and hugged Elsa tight.  
   → «Коли повернешся, усе буде як було», сказала вона й міцно обійняла Ельзу.
 - [ ] **34263.** Elsa hadn't answered her.  
   → Ельза їй не відповіла.
@@ -72085,7 +72085,7 @@ _lib/copy/i18n/areas/sounds.ts_
   → вогонь
 - [ ] **35843.** a quarrel  
   → сварка
-- [ ] **35844.** a nail  
+- [ ] **35844.** a fingernail  
   → ніготь
 - [ ] **35845.** a sphere  
   → куля

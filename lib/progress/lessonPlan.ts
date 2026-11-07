@@ -33,7 +33,7 @@ export function ledgerTonight(lesson: LessonSpec): Ledger {
 }
 
 /** The half of a lesson's view that is the same for every learner, which is all of it but the fields read per learner. */
-export type LessonPlan = Omit<LessonView, "name" | "due" | "check" | "part" | "next" | "partAt" | "timeMultiplier" | "read" | "notes" | "forms"> & {
+export type LessonPlan = Omit<LessonView, "name" | "due" | "check" | "part" | "next" | "partAt" | "timeMultiplier" | "read" | "notes" | "forms" | "words" | "stars"> & {
   closes: CourseCheck | null;
   /** The next lesson, and whether it opens another part, which waits behind this part's check. */
   after: { id: string; title: string; crossesPart: boolean } | null;
@@ -69,8 +69,8 @@ export function lessonPlan(
     after: next ? { id: next.id, title: next.title, crossesPart: next.part !== lesson.part } : null,
     scene: sceneForLesson(lesson.id)?.id ?? null,
     situation: situationOf(lesson.id),
-    // From B1, a worksheet page on the finish; a lesson in preview is on no evening and offers none.
-    worksheet: placed ? worksheetFor(placed.day) : null,
+    // From A2, a worksheet page on the finish; a lesson in preview is on no evening and offers none.
+    worksheet: placed ? worksheetFor(placed.day, lesson.id) : null,
     place: { at: ofLevel.indexOf(lesson) + 1, of: ofLevel.length },
     closes,
   };

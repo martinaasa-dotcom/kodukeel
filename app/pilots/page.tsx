@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { Legal, P, S } from "@/components/Legal";
+import { Legal, P, S, Tile, Tiles } from "@/components/Legal";
 import { rich } from "@/components/Rich";
 import { resolveOperator } from "@/lib/legal/operator";
 import { tr } from "@/lib/copy/locale";
@@ -150,24 +150,24 @@ export default async function PilotsPage({ searchParams }: { searchParams: Publi
       </S>
 
       <S id="not-ready" title={t("What this is not ready for")}>
-        <ul className="list-disc space-y-2 pl-5 text-base leading-relaxed" style={{ color: "var(--ink-2)" }} data-not-ready>
-          <li>
+        <Tiles data-not-ready="">
+          <Tile>
             {rich(t("**There is no SOC 2 report and no ISO 27001 certificate.** {controls} is a self-assessment against both, written to be checked rather than believed."), {
               controls: doc("docs/29-controls.md", "The control map"),
             })}
-          </li>
-          <li>
+          </Tile>
+          <Tile>
             {rich(t("**No external penetration test has been carried out.** The threat model and the review are on {trust} and they are our own work."), {
               trust: page("/trust#security", "the trust page"),
             })}
-          </li>
-          <li>{rich(t("**There is no contractual uptime commitment.** What there is instead is an app that keeps working with no network for the pages a learner has already opened, and holds grades until it can send them."))}</li>
-          <li>
+          </Tile>
+          <Tile>{rich(t("**There is no contractual uptime commitment.** What there is instead is an app that keeps working with no network for the pages a learner has already opened, and holds grades until it can send them."))}</Tile>
+          <Tile>
             {rich(t("**The accessibility claim is partial conformance, not full**, with the gaps named on {statement} rather than rounded up."), {
               statement: page("/accessibility", "the accessibility statement"),
             })}
-          </li>
-        </ul>
+          </Tile>
+        </Tiles>
         <P>
           {t("Any of those can change, and each has a note on what would trigger it. None of them is going to be claimed before it is true.")}
         </P>

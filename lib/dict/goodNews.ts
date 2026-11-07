@@ -1,7 +1,7 @@
 import { after } from "next/server";
 import { singleFlight } from "@/lib/cache/singleFlight";
 import { goodNewsItems } from "@/lib/news/feed";
-import { badStem, plainlyGood, recentEnough, shownTitle } from "@/lib/news/goodNews";
+import { dealAcrossKinds, goodKind, recentEnough, shownTitle, type GoodKind } from "@/lib/news/goodNews";
 import type { NewsItem } from "@/lib/news/headlines";
 import { annotateTexts, type ReadableHeadline } from "./headlines";
 
@@ -24,6 +24,13 @@ import { annotateTexts, type ReadableHeadline } from "./headlines";
  * "another one", which is a handful of bytes handed over now rather than a
  * second trip to the server; `ON_THE_CARD` is how many, and a quiet hour
  * offers fewer rather than padding with something the lists did not pass.
+ *
+ * DEALT ACROSS THE KINDS, AND THE FIRST KIND TURNS WITH THE DAY. The culture
+ * feed is read first and carries a dozen openings a day, so the feeds' own
+ * order put a gallery on top every morning and two more behind it. The card
+ * takes one of each kind `goodKind` names before it takes a second of any,
+ * and which kind leads moves on by one each day, so a week of mornings is a
+ * prize, a bat, a premiere and a new tram line rather than seven exhibitions.
  */
 export interface GoodNews {
   /** The headline as ERR wrote it, word by word, with the entries the dictionary vouches for. */
@@ -33,6 +40,7 @@ export interface GoodNews {
 }
 
 const HOUR_MS = 60 * 60 * 1000;
+const DAY_MS = 24 * HOUR_MS;
 const NOTHING_FOR_MS = 10 * 60 * 1000;
 /** A headline a beginner can open most of, preferred over the feeds' first when there is one. */
 const READABLE = 0.5;
@@ -89,12 +97,16 @@ async function pickToday(now: number): Promise<{ value: GoodNews[] | null; good:
   if (fetched.length === 0) return { value: null, good: NOTHING_FOR_MS };
   const seen = new Set<string>();
   const chosen: NewsItem[] = [];
+  const kinds: GoodKind[] = [];
   for (const item of fetched) {
     if (seen.has(item.title) || (item.link && seen.has(item.link))) continue;
-    if (!recentEnough(item, now) || badStem(item) !== null || !plainlyGood(item)) continue;
+    if (!recentEnough(item, now)) continue;
+    const kind = goodKind(item);
+    if (kind === null) continue;
     seen.add(item.title);
     if (item.link) seen.add(item.link);
     chosen.push(item);
+    kinds.push(kind);
     if (chosen.length >= CANDIDATES) break;
   }
   if (chosen.length === 0) return { value: null, good: HOUR_MS };
@@ -110,10 +122,12 @@ async function pickToday(now: number): Promise<{ value: GoodNews[] | null; good:
   const rank = (i: number) => (fits(i) ? (annotated[i]!.covered >= READABLE ? 0 : 1) : 2);
   const order = chosen.map((_, i) => i).sort((a, b) => rank(a) - rank(b) || a - b);
   const best = order.filter((i) => rank(i) < 2);
-  const shown = (best.length > 0 ? best : order.slice(0, 1)).slice(0, ON_THE_CARD);
+  const pool = best.length > 0 ? best : order.slice(0, 1);
+  const shown = dealAcrossKinds(pool, (i) => kinds[i]!, Math.floor(now / DAY_MS)).slice(0, ON_THE_CARD);
   return {
     value: shown.map((i) => ({ tokens: annotated[i]!.tokens, link: chosen[i]!.link })),
     good: HOUR_MS,
   };
 }
+
 

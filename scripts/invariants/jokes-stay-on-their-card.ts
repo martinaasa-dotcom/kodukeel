@@ -40,10 +40,12 @@ export default function jokesStayOnTheirCard({ check, ALL, code }: InvariantKit)
 
   check("good news goes through both word lists on every path", () => {
     const pure = code("lib/news/goodNews.ts");
-    const rule = pure.slice(pure.indexOf("export function plainlyGood"));
-    assert.match(rule.slice(0, 200), /badStem\(item\) !== null\) return false/, "the good-news rule no longer refuses bad news first");
+    const rule = pure.slice(pure.indexOf("export function goodKind"));
+    assert.match(rule.slice(0, 200), /badStem\(item\) !== null\) return null/, "the good-news rule no longer refuses bad news first");
+    const badStem = pure.slice(pure.indexOf("export function badStem"));
+    assert.match(badStem.slice(0, 400), /HARM\.find\(\(stem\) => whole\.includes\(stem\)\)/, "harm is no longer read over the summary as well as the headline");
     const today = code("lib/dict/goodNews.ts");
-    assert.match(today, /badStem\(item\) !== null \|\| !plainlyGood\(item\)\) continue/, "the card offers a headline that cleared only one of the two lists");
+    assert.match(today, /const kind = goodKind\(item\);\s*if \(kind === null\) continue/, "the card offers a headline that did not clear the good-news rule");
     assert.match(today, /!recentEnough\(item, now\)/, "a card headed today is offered last week's news");
   });
 

@@ -1,3 +1,4 @@
+import { ListeningGlow } from "@/components/speech/ListeningGlow";
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import type { CSSProperties } from "react";
@@ -269,6 +270,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <OpenOnArrival />
         {/* One listener that lets every one-shot flourish land (components/motion/PlayOnce.tsx). */}
         <PlayOnce />
+        {/* The edge of the window lights while a microphone is open (components/speech/ListeningGlow.tsx). */}
+        <ListeningGlow />
         {/*
           NO ANALYTICS SCRIPT, BECAUSE /privacy SAYS THERE IS NONE.
 

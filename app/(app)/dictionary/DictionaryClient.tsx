@@ -44,6 +44,7 @@ import { Headlines } from "@/components/Headlines";
 import { Explain } from "@/components/Explain";
 import { useSpeech, useSpeechConfig } from "@/components/speech/useSpeech";
 import { MicButton } from "@/components/speech/MicButton";
+import { liveText } from "@/lib/speech/liveText";
 import { micInAnswerBox } from "@/components/speech/answerBoxMic";
 import { FitText } from "@/components/FitText";
 import { useLocale, useT } from "@/components/Locale";
@@ -270,22 +271,25 @@ export function DictionaryClient({
               roomier padding, at the 19px "lead" step) rather than borrowing
               the answer box's weight for something that is not one.
             */}
-            <EstonianInput
-              value={query}
-              onChange={setQuery}
-              onEnter={() => go(query)}
-              placeholder={t("Estonian or English, like tuba or room")}
-              ariaLabel={t("Search the dictionary")}
-              autoFocus={!initialQuery}
-            />
+            <MicButton speech={speech} label={t("Say the word to look it up")} shortcut fallback="box" when={searchAloud}>
+              {(mic) => (
+                <EstonianInput
+                  value={liveText(query, speech)}
+                  readOnly={speech.listening}
+                  onChange={setQuery}
+                  onEnter={() => go(query)}
+                  placeholder={t("Estonian or English, like tuba or room")}
+                  ariaLabel={t("Search the dictionary")}
+                  autoFocus={!initialQuery}
+                  mic={mic}
+                />
+              )}
+            </MicButton>
           </div>
           <Button variant="primary" onClick={() => go(query)} disabled={pending} className="shrink-0 py-3" aria-label={t("Search")}>
             <Search size={16} aria-hidden /> <span className="hidden sm:inline">{t("Search")}</span>
           </Button>
         </div>
-        {searchAloud && (
-          <MicButton speech={speech} label={t("Say the word to look it up")} shortcut showPartial={false} fallback="box" />
-        )}
         {!initialQuery && suggestions.words.length > 0 && (
           <div className="flex flex-col gap-2">
             <p id="try-these" className="label-xs" style={{ color: "var(--ink-3)" }}>
@@ -931,8 +935,8 @@ function Entry({ entry, ownership, tutorReady, glossLanguage }: {
           {(!form("GEN_PL") || !form("NOM_PL")) && (
             <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
               {!form("GEN_PL")
-                ? t("Most plural forms are built on the mitmuse omastav (2nd form, plural), and we don't have it for this word. So we've left a gap rather than guess one.")
-                : t("We don't have the mitmuse nimetav (1st form, plural) for this word, and it isn't an ending we can work out. So we've left a gap rather than guess one.")}
+                ? t("Most plural forms are built on the mitmuse omastav (plural), and we don't have it for this word. So we've left a gap rather than guess one.")
+                : t("We don't have the mitmuse nimetav (plural) for this word, and it isn't an ending we can work out. So we've left a gap rather than guess one.")}
             </p>
           )}
           {/* Only on a pronoun, and only where the entry has not been enriched.

@@ -141,6 +141,27 @@ function FullSentence({ full, answer }: { full: string; answer: string }) {
   );
 }
 
+/**
+ * THE BUTTON THAT MOVES ON IS DRAWN WHERE IT WILL STAY.
+ *
+ * It used to sit inside the verdict, and the verdict arrives with `.pop-in`,
+ * which scales from 0.9 with an overshoot for 0.45s. A button inside a scaling
+ * box scales with it, so "Next question" appeared about thirty pixels left of
+ * its place and slid under the pointer for half a second, which is when
+ * somebody who has read the verdict reaches for it: a press landed on a target
+ * still moving, and a browser driver read it as never coming to rest. The
+ * verdict still arrives; the control a learner presses does not travel.
+ * Outside the live region as well, since focus already announces it.
+ */
+function NextAtRest({ onClick }: { onClick: () => void }) {
+  const t = useT();
+  return (
+    <Button variant="primary" size="lg" className="mt-5" autoFocus onClick={onClick}>
+      {t("Next question")} <EnterKeyCap className="ml-1" />
+    </Button>
+  );
+}
+
 // ── Multiple choice, read or heard ───────────────────────────────────────────
 
 export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
@@ -180,12 +201,18 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
 
       {item.heard ? (
         /*
-          A click anywhere in this group counts as having played it, which is
-          what unlocks the options. The alternative was a separate "I have
-          played it" button, and a learner who does not notice it is a learner
-          staring at four options they cannot press.
+          THE OPTIONS UNLOCK WHEN THE AUDIO STARTS, NOT WHEN A BUTTON IS PRESSED.
+
+          A click anywhere in this group used to count as having played it, so
+          the options unlocked before the clip had arrived. Where the speech
+          service then sent nothing, `onUnavailable` skipped the section a
+          moment later, and an answer picked in that gap was taken off the
+          screen under the learner's hand: the "Next question" it had just
+          drawn was gone before it could be pressed. Either speed starting is
+          a play, and a play that cannot start skips the section with nothing
+          pressable in between.
         */
-        <div className="mt-5 flex flex-wrap items-center gap-3" onClick={() => setPlayed(true)}>
+        <div className="mt-5 flex flex-wrap items-center gap-3">
           <Speak
             text={item.et}
             label={t("Play the Estonian")}
@@ -203,6 +230,7 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
             size={18}
             className="flex h-12 w-12 items-center justify-center rounded-full"
             style={{ background: "var(--raised)", color: "var(--ink-2)" }}
+            onPlay={() => setPlayed(true)}
             onUnavailable={() => { setSilent(true); onNoAudio(); }}
           />
           <span className="text-sm" style={{ color: "var(--ink-3)" }}>
@@ -281,9 +309,9 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
         change, because one that arrives already holding its sentence may
         never be read out.
       */}
-      <div className={picked !== null ? "pop-in mt-5" : undefined} role="status">
+      <div className={picked !== null ? "mt-5" : undefined} role="status">
         {picked !== null && (
-        <>
+        <div className="pop-in">
           <Chip tone={right ? "good" : "again"}>{t(right ? "Right" : picked === -1 ? "Not sure" : "Not this time")}</Chip>
           {/*
             Not marked lang="et": this line is English prose with an Estonian
@@ -292,18 +320,13 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
             phonics, which is worse than leaving the two words unmarked.
           */}
           <p className="mt-3 text-base" style={{ color: "var(--ink-2)" }}>{item.because}</p>
-          <Button
-            variant="primary"
-            size="lg"
-            className="mt-5"
-            autoFocus
-            onClick={() => onAnswer(picked === -1 ? { kind: "unsure" } : { kind: "picked", option: item.options[picked] ?? "" })}
-          >
-            {t("Next question")} <EnterKeyCap className="ml-1" />
-          </Button>
-        </>
+        </div>
         )}
       </div>
+      {/* Outside the arriving verdict, so it is drawn where it will stay: see `NextAtRest`. */}
+      {picked !== null && (
+        <NextAtRest onClick={() => onAnswer(picked === -1 ? { kind: "unsure" } : { kind: "picked", option: item.options[picked] ?? "" })} />
+      )}
     </div>
   );
 }
@@ -383,9 +406,9 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
         </div>
       )}
       {/* Mounted before the check, and only its contents change. */}
-      <div className={mark ? "pop-in mt-6" : undefined} role="status">
+      <div className={mark ? "mt-6" : undefined} role="status">
         {mark && (
-        <>
+        <div className="pop-in">
           {/* The panel rather than a chip, for the reason `WriteQuestion` gives
               below: a chip uppercases, and these notes are sentences. And the
               verdict through `verdictOfDictation` rather than the same
@@ -438,12 +461,10 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
             })}
           </div>
           <p lang="et" className="mt-4 text-base" style={{ color: "var(--ink-2)" }}>{item.et}</p>
-          <Button variant="primary" size="lg" className="mt-5" autoFocus onClick={() => onAnswer({ kind: "typed", text: typed })}>
-            {t("Next question")} <EnterKeyCap className="ml-1" />
-          </Button>
-        </>
+        </div>
         )}
       </div>
+      {mark && <NextAtRest onClick={() => onAnswer({ kind: "typed", text: typed })} />}
     </div>
   );
 }
@@ -491,9 +512,9 @@ export function WriteQuestion({ item, onAnswer }: { item: WriteItem; onAnswer: (
         </div>
       )}
       {/* Mounted before the check, and only its contents change. */}
-      <div className={mark ? "pop-in mt-6" : undefined} role="status">
+      <div className={mark ? "mt-6" : undefined} role="status">
         {mark && (
-        <>
+        <div className="pop-in">
           {/*
             THE VERDICT IS A PANEL, NOT A CHIP. A chip is `label-xs`, which
             uppercases, so a whole sentence in one arrived as a block of
@@ -515,12 +536,10 @@ export function WriteQuestion({ item, onAnswer }: { item: WriteItem; onAnswer: (
           {mark.credit < 1 && item.because && (
             <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{item.because}</p>
           )}
-          <Button variant="primary" size="lg" className="mt-5" autoFocus onClick={() => onAnswer({ kind: "typed", text })}>
-            {t("Next question")} <EnterKeyCap className="ml-1" />
-          </Button>
-        </>
+        </div>
         )}
       </div>
+      {mark && <NextAtRest onClick={() => onAnswer({ kind: "typed", text })} />}
     </div>
   );
 }

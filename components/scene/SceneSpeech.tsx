@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
 import { MicButton, MicError } from "@/components/speech/MicButton";
 import { useSpeech } from "@/components/speech/useSpeech";
 import { useT } from "@/components/Locale";
@@ -65,6 +65,13 @@ export interface SceneMicProps {
   readonly size?: "md" | "lg";
   /** Told when listening starts or stops, never on a level or a partial, so the conversation re-renders at turn boundaries only. */
   readonly onState?: (state: MicState) => void;
+  /**
+   * Draw the microphone inside the message pill rather than above it: the
+   * pill is handed the button (or `null` where it is not offered) and holds
+   * it where the send button goes, the way a phone's message field shows a
+   * microphone until there is something to send (`MicButton`'s `children`).
+   */
+  readonly children?: (mic: ReactNode) => ReactNode;
 }
 
 /** The words so far, written into the box's own element, which is the one write that moves no focus and renders nothing. */
@@ -77,7 +84,7 @@ const MOUNT_MS = 250;
 /** A breath after their line ends, so the microphone does not open on the tail of their voice. */
 const AFTER_LINE_MS = 350;
 
-export function SceneMic({ box, expect, onHeard, call, cue, closed, label, size = "md", onState }: SceneMicProps) {
+export function SceneMic({ box, expect, onHeard, call, cue, closed, label, size = "md", onState, children }: SceneMicProps) {
   const t = useT();
   const heard = useRef(onHeard);
   heard.current = onHeard;
@@ -157,7 +164,7 @@ export function SceneMic({ box, expect, onHeard, call, cue, closed, label, size 
     if (!hadFocus.current) return;
     hadFocus.current = false;
     if (document.activeElement === document.body || document.activeElement === null) {
-      root.current?.querySelector<HTMLButtonElement>("button")?.focus({ preventScroll: true });
+      root.current?.querySelector<HTMLButtonElement>(".speech-mic")?.focus({ preventScroll: true });
     }
   }, [speech.appSpeaking]);
 
@@ -195,12 +202,13 @@ export function SceneMic({ box, expect, onHeard, call, cue, closed, label, size 
   }, [cue, call, armed]);
 
   if (!speech.offered) {
-    return speech.why === "too-slow" ? <MicError error={"too-slow" satisfies EngineError} fallback={box === null ? "none" : "box"} onRetry={null} /> : null;
+    const why = speech.why === "too-slow" ? <MicError error={"too-slow" satisfies EngineError} fallback={box === null ? "none" : "box"} onRetry={null} /> : null;
+    return children ? <div className="flex flex-col gap-2">{children(null)}{why}</div> : why;
   }
 
   return (
     <div ref={root} className="flex flex-col gap-2" data-scene-mic={speech.listening ? "listening" : speech.thinking ? "thinking" : "idle"}>
-      <MicButton speech={speech} label={label} shortcut size={size} showPartial={box === null} fallback={box === null ? "none" : "box"} />
+      <MicButton speech={speech} label={label} shortcut size={size} showPartial={box === null} fallback={box === null ? "none" : "box"}>{children}</MicButton>
       {call && armed && !speech.listening && !speech.thinking && (
         <p className="text-xs" style={{ color: "var(--ink-3)" }}>
           {t("On a call the microphone opens by itself after they speak.")}

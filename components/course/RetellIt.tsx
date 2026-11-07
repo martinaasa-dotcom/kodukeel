@@ -4,8 +4,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Check, Circle, Pause, Play } from "lucide-react";
 import { Button } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
-import { MicButton } from "@/components/speech/MicButton";
+import { MicButton, MicSlot } from "@/components/speech/MicButton";
 import { useSpeech } from "@/components/speech/useSpeech";
+import { liveText } from "@/lib/speech/liveText";
 import { useAudioPrefs } from "@/components/AudioPrefs";
 import { useLocale, useT } from "@/components/Locale";
 import { LessonText } from "@/components/course/LessonText";
@@ -14,8 +15,13 @@ import { fill } from "@/lib/copy/locale";
 import { useLinePlayer } from "@/components/course/useLinePlayer";
 import { useKeep } from "@/components/course/useKeep";
 import { StepPills } from "@/components/course/StepPills";
-import { pointsHeard } from "@/lib/course/lessons/retell";
+import { pointsHeard, retellListensOn, retellMayStop, RETELL_DONE_QUIET_MS } from "@/lib/course/lessons/retell";
 import type { Retell } from "@/lib/course/lessons/types";
+import type { Difference, Grade } from "@/lib/course/lessons/againstLine";
+import type { Finding } from "@/lib/course/lessons/sentenceCheck";
+import { checkRetell } from "@/app/actions";
+import { LineFindings } from "@/components/course/LineFindings";
+import { NOT_REACHED } from "@/lib/copy/values";
 
 /**
  * RETELL IT (B1 on, docs/43-lessons.md §11.2, Talk).
@@ -29,9 +35,18 @@ import type { Retell } from "@/lib/course/lessons/types";
  *
  * NOTHING IS SCORED (ADR-018, ADR-028). A point left dark is only dark, and
  * the story is printed at the end so the learner can see what they left out.
- * Said in as many goes as it takes: each go is added to what was said before,
- * so a learner who stops to think is not made to start again. On a typed
- * evening the box takes it instead.
+ * On a typed evening the box takes it instead.
+ *
+ * ONE PRESS, THE WHOLE STORY. The microphone is held open for the telling
+ * rather than closed on the first pause: a learner moving from one point to
+ * the next stops to think, and a turn that closed there made them press it
+ * again for every point. The points light from what is heard so far, while
+ * they are still talking, and go dark again if the recognizer changes its
+ * mind, so the list is the cue to move on. Only two things close it: the
+ * learner's own press, or every point lit and then a pause
+ * (`retellMayStop`). A turn that reaches the engine's length cap with a point
+ * still dark is opened again at once (`retellListensOn`). Each turn is still
+ * added to what was said before, so pressing it again carries on.
  *
  * Stepping away to reread the conversation and coming back finds the box, the
  * plays and the story as they were (`kept`, `useKeep`).
@@ -40,9 +55,24 @@ export interface RetellKept {
   readonly plays: number;
   readonly said: string;
   readonly shown: boolean;
+  /** What each sentence told back came to, once checked, or null before. */
+  readonly checked?: readonly ToldSentence[] | null;
 }
 
-export function RetellIt({ retell, voice, typed, onDone, kept, onKeep }: { retell: Retell; voice: string | undefined; typed: boolean; onDone: () => void; kept?: RetellKept; onKeep?: (kept: RetellKept) => void }) {
+/** One sentence told back, read against the story line it is nearest and against the language. */
+export interface ToldSentence {
+  readonly sentence: string;
+  readonly line: { readonly et: string; readonly en: string } | null;
+  readonly grade: Grade;
+  readonly differences: readonly Difference[];
+  readonly findings: readonly Finding[];
+}
+
+export function RetellIt({ lessonId, retell, voice, typed, onDone, kept, onKeep, onChecked }: {
+  lessonId: string; retell: Retell; voice: string | undefined; typed: boolean; onDone: () => void; kept?: RetellKept; onKeep?: (kept: RetellKept) => void;
+  /** Where the sentences' readings go once checked, for the list at the end of the step. */
+  onChecked?: (sentences: readonly ToldSentence[]) => void;
+}) {
   const t = useT();
   const locale = useLocale();
   const prefs = useAudioPrefs();
@@ -52,7 +82,34 @@ export function RetellIt({ retell, voice, typed, onDone, kept, onKeep }: { retel
   const [unheard, setUnheard] = useState(false);
   const [said, setSaid] = useState(kept?.said ?? "");
   const [shown, setShown] = useState(kept?.shown ?? false);
-  useKeep(useMemo(() => ({ plays, said, shown }), [plays, said, shown]), onKeep);
+  const [checked, setChecked] = useState<readonly ToldSentence[] | null>(kept?.checked ?? null);
+  const [checking, setChecking] = useState(false);
+  const [failed, setFailed] = useState<string | null>(null);
+  useKeep(useMemo(() => ({ plays, said, shown, checked }), [plays, said, shown, checked]), onKeep);
+  const resultsRef = useRef<HTMLDivElement>(null);
+  /*
+    CHECKED SENTENCE BY SENTENCE, AND THE LEARNER PRESSES ON. The retelling
+    used to light its points and stop there, so a story told back with the
+    verbs in the wrong person and the endings off was a story "told". Each
+    sentence is read against the story line it is nearest, told back about
+    whoever told it, and against the language (`checkRetell`), and the list
+    stays on the screen until Next is pressed. Nothing is graded.
+  */
+  const check = () => {
+    setChecking(true);
+    setFailed(null);
+    // The story is printed with the readings, and the caret goes to the readings rather than to it.
+    setShown(true);
+    void checkRetell(lessonId, said)
+      .then((r) => {
+        if (!r.ok) { setFailed(r.error); return; }
+        setChecked(r.sentences);
+        onChecked?.(r.sentences);
+        requestAnimationFrame(() => resultsRef.current?.focus());
+      })
+      .catch(() => setFailed(NOT_REACHED))
+      .finally(() => setChecking(false));
+  };
   // The button that showed the story is gone, so the caret goes to the story it showed.
   const storyRef = useRef<HTMLDivElement>(null);
   const showing = useRef(false);
@@ -63,14 +120,38 @@ export function RetellIt({ retell, voice, typed, onDone, kept, onKeep }: { retel
     () => new Set(retell.story.flatMap((l) => l.et.toLocaleLowerCase("et").split(/[^\p{L}]+/u)).filter(Boolean)),
     [retell],
   );
+  const saidRef = useRef(said);
+  saidRef.current = said;
+  // The hook's object changes with every level reading, so the handlers reach it through a ref rather than depend on it.
+  const speechRef = useRef<{ start(): Promise<void>; stop(): void } | null>(null);
   const speech = useSpeech({
-    endpoint: true,
+    // Held open for the whole story: no pause between points closes it (see the header).
+    endpoint: false,
     expect,
-    maxSeconds: 90,
-    onHeard: (h) => setSaid((before) => (before ? `${before} ${h.understood}` : h.understood)),
+    maxSeconds: 180,
+    // Each go is a sentence of its own, so it is joined with a stop and read on its own (`toldSentences`).
+    onHeard: (h, _raw, why) => {
+      const before = saidRef.current;
+      const next = before ? `${/[.!?]\s*$/.test(before) ? before.trimEnd() : `${before.trimEnd()}.`} ${h.understood}` : h.understood;
+      saidRef.current = next;
+      setSaid(next);
+      setChecked(null);
+      if (retellListensOn(why, pointsHeard(retell, next))) void speechRef.current?.start();
+    },
   });
-  const live = speech.listening ? `${said} ${speech.partial}` : said;
+  speechRef.current = speech;
+  const live = liveText(said, speech, "add");
   const lit = pointsHeard(retell, live);
+  const allLit = lit.length > 0 && lit.every(Boolean);
+  // Every point lit, the microphone closes itself once the words stop arriving.
+  // Each new piece of the transcript restarts the wait, so somebody still adding a sentence is not cut off.
+  useEffect(() => {
+    if (!speech.listening || !allLit) return;
+    const timer = setTimeout(() => {
+      if (retellMayStop(pointsHeard(retell, `${saidRef.current} ${speech.partial}`), RETELL_DONE_QUIET_MS)) speechRef.current?.stop();
+    }, RETELL_DONE_QUIET_MS);
+    return () => clearTimeout(timer);
+  }, [speech.listening, speech.partial, allLit, retell]);
   // Announced off what has been said, not the words still arriving, so a point is not read out lighting and going out mid-sentence.
   const settledCount = useMemo(() => pointsHeard(retell, said).filter(Boolean).length, [retell, said]);
   const mic = !typed && speech.offered;
@@ -121,20 +202,24 @@ export function RetellIt({ retell, voice, typed, onDone, kept, onKeep }: { retel
 
       <p className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{t("Tell it back in your own words")}</p>
       {mic && (
-        <div className="mb-3 flex flex-wrap items-center gap-3">
-          <MicButton speech={speech} label={said ? t("Say more") : t("Start telling it")} fallback="box" />
-          <span className="text-sm" style={{ color: "var(--ink-3)" }}>{t("Stop and start as often as you like. It all adds up.")}</span>
-        </div>
+        <p className="mb-2 text-sm" style={{ color: "var(--ink-3)" }}>{t("Keep talking through every point. Press it to stop, or pause once they're all lit.")}</p>
       )}
-      <textarea
-        lang="et"
-        className="field min-h-[96px] w-full"
-        value={live}
-        readOnly={speech.listening}
-        aria-label={t("What you told, in Estonian")}
-        onChange={(e) => setSaid(e.target.value)}
-        spellCheck={false}
-      />
+      {/* The microphone sits in the box's bottom corner, where the next words go. */}
+      <MicButton speech={speech} label={said ? t("Say more") : t("Start telling it")} fallback="box" when={mic}>
+        {(micButton) => (
+          <MicSlot mic={micButton} multiline>
+            <textarea
+              lang="et"
+              className="field min-h-[96px] w-full"
+              value={live}
+              readOnly={speech.listening}
+              aria-label={t("What you told, in Estonian")}
+              onChange={(e) => { setSaid(e.target.value); setChecked(null); }}
+              spellCheck={false}
+            />
+          </MicSlot>
+        )}
+      </MicButton>
       <div className="under-field"><DiacriticBar /></div>
 
       {/* Not a live region: the points light as words arrive, and what is announced is the settled count under them. */}
@@ -150,8 +235,9 @@ export function RetellIt({ retell, voice, typed, onDone, kept, onKeep }: { retel
           </li>
         ))}
       </ul>
-      <p className="mt-3 text-base font-semibold" style={{ color: "var(--ink)" }} role="status">
-        {fill(t("{n} of {total} points came across."), { n: String(settledCount), total: String(retell.points.length) })}
+      {/* While the learner talks the count follows the list they are watching; it is read out only once a turn settles. */}
+      <p className="mt-3 text-base font-semibold" style={{ color: "var(--ink)" }} aria-live={speech.listening ? "off" : "polite"}>
+        {fill(t("{n} of {total} points came across."), { n: String(speech.listening ? lit.filter(Boolean).length : settledCount), total: String(retell.points.length) })}
       </p>
 
       {shown && (
@@ -165,9 +251,37 @@ export function RetellIt({ retell, voice, typed, onDone, kept, onKeep }: { retel
           ))}
         </div>
       )}
+      {/* Mounted empty and filled, so the readings are announced when they land. */}
+      <div role="status" aria-live="polite">
+        {failed && <p className="mt-4 text-base" style={{ color: "var(--ink-2)" }}>{t(failed)}</p>}
+        {checked !== null && (
+          <div ref={resultsRef} tabIndex={-1} className="mt-5 flex flex-col gap-4 outline-none" data-retell-checked>
+            <p className="label-xs" style={{ color: "var(--ink-3)" }}>{t("What you told, sentence by sentence")}</p>
+            {checked.length === 0 && <p className="text-base" style={{ color: "var(--ink-2)" }}>{t("Nothing to read yet: tell the story back first.")}</p>}
+            <ol className="flex flex-col gap-4">
+              {checked.map((s, i) => (
+                <li key={i} className="flex flex-col gap-2">
+                  <p lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>{s.sentence}</p>
+                  <LineFindings grade={s.grade} differences={s.differences} findings={s.findings} about={retell.who} announced="region" />
+                  {s.line && s.grade !== "right" && (
+                    <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+                      {t("In the story:")} <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{s.line.et}</span>{" "}
+                      <LessonText text={s.line.en} locale={locale} />
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
+      </div>
       <div className="mt-5 flex flex-wrap justify-end gap-3">
         {!shown && <Button variant="ghost" onClick={() => { showing.current = true; setShown(true); }}>{t("Show the story")}</Button>}
-        <Button variant={hearFirst ? "secondary" : "primary"} onClick={onDone}>{t("Next")} <ArrowRight size={15} aria-hidden /></Button>
+        {said.trim() !== "" && checked === null ? (
+          <Button variant="primary" onClick={check} disabled={checking || speech.listening}>{checking ? t("Reading it…") : t("Check what I told")}</Button>
+        ) : (
+          <Button variant={hearFirst ? "secondary" : "primary"} onClick={onDone}>{t("Next")} <ArrowRight size={15} aria-hidden /></Button>
+        )}
       </div>
     </Card>
   );

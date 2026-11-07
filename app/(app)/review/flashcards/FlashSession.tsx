@@ -28,6 +28,7 @@ import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { GapMeaning } from "@/components/GapMeaning";
 import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import { splitOnForm } from "@/lib/dict/splitOnForm";
+import { MicSlot } from "@/components/speech/MicButton";
 import { AnswerMic, useSpokenBox } from "@/components/speech/SpokenBox";
 import { askLine, isForm, markFlash, plainAskFor, type FlashMark, type FlashTask } from "@/lib/games/flash";
 import { hintLadder } from "@/lib/questions/hints";
@@ -394,10 +395,14 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
             <label htmlFor="answer" className="label-xs block" style={{ color: "var(--ink-3)" }}>
               {shape === "build" ? t("Your sentence") : t("Your answer")}
             </label>
+            <AnswerMic box={voiceBoxValue} when={!mark && sayable}>
+            {(mic) => (<>
             {shape === "build" ? (
+              <MicSlot mic={mic} multiline>
               <textarea
                 id="answer"
-                value={typed}
+                value={voiceBoxValue.live(typed)}
+                readOnly={voiceBoxValue.speech.listening}
                 lang="et"
                 rows={3}
                 maxLength={MAX_SENTENCE_CHARS}
@@ -409,10 +414,13 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
                 className="field-lg mt-2 w-full resize-none text-md disabled:opacity-70"
                 style={{ borderColor: "var(--rule)", background: "var(--raised)", color: "var(--ink)" }}
               />
+              </MicSlot>
             ) : (
+              <MicSlot mic={mic}>
               <input
                 id="answer"
-                value={typed}
+                value={voiceBoxValue.live(typed)}
+                readOnly={voiceBoxValue.speech.listening}
                 lang="et"
                 autoFocus
                 autoComplete="off"
@@ -424,9 +432,11 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
                 className="field-lg mt-2 w-full text-lg disabled:opacity-70"
                 style={{ borderColor: "var(--rule)", background: "var(--raised)", color: "var(--ink)" }}
               />
+              </MicSlot>
             )}
             {!mark && <div className="under-field"><DiacriticBar /></div>}
-            {!mark && sayable && <div className="mt-3"><AnswerMic box={voiceBoxValue} /></div>}
+            </>)}
+            </AnswerMic>
             {!mark && (
               <div className="mt-4">
                 <HintLadder

@@ -79,4 +79,30 @@ describe("reviewQueue", () => {
     expect(queue.dueMore).toBe(true);
     expect(queue.cards).toHaveLength(MAX_SESSION);
   });
+
+  /*
+    Reported live: 117 due, Today said 60, the session asked 60 and said that
+    was everything, and Today then said 57. The count of what is due is the
+    whole day's, past the sitting, and it never counts a card that cannot be
+    asked or one nobody has seen.
+  */
+  it("counts everything due, past the sitting, and nothing that is not due", async () => {
+    await bareCards(10);
+    await goodCards(MAX_SESSION + 57);
+    const unseen = await prisma.lexeme.create({ data: { lemma: "itestrqnew", pos: "NOUN", translation: "itest new" } });
+    await prisma.card.create({
+      data: { ownerId: OWNER, lexemeId: unseen.id, cardType: "RECOGNITION", front: "itestrqnew", back: "itest new", state: 0, due: yesterday },
+    });
+    const queue = await reviewQueue(OWNER, null, new Date());
+    expect(queue.due).toHaveLength(MAX_SESSION);
+    expect(queue.dueTotal).toBe(MAX_SESSION + 57);
+    expect(queue.dueTotalMore).toBe(false);
+  });
+
+  it("says nothing more is due where one sitting holds it all", async () => {
+    await goodCards(12);
+    const queue = await reviewQueue(OWNER, null, new Date());
+    expect(queue.dueTotal).toBe(12);
+    expect(queue.dueTotal).toBe(queue.due.length);
+  });
 });

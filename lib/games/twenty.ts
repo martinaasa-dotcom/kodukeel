@@ -1002,7 +1002,7 @@ export function ask(
     used.add(i);
     const kuiAt = words.findIndex((x, j) => j > i && hasLemma(x, "kui"));
     if (kuiAt === -1) {
-      tips.push({ id: "kui", en: "Put kui (than) before the thing you compare with." });
+      tips.push({ id: "kui", en: "Put kui (than) before the noun you compare with." });
     } else used.add(kuiAt);
     // The thing compared with is the next word that names something, up to two words on.
     let refAt = -1;
@@ -1023,7 +1023,7 @@ export function ask(
     if (reading && !reading.base) {
       tips.push({
         id: "kui-form",
-        en: "After kui, the thing you compare with stays in its plain dictionary form.",
+        en: "After kui, the noun you compare with stays in its plain dictionary form.",
         example: `Kas see on ${w.read} kui ${reading.lemma}?`,
       });
     }
@@ -1407,7 +1407,7 @@ const PLURAL_ONLY = new Set(["prillid", "käärid", "püksid"]);
 const subjectFor = (lemma: string) => (PLURAL_ONLY.has(lemma) ? "need" : "see");
 
 function baseTip(lemma: string): Tip {
-  return { id: "base", en: "After on, name the thing in its plain dictionary form.", example: `Kas ${subjectFor(lemma)} on ${lemma}?` };
+  return { id: "base", en: "After on, put the noun in its plain dictionary form.", example: `Kas ${subjectFor(lemma)} on ${lemma}?` };
 }
 
 function whTip(): Tip {
@@ -1423,7 +1423,7 @@ function orTip(): Tip {
 }
 
 function compareTip(): Tip {
-  return { id: "compare", en: "Compare with a thing: kui, then the thing.", example: "Kas see on suurem kui leib?" };
+  return { id: "compare", en: "Compare with something: kui, then the noun.", example: "Kas see on suurem kui leib?" };
 }
 
 /** The learner's question, put about "see" rather than "sa". Only the subject is changed. */

@@ -28,7 +28,7 @@ import { FreshRound } from "@/components/round/FreshRound";
  * screen saying what is about to happen in front of a screen saying nothing
  * is about to happen is the app talking to itself.
  */
-export function BeforeYouStart({ id, ready = true, count, children }: {
+export function BeforeYouStart({ id, ready = true, count, from = null, children }: {
   /**
    * Which round, by the key `BRIEFINGS` holds it under. The union rather
    * than a string, so a key nobody wrote is a compile error: a briefing that
@@ -46,7 +46,19 @@ export function BeforeYouStart({ id, ready = true, count, children }: {
    * rather than written into the copy, because it is a fact about this
    * learner's deck tonight and the table is the same for everybody.
    */
-  count?: { n: number; noun: string } | null;
+  count?: {
+    n: number;
+    noun: string;
+    /**
+     * Where this round is one sitting of a longer backlog, how much is due in
+     * all, so sixty out of 117 is never read as the whole day's review.
+     */
+    ofDue?: number;
+    /** Whether `ofDue` is a floor because the count stopped reading. */
+    ofDueAtLeast?: boolean;
+  } | null;
+  /** Where this round's material comes from, said under the title: a lesson's own worksheet names its lesson. */
+  from?: string | null;
   children: ReactNode;
 }) {
   const brief = briefingFor(id);
@@ -119,9 +131,16 @@ export function BeforeYouStart({ id, ready = true, count, children }: {
         <h1 className="round-brief-title round-brief-gap font-display font-bold tracking-tight" style={{ color: "var(--ink)", textWrap: "balance" }}>
           {t(brief.title)}
         </h1>
+        {from && (
+          <p className="mt-1.5 text-base font-semibold" style={{ color: "var(--ink-2)" }} data-briefing-from="">{from}</p>
+        )}
         {count && count.n > 0 && (
           <p className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
-            {fill(t("{count} in this round"), { count: countOf(locale, count.n, count.noun) })}
+            {count.ofDue && count.ofDue > count.n
+              ? fill(t(count.ofDueAtLeast ? "{count} in this round, of more than {total} due today" : "{count} in this round, of {total} due today"), {
+                  count: countOf(locale, count.n, count.noun), total: count.ofDue,
+                })
+              : fill(t("{count} in this round"), { count: countOf(locale, count.n, count.noun) })}
           </p>
         )}
         <BriefingSteps what={t(brief.what)} you={t(brief.you)} className="round-brief-gap" />

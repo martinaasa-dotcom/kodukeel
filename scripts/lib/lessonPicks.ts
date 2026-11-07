@@ -20,7 +20,7 @@
  * run, so the suite cannot quietly walk less than it claims.
  */
 import { LESSONS } from "@/lib/course/lessons";
-import { PROGRAMMES } from "@/lib/course";
+import { PROGRAMMES, lessonDayFor } from "@/lib/course";
 import { courseChecks } from "@/lib/course/checks";
 import { tr } from "@/lib/copy/locale";
 import type { LessonSpec } from "@/lib/course/lessons/types";
@@ -71,6 +71,9 @@ const shape = (l: LessonSpec, role: string) => ({
   role,
   id: l.id,
   level: l.level,
+  /** The evening of the course this lesson is, which a finished lesson is ticked on. */
+  programmeId: lessonDayFor(l.id)?.programme.id ?? null,
+  dayId: lessonDayFor(l.id)?.day.id ?? null,
   first: l.n === 1,
   gists: l.listenFor?.length ?? 0,
   /** A line of the conversation, to say whether the text is on the screen yet. */

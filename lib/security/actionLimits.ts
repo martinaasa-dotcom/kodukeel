@@ -77,6 +77,13 @@ export const ACTION_LIMITS = {
    */
   keepMissedNumbers: { perMinute: 6 },
   /**
+   * A whole level the learner is credited with, two cards a word, in one
+   * press (`addPassedLevelWords`). Up to about five hundred words through
+   * `addPlanToDeck` under the deck lock; there are at most four such levels,
+   * so six a minute is never met by anybody pressing on purpose.
+   */
+  addPassedLevelWords: { perMinute: 6 },
+  /**
    * The evening's words into the deck, which is the same bulk build on a day's
    * words. A press per evening, and a module a learner walks through quickly
    * is still a handful of presses a minute at most.
@@ -243,6 +250,13 @@ export const ACTION_LIMITS = {
    * app/actions.ts). Thirty a minute is a busy person setting a term up.
    */
   personalWrite: { perMinute: 30 },
+  /**
+   * One answer in a check-yourself round, marked on the server and written as
+   * a row. A learner pressing "I don't know" through a list moves quickly, so
+   * the bound is a person at full speed through a hundred words, and a loop
+   * meets it in its first second.
+   */
+  recordCommonCheck: { perMinute: 90 },
 } as const;
 
 export type ActionLimit = keyof typeof ACTION_LIMITS;

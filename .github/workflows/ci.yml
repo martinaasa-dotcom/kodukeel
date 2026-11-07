@@ -222,7 +222,12 @@ jobs:
   build:
     name: Build against a real database
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # A CEILING, NOT A BUDGET. On 2026-11-06 main ran this job in 14m43s
+    # (build 3m20, unit tests 6m40, integration tests 3m44), and a pull
+    # request adding twenty seconds of unit tests was cancelled at fifteen
+    # minutes with every step passed and only the cache save left. A cancelled
+    # job says nothing about the app, so the ceiling sits well clear of the run.
+    timeout-minutes: 25
 
     services:
       postgres:

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Check, Play, Plus } from "lucide-react";
+import { Check, ListChecks, Play, Plus } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Button, ButtonLink } from "@/components/Button";
 import { Card, Chip, SectionTitle } from "@/components/ui";
@@ -97,6 +97,9 @@ function GroupCard({ section }: { section: CommonSection }) {
         {/* Collecting a hundred words is half of it; being asked them is the other. */}
         <ButtonLink href={`/review/common/${group.slug}`} variant="ghost">
           <Play size={14} aria-hidden /> {t("Practice", "verb")}
+        </ButtonLink>
+        <ButtonLink href={`/review/common/${group.slug}/check`} variant="ghost">
+          <ListChecks size={14} aria-hidden /> {t("Check yourself")}
         </ButtonLink>
       </div>
       {note && <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>{note}</p>}

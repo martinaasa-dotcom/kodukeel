@@ -23,7 +23,7 @@ const B = baseUrl();
   Raised by one: first run now asks what language a meaning should be given in,
   on the screen before any Estonian is shown.
 */
-const { check, absent, done } = suite("Level check", { floor: 52 });
+const { check, absent, done } = suite("Level check", { floor: 53 });
 
 /*
   The sittings already stored, counted before this run sits one. "It comes back"
@@ -76,6 +76,7 @@ let triedUnsure = false;
 let sawUnsureButton = false;
 let unsureSaidNotSure = false;
 let unsureShowedAnswer = false;
+let nextDrift = null;
 
 /*
   The Estonian case names, which may appear in an explanation after an answer
@@ -94,6 +95,13 @@ const CASE_NAMES = [
   sitting that climbed would have run out of steps before the result screen and
   reported it as the paper not ending.
 */
+/*
+  Every press in the loop is given five seconds and then let go, because the
+  loop reads the screen afresh on every pass. On a slow CI runner a question
+  can be redrawn under a press (the same paper re-rendered), and a press that
+  waits out Playwright's thirty seconds on a detached node throws the whole
+  suite away over a frame; the next pass finds the new node and presses that.
+*/
 for (let step = 0; step < 200; step++) {
   if ((await page.getByText("Skill by skill").count()) > 0) break;
 
@@ -101,7 +109,7 @@ for (let step = 0; step < 200; step++) {
   const startSection = page.getByRole("button", { name: /^Start this section$/ });
   if (await startSection.count()) {
     if ((await page.getByText("Speaking", { exact: true }).count()) > 0) sawSpeaking = true;
-    await startSection.first().click();
+    await startSection.first().click({ timeout: 5000 }).catch(() => {});
     await page.waitForTimeout(120);
     continue;
   }
@@ -113,21 +121,24 @@ for (let step = 0; step < 200; step++) {
     sawWriting = true;
     sawWritingGap ||= (await page.locator("main .sr-only", { hasText: "blank" }).count()) > 0;
     await missing.fill("toas");
-    await page.getByRole("button", { name: /^Check$/ }).click();
+    await page.getByRole("button", { name: /^Check$/ }).click({ timeout: 5000 }).catch(() => {});
     await page.waitForTimeout(150);
     const next = page.getByRole("button", { name: /Next question/ });
-    if (await next.count()) { asked++; await next.click(); await page.waitForTimeout(120); }
+    if (await next.count()) { asked++; await next.click({ timeout: 5000 }).catch(() => {}); await page.waitForTimeout(120); }
     continue;
   }
 
   // Dictation, where there is audio to write down.
   const heard = page.getByLabel("What you heard");
   if (await heard.count()) {
-    await heard.fill("Ma olen toas");
-    await page.getByRole("button", { name: /^Check$/ }).click();
+    /* Dictation is listening, so a refused clip abandons it while the driver
+       types, and a fill with no timeout waits out thirty seconds for a box
+       that has correctly gone. The loop reads the screen again instead. */
+    if (!(await heard.fill("Ma olen toas", { timeout: 5000 }).then(() => true, () => false))) continue;
+    await page.getByRole("button", { name: /^Check$/ }).click({ timeout: 5000 }).catch(() => {});
     await page.waitForTimeout(150);
     const next = page.getByRole("button", { name: /Next question/ });
-    if (await next.count()) { asked++; await next.click(); await page.waitForTimeout(120); }
+    if (await next.count()) { asked++; await next.click({ timeout: 5000 }).catch(() => {}); await page.waitForTimeout(120); }
     continue;
   }
 
@@ -140,7 +151,7 @@ for (let step = 0; step < 200; step++) {
   const selfRating = page.getByRole("button", { name: /Fairly sure/ });
   if (await selfRating.count()) {
     saidNotScored ||= (await page.getByText(/never moves your level|part isn.t scored/i).count()) > 0;
-    await selfRating.click();
+    await selfRating.click({ timeout: 5000 }).catch(() => {});
     await page.waitForTimeout(150);
     continue;
   }
@@ -189,19 +200,41 @@ for (let step = 0; step < 200; step++) {
       const idk = page.getByRole("button", { name: /I don.t know/ });
       sawUnsureButton = (await idk.count()) > 0 && (await idk.first().isEnabled());
       if (sawUnsureButton) {
-        await idk.first().click();
+        await idk.first().click({ timeout: 5000 }).catch(() => {});
         await page.waitForTimeout(150);
         unsureSaidNotSure = (await page.getByText("Not sure", { exact: true }).count()) > 0;
         unsureShowedAnswer = (await page.locator("main .choice-btn svg.lucide-check").count()) > 0;
+        /*
+          The button that moves on is drawn where it stays. It used to arrive
+          inside the verdict's pop-in, scaled from 0.9, and slid about thirty
+          pixels under the pointer for half a second after it appeared.
+          Sampled from the moment it is there, every frame for 700ms.
+        */
+        const drift = await page.evaluate(async () => {
+          const box = () => [...document.querySelectorAll("main button")]
+            .find((b) => b.textContent?.includes("Next question"))?.getBoundingClientRect();
+          const first = box();
+          if (!first) return null;
+          let worst = 0;
+          const end = performance.now() + 700;
+          while (performance.now() < end) {
+            await new Promise((r) => requestAnimationFrame(r));
+            const now = box();
+            if (!now) return null;
+            worst = Math.max(worst, Math.abs(now.x - first.x), Math.abs(now.y - first.y), Math.abs(now.width - first.width));
+          }
+          return worst;
+        });
+        nextDrift = drift;
         const nextAfter = page.getByRole("button", { name: /Next question/ });
-        if (await nextAfter.count()) { asked++; await nextAfter.click(); await page.waitForTimeout(120); }
+        if (await nextAfter.count()) { asked++; await nextAfter.click({ timeout: 5000 }).catch(() => {}); await page.waitForTimeout(120); }
         continue;
       }
     }
-    await choice.first().click();
+    await choice.first().click({ timeout: 5000 }).catch(() => {});
     await page.waitForTimeout(150);
     const next = page.getByRole("button", { name: /Next question/ });
-    if (await next.count()) { asked++; await next.click(); await page.waitForTimeout(120); }
+    if (await next.count()) { asked++; await next.click({ timeout: 5000 }).catch(() => {}); await page.waitForTimeout(120); }
     continue;
   }
 
@@ -214,7 +247,7 @@ for (let step = 0; step < 200; step++) {
     only when the options are genuinely unpressable.
   */
   const noAudio = page.getByRole("button", { name: /The audio won.t play/ });
-  if (await noAudio.count()) { await noAudio.first().click(); await page.waitForTimeout(200); continue; }
+  if (await noAudio.count()) { await noAudio.first().click({ timeout: 5000 }).catch(() => {}); await page.waitForTimeout(200); continue; }
   break;
 }
 
@@ -223,6 +256,8 @@ check("the paper reaches the writing section", sawWriting);
 check("the paper reaches the speaking section", sawSpeaking);
 check("speaking says out loud that it is not scored", saidNotScored);
 check("a choice question offers \"I don't know\"", sawUnsureButton);
+check("\"Next question\" is drawn at rest, not sliding in under the pointer",
+  nextDrift !== null && nextDrift < 0.5, nextDrift === null ? "no button found" : `moved ${nextDrift.toFixed(1)}px`);
 check("pressing it says \"Not sure\" rather than calling it right or wrong", unsureSaidNotSure);
 check("and still shows which option was the answer", unsureShowedAnswer);
 check("no question asks a learner to name a case", !namedACase);
@@ -345,7 +380,7 @@ if (onboarded) {
     a waived run reached 28, so the suite failed reporting a block having
     stopped running when nothing had. Recount it whenever the branch changes:
     the else branch holds 29 and this one holds 1, so the gap is 28 and the
-    floor is the 26 outside both plus the 29 inside. It said 25 for a while
+    floor is the 27 outside both plus the 29 inside. It said 25 for a while
     against a gap of 26, so a waived run fell one short of its own floor on
     every machine with a deck, which is exactly where this branch is taken.
     (It held 28 until TB-17 asked whether the unit list is still one press

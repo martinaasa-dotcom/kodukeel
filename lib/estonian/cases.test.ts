@@ -156,7 +156,7 @@ describe("case names", () => {
 
   it("reads a table's row heading, number and all", () => {
     expect(plainNameForEt("omastav")).toBe("omastav (2nd form)");
-    expect(plainNameForEt("Omastav mitmus")).toBe("mitmuse omastav (2nd form, plural)");
+    expect(plainNameForEt("Omastav mitmus")).toBe("mitmuse omastav (plural)");
     expect(plainNameForEt("mitmuse kaasaütlev")).toBe("mitmuse kaasaütlev (-ga, with, plural)");
     expect(plainNameForEt("lühike sisseütlev")).toBe("lühike sisseütlev (short into)");
     expect(plainNameForEt("osastav ainsus", "ru")).toBe("osastav (3-я форма)");

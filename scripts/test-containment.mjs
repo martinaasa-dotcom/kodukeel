@@ -67,6 +67,7 @@ import { startRound } from "./lib/briefing.mjs";
 import { cutOffWrites, walkWorkbook } from "./lib/workbook.mjs";
 import { newPrismaClient } from "./lib/db.mjs";
 import { fitsAnyWord, survey, wholeWords } from "./lib/containment.mjs";
+import { passPractice } from "./lib/practiceGate.mjs";
 import { requireLocalDatabase, resolveDatabaseUrl } from "./lib/local-db.mjs";
 
 const B = baseUrl();
@@ -163,6 +164,8 @@ const ROUTES = [
   */
   "/review/common",
   "/review/common/noun",
+  // The check-yourself round over one list: its start screen, which is where it opens.
+  "/review/common/noun/check",
   "/review/describe",
   "/review/map",
   "/review/twins",
@@ -1604,23 +1607,34 @@ async function lessonStepStates(ctx, at) {
   lessonPicks ??= JSON.parse(execFileSync("npx", ["tsx", "scripts/lib/lessonPicks.ts"], { encoding: "utf8" }));
   const picks = lessonPicks;
   const byRole = Object.fromEntries(picks.map((p) => [p.role, p]));
-  const page = await ctx.newPage();
-  const heading = async () => (await page.locator("#lesson-step").innerText().catch(() => "")).trim();
-  /** Opens a lesson and walks the foot until the step's heading matches. */
+  /** Opens a lesson in a page of its own and walks the foot until the step's heading matches. */
   const openAt = async (id, step) => {
+    const page = await ctx.newPage();
+    const heading = async () => (await page.locator("#lesson-step").innerText().catch(() => "")).trim();
     await page.goto(`${B}/course/lessons/${id}`, { waitUntil: "networkidle", timeout: 60000 });
     const show = page.getByRole("button", { name: /^Show the words now/ });
     if (await show.count()) await show.first().click().catch(() => {});
-    for (let n = 0; n < 8 && !step.test(await heading()); n++) {
-      await page.getByRole("button", { name: /^(Skip this step|Continue)/ }).last().click().catch(() => {});
+    // A step is a page at a time now (`screens.ts`), so Continue is pressed once per page on the way.
+    for (let n = 0; n < 30 && !step.test(await heading()); n++) {
+      // Practice has a pass mark and no Skip under it, so it is answered rather than skipped.
+      if (/Practice/.test(await heading())) await passPractice(page);
+      await page.getByRole("button", { name: /^(Skip this step|Continue)/ }).last().click({ timeout: 5000 }).catch(() => {});
       await page.waitForTimeout(300);
     }
-    return step.test(await heading());
+    return { page, reached: step.test(await heading()) };
   };
+  const retell = byRole.retell;
+  const write = byRole.write;
+  const faster = byRole.faster;
+  // One after another: walked side by side, a lesson's Practice stopped coming back at all.
+  const none = { page: null, reached: false };
+  const atRetell = retell ? await openAt(retell.id, /Say it/) : none;
+  const atWrite = write?.write ? await openAt(write.id, /Write/) : none;
+  const atFaster = faster ? await openAt(faster.id, /Say it/) : none;
 
   // The fade and the retell, on the lesson that ends in a retold story.
-  const retell = byRole.retell;
-  if (retell && await openAt(retell.id, /Say it/)) {
+  if (atRetell.reached) {
+    const page = atRetell.page;
     // Spoken, not typed: the lines only fade when they are said (the typed evening has no fade).
     await page.getByRole("button", { name: /^Say it$/ }).first().click().catch(() => {});
     const say = page.locator("[data-say-it]").first();
@@ -1652,8 +1666,8 @@ async function lessonStepStates(ctx, at) {
   }
 
   // The writing frame, checked, with one gap right and the rest as the lesson holds them.
-  const write = byRole.write;
-  if (write?.write && await openAt(write.id, /Write/)) {
+  if (atWrite.reached) {
+    const page = atWrite.page;
     await page.getByRole("button", { name: /^Fill in the frame/ }).click().catch(() => {});
     const gaps = page.locator("[data-write-frame] input");
     await gaps.first().waitFor({ timeout: 8000 }).catch(() => {});
@@ -1668,8 +1682,8 @@ async function lessonStepStates(ctx, at) {
   }
 
   // The race, with the clock running, and then its three goes side by side.
-  const faster = byRole.faster;
-  if (faster && await openAt(faster.id, /Say it/)) {
+  if (atFaster.reached) {
+    const page = atFaster.page;
     await page.getByRole("button", { name: /Type it instead/ }).first().click().catch(() => {});
     const say = page.locator("[data-say-it]").first();
     for (let n = 0; n < 40 && !(await say.locator("[data-faster-go]").count()); n++) {
@@ -1697,7 +1711,7 @@ async function lessonStepStates(ctx, at) {
   } else {
     check(`a B1 lesson's race ${at}`, false, `${faster?.id ?? "no race lesson"} never reached its Say it step`);
   }
-  await page.close();
+  for (const { page } of [atRetell, atWrite, atFaster]) await page?.close();
 }
 
 /*

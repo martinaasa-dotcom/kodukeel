@@ -4,7 +4,7 @@ import { shardKey } from "@/lib/dict/formsLayout";
 import { fold } from "@/lib/estonian/fold";
 import { VOICES } from "@/lib/audio/voice";
 import { A1_LESSONS } from "./a1";
-import { NAMES, estonianOf, familiesOf, formsCheckWords, ledgersBefore, lessonProblems, lessonRank, namesOf, teach, uncovered, wordsOf } from "./ledger";
+import { NAMES, estonianOf, familiesOf, formsCheckWords, ledgersBefore, lessonProblems, lessonRank, namesOf, teach, uncovered, unfold, wordsOf } from "./ledger";
 import { FIX_AT_MOST, REWORK_AT_MOST, everyTypedQuestion, itemEstonian, markPhrase, meaningShows, practiceFor, reviewFor } from "./practice";
 import { estonianIn } from "./ledger";
 import { LESSONS as COURSE_LESSONS, LESSON_PARTS as COURSE_PARTS } from "./index";
@@ -39,7 +39,7 @@ describe("the lessons, A1 and on", () => {
 
   it("let a sound's example word run ahead of the course only with its meaning beside it", () => {
     const first = A1_LESSONS[0]!;
-    const row = (en?: string) => ({ ...first, how: { ...first.how, sounds: [{ sound: "sound-ue", glyph: "ü", like: "an i said with rounded lips", word: "number-ueks", mark: "ü", ...(en ? { en } : {}) }] } });
+    const row = (en?: string) => ({ ...first, how: { ...first.how, sounds: [{ sound: "sound-ue", glyph: "ü", like: "the u in cute", word: "number-ueks", mark: "ü", ...(en ? { en } : {}) }] } });
     expect(lessonProblems([row("one")])).toEqual([]);
     expect(lessonProblems([row()]).join(" ")).toMatch(/üks/);
     // The meaning is English and is held to the English rule like any other.
@@ -145,10 +145,10 @@ describe("the lessons, A1 and on", () => {
         }
         asked++;
       }
-      // The review step goes over older lessons only, so it may name only who was met in them.
-      const met = new Set([...NAMES, ...history.flatMap((l) => Object.keys(l.cast))]);
+      // The review step recaps tonight, or the part on a check-in, so it may name who was met tonight and before.
+      const met = new Set([...NAMES, ...namesOf(lesson), ...history.flatMap((l) => Object.keys(l.cast))]);
       for (const item of reviewFor(lesson, ledger, history)) {
-        for (const et of itemEstonian(item)) expect(uncovered(et, ledger, met), `${lesson.id} review: ${et}`).toEqual([]);
+        for (const et of itemEstonian(item)) expect(uncovered(et, tonight, met), `${lesson.id} review: ${et}`).toEqual([]);
       }
     });
     expect(asked).toBeGreaterThan(LESSONS.length * 5);
@@ -325,10 +325,35 @@ describe("the lessons, A1 and on", () => {
     expect(markPhrase("nad on", ["olid"]).verdict).toBe("wrong");
   });
 
-  it("give every lesson something to practice, and nothing on the first lesson's review", () => {
+  it("give every lesson something to practice, and a review of tonight's own words", () => {
     const before = ledgersBefore(LESSONS);
     for (const lesson of A1_LESSONS) expect(practiceFor(lesson, before.get(lesson.id)!).length).toBeGreaterThan(3);
-    expect(reviewFor(A1_LESSONS[0]!, before.get(A1_LESSONS[0]!.id)!)).toEqual([]);
+    // The first lesson has nothing older to go over, and its review is still tonight's recap.
+    expect(reviewFor(A1_LESSONS[0]!, before.get(A1_LESSONS[0]!.id)!).length).toBeGreaterThan(0);
+  }, 120_000);
+
+  it("reviews tonight's words on an ordinary lesson, and the part's on a check-in or a part's end", () => {
+    const before = ledgersBefore(LESSONS);
+    let ordinary = 0;
+    let partWide = 0;
+    LESSONS.forEach((lesson, at) => {
+      const ledger = before.get(lesson.id)!;
+      const history = LESSONS.slice(0, at);
+      const items = reviewFor(lesson, ledger, history);
+      if (lesson.kind === "checkin" || lesson.kind === "partEnd") {
+        if (items.length > 0) partWide += 1;
+        return;
+      }
+      const tonight = new Set(lesson.teaches.flatMap(unfold).map((i) => i.et.toLocaleLowerCase("et")));
+      const asked = items.flatMap((item) => (item.kind === "type" ? [item.answer] : item.kind === "pick" || item.kind === "hear" ? [item.et] : []));
+      for (const et of asked) expect(tonight.has(et.toLocaleLowerCase("et")), `${lesson.id}: ${et} is not one of tonight's words`).toBe(true);
+      // A gap is cut from tonight's own conversation.
+      const lines = lesson.conversation.map((l) => l.et ?? "").join(" ");
+      for (const item of items) if (item.kind === "gap") expect(lines.includes(`${item.before}${item.answer}${item.after}`), lesson.id).toBe(true);
+      if (items.length > 0) ordinary += 1;
+    });
+    expect(ordinary).toBeGreaterThan(LESSONS.length / 2);
+    expect(partWide).toBeGreaterThan(10);
   }, 120_000);
 
   it("never write a rework or a fix the practice step cuts off", () => {

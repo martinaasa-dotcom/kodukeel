@@ -1,5 +1,5 @@
 /**
- * A B1, B2 OR C1 LESSON POINTS AT A CONVERSATION OUT THERE, ON ITS FINISH SCREEN.
+ * A LESSON POINTS AT A CONVERSATION OUT THERE, ON ITS FINISH SCREEN.
  *
  * The catalog's conversations (`lib/scenes/catalogue.ts`) rehearse the errands
  * B1 is for: opening a bank account, the landlord about something broken, a
@@ -37,6 +37,20 @@
  * course's first evening. The landlord about the repair stays on its B1
  * lesson, which offered it first.
  *
+ * And A1 and A2 do the same, which they did not at first: when they became
+ * lessons the catalog conversations of their old units were pushed up to free
+ * evenings of B1 and B2 (docs/43-lessons.md §9), and some stayed there after
+ * B1 and B2 became lessons too, so the shop for milk, the brief's own first
+ * mission, was offered to somebody at B2. Five of them ask for no word the
+ * A1 or A2 lessons have not taught by the lesson that rehearses them, and are
+ * offered there now: the shop for milk on where to and where from, which is
+ * the same phone call; the library card on the library; how was your weekend
+ * on the day in the forest; calling a shop before you go on leaving a
+ * message; and making plans on agreeing a time. The rest of the A-level
+ * errands (the café, the pharmacy, the ticket, the restaurant, the way) still
+ * ask for a word the lessons teach later, and stay where those words are.
+ * `course.test.ts` holds every offer to the words taught by then.
+ *
  * Keyed on the lesson id and held both ways by `lessonSituations.test.ts`:
  * every key is a lesson and every value a catalog conversation, and every
  * conversation in the catalog is offered by one lesson.
@@ -52,15 +66,18 @@
 import { LESSONS } from "./lessons";
 
 export const LESSON_SITUATIONS: Readonly<Record<string, string>> = {
+  "a1-31-where-to": "poodi-piima",
+  "a2-07-library": "raamatukogu",
+  "a2-52-forest": "nadalavahetus",
+  "a2-53-message": "helistamine",
+  "a2-54-arrange": "kokkulepe",
   "b1-03-some-or-all": "turul",
   "b1-04-waiting": "ootamine",
   "b1-05-do-it": "abi-palumine",
   "b1-08-help": "uus-kolleeg",
   "b1-10-about": "trepikoda",
-  "b1-12-depends": "kokkulepe",
   "b1-13-reply": "bussipeatus",
   "b1-16-as": "toovestlus",
-  "b1-17-could-i": "raamatukogu",
   "b1-18-payday": "pangas",
   "b1-25-broken": "uuri-remont",
   "b1-30-was-built": "tee-kusimine",
@@ -73,10 +90,8 @@ export const LESSON_SITUATIONS: Readonly<Record<string, string>> = {
   "b1-44-office": "ametiasutus",
   "b1-45-lost": "apteek",
   "b1-49-end": "eksam-b1",
-  "b2-01-friends": "nadalavahetus",
   "b2-02-reactions": "sobra-mure",
   "b2-05-keep-estonian": "kohvikus",
-  "b2-07-heard": "poodi-piima",
   "b2-19-kulmetus": "perearst",
   "b2-20-registratuur": "arsti-aeg",
   "b2-22-emo": "hadaabi",
@@ -91,7 +106,6 @@ export const LESSON_SITUATIONS: Readonly<Record<string, string>> = {
   "b2-44-granted": "elanike-koosolek",
   "b2-48-end": "eksam-b2",
   "c1-09-rumor": "kuulsin",
-  "c1-15-loan": "helistamine",
   "c1-27-feedback": "kolm-palvet",
   "c1-43-book": "raamatuklubi",
   "c1-45-almost": "keeletund",

@@ -334,8 +334,13 @@ export default async function TodayPage() {
     cannot be finished, and an unseen card is new rather than due.
   */
   const dueCount = review.due.length;
-  // What is due, as Review will ask it, marked where more is due than a sitting holds.
-  const dueNow = review.dueMore ? `${review.due.length}+` : review.due.length;
+  /*
+    EVERYTHING DUE TODAY, NOT ONE SITTING OF IT. A sitting stops at sixty, and
+    this used to print the sitting: a learner with 117 due was shown 60, did
+    them, was told that was everything, and came back here to 57. The figure
+    is the whole day's, and a "+" only where even the long read ran out.
+  */
+  const dueNow = review.dueTotalMore ? `${review.dueTotal}+` : review.dueTotal;
   /** Words waiting on the ladder, in words rather than in cards. */
   const toLearn = snapshot.learnCount;
   const name = settings[SETTING_KEYS.displayName]?.trim() || (learner.name === "you" ? "" : learner.name);
@@ -475,11 +480,17 @@ export default async function TodayPage() {
       {t("Going over cards before they’re due doesn’t help them stick. Take the break, or start something new.")}
     </p>
   );
-  const orReview = say(
-    `Or review ${toReview} due card${toReview === 1 ? "" : "s"}`,
-    "Or review {cards} that are due",
-    { cards: countOf(locale, toReview, "card") },
-  );
+  /*
+    "Due" only for what is due: the sitting also trickles in unseen cards, and
+    a button calling those due is the strip's fault one card over.
+  */
+  const orReview = review.dueTotal > 0
+    ? say(
+        `Or review ${review.dueTotal} due card${review.dueTotal === 1 ? "" : "s"}`,
+        "Or review {cards} that are due",
+        { cards: countOf(locale, review.dueTotal, "card") },
+      )
+    : say(`Or review ${toReview} card${toReview === 1 ? "" : "s"}`, "Or review {cards}", { cards: countOf(locale, toReview, "card") });
   const actions = learnFirst ? (
     <>
       <ButtonLink href="/learn/new" variant="primary" size="lg" className="w-full">
@@ -1156,7 +1167,9 @@ export default async function TodayPage() {
       <p className="text-base" style={{ color: "var(--ink)" }}>
         <span className="font-semibold">{t("Review cards")}</span>
         <span style={{ color: "var(--ink-2)" }}>
-          {" "}{say(`(${toReview} due, if you’d rather practice what you know)`, "({cards} due, if you'd rather practice what you know)", { cards: countOf(locale, toReview, "card") })}
+          {" "}{review.dueTotalMore
+            ? say(`(more than ${review.dueTotal} due, if you’d rather practice what you know)`, "(more than {cards} due, if you'd rather practice what you know)", { cards: countOf(locale, review.dueTotal, "card") })
+            : say(`(${review.dueTotal} due, if you’d rather practice what you know)`, "({cards} due, if you'd rather practice what you know)", { cards: countOf(locale, review.dueTotal, "card") })}
         </span>
       </p>
       <CardLink href="/review">{t("Review now")}</CardLink>

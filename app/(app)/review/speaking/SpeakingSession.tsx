@@ -468,22 +468,28 @@ export function SpeakingSession({ items: initialItems }: { items: SpeakingItem[]
 
           {step === "meaning" && (
             <div className="flex w-full max-w-sm flex-col items-center gap-3">
-              {!check && <MicButton speech={box.speech} label={t("Answer out loud")} shortcut showPartial size="lg" fallback="box" />}
               {/* Once marked, the box holds the answer that was marked; "Show me" marked nothing, so there is no box to keep. */}
               {!(check && !typed.trim()) && (
               <div className="w-full text-left">
                 <label htmlFor="speaking-answer" className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
-                  {check ? t("Your answer") : t("Or type it")}
+                  {t("Your answer")}
                 </label>
-                <EstonianInput
-                  id="speaking-answer"
-                  value={typed}
-                  onChange={(text) => { if (!check) setTyped(text); }}
-                  onEnter={checkTyped}
-                  ariaLabel={t("Your answer")}
-                  disabled={!!check}
-                  large
-                />
+                {/* Speaking is the task, so the larger orb, in the box the answer lands in. */}
+                <MicButton speech={box.speech} label={t("Answer out loud")} shortcut size="lg" fallback="box">
+                  {(mic) => (
+                    <EstonianInput
+                      id="speaking-answer"
+                      value={box.live(typed)}
+                      readOnly={box.speech.listening}
+                      onChange={(text) => { if (!check) setTyped(text); }}
+                      onEnter={checkTyped}
+                      ariaLabel={t("Your answer")}
+                      disabled={!!check}
+                      large
+                      mic={check ? null : mic}
+                    />
+                  )}
+                </MicButton>
                 {box.spoken && !check && (
                   <p className="mt-1.5 text-sm" style={{ color: "var(--ink-2)" }}>
                     {t("This is what was heard. Change anything that is not what you said, then check it.")}

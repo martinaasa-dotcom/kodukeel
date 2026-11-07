@@ -137,7 +137,7 @@ export const C1_MAA_LESSONS: readonly LessonSpec[] = [
         { et: "Aga kuulata tasub.", en: "But it's worth listening." },
         { et: "Kui talu köögis öeldakse: „Tulõ sisse, kae ringi!“, siis saab ka linnainimene aru, et teda kutsutakse sisse ja palutakse ringi vaadata.", en: "When somebody in a farm kitchen says 'Come in, look around!' in the local language, even a city person understands they're being asked in and told to look around." },
         { et: "Enamik sõnu on tuttavad, ainult häälikud on natuke teistsugused.", en: "Most of the words are familiar; only the sounds are a little different." },
-        { et: "Ja kui mõni sõna jääb päris arusaamatuks, siis tasub julgelt küsida.", en: "And if a word stays completely unclear, it's worth simply asking." },
+        { et: "Ja kui mõni sõna jääb päris arusaamatuks, siis tasub julgelt küsida.", en: "And if a word stays quite unclear, it's worth simply asking." },
         { et: "Võrukad räägivad oma keelest meelsasti ja sageli saab ühest küsimusest pikk jutt.", en: "The people of the south-east like talking about their language, and one question often turns into a long story." },
         { et: "Mida aga Võrumaal teha?", en: "So what is there to do in {Võrumaa}?" },
         { et: "Suvel on siin palju väikeseid sündmusi, mida suurtes linnades ei näe.", en: "In summer there are lots of small events here that you won't see in the big towns." },
@@ -234,7 +234,7 @@ export const C1_MAA_LESSONS: readonly LessonSpec[] = [
         { et: "Koolis ütles õpetaja, et võru keel on lihtsalt murre ja seda pole vaja.", en: "At school the teacher said the language was just a dialect and wasn't needed." },
         { et: "Mina arvan, et see oli vale, sest keel, mida räägitakse kodus, on alati tähtis.", en: "I think that was wrong, because the language spoken at home always matters." },
         { et: "Samas saan ma aru, miks õpetaja nii ütles: sel ajal oli tavaline eesti keel iga lapse jaoks tähtis.", en: "At the same time I understand why the teacher said it: back then ordinary Estonian mattered for every child." },
-        { et: "Nüüd räägivad võru keelt jälle ka noored ja see on minu meelest väga tore.", en: "Now young people speak it again too, and I think that's wonderful." },
+        { et: "Nüüd räägivad võru keelt jälle ka noored ja see on minu meelest väga tore.", en: "Now young people speak it again too, and I think that's really nice." },
       ],
       points: [
         { en: "Her grandmother spoke only the local language at home", any: ["võru keelt", "kodus"] },
@@ -250,6 +250,11 @@ export const C1_MAA_LESSONS: readonly LessonSpec[] = [
       model: { et: "Lõuna-Eestis on teistsugune loodus ja seal on väga vaikne. Ja seal räägitakse oma keelt, võru keelt. Ära karda, kohalikud räägivad hea meelega ka tavalist eesti keelt. Ja kui sa sõna ei tea, arva ära ja küsi lühidalt vahele.", en: "Southern Estonia has different countryside, and it's very quiet there. And they speak their own language there. Relax, the locals are glad to speak ordinary Estonian too. And if you don't know a word, guess, and ask briefly in between." },
       seconds: [120],
       prepare: 60,
+      checks: [
+        { en: "Two reasons, joined with {ja}.", any: ["ja"], atLeast: 2 },
+        { en: "The language there, {võru keelt}.", any: ["võru"] },
+        { en: "What a visitor can do, with {vahele} ({küsi lühidalt vahele} here).", any: ["vahele"] },
+      ],
     },
   },
   {
@@ -478,6 +483,11 @@ export const C1_MAA_LESSONS: readonly LessonSpec[] = [
       model: { et: "Räägitakse, et kunagi ammu olevat siin olnud küla. Inimesed olid muutunud ahneks. Ühel ööl olevat küla maa alla vajunud ja hommikul oli seal ainult raba. Vanad inimesed ütlesid, et vaiksel õhtul kuuleb vee all kella helisemas.", en: "They say that long, long ago there was a village here. The people had grown greedy. One night the village sank under the ground, they say, and in the morning there was only bog. Old people used to say that on a quiet evening you can hear a bell under the water." },
       seconds: [120],
       prepare: 180,
+      checks: [
+        { en: "Told, not claimed, with {räägitakse, et} or {olevat}.", any: ["räägitakse", "olevat"] },
+        { en: "What had happened before, {olid} with a -nud word ({olid muutunud} here).", any: ["olid *nud", "oli *nud", "olid ... *nud"] },
+        { en: "The plain past to finish, with {oli} ({hommikul oli seal ainult raba} here).", any: ["oli"] },
+      ],
     },
   },
   {
@@ -548,7 +558,7 @@ export const C1_MAA_LESSONS: readonly LessonSpec[] = [
       watchOut: "Read these, and never write them: {raamatuis} in a letter or an exam looks like a poem gone wrong. The forms in the second column are the ones to use.",
       examples: [2, 4, 8],
     },
-    hearing: "quick",
+    hearing: "half",
     listenFor: [
       { q: "What does the lead singer do?", options: ["She sings the whole song alone", "She sings a line first, and the choir repeats it", "She plays an instrument", "She reads the words out"], answer: 1 },
       { q: "Where do the words of a leelo come from?", options: ["They are all written in old books", "Some are centuries old, and some the singer makes up on the spot", "The choir writes them before the evening", "They are from the radio"], answer: 1 },
@@ -699,6 +709,11 @@ export const C1_MAA_LESSONS: readonly LessonSpec[] = [
       model: { et: "Leelo on vana seto laul, mida lauldakse mitmel häälel. Eeslaulja laulab rea ette ja koor kordab seda. Osa sõnu on sajandeid vanad, osa teeb eeslaulja seal samas. Kui sa sõnu ei oska, kuula meloodiat ja laula julgelt kaasa.", en: "A leelo is an old Seto song sung in several voices. The lead singer sings a line first, and the choir repeats it. Some of the words are centuries old, and some the lead singer makes up on the spot. If you don't know the words, listen to the tune and sing along without fear." },
       seconds: [120],
       prepare: 60,
+      checks: [
+        { en: "Who leads, {eeslaulja}.", any: ["eeslaulja"] },
+        { en: "How the choir answers, with {kordab} ({koor kordab} here).", any: ["kordab"] },
+        { en: "If you don't know the words, with {kaasa} ({laula julgelt kaasa} here).", any: ["kaasa"] },
+      ],
     },
   },
   {

@@ -172,7 +172,7 @@ const ROUTES = [
     are asked and not how the screen is built, so the other three would be the
     same eight checks over the same markup.
   */
-  "/review/common", "/review/common/noun",
+  "/review/common", "/review/common/noun", "/review/common/noun/check",
   /*
     And the conversations, which is the third time this list has been caught by
     the fault its own header names. A scene is a whole session rendered from one

@@ -367,7 +367,7 @@ export function SentenceSession(
                   onClick={() => setBuilt((b) => b.filter((i) => i !== tileIndex))}
                   lang={tile.mark ? undefined : "et"}
                   aria-label={tile.mark ? t(`Remove ${markName(tile.word)}`) : fill(t("Remove {word}"), { word: tile.word })}
-                  className={`press rounded-[var(--r-sm)] border py-1.5 text-md transition-ui hover:-translate-y-px ${tile.mark ? "min-w-9 px-2.5 font-bold" : "px-3"}`}
+                  className={`press rounded-[var(--r-sm)] border py-1.5 text-md transition-ui hover:-translate-y-px ${tile.mark ? "min-w-11 px-2.5 font-bold" : "px-3"}`}
                   style={{
                     borderColor: "var(--edge)",
                     background: "var(--surface)",
@@ -393,7 +393,7 @@ export function SentenceSession(
                   onClick={() => setBuilt((b) => [...b, tile.index])}
                   lang={tile.mark ? undefined : "et"}
                   aria-label={tile.mark ? t(`Add ${markName(tile.word)}`) : fill(t("Add {word}"), { word: tile.word })}
-                  className={`press rounded-[var(--r-sm)] border py-1.5 text-md transition-ui hover:-translate-y-px disabled:opacity-25 disabled:hover:translate-y-0 ${tile.mark ? "min-w-9 px-2.5 font-bold" : "px-3"}`}
+                  className={`press rounded-[var(--r-sm)] border py-1.5 text-md transition-ui hover:-translate-y-px disabled:opacity-25 disabled:hover:translate-y-0 ${tile.mark ? "min-w-11 px-2.5 font-bold" : "px-3"}`}
                   style={{ borderColor: "transparent", background: "var(--raised)", color: "var(--ink)" }}
                 >
                   {tile.word}

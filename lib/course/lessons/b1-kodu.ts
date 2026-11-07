@@ -129,6 +129,11 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Milline su korter on?", en: "What's your apartment like?" },
       cue: "Say what your apartment is like, and how it compares with the last place you lived in.",
       model: { et: "Mu korter on väike, aga remonditud. Köök on uus. Vana korter oli suurem, aga see ei olnud remonditud.", en: "My apartment is small, but it's been fixed up. The kitchen is new. My old apartment was bigger, but it hadn't been fixed up." },
+      checks: [
+        { en: "What was done to it, with a -tud word ({remonditud} here).", any: ["*tud"] },
+        { en: "How it compares, with the -m form ({suurem} here).", any: ["*em", "*am", "*im"] },
+        { en: "The old place, with {oli} ({vana korter oli suurem} here).", any: ["oli", "ei olnud"] },
+      ],
     },
   },
   {
@@ -263,7 +268,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { who: "Tom", et: "Üleval? Helgi, see olen ju mina!", en: "Upstairs? Helgi, that's me!" },
       { who: "Helgi", et: "Oi! Vabandust!", en: "Oh! Sorry!" },
       { who: "Tom", et: "Ei, mina pean vabandust paluma. Ma töötan õhtul hilja ja kuulan muusikat.", en: "No, I'm the one who should apologize. I work late in the evening and listen to music." },
-      { who: "Helgi", et: "Pole viga. Aga öösel palun vaiksemalt!", en: "Never mind. But a bit quieter at night, please!" },
+      { who: "Helgi", et: "Pole viga. Aga öösel palun vaiksemalt!", en: "Never mind. But quieter at night, please!" },
       { who: "Tom", et: "Ma luban! Ja vaata: koerad on majas lubatud.", en: "I promise! And look: dogs are allowed in the building." },
       { who: "Helgi", et: "Tore! Mu koer on väga vaikne.", en: "Good! My dog is very quiet." },
       { who: "Tom", et: "Jah, palju vaiksem kui mina. Ja viimane reegel: prügi sorteerimine on kohustuslik.", en: "Yes, much quieter than me. And the last rule: sorting the trash is a must." },
@@ -301,7 +306,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "A notice names the thing in -mine: {suitsetamine}, smoking, {sorteerimine}, sorting. It's the verb made into a noun.",
+        "A notice names the action in -mine: {suitsetamine}, smoking, {sorteerimine}, sorting. It's the verb made into a noun.",
         "{Palume} is we ask, a notice's polite please. {Vabandust paluma} is to apologize.",
         "{Lubama} is to allow, and also to promise: {Ma luban} is I promise.",
       ],
@@ -318,7 +323,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { ask: { et: "Kas sa suitsetad?", en: "Do you smoke?" }, cue: "Say no, you don't smoke at all.", model: { et: "Ei, ma ei suitseta üldse.", en: "No, I don't smoke at all." } },
       { cue: "Say smoking is not allowed in the building.", model: { et: "Majas on suitsetamine keelatud.", en: "Smoking in the building is not allowed." } },
       { cue: "Say dogs are allowed.", model: { et: "Koerad on lubatud.", en: "Dogs are allowed." } },
-      { ask: { et: "Öösel palun vaiksemalt!", en: "A bit quieter at night, please!" }, cue: "Promise.", model: { et: "Ma luban.", en: "I promise." } },
+      { ask: { et: "Öösel palun vaiksemalt!", en: "Quieter at night, please!" }, cue: "Promise.", model: { et: "Ma luban.", en: "I promise." } },
     ],
     reworks: [
       {
@@ -358,6 +363,11 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Mis on sinu majas keelatud ja mis on lubatud?", en: "What isn't allowed in your building, and what is?" },
       cue: "Say what's allowed in your building and what isn't, and which rule you like best, and why.",
       model: { et: "Meie majas on suitsetamine keelatud, aga koerad on lubatud. Prügi sorteerimine on kohustuslik. Mulle meeldib kõige rohkem öörahu, sest öösel peab vaikne olema.", en: "In our building smoking isn't allowed, but dogs are. Sorting the trash is a must. The rule I like best is the quiet hours, because it has to be quiet at night." },
+      checks: [
+        { en: "What isn't allowed, with {keelatud}.", any: ["keelatud"] },
+        { en: "What is, with {lubatud} or {kohustuslik}.", any: ["lubatud", "kohustuslik"] },
+        { en: "The rule you like best, and why, with {sest}.", any: ["sest"] },
+      ],
     },
   },
   {
@@ -593,6 +603,11 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       ask: { et: "Mis sinu üürilepingus kirjas on?", en: "What does your rental contract say?" },
       cue: "Say what your contract says about the rent, the deposit and the notice, and whether you think it's fair.",
       model: { et: "Minu üür on 700 eurot kuus. Tagatisraha on ühe kuu üür. Kui ma välja kolin, pean kaks kuud ette teatama. Ma arvan, et kaks kuud on liiga pikk aeg.", en: "My rent is 700 euros a month. The deposit is one month's rent. If I move out, I have to give two months' notice. I think two months is too long." },
+      checks: [
+        { en: "The rent, with {üür}.", any: ["üür"] },
+        { en: "The deposit, {tagatisraha}.", any: ["tagatisraha"] },
+        { en: "The notice, with {ette} ({kaks kuud ette teatama} here).", any: ["ette"] },
+      ],
     },
   },
   {

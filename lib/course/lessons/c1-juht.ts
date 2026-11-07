@@ -14,7 +14,7 @@
  * conversation move is interrupting politely, and taking the floor back when
  * you are interrupted.
  *
- * Every conversation heard first is joined halfway or sped up (`rampC1.ts`,
+ * Every conversation heard first is joined halfway (`rampC1.ts`,
  * band 3); the talk taken down as notes is a guest on the morning show, heard
  * once; every text read is asked a gap. Names used in one lesson only: Kaisa,
  * the client (from B2's `b2-26-probably`), Heiki, the morning show's guest,
@@ -209,7 +209,7 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ideaalset juhti ei ole olemas.", en: "There's no such thing as an ideal boss." }, right: "juhti", wrong: "juht", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a no, the thing that isn't there takes the [osastav] (3rd form): {juhti ei ole}, and so does its adjective, {ideaalset}." },
+      { line: { et: "Ideaalset juhti ei ole olemas.", en: "There's no such thing as an ideal boss." }, right: "juhti", wrong: "juht", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a no, the noun that isn't there ({juhti} here) takes the [osastav] (3rd form): {juhti ei ole}, and so does its adjective, {ideaalset}." },
       { line: { et: "Ma usaldan teid ja loodan, et teie usaldate mind.", en: "I trust you, and I hope you trust me." }, right: "mind", wrong: "mina", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Usaldama} takes the person in the [osastav] (3rd form): {usaldate mind}, {usaldan teid}." },
     ],
     workOut: [
@@ -261,6 +261,10 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
       seconds: GO,
       prepare: PREPARE,
       topics: [{ en: "What makes a good boss" }, { en: "The best boss you've had" }],
+      checks: [
+        { en: "A small word pointing at the one that matters: {just}, {isegi} or {alles}.", any: ["just", "isegi", "alles", "nimelt"] },
+        { en: "What a good leader is, with {kes} ({see, kes kuulab} here).", any: ["kes"] },
+      ],
     },
   },
   {
@@ -272,7 +276,7 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
     title: "A minute about yourself",
     goal: "Introduce yourself and your work in about a minute, the way a job interview and the C1 speaking exam both open.",
     cast: { Tom: "kalev", Kadri: "vesta", Ott: "indrek", Siim: "albert" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Tom", et: "Tere, Ott! Tulge sisse. Mina olen Tom ja see on Kadri.", en: "Hello, Ott! Come in. I'm Tom, and this is Kadri.", stage: "A small meeting room. Tom's first interview as team lead, with Kadri beside him. The candidate is Ott." },
       { who: "Ott", et: "Tere! Aitäh kutse eest.", en: "Hello! Thank you for the invitation." },
@@ -487,6 +491,11 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
       seconds: GO,
       prepare: PREPARE,
       topics: [{ en: "Yourself and your work" }, { en: "A job you'd like to have one day" }],
+      checks: [
+        { en: "Where you're from, with {pärit}.", any: ["pärit"] },
+        { en: "What you work as, with -na ({töötan raamatupidajana} here).", any: ["töötan *na", "töötan ... *na"] },
+        { en: "What you're good at, with {tugevus}.", any: ["tugevus"] },
+      ],
     },
   },
   {
@@ -714,6 +723,11 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
       seconds: GO,
       prepare: PREPARE,
       topics: [{ en: "How to tell a colleague something hard" }, { en: "Feedback that once helped you" }],
+      checks: [
+        { en: "What's good, first, with {kiidan}.", any: ["kiidan", "kiitus", "kiita"] },
+        { en: "About the work, not the person, with {mitte} ({tööst, mitte inimesest} here).", any: ["mitte"] },
+        { en: "What happens next, with {kokku} ({lepime kokku} here).", any: ["kokku"] },
+      ],
     },
   },
   {
@@ -725,7 +739,7 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
     title: "Sooner, says the client",
     goal: "Turn down what can't be done without a flat no, make your point with a question nobody needs to answer, and offer what you can do.",
     cast: { Kaisa: "mari", Tom: "kalev", Siim: "albert", Kadri: "vesta", Heiki: "meelis" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Kaisa", et: "Tere, Tom! Ütlen kohe otse: meil on rakendust vaja kaks nädalat varem.", en: "Hello, Tom! I'll say it straight away: we need the app two weeks earlier.", stage: "A video call with Kaisa, the client. Tom has Siim and Kadri beside him." },
       { who: "Tom", et: "Kaks nädalat? Mis juhtus?", en: "Two weeks? What's happened?" },
@@ -948,7 +962,7 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
     reworks: [
       {
         from: { et: "Me ei anna lubadusi kergelt.", en: "We don't give promises lightly." },
-        ask: "Put {lubadusi} first, to make promises the thing the sentence is about.",
+        ask: "Put {lubadusi} first, to make promises what the sentence is about.",
         to: { et: "Lubadusi me kergelt ei anna.", en: "Promises, we don't give lightly." },
         also: ["Lubadusi ei anna me kergelt."],
         pattern: "emphasis",
@@ -975,7 +989,7 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Lubadusi me kergelt ei anna. Aga selle lubaduse me anname.", en: "We don't give promises lightly. But this one we do." }, right: "Lubadusi", wrong: "Lubadus", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a no, the thing takes the [osastav] (3rd form), here the plural: {lubadusi ei anna}." },
+      { line: { et: "Lubadusi me kergelt ei anna. Aga selle lubaduse me anname.", en: "We don't give promises lightly. But this one we do." }, right: "Lubadusi", wrong: "Lubadus", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a no, the noun ({lubadusi} here) takes the [osastav] (3rd form), here the plural: {lubadusi ei anna}." },
       { line: { et: "Kõike me kahe nädalaga ei jõua.", en: "We can't do everything in two weeks." }, right: "nädalaga", wrong: "nädal", pair: ["COMITATIVE", "NOMINATIVE"], why: "The time it takes to do something is -ga, the [kaasaütlev] (-ga, with): {kahe nädalaga}." },
     ],
     rooms: [
@@ -1028,6 +1042,11 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
       seconds: GO,
       prepare: PREPARE,
       topics: [{ en: "Saying no at work" }, { en: "A time somebody asked too much of you" }],
+      checks: [
+        { en: "A question that makes your point, with {tõesti} ({kas me tõesti tahame} here).", any: ["tõesti"] },
+        { en: "What you can do instead, with {saame} ({mida me saame teha} here).", any: ["saame"] },
+        { en: "What you'd do first, with {kõigepealt}.", any: ["kõigepealt"] },
+      ],
     },
   },
   {
@@ -1273,6 +1292,11 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
       seconds: GO,
       prepare: PREPARE,
       topics: [{ en: "A change you'd propose at your work" }, { en: "A change you'd propose in your building or your town" }],
+      checks: [
+        { en: "Two options, with {variant} ({kahte varianti} here).", any: ["variant", "variant*", "variand*"] },
+        { en: "An advantage and a drawback, with {aga}.", any: ["aga"] },
+        { en: "Your recommendation, with {just} or {nimelt} ({soovitan just} here).", any: ["just", "nimelt"] },
+      ],
     },
   },
   {
@@ -1284,7 +1308,7 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
     title: "In front of the board",
     goal: "Present a proposal to the board, interrupt politely when you have to, and take the floor back when the director cuts in.",
     cast: { Direktor: "peeter", Finantsjuht: "liivika", Tom: "kalev", Kadri: "vesta" },
-    hearing: "quick",
+    hearing: "half",
     conversation: [
       { who: "Direktor", et: "Tom, palun. Teil on viis minutit.", en: "Tom, go ahead. You've got five minutes.", stage: "The board room on Thursday afternoon: the director, the finance director, and Kadri beside Tom. He had three minutes to look over his notes outside." },
       { who: "Tom", et: "Aitäh. Meie probleem on lihtne: testime käsitsi ja see võtab liiga palju aega.", en: "Thank you. Our problem is simple: we test by hand, and it takes too long." },

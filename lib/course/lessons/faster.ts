@@ -27,10 +27,17 @@ export interface Go {
   readonly words: number;
   /** Words a minute, rounded. */
   readonly perMinute: number;
+  /**
+   * What came across, as the recognizer wrote it down or the learner typed
+   * it: what today's pattern is read off after the go (`fasterChecks.ts`).
+   */
+  readonly said: string;
+  /** Whether it was said into the microphone, so the screen can say a heard ending may be the recognizer's. */
+  readonly spoken: boolean;
 }
 
-export function goOf(said: string, took: number, windowSeconds: number): Go {
+export function goOf(said: string, took: number, windowSeconds: number, spoken = false): Go {
   const words = [...said.matchAll(/\p{L}+/gu)].length;
   const seconds = Math.max(5, Math.min(windowSeconds, Number.isFinite(took) ? took : windowSeconds));
-  return { window: windowSeconds, words, perMinute: words === 0 ? 0 : Math.round((words / seconds) * 60) };
+  return { window: windowSeconds, words, perMinute: words === 0 ? 0 : Math.round((words / seconds) * 60), said: said.trim(), spoken };
 }

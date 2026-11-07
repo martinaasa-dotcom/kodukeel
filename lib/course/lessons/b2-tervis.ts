@@ -298,6 +298,11 @@ export const B2_TERVIS_LESSONS: readonly LessonSpec[] = [
       cue: "Say how you book a doctor at home, how long you wait, and what you think of it.",
       model: { et: "Kodumaal helistan tavaliselt arstile ja saan aja kahe päeva pärast. Siin pean vahel nädal aega ootama, aga arst saab ka telefoni teel aidata. See on mugav.", en: "At home I usually ring the doctor and get an appointment two days later. Here I sometimes have to wait a week, but the doctor can also help over the phone. That's handy." },
       seconds: [60, 45, 30],
+      checks: [
+        { en: "How you book, with {helistan} ({helistan arstile} here).", any: ["helistan"] },
+        { en: "How long you wait, with {pärast} or {ootama}.", any: ["pärast", "ootama"] },
+        { en: "At home and here, with {kodumaal} and {siin}.", any: ["kodumaal", "siin"], atLeast: 2 },
+      ],
     },
   },
   {
@@ -427,6 +432,11 @@ export const B2_TERVIS_LESSONS: readonly LessonSpec[] = [
       cue: "Say what you usually do when you're ill: what you take, whether you go to work, and when you see a doctor.",
       model: { et: "Kui ma olen haige, joon palju teed ja puhkan. Tööle ma siis ei lähe. Kui palavik kestab üle kolme päeva, helistan arstile.", en: "When I'm ill, I drink lots of tea and rest. I don't go to work then. If a temperature lasts more than three days, I ring the doctor." },
       seconds: [60, 45, 30],
+      checks: [
+        { en: "When, with {kui} ({kui ma olen haige} here).", any: ["kui"] },
+        { en: "Whether you go to work, with {tööle}.", any: ["tööle"] },
+        { en: "When you see a doctor, with {arstile} ({helistan arstile} here).", any: ["arstile"] },
+      ],
     },
   },
   {
@@ -448,7 +458,7 @@ export const B2_TERVIS_LESSONS: readonly LessonSpec[] = [
       { who: "Anna", et: "Natuke joob. Aga ta on väga loid ja nutab kogu aeg.", en: "She drinks a little. But she's very listless and cries all the time." },
       { who: "Nõustaja", et: "Kuidas ta hingab?", en: "How is she breathing?" },
       { who: "Anna", et: "Tom, vaata, kuidas ta hingab!", en: "Tom, look at how she's breathing!" },
-      { who: "Tom", et: "Kiiresti hingab. Ja ta on päris kahvatu.", en: "She's breathing fast. And she's quite pale." },
+      { who: "Tom", et: "Kiiresti hingab. Ja ta on päris kahvatu.", en: "She's breathing fast. And she's pretty pale." },
       { who: "Nõustaja", et: "Siis minge lapsega kohe lastehaiglasse, EMOsse.", en: "Then take the child to the children's hospital straight away, to the emergency department." },
       { who: "Anna", et: "Kas me peaksime kiirabi kutsuma?", en: "Should we call an ambulance?" },
       { who: "Nõustaja", et: "Kui saate ise sõita, minge ise. Kui laps muutub väga uniseks, helistage kohe 112.", en: "If you can drive yourselves, go yourselves. If the child gets very drowsy, ring 112 at once." },
@@ -723,6 +733,11 @@ export const B2_TERVIS_LESSONS: readonly LessonSpec[] = [
       cue: "Say what you do when you can't sleep, and what helps.",
       model: { et: "Kui ma ei saa magada, siis ma ei vaata telefoni. Ma loen natuke raamatut või lähen enne magamaminekut jalutama. Tavaliselt see aitab.", en: "When I can't sleep, I don't look at my phone. I read a bit of a book, or I go for a walk before bed. Usually that helps." },
       seconds: [60, 45, 30],
+      checks: [
+        { en: "When, with {kui} ({kui ma ei saa magada} here).", any: ["kui"] },
+        { en: "Two things you do, with {või}.", any: ["või"] },
+        { en: "What helps, with {aitab} ({see aitab} here).", any: ["aitab"] },
+      ],
     },
   },
   {

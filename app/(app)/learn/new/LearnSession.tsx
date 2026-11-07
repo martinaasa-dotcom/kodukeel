@@ -1320,18 +1320,23 @@ export function LearnSession({
               {firstTry && phase === "ask" && (
                 <p className="max-w-sm text-sm" style={{ color: "var(--ink-2)" }}>{t(FIRST_TRY_NOTE)}</p>
               )}
-              {phase === "ask" && <AnswerMic box={spoken} />}
               <div className="w-full max-w-sm text-left">
-                <EstonianInput
-                  value={typed}
-                  onChange={setTyped}
-                  onEnter={phase === "feedback" ? carryOn : answerGap}
-                  inputRef={answerBox}
-                  autoFocus
-                  ariaLabel={word.gap ? t("The word that goes in the gap") : t("The Estonian word")}
-                  placeholder={t("Type in Estonian")}
-                  large
-                />
+                <AnswerMic box={spoken} when={phase === "ask"}>
+                  {(mic) => (
+                    <EstonianInput
+                      value={spoken.live(typed)}
+                      readOnly={spoken.speech.listening}
+                      onChange={setTyped}
+                      onEnter={phase === "feedback" ? carryOn : answerGap}
+                      inputRef={answerBox}
+                      autoFocus
+                      ariaLabel={word.gap ? t("The word that goes in the gap") : t("The Estonian word")}
+                      placeholder={t("Type in Estonian")}
+                      large
+                      mic={mic}
+                    />
+                  )}
+                </AnswerMic>
               </div>
               {phase === "ask" && (
                 <HintLadder
