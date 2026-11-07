@@ -2509,6 +2509,150 @@
                       "minimum": -9007199254740991,
                       "maximum": 9007199254740991
                     }
+                  },
+                  "why": {
+                    "description": "\"Why this form?\": questions tapped through for a line, landing on its form in `caseForms`.",
+                    "type": "object",
+                    "properties": {
+                      "word": {
+                        "type": "string"
+                      },
+                      "en": {
+                        "type": "string"
+                      },
+                      "steps": {
+                        "readOnly": true,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "q": {
+                              "type": "string"
+                            },
+                            "answers": {
+                              "readOnly": true,
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "a": {
+                                    "type": "string"
+                                  },
+                                  "next": {
+                                    "type": "string"
+                                  },
+                                  "lands": {
+                                    "type": "object",
+                                    "properties": {
+                                      "case": {
+                                        "type": "string",
+                                        "enum": [
+                                          "NOMINATIVE",
+                                          "GENITIVE",
+                                          "PARTITIVE",
+                                          "ILLATIVE",
+                                          "INESSIVE",
+                                          "ELATIVE",
+                                          "ALLATIVE",
+                                          "ADESSIVE",
+                                          "ABLATIVE",
+                                          "TRANSLATIVE",
+                                          "TERMINATIVE",
+                                          "ESSIVE",
+                                          "ABESSIVE",
+                                          "COMITATIVE"
+                                        ]
+                                      },
+                                      "plural": {
+                                        "type": "boolean"
+                                      }
+                                    },
+                                    "required": [
+                                      "case",
+                                      "plural"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "a"
+                                ]
+                              }
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "q",
+                            "answers"
+                          ]
+                        }
+                      },
+                      "lines": {
+                        "readOnly": true,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "line": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            },
+                            "form": {
+                              "type": "string"
+                            },
+                            "lands": {
+                              "type": "object",
+                              "properties": {
+                                "case": {
+                                  "type": "string",
+                                  "enum": [
+                                    "NOMINATIVE",
+                                    "GENITIVE",
+                                    "PARTITIVE",
+                                    "ILLATIVE",
+                                    "INESSIVE",
+                                    "ELATIVE",
+                                    "ALLATIVE",
+                                    "ADESSIVE",
+                                    "ABLATIVE",
+                                    "TRANSLATIVE",
+                                    "TERMINATIVE",
+                                    "ESSIVE",
+                                    "ABESSIVE",
+                                    "COMITATIVE"
+                                  ]
+                                },
+                                "plural": {
+                                  "type": "boolean"
+                                }
+                              },
+                              "required": [
+                                "case",
+                                "plural"
+                              ]
+                            },
+                            "why": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "line",
+                            "form",
+                            "lands",
+                            "why"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "word",
+                      "en",
+                      "steps",
+                      "lines"
+                    ]
                   }
                 },
                 "required": [
@@ -5083,6 +5227,74 @@
               ]
             }
           },
+          "caseForms": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "word": {
+                    "type": "string"
+                  },
+                  "rows": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "case": {
+                          "type": "string",
+                          "enum": [
+                            "NOMINATIVE",
+                            "GENITIVE",
+                            "PARTITIVE",
+                            "ILLATIVE",
+                            "INESSIVE",
+                            "ELATIVE",
+                            "ALLATIVE",
+                            "ADESSIVE",
+                            "ABLATIVE",
+                            "TRANSLATIVE",
+                            "TERMINATIVE",
+                            "ESSIVE",
+                            "ABESSIVE",
+                            "COMITATIVE"
+                          ]
+                        },
+                        "sg": {
+                          "readOnly": true,
+                          "description": "Every spelling of the singular the dictionary prints, the stored one first.",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "pl": {
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "case",
+                        "sg",
+                        "pl"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "word",
+                  "rows"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The three basic cases of `how.why`'s word, one and more than one, as the dictionary holds them; null where the lesson has no `why`."
+          },
           "words": {
             "type": "object",
             "properties": {
@@ -5512,6 +5724,7 @@
           "read",
           "notes",
           "forms",
+          "caseForms",
           "words",
           "stars",
           "locale",

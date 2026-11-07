@@ -18,6 +18,7 @@
  */
 
 import type { LessonSpec, PartOfLessons } from "./types";
+import { BELONGS_OR_OBJECT_STEPS } from "./why-b2-too";
 
 export const B2_TOO_PART: PartOfLessons = {
   id: "b2-too",
@@ -145,8 +146,8 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Aga ma pole kunagi koosolekut juhtinud.", en: "But I've never run a meeting." }, right: "koosolekut", wrong: "koosolek", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a no, the noun ({koosolekut} here) takes the [osastav] (3rd form): {pole koosolekut juhtinud}." },
-      { line: { et: "Ei sega. Tule sisse. Tom hakkab meie koosolekuid juhtima.", en: "Not at all. Come in. Tom's going to run our meetings." }, right: "juhtima", wrong: "juhtida", pair: ["Sup", "Inf"], why: "{Hakkama} takes the [ma-tegevusnimi] (-ma): {hakkab juhtima}." },
+      { line: { et: "Aga ma pole kunagi koosolekut juhtinud.", en: "But I've never run a meeting." }, right: "koosolekut", wrong: "koosolek", pair: ["PARTITIVE", "NOMINATIVE"], why: "Two things here each call for the [osastav] (3rd form). The sentence is a no, {pole}, and after a no the noun is always in the [osastav] (3rd form). And {juhtima} is a verb for something that goes on, running or leading, so its object takes the [osastav] (3rd form) even in a yes: {hakkab meie koosolekuid juhtima}." },
+      { line: { et: "Ei sega. Tule sisse. Tom hakkab meie koosolekuid juhtima.", en: "Not at all. Come in. Tom's going to run our meetings." }, right: "juhtima", wrong: "juhtida", pair: ["Sup", "Inf"], why: "{Hakkama}, to start doing something, is followed by the [ma-tegevusnimi] (-ma): {hakkab juhtima}. A handful of verbs take the [ma-tegevusnimi] (-ma) after them, mostly ones about starting, going or having to. Verbs of wanting and being able, like {tahtma} and {võima}, take the [da-tegevusnimi] (-da) instead." },
     ],
     faster: {
       ask: { et: "Kuidas sa koosolekut alustaksid?", en: "How would you open a meeting?" },
@@ -275,8 +276,8 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Kood on ilmselt neljapäevaks valmis.", en: "The code will probably be ready by Thursday." }, right: "neljapäevaks", wrong: "neljapäeval", pair: ["TRANSLATIVE", "ADESSIVE"], why: "By a day is a deadline, the [saav] (-ks, becoming): {neljapäevaks}. {Neljapäeval} is on Thursday." },
-      { line: { et: "Hästi, ma kirjutan kliendile täna.", en: "Good, I'll write to the client today." }, right: "kliendile", wrong: "klient", pair: ["ALLATIVE", "NOMINATIVE"], why: "Writing to somebody takes -le: {kliendile}." },
+      { line: { et: "Kood on ilmselt neljapäevaks valmis.", en: "The code will probably be ready by Thursday." }, right: "neljapäevaks", wrong: "neljapäeval", pair: ["TRANSLATIVE", "ADESSIVE"], why: "Ready by Thursday is a deadline, at the latest then, and a deadline takes the [saav] (-ks, becoming): {neljapäevaks}. The -l form says on which day something happens: {Versioon tuleb tõenäoliselt reedel}, it comes on Friday. So ask whether it's by that day or on it." },
+      { line: { et: "Hästi, ma kirjutan kliendile täna.", en: "Good, I'll write to the client today." }, right: "kliendile", wrong: "klient", pair: ["ALLATIVE", "NOMINATIVE"], why: "Writing goes to somebody, so the person you write to takes the [alaleütlev] (-le, onto/to): {kliendile}. The plain form {klient} is for the one doing something, and here the one writing is {ma}." },
     ],
     retell: {
       who: "Tom",
@@ -441,8 +442,8 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ja veel üks asi: delegeeri julgemalt. Sa ei pea kõike ise tegema.", en: "And one more thing: delegate more boldly. You don't have to do everything yourself." }, right: "tegema", wrong: "teha", pair: ["Sup", "Inf"], why: "{Pidama} takes the [ma-tegevusnimi] (-ma): {ei pea tegema}." },
-      { line: { et: "Vastupidi. Kas sa võtaksid testimise üle?", en: "Quite the opposite. Would you take over the testing?" }, right: "testimise", wrong: "testimine", pair: ["GENITIVE", "NOMINATIVE"], why: "Taking over the whole of it takes the [omastav] (2nd form): {võtaksid testimise üle}." },
+      { line: { et: "Ja veel üks asi: delegeeri julgemalt. Sa ei pea kõike ise tegema.", en: "And one more thing: delegate more boldly. You don't have to do everything yourself." }, right: "tegema", wrong: "teha", pair: ["Sup", "Inf"], why: "{Pidama}, to have to, is followed by the [ma-tegevusnimi] (-ma), in a no as much as in a yes: {Sa ei pea kõike ise tegema}. It belongs with {hakkama} among the verbs that take -ma, while {tahtma} and {võima} take the [da-tegevusnimi] (-da)." },
+      { line: { et: "Vastupidi. Kas sa võtaksid testimise üle?", en: "Quite the opposite. Would you take over the testing?" }, right: "testimise", wrong: "testimine", pair: ["GENITIVE", "NOMINATIVE"], why: "Tom is asking Siim to take over the testing, all of it, so it's a whole object. One whole thing in a yes goes in the [omastav] (2nd form): {võtaksid testimise üle}. Asking it with the would form, as a question, doesn't change that." },
     ],
     faster: {
       ask: { et: "Kuidas mul läks?", en: "How did I do?" },
@@ -508,7 +509,7 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "majandusolukord", en: "the economic situation" },
     ],
     how: {
-      point: "Say what you're responsible for with {vastutama} and {eest}: the noun ({rakenduse} here) comes first, in the [omastav] (2nd form), {Ma vastutan rakenduse eest}.",
+      point: "To say what you're responsible for, use {vastutama} with {eest}, for. {Eest} goes after the noun, and the noun in front of it takes the [omastav] (2nd form), the form that says whose: {Ma vastutan rakenduse eest}, I'm responsible for the app. It's not an object, so the object questions don't come into it.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -525,8 +526,17 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
         "{Kuidas kellelgi} is a short answer people use all the time: it depends who you ask.",
         "The words of a job ad: {ametikoht}, a post; {kandidaat}, a candidate; {värbamine}, hiring; {edutamine}, a promotion; and {juhend}, the instructions a newcomer is given.",
       ],
-      watchOut: "{Eest} comes after the noun, never before it: {rakenduse eest}, not {eest rakenduse}.",
+      watchOut: "{Eest} always comes after the noun, never before it: {rakenduse eest}, not {eest rakenduse}. Where more words stand between them, each one in front of {eest} is in the [omastav] (2nd form), right up to it: {rakenduse selle osa eest}, for that part of the app.",
       examples: [3, 5, 8, 11],
+      why: {
+        word: "rakendus",
+        en: "app",
+        steps: BELONGS_OR_OBJECT_STEPS,
+        lines: [
+          { line: 3, form: "rakendusi", lands: { case: "PARTITIVE", plural: true }, why: "Nothing after {rakendusi} belongs with it, and the apps aren't doing anything: the company makes them, so they're an object. They're more than one, and an open amount, apps in general rather than a set you could count off. So the plural [osastav] (3rd form): {rakendusi}." },
+          { line: 5, form: "rakenduse", lands: { case: "GENITIVE", plural: false }, why: "{Rakenduse} says whose part it is: the app's part, {rakenduse selle osa}. A noun that says whose another one is goes in front of it in the [omastav] (2nd form). The app isn't an object here at all: what Tom is responsible for is the part, with {eest} closing the phrase." },
+        ],
+      },
     },
     listenFor: [
       { q: "What does the company do?", options: ["It makes apps for other firms", "It sells computers", "It runs a café", "It tests cars"], answer: 0 },
@@ -588,8 +598,8 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Mina vastutan rakenduse selle osa eest, mida klient näeb.", en: "I'm responsible for the part of the app the client sees." }, right: "rakenduse", wrong: "rakendus", pair: ["GENITIVE", "NOMINATIVE"], why: "Whose part it is: the app takes the [omastav] (2nd form), {rakenduse osa}." },
-      { line: { et: "Selle reegliga olen kohe nõus.", en: "I'll agree to that rule straight away." }, right: "reegliga", wrong: "reegel", pair: ["COMITATIVE", "NOMINATIVE"], why: "What you agree with takes -ga: {selle reegliga}, like {sellega}." },
+      { line: { et: "Mina vastutan rakenduse selle osa eest, mida klient näeb.", en: "I'm responsible for the part of the app the client sees." }, right: "rakenduse", wrong: "rakendus", pair: ["GENITIVE", "NOMINATIVE"], why: "{Rakenduse osa} is the app's part. When one noun says whose another one is, it stands in front of it in the [omastav] (2nd form). The part is what Tom is responsible for, so {eest} comes at the end, after {selle osa}." },
+      { line: { et: "Selle reegliga olen kohe nõus.", en: "I'll agree to that rule straight away." }, right: "reegliga", wrong: "reegel", pair: ["COMITATIVE", "NOMINATIVE"], why: "Being {nõus}, agreeing, takes what you agree with in the [kaasaütlev] (-ga, with): {selle reegliga}, like {sellega}. The -ga goes on the last word only, and the word in front of it stays in the [omastav] (2nd form): {selle}." },
     ],
     retell: {
       who: "Tom",
@@ -751,8 +761,8 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Mis siis eelarvega saab? Kas tuleb koondamisi?", en: "So what happens to the budget? Are there going to be redundancies?" }, right: "eelarvega", wrong: "eelarve", pair: ["COMITATIVE", "NOMINATIVE"], why: "What becomes of something is {saama} with -ga: {Mis eelarvega saab?}" },
-      { line: { et: "Ei, koondamisi kindlasti ei tule.", en: "No, there definitely won't be redundancies." }, right: "koondamisi", wrong: "koondamine", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a no, it's the [osastav] (3rd form), here the plural: {koondamisi ei tule}." },
+      { line: { et: "Mis siis eelarvega saab? Kas tuleb koondamisi?", en: "So what happens to the budget? Are there going to be redundancies?" }, right: "eelarvega", wrong: "eelarve", pair: ["COMITATIVE", "NOMINATIVE"], why: "Asking what becomes of something is {saama} with the noun in the [kaasaütlev] (-ga, with): {Mis siis eelarvega saab?}, so what happens to the budget? Without the -ga, {eelarve} would be the one doing the becoming." },
+      { line: { et: "Ei, koondamisi kindlasti ei tule.", en: "No, there definitely won't be redundancies." }, right: "koondamisi", wrong: "koondamine", pair: ["PARTITIVE", "NOMINATIVE"], why: "Two reasons point the same way. It's a no, {ei tule}, and after a no it's the [osastav] (3rd form). And redundancies are an open amount, more than one and not counted, so it's the plural: {koondamisi}. Marko's question {Kas tuleb koondamisi?} uses it for the same open amount." },
     ],
     retell: {
       who: "Tom",

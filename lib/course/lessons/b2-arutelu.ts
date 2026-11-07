@@ -22,6 +22,7 @@
  */
 
 import type { LessonSpec, PartOfLessons } from "./types";
+import { SHARE_STEPS } from "./why-b2-arutelu";
 
 export const B2_ARUTELU_PART: PartOfLessons = {
   id: "b2-arutelu",
@@ -80,7 +81,7 @@ export const B2_ARUTELU_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "ligikaudu", en: "approximately, the written {umbes}" },
     ],
     how: {
-      point: "A figure takes the [osastav] (3rd form) after it, like any number: {kümme protsenti}. The whole it's a share of takes the [seestütlev] (-st, out of): {pool inimestest}. And a change says which way and by how much: {väheneb}, {suureneb}, {kahe protsendi võrra}.",
+      point: "A figure works like any number: it already says how much, so the word after it goes in the singular [osastav] (3rd form), {kümme protsenti}. The group it's a share of is the whole the share is taken out of, so it goes in the [seestütlev] (-st, out of): {kümme protsenti inimestest}, {pool inimestest}. And a change says which way it goes and by how much: {väheneb}, {suureneb}, {kahe protsendi võrra}.",
       table: {
         head: ["Estonian", "In English", "What it says"],
         rows: [
@@ -92,11 +93,21 @@ export const B2_ARUTELU_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "Said and written are two registers here. Over coffee: {umbes pool inimestest}, about half of people. In the news: {ligikaudu pool inimestest}, approximately half of people. You'll read the second and say the first.",
-        "{Võrra} says by how much, after the [omastav] (2nd form) of the figure: {kahe protsendi võrra}. Without it, {kaks protsenti rohkem} says the same, the way people say it.",
+        "{Võrra} says by how much, and it takes the [omastav] (2nd form) in front of it. That puts the number in the [omastav] (2nd form), and once a number is in any case but the plain one, the word after it agrees with it rather than going in the [osastav] (3rd form): {kahe protsendi võrra}. Without {võrra}, {kaks protsenti rohkem} says the same, and it's the way people usually say it.",
         "A figure is an it, so its verb is the third person: {osakaal väheneb}, {arv suureneb}. A rise is {tõus} and a fall is {langus}.",
       ],
-      watchOut: "English says ten percent of the people, with of. Estonian puts the whole in the [seestütlev] (-st, out of): {kümme protsenti inimestest}, never the [omastav] (2nd form).",
+      watchOut: "English says ten percent of the people, and of looks like a job for the [omastav] (2nd form). But Estonian thinks of a share as taken out of a whole, so the whole goes in the [seestütlev] (-st, out of): {kümme protsenti inimestest}. The [omastav] (2nd form) is for whatever the share belongs to: {autode osakaal}, the cars' share.",
       examples: [2, 4, 6, 8],
+      why: {
+        word: "inimene",
+        en: "person",
+        steps: SHARE_STEPS,
+        lines: [
+          { line: 0, form: "inimesi", lands: { case: "PARTITIVE", plural: true }, why: "{Üha rohkem}, more and more, is an amount, and people are things you can count. After an amount word like {rohkem}, {vähem} or {palju}, the people are a portion rather than a whole group, so they go in the plural [osastav] (3rd form): {inimesi}. The verb stays singular for the same reason: {sõidab}, not a they form." },
+          { line: 2, form: "inimestest", lands: { case: "ELATIVE", plural: true }, why: "{Kümme protsenti} is the figure, and {protsenti} is already in the [osastav] (3rd form) after the number. The people are the whole those ten percent are taken out of, so they go in the plural [seestütlev] (-st, out of): {inimestest}. English says of here; Estonian thinks of a share as coming out of the whole." },
+          { line: 6, form: "inimestest", lands: { case: "ELATIVE", plural: true }, why: "{Pool}, half, is a share like a percentage, so it works the same way: the whole it comes out of goes in the plural [seestütlev] (-st, out of), {pool inimestest}. Compare {autode osakaal} in the same line: a share that belongs to the cars takes the [omastav] (2nd form) instead." },
+        ],
+      },
     },
     listenFor: [
       { q: "What share of people cycle to work, according to the city?", options: ["Four percent", "Ten percent", "Half of them", "Two percent"], answer: 1 },
@@ -138,8 +149,8 @@ export const B2_ARUTELU_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Muidugi. Autoga sõidab tööle umbes pool inimestest. Aga autode osakaal väheneb iga aastaga.", en: "Of course. About half of people drive to work. But the share of cars is getting smaller every year." }, right: "inimestest", wrong: "inimesed", pair: ["ELATIVE", "NOMINATIVE"], why: "Half out of all of them: the whole takes the [seestütlev] (-st, out of), {pool inimestest}." },
-      { line: { et: "Viis aastat tagasi oli see neli protsenti. See on päris suur tõus.", en: "Five years ago it was four percent. That's a pretty big rise." }, right: "protsenti", wrong: "protsent", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a number, the [osastav] (3rd form): {neli protsenti}." },
+      { line: { et: "Muidugi. Autoga sõidab tööle umbes pool inimestest. Aga autode osakaal väheneb iga aastaga.", en: "Of course. About half of people drive to work. But the share of cars is getting smaller every year." }, right: "inimestest", wrong: "inimesed", pair: ["ELATIVE", "NOMINATIVE"], why: "{Pool} is a share, and Estonian takes a share out of the whole it comes from, so the whole goes in the [seestütlev] (-st, out of): {pool inimestest}, half out of the people. The [nimetav] (1st form) {inimesed} names the people as a group in their own right and can't hang off {pool}." },
+      { line: { et: "Viis aastat tagasi oli see neli protsenti. See on päris suur tõus.", en: "Five years ago it was four percent. That's a pretty big rise." }, right: "protsenti", wrong: "protsent", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a number, Estonian counts in the singular [osastav] (3rd form): {neli protsenti}. The number already says how many, so the word itself stays singular, and only after one does it keep its plain form." },
     ],
     workOut: [
       {
@@ -208,7 +219,7 @@ export const B2_ARUTELU_LESSONS: readonly LessonSpec[] = [
     ],
     patterns: ["concession"],
     how: {
-      point: "To grant a point and still hold your own, say theirs first and yours second. Said, it's {küll ... aga} and {samas}: {Vaiksem oleks küll, aga kuidas ma tööle saan?} Written, it's {kuid}, {ent}, {siiski} and {ometi}.",
+      point: "To grant a point and still hold your own, say the part you grant first and your own view second, so the other person hears that you've listened before you disagree. Said aloud, it's {küll ... aga} and {samas}: {Vaiksem oleks küll, aga kuidas ma tööle saan?} In writing, the same jobs are done by {kuid}, {ent}, {siiski} and {ometi}.",
       table: {
         head: ["Said", "Written", "What it does"],
         rows: [
@@ -277,8 +288,8 @@ export const B2_ARUTELU_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Siis võiks teha nii: suvi ilma autodeta, talv autodega.", en: "Then you could do it like this: summer without cars, winter with them." }, right: "autodega", wrong: "autodeta", pair: ["COMITATIVE", "ABESSIVE"], why: "Winter with cars: -ga is with, -ta is without." },
-      { line: { et: "No see on mõistlik. Ma olen küll ikka plaani vastu, aga selle mõttega olen nõus.", en: "Now that's sensible. I'm still against the plan, granted, but I agree with that idea." }, right: "mõttega", wrong: "mõte", pair: ["COMITATIVE", "NOMINATIVE"], why: "You agree with something: it takes -ga, as in {sellega olen nõus}." },
+      { line: { et: "Siis võiks teha nii: suvi ilma autodeta, talv autodega.", en: "Then you could do it like this: summer without cars, winter with them." }, right: "autodega", wrong: "autodeta", pair: ["COMITATIVE", "ABESSIVE"], why: "Tom splits the year in two: summer without cars, {ilma autodeta}, and winter with them. With is the [kaasaütlev] (-ga, with), so it's {autodega}; the -ta of {autodeta} is the [ilmaütlev] (-ta, without), which says the opposite." },
+      { line: { et: "No see on mõistlik. Ma olen küll ikka plaani vastu, aga selle mõttega olen nõus.", en: "Now that's sensible. I'm still against the plan, granted, but I agree with that idea." }, right: "mõttega", wrong: "mõte", pair: ["COMITATIVE", "NOMINATIVE"], why: "In Estonian you agree with an idea, so the idea takes the [kaasaütlev] (-ga, with): {selle mõttega olen nõus}, the same as {sellega olen nõus}. The plain {mõte} would make the idea the subject of the sentence, when it's Jaan who does the agreeing." },
     ],
     workOut: [
       {
@@ -349,7 +360,7 @@ export const B2_ARUTELU_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "tähtsam", of: "tähtis", en: "more important; {kõige tähtsam}, the most important" },
     ],
     how: {
-      point: "Comparing is the -m form and {kui}, and Estonian says how big the difference is in front of it: {kaks korda odavam}, {palju mugavam}, {kõige parem}. When one thing grows with another, it's {mida ..., seda ...}, with the -m form in both halves: {mida rohkem räägid, seda kiiremini õpid}.",
+      point: "To compare, Estonian uses the -m form, and {kui} before the noun you compare with. How big the difference is goes in front of the -m form: {kaks korda odavam}, {palju mugavam}, and {kõige} makes it the most of all, {kõige parem}. When one thing grows with another, it's {mida ..., seda ...}, with an -m form in each half: {mida rohkem räägid, seda kiiremini õpid}.",
       table: {
         head: ["Estonian", "In English", "What it says"],
         rows: [
@@ -417,8 +428,8 @@ export const B2_ARUTELU_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ja linnas on kursusel viisteist inimest. Meil oleks ainult kuus.", en: "And there are fifteen people on the course in town. We'd only be six." }, right: "kursusel", wrong: "kursus", pair: ["ADESSIVE", "NOMINATIVE"], why: "On a course: -l, the [alalütlev] (-l, on/at/has), {kursusel}." },
-      { line: { et: "Mida vähem inimesi, seda rohkem igaüks räägib. Ja mida rohkem räägid, seda kiiremini õpid.", en: "The fewer people, the more each one talks. And the more you talk, the faster you learn." }, right: "inimesi", wrong: "inimesed", pair: ["PARTITIVE", "NOMINATIVE"], why: "After {vähem}, as after any amount, the [osastav] (3rd form): {vähem inimesi}.", also: ["Mida vähem inimesi, seda rohkem igaüks räägib. Ja mida sa rohkem räägid, seda kiiremini õpid.", "Mida vähem inimesi, seda rohkem igaüks räägib. Ja mida rohkem sa räägid, seda kiiremini õpid."] },
+      { line: { et: "Ja linnas on kursusel viisteist inimest. Meil oleks ainult kuus.", en: "And there are fifteen people on the course in town. We'd only be six." }, right: "kursusel", wrong: "kursus", pair: ["ADESSIVE", "NOMINATIVE"], why: "Estonian puts people on a course, not in it, so where they are takes the [alalütlev] (-l, on/at/has): {kursusel}. The plain {kursus} only names the course; it can't say where the fifteen people are." },
+      { line: { et: "Mida vähem inimesi, seda rohkem igaüks räägib. Ja mida rohkem räägid, seda kiiremini õpid.", en: "The fewer people, the more each one talks. And the more you talk, the faster you learn." }, right: "inimesi", wrong: "inimesed", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Vähem}, fewer, is an amount, and after an amount the people are a portion rather than a whole group, so they go in the plural [osastav] (3rd form): {vähem inimesi}. A line earlier, after a number, it's the singular one: {viisteist inimest}.", also: ["Mida vähem inimesi, seda rohkem igaüks räägib. Ja mida sa rohkem räägid, seda kiiremini õpid.", "Mida vähem inimesi, seda rohkem igaüks räägib. Ja mida rohkem sa räägid, seda kiiremini õpid."] },
     ],
     workOut: [
       {
@@ -548,8 +559,8 @@ export const B2_ARUTELU_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ja vastuväidet ka! Õpetaja ütles ju, et ilma vastuväiteta pole tekst hea.", en: "And a counter-argument! The teacher did say a text isn't good without one." }, right: "vastuväiteta", wrong: "vastuväide", pair: ["ABESSIVE", "NOMINATIVE"], why: "{Ilma} takes the -ta form after it: {ilma vastuväiteta}, without a counter-argument." },
-      { line: { et: "Kõlab hästi. Ära ainult järeldust unusta!", en: "Sounds good. Just don't forget the conclusion!" }, right: "järeldust", wrong: "järeldus", pair: ["PARTITIVE", "NOMINATIVE"], why: "After {ära} the object is in the [osastav] (3rd form), as after {ei}: {ära järeldust unusta}." },
+      { line: { et: "Ja vastuväidet ka! Õpetaja ütles ju, et ilma vastuväiteta pole tekst hea.", en: "And a counter-argument! The teacher did say a text isn't good without one." }, right: "vastuväiteta", wrong: "vastuväide", pair: ["ABESSIVE", "NOMINATIVE"], why: "{Ilma}, without, comes with the [ilmaütlev] (-ta, without) on the word after it, so the phrase says without twice over: {ilma vastuväiteta}. The ending is the part that can't go; {ilma} with a plain {vastuväide} isn't Estonian." },
+      { line: { et: "Kõlab hästi. Ära ainult järeldust unusta!", en: "Sounds good. Just don't forget the conclusion!" }, right: "järeldust", wrong: "järeldus", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Ära} in front of a command is don't, and a don't is a no, so the object goes in the [osastav] (3rd form), the same as after {ei}: {Ära ainult järeldust unusta}. A command with no don't in it would take the plain [nimetav] (1st form), {järeldus}." },
     ],
     write: {
       genre: "An argued text, the exam's {arutlev tekst}",
@@ -716,8 +727,8 @@ export const B2_ARUTELU_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Uuringust selgus, et noored loevad raamatuid oluliselt vähem kui kümme aastat tagasi.", en: "The study found that young people read significantly fewer books than ten years ago." }, right: "Uuringust", wrong: "Uuring", pair: ["ELATIVE", "NOMINATIVE"], why: "It came out of the study: the [seestütlev] (-st, out of), {uuringust selgus}." },
-      { line: { et: "Et noortele tuleb raamatuid pakkuda seal, kus nad on. Näiteks telefonis!", en: "That books should be offered to young people where they are. On the phone, for example!" }, right: "noortele", wrong: "noored", pair: ["ALLATIVE", "NOMINATIVE"], why: "Offered to somebody: the [alaleütlev] (-le, onto/to), {noortele}." },
+      { line: { et: "Uuringust selgus, et noored loevad raamatuid oluliselt vähem kui kümme aastat tagasi.", en: "The study found that young people read significantly fewer books than ten years ago." }, right: "Uuringust", wrong: "Uuring", pair: ["ELATIVE", "NOMINATIVE"], why: "{Selgus} says something became clear, and a finding becomes clear out of something, so the study takes the [seestütlev] (-st, out of): {uuringust selgus}. The plain {uuring} would make the study itself the noun that became clear, not the place the finding came from." },
+      { line: { et: "Et noortele tuleb raamatuid pakkuda seal, kus nad on. Näiteks telefonis!", en: "That books should be offered to young people where they are. On the phone, for example!" }, right: "noortele", wrong: "noored", pair: ["ALLATIVE", "NOMINATIVE"], why: "Something is offered to somebody, so with {pakkuda}, to offer, the person takes the [alaleütlev] (-le, onto/to): {noortele}, to young people. What's offered, the books, is a separate word in the [osastav] (3rd form), {raamatuid}." },
     ],
     retell: {
       who: "Kati",

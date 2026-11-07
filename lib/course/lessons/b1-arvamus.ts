@@ -17,6 +17,7 @@
  */
 
 import type { LessonSpec, PartOfLessons } from "./types";
+import { RELATIVE_PERSON_STEPS } from "./why-arvamus";
 
 export const B1_ARVAMUS_PART: PartOfLessons = {
   id: "b1-arvamus",
@@ -71,7 +72,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
     ],
     patterns: ["subordinate"],
     how: {
-      point: "A2 joined two sentences with {sest}, {et} and {kui}. Add {kuna} for since and {kuigi} for although, and let the joined part come first: then the rest usually starts with its verb, {Kuigi see on vana, sõidab see hästi}.",
+      point: "A2 joined two sentences with {sest}, {et} and {kui}. This lesson adds {kuna}, since, for the reason, and {kuigi}, although, for what speaks against it. Either can open the sentence, and then the rest usually starts with its verb: {Kuigi see on vana, sõidab see hästi}.",
       table: {
         head: ["Estonian", "In English", "The word"],
         rows: [
@@ -82,11 +83,11 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Sest} from A2 gives the reason after the rest of the sentence. {Kuna} says the same and is happy to go first: {Kuna buss on odavam, ...}.",
-        "{Et} with a whole sentence after it is that, as in {Ma arvan, et}. With the [da-tegevusnimi] (-da) it says what for: {et küsida}, to ask.",
-        "A comma stands before {kuna}, {kuigi}, {et} and {kui} when they start a part of the sentence, and after that part when it comes first. But not in a comparison: {vähem kui uus auto}.",
+        "{Sest} and {kuna} both give a reason. {Sest} comes after the rest of the sentence, the way because does. {Kuna} is happy to go first, so it's the one you hear opening a sentence: {Kuna buss on odavam, jääb sul rohkem raha üle}.",
+        "{Et} does two jobs. With a whole sentence after it, it's that, as in {Ma arvan, et}. With the [da-tegevusnimi] (-da) and no person of its own, it says what for: {et küsida}, to ask, and {et lapsi lasteaeda viia}, to take the kids.",
+        "A comma goes before {kuna}, {kuigi}, {et} and {kui} when they start a part of the sentence, and after that part when it comes first. In a comparison {kui} means than and starts no sentence of its own, so there's no comma: {vähem kui uus auto}.",
       ],
-      watchOut: "When the joined part comes first, the verb of the rest usually comes straight after the comma: {Kuigi see on vana, sõidab see hästi}. The subject first is said too, {Kuigi see on vana, see sõidab hästi}, and both are right.",
+      watchOut: "Estonian likes its verb in second place, and a whole joined part counts as the first thing. So when it comes first, the verb of the rest usually follows straight after the comma: {Kuigi see on vana, sõidab see hästi}. The subject first is said too, {Kuigi see on vana, see sõidab hästi}, and both are right.",
       examples: [2, 5, 6, 9],
     },
     listenFor: [
@@ -131,8 +132,8 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ma mõtlen, et ostan uuema auto.", en: "I'm thinking of buying a newer car." }, right: "auto", wrong: "autot", pair: ["GENITIVE", "PARTITIVE"], why: "Buying the whole car: {uuema auto}, as in {Ma ostsin raamatu}." },
-      { line: { et: "Ei. Remont maksab ikka vähem kui uus auto. Sõidan vana autoga veel natuke.", en: "No. The repair costs less than a new car, after all. I'll drive the old one a while longer." }, right: "autoga", wrong: "auto", pair: ["COMITATIVE", "NOMINATIVE"], why: "Only the noun takes -ga. {Vana} is in the [omastav] (2nd form), which for {vana} looks the same, as in lesson 23: {väikese köögiga}." },
+      { line: { et: "Ma mõtlen, et ostan uuema auto.", en: "I'm thinking of buying a newer car." }, right: "auto", wrong: "autot", pair: ["GENITIVE", "PARTITIVE"], why: "Tom means a whole car, one he'll buy and drive away, so the job will get done even though he says it in the present. One whole thing with the job done takes the [omastav] (2nd form): {uuema auto}, as in {Ma ostsin raamatu}. The [osastav] (3rd form), {autot}, would mean a job still going, or a no." },
+      { line: { et: "Ei. Remont maksab ikka vähem kui uus auto. Sõidan vana autoga veel natuke.", en: "No. The repair costs less than a new car, after all. I'll drive the old one a while longer." }, right: "autoga", wrong: "auto", pair: ["COMITATIVE", "NOMINATIVE"], why: "He'll drive with the old car, so the car takes the [kaasaütlev] (-ga, with): {autoga}. Only the last word carries the -ga. The word describing it goes in the [omastav] (2nd form), which for {vana} looks like the plain word, as in lesson 23: {väikese köögiga}." },
     ],
     faster: {
       ask: { et: "Kas linnas on autot vaja? Miks?", en: "Do you need a car in the city? Why?" },
@@ -175,7 +176,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
     ],
     patterns: ["relative"],
     how: {
-      point: "{Kes} and {mis} join a second sentence to a person or a thing, in the case that second sentence needs: {naine, kellega ta räägib}, you talk with her. A place takes {kus}: {firma, kus ma töötan}.",
+      point: "{Kes}, for a person, and {mis}, for a thing, join a second sentence to the word they point back to. Their ending isn't copied from that word: it's the ending the second sentence needs. In {naine, kellega ta räägib}, Leena talks with the woman, so with is the [kaasaütlev] (-ga, with): {kellega}. A place takes {kus}: {firma, kus ma töötan}.",
       table: {
         head: ["Estonian", "In English", "Why that form"],
         rows: [
@@ -187,12 +188,23 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Kes} is for people and {mis} for things. They take the ending the second sentence would give: you read a book still in progress, so {mida}; you talk about it, so {millest}.",
-        "A book somebody wrote is a whole job done, so the joining word is whole too: {raamat, mille ta kirjutas}, the book she wrote.",
-        "A comma stands before {kes} and {mis}, and after the joined part if the sentence carries on: {Naine, kes seisab akna juures, on Leena}.",
+        "To find the ending, split it back into two sentences, the way the practice does. {Ma rääkisin naisega} gives {kellega}. {Ma loen raamatut}, a book you're still reading, gives {mida}, the [osastav] (3rd form).",
+        "{Mis} follows the same rule as any object. A book somebody wrote, finished, is a whole job done, so it takes the [omastav] (2nd form): {raamat, mille ta kirjutas}, the book she wrote. A book still being read is a job still going: {raamat, mida sa loed}.",
+        "A comma goes before {kes} and {mis}, and after the joined part if the sentence carries on, so the joined part sits between two commas: {Naine, kes seisab akna juures, on Leena}.",
       ],
-      watchOut: "English can drop who and that: the book you read. Estonian never drops the joining word: {raamat, mida sa loed}.",
-      examples: [1, 2, 5, 7],
+      watchOut: "English can drop who and that: the book you read. Estonian never drops the joining word, because its ending is the only thing saying what part the person or thing plays in the second sentence: {raamat, mida sa loed}.",
+      examples: [5],
+      why: {
+        word: "kes",
+        en: "who",
+        steps: RELATIVE_PERSON_STEPS,
+        lines: [
+          { line: 1, form: "kes", lands: { case: "NOMINATIVE", plural: false }, why: "In the part after the comma, Leena is the one standing by the window: she does it. The one doing it is in the plain form, the [nimetav] (1st form), so {kes}, the same as in a question: {Kes need inimesed on?}" },
+          { line: 2, form: "kellega", lands: { case: "COMITATIVE", plural: false }, why: "Here Leena is the one talking, and the woman is the one she talks with. With somebody is the [kaasaütlev] (-ga, with), so {kes} takes -ga: {kellega}. The woman's own word, {naine}, stays as it is; only the joining word changes." },
+          { line: 3, form: "kellega", lands: { case: "COMITATIVE", plural: false }, why: "Anna is the one who was talking, {ma rääkisin}, and Kertu is the one she talked with. So the same -ga as before: {kellega}. It's the second sentence that decides, not the name it points back to." },
+          { line: 7, form: "kes", lands: { case: "NOMINATIVE", plural: false }, why: "The second {kes}, after the comma: the man is the one eating the cake, so he does it, and {kes} stays in the [nimetav] (1st form). When Tom tells the story afterward, the man is the one he didn't know, the one done to, so it's {keda}, the [osastav] (3rd form): {mees, keda ma ei tundnud}." },
+        ],
+      },
     },
     listenFor: [
       { q: "Where is Leena standing?", options: ["In the kitchen", "By the door", "By the window", "Next to the cake"], answer: 2 },
@@ -236,9 +248,9 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ja see naine, kellega ta räägib?", en: "And the woman she's talking to?" }, right: "kellega", wrong: "kes", pair: ["COMITATIVE", "NOMINATIVE"], why: "She talks with her, so the joining word takes -ga: {kellega}." },
-      { line: { et: "Naine, kes seisab akna juures, on Leena.", en: "The woman who's standing by the window is Leena." }, right: "kes", wrong: "keda", pair: ["NOMINATIVE", "PARTITIVE"], why: "She's the one standing, so {kes}, as it is." },
-      { line: { et: "Aga kes on see mees, kes juba kolmandat tükki kooki sööb?", en: "But who's that man who's already on his third piece of cake?" }, right: "kolmandat", wrong: "kolmas", pair: ["PARTITIVE", "NOMINATIVE"], why: "Eating it, still on it: the [osastav] (3rd form), {kolmandat tükki}." },
+      { line: { et: "Ja see naine, kellega ta räägib?", en: "And the woman she's talking to?" }, right: "kellega", wrong: "kes", pair: ["COMITATIVE", "NOMINATIVE"], why: "Leena talks with that woman, and with somebody is the [kaasaütlev] (-ga, with), so the joining word takes -ga too: {kellega}. {Kes} would make the woman the one doing the talking." },
+      { line: { et: "Naine, kes seisab akna juures, on Leena.", en: "The woman who's standing by the window is Leena." }, right: "kes", wrong: "keda", pair: ["NOMINATIVE", "PARTITIVE"], why: "In the part after the comma, the woman is the one standing by the window, the one doing it. So the joining word stays in its plain form, the [nimetav] (1st form): {kes}. {Keda} is for the one something is done to: {mees, keda ma ei tundnud}." },
+      { line: { et: "Aga kes on see mees, kes juba kolmandat tükki kooki sööb?", en: "But who's that man who's already on his third piece of cake?" }, right: "kolmandat", wrong: "kolmas", pair: ["PARTITIVE", "NOMINATIVE"], why: "He's still eating it, so the job isn't done, and the piece goes in the [osastav] (3rd form): {tükki}. The number word in front of it agrees and takes the same ending: {kolmandat tükki}." },
     ],
     retell: {
       who: "Tom",
@@ -288,7 +300,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "küljest", of: "külg", en: "from the side: {ühest küljest}, {teisest küljest}" },
     ],
     how: {
-      point: "A2 gave you {Ma arvan, et}, {nõus} and {sul on õigus}. One step on: say how sure you are with {minu meelest}, {mulle tundub, et} and {ma ei usu, et}, and weigh it up with {ühest küljest} and {teisest küljest}.",
+      point: "A2 gave you {Ma arvan, et}, {nõus} and {sul on õigus}. Now say how sure you are: {minu meelest} is in my opinion, {mulle tundub, et} is it seems to me, a little softer, and {ma ei usu, et} is I don't believe. {Ühest küljest} and {teisest küljest}, on the one hand and on the other, set two sides next to each other.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -301,11 +313,11 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Minu meelest} counts as the first thing in the sentence, so the verb comes next: {Minu meelest oli see pikk}.",
-        "You agree with somebody or something: {sinuga}, {sellega}. {Sellega olen nõus} is I agree with that.",
-        "{Aru saama} takes the [seestütlev] (-st, out of): {ma saan sinust aru}, I understand you.",
+        "{Minu meelest} counts as the first thing in the sentence, and Estonian likes its verb in second place, so the verb comes straight after it: {Minu meelest oli see pikk}. {Ühest küljest} works the same way: {Ühest küljest on sul õigus}.",
+        "{Nõus} takes the [kaasaütlev] (-ga, with): you agree with somebody or something, {sinuga}, {sellega}. So {Sellega olen nõus} is I agree with that.",
+        "{Aru saama}, to understand, takes the [seestütlev] (-st, out of): {ma saan sinust aru}, I understand you. It's the verb that decides this, not the meaning, so learn the -st together with {aru saama}.",
       ],
-      watchOut: "{Ma ei ole nõus} is a flat no. To disagree gently, add {päris}: {Ma ei ole päris nõus}, I don't quite agree.",
+      watchOut: "{Ma ei ole nõus} is a flat no, and it can sound hard. To disagree gently, add {päris}, quite: {Ma ei ole päris nõus}, I don't quite agree.",
       examples: [1, 2, 5, 7],
     },
     listenFor: [
@@ -349,8 +361,8 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Igav? Ma ei ole sinuga üldse nõus!", en: "Boring? I don't agree with you at all!" }, right: "sinuga", wrong: "sinust", pair: ["COMITATIVE", "ELATIVE"], why: "You agree or disagree with somebody: {sinuga}, with -ga." },
-      { line: { et: "Ma saan sinust aru, aga minu meelest oli see ikka igav.", en: "I see where you're coming from, but I still think it was boring." }, right: "sinust", wrong: "sinuga", pair: ["ELATIVE", "COMITATIVE"], why: "{Aru saama} takes the [seestütlev] (-st, out of): {sinust aru}." },
+      { line: { et: "Igav? Ma ei ole sinuga üldse nõus!", en: "Boring? I don't agree with you at all!" }, right: "sinuga", wrong: "sinust", pair: ["COMITATIVE", "ELATIVE"], why: "{Nõus} goes with the [kaasaütlev] (-ga, with): you agree or disagree with somebody, so {sinuga}. The -st of {sinust} is what {aru saama} wants, not {nõus}." },
+      { line: { et: "Ma saan sinust aru, aga minu meelest oli see ikka igav.", en: "I see where you're coming from, but I still think it was boring." }, right: "sinust", wrong: "sinuga", pair: ["ELATIVE", "COMITATIVE"], why: "It's the verb that decides: {aru saama} takes the [seestütlev] (-st, out of), so {sinust aru}. The -ga of {sinuga} is what {nõus} wants." },
     ],
     faster: {
       ask: { et: "Kus on sinu meelest parem filmi vaadata, kinos või kodus?", en: "Where do you think it's better to watch a film, at the cinema or at home?" },
@@ -410,7 +422,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "tütrelt", of: "tütar", en: "from a daughter" },
     ],
     how: {
-      point: "A phone in Estonian: you {laadima} it, read a {sõnum} on its {ekraan}, and open a {rakendus}. And {mis} in its case says what a thing is for: {rakendus, millega saab helistada}, an app you call with.",
+      point: "A phone in Estonian: you {laadima} it, read a {sõnum} on its {ekraan}, and open a {rakendus}. And {mis} can say what a thing is for. Its ending comes from the second sentence: you call with the app, so the [kaasaütlev] (-ga, with), {rakendus, millega saab helistada}.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -421,11 +433,11 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Saab} with the [da-tegevusnimi] (-da) is you can, anybody can: {saab tasuta helistada}.",
-        "After a number, the noun ({sõnumit} here) is in the [osastav] (3rd form) and stays one: {kakskümmend sõnumit}.",
-        "{Sotsiaalmeedia} takes the endings any noun does: you use {sotsiaalmeediat}, and you read things {sotsiaalmeedias}, on social media.",
+        "{Saab} with the [da-tegevusnimi] (-da) says a thing can be done, by you or anybody: {saab tasuta helistada}, you can call for free. Nobody in particular does it, so there's no {ma} or {sa} in it.",
+        "After a number, the noun goes in the singular [osastav] (3rd form): {kakskümmend sõnumit}, twenty messages. The number already says how many, so the word itself stays singular. After {üks} it stays in its plain form: {üks sõnum}.",
+        "{Sotsiaalmeedia} takes the endings any noun does. You use {sotsiaalmeediat}, in the [osastav] (3rd form), because that's what {kasutama} takes, and you read things {sotsiaalmeedias}, on social media.",
       ],
-      watchOut: "{Ma ei teadnud, et...} is I didn't know that: after {ei} the past is the [nud-kesksõna] (-nud, done), and {et} with its comma brings in what you didn't know.",
+      watchOut: "{Ma ei teadnud, et...} is I didn't know that. A no in the past doesn't use the past of the verb: after {ei} comes the [nud-kesksõna] (-nud, done), the same for every person. Then {et}, after its comma, brings in what you didn't know.",
       examples: [3, 6, 8, 11],
     },
     listenFor: [
@@ -470,8 +482,8 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Oi! Siin on kakskümmend sõnumit!", en: "Oh! There are twenty messages here!" }, right: "sõnumit", wrong: "sõnum", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a number, the [osastav] (3rd form): {kakskümmend sõnumit}." },
-      { line: { et: "Muidugi! Vana telefoni juhtmega, terve öö. Aga ekraan on ikka must.", en: "Of course! With the old phone's cable, all night. But the screen's still black." }, right: "juhtmega", wrong: "juhet", pair: ["COMITATIVE", "PARTITIVE"], why: "She charged it with the cable, so -ga: {juhtmega}." },
+      { line: { et: "Oi! Siin on kakskümmend sõnumit!", en: "Oh! There are twenty messages here!" }, right: "sõnumit", wrong: "sõnum", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a number, the noun goes in the singular [osastav] (3rd form): {kakskümmend sõnumit}. The number already says how many, so the word doesn't turn plural. Only after {üks} does it stay plain." },
+      { line: { et: "Muidugi! Vana telefoni juhtmega, terve öö. Aga ekraan on ikka must.", en: "Of course! With the old phone's cable, all night. But the screen's still black." }, right: "juhtmega", wrong: "juhet", pair: ["COMITATIVE", "PARTITIVE"], why: "She charged the phone with the cable, the noun she used, and with is the [kaasaütlev] (-ga, with): {juhtmega}. {Juhet} is the cable as the noun wanted or done to, as in {uus telefon tahab uut juhet}." },
     ],
     retell: {
       who: "Tom",
@@ -534,7 +546,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "kasulik", en: "useful, worth it" },
     ],
     how: {
-      point: "What goes where takes {läheb} and the [sisseütlev] (-sse, into), and a color in front takes the ending too: {kollasesse kasti}, into the yellow bin. Why it matters is {sest} or {kuna}.",
+      point: "What goes where takes {läheb} and the [sisseütlev] (-sse, into), because a thing goes into the bin. A color in front of the bin takes the same ending, since a word describing a noun agrees with it: {kollasesse kasti}, into the yellow bin. Why it matters is {sest} or {kuna}.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -545,9 +557,9 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Words in -ne, like {kollane} and {sinine}, have only the long form for into: {kollasesse}, {sinisesse}. {Pruun} has a short one, {pruuni}, and so has the bin itself: {Toit läheb pruuni kasti}.",
-        "Looking after something is {hoidma}, and it takes the [osastav] (3rd form): {Me hoiame loodust}.",
-        "{Meie kõigi kodu} is home to all of us: {kõigi} is everybody's.",
+        "Some words have a short form for into beside the long one, and the short one is what people say: {pruuni}, and the bin itself, {kasti}, as in {Toit läheb pruuni kasti}. Words in -ne, like {kollane} and {sinine}, have only the long form: {kollasesse}, {sinisesse}.",
+        "Looking after nature is {hoidma}. It's a job that goes on and never gets finished, so nature goes in the [osastav] (3rd form): {Me hoiame loodust}.",
+        "{Meie kõigi kodu} is home to all of us: {kõigi} is the plural [omastav] (2nd form) of {kõik}, everybody's, so it comes before {kodu} the way a name does.",
       ],
       watchOut: "{Ei käi siia} is about where a thing belongs, not about walking: {See kott ei käi siia}, that bag doesn't go in here.",
       examples: [2, 4, 6],
@@ -594,8 +606,8 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Pakendid lähevad kollasesse kasti ja paber sinisesse.", en: "Packaging goes in the yellow bin, and paper in the blue one." }, right: "kollasesse", wrong: "kollane", pair: ["ILLATIVE", "NOMINATIVE"], why: "The color takes the bin's ending too: into the yellow one, {kollasesse}." },
-      { line: { et: "Sest nii me hoiame loodust.", en: "Because that way we look after nature." }, right: "loodust", wrong: "loodus", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Hoidma} takes the [osastav] (3rd form): {loodust}." },
+      { line: { et: "Pakendid lähevad kollasesse kasti ja paber sinisesse.", en: "Packaging goes in the yellow bin, and paper in the blue one." }, right: "kollasesse", wrong: "kollane", pair: ["ILLATIVE", "NOMINATIVE"], why: "Packaging goes into the bin, so the bin takes the [sisseütlev] (-sse, into), and a color describing the bin takes the same ending: into the yellow one, {kollasesse}. The plain {kollane} would leave the color out of step with its bin." },
+      { line: { et: "Sest nii me hoiame loodust.", en: "Because that way we look after nature." }, right: "loodust", wrong: "loodus", pair: ["PARTITIVE", "NOMINATIVE"], why: "Looking after nature goes on and never gets finished, so {hoidma} takes the [osastav] (3rd form): {loodust}. The plain {loodus} would make nature the one doing the looking after." },
     ],
     faster: {
       ask: { et: "Kas prügi sorteerimine on sinu meelest oluline? Miks?", en: "Do you think sorting trash matters? Why?" },
@@ -661,11 +673,11 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Olema vastu} is to be against, with the noun ({plaani} here) in the [omastav] (2nd form) in front: {plaani vastu}.",
+        "{Olema vastu} is to be against. {Vastu} comes after its word, and like most of these small words that say where, it wants that word in the [omastav] (2nd form): {plaani vastu}, against the plan, as in {akna juures}, by the window.",
         "{Kus} and {mis} let one sentence carry two facts: {koht, kus lapsed mängivad}.",
-        "{Asemele} wants the [omastav] (2nd form) too: {pargi asemele}, in place of the park. And to say what you think in public is {oma arvamust avaldada}.",
+        "{Asemele}, in place of, works like {vastu}: the word before it goes in the [omastav] (2nd form), {pargi asemele}, in place of the park. And to say what you think in public is {oma arvamust avaldada}.",
       ],
-      watchOut: "On a forum you write to people you don't know, so ask with the [käskiv kõneviis, te] (-ge, polite command): {Palun mõelge}, not {Palun mõtle}.",
+      watchOut: "On a forum you write to people you don't know, and to more than one at once, so ask with the [käskiv kõneviis, te] (-ge, polite command): {Palun mõelge}. {Palun mõtle} is for one person you know well.",
       examples: [1, 2, 5],
     },
     listenFor: [
@@ -710,8 +722,8 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ma olen selle plaani vastu.", en: "I'm against the plan." }, right: "plaani", wrong: "plaan", pair: ["GENITIVE", "NOMINATIVE"], why: "{Vastu} wants the [omastav] (2nd form) in front of it: {plaani vastu}." },
-      { line: { et: "Ja kus mina igal õhtul koeraga jalutan.", en: "And where I walk the dog every evening." }, right: "koeraga", wrong: "koer", pair: ["COMITATIVE", "NOMINATIVE"], why: "Walking with the dog: {koeraga}, with -ga." },
+      { line: { et: "Ma olen selle plaani vastu.", en: "I'm against the plan." }, right: "plaani", wrong: "plaan", pair: ["GENITIVE", "NOMINATIVE"], why: "{Vastu} wants the word in front of it in the [omastav] (2nd form), like most of these small words that say where: {plaani vastu}, as in {akna juures}. The plain {plaan} is for the plan as the subject." },
+      { line: { et: "Ja kus mina igal õhtul koeraga jalutan.", en: "And where I walk the dog every evening." }, right: "koeraga", wrong: "koer", pair: ["COMITATIVE", "NOMINATIVE"], why: "Helgi walks along with the dog, and with is the [kaasaütlev] (-ga, with): {koeraga}. The plain {koer} would make the dog the one doing the walking." },
     ],
     retell: {
       who: "Tom",
@@ -823,7 +835,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "julge", en: "brave" },
     ],
     how: {
-      point: "A doctor's advice is the command to one person: {Ole ettevaatlik!}, {Korda kümme korda}. What a thing is good for takes -le: {Sport on südamele hea}.",
+      point: "A doctor's advice is the command to one person, which is the [olevik] (I form) without its -n: {kordan} gives {Korda kümme korda}, and {olen} gives {Ole ettevaatlik!}. What a thing is good for takes the [alaleütlev] (-le, onto/to): {Sport on südamele hea}, good for the heart.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -835,7 +847,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "{Tugev} is strong and {nõrk} is weak, of a person, a back or a pain: a bad pain is {tugev valu}.",
-        "{Puud} and {linnud} are more than one {puu} and {lind}. {Lind} changes on the way, so learn {linnud} with it.",
+        "{Puud} and {linnud} are more than one {puu} and {lind}: the plural adds -d to the [omastav] (2nd form). {Lind} changes on the way there, so learn {linnud} with it.",
         "{Ohutu} is safe, a place or a thing; {julge} is brave, a person: {Sa oled julge}.",
         "{Kukkusin} is I fell: {Ma kukkusin eile pargis}.",
       ],
@@ -896,7 +908,7 @@ export const B1_ARVAMUS_LESSONS: readonly LessonSpec[] = [
         "{Ei pea} is don't have to: {Siis ei pea me kolima}, then we don't have to move.",
         "At the end a colleague disagrees with you and asks you to answer her point about the bus, which nobody answered in the meeting. Keep your view, and give way where she's right.",
       ],
-      watchOut: "{Sellega olen nõus} is I agree with that: what you agree with takes -ga, like {sinuga}.",
+      watchOut: "{Sellega olen nõus} is I agree with that: {nõus} takes the [kaasaütlev] (-ga, with) for a thing you agree with, as it does for a person, {sinuga}.",
       examples: [2, 3, 7, 11],
     },
     listenFor: [

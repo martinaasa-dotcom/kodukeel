@@ -17,6 +17,7 @@
  */
 
 import type { LessonSpec, PartOfLessons } from "./types";
+import { DESCRIBING_WORD_STEPS, ONE_OBJECT_STEPS } from "./why-kodu";
 
 export const B1_KODU_PART: PartOfLessons = {
   id: "b1-kodu",
@@ -62,7 +63,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
     ],
     patterns: ["participle"],
     how: {
-      point: "The [tud-kesksõna] (-tud, done to) of a verb says what was done to a thing: {remonditud korter} is an apartment somebody fixed up. In front of a noun it never changes: {suletud uks}, {suletud uksega}.",
+      point: "The [tud-kesksõna] (-tud, done to) of a verb says what somebody has done to a thing, without saying who: {remonditud korter} is an apartment somebody has fixed up. It keeps one shape wherever it stands, so in front of a noun with an ending only the noun changes: {suletud uks}, {suletud uksega}.",
       table: {
         head: ["The verb", "Done to it", "In a sentence"],
         rows: [
@@ -74,10 +75,10 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "It works like any describing word: after {on}, {Korter on remonditud}, or in front of the noun, {remonditud korter}.",
+        "It goes where any describing word goes: after {on}, to say what state the noun is in, {Korter on remonditud}, or in front of the noun, {remonditud korter}.",
         "{Avatud} and {suletud} are what a sign says. Talking, people say {lahti} and {kinni}: {Uks on kinni}.",
       ],
-      watchOut: "A -tud word in front of a noun never takes the noun's ending: {suletud uksega}, with -ga on the door alone.",
+      watchOut: "Don't give a -tud word the noun's ending. An ordinary describing word takes it, as the next lesson shows, but a -tud word keeps its one shape: {suletud uksega}, with -ga on the door alone.",
       examples: [2, 3, 6, 11],
     },
     listenFor: [
@@ -122,8 +123,8 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Siin on ju kümme tooli!", en: "There are ten chairs in here!" }, right: "tooli", wrong: "tool", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a number, the [osastav] (3rd form): {kümme tooli}." },
-      { line: { et: "Ma elan remonditud korteris.", en: "I live in a renovated apartment." }, right: "korteris", wrong: "korterisse", pair: ["INESSIVE", "ILLATIVE"], why: "Where you live is in, -s: {korteris}. The -tud word in front of it stays as it is." },
+      { line: { et: "Siin on ju kümme tooli!", en: "There are ten chairs in here!" }, right: "tooli", wrong: "tool", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a number from two up, the noun goes in the singular [osastav] (3rd form): {kümme tooli}, \"ten chair\". The number already says how many, so the noun doesn't need the plural. Only after {üks} does it stay in its plain form." },
+      { line: { et: "Ma elan remonditud korteris.", en: "I live in a renovated apartment." }, right: "korteris", wrong: "korterisse", pair: ["INESSIVE", "ILLATIVE"], why: "You live in an apartment, so it takes the [seesütlev] (-s, in): {korteris}. The [sisseütlev] (-sse, into) is for moving into one. And {remonditud} in front keeps its one shape whatever ending the noun takes." },
     ],
     faster: {
       ask: { et: "Milline su korter on?", en: "What's your apartment like?" },
@@ -167,7 +168,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
     ],
     patterns: ["agreement"],
     how: {
-      point: "A describing word takes its noun's ending: {suures heledas toas}, {uude korterisse}. With -ga, -na, -ni and -ta only the noun takes it, and the describing word stays in the [omastav] (2nd form): {väikese köögiga}.",
+      point: "A describing word in front of a noun goes into the same case as the noun, because in Estonian the two go together: in the big bright room is {suures heledas toas}, with -s on all three words, and into the new apartment is {uude korterisse}. Four endings are the exception: with -ga, -na, -ni and -ta only the noun takes the ending, and the describing word stays in the [omastav] (2nd form): {väikese köögiga}.",
       table: {
         head: ["As it is", "With the ending", "In English"],
         rows: [
@@ -178,12 +179,21 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "The describing word has a stem, as a noun does: {suure}, {heleda}, {väikese}. The noun's ending goes on that: {suures heledas toas}.",
+        "The ending goes on the describing word's stem, its [omastav] (2nd form), just as it does on a noun: {suure}, {heleda}, {väikese}, so {suures heledas toas}.",
         "{Uus} has a short into, {uude}, and it's the one people say: {uude korterisse}. It's the [lühike sisseütlev] (short into).",
-        "With -ga, -na, -ni and -ta the ending goes on the noun alone: {väikese köögiga}, {punase uksega}.",
+        "Why only the noun with -ga, -na, -ni and -ta? Those four endings go on once, at the end of the whole phrase, so the describing word in front needs only its stem: {väikese köögiga}, {punase uksega}.",
       ],
-      watchOut: "English describing words never change, so it's easy to say {suur} with {toas}. Give it the ending too: {suures toas}.",
+      watchOut: "English describing words never change, so it's easy to say {suur} with {toas}. To an Estonian ear that sounds wrong, because the two words don't match: give the describing word the ending too, {suures toas}.",
       examples: [1, 3, 5, 8],
+      why: {
+        word: "väike",
+        en: "small",
+        steps: DESCRIBING_WORD_STEPS,
+        lines: [
+          { line: 4, form: "väikeses", lands: { case: "INESSIVE", plural: false }, why: "The children sleep in the room, so {toas} takes the [seesütlev] (-s, in). A describing word goes into the same case as its noun, so {väike} takes -s on its stem too: {väikeses toas}." },
+          { line: 5, form: "väikese", lands: { case: "GENITIVE", plural: false }, why: "With a small kitchen is -ga, and -ga is one of the four endings, with -na, -ni and -ta, that only the noun takes. So {väike} stays on its stem, the [omastav] (2nd form): {väikese köögiga}. Earlier in the same line, {köök on väike} has {väike} on its own after {on}, so there it keeps its plain form." },
+        ],
+      },
     },
     listenFor: [
       { q: "What is Tom's message about?", options: ["His new job", "A problem with the kitchen", "A party at the café on Saturday night", "The family's new apartment"], answer: 3 },
@@ -228,9 +238,9 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Mu laud on suures heledas toas, akna juures.", en: "My desk is in the big bright room, by the window." }, right: "heledas", wrong: "hele", pair: ["INESSIVE", "NOMINATIVE"], why: "In the room, so the describing word is in it too: {heledas}." },
-      { line: { et: "Eelmisel nädalal kolisime me uude korterisse.", en: "Last week we moved into a new apartment." }, right: "uude", wrong: "uus", pair: ["ILLATIVE", "NOMINATIVE"], why: "Into the apartment, so into for {uus} as well: {uude}." },
-      { line: { et: "Me elame kolmandal korrusel, punase uksega korteris.", en: "We live on the third floor, in the apartment with the red door." }, right: "punase", wrong: "punasega", pair: ["GENITIVE", "COMITATIVE"], why: "With -ga only the noun takes the ending: {punase uksega}." },
+      { line: { et: "Mu laud on suures heledas toas, akna juures.", en: "My desk is in the big bright room, by the window." }, right: "heledas", wrong: "hele", pair: ["INESSIVE", "NOMINATIVE"], why: "The desk is in the room, so {toas} takes the [seesütlev] (-s, in). The describing words in front of it go into the same case: {suures heledas toas}, with -s on every word." },
+      { line: { et: "Eelmisel nädalal kolisime me uude korterisse.", en: "Last week we moved into a new apartment." }, right: "uude", wrong: "uus", pair: ["ILLATIVE", "NOMINATIVE"], why: "The family moved into the apartment, so {korterisse} is the [sisseütlev] (-sse, into), and {uus} goes into that case too. For {uus} the into form people say is the short one: {uude}." },
+      { line: { et: "Me elame kolmandal korrusel, punase uksega korteris.", en: "We live on the third floor, in the apartment with the red door." }, right: "punase", wrong: "punasega", pair: ["GENITIVE", "COMITATIVE"], why: "-ga is one of the four endings, with -na, -ni and -ta, that only the noun takes. So the describing word in front stays in the [omastav] (2nd form): {punase uksega}." },
     ],
     retell: {
       who: "Tom",
@@ -295,7 +305,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "kontrollis", of: "kontrollima", en: "he checked, she checked" },
     ],
     how: {
-      point: "A rule says what's {lubatud}, allowed, what's {keelatud}, not allowed, and what's {kohustuslik}, a must. The first two are -tud words, from {lubama} and {keelama}.",
+      point: "A rule says what is {lubatud}, allowed, what is {keelatud}, not allowed, and what is {kohustuslik}, a must. {Lubatud} and {keelatud} are -tud words from {lubama}, to allow, and {keelama}, to forbid: they say what has been decided about a thing, without naming who decided it.",
       table: {
         head: ["The rule", "In English"],
         rows: [
@@ -306,11 +316,11 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "A notice names the action in -mine: {suitsetamine}, smoking, {sorteerimine}, sorting. It's the verb made into a noun.",
-        "{Palume} is we ask, a notice's polite please. {Vabandust paluma} is to apologize.",
+        "A notice names the activity with -mine: {suitsetamine} is smoking, {sorteerimine} is sorting. That makes the verb into a noun, so it can be what the rule is about: {Suitsetamine on keelatud}.",
+        "{Palume} is we ask, the polite please a notice uses: {Palume öösel mitte müra teha}. {Vabandust paluma}, to ask for pardon, is to apologize.",
         "{Lubama} is to allow, and also to promise: {Ma luban} is I promise.",
       ],
-      watchOut: "After lesson 23 it's tempting to give {lubatud} the noun's ending. After {on} a -tud word stays as it is: {Koerad on lubatud}.",
+      watchOut: "After lesson 23 it's tempting to make {lubatud} match the noun. A -tud word keeps its one shape, after {on} too and with a plural too: {Koerad on lubatud}.",
       examples: [2, 4, 10, 12],
     },
     listenFor: [
@@ -356,8 +366,8 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ma tean. Mina kontrollin seda iga päev!", en: "I know. I check it every day!" }, right: "kontrollin", wrong: "kontrollib", pair: ["IndPrSg1", "IndPrSg3"], why: "Helgi means herself, so {mina kontrollin}. {Kontrollib} is she checks." },
-      { line: { et: "Väga õige. Mina ei suitseta üldse.", en: "Quite right. I don't smoke at all." }, right: "suitseta", wrong: "suitsetan", pair: ["IndPrPs_", "IndPrSg1"], why: "After {ei} the verb has no person ending: {ei suitseta}." },
+      { line: { et: "Ma tean. Mina kontrollin seda iga päev!", en: "I know. I check it every day!" }, right: "kontrollin", wrong: "kontrollib", pair: ["IndPrSg1", "IndPrSg3"], why: "Helgi is talking about herself, {mina}, so the verb takes the ending for I, -n: {mina kontrollin}. {Kontrollib}, with -b, would be she checks, about somebody else." },
+      { line: { et: "Väga õige. Mina ei suitseta üldse.", en: "Quite right. I don't smoke at all." }, right: "suitseta", wrong: "suitsetan", pair: ["IndPrPs_", "IndPrSg1"], why: "After {ei} the verb drops its person ending, the same for I, you or she: {ei suitseta}. The {ei} already says no, and it says nothing about who, so the verb doesn't either." },
     ],
     faster: {
       ask: { et: "Mis on sinu majas keelatud ja mis on lubatud?", en: "What isn't allowed in your building, and what is?" },
@@ -410,7 +420,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "vahetas", of: "vahetama", en: "he changed, she changed" },
     ],
     how: {
-      point: "Say what's wrong in one short sentence: {Kraan lekib}, {Valamu on ummistunud}, {Lamp ei tööta}. Then say what has to happen: {Toru tuleb vahetada}.",
+      point: "To say what's wrong, name the noun and say what it's doing or what state it's in, in one short sentence: {Kraan lekib}, {Valamu on ummistunud}, {Lamp ei tööta}. Then say what has to happen with {tuleb} and the [da-tegevusnimi] (-da): {Toru tuleb vahetada}, the pipe has to be changed.",
       table: {
         head: ["What's wrong", "In English"],
         rows: [
@@ -421,12 +431,22 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Tuleb} with a [da-tegevusnimi] (-da) says what has to be done, and nobody is named: {Toru tuleb vahetada}. What it's done to is in the [nimetav] (1st form), as in a command.",
-        "{Ummistunud} is a -nud word: it says what has happened to the sink, so after {on} it works like {katki}.",
-        "{Võimalik, et} is maybe: {Võimalik, et toru tuleb välja vahetada}, the pipe may need replacing.",
+        "{Tuleb} with a [da-tegevusnimi] (-da) says a job has to be done without saying who does it: {Toru tuleb vahetada}. With nobody named as the one doing it, the whole thing the job is done to goes in the [nimetav] (1st form), {toru}, exactly as in a command.",
+        "{Ummistunud} is a -nud word: it says what has happened to the sink, it got blocked. After {on} it describes the state the sink is in now, the way {katki} does.",
+        "{Võimalik, et} opens a maybe, it's possible that: {Võimalik, et toru tuleb välja vahetada}, the pipe may need replacing.",
       ],
-      watchOut: "To fix is {parandama}; to change for a new one is {vahetama}. A handyman fixes a tap, but you change a bulb.",
+      watchOut: "To fix something is {parandama}; to change it for a new one is {vahetama}. A handyman fixes a leaking tap, but nobody fixes a dead bulb, you change it: {Vahetage pirn ise ära}.",
       examples: [2, 6, 9],
+      why: {
+        word: "pirn",
+        en: "light bulb",
+        steps: ONE_OBJECT_STEPS,
+        lines: [
+          { line: 11, form: "pirn", lands: { case: "NOMINATIVE", plural: false }, why: "Urmas is telling Tom what to do: {vahetage} is a command. In a command nobody is named as the one doing it, so the whole thing goes in the [nimetav] (1st form): {pirn}, the same as {toru} after {tuleb}." },
+          { line: 12, form: "pirni", lands: { case: "PARTITIVE", plural: false }, why: "{Pole} is a no: Tom hasn't got a bulb. A no always takes the [osastav] (3rd form), whatever is meant, so {uut pirni}, with the describing word in it too." },
+          { line: 13, form: "pirni", lands: { case: "GENITIVE", plural: false }, why: "Here the sentence says who does it, {meister}, and he will bring one whole bulb: the job will get done. A whole thing with the job done goes in the [omastav] (2nd form): {pirni}. It's spelled the same as the [osastav] (3rd form) in {uut pirni}, but the reason is different. With {meister} you can hear the difference: {Ma saadan homme meistri}." },
+        ],
+      },
     },
     listenFor: [
       { q: "What is wrong in the kitchen?", options: ["The fridge is broken", "The tap is leaking", "The window won't shut", "The light isn't working"], answer: 1 },
@@ -471,8 +491,8 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Aga mul pole uut pirni.", en: "But I don't have a new bulb." }, right: "pirni", wrong: "pirn", pair: ["PARTITIVE", "NOMINATIVE"], why: "After {pole}, the [osastav] (3rd form): {uut pirni}." },
-      { line: { et: "Võimalik, et toru tuleb välja vahetada. Ma saadan homme meistri.", en: "The pipe may need replacing. I'll send a repairman tomorrow." }, right: "meistri", wrong: "meister", pair: ["GENITIVE", "NOMINATIVE"], why: "Urmas says what he'll do himself, so the whole handyman takes the [omastav] (2nd form): {meistri}. The [nimetav] (1st form) is for a whole thing in a command, or one that needs doing after {tuleb}, like {toru} just before." },
+      { line: { et: "Aga mul pole uut pirni.", en: "But I don't have a new bulb." }, right: "pirni", wrong: "pirn", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Pole} is a no: Tom hasn't got a bulb. A no always puts the noun in the [osastav] (3rd form), because there's no whole bulb to point to: {mul pole uut pirni}, with the describing word {uut} in it too." },
+      { line: { et: "Võimalik, et toru tuleb välja vahetada. Ma saadan homme meistri.", en: "The pipe may need replacing. I'll send a repairman tomorrow." }, right: "meistri", wrong: "meister", pair: ["GENITIVE", "NOMINATIVE"], why: "Urmas says what he will do himself, {ma saadan}, and he means one whole handyman, sent and arriving: the job will get done. A whole thing with the job done goes in the [omastav] (2nd form): {meistri}. The [nimetav] (1st form) {meister} is for when nobody is named as the one doing it, in a command or after {tuleb}, like {toru} just before." },
     ],
     retell: {
       who: "Tom",
@@ -535,7 +555,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "kriimustatud", of: "kriimustama", en: "scratched" },
     ],
     how: {
-      point: "A contract's words: {üür} is the rent, {tagatisraha} the deposit, and to give notice is {ette teatama}: {kaks kuud ette}, two months ahead.",
+      point: "A contract has its own words: {üür} is the rent, {tagatisraha} the deposit, and to give notice is {ette teatama}, to let somebody know ahead: {kaks kuud ette}, two months ahead.",
       table: {
         head: ["In the contract", "In English"],
         rows: [
@@ -546,11 +566,11 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Ette} after a stretch of time is ahead: {kaks kuud ette}. After {kaks}, {kolm} and up, the noun takes the [osastav] (3rd form): {kaks kuud}. When the number itself takes an ending, the noun takes the same one: {ühe kuu üür}, {kümne minuti pärast}.",
-        "{Osa} is a part, and what it's a part of takes -st: {osa tagatisrahast}, part of the deposit.",
+        "{Ette} after a stretch of time says how far ahead: {kaks kuud ette}. After a number from two up, the noun goes in the singular [osastav] (3rd form), {kaks kuud}, because the number already says how many. When the number itself takes an ending, the noun takes the same one: {ühe kuu üür}, one month's rent, has {üks} and {kuu} both in the [omastav] (2nd form).",
+        "{Osa} is a part, and what it's a part of takes the [seestütlev] (-st, out of), as if the part were taken out of it: {osa tagatisrahast}, part of the deposit.",
         "{Siin on kirjas} is how you point at what a paper says: it says here.",
       ],
-      watchOut: "Moving out is {välja kolima}, with {välja}: {Ma kolin välja}. {Ma kolin} alone could be moving anywhere.",
+      watchOut: "Moving out is {välja kolima}, with {välja}, out: {Ma kolin välja}. {Ma kolin} on its own only says you're moving, in, out or anywhere else.",
       examples: [4, 6, 11],
     },
     listenFor: [
@@ -596,8 +616,8 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ma lõpetan lepingu.", en: "I'm ending the contract." }, right: "lepingu", wrong: "lepingut", pair: ["GENITIVE", "PARTITIVE"], why: "Ending a contract is a whole job done, so the [omastav] (2nd form): {lepingu}." },
-      { line: { et: "Üürnik peab kaks kuud ette teatama.", en: "The tenant has to give two months' notice." }, right: "kuud", wrong: "kuu", pair: ["PARTITIVE", "NOMINATIVE"], why: "After {kaks}, the [osastav] (3rd form): {kaks kuud}." },
+      { line: { et: "Ma lõpetan lepingu.", en: "I'm ending the contract." }, right: "lepingu", wrong: "lepingut", pair: ["GENITIVE", "PARTITIVE"], why: "Tom ends the contract, the whole of it, and once it's ended the job is done. A whole thing with the job done goes in the [omastav] (2nd form): {lepingu}. After {ei} it would be the [osastav] (3rd form), {lepingut}, because a no always takes it." },
+      { line: { et: "Üürnik peab kaks kuud ette teatama.", en: "The tenant has to give two months' notice." }, right: "kuud", wrong: "kuu", pair: ["PARTITIVE", "NOMINATIVE"], why: "After {kaks}, as after any number from two up, the noun goes in the singular [osastav] (3rd form): {kaks kuud}. The number says how many, so the noun stays singular. Only after {üks} does it keep its plain form." },
     ],
     faster: {
       ask: { et: "Mis sinu üürilepingus kirjas on?", en: "What does your rental contract say?" },
@@ -656,7 +676,7 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "hiljemalt", en: "at the latest" },
     ],
     how: {
-      point: "A complaint opens politely, says what's wrong and since when, says what you've done, and asks for one thing by a date: {Palun saatke meister hiljemalt reedeks}.",
+      point: "A complaint has four parts, in this order: it opens politely, says what's wrong and since when, says what you've already done about it, and asks for one thing by a date: {Palun saatke meister hiljemalt reedeks}.",
       table: {
         head: ["Part of the letter", "In Estonian"],
         rows: [
@@ -668,11 +688,11 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Juba nädal aega} is for a week now, and the verb usually stays in the present: {Küte ei tööta juba nädal aega}. {Küte pole juba nädal aega töötanud} says the same with has been, as English does.",
-        "In a letter to a landlord you write {teie} all the way through: {Ma ootan teie vastust}.",
-        "{Hiljemalt reedeks} is by Friday at the latest: -ks on a day says by then.",
+        "{Juba nädal aega} is for a week now. The verb usually stays in the present, because the heating still isn't working today: {Küte ei tööta juba nädal aega}. {Küte pole juba nädal aega töötanud} says the same with has been, as English does.",
+        "In a letter to a landlord you write {teie}, the polite you, all the way through: {Ma ootan teie vastust}.",
+        "{Hiljemalt reedeks} is by Friday at the latest: the [saav] (-ks, becoming) on a day sets a deadline, by then.",
       ],
-      watchOut: "English needs has been: it hasn't worked for a week. Estonian can keep the plain present, {Küte ei tööta juba nädal aega}, and that is what you'll hear most.",
+      watchOut: "English needs has been: it hasn't worked for a week. Estonian can keep the plain present, {Küte ei tööta juba nädal aega}, because the trouble is still going on today, and that is what you'll hear most.",
       examples: [1, 6, 8],
     },
     listenFor: [
@@ -718,9 +738,9 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ma ootan teie vastust.", en: "I look forward to your answer." }, right: "vastust", wrong: "vastus", pair: ["PARTITIVE", "NOMINATIVE"], why: "Waiting goes on, so the [osastav] (3rd form): {vastust}." },
-      { line: { et: "Palun saatke meister hiljemalt reedeks.", en: "Please send a handyman by Friday at the latest." }, right: "meister", wrong: "meistri", pair: ["NOMINATIVE", "GENITIVE"], why: "A command keeps the whole thing in the [nimetav] (1st form), even with {palun}: {saatke meister}." },
-      { line: { et: "Tom, miks sa tööl mütsi kannad?", en: "Tom, why are you wearing a hat at work?" }, right: "mütsi", wrong: "müts", pair: ["PARTITIVE", "NOMINATIVE"], why: "Wearing goes on, so the [osastav] (3rd form): {mütsi}." },
+      { line: { et: "Ma ootan teie vastust.", en: "I look forward to your answer." }, right: "vastust", wrong: "vastus", pair: ["PARTITIVE", "NOMINATIVE"], why: "Waiting goes on until the answer comes and is never a job done to the answer, so the noun you wait for is always in the [osastav] (3rd form): {Ma ootan teie vastust}." },
+      { line: { et: "Palun saatke meister hiljemalt reedeks.", en: "Please send a handyman by Friday at the latest." }, right: "meister", wrong: "meistri", pair: ["NOMINATIVE", "GENITIVE"], why: "{Saatke} is a command, a polite one, and {palun} doesn't change that. In a command nobody is named as the one doing it, so the whole thing goes in the [nimetav] (1st form): {saatke meister}." },
+      { line: { et: "Tom, miks sa tööl mütsi kannad?", en: "Tom, why are you wearing a hat at work?" }, right: "mütsi", wrong: "müts", pair: ["PARTITIVE", "NOMINATIVE"], why: "Wearing a hat goes on, and is never a job that gets done, so the hat is in the [osastav] (3rd form): {mütsi}, whether you wear it for a minute or all week." },
     ],
     write: {
       genre: "A complaint to the landlord",
@@ -793,13 +813,13 @@ export const B1_KODU_LESSONS: readonly LessonSpec[] = [
     ],
     teaches: [],
     how: {
-      point: "Moving out, with everything the move has taught you: what the apartment is like in -tud words ({kriimustatud}), what's in the contract ({lepingus kirjas}), what broke and what you fixed, and the deposit.",
+      point: "Moving out, with everything the move has taught you: what the apartment is like, in -tud words ({kriimustatud}), what the contract says ({lepingus kirjas}), what broke and what you fixed, and the deposit.",
       notes: [
-        "Disagree politely: {Vabandust, aga} and then the fact. {Vabandage, aga} says the same to somebody you call {teie}.",
-        "Point at the paper: {See on lepingus kirjas}.",
-        "Then ask for the one thing you want: {Kas ma saan terve tagatisraha tagasi?}",
+        "To disagree politely, say {Vabandust, aga} and then the fact, and let the fact do the arguing. {Vabandage, aga} is the same to somebody you call {teie}.",
+        "Then point at the paper: {See on lepingus kirjas}, it's written in the contract.",
+        "Last, ask for the one thing you want: {Kas ma saan terve tagatisraha tagasi?}",
       ],
-      watchOut: "After {oli} a -tud word still takes no ending: {Põrand oli juba kriimustatud}.",
+      watchOut: "In the past, after {oli}, a -tud word still keeps its one shape: {Põrand oli juba kriimustatud}.",
       examples: [3, 5, 10],
     },
     listenFor: [

@@ -12,6 +12,7 @@
  */
 
 import type { LessonSpec, PartOfLessons } from "./types";
+import { ANY_AT_ALL_STEPS, DAY_STEPS, INSIDE_STEPS } from "./why-a2-reis";
 
 export const A2_REIS_PART: PartOfLessons = {
   id: "a2-reis",
@@ -52,7 +53,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "rongi", of: "rong", en: "of the train", stem: true },
     ],
     how: {
-      point: "A timetable says {väljub} and {saabub}: leaves and arrives. A train leaves from a platform with -lt, and arrives into a town with -sse.",
+      point: "A timetable says {väljub}, leaves, and {saabub}, arrives, and the ending on the place shows which way the train is going. A platform is something you stand on, so leaving it is coming off it: -lt, the [alaltütlev] (-lt, off), {perroonilt}. A town is somewhere you go into, so arriving is going into it: -sse, the [sisseütlev] (-sse, into), {Tartusse}.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -65,9 +66,9 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
       notes: [
         "{Ühe otsa} is one way, and {edasi-tagasi} there and back. The ticket seller asks which.",
         "In everyday talk, {läheb} and {tuleb} work too: {Millal rong läheb?} {Väljub} is the word on the board.",
-        "Platform one is the first platform: {esimeselt perroonilt}, from part one's {esimene} with -lt on its stem.",
+        "Platform one is said as the first platform. {Esimene}, first, sits in front of the platform, so it takes the same -lt on its own stem: {esimeselt perroonilt}, from the first platform.",
       ],
-      watchOut: "Arrive is into a place: {saabub Tartusse}, with -sse, as English says arrive in.",
+      watchOut: "English says arrive in Tartu, which makes you want {Tartus}, in Tartu. Estonian sees arriving as going into the town, so it takes -sse: {Rong saabub Tartusse}. {Tartus} is for being there once you've arrived: {Mis kell see Tartus on?}",
       examples: [1, 3, 5],
     },
     answers: [
@@ -109,7 +110,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "Head reisi!", en: "Have a good trip!" },
     ],
     how: {
-      point: "Until and as far as is -ni on the stem: {reede} and then {reedeni}, {kesklinna} and then {kesklinnani}. It's [rajav] (-ni, until), for time and for place alike.",
+      point: "-ni, the [rajav] (-ni, until), marks the point where something stops: until a time, or as far as a place. Like most endings it goes on the word's stem, the [omastav] (2nd form): {reede} gives {reedeni}, until Friday, and {kesklinna} gives {kesklinnani}, as far as the town center.",
       table: {
         head: ["Stem", "Until, as far as"],
         rows: [
@@ -120,12 +121,21 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "From and to go together: {esmaspäevast reedeni} is from Monday to Friday, {jaamast kesklinnani} from the station to the town center.",
-        "Until five o'clock puts both words on their stem and -ni on the last: {kella viieni}.",
+        "A stretch of time or of road has a start and an end, and each gets its own ending: the start takes -st, from, and the end takes -ni, until. So {esmaspäevast reedeni} is from Monday to Friday, and {jaamast kesklinnani} is from the station to the town center.",
+        "With a clock time, both words go on their stem, {kella viie}, and only the last one takes -ni: {kella viieni}, until five o'clock.",
         "{Kuni} in front says the same a little more firmly: {kuni reedeni}.",
       ],
-      watchOut: "{Tartusse} is into Tartu, where you're going. {Tartuni} is as far as Tartu, where something stops.",
+      watchOut: "-sse and -ni both point somewhere, so they're easy to mix up. -sse says you go into the place and arrive there: {Tartusse}. -ni says something goes as far as that point and stops there: {Tartuni}. You travel {Tartusse}; a road that ends at Tartu goes {Tartuni}.",
       examples: [1, 2, 5],
+      why: {
+        word: "reede",
+        en: "Friday",
+        steps: DAY_STEPS,
+        lines: [
+          { line: 1, form: "reedeni", lands: { case: "TERMINATIVE", plural: false }, why: "Tom is saying how long he'll be in Tartu, and Friday is when his stay stops. The end of a stretch of time takes -ni, the [rajav] (-ni, until): {reedeni}. The start of the stretch, Monday, takes -st: {esmaspäevast}." },
+          { line: 5, form: "reedel", lands: { case: "ADESSIVE", plural: false }, why: "Here Friday isn't where something stops. It's the day Tom is at the office. A day something happens on takes -l, the [alalütlev] (-l, on/at/has): {reedel}, on Friday. Every day of the week works the same way." },
+        ],
+      },
     },
     answers: [
       { ask: { et: "Kui kaua sa Tartus oled?", en: "How long are you in Tartu?" }, cue: "Say until Friday.", model: { et: "Reedeni.", en: "Until Friday." } },
@@ -163,7 +173,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "tasuta", en: "free, costing nothing" },
     ],
     how: {
-      point: "At a hotel, times run from and until: {seitsmest kümneni}, from seven to ten. The number goes on its stem, then -st and -ni.",
+      point: "At a hotel, times run from one hour to another: {seitsmest kümneni}, from seven to ten. It's the same pair as from Monday to Friday: the number goes on its stem, the start takes -st and the end takes -ni.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -174,12 +184,21 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "A night is {öö}, and two nights {kaks ööd}, in the [osastav] (3rd form) after a number like {kaks kohvi}.",
+        "A night is {öö}. After a number, the word goes in the singular [osastav] (3rd form), so two nights is {kaks ööd}, the same way you order {kaks kohvi}. It stays singular because the number already says how many.",
         "{Eks} at the end asks for a yes: {Kaks ööd, eks?} is two nights, right?",
         "{Tasuta} is free of charge, and {vaba} free to use, as in part four: {Kas tuba on vaba?}",
       ],
-      watchOut: "A room is {tuba}, and in the room is {toas}, on its stem {toa}. The -s ending goes on {toa}, not on {tuba} itself.",
+      watchOut: "A room is {tuba}, but in the room is {toas}. Endings go on the word's stem, the [omastav] (2nd form), and for {tuba} that's {toa}: the b drops out and the u turns into o. So {toa} with -s gives {toas}.",
       examples: [0, 1, 5],
+      why: {
+        word: "tuba",
+        en: "room",
+        steps: INSIDE_STEPS,
+        lines: [
+          { line: 3, form: "tuba", lands: { case: "NOMINATIVE", plural: false }, why: "Here the room is what the sentence is about: your room is on the third floor. The one the sentence talks about stays in its plain form, the [nimetav] (1st form): {tuba}. Where it is gets its own words, {kolmandal korrusel}." },
+          { line: 6, form: "toas", lands: { case: "INESSIVE", plural: false }, why: "Tom is asking about the wifi, and the room is where the wifi would be: inside it. Being in a place takes -s, the [seesütlev] (-s, in), and it goes on the stem {toa}: {toas}." },
+        ],
+      },
     },
     answers: [
       { cue: "Tell the hotel you have a booking.", model: { et: "Tere! Mul on broneering.", en: "Hello! I have a booking." } },
@@ -225,7 +244,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "hotelli", of: "hotell", en: "of the hotel", stem: true },
     ],
     how: {
-      point: "A trip told afterwards is part three again: {sõitsime}, {ööbisite}, {käisime}. Learn the [lihtminevik] (past) for I and for he or she, and the rest follow.",
+      point: "A trip told afterwards is in the [lihtminevik] (past) from part three: {sõitsime}, we went, {ööbisite}, you stayed, {käisime}, we visited. Learn the past for I and for he or she, and you can make the rest: they share a stem, and only the ending changes for who it is.",
       table: {
         head: ["I", "He, she", "We"],
         rows: [
@@ -237,9 +256,9 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
       notes: [
         "{Reis} is the whole trip, and {sõit} the ride itself: {Sõit kestis kaks tundi}.",
         "{Ööbima} is to stay somewhere overnight, the word for a hotel or a friend's sofa.",
-        "Where you stayed is -s on the stem: {väikeses hotellis}. The describing word takes the ending too, like in part two.",
+        "Where you stayed is a place you were inside, so the hotel takes -s, the [seesütlev] (-s, in): {hotellis}. A describing word in front takes the same ending: {väikeses hotellis}, in a small hotel.",
       ],
-      watchOut: "{Kestis} is how long something lasted. How long you were somewhere is {olin}: {Ma olin seal kaks päeva}.",
+      watchOut: "{Kestis}, lasted, is for a journey or an event: {Sõit kestis kaks tundi}. For how long you yourself were somewhere, use {olin}, I was: {Ma olin seal kaks päeva}. After the number, the length of time goes in the singular [osastav] (3rd form): {tundi}, {päeva}.",
       examples: [1, 3, 5],
     },
     answers: [
@@ -280,7 +299,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "ääres", en: "by, at the edge of" },
     ],
     how: {
-      point: "How far is {Kui kaugel?}, and the answer runs from one place to the other: {Tallinnast Pärnuni}, with -st on the first and -ni on the second.",
+      point: "To ask how far, say {Kui kaugel?} The answer runs from one place to the other, and each end gets its own ending: the starting point takes -st, from, and the end point takes -ni, as far as. So {Tallinnast Pärnuni} is from Tallinn to Pärnu.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -292,10 +311,10 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "{Kas sinna saab bussiga?} is can you get there by bus: {saab} with nobody in front of it means it can be done.",
-        "{Ääres} comes after its word, on the stem: {mere ääres}, by the sea. It works like {laua peal} in part one.",
+        "{Ääres}, by, comes after its word, and that word goes in the [omastav] (2nd form): {meri} becomes {mere ääres}, by the sea. It works like {laua peal} in part one.",
         "{Umbes} is about, for a number you're not sure of: {umbes kaks tundi}.",
       ],
-      watchOut: "{Kilomeetrit} after a number is the [osastav] (3rd form), like {kaks tundi}: one {kilomeeter}, a hundred {kilomeetrit}.",
+      watchOut: "After a number, the word goes in the singular [osastav] (3rd form), because the number already says how many: {sada kolmkümmend kilomeetrit}, {kaks tundi}. One is the exception: after {üks} the word stays in its plain form, {üks kilomeeter}.",
       examples: [0, 1, 5],
     },
     answers: [
@@ -341,7 +360,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "valmis", en: "ready" },
     ],
     how: {
-      point: "How you go is -ga: {laevaga}, {lennukiga}, {rongiga}. Where from is -st: {sadamast}. Where to is -sse, and some words have a short form too: {lennujaama} is the same as {lennujaamasse}.",
+      point: "How you travel takes -ga, the [kaasaütlev] (-ga, with): {laevaga}, by boat, {lennukiga}, by plane. The place takes the ending for where you are: inside it is -s, {lennujaamas}; coming out of it is -st, {sadamast}; going into it is -sse. Some words also have a short way to say into: {lennujaama} is the same as {lennujaamasse}.",
       table: {
         head: ["By", "At", "From"],
         rows: [
@@ -351,7 +370,7 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Lennujaam} is a flight station, {lennu} plus {jaam}, and {lennuk} comes from the same word. The endings go on its last part, {lennujaama}.",
+        "{Lennujaam}, airport, is two words joined: {lennu}, of a flight, and {jaam}, station. Only the last part changes, so it takes {jaam}'s endings: {lennujaamas}, {lennujaamast}.",
         "{Ma lendan} is I fly. But you can always say {Ma sõidan lennukiga} too.",
         "{Valmis} is ready, and it never changes: {Pass on valmis}, {Ma olen valmis}.",
       ],
@@ -391,8 +410,17 @@ export const A2_REIS_LESSONS: readonly LessonSpec[] = [
         "The seller asks the questions in a fixed order: where, when, one way or round trip, when you're coming back.",
         "At the end, the seller speaks to you. Answer as yourself, one turn at a time.",
       ],
-      watchOut: "{Kas homme on bussi?} is is there a bus tomorrow: when you ask whether there is any at all, the noun ({bussi} here) often takes the [osastav] (3rd form) after {kas on}.",
+      watchOut: "When you ask whether there is any at all, the noun usually goes in the [osastav] (3rd form): {Kas homme hommikul on bussi?} You're asking about any bus, not one you already know. Once it's a particular bus, it's back in its plain form: {Buss väljub teiselt perroonilt}.",
       examples: [1, 3, 5],
+      why: {
+        word: "buss",
+        en: "bus",
+        steps: ANY_AT_ALL_STEPS,
+        lines: [
+          { line: 1, form: "bussi", lands: { case: "PARTITIVE", plural: false }, why: "Tom doesn't have a bus in mind yet. He's asking whether there is a bus at all tomorrow morning, any bus. A question like that usually puts the noun in the [osastav] (3rd form): {bussi}. Saying there isn't one always does." },
+          { line: 6, form: "buss", lands: { case: "NOMINATIVE", plural: false }, why: "Now it's a particular bus, the one Tom is buying a ticket for, and the sentence says what it does: it leaves from platform two. The one doing something stays in its plain form, the [nimetav] (1st form): {buss}." },
+        ],
+      },
     },
     answers: [
       { ask: { et: "Kuhu te sõidate?", en: "Where are you traveling to?" }, cue: "Say to Pärnu, and ask if there's a bus tomorrow morning.", model: { et: "Pärnusse. Kas homme hommikul on bussi?", en: "To Pärnu. Is there a bus tomorrow morning?" } },

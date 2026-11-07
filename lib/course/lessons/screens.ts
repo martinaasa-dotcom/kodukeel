@@ -24,7 +24,7 @@ import type { LessonSpec } from "./types";
  */
 export type ListenScreen = "news" | "hear" | "conversation" | "notes" | "read";
 export type WordsScreen = "words" | "forms";
-export type HowScreen = "idea" | "sounds" | "pairs" | "spell" | "examples";
+export type HowScreen = "idea" | "why" | "sounds" | "pairs" | "spell" | "examples";
 /** A step whose own card already walks one task at a time. */
 export type TaskScreen = "task";
 export type LessonScreen = ListenScreen | WordsScreen | HowScreen | TaskScreen;
@@ -67,6 +67,8 @@ export function screensOf(step: LessonStepId, lesson: Pick<LessonSpec, "conversa
   if (step === "how") {
     const { how } = lesson;
     const out: HowScreen[] = ["idea"];
+    // "Why this form?" is a task of its own: tap through the questions for one of today's lines.
+    if (how.why) out.push("why");
     if (how.sounds && how.sounds.length > 0) out.push("sounds");
     if (how.listen && how.listen.length > 0) out.push("pairs");
     if (how.spell) out.push("spell");

@@ -19,6 +19,10 @@ import { multiplierFor, roundPaceFrom } from "@/lib/ux/roundClock";
 import type { LessonWorksheet } from "@/lib/course/lessonWorksheet";
 import { lessonDayFor } from "@/lib/course";
 import { verbExamples, type VerbExample } from "@/lib/progress/verbExamples";
+import { buildCaseTable, shownForms, stemsFrom } from "@/lib/estonian/derive";
+import { CASES } from "@/lib/estonian/cases";
+import type { CaseKey } from "@/lib/estonian/types";
+import { bySubstance } from "@/lib/dict/search";
 import { lessonHeads, lessonStars } from "@/lib/progress/wordCards";
 import { wordsLayout, type WordsLayout } from "@/lib/course/lessons/wordCards";
 
@@ -77,6 +81,8 @@ export interface LessonView {
    * worked out by the screen; empty on every other lesson.
    */
   forms: readonly VerbExample[];
+  /** The table a "Why this form?" step lands in (`caseFormsFor`); null where the lesson has none. */
+  caseForms: CaseForms | null;
   /** The Words step as cards, which case and number each taught spelling is read off the dictionary (`wordsLayout`). */
   words: WordsLayout;
   /** Each taught spelling's dictionary entry and whether the learner starred it, for the star on a Practice question. */
@@ -125,6 +131,43 @@ async function formsTable(ownerId: string, lesson: LessonSpec): Promise<VerbExam
   return [...verbs].sort((a, b) => lemmas.indexOf(a.lemma) - lemmas.indexOf(b.lemma));
 }
 
+/** The three basic cases a "Why this form?" table always shows, before any other its lines land in. */
+const BASIC_CASES: readonly CaseKey[] = ["NOMINATIVE", "GENITIVE", "PARTITIVE"];
+
+export interface CaseForms {
+  word: string;
+  rows: readonly { case: CaseKey; sg: readonly string[]; pl: readonly string[] }[];
+}
+
+/**
+ * The word a "Why this form?" step is about, in its three basic cases, one and
+ * more than one, plus any other case one of its answers lands on, read off the
+ * dictionary and never typed by the lesson: the table the questions land in.
+ * Null where the lesson has no such step, and where the dictionary holds no
+ * entry with forms for the word, so the step draws its questions without a
+ * table rather than a table of gaps.
+ */
+async function caseFormsFor(lesson: LessonSpec): Promise<CaseForms | null> {
+  const why = lesson.how.why;
+  if (!why) return null;
+  const landed = new Set<CaseKey>(why.steps.flatMap((s) => s.answers.flatMap((a) => (a.lands ? [a.lands.case] : []))));
+  const shown = CASES.map((c) => c.key).filter((k) => BASIC_CASES.includes(k) || landed.has(k));
+  const entries = await prisma.lexeme.findMany({
+    where: { lemma: why.word, ...VOUCHED_ROW },
+    orderBy: { id: "asc" },
+    select: { id: true, pos: true, provenance: true, forms: { select: { formType: true, value: true, morphCode: true } } },
+  });
+  const entry = [...entries].sort(bySubstance)[0];
+  if (!entry) return null;
+  const table = buildCaseTable(stemsFrom(entry.forms));
+  const rows = shown.map((key) => {
+    const found = table.find((d) => d.spec.key === key);
+    /* Every spelling the dictionary prints for a cell: `minule / mulle`, `tuppa / toasse`, so the line's own one is there. */
+    return { case: key, sg: found ? shownForms(found) : [], pl: found?.plural ? [found.plural] : [] };
+  });
+  return rows.some((r) => r.sg.length || r.pl.length) ? { word: why.word, rows } : null;
+}
+
 /**
  * One lesson's view for a learner, or null where there is no such lesson.
  *
@@ -142,7 +185,7 @@ export async function lessonView(
   const lesson = lessonById(lessonId) ?? (allowPreview ? PREVIEW_LESSONS.find((l) => l.id === lessonId) ?? null : null);
   if (!lesson) return null;
   // Every read at once: none of them needs another's answer, and each is a round trip.
-  const [mixups, nameSetting, pace, queue, passed, states, read, notes, forms, heads, stars] = await Promise.all([
+  const [mixups, nameSetting, pace, queue, passed, states, read, notes, forms, heads, stars, caseForms] = await Promise.all([
     lesson.fixes?.length
       ? prisma.review.findMany({
         where: { ownerId, reachedSlot: { not: null } },
@@ -162,6 +205,7 @@ export async function lessonView(
     formsTable(ownerId, lesson),
     lessonHeads(lesson),
     lessonStars(ownerId, lesson),
+    caseFormsFor(lesson),
   ]);
   const { closes, after, ...built } = lessonPlan(lesson, confusions(mixups).map((c) => c.pair));
   /*
@@ -223,6 +267,7 @@ export async function lessonView(
     read,
     notes,
     forms,
+    caseForms,
     words: wordsLayout(lesson, heads),
     stars,
   };

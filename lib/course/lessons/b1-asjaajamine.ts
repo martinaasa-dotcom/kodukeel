@@ -20,6 +20,7 @@
  */
 
 import type { LessonSpec, PartOfLessons } from "./types";
+import { ONE_THING_STEPS } from "./why-asjaajamine";
 
 export const B1_ASJAAJAMINE_PART: PartOfLessons = {
   id: "b1-asjaajamine",
@@ -77,7 +78,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
     ],
     patterns: ["particleVerb"],
     how: {
-      point: "You've met small words after a verb all through B1. Forms are full of them, and there the small word is half the verb: {alla kirjutama} is to sign, {ära täitma} to fill a form in, and {ära saatma} to send it off.",
+      point: "You've met small words after a verb all through B1. On a form they matter most, because there the small word carries half of what the verb means: {kirjutama} on its own is to write, but {alla kirjutama} is to sign, {ära täitma} is to fill a form in completely, and {ära saatma} is to send it off.",
       table: {
         head: ["The verb", "With its small word", "In English"],
         rows: [
@@ -89,12 +90,22 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "In a plain sentence the small word goes to the end: {Ma kirjutasin alla}, {Ma saadan blanketi kohe ära}.",
-        "{Ära} finishes the job, as at the start of B1. {Alla} is down, {tagasi} is back, and {kirja} is into writing.",
-        "A command, polite or not, keeps the whole thing in the [nimetav] (1st form): {Täitke see blankett ära}. Say it happened and it's the [omastav] (2nd form): {Ma täitsin blanketi ära}.",
+        "In an ordinary sentence the small word goes to the end, after everything else: {Ma kirjutasin alla}, {Ma saadan blanketi kohe ära}.",
+        "{Ära} after a verb says the job gets finished, as at the start of B1. The others say where something goes: {alla} is down, under the text, {tagasi} is back, and {kirja} is into writing.",
+        "The form changes its ending in this conversation, and the reason is what happens to it. Margus tells Tom to fill it in, which is a command, so it stays in the [nimetav] (1st form): {Täitke see blankett ära}. Tom then says he has filled in all of it, so the whole form with the job done takes the [omastav] (2nd form): {Ma täitsin blanketi ära}.",
       ],
-      watchOut: "Learn the small word with its verb, like one word: {alla kirjutama} is to sign, and {kirjutama} on its own never means it.",
+      watchOut: "Learn the small word together with its verb, as if they were one word. {Kirjutama} on its own is to write, and only {alla kirjutama} is to sign, so leaving out {alla} changes what you're saying.",
       examples: [1, 5, 9, 11],
+      why: {
+        word: "blankett",
+        en: "a form, on paper",
+        steps: ONE_THING_STEPS,
+        lines: [
+          { line: 1, form: "blankett", lands: { case: "NOMINATIVE", plural: false }, why: "Margus is telling Tom what to do: {täitke} is a command, and {palun} only makes it polite. A command about a whole thing keeps it in its plain form, the [nimetav] (1st form): {see blankett}, even though the whole form is to be filled in." },
+          { line: 4, form: "blanketi", lands: { case: "GENITIVE", plural: false }, why: "This isn't a command: Tom says what he did. He filled in every line, and {ära} says the job is finished. A whole thing with the job done takes the [omastav] (2nd form): {blanketi}." },
+          { line: 9, form: "blanketi", lands: { case: "GENITIVE", plural: false }, why: "Margus says what he'll do next, which isn't a command either. It hasn't happened yet, but he'll send the whole form off, and {ära} says the job will get done. So it's the [omastav] (2nd form) again: {blanketi}." },
+        ],
+      },
     },
     listenFor: [
       { q: "Why is Tom at the bank?", options: ["He wants to open an account", "He lost his wallet", "He needs cash", "His card broke"], answer: 3 },
@@ -138,9 +149,9 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Nii. Ma täitsin blanketi ära.", en: "There. I've filled in the form." }, right: "blanketi", wrong: "blankett", pair: ["GENITIVE", "NOMINATIVE"], why: "Tom says what he did, which isn't a command, so the whole form takes the [omastav] (2nd form): {blanketi}. The [nimetav] (1st form), {blankett}, is for a command." },
-      { line: { et: "Selge. Palun täitke see blankett ära.", en: "Sure. Please fill in this form." }, right: "blankett", wrong: "blanketi", pair: ["NOMINATIVE", "GENITIVE"], why: "A command keeps the whole thing in the [nimetav] (1st form): {see blankett}." },
-      { line: { et: "Hästi. Aga andke palun mu pastakas tagasi!", en: "All right. But please give me my pen back!" }, right: "pastakas", wrong: "pastaka", pair: ["NOMINATIVE", "GENITIVE"], why: "A command keeps the whole thing in the [nimetav] (1st form), even with {palun}: {mu pastakas}." },
+      { line: { et: "Nii. Ma täitsin blanketi ära.", en: "There. I've filled in the form." }, right: "blanketi", wrong: "blankett", pair: ["GENITIVE", "NOMINATIVE"], why: "Tom isn't telling anybody to do anything here, he's saying what he did. He filled in the whole form, and {ära} says the job is finished. A whole thing with the job done takes the [omastav] (2nd form): {blanketi}. The [nimetav] (1st form), {blankett}, is what a command uses." },
+      { line: { et: "Selge. Palun täitke see blankett ära.", en: "Sure. Please fill in this form." }, right: "blankett", wrong: "blanketi", pair: ["NOMINATIVE", "GENITIVE"], why: "Margus is telling Tom to fill it in, so this is a command. A command about a whole thing keeps it in its plain form, the [nimetav] (1st form): {see blankett}. The [omastav] (2nd form), {blanketi}, is for saying the job was done or will be." },
+      { line: { et: "Hästi. Aga andke palun mu pastakas tagasi!", en: "All right. But please give me my pen back!" }, right: "pastakas", wrong: "pastaka", pair: ["NOMINATIVE", "GENITIVE"], why: "{Andke} is a command, and {palun} makes it polite without making it anything else. So the pen stays in the [nimetav] (1st form): {mu pastakas}. The [omastav] (2nd form), {pastaka}, is for saying what happened to the whole pen." },
     ],
     retell: {
       who: "Tom",
@@ -212,7 +223,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "blanketid", of: "blankett", en: "forms" },
     ],
     how: {
-      point: "Applying is {taotlema}, and what you apply for goes in the [osastav] (3rd form): {Ma taotlen elamisluba}. To accept is {vastu võtma}, a verb with its small word.",
+      point: "Applying is {taotlema}, and what you apply for always takes the [osastav] (3rd form): {Ma taotlen elamisluba}. That isn't about whether the job gets done: {taotlema} is one of the verbs that take the [osastav] (3rd form) every time, so learn it with that ending. To accept is {vastu võtma}, a verb with its small word.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -225,10 +236,20 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       notes: [
         "An office says {teie} and {te}, and asks with the [käskiv kõneviis, te] (-ge, polite command), which ends in -ge or -ke: {andke}, {võtke}, {tulge}.",
         "{Kas ma võiksin} is the polite way to ask an office for something it may not do: could I. The verb after it is the [da-tegevusnimi] (-da): {tuua}, {tulla}.",
-        "{Üle} takes the [omastav] (2nd form): {üle tunni} is over an hour, {üle aasta} over a year.",
+        "{Üle} in front of a stretch of time means more than, and it always wants the word after it in the [omastav] (2nd form): {üle tunni} is over an hour, {üle aasta} over a year.",
+        "{Kaks ametnikku}: after a number from two up, the word goes in the singular [osastav] (3rd form), because the number already says how many. After {üks} it keeps its plain form: {üks ametnik}.",
       ],
       watchOut: "{Vastu võtma} is to accept. When the verb comes last, its small word goes just before it: {ma ei saa avaldust vastu võtta}.",
       examples: [3, 8, 9],
+      why: {
+        word: "avaldus",
+        en: "an application, a formal request",
+        steps: ONE_THING_STEPS,
+        lines: [
+          { line: 5, form: "avaldus", lands: { case: "NOMINATIVE", plural: false }, why: "Nobody is doing anything to the application here. {Siin on} only says it's here, so the application is what the sentence is about, and that takes the plain form, the [nimetav] (1st form): {avaldus}." },
+          { line: 8, form: "avaldust", lands: { case: "PARTITIVE", plural: false }, why: "Now somebody would be doing something to it, accepting it, but the sentence is a no: {ma ei saa}. A no always takes the [osastav] (3rd form), even for the one application lying on the desk: {avaldust}." },
+        ],
+      },
     },
     listenFor: [
       { q: "How long did Tom wait?", options: ["Ten minutes", "All morning long", "Over an hour", "Two days"], answer: 2 },
@@ -272,8 +293,8 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ilma teie passita ma ei saa avaldust vastu võtta.", en: "Without your passport I can't accept the application." }, right: "avaldust", wrong: "avalduse", pair: ["PARTITIVE", "GENITIVE"], why: "After {ei}, the [osastav] (3rd form): {avaldust}." },
-      { line: { et: "Siin on avaldus ja foto. Kõik blanketid on täidetud!", en: "Here's the application and the photo. All the forms are filled in!" }, right: "avaldus", wrong: "avalduse", pair: ["NOMINATIVE", "GENITIVE"], why: "After {siin on}, the noun ({avaldus} here) simply is: the [nimetav] (1st form)." },
+      { line: { et: "Ilma teie passita ma ei saa avaldust vastu võtta.", en: "Without your passport I can't accept the application." }, right: "avaldust", wrong: "avalduse", pair: ["PARTITIVE", "GENITIVE"], why: "Tiina says she can't accept it: {ei saa} is a no. A no always takes the [osastav] (3rd form), however whole and particular the noun is: {avaldust}. Without the no, it would be {avalduse}: {Ametnik võtab avalduse vastu}." },
+      { line: { et: "Siin on avaldus ja foto. Kõik blanketid on täidetud!", en: "Here's the application and the photo. All the forms are filled in!" }, right: "avaldus", wrong: "avalduse", pair: ["NOMINATIVE", "GENITIVE"], why: "{Siin on} only says the application is here. Nobody is doing anything to it, so it's what the sentence is about, and that takes the plain form, the [nimetav] (1st form): {avaldus}." },
     ],
     faster: {
       ask: { et: "Mis dokumendid teil kaasas on?", en: "What documents do you have with you?" },
@@ -328,7 +349,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "lahendasin", of: "lahendama", en: "I solved", past: true },
     ],
     how: {
-      point: "The small words say what a job did to a thing: {ära kaotama} is to lose it, so it's gone, {kinni panema} to close or block it, {lahti tegema} to open it, and {tagasi saama} to get it back.",
+      point: "Here the small word says how a thing ended up. The verb does the doing, and the small word says the result: {ära kaotama} is to lose it so it's gone, {kinni panema} is to close or block it, {lahti tegema} is to open it, and {tagasi saama} is to get it back.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -346,6 +367,16 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       ],
       watchOut: "{Kinni panema} is to block a card, not to put it somewhere: the small word {kinni} carries the meaning, and {panema} only does the doing.",
       examples: [0, 3, 7],
+      why: {
+        word: "kaart",
+        en: "card",
+        steps: ONE_THING_STEPS,
+        lines: [
+          { line: 3, form: "kaart", lands: { case: "NOMINATIVE", plural: false }, why: "Anna is telling Tom what to do: {pane} is a command. A command about a whole thing keeps it in its plain form, the [nimetav] (1st form): {kaart}, even though the whole card is to be blocked." },
+          { line: 6, form: "kaardi", lands: { case: "GENITIVE", plural: false }, why: "Tom says what happened, so it isn't a command, and the card is gone: lost, the job done. A whole thing with the job done takes the [omastav] (2nd form): {kaardi}." },
+          { line: 7, form: "kaart", lands: { case: "NOMINATIVE", plural: false }, why: "Nobody does anything to the card in this sentence. {Kaart on kinni} only says how it is now, so the card is what the sentence is about, and that takes the [nimetav] (1st form): {kaart}." },
+        ],
+      },
     },
     hearing: "half",
     listenFor: [
@@ -393,9 +424,9 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Anna, mul on suur probleem. Ma kaotasin rahakoti ära!", en: "Anna, I've got a big problem. I've lost my wallet!" }, right: "rahakoti", wrong: "rahakotti", pair: ["GENITIVE", "PARTITIVE"], why: "Lost for good, so the whole wallet: {rahakoti}." },
-      { line: { et: "Nüüd kõige olulisem: pane kaart kohe kinni!", en: "Most important now: get your card blocked right away!" }, right: "kaart", wrong: "kaardi", pair: ["NOMINATIVE", "GENITIVE"], why: "A command keeps the whole thing in the [nimetav] (1st form): {kaart}." },
-      { line: { et: "Ma ei leidnud rahakotti.", en: "I didn't find the wallet." }, right: "rahakotti", wrong: "rahakoti", pair: ["PARTITIVE", "GENITIVE"], why: "After {ei}, always the [osastav] (3rd form): {rahakotti}." },
+      { line: { et: "Anna, mul on suur probleem. Ma kaotasin rahakoti ära!", en: "Anna, I've got a big problem. I've lost my wallet!" }, right: "rahakoti", wrong: "rahakotti", pair: ["GENITIVE", "PARTITIVE"], why: "Tom isn't telling anybody to do anything, he's saying what happened. The whole wallet is gone, and {ära} says so: the job is done. A whole thing with the job done takes the [omastav] (2nd form): {rahakoti}." },
+      { line: { et: "Nüüd kõige olulisem: pane kaart kohe kinni!", en: "Most important now: get your card blocked right away!" }, right: "kaart", wrong: "kaardi", pair: ["NOMINATIVE", "GENITIVE"], why: "{Pane} is a command: Anna is telling Tom what to do. A command about a whole thing keeps it in the [nimetav] (1st form): {kaart}. Once it's done, it's the [omastav] (2nd form): {Tom pani eile kaardi kinni}." },
+      { line: { et: "Ma ei leidnud rahakotti.", en: "I didn't find the wallet." }, right: "rahakotti", wrong: "rahakoti", pair: ["PARTITIVE", "GENITIVE"], why: "{Ei leidnud} is a no, and a no always takes the [osastav] (3rd form), even for the one wallet you mean: {rahakotti}. Found, it's the whole wallet with the job done: {Ma leidsin rahakoti}." },
     ],
     retell: {
       who: "Anna",
@@ -531,9 +562,9 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Muidugi töötan!", en: "Of course I work!" }, right: "töötan", wrong: "töötab", pair: ["IndPrSg1", "IndPrSg3"], why: "It's you who works: {ma töötan}." },
-      { line: { et: "Mari, kas aitaksid mind? Täidan ujumiskursuse blanketti.", en: "Mari, would you help me? I'm filling in the form for a swimming course." }, right: "blanketti", wrong: "blanketi", pair: ["PARTITIVE", "GENITIVE"], why: "He's still filling it in, so the [osastav] (3rd form): {blanketti}." },
-      { line: { et: "Siis kirjutan: ujumise õppimine.", en: "Then I'll write: learning to swim." }, right: "ujumise", wrong: "ujumine", pair: ["GENITIVE", "NOMINATIVE"], why: "Learning what? Swimming, so the [omastav] (2nd form) in front: {ujumise õppimine}." },
+      { line: { et: "Muidugi töötan!", en: "Of course I work!" }, right: "töötan", wrong: "töötab", pair: ["IndPrSg1", "IndPrSg3"], why: "There's no {ma} in {Muidugi töötan}, but the ending says who: -n is I. Tom is talking about himself, so it's {töötan}. {Töötab} would be about somebody else." },
+      { line: { et: "Mari, kas aitaksid mind? Täidan ujumiskursuse blanketti.", en: "Mari, would you help me? I'm filling in the form for a swimming course." }, right: "blanketti", wrong: "blanketi", pair: ["PARTITIVE", "GENITIVE"], why: "Tom is in the middle of filling it in, so the job isn't done yet. While a job is still going on, the noun takes the [osastav] (3rd form): {blanketti}. The [omastav] (2nd form), {blanketi}, would say the whole form is done." },
+      { line: { et: "Siis kirjutan: ujumise õppimine.", en: "Then I'll write: learning to swim." }, right: "ujumise", wrong: "ujumine", pair: ["GENITIVE", "NOMINATIVE"], why: "{Õppimine} is the main word, and {ujumine} says what is being learned. A word that says what or whose goes in front of the main word, in the [omastav] (2nd form): {ujumise õppimine}, the learning of swimming." },
     ],
     faster: {
       ask: { et: "Milline inimene sa oled?", en: "What sort of person are you?" },
@@ -657,8 +688,8 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Halloo? Ma olen juba kümme minutit ootel!", en: "Hello? I've been on hold for ten minutes already!" }, right: "ootel", wrong: "ootele", pair: ["ADESSIVE", "ALLATIVE"], why: "Tom is on hold already, so where he is: {ootel}." },
-      { line: { et: "Üks hetk, palun jääge ootele. Ma ühendan teid edasi.", en: "One moment, please hold. I'll put you through." }, right: "ootele", wrong: "ootel", pair: ["ALLATIVE", "ADESSIVE"], why: "Kaja asks him to stay on hold, which is where he goes: {jääge ootele}. Once he is there, he is {ootel}." },
+      { line: { et: "Halloo? Ma olen juba kümme minutit ootel!", en: "Hello? I've been on hold for ten minutes already!" }, right: "ootel", wrong: "ootele", pair: ["ADESSIVE", "ALLATIVE"], why: "Tom has been on hold for ten minutes: that's where he is, not where he's going. Where you are takes -l, so {ootel}. {Ootele} would be going on hold." },
+      { line: { et: "Üks hetk, palun jääge ootele. Ma ühendan teid edasi.", en: "One moment, please hold. I'll put you through." }, right: "ootele", wrong: "ootel", pair: ["ALLATIVE", "ADESSIVE"], why: "Kaja is asking him to go on hold, so it's where he's to end up, a direction. A direction takes -le: {jääge ootele}. Once he's there, he's {ootel}, with -l." },
     ],
     retell: {
       who: "Tom",
@@ -741,7 +772,7 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       notes: [
         "{Palun väljastada} is the formal request: please and the [da-tegevusnimi] (-da), with nobody named.",
         "{Palun väljastage mulle parkimisluba} is right too: it asks the office directly, with the polite command.",
-        "Who it's to takes -le: {linnavalitsusele}, to the city government.",
+        "Who it's to takes -le, because the application goes to them: {linnavalitsusele}, to the city government.",
         "Close with {Lugupidamisega}, your name and your signature.",
         "An application starts with who it's to, then who you are: your name, your personal code, your address and your phone. It ends with the place, the date and your signature.",
       ],
@@ -790,8 +821,8 @@ export const B1_ASJAAJAMINE_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Muidugi. Ma olen oma elus sada avaldust kirjutanud.", en: "Of course. I've written a hundred applications in my life." }, right: "avaldust", wrong: "avalduse", pair: ["PARTITIVE", "GENITIVE"], why: "After a number, the [osastav] (3rd form): {sada avaldust}." },
-      { line: { et: "Lisan avaldusele auto dokumendid.", en: "I'm attaching the car's documents to the application." }, right: "avaldusele", wrong: "avaldust", pair: ["ALLATIVE", "PARTITIVE"], why: "You attach something onto the application: -le, {avaldusele}." },
+      { line: { et: "Muidugi. Ma olen oma elus sada avaldust kirjutanud.", en: "Of course. I've written a hundred applications in my life." }, right: "avaldust", wrong: "avalduse", pair: ["PARTITIVE", "GENITIVE"], why: "{Sada} is a number, and after a number from two up the word goes in the singular [osastav] (3rd form): {sada avaldust}. The number already says how many, so the word itself stays singular." },
+      { line: { et: "Lisan avaldusele auto dokumendid.", en: "I'm attaching the car's documents to the application." }, right: "avaldusele", wrong: "avaldust", pair: ["ALLATIVE", "PARTITIVE"], why: "Attaching is putting one thing onto another, so what you attach it to takes -le, the [alaleütlev] (-le, onto/to): {avaldusele}, onto the application." },
     ],
     write: {
       genre: "A formal application ({avaldus})",

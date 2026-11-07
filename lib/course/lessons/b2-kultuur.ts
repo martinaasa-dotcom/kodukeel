@@ -28,6 +28,7 @@
  */
 
 import type { LessonSpec, PartOfLessons } from "./types";
+import { NAMED_OR_NOT_STEPS } from "./why-b2-kultuur";
 
 export const B2_KULTUUR_PART: PartOfLessons = {
   id: "b2-kultuur",
@@ -90,7 +91,7 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "vihmane", en: "rainy" },
     ],
     how: {
-      point: "Irony is said with a straight face. In the pouring rain, {Ilus ilm, nagu igal jaanipäeval} means the weather is awful again, and nobody smiles while saying it.",
+      point: "Irony is said with a straight face. In the pouring rain, Jaan's {Ilus ilm, nagu igal jaanipäeval} means the opposite of its words: the weather is awful again, as it so often is at Midsummer. Nobody smiles while saying it, because the rain makes the meaning plain.",
       table: {
         head: ["What's said", "What's meant"],
         rows: [
@@ -101,12 +102,12 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Irony comes with no smile and no change in the voice. The words do the work, and the listener is trusted to hear it.",
-        "The answer to irony is more of it: {Jah, nagu ikka}. Saying back {Ei, sajab ju}, no, it's raining, tells them you missed it.",
-        "{Kes ..., sel ...} is whoever ..., they: it's how a belief or a saying is put. {Kes üle lõkke hüppab, sel läheb terve aasta hästi}.",
-        "{Päriselt või?} and {Mis siis edasi sai?} keep a story going: really? and what happened next? Ask one, and the other person carries on.",
+        "Irony comes with no smile and no change in the voice. The words and the situation do the work, and the listener is trusted to hear the gap between them.",
+        "The answer to irony is more of it, in the same flat voice: {Jah, nagu ikka}, yes, as usual. Answering it as a fact, {Ei, sajab ju}, no, it's raining, tells them you missed the joke.",
+        "{Kes ..., sel ...} means whoever ..., they. The first half names anyone who does something, and the second says what happens to them. It's how a belief or a saying is put: {Kes üle lõkke hüppab, sel läheb terve aasta hästi}.",
+        "{Päriselt või?} and {Mis siis edasi sai?} keep a story going: really? and what happened next? Ask either one, and the other person carries on telling it.",
       ],
-      watchOut: "Don't put a smile into your voice for irony, the way English often does. Said flatly, {Ilus ilm!} in the rain is the joke; said brightly, it sounds as if you mean it.",
+      watchOut: "Don't put a smile into your voice for irony, the way English speakers often do. Said flatly, {Ilus ilm!} in the rain is the joke. Said brightly, it sounds as if you really mean it, and people may wonder whether you've noticed the rain.",
       examples: [0, 3, 9, 13],
     },
     listenFor: [
@@ -157,9 +158,9 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Põleb küll. Jaan kuivatas terve päeva puid. Saunas.", en: "It is. Jaan spent the whole day drying firewood. In the sauna." }, right: "puid", wrong: "puud", pair: ["PARTITIVE", "NOMINATIVE"], why: "He was at it all day and it's some wood, not all of it, so the [osastav] (3rd form): {puid}." },
-      { line: { et: "Ja kes lõkkesse kukub?", en: "And whoever falls into the fire?" }, right: "lõkkesse", wrong: "lõkkes", pair: ["ILLATIVE", "INESSIVE"], why: "Falling ends up inside it, so into: -sse, {lõkkesse}." },
-      { line: { et: "Muidugi. Kes üle jaanitule hüppab, sel läheb terve aasta hästi.", en: "Of course. Whoever jumps over the Midsummer fire has a good year." }, right: "jaanitule", wrong: "jaanituli", pair: ["GENITIVE", "NOMINATIVE"], why: "{Üle} takes the [omastav] (2nd form): {üle jaanitule}." },
+      { line: { et: "Põleb küll. Jaan kuivatas terve päeva puid. Saunas.", en: "It is. Jaan spent the whole day drying firewood. In the sauna." }, right: "puid", wrong: "puud", pair: ["PARTITIVE", "NOMINATIVE"], why: "The sentence describes Jaan's day, not a finished job: he spent the whole day at it, and it doesn't say he dried all the wood there was. Firewood is many logs, so with the job still going on it takes the plural [osastav] (3rd form): {puid}. {Puud} would mean the logs, all of them, dried and done." },
+      { line: { et: "Ja kes lõkkesse kukub?", en: "And whoever falls into the fire?" }, right: "lõkkesse", wrong: "lõkkes", pair: ["ILLATIVE", "INESSIVE"], why: "Anna is asking about somebody who falls and ends up inside the fire, so it's a movement into it: the [sisseütlev] (-sse, into), {lõkkesse}. {Lõkkes}, the [seesütlev] (-s, in), is for something that is already in the fire." },
+      { line: { et: "Muidugi. Kes üle jaanitule hüppab, sel läheb terve aasta hästi.", en: "Of course. Whoever jumps over the Midsummer fire has a good year." }, right: "jaanitule", wrong: "jaanituli", pair: ["GENITIVE", "NOMINATIVE"], why: "{Üle}, over, comes in front of the noun here, and a noun after {üle} goes in the [omastav] (2nd form): {üle jaanitule}, like {üle lõkke}. The plain {jaanituli} is for when the fire itself is what the sentence is about." },
     ],
     retell: {
       who: "Liis",
@@ -244,7 +245,7 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "aastane", en: "years old, in a compound: {kaheksa-aastane}, eight years old" },
     ],
     how: {
-      point: "A story moves in the simple past: {jõudsin}, {laulsid}. What had already happened before that moment takes {oli} and the -nud word, {olid juba ära laulnud}: it puts one event behind another.",
+      point: "A story moves forward in the simple past: {jõudsin}, I got here, {laulsid}, they sang. When something had already happened before that moment, Estonian uses {oli} with the -nud word: {olid juba ära laulnud}, they had already sung. That puts one event behind the other, so the listener knows which came first.",
       table: {
         head: ["Said", "What came first"],
         rows: [
@@ -254,11 +255,11 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Told aloud, the had-done usually comes with {juba} and {ära}: {olid nad juba ära laulnud}. Written, a story can open with what came first: {Koor oli juba laulnud, kui me kohale jõudsime}.",
-        "{Kui} with the simple past is the moment the story stops at. The other half decides the order: {laulsid} is at that moment, {olid laulnud} is before it.",
-        "{Kuidas nii?} is how come? It asks for the reason, and the other person goes on with the story.",
+        "Told aloud, the had-done usually comes with {juba}, already, and {ära}, done: {olid nad juba ära laulnud}. In writing, a story can open with what came first and then give the moment: {Koor oli juba laulnud, kui me kohale jõudsime}.",
+        "{Kui} with the simple past fixes the moment the story stops at: when I got here. The other half then says the order. {Laulsid} means they were singing at that moment, and {olid laulnud} means they had finished before it.",
+        "{Kuidas nii?} is how come? It asks for the reason, and the other person goes on with the story to give it.",
       ],
-      watchOut: "English lets the had slip: when we got there, they already sang. Estonian keeps it. Without {olid}, {Kui me kohale jõudsime, laulsid nad} means they were singing as you arrived.",
+      watchOut: "English can let the had slip: when we got there, they already sang. Estonian keeps it, because leaving it out changes what happened. Without {olid}, {Kui me kohale jõudsime, laulsid nad} means they were singing as you arrived, so you heard them.",
       examples: [2, 10, 11],
     },
     listenFor: [
@@ -315,8 +316,8 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Just. Pärast eelmist laulupidu olin kolm päeva hääleta.", en: "Exactly. After the last song festival I had no voice for three days." }, right: "hääleta", wrong: "hääle", pair: ["ABESSIVE", "GENITIVE"], why: "Without a voice: -ta on the [omastav] (2nd form), {hääleta}." },
-      { line: { et: "Mitu inimest seal laval korraga on?", en: "How many people are on that stage at once?" }, right: "laval", wrong: "lavale", pair: ["ADESSIVE", "ALLATIVE"], why: "They're on the stage, where they stand, so -l: {laval}. {Lavale} is onto it." },
+      { line: { et: "Just. Pärast eelmist laulupidu olin kolm päeva hääleta.", en: "Exactly. After the last song festival I had no voice for three days." }, right: "hääleta", wrong: "hääle", pair: ["ABESSIVE", "GENITIVE"], why: "Kati was without a voice. Being without something takes -ta, the [ilmaütlev] (-ta, without), and like most endings it goes on the [omastav] (2nd form): {hääle} and -ta, {hääleta}. The bare {hääle} means of a voice, and says nothing about losing it." },
+      { line: { et: "Mitu inimest seal laval korraga on?", en: "How many people are on that stage at once?" }, right: "laval", wrong: "lavale", pair: ["ADESSIVE", "ALLATIVE"], why: "The singers stand on the stage, so the question is where they are: -l, the [alalütlev] (-l, on/at/has), {laval}. {Lavale}, with -le, is for moving onto the stage, the way the choirs walk up to it." },
     ],
     workOut: [
       { sentence: { et: "Kati on juba kakskümmend aastat koorilaulja.", en: "Kati has been a choir singer for twenty years." }, word: "koorilaulja", parts: ["koori", "laulja"], means: "a choir singer", options: ["a choir singer", "a choir leader", "a song for a choir"] },
@@ -407,7 +408,7 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "ulatus", of: "ulatuma", en: "reached, stretched as far as" },
     ],
     how: {
-      point: "Some things are said whole and never word for word: {Kerget leili!} to somebody going into the sauna, {Head isu!} at the table. Learn each like one word, with the moment it belongs to.",
+      point: "Some things are said whole and never word for word: {Kerget leili!} to somebody going into the sauna, {Head isu!} at the table. Their parts don't add up to what they mean, so learn each one like a single word, together with the moment it belongs to.",
       table: {
         head: ["Said", "When", "What it means"],
         rows: [
@@ -418,11 +419,11 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Kerget leili!} is answered {Aitäh!}, the same as {Head isu!}.",
-        "The spoken way and the written way: in the sauna it's {Viska leili!}; on the sign on the wall it's {Leili viska ainult siis, kui kõik on nõus}.",
-        "A lot of Estonian jokes are about Estonians: quiet, slow, and fond of the sauna. The joke is told flat, and the laugh belongs to whoever gets it.",
+        "{Kerget leili!} is answered {Aitäh!}, the same way you answer {Head isu!}.",
+        "Spoken and written Estonian put the same thing differently. In the sauna somebody says {Viska leili!}, throw some steam. The sign on the wall says {Leili viska ainult siis, kui kõik on nõus}, throw steam only when everyone agrees.",
+        "A lot of Estonian jokes are about Estonians themselves: quiet, slow, and fond of the sauna. The joke is told flat, with no smile, and the laugh belongs to whoever gets it.",
       ],
-      watchOut: "Don't translate a set phrase word by word, either way. {Hommik on õhtust targem} isn't about mornings at all: it means wait, and decide tomorrow.",
+      watchOut: "Don't translate a set phrase word by word, in either direction. {Hommik on õhtust targem} says the morning is wiser than the evening, but it isn't about mornings at all: it means sleep on it, and decide tomorrow.",
       examples: [0, 6, 7, 10],
     },
     listenFor: [
@@ -472,9 +473,9 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ja mida ma selle vihaga teen?", en: "And what do I do with this birch whisk?" }, right: "vihaga", wrong: "viha", pair: ["COMITATIVE", "GENITIVE"], why: "What you do it with takes -ga: {vihaga}." },
-      { line: { et: "Kaks eestlast istuvad saunas.", en: "Two Estonians are sitting in the sauna." }, right: "eestlast", wrong: "eestlased", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a number, the [osastav] (3rd form), and singular: {kaks eestlast}." },
-      { line: { et: "Kohe tuleme! Tom, aga enne hüppame veel järve.", en: "Coming! Tom, but first we jump in the lake." }, right: "järve", wrong: "järves", pair: ["ILLATIVE", "INESSIVE"], why: "Into the lake is the short form, {järve}. {Järves} is in it, once you're there." },
+      { line: { et: "Ja mida ma selle vihaga teen?", en: "And what do I do with this birch whisk?" }, right: "vihaga", wrong: "viha", pair: ["COMITATIVE", "GENITIVE"], why: "Tom is asking what to do with the whisk, the noun he'd be using. Something you do a thing with takes -ga, the [kaasaütlev] (-ga, with): {vihaga}. The bare {viha}, the [omastav] (2nd form), leaves out the with." },
+      { line: { et: "Kaks eestlast istuvad saunas.", en: "Two Estonians are sitting in the sauna." }, right: "eestlast", wrong: "eestlased", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a number, Estonian counts in the singular and puts the noun in the [osastav] (3rd form): {kaks eestlast}, two Estonian, word for word. The number already says how many, so the noun doesn't need the plural. One is the exception: after {üks} the noun stays in its plain form." },
+      { line: { et: "Kohe tuleme! Tom, aga enne hüppame veel järve.", en: "Coming! Tom, but first we jump in the lake." }, right: "järve", wrong: "järves", pair: ["ILLATIVE", "INESSIVE"], why: "Jaan and Tom are about to jump into the lake, so it's a movement into it. For {järv} the into form people say is the short one, the [lühike sisseütlev] (short into): {järve}. {Järves}, the [seesütlev] (-s, in), is for once you're in the water." },
     ],
     workOut: [
       { sentence: { et: "Laupäeval on meil saunaõhtu.", en: "On Saturday we're having an evening at the sauna." }, word: "saunaõhtu", parts: ["sauna", "õhtu"], means: "an evening at the sauna", options: ["an evening at the sauna", "a sauna that's open at night", "a towel for the sauna"] },
@@ -566,7 +567,7 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "nuttis", of: "nutma", en: "he, she cried" },
     ],
     how: {
-      point: "History is told in the past and the had-done side by side: what happened, {taastas Eesti oma iseseisvuse}, and what had been true before it, {Eesti oli juba enne sõda iseseisev olnud}. The had-done is the history behind the history.",
+      point: "History is told with two pasts side by side. The simple past says what happened: {taastas Eesti oma iseseisvuse}, Estonia restored its independence. The had-done says what was already true before it: {Eesti oli juba enne sõda iseseisev olnud}. That second layer is the history behind the history, and it often explains the first.",
       table: {
         head: ["On the radio", "Said at home", "In English"],
         rows: [
@@ -576,13 +577,22 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "A history item puts the event and what came before it side by side: {taastas} is the event, {oli ... olnud} is what was already true.",
-        "{Taastama} is to restore, to bring back what there was before. Estonia was independent from 1918, so 1991 is told as a restoring: {Eesti taastas oma iseseisvuse}.",
-        "{Laulude abil} is with the help of songs: {abil} takes the [omastav] (2nd form) in front of it.",
-        "{Päriselt? Mida ta räägib?} keeps somebody talking about what they remember. A short question is enough.",
+        "On the radio you'll hear the two together all the time: {taastas} is the event, and {oli ... olnud} is the background a listener needs to understand it.",
+        "{Taastama} is to restore, to bring back what there was before. Estonia was independent from 1918, so 1991 is told as a restoring, not a beginning: {Eesti taastas oma iseseisvuse}.",
+        "{Laulude abil} is with the help of songs. {Abil} takes the [omastav] (2nd form) in front of it, because it's the help of something. It was many songs, so here it's the plural one: {laulude}.",
+        "{Päriselt? Mida ta räägib?} keeps somebody talking about what they remember. A short question is enough, and it shows you're listening.",
       ],
-      watchOut: "Don't say Estonia got its independence in 1991: to an Estonian it was restored, {taastati}, because it had been there before the war.",
+      watchOut: "Don't say Estonia got its independence in 1991. To an Estonian it was restored, {taastati}, because it had been there before the war and was taken away. Saying it began in 1991 leaves out the independence Estonia already had.",
       examples: [1, 6, 8],
+      why: {
+        word: "iseseisvus",
+        en: "independence",
+        steps: NAMED_OR_NOT_STEPS,
+        lines: [
+          { line: 6, form: "iseseisvuse", lands: { case: "GENITIVE", plural: false }, why: "Something is being done to independence: Estonia restored it, and the sentence names Estonia as the one who did it. It's a yes, and the job was done to the whole thing, so it goes in the [omastav] (2nd form): {iseseisvuse}." },
+          { line: 9, form: "iseseisvus", lands: { case: "NOMINATIVE", plural: false }, why: "The same thing is done, but this time nobody is named: {taastati} means it was restored, without saying who did it. A whole thing done with nobody named keeps its plain form, the [nimetav] (1st form), just as it does after a command: {iseseisvus}." },
+        ],
+      },
     },
     listenFor: [
       { q: "What is the radio program about?", options: ["Next year's song festival", "How Estonia got its independence back", "The weather this summer", "A choir competition"], answer: 1 },
@@ -637,9 +647,9 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Pärast sõda tuli okupatsioon.", en: "After the war came the occupation." }, right: "sõda", wrong: "sõja", pair: ["PARTITIVE", "GENITIVE"], why: "{Enne} and {pärast} in front of a noun take the [osastav] (3rd form): {enne sõda}, {pärast sõda}." },
-      { line: { et: "Ja iseseisvus taastati ilma sõjata?", en: "And independence was restored without a war?" }, right: "sõjata", wrong: "sõja", pair: ["ABESSIVE", "GENITIVE"], why: "{Ilma} goes with -ta on the [omastav] (2nd form): {ilma sõjata}." },
-      { line: { et: "Kolm aastat hiljem, 1991. aastal, taastas Eesti oma iseseisvuse.", en: "Three years later, in 1991, Estonia restored its independence." }, right: "iseseisvuse", wrong: "iseseisvus", pair: ["GENITIVE", "NOMINATIVE"], why: "It was restored whole, so the [omastav] (2nd form): {oma iseseisvuse}." },
+      { line: { et: "Pärast sõda tuli okupatsioon.", en: "After the war came the occupation." }, right: "sõda", wrong: "sõja", pair: ["PARTITIVE", "GENITIVE"], why: "{Pärast}, after, and {enne}, before, can stand in front of a noun, and then the noun takes the [osastav] (3rd form): {pärast sõda}, {enne sõda}. For {sõda} that form is spelled just like the plain one, which is why it looks unchanged. {Sõja} is the [omastav] (2nd form), which {pärast} doesn't take when it comes first." },
+      { line: { et: "Ja iseseisvus taastati ilma sõjata?", en: "And independence was restored without a war?" }, right: "sõjata", wrong: "sõja", pair: ["ABESSIVE", "GENITIVE"], why: "{Ilma}, without, goes together with the -ta ending, the [ilmaütlev] (-ta, without), and the ending goes on the [omastav] (2nd form): {sõja} and -ta, {ilma sõjata}. {Ilma} doesn't do the job alone: the noun needs the -ta as well." },
+      { line: { et: "Kolm aastat hiljem, 1991. aastal, taastas Eesti oma iseseisvuse.", en: "Three years later, in 1991, Estonia restored its independence." }, right: "iseseisvuse", wrong: "iseseisvus", pair: ["GENITIVE", "NOMINATIVE"], why: "Estonia did something to its independence and finished the job: it was restored, all of it, and the sentence names Estonia as the one who did it. A whole thing with the job done takes the [omastav] (2nd form): {oma iseseisvuse}. The plain {iseseisvus} is for when nobody is named, as in {iseseisvus taastati}." },
     ],
     workOut: [
       { sentence: { et: "See raadiosaade räägib ajaloost.", en: "This radio program is about history." }, word: "raadiosaade", parts: ["raadio", "saade"], means: "a radio program", options: ["a radio program", "a radio station", "a radio set"] },
@@ -722,7 +732,7 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "suve", of: "suvi", en: "of the summer: {suve kõige suurem pidu}, the biggest party of the summer" },
     ],
     how: {
-      point: "A story you tell has a shape: when it was, what had already happened, what went wrong, and how it ended. The had-done, {olime ostnud}, is how you step back in time inside it.",
+      point: "A story you tell has a shape: when it was, what had already happened, what went wrong, and how it ended. The had-done, {olime ostnud}, we had bought, is how you step back in time inside it, to something that happened before the moment you're telling.",
       table: {
         head: ["The step", "From the story"],
         rows: [
@@ -734,11 +744,11 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Spoken, the turn in a story comes with {Ja siis} or {Aga}. Written, it often comes with {Alles}: {Alles bussis sain aru}, it was only on the bus that I realized.",
-        "{Nagu lepase reega} is like a sledge of alder wood: smoothly, without a hitch. A story often says it just before everything goes wrong.",
-        "{Mis teha} in a story is the shrug before the next thing you did: {Mis teha. Ma jooksin koju tagasi}.",
+        "Spoken, the turn in a story usually comes with {Ja siis} or {Aga}. Written, it often comes with {Alles}: {Alles bussis sain aru}, it was only on the bus that I realized. {Alles} says something happened later than it should have.",
+        "{Nagu lepase reega} is like a sledge of alder wood: smoothly, without a hitch. A story often says it just before everything goes wrong, so the listener is ready for the turn.",
+        "{Mis teha} in a story is the shrug before the next thing you did: {Mis teha. Ma jooksin koju tagasi}. It says there was nothing else for it.",
       ],
-      watchOut: "Don't tell all of it in the had-done. Use it for the step back, {olime unustanud}, and go on in the simple past: {Ma jooksin koju tagasi}.",
+      watchOut: "Don't tell all of it in the had-done. Use it only for the step back, {olime unustanud}, we had forgotten, and then carry on in the simple past: {Ma jooksin koju tagasi}. A story told all in the had-done never reaches the moment it's about.",
       examples: [1, 3, 5, 9],
     },
     listenFor: [
@@ -789,9 +799,9 @@ export const B2_KULTUUR_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ma jooksin koju tagasi. Kui ma kooli juurde tagasi jõudsin, oli kõik juba alanud.", en: "I ran back home. When I got back to the school, everything had already started." }, right: "oli", wrong: "olin", pair: ["IndIpfSg3", "IndIpfSg1"], why: "Everything had started, so the third person: {kõik oli}." },
-      { line: { et: "Need andis ta lõpuks koristajale. Ta arvas, et see on kooli direktor.", en: "In the end he gave them to the cleaner. He thought she was the head of the school." }, right: "koristajale", wrong: "koristaja", pair: ["ALLATIVE", "NOMINATIVE"], why: "Given to somebody takes -le: {koristajale}." },
-      { line: { et: "Üldse mitte. Ta oli vahepeal ühe poisiga sõbraks saanud ja nad naersid koos.", en: "Not at all. In the meantime he'd made friends with a boy and they were laughing together." }, right: "sõbraks", wrong: "sõbra", pair: ["TRANSLATIVE", "GENITIVE"], why: "Becoming friends takes -ks: {sõbraks saanud}." },
+      { line: { et: "Ma jooksin koju tagasi. Kui ma kooli juurde tagasi jõudsin, oli kõik juba alanud.", en: "I ran back home. When I got back to the school, everything had already started." }, right: "oli", wrong: "olin", pair: ["IndIpfSg3", "IndIpfSg1"], why: "The noun that had started is {kõik}, everything, which here is one whole and takes the he, she, it form of the verb: {kõik oli}. {Olin}, with -n, would mean I had started, but it was the school day that had begun, not Tom." },
+      { line: { et: "Need andis ta lõpuks koristajale. Ta arvas, et see on kooli direktor.", en: "In the end he gave them to the cleaner. He thought she was the head of the school." }, right: "koristajale", wrong: "koristaja", pair: ["ALLATIVE", "NOMINATIVE"], why: "Mark gave the flowers to the cleaner, so she is the one receiving them. Somebody you give something to takes -le, the [alaleütlev] (-le, onto/to): {koristajale}. The plain {koristaja} would make her the one doing the giving." },
+      { line: { et: "Üldse mitte. Ta oli vahepeal ühe poisiga sõbraks saanud ja nad naersid koos.", en: "Not at all. In the meantime he'd made friends with a boy and they were laughing together." }, right: "sõbraks", wrong: "sõbra", pair: ["TRANSLATIVE", "GENITIVE"], why: "Mark wasn't the boy's friend that morning and was by the afternoon: he became one. Becoming something takes -ks, the [saav] (-ks, becoming), with {saama}: {sõbraks saanud}. {Sõbra} is the [omastav] (2nd form), a friend's, which says nothing about becoming." },
     ],
     workOut: [
       { sentence: { et: "Poja esimene koolipäev oli väga pikk.", en: "My son's first school day was very long." }, word: "koolipäev", parts: ["kooli", "päev"], means: "a school day", options: ["a school day", "a day off school", "a school bag"] },

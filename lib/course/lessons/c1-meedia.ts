@@ -25,6 +25,7 @@
  */
 
 import type { LessonSpec, PartOfLessons } from "./types";
+import { REFERRED_OR_WHERE_STEPS } from "./why-c1-meedia";
 
 export const C1_MEEDIA_PART: PartOfLessons = {
   id: "c1-meedia",
@@ -83,7 +84,7 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
     ],
     patterns: ["presentParticiple"],
     how: {
-      point: "The news describes a thing by what is happening to it, with a verb made into a word that stands in front of a noun: {kehtiv seadus} is the law that is in force, {arutatav eelnõu} the bill being discussed, and {lahendamata küsimus} the question nobody has solved.",
+      point: "The news often describes a thing by what is happening to it. It turns a verb into a word that stands in front of a noun, the way an adjective does: {kehtiv seadus} is the law that is in force now, {arutatav eelnõu} is the bill being discussed, and {lahendamata küsimus} is the question nobody has solved yet. Everyday speech says each of these with a whole clause, and the news packs it into one word.",
       table: {
         head: ["The news says", "Said plainly", "In English"],
         rows: [
@@ -93,12 +94,12 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "-v is the one doing it: {kehtima}, to be in force, gives {kehtiv}, the one in force.",
-        "-tav is the one it is done to, and it is built on the [umbisikuline] (-takse, people do): {arutatakse} gives {arutatav}, the one being discussed.",
-        "-mata is what has not been done, the same -mata as {tegemata}: {lahendamata}, not solved.",
-        "The same thing three ways: to a friend {Seda alles arutatakse}, at work {See on alles eelnõu}, and in writing {arutatav eelnõu}.",
+        "-v marks the noun that does the verb itself: {kehtima}, to be in force, gives {kehtiv}, the one in force. Ask who does the verb: the law itself applies, so it's {kehtiv seadus}.",
+        "-tav marks the noun the verb is done to, and it's built on the [umbisikuline] (-takse, people do): {arutatakse}, people are discussing it, gives {arutatav}, the one being discussed. The bill doesn't discuss anything, people discuss it, so it's {arutatav eelnõu}.",
+        "-mata marks what hasn't been done yet, the same -mata as in {tegemata}, not done: {lahendamata}, not solved. Unlike the other two, it never changes its ending, whatever the noun after it does.",
+        "The same thing three ways, from plain to formal: to a friend {Seda alles arutatakse}, at work {See on alles eelnõu}, and in writing {arutatav eelnõu}. In speech the one-word version sounds like somebody reading the news aloud.",
       ],
-      watchOut: "In front of a noun the -v and -tav words take the noun's ending: {kehtiva seaduse järgi}, never {kehtiv seaduse järgi}.",
+      watchOut: "The -v and -tav words behave like adjectives, so in front of a noun they take the noun's ending. {Järgi}, under or according to, wants the word before it in the [omastav] (2nd form), {seaduse järgi}, and the word describing the law follows it: {kehtiva seaduse järgi}, never {kehtiv seaduse järgi}.",
       examples: [4, 5, 8],
     },
     hearing: "cafe",
@@ -164,8 +165,8 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Valitsus arutab täna eelnõud, mis keelaks koolis telefoni kasutada. Kehtiva seaduse järgi otsustab seda iga kool ise.", en: "The government is discussing a bill today that would ban using phones at school. Under the law in force, each school decides that for itself." }, right: "eelnõud", wrong: "eelnõu", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Arutama} takes what is discussed in the [osastav] (3rd form): {arutab eelnõud}." },
-      { line: { et: "Valitsus arutab täna eelnõud, mis keelaks koolis telefoni kasutada. Kehtiva seaduse järgi otsustab seda iga kool ise.", en: "The government is discussing a bill today that would ban using phones at school. Under the law in force, each school decides that for itself." }, right: "Kehtiva", wrong: "Kehtiv", pair: ["GENITIVE", "NOMINATIVE"], why: "The -v word takes its noun's ending: {seaduse järgi}, so {kehtiva seaduse järgi}." },
+      { line: { et: "Valitsus arutab täna eelnõud, mis keelaks koolis telefoni kasutada. Kehtiva seaduse järgi otsustab seda iga kool ise.", en: "The government is discussing a bill today that would ban using phones at school. Under the law in force, each school decides that for itself." }, right: "eelnõud", wrong: "eelnõu", pair: ["PARTITIVE", "NOMINATIVE"], why: "A discussion goes on, and nothing about the bill gets finished or used up by it. So {arutama}, to discuss, puts what is discussed in the [osastav] (3rd form): {arutab eelnõud}. {Eelnõu} is the bill as the subject, what the sentence is about: {Arutatav eelnõu hakkaks koolides kehtima}." },
+      { line: { et: "Valitsus arutab täna eelnõud, mis keelaks koolis telefoni kasutada. Kehtiva seaduse järgi otsustab seda iga kool ise.", en: "The government is discussing a bill today that would ban using phones at school. Under the law in force, each school decides that for itself." }, right: "Kehtiva", wrong: "Kehtiv", pair: ["GENITIVE", "NOMINATIVE"], why: "{Järgi}, under or according to, wants the word before it in the [omastav] (2nd form): {seaduse järgi}. {Kehtiv} describes the law the way an adjective would, so it takes the same ending as its noun: {kehtiva seaduse järgi}." },
     ],
     workOut: [
       {
@@ -252,7 +253,7 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "täielikud", of: "täielik", en: "complete, of more than one" },
     ],
     how: {
-      point: "A study can show that two things go together, a {seos}, and only an experiment, a {katse}, shows what causes what, a {põhjus}. So listen for which one a researcher claims: {Uuring näitab seost} is not {Telefon on süüdi}.",
+      point: "A study can show that two things turn up together, a {seos}, a link. Only an experiment, a {katse}, can show that one thing makes the other happen, a {põhjus}, a cause. So listen for which one a researcher claims: {Uuring näitab seost} says the two go together, which is a long way from {Telefon on süüdi}, the phone is to blame.",
       table: {
         head: ["What was said", "What it claims", "In English"],
         rows: [
@@ -262,11 +263,11 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "The -v word of lesson 7 describes a thing here too: {und mõõtev seade} is a device that measures sleep, {seade, mis mõõdab und}.",
-        "The same thing three ways: to a friend {Telefon segab und}, at work {Uuring näitab seost}, and in writing {Uuringu järgi on telefonil ja unel seos}.",
-        "{Seda me täpselt ei tea} is a researcher being exact, not vague. It is the most careful sentence in science, and the one the radio is quickest to leave out.",
+        "The -v word of lesson 7 describes a thing here too: {und mõõtev seade} is a device that measures sleep, the same as {seade, mis mõõdab und}. The device does the measuring itself, so it's -v.",
+        "The same thing three ways: to a friend {Telefon segab und}, at work {Uuring näitab seost}, and in writing {Uuringu järgi on telefonil ja unel seos}. The more formal the room, the more careful the claim: the friend names a cause, the other two only a link.",
+        "{Seda me täpselt ei tea} is a researcher being exact, not vague: she's saying where the evidence stops. It's the sentence the radio is quickest to leave out, so notice it when you hear it.",
       ],
-      watchOut: "When the radio says a study {näitab seost}, nobody has shown that one thing causes the other. Don't pass it on as {Telefon on süüdi}.",
+      watchOut: "When the radio says a study {näitab seost}, the two things turn up together, and nobody has shown that one causes the other. Pass it on as {Telefon on süüdi}, and you've turned a link into a cause the researcher never claimed.",
       examples: [4, 6, 9],
     },
     hearing: "half",
@@ -368,8 +369,8 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Seda me täpselt ei tea. Meie uuring näitab seost, mitte põhjust.", en: "That we don't know exactly. Our study shows a link, not a cause." }, right: "seost", wrong: "seos", pair: ["PARTITIVE", "NOMINATIVE"], why: "What a study shows here is in the [osastav] (3rd form): {näitab seost}." },
-      { line: { et: "Keskmiselt veidi alla seitsme. Ja kõige vähem magavad noored.", en: "On average a little under seven. And it's the young who sleep the least." }, right: "seitsme", wrong: "seitse", pair: ["GENITIVE", "NOMINATIVE"], why: "{Alla} takes the number after it in the [omastav] (2nd form): {alla seitsme}." },
+      { line: { et: "Seda me täpselt ei tea. Meie uuring näitab seost, mitte põhjust.", en: "That we don't know exactly. Our study shows a link, not a cause." }, right: "seost", wrong: "seos", pair: ["PARTITIVE", "NOMINATIVE"], why: "Showing a link isn't a job that gets finished: the study goes on showing it, and nothing about the link is used up. Estonian puts an object like that in the [osastav] (3rd form): {näitab seost}. {Mitte põhjust}, not a cause, is a no, and a no takes the [osastav] (3rd form) anyway." },
+      { line: { et: "Keskmiselt veidi alla seitsme. Ja kõige vähem magavad noored.", en: "On average a little under seven. And it's the young who sleep the least." }, right: "seitsme", wrong: "seitse", pair: ["GENITIVE", "NOMINATIVE"], why: "{Alla}, under, wants the word after it in the [omastav] (2nd form), so a little under seven is {veidi alla seitsme}. {Seitse} is the plain number, for when you're counting how many, as Tõnu does: {Seitse tundi, eks?}" },
     ],
     workOut: [
       {
@@ -462,7 +463,7 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "igas", of: "iga", en: "in every: {igas kuulujutus}, in every rumor" },
     ],
     how: {
-      point: "To pass on what people say is being done, with nobody named, Estonian puts -tavat where -takse was: {Firma müüakse maha} is what is happening, and {Firma müüdavat maha} is what people say is happening. You aren't claiming it, you're passing it on.",
+      point: "To pass on what people say is being done, with nobody named, Estonian puts -tavat where -takse was. {Firma müüakse maha} says it is happening, and {Firma müüdavat maha} says that's what people are saying. With -tavat the claim isn't yours: you're passing it on, and the verb says so.",
       table: {
         head: ["What is done", "What people say is done", "In English"],
         rows: [
@@ -472,11 +473,11 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "It is lesson 7's -tav word with the quotative's -t on the end: {arutatav}, {arutatavat}.",
-        "Other ways to say you only heard it: {kuuldavasti}, so I hear; {väidetavalt}, supposedly; {kuuldub, et}, word has it that.",
+        "It's lesson 7's -tav word with the -t of the [kaudne kõneviis] (-vat, reportedly) on the end: {arutatav}, being discussed, becomes {arutatavat}, being discussed, people say.",
+        "Other ways to say you only heard it: {kuuldavasti}, so I hear; {kuuldub, et}, word has it that; and {väidetavalt}, supposedly, for a claim somebody makes and nobody has shown. These are the ones you'll hear most in speech.",
         "The same thing three ways: to a friend {Kuulsin, et firma müüakse maha}, at work {Kuuldavasti müüakse firma maha}, and in writing {Firma müüdavat maha}.",
       ],
-      watchOut: "{Müüdavat} says you heard it, and {müüakse} says it's true. Pass a rumor on with {müüakse}, and you're the one who said it.",
+      watchOut: "{Müüdavat} says you heard it, and {müüakse} says it's true. Pass a rumor on with {müüakse}, and you're the one making the claim, because nothing in the verb says it came from somebody else.",
       examples: [0, 7, 10],
     },
     hearing: "cafe",
@@ -542,8 +543,8 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "...kuulujutt, jah. Aga igas kuulujutus on natuke tõtt.", en: "...rumor, yes. But there's a bit of truth in every rumor." }, right: "tõtt", wrong: "tõde", pair: ["PARTITIVE", "NOMINATIVE"], why: "After {natuke}, the [osastav] (3rd form): {natuke tõtt}." },
-      { line: { et: "...kuulujutt, jah. Aga igas kuulujutus on natuke tõtt.", en: "...rumor, yes. But there's a bit of truth in every rumor." }, right: "igas", wrong: "iga", pair: ["INESSIVE", "NOMINATIVE"], why: "{Iga} takes the same ending as its noun: {igas kuulujutus}." },
+      { line: { et: "...kuulujutt, jah. Aga igas kuulujutus on natuke tõtt.", en: "...rumor, yes. But there's a bit of truth in every rumor." }, right: "tõtt", wrong: "tõde", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Natuke}, a bit, is an amount, and you mean some of the truth, not all of it. After an amount word like that, the noun goes in the [osastav] (3rd form): {natuke tõtt}. {Tõde} is the truth as a whole, the subject of its sentence: {Tõde tuleb nagunii välja}." },
+      { line: { et: "...kuulujutt, jah. Aga igas kuulujutus on natuke tõtt.", en: "...rumor, yes. But there's a bit of truth in every rumor." }, right: "igas", wrong: "iga", pair: ["INESSIVE", "NOMINATIVE"], why: "{Iga}, every, works like an adjective, so it takes the same ending as the noun after it. The truth is inside the rumor, so {kuulujutt} takes the [seesütlev] (-s, in), {kuulujutus}, and {iga} follows it: {igas kuulujutus}." },
     ],
     workOut: [
       {
@@ -633,7 +634,7 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "subtiitreid", of: "subtiiter", en: "subtitles, as an object: {subtiitreid ei olnud}, there were no subtitles" },
     ],
     how: {
-      point: "The -tav and -v words also say what a thing is like to you: {arusaadav} is what you can understand, and {usutav} what you can believe. The opposite takes -matu: {arusaamatu}, {uskumatu}.",
+      point: "The -tav and -v words from lesson 7 also say what a thing is like for you: {arusaadav} is something you can understand, and {usutav} something you can believe. The opposite ends in -matu: {arusaamatu}, impossible to understand, and {uskumatu}, unbelievable.",
       table: {
         head: ["You can", "You can't", "In English"],
         rows: [
@@ -642,12 +643,21 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Arusaadav} is built on {aru saama}, to understand: {lõpp oli arusaadav}, you could understand the ending.",
-        "A film says a lot by not saying it. {No küll sa oled tark} said to somebody who has just done something stupid means the opposite: listen for what the scene makes of the words.",
-        "When a line refers to something you don't know, ask: to a friend {Millele sa viitad?}, at work {Vabandust, millele te viitate?}.",
+        "{Arusaadav} is built on {aru saama}, to understand: {lõpp oli arusaadav}, the ending was easy to follow. It describes the ending, not the people watching it.",
+        "A film says a lot by not saying it. {No küll sa oled tark}, said to somebody who has just done something stupid, means the opposite. Listen for what the scene makes of the words, not only for the words.",
+        "When a line refers to something you don't know, ask: to a friend {Millele sa viitad?}, at work {Vabandust, millele te viitate?}. {Viitama} asks {millele?}, so the noun referred to takes the [alaleütlev] (-le, onto/to), the way Mari answers: {Kolhoosile}.",
       ],
-      watchOut: "{Arusaamatu} is about the noun ({nali} here), not you: {nali oli mulle arusaamatu}, the joke went over my head. Don't say {ma olen arusaamatu}, which would mean nobody can understand you.",
+      watchOut: "{Arusaamatu} describes the noun, not the person trying to follow it: {nali oli mulle arusaamatu}, the joke went over my head, with {mulle}, to me, saying who couldn't follow. Don't say {ma olen arusaamatu}, which would mean nobody can understand you.",
       examples: [3, 5, 10],
+      why: {
+        word: "kolhoos",
+        en: "collective farm",
+        steps: REFERRED_OR_WHERE_STEPS,
+        lines: [
+          { line: 7, form: "kolhoosis", lands: { case: "INESSIVE", plural: false }, why: "The grandfather is saying how things were on the collective farm, so the word answers {kus?}, where. Being in a place takes the [seesütlev] (-s, in): {kolhoosis}. {Nagu}, like, doesn't change anything: the word keeps the form it would have without it." },
+          { line: 8, form: "Kolhoosile", lands: { case: "ALLATIVE", plural: false }, why: "Now Mari is answering Tom's {Millele ta viitas?}, what was he referring to? {Viitama} asks {millele?}, onto what, so the noun referred to goes in the [alaleütlev] (-le, onto/to): {kolhoosile}. She answers in the form the question asked for." },
+        ],
+      },
     },
     hearing: "cafe",
     listenFor: [
@@ -704,8 +714,8 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Just. Ta mõtles täpselt vastupidist.", en: "Exactly. She meant the very opposite." }, right: "vastupidist", wrong: "vastupidine", pair: ["PARTITIVE", "NOMINATIVE"], why: "What somebody means is in the [osastav] (3rd form) here: {mõtles vastupidist}." },
-      { line: { et: "Kolhoosile. Nõukogude ajal töötasid paljud maal kolhoosis ja seal ei töötanud...", en: "The collective farm. In Soviet times lots of people in the country worked on a collective farm, and nothing there..." }, right: "kolhoosis", wrong: "kolhoosi", pair: ["INESSIVE", "GENITIVE"], why: "Where they worked takes the [seesütlev] (-s, in): {kolhoosis}." },
+      { line: { et: "Just. Ta mõtles täpselt vastupidist.", en: "Exactly. She meant the very opposite." }, right: "vastupidist", wrong: "vastupidine", pair: ["PARTITIVE", "NOMINATIVE"], why: "Meaning something is like thinking it: it goes on, and nothing about it gets finished or used up. So what somebody means goes in the [osastav] (3rd form): {mõtles vastupidist}, she meant the opposite. {Vastupidine} is the plain form, for describing a thing." },
+      { line: { et: "Kolhoosile. Nõukogude ajal töötasid paljud maal kolhoosis ja seal ei töötanud...", en: "The collective farm. In Soviet times lots of people in the country worked on a collective farm, and nothing there..." }, right: "kolhoosis", wrong: "kolhoosi", pair: ["INESSIVE", "GENITIVE"], why: "Where they worked answers {kus?}, where, and being in a place takes the [seesütlev] (-s, in): {kolhoosis}, on the collective farm. {Kolhoosi} is the [omastav] (2nd form), which says of what, not where." },
     ],
     workOut: [
       {
@@ -813,7 +823,7 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "relv", en: "a weapon: {Kus on relv?}, where's the weapon?" },
     ],
     how: {
-      point: "A summary tells what somebody said without becoming them: say who spoke and where, give the points in the order they came with {tema sõnul} or {uuringu järgi}, and keep your own view for the end, marked as yours.",
+      point: "A summary tells what somebody said without becoming them. Say who spoke and where, give the points in the order they came, each with {tema sõnul} or {uuringu järgi} so it's clear whose claim it is, and keep your own view for the end, marked as yours.",
       table: {
         head: ["The part", "Estonian", "In English"],
         rows: [
@@ -826,11 +836,11 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "Write from your notes, not from memory: {märkmed} keep the order, and the order is half of a summary.",
-        "{Tema sõnul} and {uuringu järgi} say whose claim it is, so you can pass on a claim without making it yours.",
-        "A summary is shorter than the piece. Leave out the jokes, the examples and the words the hosts said to each other.",
+        "{Tema sõnul}, according to her, and {uuringu järgi}, according to the study, say whose claim it is, so you can pass on a claim without making it yours. Both want the source in the [omastav] (2nd form): {tema}, {uuringu}.",
+        "A summary is shorter than the piece. Leave out the jokes, the examples and what the hosts said to each other: your friend wants what the researcher found.",
         "To a friend it opens {Tere, Mari!} and closes {Kõike head!}; to work it would open {Tere!} and close with your name.",
       ],
-      watchOut: "Don't put your view in the middle: {Minu meelest} belongs at the end, after the points, or your friend can't tell what was said from what you think.",
+      watchOut: "Keep your view out of the middle. {Minu meelest} belongs at the end, after the points, or your friend can't tell what the researcher said from what you think.",
       examples: [4, 6, 11],
     },
     hearing: "phone",
@@ -886,8 +896,8 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Muidugi. Kirjutan sulle kokkuvõtte. Mida sa veel teada tahad?", en: "Of course. I'll write you a summary. What else do you want to know?" }, right: "kokkuvõtte", wrong: "kokkuvõte", pair: ["GENITIVE", "NOMINATIVE"], why: "A whole thing you write is in the [omastav] (2nd form): {kirjutan kokkuvõtte}." },
-      { line: { et: "Ja telefon on süüdi, eks? Nii oli pealkirjas.", en: "And the phone's to blame, right? That's what the headline said." }, right: "pealkirjas", wrong: "pealkirja", pair: ["INESSIVE", "GENITIVE"], why: "What a headline says is in it: the [seesütlev] (-s, in), {pealkirjas}." },
+      { line: { et: "Muidugi. Kirjutan sulle kokkuvõtte. Mida sa veel teada tahad?", en: "Of course. I'll write you a summary. What else do you want to know?" }, right: "kokkuvõtte", wrong: "kokkuvõte", pair: ["GENITIVE", "NOMINATIVE"], why: "Anna means she'll write one summary, the whole of it, and finish it. A whole thing with the job done goes in the [omastav] (2nd form): {kirjutan kokkuvõtte}. Estonian often uses the present for what's about to happen, so {kirjutan} here is I'll write. {Kokkuvõte}, the plain form, is for when the summary is the subject." },
+      { line: { et: "Ja telefon on süüdi, eks? Nii oli pealkirjas.", en: "And the phone's to blame, right? That's what the headline said." }, right: "pealkirjas", wrong: "pealkirja", pair: ["INESSIVE", "GENITIVE"], why: "What a headline says is in it, so the headline answers {kus?}, where, and takes the [seesütlev] (-s, in): {pealkirjas}, in the headline. {Pealkirja} is the [omastav] (2nd form), of the headline, which doesn't say where." },
     ],
     workOut: [
       {
@@ -992,13 +1002,13 @@ export const C1_MEEDIA_LESSONS: readonly LessonSpec[] = [
     ],
     teaches: [],
     how: {
-      point: "A whole evening made of this part: pass on what you heard without claiming it, listen for what was meant, and when a reference goes past you, say so and ask what it refers to.",
+      point: "A whole evening made of this part: pass on what you heard without claiming it, listen for what was meant as well as what was said, and when a reference goes past you, say so and ask what it refers to.",
       notes: [
         "Pass a rumor on as a rumor: {kuuldavasti nägi keegi}, {keegi olevat näinud}. You heard it; you're not saying it's true.",
         "When a line points at something you weren't there for, say so first, then ask: {Ma ei olnud siin. Millele te viitate?}",
         "In the role-play one answer is new, and somebody says the opposite of what they told you before. Tell them so.",
       ],
-      watchOut: "{Millele sa viitad?} asks what somebody is referring to. {Mida sa mõtled?} asks what they mean. A reference you missed takes the first.",
+      watchOut: "{Millele sa viitad?} asks what somebody is referring to, the noun they point at. {Mida sa mõtled?} asks what they mean by their own words. When a reference went past you, the first is the one to ask.",
       examples: [2, 4, 7],
     },
     hearing: "cafe",

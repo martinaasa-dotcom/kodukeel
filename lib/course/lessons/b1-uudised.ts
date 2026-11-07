@@ -16,6 +16,7 @@
  */
 
 import type { LessonSpec, PartOfLessons } from "./types";
+import { IN_OR_OUT_STEPS, NOBODY_NAMED_STEPS } from "./why-uudised";
 
 export const B1_UUDISED_PART: PartOfLessons = {
   id: "b1-uudised",
@@ -71,7 +72,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
     ],
     patterns: ["impersonal"],
     how: {
-      point: "To say what people do without naming anybody, Estonian has one form of the verb, the [umbisikuline] (-takse, people do): {Eestis räägitakse eesti keelt}, {Jaaniõhtul tehakse lõket}. After {ei} it ends in -ta: {Siin ei suitsetata}.",
+      point: "When you say what people do in general, Estonian names nobody at all and uses one form of the verb, the [umbisikuline] (-takse, people do): {Eestis räägitakse eesti keelt}, {Jaaniõhtul tehakse lõket}. Nobody is named because nobody in particular is meant: it's what people do here. With a no it ends in -ta instead: {Siin ei suitsetata}.",
       table: {
         head: ["Somebody named", "Nobody named", "In English"],
         rows: [
@@ -82,12 +83,12 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "English says this with people, you, they or the passive. Estonian has one form for all of them, and nobody is named in it.",
+        "English has to pick somebody to say it about: people, you, they, or a passive like \"is spoken\". Estonian picks nobody, so all of those come out as this one form.",
         "Learn each verb's form as it stands: {tehakse}, {tuuakse}, {süüakse}. They're in the Words step, one by one.",
-        "It's how signs talk too: {Siin ei suitsetata}, no smoking here.",
-        "When the whole thing gets done and nobody is named, it takes the [nimetav] (1st form): {Me sööme koogi ära}, but {Kook süüakse ära}.",
+        "Signs talk this way too, because a sign is meant for everybody: {Siin ei suitsetata}, no smoking here.",
+        "Nobody named changes the noun too, when the whole of it gets done. With somebody named, a whole thing takes the [omastav] (2nd form): {Me sööme koogi ära}. With nobody named, it takes the [nimetav] (1st form): {Kook süüakse ära}. Some of it, an open amount, is the [osastav] (3rd form) either way: {Sünnipäeval tuuakse tööle kooki}.",
       ],
-      watchOut: "No person in front of it: {räägitakse} already says people speak. Never {nad} or {me} with it.",
+      watchOut: "Never put {nad} or {me} in front of it: {räägitakse} already says people speak, so a person beside it says it twice. To say who, use the ordinary form instead: {Me räägime eesti keelt}.",
       examples: [2, 3, 7, 9],
     },
     listenFor: [
@@ -131,9 +132,9 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Jaaniõhtul tehakse lõket.", en: "On Midsummer Eve people light a bonfire." }, right: "tehakse", wrong: "teeb", pair: ["IndPrIps", "IndPrSg3"], why: "Nobody is named, so the [umbisikuline] (-takse, people do): {tehakse}." },
-      { line: { et: "Liftis ei räägita.", en: "People don't talk in the elevator." }, right: "räägita", wrong: "räägitakse", pair: ["IndPrIpsNeg", "IndPrIps"], why: "After {ei} the ending is -ta: {ei räägita}." },
-      { line: { et: "Sünnipäeval tuuakse tööle kooki.", en: "On your birthday, cake gets brought to work." }, right: "tuuakse", wrong: "toob", pair: ["IndPrIps", "IndPrSg3"], why: "Nobody is named as the one who brings it, so {tuuakse}." },
+      { line: { et: "Jaaniõhtul tehakse lõket.", en: "On Midsummer Eve people light a bonfire." }, right: "tehakse", wrong: "teeb", pair: ["IndPrIps", "IndPrSg3"], why: "{Teeb} says he or she makes it, so it needs somebody named. Here nobody is: it's what people do on Midsummer Eve. So the [umbisikuline] (-takse, people do): {tehakse}." },
+      { line: { et: "Liftis ei räägita.", en: "People don't talk in the elevator." }, right: "räägita", wrong: "räägitakse", pair: ["IndPrIpsNeg", "IndPrIps"], why: "It's a no, and with {ei} the [umbisikuline] (-takse, people do) ends in -ta: {ei räägita}. {Räägitakse} is the yes, people do talk." },
+      { line: { et: "Sünnipäeval tuuakse tööle kooki.", en: "On your birthday, cake gets brought to work." }, right: "tuuakse", wrong: "toob", pair: ["IndPrIps", "IndPrSg3"], why: "{Toob} says he or she brings it, so it needs somebody named. Anna is talking about anybody's birthday, nobody in particular, so {tuuakse}, it gets brought." },
     ],
     retell: {
       who: "Anna",
@@ -202,7 +203,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "viiakse", of: "viima", en: "is taken" },
     ],
     how: {
-      point: "Was done, with nobody named, ends in -ti or -di: {ehitati}, was built, {viidi}, was taken. It's the past of the [umbisikuline] (-takse, people do).",
+      point: "To say what was done without saying who did it, use the past of the [umbisikuline] (-takse, people do), which ends in -ti or -di: {ehitati}, was built, {viidi}, was taken. It's what you use when who did it doesn't matter or nobody knows: what counts about the town hall is when it was built, not who built it.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -214,10 +215,10 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "Now and then side by side: {avatakse}, it opens, and {avati}, it was opened; {viiakse}, it's taken, and {viidi}, it was taken.",
-        "A year goes with {aastal}, and the number is read as which year: {1930. aastal}, in 1930.",
-        "{Ju} says you both know it: {Muuseum on ju kinni!}, but the museum's closed, as we know.",
+        "A year goes with {aastal}, and the number is read as which year, the way you'd say the first or the second: that's why it has a full stop after it, {1930. aastal}, in 1930.",
+        "{Ju} says you both know it already: {Muuseum on ju kinni!}, but the museum's closed, as we know. Tom is reminding Mari of what she told him herself.",
       ],
-      watchOut: "Was built is {ehitati}, and just as often {on ehitatud}: {See on ehitatud 1930. aastal}. {Oli ehitatud} is something else: had been built, before another thing happened.",
+      watchOut: "Was built is {ehitati}, and just as often {on ehitatud}, has been built: {See on ehitatud 1930. aastal}. Both are right about a building that still stands. {Oli ehitatud} is something else: had been built, already, before another thing in the past happened.",
       examples: [0, 2, 4, 6],
     },
     listenFor: [
@@ -255,8 +256,8 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Kahjuks ei saa, muuseum on kinni. See suleti eelmisel kuul.", en: "Sadly not, the museum's closed. It was closed last month." }, right: "suleti", wrong: "suletakse", pair: ["IndIpfIps", "IndPrIps"], why: "Last month is over, so the past: {suleti}, was closed." },
-      { line: { et: "See ehitati 1930. aastal. Eelmisel aastal renoveeriti see ja avati hotellina.", en: "That was built in 1930. Last year it was renovated and opened as a hotel." }, right: "avati", wrong: "avas", pair: ["IndIpfIps", "IndIpfSg3"], why: "Nobody is named as the one who opened it, so {avati}, was opened." },
+      { line: { et: "Kahjuks ei saa, muuseum on kinni. See suleti eelmisel kuul.", en: "Sadly not, the museum's closed. It was closed last month." }, right: "suleti", wrong: "suletakse", pair: ["IndIpfIps", "IndPrIps"], why: "Last month is over, so it's the past: {suleti}, was closed. {Suletakse} is now or later, it closes, the way a sign gives the hours." },
+      { line: { et: "See ehitati 1930. aastal. Eelmisel aastal renoveeriti see ja avati hotellina.", en: "That was built in 1930. Last year it was renovated and opened as a hotel." }, right: "avati", wrong: "avas", pair: ["IndIpfIps", "IndIpfSg3"], why: "{Avas} says he or she opened it, so it needs somebody named, and Mari names nobody. With nobody named it's {avati}, was opened." },
     ],
     faster: {
       ask: { et: "Mis on sinu linnas kõige ilusam maja? Miks?", en: "What's the most beautiful building in your town? Why?" },
@@ -312,7 +313,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
     ],
     patterns: ["pluperfect"],
     how: {
-      point: "Had done is {olin}, {oli} and the rest with the [nud-kesksõna] (-nud, done): {Kui ma jõudsin, oli buss juba läinud}. It's the [enneminevik] (had done), for what happened before something else in the past.",
+      point: "Had done is the past of {olema}, {olin}, {oli} and the rest, with the [nud-kesksõna] (-nud, done): {Kui ma jõudsin, oli buss juba läinud}. It's the [enneminevik] (had done), for something that was already over before another thing in the past: first the bus left, then Tom got to the stop.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -324,12 +325,12 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "It's the [nud-kesksõna] (-nud, done) you know from {on läinud}, has gone. Put {oli} in place of {on} and it's had gone.",
+        "It's built like {on läinud}, has gone, which you know: put the past {oli} in place of {on}, and it's had gone. Only {olema} changes with the person; the [nud-kesksõna] (-nud, done) stays the same.",
         "{Juba} often goes with it: {oli juba alanud}, had already started.",
-        "Not by then is {ei olnud} with the [nud-kesksõna] (-nud, done): {Kohv ei olnud veel otsa saanud}, the coffee hadn't run out yet.",
+        "Not by then is {ei olnud}, or {polnud} when you talk, with the [nud-kesksõna] (-nud, done): {Kohv ei olnud veel otsa saanud}, the coffee hadn't run out yet.",
         "When the {kui} part comes first, the rest usually starts with its verb: {Kui ma tööle jõudsin, oli koosolek juba alanud}. Lesson 36 says more about it.",
       ],
-      watchOut: "{Oli läinud} is how you make it clear that one thing happened before another in the past. When the order is plain anyway, the simple past works too: {Buss läks ära ja ma võtsin takso}.",
+      watchOut: "Use {oli läinud} when you need to show that one thing happened before another. When you tell things in the order they happened, the order already says it, and the simple past does the job: {Buss läks ära ja ma võtsin takso}.",
       examples: [1, 3, 5, 9],
     },
     listenFor: [
@@ -374,8 +375,8 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ma olin telefoni koju unustanud.", en: "I'd left my phone at home." }, right: "olin", wrong: "oli", pair: ["IndIpfSg1", "IndIpfSg3"], why: "It's you who had forgotten: {ma olin}." },
-      { line: { et: "Kui ma tööle jõudsin, oli koosolek juba alanud.", en: "When I got to work, the meeting had already started." }, right: "oli", wrong: "olin", pair: ["IndIpfSg3", "IndIpfSg1"], why: "The meeting had started, so the third person: {koosolek oli}." },
+      { line: { et: "Ma olin telefoni koju unustanud.", en: "I'd left my phone at home." }, right: "olin", wrong: "oli", pair: ["IndIpfSg1", "IndIpfSg3"], why: "You're the one who had forgotten, so it's {ma olin}, I had. {Oli} is for he, she or it. The [nud-kesksõna] (-nud, done) stays {unustanud} whoever it was." },
+      { line: { et: "Kui ma tööle jõudsin, oli koosolek juba alanud.", en: "When I got to work, the meeting had already started." }, right: "oli", wrong: "olin", pair: ["IndIpfSg3", "IndIpfSg1"], why: "It's the meeting that had started, not you, so it's the third person: {koosolek oli}. {Olin} would say you yourself had started." },
     ],
     retell: {
       who: "Mari",
@@ -446,7 +447,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "õnnetus", en: "accident" },
     ],
     how: {
-      point: "The news is told with nobody named: {Kohale kutsuti päästjad}, the firefighters were called. And what has been done or said is {on} with the [tud-kesksõna] (-tud, done to): {Uudistes on teatatud}, it's been reported in the news.",
+      point: "The news says what was done and leaves out who did it, because it's the event that's news: {Kohale kutsuti päästjad}, the firefighters were called. Somebody called them, but who doesn't matter. What has been done or said by now is {on} with the [tud-kesksõna] (-tud, done to): {Uudistes on teatatud}, it's been reported in the news.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -458,10 +459,10 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "{Läks põlema} is caught fire: literally, it went into burning.",
-        "The news says {sai vigastada}, was injured. Talking it over, people say {sai haiget}: {Kas keegi sai haiget?}",
+        "The news says {sai vigastada}, was injured, which sounds official. Talking it over at home, people say {sai haiget}: {Kas keegi sai haiget?}",
         "{Õnneks} is luckily: {Õnneks ei saanud keegi vigastada}.",
       ],
-      watchOut: "The [umbisikuline] (-takse, people do) has one form however many there are: {kutsuti päästjad ja politsei}.",
+      watchOut: "English changes was to were when there's more than one. The [umbisikuline] (-takse, people do) has one form however many there are, because nobody doing it is counted: {kutsuti päästjad ja politsei}.",
       examples: [2, 3, 7, 10],
     },
     listenFor: [
@@ -506,8 +507,8 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Kohale kutsuti päästjad ja politsei.", en: "The firefighters and the police were called." }, right: "kutsuti", wrong: "kutsus", pair: ["IndIpfIps", "IndIpfSg3"], why: "Nobody is named as the one who called, so {kutsuti}." },
-      { line: { et: "Õnneks ei saanud keegi vigastada.", en: "Luckily nobody was hurt." }, right: "saanud", wrong: "sai", pair: ["PtsPtPs", "IndIpfSg3"], why: "A no in the past takes the [nud-kesksõna] (-nud, done): {ei saanud}, never {ei sai}." },
+      { line: { et: "Kohale kutsuti päästjad ja politsei.", en: "The firefighters and the police were called." }, right: "kutsuti", wrong: "kutsus", pair: ["IndIpfIps", "IndIpfSg3"], why: "{Kutsus} says he or she called, so it needs somebody named. The radio doesn't say who called the firefighters, so {kutsuti}, were called." },
+      { line: { et: "Õnneks ei saanud keegi vigastada.", en: "Luckily nobody was hurt." }, right: "saanud", wrong: "sai", pair: ["PtsPtPs", "IndIpfSg3"], why: "With a no, the past is {ei} with the [nud-kesksõna] (-nud, done), the same for every person: {ei saanud}. So it's never {ei sai}." },
     ],
     faster: {
       ask: { et: "Kas sa loed uudiseid? Miks?", en: "Do you read the news? Why?" },
@@ -564,7 +565,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "selleks", of: "see", en: "for that; {selleks et}, so that" },
     ],
     how: {
-      point: "A meeting's news is told with nobody named: {arutati}, was discussed, {otsustati}, was decided, {lepiti kokku}, was agreed. What was decided comes after {et}: {Otsustati, et projekt algab järgmisel kuul}.",
+      point: "What a meeting did is told with nobody named, because what counts is what the meeting decided, not who said what: {arutati}, was discussed, {otsustati}, was decided, {lepiti kokku}, was agreed. What was decided comes after {et}, as a sentence of its own: {Otsustati, et projekt algab järgmisel kuul}.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -576,11 +577,20 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "{Lepime kokku} from A2 is let's agree; {lepiti kokku} is it was agreed. The small word stays after the verb.",
-        "As in lesson 29: when the whole thing gets done and nobody is named, it takes the [nimetav] (1st form): {Kadri saatis protokolli}, but {Protokoll saadeti kõigile}.",
+        "As in lesson 29, nobody named changes the noun too, when the whole of it gets done. With somebody named, a whole thing takes the [omastav] (2nd form): {Kadri saatis protokolli}. With nobody named, it takes the [nimetav] (1st form): {Protokoll saadeti kõigile}.",
         "A comma always comes before {et}. In {nii et}, so, and {selleks et}, so that, it comes before the first word: {Ma olin arsti juures, nii et ma ei olnud koosolekul}. And {selleks, et} with the comma in the middle is right too: {Ma tulin selleks, et aidata}.",
       ],
-      watchOut: "{Arutama} on its own takes the [osastav] (3rd form): {arutati projekti}, never {projekt}. With {läbi}, talked through to the end, it takes the whole object: {Arutati projekt läbi}.",
+      watchOut: "Talking something over never finishes it, the way sending finishes the minutes. So {arutama} on its own takes the [osastav] (3rd form): {arutati projekti}, never {projekt}. Add {läbi}, talked through to the end, and the job is done, so the whole object: {Arutati projekt läbi}.",
       examples: [3, 5, 9, 11],
+      why: {
+        word: "projekt",
+        en: "project",
+        steps: NOBODY_NAMED_STEPS,
+        lines: [
+          { line: 3, form: "projekti", lands: { case: "PARTITIVE", plural: false }, why: "Talking the project over doesn't finish it or do anything to the whole of it: the talking is still going. Something still going takes the singular [osastav] (3rd form), so {projekt} becomes {projekti}. Only with {läbi}, talked through to the end, would it be the whole thing." },
+          { line: 5, form: "projekt", lands: { case: "NOMINATIVE", plural: false }, why: "Here nothing is done to the project: it's the one doing the verb, the project starts, {projekt algab}. The one doing the verb takes the [nimetav] (1st form), the plain form: {projekt}. {Otsustati} names nobody, but after {et} a new sentence starts, with its own one doing it." },
+        ],
+      },
     },
     listenFor: [
       { q: "Why did Tom miss the meeting?", options: ["He forgot all about it", "He was on vacation that week", "He was at the doctor's", "His bus was late"], answer: 2 },
@@ -624,8 +634,8 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Jah, protokoll saadeti eile õhtul kõigile.", en: "Yes, the minutes were sent to everybody last night." }, right: "protokoll", wrong: "protokolli", pair: ["NOMINATIVE", "GENITIVE"], why: "The whole thing, and nobody named: the [nimetav] (1st form), {protokoll}." },
-      { line: { et: "Selge. Kõigepealt arutati uut projekti.", en: "I see. First they talked about the new project." }, right: "projekti", wrong: "projekt", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Arutama} takes the [osastav] (3rd form): {projekti}." },
+      { line: { et: "Jah, protokoll saadeti eile õhtul kõigile.", en: "Yes, the minutes were sent to everybody last night." }, right: "protokoll", wrong: "protokolli", pair: ["NOMINATIVE", "GENITIVE"], why: "The minutes were sent, all of them, so the job is done. With somebody named that would be the [omastav] (2nd form), {Kadri saatis protokolli}. Here nobody is named, and a whole thing with nobody named takes the [nimetav] (1st form): {protokoll}." },
+      { line: { et: "Selge. Kõigepealt arutati uut projekti.", en: "I see. First they talked about the new project." }, right: "projekti", wrong: "projekt", pair: ["PARTITIVE", "NOMINATIVE"], why: "Talking about the project doesn't finish it, so it isn't a whole thing that got done. That's why {arutama} takes the [osastav] (3rd form): {projekti}." },
     ],
     retell: {
       who: "Kadri",
@@ -694,7 +704,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "Ära mõtlegi!", en: "Don't even think about it!" },
     ],
     how: {
-      point: "A report says what happened and what was done, with nobody named: {Torumees kutsuti}, {toru vahetati välja}. What still has to be done is {tuleb} with the [da-tegevusnimi] (-da): {Vanad torud tuleb välja vahetada}.",
+      point: "A report says what happened and what was done, and names nobody, because what matters is the pipe, not who fixed it: {Torumees kutsuti}, {toru vahetati välja}. What still has to be done is {tuleb} with the [da-tegevusnimi] (-da): {Vanad torud tuleb välja vahetada}. Nobody is named there either: it has to be done, whoever does it.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -706,11 +716,20 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "A short report runs in order: what happened, when, what was done, and what's still to do.",
-        "{Tuleb} with the [da-tegevusnimi] (-da) is has to be done, with nobody named: {Toru tuleb välja vahetada}.",
-        "Has been done is {on} with the [tud-kesksõna] (-tud, done to): {Toru on parandatud}.",
+        "{Tuleb} with the [da-tegevusnimi] (-da) is has to be done, with nobody named. So a whole thing after it takes the [nimetav] (1st form), as it does after {vahetati}: {Toru tuleb välja vahetada}, {Vanad torud tuleb välja vahetada}.",
+        "Has been done, and is done now, is {on} with the [tud-kesksõna] (-tud, done to): {Toru on parandatud}.",
       ],
-      watchOut: "A small word after the verb changes it: {vahetati} is was changed, {vahetati välja} is was replaced, and {vahetati ära} says the same. Keep the small word.",
+      watchOut: "A small word after the verb changes what it says: {vahetati} is was changed, {vahetati välja} is was replaced, the old one out and a new one in, and {vahetati ära} says the same. Leave the small word out and the sentence no longer says the old pipe is gone, so keep it.",
       examples: [0, 2, 3, 4],
+      why: {
+        word: "vesi",
+        en: "water",
+        steps: NOBODY_NAMED_STEPS,
+        lines: [
+          { line: 1, form: "vett", lands: { case: "PARTITIVE", plural: false }, why: "Tom is saying how much water there was, up to the knees: an amount of it, not the water as a whole. An amount of something you don't count goes in the singular [osastav] (3rd form): {vett}." },
+          { line: 2, form: "vesi", lands: { case: "NOMINATIVE", plural: false }, why: "Now it's the water as a whole, the building's supply, and a job is done to it: it was turned off, all of it. Nobody is named as the one who did it, and a whole thing with nobody named takes the [nimetav] (1st form): {vesi}. With the plumber named it would take the [omastav] (2nd form)." },
+        ],
+      },
     },
     listenFor: [
       { q: "Who asks Tom to write the report?", options: ["The plumber", "Helgi", "Anna", "Nobody"], answer: 1 },
@@ -754,8 +773,8 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Toru vahetati välja, aga kelder on veel märg.", en: "The pipe was replaced, but the cellar's still wet." }, right: "vahetati", wrong: "vahetas", pair: ["IndIpfIps", "IndIpfSg3"], why: "Nobody is named as the one who did it, so {vahetati}." },
-      { line: { et: "Vesi keerati kinni ja toru vahetati välja.", en: "The water was turned off and the pipe was replaced." }, right: "Vesi", wrong: "Vett", pair: ["NOMINATIVE", "PARTITIVE"], why: "All of it, with nobody named: the [nimetav] (1st form), {vesi}." },
+      { line: { et: "Toru vahetati välja, aga kelder on veel märg.", en: "The pipe was replaced, but the cellar's still wet." }, right: "vahetati", wrong: "vahetas", pair: ["IndIpfIps", "IndIpfSg3"], why: "{Vahetas} says he or she replaced it, so it needs somebody named, as in {Torumees vahetas toru välja}. The report names nobody, so {vahetati}." },
+      { line: { et: "Vesi keerati kinni ja toru vahetati välja.", en: "The water was turned off and the pipe was replaced." }, right: "Vesi", wrong: "Vett", pair: ["NOMINATIVE", "PARTITIVE"], why: "The water as a whole was turned off, so the job is done, and nobody is named as the one who did it. A whole thing with nobody named takes the [nimetav] (1st form): {vesi}. {Vett} would be an amount of it, as in {Keldris oli vett põlvini}." },
     ],
     write: {
       genre: "What happened, told in order",
@@ -856,7 +875,7 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "mööblipoe reklaam", en: "an ad for a furniture shop" },
     ],
     how: {
-      point: "The news is in a place: {ajalehes}, in the paper, {raadios}, on the radio, {esimesel lehel}, on the front page. Something you read out of it takes -st: {Ma lugesin seda ajalehest}.",
+      point: "The news is somewhere, so the ending says where. Something in the paper or on the radio is inside it, the [seesütlev] (-s, in): {ajalehes}, {raadios}. On a page is the [alalütlev] (-l, on/at/has): {esimesel lehel}, on the front page. What you read or learn there comes out of it, the [seestütlev] (-st, out of): {Ajalehest õpin ma rohkem kui õpikust}.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -874,6 +893,15 @@ export const B1_UUDISED_LESSONS: readonly LessonSpec[] = [
       ],
       watchOut: "{Tõlkima} is to put something into another language. To say in Estonian what a word means is {seletama}: {Seleta, mis see sõna tähendab}.",
       examples: [0, 3, 10],
+      why: {
+        word: "ajaleht",
+        en: "newspaper",
+        steps: IN_OR_OUT_STEPS,
+        lines: [
+          { line: 0, form: "ajalehes", lands: { case: "INESSIVE", plural: false }, why: "The news is in the paper, inside it, so {ajaleht} takes the [seesütlev] (-s, in): {ajalehes}. It's the ending for where something is when it's inside something. Estonian says the radio the same way, {raadios}, where English says on the radio." },
+          { line: 10, form: "ajalehest", lands: { case: "ELATIVE", plural: false }, why: "Anna learns from the paper: what she learns comes out of it. Out of something is the [seestütlev] (-st, out of): {ajalehest}, and the textbook the same, {õpikust}." },
+        ],
+      },
     },
     listenFor: [
       { q: "Who is coming to Tallinn?", options: ["A famous actor from a film", "A famous French singer", "An Estonian writer", "A radio presenter"], answer: 1 },

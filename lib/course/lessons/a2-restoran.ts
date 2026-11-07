@@ -13,6 +13,7 @@
  */
 
 import type { LessonSpec, PartOfLessons } from "./types";
+import { SHOP_THING_STEPS } from "./why-a2-restoran";
 
 export const A2_RESTORAN_PART: PartOfLessons = {
   id: "a2-restoran",
@@ -49,7 +50,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "oleks", of: "olema", en: "would be" },
     ],
     how: {
-      point: "Would is -ks- before the ending: {võtan} and then {võtaksin}, {saan} and then {saaksin}. It turns any ask into a polite one, and it works for every verb you know. A class calls it the [tingiv kõneviis] (-ks, would).",
+      point: "To say would, Estonian puts -ks- in front of the ending: {võtan} is I take, and {võtaksin} is I would take; {saan} becomes {saaksin}. It turns any ask into a polite one, and it works for every verb you know. A class calls it the [tingiv kõneviis] (-ks, would).",
       table: {
         head: ["I do", "I would", "We would"],
         rows: [
@@ -60,11 +61,12 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Take the [olevik] (I form), drop the -n, and add -ksin, -ksid, -ks, -ksime, -ksite, -ksid: {võta} and then {võtaksin}, {võtaks}.",
-        "{Kas me võiksime...?} is could we, the softest way to ask for something. A waiter says {Kas te sooviksite...?}",
+        "To build it, take the [olevik] (I form), drop the -n, and add -ksin, -ksid, -ks, -ksime, -ksite or -ksid for the person: {võtan} loses its -n and becomes {võtaksin}, I would take, or {võtaks}, he or she would take.",
+        "{Kas me võiksime...?} is could we...?, the softest way to ask for something. A waiter asks you {Kas te sooviksite...?}, would you like...?",
         "To be has it too: {See oleks tore} is that would be nice.",
+        "{Lauda} and {õlut} are in the [osastav] (3rd form), for two different reasons. Wishing and wanting, {soovin} and {tahan}, usually put what you want in that form, so a table you would like is {lauda}. And a drink you order is an amount of it, some beer, not one particular glass, so it is {õlut}.",
       ],
-      watchOut: "{Tahaksin} is not I wanted. Wanted is the past of part three; would like, now, is {tahaksin}.",
+      watchOut: "{Tahaksin} is not I wanted. I wanted is the past, which you met in part three, and it is about before. {Tahaksin} is about now: I would like.",
       examples: [1, 3, 5],
     },
     answers: [
@@ -104,7 +106,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "magustoit", en: "dessert" },
     ],
     how: {
-      point: "Ordering, the dish comes after {võtaksin} or {mulle} in the [osastav] (3rd form): {Ma võtaksin suppi}, {Mulle salatit, palun}.",
+      point: "When you order food, you ask for some of it, an amount to eat, not for one particular thing that is already there. So the dish you order goes in the [osastav] (3rd form), after {võtaksin} or {mulle}: {Ma võtaksin suppi}, {Mulle salatit, palun}.",
       table: {
         head: ["On the menu", "Ordering it"],
         rows: [
@@ -118,9 +120,19 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
         "A menu runs {eelroog}, {praad}, {magustoit}: starter, main, dessert. {Praad} is any main course, not only a roast.",
         "{Mida te soovitate?} is what do you recommend, and a waiter is always glad to be asked.",
         "{Mulle} with no verb after it is the quickest order there is: {Mulle kala, palun}.",
+        "When the dish is what the sentence is about, it stays in its plain form, the [nimetav] (1st form): {Täna on väga hea kala}, the fish is very good today. It only takes the [osastav] (3rd form) once somebody orders it.",
       ],
-      watchOut: "{Kala} looks the same as what you order, but that's because its [osastav] (3rd form) is {kala} too. {Supp} and {praad} change: {suppi}, {praadi}.",
+      watchOut: "{Kala} looks the same both ways, because its [osastav] (3rd form) happens to be spelled {kala} too. Most words change, so listen for the ending: {supp} becomes {suppi}, {praad} becomes {praadi}, {salat} becomes {salatit}.",
       examples: [1, 3, 4],
+      why: {
+        word: "kala",
+        en: "fish",
+        steps: SHOP_THING_STEPS,
+        lines: [
+          { line: 2, form: "kala", lands: { case: "NOMINATIVE", plural: false }, why: "Peeter is telling you about the fish: the fish is very good today. The fish is what the sentence is about, so it stays in its plain form, the [nimetav] (1st form): {kala}." },
+          { line: 3, form: "kala", lands: { case: "PARTITIVE", plural: false }, why: "Now Mari orders the fish. Food you order is an amount to eat, not a whole thing you take away, so it goes in the [osastav] (3rd form). For {kala} that is spelled {kala} too, which is why it looks the same. {Suppi} in the same line shows the ending you can hear." },
+        ],
+      },
     },
     answers: [
       { ask: { et: "Kas olete valmis tellima?", en: "Are you ready to order?" }, cue: "Say yes, and ask what they recommend.", model: { et: "Jah. Mida te soovitate?", en: "Yes. What do you recommend?" } },
@@ -156,7 +168,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "jootraha", en: "a tip" },
     ],
     how: {
-      point: "{Kas me saaksime arve?} is could we have the bill: {saama} with -ks-, the would form of the last lesson, which is how a request is softened.",
+      point: "{Kas me saaksime arve?} is could we have the bill. It is {saama}, to get, in the would form from lesson 35, and the would form is what makes a request soft and polite.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -171,7 +183,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
         "{Kas saab...?} with nobody in front of it is can one: {Kas saab kaardiga maksta?}",
         "A tip is {jootraha}, drinking money. In Estonia it's welcome, not expected.",
       ],
-      watchOut: "{Arve} is the whole bill. Asking for it, it stays as it is: {Kas me saaksime arve?}, because you want all of it.",
+      watchOut: "In {Kas me saaksime arve?}, {arve} is the [omastav] (2nd form), which happens to be spelled like its plain form. You are asking for one whole, particular thing, the bill for your table, and one whole thing you get takes the [omastav] (2nd form). That is why it does not change the way {suppi} does.",
       examples: [0, 2, 3],
     },
     answers: [
@@ -215,7 +227,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
       { kind: "verb", et: "arvama", first: "arvan", en: "to think, to reckon", firstEn: "I think" },
     ],
     how: {
-      point: "More is -m on the [omastav] (2nd form): {suure} and then {suurem}, {odava} and then {odavam}. Than is {kui}: {suurem kui}.",
+      point: "To say more of something, bigger or cheaper, take the word's [omastav] (2nd form) and add -m: {suur}, {suure}, {suurem}; {odav}, {odava}, {odavam}. The -m goes on the [omastav] (2nd form) because that is the word's stem, the part its endings go on. Than is {kui}: {suurem kui}.",
       table: {
         head: ["Word", "Its stem", "More"],
         rows: [
@@ -230,7 +242,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
         "Good has its own word, like in English: {hea} and {parem}. Bad follows the rule: {halb}, {halva}, {halvem}.",
         "{Kumb} asks which of two: {Kumb on parem?} For more than two, it's {mis}.",
       ],
-      watchOut: "{Väike} is irregular too: {väiksem}, smaller, with an -s- in the middle.",
+      watchOut: "{Väike} does not follow the rule either: smaller is {väiksem}, with an -s- in the middle. Learn it as its own word, like {parem}.",
       examples: [1, 3, 4],
     },
     answers: [
@@ -265,7 +277,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "parim", of: "hea", en: "the best" },
     ],
     how: {
-      point: "The most is {kõige} in front of the more word: {suurem} and then {kõige suurem}, {parem} and then {kõige parem}. One more word, nothing else changes.",
+      point: "To say the most, put {kõige} in front of the more word: {suurem} is bigger and {kõige suurem} is the biggest; {parem} is better and {kõige parem} is the best. You add one word and change nothing else.",
       table: {
         head: ["More", "The most"],
         rows: [
@@ -278,9 +290,9 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
       notes: [
         "{Parim} is a shorter way to say {kõige parem}, the best. Both are right.",
         "{Minu arvates} is in my opinion, the way to say what you think: {Minu arvates Pärnu}.",
-        "{Suuruselt teine} is the second biggest, second by size.",
+        "{Suuruselt teine} is the second biggest, second by size. {Suuruselt} has the [alaltütlev] (-lt, off) ending, which here says what you are measuring by.",
       ],
-      watchOut: "In the most form, {kõige} doesn't change, and it comes before a word with -m on it: {kõige suurem}.",
+      watchOut: "{Kõige} never changes, and it always goes in front of the more word, the one ending in -m: {kõige suurem}.",
       examples: [0, 2, 4],
     },
     answers: [
@@ -315,7 +327,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "selle", of: "see", en: "this one, the whole of it, as an object" },
     ],
     how: {
-      point: "In a shop, a bigger one is -t on the more word: {suuremat}, {väiksemat}. That's the [osastav] (3rd form), the form of {Kas teil on...?}",
+      point: "{Kas teil on suuremat?} asks whether they have any bigger one at all, not one particular jacket. Asking whether there is any of something puts it in the [osastav] (3rd form), so the more word gets -t: {suuremat}, {väiksemat}.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -328,10 +340,20 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
       notes: [
         "Trying something on is {proovima}, the same verb as trying a sauna in part three: {Kas ma võiksin seda proovida?}",
         "Clothes that fit {sobivad}: {See sobib hästi}, the verb of the appointment that suits you in part four.",
-        "{Ma võtan selle} is I'll take it, the whole thing: part three's whole object, with {selle}.",
+        "{Ma võtan selle} is I'll take it. You take one whole thing, so it goes in the [omastav] (2nd form), {selle}, like the whole objects of part three.",
       ],
-      watchOut: "Trying always takes {seda}, whether or not you've decided. Taking it is {selle}, the whole of it.",
+      watchOut: "Trying something on never finishes a job, so {proovima} takes the [osastav] (3rd form), {seda}, even when you already know you want the jacket. Taking it is a whole thing done, so it is {selle}: {Ma võtan selle}.",
       examples: [1, 3, 5],
+      why: {
+        word: "see",
+        en: "this, that, it",
+        steps: SHOP_THING_STEPS,
+        lines: [
+          { line: 1, form: "seda", lands: { case: "PARTITIVE", plural: false }, why: "Tom wants to try the jacket on. Trying never finishes a job, you only try, so the jacket, {seda jopet}, goes in the [osastav] (3rd form): {seda}." },
+          { line: 3, form: "See", lands: { case: "NOMINATIVE", plural: false }, why: "Here the jacket is what the sentence is about: it is too small. What a sentence is about keeps its plain form, the [nimetav] (1st form): {see}." },
+          { line: 5, form: "selle", lands: { case: "GENITIVE", plural: false }, why: "Tom has decided: he will take this jacket, the whole of it, and buy it. One whole thing that he takes goes in the [omastav] (2nd form): {selle}. In the same line, {See sobib hästi} is about the jacket, so there it is {see}." },
+        ],
+      },
     },
     answers: [
       { cue: "Ask if you could try this jacket on.", model: { et: "Kas ma võiksin seda jopet proovida?", en: "Could I try this jacket on?" } },
@@ -364,6 +386,7 @@ export const A2_RESTORAN_LESSONS: readonly LessonSpec[] = [
       point: "A whole evening at a restaurant, made of part six: the would form for every ask, ordering, and the bill.",
       notes: [
         "Every request here is softened with -ks-: {sooviksime}, {võtaksin}, {saaksime}. That's what makes it polite.",
+        "The fish is {kala} twice, for two reasons. In {Kala on täna kõige parem} it is what the sentence is about. In {Siis ma võtaksin kala} you order some of it, the [osastav] (3rd form), which is spelled the same.",
         "At the end, the waiter speaks to you. Answer as yourself, one turn at a time.",
       ],
       watchOut: "With no booking, say what you'd like in one go: {Me sooviksime lauda kahele}. The waiter does the rest.",

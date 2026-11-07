@@ -44,6 +44,8 @@ import { orderedSaid, type SaidResult } from "@/lib/course/lessons/said";
 import type { SavedAnswers } from "@/lib/progress/lessonAnswers";
 import { SaidList } from "@/components/course/SaidList";
 import { ReadText } from "@/components/course/ReadText";
+import { WhyThisForm } from "@/components/course/WhyThisForm";
+import type { CaseForms } from "@/lib/progress/lessonView";
 import { WordCards } from "@/components/course/WordCards";
 import type { WordsLayout } from "@/lib/course/lessons/wordCards";
 import { NotesTalk } from "@/components/course/NotesTalk";
@@ -120,7 +122,7 @@ const WORKBOOK_NAME = nameOf("/review/workbook") ?? { et: "Töövihik", en: "Wor
 /** Every step not on this list asks nothing, and is finished by being open. */
 const ASKS: ReadonlySet<Step> = new Set(["practise", "write", "say", "review"]);
 
-export function LessonRunner({ lesson, practice, review, next, scene, situation = null, worksheet = null, conversation, place, name, due = 0, check = null, part, timeMultiplier, partAt, read = null, notes = null, forms = [], finishedBefore = false, keptAnswers = null, words, stars }: {
+export function LessonRunner({ lesson, practice, review, next, scene, situation = null, worksheet = null, conversation, place, name, due = 0, check = null, part, timeMultiplier, partAt, read = null, notes = null, forms = [], finishedBefore = false, keptAnswers = null, words, stars, caseForms = null }: {
   /**
    * The lesson was finished before: it opens on its recap, every step ticked
    * and open again, with no confetti, which is for the first time only.
@@ -140,6 +142,8 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
    * empty on every other lesson.
    */
   forms?: readonly VerbExample[];
+  /** The table a "Why this form?" step lands in (`lib/progress/lessonView.ts`); null where the lesson has none. */
+  caseForms?: CaseForms | null;
   /** The Words step's cards, worked out on the server off the dictionary (`wordsLayout`); null draws the plain table. */
   words: WordsLayout;
   /** The taught words' dictionary entries by spelling, for the star on a Practice question (`lessonStars`). */
@@ -725,7 +729,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
           <div ref={screenRef} data-lesson-screen={current}>
           {step === "listen" && <Listen lesson={lesson} screen={current} news={news} read={read} notes={notes} onHeard={() => { moved.current = true; setHeard(true); }} />}
           {step === "words" && <Words lesson={lesson} forms={forms} words={words} screen={current} />}
-          {step === "how" && <How lesson={lesson} screen={current} />}
+          {step === "how" && <How lesson={lesson} screen={current} caseForms={caseForms} />}
           {kept("practise") && <div hidden={step !== "practise"}><PracticeGate key="practise" items={practice} stars={stars} words={lesson.teaches.length} onPassed={(result) => { setScore((first) => first ?? result); finish("practise"); }} /></div>}
           {step === "write" && lesson.write && <WriteStep lesson={lesson} onDone={() => { finish("write"); go(at + 1); }} />}
           {step === "say" && <SayIt lesson={lesson} timeMultiplier={timeMultiplier} partAt={partAt} scene={scene} sceneHref={scene ? lessonSceneHref(scene, focus) : null} capstone={capstone} name={name} onComplete={() => finish("say")} place={sayPlace.current} onPlace={keepSayPlace} />}
@@ -1014,11 +1018,12 @@ function NewWords({ lesson }: { lesson: LessonSpec }) {
  * the pairs to hear apart, spelling your name, and where the idea was in
  * today's conversation.
  */
-function How({ lesson, screen }: { lesson: LessonSpec; screen: LessonScreen }) {
+function How({ lesson, screen, caseForms }: { lesson: LessonSpec; screen: LessonScreen; caseForms: CaseForms | null }) {
   const t = useT();
   const locale = useLocale();
   const { how } = lesson;
   const examples = howExamples(lesson).map((i) => lesson.conversation[i]!);
+  if (screen === "why" && how.why) return <WhyThisForm lesson={lesson} why={how.why} table={caseForms} />;
   if (screen === "sounds" && how.sounds && how.sounds.length > 0) return <SoundRows rows={how.sounds} />;
   if (screen === "pairs" && how.listen && how.listen.length > 0) {
     return (

@@ -12,6 +12,7 @@
  */
 
 import type { LessonSpec, PartOfLessons } from "./types";
+import { FOR_OR_BECOMING_STEPS, HAVE_STEPS } from "./why-a2-too";
 
 export const A2_TOO_PART: PartOfLessons = {
   id: "a2-too",
@@ -54,7 +55,7 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "ühes", of: "üks", en: "in one, in a" },
     ],
     how: {
-      point: "As is -na on the stem: {õpetaja} and then {õpetajana}, {koka} and then {kokana}. It's [olev] (-na, as), for the job you do.",
+      point: "To say what you work as, the job takes -na on its stem: {Ma töötan programmeerijana}, I work as a programmer. The stem is the form you learned with the word, so {koka} for {kokk} gives {kokana}. This ending is the [olev] (-na, as): it names the role you're in.",
       table: {
         head: ["Job", "Its stem", "Working as"],
         rows: [
@@ -66,11 +67,11 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Two ways say the same: {Ma olen õpetaja} and {Ma töötan õpetajana}. After {olen} the job stays as it is; after {töötan} it takes -na.",
-        "The question is {Kellena sa töötad?}, -na on {kelle}, from part one.",
-        "Where you work is part two again: {kohvikus}, {firmas}, {ühes restoranis}.",
+        "There are two ways to say it, and they mean the same. After {olen}, I am, the job is simply what you are, so it stays in its plain form: {Ma olen õpetaja}. After {töötan}, I work, the job is the role you work in, so it takes -na: {Ma töötan õpetajana}.",
+        "The question has the same ending: {Kellena sa töötad?}, as who do you work? It's -na on {kelle}, from part one.",
+        "Where you work is a place, not a role, so it takes part two's -s, in: {kohvikus}, {firmas}, {ühes restoranis}.",
       ],
-      watchOut: "No a in front of the job, ever: {Ma olen õpetaja}, never one teacher.",
+      watchOut: "English puts a in front of a job: I'm a teacher. Estonian has no word for a, so the job stands on its own: {Ma olen õpetaja}. Don't fill the gap with {üks}: in front of a job it sounds like counting teachers.",
       examples: [0, 1, 4],
     },
     answers: [
@@ -107,7 +108,7 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "telefoni", of: "telefon", en: "a phone, as an object" },
     ],
     how: {
-      point: "Becoming and for is -ks on the stem: {arsti} and then {arstiks}, {sünnipäeva} and then {sünnipäevaks}. It's [saav] (-ks, becoming).",
+      point: "-ks on the stem says what something turns into, or what it's for. Becoming: {Ma tahan saada arstiks}, I want to become a doctor. For a day: {sünnipäevaks}, for the birthday. This ending is the [saav] (-ks, becoming).",
       table: {
         head: ["Stem", "Becoming, for"],
         rows: [
@@ -118,12 +119,21 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "What you become: {saada arstiks}, to become a doctor. What something is for: {sünnipäevaks}, for a birthday, {homseks}, for tomorrow.",
-        "What changes: {Ilm läheb soojaks}, the weather is getting warm, and {külmaks}, cold.",
-        "The question is {Kelleks?}, for a person, -ks on {kelle}.",
+        "Ask two questions. Is something meant for it, or due by it? Then -ks: the phone is for her birthday, {sünnipäevaks}, and it has to be bought by tomorrow, {homseks}. Is somebody turning into it? Then -ks too: {arstiks}, she'll become a doctor.",
+        "The weather can turn into something as well: {Ilm läheb soojaks}, it's getting warm, and {külmaks}, cold. It isn't warm yet, it's becoming warm, so it takes -ks.",
+        "When nothing is for it and nothing turns into it, there's no -ks: {homme on tal sünnipäev}, it's her birthday tomorrow. The day is only named, so it stays in its plain form. The question for a person is {Kelleks?}, -ks on {kelle}.",
       ],
-      watchOut: "{Palju õnne sünnipäevaks!} from A1 was this ending all along: happy birthday is much luck for the birthday.",
+      watchOut: "{Palju õnne sünnipäevaks!} from A1 had this ending all along. Word for word it's much luck for the birthday: the luck is meant for that day, so the day takes -ks.",
       examples: [0, 1, 2],
+      why: {
+        word: "sünnipäev",
+        en: "birthday",
+        steps: FOR_OR_BECOMING_STEPS,
+        lines: [
+          { line: 2, form: "sünnipäevaks", lands: { case: "TRANSLATIVE", plural: false }, why: "Mari asks what the girl wants for her birthday: the present is meant for that day. Something meant for a day or an event takes -ks on the stem, the [saav] (-ks, becoming): {sünnipäevaks}." },
+          { line: 3, form: "sünnipäev", lands: { case: "NOMINATIVE", plural: false }, why: "Here nothing is meant for the birthday and nothing turns into it. Kati only says when it is: {homme on tal sünnipäev}, she has her birthday tomorrow. A word that's only named stays in its plain form, the [nimetav] (1st form): {sünnipäev}." },
+        ],
+      },
     },
     answers: [
       { ask: { et: "Kelleks sa tahad saada?", en: "What do you want to become?" }, cue: "Say you want to become a doctor.", model: { et: "Ma tahan saada arstiks.", en: "I want to become a doctor." } },
@@ -160,7 +170,7 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "Olgu.", en: "OK, fine, all right then." },
     ],
     how: {
-      point: "Doing a job right through takes the whole object: {Ma koristan elutoa} is I'll clean the living room, all of it. Part three's whole object, at home.",
+      point: "When a job is done to the whole of something, the noun takes the whole-object form from part three. One thing goes in the [omastav] (2nd form): {Ma koristan elutoa}, I'll clean the living room, all of it. More than one goes in the plural [nimetav] (1st form): {Mina pesen nõud}, the dishes, every one.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -172,10 +182,10 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "The present is often the future at home: {Mina pesen nõud} is I'll wash the dishes.",
-        "{Mina} and {sina} in place of {ma} and {sa} say me, not you: {Mina koristan!}",
+        "{Mina} and {sina} in place of {ma} and {sa} put weight on the person, me and not you: {Mina koristan!}",
         "{Olgu} is the shrugging yes: fine, all right then.",
       ],
-      watchOut: "{Nõud} is already more than one: the dishes. Washing up in Estonian is always {nõud}, never one of them.",
+      watchOut: "{Nõud} is already more than one: the dishes. You wash all of them, so it's the plural [nimetav] (1st form), {Mina pesen nõud}. In a command, like {Pane pesu kuivama}, the whole thing stays in its plain form too.",
       examples: [1, 2, 3],
     },
     answers: [
@@ -214,7 +224,7 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "kahe", of: "kaks", en: "of two", stem: true },
     ],
     how: {
-      point: "Broken is {katki}, and it never changes: {Kraan on katki}. A machine that isn't working {ei tööta}, the same verb as a person at work.",
+      point: "Broken is {katki}, and it never changes its ending: {Kraan on katki}. It isn't a noun, so no case reaches it. A machine that isn't working {ei tööta}, the same verb as a person at work.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -226,8 +236,9 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "{Katki} goes after {on}, like {valmis} in part five: {Uks on katki}, {Aken on katki}.",
-        "Until two is part five's -ni: {kella kaheni}, on {kahe}, the stem of {kaks}.",
+        "Until two is part five's -ni, which says up to that point and no further. It goes on the stem: {kahe} is the stem of {kaks}, so {kella kaheni}.",
         "On the phone, say who you are first: {Siin Tom}, it's Tom here.",
+        "Peeter says {Ma saadan meistri}: he'll send one whole repairman, so the [omastav] (2nd form), part three's whole object. Then {Meister tuleb}: now the repairman is the one coming, so he's in his plain form.",
       ],
       watchOut: "A landlord sends a {meister}, a tradesman, not an artist. It's the word for anybody who fixes things.",
       examples: [2, 3, 4],
@@ -276,7 +287,7 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "paar", en: "a pair; a couple of" },
     ],
     how: {
-      point: "Say you have one with {mul on}: {Mul on küsimus}, {Mul on idee}. Say you don't with {mul pole}, or {mul ei ole}, and the [osastav] (3rd form): {Mul pole ideed}.",
+      point: "To say you have something, use {mul on}, and the noun stays in its plain form: {Mul on küsimus}, I have a question. To say you don't, use {mul pole} or {mul ei ole}, and the noun goes in the [osastav] (3rd form): {Mul pole ideed}. When you don't have something, it always takes the [osastav] (3rd form).",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -288,11 +299,20 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "{Mis asi?} is what is it?, or what's up? {Asi} is a thing, and also a matter.",
-        "{Raha} is the same in the [osastav] (3rd form), so {Mul pole raha} looks just like {Mul on raha}.",
+        "{Raha} is spelled the same in the [osastav] (3rd form), so {Mul pole raha} looks just like {Mul on raha}. The no still decides it: it's the [osastav] (3rd form), you just can't see it. After {palju}, much, it's the [osastav] (3rd form) too, since that's an amount: {mul pole palju raha}.",
         "{Paar} is a pair, and before a number word or a noun it's a couple of something.",
       ],
       watchOut: "{Viga} is a mistake, but {Pole viga!} is no problem, the way you'd say never mind.",
       examples: [2, 4, 5],
+      why: {
+        word: "idee",
+        en: "idea",
+        steps: HAVE_STEPS,
+        lines: [
+          { line: 2, form: "ideed", lands: { case: "PARTITIVE", plural: false }, why: "Liis doesn't have one: {mul pole}. When you say you don't have something, the noun goes in the [osastav] (3rd form), so {idee} becomes {ideed}." },
+          { line: 3, form: "idee", lands: { case: "NOMINATIVE", plural: false }, why: "Tom does have one: {Mul on}. When you have something, it stays in its plain form, the [nimetav] (1st form): {idee}. The {üks} in front doesn't change that. After {üks} a word keeps its plain form, {üks idee}, an idea." },
+        ],
+      },
     },
     answers: [
       { ask: { et: "Mis asi?", en: "What is it?" }, cue: "Say you have a question.", model: { et: "Mul on üks küsimus.", en: "I have a question." } },
@@ -332,7 +352,7 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "pangaautomaadist", of: "pangaautomaat", en: "from an ATM" },
     ],
     how: {
-      point: "Wanting to do something takes the [da-tegevusnimi] (-da) after it: {Ma tahaksin konto avada}. Learn the [da-tegevusnimi] (-da) with each new verb, as in A1.",
+      point: "After a verb for wanting, like {tahaksin}, would like, the next verb takes the [da-tegevusnimi] (-da): {Ma tahaksin konto avada}. You can't always work it out from the dictionary form, so learn it with each new verb, as in A1: {avama}, {avada}.",
       table: {
         head: ["The verb", "After would like"],
         rows: [
@@ -343,8 +363,8 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "An {isikukood} is the eleven-digit code every resident of Estonia has. A bank, a doctor and the state all ask for it.",
-        "{Konto} is in the [omastav] (2nd form): you open the whole account, as in part three's {Ma ostsin raamatu}.",
-        "{Igast} is from every, part two's -st on {iga}: {igast pangaautomaadist}.",
+        "Why is {konto} in the [omastav] (2nd form)? You open one whole account, start to finish, so it's part three's whole object, as in {Ma ostsin raamatu}. It only looks like its plain form because {konto} is spelled the same in both.",
+        "{Igast} is from every: part two's -st, out of, on {iga}. The cash comes out of the machine, so both words take -st: {igast pangaautomaadist}.",
       ],
       watchOut: "{ID-kaart} is said with the letters in Estonian, ee-dee rather than eye-dee.",
       examples: [1, 2, 5],
@@ -387,7 +407,7 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "kuu", of: "kuu", en: "of the month", stem: true },
     ],
     how: {
-      point: "From next month is {järgmisest kuust}: both words take -st, part two's from, on their stems {järgmise} and {kuu}.",
+      point: "From next month is {järgmisest kuust}. Starting from a time takes part two's -st, from, and both words take it, on their stems {järgmise} and {kuu}: a describing word takes the same ending as its noun.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -400,9 +420,9 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
       notes: [
         "{Alustama} is to start something yourself, and {algama} for something that starts by itself: {Ma alustan}, but {Film algab}.",
         "{Rääkige endast} is tell me about yourself, the first thing every interview asks.",
-        "Experience is something you have: {Mul on kogemust}, in the [osastav] (3rd form).",
+        "{Viis aastat kogemust} has two words in the [osastav] (3rd form), for two reasons. {Aastat} comes after a number, five, and after a number the word goes in the [osastav] (3rd form). {Kogemust} comes after an amount, five years of it, and experience is something you have some of, not one of.",
       ],
-      watchOut: "An interviewer says {teie} and {te}: keep to it in your answers too.",
+      watchOut: "An interviewer says {teie} and {te}, the polite you, and you keep to it in your answers too. Switching to {sina} with somebody you've only just met sounds too familiar.",
       examples: [1, 4, 5],
     },
     answers: [
@@ -435,7 +455,7 @@ export const A2_TOO_LESSONS: readonly LessonSpec[] = [
     how: {
       point: "A whole interview, made of part seven and the parts before it: what you are, where you worked, and when you could start.",
       notes: [
-        "The past of part three tells where you worked, and part seven's -na what as: {töötasin pangas programmeerijana}.",
+        "The past of part three says where you worked, and part seven's -na says as what: {töötasin pangas programmeerijana}. After {Olen} the job stays in its plain form, {Olen programmeerija}, because it's simply what you are.",
         "At the end, the interviewer speaks to you. Answer as yourself, one turn at a time.",
       ],
       watchOut: "{Istuge} is sit down, said politely, and the answer is just to sit: no reply needed.",

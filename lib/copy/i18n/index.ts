@@ -44,6 +44,15 @@ import { LESSONS_B1_AREA } from "./areas/lessonsB1";
 import { LESSONS_B2_AREA } from "./areas/lessonsB2";
 import { LESSONS_C1_AREA } from "./areas/lessonsC1";
 import { LESSON_TEXT_B1_OBJEKT } from "./areas/lessonTextB1Objekt";
+import { LESSON_WHY } from "./areas/lessonWhy";
+import { LESSON_TEXT_A2_EILE } from "./areas/lessonTextA2Eile";
+import { LESSON_TEXT_A2_KELLE } from "./areas/lessonTextA2Kelle";
+import { LESSON_TEXT_A2_KUHU } from "./areas/lessonTextA2Kuhu";
+import { LESSON_TEXT_A2_PLAANID } from "./areas/lessonTextA2Plaanid";
+import { LESSON_TEXT_A2_REIS } from "./areas/lessonTextA2Reis";
+import { LESSON_TEXT_A2_RESTORAN } from "./areas/lessonTextA2Restoran";
+import { LESSON_TEXT_A2_TERVIS } from "./areas/lessonTextA2Tervis";
+import { LESSON_TEXT_A2_TOO } from "./areas/lessonTextA2Too";
 import { LESSON_TEXT_B1_REKTSIOON } from "./areas/lessonTextB1Rektsioon";
 import { LESSON_TEXT_B1_RAHA } from "./areas/lessonTextB1Raha";
 import { LESSON_TEXT_B1_KODU } from "./areas/lessonTextB1Kodu";
@@ -126,6 +135,15 @@ export const AREAS: readonly (readonly [name: string, area: Area])[] = [
   ["lessonsB2", LESSONS_B2_AREA],
   ["lessonsC1", LESSONS_C1_AREA],
   ["lessonTextB1Objekt", LESSON_TEXT_B1_OBJEKT],
+  ["lessonWhy", LESSON_WHY],
+  ["lessonTextA2Eile", LESSON_TEXT_A2_EILE],
+  ["lessonTextA2Kelle", LESSON_TEXT_A2_KELLE],
+  ["lessonTextA2Kuhu", LESSON_TEXT_A2_KUHU],
+  ["lessonTextA2Plaanid", LESSON_TEXT_A2_PLAANID],
+  ["lessonTextA2Reis", LESSON_TEXT_A2_REIS],
+  ["lessonTextA2Restoran", LESSON_TEXT_A2_RESTORAN],
+  ["lessonTextA2Tervis", LESSON_TEXT_A2_TERVIS],
+  ["lessonTextA2Too", LESSON_TEXT_A2_TOO],
   ["lessonTextB1Rektsioon", LESSON_TEXT_B1_REKTSIOON],
   ["lessonTextB1Raha", LESSON_TEXT_B1_RAHA],
   ["lessonTextB1Kodu", LESSON_TEXT_B1_KODU],

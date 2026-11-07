@@ -91,7 +91,7 @@ export const B2_PERE_LESSONS: readonly LessonSpec[] = [
     ],
     patterns: ["converb"],
     how: {
-      point: "When one person does two things at once, the second can be the -des form: {Kooli minnes peab ta üle tee minema}, on the way to school he has to cross the road. It says in one word what {kui ta kooli läheb} says in four.",
+      point: "When one person does two things at once, the second can be packed into one word, the -des form: {Kooli minnes peab ta üle tee minema}, on the way to school he has to cross the road. It says in one word what {kui ta kooli läheb} says in four, and it can leave the person out because the person is the subject of the main verb.",
       table: {
         head: ["With a whole clause", "With -des", "In English"],
         rows: [
@@ -106,7 +106,7 @@ export const B2_PERE_LESSONS: readonly LessonSpec[] = [
         "Both things are done by the same person: in {Kooli minnes peab ta üle tee minema}, the one going to school is the one crossing the road.",
         "It's as much a thing people say as a thing they write. The written way is to use it more, and to string two together.",
       ],
-      watchOut: "One person only. {Kooli minnes nägin ma teda} is I saw him on my way to school. If he was the one on his way, say it with {kui}: {Kui ta kooli läks, nägin ma teda}.",
+      watchOut: "The -des form has no ending for who, so it always belongs to the subject of the main verb. {Kooli minnes nägin ma teda} can only mean I saw him on my way to school, because {ma} is the one seeing. If he was the one on his way, the -des form can't say it; use a whole clause with {kui}: {Kui ta kooli läks, nägin ma teda}.",
       examples: [5, 7],
     },
     listenFor: [
@@ -161,8 +161,8 @@ export const B2_PERE_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Mulle meeldib see, mis on pargi juures. Sinna saab jala minna.", en: "I like the one by the park. You can walk there." }, right: "pargi", wrong: "park", pair: ["GENITIVE", "NOMINATIVE"], why: "{Juures} wants the [omastav] (2nd form) in front of it: {pargi juures}." },
-      { line: { et: "Hea küll. Ja koju tulles saab ta pargis veel natuke mängida.", en: "All right. And on the way home he can play in the park for a bit." }, right: "mängida", wrong: "mängima", pair: ["Inf", "Sup"], why: "After {saab}, can, the [da-tegevusnimi] (-da): {saab mängida}." },
+      { line: { et: "Mulle meeldib see, mis on pargi juures. Sinna saab jala minna.", en: "I like the one by the park. You can walk there." }, right: "pargi", wrong: "park", pair: ["GENITIVE", "NOMINATIVE"], why: "{Juures}, by, comes after its noun and names a spot next to it, so the noun goes in the [omastav] (2nd form), the of-form, as it does before {all} or {peal}: {pargi juures}. The plain {park} is for naming the park itself." },
+      { line: { et: "Hea küll. Ja koju tulles saab ta pargis veel natuke mängida.", en: "All right. And on the way home he can play in the park for a bit." }, right: "mängida", wrong: "mängima", pair: ["Inf", "Sup"], why: "{Saama} in the sense of can is followed by the [da-tegevusnimi] (-da), like {võima} and {tahtma}: {saab mängida}. The [ma-tegevusnimi] (-ma) comes after verbs of having to, starting or going somewhere to do it, as in {peab ta üle suure tee minema} earlier in the same conversation." },
     ],
     workOut: [
       {
@@ -244,7 +244,7 @@ export const B2_PERE_LESSONS: readonly LessonSpec[] = [
     ],
     patterns: ["supine"],
     how: {
-      point: "Where somebody is, busy at something, is the [ma-tegevusnimi] (-ma) with -s on: {Lapsed on magamas}, the children are napping. Back from doing it takes -st: {Nad tulevad just ujumast}, they're just back from swimming.",
+      point: "The [ma-tegevusnimi] (-ma) can take place endings, to say where somebody is in an activity. Off to do it is the plain -ma: {Sofia läheb isaga ujuma}. Busy at it, away somewhere, takes -s: {Lapsed on magamas}, the children are napping. Just back from it takes -st: {Nad tulevad just ujumast}, they're just back from swimming.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -255,11 +255,11 @@ export const B2_PERE_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "It's the three you know from a place: {kooli}, {koolis}, {koolist}. For something you do, it's {ujuma}, going to; {ujumas}, there now; {ujumast}, coming back.",
+        "It's the same three you know from a place: {kooli}, into the school, {koolis}, in it, {koolist}, out of it. An activity works the same way: {ujuma}, going to swim, {ujumas}, there swimming now, {ujumast}, coming back from it.",
         "{Ta on poes käimas} is the everyday way to say somebody has popped out: she's gone to the shop and will be back.",
         "The written way says the same: {Lapsed on õues jalutamas}, the children are out for a walk, is how a kindergarten's note puts it too.",
       ],
-      watchOut: "{Ta on ujumas} is she's out swimming, away from here and coming back. {Ta ujub} is just she swims, or she's swimming, right there in front of you.",
+      watchOut: "{Ta on ujumas} says where she is: away from here, swimming, and coming back later. {Ta ujub} only says what she does, she swims or she's swimming, often right in front of you. When somebody asks where a person is, the -mas form is the answer.",
       examples: [8, 9, 11],
     },
     listenFor: [
@@ -315,8 +315,8 @@ export const B2_PERE_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Selge. Kas ma võin enne tulla ja vaadata?", en: "Got it. Can I come and have a look first?" }, right: "tulla", wrong: "tulema", pair: ["Inf", "Sup"], why: "After {võin}, may, the [da-tegevusnimi] (-da): {võin tulla}." },
-      { line: { et: "Muidugi. Tulge homme pärast lõunat.", en: "Of course. Come tomorrow after lunch." }, right: "lõunat", wrong: "lõuna", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Pärast} in front of a word wants the [osastav] (3rd form): {pärast lõunat}." },
+      { line: { et: "Selge. Kas ma võin enne tulla ja vaadata?", en: "Got it. Can I come and have a look first?" }, right: "tulla", wrong: "tulema", pair: ["Inf", "Sup"], why: "{Võima}, may or can, is followed by the [da-tegevusnimi] (-da): {võin tulla}. The [ma-tegevusnimi] (-ma), {tulema}, belongs after verbs like {pidama}, to have to, or after going somewhere to do something." },
+      { line: { et: "Muidugi. Tulge homme pärast lõunat.", en: "Of course. Come tomorrow after lunch." }, right: "lõunat", wrong: "lõuna", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Pärast}, after, puts the word that follows it in the [osastav] (3rd form): {pärast lõunat}, after lunch. Placed after the word, it takes the [omastav] (2nd form) instead, {lõuna pärast}, and then it usually means because of lunch." },
     ],
     faster: {
       ask: { et: "Mida su pere praegu teeb?", en: "What's your family up to right now?" },
@@ -380,7 +380,7 @@ export const B2_PERE_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "teate", of: "teadma", en: "you know (to more than one, or politely)" },
     ],
     how: {
-      point: "Two more forms of the -ma word. With -ta on it, it's left undone: {Me olime pool ööd magamata}, we were up half the night. With -ks on it, it's in order to, and it belongs to writing: where people say {et küsida}, a letter can say {küsimaks}.",
+      point: "The -ma word has two more endings. With -ta, the [ilmaütlev] (-ta, without), it says something was left undone: {Me olime pool ööd magamata}, we went without sleep for half the night. With -ks, it means in order to, and it belongs to writing: where people say {et küsida}, a letter can say {küsimaks}.",
       table: {
         head: ["Plain", "With the -ma word", "In English"],
         rows: [
@@ -395,7 +395,7 @@ export const B2_PERE_LESSONS: readonly LessonSpec[] = [
         "{Pool ööd magamata} is a phrase every parent of a small child knows.",
         "You'll meet -maks in letters and notices. Saying it, people use {et} and the [da-tegevusnimi] (-da): {Ma helistan, et küsida}.",
       ],
-      watchOut: "-mata is not the no of the verb. She didn't eat is still {ta ei söönud}; {ta jättis söömata} says she left it.",
+      watchOut: "-mata isn't how you say no. She didn't eat is still {ta ei söönud}. {Ta jättis söömata} says more: the food was there and she left it uneaten, something that should have happened and didn't.",
       examples: [3, 5],
     },
     listenFor: [
@@ -451,8 +451,8 @@ export const B2_PERE_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Öösel tõusis palavik. Me olime pool ööd magamata.", en: "She got a fever in the night. We were up half the night." }, right: "ööd", wrong: "öö", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Pool} wants the [osastav] (3rd form) after it: {pool ööd}." },
-      { line: { et: "Hommikusöögi jättis ta ka söömata. Ainult vett jõi.", en: "She left her breakfast too. She only drank some water." }, right: "vett", wrong: "vesi", pair: ["PARTITIVE", "NOMINATIVE"], why: "Some water, not all of it: the [osastav] (3rd form), {vett}." },
+      { line: { et: "Öösel tõusis palavik. Me olime pool ööd magamata.", en: "She got a fever in the night. We were up half the night." }, right: "ööd", wrong: "öö", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Pool}, half, is a measure, and like a number or {kilo} it puts the word after it in the singular [osastav] (3rd form): {pool ööd}, half the night. The plain {öö} would only name the night." },
+      { line: { et: "Hommikusöögi jättis ta ka söömata. Ainult vett jõi.", en: "She left her breakfast too. She only drank some water." }, right: "vett", wrong: "vesi", pair: ["PARTITIVE", "NOMINATIVE"], why: "Sofia drank some water, an amount nobody measured, not a glass she finished. An open amount of something you can't count, like water or milk, goes in the [osastav] (3rd form): {vett}. The plain {vesi} would name the water or say something about it." },
     ],
     workOut: [
       {
@@ -532,7 +532,7 @@ export const B2_PERE_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "kuueaastane", of: "kuueaastane", en: "six years old" },
     ],
     how: {
-      point: "An email to a teacher is polite and short: {Tere!}, who you are, a few lines, your question, and {Lugupidamisega} with your name. You write to a teacher with {teie}, and in a letter {Teie} takes a capital when it means the one person you write to.",
+      point: "An email to a teacher is polite and short: {Tere!}, who you are, a few lines, your question, and {Lugupidamisega} with your name. You write to a teacher with {teie}, the polite you, and in a letter {Teie} takes a capital when it means the one person you're writing to, as a mark of respect.",
       table: {
         head: ["Part", "Estonian", "In English"],
         rows: [
@@ -591,8 +591,8 @@ export const B2_PERE_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ta palub, et vanemad kirjutaksid natuke oma lapsest.", en: "She's asking the parents to write a little about their child." }, right: "lapsest", wrong: "lapse", pair: ["ELATIVE", "GENITIVE"], why: "Writing about somebody takes the [seestütlev] (-st, out of): {oma lapsest}." },
-      { line: { et: "Kirjuta viisakalt. Õpetajale öeldakse ikka teie.", en: "Write it politely. You always say {teie} to a teacher." }, right: "Õpetajale", wrong: "Õpetaja", pair: ["ALLATIVE", "NOMINATIVE"], why: "Said to somebody: the [alaleütlev] (-le, onto/to), {õpetajale}." },
+      { line: { et: "Ta palub, et vanemad kirjutaksid natuke oma lapsest.", en: "She's asking the parents to write a little about their child." }, right: "lapsest", wrong: "lapse", pair: ["ELATIVE", "GENITIVE"], why: "Writing, talking or hearing about somebody takes the [seestütlev] (-st, out of): {oma lapsest}, about their child. The [omastav] (2nd form) would mean the child's, and would need another word after it." },
+      { line: { et: "Kirjuta viisakalt. Õpetajale öeldakse ikka teie.", en: "Write it politely. You always say {teie} to a teacher." }, right: "Õpetajale", wrong: "Õpetaja", pair: ["ALLATIVE", "NOMINATIVE"], why: "The person something is said to takes -le, the [alaleütlev] (-le, onto/to), the same as somebody you give something to: {õpetajale öeldakse}, to a teacher you say. Without the ending, {õpetaja} would be the one doing the saying." },
     ],
     write: {
       genre: "An email to your child's teacher",
@@ -747,9 +747,9 @@ export const B2_PERE_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ta on võimlas palli mängimas.", en: "He's off playing ball in the gym." }, right: "võimlas", wrong: "võimlasse", pair: ["INESSIVE", "ILLATIVE"], why: "He's in there now: the [seesütlev] (-s, in), {võimlas}." },
-      { line: { et: "Jah, kirjutage siia lapse nimi ja oma telefon.", en: "Yes, write your child's name and your phone number here." }, right: "lapse", wrong: "laps", pair: ["GENITIVE", "NOMINATIVE"], why: "Whose name: the [omastav] (2nd form), {lapse nimi}." },
-      { line: { et: "Kohti on küll vähe, nii et pange ta kohe kirja.", en: "There aren't many places, though, so put his name down straight away." }, right: "Kohti", wrong: "Kohad", pair: ["PARTITIVE", "NOMINATIVE"], why: "After {vähe}, few, the [osastav] (3rd form): {kohti on vähe}." },
+      { line: { et: "Ta on võimlas palli mängimas.", en: "He's off playing ball in the gym." }, right: "võimlas", wrong: "võimlasse", pair: ["INESSIVE", "ILLATIVE"], why: "Mark is in the gym now, playing ball there, so the gym is where he is: -s, the [seesütlev] (-s, in), {võimlas}. -sse is for going into it, as Tom does at the end: {lähen ma võimlasse}." },
+      { line: { et: "Jah, kirjutage siia lapse nimi ja oma telefon.", en: "Yes, write your child's name and your phone number here." }, right: "lapse", wrong: "laps", pair: ["GENITIVE", "NOMINATIVE"], why: "The name belongs to the child, and a word that owns the next one goes in front of it in the [omastav] (2nd form): {lapse nimi}, the child's name. English adds 's; Estonian changes the ending." },
+      { line: { et: "Kohti on küll vähe, nii et pange ta kohe kirja.", en: "There aren't many places, though, so put his name down straight away." }, right: "Kohti", wrong: "Kohad", pair: ["PARTITIVE", "NOMINATIVE"], why: "Words of amount, like {vähe}, few, and {palju}, a lot, put what they count in the [osastav] (3rd form), plural when it's something you count: {kohti on vähe}, there are few places. The plain {kohad} would mean the places, a known set." },
     ],
     workOut: [
       {
@@ -816,7 +816,7 @@ export const B2_PERE_LESSONS: readonly LessonSpec[] = [
         "{Äkki} starts a suggestion softly, as {minu arvates} does, and {Kirjutan selle üles} is how a teacher closes a point.",
         "In the role-play the teacher uses a word you know from lesson 17, and one of her questions wasn't asked at the meeting above.",
       ],
-      watchOut: "To a teacher, {teie}: {Kas te saaksite...}, and {Teie} with a capital only in a letter.",
+      watchOut: "To a teacher, use {teie}, the polite you, and in speech mostly its short form: {Kas te saaksite...}. The capital {Teie} is only for a letter, where it shows respect to the one person you're writing to.",
       examples: [3, 4, 7, 9],
     },
     listenFor: [

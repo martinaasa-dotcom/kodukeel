@@ -15,6 +15,7 @@
  */
 
 import type { LessonSpec, PartOfLessons } from "./types";
+import { PLACE_STEPS } from "./why-a2-kuhu";
 
 export const A2_KUHU_PART: PartOfLessons = {
   id: "a2-kuhu",
@@ -61,7 +62,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "Eesti", of: "Eesti", en: "of Estonia", stem: true },
     ],
     how: {
-      point: "In, into and out of are three endings on the [omastav] (2nd form): {linna} gives {linnas}, {linnasse} and {linnast}.",
+      point: "Estonian says where with an ending, and the ending answers one of three questions: {kus?} where you are, {kuhu?} where you're going, {kust?} where you've come from. For a place you're inside, the three endings are -s, -sse and -st, and they go on the [omastav] (2nd form): {linna} gives {linnas}, in town, {linnasse}, into town, and {linnast}, out of town.",
       table: {
         head: ["[omastav] (2nd form)", "{kus?} in", "{kuhu?} into", "{kust?} out of"],
         rows: [
@@ -72,12 +73,13 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Into has a long form, -sse, and for many words a short one too, which is what people say: {kooli}, {linna}, {panka}. Learn the short one with the word; where you don't know it, the long one is always understood.",
-        "A1's {kodus, koju, kodust} and {poes, poodi, poest} are the same three, and so are {Tallinnas}, {Tartusse} and {Eestist}.",
-        "The -ga ending goes on the same stem: {bussi} gives {bussiga}, with the bus or by bus.",
+        "Their names: {linnas} is the [seesütlev] (-s, in), {linnasse} the [sisseütlev] (-sse, into), {linnast} the [seestütlev] (-st, out of). To pick one, ask the sentence {kus?}, {kuhu?} or {kust?} first, and the answer gives you the ending.",
+        "Into has a long ending, -sse, and many everyday words also have a short form, which is what people say: {kooli}, {linna}, {panka}. No rule makes the short form, so learn it with the word. Where you don't know it, the long one is always understood.",
+        "A1's {kodus, koju, kodust} and {poes, poodi, poest} are the same three questions answered, and so are {Tallinnas}, {Tartusse} and {Eestist}.",
+        "The -ga ending goes on the same stem: {bussi} gives {bussiga}, with the bus, which is also how you say by bus.",
         "{Lähme!} means let's go, and {Lähme koos!} let's go together.",
       ],
-      watchOut: "Build on the [omastav] (2nd form), never on the first: {panga} gives {pangas}, so there's no such word as pankas.",
+      watchOut: "Every one of these endings goes on the [omastav] (2nd form), never on the word as you'd look it up. The [omastav] (2nd form) of {pank} is {panga}, so in the bank is {pangas}, and there's no such word as pankas. Learn the [omastav] (2nd form) with each place, and the endings follow from it.",
       examples: [0, 1, 3],
     },
     answers: [
@@ -117,7 +119,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "maa", of: "maa", en: "of the land, of the countryside", stem: true },
     ],
     how: {
-      point: "On, onto and off are the other three: {laua} gives {laual}, {lauale} and {laualt}.",
+      point: "The other three endings are for being on a thing, or at a place rather than inside it: -l for {kus?} where it is, -le for {kuhu?} where to, -lt for {kust?} where from. They go on the [omastav] (2nd form) too: {laua} gives {laual}, on the table, {lauale}, onto it, and {laualt}, off it.",
       table: {
         head: ["[omastav] (2nd form)", "{kus?} on, at", "{kuhu?} onto, to", "{kust?} off, from"],
         rows: [
@@ -128,12 +130,22 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "A1's {tööl, tööle, töölt} are these three on {töö}.",
-        "A market, a square, a street and the countryside take these: {turul}, {väljakul}, {tänaval}, {maal}. A shop, a town and most buildings take the inside ones: {poes}, {linnas}, {majas}. Learn which with the place.",
-        "{Maal} means in the countryside: {Ma elan maal}, I live in the country.",
+        "Their names: {laual} is the [alalütlev] (-l, on/at/has), {lauale} the [alaleütlev] (-le, onto/to), {laualt} the [alaltütlev] (-lt, off). The same three questions pick between them.",
+        "A1's {tööl, tööle, töölt} are these three on {töö}: at work, to work, from work.",
+        "Which set a place takes is partly learned with the place. Open places mostly take the outside endings: a market, a square, a street, the countryside, so {turul}, {väljakul}, {tänaval}, {maal}. A shop, a town and most buildings take the inside ones: {poes}, {linnas}, {majas}. When you learn a place, learn its {kus?} form with it.",
+        "{Maal} means in the countryside: {Ma elan maal}, I live in the country. Estonian puts the countryside with the open places, so it takes -l.",
       ],
-      watchOut: "With a place, -l means at, not on top of: {turul} is at the market.",
+      watchOut: "With a place, -l means at rather than on top of: {turul} is at the market. With a thing, the same ending means on it: {laual}, on the table. What the word is tells you which.",
       examples: [1, 2, 3],
+      why: {
+        word: "turg",
+        en: "market",
+        steps: PLACE_STEPS,
+        lines: [
+          { line: 1, form: "turul", lands: { case: "ADESSIVE", plural: false }, why: "Tom says where he is right now, so the question is {kus?}. A market is an open place, and it takes the outside endings, so being there is -l: {turul}, at the market. The ending goes on the [omastav] (2nd form), {turu}." },
+          { line: 3, form: "turult", lands: { case: "ABLATIVE", plural: false }, why: "Tom says where he'll set off from, so the question is {kust?}. A market takes the outside endings, so from it is -lt: {turult}. In the same sentence {väljakule} answers {kuhu?}, where to, so the square gets -le." },
+        ],
+      },
     },
     answers: [
       { ask: { et: "Kus sa oled?", en: "Where are you?" }, cue: "Say you're at the market.", model: { et: "Ma olen turul.", en: "I'm at the market." } },
@@ -171,7 +183,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "kontserdipilet", en: "concert ticket" },
     ],
     how: {
-      point: "A person takes the outside endings: {emale}, to Mom; {emal}, Mom has; {emalt}, from Mom. You've said it since A1 with {mulle} and {talle}.",
+      point: "A person takes the outside endings, never the inside ones, because you're never inside somebody. To somebody is -le, {emale}, to Mom; somebody has is -l, {emal}, Mom has; from somebody is -lt, {emalt}, from Mom. You've said it since A1 with {mulle} and {talle}.",
       table: {
         head: ["", "{kellele?} to", "{kellel?} has", "{kellelt?} from"],
         rows: [
@@ -182,12 +194,12 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Emal on auto} means Mom has a car: it's {mul on}, with a noun.",
-        "{Ära} in front of a command says don't: {Ära unusta!}, don't forget!",
-        "{Kinkima} is to give as a present, and {andma} just to give: {Anna see Marile!}",
-        "{Kelle} from lesson 1 takes the endings too, and that's how the questions are made: {kellele?}, {kellel?}, {kellelt?}",
+        "{Emal on auto} means Mom has a car. Estonian doesn't use a verb like have here: it puts the owner in the -l form, as if a car is at Mom, the way {mul on} works with a pronoun.",
+        "{Ära} in front of a command says don't: {Ära unusta!}, don't forget! The verb stays in its command form after it.",
+        "{Kinkima} is to give as a present, and {andma} is to give anything: {Anna see Marile!} Either way, the person you give to takes -le.",
+        "{Kelle} from lesson 1 takes the endings too, and that's how the questions are made: {kellele?}, to whom, {kellel?}, who has, {kellelt?}, from whom.",
       ],
-      watchOut: "You give something {emale} and ask for it {emalt}. With a person it's -le and -lt, not -sse and -st.",
+      watchOut: "You give something {emale} and ask for it {emalt}. With a person it's always -le and -lt, never -sse and -st: those are for going into and out of a place.",
       examples: [0, 3, 4],
     },
     answers: [
@@ -227,7 +239,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "kord", en: "a time, as in next time; a turn" },
     ],
     how: {
-      point: "An event takes the outside endings and a building the inside ones: {kontserdil}, at a concert, but {kinos}, at the cinema.",
+      point: "Whether a place takes the inside or the outside endings depends on what it is. A building you go into, like a cinema or a theater, takes the inside ones: {kinos}, at the cinema. An event, like a concert, a party or a birthday, takes the outside ones wherever it's held: {kontserdil}, at a concert.",
       table: {
         head: ["", "{kus?}", "{kuhu?}", "{kust?}"],
         rows: [
@@ -239,12 +251,12 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Into the cinema is the short form {kinno}: {Ma lähen kinno}.",
-        "{Pidu}'s [omastav] (2nd form) is {peo}, so at a party is {peol}.",
+        "Into the cinema has a short form, {kinno}, and it's the one people say: {Ma lähen kinno}.",
+        "{Pidu}'s [omastav] (2nd form) is {peo}, so at a party is {peol}. The ending always goes on the [omastav] (2nd form), so learn it with the word.",
         "An Estonian lesson is {eesti keele tund}: {eesti keele} says which lesson, the way {köögi uks} said which door. Before a noun, Estonian is {eesti}, with a small e.",
         "{Kahjuks} is the polite way into a no: {Kahjuks ei saa}.",
       ],
-      watchOut: "A concert and a party are events, so {kontserdil} and {peol}, even though they happen indoors.",
+      watchOut: "English says at for both, at the cinema and at a concert, so English can't tell you which. Ask whether it's a building or an event: a concert and a party are events, so {kontserdil} and {peol}, even though they happen indoors.",
       examples: [1, 2, 4],
     },
     answers: [
@@ -286,7 +298,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "kast", en: "box" },
     ],
     how: {
-      point: "Here, there, by and in have three forms, like a place: where it is, where to and where from.",
+      point: "Here, there, by and in answer the same three questions as a place, so each has three forms: {kus?} where it is, {kuhu?} where to, {kust?} where from. Pick the one the sentence asks for: {Pane sinna}, put it there, because putting is where to.",
       table: {
         head: ["{kus?} where", "{kuhu?} where to", "{kust?} where from"],
         rows: [
@@ -300,9 +312,10 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
       notes: [
         "{Panema} is to put, {tooma} to bring here, and {viima} to take somewhere else.",
         "Their commands are the [olevik] (I form) without -n: {pane}, {too}, {vii}.",
-        "{Tool tuleb siia} means the chair goes here: {tulema} is come, and also where a thing belongs.",
+        "{Tool tuleb siia} means the chair goes here: {tulema} is come, and also where a thing belongs. It's {siia}, where to, because the chair is being moved here.",
+        "With {juurde} and {juurest}, the word in front goes in the [omastav] (2nd form): {akna juurde}, over to the window. The small word carries the direction, so the window takes no place ending of its own.",
       ],
-      watchOut: "{Too} comes toward you and {vii} goes away: {too siia}, {vii sinna}.",
+      watchOut: "{Too} comes toward you and {vii} goes away from you, so they pair with the direction: {too siia}, bring it here; {vii sinna}, take it there.",
       examples: [1, 3, 5],
     },
     answers: [
@@ -347,7 +360,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "viienda", of: "viies", en: "of the fifth", stem: true },
     ],
     how: {
-      point: "On a floor takes the ending on both words: {kolmandal korrusel}, on the third floor. A describing word takes the same ending as the word it describes.",
+      point: "A floor takes the outside endings, because you're on it: -l for where. A word that says which floor takes the same ending as the noun, so the ending goes on both words: {kolmandal korrusel}, on the third floor.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -363,7 +376,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
         "{Paremal} and {vasakul} are on the right and on the left. A1's {paremale} and {vasakule} are to the right and to the left: -l for where, -le for where to.",
         "{Trepist üles} is up the stairs, and {trepist alla} down them.",
       ],
-      watchOut: "Both words take the ending: {teisel korrusel}, never teine korrusel.",
+      watchOut: "The usual slip is leaving the number in its plain form. Both words answer {kus?}, so both take -l: {teisel korrusel}, never teine korrusel.",
       examples: [0, 1, 5],
     },
     answers: [
@@ -406,7 +419,7 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "nurga", of: "nurk", en: "of the corner", stem: true },
     ],
     how: {
-      point: "The words of a house and garden, with the endings of lessons 8 and 9 on them: {aias}, in the garden; {aia nurgas}, in the corner of the garden.",
+      point: "The words of a house and garden, with the endings of lessons 8 and 9 on them. A garden is a place you're in, so it takes the inside endings, on the [omastav] (2nd form) {aia}: {aias}, in the garden; {aia nurgas}, in the corner of the garden.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -420,12 +433,21 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Aed} is {aia}, and {nurk} is {nurga}: the [omastav] (2nd form) again, and the ending goes on it.",
-        "Into the sauna is the short form, spelled like its [omastav] (2nd form): {Läheme sauna}.",
+        "{Aed} is {aia}, and {nurk} is {nurga}: the [omastav] (2nd form) again, and the ending goes on it, never on the word as you'd look it up.",
+        "Into the sauna has a short form spelled just like its [omastav] (2nd form), {sauna}, and it's the one people say: {Läheme sauna}. After a verb of going, it means into.",
         "{Põrand} is the floor you stand on; a floor of a building is {korrus}.",
       ],
       watchOut: "{Õu} is the yard, outside; {õues} is outdoors, which you met in A1.",
       examples: [0, 4, 6],
+      why: {
+        word: "aed",
+        en: "garden",
+        steps: PLACE_STEPS,
+        lines: [
+          { line: 4, form: "aias", lands: { case: "INESSIVE", plural: false }, why: "Kati says where the apple tree is, so the question is {kus?}. A garden is a place you're in, so it takes the inside endings, and being in it is -s. The ending goes on the [omastav] (2nd form), {aia}, not on {aed}: {aias}." },
+          { line: 6, form: "aia", lands: { case: "GENITIVE", plural: false }, why: "Here the place is the corner: {nurgas} answers {kus?} and carries the -s. The garden only says whose corner it is, so it goes in the [omastav] (2nd form), {aia}, with no ending of its own: the garden's corner." },
+        ],
+      },
     },
     answers: [
       { cue: "Say this is your house in the country.", model: { et: "See on meie maja maal.", en: "This is our house in the country." } },
@@ -455,14 +477,25 @@ export const A2_KUHU_LESSONS: readonly LessonSpec[] = [
     ],
     teaches: [],
     how: {
-      point: "A whole phone call made of part two: where you are, where you're going, and where to meet.",
+      point: "A whole phone call made of part two: where you are, where you're going, and where to meet. Before every place word, the same question picks the ending: {kus?}, {kuhu?} or {kust?}",
       notes: [
-        "Count the endings: {kesklinnas} and {kohvikusse} are inside, {turul} and {turule} outside, {panga ees} and {kiriku taga} the [omastav] (2nd form) with a small word after.",
+        "Look at each place: {kesklinnas} and {kohvikusse} take the inside endings, {turul} and {turule} the outside ones. {Panga ees} and {kiriku taga} are different: a small word after them says where, so the word in front stays in the [omastav] (2nd form) with no ending.",
         "{Kuidas ma turule saan?} is how do I get to the market: {saama} is get, as in get somewhere.",
         "At the end, Mari calls you. Answer as yourself, one turn at a time, until you've met.",
       ],
-      watchOut: "{Pärast} on its own means afterwards: {Lähme pärast kohvikusse?}",
+      watchOut: "{Pärast} on its own means afterwards: {Lähme pärast kohvikusse?} After a word, it's after that: {kümne minuti pärast}, in ten minutes, and that word takes the [omastav] (2nd form).",
       examples: [1, 3, 6],
+      why: {
+        word: "turg",
+        en: "market",
+        steps: PLACE_STEPS,
+        lines: [
+          { line: 2, form: "turul", lands: { case: "ADESSIVE", plural: false }, why: "Mari says where she is right now, so the question is {kus?}. A market takes the outside endings, so being there is -l on the [omastav] (2nd form): {turul}, at the market." },
+          { line: 3, form: "turule", lands: { case: "ALLATIVE", plural: false }, why: "Tom asks how to get there, so the question is {kuhu?}, where to. For a market that's -le: {turule}, to the market. One word, three questions, three endings: {turul}, {turule}, {turult}." },
+          { line: 4, form: "turg", lands: { case: "NOMINATIVE", plural: false }, why: "This sentence is about the market itself and where it stands, so {turg} is the noun the sentence is about. It stays in the [nimetav] (1st form), the form you'd look up. The place is said by {kiriku taga}, behind the church." },
+          { line: 6, form: "turu", lands: { case: "GENITIVE", plural: false }, why: "The place is said by {kõrval}, next to. The word in front of {kõrval} only says next to what, so it goes in the [omastav] (2nd form) with no ending: {turu kõrval}, next to the market. {Kiriku taga} and {panga ees} work the same way." },
+        ],
+      },
     },
     answers: [
       { ask: { et: "Kus sa praegu oled?", en: "Where are you now?" }, cue: "Say you're in town, in front of the bank.", model: { et: "Ma olen kesklinnas, panga ees.", en: "I'm in town, in front of the bank." } },

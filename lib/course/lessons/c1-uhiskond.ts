@@ -26,6 +26,7 @@
  */
 
 import type { LessonSpec, PartOfLessons } from "./types";
+import { VOTE_STEPS } from "./why-c1-uhiskond";
 
 export const C1_UHISKOND_PART: PartOfLessons = {
   id: "c1-uhiskond",
@@ -104,7 +105,7 @@ export const C1_UHISKOND_LESSONS: readonly LessonSpec[] = [
         "Put the other side's best case, not its weakest, and then answer it. A case that only knocks down the easy point convinces nobody who holds the hard one.",
         "Said to a friend, a case is three or four sentences. Written, every part gets a sentence of its own, and the last opens with {Kokkuvõttes}.",
       ],
-      watchOut: "{Kokkuvõttes} weighs both sides up; it is not {lõpuks}, which only says what comes last. Use it once you have given the other side its due.",
+      watchOut: "{Kokkuvõttes} weighs both sides up and says what you make of them together. {Lõpuks} only says what comes last, so it can't sum a case up. Save {kokkuvõttes} for after you have given the other side its due.",
       examples: [6, 7, 8, 9],
     },
     listenFor: [
@@ -200,8 +201,8 @@ export const C1_UHISKOND_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ühes kirjas. Kui kiri näitab mõlemat poolt, võetakse seda tõsiselt.", en: "In one letter. If a letter shows both sides, it gets taken seriously." }, right: "mõlemat", wrong: "mõlemad", pair: ["PARTITIVE", "NOMINATIVE"], why: "Both sides are what the letter shows, the object of {näitab}, and {pool} wants the [osastav] (3rd form) here: {mõlemat poolt}." },
-      { line: { et: "Muu hulgas ühe uue linnaosa peatänava. Plaani järgi jääb seal autodele ainult üks sõidurada...", en: "Among them the main street of a new district. Under the plan, cars are left with just one lane there..." }, right: "autodele", wrong: "autode", pair: ["ALLATIVE", "GENITIVE"], why: "Who something is left for takes -le: {autodele jääb üks sõidurada}." },
+      { line: { et: "Ühes kirjas. Kui kiri näitab mõlemat poolt, võetakse seda tõsiselt.", en: "In one letter. If a letter shows both sides, it gets taken seriously." }, right: "mõlemat", wrong: "mõlemad", pair: ["PARTITIVE", "NOMINATIVE"], why: "Both sides are what {näitab}, shows, does something to. Showing here is not a job done once and finished. It is what the letter does the whole time anybody reads it, and a verb that goes on like that puts its object in the [osastav] (3rd form). {Mõlemat} takes the same ending as {poolt}, so the two go together: {mõlemat poolt}." },
+      { line: { et: "Muu hulgas ühe uue linnaosa peatänava. Plaani järgi jääb seal autodele ainult üks sõidurada...", en: "Among them the main street of a new district. Under the plan, cars are left with just one lane there..." }, right: "autodele", wrong: "autode", pair: ["ALLATIVE", "GENITIVE"], why: "{Jääma}, to be left, says who something is left for with -le, the [mitmuse alaleütlev] (-le, onto/to, plural): {autodele jääb üks sõidurada}, one lane is left for the cars. {Autode}, of the cars, would make the cars own something, and nothing comes after it for them to own." },
     ],
     workOut: [
       {
@@ -397,8 +398,8 @@ export const C1_UHISKOND_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Just. Paraku ei kuula linn alati elanikke, ehkki peaks. Aga hästi kirjutatud ettepanekut on raske kõrvale jätta.", en: "Exactly. Unfortunately the city doesn't always listen to residents, though it should. But a well-written suggestion is hard to set aside." }, right: "ettepanekut", wrong: "ettepaneku", pair: ["PARTITIVE", "PARTITIVE"], why: "One suggestion, so the singular: {ettepanekut}. {Ettepanekuid} is more than one." },
-      { line: { et: "Siin on kirjas, et plaan on kaks nädalat avalikul väljapanekul. Mida see...", en: "It says here the plan is on public display for two weeks. What does that..." }, right: "väljapanekul", wrong: "väljapanekus", pair: ["ADESSIVE", "INESSIVE"], why: "A plan is {väljapanekul}, on display, with -l, the way you're {koosolekul}, at a meeting." },
+      { line: { et: "Just. Paraku ei kuula linn alati elanikke, ehkki peaks. Aga hästi kirjutatud ettepanekut on raske kõrvale jätta.", en: "Exactly. Unfortunately the city doesn't always listen to residents, though it should. But a well-written suggestion is hard to set aside." }, right: "ettepanekut", wrong: "ettepaneku", pair: ["PARTITIVE", "GENITIVE"], why: "{On raske kõrvale jätta}, it is hard to set aside, names nobody as the one setting it aside. With nobody named, a whole object never takes the [omastav] (2nd form), so {ettepaneku} can't stand here. After {on raske} with a -da verb, Estonian usually puts the object in the [osastav] (3rd form): {ettepanekut on raske kõrvale jätta}." },
+      { line: { et: "Siin on kirjas, et plaan on kaks nädalat avalikul väljapanekul. Mida see...", en: "It says here the plan is on public display for two weeks. What does that..." }, right: "väljapanekul", wrong: "väljapanekus", pair: ["ADESSIVE", "INESSIVE"], why: "Being on display is said with -l, the [alalütlev] (-l, on/at/has), the way you are {koosolekul}, at a meeting: the plan is at an event that lasts two weeks. {Väljapanekus}, with -s, would put the plan inside the display, like a thing in a glass case." },
     ],
     workOut: [
       {
@@ -508,8 +509,17 @@ export const C1_UHISKOND_LESSONS: readonly LessonSpec[] = [
         "Passing on a debate you heard, use the [kaudne kõneviis] (-vat, reportedly) from B2: {Toivo olevat plaani vastu}, he's said to be against it.",
         "{Jätma} with the -mata form says something was left undone: {jättis küsimusele vastamata}, didn't answer the question. It's the written way to say {ei vastanud}.",
       ],
-      watchOut: "{Poolt} and {vastu} take the [omastav] (2nd form) of what you vote on in front of them: {plaani poolt}, {plaani vastu}. Not {plaanile}.",
+      watchOut: "{Poolt} and {vastu} stand after what you are for or against, and that word goes in front of them in the [omastav] (2nd form), the form for \"of\": {plaani poolt}, {plaani vastu}. Don't reach for -le because you vote for something: {plaanile} is wrong here.",
       examples: [5, 6, 7, 8],
+      why: {
+        word: "plaan",
+        en: "plan",
+        steps: VOTE_STEPS,
+        lines: [
+          { line: 0, form: "plaani", lands: { case: "PARTITIVE", plural: false }, why: "{Toetama}, to support, is something you go on doing: the party supports the plan today and will tomorrow, and the support is never finished. A verb like that puts what it is done to in the [osastav] (3rd form), however whole the noun is: {toetab plaani}. Waiting and listening work the same way later in this debate: {ootame avalikku arutelu}, {et elanikke kuulataks}." },
+          { line: 6, form: "plaani", lands: { case: "GENITIVE", plural: false }, why: "Same spelling, different reason. Here the word after it decides: {poolt}, for, and {vastu}, against, want the noun you are for or against in front of them in the [omastav] (2nd form), the form for \"of\": {plaani poolt}, {plaani vastu}. For {plaan} that form is spelled {plaani} too." },
+        ],
+      },
     },
     listenFor: [
       { q: "Who are Pille and Toivo?", options: ["Two residents of the street", "Two members of the city council, before an election", "Two journalists", "The city planners"], answer: 1 },
@@ -599,8 +609,8 @@ export const C1_UHISKOND_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Aga kas te hääletaksite volikogus plaani poolt või vastu?", en: "But would you vote for the plan in the council, or against it?" }, right: "volikogus", wrong: "volikogule", pair: ["INESSIVE", "ALLATIVE"], why: "You vote in the council, so -s: {volikogus}." },
-      { line: { et: "Ma ei ole veel lõpetanud. Õigupoolest sõidab enamik linnaosa elanikke tööle bussiga.", en: "I haven't finished yet. In fact most of the district's residents go to work by bus." }, right: "elanikke", wrong: "elanikud", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Enamik} takes the [osastav] (3rd form) after it, as {palju} does: {enamik elanikke}." },
+      { line: { et: "Aga kas te hääletaksite volikogus plaani poolt või vastu?", en: "But would you vote for the plan in the council, or against it?" }, right: "volikogus", wrong: "volikogule", pair: ["INESSIVE", "ALLATIVE"], why: "The council is the place where the vote is held: you vote inside it, so the [seesütlev] (-s, in): {volikogus}. {Volikogule}, with -le, would send something to the council from outside, the way a resident writes to it." },
+      { line: { et: "Ma ei ole veel lõpetanud. Õigupoolest sõidab enamik linnaosa elanikke tööle bussiga.", en: "I haven't finished yet. In fact most of the district's residents go to work by bus." }, right: "elanikke", wrong: "elanikud", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Enamik}, most, is an amount word: it measures out part of a group, and an amount word puts the group after it in the [osastav] (3rd form), plural here because there are many residents: {enamik elanikke}, as with {palju}. The verb goes with {enamik}, which is one word, so it stays singular: {sõidab enamik}." },
     ],
     workOut: [
       {
@@ -861,8 +871,8 @@ export const C1_UHISKOND_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Seal laua peal. Täna korjame prügi ja istutame puid.", en: "Over there on the table. Today we're picking up litter and planting trees." }, right: "puid", wrong: "puud", pair: ["PARTITIVE", "NOMINATIVE"], why: "Some trees, not all the trees there are: the [osastav] (3rd form), {istutame puid}." },
-      { line: { et: "Nii et kokkuvõttes oled sa talgute poolt?", en: "So all in all you're for the volunteer day?" }, right: "talgute", wrong: "talgutele", pair: ["GENITIVE", "ALLATIVE"], why: "{Poolt} takes the [omastav] (2nd form) in front of it: {talgute poolt}." },
+      { line: { et: "Seal laua peal. Täna korjame prügi ja istutame puid.", en: "Over there on the table. Today we're picking up litter and planting trees." }, right: "puid", wrong: "puud", pair: ["PARTITIVE", "NOMINATIVE"], why: "The volunteers plant trees, as many as they get done, not a set of trees you could count to the end. An open amount like that puts the object in the [osastav] (3rd form), plural because there is more than one tree: {istutame puid}. {Puud}, the plural [nimetav] (1st form), would mean particular trees, all of them, planted and done." },
+      { line: { et: "Nii et kokkuvõttes oled sa talgute poolt?", en: "So all in all you're for the volunteer day?" }, right: "talgute", wrong: "talgutele", pair: ["GENITIVE", "ALLATIVE"], why: "{Poolt}, for, stands after what you are for, and that word goes in front of it in the [omastav] (2nd form), the form for \"of\". {Talgud} is a plural word, so it is the [mitmuse omastav] (plural): {talgute poolt}. {Talgutele}, with -le, is going to the volunteer day, as in {tule talgutele}." },
     ],
     rooms: [
       {
@@ -1060,8 +1070,8 @@ export const C1_UHISKOND_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ja vastuväitele vastame ausalt. Iseenesest on poodide mure ju põhjendatud.", en: "And we answer the case against honestly. In itself, the shops' worry is fair enough." }, right: "vastuväitele", wrong: "vastuväide", pair: ["ALLATIVE", "NOMINATIVE"], why: "{Vastama} wants what you answer in -le: {vastuväitele vastama}." },
-      { line: { et: "Lugu võib olla kakssada kakskümmend kuni kakssada kuuskümmend sõna pikk ja peab rääkima kahest asjast: laste ohutusest ja parkimisest.", en: "The piece can be two hundred and twenty to two hundred and sixty words long, and it has to deal with two things: the children's safety and parking." }, right: "ohutusest", wrong: "ohutus", pair: ["ELATIVE", "NOMINATIVE"], why: "You talk about something in -st: {ohutusest rääkima}." },
+      { line: { et: "Ja vastuväitele vastame ausalt. Iseenesest on poodide mure ju põhjendatud.", en: "And we answer the case against honestly. In itself, the shops' worry is fair enough." }, right: "vastuväitele", wrong: "vastuväide", pair: ["ALLATIVE", "NOMINATIVE"], why: "{Vastama}, to answer, puts what you answer in the [alaleütlev] (-le, onto/to): you answer to it, {vastuväitele vastama}, as you answer a question, {küsimusele vastama}. It belongs to the verb and is learned with it, since English answers the question with no word between." },
+      { line: { et: "Lugu võib olla kakssada kakskümmend kuni kakssada kuuskümmend sõna pikk ja peab rääkima kahest asjast: laste ohutusest ja parkimisest.", en: "The piece can be two hundred and twenty to two hundred and sixty words long, and it has to deal with two things: the children's safety and parking." }, right: "ohutusest", wrong: "ohutus", pair: ["ELATIVE", "NOMINATIVE"], why: "{Rääkima}, to talk, puts what you talk about in the [seestütlev] (-st, out of), as if the talk came out of its subject: {laste ohutusest}, {parkimisest}. The plain form {ohutus} would make the safety itself the one doing the talking." },
     ],
     rooms: [
       {

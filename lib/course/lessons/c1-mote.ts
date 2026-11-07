@@ -25,6 +25,7 @@
  */
 
 import type { LessonSpec, PartOfLessons } from "./types";
+import { DECISION_STEPS, ENDING_STEPS } from "./why-c1-mote";
 
 export const C1_MOTE_PART: PartOfLessons = {
   id: "c1-mote",
@@ -82,7 +83,7 @@ export const C1_MOTE_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "kokaraamatut", of: "kokaraamat", en: "a cookbook, as an object" },
           ],
     how: {
-      point: "English has one 'leave' and Estonian has two: the author {jätab} the ending open, and the ending {jääb} open. Somebody doing it takes {jätma}; a thing staying that way takes {jääma}.",
+      point: "English has one 'leave' where Estonian has two, and what decides is whether somebody is doing it. The author leaves the ending open: somebody acts on a thing, so it's {jätma}, {autor jätab lõpu lahtiseks}. The ending stays open: nobody acts, the noun stays that way by itself, so it's {jääma}, {lõpp jääb lahtiseks}.",
       table: {
         head: ["Who does it", "Estonian", "In English"],
         rows: [
@@ -92,12 +93,23 @@ export const C1_MOTE_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Jätma} has somebody doing it and a thing it's done to: {autor jätab lõpu lahtiseks}. {Jääma} has nobody: {lõpp jääb lahtiseks}. Both take the [saav] (-ks, becoming): {lahtiseks}.",
+        "The verb also decides the ending of the noun. With {jätma} the ending is what the author acts on, one whole ending, so it goes in the [omastav] (2nd form): {jätab lõpu}. With {jääma} the ending is the one doing the staying, so it stays in the plain [nimetav] (1st form): {lõpp jääb}. The state it ends up in takes the [saav] (-ks, becoming) with both: {lahtiseks}.",
         "Talking about how a book is written, rather than what happens in it, the author is the one doing things: {autor jätab}, {autor vihjab}, {autor ei ütle}.",
         "Holding your view or changing it is said out loud: {Ma jään oma arvamuse juurde}, I'm sticking to my view, and {Ma ei ole enam kindel}, I'm not so sure anymore.",
       ],
       watchOut: "Keep the character and the author apart: {Elsa võttis kohvri}, the character did it, but {autor ei ütle, kas ta sõitis}, the author is the one who doesn't say.",
       examples: [2, 7, 12],
+      why: {
+        word: "lõpp",
+        en: "an ending",
+        steps: ENDING_STEPS,
+        lines: [
+          { line: 2, form: "lõpp", lands: { case: "NOMINATIVE", plural: false }, why: "The ending is what does the pleasing: Estonian makes the noun you like the subject of {meeldib}, so it stays in the plain [nimetav] (1st form), {selline lõpp meeldib}. The person who likes it goes in the [alaleütlev] (-le, onto/to): {teile}." },
+          { line: 4, form: "lõpp", lands: { case: "NOMINATIVE", plural: false }, why: "Here the ending is what Tom is talking about, and what he says of it is that it's clear. Nobody does anything to it, the sentence only says what it is, so it stays in the plain [nimetav] (1st form): {lõpp on täiesti selge}." },
+          { line: 7, form: "lõpu", lands: { case: "GENITIVE", plural: false }, why: "Now somebody acts on the ending: the author leaves it open. That makes it the object of {jätab}, and it's one whole ending, not part of it and not a no, so it goes in the [omastav] (2nd form): {jätab lõpu lahtiseks}. Said with {jääma}, nobody acts on it, and it's back to {lõpp}: {lõpp jääb lahtiseks}." },
+          { line: 11, form: "lõpu", lands: { case: "GENITIVE", plural: false }, why: "Every reader finds their own ending in the book, and finds the whole of it: {loeb sealt välja oma lõpu}. The ending is what the reader does something to, one whole ending with the job done, so it's the [omastav] (2nd form) again. Put a no in front, and it would change to the [osastav] (3rd form)." },
+        ],
+      },
     },
     listenFor: [
       { q: "What is the morning show talking about today?", options: ["Books", "The weather", "Schools", "Food"], answer: 0 },
@@ -196,8 +208,8 @@ export const C1_MOTE_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Täpselt. Autor jätab lõpu lahtiseks ja lugeja peab ise otsustama.", en: "Exactly. The author leaves the ending open, and the reader has to decide." }, right: "lõpu", wrong: "lõpp", pair: ["GENITIVE", "NOMINATIVE"], why: "What the author leaves is the whole ending, so it's the [omastav] (2nd form): {jätab lõpu lahtiseks}." },
-      { line: { et: "...et ta sõitis poja juurde Rootsi. Enne arvasin ma nagu Liis, aga nüüd ma ei ole enam kindel.", en: "...that she went to her son's in Sweden. I thought the same as Liis before, but now I'm not so sure." }, right: "poja", wrong: "poeg", pair: ["GENITIVE", "NOMINATIVE"], why: "{Juurde} takes the [omastav] (2nd form) in front of it: {poja juurde}, to the son's." },
+      { line: { et: "Täpselt. Autor jätab lõpu lahtiseks ja lugeja peab ise otsustama.", en: "Exactly. The author leaves the ending open, and the reader has to decide." }, right: "lõpu", wrong: "lõpp", pair: ["GENITIVE", "NOMINATIVE"], why: "The ending is what the author acts on, and it's one whole ending, not part of it and not a no, so it goes in the [omastav] (2nd form): {jätab lõpu lahtiseks}. The plain {lõpp} is for the ending doing something itself: {lõpp jääb lahtiseks}." },
+      { line: { et: "...et ta sõitis poja juurde Rootsi. Enne arvasin ma nagu Liis, aga nüüd ma ei ole enam kindel.", en: "...that she went to her son's in Sweden. I thought the same as Liis before, but now I'm not so sure." }, right: "poja", wrong: "poeg", pair: ["GENITIVE", "NOMINATIVE"], why: "{Juurde}, to somebody's place, comes after the person rather than before, and the person in front of it always goes in the [omastav] (2nd form): {poja juurde}, to her son's. It's the same in {oma arvamuse juurde}: where English puts to in front, Estonian puts {juurde} behind." },
     ],
     workOut: [
       {
@@ -307,7 +319,7 @@ export const C1_MOTE_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "{Ümber mõtlema} is thinking it over and coming out the other side, and the {ümber} goes after the verb: {ma mõtlesin ümber}.",
-        "{Veenma} takes the person in the [osastav] (3rd form): {sa veensid mind}, {te veensite mind}. And {poolenisti} says how far: half.",
+        "{Veenma} takes the person it convinces in the [osastav] (3rd form), even when the convincing has worked: {sa veensid mind}, {te veensite mind}. Unlike most verbs, it has no whole-and-done form to switch to. {Poolenisti}, halfway, says how far it got.",
         "What you'd do in somebody's place is the would form: {Mida te teeksite?}, {Ma ütleksin talle}. And what you're asked for is the would form after {et}: {palus, et ma loeksin}.",
       ],
       watchOut: "Coming round is no defeat in Estonian either: {Ma mõtlesin ümber} is said plainly, with no {vabandust} in front of it. Grant the point first and keep what you keep, and the argument stays friendly.",
@@ -412,8 +424,8 @@ export const C1_MOTE_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ta palus, et ma loeksin selle läbi ja ütleksin ausalt, mida ma arvan.", en: "She asked me to read it through and tell her honestly what I think." }, right: "loeksin", wrong: "loen", pair: ["KndPrSg1", "IndPrSg1"], why: "What somebody asks you to do is the would form after {et}: {palus, et ma loeksin}." },
-      { line: { et: "Ma ei räägi valetamisest. Võib öelda, mis on hea, ja jätta ülejäänu ütlemata.", en: "I'm not talking about lying. You can say what's good and leave the rest unsaid." }, right: "valetamisest", wrong: "valetamine", pair: ["ELATIVE", "NOMINATIVE"], why: "{Rääkima} takes what it's about in the [seestütlev] (-st, out of): {räägin valetamisest}." },
+      { line: { et: "Ta palus, et ma loeksin selle läbi ja ütleksin ausalt, mida ma arvan.", en: "She asked me to read it through and tell her honestly what I think." }, right: "loeksin", wrong: "loen", pair: ["KndPrSg1", "IndPrSg1"], why: "Liis is passing on a request, and what somebody asks you to do goes after {et} in the [tingiv kõneviis] (-ks, would): {palus, et ma loeksin}. The plain {loen} would state it as a fact, that I'm reading it anyway, rather than as what she asked for." },
+      { line: { et: "Ma ei räägi valetamisest. Võib öelda, mis on hea, ja jätta ülejäänu ütlemata.", en: "I'm not talking about lying. You can say what's good and leave the rest unsaid." }, right: "valetamisest", wrong: "valetamine", pair: ["ELATIVE", "NOMINATIVE"], why: "What you talk about goes in the [seestütlev] (-st, out of) after {rääkima}: {ma ei räägi valetamisest}, I'm not talking about lying. The plain {valetamine} would make lying the subject of the sentence, as if lying were the one doing the talking." },
     ],
     workOut: [
       {
@@ -502,6 +514,16 @@ export const C1_MOTE_LESSONS: readonly LessonSpec[] = [
       ],
       watchOut: "Don't build the phrase out of English: a decision isn't {võtma} in Estonian, it's {tegema} or {langetama}, and in writing a question isn't {küsima}, it's {esitama}. An Estonian will understand you either way, and will also hear that you're thinking in another language.",
       examples: [1, 6, 11, 14],
+      why: {
+        word: "otsus",
+        en: "a decision",
+        steps: DECISION_STEPS,
+        lines: [
+          { line: 1, form: "otsuse", lands: { case: "GENITIVE", plural: false }, why: "The lecturer picks up one decision to look at: {võtame näiteks otsuse}, let's take a decision, for example. One particular decision, taken as a whole, goes in the [omastav] (2nd form), even when it's only suggested. The very next words, {otsust saab teha} and {otsust ka langetatakse}, talk about how decisions are made in general rather than one decision taken, so they're in the [osastav] (3rd form)." },
+          { line: 4, form: "otsusega", lands: { case: "COMITATIVE", plural: false }, why: "Here nobody does anything to the decision: it's what the word {langetama} comes together with, and together with takes the [kaasaütlev] (-ga, with): {otsusega koos}." },
+          { line: 11, form: "otsust", lands: { case: "PARTITIVE", plural: false }, why: "Explaining is something you go on doing: there is no moment when a decision has been finished being explained. So the decision a person explains goes in the [osastav] (3rd form): {oma otsust selgitab}. Compare {me tegime otsuse}, where one decision was made and done." },
+        ],
+      },
     },
     listenFor: [
       { q: "What is the lesson about?", options: ["Words that go together", "Estonian spelling", "How to write a letter", "The history of Estonian"], answer: 0 },
@@ -604,8 +626,8 @@ export const C1_MOTE_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Aga vahe on suur. Põhjus on see, miks midagi juhtus. Põhjendus on see, mida inimene ütleb, kui ta oma otsust selgitab.", en: "But there's a big difference. A reason is why something happened. A justification is what somebody says when they explain their decision." }, right: "otsust", wrong: "otsuse", pair: ["PARTITIVE", "GENITIVE"], why: "Explaining goes on rather than being finished, so the [osastav] (3rd form): {selgitab oma otsust}." },
-      { line: { et: "Kodus küll. Kirjas aga küsimust esitatakse. Ja kui küsimus on uus ja raske, siis see tõstatatakse.", en: "At home, yes. But in writing a question is put. And if a question is new and difficult, it's raised." }, right: "tõstatatakse", wrong: "tõstatab", pair: ["IndPrIps", "IndPrSg3"], why: "Nobody is named, so the [umbisikuline] (-takse, people do): {see tõstatatakse}." },
+      { line: { et: "Aga vahe on suur. Põhjus on see, miks midagi juhtus. Põhjendus on see, mida inimene ütleb, kui ta oma otsust selgitab.", en: "But there's a big difference. A reason is why something happened. A justification is what somebody says when they explain their decision." }, right: "otsust", wrong: "otsuse", pair: ["PARTITIVE", "GENITIVE"], why: "Explaining is something you go on doing: there is no moment when a decision has been finished being explained. So the decision a person explains goes in the [osastav] (3rd form): {oma otsust selgitab}. The [omastav] (2nd form) {otsuse} is for one decision dealt with as a whole: {me tegime otsuse}." },
+      { line: { et: "Kodus küll. Kirjas aga küsimust esitatakse. Ja kui küsimus on uus ja raske, siis see tõstatatakse.", en: "At home, yes. But in writing a question is put. And if a question is new and difficult, it's raised." }, right: "tõstatatakse", wrong: "tõstatab", pair: ["IndPrIps", "IndPrSg3"], why: "The lecturer isn't saying who raises a new question, only that it happens, so the verb takes the [umbisikuline] (-takse, people do): {see tõstatatakse}. {Tõstatab} needs somebody to be doing it, like Anna's colleague: {kolleeg, kes tõstatab}." },
     ],
     workOut: [
       {
@@ -818,8 +840,8 @@ export const C1_MOTE_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Pole hullu. Kirjuta nii, nagu sa klubis rääkisid. Sina põhjendasid oma arvamust kõige paremini.", en: "No problem. Write it the way you talked at the club. You gave the best reasons for your view." }, right: "arvamust", wrong: "arvamuse", pair: ["PARTITIVE", "GENITIVE"], why: "{Põhjendama} takes what it gives reasons for in the [osastav] (3rd form): {põhjendasid oma arvamust}." },
-      { line: { et: "Arvustust? Ma ei ole kunagi eesti keeles arvustust kirjutanud.", en: "A review? I've never written a review in Estonian." }, right: "arvustust", wrong: "arvustuse", pair: ["PARTITIVE", "GENITIVE"], why: "After a no, the [osastav] (3rd form): {ei ole arvustust kirjutanud}." },
+      { line: { et: "Pole hullu. Kirjuta nii, nagu sa klubis rääkisid. Sina põhjendasid oma arvamust kõige paremini.", en: "No problem. Write it the way you talked at the club. You gave the best reasons for your view." }, right: "arvamust", wrong: "arvamuse", pair: ["PARTITIVE", "GENITIVE"], why: "Giving reasons for a view is never finished in one go, so {põhjendama} takes what it gives reasons for in the [osastav] (3rd form): {põhjendasid oma arvamust}. The [omastav] (2nd form) {arvamuse} would be a whole view dealt with and done, which isn't how anybody argues." },
+      { line: { et: "Arvustust? Ma ei ole kunagi eesti keeles arvustust kirjutanud.", en: "A review? I've never written a review in Estonian." }, right: "arvustust", wrong: "arvustuse", pair: ["PARTITIVE", "GENITIVE"], why: "Tom has never written one, and a no always puts the object in the [osastav] (3rd form), whatever the verb: {ei ole arvustust kirjutanud}. Kati's {tahab arvustust} is the [osastav] (3rd form) too, for another reason: wanting something never finishes with it. A review written and done, in a yes, would be the [omastav] (2nd form), {arvustuse}." },
     ],
     rooms: [
       {
@@ -1221,7 +1243,7 @@ export const C1_MOTE_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "The opening conversation is marked too, so don't answer in one word: each answer a sentence or two, with a reason or an example.",
-        "What you work as takes the [olev] (-na, as): {töötan programmeerijana}. What you simply are takes the plain form: {olen lastearst}, {olen meeskonna juht}.",
+        "{Töötan}, I work, says what you work as with the [olev] (-na, as), a role you're filling: {töötan programmeerijana}. {Olen}, I am, takes what you are in the plain [nimetav] (1st form): {olen lastearst}, {olen meeskonna juht}. Tom's line has both, which is why one job has the -na ending and the other doesn't.",
         "The presentation has the shape of the review and the argued text: what you'll talk about, two points each with a reason or an example, the other side, and one sentence to close.",
       ],
       watchOut: "Three minutes to prepare is for four words on a paper, not for writing the talk out: a talk read off a paper is marked as reading, and you'll lose your place the moment you look up.",
@@ -1324,8 +1346,8 @@ export const C1_MOTE_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ma olen Tom, olen pärit Inglismaalt ja elan Eestis juba mitu aastat. Töötan programmeerijana ja kevadest saadik olen meie meeskonna juht.", en: "I'm Tom, I'm from England, and I've lived in Estonia for several years now. I work as a programmer, and since the spring I've led our team." }, right: "programmeerijana", wrong: "programmeerija", pair: ["ESSIVE", "NOMINATIVE"], why: "What you work as takes the [olev] (-na, as): {töötan programmeerijana}." },
-      { line: { et: "Selge. Siis alustame esimese ülesandega. Tom, teil on kaks teemat, valige üks. Ettevalmistuseks on kolm minutit.", en: "Right. Then let's start the first task. Tom, you have two topics: choose one. You have three minutes to prepare." }, right: "teemat", wrong: "teema", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a number, the [osastav] (3rd form) singular: {kaks teemat}." },
+      { line: { et: "Ma olen Tom, olen pärit Inglismaalt ja elan Eestis juba mitu aastat. Töötan programmeerijana ja kevadest saadik olen meie meeskonna juht.", en: "I'm Tom, I'm from England, and I've lived in Estonia for several years now. I work as a programmer, and since the spring I've led our team." }, right: "programmeerijana", wrong: "programmeerija", pair: ["ESSIVE", "NOMINATIVE"], why: "{Töötan} says what job you do, and the job you work as goes in the [olev] (-na, as): {töötan programmeerijana}, I work as a programmer. In the same line the team lead has no ending, because there it comes after {olen}, I am, which takes the plain form: {olen meie meeskonna juht}." },
+      { line: { et: "Selge. Siis alustame esimese ülesandega. Tom, teil on kaks teemat, valige üks. Ettevalmistuseks on kolm minutit.", en: "Right. Then let's start the first task. Tom, you have two topics: choose one. You have three minutes to prepare." }, right: "teemat", wrong: "teema", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a number from two up, Estonian counts in the singular [osastav] (3rd form): {kaks teemat}, {kolm minutit}. The number already says there are several, so the word itself stays singular. Only after one does it keep its plain form." },
     ],
     rooms: [
       {

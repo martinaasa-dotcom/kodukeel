@@ -16,6 +16,7 @@
  */
 
 import type { LessonSpec, PartOfLessons } from "./types";
+import { A2_OBJECT_STEPS } from "./why-a2-eile";
 
 export const A2_EILE_PART: PartOfLessons = {
   id: "a2-eile",
@@ -71,7 +72,7 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "Londoni", of: "London", en: "of London", stem: true },
     ],
     how: {
-      point: "The past of most verbs ends in -sin: {elan}, {elasin}. The other persons follow it the way the present's do: {elasid}, {elasime}, {elasite}.",
+      point: "Most verbs make the past by putting -sin where the present has -n: {elan}, I live, becomes {elasin}, I lived. The other persons then take their usual endings after -si-: {elasid}, {elasime}, {elasite}.",
       table: {
         head: ["", "{elama}, to live", "{õppima}, to study"],
         rows: [
@@ -84,11 +85,11 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "The he and she form usually drops -in: {elasin}, {elas}; {rääkisin}, {rääkis}. Not always, so it's learned with each verb.",
-        "{Olin}, {tegin}, {sõin} and {jõin} from A1 work the same way, with -in in place of -sin: {sõid}, {jõime}, {tegite}.",
+        "The he and she form usually drops the -in and keeps the s: {elasin}, {elas}; {rääkisin}, {rääkis}. Some verbs do something else here, so this one form is learned with each verb.",
+        "A few short verbs from A1 end in -in, not -sin: {olin}, {tegin}, {sõin}, {jõin}. The other persons follow them in the same way: {sõid}, {jõime}, {tegite}.",
         "{Kaua?} asks how long: {Kaua sa seal elasid?}",
       ],
-      watchOut: "{Elasid} is both you lived and they lived: {sa elasid}, {nad elasid}. The pronoun says which.",
+      watchOut: "In the past, you and they share one form: {sa elasid}, {nad elasid}. The present keeps them apart and the past doesn't, so say the pronoun when it isn't clear who you mean.",
       examples: [0, 1, 3, 5],
     },
     answers: [
@@ -141,7 +142,7 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "magas", of: "magama", en: "he, she slept" },
     ],
     how: {
-      point: "The commonest verbs make the past their own way, so learn it with the verb: {minema}, {läksin}; {tulema}, {tulin}. The other persons still follow: {läksid}, {läksime}.",
+      point: "The verbs you use most often don't follow the -sin pattern. Their past is learned with the verb, like a word of its own: {minema}, to go, and {läksin}, I went; {tulema}, to come, and {tulin}, I came. Once you have the form for I, {läksin}, the other persons follow it as usual: {läksid}, {läksime}.",
       table: {
         head: ["", "I", "He, she"],
         rows: [
@@ -156,10 +157,10 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
       },
       notes: [
         "{Võtsime kohvi} is we got a coffee: {võtma} is take, and also what you have in a café.",
-        "{Marit} is Mari after {nägema}: a name takes the [osastav] (3rd form) too, like {kohvi}.",
+        "{Marit} is Mari in the [osastav] (3rd form). The person you see after {nägema}, to see, usually goes in the [osastav] (3rd form), and a name changes its ending like any other word: {Kas sa nägid seal Marit?}",
         "{Kaua} after a verb is for ages: {Rääkisime kaua}.",
       ],
-      watchOut: "{Võttis}, with a double t and no s before the ending: the he and she form is the one to learn by heart.",
+      watchOut: "The he and she form is the one that surprises: {võtsin}, I took, but {võttis}, he or she took, with a double t. No rule gets you from one to the other, so learn the two together.",
       examples: [1, 3, 5],
     },
     answers: [
@@ -206,7 +207,7 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "parem", en: "better; right (not left)" },
     ],
     how: {
-      point: "No in the past is {ei} and the [nud-kesksõna] (-nud, done), the same for every person: {Ma ei tulnud}, {Nad ei tulnud}.",
+      point: "To say you didn't do something, Estonian doesn't use the past form at all. It uses {ei} and the [nud-kesksõna] (-nud, done), and that pair is the same for every person: {Ma ei tulnud}, I didn't come; {Nad ei tulnud}, they didn't come.",
       table: {
         head: ["", "Yes", "No"],
         rows: [
@@ -219,12 +220,12 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "The [nud-kesksõna] (-nud, done) is learned with the verb: {minema}, {läinud}; {tegema}, {teinud}.",
-        "{Ei käinud} on its own is a whole answer: no, I didn't go.",
+        "Many verbs make it with -nud on the end, {tulnud}, {saanud}, but some change on the way, so learn it with the verb: {minema}, {läinud}; {tegema}, {teinud}.",
+        "Asked {Kas sa käisid arsti juures?}, Estonian answers with the verb, not with a bare no: {Ei käinud} on its own is a whole answer, no, I didn't go.",
         "{Midagi} is something, and after {ei} it's anything: {Ma ei söönud midagi}.",
-        "{Arsti juures} is at the doctor's, the [omastav] (2nd form) and {juures} of lesson 3.",
+        "{Juures}, at somebody's, always comes after the [omastav] (2nd form) of the word: {arsti juures}, at the doctor's. You met it in lesson 3.",
       ],
-      watchOut: "After {ei}, never the past form: it's {ma ei tulnud}, never ma ei tulin.",
+      watchOut: "{Ei} never goes with the past form itself. It's {ma ei tulnud}, never ma ei tulin: once you say {ei}, the verb switches to the [nud-kesksõna] (-nud, done).",
       examples: [0, 1, 3, 5],
     },
     answers: [
@@ -264,7 +265,7 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "tubli", en: "good, well done (said to a person)" },
     ],
     how: {
-      point: "A thing done all the way takes the [omastav] (2nd form): {Ma ostsin raamatu}. A thing still going on, or some of something, takes the [osastav] (3rd form): {Ma loen raamatut}, {Ma ostsin piima}.",
+      point: "The noun you do something to changes its ending to say how much of it you mean. If the job is done with the whole thing, it takes the [omastav] (2nd form): {Ma ostsin raamatu}, the book is bought. If the job is still going on, or you mean some of something you can't count, it takes the [osastav] (3rd form): {Ma loen raamatut}, I haven't finished it; {Ma ostsin piima}, some milk.",
       table: {
         head: ["Estonian", "In English", "Why"],
         rows: [
@@ -275,12 +276,21 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "This is the rule behind A1's {kohvi} and {teed}: some coffee, some tea.",
-        "{Ühe eesti raamatu} is one Estonian book, bought: both words are in the [omastav] (2nd form).",
+        "It's the same rule behind {kohvi} and {teed} from A1. Coffee and tea are stuff you can't count, so asking for some always takes the [osastav] (3rd form).",
+        "{Ühe eesti raamatu} is one Estonian book, bought. A number from two up puts the word after it in the [osastav] (3rd form), {kümme lehekülge}, but {üks} is different: it changes along with its word, so a whole bought book is {ühe raamatu}.",
         "There's more to this rule, and B1 takes it further. For now the pattern above is enough to say what you did.",
       ],
-      watchOut: "After {ei}, it's always the [osastav] (3rd form): {Ma ei ostnud raamatut}.",
+      watchOut: "A no always takes the [osastav] (3rd form), even for one whole book: {Ma ei ostnud raamatut}, I didn't buy a book. Nothing was bought, so there's no whole thing with the job done.",
       examples: [1, 3],
+      why: {
+        word: "raamat",
+        en: "book",
+        steps: A2_OBJECT_STEPS,
+        lines: [
+          { line: 1, form: "raamatu", lands: { case: "GENITIVE", plural: false }, why: "It's a yes, there's no number, and a book is a thing you can count. Tom has bought it, so the job is done with the whole book, and a whole thing with the job done takes the [omastav] (2nd form): {raamatu}. When he reads it on the bus, the reading isn't finished, so it's {seda}, the [osastav] (3rd form)." },
+          { line: 3, form: "raamatu", lands: { case: "GENITIVE", plural: false }, why: "There's a number in front, but it's one, and one works differently. After a number from two up, the word goes in the [osastav] (3rd form): {kümme lehekülge}. {Üks} changes along with its word instead, and the book is bought, so both go in the [omastav] (2nd form): {ühe raamatu}." },
+        ],
+      },
     },
     answers: [
       { ask: { et: "Mis sul kotis on?", en: "What have you got in your bag?" }, cue: "Say you bought a book.", model: { et: "Ma ostsin raamatu.", en: "I bought a book." } },
@@ -322,7 +332,7 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "kuskil", en: "somewhere; after {ei}, anywhere" },
     ],
     how: {
-      point: "{Olen käinud} is have been: {olema} in the present and the [nud-kesksõna] (-nud, done). It's for what you've done at some time, without saying when. A class calls it the [täisminevik] (have done).",
+      point: "To say you've done something at some point, without saying when, Estonian uses {olema} in the present and the [nud-kesksõna] (-nud, done): {Ma olen Tartus käinud}, I've been to Tartu. When you say when it happened, yesterday or last summer, you usually use the plain past. A class calls this the [täisminevik] (have done).",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -335,11 +345,12 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
       notes: [
         "It's the same [nud-kesksõna] (-nud, done) as in lesson 17, with {olen} in front of it in place of {ei}.",
         "No is {ei ole} and the [nud-kesksõna] (-nud, done): {Ma ei ole seal käinud}. And {Ei ole veel} is not yet.",
+        "Estonian says where you've been, not where you went: {Tartus}, in Tartu, the [seesütlev] (-s, in). A place name that ends in -maa, like {Saaremaa}, takes the [alalütlev] (-l, on/at/has) instead: {Saaremaal}.",
         "{Kunagi} is ever, and {mitu korda} several times.",
         "{Hea meelega!} is gladly, the warm way to say yes to an invitation, and {Kahju!} is what a pity, the one-word answer to bad news.",
         "{Kuskil} is somewhere, and after {ei} anywhere: {Ta ei käi kuskil}.",
       ],
-      watchOut: "Have is {olema} here: {ma olen käinud}. Estonian builds it with to be, never with {mul on}.",
+      watchOut: "English makes it with have, which tempts you toward {mul on}. Estonian makes it with to be: {ma olen käinud}. {Mul on} is for having things, never for having done something.",
       examples: [0, 1, 2],
     },
     answers: [
@@ -392,7 +403,7 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "öelnud", of: "ütlema", en: "said" },
     ],
     how: {
-      point: "A story needs its order: {kõigepealt}, first; {siis}, then; {pärast seda}, after that; {lõpuks}, in the end.",
+      point: "A story is easy to follow when each step says where it comes: {kõigepealt}, first; {siis}, then; {pärast seda}, after that; {lõpuks}, in the end. Put the word at the start of the sentence and the verb comes straight after it: {Kõigepealt ärkasin}, {Lõpuks oli kõik hästi}.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -406,7 +417,7 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
         "{Mis juhtus?} is what happened? It's the first thing anybody asks when you say {Mul oli eile halb päev}.",
         "{Läks ära} is left, went away: {ära} after a verb means away. Before a command, it means don't.",
         "{Jõudma} is getting somewhere: {Ma jõudsin tööle}, I got to work.",
-        "{Tund aega hiljem} is an hour later: {aega}, time, after a length of it.",
+        "{Tund aega hiljem} is an hour later. {Aega} is time in the [osastav] (3rd form), because {tund} says how much of it, the way a number would.",
       ],
       watchOut: "{Liiga} is too, as in too much: {liiga hilja}, too late. It never means also; also is {ka}.",
       examples: [2, 3, 5, 7],
@@ -450,7 +461,7 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "elu", en: "life" },
     ],
     how: {
-      point: "{Kui} joins a when onto a sentence: {Kui ma olin kümme, kolisime Londonisse}, when I was ten, we moved to London.",
+      point: "{Kui} starts a when part: {Kui ma olin kümme}, when I was ten. Put it first, add a comma, and the main part starts with its verb: {kolisime Londonisse}, we moved to London.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -463,10 +474,10 @@ export const A2_EILE_LESSONS: readonly LessonSpec[] = [
       notes: [
         "{Viis aastat tagasi} is five years ago: {tagasi} comes after the time.",
         "{Kasvasin üles} is grew up: {kasvama} is grow, and {üles}, up, makes it grow up.",
-        "{Ühes väikeses linnas}, in a small town: like {kolmandal korrusel}, every word takes the ending. {Väike} is {väikese}, and the ending goes on that.",
+        "{Ühes väikeses linnas}, in a small town: the words in front of a noun take its ending too, so all three end in -s, like {kolmandal korrusel}. The ending goes on the [omastav] (2nd form) of each word: {väike}, {väikese}, {väikeses}.",
         "{Elu} is life, and it's what this lesson is about: {Minu elu}.",
       ],
-      watchOut: "\"I was born\" is an ordinary past in Estonian, {ma sündisin}. There's no to be in it.",
+      watchOut: "\"I was born\" is an ordinary past in Estonian, {ma sündisin}, because {sündima}, to be born, is a verb of its own. There's no to be in it.",
       examples: [1, 3, 5],
     },
     answers: [

@@ -418,6 +418,19 @@ export function estonianOf(lesson: LessonSpec): ShownEstonian[] {
       english(`listen ${s + 1}, meaning`, w.en);
     }),
   );
+  if (how.why) {
+    // The table under the questions is the dictionary's; its heading names the word, which the lesson writes.
+    out.push({ where: "why this form, the word", et: how.why.word });
+    english("why this form, the word's meaning", how.why.en);
+    how.why.steps.forEach((step) => {
+      english(`why this form, ${step.id}`, step.q);
+      step.answers.forEach((a) => english(`why this form, ${step.id}, an answer`, a.a));
+    });
+    how.why.lines.forEach((l, i) => {
+      out.push({ where: `why this form, line ${i + 1}`, et: l.form });
+      english(`why this form, line ${i + 1}`, l.why);
+    });
+  }
   const prompts = (label: string, list: LessonSpec["answers"]) =>
     list.forEach((p, i) => {
       if (p.ask) out.push({ where: `${label} ${i + 1}, asked`, et: p.ask.et });

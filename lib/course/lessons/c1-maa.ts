@@ -200,8 +200,8 @@ export const C1_MAA_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "...ei, ikka Võrumaal, metsa sees, järve ääres. Mul on ka raadio lahti!", en: "...no, it's in {Võrumaa}, in the middle of the woods, by a lake. I've got the radio on too!" }, right: "Võrumaal", wrong: "Võrumaale", pair: ["ADESSIVE", "ALLATIVE"], why: "Where something is takes the [alalütlev] (-l, on/at/has): {Võrumaal}. The [alaleütlev] (-le, onto/to) is for going there." },
-      { line: { et: "Tema vanavanemate tallu? Ma arvasin, et see on kuskil Tartu lähedal...", en: "To her grandparents' farm? I thought it was somewhere near Tartu..." }, right: "tallu", wrong: "talus", pair: ["ILLATIVE", "INESSIVE"], why: "Going to the farm is into it: {tallu}, the [lühike sisseütlev] (short into). {Talus} is being there." },
+      { line: { et: "...ei, ikka Võrumaal, metsa sees, järve ääres. Mul on ka raadio lahti!", en: "...no, it's in {Võrumaa}, in the middle of the woods, by a lake. I've got the radio on too!" }, right: "Võrumaal", wrong: "Võrumaale", pair: ["ADESSIVE", "ALLATIVE"], why: "Kati is saying where the farm is, not where anybody is going, so the question is where. {Võrumaa} is a land, a word ending in -maa, and lands take the outside endings: where is {Võrumaal}, the [alalütlev] (-l, on/at/has). The [alaleütlev] (-le, onto/to), {Võrumaale}, would be for driving there." },
+      { line: { et: "Tema vanavanemate tallu? Ma arvasin, et see on kuskil Tartu lähedal...", en: "To her grandparents' farm? I thought it was somewhere near Tartu..." }, right: "tallu", wrong: "talus", pair: ["ILLATIVE", "INESSIVE"], why: "Tom is picking up Anna's words, the place Kati invited them to, so this is where you go, not where you are. Estonian treats a farm as a place you are in rather than on, so going there is into it, and {talu} has a short into form people say: {tallu}, the [lühike sisseütlev] (short into). {Talus}, the [seesütlev] (-s, in), is for being on the farm once you've arrived." },
     ],
     workOut: [
       {
@@ -309,7 +309,7 @@ export const C1_MAA_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "helisemas", of: "helisema", en: "ringing: {kuuleb kella helisemas}, you hear a bell ringing" },
     ],
     how: {
-      point: "A legend is told, not claimed: {Räägitakse, et kunagi ammu olevat siin olnud küla.} {Olevat} and the [nud-kesksõna] (-nud, done) say this is what people tell; the pluperfect, {olid muutunud}, says what had happened before; and the plain past is the storyteller stepping out: {Hommikul oli seal ainult raba.}",
+      point: "A legend is told rather than claimed, since nobody alive saw it, and the tenses carry that. {Olevat} with the [nud-kesksõna] (-nud, done) says this is what people tell: {Räägitakse, et kunagi ammu olevat siin olnud küla.} The [enneminevik] (had done), {olid muutunud}, sets what had already happened before the story's night. And the plain past is the storyteller stepping out to say what anybody could see: {Hommikul oli seal ainult raba.}",
       table: {
         head: ["Who tells it", "Estonian", "In English"],
         rows: [
@@ -321,7 +321,7 @@ export const C1_MAA_LESSONS: readonly LessonSpec[] = [
       notes: [
         "{Räägitakse, et} or {Kunagi ammu} opens it, and everybody knows a story is coming.",
         "{Olevat} with the [nud-kesksõna] (-nud, done) passes on what is told: {olevat vajunud}, sank, they say. You met it in B2 for news; in a legend it is the voice the story is told in.",
-        "What had already happened goes in the pluperfect: {Inimesed olid muutunud ahneks}, before the night it all sank.",
+        "What had already happened by then goes in the [enneminevik] (had done): {Inimesed olid muutunud ahneks}. The people had grown greedy first, and only after that came the night it all sank.",
         "When the teller steps out of the story to say what is there now, it's the plain past or the present: {Hommikul oli seal ainult raba}, {Raba on palju vanem kui küla}.",
         "A book says it with nouns and no voice at all: {Muistendi järgi oli raba kohal kunagi küla}.",
       ],
@@ -433,8 +433,8 @@ export const C1_MAA_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Nüüd ma mäletan! Vanaema ütles alati, et ahnus viib inimese rappa.", en: "Now I remember! Grandmother always said that greed leads a person into the bog." }, right: "rappa", wrong: "rabas", pair: ["ILLATIVE", "INESSIVE"], why: "{Viib} is taking somewhere, so into the bog: {rappa}, the [lühike sisseütlev] (short into). {Rabas} is being in it." },
-      { line: { et: "Nii, nüüd oleme raba ääres. Edasi läheme ainult mööda laudteed.", en: "Right, now we're at the edge of the bog. From here on we go only along the boardwalk." }, right: "laudteed", wrong: "laudtee", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Mööda} takes the [osastav] (3rd form): {mööda laudteed}." },
+      { line: { et: "Nüüd ma mäletan! Vanaema ütles alati, et ahnus viib inimese rappa.", en: "Now I remember! Grandmother always said that greed leads a person into the bog." }, right: "rappa", wrong: "rabas", pair: ["ILLATIVE", "INESSIVE"], why: "{Viib} is leading somewhere, so greed takes a person into the bog: it's a movement, and the question is where to. For {raba} the into form people say is the short one, the [lühike sisseütlev] (short into): {rappa}. {Rabas}, the [seesütlev] (-s, in), would put the person in the bog already, and then nothing has led them anywhere." },
+      { line: { et: "Nii, nüüd oleme raba ääres. Edasi läheme ainult mööda laudteed.", en: "Right, now we're at the edge of the bog. From here on we go only along the boardwalk." }, right: "laudteed", wrong: "laudtee", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Mööda}, along, is one of the words that stand in front of their noun and always want the [osastav] (3rd form) after them: {mööda laudteed}. It says nothing about how much of the boardwalk they walk; it is what {mööda} asks for, so learn the two together. The plain {laudtee} can't follow it." },
     ],
     workOut: [
       {
@@ -541,7 +541,7 @@ export const C1_MAA_LESSONS: readonly LessonSpec[] = [
     ],
     patterns: ["literary"],
     how: {
-      point: "Old songs and old books keep forms ordinary Estonian has let go of, and you read them and never say them: {raamatuis} for {raamatutes}, {silmis} for {silmades}, a short {metsa} where a sentence would say {metsasse}, and a dialect word with its standard word under it.",
+      point: "Old songs and old books keep forms that everyday Estonian has mostly let go of. You need to recognize them when you read, and you don't use them yourself: {raamatuis} for {raamatutes}, {silmis} for {silmades}, and a dialect word with its standard word under it. A song also leans on the short into form, {metsa}, because it fits the line.",
       table: {
         head: ["In a song or an old book", "Today", "In English"],
         rows: [
@@ -550,8 +550,8 @@ export const C1_MAA_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "The i-plural puts an -i- where today's plural has -de- or -te-, and drops the rest: {raamatuis}, {silmis}. Read it as the plural you know.",
-        "A song likes the short form going into a place, {metsa}, {koju}, because it fits the line. Today both are right, and the short one is what people say.",
+        "The old plural marks more than one with an -i- where today's plural has -de- or -te-, and the case ending stays after it, so the -s still means in: {raamatuis} is {raamatutes}, {silmis} is {silmades}. Read it as the plural you already know.",
+        "A song likes the short form for going into a place, {metsa}, {koju}, because it is a syllable or two shorter and fits the line. This one is not old at all: today both forms are right, and the short one is what people say.",
         "Some old forms live on in set phrases: {tema silmis}, in his eyes, is still how people put it.",
         "A dialect word in a text has its standard word under it. Read it, and keep the standard word for yourself.",
       ],
@@ -659,8 +659,8 @@ export const C1_MAA_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Õige! Kui te täna kuulete laulus oma nime, siis teate, miks.", en: "Right! If you hear your own name in a song tonight, you'll know why." }, right: "laulus", wrong: "laulust", pair: ["INESSIVE", "ELATIVE"], why: "Your name is in the song: the [seesütlev] (-s, in), {laulus}." },
-      { line: { et: "Tere tulemast Setomaale! Täna õhtul laulame teile leelot.", en: "Welcome to {Setomaa}! Tonight we'll sing leelo for you." }, right: "Setomaale", wrong: "Setomaal", pair: ["ALLATIVE", "ADESSIVE"], why: "Welcome to a place you have come to: the [alaleütlev] (-le, onto/to), {Setomaale}." },
+      { line: { et: "Õige! Kui te täna kuulete laulus oma nime, siis teate, miks.", en: "Right! If you hear your own name in a song tonight, you'll know why." }, right: "laulus", wrong: "laulust", pair: ["INESSIVE", "ELATIVE"], why: "Your name would be inside the song, sung as part of it, so the question is where: the [seesütlev] (-s, in), {laulus}. {Laulust}, the [seestütlev] (-st, out of), is for something coming out of a song, or for what a song is about." },
+      { line: { et: "Tere tulemast Setomaale! Täna õhtul laulame teile leelot.", en: "Welcome to {Setomaa}! Tonight we'll sing leelo for you." }, right: "Setomaale", wrong: "Setomaal", pair: ["ALLATIVE", "ADESSIVE"], why: "{Tere tulemast} is said to people who have just arrived, so the welcome is to the place they have come to: a where to. {Setomaa} is a land in -maa, and lands take the outside endings, so where to is {Setomaale}, the [alaleütlev] (-le, onto/to). {Setomaal}, the [alalütlev] (-l, on/at/has), is being there already." },
     ],
     workOut: [
       {
@@ -1001,8 +1001,8 @@ export const C1_MAA_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "...täpselt, hiiglased! Raadios öeldi, et igal kivil on oma lugu.", en: "...exactly, giants! On the radio they said every stone has its own story." }, right: "kivil", wrong: "kivile", pair: ["ADESSIVE", "ALLATIVE"], why: "Having something is the [alalütlev] (-l, on/at/has): {igal kivil on oma lugu}." },
-      { line: { et: "Tom, see on sinu voor. Sa kuulasid hommikul raadiot ja tegid märkmeid!", en: "Tom, this is your round. You listened to the radio this morning and took notes!" }, right: "raadiot", wrong: "raadio", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Kuulama} takes the [osastav] (3rd form): {kuulasid raadiot}." },
+      { line: { et: "...täpselt, hiiglased! Raadios öeldi, et igal kivil on oma lugu.", en: "...exactly, giants! On the radio they said every stone has its own story." }, right: "kivil", wrong: "kivile", pair: ["ADESSIVE", "ALLATIVE"], why: "Estonian usually says have by putting the owner in the -l form with {on}: something is on them. Every stone has its own story is {igal kivil on oma lugu}, so the stone, the owner, takes the [alalütlev] (-l, on/at/has): {kivil}. {Kivile}, the [alaleütlev] (-le, onto/to), is a movement onto the stone, and with {on} it says nothing." },
+      { line: { et: "Tom, see on sinu voor. Sa kuulasid hommikul raadiot ja tegid märkmeid!", en: "Tom, this is your round. You listened to the radio this morning and took notes!" }, right: "raadiot", wrong: "raadio", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Kuulama}, to listen, is an activity rather than a job you finish: you can listen to the radio all morning and never be done with it. A verb like that takes its object in the [osastav] (3rd form) every time: {kuulasid raadiot}. The plain {raadio} would make the radio the subject, doing something itself." },
     ],
     workOut: [
       {
@@ -1185,8 +1185,8 @@ export const C1_MAA_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Laadal tahaksin ma mett osta. Saare mesi olevat kõige parem.", en: "At the fair I'd like to buy honey. The island honey is the best, they say." }, right: "mett", wrong: "mesi", pair: ["PARTITIVE", "NOMINATIVE"], why: "Some honey, as an object, is the [osastav] (3rd form): {mett osta}." },
-      { line: { et: "Kuule, Tom, kirjuta minu blogisse lugu selle reisi kohta! Mu blogi loevad ka inimesed, kes ei ole siin käinud.", en: "Listen, Tom, write a piece for my blog about this trip! People read my blog who've never been here." }, right: "blogisse", wrong: "blogis", pair: ["ILLATIVE", "INESSIVE"], why: "Writing into the blog is going into it: the [sisseütlev] (-sse, into), {blogisse}." },
+      { line: { et: "Laadal tahaksin ma mett osta. Saare mesi olevat kõige parem.", en: "At the fair I'd like to buy honey. The island honey is the best, they say." }, right: "mett", wrong: "mesi", pair: ["PARTITIVE", "NOMINATIVE"], why: "Tom wants to buy some honey, not all the honey at the fair, and honey is not something you count: it's an open amount. An object like that takes the [osastav] (3rd form): {mett osta}. {Mesi} is the plain form, for honey as the subject, as in his next sentence: {Saare mesi olevat kõige parem}." },
+      { line: { et: "Kuule, Tom, kirjuta minu blogisse lugu selle reisi kohta! Mu blogi loevad ka inimesed, kes ei ole siin käinud.", en: "Listen, Tom, write a piece for my blog about this trip! People read my blog who've never been here." }, right: "blogisse", wrong: "blogis", pair: ["ILLATIVE", "INESSIVE"], why: "{Kirjuta minu blogisse} is put a story into the blog: the story goes in, so the question is where to. That's the [sisseütlev] (-sse, into), {blogisse}. {Blogis}, the [seesütlev] (-s, in), is where a story already is, the way you read it in the blog." },
     ],
     workOut: [
       {

@@ -53,6 +53,7 @@ export default async function LessonPage({ params, searchParams }: { params: Pro
       read={view.read}
       notes={view.notes}
       forms={view.forms}
+      caseForms={view.caseForms}
       finishedBefore={done}
       keptAnswers={saved}
       words={view.words}

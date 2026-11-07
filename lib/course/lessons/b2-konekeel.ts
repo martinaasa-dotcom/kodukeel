@@ -76,7 +76,7 @@ export const B2_KONEKEEL_LESSONS: readonly LessonSpec[] = [
     ],
     patterns: ["spoken"],
     how: {
-      point: "Friends talk in short forms and small words: {ma} for {mina}, {pole} for {ei ole}, and {noh}, {ju} and {vaata} to keep the talk moving. Written Estonian keeps the long forms and leaves the small words out.",
+      point: "Friends talk in short forms and small words: {ma} for {mina}, {pole} for {ei ole}, and {noh}, {ju} and {vaata} to keep the talk moving. Written Estonian keeps the long forms and leaves the small words out. The short forms are quicker to say, and the small words do the work a tone of voice does: they buy a second, ask somebody to listen, or say you both know it already.",
       table: {
         head: ["Said", "Written", "In English"],
         rows: [
@@ -92,7 +92,7 @@ export const B2_KONEKEEL_LESSONS: readonly LessonSpec[] = [
         "{Ju} says you both know it, and turns a sentence into a gentle protest: {Ta ei käi ju kunagi kontserdil}, but he never goes to concerts.",
         "{Nagu} is like, the way English uses it: {nagu ikka}, same as always. {Muide} is by the way, for a new subject, and {täitsa} is pretty: {täitsa veider}, pretty weird.",
       ],
-      watchOut: "These are for talk and for chat. In an email to a school or an office, use the long forms and leave the small words out.",
+      watchOut: "These are for talk and for chat. In an email to a school or an office they read as too casual, so there use the long forms and leave the small words out.",
       examples: [0, 4, 5, 7],
     },
     listenFor: [
@@ -140,8 +140,8 @@ export const B2_KONEKEEL_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ja tead, keda ma seal kohtasin? Jaani!", en: "And guess who I ran into there? Jaan!" }, right: "keda", wrong: "kes", pair: ["PARTITIVE", "NOMINATIVE"], why: "Who you met is the object: {keda}, never {kes}." },
-      { line: { et: "Mis seal veidrat on?", en: "What's weird about that?" }, right: "veidrat", wrong: "veider", pair: ["PARTITIVE", "NOMINATIVE"], why: "In {mis seal ... on}, what's weird takes the [osastav] (3rd form): {veidrat}." },
+      { line: { et: "Ja tead, keda ma seal kohtasin? Jaani!", en: "And guess who I ran into there? Jaan!" }, right: "keda", wrong: "kes", pair: ["PARTITIVE", "NOMINATIVE"], why: "The person you met is the object of {kohtasin}, and {kohtama} puts the person it's about in the [osastav] (3rd form). The question word follows the same rule: {kes} asks who does something, {keda} asks who something is done to. So it's {keda ma seal kohtasin}, and the answer is the same form: {Jaani}." },
+      { line: { et: "Mis seal veidrat on?", en: "What's weird about that?" }, right: "veidrat", wrong: "veider", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Mis seal veidrat on?} is a set way of asking what's weird about something. In this question the describing word after {mis} goes in the [osastav] (3rd form), as if asking how much weirdness there is: {veidrat}, never {veider}." },
     ],
     workOut: [
       {
@@ -211,7 +211,7 @@ export const B2_KONEKEEL_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "uudist", of: "uudis", en: "news, as an object: {head uudist}, good news" },
     ],
     how: {
-      point: "To make a thing stand out, say it first: {Seda ma küll ei usu!} The plain order is {Ma ei usu seda}. {Küll} after it adds weight.",
+      point: "To make one thing stand out, Estonian moves it to the front: {Seda ma küll ei usu!} The plain order is {Ma ei usu seda}. Saying it first puts the stress on it, and {küll} adds weight, a bit like really or certainly.",
       table: {
         head: ["Plain", "With weight", "In English"],
         rows: [
@@ -270,8 +270,8 @@ export const B2_KONEKEEL_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Seda ma küll ei usu!", en: "Now that I don't believe!" }, right: "Seda", wrong: "See", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a no, the pronoun ({seda} here) takes the [osastav] (3rd form), even when it comes first." },
-      { line: { et: "Uues kohas on tal rohkem vaba aega.", en: "In the new place he'll have more free time." }, right: "aega", wrong: "aeg", pair: ["PARTITIVE", "NOMINATIVE"], why: "After {rohkem}, the [osastav] (3rd form): {rohkem aega}." },
+      { line: { et: "Seda ma küll ei usu!", en: "Now that I don't believe!" }, right: "Seda", wrong: "See", pair: ["PARTITIVE", "NOMINATIVE"], why: "The no, {ei usu}, decides the case: after a no, the noun takes the [osastav] (3rd form) whatever it is. Moving it to the front for weight changes the order, not the ending, so it's still {seda}, never {see}." },
+      { line: { et: "Uues kohas on tal rohkem vaba aega.", en: "In the new place he'll have more free time." }, right: "aega", wrong: "aeg", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Rohkem}, more, is an amount word, like {palju} and {natuke}. What follows an amount word is an open amount of something, so it goes in the [osastav] (3rd form): {rohkem aega}, more time, never {aeg}." },
     ],
     faster: {
       ask: { et: "Mis sul head uudist on?", en: "What good news have you got?" },
@@ -399,8 +399,8 @@ export const B2_KONEKEEL_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Eile üritasin üht Eesti filmi vaadata.", en: "Yesterday I tried to watch an Estonian film." }, right: "üritasin", wrong: "üritan", pair: ["IndIpfSg1", "IndPrSg1"], why: "Yesterday is over, so the past: {üritasin}." },
-      { line: { et: "Sain umbes poolest aru.", en: "I understood about half." }, right: "poolest", wrong: "pool", pair: ["ELATIVE", "NOMINATIVE"], why: "{Aru saama} asks for the [seestütlev] (-st, out of): {poolest aru}." },
+      { line: { et: "Eile üritasin üht Eesti filmi vaadata.", en: "Yesterday I tried to watch an Estonian film." }, right: "üritasin", wrong: "üritan", pair: ["IndIpfSg1", "IndPrSg1"], why: "{Eile}, yesterday, puts it in the past, so the verb goes in the simple past: {üritasin}, I tried. {Üritan} would be I'm trying, now." },
+      { line: { et: "Sain umbes poolest aru.", en: "I understood about half." }, right: "poolest", wrong: "pool", pair: ["ELATIVE", "NOMINATIVE"], why: "{Aru saama} puts what you understand in the [seestütlev] (-st, out of): you get the sense out of something. So it's {poolest aru}, I understood half of it, never {pool}. {Pool tundi} later on is different: it says how long, not what you understood." },
     ],
     workOut: [
       {
@@ -476,7 +476,7 @@ export const B2_KONEKEEL_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "saadetud", of: "saatma", en: "sent" },
     ],
     how: {
-      point: "A chat is written the way people talk: short lines, {pole}, and the pronoun left out where the verb says who: {Tulen kell seitse}, {Hilinen natuke}.",
+      point: "A chat is written the way people talk: short lines, {pole}, and the pronoun left out where the verb already says who: {Tulen kell seitse}, {Hilinen natuke}. The -n on the verb already means I, so {ma} can go.",
       table: {
         head: ["In a chat", "In an email", "In English"],
         rows: [
@@ -490,7 +490,7 @@ export const B2_KONEKEEL_LESSONS: readonly LessonSpec[] = [
         "{Okei} is OK, said and written. {Igatahes} is anyway, to close a subject: {Igatahes, saadetud!}",
         "{Seega} is so, therefore, and joins the reason to what follows: {Kõik tulevad, seega toon kaks kooki}.",
       ],
-      watchOut: "A chat with friends is not a message to a teacher, a doctor or an office. To them, write whole sentences and say {teie}.",
+      watchOut: "A chat with friends is not a message to a teacher, a doctor or an office. To them a two-word line can read as rude, so write whole sentences and say {teie}.",
       examples: [2, 6, 8, 10],
     },
     listenFor: [
@@ -535,8 +535,8 @@ export const B2_KONEKEEL_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Kati kirjutas juba, et tuleb ja toob kooki.", en: "Kati's already written that she's coming and bringing cake." }, right: "kooki", wrong: "kook", pair: ["PARTITIVE", "NOMINATIVE"], why: "Some cake, not a cake you both know: the [osastav] (3rd form), {kooki}." },
-      { line: { et: "Ta küsib, kes reedel õhtusöögile tuleb.", en: "She's asking who's coming to dinner on Friday." }, right: "õhtusöögile", wrong: "õhtusöök", pair: ["ALLATIVE", "NOMINATIVE"], why: "Coming to a dinner: the [alaleütlev] (-le, onto/to), {õhtusöögile}." },
+      { line: { et: "Kati kirjutas juba, et tuleb ja toob kooki.", en: "Kati's already written that she's coming and bringing cake." }, right: "kooki", wrong: "kook", pair: ["PARTITIVE", "NOMINATIVE"], why: "Kati is bringing some cake, not a particular cake you both know about. That's an open amount, so it goes in the [osastav] (3rd form): {kooki}. A whole, particular cake would take the [omastav] (2nd form)." },
+      { line: { et: "Ta küsib, kes reedel õhtusöögile tuleb.", en: "She's asking who's coming to dinner on Friday." }, right: "õhtusöögile", wrong: "õhtusöök", pair: ["ALLATIVE", "NOMINATIVE"], why: "A dinner is an event, and events take the outside endings, the way a concert does: {kontserdil}, {kontserdile}. Coming to it is where to, so -le, the [alaleütlev] (-le, onto/to): {õhtusöögile}." },
     ],
     write: {
       genre: "A group chat thread",
@@ -681,8 +681,8 @@ export const B2_KONEKEEL_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Räägime eesti keeles edasi.", en: "Let's carry on in Estonian." }, right: "keeles", wrong: "keelt", pair: ["INESSIVE", "PARTITIVE"], why: "In a language is the [seesütlev] (-s, in): {eesti keeles}." },
-      { line: { et: "Kolm peatust bussiga.", en: "Three stops by bus." }, right: "bussiga", wrong: "buss", pair: ["COMITATIVE", "NOMINATIVE"], why: "By bus is the [kaasaütlev] (-ga, with): {bussiga}." },
+      { line: { et: "Räägime eesti keeles edasi.", en: "Let's carry on in Estonian." }, right: "keeles", wrong: "keelt", pair: ["INESSIVE", "PARTITIVE"], why: "In Estonian you talk in a language, inside it, so the language you're talking in takes the [seesütlev] (-s, in): {eesti keeles}. The [osastav] (3rd form), {keelt}, is for the language as something you learn or can speak, not the one you're talking in right now." },
+      { line: { et: "Kolm peatust bussiga.", en: "Three stops by bus." }, right: "bussiga", wrong: "buss", pair: ["COMITATIVE", "NOMINATIVE"], why: "You travel by bus by going with it, so the bus takes the [kaasaütlev] (-ga, with): {bussiga}. Estonian uses the same ending for how you get somewhere: by car, by train, by bike." },
     ],
     workOut: [
       {
@@ -737,7 +737,7 @@ export const B2_KONEKEEL_LESSONS: readonly LessonSpec[] = [
         "When somebody offers English, {Ei, aitäh, räägime eesti keeles edasi} keeps the evening in Estonian.",
         "At the end Jaan asks you something nobody asked at the table above.",
       ],
-      watchOut: "{Ümber} after a word, {laua ümber}, is around it, and that word takes the [omastav] (2nd form).",
+      watchOut: "{Ümber} after a word, {laua ümber}, is around it. Like {kõrval} or {taga}, it carries the place, so the word in front of it takes the [omastav] (2nd form) with no ending of its own. The table in {Istuge lauda} is different: it's where to, so it takes the [lühike sisseütlev] (short into).",
       examples: [1, 6, 8, 12],
     },
     listenFor: [

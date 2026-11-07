@@ -25,6 +25,7 @@
  */
 
 import type { LessonSpec, PartOfLessons } from "./types";
+import { DOER_STEPS, HOW_LONG_STEPS } from "./why-b2-tervis";
 
 export const B2_TERVIS_PART: PartOfLessons = {
   id: "b2-tervis",
@@ -96,11 +97,21 @@ export const B2_TERVIS_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "How long it has lasted goes in the [osastav] (3rd form), with nothing in front: {kaks nädalat}, for two weeks. More than that is {üle} and the [omastav] (2nd form): {üle kahe nädala}.",
+        "How long something has lasted needs no word for \"for\": the number and the word go in on their own, and the word takes the singular [osastav] (3rd form), {kaks nädalat}, for two weeks. The number already says how many, so the word stays singular. Put {üle}, more than, in front and it changes: {üle} wants the [omastav] (2nd form), and the number goes into it too, {üle kahe nädala}.",
         "{Juba} says it's been going on longer than you'd like: {Köha on mul juba kaks nädalat}.",
       ],
       watchOut: "{Valus} is how a part of you feels: {Kurk on valus}. {Valu} is the pain itself: {Mul on valu}. Never {Kurk on valu}.",
       examples: [1, 3, 8],
+      why: {
+        word: "nädal",
+        en: "week",
+        steps: HOW_LONG_STEPS,
+        lines: [
+          { line: 1, form: "nädalat", lands: { case: "PARTITIVE", plural: false }, why: "Tom says how long he's had the cough with a number and nothing else: {kaks nädalat}. After a number, the word goes in the [osastav] (3rd form), and in the singular, because {kaks} has already said how many. English needs \"for\" here; Estonian doesn't." },
+          { line: 2, form: "nädalat", lands: { case: "PARTITIVE", plural: false }, why: "Jaan repeats it as a question, and the form stays the same: a number on its own, so the singular [osastav] (3rd form), {kaks nädalat}. Asking doesn't change the ending." },
+          { line: 8, form: "nädala", lands: { case: "GENITIVE", plural: false }, why: "Now there's {üle}, more than, in front of the number. {Üle} wants the [omastav] (2nd form), and it takes the number with it: {kaks} becomes {kahe}, and {nädalat} becomes {nädala}. So it's {üle kahe nädala}." },
+        ],
+      },
     },
     listenFor: [
       { q: "How long has Tom had a cough?", options: ["Since yesterday", "Two days", "Two weeks", "A month"], answer: 2 },
@@ -148,8 +159,8 @@ export const B2_TERVIS_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Mul on juba kaks nädalat köha.", en: "I've had a cough for two weeks now." }, right: "nädalat", wrong: "nädal", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a number, how long goes in the [osastav] (3rd form): {kaks nädalat}." },
-      { line: { et: "Kui köha kestab üle kahe nädala, peab arst kopse kuulama.", en: "If a cough lasts more than two weeks, a doctor has to listen to your lungs." }, right: "nädala", wrong: "nädalat", pair: ["GENITIVE", "PARTITIVE"], why: "{Üle} takes the [omastav] (2nd form): {üle kahe nädala}." },
+      { line: { et: "Mul on juba kaks nädalat köha.", en: "I've had a cough for two weeks now." }, right: "nädalat", wrong: "nädal", pair: ["PARTITIVE", "NOMINATIVE"], why: "After {kaks}, or any number but {üks}, the word goes in the singular [osastav] (3rd form): {kaks nädalat}. The number already says how many, so the word itself stays singular, and never in its plain form {nädal}." },
+      { line: { et: "Kui köha kestab üle kahe nädala, peab arst kopse kuulama.", en: "If a cough lasts more than two weeks, a doctor has to listen to your lungs." }, right: "nädala", wrong: "nädalat", pair: ["GENITIVE", "PARTITIVE"], why: "{Üle}, more than, in front of a number wants the [omastav] (2nd form), and the number and the word both go into it: {kahe nädala}. That's why {nädalat} after {kaks} turns into {nädala} after {üle kahe}." },
     ],
     retell: {
       who: "Liis",
@@ -281,8 +292,8 @@ export const B2_TERVIS_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Arst saab teile täna tagasi helistada.", en: "The doctor can ring you back today." }, right: "teile", wrong: "teid", pair: ["ALLATIVE", "PARTITIVE"], why: "{Helistama} wants the one you ring in the [alaleütlev] (-le, onto/to): {teile}." },
-      { line: { et: "Kas te saaksite korrata?", en: "Could you say that again?" }, right: "korrata", wrong: "kordama", pair: ["Inf", "Sup"], why: "After {saaksite}, the [da-tegevusnimi] (-da): {korrata}." },
+      { line: { et: "Arst saab teile täna tagasi helistada.", en: "The doctor can ring you back today." }, right: "teile", wrong: "teid", pair: ["ALLATIVE", "PARTITIVE"], why: "In Estonian you ring to somebody: {helistama} puts the person in the [alaleütlev] (-le, onto/to), {teile}, to you. {Teid} is the [osastav] (3rd form), the form for somebody you see, as in {Kui ta tahab teid näha}." },
+      { line: { et: "Kas te saaksite korrata?", en: "Could you say that again?" }, right: "korrata", wrong: "kordama", pair: ["Inf", "Sup"], why: "{Saaksite}, could you, is a form of {saama}, and {saama} takes the [da-tegevusnimi] (-da) after it: {saaksite korrata}. {Kordama} is the [ma-tegevusnimi] (-ma) the dictionary lists, and it goes after verbs like {pidama} instead." },
     ],
     workOut: [
       {
@@ -353,7 +364,7 @@ export const B2_TERVIS_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "apteegist", of: "apteek", en: "from the pharmacy" },
     ],
     how: {
-      point: "A -tud word with the doer in front, in the [omastav] (2nd form), says who did it: {arsti kirjutatud retsept}, the prescription the doctor wrote. Talking, people say the same with {mille} or {mida}: {retsept, mille arst kirjutas}.",
+      point: "A -tud word can say who did it, with the doer in front in the [omastav] (2nd form): {arsti kirjutatud retsept}, the prescription the doctor wrote. The doctor has no verb of their own here, so it isn't the subject {arst}; it belongs to the -tud word the way an owner belongs to a thing, and takes the same form. Talking, people say the same with {mille} or {mida}: {retsept, mille arst kirjutas}.",
       table: {
         head: ["Said", "Written", "In English"],
         rows: [
@@ -369,8 +380,18 @@ export const B2_TERVIS_LESSONS: readonly LessonSpec[] = [
         "It's how a leaflet, a doctor's note and the news put it. In conversation {mis} and {mille} are just as right, and more usual.",
         "A small word that belongs to the verb goes in front too: {välja kirjutatud retsept}, a prescribed one.",
       ],
-      watchOut: "The doer is {arsti}, never {arst}: {arsti kirjutatud}. And the -tud word never changes: {arsti kirjutatud retseptiga}.",
+      watchOut: "The doer in front of a -tud word is {arsti}, never {arst}: {arsti kirjutatud}. {Arst} is right only when the doctor has a verb of their own: {Arst kirjutas}. And the -tud word itself never changes: {arsti kirjutatud retseptiga}.",
       examples: [4, 10],
+      why: {
+        word: "arst",
+        en: "doctor",
+        steps: DOER_STEPS,
+        lines: [
+          { line: 1, form: "arst", lands: { case: "NOMINATIVE", plural: false }, why: "Here the doctor has a verb of their own: {Arst kirjutas}, the doctor wrote. The one who does what the verb says is the subject, and the subject is in its plain form, the [nimetav] (1st form): {arst}." },
+          { line: 4, form: "arsti", lands: { case: "GENITIVE", plural: false }, why: "Now there's no verb for the doctor, only {kirjutatud}, written, describing the antibiotic. The doer of a -tud word goes in front of it in the [omastav] (2nd form): {arsti}. The small word {välja} belongs to the verb and sits in between: {arsti välja kirjutatud}." },
+          { line: 10, form: "arsti", lands: { case: "GENITIVE", plural: false }, why: "The same shape again: {soovitatud}, recommended, says what the cough medicine is, and {arsti} in front of it says who recommended it. A doer in front of a -tud word is always in the [omastav] (2nd form)." },
+        ],
+      },
     },
     listenFor: [
       { q: "How long does Tom have to take the antibiotic?", options: ["Three days", "Seven days", "Until he feels better", "Two weeks"], answer: 1 },
@@ -415,8 +436,8 @@ export const B2_TERVIS_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Jah, siin on arsti välja kirjutatud antibiootikum.", en: "Yes, here's the antibiotic the doctor prescribed." }, right: "arsti", wrong: "arst", pair: ["GENITIVE", "NOMINATIVE"], why: "The doer in front of a -tud word is in the [omastav] (2nd form): {arsti kirjutatud}." },
-      { line: { et: "Üks tablett kaks korda päevas, seitse päeva järjest.", en: "One tablet twice a day, seven days in a row." }, right: "päevas", wrong: "päev", pair: ["INESSIVE", "NOMINATIVE"], why: "How often a day is {päevas}, in the [seesütlev] (-s, in): {kaks korda päevas}." },
+      { line: { et: "Jah, siin on arsti välja kirjutatud antibiootikum.", en: "Yes, here's the antibiotic the doctor prescribed." }, right: "arsti", wrong: "arst", pair: ["GENITIVE", "NOMINATIVE"], why: "The doer in front of a -tud word goes in the [omastav] (2nd form): {arsti kirjutatud}. {Arst} would be the subject, and a subject needs a verb of its own, as in {Arst kirjutas mulle eile retsepti}." },
+      { line: { et: "Üks tablett kaks korda päevas, seitse päeva järjest.", en: "One tablet twice a day, seven days in a row." }, right: "päevas", wrong: "päev", pair: ["INESSIVE", "NOMINATIVE"], why: "Estonian counts a dose in a day, so the day goes in the [seesütlev] (-s, in): {kaks korda päevas}, twice in a day. The plain {päev} only names a day; it can't say how often." },
     ],
     workOut: [
       {
@@ -544,8 +565,8 @@ export const B2_TERVIS_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Minu tütrel on kõrge palavik.", en: "My daughter has a high temperature." }, right: "tütrel", wrong: "tütar", pair: ["ADESSIVE", "NOMINATIVE"], why: "Who has it takes -l: {tütrel on}." },
-      { line: { et: "Kas me peaksime kiirabi kutsuma?", en: "Should we call an ambulance?" }, right: "kutsuma", wrong: "kutsuda", pair: ["Sup", "Inf"], why: "{Pidama} wants the [ma-tegevusnimi] (-ma): {peaksime kutsuma}." },
+      { line: { et: "Minu tütrel on kõrge palavik.", en: "My daughter has a high temperature." }, right: "tütrel", wrong: "tütar", pair: ["ADESSIVE", "NOMINATIVE"], why: "Estonian doesn't usually say have with a verb. It says the noun is on somebody: the one who has it goes in the [alalütlev] (-l, on/at/has), {tütrel}, and then comes {on}. So {Minu tütrel on kõrge palavik} is my daughter has a high temperature." },
+      { line: { et: "Kas me peaksime kiirabi kutsuma?", en: "Should we call an ambulance?" }, right: "kutsuma", wrong: "kutsuda", pair: ["Sup", "Inf"], why: "{Peaksime}, should we, is a form of {pidama}, and {pidama} takes the [ma-tegevusnimi] (-ma) after it: {peaksime kutsuma}. The [da-tegevusnimi] (-da) {kutsuda} goes after verbs like {saama} and {võima}." },
     ],
     workOut: [
       {
@@ -689,8 +710,8 @@ export const B2_TERVIS_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ma ei saa tööl keskenduda.", en: "I can't concentrate at work." }, right: "keskenduda", wrong: "keskenduma", pair: ["Inf", "Sup"], why: "After {saama}, the [da-tegevusnimi] (-da): {ei saa keskenduda}." },
-      { line: { et: "Ma pole juba kuu aega korralikult maganud.", en: "I haven't slept properly for a month." }, right: "maganud", wrong: "magama", pair: ["PtsPtPs", "Sup"], why: "Haven't done is {pole} and the [nud-kesksõna] (-nud, done): {pole maganud}." },
+      { line: { et: "Ma ei saa tööl keskenduda.", en: "I can't concentrate at work." }, right: "keskenduda", wrong: "keskenduma", pair: ["Inf", "Sup"], why: "{Saama}, can, takes the [da-tegevusnimi] (-da) after it, so it's {ei saa keskenduda}. {Keskenduma} is the [ma-tegevusnimi] (-ma) the dictionary lists, and it goes after verbs like {pidama}." },
+      { line: { et: "Ma pole juba kuu aega korralikult maganud.", en: "I haven't slept properly for a month." }, right: "maganud", wrong: "magama", pair: ["PtsPtPs", "Sup"], why: "To say you haven't done something for a while, Estonian uses {pole}, has not, and the [nud-kesksõna] (-nud, done): {pole maganud}, haven't slept. {Magama} is the [ma-tegevusnimi] (-ma), which goes after a verb like {pidama}, not after {pole}." },
     ],
     workOut: [
       {

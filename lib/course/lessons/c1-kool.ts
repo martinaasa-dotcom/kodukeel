@@ -32,6 +32,7 @@
  */
 
 import type { LessonSpec, PartOfLessons } from "./types";
+import { NAMED_OR_NOT_STEPS } from "./why-b2-kultuur";
 
 export const C1_KOOL_PART: PartOfLessons = {
   id: "c1-kool",
@@ -93,7 +94,7 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
       { kind: "form", et: "sõnumid", of: "sõnum", en: "messages" },
     ],
     how: {
-      point: "Mark learns Estonian grammar in Estonian, so he corrects you with the school's words: a word is a {nimisõna}, a {tegusõna} or an {omadussõna}, and in a sentence it does a job, the {alus} or the {öeldis}. The cases have their Estonian names too: {nimetav}, {omastav}, {osastav}.",
+      point: "At school Mark learns Estonian grammar in Estonian, so when he corrects you he uses the school's words. Every word is of some kind: a {nimisõna}, a {tegusõna} or an {omadussõna}. Inside a sentence it also has a job, such as the {alus} or the {öeldis}. And the cases go by their Estonian names: {nimetav}, {omastav}, {osastav}.",
       table: {
         head: ["The school says", "It answers", "In English"],
         rows: [
@@ -105,12 +106,21 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Nimisõna}, {tegusõna} and {omadussõna} are kinds of word; {alus} and {öeldis} are jobs in a sentence. {Mark} is a {nimisõna}, and in {Mark loeb} it is the {alus}.",
-        "A teacher finds them with the question words: {kes? mis?} for the {alus}, {mida teeb?} for the {öeldis}, {milline?} for the {omadussõna}.",
-        "The cases are the names this app has used all along, [nimetav] (1st form), [omastav] (2nd form), [osastav] (3rd form), and at school they are ordinary words: {See on ju omastav!}",
+        "{Nimisõna}, {tegusõna} and {omadussõna} name the kind of word, which stays the same wherever the word goes. {Alus} and {öeldis} name the job a word does in one particular sentence. {Mark} is always a {nimisõna}, and in {Mark loeb} it is also the {alus}, because Mark is the one doing the reading.",
+        "A teacher finds each one by asking its question. The {alus} answers {kes? mis?}, who or what. The {öeldis} answers {mida teeb?}, what is being done. An {omadussõna} answers {milline?}, what kind, the way Anna finds it: {Milline raamat? Pikk raamat.}",
+        "The cases are the ones this app has named all along: the [nimetav] (1st form), the [omastav] (2nd form) and the [osastav] (3rd form). At school they are ordinary words that a seven-year-old uses: {See on ju omastav!}",
       ],
-      watchOut: "{Tegusõna} and {öeldis} are not two words for one thing: {tegusõna} is the kind of word, and {öeldis} is its job in this sentence. In {Mark loeb raamatut}, {loeb} is both.",
+      watchOut: "{Tegusõna} and {öeldis} are easy to mix up, because in a short sentence they are often the same word. {Tegusõna} says what kind of word it is: a verb. {Öeldis} says what job it does in this sentence. In {Mark loeb raamatut}, {loeb} is a {tegusõna} by kind and the {öeldis} by job.",
       examples: [7, 10, 11, 12],
+      why: {
+        word: "see",
+        en: "this, it",
+        steps: NAMED_OR_NOT_STEPS,
+        lines: [
+          { line: 7, form: "see", lands: { case: "NOMINATIVE", plural: false }, why: "In {see on ju omastav}, {see} is what the sentence is about: Mark is saying what that word of his dad's is. Nothing is being done to it. The noun a sentence is about, the subject, stays in its [nimetav] (1st form): {see}." },
+          { line: 15, form: "selle", lands: { case: "GENITIVE", plural: false }, why: "Now something is being done to it: Mark is going to read the message, and Anna names him. {Läbi} says he reads it all the way through, the whole message, the job done. A whole thing with the job done takes the [omastav] (2nd form): {selle}. That is Mark's own point to his dad: in the middle of a book you are still reading, so it is {raamatut} in the [osastav] (3rd form), not {raamatu}." },
+        ],
+      },
     },
     hearing: "half",
     listenFor: [
@@ -202,8 +212,8 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Mark teab. Eile parandas ta mind kaks korda.", en: "Mark knows. Yesterday he corrected me twice." }, right: "mind", wrong: "mina", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Parandama} takes the one corrected in the [osastav] (3rd form): {parandas mind}." },
-      { line: { et: "Ja nüüd teie sõnumid! Mis on teie lapse kõige raskem kodutöö?", en: "And now your messages! What's your child's hardest homework?" }, right: "lapse", wrong: "laps", pair: ["GENITIVE", "NOMINATIVE"], why: "Whose homework it is goes in front in the [omastav] (2nd form): {teie lapse kodutöö}." },
+      { line: { et: "Mark teab. Eile parandas ta mind kaks korda.", en: "Mark knows. Yesterday he corrected me twice." }, right: "mind", wrong: "mina", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Parandama} takes the person who is corrected in the [osastav] (3rd form): {parandas mind}, he corrected me. {Mina} is the [nimetav] (1st form), the form for the one who does something, and here that is Mark, not Tom." },
+      { line: { et: "Ja nüüd teie sõnumid! Mis on teie lapse kõige raskem kodutöö?", en: "And now your messages! What's your child's hardest homework?" }, right: "lapse", wrong: "laps", pair: ["GENITIVE", "NOMINATIVE"], why: "The homework belongs to the child, and the word that says whose comes in front of it in the [omastav] (2nd form): {teie lapse kodutöö}, your child's homework. In the plain form the child would stand beside the homework as a second thing, not as the one it belongs to." },
     ],
     workOut: [
       {
@@ -300,7 +310,7 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
     ],
     patterns: ["cohesion"],
     how: {
-      point: "Written Estonian puts a comma before every clause that hangs off another, whether you'd pause there or not: before {et}, {kui}, {sest}, {mis}, {kes}, {kuigi}, and before {aga} and {kuid}. And a long text ties one sentence to the next with signposts: {niisiis}, {järelikult}, {ühtlasi}, {seejuures}.",
+      point: "Written Estonian puts a comma before every clause that hangs off another one, whether or not you would pause there when speaking. That means a comma before {et}, {kui}, {sest}, {mis}, {kes} and {kuigi}, and also before {aga} and {kuid}. A longer text also needs signposts that tie one sentence to the next: {niisiis}, {järelikult}, {ühtlasi}, {seejuures}.",
       table: {
         head: ["The signpost", "What it does", "In a sentence"],
         rows: [
@@ -311,12 +321,12 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "The comma comes from the grammar, not from your breath: {Ma tean, et ta tuleb.} {Tulen, kui saan.} {Õpetaja, kes helistas, oli Piret.} A {kõrvallause} after {et}, {kui} or {kes} is fenced off on both sides.",
-        "No comma before {ja}, {ning} or {või} when they join two things: {Tom ja Anna}. Before {aga}, {kuid} and {vaid} there always is one.",
-        "The same thing in three rooms: to a friend you say {nii et}, at work {niisiis}, and the most formal letter writes {järelikult}.",
-        "{Ühtlasi} and {seejuures} both add: {ühtlasi} a second thing done at the same time, {seejuures} a detail that matters about the first.",
+        "The comma follows the grammar, not your breath. Wherever a {kõrvallause} starts, after {et}, {kui} or {kes}, it gets a comma, and if the main sentence carries on after it, a second comma closes it off: {Ma tean, et ta tuleb.} {Tulen, kui saan.} {Õpetaja, kes helistas, oli Piret.}",
+        "{Ja}, {ning} and {või} join two things side by side, so they take no comma: {Tom ja Anna}. {Aga}, {kuid} and {vaid} set one thing against another, and they always take one.",
+        "The same so sounds different in three rooms: to a friend you say {nii et}, at work {niisiis}, and the most formal letter writes {järelikult}. Choose by who is going to read it.",
+        "{Ühtlasi} and {seejuures} both add something, in different ways. {Ühtlasi} adds a second thing done at the same time. {Seejuures} adds a detail that matters about the first thing.",
       ],
-      watchOut: "English leaves the comma out before 'that'; Estonian never does. On paper {Ma arvan et ta tuleb} is wrong, and {Ma arvan, et ta tuleb} is right.",
+      watchOut: "English usually leaves the comma out before 'that'. Estonian never does, because {et} always starts a clause of its own. So on paper {Ma arvan et ta tuleb} is wrong, and {Ma arvan, et ta tuleb} is right.",
       examples: [7, 8, 10, 11],
     },
     hearing: "phone",
@@ -415,8 +425,8 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ei, kõik on korras. Järgmisel neljapäeval läheme klassiga muuseumisse ja mul oleks vaja üht lapsevanemat appi.", en: "No, everything's fine. Next Thursday we're taking the class to a museum, and I could do with one parent to help." }, right: "lapsevanemat", wrong: "lapsevanem", pair: ["PARTITIVE", "NOMINATIVE"], why: "After {üht}, the [osastav] (3rd form): {üht lapsevanemat}." },
-      { line: { et: "Muidugi, ma kirjutan teile täna õhtul.", en: "Of course, I'll write to you this evening." }, right: "teile", wrong: "teid", pair: ["ALLATIVE", "PARTITIVE"], why: "You write to somebody in -le: {kirjutan teile}." },
+      { line: { et: "Ei, kõik on korras. Järgmisel neljapäeval läheme klassiga muuseumisse ja mul oleks vaja üht lapsevanemat appi.", en: "No, everything's fine. Next Thursday we're taking the class to a museum, and I could do with one parent to help." }, right: "lapsevanemat", wrong: "lapsevanem", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Vaja} usually takes what you need in the [osastav] (3rd form), the way {tahtma} takes what you want: it is something you don't have yet, not a job done. The number goes into the [osastav] (3rd form) with its noun, so it is {üht lapsevanemat}, one parent." },
+      { line: { et: "Muidugi, ma kirjutan teile täna õhtul.", en: "Of course, I'll write to you this evening." }, right: "teile", wrong: "teid", pair: ["ALLATIVE", "PARTITIVE"], why: "A letter goes to a person, so the person is where it ends up and takes the [alaleütlev] (-le, onto/to): {kirjutan teile}, I'll write to you. {Teid} is the [osastav] (3rd form), the form for what you write, as if you were writing the person." },
     ],
     workOut: [
       {
@@ -499,7 +509,7 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "vahele segan", en: "I cut in: {Vabandust, et vahele segan}" },
     ],
     how: {
-      point: "Three clauses make one clear sentence when each clause sits next to what it is about: the {kes} clause straight after the person, the reason after {sest}, and what was said after {et}, each fenced off with commas.",
+      point: "A long sentence stays clear when each clause sits right next to what it is about. The {kes} clause comes straight after the person it describes, the reason comes after {sest}, and what somebody said comes after {et}. Each one gets its comma, so the reader can see where it starts and ends.",
       table: {
         head: ["Step", "Estonian", "In English"],
         rows: [
@@ -510,11 +520,11 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "A {kes} or {mis} clause goes straight after the word it is about, and gets a comma on each side: {Mark, kes istus üksi, oli rõõmus.}",
-        "Put the main thing first and the reason after: {Mark istus üksi, sest...} reads better than three clauses in a row before the verb.",
-        "Two clauses after {et} and {sest} is about as far as a spoken sentence goes. In writing three is fine, as long as every one has its comma.",
+        "A {kes} or {mis} clause goes directly after the word it describes, with a comma on each side, because it interrupts the main sentence: {Mark, kes istus üksi, oli rõõmus.}",
+        "Say the main thing first and give the reason after it: {Mark istus üksi, sest...}. A listener follows that easily, while three clauses in a row before the verb make them wait too long to find out what happened.",
+        "In speech, one clause after {et} and one after {sest} is about as much as a listener can hold. In writing three is fine, as long as each one has its comma.",
       ],
-      watchOut: "Don't let the {kes} clause drift to the end of the sentence, where it seems to be about the last noun: {Mark istus poiste kõrval, kes...} is about the boys, not Mark.",
+      watchOut: "Don't let the {kes} clause drift to the end of the sentence. A {kes} clause is read as being about the noun just before it, so in {Mark istus poiste kõrval, kes...} it is about the boys, not Mark.",
       examples: [4, 6, 8],
     },
     hearing: "cafe",
@@ -600,8 +610,8 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ei, ma panin ta istuma enda kõrvale. Ma olen seda vahetundides ka märganud.", en: "No, I had him sit next to me. I've noticed it at break as well." }, right: "istuma", wrong: "istuda", pair: ["Sup", "Inf"], why: "{Panema} takes what you have somebody do in the [ma-tegevusnimi] (-ma): {panin ta istuma}." },
-      { line: { et: "Ma näen. Oskar ja Hugo ütlesid juba bussis, et ta ei saa nende kõrval istuda.", en: "I can see. Oskar and Hugo said on the bus already that he can't sit next to them." }, right: "istuda", wrong: "istuma", pair: ["Inf", "Sup"], why: "After {saama} in the sense of can, the [da-tegevusnimi] (-da): {ei saa istuda}." },
+      { line: { et: "Ei, ma panin ta istuma enda kõrvale. Ma olen seda vahetundides ka märganud.", en: "No, I had him sit next to me. I've noticed it at break as well." }, right: "istuma", wrong: "istuda", pair: ["Sup", "Inf"], why: "When {panema} means having somebody do something, what they do goes in the [ma-tegevusnimi] (-ma): {panin ta istuma}, I had him sit down. Verbs that send somebody off into an action, like {panema} and {minema}, take the [ma-tegevusnimi] (-ma)." },
+      { line: { et: "Ma näen. Oskar ja Hugo ütlesid juba bussis, et ta ei saa nende kõrval istuda.", en: "I can see. Oskar and Hugo said on the bus already that he can't sit next to them." }, right: "istuda", wrong: "istuma", pair: ["Inf", "Sup"], why: "When {saama} means can, the verb after it goes in the [da-tegevusnimi] (-da): {ei saa istuda}, he can't sit. It works like {võima} and {tahtma}, which take the [da-tegevusnimi] (-da) too." },
     ],
     workOut: [
       {
@@ -700,7 +710,7 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "olukord", en: "the situation" },
     ],
     how: {
-      point: "Being left out has its own verbs, each with the word it goes with: you {jääd kõrvale}, others {jätavad sind välja} or {võtavad sind mängu}, and the worst is when somebody {kiusab} you. Learn each as a pair, the way people say it.",
+      point: "Being left out has its own verbs, and each one comes with the word that goes with it. You {jääd kõrvale}, you end up on the side. Others {jätavad sind välja}, leave you out, or {võtavad sind mängu}, let you join in. The worst is when somebody {kiusab} you. Learn each one as a pair, the way people say it.",
       table: {
         head: ["The pair", "What it takes", "In a sentence"],
         rows: [
@@ -712,12 +722,21 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "{Kõrvale jääma} and {välja jätma} are the same thing seen from two sides: {Mark jääb kõrvale} says what happens to him, {poisid jätavad ta välja} says who does it.",
-        "Being left out is not yet {kiusamine}: bullying is done on purpose, again and again. Say the word the school would use, and don't reach for the strongest one first.",
+        "{Kõrvale jääma} and {välja jätma} describe the same thing from two sides. {Mark jääb kõrvale} tells you what happens to him. {Poisid jätavad ta välja} tells you who does it: the boys are the ones doing it, and Mark is the one it is done to.",
+        "Being left out is not yet {kiusamine}. Bullying is done on purpose, again and again. Use the word the school would use, and don't reach for the strongest one first.",
         "To talk about it without blaming anybody, say what you saw rather than who is to blame: {Mark ütles, et temaga keegi ei mängi.}",
       ],
-      watchOut: "{Kiusama} takes the [osastav] (3rd form), never the [omastav] (2nd form): {kiusab teda}, {ei tohi teist kiusata}.",
+      watchOut: "{Kiusama} takes the one picked on in the [osastav] (3rd form), never the [omastav] (2nd form), even when you mean one particular person: {kiusab teda}, {ei tohi teist kiusata}. Picking on somebody is never a job that gets done and finished, so the [osastav] (3rd form) is the only form it takes.",
       examples: [0, 2, 7, 9],
+      why: {
+        word: "keegi",
+        en: "somebody, anybody",
+        steps: NAMED_OR_NOT_STEPS,
+        lines: [
+          { line: 0, form: "keegi", lands: { case: "NOMINATIVE", plural: false }, why: "{Keegi} is the one who would do the playing: nobody plays with him. The one who does the verb is the subject, and the subject stays in its [nimetav] (1st form) even in a no: {keegi ei mängi}. A no changes the form of whatever something is done to, never the subject." },
+          { line: 11, form: "kedagi", lands: { case: "PARTITIVE", plural: false }, why: "Here somebody is having something done to them: {sundima}, to force, is done to a person. And it is a no: {ei saa}, you can't. Whatever something is done to in a no always goes in the [osastav] (3rd form), so it is {kedagi}, not {keegi}." },
+        ],
+      },
     },
     hearing: "phone",
     listenFor: [
@@ -853,8 +872,8 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Tom, tule korraks siia. Mark ütles just, et temaga keegi vahetunnis ei mängi.", en: "Tom, come here a moment. Mark's just told me nobody plays with him at break." }, right: "temaga", wrong: "tema", pair: ["COMITATIVE", "GENITIVE"], why: "Who you play with is in the [kaasaütlev] (-ga, with): {temaga keegi ei mängi}." },
-      { line: { et: "Ma saan aru. Kedagi ei saa ju sundida, aga kas ma võin midagi soovitada? Kutsuge mõni poiss külla. Kodus on lihtsam sõbraks saada.", en: "I understand. You can't force anybody, of course, but can I suggest something? Invite one of the boys over. It's easier to make friends at home." }, right: "sõbraks", wrong: "sõbra", pair: ["TRANSLATIVE", "GENITIVE"], why: "{Saama} in the sense of become takes the [saav] (-ks, becoming): {sõbraks saada}." },
+      { line: { et: "Tom, tule korraks siia. Mark ütles just, et temaga keegi vahetunnis ei mängi.", en: "Tom, come here a moment. Mark's just told me nobody plays with him at break." }, right: "temaga", wrong: "tema", pair: ["COMITATIVE", "GENITIVE"], why: "The one you play with goes in the [kaasaütlev] (-ga, with), the case for being together with somebody: {temaga keegi ei mängi}, nobody plays with him. Without the ending, nothing in the sentence would say he is the one being played with." },
+      { line: { et: "Ma saan aru. Kedagi ei saa ju sundida, aga kas ma võin midagi soovitada? Kutsuge mõni poiss külla. Kodus on lihtsam sõbraks saada.", en: "I understand. You can't force anybody, of course, but can I suggest something? Invite one of the boys over. It's easier to make friends at home." }, right: "sõbraks", wrong: "sõbra", pair: ["TRANSLATIVE", "GENITIVE"], why: "When {saama} means become, what you become goes in the [saav] (-ks, becoming), the case for what something turns into: {sõbraks saada}, to become friends." },
     ],
     workOut: [
       {
@@ -939,7 +958,7 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
       { kind: "phrase", et: "Loodame Teie mõistmisele.", en: "We hope you'll understand: a formal letter's way of asking for goodwill" },
     ],
     how: {
-      point: "A formal letter to a school is polite and firm at once: it says what happened, what you have already done, and exactly what you ask for, and the signposts carry the reader from one to the next: {Esiteks}, {Lisaks}, {Seetõttu}, {Ühtlasi}, {Niisiis}.",
+      point: "A formal letter to a school can be polite and firm at once. It says what happened, what you have already done about it, and exactly what you ask for, in that order. Signposts carry the reader from one part to the next: {Esiteks}, {Lisaks}, {Seetõttu}, {Ühtlasi}, {Niisiis}.",
       table: {
         head: ["The part", "Estonian", "In English"],
         rows: [
@@ -952,11 +971,11 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
         ],
       },
       notes: [
-        "Polite is the would form and {palume}: {sooviksime kohtuda}, {palume kohtumist}. Firm is a request with no {võib-olla} in it, and a date.",
-        "Say what you saw, not whose fault it is, and say what the school has done well: {Klassijuhataja on meid palju aidanud.} A letter that is fair is a letter that is read.",
-        "{Teie} with a capital in a letter to one person, {Lugupeetud} at the top and {Lugupidamisega} at the bottom, with the commas where the grammar puts them.",
+        "The politeness is in the verb: the [tingiv kõneviis] (-ks, would) and {palume}, as in {sooviksime kohtuda} and {palume kohtumist}. The firmness is in what you ask: a request with no {võib-olla} in it, and a date.",
+        "Say what you saw rather than whose fault it is, and mention what the school has done well: {Klassijuhataja on meid palju aidanud.} The head reads a fair letter as one from somebody they can work with.",
+        "In a letter to one person, {Teie} takes a capital. {Lugupeetud} opens the letter, {Lugupidamisega} closes it, and the commas go where the grammar puts them.",
       ],
-      watchOut: "Don't write in anger: {Teie koolis kiusatakse meie poega!} closes a door. {Sooviksime kohtuda, et koos lahendus leida} opens one, and asks for just as much.",
+      watchOut: "Don't write in anger. {Teie koolis kiusatakse meie poega!} accuses, and closes a door. {Sooviksime kohtuda, et koos lahendus leida} opens one, and asks for just as much.",
       examples: [4, 8, 10, 11],
     },
     hearing: "phone",
@@ -1048,8 +1067,8 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Natuke. Aga poiste klubi on ikka olemas. Ma soovitan teil direktorile kirjutada, siis saame kokku koos kooli psühholoogiga.", en: "A little. But the boys' club is still there. I'd suggest you write to the head, then we can all meet with the school psychologist." }, right: "direktorile", wrong: "direktor", pair: ["ALLATIVE", "NOMINATIVE"], why: "Who you write to is in -le, the [alaleütlev] (-le, onto/to): {kirjutada direktorile}." },
-      { line: { et: "Pöördun Teie poole seoses murega, mis on kestnud mitu nädalat.", en: "I am writing to you about a worry that has lasted several weeks." }, right: "murega", wrong: "mure", pair: ["COMITATIVE", "NOMINATIVE"], why: "{Seoses} takes the [kaasaütlev] (-ga, with): {seoses murega}." },
+      { line: { et: "Natuke. Aga poiste klubi on ikka olemas. Ma soovitan teil direktorile kirjutada, siis saame kokku koos kooli psühholoogiga.", en: "A little. But the boys' club is still there. I'd suggest you write to the head, then we can all meet with the school psychologist." }, right: "direktorile", wrong: "direktor", pair: ["ALLATIVE", "NOMINATIVE"], why: "A letter goes to a person, so the one you write to is where it ends up and takes the [alaleütlev] (-le, onto/to): {kirjutada direktorile}, to write to the head. In the plain form nothing would say where the letter goes." },
+      { line: { et: "Pöördun Teie poole seoses murega, mis on kestnud mitu nädalat.", en: "I am writing to you about a worry that has lasted several weeks." }, right: "murega", wrong: "mure", pair: ["COMITATIVE", "NOMINATIVE"], why: "{Seoses}, in connection with, always takes the [kaasaütlev] (-ga, with): {seoses murega}, about a worry. It is a fixed pair, so learn it whole, the way a letter uses it." },
     ],
     workOut: [
       {
@@ -1156,14 +1175,14 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
     ],
     teaches: [],
     how: {
-      point: "A whole meeting made of this part: say what happened and what you've already done, disagree with the person in charge politely and firmly, say exactly what you ask for, and leave with the next step agreed.",
+      point: "This meeting puts the whole part together. You say what happened and what you have already done, disagree with the person in charge politely and firmly, say exactly what you ask for, and leave with the next step agreed.",
       notes: [
-        "Grant the point, then disagree: {Ma saan aru, aga ma ei ole sellega päris nõus.} Then give the fact behind it: {See on kestnud juba mitu nädalat.}",
-        "When they answer something you didn't ask, say so and say it again: {Seda me ei palu. Me palume, et...}",
-        "Close by summing up what was agreed, with {Niisiis}, so everybody leaves with the same list.",
+        "Grant the point first, then disagree: {Ma saan aru, aga ma ei ole sellega päris nõus.} Then give the fact behind your view, so it doesn't sound like a feeling: {See on kestnud juba mitu nädalat.}",
+        "When they answer something you didn't ask, say so, then say your request again: {Seda me ei palu. Me palume, et...}",
+        "Close by summing up what was agreed, starting with {Niisiis}, so everybody leaves with the same list.",
         "In the role-play one question is new, and somebody may cut in on the head. Give him a moment, then pick up where you left off.",
       ],
-      watchOut: "Firm is not loud: keep {teie} from the first word to the last, say {aga} rather than {ei}, and don't let a kind answer end the meeting before something is agreed.",
+      watchOut: "Firm is not the same as loud. Keep {teie} from the first word to the last, say {aga} rather than a flat {ei}, and don't let a kind answer end the meeting before something is agreed.",
       examples: [3, 5, 8, 11],
     },
     hearing: "cafe",
