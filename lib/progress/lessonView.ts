@@ -17,7 +17,7 @@ import { multiplierFor, roundPaceFrom } from "@/lib/ux/roundClock";
 import type { LessonWorksheet } from "@/lib/course/lessonWorksheet";
 import { lessonDayFor } from "@/lib/course";
 import { verbExamples, type VerbExample } from "@/lib/progress/verbExamples";
-import { buildCaseTable, stemsFrom } from "@/lib/estonian/derive";
+import { buildCaseTable, shownForms, stemsFrom } from "@/lib/estonian/derive";
 import { CASES } from "@/lib/estonian/cases";
 import type { CaseKey } from "@/lib/estonian/types";
 import { bySubstance, VOUCHED_ROW } from "@/lib/dict/search";
@@ -128,7 +128,7 @@ const BASIC_CASES: readonly CaseKey[] = ["NOMINATIVE", "GENITIVE", "PARTITIVE"];
 
 export interface CaseForms {
   word: string;
-  rows: readonly { case: CaseKey; sg: string | null; pl: string | null }[];
+  rows: readonly { case: CaseKey; sg: readonly string[]; pl: readonly string[] }[];
 }
 
 /**
@@ -154,9 +154,10 @@ async function caseFormsFor(lesson: LessonSpec): Promise<CaseForms | null> {
   const table = buildCaseTable(stemsFrom(entry.forms));
   const rows = shown.map((key) => {
     const found = table.find((d) => d.spec.key === key);
-    return { case: key, sg: found?.singular ?? null, pl: found?.plural ?? null };
+    /* Every spelling the dictionary prints for a cell: `minule / mulle`, `tuppa / toasse`, so the line's own one is there. */
+    return { case: key, sg: found ? shownForms(found) : [], pl: found?.plural ? [found.plural] : [] };
   });
-  return rows.some((r) => r.sg || r.pl) ? { word: why.word, rows } : null;
+  return rows.some((r) => r.sg.length || r.pl.length) ? { word: why.word, rows } : null;
 }
 
 /**

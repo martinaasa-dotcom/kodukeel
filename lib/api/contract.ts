@@ -584,8 +584,8 @@ export const LessonResponse = z.object({
     word: z.string(),
     rows: z.array(z.object({
       case: WhyCaseKey,
-      sg: z.string().nullable(),
-      pl: z.string().nullable(),
+      sg: z.array(z.string()).readonly().describe("Every spelling of the singular the dictionary prints, the stored one first."),
+      pl: z.array(z.string()).readonly(),
     })).readonly(),
   }).nullable().describe("The three basic cases of `how.why`'s word, one and more than one, as the dictionary holds them; null where the lesson has no `why`."),
   locale: InterfaceLanguage,

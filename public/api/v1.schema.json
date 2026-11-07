@@ -5169,16 +5169,19 @@
                           ]
                         },
                         "sg": {
-                          "type": [
-                            "string",
-                            "null"
-                          ]
+                          "readOnly": true,
+                          "description": "Every spelling of the singular the dictionary prints, the stored one first.",
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
                         },
                         "pl": {
-                          "type": [
-                            "string",
-                            "null"
-                          ]
+                          "readOnly": true,
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
                         }
                       },
                       "required": [

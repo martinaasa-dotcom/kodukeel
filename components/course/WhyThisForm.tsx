@@ -168,18 +168,23 @@ export function WhyThisForm({ lesson, why, table }: { lesson: LessonSpec; why: W
                         </span>
                       </th>
                       {([false, true] as const).map((plural) => {
-                        const form = plural ? r.pl : r.sg;
+                        const forms = plural ? r.pl : r.sg;
                         const lit = !!landed && landed.case === r.case && landed.plural === plural;
                         return (
                           <td key={String(plural)} className="px-4 py-3 align-top">
-                            {form ? (
+                            {forms.length > 0 ? (
                               <span
-                                className="inline-flex items-center gap-1.5 rounded-md px-2 py-1"
+                                className="inline-flex flex-wrap items-center gap-1.5 rounded-md px-2 py-1"
                                 style={{ background: lit ? "var(--accent-soft)" : "transparent", boxShadow: lit ? "inset 0 0 0 2px var(--accent)" : "none" }}
                                 data-why-lit={lit ? "" : undefined}
                               >
-                                <Speak text={form} size={14} />
-                                <span lang="et" className="font-semibold" style={{ color: lit ? "var(--accent-deep)" : "var(--ink)" }}>{form}</span>
+                                {forms.map((form, i) => (
+                                  <span key={form} className="inline-flex items-center gap-1.5">
+                                    {i > 0 && <span aria-hidden style={{ color: "var(--ink-3)" }}>/</span>}
+                                    <Speak text={form} size={14} />
+                                    <span lang="et" className="font-semibold" style={{ color: lit ? "var(--accent-deep)" : "var(--ink)" }}>{form}</span>
+                                  </span>
+                                ))}
                               </span>
                             ) : (
                               <span style={{ color: "var(--ink-3)" }}>{NO_VALUE}</span>
