@@ -73,3 +73,67 @@ Every one is taken from the lesson's own lines, reworks, tables or old notes, ap
   into-forms and -ne words have only the long one.
 - Lesson 41a: the command to one person is the [olevik] (I form) without its -n; the plural adds -d to the [omastav].
 - Lesson 44: {taotlema} always takes the [osastav]; {üle} before a stretch of time takes the [omastav].
+
+# A2 and B2
+
+The same work on A2 and B2: every How it works step says why, and a "Why this form?" step where the point is a case
+choice. No conversation line changed and no new sentence was written; the Estonian in the explanations is quoted from
+each lesson.
+
+## Lessons with a "Why this form?" step
+
+| Lesson | Word | Lines walked |
+|---|---|---|
+| A2 1 | vend | venna |
+| A2 2 | korter | korteri, korter |
+| A2 3 | laud | laua |
+| A2 4 | töö | tööd |
+| A2 9 | turg | turul, turult |
+| A2 13a | aed | aias, aia |
+| A2 14 | turg | turul, turule, turg, turu |
+| A2 18 | raamat | raamatu, raamatu |
+| A2 29 | reede | reedeni, reedel |
+| A2 30 | tuba | tuba, toas |
+| A2 34 | buss | bussi, buss |
+| A2 36 | kala | kala, kala |
+| A2 40 | see | seda, See, selle |
+| A2 43 | sünnipäev | sünnipäevaks, sünnipäev |
+| A2 45a | idee | ideed, idee |
+| A2 50a | see | seda, seda, see |
+| A2 52 | mets | metsa, mets |
+| B2 8 | valitsus | Valitsus, Valitsuse |
+| B2 10 | laps | laps |
+| B2 19 | nädal | nädalat, nädalat, nädala |
+| B2 21 | arst | Arst, arsti, arsti |
+| B2 28 | rakendus | rakendusi, rakenduse |
+| B2 31 | tulumaks | Tulumaksu, tulumaksu |
+| B2 32 | hüvitis | hüvitisest, Hüvitise, hüvitist, hüvitis |
+| B2 35 | otsus | otsusega, Otsuses, otsus |
+| B2 36 | otsus | otsuse, otsuses, Otsus |
+| B2 40 | iseseisvus | iseseisvuse, iseseisvus |
+| B2 43 | inimene | inimesi, inimestest, inimestest |
+
+## Estonian newly quoted, worth a glance
+
+{üks kilomeeter} (A2 32), {lõuna pärast} (B2 14), {Kott tooli peal}, {osta!}, {Siis jääme koju}.
+
+## Grammar claims to check
+
+- A2: {soovima} and {tahtma} usually take the [osastav] (softened from "always").
+- A2: a dish you order is in the [osastav] because it is an amount; {Kas me saaksime arve?} takes the [omastav].
+- A2: {pärast} in front of a word takes the [osastav]; behind a stretch of time, the [omastav] and means "in".
+- A2: {tundi} in {sinu tundi} is the [lühike sisseütlev]; days take -l ({reedel}); {enamik} takes the plural
+  [osastav] and {mitu} the singular.
+- A2: "you're never inside somebody", the reason a person takes the outside endings (a heuristic); the countryside as
+  an open place, so {maal}.
+- A2: {tuba} becomes {toa} because the b drops out and the u turns into o.
+- A2: is there any at all usually takes the [osastav] ({Kas homme hommikul on bussi?}).
+- B2: a whole object with nobody named ({-takse}, {-ti}, {Palun} with a -da verb) takes the [nimetav]
+  ({iseseisvus taastati}, {Palun otsus üle vaadata}).
+- B2: {pärast} after its word with the [omastav] means "because of".
+- B2: a [osastav] subject ({üha rohkem inimesi}) keeps the verb singular; after {võrra} the noun agrees with a number
+  in another case.
+- B2: {arsti} in front of a -tud word described as the owner's form (a teaching image).
+- B2: {kohtama} puts the person in the [osastav]; {lauda} in {Istuge lauda} is the short into-form.
+- B2: {juhtima} takes the [osastav] even in a yes because it goes on.
+- B2 14 and A2 34: a few points about the -mata form and the [ilmaütlev] (-ta).
