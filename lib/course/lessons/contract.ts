@@ -39,6 +39,9 @@ export function lessonEnglish(lesson: LessonSpec): string[] {
     ...(how.table ? [...how.table.head, ...how.table.rows.flatMap((row) => row.flatMap((cell) => ("en" in cell ? [cell.en] : [])))] : []),
     ...(how.sounds ?? []).flatMap((row) => [row.like, ...(row.en ? [row.en] : [])]),
     ...(how.listen ?? []).flatMap((set) => set.words.map((w) => w.en)),
+    ...(how.why
+      ? [how.why.en, ...how.why.steps.flatMap((step) => [step.q, ...step.answers.map((a) => a.a)]), ...how.why.lines.map((l) => l.why)]
+      : []),
     ...lesson.conversation.flatMap((line) => [line.en ?? "", line.stage ?? ""]),
     ...lesson.teaches.flatMap((t) => [...(t.kind === "verb" ? [t.en, t.firstEn] : [t.en]), ...("asks" in t && t.asks ? [t.asks] : [])]),
     ...[...lesson.answers, ...(lesson.roleplay?.turns ?? [])].flatMap((p) => [p.cue, p.model.en, p.ask?.en ?? ""]),

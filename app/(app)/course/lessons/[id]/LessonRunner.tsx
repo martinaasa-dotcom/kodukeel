@@ -37,6 +37,8 @@ import { lessonSceneHref, type ConversationReturn } from "@/lib/scenes/lessonRet
 import { nameOf } from "@/lib/ux/roundNames";
 import { worksheetLink, type LessonWorksheet } from "@/lib/course/lessonWorksheet";
 import { ReadText } from "@/components/course/ReadText";
+import { WhyThisForm } from "@/components/course/WhyThisForm";
+import type { CaseForms } from "@/lib/progress/lessonView";
 import { NotesTalk } from "@/components/course/NotesTalk";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import type { VerbExample } from "@/lib/progress/verbExamples";
@@ -111,7 +113,7 @@ const WORKBOOK_NAME = nameOf("/review/workbook") ?? { et: "Töövihik", en: "Wor
 /** Every step not on this list asks nothing, and is finished by being open. */
 const ASKS: ReadonlySet<Step> = new Set(["practise", "write", "say", "review"]);
 
-export function LessonRunner({ lesson, practice, review, next, scene, situation = null, worksheet = null, conversation, place, name, due = 0, check = null, part, timeMultiplier, partAt, read = null, notes = null, forms = [] }: {
+export function LessonRunner({ lesson, practice, review, next, scene, situation = null, worksheet = null, conversation, place, name, due = 0, check = null, part, timeMultiplier, partAt, read = null, notes = null, forms = [], caseForms = null }: {
   /**
    * The transcript of the lesson's talk taken down as notes (C1), glossed as
    * the text to read is; null where there is none, and then a talk it does
@@ -124,6 +126,8 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
    * empty on every other lesson.
    */
   forms?: readonly VerbExample[];
+  /** The table a "Why this form?" step lands in (`lib/progress/lessonView.ts`); null where the lesson has none. */
+  caseForms?: CaseForms | null;
   lesson: LessonSpec;
   /**
    * The lesson's text to read (B2 on), a line at a time, with the dictionary
@@ -558,7 +562,7 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
           </h2>
           {step === "listen" && <Listen lesson={lesson} read={read} notes={notes} heard={heard} heardOnReload={heardOnReload} onHeard={() => setHeard(true)} />}
           {step === "words" && <Words lesson={lesson} forms={forms} />}
-          {step === "how" && <How lesson={lesson} />}
+          {step === "how" && <How lesson={lesson} caseForms={caseForms} />}
           {kept("practise") && <div hidden={step !== "practise"}><Quiz key="practise" level={3} items={practice} onFinished={(result) => { setScore((first) => first ?? result); finish("practise"); }} /></div>}
           {step === "write" && lesson.write && <WriteStep lesson={lesson} onDone={() => { finish("write"); go(at + 1); }} />}
           {step === "say" && <SayIt lesson={lesson} timeMultiplier={timeMultiplier} partAt={partAt} scene={scene} sceneHref={scene ? lessonSceneHref(scene, focus) : null} capstone={capstone} name={name} onComplete={() => finish("say")} place={sayPlace.current} onPlace={keepSayPlace} />}
@@ -776,7 +780,7 @@ function NewWords({ lesson }: { lesson: LessonSpec }) {
 }
 
 /** Step 3: the one idea of the evening, shown on today's own lines. */
-function How({ lesson }: { lesson: LessonSpec }) {
+function How({ lesson, caseForms }: { lesson: LessonSpec; caseForms: CaseForms | null }) {
   const t = useT();
   const locale = useLocale();
   const { how } = lesson;
@@ -786,6 +790,7 @@ function How({ lesson }: { lesson: LessonSpec }) {
       <Card>
         <RuleNote summary={how.point} watchOut={how.watchOut} />
       </Card>
+      {how.why && <WhyThisForm lesson={lesson} why={how.why} table={caseForms} />}
       {how.sounds && how.sounds.length > 0 && <SoundRows rows={how.sounds} />}
       {how.notes && how.notes.length > 0 && (
         <ul className="flex flex-col gap-3">

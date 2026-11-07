@@ -369,6 +369,12 @@ const NotesQuestionSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("choice"), q: EtEn, options: z.array(EtEn).readonly(), answer: z.number().int() }),
 ]);
 
+/** A case a "Why this form?" step lands on (`lib/estonian/types.ts` `CaseKey`). */
+const WhyCaseKey = z.enum([
+  "NOMINATIVE", "GENITIVE", "PARTITIVE", "ILLATIVE", "INESSIVE", "ELATIVE", "ALLATIVE",
+  "ADESSIVE", "ABLATIVE", "TRANSLATIVE", "TERMINATIVE", "ESSIVE", "ABESSIVE", "COMITATIVE",
+]);
+
 export const LessonSpecSchema = z.object({
   id: z.string(),
   n: z.number().int(),
@@ -403,6 +409,16 @@ export const LessonSpecSchema = z.object({
     spell: z.boolean().optional(),
     watchOut: z.string(),
     examples: z.array(z.number().int()).readonly().optional().describe("Lines of the conversation, by index."),
+    why: z.object({
+      word: z.string(),
+      en: z.string(),
+      steps: z.array(z.object({
+        id: z.string(),
+        q: z.string(),
+        answers: z.array(z.object({ a: z.string(), next: z.string().optional(), lands: z.object({ case: WhyCaseKey, plural: z.boolean() }).optional() })).readonly(),
+      })).readonly(),
+      lines: z.array(z.object({ line: z.number().int(), form: z.string(), lands: z.object({ case: WhyCaseKey, plural: z.boolean() }), why: z.string() })).readonly(),
+    }).optional().describe("\"Why this form?\": questions tapped through for a line, landing on its form in `caseForms`."),
   }),
   answers: z.array(LessonPrompt).readonly(),
   reworks: z.array(z.object({
@@ -564,6 +580,14 @@ export const LessonResponse = z.object({
     })).readonly(),
     inDeck: z.boolean(),
   })).readonly().describe("C1: the verbs whose past and polite command the Words step shows in a table at its foot, heard and read and never asked, every form as the dictionary holds it; empty on every other lesson."),
+  caseForms: z.object({
+    word: z.string(),
+    rows: z.array(z.object({
+      case: WhyCaseKey,
+      sg: z.string().nullable(),
+      pl: z.string().nullable(),
+    })).readonly(),
+  }).nullable().describe("The three basic cases of `how.why`'s word, one and more than one, as the dictionary holds them; null where the lesson has no `why`."),
   locale: InterfaceLanguage,
   nativePart: z.string().nullable().describe(
     "The one part of the conversation the native speaker recorded whole, which a phone plays in his voice by " +

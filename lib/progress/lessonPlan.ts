@@ -33,7 +33,7 @@ export function ledgerTonight(lesson: LessonSpec): Ledger {
 }
 
 /** The half of a lesson's view that is the same for every learner, which is all of it but the fields read per learner. */
-export type LessonPlan = Omit<LessonView, "name" | "due" | "check" | "part" | "next" | "partAt" | "timeMultiplier" | "read" | "notes" | "forms"> & {
+export type LessonPlan = Omit<LessonView, "name" | "due" | "check" | "part" | "next" | "partAt" | "timeMultiplier" | "read" | "notes" | "forms" | "caseForms"> & {
   closes: CourseCheck | null;
   /** The next lesson, and whether it opens another part, which waits behind this part's check. */
   after: { id: string; title: string; crossesPart: boolean } | null;

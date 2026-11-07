@@ -17,6 +17,7 @@
  */
 
 import type { LessonSpec, PartOfLessons } from "./types";
+import { PLURAL_OBJECT_STEPS } from "./why";
 
 export const B1_OBJEKT_PART: PartOfLessons = {
   id: "b1-objekt",
@@ -300,23 +301,23 @@ export const B1_OBJEKT_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "seekord", en: "this time" },
     ],
     how: {
-      point: "With more than one thing, some of them is the plural [osastav] (3rd form): {Ma ostsin õunu}. All of them, the whole lot, is the plural [nimetav] (1st form): {Ma pesin õunad ära}.",
-      table: {
-        head: ["Some, or still going", "All of them"],
-        rows: [
-          [{ et: "Ma ostsin õunu." }, { et: "Ma ostsin õunad." }],
-          [{ et: "Ma sõin õunu." }, { et: "Ma sõin õunad ära." }],
-          [{ et: "Ma pesin nõusid." }, { et: "Ma pesin nõud ära." }],
-          [{ et: "Osta mune!" }, { et: "Osta munad!" }],
-        ],
-      },
+      point: "Estonian has no word for \"the\", so with more than one thing the ending says whether you mean a set amount. Some apples, an open amount: the plural [osastav] (3rd form), {Ma ostsin õunu}. These apples, all of them, with the job done: the plural [nimetav] (1st form), {Ma pesin õunad ära}.",
       notes: [
-        "The plural [osastav] (3rd form) says some, or a lot, without counting: {õunu}, {mune}, {nõusid}.",
-        "The plural [nimetav] (1st form) as the thing done to means all of them, these ones: {Ma pesin õunad ära}. It's spelled just like {Õunad olid head}.",
+        "The same two questions work for anything you can count: {mune} or {munad}, {nõusid} or {nõud}.",
         "{Osa} is a part, some of it: {Ainult osa}. {Terve} is whole: {terve kilo}.",
       ],
-      watchOut: "English says it in the verb: I was eating apples, I ate the apples up. Estonian says it in the ending: {Ma sõin õunad ära} means they're gone, every one.",
-      examples: [0, 3, 8, 9],
+      watchOut: "English says it with \"the\" and the verb: I bought apples, I ate the apples up. Estonian says it in the ending, and a no always takes the [osastav] (3rd form), even for the apples you mean: {Ma ei ostnud õunu}.",
+      why: {
+        word: "õun",
+        en: "apple",
+        steps: PLURAL_OBJECT_STEPS,
+        lines: [
+          { line: 0, form: "õunu", lands: { case: "PARTITIVE", plural: true }, why: "More than one apple, so the plural. Kati isn't asking about particular apples or how many, only whether Tom bought some: an open amount. So they go in the plural [osastav] (3rd form): {õunu}." },
+          { line: 3, form: "õunad", lands: { case: "NOMINATIVE", plural: true }, why: "These are the apples Tom brought home, a known set, and he washed every one: {ära} says the job is done. A known set with the job done goes in the plural [nimetav] (1st form): {õunad}. It's spelled just like the subject in {Õunad olid head}." },
+          { line: 8, form: "õunu", lands: { case: "PARTITIVE", plural: true }, why: "The apples are a known set, the bag from the market, but Tom only ate some of them and didn't finish the job. So the plural [osastav] (3rd form): {õunu}. When Kati asks {Sa sõid õunad ära?}, she means all of them, so it's {õunad}." },
+          { line: 7, form: "õuna", lands: { case: "PARTITIVE", plural: false }, why: "After a number, Estonian counts in the singular: {kolm õuna}, \"three apple\". The number already says how many, so the word goes in the singular [osastav] (3rd form): {õuna}. One is the exception: after {üks} the word stays in its plain form, {üks õun}, \"one apple\", just like in English." },
+        ],
+      },
     },
     answers: [
       { ask: { et: "Mida sa turult ostsid?", en: "What did you buy at the market?" }, cue: "Say you bought some apples.", model: { et: "Ma ostsin õunu.", en: "I bought some apples." } },

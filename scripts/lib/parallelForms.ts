@@ -145,7 +145,7 @@ export const PARALLEL_REVIEW: Readonly<Record<string, ParallelDecision>> = {
   },
   mune: {
     keep: true, why: "Eggs, as the object, in every lesson that says it.",
-    read: ["Ei ostnud mune.", "Ei, ma ei ostnud mune.", "Ei, mune ma ei ostnud. Need olid otsas.", "Ma ei ostnud mune.", "mune", "Mune ma ei ostnud.", "Osta mune!", "Tubli! Aga mune ostsid ka?"],
+    read: ["Ei ostnud mune.", "Ei, ma ei ostnud mune.", "Ei, mune ma ei ostnud. Need olid otsas.", "Ma ei ostnud mune.", "mune", "Mune ma ei ostnud.", "Tubli! Aga mune ostsid ka?"],
   },
   otsi: { keep: false, why: "In the lessons it is otsima after ei (a2-50a), look for, never the ends." },
   teid: { keep: false, why: "In the lessons it is the pronoun, you (b1-47), never the roads." },
@@ -158,7 +158,7 @@ export const PARALLEL_REVIEW: Readonly<Record<string, ParallelDecision>> = {
   },
   õunu: {
     keep: true, why: "Apples, as the object, in every lesson that says it.",
-    read: ["Aga bussis sõi ta õunu.", "kilo õunu", "Ma ostsin õunu", "Ma ostsin õunu.", "Ma pesin õunu juba ära.", "Ma sõin õunu.", "Noh, need olid nii head. Sõin bussis õunu.", "Ta sõi natuke õunu.", "Ta sõi õunu.", "Tema sõi õunu.", "Tom läks tagasi turule ja ostis veel õunu.", "Tom ostis turult terve kilo õunu.", "Tom, kas sa ostsid õunu?", "õunu"],
+    read: ["Aga bussis sõi ta õunu.", "kilo õunu", "Ma ei ostnud õunu", "Ma ostsin õunu", "Ma ostsin õunu.", "Ma pesin õunu juba ära.", "Noh, need olid nii head. Sõin bussis õunu.", "Ta sõi natuke õunu.", "Ta sõi õunu.", "Tema sõi õunu.", "Tom läks tagasi turule ja ostis veel õunu.", "Tom ostis turult terve kilo õunu.", "Tom, kas sa ostsid õunu?", "õunu"],
   },
   asju: {
     keep: true, why: "Things, as the object, in every lesson that says it.",

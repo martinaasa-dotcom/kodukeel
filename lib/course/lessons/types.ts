@@ -30,6 +30,7 @@
  */
 
 import type { Level } from "@/lib/collections/syllabus";
+import type { CaseKey } from "@/lib/estonian/types";
 
 /** Somebody in the conversation, by name. Their voice is the lesson's `cast`. */
 export type Speaker = string;
@@ -255,6 +256,50 @@ export interface HowItWorks {
   readonly spell?: boolean;
   readonly watchOut: string;
   readonly examples?: readonly number[];
+  /**
+   * "Why this form?": the questions that decide a word's ending, tapped
+   * through for each of today's lines that use it, landing on its form in a
+   * table of the word's three basic cases, one and more than one. The table is
+   * the dictionary's (`lessonView`), never typed here; what the lesson writes
+   * is the questions, which line lands where, and why, in English.
+   */
+  readonly why?: WhyForm;
+}
+
+/**
+ * Where a line lands: a case, one or more than one. The table always shows the
+ * three basic cases; a case beyond them that any answer lands on adds its row.
+ */
+export interface WhySlot {
+  readonly case: CaseKey;
+  readonly plural: boolean;
+}
+
+/** One question; each answer leads to another step by id, or lands on a form. */
+export interface WhyStep {
+  readonly id: string;
+  readonly q: string;
+  readonly answers: readonly { readonly a: string; readonly next?: string; readonly lands?: WhySlot }[];
+}
+
+export interface WhyLine {
+  /** A line of today's conversation, by index. */
+  readonly line: number;
+  /** The word's form in that line, as spelled there. */
+  readonly form: string;
+  readonly lands: WhySlot;
+  /** Why, in plain English, with the Estonian in braces. */
+  readonly why: string;
+}
+
+export interface WhyForm {
+  /** The word, a headword the dictionary holds. */
+  readonly word: string;
+  /** Its meaning, for the table's heading. */
+  readonly en: string;
+  /** The questions; the first is where every walk starts. */
+  readonly steps: readonly WhyStep[];
+  readonly lines: readonly WhyLine[];
 }
 
 export interface SoundRow {
