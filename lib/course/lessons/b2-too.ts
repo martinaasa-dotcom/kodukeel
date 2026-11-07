@@ -810,7 +810,7 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
     faster: {
       ask: { et: "Kuidas teie ettevõttel läheb?", en: "How's your company doing?" },
       cue: "Say how your company or your work is doing: one good thing and one worry, with {tõenäoliselt} or {pigem}.",
-      model: { et: "Meie ettevõttel läheb pigem hästi. Kliendid kulutavad vähem, aga nõudlus on olemas. Järgmine aasta on tõenäoliselt raske.", en: "Our company's doing quite well. Clients are spending less, but the demand is there. Next year will probably be hard." },
+      model: { et: "Meie ettevõttel läheb pigem hästi. Kliendid kulutavad vähem, aga nõudlus on olemas. Järgmine aasta on tõenäoliselt raske.", en: "Our company's doing fairly well. Clients are spending less, but the demand is there. Next year will probably be hard." },
       seconds: SECONDS,
       checks: [
         { en: "How it's doing, hedged, with {pigem} or {tõenäoliselt}.", any: ["pigem", "tõenäoliselt"] },

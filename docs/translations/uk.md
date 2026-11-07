@@ -35447,7 +35447,7 @@ _lib/copy/i18n/areas/lessonText.ts_
   → знову, ще раз
 - [ ] **17594.** somebody; nobody, after {ei}  
   → хтось; ніхто, після {ei}
-- [ ] **17595.** quite; real  
+- [ ] **17595.** pretty; real  
   → досить; справжній
 - [ ] **17596.** maybe; suddenly  
   → може; раптом
@@ -45857,7 +45857,7 @@ _lib/copy/i18n/areas/lessonTextB2Too.ts_
   → Тепер йому треба все записати.
 - [ ] **22774.** Say how your company or your work is doing: one good thing and one worry, with {tõenäoliselt} or {pigem}.  
   → Скажи, як справи у твоєї фірми чи на твоїй роботі: одне добре й одна турбота, з {tõenäoliselt} або {pigem}.
-- [ ] **22775.** Our company's doing quite well. Clients are spending less, but the demand is there. Next year will probably be hard.  
+- [ ] **22775.** Our company's doing fairly well. Clients are spending less, but the demand is there. Next year will probably be hard.  
   → У нашої фірми справи радше добрі. Клієнти витрачають менше, але попит є. Наступний рік, найімовірніше, буде важким.
 - [ ] **22776.** A meeting summary with your own comment  
   → Підсумки наради з власним коментарем
@@ -46108,7 +46108,7 @@ _lib/copy/i18n/areas/lessonTextB2Arutelu.ts_
   → Пасажирів автобусів на два відсотки більше.
 - [ ] **22897.** by how much  
   → на скільки
-- [ ] **22898.** That's quite a big rise.  
+- [ ] **22898.** That's a pretty big rise.  
   → Це досить велике зростання.
 - [ ] **22899.** the change itself, as a noun  
   → сама зміна, іменником
@@ -46122,7 +46122,7 @@ _lib/copy/i18n/areas/lessonTextB2Arutelu.ts_
   → Але, за даними міста, на роботу велосипедом їздять уже десять відсотків людей.
 - [ ] **22904.** Ten percent? That's not a lot.  
   → Десять відсотків? Це ж небагато.
-- [ ] **22905.** Five years ago it was four percent. That's quite a big rise.  
+- [ ] **22905.** Five years ago it was four percent. That's a pretty big rise.  
   → П'ять років тому було чотири відсотки. Це досить велике зростання.
 - [ ] **22906.** But there are still far more cars.  
   → Але машин усе одно набагато більше.
@@ -46922,7 +46922,7 @@ _lib/copy/i18n/areas/lessonTextB2Arutelu.ts_
   → Але як вони це вимірювали? Яка була вибірка?
 - [ ] **23304.** They didn't say. A couple of thousand people, I think.  
   → Цього вони не сказали. Пару тисяч людей, здається.
-- [ ] **23305.** A couple of thousand is quite a good sample. Then the result's probably right.  
+- [ ] **23305.** A couple of thousand is a pretty good sample. Then the result's probably right.  
   → Пара тисяч – це досить добра вибірка. Тоді результат, мабуть, правильний.
 - [ ] **23306.** And what's your conclusion?  
   → А який у тебе висновок?
@@ -52242,7 +52242,7 @@ _lib/copy/i18n/areas/lessonTextB2Tervis.ts_
   → Як вона дихає?
 - [ ] **25954.** Tom, look at how she's breathing!  
   → Томе, подивися, як вона дихає!
-- [ ] **25955.** She's breathing fast. And she's quite pale.  
+- [ ] **25955.** She's breathing fast. And she's pretty pale.  
   → Дихає часто. І вона досить бліда.
 - [ ] **25956.** Then take the child to the children's hospital straight away, to the emergency department.  
   → Тоді одразу везіть дитину до дитячої лікарні, у приймальне відділення.
@@ -55871,10 +55871,10 @@ _lib/copy/i18n/areas/lessonTextC1Isiksus.ts_
   → Скажи по-розмовному, з {hirmus}.
 - [ ] **27761.** It hurts terribly.  
   → Мені жахливо боляче.
-- [ ] **27762.** Liis said the box is terribly heavy.  
-  → Лійс сказала, що ящик жахливо важкий.
-- [ ] **27763.** The box is terribly heavy, apparently.  
-  → Ящик, кажуть, жахливо важкий.
+- [ ] **27762.** Liis said the box is really heavy.  
+  → Лійс сказала, що ящик страшенно важкий.
+- [ ] **27763.** The box is really heavy, apparently.  
+  → Ящик, кажуть, страшенно важкий.
 - [ ] **27764.** Where he'll say it is in the school, so the \[seesütlev\] (-s, in): {koolis}. {Kooli} is where you go.  
   → Скаже він це в школі, тому \[seesütlev\] (-s, у (де)): {koolis}. {Kooli} – це куди йдуть.
 - [ ] **27765.** You say a thing to somebody: the \[alaleütlev\] (-le, onto/to), {ülemusele ütlema}.  
@@ -55949,7 +55949,7 @@ _lib/copy/i18n/areas/lessonTextC1Isiksus.ts_
   → Що кажуть естонці, коли щось іде не так?
 - [ ] **27800.** Prepare for a minute, then talk for one: the mild words and the stronger ones, how strong each is, and where not to say them.  
   → Підготуйся хвилину, потім говори хвилину: м'які слова й сильніші, наскільки сильне кожне і де їх не кажуть.
-- [ ] **27801.** You can say {oi} anywhere. {Pagan} is perfectly fine too, you can even say it with a child listening. Everybody says {kurat}, but not in front of a child or to the boss. {Kurat võtaks} is quite angry already. And if it really hurts, I just say: terribly painful!  
+- [ ] **27801.** You can say {oi} anywhere. {Pagan} is perfectly fine too, you can even say it with a child listening. Everybody says {kurat}, but not in front of a child or to the boss. {Kurat võtaks} is pretty angry already. And if it really hurts, I just say: terribly painful!  
   → Сказати {oi} можна де завгодно. {Pagan} теж цілком годиться, його можна сказати навіть при дитині. Усі кажуть {kurat}, але не при дитині й не начальникові. {Kurat võtaks} уже досить сердито. А якщо дуже боляче, я просто кажу: жахливо боляче!
 - [ ] **27802.** A question on a parents' forum, and two answers  
   → Запитання на батьківському форумі й дві відповіді
@@ -61349,7 +61349,7 @@ _lib/copy/i18n/areas/lessonTextC1Kodu.ts_
   → Банки зазвичай вимагають, щоб покупець сам сплатив не менше десяти відсотків ціни квартири.
 - [ ] **30490.** Rents have meanwhile risen even faster, which is why buying a home of their own seems more sensible to many.  
   → Оренда тим часом дорожчала ще швидше, тому купівля власного житла багатьом здається розумнішою.
-- [ ] **30491.** When the rent and the monthly loan payment are about the same, many would rather pay the bank than a landlord.  
+- [ ] **30491.** When the rent and the monthly loan payment are almost the same, many would rather pay the bank than a landlord.  
   → Коли оренда і щомісячний платіж за кредитом майже однакові, багато хто воліє платити радше банку, ніж орендодавцеві.
 - [ ] **30492.** In the view of the Bank of Estonia, lower interest rates have brought more buyers onto the market.  
   → За оцінкою Банку Естонії, нижчі ставки привели на ринок більше покупців.
@@ -61987,7 +61987,7 @@ _lib/copy/i18n/areas/lessonTextC1Kodu.ts_
   → По-друге, відсотки. В Естонії майже всі житлові кредити з плаваючою ставкою.
 - [ ] **30809.** That means the interest is made up of two parts: Euribor, which changes, and the bank's margin, which stays the same.  
   → Це означає, що відсоткова ставка складається з двох частин: Euribor, який змінюється, і маржі банку, яка лишається незмінною.
-- [ ] **30810.** When Euribor goes up, so does your monthly payment. A few years ago many families found that out quite painfully.  
+- [ ] **30810.** When Euribor goes up, so does your monthly payment. A few years ago many families found that out pretty painfully.  
   → Коли Euribor зростає, зростає і ваш щомісячний платіж. Кілька років тому багато сімей дізналися про це досить болісно.
 - [ ] **30811.** At some banks you can also fix the interest for a few years, but it usually costs more.  
   → У деяких банках відсоткову ставку можна й зафіксувати на кілька років, але зазвичай це коштує дорожче.
@@ -68911,7 +68911,7 @@ _lib/copy/i18n/areas/lessonTextC1Mote.ts_
   → Кішка була в сусідки.
 - [ ] **34261.** The neighbor had promised to keep an eye on the house for as long as it took.  
   → Сусідка обіцяла наглядати за будинком, скільки буде треба.
-- [ ] **34262.** 'When you come back, everything will be just as it was,' she had said, and hugged Elsa hard.  
+- [ ] **34262.** 'When you come back, everything will be just as it was,' she had said, and hugged Elsa tight.  
   → «Коли повернешся, усе буде як було», сказала вона й міцно обійняла Ельзу.
 - [ ] **34263.** Elsa hadn't answered her.  
   → Ельза їй не відповіла.
