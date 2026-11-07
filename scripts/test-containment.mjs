@@ -205,6 +205,7 @@ const ROUTES = [
   "/review/letters",
   "/review/workbook",
   "/review/numbers",
+  "/review/numbers?mode=endings",
   "/review/sayings",
   "/review/wordplay",
   "/review/lookups",

@@ -71,6 +71,12 @@ export const ACTION_LIMITS = {
    */
   addCommonWords: { perMinute: 12 },
   /**
+   * The words of the numbers a number-endings round missed, into the deck: one
+   * bulk build of a dozen numbers' words at most, once a round. A round takes a
+   * few minutes, so six a minute is never met by anybody playing.
+   */
+  keepMissedNumbers: { perMinute: 6 },
+  /**
    * A whole level the learner is credited with, two cards a word, in one
    * press (`addPassedLevelWords`). Up to about five hundred words through
    * `addPlanToDeck` under the deck lock; there are at most four such levels,

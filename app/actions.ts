@@ -114,6 +114,7 @@ import { type RatingValue } from "@/lib/srs/scheduler";
 import { undoGradeFor, type SchedulingSnapshot } from "@/lib/srs/undo";
 import { creditedFor, isCredited, levelLessonWords } from "@/lib/progress/credited";
 import { addCardsFor as addWordCards, addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
+import { lemmasOfNumber, missedNumbers } from "@/lib/games/numberEndings";
 import {
   defaultProgramme, LESSON_STEP, MODULE_HOME, continueHref, dayById, focusedSteps, lessonDayFor, levelHeldOnHandOff,
   programmeById, stepCard, stepText,
@@ -1351,6 +1352,37 @@ export async function recordNumberGrades(grades: unknown) {
   revalidatePath("/");
   revalidatePath("/words");
   return { ok: true as const, graded: result.settled.length };
+}
+
+/**
+ * Puts the words of the numbers a number-endings round missed into the deck
+ * (`lib/games/numberEndings.ts`), which is the operator's rule for a game:
+ * what the learner gets wrong goes in the deck to come back.
+ *
+ * Numbers rather than words, for the reason `addCommonWords` gives about a
+ * group: every export of this file is a public endpoint whose arguments are
+ * JSON off the wire, so a caller handing over lemmas would be choosing what
+ * gets built. A number names its own words through `lemmasOfNumber`, and a
+ * word the dictionary does not hold is passed over by the builder.
+ * Recognition and production only, and a card already held is never touched.
+ */
+export async function keepMissedNumbers(numbers: unknown) {
+  const ownerId = await requireUserId();
+  const missed = missedNumbers(numbers);
+  if (missed.length === 0) return { ok: true as const, added: 0, words: 0 };
+  const busy = await throttleShared(ownerId, "keepMissedNumbers");
+  if (busy) return await sayRefusal(ownerId, busy);
+
+  const { added, words } = await addPlanToDeck(
+    ownerId,
+    planLemmas(missed.flatMap(lemmasOfNumber), ["RECOGNITION", "PRODUCTION"]),
+    "COURSE",
+  );
+  if (added > 0) {
+    revalidatePath("/");
+    revalidatePath("/words");
+  }
+  return { ok: true as const, added, words };
 }
 
 /** The most lines one workbook page can hand in: two exercises and their examples, with room. */

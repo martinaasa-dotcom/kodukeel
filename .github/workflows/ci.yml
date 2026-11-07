@@ -425,6 +425,7 @@ jobs:
               scripts/test-scan.mjs
               scripts/test-flash.mjs
               scripts/test-workbook.mjs
+              scripts/test-number-endings.mjs
               scripts/test-exam.mjs
               scripts/test-suggestions.mjs
               scripts/test-scene.mjs

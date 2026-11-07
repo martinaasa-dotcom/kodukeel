@@ -60,6 +60,11 @@ export const HINT_EXEMPT: readonly HintExemption[] = [
       + " gives the kind of thing and costs one of the twenty questions, and the ideas under the box are the help",
   },
   {
+    file: "app/(app)/review/numbers/EndingsSession.tsx",
+    why: "a choice between two or three forms already on the screen, where a hint would cross out the answer's only rival;"
+      + " a missed form is put right in the sentence and the number's words go in the deck",
+  },
+  {
     file: "app/(app)/review/describe/DescribeSession.tsx",
     why: "the learner writes five sentences of their own about a picture, so there is no one answer to uncover; the example above the boxes is the help",
   },
