@@ -425,7 +425,7 @@ export const C1_KOOL_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ei, kõik on korras. Järgmisel neljapäeval läheme klassiga muuseumisse ja mul oleks vaja üht lapsevanemat appi.", en: "No, everything's fine. Next Thursday we're taking the class to a museum, and I could do with one parent to help." }, right: "lapsevanemat", wrong: "lapsevanem", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Vaja} takes what you need in the [osastav] (3rd form), the way {tahtma} takes what you want: it is something you don't have yet, not a job done. The number goes into the [osastav] (3rd form) with its noun, so it is {üht lapsevanemat}, one parent." },
+      { line: { et: "Ei, kõik on korras. Järgmisel neljapäeval läheme klassiga muuseumisse ja mul oleks vaja üht lapsevanemat appi.", en: "No, everything's fine. Next Thursday we're taking the class to a museum, and I could do with one parent to help." }, right: "lapsevanemat", wrong: "lapsevanem", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Vaja} usually takes what you need in the [osastav] (3rd form), the way {tahtma} takes what you want: it is something you don't have yet, not a job done. The number goes into the [osastav] (3rd form) with its noun, so it is {üht lapsevanemat}, one parent." },
       { line: { et: "Muidugi, ma kirjutan teile täna õhtul.", en: "Of course, I'll write to you this evening." }, right: "teile", wrong: "teid", pair: ["ALLATIVE", "PARTITIVE"], why: "A letter goes to a person, so the person is where it ends up and takes the [alaleütlev] (-le, onto/to): {kirjutan teile}, I'll write to you. {Teid} is the [osastav] (3rd form), the form for what you write, as if you were writing the person." },
     ],
     workOut: [
