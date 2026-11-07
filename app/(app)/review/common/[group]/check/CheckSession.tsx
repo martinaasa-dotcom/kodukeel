@@ -13,7 +13,6 @@ import { FitText } from "@/components/FitText";
 import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
 import { useFeedbackSound } from "@/components/AudioPrefs";
-import { BriefingSteps } from "@/components/round/Briefing";
 import { RoundStart } from "@/components/round/RoundStart";
 import { RoundDone } from "@/components/round/RoundDone";
 import { RoundProgress } from "@/components/round/RoundProgress";
@@ -171,8 +170,7 @@ export function CheckSession({ title, group, words: list, direction: firstDirect
           </Button>
         }
       >
-        <BriefingSteps id="commonCheck" more={t("Nothing is added to your deck unless you ask.")} />
-        <div className="mt-2 flex flex-col gap-4 text-left">
+        <div className="flex flex-col gap-4 text-left">
           <ChoiceGroup label={t("Which way round?")} className="grid gap-2">
             <ChoiceCard
               selected={direction === "en-et"}

@@ -87,12 +87,6 @@ export const BRIEFINGS = {
     you: "Type each answer and check it. Each time a word comes back right, it's asked a harder way next time.",
     action: "Start",
   },
-  commonCheck: {
-    title: "Check yourself",
-    what: "One side of each word from the list, in the direction you pick.",
-    you: "Type the other side. A miss gets one more go, with a hint if you want one.",
-    action: "Start",
-  },
   common: {
     title: "The words you'll hear most",
     what:
