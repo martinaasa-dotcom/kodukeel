@@ -33,25 +33,26 @@ interface Pin {
   row: string;
   col: Col;
   form: string;
+  name: string;
   why: string;
 }
 
 /* The lesson's own lines (conversation and its table), each with the cell its form sits in. */
 const PINS: readonly Pin[] = [
   {
-    sentence: "Ma ostsin õunu.", en: "I bought some apples.", row: "PARTITIVE", col: "pl", form: "õunu",
+    sentence: "Ma ostsin õunu.", en: "I bought some apples.", row: "PARTITIVE", col: "pl", form: "õunu", name: "mitmuse osastav (plural, 3rd form)",
     why: "More than one apple, so the plural column. Estonian has no word for \"the\", so the ending has to say whether you mean a set amount. You bought apples without saying which ones or how many, an open amount, so they go in the mitmuse osastav (plural, 3rd form): õunu.",
   },
   {
-    sentence: "Ma pesin õunad ära.", en: "I washed the apples.", row: "NOMINATIVE", col: "pl", form: "õunad",
+    sentence: "Ma pesin õunad ära.", en: "I washed the apples.", row: "NOMINATIVE", col: "pl", form: "õunad", name: "mitmuse nimetav (plural, 1st form)",
     why: "These are the apples on the counter, a known set, and the washing got finished (ära says so). A known set, all of it, with the job done, goes in the mitmuse nimetav (plural, 1st form): õunad. It is spelled just like the subject in \"Õunad on head\".",
   },
   {
-    sentence: "Siin on ainult kolm õuna.", en: "There are only three apples here.", row: "PARTITIVE", col: "sg", form: "õuna",
-    why: "After a number (except one), Estonian counts in the singular: kolm õuna, \"three apple\". The number already says how many, so the noun goes in the ainsuse osastav (singular, 3rd form): õuna.",
+    sentence: "Siin on ainult kolm õuna.", en: "There are only three apples here.", row: "PARTITIVE", col: "sg", form: "õuna", name: "ainsuse osastav (singular, 3rd form)",
+    why: "After a number, Estonian counts in the singular: kolm õuna, \"three apple\". The number already says how many, so the noun goes in the ainsuse osastav (singular, 3rd form): õuna. One is the exception: with üks, the word stays in its plain form, üks õun, \"one apple\", just like in English.",
   },
   {
-    sentence: "Sõin bussis õunu.", en: "I was eating apples on the bus.", row: "PARTITIVE", col: "pl", form: "õunu",
+    sentence: "Sõin bussis õunu.", en: "I was eating apples on the bus.", row: "PARTITIVE", col: "pl", form: "õunu", name: "mitmuse osastav (plural, 3rd form)",
     why: "Tom was eating some of them, not all, and he didn't finish a set. An open amount of more than one goes in the mitmuse osastav (plural, 3rd form): õunu. Compare \"Sa sõid õunad ära?\", where ära means they're all gone, so the whole set: õunad.",
   },
 ];
@@ -306,7 +307,7 @@ function OptionB({ rows }: { rows: MockRow[] }) {
             <div className="mt-4 flex flex-col gap-2">
               <p className="flex items-center gap-2 text-lg font-semibold" style={{ color: right ? "var(--accent-deep)" : "var(--ink)" }}>
                 <ArrowRight size={18} />
-                {right ? `That's the cell: ${pin.form}.` : "That lands on a different cell. Look at the sentence again."}
+                {right ? `That's the form: ${pin.form}, the ${pin.name}.` : "Those answers point to a different form. Look at the sentence again."}
               </p>
               {right && <p className="text-base leading-relaxed" style={{ color: "var(--ink)" }}>{pin.why}</p>}
               <button type="button" className="tap-tint inline-flex items-center gap-1.5 self-start rounded-md px-2 py-1 text-base" style={{ color: "var(--accent-deep)" }} onClick={() => reset()}>
@@ -317,7 +318,7 @@ function OptionB({ rows }: { rows: MockRow[] }) {
         </Card>
       </section>
       <section className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold" style={{ color: "var(--ink)" }}><span lang="et">õun</span>, apple: the cell your answers point to</h2>
+        <h2 className="text-lg font-semibold" style={{ color: "var(--ink)" }}><span lang="et">õun</span>, apple: the form your answers point to</h2>
         <FormsTable rows={three} lit={(r, c) => !!landed && landed.row === r.key && landed.col === c} />
       </section>
     </>
