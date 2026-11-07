@@ -1,7 +1,7 @@
 "use client";
 
 import { micInAnswerBox } from "./answerBoxMic";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState, type ReactNode } from "react";
 import { useT } from "@/components/Locale";
 import { cardVerdict, repairedInAnswer, type SpokenVerdict } from "@/lib/speech/verdict";
 import { core, type Hearing } from "@/lib/speech/reconcile";
@@ -119,21 +119,36 @@ export function useSpokenBox({ accepted, always = false, judge, onGood, onFill, 
   );
 }
 
-/** The microphone beside an answer box, drawn only where `useSpokenBox` says (D6). */
-export function AnswerMic({ box, label, shortcut = true }: { box: SpokenBox; label?: string; shortcut?: boolean }) {
+/**
+ * The microphone inside an answer box, drawn only where `useSpokenBox` says
+ * (D6). The box is the caller's and is handed the button to hold at its
+ * right-hand end; where no microphone is offered it is handed `null` and
+ * drawn exactly as before.
+ */
+export function AnswerMic({ box, label, shortcut = true, size, when = true, children }: {
+  box: SpokenBox;
+  /** The screen's own reason not to offer it on this card, beside `box.shown`. */
+  when?: boolean;
+  label?: string;
+  shortcut?: boolean;
+  size?: "md" | "lg";
+  children: (mic: ReactNode) => ReactNode;
+}) {
   const t = useT();
-  if (!box.shown) return null;
+  const on = box.shown && when;
   return (
-    <>
-      <MicButton speech={box.speech} label={label ?? t("Answer out loud")} shortcut={shortcut} fallback="box" />
+    <div className="flex w-full flex-col gap-1.5">
+      <MicButton speech={box.speech} label={label ?? t("Answer out loud")} shortcut={shortcut} size={size} fallback="box" when={on}>
+        {children}
+      </MicButton>
       {/* What was heard went into the box and is not marked until Check: said
           once, where the screen is still asking, so nobody reads a filled box
           as an answer the app has already taken. */}
-      {box.spoken && (
+      {on && box.spoken && (
         <p className="max-w-sm text-sm" style={{ color: "var(--ink-2)" }}>
           {t("This is what was heard. Change anything that is not what you said, then check it.")}
         </p>
       )}
-    </>
+    </div>
   );
 }

@@ -295,21 +295,25 @@ function Card({ entry, onSettled, onNext, takeCaret }: {
 
         {!answered ? (
           <div className="flex w-full max-w-md flex-col items-center gap-4">
-            <MicButton speech={speech} label={t("Say it out loud")} shortcut size="lg" fallback="box" />
             <div className="w-full text-left">
-              <EstonianInput
-                value={liveText(text, speech)}
-                readOnly={speech.listening}
-                onChange={(next) => {
-                  setText(next);
-                }}
-                id="number-answer"
-                ariaLabel={t("Your answer, in words or digits")}
-                placeholder={t("Or type it")}
-                inputRef={inputRef}
-                onEnter={check}
-                large
-              />
+              <MicButton speech={speech} label={t("Say it out loud")} shortcut size="lg" fallback="box">
+                {(mic) => (
+                  <EstonianInput
+                    value={liveText(text, speech)}
+                    readOnly={speech.listening}
+                    onChange={(next) => {
+                      setText(next);
+                    }}
+                    id="number-answer"
+                    ariaLabel={t("Your answer, in words or digits")}
+                    placeholder={mic ? undefined : t("Or type it")}
+                    inputRef={inputRef}
+                    onEnter={check}
+                    large
+                    mic={mic}
+                  />
+                )}
+              </MicButton>
             </div>
           </div>
         ) : (

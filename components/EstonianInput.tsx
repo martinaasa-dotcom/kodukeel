@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, type ChangeEvent, type KeyboardEvent, type RefObject } from "react";
+import { useRef, type ChangeEvent, type KeyboardEvent, type ReactNode, type RefObject } from "react";
+import { MicSlot } from "@/components/speech/MicButton";
 import { DiacriticBar } from "@/components/DiacriticBar";
 
 /**
@@ -40,10 +41,14 @@ import { DiacriticBar } from "@/components/DiacriticBar";
  * its `field-lg` geometry and its focus ring, and paints no border, fill or
  * shadow of its own, so a composer that draws the field as part of itself
  * (the conversation's message pill) does not have to out-shout an inline style.
+ *
+ * `mic` is the microphone a `MicButton` hands over when it is drawn inside
+ * the box: it sits at the field's right-hand end (`MicSlot`), so speaking and
+ * typing share one row.
  */
 export function EstonianInput({
   value, onChange, placeholder, autoFocus, onEnter, id, ariaLabel, large, compact, inputRef, bar = true,
-  disabled, readOnly, look,
+  disabled, readOnly, look, mic,
 }: {
   value: string;
   onChange: (next: string) => void;
@@ -71,12 +76,15 @@ export function EstonianInput({
   bar?: boolean;
   /** A class that draws the field's surface instead of the default one. */
   look?: string;
+  /** The microphone, drawn inside the box at its right-hand end. */
+  mic?: ReactNode;
 }) {
   const own = useRef<HTMLInputElement>(null);
   const ref = inputRef ?? own;
 
   return (
     <div>
+      <MicSlot mic={mic}>
       <input
         ref={ref}
         id={id}
@@ -104,6 +112,7 @@ export function EstonianInput({
         className={`w-full ${large ? "field-lg text-xl" : compact ? "field text-sm" : "field-lg text-md"} ${look ?? ""}`}
         style={look ? undefined : { borderColor: "var(--edge)", background: "var(--surface)", color: "var(--ink)", boxShadow: "var(--depth-sm)" }}
       />
+      </MicSlot>
       {bar && !disabled && <div className="under-field"><DiacriticBar standalone={false} fallbackRef={ref} /></div>}
     </div>
   );

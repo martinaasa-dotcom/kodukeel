@@ -6,7 +6,7 @@ import { Button, ButtonLink } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { Speak } from "@/components/Speak";
 import { nativePart } from "@/lib/audio/native";
-import { MicButton } from "@/components/speech/MicButton";
+import { MicButton, MicSlot } from "@/components/speech/MicButton";
 import { ReadAloud } from "@/components/speech/ReadAloud";
 import { useSpeech, useSpeechConfig } from "@/components/speech/useSpeech";
 import { liveText } from "@/lib/speech/liveText";
@@ -543,29 +543,30 @@ function AnswerCard({ lessonId, card, mode, voice, name, onNext, last, typed, on
       </div>
       <div className="flex flex-col gap-3">
         <span className="label-xs" style={{ color: "var(--ink-3)" }}>{t("You say")}</span>
-        {mic && (
-          <div className="flex flex-wrap items-center gap-3">
-            <MicButton speech={speech} label={t("Say it")} fallback="box" />
-            <span className="text-sm" style={{ color: "var(--ink-3)" }}>{t("What's heard goes in the box, for you to change.")}</span>
-          </div>
-        )}
-        <input
-          lang="et"
-          className="field w-full"
-          value={liveText(text, speech)}
-          readOnly={shown || speech.listening}
-          aria-label={mic ? t("What you said, in Estonian") : t("Your answer, in Estonian")}
-          autoComplete="off"
-          autoCapitalize="off"
-          spellCheck={false}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !shown) {
-              e.preventDefault();
-              reveal();
-            }
-          }}
-        />
+        {/* The microphone sits inside the box, at its end: what it hears lands where it is. */}
+        <MicButton speech={speech} label={t("Say it")} fallback="box" when={mic}>
+          {(micButton) => (
+            <MicSlot mic={micButton}>
+              <input
+                lang="et"
+                className="field w-full"
+                value={liveText(text, speech)}
+                readOnly={shown || speech.listening}
+                aria-label={mic ? t("What you said, in Estonian") : t("Your answer, in Estonian")}
+                autoComplete="off"
+                autoCapitalize="off"
+                spellCheck={false}
+                onChange={(e) => setText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !shown) {
+                    e.preventDefault();
+                    reveal();
+                  }
+                }}
+              />
+            </MicSlot>
+          )}
+        </MicButton>
         {!shown && <div className="under-field"><DiacriticBar /></div>}
       </div>
 
