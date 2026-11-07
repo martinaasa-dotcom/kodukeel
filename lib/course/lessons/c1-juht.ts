@@ -27,6 +27,7 @@
  */
 
 import type { LessonSpec, PartOfLessons } from "./types";
+import { PLURAL_OBJECT_STEPS } from "./why";
 
 export const C1_JUHT_PART: PartOfLessons = {
   id: "c1-juht",
@@ -89,7 +90,7 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
     ],
     patterns: ["emphasis"],
     how: {
-      point: "Estonian stresses a word by where it puts it, and by one small word in front of it, where English raises its voice. The news goes last: {Meeskonda hakkab juhtima Tom}. And {just}, {isegi}, {alles} and {nimelt} point straight at the word that matters.",
+      point: "English stresses a word by raising the voice on it. Estonian does it with word order and one small word: what's new goes last, because that's where a listener waits for the news. So {Meeskonda hakkab juhtima Tom} makes Tom the news. And {just}, {isegi}, {alles} and {nimelt}, set right in front of a word, point straight at it.",
       table: {
         head: ["Estonian", "What it stresses"],
         rows: [
@@ -209,8 +210,8 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ideaalset juhti ei ole olemas.", en: "There's no such thing as an ideal boss." }, right: "juhti", wrong: "juht", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a no, the thing that isn't there takes the [osastav] (3rd form): {juhti ei ole}, and so does its adjective, {ideaalset}." },
-      { line: { et: "Ma usaldan teid ja loodan, et teie usaldate mind.", en: "I trust you, and I hope you trust me." }, right: "mind", wrong: "mina", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Usaldama} takes the person in the [osastav] (3rd form): {usaldate mind}, {usaldan teid}." },
+      { line: { et: "Ideaalset juhti ei ole olemas.", en: "There's no such thing as an ideal boss." }, right: "juhti", wrong: "juht", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Ideaalset juhti ei ole olemas} says there is no such boss. When a sentence says something isn't there, with {ei ole}, the missing thing goes into the [osastav] (3rd form): {juhti}, not {juht}. Its adjective goes with it into the same form, {ideaalset}. The plain form is for a boss who is there and doing something: {Hea juht kuulab}." },
+      { line: { et: "Ma usaldan teid ja loodan, et teie usaldate mind.", en: "I trust you, and I hope you trust me." }, right: "mind", wrong: "mina", pair: ["PARTITIVE", "NOMINATIVE"], why: "{Usaldama}, to trust, takes the person in the [osastav] (3rd form) every time: {usaldate mind}, {usaldan teid}. Trusting is a feeling that goes on, not a job that ever gets finished, and verbs like that keep their object in the [osastav] (3rd form) even in a yes. {Mina} would make me the one doing the trusting." },
     ],
     workOut: [
       {
@@ -433,8 +434,8 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Teil on väike meeskond. Ma tahan ise kliente näha, mitte ainult koodi.", en: "You're a small team. I want to see the clients myself, not just the code." }, right: "kliente", wrong: "kliendid", pair: ["PARTITIVE", "NOMINATIVE"], why: "Seeing clients, as an object, is the [osastav] (3rd form), here the plural: {kliente näha}." },
-      { line: { et: "Minu tugevus on see, et ma oskan klientidega rääkida.", en: "My strength is that I can talk to clients." }, right: "klientidega", wrong: "kliendid", pair: ["COMITATIVE", "NOMINATIVE"], why: "Talking with somebody takes -ga, here on the plural: {klientidega rääkima}." },
+      { line: { et: "Teil on väike meeskond. Ma tahan ise kliente näha, mitte ainult koodi.", en: "You're a small team. I want to see the clients myself, not just the code." }, right: "kliente", wrong: "kliendid", pair: ["PARTITIVE", "NOMINATIVE"], why: "Ott wants to see clients: the clients are the object of {näha}. Seeing is not a job that gets finished, and he means clients in general, more than one and no set number, so both reasons point to the plural [osastav] (3rd form): {kliente}. The plain plural {kliendid} would be the clients doing something themselves." },
+      { line: { et: "Minu tugevus on see, et ma oskan klientidega rääkida.", en: "My strength is that I can talk to clients." }, right: "klientidega", wrong: "kliendid", pair: ["COMITATIVE", "NOMINATIVE"], why: "{Rääkima}, to talk, takes the person you talk with in the [kaasaütlev] (-ga, with): {klientidega rääkima}, much as English says talk with somebody. Ott means clients in general, more than one, so the -ga goes on the plural. For one client it would go on the singular." },
     ],
     workOut: [
       {
@@ -653,8 +654,8 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Siis alusta just sellest. Kõigepealt kiida, siis räägi probleemist.", en: "Then start with exactly that. Praise him first, then talk about the problem." }, right: "probleemist", wrong: "probleem", pair: ["ELATIVE", "NOMINATIVE"], why: "Talking about something takes -st, the [seestütlev] (-st, out of): {räägi probleemist}." },
-      { line: { et: "Ma ei taha, et see korduks. Kas see sobib?", en: "I don't want it to happen again. Is that all right with you?" }, right: "korduks", wrong: "kordub", pair: ["KndPrPs", "IndPrSg3"], why: "After {ma ei taha, et}, what you don't want to happen takes the [tingiv kõneviis] (-ks, would): {et see korduks}." },
+      { line: { et: "Siis alusta just sellest. Kõigepealt kiida, siis räägi probleemist.", en: "Then start with exactly that. Praise him first, then talk about the problem." }, right: "probleemist", wrong: "probleem", pair: ["ELATIVE", "NOMINATIVE"], why: "What a talk is about takes the [seestütlev] (-st, out of): {räägi probleemist}, talk about the problem. Think of the talk as coming out of its topic. Siim's line has the same ending twice: {räägi tööst, mitte inimesest}. The plain {probleem} would make the problem the one doing something." },
+      { line: { et: "Ma ei taha, et see korduks. Kas see sobib?", en: "I don't want it to happen again. Is that all right with you?" }, right: "korduks", wrong: "kordub", pair: ["KndPrPs", "IndPrSg3"], why: "{Ma ei taha, et ...} is about something that hasn't happened, and that Tom would rather didn't. Estonian puts a thing you want or don't want to happen in the [tingiv kõneviis] (-ks, would): {et see korduks}. {Kordub} would state it as a plain fact, that it does happen again, which is the opposite of what Tom is hoping." },
     ],
     rooms: [
       {
@@ -788,6 +789,15 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
       ],
       watchOut: "Said with your voice rising at the end, the English way, a question to a client like {Kas te tõesti tahate...?} sounds sarcastic. Say it flat and calm, and follow it at once with what you'd suggest.",
       examples: [4, 6, 10, 11],
+      why: {
+        word: "lubadus",
+        en: "promise",
+        steps: PLURAL_OBJECT_STEPS,
+        lines: [
+          { line: 10, form: "lubadusi", lands: { case: "PARTITIVE", plural: true }, why: "Tom is talking about promises in general: more than one, and no set number of them, an open amount. That alone puts them in the plural [osastav] (3rd form). The sentence is a no as well, {ei anna}, and after a no the thing is in the [osastav] (3rd form) whatever the amount, so every road leads to {lubadusi}." },
+          { line: 10, form: "lubaduse", lands: { case: "GENITIVE", plural: false }, why: "Now it's one promise, this one, and the sentence is a yes: {me anname}, we give it, and it gets given whole. One whole thing with the job done takes the [omastav] (2nd form): {lubaduse}. {Selle}, this, goes with it into the same form." },
+        ],
+      },
     },
     listenFor: [
       { q: "What does Kaisa want?", options: ["The app two weeks earlier", "A lower price", "A new feature", "A meeting with the board"], answer: 0 },
@@ -975,8 +985,8 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Lubadusi me kergelt ei anna. Aga selle lubaduse me anname.", en: "We don't give promises lightly. But this one we do." }, right: "Lubadusi", wrong: "Lubadus", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a no, the thing takes the [osastav] (3rd form), here the plural: {lubadusi ei anna}." },
-      { line: { et: "Kõike me kahe nädalaga ei jõua.", en: "We can't do everything in two weeks." }, right: "nädalaga", wrong: "nädal", pair: ["COMITATIVE", "NOMINATIVE"], why: "The time it takes to do something is -ga, the [kaasaütlev] (-ga, with): {kahe nädalaga}." },
+      { line: { et: "Lubadusi me kergelt ei anna. Aga selle lubaduse me anname.", en: "We don't give promises lightly. But this one we do." }, right: "Lubadusi", wrong: "Lubadus", pair: ["PARTITIVE", "NOMINATIVE"], why: "Two things send it into the [osastav] (3rd form). The sentence is a no, {ei anna}, and after a no the thing given is always in the [osastav] (3rd form). And Tom means promises in general, more than one and no set number, so it's the plural: {lubadusi}. In the yes right after it, one whole promise gets given, so it's {selle lubaduse}, the [omastav] (2nd form)." },
+      { line: { et: "Kõike me kahe nädalaga ei jõua.", en: "We can't do everything in two weeks." }, right: "nädalaga", wrong: "nädal", pair: ["COMITATIVE", "NOMINATIVE"], why: "The time a job gets done in takes the [kaasaütlev] (-ga, with): {kahe nädalaga}, in two weeks. Only the last word of the phrase carries the -ga. The number in front of it goes into the [omastav] (2nd form), {kahe}, not {kaks}." },
     ],
     rooms: [
       {
@@ -1203,8 +1213,8 @@ export const C1_JUHT_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Ja mis on puudus? Igal variandil on mõni puudus.", en: "And what's the drawback? Every option has some drawback." }, right: "variandil", wrong: "variant", pair: ["ADESSIVE", "NOMINATIVE"], why: "Having something is -l: {igal variandil on}, each option has." },
-      { line: { et: "Kaalusime kahte varianti: teist testijat või automaatseid teste.", en: "We weighed up two options: a second tester, or automated tests." }, right: "varianti", wrong: "variant", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a number from two up, the noun is in the [osastav] (3rd form), singular: {kahte varianti}." },
+      { line: { et: "Ja mis on puudus? Igal variandil on mõni puudus.", en: "And what's the drawback? Every option has some drawback." }, right: "variandil", wrong: "variant", pair: ["ADESSIVE", "NOMINATIVE"], why: "Estonian has no verb for to have. It says the thing is at its owner: the owner takes the [alalütlev] (-l, on/at/has), and {on} follows: {igal variandil on}, every option has. {Iga}, every, matches its noun and takes the same -l: {igal}." },
+      { line: { et: "Kaalusime kahte varianti: teist testijat või automaatseid teste.", en: "We weighed up two options: a second tester, or automated tests." }, right: "varianti", wrong: "variant", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a number from two up, the counted thing goes into the singular [osastav] (3rd form), never the plural: {varianti}. Here the number moves too, to {kahte}, because the two options are the object of {kaalusime}, and weighing things up is not a job that gets finished, so its object is in the [osastav] (3rd form). The rule is for two and up: after {üks} the noun is in whatever form the sentence would give a single noun." },
     ],
     workOut: [
       {
