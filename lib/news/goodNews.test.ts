@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { badStem, plainlyGood, recentEnough, shownTitle } from "./goodNews";
+import { badStem, dealAcrossKinds, goodKind, plainlyGood, recentEnough, shownTitle, type GoodKind } from "./goodNews";
 import { parseNewsItems, type NewsItem } from "./headlines";
 
 const item = (title: string, description = ""): NewsItem => ({ title, description, link: null, at: null });
@@ -173,5 +173,87 @@ describe("the good-news words", () => {
     expect(plainlyGood(item("Linnas toimub suur sündmus"))).toBe(false);
     expect(plainlyGood(item("Naeruväärne otsus"))).toBe(false);
     expect(plainlyGood(item("Loomaaias sündis kaks karupoega"))).toBe(true);
+  });
+});
+
+/*
+  ERR's three feeds on 2026-11-07. The old rule offered eighteen of these and
+  every one was a gallery, a festival or a concert; the science feed's fifty
+  items offered none.
+*/
+describe("good news that is not an exhibition", () => {
+  it("offers a discovery, an animal and a record, and says which kind it is", () => {
+    expect(goodKind(item("Piusa nahkhiir püstitas oma klassis maailma vanuserekordi",
+      "Teadlased leidsid Piusa koobastest maailma vanima teadaoleva tõmmulendlase."))).toBe("nature");
+    expect(goodKind(item("Mustvares teeb otsuseid ahvist ja inimesest poole kiiremini"))).toBe("nature");
+    expect(goodKind(item("Tartu teadlaste robotliblikas kasvatas endale uue meeleelundi"))).toBe("nature");
+    expect(goodKind(item("Värvi vahetava Vana-Rooma karika saladus peitus kulla ja hõbeda osakestes",
+      "Lykurgose karikas, mis muudab valgusallika asukohast sõltuvalt oma värvi."))).toBe("science");
+    expect(goodKind(item("PÖFF-i elutööpreemia pälvisid Priit Pärn, Sven Grünberg ja Hilmar Oddsson"))).toBe("achievement");
+    expect(goodKind(item("Ugalas esietendub David Irelandi \"Viies samm\""))).toBe("culture");
+    expect(goodKind(item("Tartus Aparaaditehases toimub 20. korda galeriide öö"))).toBe("together");
+  });
+
+  it("does not let a summary's method or its geography refuse a science story", () => {
+    // "keeruline uurida" is how the study was hard, not news that something went wrong.
+    expect(goodKind(item("Piiritaja aitab uurida sipelgate pulmalende",
+      "Sipelgate paljunemise olulist osa on keeruline uurida."))).not.toBeNull();
+    // `hinnata` is to estimate, not a price.
+    expect(badStem(item("Ilvese asupaiga reedab käpajälg", "Arvukust on keeruline hinnata."))).toBeNull();
+  });
+
+  it("still refuses harm in the summary, whatever the headline", () => {
+    expect(goodKind(item("Loomaaias sündis kaks karupoega", "Üks poegadest suri esimesel päeval."))).toBeNull();
+    expect(goodKind(item("Uus hambahari hävitab baktereid", "Hambahaigusi põhjustavad bakterid."))).toBeNull();
+  });
+
+  it("refuses a science story that is bad news", () => {
+    for (const title of [
+      "Valgamaal leiti ohtlik taimehaigus viljapuu-bakterpõletik",
+      "Uuring: soolevähi riski suurendab ka aastate eest tarvitatud alkohol",
+      "Droonipilt näitab kätte Pakri panga järgmised varingukohad",
+      "Hundi väljaheide reedab sõraliste põuda Eesti metsas",
+      "ERC-i stardigrantide edukusmäär langes aastaga hüppeliselt",
+      "Aadria meri neelas Veneetsia lähistel maismaad kiviajal",
+    ]) expect(goodKind(item(title)), title).toBeNull();
+  });
+
+  it("refuses an animal headline that is bad news", () => {
+    for (const title of [
+      "Karu murdis Võrumaal kaks lammast",
+      "Ilves ründas Saaremaal koera",
+      "Hundijahi kvoot kasvab",
+      "Loomaaias suri elevant",
+      "Koer hammustas last",
+      "Hülgepoegi on tänavu vähe",
+      "Rebaste seas levib marutaud",
+      "Mesilased hukkuvad pestitsiidide tõttu",
+      "Võõrliik vallutab Eesti jõed",
+      "Kotkaste pesad hävisid tormis",
+    ]) expect(goodKind(item(title)), title).toBeNull();
+  });
+
+  it("takes an animal only with something good said about it", () => {
+    expect(goodKind(item("Karu nähti Tartu lähistel"))).toBe("nature");
+    expect(goodKind(item("Hunt kõndis üle põllu"))).toBeNull();
+  });
+});
+
+describe("dealing the card across the kinds", () => {
+  const picks = ["c1", "c2", "c3", "n1", "s1", "c4", "a1"];
+  const kind = (p: string): GoodKind => ({ c: "culture", n: "nature", s: "science", a: "achievement" } as const)[p[0] as "c"];
+
+  it("takes one of each kind before a second of any, and drops nothing", () => {
+    const dealt = dealAcrossKinds(picks, kind, 0);
+    expect(dealt.slice(0, 4).map(kind)).toEqual(["nature", "science", "achievement", "culture"]);
+    expect([...dealt].sort()).toEqual([...picks].sort());
+    // within a kind, the order handed in
+    expect(dealt.filter((p) => p.startsWith("c"))).toEqual(["c1", "c2", "c3", "c4"]);
+  });
+
+  it("turns which kind leads with the day", () => {
+    const leads = [0, 1, 2, 3, 4].map((day) => kind(dealAcrossKinds(picks, kind, day)[0]!));
+    expect(new Set(leads).size).toBeGreaterThan(1);
+    expect(dealAcrossKinds(picks, kind, 3)[0]).toBe("c1");
   });
 });
