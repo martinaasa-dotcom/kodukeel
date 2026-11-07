@@ -11879,6 +11879,13 @@ check("only the harvest, the seed and the screens name a Russian or Ukrainian me
     join("lib", "progress", "learn.ts"),
     join("app", "(app)", "learn", "[unitId]", "lesson", "page.tsx"),
     /*
+      And a lesson's Words cards, which print a headword's Russian or Ukrainian
+      beside it where the lesson itself does not gloss the word tonight: read
+      in `lib/progress/wordCards.ts` and passed on as plain data. It writes
+      neither column and reaches no model.
+    */
+    join("lib", "progress", "wordCards.ts"),
+    /*
       And then every surface that shows a meaning as a meaning, because a
       learner who reads Ukrainian better than English was meeting the
       equivalent on the first meeting and then being quizzed in English for

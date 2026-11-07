@@ -145,7 +145,7 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
       },
     ],
     fixes: [
-      { line: { et: "Aga ma pole kunagi koosolekut juhtinud.", en: "But I've never run a meeting." }, right: "koosolekut", wrong: "koosolek", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a no, the thing takes the [osastav] (3rd form): {pole koosolekut juhtinud}." },
+      { line: { et: "Aga ma pole kunagi koosolekut juhtinud.", en: "But I've never run a meeting." }, right: "koosolekut", wrong: "koosolek", pair: ["PARTITIVE", "NOMINATIVE"], why: "After a no, the noun ({koosolekut} here) takes the [osastav] (3rd form): {pole koosolekut juhtinud}." },
       { line: { et: "Ei sega. Tule sisse. Tom hakkab meie koosolekuid juhtima.", en: "Not at all. Come in. Tom's going to run our meetings." }, right: "juhtima", wrong: "juhtida", pair: ["Sup", "Inf"], why: "{Hakkama} takes the [ma-tegevusnimi] (-ma): {hakkab juhtima}." },
     ],
     faster: {
@@ -153,6 +153,11 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
       cue: "Open it: say good morning to everybody, name the first topic, and give the first person the floor.",
       model: { et: "Tere hommikust kõigile! Alustame. Esimene teema on uus versioon. Kadri, kas sa alustad?", en: "Good morning, everybody! Let's start. The first topic is the new version. Kadri, will you start?" },
       seconds: SECONDS,
+      checks: [
+        { en: "Good morning to everybody, with {kõigile}.", any: ["kõigile"] },
+        { en: "The first topic, {Esimene teema on}.", any: ["esimene teema"] },
+        { en: "Give somebody the floor ({kas sa alustad?} here).", any: ["kas sa alustad", "alustame"] },
+      ],
     },
   },
   {
@@ -299,6 +304,10 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
       cue: "Say how sure you are, with {tõenäoliselt} or {pigem}, and why.",
       model: { et: "Ma pole kindel. Pigem jah, aga mul on veel palju teha. Tõenäoliselt saab see reedeks valmis, kindlasti järgmisel nädalal.", en: "I'm not sure. Probably yes, but I've still got a lot to do. It'll probably be done by Friday, definitely next week." },
       seconds: SECONDS,
+      checks: [
+        { en: "How sure you are, with {tõenäoliselt}, {pigem} or {ilmselt}.", any: ["tõenäoliselt", "pigem", "ilmselt", "vaevalt", "kindlasti"] },
+        { en: "Why, with {aga}.", any: ["aga"] },
+      ],
     },
   },
   {
@@ -440,6 +449,10 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
       cue: "Give your colleague feedback: one thing that went well, and one thing for next time, as a suggestion.",
       model: { et: "Sa rääkisid selgelt ja lõpetasid õigel ajal. Väga hea. Üks asi: järgmine kord võiksid julgemalt delegeerida.", en: "You spoke clearly and finished on time. Very good. One thing: next time you could delegate more boldly." },
       seconds: SECONDS,
+      checks: [
+        { en: "What went well, first ({Väga hea} here).", any: ["väga hea", "hea"] },
+        { en: "A suggestion, with {võiksid} ({järgmine kord võiksid} here).", any: ["võiksid"] },
+      ],
     },
   },
   {
@@ -495,7 +508,7 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
       { kind: "word", et: "majandusolukord", en: "the economic situation" },
     ],
     how: {
-      point: "Say what you're responsible for with {vastutama} and {eest}: the thing comes first, in the [omastav] (2nd form), {Ma vastutan rakenduse eest}.",
+      point: "Say what you're responsible for with {vastutama} and {eest}: the noun ({rakenduse} here) comes first, in the [omastav] (2nd form), {Ma vastutan rakenduse eest}.",
       table: {
         head: ["Estonian", "In English"],
         rows: [
@@ -512,7 +525,7 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
         "{Kuidas kellelgi} is a short answer people use all the time: it depends who you ask.",
         "The words of a job ad: {ametikoht}, a post; {kandidaat}, a candidate; {värbamine}, hiring; {edutamine}, a promotion; and {juhend}, the instructions a newcomer is given.",
       ],
-      watchOut: "{Eest} comes after the thing, never before it: {rakenduse eest}, not {eest rakenduse}.",
+      watchOut: "{Eest} comes after the noun, never before it: {rakenduse eest}, not {eest rakenduse}.",
       examples: [3, 5, 8, 11],
     },
     listenFor: [
@@ -605,6 +618,11 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
       cue: "Say what your company does, what you're responsible for, and how your week goes.",
       model: { et: "Meie ettevõte teeb rakendusi. Ma vastutan rakenduse selle osa eest, mida klient näeb. Esmaspäeval on meil koosolek ja reedeti töötan tihti kodus.", en: "Our company makes apps. I'm responsible for the part of the app the client sees. On Mondays we've got a meeting, and on Fridays I often work from home." },
       seconds: SECONDS,
+      checks: [
+        { en: "What you're responsible for, with {vastutan}.", any: ["vastutan"] },
+        { en: "And {eest} after it ({vastutan rakenduse eest} here).", any: ["eest"] },
+        { en: "What the company does, with {ettevõte}.", any: ["ettevõte"] },
+      ],
     },
   },
   {
@@ -794,6 +812,10 @@ export const B2_TOO_LESSONS: readonly LessonSpec[] = [
       cue: "Say how your company or your work is doing: one good thing and one worry, with {tõenäoliselt} or {pigem}.",
       model: { et: "Meie ettevõttel läheb pigem hästi. Kliendid kulutavad vähem, aga nõudlus on olemas. Järgmine aasta on tõenäoliselt raske.", en: "Our company's doing quite well. Clients are spending less, but the demand is there. Next year will probably be hard." },
       seconds: SECONDS,
+      checks: [
+        { en: "How it's doing, hedged, with {pigem} or {tõenäoliselt}.", any: ["pigem", "tõenäoliselt"] },
+        { en: "A good thing and a worry, with {aga}.", any: ["aga"] },
+      ],
     },
   },
   {

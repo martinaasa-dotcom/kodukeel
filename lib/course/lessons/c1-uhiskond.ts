@@ -233,6 +233,11 @@ export const C1_UHISKOND_LESSONS: readonly LessonSpec[] = [
       model: { et: "Linn tahab meie tänava ümber ehitada. Autodele jääb üks sõidurada, juurde tulevad rattatee, laiem kõnnitee ja puud, aga parkimiskohti jääb neljakümne võrra vähem. Iseenesest on see hea plaan. Tänaval on kool ja autod sõidavad seal praegu liiga kiiresti. Teisalt sõidavad paljud inimesed autoga tööle ja neil on vaja kohta, kuhu auto panna. Õigupoolest sõidab enamik meie majast tööle bussiga. Kokkuvõttes on plaanil nii eeliseid kui ka puudusi, aga minu meelest on laste ohutus tähtsam kui parkimine.", en: "The city wants to rebuild our street. Cars are left with one lane, and there'll be a bike path, a wider pavement and trees, but forty parking places fewer. In itself it's a good plan. There's a school on the street, and the cars there go far too fast at the moment. On the other hand, many people drive to work and need somewhere to put the car. In fact most of our building goes to work by bus. All in all the plan has both advantages and drawbacks, but in my view the children's safety matters more than parking." },
       seconds: [120],
       prepare: 180,
+      checks: [
+        { en: "Grant a point, with {iseenesest}.", any: ["iseenesest"] },
+        { en: "Turn to the other side, with {teisalt}.", any: ["teisalt"] },
+        { en: "Weigh it all up, with {kokkuvõttes}.", any: ["kokkuvõttes"] },
+      ],
     },
   },
   {
@@ -616,6 +621,11 @@ export const C1_UHISKOND_LESSONS: readonly LessonSpec[] = [
       model: { et: "Ma küsiksin kandidaadilt, kas ta hääletaks peatänava plaani poolt või vastu. See on minu jaoks tähtis, sest ma elan selle tänava ääres. Iseenesest on hea, et linn tahab tänava ohutumaks teha. Teisalt jääb parkimiskohti vähem ja uus parkla valmib aasta hiljem. Seetõttu küsiksin ka, kus inimesed selle aasta jooksul pargivad. Kui kandidaat ei vasta küsimusele otse, ma tema poolt ei hääleta. Kokkuvõttes tahan teada, mida ta lubab ja kas ta oma lubadusi peab.", en: "I'd ask the candidate whether they'd vote for the plan for the main street or against it. It matters to me, because I live on that street. In itself it's good that the city wants to make the street safer. On the other hand there'll be fewer parking places, and the new car park will be ready a year later. So I'd also ask where people are meant to park in that year. If the candidate doesn't answer the question directly, I won't vote for them. All in all, I want to know what they promise and whether they keep their promises." },
       seconds: [120],
       prepare: 180,
+      checks: [
+        { en: "Grant the other side its case, with {iseenesest}.", any: ["iseenesest"] },
+        { en: "Then say why you still disagree, with {teisalt}.", any: ["teisalt"] },
+        { en: "Close, with {kokkuvõttes} or {seetõttu}.", any: ["kokkuvõttes", "seetõttu"] },
+      ],
     },
   },
   {

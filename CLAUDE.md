@@ -3373,6 +3373,16 @@ and a check everybody waives is a check nobody reads. The emoji rule is drawn th
 arrow in "Estonian to English", the return key in a keyboard hint and the tick on the week strip
 are typographic glyphs doing a job, and only the pictographic kind is banned.
 
+**Grammar copy names the part of speech, never "the thing" or "the word".** "After {ei}, the thing is
+always in the osastav" left a reader asking which word the thing was. The operator's rule, site wide:
+a grammar explanation says "the noun" or "the pronoun", and where the line already shows the word, names
+it in braces with the Estonian already in that line, "the noun ({võtit} here)", "the pronoun ({mida}
+here)"; with no example in the line it is "the noun" alone, and in `lib/estonian/grammar.ts`, which holds
+no Estonian, always that. Ordinary English that is not about a word's role ("Say what the thing is or
+does") stays. `scripts/invariants/grammar-says-the-noun.ts` reads every lesson grammar field and
+`grammar.ts`, with a written exemption list checked both ways, and `VOICE_RULES` hands the same rule to
+Anu, the graders and the conversation note.
+
 **One tell is not brochure, and that is the point of it.** `paradigm` is the linguist's word for
 the thing a class calls the forms of a word, the case endings, or just the table. Nobody learning
 Estonian in Tallinn has met it, so a screen that uses it stops the reader while they work out which
@@ -10732,6 +10742,18 @@ own spellings, and the app and the harness both read it (asserted). `lessonScene
 scene keyless as seven kinds of beginner, at its own lesson's level, and fails on any word the other side says that the lesson has
 not taught, which is how the engine's own `või`, `aga` and `selge` were caught. A word a card deals must
 be a dictionary entry, or no answer can meet it.
+
+**A lesson's Words step is one card per word, and Practice has a pass mark (operator's calls,
+2026-11-06, off B1 lesson 2).** Four forms of `võti` were four unrelated rows saying "a form of võti"
+beside "keys, after a no", and nothing showed why. `wordsLayout` in `lib/course/lessons/wordCards.ts`
+groups a lesson's forms by headword: a row per case, singular beside plural read off the dictionary
+(`lessonHeads`, `buildCaseTable`), the case's Estonian name under each form, and one line of the lesson
+using the row with its English, never a grammar-table row, which has none. `components/course/FormGrid.tsx`
+is the one drawing of a word's forms, for every step that shows them. A plural of the three memorized
+forms is "mitmuse nimetav (plural)", never "(1st form, plural)": the ordinals are the singular's
+(`caseNameWithNumber`). And Practice is passed at `PASS_MARK`, 70 percent counted the first time,
+with the questions that slipped coming back until the total reaches it, at every level; the step has
+no Skip until then (`PracticeGate`), which amends "nobody is held in a room" for this one step.
 
 **And every line is what an ordinary Estonian would say, not merely what is correct.** The operator
 read `Kõik? Tubli!` about a book read to the end, where anybody says `Terve raamatu?`, and asked for

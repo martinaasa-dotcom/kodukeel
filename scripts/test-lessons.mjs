@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { passPractice } from "./lib/practiceGate.mjs";
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -46,7 +47,7 @@ const { check, absent, done } = suite("The lessons, walked", {
     Then, since every level is lessons, the workbook page on each finish (seven),
     the three unit pages landing on the lessons, and the end of the course (nine).
   */
-  floor: 214,
+  floor: 216,
 });
 // `--only=<role>` walks one lesson (or `spoken`, the race out loud, or `end`, the unit redirects and the end of the course) for working on it; it reports under the floor by design.
 
@@ -140,6 +141,16 @@ async function tasksShown() {
 const footer = () => page.getByRole("button", { name: /^(Continue|Skip this step|Finish the lesson|Finish without it)/ }).last();
 
 /** Answers one practice or review round to its end, whatever it asks. Returns how many questions it took. */
+/*
+  WHAT THE SCREEN SAID THE RIGHT ANSWER WAS, per question. Practice has a pass
+  mark (`lib/course/lessons/gate.ts`) and this driver answers wrong on purpose,
+  so the questions that slipped come back; the second time round it answers
+  with what the screen showed, the way a learner who read the correction does.
+*/
+const learned = new Map();
+const questionKey = async (quiz) => (await quiz.locator("h2, h3").first().innerText({ timeout: 300 }).catch(() => "")) + "|" +
+  (await quiz.innerText({ timeout: 300 }).catch(() => "")).replace(/\s+/g, " ").replace(/\d+ of \d+|\d+ in a row/g, "").slice(0, 160);
+
 async function quizThrough(where, reworks = []) {
   let asked = 0;
   // One rework a round is answered right, off the line the lesson says it should become, so a right verdict is seen too.
@@ -153,7 +164,20 @@ async function quizThrough(where, reworks = []) {
     if (!(await quiz.count())) return asked;
     const kind = await quiz.getAttribute("data-quiz-kind");
     asked += 1;
-    if (kind === "match") {
+    const key = await questionKey(quiz);
+    const known = learned.get(key);
+    if (known !== undefined && kind !== "match") {
+      const box = quiz.locator("input[lang=et]");
+      if (await box.count()) {
+        await box.fill(known);
+        await quiz.getByRole("button", { name: /^Check/ }).click();
+      } else {
+        const radios = quiz.locator('[role="radio"]:not([disabled])');
+        const texts = (await radios.allInnerTexts()).map((t) => t.replace(/^\d+\s*/, "").trim());
+        const exact = texts.indexOf(known);
+        await radios.nth(exact >= 0 ? exact : Math.max(0, texts.findIndex((t) => t.startsWith(known)))).click();
+      }
+    } else if (kind === "match") {
       const left = quiz.locator('ul[aria-label="Estonian"] button');
       for (let i = 0; i < (await left.count()); i++) {
         if (await left.nth(i).isDisabled()) continue;
@@ -196,6 +220,12 @@ async function quizThrough(where, reworks = []) {
     const next = quiz.getByRole("button", { name: /^(Next|Done)/ });
     await next.waitFor({ timeout: 4000 }).catch(() => {});
     if (!(await next.count())) return asked;
+    // Remember what the screen marked right, for the go over the ones that slipped.
+    if (kind !== "match" && !learned.has(key)) {
+      const option = await quiz.locator('[role="radio"].option-right').first().innerText({ timeout: 300 }).catch(() => null);
+      const line = option ?? await quiz.locator(".verdict-panel [lang=et]").first().innerText({ timeout: 300 }).catch(() => null);
+      if (line) learned.set(key, line.replace(/^\d+\s*/, "").trim());
+    }
     const other = quiz.locator("button:not([disabled])").filter({ hasNotText: /^(Next|Done)/ });
     if (!keyed && (await other.count())) {
       keyed = true;
@@ -278,15 +308,23 @@ async function sayThrough(lesson, mode) {
     if (await say.locator("[data-faster-go]").count() || await say.locator("[data-faster-goes]").count()) {
       faster = true;
       let handed = 0;
+      let patterned = 0;
       for (let go = 0; go < 3; go++) {
         await say.getByRole("button", { name: /^Start, and type/ }).click();
         await say.getByLabel("Your answer, in Estonian").fill(lesson.faster);
         await say.getByRole("button", { name: /^Done$/ }).click();
-        // The go whose Done was pressed is gone; the caret is on the next go's Start, or on Next after the last.
-        const want = go < 2 ? /^Start, and type/ : /^Next/;
-        if (await eventually(() => page.evaluate((w) => new RegExp(w).test(document.activeElement?.textContent?.trim() ?? ""), want.source), { timeoutMs: 3000 }).catch(() => false)) handed += 1;
+        // The go whose Done was pressed is gone; the caret is on what was heard, so it is read before the next go, or on Next after the last.
+        const landed = go < 2
+          ? await eventually(() => page.evaluate(() => Boolean(document.activeElement?.closest("[data-faster-heard]"))), { timeoutMs: 3000 }).catch(() => false)
+          : await eventually(() => page.evaluate(() => /^Next/.test(document.activeElement?.textContent?.trim() ?? "")), { timeoutMs: 3000 }).catch(() => false);
+        if (landed) handed += 1;
+        // The model answer typed in meets every check of today's pattern, read off what was typed.
+        const marks = await say.locator("[data-faster-heard] [data-faster-checks] li").evaluateAll((lis) => lis.map((li) => li.getAttribute("data-met")));
+        if (marks.length >= 2 && marks.length <= 3 && marks.every((m) => m === "true")) patterned += 1;
       }
-      check(`${where}: after each go the caret is on the way on`, handed === 3, `${handed} of 3`);
+      check(`${where}: after each go the caret is on what was heard, then on the way on`, handed === 3, `${handed} of 3`);
+      check(`${where}: after each go today's pattern is checked, and the model answer meets it`, patterned === 3, `${patterned} of 3`);
+      check(`${where}: what was typed is printed back under what we heard`, (await say.locator("[data-faster-said]").count()) === 1);
       const goes = await say.locator("[data-faster-goes] li").count();
       if (SHOTS) await shoot(`${where} faster`);
       check(`${where}: three goes at the answer are drawn side by side`, goes === 3, `${goes}`);
@@ -447,7 +485,13 @@ async function walk(lesson, { mode = "type" } = {}) {
     }
     await axeHere(`${where} ${heading.replace(/^Step \d+ of \d+: /, "")} ${on}`);
     if (/Practice/.test(heading)) {
-      const asked = await quizThrough(`${where} practice`, lesson.reworks ?? []);
+      let asked = await quizThrough(`${where} practice`, lesson.reworks ?? []);
+      // Under the pass mark the step offers the ones that slipped and nothing else; go over them until it is passed.
+      for (let go = 0; go < 6 && (await page.locator('[data-practice-gate="again"]:visible').count()); go++) {
+        check(`${where}: under the pass mark Practice offers no way past it`, (await page.getByRole("button", { name: /^Skip this step/ }).count()) === 0);
+        await page.getByRole("button", { name: /^Go over the \d+ that slipped/ }).click();
+        asked += await quizThrough(`${where} practice again`, lesson.reworks ?? []);
+      }
       check(`${where}: practice runs to its end`, (await page.locator('[data-lesson-quiz="done"]:visible').count()) === 1, `${asked} asked`);
     } else if (/Write/.test(heading) && lesson.write) {
       await writeThrough(lesson);
@@ -595,7 +639,8 @@ async function spokenRace(lesson) {
     await hydrated(p);
     await p.getByRole("button", { name: /^Show the words now/ }).click();
     for (let n = 0; n < 30 && !/Say it/.test(await p.locator("#lesson-step").innerText()); n++) {
-      await p.getByRole("button", { name: /^(Skip this step|Continue)/ }).last().click();
+      if (/Practice/.test(await p.locator("#lesson-step").innerText())) await passPractice(p);
+      await p.getByRole("button", { name: /^(Skip this step|Continue)/ }).last().click({ timeout: 5000 });
       await p.waitForTimeout(300);
     }
     await p.getByRole("button", { name: /^Say it$/ }).last().click();

@@ -19,6 +19,8 @@ import { multiplierFor, roundPaceFrom } from "@/lib/ux/roundClock";
 import type { LessonWorksheet } from "@/lib/course/lessonWorksheet";
 import { lessonDayFor } from "@/lib/course";
 import { verbExamples, type VerbExample } from "@/lib/progress/verbExamples";
+import { lessonHeads, lessonStars } from "@/lib/progress/wordCards";
+import { wordsLayout, type WordsLayout } from "@/lib/course/lessons/wordCards";
 
 /**
  * How far back a lesson looks for the learner's own mix-ups: the newest
@@ -75,6 +77,10 @@ export interface LessonView {
    * worked out by the screen; empty on every other lesson.
    */
   forms: readonly VerbExample[];
+  /** The Words step as cards, which case and number each taught spelling is read off the dictionary (`wordsLayout`). */
+  words: WordsLayout;
+  /** Each taught spelling's dictionary entry and whether the learner starred it, for the star on a Practice question. */
+  stars: Readonly<Record<string, { readonly id: string; readonly starred: boolean }>>;
 }
 
 /**
@@ -136,7 +142,7 @@ export async function lessonView(
   const lesson = lessonById(lessonId) ?? (allowPreview ? PREVIEW_LESSONS.find((l) => l.id === lessonId) ?? null : null);
   if (!lesson) return null;
   // Every read at once: none of them needs another's answer, and each is a round trip.
-  const [mixups, nameSetting, pace, queue, passed, states, read, notes, forms] = await Promise.all([
+  const [mixups, nameSetting, pace, queue, passed, states, read, notes, forms, heads, stars] = await Promise.all([
     lesson.fixes?.length
       ? prisma.review.findMany({
         where: { ownerId, reachedSlot: { not: null } },
@@ -154,6 +160,8 @@ export async function lessonView(
     readTokens(lesson),
     notesTokens(lesson),
     formsTable(ownerId, lesson),
+    lessonHeads(lesson),
+    lessonStars(ownerId, lesson),
   ]);
   const { closes, after, ...built } = lessonPlan(lesson, confusions(mixups).map((c) => c.pair));
   /*
@@ -215,5 +223,7 @@ export async function lessonView(
     read,
     notes,
     forms,
+    words: wordsLayout(lesson, heads),
+    stars,
   };
 }

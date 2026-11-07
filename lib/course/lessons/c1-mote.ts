@@ -430,6 +430,11 @@ export const C1_MOTE_LESSONS: readonly LessonSpec[] = [
       model: { et: "Jah, ma ütleksin, aga mitte kõike korraga. Kõigepealt räägiksin sellest, mis oli hea. Valetada ma ei tahaks, sest siis saadab ta käsikirja kirjastusele ja saab sealt kirja, et see neile ei sobi. Anna ütles küll, et see on tema unistus. Aga just sellepärast peaks ta teadma, mida parandada.", en: "Yes, I would, but not everything at once. First I'd talk about what was good. I wouldn't want to lie, because then they'd send the manuscript to a publisher and get a letter saying it's not for them. Anna said, granted, that it's their dream. But that's exactly why they should know what to fix." },
       seconds: [120],
       prepare: 60,
+      checks: [
+        { en: "What you'd do, in the would form ({ma ütleksin} here).", any: ["*ksin"] },
+        { en: "Grant the other side a point, with {küll} ({Anna ütles küll} here).", any: ["küll"] },
+        { en: "What you still keep, with {aga}.", any: ["aga", "siiski"] },
+      ],
     },
   },
   {
@@ -884,6 +889,11 @@ export const C1_MOTE_LESSONS: readonly LessonSpec[] = [
       model: { et: "Viimati lugesin romaani „Viimane buss“. Peategelane on vana naine, kes peab otsustama, kas ta jääb koju või sõidab poja juurde. Rohkem ma ei reeda. Autor kirjutab lühidalt ja rahulikult. Alguses ei toimu peaaegu midagi, aga minu meelest on see raamatu tugev külg, sest vaikus on seal sama tähtis kui sõnad. Nõrk külg on see, et vahel kordab autor ennast liiga palju. Soovitan seda kõigile, kes ei karda vaikust.", en: "The last thing I read was the novel 'The Last Bus'. The main character is an old woman who has to decide whether to stay at home or go to her son's. I won't give away any more. The author writes briefly and calmly. At the beginning almost nothing happens, but to my mind that's the book's strong side, because silence matters as much as words in it. The weak side is that sometimes the author repeats himself too much. I recommend it to anybody who isn't afraid of silence." },
       seconds: [120],
       prepare: 60,
+      checks: [
+        { en: "How it's written, with {kirjutab} ({autor kirjutab} here).", any: ["kirjutab"] },
+        { en: "A reason for each opinion, with {sest} or {kuna}.", any: ["sest", "kuna"] },
+        { en: "Who it's for, with {soovitan} ({soovitan seda} here).", any: ["soovitan"] },
+      ],
     },
   },
   {
@@ -1364,6 +1374,11 @@ export const C1_MOTE_LESSONS: readonly LessonSpec[] = [
       model: { et: "Ma räägin sellest, kas raamatut on tänapäeval veel vaja. Minu meelest on küll ja mul on selleks kaks põhjust. Esiteks loeb inimene paberil paremini kui ekraanilt. Kui ma loen telefonist uudiseid, loen ma tihti ainult esimese lause, aga raamatu loen ma lõpuni. Teiseks paneb hea raamat mõtlema. Meie klubis lugesime hiljuti romaani, mille lõpp jäi lahtiseks, ja vaidlesime selle üle terve õhtu. Telefonist lugedes ma nii kaua ei mõtle, sest seal tuleb kohe midagi uut. Muidugi on ekraanil ka oma hea külg: see on kerge ja alati käepärast. Aga kokkuvõttes arvan ma, et raamat ei kao veel niipea kuhugi.", en: "I'm going to talk about whether we still need books today. To my mind we do, and I have two reasons for it. First, people read better on paper than off a screen. When I read the news on my phone I often read only the first sentence, but a book I read to the end. Second, a good book makes you think. At our club we recently read a novel whose ending was left open, and we argued about it all evening. When I read on my phone I don't think that long, because something new comes along straight away. Of course a screen has its good side too: it's light and always to hand. But all in all I think books won't disappear any time soon." },
 seconds: [120],
       prepare: 180,
+      checks: [
+        { en: "Your topic, with {sellest} ({Ma räägin sellest} here).", any: ["sellest"] },
+        { en: "Two points, {Esiteks} and {Teiseks}.", any: ["esiteks", "teiseks"], atLeast: 2 },
+        { en: "The other side and a close, {muidugi} and {kokkuvõttes}.", any: ["muidugi", "kokkuvõttes"], atLeast: 2 },
+      ],
     },
   },
   {

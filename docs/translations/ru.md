@@ -6059,10 +6059,10 @@ _lib/copy/i18n/areas/reference.ts_
   → Единственное число
 - [ ] **2996.** Plural  
   → Множественное число
-- [ ] **2997.** Most plural forms are built on the mitmuse omastav (2nd form, plural), and we don't have it for this word. So we've left a gap rather than guess one.  
-  → Большинство форм множественного числа строятся на mitmuse omastav (2-я форма, мн. ч.), а её для этого слова у нас нет. Поэтому мы оставили пропуск, а не стали гадать.
-- [ ] **2998.** We don't have the mitmuse nimetav (1st form, plural) for this word, and it isn't an ending we can work out. So we've left a gap rather than guess one.  
-  → У нас нет mitmuse nimetav (1-я форма, мн. ч.) для этого слова, а вывести её по окончанию нельзя. Поэтому мы оставили пропуск, а не стали гадать.
+- [ ] **2997.** Most plural forms are built on the mitmuse omastav (plural), and we don't have it for this word. So we've left a gap rather than guess one.  
+  → Большинство форм множественного числа строятся на mitmuse omastav (мн. ч.), а её для этого слова у нас нет. Поэтому мы оставили пропуск, а не стали гадать.
+- [ ] **2998.** We don't have the mitmuse nimetav (plural) for this word, and it isn't an ending we can work out. So we've left a gap rather than guess one.  
+  → У нас нет mitmuse nimetav (мн. ч.) для этого слова, а вывести её по окончанию нельзя. Поэтому мы оставили пропуск, а не стали гадать.
 - [ ] **2999.** Why these are the long forms  
   → Почему здесь длинные формы
 - [ ] **3000.** Pronouns have short forms too, and those are the ones you'll hear most. A dictionary lists the long ones first, so that's what you see here. Both are right.  
@@ -6389,8 +6389,8 @@ _lib/copy/i18n/areas/reference.ts_
   → Не только окончания
 - [ ] **3161.** Grouped by the kind of word they're about, in the order a course would teach them.  
   → Сгруппировано по типу слов, в том порядке, в каком их проходят на курсе.
-- [ ] **3162.** The singular endings go on the omastav (2nd form), and the plural ones on the mitmuse omastav (2nd form, plural). If the dictionary has no mitmuse omastav for a word, its table shows a gap rather than a guess.  
-  → Окончания единственного числа добавляются к omastav (2-я форма), а окончания множественного к mitmuse omastav (2-я форма, мн. ч.). Если в словаре нет mitmuse omastav для слова, в его таблице будет пропуск, а не догадка.
+- [ ] **3162.** The singular endings go on the omastav (2nd form), and the plural ones on the mitmuse omastav (plural). If the dictionary has no mitmuse omastav for a word, its table shows a gap rather than a guess.  
+  → Окончания единственного числа добавляются к omastav (2-я форма), а окончания множественного к mitmuse omastav (мн. ч.). Если в словаре нет mitmuse omastav для слова, в его таблице будет пропуск, а не догадка.
 - [ ] **3163.** Still stuck on one? {ask} and she'll explain the rule behind a sentence you wrote.  
   → Всё ещё не получается? {ask}: она объяснит правило на примере твоего предложения.
 - [ ] **3164.** All endings  
@@ -11557,8 +11557,8 @@ _lib/copy/i18n/areas/progress.ts_
   → Ты правильно ставишь {case} ({asks}) в {weak}% случаев, а остальные падежи в {overall}%. Больше всего поможет короткий раунд только на этот падеж.
 - [ ] **5733.** You get these right, just slowly  
   → Ты отвечаешь на них верно, просто медленно
-- [ ] **5734.** You get {strong}% right on words whose plural follows the pattern, but {weak}% on words with a mitmuse omastav (2nd form, plural) of their own. Those have to be learned by heart.  
-  → Ты верно отвечаешь в {strong}% случаев на слова, у которых множественное число по правилу, но только в {weak}% на слова со своей собственной mitmuse omastav (2-я форма, мн. ч.). Их приходится учить наизусть.
+- [ ] **5734.** You get {strong}% right on words whose plural follows the pattern, but {weak}% on words with a mitmuse omastav (plural) of their own. Those have to be learned by heart.  
+  → Ты верно отвечаешь в {strong}% случаев на слова, у которых множественное число по правилу, но только в {weak}% на слова со своей собственной mitmuse omastav (мн. ч.). Их приходится учить наизусть.
 - [ ] **5735.** You haven't answered any case cards yet. They come with the units that put endings on nouns, in  
   → Ответов на падежные карточки у тебя пока нет. Они появляются с разделами, где существительные получают окончания, в
 - [ ] **5736.** You haven't practiced any of these {total} words yet. Start with the unit they come from.  
@@ -46033,8 +46033,8 @@ _lib/copy/i18n/areas/lessonTextB2Arutelu.ts_
   → велосипед, колесо
 - [ ] **22862.** a bike's: the \[omastav\] (2nd form); {rattaga}, by bike  
   → велосипеда: \[omastav\] (2-я форма); {rattaga}, на велосипеде
-- [ ] **22863.** cars, some of them: the \[mitmuse osastav\] (3rd form, plural)  
-  → машин, сколько-то: \[mitmuse osastav\] (3-я форма, множественное)
+- [ ] **22863.** cars, some of them: the \[mitmuse osastav\] (plural)  
+  → машин, сколько-то: \[mitmuse osastav\] (множественное)
 - [ ] **22864.** according to the figures, the data: {linna andmetel}  
   → по данным: {linna andmetel}, по данным города
 - [ ] **22865.** a percent  
@@ -46051,8 +46051,8 @@ _lib/copy/i18n/areas/lessonTextB2Arutelu.ts_
   → уменьшается, снижается: цифра – это «она»
 - [ ] **22871.** it gets bigger, it goes up  
   → увеличивается, растёт
-- [ ] **22872.** of the cars: the \[mitmuse omastav\] (2nd form, plural)  
-  → машин: \[mitmuse omastav\] (2-я форма, множественное)
+- [ ] **22872.** of the cars: the \[mitmuse omastav\] (plural)  
+  → машин: \[mitmuse omastav\] (множественное)
 - [ ] **22873.** people riding, travelers, some of them  
   → тех, кто едет, пассажиров, сколько-то
 - [ ] **22874.** by, by how much: {kahe protsendi võrra}, by two percent  
@@ -46611,8 +46611,8 @@ _lib/copy/i18n/areas/lessonTextB2Arutelu.ts_
   → во-первых
 - [ ] **23151.** second, secondly  
   → во-вторых
-- [ ] **23152.** shops: the \[mitmuse nimetav\] (1st form, plural)  
-  → магазины: \[mitmuse nimetav\] (1-я форма, множественное)
+- [ ] **23152.** shops: the \[mitmuse nimetav\] (plural)  
+  → магазины: \[mitmuse nimetav\] (множественное)
 - [ ] **23153.** so, for that reason: the written {sellepärast}  
   → поэтому, по этой причине: письменное {sellepärast}
 - [ ] **23154.** a conclusion  

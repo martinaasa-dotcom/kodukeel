@@ -45,13 +45,25 @@ describe("a Say it card starts from what it had kept", () => {
 
   it("brings back the goes already taken of Again, faster", () => {
     const back = html(createElement(AgainFaster, {
-      faster: withFaster.faster!, voice: undefined, typed: true, multiplier: 1, onDone: noop,
-      kept: { goes: [{ window: 90, words: 14, perMinute: 31 }, { window: 60, words: 15, perMinute: 47 }], helped: false },
+      lessonId: withFaster.id, faster: withFaster.faster!, voice: undefined, typed: true, multiplier: 1, onDone: noop,
+      kept: {
+        goes: [
+          { window: 90, words: 14, perMinute: 31, said: withFaster.faster!.model.et, spoken: false },
+          { window: 60, words: 15, perMinute: 47, said: withFaster.faster!.model.et, spoken: false },
+        ],
+        helped: false,
+        note: null,
+      },
     }));
     expect(back).toContain("data-faster-goes");
     expect(back).toContain("Go 3 of 3");
     expect(back).toContain("From 31 to 47 words a minute in one lesson.");
-    const fresh = html(createElement(AgainFaster, { faster: withFaster.faster!, voice: undefined, typed: true, multiplier: 1, onDone: noop }));
+    // What the last go said comes back with it, and today's pattern under it, all met by the model answer.
+    expect(back).toContain("data-faster-heard=\"2\"");
+    expect(back).toContain(escape(withFaster.faster!.model.et));
+    expect(back).not.toContain("data-met=\"false\"");
+    expect(back.match(/data-met="true"/g)?.length).toBe(withFaster.faster!.checks.length);
+    const fresh = html(createElement(AgainFaster, { lessonId: withFaster.id, faster: withFaster.faster!, voice: undefined, typed: true, multiplier: 1, onDone: noop }));
     expect(fresh).toContain("Go 1 of 3");
   });
 

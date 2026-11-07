@@ -14,6 +14,16 @@ import type { Area } from "../area";
  */
 export const LESSONS_AREA: Area = {
   ru: {
+    "Goes into your deck when you finish this lesson.": "Попадёт в твою колоду, когда закончишь урок.",
+    "These {n} new words go into your deck when you finish the lesson.": "Эти новые слова ({n}) попадут в твою колоду, когда закончишь урок.",
+    "{n} of {total} now. You've got it.": "Теперь {n} из {total}. Получилось.",
+    "{first} the first time, {fixed} on a later go.": "{first} с первого раза, {fixed} со следующей попытки.",
+    "{n} of {total} now.": "Теперь {n} из {total}.",
+    "Today's pattern needs {need} of {total} before you move on. Let's go over the {m} that slipped. Each one you get right now counts.": "Чтобы идти дальше, нужно {need} из {total}. Давай пройдём ещё раз то, что не получилось ({m}). Каждый верный ответ сейчас засчитывается.",
+    "Go over the {m} that slipped": "Пройти ещё раз ({m})",
+    "New today. Press any form to hear it.": "Новое сегодня. Нажми на любую форму, чтобы её услышать.",
+    "the endings go on it": "к ней добавляются окончания",
+    "More new words": "Ещё новые слова",
     /* The A1 lessons' own titles and goals, and their parts' lines, now that they are the course. */
     "First words": "Первые слова",
     "Where you live": "Где ты живёшь",
@@ -272,7 +282,6 @@ export const LESSONS_AREA: Area = {
     "Show one way to say it": "Показать, как можно сказать",
     "You say": "Ты говоришь",
     "That's what they said to you. Your line answers it.": "Это сказали тебе. Твоя реплика должна на это ответить.",
-    "You said today's Estonian out loud.": "Ты сказал (сказала) сегодняшние эстонские фразы вслух.",
     "Done. Tomorrow, try it out loud if you're somewhere you can.": "Готово. Завтра попробуй вслух, если будешь там, где это удобно.",
     "In the role-play they answer whatever you say, in words you've been taught.": "В ролевой игре тебе отвечают на всё, что ты скажешь, словами из пройденных уроков.",
     "Conversation": "Разговор",
@@ -335,6 +344,16 @@ export const LESSONS_AREA: Area = {
     "Say the conversation along with the screen, then answer a few questions about yourself out loud. A word lights up when it's understood, even said with an accent, so play yourself back beside the recording to hear how it sounded.": "Проговори разговор вместе с экраном, а потом ответь вслух на несколько вопросов о себе. Слово подсвечивается, когда его поняли, даже с акцентом, поэтому сравни свою запись с оригиналом, чтобы услышать, как это прозвучало.",
   },
   uk: {
+    "Goes into your deck when you finish this lesson.": "Потрапить у твою колоду, коли закінчиш урок.",
+    "These {n} new words go into your deck when you finish the lesson.": "Ці нові слова ({n}) потраплять у твою колоду, коли закінчиш урок.",
+    "{n} of {total} now. You've got it.": "Тепер {n} з {total}. Вийшло.",
+    "{first} the first time, {fixed} on a later go.": "{first} з першого разу, {fixed} з наступної спроби.",
+    "{n} of {total} now.": "Тепер {n} з {total}.",
+    "Today's pattern needs {need} of {total} before you move on. Let's go over the {m} that slipped. Each one you get right now counts.": "Щоб іти далі, потрібно {need} з {total}. Пройдімо ще раз те, що не вийшло ({m}). Кожна правильна відповідь зараз зараховується.",
+    "Go over the {m} that slipped": "Пройти ще раз ({m})",
+    "New today. Press any form to hear it.": "Нове сьогодні. Натисни будь-яку форму, щоб її почути.",
+    "the endings go on it": "до неї додаються закінчення",
+    "More new words": "Ще нові слова",
     /* The A1 lessons' own titles and goals, and their parts' lines, now that they are the course. */
     "First words": "Перші слова",
     "Where you live": "Де ти живеш",
@@ -593,7 +612,6 @@ export const LESSONS_AREA: Area = {
     "Show one way to say it": "Показати, як можна сказати",
     "You say": "Ти кажеш",
     "That's what they said to you. Your line answers it.": "Це сказали тобі. Твоя репліка має на це відповісти.",
-    "You said today's Estonian out loud.": "Ти вимовив (вимовила) сьогоднішні естонські фрази вголос.",
     "Done. Tomorrow, try it out loud if you're somewhere you can.": "Готово. Завтра спробуй вголос, якщо будеш там, де це зручно.",
     "In the role-play they answer whatever you say, in words you've been taught.": "У рольовій грі тобі відповідають на все, що ти скажеш, словами з пройдених уроків.",
     "Conversation": "Розмова",

@@ -37,6 +37,7 @@ import { ROOMS, type Fix, type LessonSpec, type PatternId, type Taught } from ".
 import { PARALLEL_FORMS } from "./parallelForms";
 import { workOutProblems } from "./workOut";
 import { fasterWindows } from "./faster";
+import { fasterCheckProblems, wholeWordsOf } from "./fasterChecks";
 import { DIALECT_WORDS, standardOf } from "./dialect";
 
 /** A taught item as a learner is asked about it: a verb counts as its two spellings. */
@@ -458,6 +459,14 @@ export function estonianOf(lesson: LessonSpec): ShownEstonian[] {
     out.push({ where: "again-faster, asked", et: lesson.faster.ask.et });
     english("again-faster, cue", lesson.faster.cue);
     out.push({ where: "again-faster, model", et: lesson.faster.model.et });
+    // Today's pattern: each check's English, and every whole spelling it lights or names a miss on.
+    lesson.faster.checks.forEach((check, i) => {
+      english(`again-faster, check ${i + 1}`, check.en);
+      [...check.any, ...(check.near ?? [])].forEach((spelling) => {
+        const et = wholeWordsOf(spelling);
+        if (et) out.push({ where: `again-faster, check ${i + 1}, heard as`, et });
+      });
+    });
   }
   if (lesson.write) {
     english("the writing's genre", lesson.write.genre);
@@ -587,13 +596,70 @@ function answerOffText(answer: string, text: string, ledger: Ledger, names: Read
  * the model as it stands.
  */
 export function standsIn(text: string, phrase: string): boolean {
-  const words = wordsOf(text).map((w) => w.low);
-  const want = wordsOf(phrase).map((w) => w.low);
-  if (want.length === 0) return false;
-  for (let i = 0; i + want.length <= words.length; i++) {
-    if (want.every((w, j) => words[i + j] === w)) return true;
+  return spansOfWords(wordsOf(text), wordsOf(phrase).map((w) => w.low)).length > 0;
+}
+
+/**
+ * Every place in `words` a spelling stands, as the first word and one past the
+ * last: the one comparison `standsIn`, a retell point and a check of
+ * again-faster (`fasterChecks.ts`) all make. A word of the spelling may carry
+ * a star at one end for a longer word with that ending or beginning (`*nud`),
+ * and `...` stands for up to four words between two parts (`oli ... *nud`);
+ * only an again-faster check writes either, and every other spelling is plain
+ * words, compared whole and case aside.
+ */
+export function spansOf(words: readonly Token[], spelling: string): (readonly [number, number])[] {
+  return spansOfWords(words, spellingWords(spelling));
+}
+
+function spansOfWords(words: readonly Token[], want: readonly string[]): (readonly [number, number])[] {
+  if (want.length === 0 || want[0] === GAP) return [];
+  const out: (readonly [number, number])[] = [];
+  for (let i = 0; i < words.length; i++) {
+    const end = matchesFrom(want, 0, words, i);
+    if (end >= 0) out.push([i, end]);
   }
-  return false;
+  return out;
+}
+
+/** A gap in a spelling, written `...`: up to `GAP_MOST` words between two parts (`oli ... *nud`). */
+const GAP = "...";
+const GAP_MOST = 4;
+
+/** Where a spelling from its `w`th word, laid at word `i`, ends, or -1. */
+function matchesFrom(want: readonly string[], w: number, words: readonly Token[], i: number): number {
+  if (w === want.length) return i;
+  if (want[w] === GAP) {
+    for (let skip = 0; skip <= GAP_MOST && i + skip <= words.length; skip++) {
+      const end = matchesFrom(want, w + 1, words, i + skip);
+      if (end >= 0) return end;
+    }
+    return -1;
+  }
+  return i < words.length && wordMatches(want[w]!, words[i]!.low) ? matchesFrom(want, w + 1, words, i + 1) : -1;
+}
+
+/** The words of a spelling, lower-cased the Estonian way, keeping a star or a gap where one stands. */
+export function spellingWords(spelling: string): string[] {
+  return [...spelling.matchAll(/\.\.\.|\*?\p{L}+\*?|\*/gu)].map((m) => m[0].toLocaleLowerCase("et"));
+}
+
+/**
+ * A star stands for a longer word: at the front, at least two letters longer
+ * than the ending it keeps, so `*ga` is `naabriga` and never `aga`; at the
+ * end, any word that begins so and goes on, so `aita*` is `aitab`.
+ */
+function wordMatches(want: string, word: string): boolean {
+  if (want === "*") return true;
+  if (want.startsWith("*")) {
+    const end = want.slice(1);
+    return word.length >= end.length + 2 && word.endsWith(end);
+  }
+  if (want.endsWith("*")) {
+    const start = want.slice(0, -1);
+    return word.length > start.length && word.startsWith(start);
+  }
+  return word === want;
 }
 
 /** The ledger as it stands when each lesson starts, by lesson id. */
@@ -792,6 +858,7 @@ export function lessonProblems(lessons: readonly LessonSpec[]): string[] {
       if (windows.length === 0 || windows.length > 3) problems.push(`${at}: again-faster has ${windows.length} goes, where it has one to three`);
       if (windows.some((sec) => !Number.isInteger(sec) || sec < 15 || sec > 180)) problems.push(`${at}: again-faster has a go of ${windows.join(", ")} seconds, outside 15 to 180`);
       if (windows.some((sec, i) => i > 0 && sec >= windows[i - 1]!)) problems.push(`${at}: again-faster's goes of ${windows.join(", ")} seconds are not each shorter than the last`);
+      fasterCheckProblems(lesson).forEach((p) => problems.push(`${at}: ${p}`));
       const prepare = lesson.faster.prepare;
       if (prepare !== undefined && (!Number.isInteger(prepare) || prepare < 10 || prepare > 300)) problems.push(`${at}: again-faster prepares for ${prepare} seconds, outside 10 to 300`);
     }

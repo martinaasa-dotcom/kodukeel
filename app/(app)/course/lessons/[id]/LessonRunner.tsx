@@ -35,11 +35,14 @@ import { WriteStep } from "@/components/course/WriteStep";
 import { levelNewsFor, type LevelNews } from "@/lib/course/lessons/levelNew";
 import { finishScreens, howExamples, screensOf, type FinishScreen, type LessonScreen } from "@/lib/course/lessons/screens";
 import { Quiz } from "./Quiz";
+import { PracticeGate } from "./PracticeGate";
 import { SayIt, type SayPlace } from "./SayIt";
 import { lessonSceneHref, type ConversationReturn } from "@/lib/scenes/lessonReturn";
 import { nameOf } from "@/lib/ux/roundNames";
 import { worksheetLink, type LessonWorksheet } from "@/lib/course/lessonWorksheet";
 import { ReadText } from "@/components/course/ReadText";
+import { WordCards } from "@/components/course/WordCards";
+import type { WordsLayout } from "@/lib/course/lessons/wordCards";
 import { NotesTalk } from "@/components/course/NotesTalk";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import type { VerbExample } from "@/lib/progress/verbExamples";
@@ -114,7 +117,7 @@ const WORKBOOK_NAME = nameOf("/review/workbook") ?? { et: "Töövihik", en: "Wor
 /** Every step not on this list asks nothing, and is finished by being open. */
 const ASKS: ReadonlySet<Step> = new Set(["practise", "write", "say", "review"]);
 
-export function LessonRunner({ lesson, practice, review, next, scene, situation = null, worksheet = null, conversation, place, name, due = 0, check = null, part, timeMultiplier, partAt, read = null, notes = null, forms = [] }: {
+export function LessonRunner({ lesson, practice, review, next, scene, situation = null, worksheet = null, conversation, place, name, due = 0, check = null, part, timeMultiplier, partAt, read = null, notes = null, forms = [], words, stars }: {
   /**
    * The transcript of the lesson's talk taken down as notes (C1), glossed as
    * the text to read is; null where there is none, and then a talk it does
@@ -127,6 +130,10 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
    * empty on every other lesson.
    */
   forms?: readonly VerbExample[];
+  /** The Words step's cards, worked out on the server off the dictionary (`wordsLayout`); null draws the plain table. */
+  words: WordsLayout;
+  /** The taught words' dictionary entries by spelling, for the star on a Practice question (`lessonStars`). */
+  stars: Readonly<Record<string, { readonly id: string; readonly starred: boolean }>>;
   lesson: LessonSpec;
   /**
    * The lesson's text to read (B2 on), a line at a time, with the dictionary
@@ -647,9 +654,9 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
           )}
           <div ref={screenRef} data-lesson-screen={current}>
           {step === "listen" && <Listen lesson={lesson} screen={current} news={news} read={read} notes={notes} onHeard={() => { moved.current = true; setHeard(true); }} />}
-          {step === "words" && <Words lesson={lesson} forms={forms} screen={current} />}
+          {step === "words" && <Words lesson={lesson} forms={forms} words={words} screen={current} />}
           {step === "how" && <How lesson={lesson} screen={current} />}
-          {kept("practise") && <div hidden={step !== "practise"}><Quiz key="practise" level={3} items={practice} onFinished={(result) => { setScore((first) => first ?? result); finish("practise"); }} /></div>}
+          {kept("practise") && <div hidden={step !== "practise"}><PracticeGate key="practise" items={practice} stars={stars} words={lesson.teaches.length} onPassed={(result) => { setScore((first) => first ?? result); finish("practise"); }} /></div>}
           {step === "write" && lesson.write && <WriteStep lesson={lesson} onDone={() => { finish("write"); go(at + 1); }} />}
           {step === "say" && <SayIt lesson={lesson} timeMultiplier={timeMultiplier} partAt={partAt} scene={scene} sceneHref={scene ? lessonSceneHref(scene, focus) : null} capstone={capstone} name={name} onComplete={() => finish("say")} place={sayPlace.current} onPlace={keepSayPlace} />}
           {kept("review") && (review.length > 0
@@ -677,7 +684,8 @@ export function LessonRunner({ lesson, practice, review, next, scene, situation 
             here is the quiet choice and says what it skips: one primary per
             screen, and it is the one the part was building to.
           */}
-          {capstone && scene && step === "say" && done ? (
+          {/* Practice has a pass mark and no way past it until it is reached (`lib/course/lessons/gate.ts`): the gate's own card offers the next go. */}
+          {step === "practise" && !done ? <span /> : capstone && scene && step === "say" && done ? (
             <Button variant="secondary" onClick={forward}>
               {t("Finish without it")} <ArrowRight size={15} aria-hidden />
             </Button>
@@ -838,13 +846,13 @@ function rowsOf(items: readonly Taught[]): Taught[][] {
 }
 
 /** Step 2: everything new today, in one table, with nothing asked; at C1, the forms table on a page of its own after it. */
-function Words({ lesson, forms, screen }: { lesson: LessonSpec; forms: readonly VerbExample[]; screen: LessonScreen }) {
+function Words({ lesson, forms, words, screen }: { lesson: LessonSpec; forms: readonly VerbExample[]; words: WordsLayout; screen: LessonScreen }) {
   const t = useT();
   if (screen === "forms" && forms.length > 0) return <FormsTable forms={forms} />;
   return (
     <div>
       <ScreenTitle hint={lesson.teaches.length > 0 ? t("press one to hear it") : undefined}>{t("The new words")}</ScreenTitle>
-      <NewWords lesson={lesson} />
+      {lesson.teaches.length > 0 ? <WordCards layout={words} /> : <NewWords lesson={lesson} />}
     </div>
   );
 }

@@ -48,7 +48,7 @@ export function lessonEnglish(lesson: LessonSpec): string[] {
     ...(lesson.fixes ?? []).flatMap((f) => [f.line.en, f.why]),
     ...(lesson.listenFor ?? []).flatMap((g) => [g.q, ...g.options]),
     ...(lesson.retell ? [...lesson.retell.story.map((l) => l.en), ...lesson.retell.points.map((p) => p.en)] : []),
-    ...(lesson.faster ? [lesson.faster.ask.en, lesson.faster.cue, lesson.faster.model.en] : []),
+    ...(lesson.faster ? [lesson.faster.ask.en, lesson.faster.cue, lesson.faster.model.en, ...lesson.faster.checks.map((check) => check.en)] : []),
     ...(lesson.write
       ? [lesson.write.genre, lesson.write.purpose, lesson.write.task, ...lesson.write.model.map((l) => l.en), ...lesson.write.uses.map((u) => u.en)]
       : []),

@@ -167,8 +167,21 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier
     shownAt.current = at;
     focusLead();
   }, [at]);
+  /*
+    The end replaces the card whose button was pressed. Where it has something
+    to say the caret goes to it; where it says nothing (a spoken evening with
+    no conversation to offer) the end draws nothing, and the caret goes on to
+    the step's own way forward, the first control after it on the page.
+  */
+  const endRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (over) doneRef.current?.focus();
+    if (!over) return;
+    if (doneRef.current) { doneRef.current.focus(); return; }
+    const end = endRef.current;
+    if (!end) return;
+    const after = [...document.querySelectorAll<HTMLElement>("main button, main a[href]")]
+      .find((el) => !el.hasAttribute("disabled") && Boolean(end.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING));
+    after?.focus();
   }, [over]);
   // Choosing to say or type replaces the two buttons, so the caret goes to the first card rather than the page.
   useEffect(() => {
@@ -250,22 +263,30 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier
   }
 
   if (over) {
+    /*
+      A spoken evening ends on nothing to say about itself: the step's own
+      Continue is the way on. A typed one says to try it aloud tomorrow, the
+      capstone says the conversation was held, and a role-play's live scene is
+      offered either way.
+    */
+    const closing = capstone
+      ? t("You held the whole conversation.")
+      : mode === "say" ? null : t("Done. Tomorrow, try it out loud if you're somewhere you can.");
+    if (!closing && !(scene && sceneHref)) return <div ref={endRef} data-say-it="done" />;
     return (
-      <div data-say-it="done">
+      <div ref={endRef} data-say-it="done">
         <Card tone="sky">
-          <p ref={doneRef} tabIndex={-1} className="text-lg font-semibold outline-none" style={{ color: "var(--ink)" }}>
-            {capstone
-              ? t("You held the whole conversation.")
-              : mode === "say" ? t("You said today's Estonian out loud.") : t("Done. Tomorrow, try it out loud if you're somewhere you can.")}
-          </p>
+          {closing && (
+            <p ref={doneRef} tabIndex={-1} className="text-lg font-semibold outline-none" style={{ color: "var(--ink)" }}>{closing}</p>
+          )}
           {capstone && taken.length > 0 && (
             <div className="mt-4">
               <Thread taken={taken} who={opener} voice={voice} title={t("Your conversation")} />
             </div>
           )}
           {scene && sceneHref && (
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-3" data-lesson-scene={scene}>
-              <p className="max-w-[48ch] text-base" style={{ color: "var(--ink-2)" }}>
+            <div className={`${closing ? "mt-4 " : ""}flex flex-wrap items-center justify-between gap-3`} data-lesson-scene={scene}>
+              <p ref={closing ? undefined : doneRef} tabIndex={closing ? undefined : -1} className="max-w-[48ch] text-base outline-none" style={{ color: "var(--ink-2)" }}>
                 {capstone
                   ? fill(t("That one followed a script. Now have it for real: {who} answers whatever you say, in words you've been taught."), { who: opener })
                   : t("In the role-play they answer whatever you say, in words you've been taught.")}
@@ -306,7 +327,7 @@ export function SayIt({ lesson, scene, sceneHref, capstone, name, timeMultiplier
       ) : card.kind === "retell" ? (
         <RetellIt retell={lesson.retell!} voice={lesson.cast[lesson.retell!.who]} typed={mode === "type"} onDone={() => next()} kept={kept.retell} onKeep={keepRetell} />
       ) : card.kind === "faster" ? (
-        <AgainFaster faster={lesson.faster!} voice={side.voiceOf(side.askerOf(lesson.faster!.ask.et))} typed={mode === "type"} multiplier={timeMultiplier} onDone={() => next()} kept={kept.faster} onKeep={keepFaster} />
+        <AgainFaster lessonId={lesson.id} faster={lesson.faster!} voice={side.voiceOf(side.askerOf(lesson.faster!.ask.et))} typed={mode === "type"} multiplier={timeMultiplier} onDone={() => next()} kept={kept.faster} onKeep={keepFaster} />
       ) : (
         <AnswerCard key={at} lessonId={lesson.id} card={card} mode={mode} voice={voiceOfAsk(card)} name={name} onNext={next} last={at >= cards.length - 1} typed={kept.answers?.[answerKey(card)] ?? ""} onType={keepAnswer} />
       )}

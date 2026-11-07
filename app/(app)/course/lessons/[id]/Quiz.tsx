@@ -6,6 +6,7 @@ import { Button } from "@/components/Button";
 import { ChoiceGroup } from "@/components/Choice";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { Speak } from "@/components/Speak";
+import { StarWord } from "@/components/StarWord";
 import { fillNodes } from "@/components/TemplateNodes";
 import { useFeedbackSound } from "@/components/AudioPrefs";
 import { useLocale, useT } from "@/components/Locale";
@@ -43,12 +44,20 @@ import { OPTION_CLASS, optionState, VERDICT_CLASS } from "@/lib/ux/verdict";
  * how an answer went: the option wears the app's marking class and the live
  * region says it in words.
  */
-export function Quiz({ items, onFinished, onAnswer, summary = true, review = false, level = 2 }: {
+export function Quiz({ items, onFinished, onAnswer, onScored, stars, summary = true, review = false, level = 2 }: {
   items: readonly PracticeItem[];
   /** Called once the last question is answered, with how many were right the first time. */
   onFinished: (score: { right: number; total: number }) => void;
   /** Each answer as it is given, for a check the server marks (`submitCheck`). */
   onAnswer?: (at: number, response: string) => void;
+  /** Whether each question was right the first time, as it is answered (`PracticeGate` counts the misses). */
+  onScored?: (at: number, right: boolean) => void;
+  /**
+   * The taught words' dictionary entries, by spelling, for the star on an
+   * answered word question and the line saying it goes into the deck (Practice
+   * only: a lesson's words reach the deck when the lesson is finished).
+   */
+  stars?: Readonly<Record<string, { readonly id: string; readonly starred: boolean }>>;
   /** Whether to draw the count of first-time answers at the end; a check draws its own result. */
   summary?: boolean;
   /** This is the lesson's review, so the summary does not send the learner to "the review" for what slipped. */
@@ -102,8 +111,11 @@ export function Quiz({ items, onFinished, onAnswer, summary = true, review = fal
   }, [over]);
 
   if (!item) return null;
+  const starOf = (et: string) => stars?.[et.toLocaleLowerCase("et")] ?? null;
+  const wordAsked = (item.kind === "pick" || item.kind === "hear") && picked !== null && !!starOf(item.et);
 
   const scored = (right: boolean) => {
+    onScored?.(at, right);
     if (right) {
       const now = run + 1;
       setFirstTime((n) => n + 1);
@@ -220,12 +232,14 @@ export function Quiz({ items, onFinished, onAnswer, summary = true, review = fal
             />
             {silent && picked === null && <p className="text-base" style={{ color: "var(--ink-2)" }}>{t("The sound didn't come through, so here it is written.")}</p>}
             {(picked !== null || silent) && <p lang="et" className="text-xl font-bold" style={{ color: "var(--ink)" }}>{item.et}</p>}
+            {picked !== null && starOf(item.et) && <span className="ml-auto"><StarWord key={item.et} lexemeId={starOf(item.et)!.id} starred={starOf(item.et)!.starred} label={item.et} /></span>}
           </div>
         )}
         {item.kind === "pick" && (
           <div className="flex flex-wrap items-center gap-3">
             <p lang="et" className="text-2xl font-bold" style={{ color: "var(--ink)" }}>{item.et}</p>
             <Speak text={item.et} size={18} />
+            {picked !== null && starOf(item.et) && <span className="ml-auto"><StarWord key={item.et} lexemeId={starOf(item.et)!.id} starred={starOf(item.et)!.starred} label={item.et} /></span>}
           </div>
         )}
         {item.kind === "gap" && (
@@ -382,6 +396,12 @@ export function Quiz({ items, onFinished, onAnswer, summary = true, review = fal
         <p role="status" aria-live="polite" className="sr-only">{liveLine(item, picked, mark, matched, t, locale)}</p>
 
         <div className="mt-5 flex flex-wrap items-center justify-end gap-3">
+          {/* A lesson's words reach the deck when it is finished (`finishLessonFor`), so the screen says so where the word is. */}
+          {wordAsked && (
+            <p className="mr-auto inline-flex items-center gap-1.5 text-sm" style={{ color: "var(--ink-2)" }} data-goes-to-deck>
+              <Check size={14} aria-hidden style={{ color: "var(--good-ink)" }} /> {t("Goes into your deck when you finish this lesson.")}
+            </p>
+          )}
           {isTyped(item) && mark === null ? (
             <Button variant="primary" onClick={check}>
               <Check size={15} aria-hidden /> {t("Check")}
